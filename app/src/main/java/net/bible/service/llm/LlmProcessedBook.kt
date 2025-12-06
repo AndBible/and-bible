@@ -22,15 +22,21 @@ import kotlinx.coroutines.runBlocking
 import net.bible.service.llm.processors.TranslationProcessor
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.book.sword.SwordDictionary
 import org.crosswire.jsword.book.sword.SwordGenBook
+import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
-import java.util.Locale
+import org.jdom2.Content
+import org.jdom2.input.SAXBuilder
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
+import java.io.StringReader
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "LlmProcessedBook"
@@ -97,29 +103,94 @@ class LlmProcessedBackend(
 
     override fun indexOf(that: Key): Int = wrappedKeyList.indexOf(that)
 
+    /**
+     * This method is not used for VERSE-type books since we override readToOsis.
+     * It's only called if someone calls getRawText directly on the backend.
+     */
     override fun readRawContent(state: LlmProcessedBackendState, key: Key): String {
+        // For direct getRawText calls, delegate to the wrapped book and process
         val originalInitials = state.wrappedBook.initials
         val keyName = key.osisRef
         val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams)
 
-        // Check cache first
         val cacheResult = LlmProcessingService.getCached(cacheKey)
-
         if (cacheResult.processedXml != null) {
-            Log.d(TAG, "Using cached content for $originalInitials:$keyName [${state.processor.processorId}/${state.processingParams}]")
             return cacheResult.processedXml
         }
 
-        // Get original content from wrapped book (use Book.getRawText, not Backend.getRawText)
         val originalContent = state.wrappedBook.getRawText(key)
-
-        // Process and cache
         return runBlocking {
-            LlmProcessingService.processAndCache(
-                state.processor,
-                cacheKey,
-                originalContent
-            )
+            LlmProcessingService.processAndCache(state.processor, cacheKey, originalContent)
+        }
+    }
+
+    /**
+     * Override readToOsis to process the entire key (e.g., whole chapter) in one LLM call
+     * instead of processing verse-by-verse.
+     *
+     * This fetches the original book's OSIS content for the whole key, processes it
+     * through LLM, and returns the processed Content list directly.
+     */
+    override fun readToOsis(key: Key, processor: RawTextToXmlProcessor): MutableList<Content> {
+        val originalInitials = state.wrappedBook.initials
+        val fullKeyName = key.osisRef
+
+        Log.d(TAG, "readToOsis for $originalInitials key=$fullKeyName")
+
+        // Get the full OSIS content from the wrapped book for the entire key
+        // Use allowGenTitles=false to avoid duplicate chapter titles
+        val bookData = BookData(state.wrappedBook, key)
+        val originalOsisElement = bookData.getOsisFragment(false)
+
+        // Convert OSIS Element to string for LLM processing
+        val outputter = XMLOutputter(Format.getRawFormat())
+        val originalXml = outputter.outputString(originalOsisElement)
+
+        // Create cache key for the whole passage
+        val cacheKey = state.processor.getCacheKey(originalInitials, fullKeyName, state.processingParams)
+
+        // Check cache first
+        val cacheResult = LlmProcessingService.getCached(cacheKey)
+
+        val processedXml: String
+        if (cacheResult.processedXml != null) {
+            Log.d(TAG, "Using cached content for whole key $originalInitials:$fullKeyName")
+            processedXml = cacheResult.processedXml
+        } else {
+            // Process the entire XML content in one LLM call
+            processedXml = runBlocking {
+                LlmProcessingService.processAndCache(
+                    state.processor,
+                    cacheKey,
+                    originalXml
+                )
+            }
+        }
+
+        // Parse the processed XML back to Content list
+        return try {
+            // Use SAXBuilder - try to disable external entities for security, but ignore if not supported
+            val builder = SAXBuilder()
+            try {
+                builder.setFeature("http://xml.org/sax/features/external-general-entities", false)
+                builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+            } catch (e: Exception) {
+                // Android SAX parser may not support these features - that's OK
+                Log.d(TAG, "SAX features not supported, continuing anyway")
+            }
+
+            val processedDoc = builder.build(StringReader(processedXml))
+            val processedElement = processedDoc.rootElement
+
+            // Return the children as content list
+            val content = mutableListOf<Content>()
+            // Clone children to detach from parent
+            processedElement.children.map { it.clone() }.forEach { content.add(it) }
+            content
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to parse processed XML, falling back to original: ${e.message}", e)
+            // Fall back to original content on parse error
+            mutableListOf<Content>(originalOsisElement.clone())
         }
     }
 }

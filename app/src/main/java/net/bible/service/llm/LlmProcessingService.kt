@@ -384,11 +384,16 @@ object LlmProcessingService {
     private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
         val settings = CommonUtils.settings
 
-        // Test mode: skip actual API call, simulate latency and return uppercase text
+        // Test mode: skip actual API call, simulate latency and return text with uppercase content
+        // Preserves XML structure by only uppercasing text between tags
         if (settings.llmTestMode) {
             Log.d(TAG, "Test mode: simulating API call with 1s delay")
             delay(1000)
-            return userContent.uppercase()
+
+            // Uppercase only text content, not XML tags
+            return userContent.replace(Regex(">([^<]+)<")) { match ->
+                ">${match.groupValues[1].uppercase()}<"
+            }
         }
 
         val endpoint = "${settings.llmEndpoint}/chat/completions"
