@@ -18,8 +18,6 @@
 package net.bible.service.llm
 
 import android.app.AlertDialog
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
@@ -80,11 +78,6 @@ private data class RequestState(
     var dialog: AlertDialog? = null  // Reference to confirmation dialog if shown
 )
 
-/** Tracks current active request for a document (without specific key) */
-private data class DocumentState(
-    val currentKeyName: String,
-    val requestState: RequestState
-)
 
 /**
  * Generic service for processing document content through LLM.
@@ -102,13 +95,8 @@ object LlmProcessingService {
     // Used for request deduplication - same request returns same Deferred
     private val pendingRequests = ConcurrentHashMap<String, RequestState>()
 
-    // Track current request per document (doc:type:params, without key)
-    // Used for document-level coordination
-    private val documentStates = ConcurrentHashMap<String, DocumentState>()
-
-    // Mutexes for coroutine-safe state management
+    // Mutex for coroutine-safe state management
     private val requestsMutex = Mutex()
-    private val documentStatesMutex = Mutex()
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
@@ -253,11 +241,8 @@ object LlmProcessingService {
         // Full request key includes all cache key components
         val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}"
 
-        // Document key (without keyName) for coordination
-        val documentKey = "${cacheKey.documentInitials}:${cacheKey.processingType}:${cacheKey.processingParams}"
-
         Log.d(TAG, "LLM processAndCache START: key=${cacheKey.keyName}, requestKey=$requestKey")
-        Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}, documentStates.keys=${documentStates.keys}")
+        Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}")
 
         // Atomically check/create request state to avoid race conditions
         // when multiple windows request the same content simultaneously
@@ -299,27 +284,6 @@ object LlmProcessingService {
                             pendingRequests[requestKey] = requestState
                         }
                     }
-                    // Handle document-level coordination - cancel pre-API requests for different keys
-                    var dialogToClose: AlertDialog? = null
-                    var jobToCancel: Job? = null
-                    documentStatesMutex.withLock {
-                        documentStates[documentKey]?.let { currentState ->
-                            if (currentState.currentKeyName != cacheKey.keyName) {
-                                if (!currentState.requestState.inApiCall) {
-                                    // Different key, pre-API phase - cancel it
-                                    dialogToClose = currentState.requestState.dialog
-                                    jobToCancel = currentState.requestState.job
-                                }
-                            }
-                        }
-                        // Register in documentStates
-                        documentStates[documentKey] = DocumentState(cacheKey.keyName, requestState)
-                    }
-                    // Dismiss dialog on main thread (outside mutex lock)
-                    dialogToClose?.let { dialog ->
-                        Handler(Looper.getMainLooper()).post { dialog.dismiss() }
-                    }
-                    jobToCancel?.cancel()
 
                     // Debounce delay only if confirmation is disabled
                     if (!settings.llmConfirmBeforeCall) {
@@ -348,13 +312,6 @@ object LlmProcessingService {
                 } finally {
                     requestsMutex.withLock {
                         pendingRequests.remove(requestKey)
-                    }
-                    // Only remove document state if we're still the current request
-                    documentStatesMutex.withLock {
-                        val currentDocState = documentStates[documentKey]
-                        if (currentDocState?.currentKeyName == cacheKey.keyName) {
-                            documentStates.remove(documentKey)
-                        }
                     }
                 }
             }
