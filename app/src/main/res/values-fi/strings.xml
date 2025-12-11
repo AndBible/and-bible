@@ -352,6 +352,7 @@ Wholesome Words:n luvalla,  http://www.wholesomewords.org/, lupa myönnetty.</st
   <string name="add_bookmark_whole_verse">Kirjanmerkki jakeelle</string>
   <string name="add_bookmark_whole_verse1">Jakeet</string>
   <string name="add_bookmark_whole_verse2">Kokonaiset jakeet</string>
+  <string name="add_paragraph_break">Kappalejako</string>
   <string name="remove_bookmark">Poista</string>
   <string name="bookmark_settings_hide_labels_title">Piilota tietyt kirjanmerkkiryhmät</string>
   <string name="bookmark_settings_hide_labels_summary">Piilota kirjanmerkit jotka on merkitty määritellyillä kirjanmerkkiryhmillä</string>

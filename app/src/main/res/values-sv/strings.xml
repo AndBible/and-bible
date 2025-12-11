@@ -293,8 +293,8 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="reading_plan_ships_with_ab">Läsplanen kommer med %s</string>
   <string name="confirm_delete_reading_plan">
 Är du säker på att du vill radera %s samt dess läshistorik?
-Hjälp: om du behöver updatera planeringen så kan du importera den igen med samma filnamn
-och historiken kommer vara kvar
+Tips: om du behöver uppdatera planen så kan du importera den igen med samma filnamn
+och historiken kommer vara kvar.
 </string>
   <string name="plan_duplicate_user_plan">
 Det finns en användarplanering i SD-kortet
@@ -313,7 +313,7 @@ Var god byt namn på filen och lämna filtypen som .properties
     </string>
   <string name="plan_name_y1ot1nt1_OTandNT">1 år GT+NT samtidigt</string>
   <string name="plan_description_y1ot1nt1_OTandNT">
-Läs igenom Bibeln inom 1 år, med kapitell
+Läs igenom Bibeln inom 1 år, med kapitel
 i GT och NT varje dag.
 </string>
   <string name="plan_name_y1ot1nt1_OTthenNT">1 år igenom hela Bibeln</string>
@@ -547,7 +547,7 @@ i GT och NT varje dag.
   <!--Backup and restore-->
   <string name="backup_backup_title">Var vill du Säkerhetskopiera?</string>
   <string name="backup_backup_message">Säkerhetskopiera till telefonen eller till en annan plats via delningsfunktionen (e-post, Google Drive etc.)?</string>
-  <string name="backup_phone_storage">Telefon laging</string>
+  <string name="backup_phone_storage">Telefonlagring</string>
   <string name="backup_and_restore">Säkerhetskopiera &amp; återställ</string>
   <string name="backup_modules2">Säkerhetskopiera dokument till...</string>
   <string name="backup_app_database2">Säkerhetskopiera appdatabas till...</string>
@@ -810,7 +810,7 @@ i GT och NT varje dag.
   <string name="unlocking_failed">Upplåsning misslyckades, ogiltigt lösenordsfras</string>
   <string name="unlock_module">Ställ in lösenordsfras för modul</string>
   <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
-  <string name="try_again_passphrase">Lösenordsfras funderade inte, försök igen?</string>
+  <string name="try_again_passphrase">Lösenordsfras fungerade inte, försök igen?</string>
   <string name="show_unlock_info">Modul &amp; upplåsningsinfo</string>
   <string name="prefs_experimental_features_title">Experimentella funktioner</string>
   <string name="prefs_experimental_features_summary">Välj vilka experimentella funktioner du vill aktivera. Dessa funktioner utvecklas fortfarande och kan komma att ändras eller tas bort.</string>
@@ -913,7 +913,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="active_labels">Markerade etiketter</string>
   <string name="recent_labels">Senaste etiketter</string>
   <string name="other_labels">Andra etiketter</string>
-  <string name="book_menu_sort_row_opt">Sortera böckerna horizontellt</string>
+  <string name="book_menu_sort_row_opt">Sortera böckerna horisontellt</string>
   <string name="book_menu_group_by_category">Gruppera böcker enligt kategori</string>
   <string name="book_menu_show_long_book_name">Visa långt boknamn</string>
   <string name="reset_workspace_labels">Vill du återställa inställningarna för att tilldela automatiskt och favoritmarkera i denna arbetsyta?</string>
@@ -965,8 +965,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="verse_end">Vers i slutet</string>
   <string name="id">Identifierare</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
-  <string name="ordinal_start">Ordinal i början</string>
-  <string name="ordinal_end">Ordinal i slutet</string>
+  <string name="ordinal_start">Indexeringstal i början</string>
+  <string name="ordinal_end">Indexeringstal i slutet</string>
   <string name="created_at">Skapades (datum &amp; tid)</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="start_offset">Förskjutning i början</string>
@@ -997,6 +997,11 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="verse_tip">För att markera en del av en vers eller flera verser kan du långtrycka på bibeltexten.</string>
   <string name="permission_required">Rättigheter behövs</string>
   <string name="labels_search_hint">Sök</string>
+  <string name="search_mode_name_start">Namn (från start)</string>
+  <string name="search_mode_name_contains">Namn (innehåller)</string>
+  <string name="search_mode_content">Innehåll</string>
+  <string name="search_results_matches">%d träffar</string>
+  <string name="search_results_match">1 träff</string>
   <string name="progress_status_permission">För att visa aviseringar (nedladdningsförlopp, bearbetning, uppläsningsstatus) behöver vi din tillåtelse.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Enkel kalkylator</string>

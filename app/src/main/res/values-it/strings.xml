@@ -937,6 +937,11 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="verse_tip">Per scegliere versetti parziali o multipli, puoi tenere premuto a lungo il testo biblico</string>
   <string name="permission_required">Autorizzazione necessaria</string>
   <string name="labels_search_hint">Ricerca</string>
+  <string name="search_mode_name_start">Nome (dall\'inizio)</string>
+  <string name="search_mode_name_contains">Nome (contiene)</string>
+  <string name="search_mode_content">Contenuto</string>
+  <string name="search_results_matches">%d risultati</string>
+  <string name="search_results_match">1 risultato</string>
   <string name="progress_status_permission">Per mostrare le notifiche (stato dello scaricamento, elaborazione, pronuncia), abbiamo bisogno della tua autorizzazione.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Semplice Calcolatrice</string>

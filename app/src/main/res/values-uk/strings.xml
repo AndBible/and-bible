@@ -945,6 +945,7 @@
   <string name="verse_tip">Щоб вибрати часткові або багато віршів, довго натисніть текст Біблії</string>
   <string name="permission_required">У доступі відмовлено</string>
   <string name="labels_search_hint">Пошук</string>
+  <string name="search_mode_content">Вміст</string>
   <string name="progress_status_permission">Щоб показувати сповіщення (статус завантаження, обробка, статус озвучення), нам потрібен ваш дозвіл.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Простий калькулятор</string>

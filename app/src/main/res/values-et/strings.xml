@@ -284,6 +284,7 @@ SD-kaardi peale on kasutaja lugemisplaan,
 mis on kaustas jsword/readingplan sama nimega kui rakendusesisene plaan. Seda pole võimalik siin näidata.
 Palun nimeta fail millekski muuks ümber, jättes faili laienduseks .properties
 </string>
+  <string name="plan_name_y1ntpspr">Uus testament, Psalmid ja Õpetussõnad ühe aastaga</string>
   <string name="plan_description_y1ntpspr">
 Veebiajalehe HEARTLIGHT, http://www.heartlight.org, juurdepääsuluba antud</string>
   <string name="plan_name_y1ot1nt1_chronological">Kronoloogiline ühe aastaga piibel läbi</string>
@@ -344,6 +345,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="add_bookmark_whole_verse">Järjehoidja salmi kohta</string>
   <string name="add_bookmark_whole_verse1">Salmid</string>
   <string name="add_bookmark_whole_verse2">Terved salmid</string>
+  <string name="add_paragraph_break">Lõigu vahe</string>
   <string name="remove_bookmark">Eemalda</string>
   <string name="bookmark_settings_hide_labels_title">Varja valitud sildid...</string>
   <string name="bookmark_settings_hide_labels_summary">Varja järjehoidjad, millele on määratud kindel silt (või sildid)</string>
@@ -514,7 +516,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="backup_database">Andmebaas</string>
   <string name="backup_documents">Dokumendid</string>
   <string name="backup_application_info">Rakenduse fail (.apk)</string>
-  <string name="backup_database_info">Järjehoidjad, sildid, märkmed, uurimise märkmikud, lugemiskavad, tööalad jne.</string>
+  <string name="backup_database_info">Järjehoidjad, sildid, märkmed, õppemärkmikud, lugemiskavad, tööalad jne.</string>
   <string name="backup_document_info">Piiblitekstid, kommentaarid, sõnastikud, kaardid jne.</string>
   <string name="backup_to">Varunda kohta...</string>
   <string name="backup_restore_from">Taasta...</string>
@@ -536,6 +538,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="backup_modules_success">Valitud moodulid on edukalt varundatud.</string>
   <string name="backup_modules_email_subject_2">%s mooduli varundamine</string>
   <string name="backup_email_subject_2">%s andmebaasi varundamine</string>
+  <string name="exported_studypads_subject">Eksporditud õppemärkmikud</string>
   <string name="restore_modules">Taasta dokumendid...</string>
   <string name="send_backup_file">Saada varukoopia fail</string>
   <string name="backup_modules_title">Vali varundatavad moodulid</string>
@@ -696,9 +699,14 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="give_passphrase_for_module">Dokument %s on krüpteeritud ja selle avamiseks on vaja parooli</string>
   <string name="unlocking_failed">Avamine ebaõnnestus. Vale parool</string>
   <string name="unlock_module">Määra mooduli salasõna</string>
+  <string name="try_again_passphrase">Salasõna ei sobinud, proovi uuesti?</string>
+  <string name="experimental_feature_add_paragraph_break">Lisa lõigu vahe järjehoidja</string>
   <string name="active_window_indicator_title">Näita akna indikaatorit</string>
   <string name="app_licence_title">Avatud lähtekoodiga litsents</string>
   <string name="how_to_contribute">Kuidas kaasa aidata?</string>
+  <string name="confirm_delete_orphaned_bookmarks">%d järjehoidjal on see ainuke silt. Kas tahad kustutada ka need järjehoidjad?</string>
+  <string name="delete_label_and_bookmarks">Kustuta silt ja järjehoidjad</string>
+  <string name="delete_label_only">Kustuta ainult silt</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Soovita sõbrale</string>
   <string name="tell_friend_message3">Lae see Play Store\'st alla: %s</string>
@@ -718,6 +726,7 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <!--meaning, bible version name-->
   <string name="show_version_name">Kaasa versiooni nimi</string>
   <string name="show_quotes">Näita tsitaate</string>
+  <string name="separate_verses_with_newlines">Jäta värsside vahele reavahe</string>
   <string name="backup_button">Varukoopia</string>
   <string name="back_button">Tagasi</string>
   <string name="upgrading_database">Uuendan andmebaasi. Palun oota...</string>
@@ -795,16 +804,29 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="label_underline">Alla joonitud</string>
   <string name="import_menu">Import &amp; eksport</string>
   <string name="export">Ekspordi</string>
+  <string name="csv_export_success">CSV faili eksporditi %d järjehoidjat</string>
+  <string name="csv_import_success">Importimine lõpetatud: %d loodud, %d uuendatud</string>
+  <string name="csv_import_errors">Importimine lõpetatud vigadega: %d loodud, %d uuendatud, %d viga</string>
+  <string name="csv_import_failed">CSV faili importimine ebaõnnestus: %s</string>
+  <string name="csv_export_failed">CSV faili eksportimine ebaõnnestus: %s</string>
+  <string name="csv_column_selection_title">Vali CSV faili veerud</string>
+  <string name="choose_csv_file">Vali CSV fail mida importida</string>
+  <string name="no_bookmarks_to_export">Pole järjehoidjaid mida eksportida</string>
   <string name="export_fileformat">Ekspordi kui %s</string>
   <string name="export_something">Ekspordi %s</string>
   <string name="import_items">Impordi %s</string>
   <string name="import_from_db">Impordi rakenduse andmebaasi failist</string>
+  <string name="export_bookmarks_csv">Ekspordi järjehoidjad kui %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
   <string name="document">Dokument</string>
   <string name="book">Raamat</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Peatüki algus</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Värsi algus</string>
+  <string name="chapter_end">Peatüki lõpp</string>
+  <string name="verse_end">Värsi lõpp</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <!--Offsets are used to indicate from which character a bookmark starts.-->
   <string name="chooser_range">Vahemik</string>
@@ -829,10 +851,13 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="verse_tip">Osalise värsi või mitme värsi valimiseks kasuta pikka vajutust</string>
   <string name="permission_required">Vajatakse luba</string>
   <string name="labels_search_hint">Otsing</string>
+  <string name="search_results_matches">%d vastet</string>
+  <string name="search_results_match">1 vaste</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Lihtne kalkulaator</string>
   <string name="prefs_persecution_cat">Seaded tagakiusatuile</string>
   <string name="prefs_discrete_mode">Peida religioossed sümbolid</string>
+  <string name="prefs_discrete_mode_desc">Määra rakenduse nimeks \'Calculator\' ja näita erinevat ikooni.</string>
   <string name="prefs_show_calculator">Kalkulaator</string>
   <string name="prefs_calculator_pin">Kalkulaatori PIN</string>
   <string name="calc_division_by_zero">Nulliga jagamine pole võimalik</string>
@@ -851,20 +876,29 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <!--Custom repositories-->
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <string name="custom_repositories">Kohandatud hoidlad</string>
+  <string name="custom_repositories_empty_list_message">Kohandatud hoidlaid pole lisatud</string>
   <string name="custom_repositories_create_button_label">Lisa kohandatud hoidla</string>
   <string name="custom_repositories_info_button_label">Info</string>
   <string name="name_for_repository">Hoidla nimi</string>
   <string name="repository_specification">Hoidla URL</string>
   <string name="delete_custom_repository">Kas soovid eemaldada kohandatud hoidlat %s?</string>
+  <string name="invalid_repository_not_saved">Ei saa salvestada, hoidla seadistus on ebakorrektne.</string>
+  <string name="custom_repositories_help2">Rohkem infot kohandatud hoidla kohta %s.</string>
   <string name="wiki_page">WIKI leht</string>
+  <string name="duplicate_custom_repository">Hoidla nimega %s on juba olemas.</string>
   <string name="warn_bad_document">Hoiatus: See dokument võib olla (vähemalt osaliselt) halva tehnilise kvaliteediga.</string>
   <!--Open links in AndBible (Deep linking)-->
   <string name="open_bible_links_title">Ava piiblilingid AndBible rakenduses</string>
   <string name="copyReference">Kopeeri viide</string>
   <string name="reference_copied_to_clipboard">Viide kopeeritud</string>
   <!--Device cloud synchronization-->
+  <string name="db_repositories">Hoidlatega seotud seaded</string>
+  <string name="db_bookmarks">Järjehoidjad, minu märkmed, sildid ja õppemärkmikud</string>
   <string name="synchronizing">Sünkroonimine...</string>
+  <string name="bookmarks_contents">Järjehoidjad, sildid ja õppemärkmikud</string>
   <string name="workspaces_contents">Tööalad ja Aknad</string>
+  <string name="cloud_fetch_and_restore_initial">Kopeeri pilvest siia seadmesse</string>
+  <string name="cloud_create_new">Kopeeri siit seadmest pilve</string>
   <string name="cloud_sync_title">Andmete sünkroniseerimine</string>
   <string name="reset_sync">Logi välja</string>
   <string name="cloud_info">Pilve info</string>

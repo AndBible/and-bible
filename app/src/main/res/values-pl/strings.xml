@@ -908,6 +908,11 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="verse_tip">Aby wybrać część bądź kilka wersetów, stuknij i przytrzymaj tekst Biblii</string>
   <string name="permission_required">Wymagane uprawnienie</string>
   <string name="labels_search_hint">Szukaj</string>
+  <string name="search_mode_name_start">Nazwa (zaczyna się)</string>
+  <string name="search_mode_name_contains">Nazwa (zawiera)</string>
+  <string name="search_mode_content">Treść</string>
+  <string name="search_results_matches">%d wyników</string>
+  <string name="search_results_match">1 wynik</string>
   <string name="progress_status_permission">Aby wyświetlać powiadomienia (stan pobierania, przetwarzanie, stan słuchania), wymagane jest Twoje pozwolenie.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Prosty Kalkulator</string>

@@ -917,6 +917,11 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="verse_tip">Por elekti parton aŭ plurajn versojn, frapetadu la tekston de Biblio</string>
   <string name="permission_required">Permeso postulata</string>
   <string name="labels_search_hint">Serĉi</string>
+  <string name="search_mode_name_start">Nomo (komenciĝas per)</string>
+  <string name="search_mode_name_contains">Nomo (enhavas)</string>
+  <string name="search_mode_content">Enhavo</string>
+  <string name="search_results_matches">%d serĉrezultoj</string>
+  <string name="search_results_match">1 serĉrezulto</string>
   <string name="progress_status_permission">Por montri sciigojn (stato de elŝuto, prilaborado, stato de aŭskultado) la aplikaĵo bezonas vian rajtigon.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simpla Kalkulilo</string>

@@ -999,6 +999,7 @@
   <string name="verse_tip">Pentru a alege un text din Biblie, ține degetul apăsat pe el</string>
   <string name="permission_required">Permisiune necesară</string>
   <string name="labels_search_hint">Caută</string>
+  <string name="search_mode_content">Conținut</string>
   <string name="progress_status_permission">Pentru a arăta notificări (starea descărcării, procesarea, starea vorbirii), este nevoie de permisiunea ta.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculator simplu</string>

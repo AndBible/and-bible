@@ -60,12 +60,12 @@ verseCompare: Võrdle
 verseMemorize: Õpi pähe
 verseNote: Märge
 verseMyNotes: Minu märkmed
-verseParagraphBreak: ""
+verseParagraphBreak: Lõik
 verseShareLong: Jaga seda salmi
 verseCompareLong: Võrdle salmi
 verseMemorizeLong: Õpi piiblisalme pähe
 verseNoteLong: Kirjuta märge
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Lõigu vahe
 addBookmark: Järjehoidja
 selectCustomIconTitle: Kohanda markeri ikooni
 bookmarkSettingsTitle: ""
@@ -81,7 +81,7 @@ editActionContentPlaceholder: ""
 experimentalFeatureTitle: ""
 experimentalFeatureHelpTitle: ""
 experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
+insertParagraphBreak: Lisa lõigu vahe
 insertSubtitle: ""
 xmlParseError: ""
 invalidTag: ""

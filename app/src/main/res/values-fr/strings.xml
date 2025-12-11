@@ -959,6 +959,7 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="verse_tip">Pour sélectionner un ou plusieurs versets, vous pouvez appuyer longuement sur le texte biblique.</string>
   <string name="permission_required">Permission nécessaire</string>
   <string name="labels_search_hint">Rechercher</string>
+  <string name="search_mode_content">Table des matières</string>
   <string name="progress_status_permission">Pour afficher des notifications (état du téléchargement, traitement, état de la parole), nous avons besoin de votre autorisation.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Simple calculatrice</string>

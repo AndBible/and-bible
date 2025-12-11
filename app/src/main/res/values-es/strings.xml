@@ -990,6 +990,11 @@ informe los problemas a los mantenedores de texto
   <string name="verse_tip">Para hace una selección parcial o de muchos versículos puede mantener presionado el texto de la Biblia</string>
   <string name="permission_required">Se necesita permiso</string>
   <string name="labels_search_hint">Búsqueda</string>
+  <string name="search_mode_name_start">Nombre (desde el principio)</string>
+  <string name="search_mode_name_contains">Nombre (contiene)</string>
+  <string name="search_mode_content">Contenido</string>
+  <string name="search_results_matches">%d resultados</string>
+  <string name="search_results_match">1 resultado</string>
   <string name="progress_status_permission">Para mostrar notificaciones (estado de descarga, procesamiento, estado de voz), necesitamos su permiso.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Calculadora Sencilla</string>

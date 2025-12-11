@@ -981,6 +981,11 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="verse_tip">Za delno izbiro vrstice ali izbiro več vrstic dolgo pritisnete na biblijsko besedilo</string>
   <string name="permission_required">Potrebno je dovoljenje</string>
   <string name="labels_search_hint">Iskanje</string>
+  <string name="search_mode_name_start">Ime (od začetka)</string>
+  <string name="search_mode_name_contains">Ime (vsebuje)</string>
+  <string name="search_mode_content">Vsebina</string>
+  <string name="search_results_matches">%d rezultatov</string>
+  <string name="search_results_match">1 rezultat</string>
   <string name="progress_status_permission">Za prikazovanje obvestil (stanje prenosa, obdelava, stanje govora) je potrebno vaše dovoljenje.</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Preprost kalkulator</string>
