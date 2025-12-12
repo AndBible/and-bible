@@ -49,7 +49,7 @@ import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBible, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faClipboard, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
@@ -105,6 +105,44 @@ const close = {
     result: () => {
         save();
         emit('close')
+    }
+}
+
+const pasteReference = {
+    name: 'pasteReference',
+    icon: icon(faClipboard).html,
+    title: 'Paste bible reference from clipboard',
+    result: async () => {
+        if (!android.hasClipboardReference()) {
+            android.toast(strings.noReferenceInClipboard || "No Bible reference in clipboard");
+            return;
+        }
+
+        const clipboardText = android.getClipboardReferenceText();
+        if (!clipboardText) {
+            android.toast(strings.noReferenceInClipboard || "No Bible reference in clipboard");
+            return;
+        }
+
+        const originalRange = document.getSelection()?.getRangeAt(0);
+        let parsed = await android.parseRef(clipboardText);
+        if (parsed === "") {
+            parsed = parse(clipboardText);
+        }
+
+        if (parsed === "") {
+            android.toast(strings.invalidReference);
+            return;
+        }
+
+        if (originalRange) {
+            document.getSelection()!.removeAllRanges();
+            document.getSelection()!.addRange(originalRange);
+        }
+
+        // Insert the reference as a link
+        exec('insertHTML', `<a href="osis://?osis=${parsed}">${clipboardText}</a>`);
+        editor.value!.content.focus();
     }
 }
 
@@ -184,7 +222,7 @@ onMounted(() => {
             dirty.value = true;
         },
         actions: [
-            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
+            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, pasteReference, bibleLink, divider, close
         ],
     });
     editor.value!.content.innerHTML = editText.value;

@@ -69,6 +69,7 @@ type TranslatedStrings = {
     inputPlaceholder: string
     inputReference: string
     invalidReference: string
+    noReferenceInClipboard: string
     bookmarkAccurate: string
     bookmarkInaccurate: string
     defaultBook: string
