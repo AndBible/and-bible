@@ -398,15 +398,7 @@ class BibleJavascriptInterface(
 
     @JavascriptInterface
     fun hasClipboardReference(): Boolean {
-        val clipboardManager = mainBibleActivity.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
-        if (!clipboardManager.hasPrimaryClip()) return false
-
-        val clipData = clipboardManager.primaryClip
-        if (clipData == null || clipData.itemCount == 0) return false
-
-        val label = clipData.description.label?.toString() ?: ""
-        // Check if the clipboard contains a Bible reference (label contains verse range name)
-        return label.isNotEmpty() && label.contains(Regex("[0-9]")) // Simple check for verse numbers
+        return getClipboardReferenceText() != null
     }
 
     @JavascriptInterface
@@ -418,8 +410,8 @@ class BibleJavascriptInterface(
         if (clipData == null || clipData.itemCount == 0) return null
 
         val label = clipData.description.label?.toString() ?: return null
-        // Check if this looks like a Bible reference
-        if (label.isEmpty() || !label.contains(Regex("[0-9]"))) return null
+        // Check if this looks like a Bible reference (matches format like "Gen 1:1" or "John 3:16-17")
+        if (label.isEmpty() || !label.contains(Regex("""\d+:\d+"""))) return null
 
         return label
     }

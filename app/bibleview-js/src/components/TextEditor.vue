@@ -135,9 +135,10 @@ const pasteReference = {
             return;
         }
 
-        if (originalRange) {
-            document.getSelection()!.removeAllRanges();
-            document.getSelection()!.addRange(originalRange);
+        const selection = document.getSelection();
+        if (originalRange && selection) {
+            selection.removeAllRanges();
+            selection.addRange(originalRange);
         }
 
         // Insert the reference as a link
