@@ -108,23 +108,25 @@ const close = {
     }
 }
 
+function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
 const pasteReference = {
     name: 'pasteReference',
     icon: icon(faClipboard).html,
     title: 'Paste bible reference from clipboard',
     result: async () => {
-        if (!android.hasClipboardReference()) {
-            android.toast(strings.noReferenceInClipboard || "No Bible reference in clipboard");
-            return;
-        }
-
         const clipboardText = android.getClipboardReferenceText();
         if (!clipboardText) {
             android.toast(strings.noReferenceInClipboard || "No Bible reference in clipboard");
             return;
         }
 
-        const originalRange = document.getSelection()?.getRangeAt(0);
+        const selection = document.getSelection();
+        const originalRange = (selection && selection.rangeCount > 0) ? selection.getRangeAt(0) : null;
         let parsed = await android.parseRef(clipboardText);
         if (parsed === "") {
             parsed = parse(clipboardText);
@@ -135,14 +137,13 @@ const pasteReference = {
             return;
         }
 
-        const selection = document.getSelection();
         if (originalRange && selection) {
             selection.removeAllRanges();
             selection.addRange(originalRange);
         }
 
-        // Insert the reference as a link
-        exec('insertHTML', `<a href="osis://?osis=${parsed}">${clipboardText}</a>`);
+        // Insert the reference as a link (escape HTML to prevent XSS)
+        exec('insertHTML', `<a href="osis://?osis=${escapeHtml(parsed)}">${escapeHtml(clipboardText)}</a>`);
         editor.value!.content.focus();
     }
 }

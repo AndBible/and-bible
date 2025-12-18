@@ -410,8 +410,8 @@ class BibleJavascriptInterface(
         if (clipData == null || clipData.itemCount == 0) return null
 
         val label = clipData.description.label?.toString() ?: return null
-        // Check if this looks like a Bible reference (matches format like "Gen 1:1" or "John 3:16-17")
-        if (label.isEmpty() || !label.contains(Regex("""\d+:\d+"""))) return null
+        // Check if this looks like a Bible reference (chapter:verse format or single-chapter books)
+        if (label.isEmpty() || !BIBLE_REFERENCE_PATTERN.containsMatchIn(label)) return null
 
         return label
     }
@@ -688,4 +688,11 @@ class BibleJavascriptInterface(
         }
     }
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
+
+    companion object {
+        // Compiled regex for Bible reference detection
+        // Matches either "chapter:verse" (e.g., "Gen 1:1", "John 3:16-17")
+        // or "BookName verse" for single-chapter books (e.g., "Jude 5", "Obadiah 1")
+        private val BIBLE_REFERENCE_PATTERN = Regex("""\d+:\d+|\s\d+""")
+    }
 }
