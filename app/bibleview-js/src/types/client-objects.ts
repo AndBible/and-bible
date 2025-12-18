@@ -84,7 +84,7 @@ export type BaseBookmark = {
     readonly id: IdType
     readonly type: "bookmark" | "generic-bookmark"
     readonly hashCode: number
-    readonly ordinalRange: OrdinalRange
+    readonly ordinalRange: Nullable<OrdinalRange>
     readonly offsetRange: Nullable<OffsetRange>
     readonly labels: IdType[]
     readonly bookInitials: string
@@ -101,10 +101,12 @@ export type BaseBookmark = {
     wholeVerse: boolean
     customIcon: Nullable<string>
     editAction: EditAction
+    readonly sourcePromptId: Nullable<IdType>
 }
 
 export type BibleBookmark = BaseBookmark & {
     readonly type: "bookmark"
+    readonly ordinalRange: OrdinalRange
     readonly osisRef: string
     readonly originalOrdinalRange: OrdinalRange
     readonly verseRange: string
@@ -117,10 +119,12 @@ export type BibleBookmark = BaseBookmark & {
 
 export type GenericBookmark = BaseBookmark & {
     readonly type: "generic-bookmark"
+    readonly ordinalRange: OrdinalRange | null
     readonly key: string
     readonly keyName: string
     readonly bookmarkToLabels: GenericBookmarkToLabel[]
     readonly highlightedText: string
+    readonly osisFragment: OsisFragment | null
 }
 
 export type StudyPadTextItem = {

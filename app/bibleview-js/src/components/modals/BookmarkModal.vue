@@ -195,7 +195,8 @@ const originalBookLink = computed<string>(() => {
         const bibleUrl = encodeURI(`osis://?osis=${doc}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
         return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     } else if(isGenericBookmark(bookmark.value)) {
-        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${bookmark.value.ordinalRange[0]}`)
+        const ordinal = bookmark.value.ordinalRange ? bookmark.value.ordinalRange[0] : 0;
+        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${ordinal}`)
         return `<a href="${docUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     } else {
         throw new Error("Illegal type")

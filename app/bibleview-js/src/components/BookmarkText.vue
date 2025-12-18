@@ -26,6 +26,11 @@
           :fragment="bookmark.osisFragment"
           hide-titles
       />
+      <OsisFragment
+          v-else-if="isGenericBookmark(bookmark) && bookmark.osisFragment"
+          :fragment="bookmark.osisFragment"
+          hide-titles
+      />
       <div
           v-else-if="isGenericBookmark(bookmark)"
           @click.stop="$emit('change-expanded', false)"

@@ -207,7 +207,7 @@ const genericUrl = computed(
         const bookmarkItem = props.journalEntry as StudyPadGenericBookmarkItem
         const doc = bookmarkItem.bookInitials;
         const osis = bookmarkItem.key;
-        const ordinal = bookmarkItem.ordinalRange[0];
+        const ordinal = bookmarkItem.ordinalRange ? bookmarkItem.ordinalRange[0] : 0;
 
         if(exportMode.value) {
             return ""
