@@ -537,11 +537,12 @@ class SpeakControl @Inject constructor(
                 }
             }
             is BookmarkEntities.GenericBookmarkWithNotes -> {
+                val ordinalStart = dto.ordinalStart ?: return
                 speakGeneric(
                     BookAndKey(
                         dto.bookKey?: dto.originalKey!!,
                         dto.book,
-                        OrdinalRange(dto.ordinalStart)
+                        OrdinalRange(ordinalStart)
                     )
 
                 )

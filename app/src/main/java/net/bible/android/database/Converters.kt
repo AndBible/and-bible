@@ -26,6 +26,7 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
+import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.book.Book
@@ -68,6 +69,12 @@ class Converters {
 
     @TypeConverter
     fun fromBookmarkStyle(value: BookmarkStyle?) = value?.name
+
+    @TypeConverter
+    fun toTextContentType(value: String?) = if(value==null) null else TextContentType.valueOf(value)
+
+    @TypeConverter
+    fun fromTextContentType(value: TextContentType?) = value?.name
 
     @TypeConverter
     fun fromTimestamp(value: Long): Date = Date(value)
