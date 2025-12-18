@@ -1,6 +1,8 @@
 # AndBible AI-ominaisuudet - Yleiskatsaus
 
 **Tämä on referenssidokumentti.** Lue tämä aina ennen jokaista taski-dokumenttia kontekstiksi.
+Kokonaissuunnitelma löytyy [AI-plan.md](../AI-plan.md)-dokumentista, jonka pohjalta tässä kansiossa
+oleva pilkottu suunnitelma on tehty. 
 
 ---
 
