@@ -86,6 +86,45 @@ private val editActionMigration = makeMigration(9..10) { _db ->
     _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN editAction_content TEXT DEFAULT NULL")
 }
 
+private val aiFieldsMigration = makeMigration(10..11) { _db ->
+    // BibleBookmark - add sourcePromptId
+    _db.execSQL("ALTER TABLE BibleBookmark ADD COLUMN sourcePromptId BLOB DEFAULT NULL")
+
+    // GenericBookmark - add sourcePromptId + make ordinals nullable
+    // SQLite doesn't support ALTER COLUMN, so we need to: rename → add nullable → migrate → drop old
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN sourcePromptId BLOB DEFAULT NULL")
+    _db.execSQL("ALTER TABLE GenericBookmark RENAME COLUMN ordinalStart TO ordinalStart_old")
+    _db.execSQL("ALTER TABLE GenericBookmark RENAME COLUMN ordinalEnd TO ordinalEnd_old")
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN ordinalStart INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE GenericBookmark ADD COLUMN ordinalEnd INTEGER DEFAULT NULL")
+    _db.execSQL("UPDATE GenericBookmark SET ordinalStart = ordinalStart_old, ordinalEnd = ordinalEnd_old")
+    _db.execSQL("ALTER TABLE GenericBookmark DROP COLUMN ordinalStart_old")
+    _db.execSQL("ALTER TABLE GenericBookmark DROP COLUMN ordinalEnd_old")
+
+    // BibleBookmarkNotes - add contentType and sourcePromptId
+    _db.execSQL("ALTER TABLE BibleBookmarkNotes ADD COLUMN contentType TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE BibleBookmarkNotes ADD COLUMN sourcePromptId BLOB DEFAULT NULL")
+
+    // GenericBookmarkNotes - add contentType and sourcePromptId
+    _db.execSQL("ALTER TABLE GenericBookmarkNotes ADD COLUMN contentType TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE GenericBookmarkNotes ADD COLUMN sourcePromptId BLOB DEFAULT NULL")
+
+    // StudyPadTextEntry - add contentType and sourcePromptId
+    _db.execSQL("ALTER TABLE StudyPadTextEntry ADD COLUMN contentType TEXT DEFAULT NULL")
+    _db.execSQL("ALTER TABLE StudyPadTextEntry ADD COLUMN sourcePromptId BLOB DEFAULT NULL")
+
+    // Recreate views (Room requires this when views depend on changed tables)
+    // Note: View names must be quoted with backticks to match Room's expected format
+    _db.execSQL("DROP VIEW IF EXISTS BibleBookmarkWithNotes")
+    _db.execSQL("CREATE VIEW `BibleBookmarkWithNotes` AS SELECT b.*, bn.notes, bn.contentType AS notesContentType, bn.sourcePromptId AS notesSourcePromptId FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId")
+
+    _db.execSQL("DROP VIEW IF EXISTS GenericBookmarkWithNotes")
+    _db.execSQL("CREATE VIEW `GenericBookmarkWithNotes` AS SELECT b.*, bn.notes, bn.contentType AS notesContentType, bn.sourcePromptId AS notesSourcePromptId FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
+
+    _db.execSQL("DROP VIEW IF EXISTS StudyPadTextEntryWithText")
+    _db.execSQL("CREATE VIEW `StudyPadTextEntryWithText` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId")
+}
+
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
@@ -96,6 +135,7 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     labelFields,
     customIconMigration,
     editActionMigration,
+    aiFieldsMigration,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 10
+const val BOOKMARK_DATABASE_VERSION = 11

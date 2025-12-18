@@ -95,6 +95,17 @@ interface VerseRangeUser {
 enum class LabelType {HIGHLIGHT, EXAMPLE}
 enum class BookmarkType {EXAMPLE}
 
+@Serializable
+enum class TextContentType {
+    HTML,       // Default - current type (HTML fragment or plain text)
+    MARKDOWN    // AI-generated or user-written Markdown
+}
+
+interface AiContentSource {
+    var contentType: TextContentType?
+    var sourcePromptId: IdType?
+}
+
 class BookmarkEntities {
     @Serializable
     enum class EditActionMode {
@@ -117,8 +128,6 @@ class BookmarkEntities {
         var id: IdType
         var createdAt: Date
 
-        var ordinalStart: Int
-        var ordinalEnd: Int
         var startOffset: Int?
         var endOffset: Int?
 
@@ -128,11 +137,13 @@ class BookmarkEntities {
         var playbackSettings: PlaybackSettings?
         var customIcon: String?
         var editAction: EditAction?
+        var sourcePromptId: IdType?
     }
 
-    interface BaseBookmarkNotes {
+    interface BaseBookmarkNotes : AiContentSource {
         var bookmarkId: IdType
         val notes: String
+        // contentType and sourcePromptId come from AiContentSource
     }
 
     interface BaseBookmarkToLabel {
@@ -147,8 +158,6 @@ class BookmarkEntities {
     interface BaseBookmarkWithNotes {
         val bookmarkEntity: BaseBookmark
         val noteEntity: BaseBookmarkNotes?
-        var ordinalStart: Int
-        var ordinalEnd: Int
         var id: IdType
         var createdAt: Date
         var startOffset: Int?
@@ -160,6 +169,7 @@ class BookmarkEntities {
         var textRange: TextRange?
         var playbackSettings: PlaybackSettings?
         var new: Boolean
+        var sourcePromptId: IdType?
 
         var labelIds: List<IdType>?
         var text: String?
@@ -176,12 +186,12 @@ class BookmarkEntities {
         fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>)
     }
 
-    @DatabaseView("SELECT b.*, bn.notes FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId")
+    @DatabaseView("SELECT b.*, bn.notes, bn.contentType AS notesContentType, bn.sourcePromptId AS notesSourcePromptId FROM BibleBookmark b LEFT OUTER JOIN BibleBookmarkNotes bn ON b.id = bn.bookmarkId")
     data class BibleBookmarkWithNotes(
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
-        override var ordinalStart: Int,
-        override var ordinalEnd: Int,
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
         var v11n: Versification,
         override var playbackSettings: PlaybackSettings?,
         override var id: IdType = IdType(),
@@ -196,6 +206,9 @@ class BookmarkEntities {
         var type: BookmarkType? = null,
         override var customIcon: String? = null,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        override var sourcePromptId: IdType? = null,
+        var notesContentType: TextContentType? = null,
+        var notesSourcePromptId: IdType? = null,
 
         @Ignore override var new: Boolean = false,
     ): VerseRangeUser, BaseBookmarkWithNotes {
@@ -334,8 +347,9 @@ class BookmarkEntities {
             type,
             customIcon,
             editAction,
+            sourcePromptId,
         )
-        override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!)
+        override val noteEntity get() = if(notes == null) null else BibleBookmarkNotes(id, notes!!, notesContentType, notesSourcePromptId)
     }
     @Entity(
         foreignKeys = [
@@ -344,7 +358,9 @@ class BookmarkEntities {
     )
     data class BibleBookmarkNotes(
         @PrimaryKey override var bookmarkId: IdType = IdType(),
-        override val notes: String
+        override val notes: String,
+        @ColumnInfo(defaultValue = "NULL") override var contentType: TextContentType? = null,
+        @ColumnInfo(defaultValue = "NULL") override var sourcePromptId: IdType? = null,
     ): BaseBookmarkNotes
 
     @Entity(
@@ -363,8 +379,8 @@ class BookmarkEntities {
         var kjvOrdinalStart: Int,
         var kjvOrdinalEnd: Int,
 
-        override var ordinalStart: Int,
-        override var ordinalEnd: Int,
+        var ordinalStart: Int,
+        var ordinalEnd: Int,
 
         var v11n: Versification,
 
@@ -386,6 +402,7 @@ class BookmarkEntities {
         @ColumnInfo(defaultValue = "NULL") var type: BookmarkType? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
         @Embedded(prefix = "editAction_") override var editAction: EditAction? = null,
+        @ColumnInfo(defaultValue = "NULL") override var sourcePromptId: IdType? = null,
     ): BaseBookmark
 
     @Entity(
@@ -412,15 +429,15 @@ class BookmarkEntities {
         @Ignore override val type: String = "BibleBookmarkToLabel"
     }
 
-    @DatabaseView("SELECT b.*, bn.notes FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
+    @DatabaseView("SELECT b.*, bn.notes, bn.contentType AS notesContentType, bn.sourcePromptId AS notesSourcePromptId FROM GenericBookmark b LEFT OUTER JOIN GenericBookmarkNotes bn ON b.id = bn.bookmarkId")
     data class GenericBookmarkWithNotes(
         override var id: IdType = IdType(),
         var key: String,
         override var createdAt: Date = Date(System.currentTimeMillis()),
         var bookInitials: String,
 
-        override var ordinalStart: Int,
-        override var ordinalEnd: Int,
+        var ordinalStart: Int?,
+        var ordinalEnd: Int?,
         override var startOffset: Int?,
         override var endOffset: Int?,
 
@@ -431,6 +448,9 @@ class BookmarkEntities {
         override var playbackSettings: PlaybackSettings?,
         override var customIcon: String? = null,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        override var sourcePromptId: IdType? = null,
+        var notesContentType: TextContentType? = null,
+        var notesSourcePromptId: IdType? = null,
 
         @Ignore override var new: Boolean = false,
     ): BaseBookmarkWithNotes {
@@ -439,8 +459,8 @@ class BookmarkEntities {
             key: String,
             createdAt: Date = Date(System.currentTimeMillis()),
             bookInitials: String,
-            ordinalStart: Int,
-            ordinalEnd: Int,
+            ordinalStart: Int?,
+            ordinalEnd: Int?,
             startOffset: Int?,
             endOffset: Int?,
             primaryLabelId: IdType? = null,
@@ -450,6 +470,7 @@ class BookmarkEntities {
             lastUpdatedOn: Date = Date(System.currentTimeMillis()),
             customIcon: String? = null,
             editAction: EditAction? = null,
+            sourcePromptId: IdType? = null,
         ): this(
             id = id,
             key = key,
@@ -467,14 +488,15 @@ class BookmarkEntities {
             customIcon = customIcon,
             new = false,
             editAction = editAction,
+            sourcePromptId = sourcePromptId,
         )
         constructor(
             id: IdType = IdType(),
             key: String,
             createdAt: Date = Date(System.currentTimeMillis()),
             book: Book,
-            ordinalStart: Int,
-            ordinalEnd: Int,
+            ordinalStart: Int?,
+            ordinalEnd: Int?,
             textRange: TextRange?,
             primaryLabelId: IdType? = null,
             notes: String? = null,
@@ -501,7 +523,7 @@ class BookmarkEntities {
             new = new,
         )
 
-        constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int): this(
+        constructor(key: Key, book: Book, textRange: TextRange?, ordinalStart: Int?): this(
             key = key.osisRef,
             playbackSettings = null,
             ordinalStart = ordinalStart,
@@ -559,8 +581,9 @@ class BookmarkEntities {
             playbackSettings = playbackSettings,
             customIcon = customIcon,
             editAction = editAction,
+            sourcePromptId = sourcePromptId,
         )
-        override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!)
+        override val noteEntity get() = if(notes == null) null else GenericBookmarkNotes(id, notes!!, notesContentType, notesSourcePromptId)
     }
 
     @Entity(
@@ -570,7 +593,9 @@ class BookmarkEntities {
     )
     data class GenericBookmarkNotes(
         @PrimaryKey override var bookmarkId: IdType = IdType(),
-        override val notes: String
+        override val notes: String,
+        @ColumnInfo(defaultValue = "NULL") override var contentType: TextContentType? = null,
+        @ColumnInfo(defaultValue = "NULL") override var sourcePromptId: IdType? = null,
     ): BaseBookmarkNotes
 
     @Entity(
@@ -585,8 +610,8 @@ class BookmarkEntities {
         override var createdAt: Date = Date(System.currentTimeMillis()),
         @ColumnInfo(defaultValue = "''") var bookInitials: String,
 
-        override var ordinalStart: Int,
-        override var ordinalEnd: Int,
+        var ordinalStart: Int?,
+        var ordinalEnd: Int?,
         override var startOffset: Int?,
         override var endOffset: Int?,
 
@@ -596,6 +621,7 @@ class BookmarkEntities {
         override var playbackSettings: PlaybackSettings? = null,
         @ColumnInfo(defaultValue = "NULL") override var customIcon: String?,
         @Embedded(prefix="editAction_") override var editAction: EditAction? = null,
+        @ColumnInfo(defaultValue = "NULL") override var sourcePromptId: IdType? = null,
     ): BaseBookmark
 
     @Entity(
@@ -635,7 +661,9 @@ class BookmarkEntities {
         val labelId: IdType,
         var orderNumber: Int,
         var indentLevel: Int = 0,
-    )
+        @ColumnInfo(defaultValue = "NULL") override var contentType: TextContentType? = null,
+        @ColumnInfo(defaultValue = "NULL") override var sourcePromptId: IdType? = null,
+    ): AiContentSource
 
     @Entity(
         foreignKeys = [
@@ -655,10 +683,12 @@ class BookmarkEntities {
         var orderNumber: Int,
         var indentLevel: Int = 0,
         val text: String = "",
+        val contentType: TextContentType? = null,
+        val sourcePromptId: IdType? = null,
     ) {
         @Ignore val type: String = "journal"
         @Ignore val hashCode: Int = abs(id.hashCode())
-        val studyPadTextEntryEntity get() = StudyPadTextEntry(id, labelId, orderNumber, indentLevel)
+        val studyPadTextEntryEntity get() = StudyPadTextEntry(id, labelId, orderNumber, indentLevel, contentType, sourcePromptId)
         val studyPadTextEntryTextEntity get() = StudyPadTextEntryText(id, text)
     }
 
