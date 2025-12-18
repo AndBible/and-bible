@@ -77,6 +77,12 @@ export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle): Icon 
     return null;
 }
 
+// Whole-page bookmarks have ordinalRange as [null, null]
+export function isWholePageBookmark(b: BaseBookmark): boolean {
+    if (b.ordinalRange === null) return true;
+    return b.ordinalRange[0] === null && b.ordinalRange[1] === null;
+}
+
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
 const allStyleRanges = computed(() => {
     const allStyles = [];
@@ -308,15 +314,15 @@ export function useBookmarks(
     onMounted(() => isMounted.value++);
     onUnmounted(() => isMounted.value--);
 
-    const noOrdinalNeeded = (b: BaseBookmark) => b.ordinalRange === null && ordinalRange === null
+    const noOrdinalNeeded = (b: BaseBookmark) => isWholePageBookmark(b) && ordinalRange === null
     const checkOrdinal = (b: BaseBookmark) => {
-        return b.ordinalRange !== null && ordinalRange !== null
-            && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
+        return !isWholePageBookmark(b) && ordinalRange !== null
+            && rangesOverlap(b.ordinalRange!, ordinalRange, {addRange: true, inclusive: true})
     };
 
     const checkOrdinalEnd = (b: BaseBookmark) => {
-        if (b.ordinalRange == null || ordinalRange == null) return false
-        const bOrdinalRange: OrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
+        if (isWholePageBookmark(b) || ordinalRange == null) return false
+        const bOrdinalRange: OrdinalRange = [b.ordinalRange![1], b.ordinalRange![1]]
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
@@ -442,6 +448,7 @@ export function useBookmarks(
     }
 
     function showHighlight(b: BaseBookmark) {
+        if (isWholePageBookmark(b)) return false;
         return b.offsetRange == null || b.bookInitials === bookInitials;
     }
 

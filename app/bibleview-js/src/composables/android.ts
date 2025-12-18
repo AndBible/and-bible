@@ -33,7 +33,7 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AnyDocument} from "@/types/documents";
-import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, isGenericBookmark, isWholePageBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
     scrolledToOrdinal: (key: string, ordinal: number) => void,
@@ -75,6 +75,7 @@ export type BibleJavascriptInterface = {
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    createWholePageBookmark: () => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -228,13 +229,13 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         }
 
         function bookmarkRange(b: BaseBookmark): CombinedRange | null {
-            if (!b.ordinalRange) return null;  // Whole-page bookmarks don't have ordinal ranges
+            if (isWholePageBookmark(b)) return null;
             const offsetRange = b.offsetRange || [0, null]
             if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
                 offsetRange[1] = null;
             }
-            return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
+            return [[b.ordinalRange![0], offsetRange[0]], [b.ordinalRange![1], offsetRange[1]]]
         }
 
         const filteredBookmarks = bookmarks.value.filter(b => {
@@ -393,6 +394,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
 
     function addGenericParagraphBreakBookmark(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
         window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function createWholePageBookmark() {
+        window.android.createWholePageBookmark();
     }
 
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
@@ -585,6 +590,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         addGenericBookmark,
         addParagraphBreakBookmark,
         addGenericParagraphBreakBookmark,
+        createWholePageBookmark,
         compare,
         memorize,
         speak,

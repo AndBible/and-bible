@@ -25,6 +25,7 @@
     <OsisFragment :is-epub="document.isEpub" :fragment="osisFragment"/>
     <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
+    <WholePageBookmarks :book-initials="bookInitials" :book-key="annotateRef"/>
   </div>
 </template>
 
@@ -32,6 +33,7 @@
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
+import WholePageBookmarks from "@/components/WholePageBookmarks.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
 import {inject, provide, ref} from "vue";

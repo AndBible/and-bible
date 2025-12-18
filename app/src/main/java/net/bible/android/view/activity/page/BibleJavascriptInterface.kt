@@ -417,6 +417,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun createWholePageBookmark() {
+        bibleView.createWholePageBookmark()
+    }
+
+    @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
