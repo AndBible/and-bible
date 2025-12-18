@@ -554,6 +554,7 @@ class BookmarkEntities {
         @Ignore override var fullText: String? = null
         @Ignore override var startText: String? = null
         @Ignore override var endText: String? = null
+        @Ignore var osisFragment: OsisFragment? = null
         override val highlightedText: String get() = "$startText<b>$text</b>$endText"
 
         override fun setBaseBookmarkToLabels(l: List<BaseBookmarkToLabel>) {

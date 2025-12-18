@@ -675,8 +675,24 @@ open class BookmarkControl @Inject constructor(
         val book = b.book?: return
         try {
             val key = b.bookKey ?: book.getKey(b.key)
-            val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart..b.ordinalEnd)
-            addText(b, verseTexts, b.wholeVerse)
+            val isWholePage = b.ordinalStart == null || b.ordinalEnd == null
+
+            if (isWholePage) {
+                // Whole-page bookmark: get full OSIS fragment for rendering
+                b.osisFragment = OsisFragment(SwordContentFacade.readOsisFragment(book, key), key, book)
+                // For oneliner preview, get text from beginning of page
+                val ordinalRange = SwordContentFacade.ordinalRangeFor(book, key)
+                val allTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange)
+                // Use first text element as preview
+                b.text = allTexts.firstOrNull()?.take(200)?.trim() ?: ""
+                b.fullText = b.text
+                b.startText = ""
+                b.endText = ""
+            } else {
+                // Regular bookmark with ordinal range
+                val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart!!..b.ordinalEnd!!)
+                addText(b, verseTexts, b.wholeVerse)
+            }
         } catch (e: OsisError) {
             b.text = e.stringMsg
             return

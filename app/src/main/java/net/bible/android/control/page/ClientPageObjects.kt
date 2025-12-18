@@ -303,6 +303,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "fullText" to wrapString(bookmark.fullText),
             "highlightedText" to wrapString(bookmark.highlightedText),
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
+            "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
