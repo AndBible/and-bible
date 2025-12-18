@@ -47,8 +47,7 @@ app/src/main/java/net/bible/service/agent/
 │   └── ToolCallParser.kt      # Tool call -jäsennys
 ├── mydocuments/
 │   ├── MyDocumentBook.kt      # Pseudo-GenBook per dokumentti
-│   ├── MyDocumentBookFactory.kt # Luo ja rekisteröi dokumentit JSwordille
-│   └── MarkdownProcessor.kt   # MD→HTML (jos valitaan Android-puolella)
+│   └── MyDocumentBookFactory.kt # Luo ja rekisteröi dokumentit JSwordille
 └── log/
     ├── AgentLogEntry.kt       # Logi-rakenne
     └── AgentLogManager.kt     # Logienhallinta
@@ -57,12 +56,13 @@ app/src/main/java/net/bible/android/database/agent/
 ├── AgentEntities.kt           # AgentPrompt, MyDocumentPage, AgentLogEntry
 └── AgentDao.kt                # DAO
 
+app/src/main/java/net/bible/android/view/activity/page/agent/
+├── AgentLogBottomSheet.kt     # Status/logi BottomSheetDialogFragment (natiivi Android)
+└── AgentPermissionDialog.kt   # Lupa-dialogi (natiivi Android)
+
 app/bibleview-js/src/
-├── components/agent/
-│   ├── AgentOverlay.vue       # Status-overlay
-│   └── PermissionDialog.vue   # Lupa-dialogi
 └── composables/
-    └── agent.ts               # Agent-tilan hallinta
+    └── agent.ts               # Agent-tilan hallinta (jos tarvitaan WebView-puolella)
 ```
 
 ---
