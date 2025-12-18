@@ -227,7 +227,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
             }
         }
 
-        function bookmarkRange(b: BaseBookmark): CombinedRange {
+        function bookmarkRange(b: BaseBookmark): CombinedRange | null {
+            if (!b.ordinalRange) return null;  // Whole-page bookmarks don't have ordinal ranges
             const offsetRange = b.offsetRange || [0, null]
             if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
@@ -236,9 +237,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
             return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
         }
 
-        const filteredBookmarks = bookmarks.value.filter(b => rangeInside(
-            bookmarkRange(b), [[startOrdinal, startOffset], [endOrdinal, endOffset]])
-        );
+        const filteredBookmarks = bookmarks.value.filter(b => {
+            const range = bookmarkRange(b);
+            return range && rangeInside(range, [[startOrdinal, startOffset], [endOrdinal, endOffset]]);
+        });
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
