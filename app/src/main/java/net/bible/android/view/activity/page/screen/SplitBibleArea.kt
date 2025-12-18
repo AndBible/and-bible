@@ -80,6 +80,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.shortName
 import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
+import net.bible.service.download.isSpecial
 import net.bible.service.download.isStudyPad
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
@@ -1001,6 +1002,12 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 }
             },
                 visible = window.isVisible && (firstDoc is StudyPadDocument)
+            )
+            R.id.addWholePageBookmark -> CommandPreference(
+                launch = { _, _, _ -> window.bibleView?.createWholePageBookmark() },
+                visible = window.isVisible &&
+                    !window.pageManager.isBibleShown &&
+                    window.pageManager.currentPage.currentDocument?.isSpecial != true
             )
             else -> throw RuntimeException("Illegal menu item")
         }

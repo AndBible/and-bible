@@ -63,6 +63,9 @@
 				/>
 		</menu>
 	</item>
+	<item android:id="@+id/addWholePageBookmark"
+		android:title="@string/add_whole_page_bookmark"
+		android:icon="@drawable/ic_baseline_bookmark_24"/>
 	<item android:id="@+id/exportHtml"
 		android:title=""
 		android:icon="@drawable/file_export"

@@ -442,6 +442,39 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
+    fun createWholePageBookmark() {
+        val currentPage = window.pageManager.currentPage
+        val book = currentPage.currentDocument ?: return
+        val key = currentPage.key ?: return
+
+        val initialLabels = workspaceSettings.autoAssignLabels
+        val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
+
+        val bookmark = BookmarkEntities.GenericBookmarkWithNotes(
+            key = key.osisRef,
+            book = book,
+            ordinalStart = null,
+            ordinalEnd = null,
+            textRange = null,
+            wholeVerse = true,
+            new = true,
+        )
+
+        if (primaryLabelId != null) {
+            val label = bookmarkControl.labelById(primaryLabelId)
+            if (label != null) {
+                bookmark.primaryLabelId = primaryLabelId
+            }
+        }
+
+        bookmarkControl.addOrUpdateGenericBookmark(bookmark, initialLabels)
+        if (initialLabels.isEmpty()) {
+            executeJavascriptOnUiThread(
+                "bibleView.emit('bookmark_clicked', '${bookmark.id}', {openLabels: true});"
+            )
+        }
+    }
+
     fun addParagraphBreakBookmark(selection: Selection? = currentSelection) {
         selection?: return
         Log.i(TAG, "addParagraphBreakBookmark")
