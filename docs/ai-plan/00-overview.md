@@ -113,7 +113,7 @@ app/bibleview-js/src/
 4. **Rate limiting:** Miten hallitaan useita samanaikaisia agentti-operaatioita?
 5. **Offline-tuki:** Voiko joitain operaatioita tehdä paikallisella mallilla?
 6. **Kustannusten näyttäminen:** Miten käyttäjälle kerrotaan token-määrät ja arvioidut hinnat?
-7. **TDS vs manuaalinen käännös:** Kumpi lähestymistapa on käyttäjälle kätevin?
+7. **TDS (Text Display Settings) vs manuaalinen käännös:** Kumpi lähestymistapa on käyttäjälle kätevin?
 8. **"Request button":** Pitäisikö LLM-moodin vaatia eksplisiittinen napinpainallus ennen latausta?
 
 ---
