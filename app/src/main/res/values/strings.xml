@@ -1328,4 +1328,20 @@
     <string name="translate_to_summary">Use LLM to translate document content</string>
     <string name="translate_to_disabled">No translation</string>
     <string name="llm_working">AI processing</string>
+
+    <!-- My Documents -->
+    <string name="my_documents_title">My Documents</string>
+    <string name="my_documents_empty">No documents yet. Tap + to create one.</string>
+    <string name="my_document_new_name">Document %d</string>
+    <string name="my_document_create_title">Create new document</string>
+    <string name="my_document_rename_title">Rename document</string>
+    <string name="my_document_edit_description_title">Edit description</string>
+    <string name="my_document_delete_confirmation">Delete document \"%s\"?</string>
+    <string name="my_document_cannot_delete_ai_documents">AI Documents cannot be deleted while it contains pages. Delete the pages first.</string>
+    <string name="my_document_save_changes">Save changes?</string>
+    <string name="my_document_no_description">No description</string>
+    <string name="my_document_rename">Rename</string>
+    <string name="my_document_edit_description">Edit description</string>
+    <string name="my_document_delete">Delete</string>
+    <string name="my_document_create_demo">Create demo document (debug)</string>
 </resources>

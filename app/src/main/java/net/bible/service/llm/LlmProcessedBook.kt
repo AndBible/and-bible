@@ -235,7 +235,7 @@ private fun createProcessedMetadata(
 [$processedInitials]
 Description=${originalMetadata.name} ($description)
 Abbreviation=${originalMetadata.abbreviation}/${processor.processorId}/$processingParams
-Category=${originalMetadata.bookCategory.name}
+Category=${originalMetadata.bookCategory.getName()}
 AndBibleLlmProcessedModule=1
 AndBibleOriginalModule=${wrappedBook.initials}
 AndBibleProcessorId=${processor.processorId}

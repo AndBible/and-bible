@@ -43,6 +43,7 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
@@ -182,6 +183,9 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
+                }
+                R.id.myDocumentsButton -> {
+                    handlerIntent = Intent(mainBibleActivity, MyDocumentsActivity::class.java)
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {

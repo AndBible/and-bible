@@ -113,6 +113,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -1776,6 +1777,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
                             documentControl.changeDocument(book)
                             updateActions()
+                            return
+                        }
+                        MyDocumentsActivity::class.java.name -> {
+                            val bookInitials = extras.getString("documentInitials")
+                            if (bookInitials != null) {
+                                val book = Books.installed().getBook(bookInitials)
+                                if (book != null) {
+                                    documentControl.changeDocument(book)
+                                    updateActions()
+                                }
+                            }
                             return
                         }
                         in classes -> {

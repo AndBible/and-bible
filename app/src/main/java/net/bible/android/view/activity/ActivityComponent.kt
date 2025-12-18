@@ -53,6 +53,7 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtilsBase
@@ -77,6 +78,7 @@ interface ActivityComponent {
 
     fun inject(colorSettings: ColorSettingsActivity)
     fun inject(activity: WorkspaceSelectorActivity)
+    fun inject(activity: MyDocumentsActivity)
 
     fun inject(startupActivity: StartupActivity)
 

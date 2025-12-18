@@ -214,6 +214,12 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.mydocuments.MyDocumentsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/my_documents_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_color_settings_title"

@@ -37,6 +37,8 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.LlmProcessingDatabase
 import net.bible.android.database.LLM_PROCESSING_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
+import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.migrations.DatabaseSplitMigrations
@@ -66,7 +68,8 @@ val ALL_DB_FILENAMES = arrayOf(
     WorkspaceDatabase.dbFileName,
     RepoDatabase.dbFileName,
     SettingsDatabase.dbFileName,
-    LlmProcessingDatabase.dbFileName
+    LlmProcessingDatabase.dbFileName,
+    MyDocumentDatabase.dbFileName
 )
 
 class DataBaseNotReady: Exception()
@@ -214,6 +217,24 @@ class DatabaseContainer {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
 
+    fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, MyDocumentDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations()
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
+
+    fun resetMyDocumentDb(): MyDocumentDatabase {
+        myDocumentDb.close()
+        myDocumentDb = getMyDocumentDb()
+        return myDocumentDb
+    }
+
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
         val oldDb = application.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME)
@@ -263,7 +284,7 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, llmProcessingDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
@@ -319,6 +340,7 @@ class DatabaseContainer {
             RepoDatabase.dbFileName -> REPO_DATABASE_VERSION
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
             LlmProcessingDatabase.dbFileName -> LLM_PROCESSING_DATABASE_VERSION
+            MyDocumentDatabase.dbFileName -> MY_DOCUMENT_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 

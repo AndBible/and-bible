@@ -17,6 +17,7 @@
 
 package net.bible.android.control.document
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
@@ -76,14 +77,24 @@ class DocumentControl @Inject constructor(
     // only show bibles that contain verse
 
     private val bookFilter = Filter<Book> { book ->
-        book.contains(requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification))
+        if (book !is AbstractPassageBook) {
+            Log.w(TAG, "bookFilter: unexpected non-AbstractPassageBook: ${book.initials}")
+            false
+        } else {
+            book.contains(requiredVerseForSuggestions.toV11n(book.versification))
+        }
     }
 
     private val commentaryFilter = Filter<Book> { book ->
-        val verse = requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification)
-        if (!book.contains(verse)) {
+        if (book !is AbstractPassageBook) {
+            Log.w(TAG, "commentaryFilter: unexpected non-AbstractPassageBook: ${book.initials}")
             false
-        } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+        } else {
+            val verse = requiredVerseForSuggestions.toV11n(book.versification)
+            if (!book.contains(verse)) {
+                false
+            } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+        }
     }
 
     val biblesForVerse : List<Book>
