@@ -71,7 +71,6 @@ export type BibleJavascriptInterface = {
     shareBookmarkVerse: (bookmarkId: IdType) => void,
     shareVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     copyVerse: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
-    hasClipboardReference: () => boolean,
     getClipboardReferenceText: () => Nullable<string>,
     addBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
@@ -379,10 +378,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.copyVerse(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
-    function hasClipboardReference(): boolean {
-        return window.android.hasClipboardReference();
-    }
-
     function getClipboardReferenceText(): Nullable<string> {
         return window.android.getClipboardReferenceText();
     }
@@ -589,7 +584,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         refChooserDialog,
         shareVerse,
         copyVerse,
-        hasClipboardReference,
         getClipboardReferenceText,
         addBookmark,
         addGenericBookmark,
@@ -608,7 +602,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
     if (config.developmentMode) return {
         ...stubsFor(exposed, {
             getActiveLanguages: ['he', 'nl', 'en'],
-            hasClipboardReference: false,
             getClipboardReferenceText: null,
         }),
         querySelection

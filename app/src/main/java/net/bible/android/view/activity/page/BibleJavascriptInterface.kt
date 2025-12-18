@@ -397,11 +397,6 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun hasClipboardReference(): Boolean {
-        return getClipboardReferenceText() != null
-    }
-
-    @JavascriptInterface
     fun getClipboardReferenceText(): String? {
         val clipboardManager = mainBibleActivity.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
         if (!clipboardManager.hasPrimaryClip()) return null
