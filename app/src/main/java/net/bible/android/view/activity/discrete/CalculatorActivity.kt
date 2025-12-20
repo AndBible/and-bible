@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -43,7 +44,8 @@ class CalculatorActivity : ActivityBase() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false
-    private var lastExpression = ""
+    @VisibleForTesting
+    internal var lastExpression = ""
     override val doNotInitializeApp: Boolean = true
 
     private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
@@ -298,7 +300,8 @@ class CalculatorActivity : ActivityBase() {
         }
     }
 
-    private fun saveLastExpression(input: String) {
+    @VisibleForTesting
+    internal fun saveLastExpression(input: String) {
         val lastOfExpression = input[input.length - 1].toString() + ""
         if (input.length > 1) {
             if (lastOfExpression == ")") {
@@ -340,11 +343,13 @@ class CalculatorActivity : ActivityBase() {
 
 
     // Check if operation has operand
-    private fun checkIfOperation(input: String): Boolean {
+    @VisibleForTesting
+    internal fun checkIfOperation(input: String): Boolean {
         return input.contains(Regex("[+\\-x\u00F7%]"))
     }
 
-    private fun defineLastCharacter(lastCharacter: String): Int {
+    @VisibleForTesting
+    internal fun defineLastCharacter(lastCharacter: String): Int {
         try {
             lastCharacter.toInt()
             return IS_NUMBER
@@ -356,11 +361,11 @@ class CalculatorActivity : ActivityBase() {
     }
 
     companion object {
-        private const val EXCEPTION = -1
-        private const val IS_NUMBER = 0
-        private const val IS_OPERAND = 1
-        private const val IS_OPEN_PARENTHESIS = 2
-        private const val IS_CLOSE_PARENTHESIS = 3
-        private const val IS_DOT = 4
+        internal const val EXCEPTION = -1
+        internal const val IS_NUMBER = 0
+        internal const val IS_OPERAND = 1
+        internal const val IS_OPEN_PARENTHESIS = 2
+        internal const val IS_CLOSE_PARENTHESIS = 3
+        internal const val IS_DOT = 4
     }
 }
