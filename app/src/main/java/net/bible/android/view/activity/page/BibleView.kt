@@ -922,6 +922,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_EPUB_REF = "epub-ref"
         const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
+        const val SCHEME_SWORD = "sword"
     }
 
     class ModuleAssetHandler: PathHandler {
@@ -1165,6 +1166,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val intent = Intent(mainBibleActivity, DownloadActivity::class.java)
             intent.putExtra("search", initials)
             mainBibleActivity.startActivityForResult(intent, IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH)
+            true
+        }
+        UriConstants.SCHEME_SWORD -> {
+            // Handle sword://MODULE/KEY format
+            // URI like sword://KJV/Matt.5.3 or sword://MHC/Matt.5.3
+            val url = uri.toString()
+            linkControl.loadApplicationUrl(BibleLink("sword", url), null)
             true
         }
         else -> {
