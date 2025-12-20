@@ -442,16 +442,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
     }
 
-    fun createWholePageBookmark() {
-        val currentPage = window.pageManager.currentPage
-        val book = currentPage.currentDocument ?: return
-        val key = currentPage.key ?: return
+    fun createWholePageBookmark(bookInitials: String, bookKey: String) {
+        val book = Books.installed().getBook(bookInitials) ?: return
 
         val initialLabels = workspaceSettings.autoAssignLabels
         val primaryLabelId = workspaceSettings.autoAssignPrimaryLabel
 
         val bookmark = BookmarkEntities.GenericBookmarkWithNotes(
-            key = key.osisRef,
+            key = bookKey,
             book = book,
             ordinalStart = null,
             ordinalEnd = null,

@@ -75,7 +75,7 @@ export type BibleJavascriptInterface = {
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
-    createWholePageBookmark: () => void,
+    createWholePageBookmark: (bookInitials: string, bookKey: string) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -398,8 +398,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
-    function createWholePageBookmark() {
-        window.android.createWholePageBookmark();
+    function createWholePageBookmark(bookInitials: string, bookKey: string) {
+        window.android.createWholePageBookmark(bookInitials, bookKey);
     }
 
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {

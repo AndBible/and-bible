@@ -433,8 +433,8 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun createWholePageBookmark() {
-        bibleView.createWholePageBookmark()
+    fun createWholePageBookmark(bookInitials: String, bookKey: String) {
+        bibleView.createWholePageBookmark(bookInitials, bookKey)
     }
 
     @JavascriptInterface

@@ -98,7 +98,7 @@ function openBookmark(bookmark: BaseBookmark) {
 }
 
 function createBookmark() {
-  android.createWholePageBookmark();
+  android.createWholePageBookmark(props.bookInitials, props.bookKey);
 }
 </script>
 

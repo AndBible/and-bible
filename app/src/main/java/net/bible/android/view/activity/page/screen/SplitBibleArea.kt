@@ -1004,7 +1004,14 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 visible = window.isVisible && (firstDoc is StudyPadDocument)
             )
             R.id.addWholePageBookmark -> CommandPreference(
-                launch = { _, _, _ -> window.bibleView?.createWholePageBookmark() },
+                launch = { _, _, _ ->
+                    val currentPage = window.pageManager.currentPage
+                    val book = currentPage.currentDocument
+                    val key = currentPage.key
+                    if (book != null && key != null) {
+                        window.bibleView?.createWholePageBookmark(book.initials, key.osisRef)
+                    }
+                },
                 visible = window.isVisible &&
                     !window.pageManager.isBibleShown &&
                     window.pageManager.currentPage.currentDocument?.isSpecial != true
