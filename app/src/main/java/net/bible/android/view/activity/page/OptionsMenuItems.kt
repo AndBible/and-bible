@@ -259,7 +259,7 @@ class TiltToScrollPreference(val mainBibleActivity: MainBibleActivity):
 class HideWindowButtonsPreference(val mainBibleActivity: MainBibleActivity):
     GeneralPreference() {
     private val wsBehaviorSettings = windowRepository.workspaceSettings
-    override fun handle() { 
+    override fun handle() {
         mainBibleActivity.invalidateOptionsMenu()
         ABEventBus.post(RestoreButtonsVisibilityChanged())
     }
