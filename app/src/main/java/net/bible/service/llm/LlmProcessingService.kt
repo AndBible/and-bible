@@ -36,6 +36,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import okhttp3.Call
 import okhttp3.Callback
@@ -112,6 +113,7 @@ object LlmProcessingService {
     init {
         // Register built-in processors
         registerProcessor(TranslationProcessor)
+        registerProcessor(PromptProcessor)
     }
 
     /**

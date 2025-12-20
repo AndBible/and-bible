@@ -45,6 +45,7 @@ import net.bible.android.database.migrations.DatabaseSplitMigrations
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
+import net.bible.android.database.migrations.llmProcessingMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
@@ -213,6 +214,7 @@ class DatabaseContainer {
             application, LlmProcessingDatabase::class.java, LlmProcessingDatabase.dbFileName
         )
             .allowMainThreadQueries()
+            .addMigrations(*llmProcessingMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

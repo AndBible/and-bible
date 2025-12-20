@@ -1331,6 +1331,39 @@
     <string name="translate_to_disabled">No translation</string>
     <string name="llm_working">AI processing</string>
 
+    <!-- Prompt Manager -->
+    <string name="manage_prompts">Manage AI Prompts</string>
+    <string name="manage_prompts_summary">Create and edit AI prompts</string>
+    <string name="prompt_name">Name</string>
+    <string name="prompt_description">Description</string>
+    <string name="prompt_template">Prompt template</string>
+    <string name="prompt_show_in">Show in</string>
+    <string name="prompt_context_text_display_settings">Document display (LLM Mode)</string>
+    <string name="prompt_context_verse_selection">Verse selection</string>
+    <string name="prompt_context_text_selection">Text selection</string>
+    <string name="prompt_context_window_menu">Window menu</string>
+    <string name="prompt_context_workspace_menu">Workspace menu</string>
+    <string name="prompt_context_note_editor">Note editor</string>
+    <string name="new_prompt">New prompt</string>
+    <string name="edit_prompt">Edit prompt</string>
+    <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
+    <string name="prompt_name_required">Prompt name is required</string>
+    <string name="prompt_template_required">Prompt template is required</string>
+    <string name="llm_prompt_title">AI prompt</string>
+    <string name="llm_prompt_disabled">Disabled</string>
+
+    <!-- Default prompts -->
+    <string name="default_prompt_translate_to_ui_language">Translate to UI language</string>
+    <string name="default_prompt_translate_to_ui_language_desc">Translates document text to the app interface language</string>
+    <string name="default_prompt_translate_to_english">Translate to English</string>
+    <string name="default_prompt_translate_to_english_desc">Translates selected text to English</string>
+    <string name="default_prompt_summary">Summary</string>
+    <string name="default_prompt_summary_desc">Creates a concise summary of the selected text</string>
+    <string name="default_prompt_explain_verses">Explain verses</string>
+    <string name="default_prompt_explain_verses_desc">Explains the meaning and context of selected verses</string>
+    <string name="default_prompt_word_study">Word study</string>
+    <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
+
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>
     <string name="my_documents_empty">No documents yet. Tap + to create one.</string>

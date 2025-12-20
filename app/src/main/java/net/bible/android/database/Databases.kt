@@ -29,6 +29,8 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AgentPromptDao
 import net.bible.service.llm.LlmProcessingCacheEntry
 
 
@@ -155,17 +157,19 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 1
+const val LLM_PROCESSING_DATABASE_VERSION = 2
 
 @Database(
     entities = [
         LlmProcessingCacheEntry::class,
+        AgentPrompt::class,
     ],
     version = LLM_PROCESSING_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class LlmProcessingDatabase: RoomDatabase() {
     abstract fun llmProcessingDao(): net.bible.service.llm.LlmProcessingDao
+    abstract fun agentPromptDao(): AgentPromptDao
     companion object {
         const val dbFileName = "llm_processing.sqlite3"
     }

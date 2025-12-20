@@ -168,7 +168,8 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var translateTo: String? = null,
+        @Deprecated("Use llmPromptId instead") @ColumnInfo(defaultValue = "NULL") var translateTo: String? = null,
+        @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
     ) {
         enum class Types {
@@ -193,7 +194,7 @@ class WorkspaceEntities {
             BOOKMARKS_HIDELABELS,
             MYNOTES,
             PAGENUMBER,
-            TRANSLATE_TO,
+            LLM_PROMPT,
             INFINITE_SCROLL,
         }
 
@@ -219,7 +220,7 @@ class WorkspaceEntities {
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
-            Types.TRANSLATE_TO -> translateTo
+            Types.LLM_PROMPT -> llmPromptId
             Types.INFINITE_SCROLL -> infiniteScroll
         }
 
@@ -246,7 +247,7 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
-                Types.TRANSLATE_TO -> translateTo = value as String?
+                Types.LLM_PROMPT -> llmPromptId = value as IdType?
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
             }
         }
@@ -306,6 +307,7 @@ class WorkspaceEntities {
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
                 translateTo = "",
+                llmPromptId = IdType.empty(),
                 infiniteScroll = true
             )
 

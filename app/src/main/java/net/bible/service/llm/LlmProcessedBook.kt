@@ -23,6 +23,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
+import net.bible.android.database.IdType
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -312,6 +315,25 @@ fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processing
  */
 fun getOrCreateTranslatedBook(originalBook: Book, targetLanguage: String): Book? =
     getOrCreateProcessedBook(originalBook, TranslationProcessor.processorId, targetLanguage)
+
+/**
+ * Creates a processed book using an AgentPrompt from the database.
+ *
+ * @param originalBook The original Book to process
+ * @param promptId The ID of the AgentPrompt to use
+ * @return A virtual Book that provides processed content, or null if prompt not found
+ */
+fun getOrCreateProcessedBookWithPrompt(originalBook: Book, promptId: IdType): Book? {
+    val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+    val prompt = dao.promptById(promptId) ?: run {
+        Log.e(TAG, "AgentPrompt not found: $promptId")
+        return null
+    }
+
+    // Use PromptProcessor with the prompt ID as params
+    val processor = PromptProcessor
+    return getOrCreateProcessedBook(originalBook, processor.processorId, promptId.toString())
+}
 
 /**
  * Extension property to check if a book is an LLM-processed wrapper.

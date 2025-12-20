@@ -211,8 +211,8 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
-                TextDisplaySettings.Types.TRANSLATE_TO -> R.string.translate_to_title
                 TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
+                TextDisplaySettings.Types.LLM_PROMPT -> R.string.llm_prompt_title
             }
             return application.getString(id)
         }
@@ -240,7 +240,6 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.HYPHENATION -> R.drawable.ic_hyphenation_24dp
             TextDisplaySettings.Types.MYNOTES -> R.drawable.ic_note_regular_24dp
             TextDisplaySettings.Types.PAGENUMBER -> R.drawable.ic_chapter_verse_numbers_24dp
-            TextDisplaySettings.Types.TRANSLATE_TO -> R.drawable.ic_chapter_verse_numbers_24dp // TODO
             TextDisplaySettings.Types.INFINITE_SCROLL -> R.drawable.ic_full_screen_by_scrolling_24dp
             else -> R.drawable.ic_baseline_star_24
         }
@@ -535,58 +534,45 @@ class WindowPinningPreference :
     override val isBoolean = true
 }
 
-class TranslateToPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.TRANSLATE_TO) {
-    private val languageCodes: Array<String> by lazy {
-        application.resources.getStringArray(R.array.prefs_interface_locale_values)
-    }
-
-    private val languageNames: Array<String> by lazy {
-        application.resources.getStringArray(R.array.prefs_interface_locale_descriptions)
-    }
-
+class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LLM_PROMPT) {
     override val title: String get() {
-        val lang = value as String?
+        val promptId = value as IdType?
         return when {
-            lang == null -> application.getString(R.string.translate_to_title)
-            lang.isEmpty() -> application.getString(R.string.translate_to_title) + ": " + application.getString(R.string.translate_to_disabled)
-            else -> application.getString(R.string.translate_to_title) + ": " + getLanguageName(lang)
+            promptId == null -> application.getString(R.string.llm_prompt_title)
+            promptId.isEmpty -> application.getString(R.string.llm_prompt_title) + ": " + application.getString(R.string.llm_prompt_disabled)
+            else -> {
+                val prompt = net.bible.service.db.DatabaseContainer.instance.llmProcessingDb.agentPromptDao().promptById(promptId)
+                application.getString(R.string.llm_prompt_title) + ": " + (prompt?.name ?: "?")
+            }
         }
     }
 
     override val visible: Boolean get() = CommonUtils.settings.llmConfigured
 
-    private fun getLanguageName(code: String): String {
-        val index = languageCodes.indexOf(code)
-        return if (index >= 0 && index < languageNames.size) {
-            // Remove the "xx: " prefix from language name (e.g., "fi: Suomi" -> "Suomi")
-            languageNames[index].substringAfter(": ", languageNames[index])
-        } else {
-            code
-        }
-    }
-
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        // Build language list: first "No translation" (empty string), then all languages (skip first empty entry)
-        // Note: null means "inherit from workspace", "" means "no translation"
-        val languages = mutableListOf<Pair<String, String>>()
-        languages.add("" to application.getString(R.string.translate_to_disabled))
-
-        for (i in 1 until languageCodes.size) {
-            val code = languageCodes[i]
-            val name = languageNames[i].substringAfter(": ", languageNames[i])
-            languages.add(code to name)
+        val dao = net.bible.service.db.DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+        val prompts = dao.allPrompts().filter {
+            net.bible.service.llm.PromptContext.TEXT_DISPLAY_SETTINGS in it.showIn
         }
 
-        val currentValue = value as? String ?: ""
-        val currentIndex = languages.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
+        // Build prompt list: first "Disabled" (empty ID), then all prompts
+        val options = mutableListOf<Pair<IdType, String>>()
+        options.add(IdType.empty() to application.getString(R.string.llm_prompt_disabled))
+
+        for (prompt in prompts) {
+            options.add(prompt.id to prompt.name)
+        }
+
+        val currentValue = value as? IdType ?: IdType.empty()
+        val currentIndex = options.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
 
         AlertDialog.Builder(activity)
-            .setTitle(R.string.translate_to_title)
-            .setSingleChoiceItems(languages.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
-                val newValue = languages[which].first
+            .setTitle(R.string.llm_prompt_title)
+            .setSingleChoiceItems(options.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
+                val newValue = options[which].first
                 value = newValue
                 handle()
-                onChanged?.invoke(newValue)
+                onChanged?.invoke(newValue as Any)
                 dialog.dismiss()
             }
             .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); handle(); onReset?.invoke() }

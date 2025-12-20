@@ -31,7 +31,7 @@ import net.bible.service.download.doesNotExist
 import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
-import net.bible.service.llm.getOrCreateTranslatedBook
+import net.bible.service.llm.getOrCreateProcessedBookWithPrompt
 import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.llm.LlmProcessingError
 import net.bible.service.llm.LlmRequestSuperseded
@@ -227,9 +227,9 @@ abstract class CurrentPageBase protected constructor(
             if (doc.isLlmProcessedBook) {
                 return doc
             }
-            val translateTo = pageManager.actualTextDisplaySettings.translateTo
-            if (!translateTo.isNullOrEmpty() && CommonUtils.settings.llmConfigured) {
-                return getOrCreateTranslatedBook(doc, translateTo) ?: doc
+            val promptId = pageManager.actualTextDisplaySettings.llmPromptId
+            if (promptId != null && !promptId.isEmpty && CommonUtils.settings.llmConfigured) {
+                return getOrCreateProcessedBookWithPrompt(doc, promptId) ?: doc
             }
             return doc
         }

@@ -171,6 +171,18 @@
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.ManagePrompts"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/manage_prompts"
+            android:parentActivityName="net.bible.android.view.activity.settings.SettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.PromptEditActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/edit_prompt"
+            android:parentActivityName="net.bible.android.view.activity.ai.ManagePrompts"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

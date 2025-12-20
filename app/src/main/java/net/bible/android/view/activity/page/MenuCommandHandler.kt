@@ -47,6 +47,7 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
+import net.bible.android.view.activity.ai.ManagePrompts
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -168,6 +169,9 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     handlerIntent = Intent(mainBibleActivity, SettingsActivity::class.java)
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
+                }
+                R.id.managePrompts -> {
+                    handlerIntent = Intent(mainBibleActivity, ManagePrompts::class.java)
                 }
                 R.id.historyButton -> handlerIntent = Intent(mainBibleActivity, History::class.java)
                 R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)

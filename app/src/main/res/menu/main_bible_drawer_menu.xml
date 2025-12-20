@@ -60,6 +60,10 @@
                 android:icon="@drawable/ic_syncdb_24dp"
                 android:title="@string/cloud_sync_title" />
 
+            <item android:id="@+id/managePrompts"
+                android:title="@string/manage_prompts"
+                android:icon="@drawable/ic_baseline_smart_toy_24"/>
+
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"
                 android:icon="@drawable/ic_settings_white_24dp"/>

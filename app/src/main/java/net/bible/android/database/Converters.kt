@@ -29,6 +29,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.llm.PromptContext
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -279,6 +280,21 @@ class Converters {
 
     @TypeConverter
     fun mapIdTypeIntToStr(obj: Map<IdType, Int>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToPromptContextSet(s: String?): Set<PromptContext> {
+        if(s == null) return emptySet()
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing PromptContext set: $s", e)
+            emptySet()
+        }
+    }
+
+    @TypeConverter
+    fun promptContextSetToStr(obj: Set<PromptContext>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
