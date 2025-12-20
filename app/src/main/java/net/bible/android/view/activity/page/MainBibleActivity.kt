@@ -870,6 +870,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             R.id.textOptionItem -> getPrefItem(settingsBundle, CommonUtils.lastDisplaySettingsSorted[order])
             R.id.splitMode -> SplitModePreference(this)
             R.id.autoPinMode -> WindowPinningPreference()
+            R.id.hideWindowButtons -> HideWindowButtonsPreference(this)
             R.id.tiltToScroll -> TiltToScrollPreference(this)
             R.id.nightMode -> NightModePreference(this)
             R.id.fullscreen -> CommandPreference(launch = { _, _, _ ->

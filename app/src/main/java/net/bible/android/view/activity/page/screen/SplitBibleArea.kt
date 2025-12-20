@@ -313,7 +313,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
     }
 
     internal val hideWindowButtons get() =
-        CommonUtils.settings.getBoolean("hide_window_buttons", false)
+        windowRepository.workspaceSettings.hideWindowButtons
     private var buttonsWillAnimate = false
     private val autoHideWindowButtonBarInFullScreen get() =
         CommonUtils.settings.getBoolean("full_screen_hide_buttons_pref", true)

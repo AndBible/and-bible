@@ -37,6 +37,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
+import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
 import net.bible.android.view.activity.settings.ColorSettingsActivity
 import net.bible.android.view.util.widget.FontFamilyWidget
 import net.bible.android.view.util.widget.MarginSizeWidget
@@ -252,6 +253,21 @@ class TiltToScrollPreference(val mainBibleActivity: MainBibleActivity):
             wsBehaviorSettings.enableTiltToScroll = value == true
         }
     override val visible: Boolean get() = super.visible && PageTiltScrollControl.isTiltSensingPossible
+    override val isBoolean = true
+}
+
+class HideWindowButtonsPreference(val mainBibleActivity: MainBibleActivity):
+    GeneralPreference() {
+    private val wsBehaviorSettings = windowRepository.workspaceSettings
+    override fun handle() { 
+        mainBibleActivity.invalidateOptionsMenu()
+        ABEventBus.post(RestoreButtonsVisibilityChanged())
+    }
+    override var value: Any
+        get() = wsBehaviorSettings.hideWindowButtons
+        set(value) {
+            wsBehaviorSettings.hideWindowButtons = value == true
+        }
     override val isBoolean = true
 }
 

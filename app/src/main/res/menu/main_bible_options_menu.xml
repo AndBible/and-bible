@@ -44,6 +44,10 @@
 		android:title="@string/window_pinning_menutitle"
 		android:checkable="true"
 		android:icon="@drawable/ic_window_pinning_24"/>
+	<item android:id="@+id/hideWindowButtons"
+		android:title="@string/hide_window_buttons_title"
+		android:checkable="true"
+		android:icon="@drawable/ic_hide_window_buttons_24dp"/>
 	<item android:id="@+id/autoAssignLabels"
 		android:title="@string/auto_assign_labels_title"
 		android:icon="@drawable/ic_label_settings_24"/>

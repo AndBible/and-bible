@@ -348,6 +348,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
+        @ColumnInfo(defaultValue = "0") var hideWindowButtons: Boolean = false,
     ) {
         companion object {
             val default get() = WorkspaceSettings()
@@ -364,7 +365,8 @@ class WorkspaceEntities {
             studyPadCursors = studyPadCursors.toMutableMap(),
             hideCompareDocuments = hideCompareDocuments.toMutableSet(),
             limitAmbiguousModalSize = limitAmbiguousModalSize,
-            workspaceColor = workspaceColor
+            workspaceColor = workspaceColor,
+            hideWindowButtons = hideWindowButtons
         )
     }
 
