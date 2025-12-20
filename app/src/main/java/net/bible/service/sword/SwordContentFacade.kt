@@ -17,6 +17,7 @@
 package net.bible.service.sword
 
 import android.text.TextUtils
+import kotlinx.coroutines.runBlocking
 import android.util.LayoutDirection
 import android.util.Log
 import android.util.LruCache
@@ -37,7 +38,11 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHa
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.llm.LlmProcessingError
+import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmRequestSuperseded
+import net.bible.service.llm.llmProcessingParams
+import net.bible.service.llm.llmProcessorId
+import net.bible.service.llm.originalBookInitials
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
@@ -66,6 +71,8 @@ import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
 import org.jdom2.input.SAXBuilder
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
 import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
@@ -355,27 +362,59 @@ object SwordContentFacade {
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
         log.debug("Using standard JSword to fetch document data")
         return try {
-            val data = BookData(book, key)
-            val frag = data.osisFragment
+            // For LLM-processed books, read from original book and process
+            val (actualBook, needsLlmProcessing) = if (book.isLlmProcessedBook) {
+                val originalInitials = book.originalBookInitials
+                    ?: throw OsisError("LLM book missing original initials")
+                val originalBook = Books.installed().getBook(originalInitials)
+                    ?: throw DocumentNotFound(application.getString(R.string.document_not_installed, originalInitials))
+                originalBook to true
+            } else {
+                book to false
+            }
 
-            if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+            val data = BookData(actualBook, key)
+            var frag = data.osisFragment
+
+            // Process with LLM if needed
+            if (needsLlmProcessing) {
+                val processorId = book.llmProcessorId
+                val processingParams = book.llmProcessingParams
+                if (processorId != null && processingParams != null) {
+                    val processor = LlmProcessingService.getProcessor(processorId)
+                    if (processor != null) {
+                        val cacheKey = processor.getCacheKey(actualBook.initials, key.osisRef, processingParams)
+                        val outputter = XMLOutputter(Format.getRawFormat())
+                        val originalXml = outputter.outputString(frag)
+                        val processedXml = runBlocking {
+                            LlmProcessingService.processAndCache(processor, cacheKey, originalXml)
+                        }
+                        // Parse the processed XML back to Element
+                        val builder = SAXBuilder()
+                        frag = builder.build(java.io.StringReader(processedXml)).rootElement.detach() as Element
+                    }
+                }
+            }
+
+            val bookCategory = actualBook.bookCategory
+            if (bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
                             R.string.error_key_not_in_document2,
                             key.name,
-                            book.initials
+                            actualBook.initials
                         )
                     )
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 frag.removeContent()
                 frag.addContent(verseContent)
-                addAnchors(frag, book.language.code)
+                addAnchors(frag, actualBook.language.code)
                 frag
-            } else if(book.bookCategory != BookCategory.BIBLE) {
-                if(!book.isEpub) {
-                    addAnchors(frag, book.language.code)
+            } else if(bookCategory != BookCategory.BIBLE) {
+                if(!actualBook.isEpub) {
+                    addAnchors(frag, actualBook.language.code)
                 }
 
                 frag

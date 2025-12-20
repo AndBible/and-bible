@@ -50,13 +50,14 @@ abstract class CachedKeyPage internal constructor(
     val cachedGlobalKeyList: List<Key>?
         get() {
             var keylist = mCachedGlobalKeyList
-            val currentDocument = currentDocument
-            if (currentDocument != null && keylist == null) {
+            // Use rawDocument for navigation - LLM-wrapped books don't provide correct globalKeyList
+            val doc = rawDocument
+            if (doc != null && keylist == null) {
                 try {
-                    Log.i(TAG, "Start to create cached key list for $currentDocument")
+                    Log.i(TAG, "Start to create cached key list for $doc")
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
-                    for (key in currentDocument.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
+                    for (key in doc.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
                         if (!StringUtils.isEmpty(key.name)) {
                             keylist.add(key)
                         }
@@ -68,7 +69,7 @@ abstract class CachedKeyPage internal constructor(
                 } catch (e: Exception) {
                     keylist = null
                     System.gc()
-                    Log.e(TAG, "Error getting keys for $currentDocument", e)
+                    Log.e(TAG, "Error getting keys for $doc", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
                 Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
