@@ -80,6 +80,7 @@ class CalculatorActivity : ActivityBase() {
         buttonNumber9.setOnClickListener { if (addNumber("9")) equalClicked = false }
         buttonClear.setOnClickListener {
             textViewInputNumbers.text = ""
+            lastExpression = ""
             openParenthesis = 0
             dotUsed = false
             equalClicked = false
