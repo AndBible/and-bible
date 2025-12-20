@@ -258,8 +258,9 @@ class CalculatorActivity : ActivityBase() {
 
     private fun calculate(input: String) = calculatorBinding.run {
         val pin = removeLeadingZeroes(CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")!!)
+        val isOperation = checkIfOperation(input) || checkIfOperation(lastExpression)
 
-        if(input == pin || pin == "") {
+        if((input == pin || pin == "") && !isOperation) {
             Log.i(TAG, "Calculator: PIN OK!")
             setResult(RESULT_OK)
             finish()
@@ -334,6 +335,12 @@ class CalculatorActivity : ActivityBase() {
                 }
             }
         }
+    }
+
+
+    // Check if operation has operand
+    private fun checkIfOperation(input: String): Boolean {
+        return input.contains(Regex("[+\\-x\u00F7%]"))
     }
 
     private fun defineLastCharacter(lastCharacter: String): Int {
