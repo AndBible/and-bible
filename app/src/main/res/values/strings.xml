@@ -1353,6 +1353,7 @@
     <string name="llm_prompt_disabled">Disabled</string>
 
     <!-- Default prompts -->
+    <string name="default_prompt_translate_to_language">Translate to %s</string>
     <string name="default_prompt_translate_to_ui_language">Translate to UI language</string>
     <string name="default_prompt_translate_to_ui_language_desc">Translates document text to the app interface language</string>
     <string name="default_prompt_translate_to_english">Translate to English</string>

@@ -38,7 +38,7 @@ object DefaultPrompts {
         return listOf(
             // Translate to UI language - for TEXT_DISPLAY_SETTINGS
             AgentPrompt(
-                name = context.getString(R.string.default_prompt_translate_to_ui_language),
+                name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
                     Translate the following text to ${getUiLanguageName()}.

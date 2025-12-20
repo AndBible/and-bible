@@ -21,6 +21,7 @@ import android.util.Log
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProcessor
+import java.util.Locale
 
 private const val TAG = "PromptProcessor"
 
@@ -41,10 +42,16 @@ object PromptProcessor : LlmProcessor {
         Log.d(TAG, "getSystemPrompt: promptId=$promptId, found=${prompt != null}")
         Log.d(TAG, "getSystemPrompt: promptTemplate=${prompt?.promptTemplate?.take(200)}")
 
+        // Get UI language for context
+        val uiLanguage = Locale.getDefault().displayLanguage
+
         return if (prompt != null) {
             // Build a complete system prompt including context and the user's template
             """
 You are an AI assistant for AndBible, a Bible study application.
+
+Current context:
+- UI language: $uiLanguage
 
 ${prompt.promptTemplate}
 
@@ -57,6 +64,10 @@ Important instructions:
             // Fallback if prompt not found
             """
 You are an AI assistant for AndBible, a Bible study application.
+
+Current context:
+- UI language: $uiLanguage
+
 Process the following content. Preserve XML structure exactly.
 """.trimIndent()
         }
