@@ -45,6 +45,8 @@ export function useInfiniteScroll(
     let isProcessing = false;
     const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
     const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
+    const reachedEnd = ref(false);
+    let consecutiveEmptyLoads = 0;
 
     console.log("inf: Queues", {addChaptersToTop, addChaptersToEnd});
 
@@ -54,6 +56,8 @@ export function useInfiniteScroll(
         addChaptersToTop.splice(0);
         addChaptersToEnd.splice(0);
         clearDocumentCount++;
+        reachedEnd.value = false;
+        consecutiveEmptyLoads = 0;
     }
 
     function needsMoreContent(): boolean {
@@ -74,7 +78,6 @@ export function useInfiniteScroll(
         console.log("inf: processQueues")
         isProcessing = true;
         const clearCountStart = clearDocumentCount;
-        let consecutiveEmptyLoads = 0;
 
         try {
             do {
@@ -116,6 +119,7 @@ export function useInfiniteScroll(
                     consecutiveEmptyLoads++;
                     if (consecutiveEmptyLoads >= maxConsecutiveEmptyLoads) {
                         console.log("inf: Too many consecutive empty loads, stopping");
+                        reachedEnd.value = true;
                         break;
                     }
                 } else {
@@ -144,7 +148,7 @@ export function useInfiniteScroll(
         await processQueues();
         await waitNextAnimationFrame();
 
-        if (isEnabled.value && needsMoreContent() && !isProcessing) {
+        if (isEnabled.value && needsMoreContent() && !isProcessing && !reachedEnd.value) {
             await loadTextAtEnd();
         }
     }
@@ -165,7 +169,7 @@ export function useInfiniteScroll(
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
         addMoreAtEnd = () => {
-            if (!isEnabled.value || isProcessing) return;
+            if (!isEnabled.value || isProcessing || reachedEnd.value) return;
             loadTextAtEnd();
         },
         addMoreAtTop = () => {
