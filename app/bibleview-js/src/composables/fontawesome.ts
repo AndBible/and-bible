@@ -193,6 +193,6 @@ export function useFontAwesome() {
         faHandPointer,
         faSave,
         faCheck,
-        faRegularClock,
+            faRegularClock,
     );
 }

@@ -67,6 +67,11 @@
             android:title="@string/prefs_show_verseno_title"
             android:summary="@string/prefs_show_verseno_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="INFINITE_SCROLL"
+            android:title="@string/prefs_infinite_scroll_title"
+            android:summary="@string/prefs_infinite_scroll_summary"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_appearance_title"

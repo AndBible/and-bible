@@ -99,6 +99,8 @@ export type BibleJavascriptInterface = {
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
     saveState: (newState: string) => void,
+    goToNextChapter: () => void,
+    goToPreviousChapter: () => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -548,6 +550,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.saveState(JSON.stringify(newState));
     }
 
+    function goToNextChapter() {
+        window.android.goToNextChapter();
+    }
+
+    function goToPreviousChapter() {
+        window.android.goToPreviousChapter();
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -599,6 +609,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         onKeyDown,
         parseRef,
         saveState,
+        goToNextChapter,
+        goToPreviousChapter,
     }
 
     if (config.developmentMode) return {

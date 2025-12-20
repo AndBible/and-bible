@@ -86,6 +86,7 @@ export type Config = {
     },
     topMargin: number,
     showPageNumber: boolean,
+    infiniteScroll: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"
@@ -175,6 +176,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         },
         topMargin: 0,
         showPageNumber: false,
+        infiniteScroll: true,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";

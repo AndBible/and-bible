@@ -47,6 +47,11 @@ private val addTranslateTo = makeMigration(7..8) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
 }
 
+private val addInfiniteScroll = makeMigration(8..9) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -55,6 +60,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addPageManagerJsState,
     addStudyPadCursors,
     addTranslateTo,
+    addInfiniteScroll,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 8
+const val WORKSPACE_DATABASE_VERSION = 9

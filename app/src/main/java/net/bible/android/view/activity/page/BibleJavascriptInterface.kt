@@ -139,6 +139,22 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun goToNextChapter() {
+        Log.i(TAG, "Go to next chapter")
+        scope.launch(Dispatchers.Main) {
+            currentPageManager.currentPage.next()
+        }
+    }
+
+    @JavascriptInterface
+    fun goToPreviousChapter() {
+        Log.i(TAG, "Go to previous chapter")
+        scope.launch(Dispatchers.Main) {
+            currentPageManager.currentPage.previous()
+        }
+    }
+
+    @JavascriptInterface
     fun parseRef(callId: Long, s: String) {
         Log.i(TAG, "Request more text at end")
         bibleView.parseRef(callId, s)

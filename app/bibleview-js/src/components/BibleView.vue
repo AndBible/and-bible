@@ -40,6 +40,14 @@
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
+    <ChapterNavigationButtons
+      v-if="showChapterNavButtons"
+      position="top"
+      :loading="loadingAtTop"
+      @load-more="loadTextAtTop"
+      @navigate-prev="android.goToPreviousChapter"
+      @navigate-next="android.goToNextChapter"
+    />
     <div class="loading" v-if="isLoading">
       <div v-if="appSettings.disableAnimations" class="loading-icon">
         <FontAwesomeIcon size="2x" icon="fa-regular fa-clock"/>
@@ -79,6 +87,15 @@
         v-if="appSettings.isBottomWindow && !appSettings.bottomOffset"
         @touchmove.stop.prevent
         class="invisible-bottom-touch-block"
+    />
+    <ChapterNavigationButtons
+      v-if="showChapterNavButtons"
+      position="bottom"
+      :loading="loadingAtEnd"
+      :reached-end="reachedEnd"
+      @load-more="loadTextAtEnd"
+      @navigate-prev="android.goToPreviousChapter"
+      @navigate-next="android.goToNextChapter"
     />
     <div id="bottom"/>
   </div>
@@ -125,6 +142,7 @@ import {useSharing} from "@/composables/sharing";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -210,7 +228,19 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared, loadingAtEnd} = useInfiniteScroll(android, scroll, documents);
+const {
+    documentsCleared,
+    loadingAtEnd,
+    loadingAtTop,
+    loadTextAtTop,
+    loadTextAtEnd,
+    documentSupportsInfiniteScroll,
+    reachedEnd
+} = useInfiniteScroll(android, scroll, documents, config);
+
+const showChapterNavButtons = computed(() => {
+    return !config.infiniteScroll && documentSupportsInfiniteScroll.value;
+});
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {

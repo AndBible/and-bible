@@ -28,6 +28,7 @@ import {AnyDocument, isOsisDocument} from "@/types/documents";
 import {Nullable} from "@/types/common";
 import {BookCategory} from "@/types/client-objects";
 import {UseScroll} from "@/composables/scroll";
+import {Config} from "@/composables/config";
 
 const maxConsecutiveEmptyLoads = 3; // Safety limit
 
@@ -35,6 +36,7 @@ export function useInfiniteScroll(
     {requestPreviousChapter, requestNextChapter}: UseAndroid,
     {scrollYAtStart}: UseScroll,
     bibleViewDocuments: AnyDocument[],
+    config: Config,
 ) {
     const enabledCategories: Set<BookCategory> = new Set(["BIBLE", "GENERAL_BOOK"]);
     let currentPos: number;
@@ -117,8 +119,11 @@ export function useInfiniteScroll(
                 // Track consecutive empty loads to prevent infinite loops
                 if (!contentAdded) {
                     consecutiveEmptyLoads++;
-                    if (consecutiveEmptyLoads >= maxConsecutiveEmptyLoads) {
-                        console.log("inf: Too many consecutive empty loads, stopping");
+                    // When infinite scroll is disabled (manual mode), set reachedEnd immediately
+                    // When enabled (auto mode), use safety limit of 3 consecutive empty loads
+                    const limit = config.infiniteScroll ? maxConsecutiveEmptyLoads : 1;
+                    if (consecutiveEmptyLoads >= limit) {
+                        console.log("inf: No more content available, stopping");
                         reachedEnd.value = true;
                         break;
                     }
@@ -154,7 +159,8 @@ export function useInfiniteScroll(
     }
 
     const
-        isEnabled = computed(() => {
+        // Whether the current document type supports infinite scroll (Bible or GenBook)
+        documentSupportsInfiniteScroll = computed(() => {
            if(bibleViewDocuments.length === 0) return false;
            const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
@@ -162,6 +168,10 @@ export function useInfiniteScroll(
            } else {
                return doc.type === "bible";
            }
+        }),
+        // Whether infinite scroll is currently active (enabled in settings AND supported by document)
+        isEnabled = computed(() => {
+           return config.infiniteScroll && documentSupportsInfiniteScroll.value;
         }),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
@@ -246,5 +256,13 @@ export function useInfiniteScroll(
         bottomElem = document.getElementById("bottom")!;
     });
 
-    return {documentsCleared, loadingAtEnd, loadingAtTop};
+    return {
+        documentsCleared,
+        loadingAtEnd,
+        loadingAtTop,
+        loadTextAtTop,
+        loadTextAtEnd,
+        documentSupportsInfiniteScroll,
+        reachedEnd,
+    };
 }

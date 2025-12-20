@@ -129,6 +129,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
         Types.TRANSLATE_TO -> TranslateToPreference(settings)
+        Types.INFINITE_SCROLL -> ItemPreference(settings, Types.INFINITE_SCROLL)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

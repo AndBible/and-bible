@@ -136,6 +136,8 @@
     <string name="prefs_show_morphology_title">Morphological codes</string>
     <string name="prefs_section_title_title">Section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
+    <string name="prefs_infinite_scroll_title">Infinite scroll</string>
+    <string name="prefs_infinite_scroll_summary">Automatically load more content when scrolling</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
 
     <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>

@@ -141,6 +141,9 @@ type TranslatedStrings = {
     wordBlur: string
     wordScramble: string
     more: string
+    loadMore: string
+    previousChapter: string
+    nextChapter: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings
