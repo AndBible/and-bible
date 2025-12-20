@@ -85,7 +85,9 @@ class MyDocumentBackend(
             return DefaultLeafKeyList("", "")
         }
         val page = pages[index]
-        return DefaultLeafKeyList(page.pageKey, page.title)
+        // Use pageKey for both name and osisRef so getKey() can find it
+        // Title is used as the display name via DefaultLeafKeyList's toString()
+        return DefaultLeafKeyList(page.pageKey, page.pageKey)
     }
 
     override fun indexOf(that: Key): Int {
@@ -104,7 +106,8 @@ class MyDocumentBackend(
     override fun iterator(): MutableIterator<Key> {
         val pages = dao.pagesForDocument(documentId)
         return pages.map { page ->
-            DefaultLeafKeyList(page.pageKey, page.title) as Key
+            // Use pageKey for both name and osisRef so getKey() can find it
+            DefaultLeafKeyList(page.pageKey, page.pageKey) as Key
         }.toMutableList().iterator()
     }
 
@@ -123,9 +126,11 @@ class MyDocumentBackend(
 
         // Wrap content in appropriate OSIS tag - rendering happens in Vue.js
         // Note: Tag names are lowercase, osisToTemplateString will convert to OsisMarkdown etc.
+        // BVA (BibleViewAnchor) tag wraps content so verse-notifier.ts can find it via closest(".ordinal")
+        // HTML content goes through SwordContentFacade.addAnchors() which adds BVAs automatically
         return when (page.contentType) {
             MyDocumentContentType.MARKDOWN ->
-                "<div class=\"mydoc-markdown\"><markdown>${escapeXml(content)}</markdown></div>"
+                "<div class=\"mydoc-markdown\"><BVA ordinal=\"0\"><markdown>${escapeXml(content)}</markdown></BVA></div>"
             MyDocumentContentType.HTML ->
                 "<div class=\"mydoc-html\"><html>${escapeXml(content)}</html></div>"
             MyDocumentContentType.OSIS ->
@@ -140,7 +145,8 @@ class MyDocumentBackend(
         val pages = dao.pagesForDocument(documentId)
         val keyList = DefaultKeyList()
         pages.forEach { page ->
-            keyList.addAll(DefaultLeafKeyList(page.pageKey, page.title))
+            // Use pageKey for both name and osisRef for consistency
+            keyList.addAll(DefaultLeafKeyList(page.pageKey, page.pageKey))
         }
         return keyList
     }

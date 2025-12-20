@@ -33,7 +33,11 @@ export function useVerseNotifier(
 ) {
     const currentVerse = ref<number | null>(null);
     const currentKey = ref<string>("")
-    watch(() => currentVerse.value, value => scrolledToOrdinal(currentKey.value!!, value));
+    // Watch both values - for GenBooks/MyDocuments, the key (osisRef) changes even when ordinal stays 0
+    watch(
+        [() => currentVerse.value, () => currentKey.value],
+        ([verse, key]) => scrolledToOrdinal(key, verse)
+    );
 
     let lastDirection = "ltr";
     const step = 10;
