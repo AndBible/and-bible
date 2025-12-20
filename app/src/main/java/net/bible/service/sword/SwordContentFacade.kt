@@ -360,7 +360,7 @@ object SwordContentFacade {
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
-        log.debug("Using standard JSword to fetch document data")
+        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.osisRef}, isLlmProcessed=${book.isLlmProcessedBook}")
         return try {
             // For LLM-processed books, read from original book and process
             val (actualBook, needsLlmProcessing) = if (book.isLlmProcessedBook) {
@@ -380,18 +380,36 @@ object SwordContentFacade {
             if (needsLlmProcessing) {
                 val processorId = book.llmProcessorId
                 val processingParams = book.llmProcessingParams
+                Log.d(TAG, "LLM processing needed: processorId=$processorId, params=$processingParams")
                 if (processorId != null && processingParams != null) {
                     val processor = LlmProcessingService.getProcessor(processorId)
+                    Log.d(TAG, "Got processor: ${processor?.processorId}")
                     if (processor != null) {
                         val cacheKey = processor.getCacheKey(actualBook.initials, key.osisRef, processingParams)
-                        val outputter = XMLOutputter(Format.getRawFormat())
-                        val originalXml = outputter.outputString(frag)
-                        val processedXml = runBlocking {
-                            LlmProcessingService.processAndCache(processor, cacheKey, originalXml)
+
+                        // Check database cache first
+                        val cacheResult = LlmProcessingService.getCached(cacheKey)
+                        val processedXml = if (cacheResult.processedXml != null) {
+                            Log.d(TAG, "LLM cache hit for ${cacheKey.documentInitials}:${cacheKey.keyName}")
+                            cacheResult.processedXml
+                        } else {
+                            // Not in cache, need to process
+                            val outputter = XMLOutputter(Format.getRawFormat())
+                            val originalXml = outputter.outputString(frag)
+                            runBlocking {
+                                LlmProcessingService.processAndCache(processor, cacheKey, originalXml)
+                            }
                         }
                         // Parse the processed XML back to Element
                         val builder = SAXBuilder()
-                        frag = builder.build(java.io.StringReader(processedXml)).rootElement.detach() as Element
+                        // Try to disable external entities for security, but ignore if not supported (Android)
+                        try {
+                            builder.setFeature("http://xml.org/sax/features/external-general-entities", false)
+                            builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+                        } catch (e: Exception) {
+                            // Android SAX parser may not support these features - that's OK
+                        }
+                        frag = builder.build(StringReader(processedXml)).rootElement.detach() as Element
                     }
                 }
             }

@@ -17,9 +17,12 @@
 
 package net.bible.service.llm.processors
 
+import android.util.Log
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProcessor
+
+private const val TAG = "PromptProcessor"
 
 /**
  * LLM Processor that uses AgentPrompt from the database.
@@ -34,6 +37,9 @@ object PromptProcessor : LlmProcessor {
         val promptId = IdType.fromString(processingParams)
         val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
         val prompt = dao.promptById(promptId)
+
+        Log.d(TAG, "getSystemPrompt: promptId=$promptId, found=${prompt != null}")
+        Log.d(TAG, "getSystemPrompt: promptTemplate=${prompt?.promptTemplate?.take(200)}")
 
         return if (prompt != null) {
             // Build a complete system prompt including context and the user's template
