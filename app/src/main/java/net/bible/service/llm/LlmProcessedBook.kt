@@ -28,14 +28,11 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
-import org.crosswire.jsword.book.sword.SwordDictionary
-import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.book.sword.processing.RawTextToXmlProcessor
 import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.Key
@@ -295,12 +292,9 @@ fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processing
         val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata)
         val backend = LlmProcessedBackend(state, metadata)
 
-        // Create appropriate book type based on original
-        val processedBook = when (originalBook.bookCategory) {
-            BookCategory.DICTIONARY -> SwordDictionary(metadata, backend)
-            BookCategory.GENERAL_BOOK -> SwordGenBook(metadata, backend)
-            else -> SwordBook(metadata, backend)
-        }
+        // Use SwordBook for all types - it's a generic wrapper that delegates to our backend.
+        // The backend fetches content from the wrapped book (which can be any type).
+        val processedBook = SwordBook(metadata, backend)
 
         // Register with JSword's Books
         Books.installed().addBook(processedBook)

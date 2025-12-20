@@ -219,12 +219,23 @@ abstract class CurrentPageBase protected constructor(
     /**
      * Returns the effective document, wrapped with LLM processing if configured.
      * This is what should be used for reading content.
+     * LLM processing is only applied to Bible and Commentary books.
      */
     override val currentDocument: Book?
         get() {
             val doc = rawDocument ?: return null
             // Don't wrap if already an LLM-processed book
             if (doc.isLlmProcessedBook) {
+                return doc
+            }
+            // Only apply LLM processing to supported book types
+            val supportedCategories = setOf(
+                BookCategory.BIBLE,
+                BookCategory.COMMENTARY,
+                BookCategory.DICTIONARY,
+                BookCategory.GENERAL_BOOK
+            )
+            if (doc.bookCategory !in supportedCategories) {
                 return doc
             }
             val promptId = pageManager.actualTextDisplaySettings.llmPromptId
