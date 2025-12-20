@@ -302,6 +302,10 @@ class CalculatorActivity : ActivityBase() {
 
     @VisibleForTesting
     internal fun saveLastExpression(input: String) {
+        if (input.isEmpty()) {
+            lastExpression = ""
+            return
+        }
         val lastOfExpression = input[input.length - 1].toString() + ""
         if (input.length > 1) {
             if (lastOfExpression == ")") {
@@ -342,7 +346,7 @@ class CalculatorActivity : ActivityBase() {
     }
 
 
-    // Check if operation has operand
+    // Check if input contains an operator
     @VisibleForTesting
     internal fun checkIfOperation(input: String): Boolean {
         return input.contains(Regex("[+\\-x\u00F7%]"))
