@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import net.bible.android.activity.databinding.CalculatorLayoutBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -43,7 +44,8 @@ class CalculatorActivity : ActivityBase() {
     private var openParenthesis = 0
     private var dotUsed = false
     private var equalClicked = false
-    private var lastExpression = ""
+    @VisibleForTesting
+    internal var lastExpression = ""
     override val doNotInitializeApp: Boolean = true
 
     private fun evaluate(formula: String): String = ExpressionBuilder(formula).build().evaluate().toString()
@@ -80,6 +82,7 @@ class CalculatorActivity : ActivityBase() {
         buttonNumber9.setOnClickListener { if (addNumber("9")) equalClicked = false }
         buttonClear.setOnClickListener {
             textViewInputNumbers.text = ""
+            lastExpression = ""
             openParenthesis = 0
             dotUsed = false
             equalClicked = false
@@ -258,8 +261,9 @@ class CalculatorActivity : ActivityBase() {
 
     private fun calculate(input: String) = calculatorBinding.run {
         val pin = removeLeadingZeroes(CommonUtils.realSharedPreferences.getString("calculator_pin", "1234")!!)
+        val isOperation = checkIfOperation(input) || checkIfOperation(lastExpression)
 
-        if(input == pin || pin == "") {
+        if((input == pin || pin == "") && !isOperation) {
             Log.i(TAG, "Calculator: PIN OK!")
             setResult(RESULT_OK)
             finish()
@@ -296,7 +300,12 @@ class CalculatorActivity : ActivityBase() {
         }
     }
 
-    private fun saveLastExpression(input: String) {
+    @VisibleForTesting
+    internal fun saveLastExpression(input: String) {
+        if (input.isEmpty()) {
+            lastExpression = ""
+            return
+        }
         val lastOfExpression = input[input.length - 1].toString() + ""
         if (input.length > 1) {
             if (lastOfExpression == ")") {
@@ -336,7 +345,15 @@ class CalculatorActivity : ActivityBase() {
         }
     }
 
-    private fun defineLastCharacter(lastCharacter: String): Int {
+
+    // Check if input contains an operator
+    @VisibleForTesting
+    internal fun checkIfOperation(input: String): Boolean {
+        return input.contains(Regex("[+\\-x\u00F7%]"))
+    }
+
+    @VisibleForTesting
+    internal fun defineLastCharacter(lastCharacter: String): Int {
         try {
             lastCharacter.toInt()
             return IS_NUMBER
@@ -348,11 +365,11 @@ class CalculatorActivity : ActivityBase() {
     }
 
     companion object {
-        private const val EXCEPTION = -1
-        private const val IS_NUMBER = 0
-        private const val IS_OPERAND = 1
-        private const val IS_OPEN_PARENTHESIS = 2
-        private const val IS_CLOSE_PARENTHESIS = 3
-        private const val IS_DOT = 4
+        internal const val EXCEPTION = -1
+        internal const val IS_NUMBER = 0
+        internal const val IS_OPERAND = 1
+        internal const val IS_OPEN_PARENTHESIS = 2
+        internal const val IS_CLOSE_PARENTHESIS = 3
+        internal const val IS_DOT = 4
     }
 }
