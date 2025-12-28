@@ -120,7 +120,7 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     }
 
     override fun buttonPressed(buttonInfo: ButtonInfo) {
-        val verseNo = buttonInfo.id
+        val verseNo = if (buttonInfo.id!=1) buttonInfo.id else 0
         val verse = Verse(navigationControl.versification, mBibleBook, mBibleChapterNo, verseNo)
 
         Log.i(TAG, "Verse selected:$verse")
