@@ -259,7 +259,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                     // select verse (only 1 chapter)
                     val myIntent = Intent(this, GridChoosePassageVerse::class.java)
                     myIntent.putExtra(GridChoosePassageBook.BOOK_NO, bibleBookNo)
-                    myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, 0)
+                    myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, 1)
                     myIntent.putExtra("navigateToVerse", navigateToVerse)
                     startActivityForResult(myIntent, 1)
                 }
