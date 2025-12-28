@@ -1,102 +1,71 @@
 <!--
-  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
-  <div>
-    <OsisFragment do-not-convert :fragment="osisFragment"/>
-    <OpenAllLink :v11n="document.v11n"/>
+  <div
+      :id="`doc-${document.id}`"
+      class="document"
+      :data-book-initials="bookInitials"
+      :data-osis-ref="osisRef"
+  >
+    <OsisFragment :is-epub="document.isEpub" :fragment="osisFragment"/>
+    <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
   </div>
 </template>
 
-<script>
-import OsisFragment from "@/components/documents/OsisFragment";
-import FeaturesLink from "@/components/FeaturesLink";
-import OpenAllLink from "@/components/OpenAllLink";
-import {useReferenceCollector} from "@/composables";
-import {BookCategories} from "@/constants";
-import {provide} from "@vue/runtime-core";
-import {osisToTemplateString} from "@/utils";
+<script setup lang="ts">
+import OsisFragment from "@/components/documents/OsisFragment.vue";
+import FeaturesLink from "@/components/FeaturesLink.vue";
+import OpenAllLink from "@/components/OpenAllLink.vue";
+import {useCommon, useReferenceCollector} from "@/composables";
+import {customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
+import {inject, provide, ref} from "vue";
+import {OsisDocument} from "@/types/documents";
+import {useBookmarks} from "@/composables/bookmarks";
 
-const parser = new DOMParser();
+const props = defineProps<{ document: OsisDocument }>();
 
-// https://stackoverflow.com/questions/49836558/split-string-at-space-after-certain-number-of-characters-in-javascript/49836804
-const splitRegex = /.{1,100}(\s|$)/g
-const spacesRegex = /^\s+$/
+// eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
+const {
+    id,
+    ordinalRange,
+    osisFragment,
+    bookCategory,
+    bookInitials,
+    annotateRef,
+    osisRef,
+    genericBookmarks,
+    highlightedOrdinalRange,
+} = props.document;
+const referenceCollector = useReferenceCollector();
 
-export default {
-  name: "OsisDocument",
-  components: {OsisFragment, FeaturesLink, OpenAllLink},
-  props: {
-    document: {type: Object, required: true},
-  },
-  setup(props) {
-    // eslint-disable-next-line vue/no-setup-props-destructure,no-unused-vars
-    const {osisFragment, bookCategory} = props.document;
-    const referenceCollector = useReferenceCollector();
+const globalBookmarks = inject(globalBookmarksKey)!;
+const {registerBook} = inject(customCssKey)!;
+globalBookmarks.updateBookmarks(genericBookmarks);
 
-    if(bookCategory === BookCategories.COMMENTARIES || bookCategory === BookCategories.GENERAL_BOOK) {
-      provide("referenceCollector", referenceCollector);
-    }
+const {config, appSettings, ...common} = useCommon();
 
-    function splitString(s) {
-      const v = s.match(splitRegex);
-      if(v === null) {
-        return [s];
-      }
-      return v;
-    }
+useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, annotateRef, false, ref(true), common, config, appSettings);
+provide(osisDocumentInfoKey, {bookInitials, highlightedOrdinalRange, osisRef: annotateRef})
 
-    function addAnchors(xml) {
-      const xmlDoc = parser.parseFromString(xml, "text/xml");
-      const walker = xmlDoc.createTreeWalker(xmlDoc.firstElementChild, NodeFilter.SHOW_TEXT)
-      const textNodes = [];
-      while(walker.nextNode()) {
-        textNodes.push(walker.currentNode);
-      }
-      let count = 0;
+registerBook(`epub/${bookInitials}/${osisRef}`)
 
-      function addAnchor(node, textNode) {
-        if (textNode.textContent.match(spacesRegex)) {
-          node.parentElement.insertBefore(textNode, node);
-        } else {
-          const anchor = xmlDoc.createElement("BWA"); // BibleViewAnchor.vue
-          anchor.setAttribute("ordinal", count++);
-          anchor.appendChild(textNode)
-          node.parentElement.insertBefore(anchor, node);
-        }
-      }
-
-      for(const node of textNodes) {
-        const splitText = splitString(node.textContent).map(t => xmlDoc.createTextNode(t));
-        for(let i = 0; i<splitText.length; i++) {
-          addAnchor(node, splitText[i])
-        }
-        node.parentNode.removeChild(node);
-      }
-      return xmlDoc.firstElementChild.outerHTML;
-    }
-
-    let xml = osisFragment.xml
-    osisFragment.originalXml = xml;
-    xml = osisToTemplateString(xml)
-    xml = addAnchors(xml);
-    osisFragment.xml = xml;
-    return {osisFragment};
-  }
+if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
+    provide(referenceCollectorKey, referenceCollector);
 }
 </script>

@@ -1,33 +1,36 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.search
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.RadioButton
 import android.widget.RadioGroup
+import android.widget.TextView
 
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SearchBinding
@@ -37,9 +40,10 @@ import net.bible.android.control.search.SearchControl.SearchBibleSection
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
 
 import org.apache.commons.lang3.StringUtils
-import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
@@ -55,12 +59,13 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
+    override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var searchControl: SearchControl
     @Inject lateinit var pageControl: PageControl
 
-    private val documentToSearch: Book?
-        get() = pageControl.currentPageManager.currentPage.currentDocument
+    private val documentToSearch: SwordBook
+        get() = pageControl.currentPageManager.currentPage.currentDocument as SwordBook
 
     /** get all, any, phrase query limitation
      */
@@ -98,7 +103,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Search view")
         binding = SearchBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -106,10 +111,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         buildActivityComponent().inject(this)
 
         if (!searchControl.validateIndex(documentToSearch)) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred) { finish() }
+            Dialogs.showErrorMsg(R.string.error_occurred) { finish() }
         }
 
-        title = getString(R.string.search_in, documentToSearch!!.abbreviation)
+        title = getString(R.string.search_in, documentToSearch.abbreviation)
         binding.searchText.setOnEditorActionListener {v, actionId, event ->
             return@setOnEditorActionListener when (actionId) {
                 EditorInfo.IME_ACTION_SEARCH -> {
@@ -120,15 +125,15 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }}
 
         binding.submit.setOnClickListener { onSearch() }
-        //searchText.setOnKeyListener(OnKeyListener { v, keyCode, event ->
-        //    // If the event is a key-down event on the "enter" button
-        //    if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-        //        // Perform action on key press
-        //        onSearch(null)
-        //        return@OnKeyListener true
-        //    }
-        //    false
-        //})
+        binding.searchText.setOnKeyListener { _, keyCode, event ->
+            // If the event is a key-down event on the "enter" button
+            if (event.action == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                // Perform action on key press
+                onSearch()
+                return@setOnKeyListener true
+            }
+            false
+        }
 
         binding.rememberSearchText.setOnClickListener {
             CommonUtils.settings.setBoolean("search_remember_search_text", binding.rememberSearchText.isChecked)
@@ -189,13 +194,29 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 return true
             }
             R.id.help -> {
-                CommonUtils.showHelp(this, listOf(R.string.help_search_title))
+                help()
                 return true
             }
         }
         return false
     }
+    private fun help() {
+        val ftsLink = "https://lucene.apache.org/core/2_9_4/queryparsersyntax.html"
+        val link = """<a href="$ftsLink">${getString(R.string.help_apache_lucene)}</a>"""
+        val span = htmlToSpan("""
+            ${getString(R.string.help_search_text2)}<br><br>
+            ${getString(R.string.help_search_details, link)}
+        """.trimIndent())
+        val d = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay, null)
+            .setTitle(title)
+            .setIcon(R.drawable.ic_logo)
+            .setMessage(span)
+            .create()
 
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
     override fun onResume() {
         super.onResume()
         binding.searchText.requestFocus()
@@ -209,7 +230,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     fun onCancel(v: View?) = finish()
 
-    fun onSearch() {
+    private fun onSearch() {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
@@ -222,14 +243,14 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection)
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
-            text = decorateSearchString(text)
+            text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
             Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
             val intent = Intent(this, SearchResults::class.java)
             intent.putExtra(SearchControl.SEARCH_TEXT, text)
-            val currentDocInitials = documentToSearch?.initials
+            val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
             startActivityForResult(intent, 1)
@@ -237,10 +258,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
             finish()
         }
-    }
-
-    private fun decorateSearchString(searchString: String): String {
-        return searchControl.decorateSearchString(searchString, searchType, bibleSection, currentBookName)
     }
 
     companion object {

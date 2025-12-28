@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
-  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
-  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
   ~ terms of the GNU General Public License as published by the Free Software Foundation,
   ~ either version 3 of the License, or (at your option) any later version.
   ~
-  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~ See the GNU General Public License for more details.
   ~
-  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
   ~ If not, see http://www.gnu.org/licenses/.
-  ~
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
@@ -38,20 +37,51 @@
 			android:visible="false"
 			app:showAsAction="always"
 			/>
-		<item android:id="@+id/compare"
+     	<item android:id="@+id/compare"
 			android:title="@string/compare_abbreviation"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
+        <item android:id="@+id/memorize"
+            android:title="@string/memorize_abbreviation"
+            android:orderInCategory="2"
+            app:showAsAction="always"
+            />
 		<item android:id="@+id/share_verses"
 			android:title="@string/share_verse_ok"
 			android:orderInCategory="2"
 			app:showAsAction="always"
 			/>
-		<item android:id="@+id/system_items"
-			android:title="@string/system_items1"
+		<item android:id="@+id/copy"
+			android:title="@string/verse_action_copy"
 			android:orderInCategory="2"
+			android:visible="false"
 			app:showAsAction="always"
 			/>
-	</group>
+		<item android:id="@+id/search"
+			android:title="@string/search"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			android:visible="false"
+			/>
+		<item android:id="@+id/open_ref"
+			android:title="Open ref"
+			android:orderInCategory="2"
+			app:showAsAction="always"
+			android:visible="false"
+			/>
+        <item android:id="@+id/web_search"
+            android:title="@string/web_search"
+            android:orderInCategory="2"
+            app:showAsAction="always"
+            android:visible="false"
+            />
+        <item android:id="@+id/add_paragraph_break"
+            android:title="@string/add_paragraph_break"
+            android:orderInCategory="2"
+            android:visible="true"
+            app:showAsAction="always"
+            />
+
+    </group>
 </menu>

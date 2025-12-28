@@ -1,14 +1,35 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.service.device.speak
 
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.bible.android.BibleApplication
+import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
 import net.bible.android.control.versification.BibleTraverser
@@ -18,9 +39,9 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.service.common.CommonUtils
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -35,15 +56,13 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
-import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 import org.robolectric.shadows.ShadowLog
 
-
-@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[28])
+@Config(qualifiers="fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -62,6 +81,7 @@ open class SpeakIntegrationTestBase {
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()
         windowControl = appComponent.windowControl()
+        windowControl.windowRepository = WindowRepository(CoroutineScope(Dispatchers.Main))
         windowControl.windowRepository.initialize()
         speakControl.setupMockedTts()
         book = Books.installed().getBook("FinRK") as SwordBook
@@ -78,27 +98,24 @@ open class SpeakIntegrationTestBase {
 @RunWith(RobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
     @Test
-    fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
-        var s = SpeakSettings(synchronize = true)
-        s.save()
+    fun testSpeakActivityIsUpdatedWhenSettingsAreChanged() {
+        AdvancedSpeakSettings.synchronize = true
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
-        s = SpeakSettings(synchronize = false)
-        s.save()
+        AdvancedSpeakSettings.synchronize = false
+        ABEventBus.post(SpeakSettingsChangedEvent(SpeakSettings.load()))
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
     }
 
     @Test
-    fun testSpeaActivityUpdatesSettings() {
-        var s = SpeakSettings(synchronize = true)
-        s.save()
+    fun testSpeakActivityUpdatesSettings() {
+        AdvancedSpeakSettings.synchronize = true
         val settingsActivity = bibleSpeakSettingsActivityController.create().visible().get()
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(true))
         settingsActivity.binding.synchronize.performClick()
 
         assertThat(settingsActivity.binding.synchronize.isChecked, equalTo(false))
-        s = SpeakSettings.load()
-        assertThat(s.synchronize, equalTo(false))
+        assertThat(AdvancedSpeakSettings.synchronize, equalTo(false))
     }
 }
 
@@ -111,20 +128,17 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     fun setup() {
         mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
         bookmarkControl.speakLabel
-        val s = SpeakSettings(autoBookmark = true, restoreSettingsFromBookmarks = true)
-        s.save()
+        AdvancedSpeakSettings.reset()
+        AdvancedSpeakSettings.autoBookmark = true
+        AdvancedSpeakSettings.synchronize = true
+        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
+        SpeakSettings().save()
 
         bibleSpeakActivityController.create()
         mainActivityController.create()
     }
 
-    @After
-    fun after() {
-        _mainBibleActivity = null
-
-    }
-
-    fun getVerse(verseStr: String): Verse {
+    private fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
         return verse.getVerseAt(0)
     }
@@ -132,22 +146,22 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     @Test
     fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
         setSleepTimer(5)
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.1")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), notNullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(true))
         setSleepTimer(0)
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
     }
 
-    fun changeSpeed(speed: Int) {
+    private fun changeSpeed(speed: Int) {
         val settingsActivity = bibleSpeakActivityController.visible().get()
         settingsActivity.binding.speakSpeed.setProgress(speed)
         settingsActivity.updateSettings()
     }
 
-    fun setSleepTimer(time: Int) {
+    private fun setSleepTimer(time: Int) {
         val s = SpeakSettings.load()
         s.sleepTimer = time
         s.save()
@@ -158,29 +172,29 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.1")), nullValue())
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.1")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), notNullValue())
 
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.3
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.2")), notNullValue())
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")).firstOrNull(), nullValue())
 
         // Check that altering playback settigns are saved also to bookmark (bookmark is also moved when saving)
         changeSpeed(201)
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.2")), nullValue())
-        var b = bookmarkControl.firstBookmarkStartingAtVerse((getVerse("Rom.1.3")))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.2")).firstOrNull(), nullValue())
+        var b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.3")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(201))
 
         // Test that bookmark is moved properly when paused / stopped
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
         speakControl.pause()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.3")), nullValue())
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.4")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.3")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")).firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when paused
         changeSpeed(202)
-        b = bookmarkControl.firstBookmarkStartingAtVerse((getVerse("Rom.1.4")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(202))
 
 
@@ -188,7 +202,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(206)
-        b = bookmarkControl.firstBookmarkStartingAtVerse((getVerse("Rom.1.4")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.4")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(206))
 
 
@@ -196,25 +210,25 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         speakControl.continueAfterPause()
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
         speakControl.stop()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.4")), nullValue())
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Rom.1.5")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.4")).firstOrNull(), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Rom.1.5")).firstOrNull(), notNullValue())
 
         // Check that altering playback settigns are saved to bookmark when stopped
         changeSpeed(203)
-        b = bookmarkControl.firstBookmarkStartingAtVerse((getVerse("Rom.1.5")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
 
         // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
         windowControl.windowRepository.firstVisibleWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
-        b = bookmarkControl.firstBookmarkStartingAtVerse((getVerse("Rom.1.5")))
+        b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
     }
 }
 
 
-@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk = [28])
+@Config(qualifiers = "fi", application = TestBibleApplication::class, sdk=[TEST_SDK])
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
@@ -222,6 +236,7 @@ open class AbstractSpeakTests {
 
     @Before
     open fun setup() {
+        AdvancedSpeakSettings.reset()
         ShadowLog.stream = System.out
         book = Books.installed().getBook("FinRK") as SwordBook
     }
@@ -258,7 +273,6 @@ open class AbstractSpeakTests {
         val windowRepository = mock(WindowRepository::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(windowControl, mock(AndroidResourceProvider::class.java))
-        val activeWindowPageManagerProvider = Mockito.mock(ActiveWindowPageManagerProvider::class.java)
     }
 }
 
@@ -268,7 +282,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
+        s = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
     }
 
     @Test
@@ -323,8 +337,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testTitleFinRK() {
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -337,7 +351,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         val cmds = SpeakCommandArray()
         val s = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true, speakFootnotes = true))
 
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Gen.1.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Gen.1.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -357,8 +371,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitleEsv() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -370,7 +384,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitle2STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Jer.11.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Jer.11.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat((cmds[1] as TextCommand).type, equalTo(TextCommand.TextType.TITLE))
@@ -383,8 +397,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testTitleSTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
@@ -395,8 +409,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testParagraphChangeRK() {
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -409,8 +423,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.clear();
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -421,8 +435,8 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     fun testParagraphChangeSTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.25")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Rom.1.26")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -432,7 +446,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
         assertThat(cmd.text, startsWith("pöydän varusteineen"))
@@ -448,10 +462,11 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInTitle() {
-        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        val s = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
-        cmds.addAll(SwordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
+        cmds.addAll(SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Exod.19.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat((cmds[1] as TextCommand).text, equalTo("Saapuminen Siinaille. Jahve ilmestyy"))
@@ -461,13 +476,13 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInText() {
-        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        val s = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
 
-        val cmds = SwordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
+        val cmds = SwordContentFacade.getBibleSpeakCommands(s, book, getVerse("Exod.19.3"))
         assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
     }
-
 }
 
 @RunWith(RobolectricTestRunner::class)
@@ -475,9 +490,8 @@ class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl,
-                windowRepository, book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
     @Test
@@ -511,10 +525,9 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
         bookmarkControl.speakLabel
-        provider.settings = SpeakSettings(autoBookmark = true)
-
+        AdvancedSpeakSettings.autoBookmark = true
     }
 
     @After
@@ -525,20 +538,20 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
     @Test
     fun autoBookmarkDisabled() {
-        provider.settings = SpeakSettings(autoBookmark = false)
+        AdvancedSpeakSettings.autoBookmark = false
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause()
-        assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
+        assertThat(bookmarkControl.allBibleBookmarks.size, equalTo(0))
     }
 
     @Test
     fun autoBookmarkOnPauseAddLabel() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
-        dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var label = Label()
+        var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
+        dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
+        var label = Label(new = true)
         label.name = "Another"
         label = bookmarkControl.insertOrUpdateLabel(label)
         bookmarkControl.setLabelsForBookmark(dto, listOf(label))
@@ -546,54 +559,32 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
-        provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
-        provider.prepareForStartSpeaking()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        provider.stop()
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
+        provider.pause()
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
     }
 
     @Test
     fun autoBookmarkWhenThereIsDefaultBookmark1() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
-        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
+        dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
 
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
         provider.setupReading(book, verse)
         text = nextText()
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
         provider.prepareForStartSpeaking()
         provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
         provider.pause() // does not remove bookmark as it was already there
         provider.prepareForStartSpeaking()
-
-
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
-        provider.prepareForStartSpeaking()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        text = nextText()
-        provider.stop() // does not remove bookmark as it was already there
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
     }
 
 
@@ -601,28 +592,28 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     fun autoBookmarkWhenThereIsDefaultBookmark2() {
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
-        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
+        dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
 
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
 
         provider.setupReading(book, verse)
         text = nextText()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(0))
         provider.pause();
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto, notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
@@ -637,9 +628,9 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), notNullValue())
-        assertThat(bookmarkControl.labelsForBookmark( bookmarkControl.firstBookmarkStartingAtVerse(verse)!!).size, equalTo(0))
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse), notNullValue())
+        assertThat(bookmarkControl.labelsForBookmark( bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]).size, equalTo(0))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
     }
 
 
@@ -648,21 +639,21 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         val speakLabel = bookmarkControl.speakLabel
 
         val verseRange = VerseRange(book.versification, getVerse("Ps.14.2"))
-        var dto = Bookmark(verseRange, null, true, null)
+        var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
         dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
-        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
         bookmarkControl.setLabelsForBookmark(dto, mutableListOf(speakLabel))
 
         var verse = getVerse("Ps.14.1")
 
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
 
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
 
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
         verse = getVerse("Ps.14.2")
@@ -674,8 +665,8 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         // now we save speak bookmark above speak bookmark
         provider.pause()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto.playbackSettings!!.bookmarkWasCreated, equalTo(true))
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
@@ -687,36 +678,36 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.pause()
 
         verse = getVerse("Ps.14.3")
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse)!!, notNullValue())
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0], notNullValue())
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
 
-        // now there should not be any more original speak bookmark
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Ps.14.2")), nullValue())
+        // As we are not merging speak bookmarks any more, there should be 1 speak bookmark still in this verse
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")).size, equalTo(1))
     }
 
 
     @Test
     fun autoBookmarkWhenThereIsNoBookmark() {
         val verse = getVerse("Ps.14.1")
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
 
         provider.setupReading(book, verse)
         text = nextText()
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), nullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
         provider.pause();
-        var dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        var dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(dto, notNullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
 
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         assertThat(range(), equalTo("Ps.14.1"))
         provider.prepareForStartSpeaking()
@@ -731,18 +722,19 @@ class AutoBookmarkTests : AbstractSpeakTests() {
 
         provider.pause()
         assertThat(range(), equalTo("Ps.14.2"))
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(verse), nullValue())
-        assertThat(bookmarkControl.firstBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(verse).size, equalTo(0))
+        assertThat(bookmarkControl.bibleBookmarkStartingAtVerse(getVerse("Ps.14.2")), notNullValue())
     }
 
     @Test
     fun autoBookmarkOnPauseAddLabelAndSettings() {
-        provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
+        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
+        AdvancedSpeakSettings.autoBookmark = true
         val verse = getVerse("Ps.14.1")
         val verseRange = VerseRange(verse.versification, verse)
-        var dto = Bookmark(verseRange, null, true, null)
-        dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var label = Label()
+        var dto = BibleBookmarkWithNotes(verseRange, null, true, null)
+        dto = bookmarkControl.addOrUpdateBibleBookmark(dto)
+        var label = Label(new = true)
         label.name = "Another"
         label = bookmarkControl.insertOrUpdateLabel(label)
         bookmarkControl.setLabelsForBookmark(dto, listOf(label))
@@ -750,11 +742,11 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         provider.setupReading(book, verse)
         text = nextText()
         provider.pause();
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[1]
         assertThat(dto.playbackSettings, notNullValue())
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
+        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
         provider.pause()
-        assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(2))
+        assertThat(bookmarkControl.bibleBookmarkById(dto.id), nullValue())
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -763,26 +755,27 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
-        dto = bookmarkControl.firstBookmarkStartingAtVerse(verse)!!
+        dto = bookmarkControl.bibleBookmarkStartingAtVerse(verse)[0]
         assertThat(dto.playbackSettings, nullValue())
         assertThat(bookmarkControl.labelsForBookmark(dto).size, equalTo(1))
     }
 
     @Test
     fun autoBookmarkOnPauseCreateNewSaveSettings() {
-        provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
+        AdvancedSpeakSettings.restoreSettingsFromBookmarks = true
+        AdvancedSpeakSettings.autoBookmark = true
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
         val label = bookmarkControl.speakLabel
-        val bookmark = bookmarkControl.getBookmarksWithLabel(label).get(0)
+        val bookmark = bookmarkControl.getBibleBookmarksWithLabel(label).get(0)
         assertThat(bookmark.playbackSettings, notNullValue())
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
 
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
         provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
@@ -791,7 +784,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1)) // new bookmark with same label has been created
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1)) // new bookmark with same label has been created
     }
 
     @Test
@@ -800,25 +793,25 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         provider.pause();
         val label = bookmarkControl.speakLabel
-        val bookmark = bookmarkControl.getBookmarksWithLabel(label).get(0)
+        val bookmark = bookmarkControl.getBibleBookmarksWithLabel(label).get(0)
         //assertThat(bookmark.playbackSettings, notNullValue())
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
 
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
         provider.prepareForStartSpeaking()
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
 
         // Test that if stopping when paused, bookmark is not created.
         provider.pause()
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
-        val bmark = bookmarkControl.getBookmarksWithLabel(label).first()
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
+        val bmark = bookmarkControl.getBibleBookmarksWithLabel(label).first()
         bookmarkControl.deleteBookmark(bmark);
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(0))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(0))
         provider.stop()
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(0))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(0))
     }
 
     @Test
@@ -828,12 +821,12 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         provider.stop();
         val label = bookmarkControl.speakLabel
-        val bookmark = bookmarkControl.getBookmarksWithLabel(label).get(0)
+        val bookmark = bookmarkControl.getBibleBookmarksWithLabel(label).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
         provider.setupReading(book, getVerse("Ps.14.2"))
         provider.prepareForStartSpeaking()
-        assertThat(bookmarkControl.getBookmarksWithLabel(label).size, equalTo(1))
+        assertThat(bookmarkControl.getBibleBookmarksWithLabel(label).size, equalTo(1))
     }
 }
 
@@ -843,8 +836,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, windowRepository, book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
+        provider = BibleSpeakTextProvider(bibleTraverser, bookmarkControl, book)
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
     private fun checkRomansBeginning() {
@@ -903,7 +896,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression3STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
         provider.setupReading(book, getVerse("Ezek.34.27"))
 
         val text1 = nextText()
@@ -917,7 +910,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression4STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.35.1"))
         nextText() // title
         val text1 = nextText()
@@ -928,7 +922,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression5STLK() {
         book = Books.installed().getBook("FinSTLK2017") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.35.4"))
         val text1 = nextText()
         assertThat(text1, endsWith("Tulet tietämään, että minä olen Jahve."))
@@ -939,7 +934,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgressionESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.34.27"))
 
         val text1 = nextText()
@@ -955,7 +951,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression2ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.36.2"))
 
         val text1 = nextText()
@@ -967,7 +964,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgression3ESV() {
         book = Books.installed().getBook("ESV2011") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.setupReading(book, getVerse("Ezek.36.16"))
 
         val text1 = nextText()// Title
@@ -980,7 +978,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     fun textProgressionAndRepeatPassageESV() {
         // related to issue #314
         book = Books.installed().getBook("ESV2011") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true)
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings()
         provider.settings.playbackSettings = PlaybackSettings(verseRange = VerseRange(book.versification, getVerse("Rev.1.2"), getVerse("Rev.1.5")))
         provider.setupReading(book, getVerse("Rev.1.5"))
 
@@ -1014,7 +1013,8 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true, playbackSettings = PlaybackSettings(speakChapterChanges = false))
+        AdvancedSpeakSettings.replaceDivineName = true
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = false))
         provider.setupReading(book, getVerse("Ezek.36.38"))
 
         val text1 = nextText()

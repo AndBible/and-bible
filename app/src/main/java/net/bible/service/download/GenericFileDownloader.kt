@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.download
 
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
@@ -37,6 +38,7 @@ import org.crosswire.jsword.book.install.InstallException
 import java.io.File
 import java.io.IOException
 import java.net.URI
+import java.net.URL
 import java.util.*
 import javax.net.ssl.HttpsURLConnection
 
@@ -44,6 +46,7 @@ import javax.net.ssl.HttpsURLConnection
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 class GenericFileDownloader(
+    val activity: AppCompatActivity? = null,
     private val onErrorsChange: (() -> Unit)? = null
 ) {
     val errors = TreeSet<URI>()
@@ -58,8 +61,10 @@ class GenericFileDownloader(
         onErrorsChange?.invoke()
     }
 
-    fun downloadFileInBackground(source: URI, target: File, description: String) =
-        GlobalScope.launch(Dispatchers.IO) {
+    val scope = activity?.lifecycleScope?: CoroutineScope(Dispatchers.Main)
+
+    fun downloadFileInBackground(source: URL, target: File, description: String) =
+        scope.launch(Dispatchers.IO) {
             // So now we know what we want to install - all we need to do
             // is installer.install(name) however we are doing it in the
             // background so we create a job for it.
@@ -67,7 +72,7 @@ class GenericFileDownloader(
             downloadFileNow(source, target, description)
         }
 
-    private suspend fun downloadFileNow(source: URI, target: File, description: String) = withContext(Dispatchers.IO) {
+    private suspend fun downloadFileNow(source: URL, target: File, description: String) = withContext(Dispatchers.IO) {
         Log.i(TAG, "Starting generic download thread - file:" + target.name)
         try {
             // Delete the file, if present
@@ -81,47 +86,65 @@ class GenericFileDownloader(
                 throw RuntimeException("IO Error downloading file $source", e)
             }
             Log.i(TAG, "Finished downloading $source")
-            removeError(source)
+            removeError(source.toURI())
         } catch (e: Exception) {
-            addError(source)
+            addError(source.toURI())
             Log.e(TAG, "Error downloading $source", e)
         }
     }
 
-    private fun lastUpdated(uri: URI): Long? =
+    private fun lastUpdated(url: URL): Long? =
         try {
-            val httpsURLConnection = uri.toURL().openConnection() as HttpsURLConnection
+            val httpsURLConnection = url.openConnection() as HttpsURLConnection
             val lastModified: Long = httpsURLConnection.lastModified
             httpsURLConnection.disconnect()
             lastModified
         } catch (e: Exception) {
-            Log.e(TAG, "Could not check last modified time for $uri")
+            Log.e(TAG, "Could not check last modified time for $url")
             null
         }
 
-    suspend fun downloadFile(source: URI, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
-
+    suspend fun downloadFile(source: URL, target: File, description: String, reportError: Boolean = true) = withContext(Dispatchers.IO) {
+        downloadFileSync(
+            source = source,
+            target = target,
+            description = description,
+            reportError = reportError
+        )
+    }
+    fun downloadFileSync(
+        source: URL,
+        target: File,
+        description: String = "",
+        reportError: Boolean = true,
+        jobId: String? = null,
+        notifyUser: Boolean = false,
+    ): Boolean {
         val lastUpdated = lastUpdated(source)
         if(target.canRead()) {
             val lastChecked = settings.getLong("last-downloaded-${source}", 0)
-            if (lastUpdated != null && lastUpdated <= lastChecked) return@withContext;
+            if (lastUpdated != null && lastUpdated <= lastChecked) return true
         }
         settings.setLong("last-downloaded-${source}", lastUpdated)
 
         val jobName = JSMsg.gettext("Downloading : {0}", target.name + " " + description)
-        val job = JobManager.createJob(jobName)
+        val job = if(jobId != null) {
+            JobManager.createJob(jobId, jobName, null)
+        } else {
+            JobManager.createJob(jobName)
+        }
 
-        job.isNotifyUser = false;
+        job.isNotifyUser = notifyUser
 
         // Don't bother setting a size, we'll do it later.
         job.beginJob(jobName)
-
+        var success = false
         var temp: URI? = null
         try {
             // TRANSLATOR: Progress label indicating the Initialization of installing of a book.
             job.sectionName = JSMsg.gettext("Initializing")
             temp = NetUtil.getTemporaryURI("swd", ".tmp")
-            copy(job, source, temp)
+            copy(job, source.toURI(), temp)
 
             // Once the download is complete, we need to continue
             job.isCancelable = false
@@ -129,17 +152,18 @@ class GenericFileDownloader(
                 val tempFile = NetUtil.getAsFile(temp)
                 if (!copyFile(tempFile, target)) {
                     Log.e(TAG, "Download Error renaming temp file $tempFile to:$target")
-                    Dialogs.instance.showErrorMsg(getResourceString(R.string.error_occurred))
+                    Dialogs.showErrorMsg(getResourceString(R.string.error_occurred))
                     job.cancel()
                 }
             }
-            removeError(source)
+            removeError(source.toURI())
+            success = true
         } catch (e: IOException) {
-            if(reportError) addError(source)
+            if(reportError) addError(source.toURI())
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } catch (e: InstallException) {
-            if(reportError) addError(source)
+            if(reportError) addError(source.toURI())
             Log.e(TAG, "Failed to download ${source}", e)
             job.cancel()
         } finally {
@@ -155,6 +179,7 @@ class GenericFileDownloader(
                 }
             }
         }
+        return success
     }
 
     @Throws(InstallException::class)

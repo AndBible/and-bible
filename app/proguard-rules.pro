@@ -26,6 +26,8 @@
 # commons compress does not need classes for other platforms
 -dontwarn org.tukaani.xz.**
 
+-keep class org.apache.commons.compress.archivers.zip.**
+
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
 
@@ -88,6 +90,7 @@
 }
 
 -dontwarn javax.management.MBeanServerConnection
+-dontwarn javax.management.MBeanServer
 
 #We need these in order to support Kotlin reflection (used at least in SpeakWidgets.kt)
 #-keepattributes *Annotation*
@@ -96,7 +99,6 @@
 
 # Kotlinx serialization rules
 
--keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
 # kotlinx-serialization-json specific. Add this if you have java.lang.NoClassDefFoundError kotlinx.serialization.json.JsonObjectSerializer
@@ -114,8 +116,65 @@
 -keepclasseswithmembers class net.bible.** { # <-- change package name to your app's
     kotlinx.serialization.KSerializer serializer(...);
 }
--keepattributes *Annotation*, InnerClasses
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
 
 -keep class net.bible.android.database.bookmarks.VerseRangeSerializer
+
+# Google Drive
+-keepattributes *Annotation*,InnerClasses,Signature,SourceFile,LineNumberTable
+#,RuntimeVisibleAnnotations,AnnotationDefault
+-keep class * extends com.google.api.client.json.GenericJson { *; }
+-keep class com.google.api.services.drive.** { *; }
+-keepclassmembers class * {
+  @com.google.api.client.util.Key <fields>;
+}
+
+-dontwarn java.lang.invoke.StringConcatFactory
+
+-keep class org.jaxen.saxpath.base.XPathReader
+
+# Nextcloud
+-keep,allowshrinking class com.owncloud.android.** { *; }
+-keep,allowshrinking class org.apache.jackrabbit.webdav.** { *; }
+-keep,allowshrinking class org.apache.commons.codec.** { *; }
+-keep,allowshrinking class org.apache.commons.logging.** { *; }
+-keep class org.apache.commons.httpclient.** { *; }
+-keep,allowshrinking class org.parceler.** { *; }
+-keep,allowshrinking class org.slf4j.** { *; }
+
+#ignore nextcloud related warnings
+-dontwarn com.owncloud.android.lib.**
+-dontwarn org.apache.jackrabbit.webdav.**
+-dontwarn org.apache.commons.codec.**
+-dontwarn org.apache.commons.logging.**
+-dontwarn org.slf4j.**
+
+-dontskipnonpubliclibraryclasses
+
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+
+-keepclasseswithmembers class * {
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
+
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+
+
+
+
+-keepattributes InnerClasses
+#end nextcloud

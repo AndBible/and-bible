@@ -1,27 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
 import debounce
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent
 import net.bible.android.control.page.CurrentPage
@@ -32,35 +29,24 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.Verse
-import kotlin.math.max
 
 class WindowSync(private val windowRepository: WindowRepository) {
-    private var lastSynchWasInNightMode: Boolean = false
-    private var lastForceSyncAll: Long = System.currentTimeMillis()
-    private var lastForceSyncBibles: Long = System.currentTimeMillis()
+    private var lastSyncWasInNightMode: Boolean = false
+    var lastForceSyncAll: Long = System.currentTimeMillis()
+        private set
 
     fun setResyncRequired() {
         lastForceSyncAll = System.currentTimeMillis()
     }
 
-    fun setResyncBiblesRequired() {
-        lastForceSyncBibles = System.currentTimeMillis()
-    }
-
     fun reloadAllWindows(force: Boolean = false) {
-        ABEventBus.getDefault().post(IncrementBusyCount())
         if(force)
             setResyncRequired()
 
         for (window in windowRepository.visibleWindows) {
-            val bookCategory = window.pageManager.currentPage.currentDocument?.bookCategory
-            val isBible = BookCategory.BIBLE == bookCategory
-
-            if(lastForceSyncAll > window.lastUpdated || (isBible && lastForceSyncBibles > window.lastUpdated))
-                window.updateText()
+            window.updateOrScroll()
         }
-        lastSynchWasInNightMode = ScreenSettings.nightMode
-        ABEventBus.getDefault().post(DecrementBusyCount())
+        lastSyncWasInNightMode = ScreenSettings.nightMode
     }
 
     /** Synchronise the inactive key and inactive screen with the active key and screen if required */
@@ -80,25 +66,24 @@ class WindowSync(private val windowRepository: WindowRepository) {
             delayedSynchronizeWindows(sourceWindow)
     }
 
-    private val syncScope = CoroutineScope(Dispatchers.Default)
+    val scope get() = windowRepository.scope
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
-        = debounce(200, syncScope) {sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
+        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
 
     private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")
-        ABEventBus.getDefault().post(IncrementBusyCount())
 
         val activePage = sourceWindow.pageManager.currentPage
         var targetActiveWindowKey = activePage.singleKey
 
         val inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow)
 
-        if (lastSynchWasInNightMode != ScreenSettings.nightMode) {
+        if (lastSyncWasInNightMode != ScreenSettings.nightMode) {
             setResyncRequired()
         }
 
         if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised) {
-            for (inactiveWindow in inactiveWindowList) {
+            for (inactiveWindow in inactiveWindowList.filter { it.syncGroup == sourceWindow.syncGroup }) {
                 val inactivePage = inactiveWindow.pageManager.currentPage
                 val inactiveWindowKey = inactivePage.singleKey
                 var inactiveUpdated = false
@@ -131,15 +116,13 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
                 // force inactive screen to display something otherwise it may be initially blank
                 // or if nightMode has changed then force an update
-                if (!inactiveUpdated && inactiveWindow.lastUpdated < max(lastForceSyncBibles, lastForceSyncAll)) {
+                if (!inactiveUpdated && inactiveWindow.lastUpdated < lastForceSyncAll) {
                     // force an update of the inactive page to prevent blank screen
                     updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey)
                 }
 
             }
         }
-
-        ABEventBus.getDefault().post(DecrementBusyCount())
     }
 
     /** Only call if screens are synchronised.  Update synch'd keys even if inactive page not
@@ -166,23 +149,23 @@ class WindowSync(private val windowRepository: WindowRepository) {
             val currentVerse = if (inactiveWindowKey is Verse) {KeyUtil.getVerse(inactiveWindowKey)} else null
 
             // update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
-            if((lastForceSyncAll > inactiveWindow.lastUpdated) || (isBible && lastForceSyncBibles > inactiveWindow.lastUpdated)) {
-                inactiveWindow.updateText()
+            if(lastForceSyncAll > inactiveWindow.lastUpdated) {
+                inactiveWindow.loadText()
 
             } else {
                 if ((isBible||isMyNotes) && currentVerse != null && targetVerse != null) {
                     if(targetVerse.book == currentVerse.book && inactiveWindow.hasChapterLoaded(targetVerse.chapter)) {
-                        ABEventBus.getDefault()
+                        ABEventBus
                             .post(ScrollSecondaryWindowEvent(inactiveWindow, targetVerse))
                     } else if(targetVerse != currentVerse) {
-                        inactiveWindow.updateText()
+                        inactiveWindow.loadText()
                     }
                 } else if ((isGeneralBook || isUnsynchronizedCommentary) && inactiveWindow.initialized) {
                     //UpdateInactiveScreenTextTask().execute(inactiveWindow)
                     // Do not update! Updating would reset page position.
                 } else if ( isSynchronizedCommentary && targetVerse != currentVerse ) {
                     // synchronized commentary
-                    inactiveWindow.updateText()
+                    inactiveWindow.loadText()
                 }
             }
         }

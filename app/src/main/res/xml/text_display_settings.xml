@@ -1,20 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
-  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
-  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
   ~ terms of the GNU General Public License as published by the Free Software Foundation,
   ~ either version 3 of the License, or (at your option) any later version.
   ~
-  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~ See the GNU General Public License for more details.
   ~
-  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
   ~ If not, see http://www.gnu.org/licenses/.
-  ~
   -->
 
 <!-- Icons are dynamically set in app/src/main/java/net/bible/android/view/activity/page/OptionsMenuItems.kt -->
@@ -36,8 +35,20 @@
 
         <SwitchPreferenceCompat
             android:key="FOOTNOTES"
-            android:title="@string/prefs_show_notes_title"
-            android:summary="@string/prefs_show_notes_summary"
+            android:title="@string/prefs_show_footnotes_title"
+            android:summary="@string/prefs_show_footnotes_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="XREFS"
+            android:title="@string/prefs_show_xrefs_title"
+            android:summary="@string/prefs_show_xrefs_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="EXPAND_XREFS"
+            android:title="@string/prefs_expand_footnotes_title"
+            android:summary="@string/prefs_expand_footnotes_summary"
             />
 
         <SwitchPreferenceCompat
@@ -111,6 +122,11 @@
             android:key="HYPHENATION"
             android:title="@string/prefs_hyphenation_title"
             android:summary="@string/prefs_hyphenation_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="PAGENUMBER"
+            android:title="@string/page_number_title"
+            android:summary="@string/page_number_summary"
             />
     </PreferenceCategory>
     <PreferenceCategory

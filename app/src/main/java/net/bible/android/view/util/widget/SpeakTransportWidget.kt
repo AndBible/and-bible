@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.util.widget
@@ -21,6 +20,7 @@ package net.bible.android.view.util.widget
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -38,13 +38,16 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
-import net.bible.android.view.activity.speak.GeneralSpeakActivity
 import net.bible.service.common.CommonUtils.buildActivityComponent
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.service.common.CommonUtils
+import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -64,6 +67,17 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
         buildActivityComponent().inject(this)
 
         binding.apply {
+            val allButtons = listOf(
+                speakPauseButton, prevButton, nextButton,
+                stopButton, configButton, rewindButton,
+                forwardButton, bookmarkButton,
+            )
+            if (CommonUtils.settings.monochromeMode) {
+                statusText.setTextColor(if(ScreenSettings.nightMode) Color.WHITE else Color.BLACK)
+                for(b in allButtons) {
+                    b.setBackgroundColor(Color.BLACK)
+                }
+            }
             speed.progress = SpeakSettings.load().playbackSettings.speed
             speed.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -81,16 +95,16 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
             nextButton.setOnClickListener { onButtonClick(it) }
             stopButton.setOnClickListener { onButtonClick(it) }
             configButton.setOnClickListener {
-                val isBible =
-                    windowControl.activeWindowPageManager.currentPage.documentCategory == DocumentCategory.BIBLE
                 val intent =
-                    Intent(context, if (isBible) BibleSpeakActivity::class.java else GeneralSpeakActivity::class.java)
+                    Intent(context, BibleSpeakActivity::class.java)
                 context.startActivity(intent)
             }
             rewindButton.setOnClickListener { onButtonClick(it) }
             forwardButton.setOnClickListener { onButtonClick(it) }
             bookmarkButton.setOnClickListener { onBookmarkButtonClick() }
-            bookmarkButton.visibility = if (SpeakSettings.load().autoBookmark) View.VISIBLE else View.GONE
+
+            bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
+
             if (context.theme.obtainStyledAttributes(attributeSet, R.styleable.SpeakTransportWidget, 0, 0)
                     .getBoolean(R.styleable.SpeakTransportWidget_hideStatus, false)
             ) {
@@ -105,12 +119,12 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
     }
 
     override fun onDetachedFromWindow() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDetachedFromWindow()
     }
 
     override fun onAttachedToWindow() {
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         super.onAttachedToWindow()
         resetView(SpeakSettings.load())
     }
@@ -125,7 +139,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     rewindButton -> speakControl.rewind()
                     stopButton -> {
                         if(speakControl.isStopped) {
-                            ABEventBus.getDefault().post(HideTransportEvent())
+                            ABEventBus.post(HideTransportEvent())
                         } else {
                             speakControl.stop()
                         }
@@ -136,7 +150,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                             speakControl.isSpeaking -> speakControl.pause()
                             else -> {
                                 speakControl.speakAny()
-                                if (SpeakSettings.load().synchronize) {
+                                if (AdvancedSpeakSettings.synchronize) {
                                     val intent = Intent(context, MainBibleActivity::class.java)
                                     intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
                                     context.startActivity(intent)
@@ -147,18 +161,30 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 }
             }
         } catch (e: Exception) {
-            Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
     }
 
+    private val speakBookmarks: List<BookmarkEntities.BaseBookmarkWithNotes> get() {
+        val label = bookmarkControl.speakLabel
+        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
+        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        return bibleBookmarks + genBookmarks
+    }
+
     private fun onBookmarkButtonClick() {
         val bookmarkTitles = ArrayList<String>()
-        val bookmarks = ArrayList<Bookmark>()
-        val label = bookmarkControl.speakLabel
-        for (b in bookmarkControl.getBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }) {
+        val bookmarks = ArrayList<BookmarkEntities.BaseBookmarkWithNotes>()
 
-            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})")
+        for (b in speakBookmarks) {
+            bookmarkTitles.add(
+                when(b) {
+                    is BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"})"
+                    is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} - ${b.bookKey?.name}"
+                    else -> throw RuntimeException("Illegal bookmark type")
+                }
+            )
             bookmarks.add(b)
         }
 
@@ -167,7 +193,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                 .setTitle(R.string.speak_bookmarks_menu_title)
                 .setAdapter(adapter) { _, which ->
                     speakControl.speakFromBookmark(bookmarks[which])
-                    if(SpeakSettings.load().synchronize) {
+                    if(AdvancedSpeakSettings.synchronize) {
                         context.startActivity(Intent(context, MainBibleActivity::class.java)
                             .apply { flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP }
                         )
@@ -186,7 +212,7 @@ class SpeakTransportWidget(context: Context, attributeSet: AttributeSet): Linear
                     R.drawable.ic_play_arrow_black_24dp
         )
         if(speakSettings != null) {
-            binding.bookmarkButton.visibility = if (speakSettings.autoBookmark) View.VISIBLE else View.GONE
+            binding.bookmarkButton.visibility = if (speakBookmarks.isNotEmpty()) View.VISIBLE else View.GONE
         }
     }
 

@@ -1,0 +1,22 @@
+<!--
+  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp" android:viewportHeight="100"
+    android:viewportWidth="100" android:width="24.005415dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="#000000"
+        android:pathData="M54.2 24.6C53.1 24.6 52 25 51.3 25.8 50.5 26.6 50 27.7 50 28.8L50 49.8C50.1 50.9 50.5 51.9 51.3 52.7L63.8 65.3C65.4 66.9 68 66.9 69.6 65.4 71.3 63.7 71.3 61.1 69.7 59.5L58.4 48.1 58.4 28.8C58.4 27.7 57.9 26.6 57.2 25.8 56.4 25 55.3 24.6 54.2 24.6ZM54.6 4C33.9 4.1 15.9 18.2 10.8 38.2L7.7 33.6C6.9 32.3 5.5 31.5 4 31.6 2.4 31.7 1.1 32.6.4 33.9-.3 35.3-.1 37 .8 38.2L9.9 52.1C10.6 53 11.5 53.6 12.6 53.8 13.7 54.1 14.8 53.8 15.7 53.2L29.5 44C30.8 43.2 31.5 41.7 31.4 40.2 31.3 38.7 30.4 37.4 29.1 36.7 27.7 36 26.1 36.2 24.8 37.1L18.6 41.3C23.2 22.5 41.5 10.5 60.5 13.6 79.6 16.7 93.1 33.9 91.6 53.1 90 72.4 73.9 87.2 54.6 87.2 42.5 87.2 31.2 81.3 24.3 71.3 23.5 70.1 22 69.3 20.5 69.5 19 69.6 17.7 70.5 17 71.9 16.4 73.3 16.6 74.9 17.5 76.1 28.8 92.4 49.5 99.5 68.5 93.4 87.4 87.4 100.2 69.7 100 49.8 100.1 24.6 79.8 4.1 54.6 4Z" />
+</vector>

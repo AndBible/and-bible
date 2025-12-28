@@ -1,0 +1,67 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "לתנ\"ך, :AndBible"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "קריאה בתנ\"ך, חקר פרשנויות ומילונים, וקריאת ספרים ללא חיבור לרשת."
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: כלי מקצועי ללימוד הכתובים
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" הוא יישום רב עוצמה, ועם זאת קל לשימוש, ללימוד תנ"ך לא-מקוון, עבור אנדרואיד. כוונת היישום אינה להיות תוכנת קריאה פשוטה, אלא מתמקדת ביכולות מתקדמות ללימוד אישי ומעמיק של התנ"ך.
+paragraph_1_2: >
+  היישום מפותח ע"י קוראים בתנ"ך ועבורם. הוא מיועד לעזור ללימוד התנ"ך להיות נוח, עמוק ומהנה. החלק הכי טוב אודות פרוייקט זה, הוא שהוא לא למטרות רווח, קוד-פתוח, חופשי לחלוטין, ואינו מכיל פרסומות. בהיותו מפותח למין ההתחלה עבור אנדרואיד, הוא תופס מעט מקום, יעיל ומהיר במיוחד.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  ניתן להוריד נוסחים ותרגומים רבים של התנ"ך, כולל KJV, NASB, NET באנגלית, וכן בעברית MAPM, HebModern, HebDelitzsch ואחרים.
+subtitle_2: כלים ללימוד מעמיק
+paragraph_2_1: >
+  היישום כולל יכולות רבות, המאפשרות חוויית לימוד מורכבת, עמוקה, ועם זאת חלקה. היכולות המשמעותיות ביותר הן:
+feature_01: תצוגה מפוצלת המאפשרת השוואת תרגומים ועיון בפרשנויות
+feature_02: סביבות עבודה המאפשרות הגדרות שונות אחת מהשניה
+feature_03: שילוב של STRONG ללימוד וניתוח של יוונית ועברית מקראית
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  קישורים אל מראי מקומות, הערות ומסמכים; מעבר אל מראי מקומות פשוט ע"י לחיצה; לימוד מעמיק של הכתובים ע"י שימוש בפרשנויות המכילות קישורים ({{commentary_examples}}), אוספים של מראי מקומות ({{cross_reference_examples}}), ומשאבים נוספים.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "Gill, Matthew Henry ועוד. "
+# Examples of cross-reference collections.
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "הקראה קולית מתקדמת, כולל סימניות, המאפשרות האזנה חלקה לתנ\"ך"
+feature_06: חיפוש גמיש
+feature_07: שימוש מתקדם בסימניות ואפשרויות הדגשה עם הערות לימוד אישיות
+feature_09: >-
+  תוכניות קריאה: הצבת יעדים לקריאה בתנ"ך
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  ספרייה עצומה של מסמכים: תרגומי תנ"ך, פרשנויות, מילונים, מפות, ספרים נוצריים - {{total_documents}} מסמכים ב- {{total_languages}} שפות, המופצים באופן חוקי ע"י Crosswire ומאגרי SWORD אחרים.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_11: >
+  מקורם של כל המסמכים נבדק כדי לוודא שניתן להפיצם באופן חוקי, או שניתנה הרשאה ע"י בעל זכויות היוצרים. זו גם הסיבה שיישום זה אינו כולל מסמכים כגון {{unavailable_documents}}.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV ו NKJV"
+feature_12: >
+  לא-מקוון: יש צורך בחיבור לאינטרנט רק לשם הורדת מסמכים.
+feature_13: >
+  פנקסי לימוד להוספת רשימות ומראי מקום בזמן האזנה לדרשות.
+subtitle_3: בואו וניצור יחד את אפליקציית הכתובים הטובה ביותר!
+paragraph_3_1: >
+  And Bible הוא פרוייקט קהילייתי בקוד פתוח. בפועל, זה אומר שכל אחד עם יכולות מתאימות, יכול, ומוזמן, לתרום לפרוייקט, ע"י:
+contr_1: "פיתוח יכולות חדשות,"
+contr_2: בדיקות יכולות חדשות שטרם שוחררו לציבור
+contr_3: שמירה על עדכניות תרגום ממשק המשתמש
+contr_4: "עזרה בהרחבה של ספריית המסמכים ע\"י קבלת רשות מבעלי זכויות יוצרים, או ע\"י המרת מסמכים לפורמט SWORD."
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "אם אתם מהנדסי או בודקי תוכנה מקצועיים, אנא שיקלו לתרום לפרוייקט. למידע נוסף בנושא, ראו {{how_to_contribute_url}}."
+subtitle_4: קישורים
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  אתר: {{homepage_url}}
+link_2: >
+  לייק And Bible on בפייסבוק: {{facebook_url}}
+link_3: >
+  ערוץ היוטיוב שלנו  : {{youtube_url}}
+link_4: >
+  שאלות נפוצות  : {{faq_url}}
+link_5: >
+  עמוד הפרוייקט ב   Github: {{github_url}}

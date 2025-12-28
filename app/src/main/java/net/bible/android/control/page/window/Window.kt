@@ -1,26 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page.window
 
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,29 +26,66 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
+import net.bible.android.control.page.CurrentCommentaryPage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.Document
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.OsisDocument
 import net.bible.android.control.page.window.WindowLayout.WindowState
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.view.activity.page.windowControl
+import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.service.device.speak.event.SpeakProgressEvent
+import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 class WindowChangedEvent(val window: Window)
 
-open class Window (
-    window: WorkspaceEntities.Window,
+class Window (
+    entity: WorkspaceEntities.Window,
     val pageManager: CurrentPageManager,
-    val windowRepository: WindowRepository
+    val windowRepository: WindowRepository,
+    var isLinksWindow: Boolean = entity.isLinksWindow,
 ){
+    private var targetLinksWindowId: IdType? = entity.targetLinksWindowId
+    var savedEntity = entity.deepCopy()
+    var syncGroup = entity.syncGroup
+
+    val targetLinksWindow: Window
+        get() {
+            return ownTargetLinksWindow
+                ?: if (isLinksWindow) windowRepository.addNewLinksWindow().also {
+                    targetLinksWindowId = it.id
+                    ABEventBus.post(NumberOfWindowsChangedEvent())
+                } else windowRepository.primaryTargetLinksWindow
+        }
+
+    private val ownTargetLinksWindow get() = windowRepository.getWindow(targetLinksWindowId)
+    val linksWindowNumber: Int get() {
+        val target = ownTargetLinksWindow
+        return if(target == null) 0
+        else {
+            target.linksWindowNumber + 1
+        }
+    }
+    val isPrimaryLinksWindow get() = isLinksWindow && id == windowRepository.primaryTargetLinksWindowId
+
+    val id = entity.id
+    val displayId = id.toString().substring(0, 5)
+
     var weight: Float
         get() =
-            if(!isPinMode && !isLinksWindow) {
+            if(!isPinMode) {
                 if(windowRepository.unPinnedWeight == null) {
                     windowRepository.unPinnedWeight = windowLayout.weight
                 }
@@ -58,21 +93,18 @@ open class Window (
             }
             else windowLayout.weight
         set(value) {
-            if(!isPinMode && !isLinksWindow)
+            if(!isPinMode)
                 windowRepository.unPinnedWeight = value
             else
                 windowLayout.weight = value
         }
 
-    protected val windowLayout: WindowLayout = WindowLayout(window.windowLayout)
-
-    var id = window.id
-
-    protected var workspaceId = window.workspaceId
+    private val windowLayout: WindowLayout = WindowLayout(entity.windowLayout)
+    private var workspaceId = entity.workspaceId
 
     init {
-        @Suppress("LeakingThis")
         pageManager.window = this
+        ABEventBus.register(this)
     }
 
     val entity get () =
@@ -80,41 +112,40 @@ open class Window (
             workspaceId = workspaceId,
             isSynchronized = isSynchronised,
             isPinMode = isPinMode,
-            isLinksWindow = isLinksWindow,
             windowLayout = WorkspaceEntities.WindowLayout(windowLayout.state.toString(), windowLayout.weight),
-            id = id
+            id = id,
+            targetLinksWindowId = targetLinksWindowId,
+            isLinksWindow = isLinksWindow,
+            syncGroup = syncGroup
         )
-    var displayedKey: Key? = null
-    var displayedBook: Book? = null
 
-    open var isSynchronised = window.isSynchronized
+    private var displayedKey: Key? = null
+    private var displayedBook: Book? = null
+
+    var isSynchronised = entity.isSynchronized
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
-    open var isPinMode: Boolean = window.isPinMode
-        get() = if(windowRepository.workspaceSettings.autoPin) {
-            true
-        } else {
-            field
+    var isPinMode: Boolean = entity.isPinMode
+        get() {
+            return when {
+                isLinksWindow -> windowRepository.workspaceSettings.autoPin
+                windowRepository.workspaceSettings.autoPin -> true
+                else -> field
+            }
         }
         set(value) {
             field = value
-            ABEventBus.getDefault().post(WindowChangedEvent(this))
+            ABEventBus.post(WindowChangedEvent(this))
         }
 
     val isMinimised: Boolean
         get() = windowLayout.state == WindowState.MINIMISED
 
-    val isSplit: Boolean
-        get() = windowLayout.state == WindowState.SPLIT
-
     val isSyncable: Boolean
         get() = pageManager.currentPage.isSyncable
-
-    val isClosed: Boolean
-        get() = windowLayout.state == WindowState.CLOSED
 
     var windowState: WindowState
         get() = windowLayout.state
@@ -124,31 +155,19 @@ open class Window (
 
     val isVisible: Boolean
         get() =
-            if(!isLinksWindow && windowRepository.isMaximized) windowRepository.maximizedWindowId == id
+            if(windowRepository.isMaximized && windowRepository.maximizedWindow?.targetLinksWindowId != id)
+                windowRepository.maximizedWindowId == id
             else windowLayout.state != WindowState.MINIMISED && windowLayout.state != WindowState.CLOSED
 
-
-    val defaultOperation: WindowOperation
-        get() = when {
-            isLinksWindow -> WindowOperation.CLOSE
-            else -> WindowOperation.MINIMISE
-        }
-
-    open val isLinksWindow = false
 
     var bibleView: BibleView? = null
 
     fun destroy() {
+        ABEventBus.unregister(this)
         bibleView?.destroy()
     }
 
-    enum class WindowOperation {
-        MINIMISE, RESTORE, CLOSE
-    }
-
-    override fun toString(): String {
-        return "Window[$id]"
-    }
+    override fun toString(): String = "Window[${displayId}]"
 
     var lastUpdated
         get() = bibleView?.lastUpdated ?: 0L
@@ -157,8 +176,9 @@ open class Window (
         }
 
     val initialized get() = lastUpdated != 0L
+    private val updateScope get() = windowRepository.scope
 
-    fun updateText(notifyLocationChange: Boolean = false) {
+    fun loadText(notifyLocationChange: Boolean = false) {
         val isVisible = isVisible
 
         Log.i(TAG, "updateText, isVisible: $isVisible")
@@ -166,22 +186,27 @@ open class Window (
         if(!isVisible) return
 
         Log.i(TAG, "Loading OSIS xml in background")
-        var verse: Verse? = null
-        var anchorOrdinal: Int? = null
+        var anchorOrdinal: OrdinalRange? = null
         val currentPage = pageManager.currentPage
-
-        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
-            verse = pageManager.currentBibleVerse.verse
+        val key = if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            pageManager.currentBibleVerse.verse
         } else {
             anchorOrdinal = currentPage.anchorOrdinal
+            pageManager.currentPage.key
         }
+        val htmlId = if(currentPage.currentDocument?.isEpub == true) {
+            currentPage.htmlId
+        } else {
+            null
+        }
+
         displayedBook = currentPage.currentDocument
         displayedKey = currentPage.key
-        Log.i(TAG, "updateText ${this.hashCode()}") // ${Log.getStackTraceString(Exception())}")
+        Log.i(TAG, "updateText ${this.hashCode()}")
 
-        GlobalScope.launch(Dispatchers.IO) {
+        updateScope.launch(Dispatchers.IO) {
             if (notifyLocationChange) {
-                PassageChangeMediator.getInstance().contentChangeStarted()
+                PassageChangeMediator.contentChangeStarted()
             }
             val b = bibleView
             val adjusted = b?.adjustLoadingCount(1)?: false
@@ -204,18 +229,14 @@ open class Window (
             lastUpdated = System.currentTimeMillis()
             lastChecksum = checksum
 
-            if(notifyLocationChange) {
-                bibleView?.loadDocument(doc, updateLocation = true)
-            } else {
-                bibleView?.loadDocument(doc, verse = verse, anchorOrdinal = anchorOrdinal)
-            }
+            bibleView?.loadDocument(doc, updateLocation = notifyLocationChange, key = key, anchorOrdinal = anchorOrdinal, htmlId = htmlId)
 
             if(notifyLocationChange)
-                PassageChangeMediator.getInstance().contentChangeFinished()
+                PassageChangeMediator.contentChangeFinished()
             }
         }
 
-    var lastChecksum = 0
+    private var lastChecksum = 0
 
     private suspend fun waitForBibleView() {
         var time = 0L
@@ -229,6 +250,77 @@ open class Window (
                 return;
             }
         }
+    }
+
+    fun onEvent(e: SpeakProgressEvent) {
+        if(AdvancedSpeakSettings.synchronize || e.forceFollow) return // handled in SpeakControl
+        val speakKey = (e.key as? BookAndKey)?.key?: e.key
+        val bookInitials = e.book.initials
+        if (displayedBook != e.book) return
+
+        when(e.book.bookCategory) {
+            BookCategory.COMMENTARY -> {
+                if (e.key !is BookAndKey) return
+                val curPage = pageManager.currentPage
+                val commentaryRange = (curPage as? CurrentCommentaryPage)?.annotateKey
+                val osisRef = (commentaryRange ?: speakKey).osisRef
+                bibleView?.highlightOrdinalRange(
+                    bookInitials,
+                    osisRef,
+                    e.key.ordinal!!.start..(e.key.ordinal.end ?: e.key.ordinal.start)
+                )
+            }
+            BookCategory.BIBLE -> {
+                val loadedRange = bibleView?.verseRangeLoaded?: return
+                if (!loadedRange.contains(speakKey)) return
+
+                val range = e.key as? VerseRange ?: return
+                bibleView?.highlightBibleOrdinalRange(range.start.ordinal .. range.end.ordinal)
+            }
+            else -> {
+                if(e.key is BookAndKey) {
+                    bibleView?.highlightOrdinalRange(
+                        bookInitials,
+                        e.key.key.osisRef,
+                        e.key.ordinal!!.start .. (e.key.ordinal.end ?: e.key.ordinal.start)
+                    )
+                }
+            }
+        }
+    }
+
+    fun updateText() {
+        val document = pageManager.currentPage.currentDocument
+        val verse = pageManager.currentVersePage.currentBibleVerse.verse
+        val book = pageManager.currentVersePage.currentBibleVerse.currentBibleBook
+        val key = pageManager.currentPage.singleKey
+
+        val documentChanged = displayedBook != document
+
+        if(documentChanged) {
+            loadText(notifyLocationChange = true)
+            return
+        }
+
+        val prevKey = displayedKey
+
+        if( pageManager.isBibleShown
+            && prevKey is VerseRange
+            && prevKey.start.book == book
+            && hasChapterLoaded(verse.chapter)
+        ) {
+            val originalKey = pageManager.currentBible.originalKey
+            bibleView?.scrollOrJumpToVerse(originalKey ?: verse)
+            PassageChangeMediator.contentChangeFinished()
+            return
+        }
+        val anchorOrdinal = pageManager.currentPage.anchorOrdinal
+        val htmlId = pageManager.currentPage.htmlId
+        if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, key?.osisRef)
+            return
+        }
+        loadText(notifyLocationChange = true)
     }
 
     private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
@@ -248,5 +340,35 @@ open class Window (
         return bibleView?.hasChapterLoaded(chapter) == true
     }
 
-    private val TAG get() = "BibleView[${id}] WIN"
+    fun updateOrScroll() {
+        if((displayedKey != pageManager.currentPage.key
+            || displayedBook != pageManager.currentPage.currentDocument)
+            || (windowControl.windowSync.lastForceSyncAll > lastUpdated)
+        ) {
+            loadText()
+        } else {
+            scrollToText()
+        }
+    }
+
+    private fun scrollToText() {
+        val currentPage = pageManager.currentPage
+        if(listOf(DocumentCategory.BIBLE, DocumentCategory.MYNOTE).contains(currentPage.documentCategory)) {
+            bibleView?.scrollOrJumpToVerse(
+                pageManager.currentBibleVerse.verse,
+                true
+            )
+        } else {
+            bibleView?.scrollOrJumpToOrdinal(
+                currentPage.anchorOrdinal,
+                currentPage.htmlId,
+                currentPage.currentDocument?.initials,
+                currentPage.singleKey?.osisRef,
+                true
+            )
+        }
+
+    }
+
+    private val TAG get() = "BibleView[${displayId}] WIN"
 }

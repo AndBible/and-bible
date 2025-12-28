@@ -1,0 +1,97 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Bokmärken
+bookmarksAndNotes: Bokmärken & egna anteckningar
+openMyNotes: Öppna i egna anteckingar
+openStudyPad: Öppna i studieblock (%s)
+noteText: Fotnoter (%s)
+noteTextWithoutType: Fotnoter
+crossReferenceText: Parallellhänvisningar
+findAllOccurrences: Hitta alla förekomster
+reportError: Rapporera ett problem
+errorTitle: Problem uppstod
+warningTitle: Varning
+normalTitle: Observera
+footnoteTypeStudy: Studera
+footnoteTypeExplanation: Förklarning
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternativ
+footnoteTypeTranslation: Översättning
+clearLog: Rensa logg med felmeddelanden
+editTextPlaceholder: Tryck för att ändra texten
+inputPlaceholder: Skriv här
+inputReference: Ange bibelreferens
+invalidReference: Versen hittades inte
+bookmarkAccurate: Bokmärket skapades i %s
+bookmarkInaccurate: "Bokmärkets bokinformation har inte sparats, innehållet visas i %s"
+defaultBook: standardbibeldokument
+ok: OK
+yes: "Ja"
+ambiguousSelection: "Vad vill du göra?"
+cancel: Avbryt
+removeBookmarkConfirmationTitle: "Ta bort bokmärke?"
+removeBookmarkConfirmation: "Är du säker på att du vill radera detta bokmärke?"
+createdAt: "Skapat: %s"
+lastUpdatedOn: "Senast uppdaterat: %s"
+strongsAndMorph: Definition & Morfologi
+externalLink: Öppna extern länk
+referenceLink: Öppna referenslänk
+openFootnote: Öppna fotnot
+noMyNotesTitle: Inga egna anteckningar för detta kapitel.
+noMyNotesDescription: >
+  Kom igång genom att skapa bokmärken i ett Bibeldokument. Bokmärkena kommer sedan att visas här och du kan lägga till dina personliga anteckningar till dem.
+emptyStudyPad: >
+  Tomt studieblock. Börja bygga upp studieblocket genom att skapa textobjekt här eller genom att skapa bokmärken med en bokmärkesetikett som hör till detta studieblock.
+doYouWantToDeleteEntry: "Radera detta objekt i studieblocket?"
+removeStudyPadConfirmationTitle: "Radera objekt i studieblocket?"
+dragHelp: Dra för att ordna om
+openAll: Öppna alla hänvisningar
+editBookmarkPlaceholder: Tryck för att redigera egna anteckningar för detta bokmärke.
+onlyLabel: Endast etikett
+wholeBookmark: Hela bokmärket
+assignLabelsMenuEntry1: Välj eller redigera etiketter...
+favouriteLabels: Favoritmarkerade etiketter
+recentLabels: Senaste etiketter
+bookmarkLabels: Bokmärkesetiketter
+refParserHelp: Vänligen installera modulen %s för att använda referenser i andra språk än engelska.
+openDownloads: Gå till Tillägg nerladdningar
+verseShare: Dela
+verseSpeak: Läs upp
+verseCompare: Jämför
+verseMemorize: Memorera
+verseNote: Anteckning
+verseMyNotes: Egna anteckningar
+verseParagraphBreak: Stycke
+verseShareLong: Dela denna vers
+verseCompareLong: Jämför denna vers
+verseMemorizeLong: Memorera bibelverser
+verseNoteLong: Skriv en anteckning
+verseParagraphBreakLong: Styckebrytning
+addBookmark: Bokmärke
+selectCustomIconTitle: Välj en anpassad ikon
+bookmarkSettingsTitle: Konfigurera bokmärkesinställningar
+subtitlePlaceholder: Text för underrubrik
+customIconLabel: Anpassad ikon
+editActionLabel: Redigera åtgärd
+editActionModeLabel: Läge
+editActionModeNone: Ingen
+editActionModeAppend: Infoga text efter
+editActionModePrepend: Infoga text före
+editActionContentLabel: Innehåll
+editActionContentPlaceholder: Ange text som ska läggas till i dokument...
+experimentalFeatureTitle: Experimentell
+experimentalFeatureHelpTitle: Om experimentella funktioner
+experimentalFeatureHelpContent: Experimentella funktioner utvecklas och testas fortfarande. De kanske inte fungerar perfekt och kan komma att ändras avsevärt eller tas bort i framtida appversioner.
+insertParagraphBreak: Infoga styckebrytning
+insertSubtitle: Infoga underrubrik
+xmlParseError: XML-läsningsfel
+invalidTag: Ogiltig tagg
+invalidClosingTag: Ogiltig sluttagg
+unmatchedClosingTag: Sluttagg ej matchad
+unclosedTag: Tagg ej stängd
+unknownError: Okänt fel
+blur: Sudda ut
+reset: Återställ
+peek: Kika
+wordBlur: Sudda ord
+wordScramble: Rada ord
+more: Mer

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -21,7 +20,7 @@ package net.bible.service.device.speak
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.database.bookmarks.SpeakSettings
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.Key
 
 interface SpeakTextProvider {
     var isSpeaking: Boolean
@@ -45,6 +44,6 @@ interface SpeakTextProvider {
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Double)
     fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
-    fun getCurrentlyPlayingVerse(): Verse? = null
+    fun getCurrentlyPlayingKey(): Key? = null
     fun getCurrentlyPlayingBook(): Book? = null
 }

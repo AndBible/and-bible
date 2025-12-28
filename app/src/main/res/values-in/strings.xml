@@ -1,4 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
+<!--
+  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <resources>
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
@@ -354,7 +371,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="backup_and_restore">Cadangkan &amp; Pulihkan</string>
   <string name="backup">Cadangkan ke...</string>
   <string name="backup_success">Catatanku dan Penanda Buku tersimpan di %s pada kartu SD</string>
-  <string name="restore">Pulihkan dari...</string>
+  <string name="backup_restore">Pulihkan dari...</string>
   <string name="restore_confirmation">Timpa Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja</string>
   <string name="restore_success">Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja berhasil dipulihkan</string>
   <string name="error_no_backup_file">File cadangan tidak dapat ditemukan</string>

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.navigation
 
@@ -25,7 +24,7 @@ import android.widget.ArrayAdapter
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.DocumentListItemBinding
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.download.DocumentListItem
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -39,7 +38,7 @@ import org.crosswire.jsword.versification.system.SystemKJV
 
 class DocumentItemAdapter(
     val activity: DocumentSelectionBase,
-    private val recommendedDocuments: RecommendedDocuments? = null
+    private val recommendedDocuments: DocumentConfiguration? = null
 ) : ArrayAdapter<Book>(activity, R.layout.document_list_item, ArrayList<Book>()) {
     private lateinit var bindings: DocumentListItemBinding
 

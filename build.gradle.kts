@@ -1,20 +1,50 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
+plugins {
+    id("com.google.devtools.ksp") version "2.2.0-2.0.2" apply false
+    id("app.accrescent.tools.bundletool") version "0.2.4" apply false
+}
+
 buildscript {
-    val kotlinVersion by extra("1.6.10")
-    val roomVersion by extra("2.4.0")
-    val jswordVersion by extra("2.3.54")
-    val jdomVersion by extra("2.0.6") // make sure this is same version as in jsword!
-    val commonsTextVersion by extra("1.9")
-    val kotlinxSerializationVersion by extra("1.3.1")
+    val kotlinVersion by extra("2.2.0")
+    val coroutinesVersion by extra("1.10.2")
+    val roomVersion by extra("2.7.2")
+    val jdomVersion by extra("2.0.6.1") // make sure this is same version as in jsword!
+    val commonsTextVersion by extra("1.9") // 1.10.0 crashes on Android 5.1
+    val kotlinxSerializationVersion by extra("1.8.1")
+    val sourceCompatibilityVersion by extra(JavaVersion.VERSION_17)
+    val targetCompatibilityVersion by extra(JavaVersion.VERSION_17)
+    val jvmTargetVersion by extra("17")
+    val jvmToolChainVersion by extra(17)
+    val coreKtxVersion by extra("1.16.0")
+    val sqliteAndroidVersion by extra("3.49.0")
+    val jswordVersion by extra("2.4.26")
+
 
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:7.0.4")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.android.tools.build:gradle:8.13.2")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0")
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong
@@ -31,5 +61,5 @@ allprojects {
 }
 
 tasks.register<Delete>("clean") {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory.get().asFile)
 }

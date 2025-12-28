@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.versification
 
@@ -22,6 +21,8 @@ import net.bible.android.database.SwordDocumentInfo
 import net.bible.service.common.AndBibleAddons
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.DownloadManager
+import net.bible.service.sword.SwordContentFacade
+import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BooksEvent
@@ -33,19 +34,22 @@ import org.crosswire.jsword.versification.VersificationsMapper
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 object BookInstallWatcher {
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
     fun startListening() {
         Books.installed().addBooksListener(object : BooksListener {
             override fun bookAdded(ev: BooksEvent) {
                 val book = ev.book
+                Activator.deactivate(book)
                 initialiseRequiredMapping(book)
                 addBookToDb(book)
                 AndBibleAddons.clearCaches()
+                SwordContentFacade.clearCaches()
             }
 
             override fun bookRemoved(ev: BooksEvent) {
                 AndBibleAddons.clearCaches()
                 removeBookFromDb(ev.book)
+                SwordContentFacade.clearCaches()
             }
         })
     }

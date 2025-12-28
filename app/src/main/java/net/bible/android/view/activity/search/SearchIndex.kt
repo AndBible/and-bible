@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.search
@@ -28,6 +27,7 @@ import net.bible.android.activity.databinding.SearchIndexBinding
 import net.bible.android.control.page.PageControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
+import net.bible.service.sword.SwordDocumentFacade
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -51,7 +51,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
 
             val documentToIndex: Book?
             if (StringUtils.isNotEmpty(documentInitials)) {
-                documentToIndex = swordDocumentFacade.getDocumentByInitials(documentInitials)
+                documentToIndex = SwordDocumentFacade.getDocumentByInitials(documentInitials)
             } else {
                 documentToIndex = pageControl.currentPageManager.currentPage.currentDocument
             }
@@ -67,8 +67,8 @@ class SearchIndex : CustomTitlebarActivityBase() {
         binding = SearchIndexBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val hasIndex = swordDocumentFacade.hasIndex(documentToIndex)
-        binding.indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex!!.name)
+        val hasIndex = SwordDocumentFacade.hasIndex(documentToIndex)
+        binding.indexCreationRequired.text = getString(if(hasIndex) R.string.rebuild_index_for else R.string.create_index_for, documentToIndex?.name)
         binding.createButton.text = getString(if(hasIndex) R.string.rebuild_index_button else R.string.index_create)
         binding.createButton.setOnClickListener { onIndex() }
         binding.cancelButton.setOnClickListener { finish() }
@@ -85,7 +85,7 @@ class SearchIndex : CustomTitlebarActivityBase() {
         try {
             // start background thread to create index
             val doc = documentToIndex
-            swordDocumentFacade.deleteDocumentIndex(doc)
+            SwordDocumentFacade.deleteDocumentIndex(doc)
             val bOk = searchControl.createIndex(doc)
 
             if (bOk) {

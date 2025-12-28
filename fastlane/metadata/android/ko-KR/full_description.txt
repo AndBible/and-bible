@@ -1,6 +1,6 @@
 <b>강력한 성경 공부 도구</b>
 
-And Bible 오픈소스 프로젝트의 성경 공부 앱은 강력하고 사용하기 쉬운 안드로이드용 오프라인 성경 공부 앱입니다. 이 앱은 단순히 성경 읽기만이 아니라 깊이 있는 개인 성경 연구를 목표로 하는 강력한 도구입니다.
+"AndBible: 성경 공부" 은 강력하고 사용하기 쉬운 안드로이드용 오프라인 성경 공부 앱입니다. 이 앱은 단순히 성경 읽기만이 아니라 깊이 있는 개인 성경 연구를 목표로 하는 강력한 도구입니다.
 
 이 앱은 성경을 읽는 사람들이 성경을 읽는 사람들을 위해 만들었습니다. 이 앱은 당신의 성경 공부를 편리하고 깊고 재미있게 만드는 것을 목표로 합니다. 비영리 커뮤니티 프로젝트에서 가장 좋은 점은 오픈 소스이고, 완전히 무료이며 광고가 없다는 점입니다. 완전히 안드로이드를 위해서만 만들어졌기 때문에 앱 크기가 작고, 따라서 매우 효율적이며 빠릅니다.
 
@@ -20,7 +20,7 @@ And Bible 오픈소스 프로젝트의 성경 공부 앱은 강력하고 사용�
  * 설교를 들으면서 노트를 적거나 성경 참조를 넣을 수 있는 스터디 패드.
  * 읽기 계획: 성경 읽기의 목표를 정하세요
  * 방대한 문서 라이브러리: 성경 번역본, 신학 주석, 사전, 지도, 기독교 서적, 모두 () 개 이상의 언어로 된 (1500) 이상의 자료들이 Crosswire와 다른 SWORD 저장소로부터 합법적으로 제공됨.
- * 오프라인: 다운로르 받을 때는 제외하면 인터넷이 필요 없음
+ * Native support for MyBible, MySword and EPUB files enables you to extend your library even more
 
 <b>최고의 성경 앱을 함께 만들어요!</b>
 
@@ -33,9 +33,15 @@ And Bible은 오픈소스 커뮤니티 프로젝트입니다. 사실 이것은 �
 
 만약 개발자 또는 테스터시라면, 프로젝트에 도움을 주는 것을 고려해 주세요. 어떻게 기여할 수 있는지 알아보시려면, https://git.io/JUnaj 을 참고해 주세요.
 
+<b>Support by sponsoring development time!</b>
+
+If you don't have time or skills for code contribution, you can support AndBible by sponsoring development time.
+
+See sponsorship options here:: https://shop.andbible.org/
+
 <b>링크</b>
 
- * 홈페이지: https://andbible.github.io
+ * 홈페이지: https://andbible.org
  * 페이스북에서 And Bible 좋아요: https://www.facebook.com/AndBible/
  * 유튜브 채널: https://www.youtube.com/c/AndBible
  * 자주 묻는 질문: https://git.io/JJm8E

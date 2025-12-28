@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- The main menu accessed via Menu key
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -8,40 +25,28 @@
 	<item android:id="@+id/fullscreen"
 		android:title="@string/toggle_fullscreen"
 		android:icon="@drawable/ic_full_screen_24"/>
-	/>
 	<item android:id="@+id/nightMode"
 		android:title="@string/options_menu_night_mode"
 		android:checkable="true"
 		android:icon="@drawable/ic_night_mode_24"/>
-	/>
 	<item android:id="@+id/switchToWorkspace"
 		android:title="@string/switch_to_workspace"
 		android:icon="@drawable/ic_baseline_workspace_24"/>
-		/>
-
 	<item android:id="@+id/tiltToScroll"
 		android:title="@string/prefs_tilt_to_scroll_title"
 		android:checkable="true"
 		android:icon="@drawable/ic_tilt_to_scroll_24dp"/>
-		/>
-
 	<item android:id="@+id/splitMode"
 		android:title="@string/reversed_split_mode"
 		android:checkable="true"
 		android:icon="@drawable/ic_reverse_split_mode_24dp"/>
-		/>
-
 	<item android:id="@+id/autoPinMode"
 		android:title="@string/window_pinning_menutitle"
 		android:checkable="true"
 		android:icon="@drawable/ic_window_pinning_24"/>
-		/>
-
 	<item android:id="@+id/autoAssignLabels"
 		android:title="@string/auto_assign_labels_title"
 		android:icon="@drawable/ic_label_settings_24"/>
-	/>
-
 	<group
 		android:id="@+id/textOptionsGroup"
 		>

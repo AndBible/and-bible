@@ -1,25 +1,22 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
 import android.content.Context
-import android.os.Build
-import android.text.Html
 import android.text.format.DateFormat
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,8 +29,10 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkListItemBinding
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.service.common.htmlToSpan
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -42,10 +41,10 @@ import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
  */
 class BookmarkItemAdapter(
     context: Context,
-    items: List<Bookmark>,
+    items: List<BookmarkEntities.BaseBookmarkWithNotes>,
     private val bookmarkControl: BookmarkControl,
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
-) : ArrayAdapter<Bookmark>(context, R.layout.bookmark_list_item, items) {
+    private val windowControl: WindowControl,
+) : ArrayAdapter<BookmarkEntities.BaseBookmarkWithNotes>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
@@ -80,23 +79,27 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the first text field
-        val versification = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.versification
-        val verseName = item.verseRange.toV11n(versification).name
-        val book = item.speakBook
-        if (isSpeak && book != null) {
-            bindings.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
-        } else {
-            bindings.verseText.text = verseName
+        val versification = windowControl.activeWindowPageManager.currentBible.versification
+        when(item) {
+            is BibleBookmarkWithNotes -> {
+                val verseName = item.verseRange.toV11n(versification).name
+                val book = item.speakBook
+                if (isSpeak && book != null) {
+                    bindings.verseText.text = context.getString(R.string.something_with_parenthesis, verseName, book.abbreviation)
+                } else {
+                    bindings.verseText.text = verseName
+                }
+            }
+            is BookmarkEntities.GenericBookmarkWithNotes -> {
+                val keyName = "${item.book?.abbreviation?: item.bookInitials}: ${item.bookKey?.name?: item.key}"
+                bindings.verseText.text = keyName
+            }
         }
-        if(item.notes !== null) {
+
+        if(item.notes != null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
-                val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    Html.fromHtml(item.notes, Html.FROM_HTML_MODE_LEGACY)
-                } else {
-                    Html.fromHtml(item.notes)
-                }
-
+                val spanned = htmlToSpan(item.notes)
                 bindings.notesText.text = spanned
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading label verse text", e)
@@ -107,14 +110,11 @@ class BookmarkItemAdapter(
         }
 
         // Set value for the date text field
-        val sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.createdAt).toString()
+        val sDt = DateFormat.format("EEE, yyyy-MM-dd HH:mm", item.createdAt).toString()
         bindings.dateText.text = sDt
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(item.highlightedText, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(item.highlightedText)
-        }
+        val spanned = htmlToSpan(item.highlightedText)
+
         bindings.verseContentText.text = spanned
         return convertView ?: bindings.root
     }

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.link
 
@@ -28,22 +27,27 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.search.SearchControl.SearchBibleSection
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeyList
 import net.bible.service.sword.StudyPadKey
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.bookAndKeyListOf
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
@@ -55,7 +59,9 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.Versifications
+import java.io.FileNotFoundException
 import java.net.URLDecoder
+import java.util.*
 import java.util.regex.Pattern
 import javax.inject.Inject
 
@@ -64,28 +70,44 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+enum class WindowMode {
+    WINDOW_MODE_THIS,
+    WINDOW_MODE_SPECIAL,
+    WINDOW_MODE_NEW,
+    WINDOW_MODE_UNDEFINED,
+}
+
+
 @ApplicationScope
 class LinkControl @Inject constructor(
     private val windowControl: WindowControl,
 	private val bookmarkControl: BookmarkControl,
 	private val searchControl: SearchControl,
-	private val swordDocumentFacade: SwordDocumentFacade,
 )  {
-    private var windowMode = WINDOW_MODE_UNDEFINED
+    var windowMode: WindowMode = WindowMode.WINDOW_MODE_UNDEFINED
 
     fun openMulti(links: List<BibleView.BibleLink>): Boolean {
         val key = BookAndKeyList()
         val bookKeys = links.mapNotNull {
             try {
-                getBookAndKey(it.url, it.versification, it.forceDoc)
+                getBookAndKey(it.url, it.versification, null)
             } catch (e: NoSuchKeyException) {
                 null
             }
         }
         for(k in bookKeys) {
-            key.addAll(k)
+            when(k) {
+                is BookAndKeyList -> {
+                    for(kk in k) {
+                        key.addAll(kk)
+                    }
+                }
+                is BookAndKey -> key.addAll(k)
+                else -> throw Exception("Unknown key type: ${k.javaClass}")
+            }
         }
-        key.name = bookKeys.map { it.key.name }.joinToString(", ")
+        key.name = key.joinToString(", ") { (it as BookAndKey).key.name }
         showLink(FakeBookFactory.multiDocument, key)
         return true
     }
@@ -95,54 +117,73 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun loadApplicationUrl(link: BibleView.BibleLink): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc)
+    fun openMemorize(verseRange: BookAndKey): Boolean {
+        showLink(FakeBookFactory.memorizeDocument, verseRange)
+        return true
+    }
+
+    fun loadApplicationUrl(link: BibleView.BibleLink, book: Book? = null): Boolean = loadApplicationUrl(link.url, link.versification, link.forceDoc, book)
 
     fun errorLink() {
         ErrorReportControl.sendErrorReportEmail(Exception("Error in webview-js"), "webview")
     }
 
-    private fun getBookAndKey(uriStr: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+    /**
+     *  Returns either BookAndKey or BookAndKeyList
+     */
+    private fun getBookAndKey(uriStr: String, versification: Versification, book: Book?): Key? {
         Log.i(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
             return when (uriAnalyzer.docType) {
-                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification)
-                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key)
-                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(swordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key)
+                UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification, book)
+                UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key, StrongsKeyType.GREEK)
+                UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key, StrongsKeyType.HEBREW)
                 UriAnalyzer.DocType.ROBINSON -> getRobinsonMorphologyKey(uriAnalyzer.key)
-                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, forceDoc)
+                UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, book)
                 else -> null
             }
         }
         return null
     }
 
-    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean): Boolean {
-        val bookAndKey = try {getBookAndKey(uriStr, versification, forceDoc)} catch (e: NoSuchKeyException) {return false} ?: return false
-        val key = bookAndKey.key
-        if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
-            val keyList = BookAndKeyList()
-            for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
-                keyList.addAll(BookAndKey(range, bookAndKey.document))
+    private fun loadApplicationUrl(uriStr: String, versification: Versification, forceDoc: Boolean, book: Book?): Boolean {
+        val bookAndKeys =
+            try {getBookAndKey(uriStr, versification, if(forceDoc) book else null)}
+            catch (e: NoSuchKeyException) {return false} ?: return false
+
+        when(bookAndKeys) {
+            is BookAndKey -> {
+                val key = bookAndKeys.key
+                if(key is Passage && key.countRanges(RestrictionType.NONE) > 1) {
+                    val keyList = BookAndKeyList()
+                    for( range in (0 until key.countRanges(RestrictionType.NONE)).map { key.getRangeAt(it, RestrictionType.NONE) }) {
+                        keyList.addAll(BookAndKey(range, bookAndKeys.document))
+                    }
+                    showLink(FakeBookFactory.multiDocument, keyList)
+                } else {
+                    showLink(bookAndKeys.document, bookAndKeys.key)
+                }
             }
-            showLink(FakeBookFactory.multiDocument, keyList)
-        } else {
-            showLink(bookAndKey.document, bookAndKey.key)
+            is BookAndKeyList -> {
+                showLink(FakeBookFactory.multiDocument, bookAndKeys)
+            }
         }
+
         return true
 	}
 
     @Throws(NoSuchKeyException::class)
-    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, forceDoc: Boolean): BookAndKey? {
+    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, book: Book?): BookAndKey? {
         var ref = reference
         if (StringUtils.isEmpty(initials)) {
-            return getBibleKey(ref, versification)
+            return getBibleKey(ref, versification, book)
         } else {
-            val document = swordDocumentFacade.getDocumentByInitials(initials)
+            val document = SwordDocumentFacade.getDocumentByInitials(initials)
             if (document == null) { // tell user to install book
-                Dialogs.instance.showErrorMsg(R.string.document_not_installed, initials)
-            } else if(document.bookCategory == BookCategory.BIBLE && !forceDoc) {
-                return getBibleKey(ref, versification)
+                Dialogs.showErrorMsg(R.string.document_not_installed, initials)
+            } else if(document.bookCategory == BookCategory.BIBLE && book == null) {
+                return getBibleKey(ref, versification, book)
             } else if(document.isGreekDef || document.isHebrewDef) {
                 return getStrongsKey(document, reference)
             }
@@ -178,63 +219,129 @@ class LinkControl @Inject constructor(
     /** user has selected a Bible verse link
      */
     @Throws(NoSuchKeyException::class)
-    private fun getBibleKey(keyText: String, versification: Versification): BookAndKey {
+    private fun getBibleKey(keyText: String, versification: Versification, book: Book?): BookAndKey {
         val key: Passage = PassageKeyFactory.instance().getKey(versification, keyText)
-        return BookAndKey(key)
+        return BookAndKey(key, book)
     }
 
-    /** user has selected a Strong's Number link so show Strong's page for key in link
-     */
+    enum class KeyType {
+        KEY,
+        ZERO_PADDED_KEY,
+        ZERO_PADDED_KEY_R,
+        CATEGORY;
+
+        companion object {
+            val ALL_TYPES = listOf(KEY, ZERO_PADDED_KEY, ZERO_PADDED_KEY_R, CATEGORY)
+        }
+    }
+
+    private val preferredKeyType = hashMapOf<String, KeyType>()
+
+    enum class StrongsKeyType {HEBREW, GREEK}
+
+    fun getStrongsKey(book: Book, key: String): BookAndKey? {
+        val match = Regex("^([GH])(0*)([0-9]+).*").find(key)
+        val category = match?.groups?.get(1)?.value
+            ?: if(book.isHebrewDef) "H"
+            else if(book.isGreekDef) "G"
+            else return null
+
+        val lst = getStrongsKey(listOf(book), key, when(category) {
+            "H" -> StrongsKeyType.HEBREW
+            "G" -> StrongsKeyType.GREEK
+            else -> return null
+        })
+        return lst?.firstOrNull() as BookAndKey?
+    }
 
     @Throws(NoSuchKeyException::class)
-    private fun getStrongsKey(book: Book, key: String): BookAndKey? {
-        val sanitizedKey = Regex("^([GH]?)([0-9]+).*").find(key)?.groups?.get(2)?.value?.padStart(5, '0')
+    private fun getStrongsKey(books: List<Book>, key: String, strongsKeyType: StrongsKeyType): BookAndKeyList? {
+        val match = Regex("^([GH]?)(0*)([0-9]+).*").find(key)
+        val match2 = Regex("^(0*)([0-9]+).*").find(key)
 
-        val k = try {book.getKey(key)} catch (e: NoSuchKeyException) {null} ?:
-                if(sanitizedKey != null) {
-                    try {book.getKey(sanitizedKey)} catch (e: NoSuchKeyException) {null} ?:
-                    try {book.getKey(sanitizedKey + "\r")} catch (e: NoSuchKeyException) {null}
-                } else null
+        val category = when(strongsKeyType) {
+            StrongsKeyType.HEBREW -> "H"
+            StrongsKeyType.GREEK -> "G"
+        }
 
-        return if(k == null) null else BookAndKey(k, book)
+        val sanitizedKeyBase = match?.groups?.get(3)?.value ?: match2?.groups?.get(2)?.value
+
+        val zeroPaddedKey = sanitizedKeyBase?.padStart(5, '0') ?: ""
+
+        val keyOptions = mapOf(
+            KeyType.KEY to key,
+            KeyType.ZERO_PADDED_KEY to zeroPaddedKey,
+            KeyType.ZERO_PADDED_KEY_R to zeroPaddedKey + "\r",
+
+            // MyBible dictionaries
+            KeyType.CATEGORY to category + sanitizedKeyBase
+        )
+
+        val bookAndKeys = books.mapNotNull { book ->
+            val preferred = preferredKeyType[book.initials] ?: KeyType.KEY
+
+            val keyTypes = mutableListOf(preferred)
+            keyTypes.addAll(KeyType.ALL_TYPES.filterNot { it == preferred })
+
+            val k = run {
+                for (keyType in keyTypes) {
+                    val opt = keyOptions[keyType]
+                    val candidate = try {
+                        book.getKey(opt)
+                    } catch (e: NoSuchKeyException) {
+                        null
+                    }
+                    if (candidate != null) {
+                        preferredKeyType[book.initials] = keyType
+                        return@run candidate
+                    }
+                }
+                null
+            }
+
+            if (k == null) null else BookAndKey(k, book)
+        }
+        if(bookAndKeys.isEmpty()) return null
+        return bookAndKeyListOf(bookAndKeys)
     }
 
     @Throws(NoSuchKeyException::class)
-    private fun getRobinsonMorphologyKey(key: String): BookAndKey {
-        val robinson = swordDocumentFacade.defaultRobinsonGreekMorphology
-        val robinsonNumberKey = robinson.getKey(key)
-        return BookAndKey(robinsonNumberKey, robinson)
+    private fun getRobinsonMorphologyKey(key: String): BookAndKeyList {
+        val robinsonBooks = SwordDocumentFacade.defaultRobinsonGreekMorphology
+        return bookAndKeyListOf(robinsonBooks.mapNotNull {
+            val k = try { it.getKey(key) } catch (e: NoSuchKeyException) { null }
+            if(k != null) BookAndKey(k, it) else null
+        })
     }
 
-    fun showAllOccurrences(ref: String, biblesection: SearchBibleSection, refPrefix: String) {
+    fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {
         val currentBible = currentPageManager.currentBible.currentDocument!!
-        var strongsBible: Book? = null
         // if current bible has no Strongs refs then try to find one that has
-        strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+        val strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
             currentBible
         } else {
-            swordDocumentFacade.defaultBibleWithStrongs
+            SwordDocumentFacade.defaultBibleWithStrongs
         }
         // possibly no Strong's bible or it has not been indexed
-        var needToDownloadIndex = false
+        var needToIndex = false
         if (strongsBible == null) {
-            Dialogs.instance.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
+            Dialogs.showErrorMsg(R.string.no_indexed_bible_with_strongs_ref)
             return
         } else if (currentBible == strongsBible && !checkStrongs(currentBible)) {
             Log.i(TAG, "Index status is NOT DONE")
-            needToDownloadIndex = true
+            needToIndex = true
         }
         // The below uses ANY_WORDS because that does not add anything to the search string
 		//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-        val searchText = searchControl.decorateSearchString("strong:$refPrefix$ref", SearchType.ANY_WORDS, biblesection, null)
+        val searchText = searchControl.decorateSearchString("strong:$ref", SearchType.ANY_WORDS, bibleSection, null)
         Log.i(TAG, "Search text:$searchText")
-        val activity = CurrentActivityHolder.getInstance().currentActivity
+        val activity = CurrentActivityHolder.currentActivity!!
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
-        intent = if (needToDownloadIndex) {
+        intent = if (needToIndex) {
             Intent(activity, SearchIndex::class.java)
         } else { //If an indexed Strong's module is in place then do the search - the normal situation
             Intent(activity, SearchResults::class.java)
@@ -252,20 +359,32 @@ class LinkControl @Inject constructor(
         } catch (be: BookException) {
             Log.e(TAG, "Error checking strongs numbers", be)
             false
+        } catch (e: FileNotFoundException) {
+            Log.e(TAG, "Error checking strongs numbers", e)
+            false
         }
     }
+    fun resolveRef(searchRef: String, doc: SwordBook? = null): Key? {
+        val searchDoc = doc ?: windowControl.defaultBibleDoc(useLinks = true)
+        return SwordContentFacade.resolveRef(searchRef, searchDoc.language.code, searchDoc.versification)
+    }
 
-    private fun showLink(document: Book?, key: Key) { // ask window controller to open link in desired window
+    fun tryToOpenRef(searchRef: String, doc: SwordBook? = null): Boolean {
+        val key = resolveRef(searchRef, doc)
+        if (key != null) {
+            showLink(doc, key, forceOpenHere = true)
+            return true
+        }
+        return false
+    }
+
+    fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
         val defaultDocument = currentPageManager.currentBible.currentDocument!!
-        if (windowMode == WINDOW_MODE_NEW) {
+        if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
-        } else if (checkIfOpenLinksInDedicatedWindow()) {
-            if (document == null) {
-                windowControl.showLinkUsingDefaultBible(key)
-            } else {
-                windowControl.showLink(document, key)
-            }
+        } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
+            windowControl.showLink(document, key)
         } else { // old style - open links in current window
             currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }
@@ -274,19 +393,15 @@ class LinkControl @Inject constructor(
     private fun checkIfOpenLinksInDedicatedWindow(): Boolean {
         if(windowControl.windowRepository.isMaximized) return false
         return when (windowMode) {
-            WINDOW_MODE_SPECIAL -> true
-            WINDOW_MODE_THIS -> false
-            WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
+            WindowMode.WINDOW_MODE_SPECIAL -> true
+            WindowMode.WINDOW_MODE_THIS -> false
+            WindowMode.WINDOW_MODE_UNDEFINED -> settings.getBoolean("open_links_in_special_window_pref", true)
             else -> settings.getBoolean("open_links_in_special_window_pref", true)
         }
     }
 
     private val currentPageManager: CurrentPageManager
         get() = windowControl.activeWindowPageManager
-
-    fun setWindowMode(windowMode: String) {
-        this.windowMode = windowMode
-    }
 
     fun openMyNotes(v11nName: String, ordinal: Int): Boolean {
         val v11n = Versifications.instance().getVersification(v11nName)
@@ -295,7 +410,7 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openJournal(labelId: Long, bookmarkId: Long?): Boolean {
+    fun openStudyPad(labelId: IdType, bookmarkId: IdType?): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
         val key = StudyPadKey(label, bookmarkId)
         showLink(FakeBookFactory.journalDocument, key)
@@ -305,10 +420,6 @@ class LinkControl @Inject constructor(
     companion object {
         private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
         private const val TAG = "LinkControl"
-        const val WINDOW_MODE_THIS = "this"
-        const val WINDOW_MODE_SPECIAL = "special"
-        const val WINDOW_MODE_NEW = "new"
-        const val WINDOW_MODE_UNDEFINED = "undefined"
     }
 
 }

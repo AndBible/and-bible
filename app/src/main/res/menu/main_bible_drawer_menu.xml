@@ -1,52 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  ~ Copyright (c) 2018-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
-  ~ This file is part of And Bible (http://github.com/AndBible/and-bible).
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
-  ~ And Bible is free software: you can redistribute it and/or modify it under the
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
   ~ terms of the GNU General Public License as published by the Free Software Foundation,
   ~ either version 3 of the License, or (at your option) any later version.
   ~
-  ~ And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   ~ See the GNU General Public License for more details.
   ~
-  ~ You should have received a copy of the GNU General Public License along with And Bible.
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
   ~ If not, see http://www.gnu.org/licenses/.
-  ~
   -->
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:title="@string/bible">
-        <menu>
-            <item android:id="@+id/chooseDocumentButton"
-                android:title="@string/chooce_document"
-                android:icon="@drawable/ic_library_books_white_24dp"
-                />
-            <item android:id="@+id/searchButton"
-                android:title="@string/search"
-                android:icon="@drawable/ic_search_24dp"
-                />
-            <item android:id="@+id/speakButton"
-                android:title="@string/speak"
-                android:icon="@drawable/ic_baseline_headphones_24"/>
-            <item android:id="@+id/bookmarksButton"
-                android:title="@string/bookmarks"
-                android:icon="@drawable/ic_baseline_bookmark_24"
-                />
-            <item android:id="@+id/studyPadsButton"
-                android:title="@string/studypads"
-                android:icon="@drawable/ic_baseline_studypads_24"/>
-            <item android:id="@+id/dailyReadingPlanButton"
-                android:title="@string/rdg_plan_title"
-                android:icon="@drawable/ic_reading_plan_solid_24dp"/>
-            <item 	android:id="@+id/historyButton"
-                android:title="@string/history"
-                android:icon="@drawable/ic_history_book_24dp"/>
-        </menu>
-    </item>
+    <item android:id="@+id/chooseDocumentButton"
+        android:title="@string/chooce_document"
+        android:icon="@drawable/ic_library_books_white_24dp"
+        />
+    <item android:id="@+id/searchButton"
+        android:title="@string/search"
+        android:icon="@drawable/ic_search_24dp"
+        />
+    <item android:id="@+id/speakButton"
+        android:title="@string/speak"
+        android:icon="@drawable/ic_baseline_headphones_24"/>
+    <item android:id="@+id/bookmarksButton"
+        android:title="@string/bookmarks"
+        android:icon="@drawable/ic_baseline_bookmark_24"
+        />
+    <item android:id="@+id/studyPadsButton"
+        android:title="@string/studypads"
+        android:icon="@drawable/ic_baseline_studypads_24"/>
+    <item android:id="@+id/dailyReadingPlanButton"
+        android:title="@string/rdg_plan_title"
+        android:icon="@drawable/ic_reading_plan_24dp"/>
+    <item 	android:id="@+id/historyButton"
+        android:title="@string/history"
+        android:icon="@drawable/ic_history_clock_24dp"/>
     <item
         android:title="@string/administration">
         <menu>
@@ -56,13 +50,16 @@
 
             <item android:id="@+id/backupMainMenu"
                 android:title="@string/backup_and_restore"
-                android:icon="@drawable/ic_backup_restore_24dp"/>
+                android:icon="@drawable/ic_settings_backup_restore_db_24dp"/>
+
+            <item
+                android:id="@+id/googleDriveSync"
+                android:icon="@drawable/ic_syncdb_24dp"
+                android:title="@string/cloud_sync_title" />
 
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"
                 android:icon="@drawable/ic_settings_white_24dp"/>
-
-
         </menu>
     </item>
     <item
@@ -72,16 +69,16 @@
                 android:title="@string/help_and_tips"
                 android:icon="@drawable/ic_help_white_24dp"
                 />
-
+            <item android:id="@+id/buyDevelopment"
+                android:title="@string/buy_development"
+                android:icon="@drawable/baseline_attach_money_24"/>
             <item android:id="@+id/needHelp"
                 android:title="@string/questions_title"
                 android:icon="@drawable/ic_need_help_24dp"
                 />
-
             <item android:id="@+id/howToContribute"
                 android:title="@string/how_to_contribute"
                 android:icon="@drawable/ic_baseline_emoji_people_24"/>
-
             <item android:id="@+id/appLicence"
                 android:title="@string/app_licence_title"
                 android:icon="@drawable/ic_baseline_copyright_24"/>

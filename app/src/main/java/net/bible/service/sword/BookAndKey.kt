@@ -1,33 +1,79 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.sword
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.serializer
+import net.bible.android.control.page.OrdinalRange
+import net.bible.android.control.versification.toVerseRange
+import net.bible.service.common.CommonUtils.json
+import net.bible.service.common.ordinalRangeFor
+import net.bible.service.common.shortName
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
 import org.crosswire.common.util.ItemIterator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.RestrictionType
-import java.lang.UnsupportedOperationException
+val BookAndKey.ordinalRange: IntRange? get() = document?.ordinalRangeFor(key)
 
-class BookAndKey(val key: Key, document: Book? = null): Key {
+@Serializable
+class BookAndKeySerialized(
+    val key: String,
+    val document: String,
+    val ordinalRange: OrdinalRange?,
+    val htmlId: String?,
+) {
+    val bookAndKey: BookAndKey get () {
+        val book = Books.installed().getBook(document) ?: FakeBookFactory.giveDoesNotExist(document)
+        var key = book.getKey(key)
+        if(key is RangedPassage) {
+           key = key.toVerseRange
+        }
+        return BookAndKey(key, book, ordinalRange, htmlId)
+    }
+
+    companion object {
+        fun fromJSON(str: String): BookAndKeySerialized = json.decodeFromString(serializer(), str)
+    }
+}
+
+class BookAndKey(
+    _key: Key,
+    document: Book? = null,
+    @Transient val ordinal: OrdinalRange? = null,
+    @Transient val htmlId: String? = null
+): Key {
+    val serialized: String get() {
+        val s = BookAndKeySerialized(key.osisRef, documentInitials, ordinal, htmlId)
+        return json.encodeToString(serializer(), s)
+    }
+
+    val key: Key = if(_key is BookAndKey) {
+        if(_key.document != document) {
+            throw RuntimeException("Document does not match")
+        }
+        _key.key
+    } else _key
+
     private val documentInitials = document?.initials?: ""
 
     @Transient var _document: Book? = document
@@ -47,77 +93,45 @@ class BookAndKey(val key: Key, document: Book? = null): Key {
             return _document
         }
 
-    override fun compareTo(other: Key?): Int {
-        return key.compareTo(other)
+    override fun compareTo(other: Key?): Int = key.compareTo(other)
+
+    override fun iterator(): MutableIterator<Key> = ItemIterator(this)
+
+    override fun clone(): Key = BookAndKey(key.clone(), document)
+
+    override fun getName(): String = if(document == null) key.name else "${document?.abbreviation}: ${key.name}"
+
+    val shortName: String get() {
+        return if(document == null) key.shortName else "${document?.abbreviation}: ${key.shortName}"
     }
 
-    override fun iterator(): MutableIterator<Key> {
-        return ItemIterator(this)
-    }
+    override fun getName(base: Key?): String = name
 
-    override fun clone(): Key {
-        return BookAndKey(key.clone(), document)
-    }
+    override fun getRootName(): String = name
 
-    override fun getName(): String {
-        return if(document == null) key.name else "${document?.abbreviation}: ${key.name}"
-    }
+    override fun getOsisRef(): String = "${document?.initials}:${key.osisRef}"
 
-    override fun getName(base: Key?): String {
-        return name
-    }
+    override fun getOsisID(): String = "${document?.initials}:${key.osisID}"
 
-    override fun getRootName(): String {
-        return name
-    }
+    override fun getParent(): Key? = null
 
-    override fun getOsisRef(): String {
-        return "${document?.initials}:${key.osisRef}"
-    }
+    override fun canHaveChildren(): Boolean = false
 
-    override fun getOsisID(): String {
-        return "${document?.initials}:${key.osisID}"
-    }
+    override fun getChildCount(): Int = 0
 
-    override fun getParent(): Key? {
-        return null
-    }
+    override fun getCardinality(): Int = 1
 
-    override fun canHaveChildren(): Boolean {
-        return false
-    }
+    override fun isEmpty(): Boolean = false
 
-    override fun getChildCount(): Int {
-        return 0
-    }
+    override fun contains(key: Key?): Boolean = this == key
 
-    override fun getCardinality(): Int {
-        return 1
-    }
+    override fun addAll(key: Key?): Unit = throw UnsupportedOperationException()
 
-    override fun isEmpty(): Boolean {
-        return false
-    }
+    override fun removeAll(key: Key?): Unit = throw UnsupportedOperationException()
 
-    override fun contains(key: Key?): Boolean {
-        return this == key
-    }
+    override fun retainAll(key: Key?): Unit = throw UnsupportedOperationException()
 
-    override fun addAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun removeAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun retainAll(key: Key?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun clear() {
-        throw UnsupportedOperationException()
-    }
+    override fun clear(): Unit = throw UnsupportedOperationException()
 
     override fun get(index: Int): Key? {
         if(index == 0) return this
@@ -129,13 +143,10 @@ class BookAndKey(val key: Key, document: Book? = null): Key {
         return -1
     }
 
-    override fun blur(by: Int, restrict: RestrictionType?) {
-        throw UnsupportedOperationException()
-    }
+    override fun blur(by: Int, restrict: RestrictionType?): Unit = throw UnsupportedOperationException()
 
-    override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean) {
+    override fun blur(by: Int, restrict: RestrictionType?, blurDown: Boolean, blurUp: Boolean): Unit =
         throw UnsupportedOperationException()
-    }
 
     companion object {
         private const val serialVersionUID: Long = 1
@@ -150,4 +161,12 @@ class BookAndKeyList: DefaultKeyList() {
     companion object {
         private const val serialVersionUID: Long = 1
     }
+}
+
+fun bookAndKeyListOf(keys: Collection<BookAndKey>): BookAndKeyList {
+    val list = BookAndKeyList()
+    for (it in keys) {
+        list.addAll(it)
+    }
+    return list
 }

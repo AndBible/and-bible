@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.activity
@@ -37,11 +36,13 @@ import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.speak.load
 import net.bible.android.control.speak.save
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.application
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
@@ -78,11 +79,11 @@ class SpeakWidgetManager {
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.application.applicationComponent)
                 .build().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
     fun destroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         instance = null
     }
 
@@ -174,13 +175,18 @@ class SpeakWidgetManager {
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
-        fun addButton(name: String, b: BookmarkEntities.Bookmark?) {
+        fun addButton(name: String, b: BookmarkEntities.BaseBookmarkWithNotes?) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
             if(b != null) {
+                val type = when(b) {
+                    is BookmarkEntities.BibleBookmarkWithNotes -> "bible"
+                    is BookmarkEntities.GenericBookmarkWithNotes -> "generic"
+                    else -> throw RuntimeException("Illegal type")
+                }
                 val intent = Intent(context, SpeakBookmarkWidget::class.java).apply {
                     action = SpeakBookmarkWidget.ACTION_BOOKMARK
-                    data = Uri.parse("bookmarksById://${b.id}")
+                    data = Uri.parse("bookmarksById://${type}/${b.id}")
                 }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 button.setOnClickPendingIntent(R.id.button, bc)
@@ -190,22 +196,25 @@ class SpeakWidgetManager {
         }
 
         val label = bookmarkControl.speakLabel
-        if(!SpeakSettings.load().autoBookmark) {
+
+        val bibleBookmarks = bookmarkControl.getBibleBookmarksWithLabel(label).sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
+        val genBookmarks = bookmarkControl.getGenericBookmarksWithLabel(label)
+        val speakBookmarks = bibleBookmarks + genBookmarks
+        if(!AdvancedSpeakSettings.autoBookmark && speakBookmarks.isEmpty()) {
             addButton(app.getString(R.string.speak_autobookmarking_disabled), null)
         }
-
-        for (b in bookmarkControl.getBookmarksWithLabel(label)
-            .sortedWith { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) }
-        ){
+        for (b in speakBookmarks){
             val repeatSymbol = if(b.playbackSettings?.verseRange != null) "\uD83D\uDD01" else ""
-            addButton("${b.verseRange.start.name} (${b.playbackSettings?.bookId?:"?"}) $repeatSymbol", b)
+            addButton(when(b) {
+                is BookmarkEntities.BibleBookmarkWithNotes -> "${b.verseRange.start.name} (${b.playbackSettings?.bookId ?: "?"}) $repeatSymbol"
+                is BookmarkEntities.GenericBookmarkWithNotes -> "${b.book?.abbreviation} ${b.bookKey?.name} $repeatSymbol"
+                else -> throw RuntimeException("Illegal type")
+            }, b)
             Log.i(TAG, "Added button for $b")
         }
         views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
 
-        val contentIntent = Intent(context, MainBibleActivity::class.java)
-        contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-
+        val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
         val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
         views.setOnClickPendingIntent(R.id.root, pendingIntent)
 
@@ -264,7 +273,7 @@ class SpeakWidgetManager {
         }
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.i(TAG, "setuWidget (speakWidget)")
+            Log.i(TAG, "setupWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
             views.setTextViewText(R.id.statusText, "- ${app.getString(R.string.speak_status_stopped)} -")
@@ -272,20 +281,12 @@ class SpeakWidgetManager {
             fun setupButton(action: String, button: Int, visible: Int) {
                 val intent = Intent(context, javaClass)
                 intent.action = action
-                if(action== ACTION_SPEAK) {
-                    val book = speakControl.currentlyPlayingBook
-                    val verse = speakControl.currentlyPlayingVerse
-                    if(speakControl.isPaused && book != null && verse != null) {
-                        intent.data = Uri.parse("bible://${book.initials}/${verse.osisRef}")
-                    }
-                }
                 val bc = PendingIntent.getBroadcast(context, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
                 views.setOnClickPendingIntent(button, bc)
                 views.setViewVisibility(button, visible)
             }
 
-            val contentIntent = Intent(context, MainBibleActivity::class.java)
-            contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            val contentIntent = application.packageManager.getLaunchIntentForPackage(application.packageName)
             val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
             views.setOnClickPendingIntent(R.id.layout, pendingIntent)
 
@@ -320,20 +321,8 @@ class SpeakWidgetManager {
         override fun onReceive(context: Context?, intent: Intent?) {
             super.onReceive(context, intent)
             Log.i(TAG, "onReceive $context ${intent?.action}")
-            val action = intent?.action
-            val bookRef = intent?.data?.host
-            val osisRef = intent?.data?.path?.removePrefix("/")
-            when (action) {
-                ACTION_SPEAK -> {
-                    if(!speakControl.isPaused && !speakControl.isSpeaking && bookRef != null && osisRef!=null) {
-                        // if application has been stopped and intent has bible reference,
-                        // start playback from the correct position
-                        speakControl.speakBible(bookRef, osisRef)
-                    }
-                    else {
-                        speakControl.toggleSpeak()
-                    }
-                }
+            when (intent?.action) {
+                ACTION_SPEAK -> speakControl.toggleSpeak(preferLast = true)
                 ACTION_REWIND -> speakControl.rewind()
                 ACTION_FAST_FORWARD -> speakControl.forward()
                 ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
@@ -363,9 +352,15 @@ class SpeakWidgetManager {
             super.onReceive(context, intent)
             Log.i(TAG, "onReceive $context ${intent?.action}")
             if (intent?.action == ACTION_BOOKMARK) {
-                val bookmarkId = intent.data?.host ?: return
-                Log.i(TAG, "onReceive osisRef $bookmarkId")
-                val dto = bookmarkControl.bookmarksByIds(listOf(bookmarkId.toLong())).first()
+                val bookmarkType = intent.data?.host ?: return
+                val path = intent.data?.path ?: return
+                val bookmarkId = path.slice(1 until path.length)
+                Log.i(TAG, "onReceive osisRef $bookmarkId $bookmarkType")
+                val dto = when(bookmarkType) {
+                    "bible" -> bookmarkControl.bibleBookmarksByIds(listOf(IdType(bookmarkId))).first()
+                    "generic" -> bookmarkControl.genericBookmarkById(IdType(bookmarkId))!!
+                    else -> throw RuntimeException("Illegal type")
+                }
                 speakControl.speakFromBookmark(dto)
             }
         }

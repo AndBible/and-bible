@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- The main menu accessed via Menu key
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -33,15 +50,31 @@
 		android:icon="@drawable/ic_pin"
 		android:checkable="true"
 		android:checked="true"/>
-	<item android:id="@+id/windowSynchronise"
-		android:title="@string/windowSynchronise"
+	<item
+		android:id="@+id/syncGroupSubMenu"
 		android:icon="@drawable/ic_window_sync_24dp"
-		android:checkable="true"
-		android:checked="true"/>
+		android:title="@string/windowSynchronise">
+		<menu>
+			<item android:id="@+id/disableSync"
+				android:title="@string/disable_sync"
+				/>
+			<item android:id="@+id/syncGroupItem"
+				android:title=""
+				/>
+		</menu>
+	</item>
 	<item android:id="@+id/exportHtml"
 		android:title=""
 		android:icon="@drawable/file_export"
 		/>
+    <item android:id="@+id/exportStudypad"
+        android:title=""
+        android:icon="@drawable/file_export"
+        />
+    <item android:id="@+id/exportStudypadCsv"
+        android:title=""
+        android:icon="@drawable/file_export"
+        />
 	<item
 		android:id="@+id/textOptionsSubMenu"
 		android:icon="@drawable/ic_text_options_24dp"
@@ -75,7 +108,17 @@
 			</item>
 		</menu>
 	</item>
+	<item android:id="@+id/copyReference"
+		android:title="@string/copyReference"
+		android:icon="@drawable/ic_content_copy_black_24dp"/>
+	<item android:id="@+id/goToReference"
+		android:title=""
+		android:icon="@drawable/baseline_content_paste_24"/>
+	<item android:id="@+id/goToSpeak"
+		android:title=""
+		android:icon="@drawable/ic_baseline_headphones_24"/>
 	<item android:id="@+id/windowClose"
 		android:title="@string/windowClose"
+		android:orderInCategory="1001"
 		android:icon="@drawable/ic_close_white_24dp"/>
 </menu>

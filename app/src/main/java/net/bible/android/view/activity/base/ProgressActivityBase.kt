@@ -1,32 +1,32 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.base
 
-import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
-import net.bible.android.view.activity.base.ProgressActivityBase
+import net.bible.service.common.CommonUtils
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.common.progress.JobManager
 import org.crosswire.common.progress.Progress
@@ -57,7 +57,9 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     }
 
     private fun initialiseView() {
+        lifecycleScope.launch { CommonUtils.requestNotificationPermission(this@ProgressActivityBase) }
         // prepare to show no tasks msg
+
         noTasksMessageView = findViewById<View>(R.id.noTasksRunning) as TextView
         taskKillWarningView = findViewById<View>(R.id.progressStatusMessage) as TextView
         val jobsIterator = JobManager.iterator()
@@ -103,7 +105,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
 
     /** virtual method called on ui thread to update progress.  Can be overridden for subclass specific ui updates br make sure this method is called to update progres controls
      */
-    protected fun updateProgress(prog: Progress) {
+    private fun updateProgress(prog: Progress) {
         // if this is called then ensure the no tasks msg is not also displayed
         showNoTaskMsg(false)
         val done = prog.work
@@ -118,7 +120,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         }
     }
 
-    protected open fun jobFinished(job: Progress?) {
+    protected open fun jobFinished(job: Progress) {
         // do nothing by default
     }
 
@@ -143,7 +145,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
      * @param prog
      * @return
      */
-    protected fun getStatusDesc(prog: Progress): String {
+    private fun getStatusDesc(prog: Progress): String {
         // compose a descriptive string showing job name and current section if relevant
         var status = prog.jobName + SharedConstants.LINE_SEPARATOR
         if (!StringUtils.isEmpty(prog.sectionName) && !prog.sectionName.equals(prog.jobName, ignoreCase = true)) {
@@ -152,7 +154,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
         return status
     }
 
-    protected fun setMainText(text: String?) {
+    protected fun setMainText(text: String) {
         (findViewById<View>(R.id.progressStatusMessage) as TextView).text = text
     }
 
@@ -174,7 +176,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
      * @param prog
      * @return
      */
-    protected fun findOrCreateUIControl(prog: Progress): ProgressUIControl {
+    private fun findOrCreateUIControl(prog: Progress): ProgressUIControl {
         var uiControl = progressMap[prog]
         if (uiControl == null) {
             uiControl = ProgressUIControl()
@@ -199,7 +201,7 @@ open class ProgressActivityBase : CustomTitlebarActivityBase() {
     inner class ProgressUIControl {
         var parent = LinearLayout(this@ProgressActivityBase)
         var status = TextView(this@ProgressActivityBase)
-        var progressBar = ProgressBar(this@ProgressActivityBase, null, android.R.attr.progressBarStyleHorizontal)
+        private var progressBar = ProgressBar(this@ProgressActivityBase, null, android.R.attr.progressBarStyleHorizontal)
         var isFinishNotified = false
         fun showMsg(msg: String?) {
             status.text = msg

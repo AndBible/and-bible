@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.workspaces
@@ -39,19 +38,21 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.DOWN
 import androidx.recyclerview.widget.ItemTouchHelper.UP
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
@@ -59,7 +60,6 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import javax.inject.Inject
-
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
 
@@ -71,7 +71,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         return WorkspaceViewHolder(view)
     }
 
-    override fun getItemId(position: Int): Long = items[position].id
+    override fun getItemId(position: Int): Long = items[position].id.hashCode().toLong()
 
     override fun getItemCount() = items.size
 
@@ -96,8 +96,11 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
         title.text = titleText
         summary.text = workspaceEntity.contentsText
 
+        val workspaceColor = workspaceEntity.workspaceSettings?.workspaceColor?: defaultWorkspaceColor
+        dragHolder.setColorFilter(workspaceColor)
+
         layout.setOnClickListener {
-            activity.goToWorkspace(holder.itemId)
+            activity.goToWorkspace(workspaceEntity.id)
         }
         layout.setOnLongClickListener {true}
         dragHolder.setOnTouchListener { v, event ->
@@ -124,7 +127,10 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
             items.removeAt(from + 1)
 
         for((idx, ws) in items.withIndex()) {
-            ws.orderNumber = idx
+            if(ws.orderNumber != idx) {
+                activity.changedWorkspaces.add(ws.id)
+                ws.orderNumber = idx
+            }
         }
         notifyItemMoved(from, to)
     }
@@ -134,9 +140,8 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 class WorkspaceSelectorActivity: ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false
-    private val workspacesToBeDeleted = HashSet<Long>()
-    private val workspacesCreated = HashSet<Long>()
-    override val customTheme: Boolean = false
+    private val workspacesToBeDeleted = HashSet<IdType>()
+    private val workspacesCreated = HashSet<IdType>()
     private lateinit var resultIntent: Intent
     @Inject lateinit var windowControl: WindowControl
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
@@ -221,9 +226,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
             })
         }
 
-        dataSet = DatabaseContainer.db.workspaceDao().allWorkspaces().toMutableList()
+        dataSet = DatabaseContainer.instance.workspaceDb.workspaceDao().allWorkspaces().toMutableList()
 
-        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }!!
+        val workspace = dataSet.find { it.id == windowControl.windowRepository.id }
 
         val llm = LinearLayoutManager(this)
         binding.run {
@@ -243,9 +248,10 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 finishOk()
             }
             recyclerView.adapter = workspaceAdapter
-            recyclerView.smoothScrollToPosition(dataSet.indexOf(workspace))
+            if(workspace != null) {
+                recyclerView.smoothScrollToPosition(dataSet.indexOf(workspace))
+            }
         }
-
     }
 
     private fun createNewWorkspace() {
@@ -255,15 +261,16 @@ class WorkspaceSelectorActivity: ActivityBase() {
             .setPositiveButton(R.string.okay) { d, _ ->
                 val windowRepository = windowControl.windowRepository
                 val newWorkspaceEntity = WorkspaceEntities.Workspace(
-                    name.text.toString(), null, 0,
-                    windowRepository.orderNumber,
-                    windowRepository.textDisplaySettings,
-                    windowRepository.workspaceSettings
+                    name = name.text.toString(),
+                    contentsText = null,
+                    orderNumber = windowRepository.orderNumber,
+                    textDisplaySettings = windowRepository.textDisplaySettings,
+                    workspaceSettings = windowRepository.workspaceSettings
                 ).apply {
-                    id = dao.insertWorkspace(this)
+                    dao.insertWorkspace(this)
                 }
                 // To make sure keyboard is closed first
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     goToWorkspace(newWorkspaceEntity.id)
                 }
             }
@@ -295,7 +302,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         workspacesToBeDeleted.forEach {
             dao.deleteWorkspace(it)
         }
-        dao.updateWorkspaces(dataSet)
+        dao.updateWorkspaces(dataSet.filter { changedWorkspaces.contains(it.id) })
     }
 
     private fun cancelChanges() {
@@ -314,8 +321,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 val settings = SettingsBundle(
                     workspaceId = workspaceId,
                     workspaceName = workspace.name,
-                    workspaceSettings = dataSet.find { it.id == workspaceId }!!.textDisplaySettings
-                        ?: WorkspaceEntities.TextDisplaySettings.default
+                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default).apply {
+                        colors?.workspaceColor = workspace.workspaceSettings?.workspaceColor
+                    },
                 )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -333,6 +341,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 AlertDialog.Builder(this@WorkspaceSelectorActivity)
                     .setPositiveButton(R.string.okay) { d, _ ->
                         workspace.name = name.text.toString()
+                        changedWorkspaces.add(workspace.id)
                         workspaceAdapter.notifyItemChanged(position)
                     }
                     .setView(name)
@@ -442,7 +451,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
         CommonUtils.fixAlertDialogButtons(dialog)
     }
 
-    private val dao get() = DatabaseContainer.db.workspaceDao()
+    private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
 
     override fun onBackPressed() {
         cancelChanges()
@@ -457,6 +466,8 @@ class WorkspaceSelectorActivity: ActivityBase() {
         super.onDetachedFromWindow()
     }
 
+    internal val changedWorkspaces = mutableSetOf<IdType>()
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if(requestCode == WORKSPACE_SETTINGS_CHANGED) {
             val extras = data!!.extras!!
@@ -466,18 +477,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
             workspaceItem.textDisplaySettings =
                 if(reset) WorkspaceEntities.TextDisplaySettings.default
                 else settings.workspaceSettings
+            if(reset) {
+                workspaceItem.workspaceSettings?.workspaceColor = defaultWorkspaceColor
+            } else {
+                workspaceItem.workspaceSettings?.workspaceColor = settings.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+            }
+            workspaceAdapter.notifyItemChanged(dataSet.indexOf(workspaceItem))
             setDirty()
+            changedWorkspaces.add(workspaceItem.id)
         }
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    fun goToWorkspace(itemId: Long) {
+    fun goToWorkspace(itemId: IdType) {
         fun apply(save: Boolean) {
             if(save)
                 applyChanges()
             else
                 cancelChanges()
-            resultIntent.putExtra("workspaceId", itemId)
+            resultIntent.putExtra("workspaceId", itemId.toString())
             finishOk()
         }
         if(isDirty) {
@@ -512,7 +530,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     }
 
     companion object {
-        const val WORKSPACE_SETTINGS_CHANGED = 1
+        const val WORKSPACE_SETTINGS_CHANGED = 999
     }
 
 }
