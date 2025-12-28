@@ -106,7 +106,7 @@ class SearchControl @Inject constructor(
                              includeAllEndings: Boolean=false, fuzzySearchAccuracy: Double? = null, proximityWords: Int? = null,
                              strongs: Char? = null): String {
         var cleanSearchString = cleanSearchString(searchString)
-        var decorated: String
+//        var decorated: String
 
         if (includeAllEndings || strongs != null || fuzzySearchAccuracy != null) {
             var newSearchString =""
