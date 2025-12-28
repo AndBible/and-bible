@@ -115,6 +115,7 @@ export type AppSettings = {
     disableGenericModalButtons: GenericModalButtonId[],
     monochromeMode: boolean,
     disableAnimations: boolean,
+    disableClickToEdit: boolean,
     fontSizeMultiplier: number,
     enabledExperimentalFeatures: Feature[],
 }
@@ -201,6 +202,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         disableGenericModalButtons: [],
         monochromeMode: false,
         disableAnimations: false,
+        disableClickToEdit: false,
         fontSizeMultiplier: 1.0,
         enabledExperimentalFeatures: [],
     });

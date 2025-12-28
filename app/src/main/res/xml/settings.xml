@@ -123,6 +123,13 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_animate_24dp"
             />
+        <SwitchPreferenceCompat
+            android:key="disable_click_to_edit"
+            android:title="@string/prefs_disable_click_to_edit_title"
+            android:summary="@string/prefs_disable_click_to_edit_summary"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_click_24dp"
+            />
         <SeekBarPreference android:key="font_size_multiplier"
             android:title="@string/pref_font_size_multiplier_title"
             android:summary=""

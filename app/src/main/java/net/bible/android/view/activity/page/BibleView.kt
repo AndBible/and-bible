@@ -1384,6 +1384,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
+        val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
@@ -1407,6 +1408,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
+                        disableClickToEdit:  $disableClickToEdit,
                     }, 
                     initial: $initial,
                     });
