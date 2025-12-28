@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page
@@ -25,15 +24,20 @@ import android.view.ViewConfiguration
 
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.util.TouchOwner
+import net.bible.service.common.BibleViewSwipeMode
 import net.bible.service.common.CommonUtils
+import kotlin.math.abs
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : SimpleOnGestureListener() {
-    private val scaledMinimumDistance: Int
-    private val scaledMinimumFullScreenScrollDistance: Int
+class BibleGestureListener(
+    private val mainBibleActivity: MainBibleActivity,
+    val bibleView: BibleView
+) : SimpleOnGestureListener() {
+    private val scaledMinimumDistance: Int = CommonUtils.convertDipsToPx(DISTANCE_DIP)
+    private val scaledMinimumFullScreenScrollDistance: Int = CommonUtils.convertDipsToPx(SCROLL_DIP)
 
     private var minScaledVelocity: Int = 0
     private val autoFullScreen: Boolean get() = CommonUtils.settings.getBoolean("auto_fullscreen_pref", false)
@@ -44,15 +48,18 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
     private var lastDirection = false
 
     init {
-        scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP)
-        scaledMinimumFullScreenScrollDistance = CommonUtils.convertDipsToPx(SCROLL_DIP)
         minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         // make it easier to swipe
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
     }
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    fun destroy() {
+        ABEventBus.unregister(this)
+    }
+
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        e1 ?: return false
         if (!::flingEv.isInitialized || e1.eventTime > flingEv.eventTime) {
             // New fling event
             flingEv = MotionEvent.obtain(e1)
@@ -62,11 +69,15 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
             flingEv = MotionEvent.obtain(e2)
         }
 
+        if(flingEv.isButtonPressed(MotionEvent.BUTTON_PRIMARY)) {
+            return false
+        }
+
         // prevent interference with window separator drag - fast drags were causing a fling
-        if (!TouchOwner.getInstance().isTouchOwned) {
+        if (!TouchOwner.isTouchOwned) {
             // get distance between points of the fling
-            val vertical = Math.abs(flingEv.y - e2.y).toDouble()
-            val horizontal = Math.abs(flingEv.x - e2.x).toDouble()
+            val vertical = abs(flingEv.y - e2.y).toDouble()
+            val horizontal = abs(flingEv.x - e2.x).toDouble()
 
             Log.i(TAG, "onFling vertical:$vertical horizontal:$horizontal VelocityX$velocityX")
 
@@ -80,10 +91,17 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
                     goNext = !goNext
 
                 if (goNext) {
-                    mainBibleActivity.next()
+                    when(CommonUtils.settings.bibleViewSwipeMode) {
+                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.next()
+                        BibleViewSwipeMode.PAGE -> bibleView.volumeDownPressed()
+                        BibleViewSwipeMode.NONE -> {}
+                    }
                 } else {
-                    // left to right swipe
-                    mainBibleActivity.previous()
+                    when(CommonUtils.settings.bibleViewSwipeMode) {
+                        BibleViewSwipeMode.CHAPTER -> mainBibleActivity.previous()
+                        BibleViewSwipeMode.PAGE -> bibleView.volumeUpPressed()
+                        BibleViewSwipeMode.NONE -> {}
+                    }
                 }
                 return true
             }
@@ -97,12 +115,12 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
 		}
 	}
 
-    override fun onScroll(e1: MotionEvent, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+    override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
+        e1 ?: return false
         if (!::scrollEv.isInitialized  || e1.eventTime > scrollEv.eventTime) {
             // New scroll event
             scrollEv = MotionEvent.obtain(e1)
         }
-		ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
         if (e2.eventTime - scrollEv.eventTime > 1000) {
             // Too slow motion
             scrollEv = MotionEvent.obtain(e2)
@@ -130,9 +148,8 @@ class BibleGestureListener(private val mainBibleActivity: MainBibleActivity) : S
         return false
     }
 
-
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
-        ABEventBus.getDefault().post(BibleView.BibleViewTouched(onlyTouch = true))
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        ABEventBus.post(BibleView.BibleViewTouched(onlyTouch = true))
         return super.onSingleTapUp(e)
     }
 

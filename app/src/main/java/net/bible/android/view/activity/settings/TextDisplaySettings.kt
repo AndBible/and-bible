@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.settings
@@ -40,12 +39,14 @@ import net.bible.android.database.SettingsBundle
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.page.Preference as ItemPreference
 import net.bible.android.database.json
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.page.ColorPreference
 import net.bible.android.view.activity.page.CommandPreference
+import net.bible.android.view.activity.page.ExpandXrefsPreference
 import net.bible.android.view.activity.page.FontFamilyPreference
 import net.bible.android.view.activity.page.FontSizePreference
 import net.bible.android.view.activity.page.HideLabelsPreference
@@ -58,6 +59,7 @@ import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
+import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.getPreferenceList
@@ -110,8 +112,9 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
+        Types.EXPAND_XREFS -> ExpandXrefsPreference(settings)
+        Types.XREFS -> ItemPreference(settings, Types.XREFS)
         Types.MYNOTES -> MyNotesPreference(settings)
-
         Types.STRONGS -> StrongsPreference(settings)
         Types.MORPH -> MorphologyPreference(settings)
         Types.FONTSIZE -> FontSizePreference(settings)
@@ -123,6 +126,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.TOPMARGIN -> TopMarginPreference(settings)
         Types.LINE_SPACING -> LineSpacingPreference(settings)
         Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
+        Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -151,6 +155,9 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         }
         if(itmOptions.title != null) {
             p.title = itmOptions.title
+        }
+        if(itmOptions.summary != null) {
+            p.summary = itmOptions.summary
         }
         p.isEnabled = itmOptions.enabled
         p.isVisible = itmOptions.visible
@@ -249,19 +256,26 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
         val videoSpan = htmlToSpan("<i><a href=\"$textDisplaySettingsVideo\">${getString(R.string.watch_tutorial_video)}</a></i><br><br>")
 
+        val buy = getString(R.string.buy_development)
+        val support = getString(R.string.buy_development2)
+        val heartIcon = ImageSpan(getTintedDrawable(R.drawable.baseline_attach_money_24))
+        val buyMessage = "<b>$support</b>: <a href=\"$buyDevelopmentLink\">$buy</a>"
+        val iconStr = SpannableString("* ")
+        iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+        val spannedBuy = TextUtils.concat(htmlToSpan("<br><br>"), iconStr, htmlToSpan(buyMessage))
+
         val text = if(isWindow) {
             val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
-            val w3 = getString(R.string.window_text_options_help3)
             val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
             val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
 
-            val text = "$w1 $w3\n\n$w4"
+            val text = "$w1\n\n$w4"
             val start1 = text.indexOf("__ICON1__")
             val start3 = text.indexOf("__ICON3__")
             val span = SpannableString(text)
             span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
             span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            TextUtils.concat(videoSpan, span)
+            TextUtils.concat(videoSpan, span, spannedBuy)
         } else {
             val h1 = getString(R.string.workspace_text_options_help1)
             val h2 = getString(R.string.workspace_text_options_help2)
@@ -270,7 +284,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
             val start1 = text.indexOf("__ICON1__")
             val span = SpannableString(text)
             span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            TextUtils.concat(videoSpan, span)
+            TextUtils.concat(videoSpan, span, spannedBuy)
         }
 
         val title = if(isWindow) getString(R.string.window_text_options_help_title)
@@ -327,7 +341,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     }
 
     fun setResult() {
-        val resultIntent = Intent(this, ColorSettingsActivity::class.java)
+        val resultIntent = Intent(this, TextDisplaySettingsActivity::class.java)
 
         resultIntent.putExtra("settingsBundle", settingsBundle.toJson())
         resultIntent.putExtra("reset", reset)

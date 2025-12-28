@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.page
@@ -22,27 +21,27 @@ import android.util.Log
 
 import net.bible.android.control.PassageChangeMediator
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.control.page.window.WindowRepository
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
+import net.bible.service.common.tinyName
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.history.AddHistoryItem
+import net.bible.service.sword.BookAndKey
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
-import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.BibleBook
+import org.crosswire.jsword.passage.VerseKey
 import java.lang.IllegalArgumentException
-import java.lang.RuntimeException
 
 import javax.inject.Inject
 
@@ -73,22 +72,30 @@ val BookCategory.documentCategory: DocumentCategory get() {
 }
 
 open class CurrentPageManager @Inject constructor(
-    val swordDocumentFacade: SwordDocumentFacade,
     bibleTraverser: BibleTraverser,
     val bookmarkControl: BookmarkControl,
-    val windowRepository: WindowRepository,
+    val windowControl: WindowControl,
 )  {
     // use the same verse in the commentary and bible to keep them in sync
     val currentBibleVerse: CurrentBibleVerse = CurrentBibleVerse()
-    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordDocumentFacade, this)
-    val currentDictionary = CurrentDictionaryPage(swordDocumentFacade, this)
-    val currentGeneralBook = CurrentGeneralBookPage(swordDocumentFacade, this)
-    val currentMap = CurrentMapPage(swordDocumentFacade, this)
+    val currentBible = CurrentBiblePage(currentBibleVerse, bibleTraverser, this)
+    val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, this)
+    val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser,  this)
+    val currentDictionary = CurrentDictionaryPage(this)
+    val currentGeneralBook = CurrentGeneralBookPage(this)
+    val currentMap = CurrentMapPage(this)
 
     var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
 
+    // State that JS side can store for its internal use (like Memorize doc, for specific game state)
+    var jsState: String? = null
+
+    val titleText: String get() =
+        if(isBibleShown || isCommentaryShown || isMyNotesShown) {
+            currentBibleVerse.verse.tinyName
+        } else {
+            ""
+        }
 
     val hasStrongs: Boolean get() {
         if(isGenBookShown) {
@@ -104,7 +111,7 @@ open class CurrentPageManager @Inject constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowRepository.textDisplaySettings)
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings)
 
     lateinit var window: Window
 
@@ -129,31 +136,34 @@ open class CurrentPageManager @Inject constructor(
         }
 
     val isStudyPadShown: Boolean
-        get() = currentGeneralBook === currentPage && currentGeneralBook.isStudyPad
+        get() = currentGeneralBook == currentPage && currentGeneralBook.isStudyPad
 
     val isCommentaryShown: Boolean
-        get() = currentCommentary === currentPage
+        get() = currentCommentary == currentPage
     val isBibleShown: Boolean
-        get() = currentBible === currentPage
+        get() = currentBible == currentPage
+
+    val isVersePageShown: Boolean
+        get() = isBibleShown || isCommentaryShown
+
     val isMyNotesShown: Boolean
-        get() = currentMyNotePage === currentPage
+        get() = currentMyNotePage == currentPage
 
     val isDictionaryShown: Boolean
-        get() = currentDictionary === currentPage
-    val isGenBookShown: Boolean
-        get() = currentGeneralBook === currentPage
+        get() = currentDictionary == currentPage
+    private val isGenBookShown: Boolean
+        get() = currentGeneralBook == currentPage
     val isMapShown: Boolean
-        get() = currentMap === currentPage
+        get() = currentMap == currentPage
 
 
     /** display a new Document and return the new Page
      */
-    fun setCurrentDocument(nextDocument: Book?): CurrentPage {
+    fun setCurrentDocument(nextDocument: Book?) {
         var nextPage: CurrentPage? = null
         if (nextDocument != null) {
-            PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
-
-            nextPage = getBookPage(nextDocument)
+            ABEventBus.post(AddHistoryItem(window))
+            nextPage = getBookPage(nextDocument, null)
 
             // is the next doc the same as the prev doc
             val prevDocInPage = nextPage!!.currentDocument
@@ -161,8 +171,8 @@ open class CurrentPageManager @Inject constructor(
 
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
-                nextPage = currentPage
-                PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+                currentPage = nextPage
+                PassageChangeMediator.onCurrentPageChanged(window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
                 nextPage.setCurrentDocument(nextDocument)
@@ -170,36 +180,44 @@ open class CurrentPageManager @Inject constructor(
 
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || nextDocument.contains(nextPage.key))) {
-                    PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
+                if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (nextDocument.bookCategory != BookCategory.GENERAL_BOOK && nextDocument.contains(nextPage.key)))) {
+                    PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
-                    val context = CurrentActivityHolder.getInstance().currentActivity
                     // pop up a key selection screen
-                    nextPage.startKeyChooser(context)
+                    nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
                 }
             }
         } else {
             // should never get here because a doc should always be passed in but I have seen errors lie this once or twice
-            nextPage = currentPage
+            Log.e(TAG, "Should not get here")
+            if(nextPage != null) currentPage = nextPage
         }
-
-        return nextPage
     }
 
     fun setCurrentDocumentAndKey(currentBook: Book?,
                                  key: Key,
-                                 updateHistory: Boolean = true,
-                                 anchorOrdinal: Int? = null
+                                 addHistoryItem: Boolean = true,
+                                 anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory)
-
-        val nextPage = getBookPage(currentBook)
+        jsState = null
+        val nextPage = getBookPage(currentBook, key)
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true
-                nextPage.setCurrentDocument(currentBook)
-                nextPage.setKey(key)
-                nextPage.anchorOrdinal = anchorOrdinal
+                if(currentBook != null) {
+                    nextPage.setCurrentDocument(currentBook)
+                }
+                if(key is BookAndKey) {
+                    nextPage.setKey(key.key,addHistoryItem)
+                    if (nextPage is CurrentCommentaryPage) {
+                        nextPage.sourceBookAndKey = key
+                    }
+                    nextPage.anchorOrdinal = key.ordinal
+                    nextPage.htmlId = key.htmlId
+                } else {
+                    nextPage.setKey(key,addHistoryItem)
+                    nextPage.anchorOrdinal = anchorOrdinal
+                }
                 currentPage = nextPage
             }catch (e: Exception) {
                 Log.e(TAG, "Error setting next page doc")
@@ -208,14 +226,16 @@ open class CurrentPageManager @Inject constructor(
             }
         }
         // valid key has been set so do not need to show a key chooser therefore just update main view
-        PassageChangeMediator.getInstance().onCurrentPageChanged(window)
+        PassageChangeMediator.onCurrentPageChanged(window)
 
         return nextPage
     }
 
-    fun getBookPage(book: Book?): CurrentPage? {
+    fun getBookPage(book: Book?, key: Key?): CurrentPage? {
         return if (book == null) {
-            null
+            if(key is VerseKey<*>) {
+                return currentBible
+            } else null
         } else {
             if(book.osisID == "Commentaries.MyNote")
                 currentMyNotePage
@@ -235,12 +255,6 @@ open class CurrentPageManager @Inject constructor(
             DocumentCategory.MYNOTE -> currentMyNotePage
         }
 
-    fun showBible() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
-        currentPage = currentBible
-        PassageChangeMediator.getInstance().onCurrentPageChanged(this.window)
-    }
-
     val entity get() =
         WorkspaceEntities.PageManager(
             window.id,
@@ -250,11 +264,17 @@ open class CurrentPageManager @Inject constructor(
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,
-            textDisplaySettings.copy()
+            textDisplaySettings.copy(),
+            jsState
         )
+
+    var savedEntity: WorkspaceEntities.PageManager? = null
+
+    val isModified get() = savedEntity != entity
 
     fun restoreFrom(pageManagerEntity: WorkspaceEntities.PageManager?, workspaceDisplaySettings: WorkspaceEntities.TextDisplaySettings?=null) {
         pageManagerEntity ?: return
+        savedEntity = pageManagerEntity.deepCopy()
 
         // Order between these two following lines is critical!
         // otherwise currentYOffsetRatio is not set with respect to correct currentBibleVerse!
@@ -264,6 +284,7 @@ open class CurrentPageManager @Inject constructor(
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
+        jsState = pageManagerEntity.jsState
 
         val restoredBookCategory = try {
             DocumentCategory.valueOf(pageManagerEntity.currentCategoryName)
@@ -274,9 +295,10 @@ open class CurrentPageManager @Inject constructor(
         if(workspaceDisplaySettings != null) {
             WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
+            savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }
         currentPage = getBookPage(restoredBookCategory)
-        if(currentPage.key == null || currentPage.currentDocument == null) {
+        if(currentPage.key == null && currentPage.currentDocument == null) {
             currentPage = currentBible
         }
     }
@@ -286,7 +308,7 @@ open class CurrentPageManager @Inject constructor(
      */
     fun setFirstUseDefaultVerse() {
         currentBible.setCurrentDocument(defaultBible)
-        currentBible.doSetKey(defaultVerse)
+        currentBible.doSetKey(defaultVerse.start)
     }
 
     /**
@@ -303,5 +325,5 @@ open class CurrentPageManager @Inject constructor(
                 !currentVersification.containsBook(currentBibleBook)
         }
 
-    val TAG get() = "PageManager[${window.id}]"
+    private val TAG get() = "PageManager[${window.displayId}]"
 }

@@ -1,41 +1,49 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.navigation
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.view.ActionMode
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.control.backup.BackupControl
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.control.document.canDelete
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.DocumentSearchDao
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.installzip.InstallZip
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.hideFromSelector
+import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import java.util.*
 
 /**
@@ -51,7 +59,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         documentItemAdapter = DocumentItemAdapter(this)
         initialiseView()
 
-        GlobalScope.launch {
+        lifecycleScope.launch {
             populateMasterDocumentList(false)
         }
         Log.i(TAG, "ChooseDocument downloadControl:$downloadControl")
@@ -61,7 +69,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         selectedDocumentFilterNo = when(intent.extras?.getString("type")) {
             "BIBLE" -> 1
             "COMMENTARY" -> 2
-            else -> 0
+            else -> CommonUtils.settings.getInt("selected_document_filter_no", 0)
         }
     }
 
@@ -69,12 +77,14 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
         selectedLanguageNo = -1
     }
 
+    override val dao: DocumentSearchDao get() = DatabaseContainer.instance.chooseDocumentsDb.documentSearchDao()
+
     /** load list of docs to display
      *
      */
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
         Log.i(TAG, "get document list from source")
-        return swordDocumentFacade.documents + FakeBookFactory.pseudoDocuments
+        return SwordDocumentFacade.documents + FakeBookFactory.pseudoDocuments.filterNot { it.hideFromSelector }
     }
 
     /**
@@ -92,32 +102,32 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun handleDocumentSelection(selectedDocument: Book) {
-        GlobalScope.launch(Dispatchers.Main) {
+        if(selectedDocument.bookCategory == BookCategory.AND_BIBLE) return
+        lifecycleScope.launch(Dispatchers.Main) {
             if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
                 reloadDocuments()
                 return@launch
             }
             Log.i(TAG, "Book selected:" + selectedDocument.initials)
-            try {
-                documentControl.changeDocument(selectedDocument)
-                // if key is valid then the new doc will have been shown already
-                returnToPreviousScreen()
-            } catch (e: Exception) {
-                Log.e(TAG, "error on select of bible book", e)
-            }
+
+            val myIntent = Intent(this@ChooseDocument, ChooseDocument::class.java)
+            myIntent.putExtra("book", selectedDocument.initials)
+            setResult(Activity.RESULT_OK, myIntent)
+            finish()
         }
     }
 
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             menu.findItem(R.id.unlock).isVisible = displayedDocuments[selectedItemPositions[0]].isEnciphered
+            menu.findItem(R.id.delete).isVisible = displayedDocuments[selectedItemPositions[0]].canDelete
         }
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
 
     override fun onActionItemClicked(item: MenuItem, selectedItemPositions: List<Int>): Boolean {
         when(item.itemId) {
-            R.id.unlock -> GlobalScope.launch(Dispatchers.Main) {
+            R.id.unlock -> lifecycleScope.launch(Dispatchers.Main) {
                 CommonUtils.unlockDocument(this@ChooseDocument, displayedDocuments[selectedItemPositions[0]])
                 reloadDocuments()
             }
@@ -135,20 +145,28 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
                 try {
                     if (downloadControl.checkDownloadOkay()) {
                         val handlerIntent = Intent(this, DownloadActivity::class.java)
-                        val requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH
-                        startActivityForResult(handlerIntent, requestCode)
-
-                        // do not return here after download
-                        finish()
+                        lifecycleScope.launch {
+                            awaitIntent(handlerIntent)
+                            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                            reloadDocuments()
+                        }
                     }
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
             }
             R.id.backupButton -> {
-                GlobalScope.launch {
+                lifecycleScope.launch {
                     BackupControl.backupModulesViaIntent(this@ChooseDocument)
+                }
+            }
+            R.id.installZip -> {
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
+                    reloadDocuments()
                 }
             }
         }

@@ -1,1 +1,1 @@
-研经工具 - 由 And Bible 开源计划开发
+AndBible: 研经工具

@@ -1,0 +1,50 @@
+Güçlü Kutsal Kitap çalışma aracı
+
+"AndBible: İncil Çalışması" Android için güçlü, ancak kullanımı kolay, çevrimdışı bir Kutsal Kitap çalışma uygulamasıdır. Uygulama sadece bir Kutsal Kitap okuyucusu olmayı hedeflemez, ancak derinlemesine kişisel Kutsal Kitap çalışması yapmak için gelişmiş bir araç olmaya odaklanır.
+
+Bu uygulama Kutsal Kitap okuyucuları tarafından, Kutsal Kitap okuyucuları için geliştirilmiştir. Kutsal Kitap çalışmanızı rahat, derin ve eğlenceli hale getirmenize yardımcı olmayı amaçlamaktadır. Kâr amacı gütmeyen bu topluluk projesinin en iyi yanı, açık kaynaklı, tamamen ücretsiz olması ve reklam içermemesidir.
+
+KJV, NASB, NET gibi birkaç popüler İncil versiyonu (mevcut birçok versiyon arasından) ve ayrıca Matthew Henry ve John Gill gibi popüler yorumları.
+
+Güçlü İncil Çalışma özellikleri
+
+Uygulama, karmaşık ve derin bir Kutsal Kitap çalışma deneyimini daha sorunsuz hale getiren birçok aydınlatıcı, orijinal özelliğe sahiptir. En dikkat çekici özellikler aşağıdaki gibidir:
+
+ * Çevirileri karşılaştırmayı ve yorumlara başvurmayı sağlayan bölünmüş metin görünümleri
+ * Çalışma alanları, kendi ayarlarına sahip birden fazla Kutsal Kitap çalışma kurulumuna izin verir
+ * Strong’un sözlüğü entegrasyonla birlikte Grekçe ve İbranice kelime analizine olanak sağlar
+ * Bağlantılı referanslar, dipnotlar ve belgeler; sadece bir bağlantıya dokunarak referanslara ve dipnotlara atlayın; köprü bağlantılı tefsirleri (Gill, Matthew Henry vb.), referans koleksiyonlarını (Kutsal Kitap Bilgisinin Hazinesi, TSKe) ve diğer kaynakları kullanarak Kutsal Yazılar üzerinde derinlemesine çalışma yapın.
+ * Konuşma imleri ile gelişmiş metin okuma özelliği, sorunsuz bir Kutsal Kitap dinleme deneyimi sağlar
+ * Esnek arama
+ * Gelişmiş yer imi
+ * Vaazları dinlerken notlar ve Kutsal Kitap referansları eklemek için Çalışma Pedleri.
+ * Okuma planları: Kutsal Kitap’ı okumak için hedefler belirleyin
+ * Geniş belge kütüphanesi: Crosswire ve diğer SWORD depoları tarafından yasal olarak dağıtılan
+ 700 üzerinde dilde 1500 belgeden oluşan Kutsal Kitap çevirileri,
+teolojik yorumlar, sözlükler, haritalar ve Hristiyan kitapları.
+ * MyBible, MySword ve EPUB dosyaları için yerel destek, kitaplığınızı daha da genişletmenizi sağlar.
+
+Birlikte en iyi Kutsal Kitap uygulamasını yapalım!
+
+AndBible açık kaynaklı bir topluluk projesidir. Pratikte bu, uygun becerilere sahip herkesin
+
+ * yeni özellikler geliştirerek,
+ * henüz yayımlanmamış özellikleri test ederek,
+ * kullanıcı arayüzü çevirilerini güncel tutarak, ve
+ * telif hakkı sahiplerinden izinler alarak veya belgeleri SWORD formatına dönüştürerek modül kitaplığının genişletilmesine yardımcı olarak.
+
+Profesyonel bir yazılım mühendisi ya da testçi iseniz lütfen projeye katkıda bulunmayı düşünün. Nasıl katkıda bulunacağınız hakkında daha fazla bilgi sahibi olmak için lütfen bakınız https://git.io/JUnaj.
+
+Geliştirme süresine sponsor ederek destek olun!
+
+Projeye katkıda bulunmak için zamanınız veya beceriniz yoksa, profesyonel geliştirici çalışma süresine sponsor ederek da projeyi destekleyebilirsiniz.
+
+Seçenekleri görün: https://shop.andbible.org/
+
+Bağlantılar
+
+ * Ana Sayfa: https://andbible.org
+ * AndBible’ı Facebook’ta Beğen: https://www.facebook.com/AndBible/
+ * Youtube Kanalımız: https://www.youtube.com/c/AndBible
+ * Sıkça Sorulan Sorular: https://git.io/JJm8E
+ * Github üzerindeki proje sayfası: https://github.com/AndBible/and-bible

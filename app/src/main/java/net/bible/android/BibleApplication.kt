@@ -1,67 +1,96 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android
 
+import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.Application
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.database.sqlite.SQLiteDatabase
 import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.core.app.NotificationCompat
+import io.requery.android.database.sqlite.SQLiteDatabase
 import net.bible.android.activity.R
 
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.DaggerApplicationComponent
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.BugReport
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.ErrorActivity
 import net.bible.android.view.util.locale.LocaleHelper
+import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
+import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ProgressNotificationManager
+import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
+import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.sword.epub.epubBookType
+import net.bible.service.sword.mybible.myBibleBible
+import net.bible.service.sword.mybible.myBibleCommentary
+import net.bible.service.sword.mybible.myBibleDictionary
+import net.bible.service.sword.mysword.mySwordBible
+import net.bible.service.sword.mysword.mySwordCommentary
+import net.bible.service.sword.mysword.mySwordDictionary
 
 import org.crosswire.common.util.Language
 import org.crosswire.common.util.PropertyMap
 import org.crosswire.jsword.book.install.InstallManager
+import org.crosswire.jsword.book.sword.BookType
 import org.crosswire.jsword.bridge.BookIndexer
 import org.crosswire.jsword.internationalisation.LocaleProvider
 import org.crosswire.jsword.internationalisation.LocaleProviderManager
 import java.util.Locale
 
-class MyLocaleProvider: LocaleProvider {
+object MyLocaleProvider: LocaleProvider {
     /**
      * Allow hardcoding exceptions for JSword locales, as
      * it does not support all Android locale variants.
      */
     override fun getUserLocale(): Locale {
+        this.override?.run {return this}
         val default = Locale.getDefault()
         if(default.language == "sr" && default.script == "Latn") {
             return Locale.forLanguageTag("sr-LT")
         }
         return default
     }
+
+    var override: Locale? = null
 }
 
-/** Main And Bible application singleton object
+private const val ERROR_NOTIFICATION_CHANNEL = "generic-notifications"
+private const val GENERIC_NOTIFICATION_ID=3
+
+/** Main AndBible application singleton object
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
@@ -81,26 +110,44 @@ open class BibleApplication : Application() {
     private val appStateSharedPreferences: SharedPreferences
         get() = getSharedPreferences(saveStateTag, Context.MODE_PRIVATE)
 
+    @SuppressLint("ApplySharedPref")
     override fun onCreate() {
-        Log.i(TAG, "BibleApplication:onCreate, And Bible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
+        Log.i(TAG, "BibleApplication:onCreate, AndBible version ${CommonUtils.applicationVersionName} running on API ${Build.VERSION.SDK_INT}")
         super.onCreate()
+        CommonUtils.tmpDir.deleteRecursively()
+        BackupControl.setupDirs(this)
         val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
         Thread.setDefaultUncaughtExceptionHandler { t, e ->
+            val crashTime = System.currentTimeMillis()
             BugReport.saveScreenshot()
-            CommonUtils.realSharedPreferences.edit().putBoolean("app-crashed", true).commit()
+            Log.e(TAG, "App crashed due to exception", e)
+            BugReport.saveLogcat()
+            BugReport.saveStackTrace(e)
+            BugReport.saveCrashData()
+
+            val numCrashed = CommonUtils.realSharedPreferences.getInt("app-crashed-count", 0)
+            CommonUtils.realSharedPreferences.edit().putInt("app-crashed-count", numCrashed + 1).commit()
+
+            if(numCrashed == 0) {
+                CommonUtils.realSharedPreferences.edit().putLong("app-crashed-time", crashTime).commit()
+            }
             defaultExceptionHandler.uncaughtException(t, e)
         }
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         InstallManager.installSiteMap(
             PropertyMap().apply {
-                load(resources.openRawResource(R.raw.repositories))
+                resources.openRawResource(R.raw.repositories).use { load(it) }
             })
-        LocaleProviderManager.setLocaleProvider(MyLocaleProvider())
+        BookType.addSupportedBookType(myBibleBible)
+        BookType.addSupportedBookType(myBibleCommentary)
+        BookType.addSupportedBookType(myBibleDictionary)
+        BookType.addSupportedBookType(mySwordBible)
+        BookType.addSupportedBookType(mySwordCommentary)
+        BookType.addSupportedBookType(mySwordDictionary)
+        BookType.addSupportedBookType(epubBookType)
 
-        Log.i(TAG, "OS:" + System.getProperty("os.name") + " ver " + System.getProperty("os.version"))
-        Log.i(TAG, "Java:" + System.getProperty("java.vendor") + " ver " + System.getProperty("java.version"))
-        Log.i(TAG, "Java home:" + System.getProperty("java.home")!!)
-        Log.i(TAG, "User dir:" + System.getProperty("user.dir") + " Timezone:" + System.getProperty("user.timezone"))
+        LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
+
         logSqliteVersion()
 
         // This must be done before accessing JSword to prevent default folders being used
@@ -121,6 +168,7 @@ open class BibleApplication : Application() {
         // various initialisations required every time at app startup
 
         localeOverrideAtStartUp = LocaleHelper.getOverrideLanguage(this)
+        createChannels()
     }
 
     var sqliteVersion = ""
@@ -159,7 +207,7 @@ open class BibleApplication : Application() {
                 Log.i(TAG, "Deleting old Chinese indexes")
                 val chineseLanguage = Language("zh")
 
-                val books = applicationComponent.swordDocumentFacade().documents
+                val books = SwordDocumentFacade.documents
                 for (book in books) {
                     if (chineseLanguage == book.language) {
                         try {
@@ -195,7 +243,7 @@ open class BibleApplication : Application() {
             }
         }
 
-        if(prevInstalledVersion <= 350) {
+        if(prevInstalledVersion <= 350 && !newInstall) {
             val oldPrefValue = appStateSharedPreferences.getBoolean("night_mode_pref", false)
             val pref2value = appStateSharedPreferences.getString("night_mode_pref2", "false")
             val pref3value = when(pref2value) {
@@ -229,10 +277,97 @@ open class BibleApplication : Application() {
     fun onEventMainThread(ev: ToastEvent) {
         val duration = ev.duration ?: Toast.LENGTH_SHORT
         val message = if (ev.messageId != null) getString(ev.messageId) else ev.message
+        val context = ev.context ?: CurrentActivityHolder.currentActivity?: return
+        if ((context as? Activity)?.isFinishing == true) return
         try {
-            Toast.makeText(this, message, duration).show()
+            Toast.makeText(context, message, duration).show()
         } catch (e: Exception) {
             Log.e(TAG, "Error in showing toast $message", e)
+        }
+    }
+
+    class ErrorNotificationEvent(val message: String? = null, val messageId: Int?= null, val showReportButton: Boolean = true) {
+        constructor(messageId: Int): this(null, messageId)
+        constructor(message: String): this(message, null)
+    }
+    fun onEventMainThread(ev: ErrorNotificationEvent) {
+        if(BuildVariant.Appearance.isDiscrete) return
+
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        val intent = Intent(this, ErrorActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, intent, if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) PendingIntent.FLAG_IMMUTABLE else 0)
+        val action = NotificationCompat.Action.Builder(
+            android.R.drawable.ic_dialog_alert,
+            getString(R.string.report),
+            pendingIntent
+        ).build()
+
+        val builder = NotificationCompat.Builder(this, ERROR_NOTIFICATION_CHANNEL)
+        builder
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setSilent(false)
+            .setContentTitle(getString(R.string.error_occurred))
+
+        if(ev.showReportButton) {
+            builder.addAction(action)
+        }
+
+        if(ev.message != null) {
+            builder
+                .setContentText(ev.message)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(ev.message))
+        } else {
+            val msg = getString(ev.messageId?: R.string.error_occurred)
+            builder
+                .setContentText(msg)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(msg))
+        }
+
+        builder.setSmallIcon(R.drawable.ic_ichtys)
+
+        val notification = builder.build()
+        notificationManager.notify(GENERIC_NOTIFICATION_ID, notification)
+    }
+
+    private fun createChannels() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (BuildVariant.Appearance.isDiscrete) {
+                CommonUtils.createDiscreteNotificationChannel()
+            } else {
+                val errorChannel = NotificationChannel(
+                    ERROR_NOTIFICATION_CHANNEL,
+                    getString(R.string.error_notification_channel_name), NotificationManager.IMPORTANCE_HIGH
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(errorChannel)
+
+                val speakChannel = NotificationChannel(
+                    SPEAK_NOTIFICATIONS_CHANNEL,
+                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(speakChannel)
+
+                val syncChannel = NotificationChannel(
+                    SYNC_NOTIFICATION_CHANNEL,
+                    getString(R.string.cloud_sync_title), NotificationManager.IMPORTANCE_NONE
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(syncChannel)
+
+                val progressChannel = NotificationChannel(
+                    PROGRESS_NOTIFICATION_CHANNEL,
+                    getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(progressChannel)
+            }
         }
     }
 

@@ -1,30 +1,31 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.history
 
+import android.content.Intent
 import android.util.Log
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -32,6 +33,7 @@ import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
+import java.lang.Exception
 
 
 import java.util.ArrayList
@@ -46,39 +48,38 @@ import javax.inject.Inject
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+
+class AddHistoryItem(val window: Window? = null)
+
 @ApplicationScope
 class HistoryManager @Inject constructor(private val windowControl: WindowControl) {
 
-    private val windowHistoryStackMap = HashMap<Long, Stack<HistoryItem>>()
+    private val windowHistoryStackMap = HashMap<IdType, Stack<HistoryItem>>()
 
     private var isGoingBack = false
 
     // reverse so most recent items are at top rather than end
-    val history: List<HistoryItem>
-        get() {
-            val allHistory = ArrayList(historyStack)
-            allHistory.reverse()
-            return allHistory
-        }
+    fun getHistory(windowId: IdType): List<HistoryItem> {
+        val allHistory = ArrayList(getHistoryStack(windowId))
+        allHistory.reverse()
+        return allHistory
+    }
 
-    private val historyStack: Stack<HistoryItem>
-        get() {
-            val windowNo = windowControl.activeWindow.id
-            var historyStack = windowHistoryStackMap[windowNo]
-            if (historyStack == null) {
-                synchronized(windowHistoryStackMap) {
-                    historyStack = windowHistoryStackMap[windowNo]
-                    if (historyStack == null) {
-                        historyStack = Stack()
-                        windowHistoryStackMap[windowNo] = historyStack!!
-                    }
+    private fun getHistoryStack(windowNo: IdType): Stack<HistoryItem> {
+        var historyStack = windowHistoryStackMap[windowNo]
+        if (historyStack == null) {
+            synchronized(windowHistoryStackMap) {
+                historyStack = windowHistoryStackMap[windowNo]
+                if (historyStack == null) {
+                    historyStack = Stack()
+                    windowHistoryStackMap[windowNo] = historyStack!!
                 }
             }
-            return historyStack!!
         }
+        return historyStack!!
+    }
 
-
-    fun getEntities(windowId: Long): List<WorkspaceEntities.HistoryItem> {
+    fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
         var lastItem: KeyHistoryItem? = null
         return windowHistoryStackMap[windowId]?.mapNotNull {
             if (it is KeyHistoryItem) {
@@ -88,7 +89,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     lastItem = it
                     WorkspaceEntities.HistoryItem(
                         windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        it.anchorOrdinal
+                        it.anchorOrdinal?.start
                     )
                 }
             } else null
@@ -105,8 +106,11 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             } catch (e: NoSuchKeyException) {
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
+            } catch (e: Exception) {
+                Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
+                continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal, window, entity.createdAt))
+            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
         }
         windowHistoryStackMap[window.id] = stack
     }
@@ -118,38 +122,44 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     init {
         // register for BeforePageChangeEvent
         Log.i(TAG, "Registering HistoryManager with EventBus")
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     /** allow current page to save any settings or data before being changed
      */
-    fun onEvent(event: BeforeCurrentPageChangeEvent) {
-        if (event.updateHistory) {
-            addHistoryItem()
-        }
+    fun onEvent(event: AddHistoryItem) {
+        addHistoryItem(event.window)
     }
 
     fun canGoBack(): Boolean {
-        return historyStack.size > 0
+        return getHistoryStack(windowControl.activeWindow.id).size > 0
     }
 
     /**
      * called when a verse is changed to allow current Activity to be saved in History list
      */
-    private fun addHistoryItem() {
+    fun addHistoryItem(window: Window?, intent: Intent? = null) {
         // if we cause the change by requesting Back then ignore it
+        val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
-            val item = createHistoryItem()
-            add(historyStack, item)
+            val item = createHistoryItem(activeWindow, intent)
+            add(getHistoryStack(activeWindow.id), item)
         }
     }
 
-    private fun createHistoryItem(): HistoryItem? {
+    fun popHistoryItem() {
+        getHistoryStack(windowControl.activeWindow.id).pop()
+    }
+
+    private fun createHistoryItem(window: Window, intent: Intent?): HistoryItem? {
         var historyItem: HistoryItem? = null
 
-        val currentActivity = CurrentActivityHolder.getInstance().currentActivity
-        if (currentActivity is MainBibleActivity) {
-            val currentPage = windowControl.activeWindowPageManager.currentPage
+        val currentActivity = CurrentActivityHolder.currentActivity
+        if (intent != null) {
+            val title = intent.getStringExtra("description")?: "-"
+            historyItem = IntentHistoryItem(title, intent, window)
+        } else if (currentActivity is MainBibleActivity) {
+            val currentPage = window.pageManager.currentPage
             val doc = currentPage.currentDocument
             if (currentPage.key == null) {
                 return null
@@ -159,7 +169,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, windowControl.activeWindow)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {
@@ -167,13 +177,14 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             if (andBibleActivity.isIntegrateWithHistoryManager) {
                 historyItem = IntentHistoryItem(currentActivity.title,
                     (currentActivity as AndBibleActivity).intentForHistoryList,
-                    windowControl.activeWindow)
+                    window)
             }
         }
         return historyItem
     }
 
     fun goBack() {
+        val historyStack = getHistoryStack(windowControl.activeWindow.id)
         if (historyStack.size > 0) {
             try {
                 Log.i(TAG, "History size:" + historyStack.size)
@@ -187,7 +198,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     previousItem.revertTo()
 
                     // finish current activity if not the Main screen
-                    val currentActivity = CurrentActivityHolder.getInstance().currentActivity
+                    val currentActivity = CurrentActivityHolder.currentActivity
                     if (currentActivity !is MainBibleActivity) {
                         currentActivity?.finish()
                     }
@@ -220,7 +231,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
 
     companion object {
 
-        private const val MAX_HISTORY = 500
+        const val MAX_HISTORY = 500
 
         private val TAG = "HistoryManager"
     }

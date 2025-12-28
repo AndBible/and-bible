@@ -1,0 +1,58 @@
+/*
+ * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+import {onBeforeMount, reactive, ref} from "vue";
+import {Deferred} from "@/utils";
+import {setupEventBusListener} from "@/eventbus";
+import {useParsers} from "@/composables/parsers";
+import {ReloadAddonsParams} from "@/types/common";
+import {UseAndroid} from "@/composables/android";
+
+export function useCustomFeatures(android: UseAndroid) {
+    const features = reactive(new Set())
+
+    const defer = new Deferred();
+    const featuresLoaded = ref(false);
+    const featuresLoadedPromise = ref(defer.wait());
+    const {parse, initialize} = useParsers(android);
+
+    // eslint-disable-next-line no-unused-vars
+    async function reloadFeatures(featureModuleNames: string[]) {
+        features.clear();
+        if (featureModuleNames.includes("RefParser")) {
+            await initialize();
+            features.add("RefParser");
+        }
+    }
+
+    setupEventBusListener("reload_addons", ({featureModuleNames}: ReloadAddonsParams) => {
+        reloadFeatures(featureModuleNames)
+    })
+
+    onBeforeMount(() => {
+        const featureModuleNames = new URLSearchParams(window.location.search).get("featureModuleNames");
+        if (!featureModuleNames) return
+        reloadFeatures(featureModuleNames.split(","))
+            .then(() => {
+                defer.resolve()
+                featuresLoaded.value = true;
+                console.log("Features loading finished");
+            });
+    })
+
+    return {features, featuresLoadedPromise, featuresLoaded, parse};
+}

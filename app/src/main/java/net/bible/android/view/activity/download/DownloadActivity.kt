@@ -1,46 +1,45 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.download
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
 import androidx.appcompat.view.ActionMode
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.control.download.DocumentStatus
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
 import net.bible.android.view.activity.base.DocumentSelectionBase
-import net.bible.android.view.activity.base.RecommendedDocuments
+import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.db.DatabaseContainer
@@ -54,7 +53,6 @@ import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import java.io.File
-import java.net.URI
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.coroutines.resume
@@ -62,7 +60,18 @@ import kotlin.coroutines.suspendCoroutine
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.serializer
+import net.bible.android.control.document.canDelete
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.DocumentSearchDao
 import net.bible.android.database.SwordDocumentInfo
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.base.installedDocument
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
+import net.bible.service.download.urlPrefix
+import java.net.URL
+import java.text.Collator
+import kotlin.coroutines.coroutineContext
 
 /**
  * Choose Document (Book) to download
@@ -76,37 +85,51 @@ import net.bible.android.database.SwordDocumentInfo
 val Book.isInstalled: Boolean get() = Books.installed().getBook(initials) != null
 
 
-open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R.menu.document_context_menu) {
+open class DownloadActivity : DocumentSelectionBase(
+    R.menu.download_documents, R.menu.document_context_menu,
+    enableLoadingIndicator = false,
+) {
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
-            val isInstalled = displayedDocuments[selectedItemPositions[0]].isInstalled
-            menu.findItem(R.id.delete).isVisible = isInstalled
+            val installedDoc = displayedDocuments[selectedItemPositions[0]].installedDocument
+            val isInstalled = installedDoc != null
+            menu.findItem(R.id.delete).isVisible = isInstalled && installedDoc.canDelete
             menu.findItem(R.id.delete_index).isVisible = isInstalled
             menu.findItem(R.id.unlock).isVisible = isInstalled && displayedDocuments[selectedItemPositions[0]].isEnciphered
         }
         return super.onPrepareActionMode(mode, menu, selectedItemPositions)
     }
 
-    private val genericFileDownloader = GenericFileDownloader {
+    private val genericFileDownloader = GenericFileDownloader(this) {
         invalidateOptionsMenu()
     }
-    private val downloadManager = DownloadManager {
-        invalidateOptionsMenu()
-    }
+    private lateinit var downloadManager: DownloadManager
 
     private val hasErrors get() = genericFileDownloader.errors.isNotEmpty() || downloadManager.failedRepos.isNotEmpty()
 
-    private val repoFactory = RepoFactory(downloadManager)
+    private lateinit var repoFactory: RepoFactory
     private val booksNotFound = ArrayList<String>()
-    private val docDao get() = DatabaseContainer.db.swordDocumentInfoDao()
+    private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
     private suspend fun loadRecommendedDocuments() = withContext(Dispatchers.IO) {
-        val source = URI("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.RECOMMENDED_JSON)
+        val source = URL("https://andbible.github.io/data/${SharedConstants.RECOMMENDED_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.RECOMMENDED_JSON)
         genericFileDownloader.downloadFile(source, target, "Recommendations", reportError = !target.canRead())
         if (target.canRead()) {
             val jsonString = String(target.readBytes())
-            recommendedDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+            recommendedDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
+        } else {
+            Log.e(TAG, "Could not load recommendations")
+        }
+    }
+
+    private suspend fun loadBadDocuments() = withContext(Dispatchers.IO) {
+        val source = URL("https://andbible.github.io/data/${SharedConstants.BAD_DOCS_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.BAD_DOCS_JSON)
+        genericFileDownloader.downloadFile(source, target, "Bad documents list", reportError = !target.canRead())
+        if (target.canRead()) {
+            val jsonString = String(target.readBytes())
+            badDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load recommendations")
         }
@@ -115,19 +138,20 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     private suspend fun loadDefaultDocuments() = withContext(Dispatchers.IO) {
         if(!downloadDefaults) return@withContext
 
-        val source = URI("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.DEFAULT_JSON)
+        val source = URL("https://andbible.github.io/data/${SharedConstants.DEFAULT_JSON}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.DEFAULT_JSON)
         genericFileDownloader.downloadFile(source, target, "Defaults", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
-            defaultDocuments.value = json.decodeFromString(RecommendedDocuments.serializer(), jsonString)
+            defaultDocuments.value = json.decodeFromString(DocumentConfiguration.serializer(), jsonString)
         } else {
             Log.e(TAG, "Could not load default document list")
         }
     }
+
     private suspend fun loadPseudoBooks() = withContext(Dispatchers.IO) {
-        val source = URI("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
-        val target = File(SharedConstants.MODULE_DIR, SharedConstants.PSEUDO_BOOKS)
+        val source = URL("https://andbible.github.io/data/${SharedConstants.PSEUDO_BOOKS}")
+        val target = File(SharedConstants.modulesDir, SharedConstants.PSEUDO_BOOKS)
         genericFileDownloader.downloadFile(source, target, "Pseudo books", reportError = !target.canRead())
         if(target.canRead()) {
             val jsonString = String(target.readBytes())
@@ -161,25 +185,45 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
-        GlobalScope.launch {
+        downloadManager = DownloadManager {
+            invalidateOptionsMenu()
+        }
+        repoFactory = RepoFactory(downloadManager)
+
+        // reconfigure the layout:
+        //  * ensure the ProgressBar for the ChooseDocument activity is hidden
+        //  * make the SwipeRefreshLayout visible
+        //  * reparent the ListView to be in the SwipeRefreshLayout
+        binding.loadingIndicator.visibility = View.GONE
+        binding.swipeRefresh.visibility = View.VISIBLE
+        with(binding.list) {
+            (parent as? ViewGroup)?.removeView(this)
+            binding.swipeRefresh.addView(this)
+        }
+        // configure the SwipeRefreshLayout
+        lifecycleScope.launchWhenResumed {
+            isLoading.collect { binding.swipeRefresh.isRefreshing = it }
+        }
+
+        lifecycleScope.launch {
             if (!askIfWantToProceed()) {
                 finish()
                 return@launch
             }
 
+            CommonUtils.requestNotificationPermission(this@DownloadActivity)
+
+            invalidateOptionsMenu()
+
+            downloadDocJson()
+
+            documentItemAdapter = DocumentDownloadItemAdapter(
+                this@DownloadActivity, downloadControl, recommendedDocuments, badDocuments)
+            initialiseView()
+            // in the basic flow we force the user to download a bible
+            binding.documentTypeSpinner.isEnabled = true
+
             withContext(Dispatchers.Default) {
-                withContext(Dispatchers.Main) {
-                    isRefreshing = true
-                    invalidateOptionsMenu()
-                }
-                downloadDocJson()
-                withContext(Dispatchers.Main) {
-                    documentItemAdapter = DocumentDownloadItemAdapter(
-                        this@DownloadActivity, downloadControl, recommendedDocuments)
-                    initialiseView()
-                    // in the basic flow we force the user to download a bible
-                    binding.documentTypeSpinner.isEnabled = true
-                }
                 if (isRepoBookListOld) {
                     // prepare the document list view - done in another thread
                     populateMasterDocumentList(true)
@@ -191,8 +235,8 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     // normal user downloading with recent doc list
                     populateMasterDocumentList(false)
                 }
+
                 withContext(Dispatchers.Main) {
-                    isRefreshing = false
                     invalidateOptionsMenu()
                     val bookStr = intent.extras?.getString(DOCUMENT_IDS_EXTRA)
                     if (bookStr != null) {
@@ -222,6 +266,16 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     }
                 }
             }
+            binding.swipeRefresh.setOnRefreshListener {
+                binding.freeTextSearch.setText("")
+                // prepare the document list view - done in another thread
+                lifecycleScope.launch {
+                    downloadDocJson()
+                    populateMasterDocumentList(true)
+                    updateLastRepoRefreshDate()
+                    notifyDataSetChanged()
+                }
+            }
         }
     }
 
@@ -234,7 +288,7 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         val books = booksNotFound.toTypedArray()
         // books here is a list of osisIds
         // look up their full names in the local database
-        GlobalScope.launch {
+        lifecycleScope.launch {
             val notInstalled: Array<String> = books.map {
                 docDao.getBook(it)?.name
             }.filterNotNull().toTypedArray()
@@ -288,13 +342,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
     }
 
     override fun showPreLoadMessage(refresh: Boolean) {
-        val repositories = """
-                https://crosswire.org
-                https://ibtrussia.org
-                https://ebible.org
-                https://public.modules.stepbible.org
-                https://andbible.github.io
-                """.trimIndent()
+        val repositories = repoFactory.repositories.asSequence()
+            .mapNotNull { downloadManager.getInstallerFor(it)?.urlPrefix }
+            .toSortedSet( Collator.getInstance() )
+            .joinToString("\n")
 
         val repoRefreshDate = settings.getLong(REPO_REFRESH_DATE, 0)
         val date = SimpleDateFormat.getDateInstance().format(Date(repoRefreshDate))
@@ -306,7 +357,10 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 
+    override val dao: DocumentSearchDao get() = DatabaseContainer.instance.downloadDocumentsDb.documentSearchDao()
+
     override suspend fun getDocumentsFromSource(refresh: Boolean): List<Book> {
+        downloadManager.refreshInstallManager()
         val docs = downloadControl.getDownloadableDocuments(repoFactory, refresh)
         return if(docs.isNotEmpty()) docs + FakeBookFactory.pseudoDocuments(pseudoBooks.value) else docs
     }
@@ -344,54 +398,62 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
 
     private fun showTooManyJobsDialog() {
         Log.i(TAG, "Too many jobs:" + JobManager.getJobCount())
-        instance.showErrorMsg(R.string.too_many_jobs)
+        Dialogs.showErrorMsg(R.string.too_many_jobs)
     }
+
+    private val bookmarksDao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     private fun manageDownload(documentToDownload: Book?) {
         if (documentToDownload != null
             && downloadControl.getDocumentStatus(documentToDownload).documentInstallStatus  != DocumentStatus.DocumentInstallStatus.BEING_INSTALLED
             && !documentToDownload.isPseudoBook
         ) {
-            AlertDialog.Builder(this)
-                .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
-                .setCancelable(false)
-                .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
-                .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            if (documentToDownload.isInstalled && DatabaseContainer.ready && bookmarksDao.genericBookmarkCountFor(documentToDownload) > 0) {
+                lifecycleScope.launch {
+                    if(CommonUtils.documentUpgradeConfirmation(this@DownloadActivity)) {
+                        doDownload(documentToDownload)
+                    }
+                }
+            } else {
+                AlertDialog.Builder(this)
+                    .setMessage(getText(R.string.download_document_confirm_prefix).toString() + " " + documentToDownload.name)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.okay) { dialog, id -> doDownload(documentToDownload) }
+                    .setNegativeButton(R.string.cancel) { dialog, id -> }.create().show()
+            }
         }
     }
 
-    private fun doDownload(document: Book) = GlobalScope.launch (Dispatchers.Main) {
+    private val downloadScope = CoroutineScope(Dispatchers.Default)
+    private fun doDownload(document: Book) = downloadScope.launch (Dispatchers.Main) {
         try {
             // the download happens in another thread
             downloadControl.downloadDocument(repoFactory, document)
 
             // update screen so the icon to the left of the book changes
             notifyDataSetChanged()
-            _mainBibleActivity?.updateDocuments()
+            ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to download", e)
             Toast.makeText(this@DownloadActivity, R.string.error_downloading, Toast.LENGTH_SHORT).show()
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "onActivityResult:$resultCode")
         if (resultCode == DOWNLOAD_FINISH) {
             returnToPreviousScreen()
         } else {
-            //result code == DOWNLOAD_MORE_RESULT redisplay this download screen
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         super.onCreateOptionsMenu(menu)
         menu.findItem(R.id.errors).isVisible = hasErrors
-        menu.findItem(R.id.refresh).isVisible = !isRefreshing
         return true
     }
 
-    private var isRefreshing = false
     /**
      * on Click handlers
      */
@@ -400,39 +462,14 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
         awaitAll(
             async { loadRecommendedDocuments() },
             async { loadDefaultDocuments() },
-            async { loadPseudoBooks() }
+            async { loadPseudoBooks() },
+            async { loadBadDocuments() },
         )
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = false
         when (item.itemId) {
-            R.id.refresh -> {
-                // normal user downloading but need to refresh the document list
-                if(isRefreshing) return false
-
-                isRefreshing = true
-                invalidateOptionsMenu()
-
-                binding.freeTextSearch.setText("")
-
-                // prepare the document list view - done in another thread
-                GlobalScope.launch {
-                    downloadDocJson()
-                    populateMasterDocumentList(true)
-                    updateLastRepoRefreshDate()
-
-                    withContext(Dispatchers.Main) {
-                        notifyDataSetChanged()
-
-                        isRefreshing = false
-                        invalidateOptionsMenu()
-
-                    }
-                }
-
-                isHandled = true
-            }
             R.id.errors -> {
                 var message = ""
                 if(downloadManager.failedRepos.isNotEmpty()) {
@@ -448,12 +485,20 @@ open class DownloadActivity : DocumentSelectionBase(R.menu.download_documents, R
                     .create().show()
             }
             R.id.installZip -> {
-                GlobalScope.launch (Dispatchers.Main){
-                    val intent = Intent(this@DownloadActivity, InstallZip::class.java)
+                val intent = Intent(this, InstallZip::class.java)
+                lifecycleScope.launch {
                     awaitIntent(intent)
-                    _mainBibleActivity?.updateDocuments()
+                    ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
                 }
 
+                isHandled  = true
+            }
+            R.id.customRepositories -> {
+                val intent = Intent(this, CustomRepositories::class.java)
+                lifecycleScope.launch {
+                    awaitIntent(intent)
+                    populateMasterDocumentList(true)
+                }
                 isHandled  = true
             }
         }

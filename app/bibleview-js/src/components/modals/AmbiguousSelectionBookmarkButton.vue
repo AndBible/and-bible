@@ -1,28 +1,34 @@
 <!--
-  - Copyright (c) 2021 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   -
-  - This file is part of And Bible (http://github.com/AndBible/and-bible).
+  - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - And Bible is free software: you can redistribute it and/or modify it under the
+  - AndBible is free software: you can redistribute it and/or modify it under the
   - terms of the GNU General Public License as published by the Free Software Foundation,
   - either version 3 of the License, or (at your option) any later version.
   -
-  - And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
   - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   - See the GNU General Public License for more details.
   -
-  - You should have received a copy of the GNU General Public License along with And Bible.
+  - You should have received a copy of the GNU General Public License along with AndBible.
   - If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
     <div class="verse-range one-liner">
-      {{ bookmark.verseRangeAbbreviated }} <q v-if="bookmark.text"><i>{{ bookmark.text}}</i></q>
+      <template v-if="customIcon">
+        <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
+      </template>
+      <template v-if="isBibleBookmark(bookmark)">
+        {{ bookmark.verseRangeAbbreviated }}&nbsp;
+      </template>
+      <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
     </div>
     <div v-if="bookmark.hasNote" class="note one-liner small">
       <FontAwesomeIcon icon="edit" size="xs"/>
-      {{ htmlToString(bookmark.notes)}}
+      {{ htmlToString(bookmarkNotes) }}
     </div>
 
     <div style="overflow-x: auto" class="label-list">
@@ -31,89 +37,97 @@
 
     <div style="height: 7px"/>
     <BookmarkButtons
-      :bookmark="bookmark"
-      show-study-pad-buttons
-      @edit-clicked="editNotes"
-      @info-clicked="openBookmark(true)"
+        :bookmark="bookmark"
+        show-study-pad-buttons
+        @edit-clicked="editNotes"
+        @info-clicked="openBookmark(true)"
     />
   </div>
 </template>
 
-<script>
-import LabelList from "@/components/LabelList";
-import {inject} from "@vue/runtime-core";
-import {computed} from "@vue/reactivity";
+<script lang="ts" setup>
+import LabelList from "@/components/LabelList.vue";
+import {computed, inject} from "vue";
 import {useCommon} from "@/composables";
-import {Events, emit} from "@/eventbus";
-import {adjustedColor} from "@/utils";
+import {emit} from "@/eventbus";
 import Color from "color";
-import BookmarkButtons from "@/components/BookmarkButtons";
+import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {globalBookmarksKey, locateTopKey} from "@/types/constants";
+import {BaseBookmark} from "@/types/client-objects";
+import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
 
-export default {
-  emits: ["selected"],
-  name: "AmbiguousSelectionBookmarkButton",
-  props: {
-    bookmarkId: {required: true, type: Number},
-  },
-  components: {LabelList, BookmarkButtons, FontAwesomeIcon},
-  setup(props, {emit: $emit}) {
-    const {bookmarkMap, bookmarkLabels} = inject("globalBookmarks");
-    const common = useCommon();
-    const bookmark = computed(() => {
-      return bookmarkMap.get(props.bookmarkId);
-    });
+const $emit = defineEmits(["selected"]);
+const props = defineProps<{ bookmarkId: IdType }>();
 
-    const primaryLabel = computed(() => {
-      const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
-      return bookmarkLabels.get(primaryLabelId);
-    });
+const {bookmarkMap, bookmarkLabels} = inject(globalBookmarksKey)!;
+const {appSettings} = useCommon();
+const bookmark = computed(() => bookmarkMap.get(props.bookmarkId)! as BaseBookmark);
+const bookmarkNotes = computed(() => bookmark.value.notes!);
 
-    const buttonStyle = computed(() => {
-      let color = Color(primaryLabel.value.color);
-      color = color.alpha(0.5)
-      return `background-color: ${color.hsl()};`
-    });
+const primaryLabel = computed(() => {
+    const primaryLabelId = bookmark.value.primaryLabelId || bookmark.value.labels[0];
+    return bookmarkLabels.get(primaryLabelId)!;
+});
 
-    const bookmarkColor = computed(() => {
-      return `color: ${adjustedColor(primaryLabel.value.color)}`
-    });
+const customIcon = computed(() => resolveIcon(bookmark.value, primaryLabel.value));
 
-    const locateTop = inject("locateTop");
-    function editNotes() {
-      $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
+const buttonStyle = computed<string|undefined>(() => {
+    let color = Color(primaryLabel.value.color);
+    color = color.alpha(0.5)
+    if (appSettings.monochromeMode) {
+        return;
     }
+    return `background-color: ${color.hsl()};`
+});
 
-    function openBookmark(openInfo = false) {
-      $emit("selected");
-      emit(Events.BOOKMARK_CLICKED, bookmark.value.id, {openInfo, locateTop: locateTop.value});
-    }
+const locateTop = inject(locateTopKey)!;
 
-    function htmlToString(html) {
-      const ele = document.createElement("div")
-      ele.innerHTML = html
-      return ele.innerText
-    }
+function editNotes() {
+    $emit("selected");
+    emit("bookmark_clicked", bookmark.value.id, {openNotes: true, locateTop: locateTop.value});
+}
 
-    return {
-      bookmark, buttonStyle, adjustedColor, bookmarkColor, editNotes, openBookmark, ...common, htmlToString,
-    };
-  },
+function openBookmark(openInfo = false) {
+    $emit("selected");
+    emit("bookmark_clicked", bookmark.value.id, {openInfo, locateTop: locateTop.value});
+}
+
+function htmlToString(html: string) {
+    const ele = document.createElement("div")
+    ele.innerHTML = html
+    return ele.innerText
 }
 </script>
 
 <style scoped lang="scss">
-@import "~@/common.scss";
+@use "@/common.scss" as *;
+
 .ambiguous-button {
   color: black;
+
+  .monochrome & {
+    background-color: white;
+    border-style: solid;
+    border-width: 1px;
+  }
+
   .night & {
     color: #d7d7d7;
   }
+
+  .monochrome.night & {
+    color: white;
+    background-color: black;
+    border-style: solid;
+    border-width: 1px;
+  }
+
   @extend .button;
   text-align: start;
 }
+
 .small {
-    font-size: 0.9em
+  font-size: 0.9em
 }
 </style>

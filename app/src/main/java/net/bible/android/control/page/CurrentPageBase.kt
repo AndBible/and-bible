@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
@@ -21,19 +20,27 @@ import android.util.Log
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.PassageChangeMediator
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.doesNotExist
+import net.bible.service.download.isPseudoBook
+import net.bible.service.download.isRemoved
+import net.bible.service.history.AddHistoryItem
+import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
@@ -44,7 +51,6 @@ import org.crosswire.jsword.passage.VerseRange
  */
 abstract class CurrentPageBase protected constructor(
 	shareKeyBetweenDocs: Boolean,
-	swordDocumentFacade: SwordDocumentFacade,
     override val pageManager: CurrentPageManager
 ) : CurrentPage {
 
@@ -55,21 +61,22 @@ abstract class CurrentPageBase protected constructor(
     // just pretend we are at the top of the page if error occurs
     // if key has changed then offsetRatio must be reset because user has changed page
 
-    var _anchorOrdinal: Int? = 0
+    var _anchorOrdinal: OrdinalRange? = OrdinalRange(0)
+    override var htmlId: String? = null
 
     /** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
      */
-    override var anchorOrdinal: Int?
+    override var anchorOrdinal: OrdinalRange?
         get() {
             try { // if key has changed then offsetRatio must be reset because user has changed page
                 if (key == null || key != keyWhenAnchorOrdinalSet || currentDocument != docWhenAnchorOrdinalSet) {
-                    return 0
+                    return OrdinalRange(0)
                 }
             } catch (e: Exception) {
                 // cope with occasional NPE thrown by above if statement
                 // just pretend we are at the top of the page if error occurs
                 Log.w(TAG, "NPE getting currentYOffsetRatio")
-                return 0
+                return OrdinalRange(0)
             }
             return _anchorOrdinal
         }
@@ -84,28 +91,22 @@ abstract class CurrentPageBase protected constructor(
     private var docWhenAnchorOrdinalSet: Book? = null
 
     // all bibles and commentaries share the same key
-    override var isShareKeyBetweenDocs: Boolean = false
-
-    val swordDocumentFacade: SwordDocumentFacade
-
-    /** notify mediator that page has changed and a lot of things need to update themselves
-     */
-    private fun beforePageChange() {
-        PassageChangeMediator.getInstance().onBeforeCurrentPageChanged()
-    }
+    override var isShareKeyBetweenDocs: Boolean = shareKeyBetweenDocs
 
     /** notify mediator that page has changed and a lot of things need to update themselves
      */
     private fun pageChange() {
         if (!isInhibitChangeNotifications) {
-            PassageChangeMediator.getInstance().onCurrentPageChanged()
+            PassageChangeMediator.onCurrentPageChanged(pageManager.window)
         }
     }
 
     override val singleKey: Key? get() = key
 
-    override fun setKey(key: Key) {
-        beforePageChange()
+    override fun setKey(key: Key, addHistoryItem: Boolean) {
+        if(addHistoryItem) {
+            ABEventBus.post(AddHistoryItem(window = pageManager.window))
+        }
         doSetKey(key)
         pageChange()
     }
@@ -124,7 +125,15 @@ abstract class CurrentPageBase protected constructor(
 
     override val currentPageContent: Document get() {
         val key = key
-        return if(key == null) errorDocument else getPageContent(key)
+        if(currentDocument?.doesNotExist == true) {
+            val link = "<AndBibleLink href='download://?initials=${currentDocument?.initials}'>${currentDocument?.initials}</AndBibleLink>"
+            val errorXml = application.getString(R.string.document_not_installed, link)
+            return ErrorDocument(errorXml, ErrorSeverity.NORMAL)
+        }
+        return if(key == null) {
+            Log.e(TAG, "Key was null, giving ErrorDocument")
+            ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.WARNING)
+        } else getPageContent(key)
     }
 
     var annotateKey: VerseRange? = null
@@ -140,29 +149,28 @@ abstract class CurrentPageBase protected constructor(
         }
 
         annotateKey = frag.annotateRef
+        ABEventBus.post(CurrentVerseChangedEvent(pageManager.window))
 
         OsisDocument(
             book = currentDocument,
             key = key,
-            osisFragment = frag
+            osisFragment = frag,
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true)
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
         when (e) {
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
-            else -> errorDocument
+            else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
         }
     }
 
-    private val errorDocument: ErrorDocument get() =
-        ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
-
     override fun checkCurrentDocumenInstalled(): Boolean {
         if(_currentDocument?.doesNotExist == true) {
-            val doc = swordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
+            val doc = SwordDocumentFacade.getDocumentByInitials(_currentDocument!!.initials)
             if(doc != null)
-            _currentDocument = doc
+                _currentDocument = doc
         }
         if (_currentDocument == null) {
             Log.i(TAG, "checkCurrentDocumentStillInstalled:$currentDocument")
@@ -185,16 +193,19 @@ abstract class CurrentPageBase protected constructor(
                     _currentDocument = real
                 }
             }
+            if (_currentDocument?.isRemoved == true) {
+                _currentDocument = getDefaultBook()
+            }
             return _currentDocument
         }
 
     private fun getDefaultBook(): Book? {
         // see net.bible.android.view.activity.page.MainBibleActivity.setCurrentDocument
-        val savedDefaultBook = swordDocumentFacade.getDocumentByInitials(
+        val savedDefaultBook = SwordDocumentFacade.getDocumentByInitials(
             CommonUtils.settings.getString("default-${documentCategory.bookCategory.name}", ""))
 
         return savedDefaultBook ?: {
-            val books = swordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
+            val books = SwordDocumentFacade.getBooks(documentCategory.bookCategory).filter { !it.isLocked }
             if (books.isNotEmpty()) books[0] else null
         }()
     }
@@ -239,7 +250,7 @@ abstract class CurrentPageBase protected constructor(
             return WorkspaceEntities.Page(
                 currentDocument?.initials,
                 key?.osisRef,
-                anchorOrdinal
+                anchorOrdinal?.start
             )
         }
 
@@ -247,8 +258,8 @@ abstract class CurrentPageBase protected constructor(
         if(entity == null) return
         val document = entity.document
         Log.i(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document)
-            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document) else null
+        val book = SwordDocumentFacade.getDocumentByInitials(document)
+            ?: if(document != null) FakeBookFactory.giveDoesNotExist(document, BookCategory.GENERAL_BOOK) else null
         if (book != null) {
             Log.i(TAG, "Restored document: ${book.name} ${book.initials}")
             // bypass setter to avoid automatic notifications
@@ -258,14 +269,16 @@ abstract class CurrentPageBase protected constructor(
                 try {
                     doSetKey(book.getKey(keyName))
                 } catch (e: Exception) {
+                    doSetKey(DefaultLeafKeyList(keyName))
                     Log.e(TAG, "Key $keyName not be loaded from $document", e)
                     if(e !is NoSuchKeyException) {
-                        Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                        Dialogs.showErrorMsg(R.string.error_occurred, e)
                     }
                 }
             }
         }
-        anchorOrdinal = entity.anchorOrdinal
+        val ord = entity.anchorOrdinal
+        anchorOrdinal = if(ord != null) OrdinalRange(ord) else null
     }
 
     /** can we enable the main menu Speak button
@@ -277,10 +290,5 @@ abstract class CurrentPageBase protected constructor(
     override val isSyncable: Boolean = true
     companion object {
         private const val TAG = "CurrentPage"
-    }
-
-    init {
-        isShareKeyBetweenDocs = shareKeyBetweenDocs
-        this.swordDocumentFacade = swordDocumentFacade
     }
 }

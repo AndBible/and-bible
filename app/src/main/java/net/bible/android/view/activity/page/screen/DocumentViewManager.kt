@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.page.screen
 
@@ -26,9 +25,9 @@ import net.bible.android.control.event.passage.PassageChangeStartedEvent
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.MainBibleActivityScope
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
 class WebViewsBuiltEvent
@@ -39,18 +38,18 @@ class AfterRemoveWebViewEvent
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-@MainBibleActivityScope
-class DocumentViewManager @Inject constructor(
-	val mainBibleActivity: MainBibleActivity,
-	private val windowControl: WindowControl
-) {
+class DocumentViewManager (val mainBibleActivity: MainBibleActivity) {
+    @Inject lateinit var windowControl: WindowControl
     private val parent: LinearLayout = mainBibleActivity.findViewById(R.id.mainBibleView)
     private var lastView: View? = null
     var splitBibleArea: SplitBibleArea? = null
+    init {
+        CommonUtils.buildActivityComponent().inject(this)
+    }
 
 	fun destroy() {
         removeView()
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         splitBibleArea?.destroy()
     }
 
@@ -68,11 +67,11 @@ class DocumentViewManager @Inject constructor(
     fun removeView() {
         parent.removeAllViews()
         lastView = null
-        ABEventBus.getDefault().post(AfterRemoveWebViewEvent())
+        ABEventBus.post(AfterRemoveWebViewEvent())
     }
 
     private fun buildWebViews(forceUpdate: Boolean): SplitBibleArea {
-        val topView = splitBibleArea?: SplitBibleArea().also {
+        val topView = splitBibleArea?: SplitBibleArea(mainBibleActivity).also {
             splitBibleArea = it
         }
         topView.update(forceUpdate)
@@ -91,7 +90,7 @@ class DocumentViewManager @Inject constructor(
                     ViewGroup.LayoutParams.MATCH_PARENT)
             )
         }
-        ABEventBus.getDefault().post(WebViewsBuiltEvent())
+        ABEventBus.post(WebViewsBuiltEvent())
     }
 
     val documentView: BibleView get() = getDocumentView(windowControl.activeWindow)
@@ -102,6 +101,6 @@ class DocumentViewManager @Inject constructor(
     }
 
     init {
-		ABEventBus.getDefault().register(this)
+		ABEventBus.register(this)
     }
 }

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.readingplan
@@ -28,7 +27,6 @@ import net.bible.service.common.AndRuntimeException
 import net.bible.service.common.CommonUtils
 
 import org.crosswire.common.util.IOUtil
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import org.crosswire.jsword.versification.Versification
 import org.crosswire.jsword.versification.system.SystemKJV
@@ -224,7 +222,7 @@ class ReadingPlanTextFileDao {
 
     private fun getReadingPlanCodes(files: Array<String>): List<String> {
         val codes = ArrayList<String>()
-		for (file in files) {
+        for (file in files) {
 			// this if statement ensures we only deal with .properties files - not folders or anything else
 			if (file.endsWith(DOT_PROPERTIES)) {
 				// remove the file extension to get the code
@@ -321,7 +319,7 @@ class ReadingPlanTextFileDao {
 
     companion object {
 
-        private val USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR
+        private val USER_READING_PLAN_FOLDER = SharedConstants.manualReadingPlanDir
         private const val READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME
         private const val DOT_PROPERTIES = ".properties"
         private const val VERSIFICATION = "Versification"

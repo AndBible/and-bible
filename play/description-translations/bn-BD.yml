@@ -1,0 +1,73 @@
+# Long version of app name that will be displayed on Play Store. (max 50 characters)
+title: "এ্যন্ড বাইবেল: বাইবেল অধ্যায়ণ"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: "বাইবেল পড়ুন, ভাষ্য এবং অভিধান অধ্যয়ন করুন বা অফলাইনে বই পড়ুন।"
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: শক্তিশালী বাইবেল অধ্যয়ন টুল
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ শিরোনাম }}" অ্যান্ড্রয়েডের জন্য একটি শক্তিশালী, তবুও ব্যবহার করা সহজ, অফলাইন বাইবেল অধ্যয়ন অ্যাপ্লিকেশন৷ অ্যাপটি কেবল একজন বাইবেল পাঠক হওয়ার লক্ষ্য নয়, তবে গভীরভাবে ব্যক্তিগত বাইবেল অধ্যয়ন করার জন্য একটি উন্নত হাতিয়ার হওয়ার দিকে মনোনিবেশ করে
+paragraph_1_2: >
+  এই অ্যাপ্লিকেশনটি বাইবেল পাঠকদের দ্বারা বাইবেল পাঠকদের জন্য তৈরি করা হয়েছে। এটির লক্ষ্য হল আপনার বাইবেল অধ্যয়নকে সুবিধাজনক, গভীর এবং মজাদার করতে সাহায্য করা। এই অলাভজনক সম্প্রদায় প্রকল্পের সবচেয়ে ভালো দিক হল এটি ওপেন সোর্স, সম্পূর্ণ বিনামূল্যে এবং এতে কোনো বিজ্ঞাপন নেই
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  কয়েকটি জনপ্রিয় বাইবেল সংস্করণ (অনেকগুলি উপলব্ধ) হল KJV, NASB, NET এবং এছাড়াও ম্যাথিউ হেনরি এবং জন গিলের মতো জনপ্রিয় ভাষ্য
+subtitle_2: শক্তিশালী বাইবেল অধ্যয়নের বৈশিষ্ট্য
+paragraph_2_1: >
+  অ্যাপ্লিকেশনটিতে অনেক অন্তর্দৃষ্টিপূর্ণ, মূল বৈশিষ্ট্য রয়েছে, যা একটি জটিল এবং গভীর বাইবেল অধ্যয়নের অভিজ্ঞতাকে আগের চেয়ে মসৃণ করে তোলে। সবচেয়ে উল্লেখযোগ্য বৈশিষ্ট্য নিম্নরূপ:
+feature_01: টেক্সট ভিউকে বিভক্ত করুন যা অনুবাদ এবং পরামর্শমূলক মন্তব্যের তুলনা করতে সক্ষম করে
+feature_02: ওয়ার্কস্পেসগুলি তাদের নিজস্ব সেটিংস সহ একাধিক বাইবেল অধ্যয়ন সেটআপের অনুমতি দেয়
+feature_03: স্ট্রং এর ইন্টিগ্রেশন গ্রীক এবং হিব্রু শব্দ বিশ্লেষণের অনুমতি দেয়
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  সংযুক্ত ক্রস-রেফারেন্স, পাদটীকা এবং নথি; শুধুমাত্র একটি লিঙ্কে ট্যাপ করে ক্রস-রেফারেন্স এবং পাদটীকাগুলিতে যান; হাইপারলিঙ্কযুক্ত ভাষ্য ({{commentary_examples}}), ক্রস-রেফারেন্স সংগ্রহ ({{cross_reference_examples}}) এবং অন্যান্য সংস্থানগুলি ব্যবহার করে শাস্ত্রের গভীরভাবে অধ্যয়ন করুন।
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: "গিল, ম্যাথিউ হেনরি প্রমুখ।"
+# Examples of cross-reference collections.
+cross_reference_examples: "ধর্মগ্রন্থ জ্ঞান ভান্ডার, TSKe"
+feature_05: "একটি মসৃণ বাইবেল শোনার অভিজ্ঞতা সক্ষম করে, স্পিক বুকমার্ক সহ বক্তৃতার জন্য উন্নত পাঠ্য"
+feature_06: নমনীয় অনুসন্ধান
+feature_07: ব্যক্তিগত অধ্যয়ন নোট সহ উন্নত বুকমার্কিং এবং হাইলাইট বৈশিষ্ট্য
+feature_09: >
+  পড়ার পরিকল্পনা: বাইবেল পড়ার লক্ষ্য নির্ধারণ করুন
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  নথির বিশাল লাইব্রেরি: বাইবেল অনুবাদ, ধর্মতাত্ত্বিক ভাষ্য, অভিধান, মানচিত্র এবং খ্রিস্টীয় বই, {{total_languages}}টিরও বেশি ভাষায় মোট {{total_documents}}টি নথি, ক্রসওয়্যার এবং অন্যান্য SWORD ভাণ্ডার দ্বারা বৈধভাবে বিতরণ করা হয়েছে।
+feature_10_1: >
+  MyBible, MySword এবং EPUB ফাইলগুলির জন্য নেটিভ সমর্থন আপনাকে আপনার লাইব্রেরি আরও প্রসারিত করতে সক্ষম করে।
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: "ESV, NIV এবং NKJV"
+feature_12: >
+  অফলাইন: ডকুমেন্ট ডাউনলোড করার জন্য আপনার শুধুমাত্র ইন্টারনেট প্রয়োজন।
+# UNUSED
+feature_13: >
+  উপদেশ শোনার সময় নোট এবং বাইবেলের রেফারেন্স যোগ করার জন্য স্টাডি প্যাড।
+subtitle_3: আসুন একসাথে সেরা বাইবেল অ্যাপ তৈরি করি!
+paragraph_3_1: >
+  AndBible হল একটি ওপেন সোর্স কমিউনিটি প্রজেক্ট। বাস্তবে, এর মানে হল যে উপযুক্ত দক্ষতার অধিকারী যে কেউ এই প্রকল্পে অবদান রাখতে পারে এবং উৎসাহিত করা হয়: 
+contr_1: "নতুন বৈশিষ্ট্য বিকাশ,"
+contr_2: "এখনও প্রকাশিত হয়নি এমন বৈশিষ্ট্যগুলি পরীক্ষা করা,"
+contr_3: "ইউজার ইন্টারফেস অনুবাদ আপ-টু-ডেট রাখা, এবং"
+contr_4: "কপিরাইট ধারকদের কাছ থেকে অনুমতি নিয়ে মডিউল লাইব্রেরি প্রসারিত করতে সাহায্য করে, অথবা নথিগুলিকে SWORD ফরম্যাটে রূপান্তর করে।"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: "If you are a professional software engineer or tester, please consider contributing to the project. For more information on how to contribute, please see {{how_to_contribute_url}}."
+subtitle_4: লিঙ্ক
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: >
+  হোমপেজ: {{homepage_url}}
+link_2: >
+  Facebook-এ AndBible লাইক করুন: {{facebook_url}}
+link_3: >
+  আমাদের ইউটিউব চ্যানেল: {{youtube_url}}
+link_4: >
+  প্রায়শই জিজ্ঞাসিত প্রশ্ন: {{faq_url}}
+link_5: >
+  Github-এ প্রকল্প পৃষ্ঠা: {{github_url}}
+buy_title: >
+  উন্নয়ন সময় কেনার দ্বারা সমর্থন!
+buy_1: >
+  আপনার যদি প্রকল্পের অবদানের জন্য সময় বা দক্ষতা না থাকে তবে আপনি পেশাদার বিকাশকারীর কাজের সময় কিনে প্রকল্পটিকে সমর্থন করতে পারেন।
+buy_2: >
+  অপশন দেখুন

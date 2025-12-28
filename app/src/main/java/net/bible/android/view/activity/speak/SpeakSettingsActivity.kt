@@ -1,26 +1,23 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.speak
 
-import android.os.Build
 import android.os.Bundle
-import android.text.Html
 import android.text.method.LinkMovementMethod
 import android.view.Menu
 import android.view.MenuItem
@@ -33,7 +30,9 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
+import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.common.automaticSpeakBookmarkingVideo
+import net.bible.service.common.htmlToSpan
 
 @ActivityScope
 class SpeakSettingsActivity : AbstractSpeakActivity() {
@@ -49,7 +48,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
         setContentView(binding.root)
 
         super.buildActivityComponent().inject(this)
-        ABEventBus.getDefault().register(this)
+        ABEventBus.register(this)
         resetView(SpeakSettings.load())
         binding.apply {
             synchronize.setOnClickListener { updateSettings() }
@@ -62,23 +61,16 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
     override val sleepTimer: CheckBox? = null
 
     override fun onDestroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         super.onDestroy()
     }
 
     override fun resetView(settings: SpeakSettings) {
         binding.apply {
-            synchronize.isChecked = settings.synchronize
-            replaceDivineName.isChecked = settings.replaceDivineName
-            restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
-
-            autoBookmark.isChecked = settings.autoBookmark
-            if (!autoBookmark.isChecked) {
-                restoreSettingsFromBookmarks.isChecked = false
-                restoreSettingsFromBookmarks.isEnabled = false
-            } else {
-                restoreSettingsFromBookmarks.isEnabled = true
-            }
+            synchronize.isChecked = AdvancedSpeakSettings.synchronize
+            replaceDivineName.isChecked = AdvancedSpeakSettings.replaceDivineName
+            restoreSettingsFromBookmarks.isChecked = AdvancedSpeakSettings.restoreSettingsFromBookmarks
+            autoBookmark.isChecked = AdvancedSpeakSettings.autoBookmark
         }
     }
 
@@ -93,12 +85,13 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
             lastSleepTimer = currentSettings.lastSleepTimer
         }
         binding.apply {
-            settings.synchronize = synchronize.isChecked
-            settings.autoBookmark = autoBookmark.isChecked
-            settings.replaceDivineName = replaceDivineName.isChecked
-            settings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+            AdvancedSpeakSettings.synchronize = synchronize.isChecked
+            AdvancedSpeakSettings.autoBookmark = autoBookmark.isChecked
+            AdvancedSpeakSettings.replaceDivineName = replaceDivineName.isChecked
+            AdvancedSpeakSettings.restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         }
         settings.save(updateBookmark = true)
+        resetView(settings)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -130,11 +123,7 @@ class SpeakSettingsActivity : AbstractSpeakActivity() {
                 + getString(R.string.speak_help_playback_settings_example)
                 )
 
-        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
-        } else {
-            Html.fromHtml(htmlMessage)
-        }
+        val spanned = htmlToSpan(htmlMessage)
 
         val d = AlertDialog.Builder(this)
                 .setMessage(spanned)

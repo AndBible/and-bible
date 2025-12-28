@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
 <!-- Styles used in application
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -41,6 +58,12 @@
         <item name="android:paddingEnd">5dip</item>
         <item name="android:paddingTop">8dip</item>
         <item name="android:paddingBottom">8dip</item>
+    </style>
+    <style name="CustomIconButton" parent="@style/EditBookmarkLabelItemTitle">
+        <item name="android:layout_marginStart">8dip</item>
+        <item name="android:layout_marginTop">-10dip</item>
+        <item name="android:drawablePadding">10dip</item>
+        <item name="android:textAppearance">@style/EditBookmarkLabelItemTitle</item>
     </style>
     <style name="EditBookmarkLabelItemIcon">
         <item name="android:scaleY">0.8</item>

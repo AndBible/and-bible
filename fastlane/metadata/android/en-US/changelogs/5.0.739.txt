@@ -1,0 +1,17 @@
+5.0 (release candidate)
+Please see "what's new" video: https://youtu.be/LopRne2mIFs
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (via Google drive currently)
+- Discrete mode in main app and separate “calculator” app
+- Workspace colors
+- Chained links windows
+- Synchronize groups
+- Search / filter labels
+- MyBible / MySword modules
+- Custom repositories
+- Deep links
+
+Support development financially: https://shop.andbible.org/

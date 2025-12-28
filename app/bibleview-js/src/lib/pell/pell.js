@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 /* eslint-disable */
 const defaultParagraphSeparatorString = 'defaultParagraphSeparator'
 export const formatBlock = 'formatBlock'
@@ -127,6 +144,32 @@ export const init = settings => {
     if (event.key === 'Enter' && queryCommandValue(formatBlock) === 'blockquote') {
       setTimeout(() => exec(formatBlock, `<${defaultParagraphSeparator}>`), 0)
     }
+  }
+  content.onpaste = event => {
+    const clipboardData = event.clipboardData || window.clipboardData
+    console.log("Pasting content...", event, clipboardData);
+    
+    // Get all available clipboard data types
+    const types = clipboardData.types || []
+    console.log("Available clipboard types:", types);
+    
+    // Check if we're trying to paste actual image files (not placeholders)
+    if (types.includes('Files') && clipboardData.files && clipboardData.files.length > 0) {
+      console.log("Files detected in clipboard:", clipboardData.files);
+      const hasRealImages = Array.from(clipboardData.files).some(file => {
+        // Only block real image files with content (size > 0)
+        return file.type.startsWith('image/') && file.size > 0;
+      });
+      if (hasRealImages) {
+        console.log("Real image files detected - blocking paste");
+        event.preventDefault();
+        return;
+      }
+    }
+    
+    const images = content.querySelectorAll('img, video, audio, embed, object, iframe');
+    console.log("Removing media elements after paste:", images.length);
+    images.forEach(el => el.remove());
   }
   appendChild(settings.element, content)
   appendChild(settings.element, actionbar)

@@ -1,0 +1,97 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Straničnici
+bookmarksAndNotes: Straničnici i Moje bilješke
+openMyNotes: Otvori u Mojim bilješkama
+openStudyPad: Otvori u Radnoj bilježnici (%s)
+noteText: Fusnote (%s)
+noteTextWithoutType: Fusnote
+crossReferenceText: Unakrsne reference
+findAllOccurrences: Pronađi sva pojavljivanja
+reportError: Prijavite grešku
+errorTitle: Dogodila se greška
+warningTitle: Upozorenje
+normalTitle: Molimo Vas obratite pažnju
+footnoteTypeStudy: Učenje
+footnoteTypeExplanation: Objašnjenje
+footnoteTypeVariant: Inačica
+footnoteTypeAlternative: Alternativa
+footnoteTypeTranslation: Prijevod
+clearLog: Očisti zapisnik pogrešaka
+editTextPlaceholder: Dodirnite za uređivanje teksta
+inputPlaceholder: Napišite ovdje
+inputReference: Unesite biblijsku referencu
+invalidReference: Redak nije pronađen
+bookmarkAccurate: Straničnik je napravljen u %s
+bookmarkInaccurate: "Straničnik detalja o knjizi nije pohranjen, sadržaj je prikazan u %s."
+defaultBook: Zadani biblijski dokument
+ok: U redu
+yes: "Da"
+ambiguousSelection: "Koju radnju želite poduzeti?"
+cancel: Odustani
+removeBookmarkConfirmationTitle: "Ukloni straničnik?"
+removeBookmarkConfirmation: "Jeste li sigurni da želite ukloniti ovaj straničnik?"
+createdAt: "Napravljeno: %s"
+lastUpdatedOn: "Posljednji put ažurirano: %s"
+strongsAndMorph: Definicija i morfologija
+externalLink: Otvori vanjsku poveznicu
+referenceLink: Otvori poveznicu za referencu
+openFootnote: Otvori fusnotu
+noMyNotesTitle: Bez Moje bilješke za ovo poglavlje.
+noMyNotesDescription: >
+  Počnite stvaranjem straničnika u biblijskom dokumentu. Straničnici će zatim biti prikazani ovdje i možete im dodati vaše osobne bilješke.
+emptyStudyPad: >
+  Radna bilježnica je prazna. Krenite sa njenim popunjavanjem tako što ćete unijeti ovdje tekst ili stvaranjem straničnika sa oznakom straničnika koja odgovara ovoj radnoj bilježnici.
+doYouWantToDeleteEntry: "Izbrisati unos ove radne bilježnice?"
+removeStudyPadConfirmationTitle: "Ukloniti unos radne bilježnice?"
+dragHelp: Zadržite i povucite radi mijenjanja redoslijeda
+openAll: Otvori sve reference
+editBookmarkPlaceholder: Dodirnite radi uređivanja Moje bilježnice za ovaj straničnik
+onlyLabel: Jedina oznaka
+wholeBookmark: Čitav straničnik
+assignLabelsMenuEntry1: Odaberite ili uredite oznake...
+favouriteLabels: Omiljene oznake
+recentLabels: Nedavne oznake
+bookmarkLabels: Oznake straničnika
+refParserHelp: Molimo instalirajte %s modul kako biste koristili reference u drugim jezicima mimo engleskog.
+openDownloads: Idite na Preuzimanje dodataka
+verseShare: Dijeli
+verseSpeak: Izgovori
+verseCompare: Usporedi
+verseMemorize: ""
+verseNote: Bilješka
+verseMyNotes: Moje bilješke
+verseParagraphBreak: ""
+verseShareLong: Podijeli ovaj redak
+verseCompareLong: Usporedi redak
+verseMemorizeLong: ""
+verseNoteLong: Napiši bilješku
+verseParagraphBreakLong: ""
+addBookmark: Straničnik
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: Poništi
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: Više

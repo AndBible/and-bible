@@ -1,6 +1,6 @@
 Bibliatanulmányozó alkalmazás
 
-Az 'And Bible' nyílt forráskódú projekt által fejlesztett 'Bible Study' app funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
+" AndBible: Biblia" funkciógazdag, mégis egyszerűen kezelhető, folyamatos internetkapcsolatot nem igénylő bibliatanulmányozó alkalmazás Android operációs rendszerre. Az alkalmazás nem csak egy egyszerű bibliaolvasó, hanem fejlett funkciókkal támogatja a személyes bibliatanulmányozást.
 
 Az alkalmazást bibliaolvasó emberek fejlesztik bibliaolvasó embereknek. A cél az, hogy a Biblia tanulmányozása egyszerű, szórakoztató, de alapos is legyen. A non-profit közösségi modell előnye, hogy az alkalmazás nyílt forráskódú, teljesen ingyenes és nem tartalmaz hirdetéseket. Az alkalmazást teljesen az alapoktól készítettük Androidra, így kifejezetten kicsi a mérete, erőforrásbarát és meglepően gyors.
 
@@ -20,11 +20,11 @@ Az app számos különleges funkcióval rendelkezik, amelyek az öszetett és al
  * Jegyzetlapok jegyzetekkel és biblia hivatkozásokkal: igehirdetésre készülve vagy igehirdetés hallgatása közben.
  * Olvasási tervek: olvassa a bibliát előre összeállított tervek szerint, és állítson be olvasási célokat
  * Modulkönyvtár: bibliafordítások, teológiai kommentárok, szótárak, térképek és keresztény irodalom, összesen 1500 mű, 700 nyelven,  jogtisztán letölthetően a Crosswire és egyéb SWORD modulkönyvtárakból.
- * Offline: csak a bibliamodulok letöltésekor van szükség aktív internetkapcsolatra.
+ * A MyBible, MySword és EPUB fájltípusok natívan támogatottak, így még teljesebb lehet a könyvtárad.
 
 Segítsen az alkalmazás jobbá tételében!
 
-Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő tudással rendelkezik, bátorítunk a közreműködésre:
+Az And Bible nyílt forráskódú közösségi projekt. Bárkit, aki megfelelő képességekkel rendelkezik, bátorítunk a közreműködésre:
 
  * új funkciók kifejlesztésével
  * újonnan fejlesztett funkciók tesztelésével
@@ -33,10 +33,16 @@ Az And Bible nyilt forráskódú közösségi projekt. Bárkit, aki megfelelő t
 
 Ha hivatásos szoftverfejlesztő vagy tesztelő, kérjük vegyen részt az alkalmazás feljlesztésében! Bővebb információ: https://git.io/JUnaj.
 
+Támogasd as projektet fejlesztőidő vásárlásával!
+
+Ha nem rendelkezik megfelelő képességekkel, támogathatja a projektet fejlesztőidő vásárlásával.
+
+Lehetőségek: https://shop.andbible.org/
+
 Hivatkozások
 
- * Internetcím: https://andbible.github.io
- * Kövesse az And Bible projektet a Facebookon: https://www.facebook.com/AndBible/
+ * Internetcím: https://andbible.org
+ * Kövesd az AndBible-t Facbookon: https://www.facebook.com/AndBible/
  * YouTube csatornánk: https://www.youtube.com/c/AndBible
  * Gyakori kérdések (FAQ): https://git.io/JJm8E
  * A projekt GitHub oldala: https://github.com/AndBible/and-bible

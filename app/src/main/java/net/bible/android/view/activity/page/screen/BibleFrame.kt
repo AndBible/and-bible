@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.activity.page.screen
@@ -29,24 +28,21 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.core.view.GestureDetectorCompat
-import net.bible.android.BibleApplication
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
-import net.bible.android.view.activity.DaggerMainBibleActivityComponent
-import net.bible.android.view.activity.MainBibleActivityModule
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.android.view.activity.page.MainBibleActivity.Companion.mainBibleActivity
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
 import javax.inject.Inject
 
-class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
+class WindowButtonGestureListener(private val mainBibleActivity: MainBibleActivity): GestureDetector.SimpleOnGestureListener() {
     var gesturePerformed = BibleFrame.GestureType.UNSET
 
-    override fun onFling(e1: MotionEvent, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        e1?: return false
         var minScaledVelocity = ViewConfiguration.get(mainBibleActivity).scaledMinimumFlingVelocity
         val scaledMinimumDistance = CommonUtils.convertDipsToPx(40)
         minScaledVelocity = (minScaledVelocity * 0.66).toInt()
@@ -74,11 +70,11 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
         return super.onFling(e1, e2, velocityX, velocityY)
     }
 
-    override fun onLongPress(e: MotionEvent?) {
+    override fun onLongPress(e: MotionEvent) {
         gesturePerformed = BibleFrame.GestureType.LONG_PRESS
     }
 
-    override fun onSingleTapUp(e: MotionEvent?): Boolean {
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
         gesturePerformed = BibleFrame.GestureType.SINGLE_TAP
         return true
     }
@@ -87,7 +83,8 @@ class WindowButtonGestureListener: GestureDetector.SimpleOnGestureListener() {
 @SuppressLint("ViewConstructor")
 class BibleFrame(
     val window: Window,
-    private val allViews: SplitBibleArea
+    private val allViews: SplitBibleArea,
+    private val mainBibleActivity: MainBibleActivity,
 ): FrameLayout(allViews.context) {
     @Inject
     lateinit var windowControl: WindowControl
@@ -97,11 +94,7 @@ class BibleFrame(
     }
 
     init {
-        DaggerMainBibleActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .mainBibleActivityModule(MainBibleActivityModule(mainBibleActivity))
-            .build()
-            .inject(this)
+        CommonUtils.buildActivityComponent().inject(this)
     }
 
     fun updatePaddings() {
@@ -110,7 +103,7 @@ class BibleFrame(
         Log.i(TAG, "updating padding for $window: $left $right")
         if(left != paddingLeft || right != paddingRight) {
             setPadding(left, 0, right, 0)
-            window.updateText()
+            window.loadText()
         }
     }
 
@@ -128,11 +121,11 @@ class BibleFrame(
 
     init {
         build()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
     }
 
     fun destroy() {
-        ABEventBus.getDefault().unregister(this)
+        ABEventBus.unregister(this)
         mainBibleActivity.unregisterForContextMenu(bibleView as View)
         removeView(bibleView)
     }
@@ -146,23 +139,29 @@ class BibleFrame(
         bibleView.updateBackgroundColor()
         setBackgroundColor(bibleView.backgroundColor)
 
-        addView(bibleView, LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT))
-        mainBibleActivity.registerForContextMenu(bibleView as View)
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView)
         addWindowButton()
     }
 
+    fun recreate() {
+        val bv = bibleView
+        removeView(bv)
+        bv.doDestroy()
+        bibleView = bibleViewFactory.getOrCreateBibleView(window)
+        bibleView.updateBackgroundColor()
+        addView(bibleView, LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT))
+        mainBibleActivity.registerForContextMenu(bibleView)
+        window.loadText()
+    }
+
     private fun addWindowButton() {
-        val isSingleWindow = windowControl.isSingleWindow
         if (allViews.hideWindowButtons) return
         if (windowRepository.isMaximized) return
 
-        val button =
-            when {
-                isSingleWindow -> return
-                else -> createWindowMenuButton(window)
-            }
+        val button = createWindowMenuButton(window)
 
-        if (!isSplitVertically) {
+        if (!mainBibleActivity.isSplitVertically) {
             button.translationY = mainBibleActivity.topOffset2.toFloat()
         } else {
             if (windowRepository.firstVisibleWindow.id == window.id) {
@@ -174,23 +173,23 @@ class BibleFrame(
 
         windowButton = button
         addView(button,
-            LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT,
-                if (isSingleWindow) Gravity.BOTTOM or Gravity.END else Gravity.TOP or Gravity.END))
+            LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT,
+                Gravity.TOP or Gravity.END))
     }
 
 
     private fun createWindowMenuButton(window: Window): WindowButtonWidget {
-        val gestureListener = WindowButtonGestureListener()
+        val gestureListener = WindowButtonGestureListener(mainBibleActivity)
         val gestureDetector = GestureDetectorCompat(allViews.context, gestureListener)
 
         val text = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) "☰" else "="
         return createTextButton(text,
             { v, motionEvent ->
                 gestureDetector.onTouchEvent(motionEvent)
-                if (gestureListener.gesturePerformed === GestureType.SINGLE_TAP && (motionEvent.action == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
-                else if (gestureListener.gesturePerformed === GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
-                else if (gestureListener.gesturePerformed === GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
-                else if (gestureListener.gesturePerformed === GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
+                if (gestureListener.gesturePerformed == GestureType.SINGLE_TAP && (motionEvent.action == MotionEvent.ACTION_UP)) {allViews.showPopupMenu(window, v)}
+                else if (gestureListener.gesturePerformed == GestureType.LONG_PRESS) {windowControl.minimiseWindow(window)}
+                else if (gestureListener.gesturePerformed == GestureType.SWIPE_UP) {windowControl.maximiseWindow(window)}
+                else if (gestureListener.gesturePerformed == GestureType.SWIPE_DOWN) {windowControl.minimiseWindow(window)}
                 true },
             window
         )
@@ -210,7 +209,7 @@ class BibleFrame(
         addWindowButton()
     }
 
-    private val TAG = "BibleFrame[${window.id}]"
+    private val TAG = "BibleFrame[${window.displayId}]"
 
     private fun handleTouchEvent(v:View, event:MotionEvent, window: Window){
         windowControl.minimiseWindow(window)

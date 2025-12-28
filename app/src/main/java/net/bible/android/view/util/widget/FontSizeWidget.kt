@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.view.util.widget
@@ -37,6 +36,7 @@ import net.bible.android.activity.databinding.TextSizeWidgetBinding
 import net.bible.android.activity.databinding.ValueSliderWidgetBinding
 import net.bible.android.database.WorkspaceEntities
 import net.bible.service.common.AndBibleAddons
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.ProvidedFont
 import java.util.*
 
@@ -129,7 +129,7 @@ class FontSizeWidget(context: Context, attributeSet: AttributeSet?): LinearLayou
     fun updateValue() = bindings.apply {
         val availableFonts = availableFonts
         val fontSize = value
-        dialogMessage.textSize = fontSize.toFloat()
+        dialogMessage.textSize = fontSize.toFloat()* CommonUtils.settings.fontSizeMultiplierFloat
         fontSizeValue.text = context.getString(R.string.font_size_pt, fontSize)
         val fontDefinition = availableFonts.find { it.realFontFamily == fontFamily }?:return@apply
         dialogMessage.typeface = getTypeFace(fontDefinition)

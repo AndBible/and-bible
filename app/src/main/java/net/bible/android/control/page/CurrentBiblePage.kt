@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
@@ -28,6 +27,7 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils.getWholeChapter
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.download.doesNotExist
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
@@ -44,9 +44,8 @@ import org.crosswire.jsword.versification.Versification
 class CurrentBiblePage(
     currentBibleVerse: CurrentBibleVerse,
     bibleTraverser: BibleTraverser,
-    swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : VersePage(true, currentBibleVerse, bibleTraverser, swordDocumentFacade, pageManager), CurrentPage {
+) : VersePage(true, currentBibleVerse, bibleTraverser, pageManager), CurrentPage {
 
     override val documentCategory = DocumentCategory.BIBLE
 
@@ -138,7 +137,7 @@ class CurrentBiblePage(
 
     override fun doSetKey(key: Key?) {
         originalKey = key
-		val verse = KeyUtil.getVerse(key)
+        val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
 		currentBibleVerse.setVerseSelected(versification, verse)
 	}
@@ -177,7 +176,7 @@ class CurrentBiblePage(
         originalKey = null
         val document = entity.document
         Log.i(TAG, "State document:$document")
-        val book = swordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
+        val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
         Log.i(TAG, "Restored document:" + book?.name)
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
@@ -191,16 +190,14 @@ class CurrentBiblePage(
             val oldChapterVerse = currentBibleVerse.chapterVerse
             if(chapterVerse != oldChapterVerse) {
                 currentBibleVerse.chapterVerse = chapterVerse
-                //onVerseChange()
             }
     }
-    val currentVerseOrdinal: Int get() = currentBibleVerse.verse.ordinal
 
-    fun setCurrentVerseOrdinal(value: Int, versification: Versification?, window: Window) {
+    fun setCurrentVerseOrdinal(value: Int, versification: Versification, window: Window) {
         val old = currentBibleVerse.verse.ordinal
-        val newVerse = Verse(versification?: currentBibleVerse.versificationOfLastSelectedVerse, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
+        val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
-            currentBibleVerse.verse = newVerse
+            currentBibleVerse.setVerseSelected(versification, newVerse)
             onVerseChange(window)
         }
     }
@@ -210,11 +207,13 @@ class CurrentBiblePage(
      */
     override val isSearchable: Boolean
         get() = try { //TODO allow japanese search - japanese bibles use smartcn which is not available
-            "ja" != currentDocument!!.language.code
+            !currentDocument!!.doesNotExist && "ja" != currentDocument!!.language.code
         } catch (e: Exception) {
             Log.w(TAG, "Missing language code", e)
             true
         }
+
+    override var anchorOrdinal: OrdinalRange? = null
 
     companion object {
         private const val TAG = "CurrentBiblePage"

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<!-- Preference configuration
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+	android:key="sync_settings">
+	<PreferenceCategory
+		android:key="sync_general"
+		android:title="@string/sync_general_settings"
+		>
+		<ListPreference
+			android:key="sync_adapter"
+			android:title="@string/sync_adapter"
+			android:icon="@drawable/ic_syncdb_24dp"
+			/>
+		<Preference
+			android:key="gdrive_reset_sync"
+			android:title="@string/reset_sync"
+			android:summary="@string/prefs_reset_sync_summary"
+			android:icon="@drawable/baseline_logout_24"
+			/>
+		<Preference
+			android:key="gdrive_info"
+			android:title="@string/cloud_info"
+			android:icon="@drawable/ic_info_grey_24dp"
+			/>
+        <EditTextPreference
+            android:key="gdrive_server_url"
+            android:title="@string/auth_server_uri"
+            android:icon="@drawable/outline_shield_24"
+            />
+        <EditTextPreference
+            android:key="gdrive_username"
+            android:title="@string/auth_username"
+            android:icon="@drawable/outline_shield_24"
+            />
+        <EditTextPreference
+            android:key="gdrive_password"
+            android:title="@string/auth_password"
+            android:icon="@drawable/outline_shield_24"
+            />
+	</PreferenceCategory>
+
+	<PreferenceCategory
+		android:key="sync_category"
+		android:title="@string/synchronization_categories"
+		>
+		<SwitchPreferenceCompat android:key="gdrive_bookmarks"
+			android:title="@string/bookmarks"
+			android:summary="@string/bookmarks_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_bookmark_24dp"
+			/>
+		<SwitchPreferenceCompat android:key="gdrive_workspaces"
+			android:title="@string/help_workspaces_title"
+			android:summary="@string/workspaces_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_workspace_24"
+			/>
+		<SwitchPreferenceCompat android:key="gdrive_readingplans"
+			android:title="@string/reading_plans_plural"
+			android:summary="@string/reading_plans_content"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_reading_plan_24dp"
+			/>
+	</PreferenceCategory>
+</PreferenceScreen>

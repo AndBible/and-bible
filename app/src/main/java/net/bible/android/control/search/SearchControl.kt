@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.search
 
@@ -22,15 +21,15 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.versification.Scripture
-import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
-import net.bible.service.common.CommonUtils.limitTextLength
-import net.bible.service.sword.SwordContentFacade.getPlainText
+import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.epub.isEpub
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -50,9 +49,8 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class SearchControl @Inject constructor(
-    private val swordDocumentFacade: SwordDocumentFacade,
     private val documentBibleBooksFactory: DocumentBibleBooksFactory,
-    private val activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
+    private val windowControl: WindowControl,
     )
 {
     private val isSearchShowingScripture = true
@@ -65,12 +63,17 @@ class SearchControl @Inject constructor(
      *
      * @return required Intent
      */
-    fun getSearchIntent(document: Book?, activity: Activity): Intent {
+    fun getSearchIntent(document: Book?, activity: Activity): Intent? {
         val indexStatus = document?.indexStatus
         Log.i(TAG, "Index status:$indexStatus")
         return if (indexStatus == IndexStatus.DONE) {
             Log.i(TAG, "Index status is DONE")
-            Intent(activity, Search::class.java)
+            if(document.isEpub) {
+                Intent(activity, EpubSearch::class.java)
+            } else
+                Intent(activity, Search::class.java)
+        } else if (document?.bookCategory == BookCategory.GENERAL_BOOK) {
+            return null
         } else {
             Log.i(TAG, "Index status is NOT DONE")
             Intent(activity, SearchIndex::class.java)
@@ -84,7 +87,7 @@ class SearchControl @Inject constructor(
     // This should never occur
     val currentBookName: String
         get() = try {
-            val currentBiblePage = activeWindowPageManagerProvider.activeWindowPageManager.currentBible
+            val currentBiblePage = windowControl.activeWindowPageManager.currentBible
             val v11n = (currentBiblePage.currentDocument as SwordBook).versification
             val book = currentBiblePage.singleKey.book
             val longName = v11n.getLongName(book)
@@ -126,7 +129,8 @@ class SearchControl @Inject constructor(
         }
 
         // add search type (all/any/phrase) to search string
-        decorated = searchType.decorate(cleanSearchString)
+        var decorated: String = searchType.decorate(cleanSearchString)
+        originalSearchString = decorated
 
         // add bible section limitation to search text
         decorated = getBibleSectionTerm(bibleSection, currentBookName) + " " + decorated
@@ -142,7 +146,7 @@ class SearchControl @Inject constructor(
         val searchResults = SearchResultsDto()
 
         // search the current book
-        val book = swordDocumentFacade.getDocumentByInitials(document)
+        val book = SwordDocumentFacade.getDocumentByInitials(document)
         var result: Key? = null
         try {
             result = search(book!!, searchText)
@@ -163,27 +167,6 @@ class SearchControl @Inject constructor(
             }
         }
         return searchResults
-    }
-
-    /** get the verse for a search result
-     */
-    fun getSearchResultVerseText(key: Key?): String {
-        // There is similar functionality in BookmarkControl
-        var verseText = ""
-        try {
-            val doc = activeWindowPageManagerProvider.activeWindowPageManager.currentPage.currentDocument
-            val cat = doc!!.bookCategory
-            verseText = if (cat == BookCategory.BIBLE || cat == BookCategory.COMMENTARY) {
-                getPlainText(doc, key)
-            } else {
-                val bible = activeWindowPageManagerProvider.activeWindowPageManager.currentBible.currentDocument!!
-                getPlainText(bible, key)
-            }
-            verseText = limitTextLength(verseText)!!
-        } catch (e: Exception) {
-            Log.e(TAG, "Error getting verse text", e)
-        }
-        return verseText
     }
 
     /** double spaces, :, and leading or trailing space cause lucene errors
@@ -228,7 +211,7 @@ class SearchControl @Inject constructor(
         try {
             // this starts a new thread to do the indexing and returns immediately
             // if index creation is already in progress then nothing will happen
-            swordDocumentFacade.ensureIndexCreation(book!!)
+            SwordDocumentFacade.ensureIndexCreation(book!!)
             ok = true
         } catch (e: Exception) {
             Log.e(TAG, "error indexing:" + e.message)
@@ -241,7 +224,7 @@ class SearchControl @Inject constructor(
      * When navigating books and chapters there should always be a current Passage based book
      */
     private val currentPassageDocument: AbstractPassageBook
-        get() = activeWindowPageManagerProvider.activeWindowPageManager.currentPassageDocument
+        get() = windowControl.activeWindowPageManager.currentPassageDocument
 
     fun currentDocumentContainsNonScripture(): Boolean {
         return !documentBibleBooksFactory.getDocumentBibleBooksFor(currentPassageDocument).isOnlyScripture
@@ -251,6 +234,7 @@ class SearchControl @Inject constructor(
         get() = isSearchShowingScripture || !currentDocumentContainsNonScripture()
 
     companion object {
+        var originalSearchString: String? = null
         private const val SEARCH_OLD_TESTAMENT = "+[Gen-Mal]"
         private const val SEARCH_NEW_TESTAMENT = "+[Mat-Rev]"
         const val SEARCH_TEXT = "SearchText"
@@ -258,7 +242,7 @@ class SearchControl @Inject constructor(
         const val TARGET_DOCUMENT = "TargetDocument"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
-        const val MAX_SEARCH_RESULTS = 1000
+        const val MAX_SEARCH_RESULTS = 5000
         private const val TAG = "SearchControl"
     }
 }

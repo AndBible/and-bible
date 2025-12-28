@@ -1,26 +1,24 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.control.page
 
 import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -32,9 +30,8 @@ import java.util.*
  */
 abstract class CachedKeyPage internal constructor(
 	shareKeyBetweenDocs: Boolean,
-	swordDocumentFacade: SwordDocumentFacade,
     pageManager: CurrentPageManager
-) : CurrentPageBase(shareKeyBetweenDocs, swordDocumentFacade, pageManager) {
+) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
 
 
@@ -52,9 +49,9 @@ abstract class CachedKeyPage internal constructor(
      */
     val cachedGlobalKeyList: List<Key>?
         get() {
-			var keylist = mCachedGlobalKeyList
+            var keylist = mCachedGlobalKeyList
             val currentDocument = currentDocument
-			if (currentDocument != null && keylist == null) {
+            if (currentDocument != null && keylist == null) {
                 try {
                     Log.i(TAG, "Start to create cached key list for $currentDocument")
                     // this cache is cleared in setCurrentDoc
@@ -72,7 +69,7 @@ abstract class CachedKeyPage internal constructor(
                     keylist = null
                     System.gc()
                     Log.e(TAG, "Error getting keys for $currentDocument", e)
-                    Dialogs.instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
                 Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
             }
@@ -83,7 +80,10 @@ abstract class CachedKeyPage internal constructor(
     /** add or subtract a number of pages from the current position and return Verse
      */
     override fun getKeyPlus(num: Int): Key {
-        val currentKey = key
+        return getKeyPlus(key, num)
+    }
+
+    fun getKeyPlus(currentKey: Key?, num: Int): Key {
         val keyPos = findIndexOf(currentKey)
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
@@ -93,6 +93,7 @@ abstract class CachedKeyPage internal constructor(
         // get the actual key at that posn
         return cachedGlobalKeyList!![newKeyPos]
     }
+
 
     /** find index of key in cached key list but cater for TreeKeys too
      */

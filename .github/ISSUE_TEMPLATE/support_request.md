@@ -1,6 +1,6 @@
 ---
 name: Support request
-about: Request help to solve your problem with And Bible
+about: Request help to solve your problem with AndBible
 title: ''
 labels: 'Prio: Minor, Type: Support'
 assignees: bvahedy
@@ -15,7 +15,7 @@ https://github.com/AndBible/and-bible/wiki/FAQ
 **Describe your problem**
 A clear and concise description of what's your problem.
 
-**I'm using And Bible version**
+**I'm using AndBible version**
 Build XXX.X or version X.X.
 
 **To Reproduce**

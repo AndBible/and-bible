@@ -1,0 +1,97 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: إشارات مرجعية
+bookmarksAndNotes: ""
+openMyNotes: فتح في ملاحظاتي
+openStudyPad: فتح في لوحة الدراسة (%s)
+noteText: الحواشي (%s)
+noteTextWithoutType: الحواشي
+crossReferenceText: تخطي المراجع
+findAllOccurrences: ايجاد كل التكرارات
+reportError: الإبلاغ عن خطأ
+errorTitle: حدث خطأ
+warningTitle: تحذير
+normalTitle: يرجى الملاحظة
+footnoteTypeStudy: دراسة
+footnoteTypeExplanation: تفسير
+footnoteTypeVariant: متغير
+footnoteTypeAlternative: بديل
+footnoteTypeTranslation: ترجمة
+clearLog: مسح سجل الخطأ
+editTextPlaceholder: انقر لتحرير النص
+inputPlaceholder: اكتب هنا
+inputReference: أدخل مرجع الكتاب المقدس
+invalidReference: الآية غير موجودة
+bookmarkAccurate: تم إنشاء الإشارة المرجعية في %s
+bookmarkInaccurate: لم يتم تخزين معلومات مرجعية المرجعية، يتم عرض المحتوى بتنسيق %s.
+defaultBook: وثيقة الكتاب المقدس الافتراضية
+ok: موافق
+yes: "نعم"
+ambiguousSelection: ما الإجراء الذي ترغب في اتخاذه؟
+cancel: تجاهل
+removeBookmarkConfirmationTitle: إزالة الإشارة المرجعية؟
+removeBookmarkConfirmation: هل أنت متأكد أنك تريد إزالة هذه الإشارة المرجعية؟
+createdAt: "تم إنشاؤه: %s"
+lastUpdatedOn: "آخر تحديث: %s"
+strongsAndMorph: التعريف والصرف
+externalLink: افتح رابط خارجي
+referenceLink: افتح رابط المرجع
+openFootnote: افتح الحاشية
+noMyNotesTitle: لا ملاحظاتي لهذا الفصل.
+noMyNotesDescription: >
+  ابدأ بإنشاء إشارات مرجعية في مستند الكتاب المقدس. ستظهر الإشارات المرجعية هنا ويمكنك إضافة ملاحظاتك الشخصية إليها.
+emptyStudyPad: >
+  لوحة دراسية فارغة. ابدأ في الإضافة إلى اللوحة الدراسة هذه عن طريق إنشاء مدخلات نصية هنا أو عن طريق إنشاء إشارات مرجعية بعلامة مرجعية تتوافق مع لوحة الدراسة هذه.
+doYouWantToDeleteEntry: حذف مدخل اللوحة الدراسية هذا؟
+removeStudyPadConfirmationTitle: إزالة مدخل اللوحة الدراسية؟
+dragHelp: اسحب لإعادة ترتيب
+openAll: افتح كل المراجع
+editBookmarkPlaceholder: انقر لتحرير ملاحظاتي لهذه الإشارة المرجعية
+onlyLabel: فقط الملصق
+wholeBookmark: إشارة مرجعية كاملة
+assignLabelsMenuEntry1: تحديد أو تحرير الملصقات ...
+favouriteLabels: الملصقات المفضلة
+recentLabels: الملصقات الحديثة
+bookmarkLabels: تسميات الإشارات المرجعية
+refParserHelp: الرجاء تثبيت %s الوحدة النمطية لاستخدام المراجع بلغات أخرى غير الإنجليزية.
+openDownloads: انتقل إلى تنزيلات الإضافات
+verseShare: مشاركة
+verseSpeak: تكلم
+verseCompare: مقارنة
+verseMemorize: ""
+verseNote: ملاحظة
+verseMyNotes: ملاحظاتي
+verseParagraphBreak: ""
+verseShareLong: مشاركة هذه الآية
+verseCompareLong: مقارنة الآية
+verseMemorizeLong: ""
+verseNoteLong: كتابة ملاحظة
+verseParagraphBreakLong: ""
+addBookmark: إشارة مرجعية
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: اعادة تهيئة
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: المزيد

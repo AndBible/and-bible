@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.android.view.activity.bookmark
 
@@ -21,7 +20,10 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -32,33 +34,40 @@ import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.ListView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarksBinding
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider
+import net.bible.android.control.bookmark.BookmarkCsvUtils
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.view.activity.base.Dialogs.Companion.instance
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.ListActionModeHelper
 import net.bible.android.view.activity.base.ListActionModeHelper.ActionModeActivity
 import net.bible.android.view.activity.base.ListActivityBase
 import net.bible.service.common.CommonUtils.settings
-import net.bible.android.database.bookmarks.BookmarkEntities.Bookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.BookmarkSortOrder
+import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
+import net.bible.service.db.BookmarksUpdatedViaSyncEvent
 import java.lang.IllegalArgumentException
+import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
 val BookmarkSortOrder.description get() =
     when(this) {
         BookmarkSortOrder.BIBLE_ORDER  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
+        BookmarkSortOrder.BIBLE_ORDER_DESC  -> CommonUtils.getResourceString(R.string.sort_by_bible_book)
         BookmarkSortOrder.LAST_UPDATED -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.CREATED_AT -> CommonUtils.getResourceString(R.string.sort_by_date)
         BookmarkSortOrder.CREATED_AT_DESC -> CommonUtils.getResourceString(R.string.sort_by_date)
@@ -76,23 +85,29 @@ val BookmarkSortOrder.description get() =
 class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     private lateinit var binding: BookmarksBinding
-
+    private var sortButton: MenuItem? = null
     @Inject lateinit var bookmarkControl: BookmarkControl
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var windowControl: WindowControl
-    @Inject lateinit var activeWindowPageManagerProvider: ActiveWindowPageManagerProvider
 
     private val labelList: MutableList<Label> = ArrayList()
     private var selectedLabelNo = 0
 
     // the document list
-    private val bookmarkList: MutableList<Bookmark> = ArrayList()
+    private val bookmarkList: MutableList<BaseBookmarkWithNotes> = ArrayList()
     private var listActionModeHelper: ListActionModeHelper? = null
+
+    private var searchText: String?
+        get() = binding.editSearchText.text.toString().let { it.ifEmpty { null } }
+        set(value) {
+            binding.editSearchText.setText(value)
+        }
 
     /** Called when the activity is first created.  */
     @SuppressLint("MissingSuperCall")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState, true)
+        super.onCreate(savedInstanceState)
+        ABEventBus.register(this)
         binding = BookmarksBinding.inflate(layoutInflater)
         setContentView(binding.root)
         settings.setLong("bookmarks-last-used", System.currentTimeMillis())
@@ -108,7 +123,29 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                 }
             }
         }
+        binding.run {
+            clearSearchTextButton.setOnClickListener {
+                searchText = ""
+                loadBookmarkList()
+            }
+            editSearchText.addTextChangedListener(object : TextWatcher {
+                override fun afterTextChanged(s: Editable) {
+                    loadBookmarkList()
+                }
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
+        }
         initialiseView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        ABEventBus.unregister(this)
+    }
+
+    fun onEventMainThread(e: BookmarksUpdatedViaSyncEvent) {
+        recreate()
     }
 
     private fun initialiseView() {
@@ -134,8 +171,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
 
         // prepare the document list view
-        val bookmarkArrayAdapter: ArrayAdapter<Bookmark> = BookmarkItemAdapter(
-            this, bookmarkList, bookmarkControl, activeWindowPageManagerProvider
+        val bookmarkArrayAdapter: ArrayAdapter<BaseBookmarkWithNotes> = BookmarkItemAdapter(
+            this, bookmarkList, bookmarkControl, windowControl
         )
         listAdapter = bookmarkArrayAdapter
         loadBookmarkList()
@@ -145,24 +182,16 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         try {
             // check to see if Action Mode is in operation
             if (!listActionModeHelper!!.isInActionMode) {
-                bookmarkSelected(bookmarkList[position])
+                bookmarkSelected(position, bookmarkList[position])
             }
         } catch (e: Exception) {
             Log.e(TAG, "document selection error", e)
-            instance.showErrorMsg(R.string.error_occurred, e)
+            Dialogs.showErrorMsg(R.string.error_occurred, e)
         }
     }
 
-    override val intentForHistoryList: Intent get()
-    {
-        Log.i(TAG, "Saving label no in History Intent")
-        val intent = intent
-        intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)
-        return intent
-    }
-
-    private fun assignLabels(bookmarks: List<Bookmark>) = GlobalScope.launch(Dispatchers.IO) {
-        val labels = mutableSetOf<Long>()
+    private fun assignLabels(bookmarks: List<BaseBookmarkWithNotes>) = lifecycleScope.launch(Dispatchers.IO) {
+        val labels = mutableSetOf<IdType>()
         for (b in bookmarks) {
             labels.addAll(bookmarkControl.labelsForBookmark(b).map { it.id })
         }
@@ -173,8 +202,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             selectedLabels = labels
         ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
         val result = awaitIntent(intent)
-        if(result?.resultCode == RESULT_OK) {
-            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+        if(result.resultCode == RESULT_OK) {
+            val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
             for (b in bookmarks) {
                 bookmarkControl.changeLabelsForBookmark(b, resultData.selectedLabels.toList())
             }
@@ -186,7 +215,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         }
     }
 
-    private fun delete(bookmarks: List<Bookmark>) {
+    private fun delete(bookmarks: List<BaseBookmarkWithNotes>) {
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.confirm_delete_bookmarks, bookmarks.size))
             .setPositiveButton(R.string.yes) { _, _ ->
@@ -210,19 +239,29 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     /** a spinner has changed so refilter the doc list
      */
-    private fun loadBookmarkList() = GlobalScope.launch(Dispatchers.IO) {
+    private fun loadBookmarkList() = lifecycleScope.launch(Dispatchers.IO) {
         withContext(Dispatchers.Main) {
             binding.empty.visibility = View.GONE
             binding.list.visibility = View.GONE
             binding.loadingIndicator.visibility = View.VISIBLE
         }
         try {
+            withContext(Dispatchers.Main) {
+                when (bookmarkSortOrder) {
+                    BookmarkSortOrder.BIBLE_ORDER -> sortButton?.setIcon(R.drawable.ic_sort_bible_asc)
+                    BookmarkSortOrder.BIBLE_ORDER_DESC -> sortButton?.setIcon(R.drawable.ic_sort_bible_desc)
+                    BookmarkSortOrder.CREATED_AT_DESC -> sortButton?.setIcon(R.drawable.ic_sort_date_desc)
+                    else -> sortButton?.setIcon(R.drawable.ic_sort_date_asc)
+                }
+                sortButton?.icon?.setTint(CommonUtils.getResourceColor(R.color.white))
+            }
             if (selectedLabelNo > -1 && selectedLabelNo < labelList.size) {
                 Log.i(TAG, "filtering bookmarks")
                 val selectedLabel = labelList[selectedLabelNo]
                 withContext(Dispatchers.Main) {
                     bookmarkList.clear()
-                    bookmarkList.addAll(bookmarkControl.getBookmarksWithLabel(selectedLabel, bookmarkSortOrder))
+                    bookmarkList.addAll(bookmarkControl.getBibleBookmarksWithLabel(selectedLabel, bookmarkSortOrder, search=searchText))
+                    bookmarkList.addAll(bookmarkControl.getGenericBookmarksWithLabel(selectedLabel, search=searchText))
                     notifyDataSetChanged()
 
                     // if in action mode then must exit because the data has changed, invalidating selections
@@ -239,17 +278,32 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             binding.loadingIndicator.visibility = View.GONE
             binding.list.visibility = View.VISIBLE
             binding.empty.visibility = View.VISIBLE
+            listView.setSelection(intent.getIntExtra("listPosition", 0))
         }
     }
 
-    private fun bookmarkSelected(bookmark: Bookmark) {
-        Log.i(TAG, "Bookmark selected:" + bookmark.verseRange)
+    private fun bookmarkSelected(position: Int, bookmark: BaseBookmarkWithNotes) {
+        Log.i(TAG, "Bookmark selected:$bookmark")
         try {
-            if (bookmarkControl.isSpeakBookmark(bookmark)) {
+            if (bookmark is BookmarkEntities.BibleBookmarkWithNotes && bookmarkControl.isSpeakBookmark(bookmark)) {
                 speakControl.speakFromBookmark(bookmark)
             }
             val resultIntent = Intent(this, Bookmarks::class.java)
-            resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
+            when(bookmark) {
+                is BookmarkEntities.BibleBookmarkWithNotes -> {
+                    resultIntent.putExtra("verse", bookmark.verseRange.start.osisID)
+                }
+                is BookmarkEntities.GenericBookmarkWithNotes -> {
+                    resultIntent.putExtra("key", bookmark.key)
+                    resultIntent.putExtra("book", bookmark.book?.initials)
+                    resultIntent.putExtra("ordinal", bookmark.ordinalStart)
+                }
+            }
+            resultIntent.putExtra("description", title)
+            resultIntent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo)
+            resultIntent.putExtra("listPosition", position)
+
+            historyTraversal.historyManager.addHistoryItem(null, resultIntent)
             setResult(Activity.RESULT_OK, resultIntent)
             finish()
         } catch (e: Exception) {
@@ -262,13 +316,15 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         super.onCreateOptionsMenu(menu)
         val inflater = menuInflater
         inflater.inflate(R.menu.bookmark_actionbar_menu, menu)
+        sortButton = menu.findItem(R.id.sortByToggle)
         return true
     }
 
     private fun changeBookmarkSortOrder() {
         bookmarkSortOrder = when (bookmarkSortOrder) {
-            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.CREATED_AT_DESC
-            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT            
+            BookmarkSortOrder.BIBLE_ORDER -> BookmarkSortOrder.BIBLE_ORDER_DESC
+            BookmarkSortOrder.BIBLE_ORDER_DESC -> BookmarkSortOrder.CREATED_AT_DESC
+            BookmarkSortOrder.CREATED_AT_DESC -> BookmarkSortOrder.CREATED_AT
             BookmarkSortOrder.CREATED_AT -> BookmarkSortOrder.BIBLE_ORDER
             else -> BookmarkSortOrder.CREATED_AT_DESC
         }
@@ -285,6 +341,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
         }
 
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.importCsv).title = getString(R.string.import_items, "CSV")
+        menu.findItem(R.id.exportCsv).title = getString(R.string.export_something, "CSV")
+        return super.onPrepareOptionsMenu(menu)
+    }
     /**
      * on Click handlers
      */
@@ -300,25 +362,43 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                     loadBookmarkList()
                 } catch (e: Exception) {
                     Log.e(TAG, "Error sorting bookmarks", e)
-                    instance.showErrorMsg(R.string.error_occurred, e)
+                    Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
             }
             R.id.manageLabels -> {
                 isHandled = true
-                GlobalScope.launch(Dispatchers.Main) {
+                lifecycleScope.launch(Dispatchers.Main) {
                     val intent = Intent(this@Bookmarks, ManageLabels::class.java)
                     intent.putExtra("data", ManageLabels.ManageLabelsData(
                         mode = ManageLabels.Mode.WORKSPACE,
                     ).applyFrom(windowControl.windowRepository.workspaceSettings).toJSON())
                     val result = awaitIntent(intent)
-                    if(result?.resultCode == RESULT_OK) {
-                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.resultData.getStringExtra("data")!!)
+                    if(result.resultCode == RESULT_OK) {
+                        val resultData = ManageLabels.ManageLabelsData.fromJSON(result.data?.getStringExtra("data")!!)
                         windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         withContext(Dispatchers.Main) {
                             loadLabelList()
                             loadBookmarkList()
                         }
                     }
+                }
+            }
+            R.id.exportCsv -> {
+                isHandled = true
+                lifecycleScope.launch {
+                    bookmarkControl.exportBookmarksToCSV(
+                        this@Bookmarks,
+                        bookmarkList.filterIsInstance<BookmarkEntities.BibleBookmarkWithNotes>()
+                    )
+                }
+            }
+            R.id.importCsv -> {
+                isHandled = true
+                lifecycleScope.launch(Dispatchers.Main) {
+                    bookmarkControl.importBookmarksFromCSV(this@Bookmarks)
+                    // Refresh the bookmark list
+                    loadLabelList()
+                    loadBookmarkList()
                 }
             }
         }
@@ -349,8 +429,8 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
         return listView.isItemChecked(position)
     }
 
-    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<Bookmark> {
-        val selectedBookmarks: MutableList<Bookmark> = ArrayList()
+    private fun getSelectedBookmarks(selectedItemPositions: List<Int>): List<BaseBookmarkWithNotes> {
+        val selectedBookmarks: MutableList<BaseBookmarkWithNotes> = ArrayList()
         for (position in selectedItemPositions) {
             selectedBookmarks.add(bookmarkList[position])
         }

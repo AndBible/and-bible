@@ -1,0 +1,191 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.view.activity.settings
+
+import android.os.Bundle
+import android.webkit.URLUtil
+import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreferenceCompat
+import kotlinx.coroutines.launch
+import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsDialogBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.util.Hourglass
+import net.bible.service.common.CommonUtils
+import net.bible.service.cloudsync.CloudAdapters
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.cloudsync.CloudSync
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
+class SyncSettingsActivity: ActivityBase() {
+    private lateinit var binding: SettingsDialogBinding
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        binding = SettingsDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        super.buildActivityComponent().inject(this)
+
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.settings_container, SyncSettingsFragment())
+            .commit()
+
+    }
+}
+
+class SyncSettingsFragment: PreferenceFragmentCompat() {
+    private fun setupDrivePref(pref: SwitchPreferenceCompat) {
+        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val enableSync = newValue as Boolean
+            if(enableSync) {
+                lifecycleScope.launch {
+                    val hourglass = Hourglass(requireContext())
+                    hourglass.show(R.string.synchronizing)
+                    
+                    var signInSuccess = CloudSync.signedIn
+                    if (!signInSuccess) {
+                        signInSuccess = CloudSync.signIn(activity as ActivityBase) == true
+                    }
+                    
+                    if (signInSuccess) {
+                        category.syncEnabled = true
+                        CloudSync.waitUntilFinished()
+                        CloudSync.start()
+                        CloudSync.waitUntilFinished()
+                        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+                    }
+                    
+                    hourglass.dismiss()
+                    activity?.recreate()
+                }
+                // Return false to prevent the toggle from being updated now
+                // The recreate() will refresh the UI with the correct state
+                return@setOnPreferenceChangeListener false
+            } else {
+                // If turning sync off, we can do it immediately
+                category.syncEnabled = false
+                return@setOnPreferenceChangeListener true
+            }
+        }
+        val lastSyncStr = category.lastSynchronized?.let {
+            val sdf = SimpleDateFormat("dd-MM-yyyy HH:mm:ss", Locale.getDefault())
+            val date = Date(it)
+            ".\n\n" + getString(R.string.last_updated, sdf.format(date))
+        }?: ""
+        pref.summary = "${getString(category.contentDescription)}$lastSyncStr"
+    }
+
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.preferenceDataStore = PreferenceStore()
+        setPreferencesFromResource(R.xml.sync_settings, rootKey)
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_bookmarks")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans")!!.run {
+            //setupDrivePref(this!!)
+            isVisible = false
+        }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
+            if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
+                isVisible = false
+            }
+            setOnPreferenceClickListener {
+                lifecycleScope.launch {
+                    if(Dialogs.simpleQuestion(requireContext(), message =getString(R.string.sync_confirmation))) {
+                        val hourglass = Hourglass(requireContext())
+                        hourglass.show()
+                        CloudSync.signOut()
+                        hourglass.dismiss()
+                        activity?.recreate()
+                    }
+                }
+                true
+            }
+        }
+        preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
+            if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
+                isVisible = false
+            } else {
+                lifecycleScope.launch {
+                    val bytesUsed = CloudSync.bytesUsed()
+                    val megaBytesUsed = bytesUsed / (1024.0 * 1024)
+                    summary = getString(R.string.cloud_info_summary, String.format("%.2f", megaBytesUsed))
+                }
+            }
+        }
+        val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
+        val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
+        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
+
+        serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
+            val newUrl = newValue as String
+            val isHttpOrHttps = newUrl.startsWith("http://") || newUrl.startsWith("https://")
+            val hasValidStructure = URLUtil.isValidUrl(newUrl) && isHttpOrHttps && !newUrl.endsWith("/login") && !newUrl.contains(" ")
+            
+            if (hasValidStructure) {
+                true
+            } else {
+                Dialogs.showErrorMsg(R.string.invalid_url_message)
+                false
+            }
+        }
+
+        preferenceScreen.findPreference<ListPreference>("sync_adapter")!!.run {
+            if(CloudSync.signedIn) {
+                isEnabled = false
+            }
+            fun setSummary(newValue: CloudAdapters) {
+                val sum1 = getString(R.string.prefs_sync_introduction_summary1)
+                val driveSum = getString(R.string.prefs_sync_introduction_summary2, getString(R.string.app_name_medium))
+                var result = sum1
+                val isGoogleDrive = newValue == CloudAdapters.GOOGLE_DRIVE
+                if(isGoogleDrive) {
+                    result += " $driveSum"
+                }
+                usernamePref.isVisible = !isGoogleDrive
+                passwordPref.isVisible = !isGoogleDrive
+                serverUrlPref.isVisible = !isGoogleDrive
+                if(CloudSync.signedIn) {
+                    usernamePref.isEnabled = false
+                    passwordPref.isEnabled = false
+                    serverUrlPref.isEnabled = false
+                }
+                result += " " + getString(R.string.sync_adapter_summary, newValue.displayName)
+                summary = result
+            }
+            setSummary(CloudAdapters.current)
+            entryValues = CloudAdapters.allEnabled.map { it.name }.toTypedArray()
+            entries = CloudAdapters.allEnabled.map { it.displayName }.toTypedArray()
+            setOnPreferenceChangeListener { _, newValue ->
+                setSummary(CloudAdapters.valueOf(newValue as String))
+                true
+            }
+        }
+    }
+}

@@ -1,0 +1,97 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: סימניות
+bookmarksAndNotes: סימניות והערות
+openMyNotes: פתח ב"הערות שלי"
+openStudyPad: פתח בפנקס לימוד (%s)
+noteText: הערות שוליים (%s)
+noteTextWithoutType: הערות שוליים
+crossReferenceText: מראי מקום
+findAllOccurrences: מצא את כל המופעים
+reportError: דווח על בעיה
+errorTitle: אירעה שגיאה
+warningTitle: אזהרה
+normalTitle: שימו לב
+footnoteTypeStudy: מחקר
+footnoteTypeExplanation: הסבר
+footnoteTypeVariant: וריאנט
+footnoteTypeAlternative: חלופה
+footnoteTypeTranslation: תרגום
+clearLog: מחיקת לוג שגיאות
+editTextPlaceholder: לחץ לעריכת הטקסט
+inputPlaceholder: כתוב כאן
+inputReference: הכנס מראה מקום
+invalidReference: הפסוק לא נמצא
+bookmarkAccurate: הסימניה נוצרה ב %s
+bookmarkInaccurate: "הסימניה לא מכילה את שם הספר, התוכן מוצג ב\"%s\"."
+defaultBook: טקסט מקראי ברירת מחדל
+ok: אישור
+yes: "כן"
+ambiguousSelection: "מה תרצה לעשות?"
+cancel: ביטול
+removeBookmarkConfirmationTitle: "למחוק את הסימניה?"
+removeBookmarkConfirmation: "אתה בטוח שאתה רוצה למחוק סימניה זו?"
+createdAt: "נוצר: %s"
+lastUpdatedOn: "עודכן לאחרונה: %s"
+strongsAndMorph: הגדרה ומורפולוגיה
+externalLink: פתח קישור חיצוני
+referenceLink: פתח קישור מראה מקום
+openFootnote: פתח הערת שוליים
+noMyNotesTitle: פתח את ההערות שלי לפרק
+noMyNotesDescription: >
+  כדי להתחיל, יש ליצור סימניות במסמך תנ"ך. הסימניות תופענה כאן, ואז אפשר להוסיף אליהן הערות אישיות.
+emptyStudyPad: >
+  זהו פנקס לימוד ריק. לשם התחלה, יש להוסיף טקסט, או ליצור סימניות עם תווית התואמת את הפנקס הזה.
+doYouWantToDeleteEntry: "למחוק מפנקס הלימוד את הרשימה הזו?"
+removeStudyPadConfirmationTitle: מחיקת רשומה מפנקס הלימוד
+dragHelp: גרור כדי לסדר מחדש
+openAll: פתח את כל מראי המקומות
+editBookmarkPlaceholder: לחץ על "הערות שלי" כדי לערוך
+onlyLabel: תווית בלבד
+wholeBookmark: כל הסימניה
+assignLabelsMenuEntry1: בחירת או עריכת תגיות...
+favouriteLabels: תגיות מועדפות
+recentLabels: תגיות אחרונות
+bookmarkLabels: תגיות של סימניות
+refParserHelp: נא להתקין את המסמך "%s" כדי להשתמש במראי מקומות בשפות שונות מאנגלית.
+openDownloads: לך להורדת תוספים
+verseShare: שתף
+verseSpeak: הקראה
+verseCompare: השוואה
+verseMemorize: שינון
+verseNote: הערה
+verseMyNotes: הערות אישיות
+verseParagraphBreak: ""
+verseShareLong: שתף פסוק זה
+verseCompareLong: השוואת פסוק
+verseMemorizeLong: שינון פסוקים
+verseNoteLong: כתיבת הערה
+verseParagraphBreakLong: ""
+addBookmark: סימניה
+selectCustomIconTitle: ""
+bookmarkSettingsTitle: ""
+subtitlePlaceholder: ""
+customIconLabel: ""
+editActionLabel: ""
+editActionModeLabel: ""
+editActionModeNone: ""
+editActionModeAppend: ""
+editActionModePrepend: ""
+editActionContentLabel: ""
+editActionContentPlaceholder: ""
+experimentalFeatureTitle: ""
+experimentalFeatureHelpTitle: ""
+experimentalFeatureHelpContent: ""
+insertParagraphBreak: ""
+insertSubtitle: ""
+xmlParseError: ""
+invalidTag: ""
+invalidClosingTag: ""
+unmatchedClosingTag: ""
+unclosedTag: ""
+unknownError: ""
+blur: ""
+reset: איפוס
+peek: ""
+wordBlur: ""
+wordScramble: ""
+more: עוד

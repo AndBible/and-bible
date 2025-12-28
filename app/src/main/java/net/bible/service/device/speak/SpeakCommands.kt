@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
@@ -95,9 +94,9 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
     } else {
         4000
     }
-    private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
-    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
-    private val startsWithDelimeter = Regex("([,.?!\"':;()]+|'s)( .*|)")
+    private val endsWithSentenceBreak = Regex(""".*[.?!。]+[\p{Pf}"']*\W*""", RegexOption.DOT_MATCHES_ALL)
+    private val splitIntoTwoSentences = Regex("""(.*)([.?!。]+[\p{Pf}"']*)(\W*.+)""", RegexOption.DOT_MATCHES_ALL)
+    private val startsWithDelimiter = Regex("""([。,.?!"':;()，；]+|'s)(\p{Zs}.*|)""", RegexOption.DOT_MATCHES_ALL)
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
@@ -107,9 +106,9 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
 
     val endsSentence: Boolean
         get() {
-            val lastCommand = try {this.last()} catch(e: NoSuchElementException) {null}
+            val lastCommand = this.lastOrNull()
             if (lastCommand is TextCommand) {
-                return lastCommand.text.matches(endsWithSentenceBreak)
+                return lastCommand.text.matches(endsWithSentenceBreak) || lastCommand.text.length > 250
             }
             return true
         }
@@ -149,7 +148,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
             if(element.text.isEmpty())
                 return false
             return if(lastCommand is TextCommand) {
-                val newText = if(startsWithDelimeter.matches(element.text))
+                val newText = if(startsWithDelimiter.matches(element.text))
                     "${lastCommand.text}${element.text}"
                 else
                     "${lastCommand.text} ${element.text}"

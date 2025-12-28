@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 package net.bible.service.download
 
@@ -25,6 +24,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.BookMetaData
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.NullBackend
 import org.crosswire.jsword.book.sword.SwordBook
@@ -89,6 +89,7 @@ object FakeBookFactory {
     }
 
     private var _compareDocument: Book? = null
+    private var _memorizeDocument: Book? = null
     private var _multiDocument: Book? = null
     private var _journalDocument: Book? = null
     private var _myNotesDocument: Book? = null
@@ -112,6 +113,12 @@ object FakeBookFactory {
                 _compareDocument = this
             }
 
+    val memorizeDocument: Book
+        get() =
+            _memorizeDocument ?: createFakeRepoBook("Memorize", MEMORIZE_DUMMY_CONF, "").apply {
+                _memorizeDocument = this
+            }
+
     val journalDocument: Book
         get() =
             _journalDocument ?: createFakeRepoBook("Journal", JOURNAL_DUMMY_CONF, "").apply {
@@ -130,6 +137,8 @@ Abbreviation=${application.getString(R.string.studypads)}
 Encoding=UTF-8
 Category=Generic Books
 LCSH=Bible--Commentaries.
+AndBibleIsStudyPad=1
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val COMPARE_DUMMY_CONF get() = """[Compare]
@@ -139,8 +148,18 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
+    private val MEMORIZE_DUMMY_CONF get() = """[Memorize]
+Description=${application.getString(R.string.memorize_description)}
+Abbreviation=${application.getString(R.string.memorize_abbreviation)}
+Category=Commentaries
+Encoding=UTF-8
+LCSH=Bible--Commentaries.
+AndBibleSpecial=1
+HideFromSelector=1
+Versification=KJVA"""
 
     private val MULTI_DUMMY_CONF get() = """[Multi]
 Description=${application.getString(R.string.multi_description)}
@@ -148,6 +167,7 @@ Abbreviation=${application.getString(R.string.multi_abbreviation)}
 Category=Generic Books
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private val MY_NOTE_DUMMY_CONF get() = """[MyNote]
@@ -157,6 +177,7 @@ Category=Commentaries
 Feature=StrongsNumbers
 Encoding=UTF-8
 LCSH=Bible--Commentaries.
+AndBibleSpecial=1
 Versification=KJVA"""
 
     private fun doesNotExistConf(id: String, type: BookCategory) = """[$id]
@@ -183,8 +204,12 @@ Versification=KJVA"""
 
     fun pseudoDocuments(l: List<PseudoBook>?): List<Book> = l?.map { getPseudoBook(it.id, it.suggested) }?: emptyList()
 
-    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument)
+    val pseudoDocuments: List<Book> get() = listOf(myNotesDocument, journalDocument, compareDocument, memorizeDocument)
 }
 
 val Book.isPseudoBook get() = bookMetaData.getProperty("AndBiblePseudoBook") != null
+val Book.isSpecial get() = bookMetaData.getProperty("AndBibleSpecial") != null
+val Book.isStudyPad get() = bookMetaData.getProperty("AndBibleIsStudyPad") != null
 val Book.doesNotExist get() = bookMetaData.getProperty("AndBibleDoesNotExist") != null
+val Book.hideFromSelector get() = bookMetaData.getProperty("HideFromSelector") != null
+val Book.isRemoved get() = !isSpecial && Books.installed().getBook(initials) == null

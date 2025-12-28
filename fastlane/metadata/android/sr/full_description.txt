@@ -1,32 +1,48 @@
-And Biblija je potpuno besplatna aplikacija otvorenog koda, bez reklama, koja ne zahteva Internet time omogućujući što većem broju ljudi iz mnogih zemalja da čitaju, slušaju i izučavaju Pismo čineći to jednostavnijim i sa većim ličnim blaženstvom.
+<b>Моћно средство за учење Библије</b>
 
-* Prevodi Biblije, komentari, Teološki rečnici, karte i Hrišćanske knjige na preko 700 jezika
-* Bez Interneta za sve nakon početnog preuzimanja, uključujući pretragu, beleške, kometare, itd.
-* Okruženje na više jezika
-* Raznovrsni planovi čitanja Biblije
-* Potpuno slobodna, bez reklama, bez e-pošte
-* Preko 40 engleskih prevoda uključujući KJV i NET (ESV je takođe nekada bio ovde i mi pokušavamo da ga ponovo vratimo, pogledajte NPP: https://github.com/AndBible/and-bible/wiki/FAQ#i-cant-find-esv-any-more-in-downloads-whats-wrong)
-* 29 Biblijskih komentara
-* Opširan rečnik i zbirka hrišćanskih knjiga
-* Svi dokumenti su legalno distribuirani (razlog zbog kojeg dokumenti kao NKJV i NIV nisu dostupni)
-* Strongova integracija omogućava analizu reči na grčkom i jevrejskom.
-* Više radnih površina u podeljenom ekranu
-* Hvatanje ličnih zabeleški
-* Prilagodljiva pretraga
-* Obeleživači
-* Karte biblijskih zemalja
-* Slušanje čitanja bilo kog dokumenta
-* Automatsko skrolovanje, automatski dan/noć režim
-* Upoređivanje svih prevoda Biblije na jednom ekranu
-* Jedna od najbržih aplikacija za Bibliju na Androidu
-* Otvoreni kod - ako želite, unapredite ili izmenite kod
-* Koristi moćni JSword mehanizam od CrossWire-a
+"Анд Библија: Учење Библије" је моћна, али ипак лака за коришћење, офлајн Андроид апликација за учење Библије. Апликација није направљена само за читање Библије, већ као и напредно средство за детаљно лично проучавање Библије.
 
-Mi smo svi volonteri; ne šaljemo napornu e-poštu; ne prikazujemo dosadne reklame; nikada ne tražimo donacije; ne zahtevamo registraciju; And Biblija ne skuplja nikakve podate sa vašeg telefona.
+Ова апликација је направњена од стране читалаца Библије за читаоце Библије. Има за циљ да вам ваше учење Библије буде погодно, детаљно и занимљиво. Најбољи део о овом непрофитном пројекту је то што је апликација отвореног кода, сасвим бесплатна и нема реклама.
 
-Poreklo svih dokumenata je temeljno istraženo, kako bi se obezbedila legalna distribucija, ili je data dozvola od strane vlasnika autorskih prava. To je, takođe razlog zbog kog And Biblija ne može sadržati dokumente kao što su NIV i NKJV.
+Неколико најпознатијих превода Библије (од многих доступних) су KJV, NASB, NET и такође популарна тумачења као што су тумачења Метју Хенрија и Џон Гила.
 
-<b>Beleške</b>
-* Lajkujte And Bibliju na Fejsbuku: https://www.facebook.com/AndBible/
-* Najčešće postavljana pitanja za And Bibliju: https://github.com/AndBible/and-bible/wiki/FAQ
-* Stranica projekta na Githabu: https://github.com/AndBible/and-bible
+<b>Моћне функције за проучавање Библије</b>
+
+Апликација има многе оригиналне функције које чине детаљно проучавање Библије лакшим него икад. Значајне функције су следеће:
+
+ * Дељење прегледа текста које омогућава упоређивање превода и тражење у тумачењима
+ * Радне површи омогућавају више поставки за проучавање Библије са одвојеним подешавањима
+ * Интеграција Стронговог речника омогућава анализу грчких и хебрејских речи
+ * Повезане унакрсне референце, фусноте и документа: пребаците се на унакрсне референце и фусноте једноставним додиром на линк; извршите детаљну анализу Светих Списа коришћењем хиперлинка тумечења (Gill, Matthew Henry итд.), колекције унакрсних референци (Treasure of Scripture Knowledge, TSKe) и других извора.
+ * Напредни текст - у - говор са изговором обележивача, које омогућава глатки доживаљај слушања Светога Писма
+ * Прилагодљиво претраживање
+ * Напредно обележавање и истицање са личним белешкама за учење
+ * Радне Свеске за додавање белешки и библијских референци за време слушања беседа.
+ * Планови читања: поставите циљ за читање Светога Писма
+ * Огромна библиотека докумената: Библијских превода, теолошких тумачења, речника, карата, и хришћанских књига, чији укупан број излази на преко 1500 докумената на више од 700 језика, легално дистрибуираних од стране Crosswire и других SWORD ризница.
+ * Изворна подршка за MyBible, MySword и EPUB фајлове омогућава Вам да још више проширите Вашу библиотеку.
+
+<b>Хајде да заједно направимо најбољу Библијску апликацију!</b>
+
+AndBible је пројекат заједнице отвореног-кода. У пракси, ово значи да свако ко има одређени низ вештина може, уз охрабрење, да допринесе пројекту:
+
+ * развијањем нових функција
+ * тестирањем још увек не објављених функција
+ * одржавањем превода корисничког сучеља ажурним, и
+ * помажући ширењем модула библиотеке задобијањем дозвола власника ауторских права, или конвертовањем докумената у SWORD формат.
+
+Уколико сте Ви професионални софтверски програмер или испитивач, молимо Вас да размислите о доприносу пројекту. За више информација о томе како допринети, молимо погледајте https://git.io/JUnaj.
+
+<b>Подржите развој куповином!</b>
+
+Уколико немате времена или вештина за допринос на пројекту, такође можете подржати пројекат куповином професионалног развоја.
+
+Погледајте опције: https://shop.andbible.org/
+
+<b>Линкови</b>
+
+ * Почетна страница: https://andbible.org
+ * Лајкујкте AndBible на Фејсбуку: https://www.facebook.com/AndBible/
+ * Наш Јутјуб канал: https://www.youtube.com/c/AndBible
+ * Често постављена питања: https://git.io/JJm8E
+ * Страница пројекта на Github-у: https://github.com/AndBible/and-bible

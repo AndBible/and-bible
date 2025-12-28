@@ -1,28 +1,33 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.service.device.speak
 
+import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
+import android.os.Build
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import androidx.annotation.RequiresApi
 
-import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
@@ -39,8 +44,8 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
+import net.bible.service.sword.BookAndKey
 
-import net.bible.service.sword.SwordContentFacade
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
@@ -74,10 +79,10 @@ import javax.inject.Inject
  */
 @ApplicationScope
 class TextToSpeechServiceManager @Inject constructor(
-		bibleTraverser: BibleTraverser,
-		windowControl: WindowControl,
-		bookmarkControl: BookmarkControl,
-		val speakControl: SpeakControl
+    bibleTraverser: BibleTraverser,
+    windowControl: WindowControl,
+    bookmarkControl: BookmarkControl,
+    val speakControl: SpeakControl
 ) {
 
     private var mTts: TextToSpeech? = null
@@ -87,6 +92,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
     private var mSpeakTextProvider: SpeakTextProvider
 
+    private val legacySpeakTextProvider: LegacySpeakTextProvider
     private val generalSpeakTextProvider: GeneralSpeakTextProvider
     private val bibleSpeakTextProvider: BibleSpeakTextProvider
 
@@ -101,22 +107,31 @@ class TextToSpeechServiceManager @Inject constructor(
 
     var isPaused = false
         private set
+
+    private var pauseDueCall = false
+
     private var temporary = false
     private var mockedTts = false
 
     init {
         Log.i(TAG, "Creating TextToSpeechServiceManager")
-        generalSpeakTextProvider = GeneralSpeakTextProvider()
+        legacySpeakTextProvider = LegacySpeakTextProvider()
         val book = windowControl.activeWindowPageManager.currentBible.currentDocument as SwordBook
-        val verse = windowControl.activeWindowPageManager.currentBible.singleKey
 
         bibleSpeakTextProvider = BibleSpeakTextProvider(
-            bibleTraverser, bookmarkControl, windowControl.windowRepository, book, verse
+            bibleTraverser = bibleTraverser,
+            bookmarkControl = bookmarkControl,
+            initialBook = book
         )
+        generalSpeakTextProvider = GeneralSpeakTextProvider(
+            bookmarkControl = bookmarkControl,
+            initialBook = book
+        )
+
         mSpeakTextProvider = bibleSpeakTextProvider
 
         mSpeakTiming = SpeakTiming()
-        ABEventBus.getDefault().safelyRegister(this)
+        ABEventBus.safelyRegister(this)
         restorePauseState()
     }
 
@@ -135,18 +150,18 @@ class TextToSpeechServiceManager @Inject constructor(
         Log.i(TAG, "Tts initialised")
         var isOk = false
 
-		val tts = mTts
+        val tts = mTts
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (tts != null && status == TextToSpeech.SUCCESS) {
             Log.i(TAG, "Tts initialisation succeeded")
 
             // Add earcons
-            tts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling) // TODO: change
-            tts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.application.packageName, R.raw.short_pling_reverse)
-            tts.addEarcon(EARCON_PRE_TITLE, BibleApplication.application.packageName, R.raw.pageflip)
-            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.application.packageName, R.raw.medium_pling)
-            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.application.packageName, R.raw.long_pling)
+            tts.addEarcon(EARCON_PRE_FOOTNOTE, application.packageName, R.raw.short_pling) // TODO: change
+            tts.addEarcon(EARCON_POST_FOOTNOTE, application.packageName, R.raw.short_pling_reverse)
+            tts.addEarcon(EARCON_PRE_TITLE, application.packageName, R.raw.pageflip)
+            tts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, application.packageName, R.raw.medium_pling)
+            tts.addEarcon(EARCON_PRE_BOOK_CHANGE, application.packageName, R.raw.long_pling)
 
             // set speech rate
             setRate(SpeakSettings.load().playbackSettings.speed)
@@ -157,11 +172,16 @@ class TextToSpeechServiceManager @Inject constructor(
             while (i < localePreferenceList.size && !localeOK) {
                 locale = localePreferenceList[i]
                 Log.i(TAG, "Checking for locale:$locale")
-                val result = tts.setLanguage(locale)
-                localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
-                if (localeOK) {
-                    Log.i(TAG, "Successful locale:$locale")
-                    currentLocale = locale
+                try {
+                    val result = tts.setLanguage(locale)
+                    localeOK = result != TextToSpeech.LANG_MISSING_DATA && result != TextToSpeech.LANG_NOT_SUPPORTED
+                    if (localeOK) {
+                        Log.i(TAG, "Successful locale:$locale")
+                        currentLocale = locale
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error setting TTS language for locale:$locale", e)
+                    // Continue to next locale in the preference list
                 }
                 i++
             }
@@ -169,11 +189,11 @@ class TextToSpeechServiceManager @Inject constructor(
             if (!localeOK) {
                 Log.e(TAG, "TTS missing or not supported")
                 // Language data is missing or the language is not supported.
-                ttsLanguageSupport.addUnsupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addUnsupportedLocale(locale)
                 showError(R.string.tts_lang_not_available, Exception("Tts missing or not supported"))
             } else {
                 // The TTS engine has been successfully initialized.
-                ttsLanguageSupport.addSupportedLocale(locale)
+                if(locale != null) ttsLanguageSupport.addSupportedLocale(locale)
                 val ok = tts.setOnUtteranceProgressListener(utteranceProgressListener)
                 if (ok == TextToSpeech.ERROR) {
                     Log.e(TAG, "Error registering utteranceProgressListener")
@@ -190,7 +210,7 @@ class TextToSpeechServiceManager @Inject constructor(
         }
 
         if (!isOk) {
-            speakControl.stop(false, true)
+            speakControl.stop(willContinueAfter = false, force = true)
         }
     }
 
@@ -229,8 +249,8 @@ class TextToSpeechServiceManager @Inject constructor(
         }
     }
 
-    val currentlyPlayingVerse: Verse?
-        get() = mSpeakTextProvider.getCurrentlyPlayingVerse()
+    val currentlyPlayingKey: Key?
+        get() = mSpeakTextProvider.getCurrentlyPlayingKey()
 
     val currentlyPlayingBook: Book?
         get() = mSpeakTextProvider.getCurrentlyPlayingBook()
@@ -249,16 +269,24 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     @Synchronized
-    fun speakText(book: Book, keyList: List<Key>, queue: Boolean, repeat: Boolean) {
-        switchProvider(generalSpeakTextProvider)
-        generalSpeakTextProvider.setupReading(book, keyList, repeat)
+    fun speakTextLegacy(book: Book, keyList: List<Key>, queue: Boolean) {
+        switchProvider(legacySpeakTextProvider)
+        legacySpeakTextProvider.setupReading(book, keyList)
         handleQueue(queue)
         localePreferenceList = calculateLocalePreferenceList(book)
         initializeTtsOrStartSpeaking()
     }
 
+    @Synchronized
+    fun speakGeneric(key: BookAndKey) {
+        switchProvider(generalSpeakTextProvider)
+        generalSpeakTextProvider.setupReading(key)
+        localePreferenceList = calculateLocalePreferenceList(key.document!!)
+        initializeTtsOrStartSpeaking()
+    }
+
     private fun switchProvider(newProvider: SpeakTextProvider) {
-        if (newProvider !== mSpeakTextProvider) {
+        if (newProvider != mSpeakTextProvider) {
             mSpeakTextProvider.reset()
             mSpeakTextProvider = newProvider
         }
@@ -279,8 +307,14 @@ class TextToSpeechServiceManager @Inject constructor(
         //calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
-        var bookLanguageCode = fromBook.language.code
+        var bookLanguageCode = fromBook.language?.code
         Log.i(TAG, "Book has language code:$bookLanguageCode")
+
+        // Validate and sanitize the language code to prevent TTS crashes
+        if (bookLanguageCode.isNullOrBlank() || bookLanguageCode.length < 2) {
+            Log.w(TAG, "Invalid book language code '$bookLanguageCode', falling back to default locale")
+            bookLanguageCode = Locale.getDefault().language
+        }
 
         val localePreferenceList = ArrayList<Locale>()
         if (bookLanguageCode == Locale.getDefault().language) {
@@ -338,8 +372,8 @@ class TextToSpeechServiceManager @Inject constructor(
             try {
                 // Initialize text-to-speech. This is an asynchronous operation.
                 // The OnInitListener (second argument) (this class) is called after initialization completes.
-                mTts = TextToSpeech(BibleApplication.application.applicationContext, this.onInitListener)
-                if(BibleApplication.application.isRunningTests) {
+                mTts = TextToSpeech(application.applicationContext, this.onInitListener)
+                if(application.isRunningTests) {
                     this.onInitListener.onInit(TextToSpeech.SUCCESS)
                 }
             } catch (e: Exception) {
@@ -420,6 +454,7 @@ class TextToSpeechServiceManager @Inject constructor(
 
             mSpeakTextProvider.savePosition(mSpeakTiming.fractionCompleted)
             mSpeakTextProvider.pause()
+            persistPauseState()
 
             if (willContinueAfterThis) {
                 clearTtsQueue()
@@ -433,6 +468,8 @@ class TextToSpeechServiceManager @Inject constructor(
             fireStateChangeEvent()
         }
     }
+
+    var initialized = false
 
     @Synchronized
     fun continueAfterPause() {
@@ -453,8 +490,50 @@ class TextToSpeechServiceManager @Inject constructor(
         isPaused = false
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun getNewAudioFocusRequest() =
+        AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN)
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .setUsage(AudioAttributes.USAGE_MEDIA)
+                    .build()
+            )
+            .setOnAudioFocusChangeListener { focusChange ->
+                Log.i(TAG, "Audio focus changed $focusChange")
+                when(focusChange) {
+                    AudioManager.AUDIOFOCUS_GAIN -> {
+                        pauseDueCall = false
+                        callStateChanged(false)
+                    }
+                    AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                        pauseDueCall = true
+                        callStateChanged(true)
+                    }
+                }
+            }
+            .build()
+
+    var audioFocusRequest: AudioFocusRequest? = null
+    val am = application.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+
     private fun startSpeaking() {
+        initialized = true
         Log.i(TAG, "about to send some text to TTS")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(audioFocusRequest == null) {
+                val req = getNewAudioFocusRequest()
+                val granted = am.requestAudioFocus(req)
+                if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                    Log.i(TAG, "Could not gain audio focus, not starting")
+                    shutdown()
+                    return
+                } else {
+                    audioFocusRequest = req
+                }
+            }
+        }
+
         if (!isSpeaking) {
             speakNextChunk()
             isSpeaking = true
@@ -474,6 +553,9 @@ class TextToSpeechServiceManager @Inject constructor(
             val cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i == 0)
             if (!mockedTts) {
                 cmd.speak(mTts!!, utteranceId)
+            }
+            if(!mSpeakTextProvider.isMoreTextToSpeak()) {
+                break
             }
         }
         Log.i(TAG, "Added items to TTS queue. Last utterance id: $utteranceId")
@@ -497,10 +579,10 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun showError(msgId: Int, e: Exception) {
-        Dialogs.instance.showErrorMsg(msgId)
+        Dialogs.showErrorMsg(msgId)
     }
 
-    fun shutdown(willContinueAfter: Boolean) {
+    fun shutdown(willContinueAfter: Boolean = false) {
         Log.i(TAG, "Shutdown TTS")
 
         isSpeaking = false
@@ -529,19 +611,26 @@ class TextToSpeechServiceManager @Inject constructor(
         } finally {
             mTts = null
         }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if(!pauseDueCall) {
+                audioFocusRequest?.also { am.abandonAudioFocusRequest(it) }
+                audioFocusRequest = null
+            }
+        }
     }
 
     private fun fireStateChangeEvent() {
 		when {
 			isPaused -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.PAUSED))
+				ABEventBus.post(SpeakEvent(SpeakState.PAUSED))
 			}
 			isSpeaking -> {
 				temporary = false
-				ABEventBus.getDefault().post(SpeakEvent(SpeakState.SPEAKING))
+				ABEventBus.post(SpeakEvent(SpeakState.SPEAKING))
 			}
-			else -> ABEventBus.getDefault().post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
+			else -> ABEventBus.post(SpeakEvent(if (temporary) SpeakState.TEMPORARY_STOP else SpeakState.SILENT))
 		}
 
     }
@@ -549,8 +638,8 @@ class TextToSpeechServiceManager @Inject constructor(
     /**
      * Pause speak if phone call starts
      */
-    fun onEvent(event: PhoneCallEvent) {
-        if (event.callActivating) {
+    private fun callStateChanged(activating: Boolean) {
+        if (activating) {
             if (isSpeaking) {
                 wasPaused = true
                 pause(false)
@@ -567,6 +656,10 @@ class TextToSpeechServiceManager @Inject constructor(
                 continueAfterPause()
             }
         }
+    }
+
+    fun onEvent(event: PhoneCallEvent) {
+        callStateChanged(event.callActivating)
     }
 
     /** persist and restore pause state to allow pauses to continue over an app exit
@@ -589,10 +682,17 @@ class TextToSpeechServiceManager @Inject constructor(
             val isBible = CommonUtils.settings.getBoolean(PERSIST_BIBLE_PROVIDER, true)
             switchProvider(if (isBible) bibleSpeakTextProvider else generalSpeakTextProvider)
 
-            isPaused = mSpeakTextProvider.restoreState()
+            isPaused =
+                try {
+                    mSpeakTextProvider.restoreState()
+                } catch (e: Exception) {
+                    Log.e(TAG, "restoreState fails", e)
+                    false 
+            }
+            Log.i(TAG, "Now pause state is $isPaused")
 
             // restore locale information so tts knows which voice to load when it initialises
-            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()))
+            currentLocale = Locale(CommonUtils.settings.getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString())!!)
             localePreferenceList = ArrayList()
             localePreferenceList.add(currentLocale)
         }

@@ -1,19 +1,18 @@
 /*
- * Copyright (c) 2020 Martin Denham, Tuomas Airaksinen and the And Bible contributors.
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
  *
- * This file is part of And Bible (http://github.com/AndBible/and-bible).
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
- * And Bible is free software: you can redistribute it and/or modify it under the
+ * AndBible is free software: you can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
  *
- * And Bible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
  * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License along with And Bible.
+ * You should have received a copy of the GNU General Public License along with AndBible.
  * If not, see http://www.gnu.org/licenses/.
- *
  */
 
 package net.bible.android.control.backup
@@ -23,183 +22,282 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
-import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
+import io.requery.android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.widget.Button
 import androidx.core.content.FileProvider
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
+import net.bible.android.SharedConstants
 import net.bible.android.activity.BuildConfig
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
-import net.bible.android.database.DATABASE_VERSION
+import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.OLD_DATABASE_VERSION
+import net.bible.android.database.ReadingPlanDatabase
+import net.bible.android.database.RepoDatabase
+import net.bible.android.database.SettingsDatabase
+import net.bible.android.database.SyncableRoomDatabase
+import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
-import net.bible.android.view.activity.page.MainBibleActivity.Companion._mainBibleActivity
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.page.application
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.CommonUtils.windowControl
 import net.bible.service.common.FileManager
-import net.bible.service.db.DATABASE_NAME
+import net.bible.service.db.ALL_DB_FILENAMES
 import net.bible.service.db.DatabaseContainer
-import net.bible.service.db.DatabaseContainer.db
+import net.bible.service.db.DatabaseContainer.Companion.maxDatabaseVersion
+import net.bible.service.db.OLD_MONOLITHIC_DATABASE_NAME
+import net.bible.service.download.isPseudoBook
+import net.bible.service.cloudsync.CloudSync
+import net.bible.service.cloudsync.SyncableDatabaseDefinition
+import net.bible.service.common.AndBibleBackupManifest
+import net.bible.service.common.BackupType
+import net.bible.service.common.CommonUtils.determineFileType
+import net.bible.service.common.DbType
+import net.bible.service.db.bookmarksDbStats
+import net.bible.service.db.importDatabaseFile
+import net.bible.service.sword.dbFile
+import net.bible.service.sword.epub.epubDir
+import net.bible.service.sword.epub.isManuallyInstalledEpub
+import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
+import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 import java.io.BufferedInputStream
+import java.io.Closeable
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.util.*
+import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
+const val DATABASE_BACKUP_SUFFIX = ".abdb.zip"
+const val MODULE_BACKUP_SUFFIX = ".abmd.zip"
+
+const val DATABASE_BACKUP_NAME = "AndBibleDatabaseBackup$DATABASE_BACKUP_SUFFIX"
+const val MODULE_BACKUP_NAME = "AndBibleModulesBackup$MODULE_BACKUP_SUFFIX"
+
+const val ZIP_MIMETYPE = "application/zip"
+
+enum class SaveOrShare {SAVE, SHARE}
 
 object BackupControl {
+    internal suspend fun saveDbBackupFileViaIntent(activity: ActivityBase, file: File) =
+        saveOrShare(
+            activity = activity,
+            file = file,
+            fileName = DATABASE_BACKUP_NAME,
+            subject = activity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium),
+            message = activity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium),
+            chooserTitle = activity.getString(R.string.send_backup_file),
+            successMsg = R.string.backup_success2,
+            errorMsg = R.string.error_occurred,
+        )
 
-    /** Backup database to Uri returned from ACTION_CREATE_DOCUMENT intent
-     */
-    private suspend fun backupDatabaseToUri(activity: ActivityBase, uri: Uri, file: File)  {
-        val hourglass = Hourglass(activity)
-        hourglass.show()
+    public suspend fun saveOrShare(
+        activity: ActivityBase,
+        file: File,
+        fileName: String,
+        shareMimeType: String = ZIP_MIMETYPE,
+        saveMimeType: String = ZIP_MIMETYPE,
+        subject: String? = null,
+        message: String? = null,
+        chooserTitle: String,
+        successMsg: Int? = null,
+        errorMsg: Int = R.string.error_occurred,
+    ): Boolean {
+        val saveOrShare =
+            withContext(Dispatchers.Main) {
+                suspendCoroutine<SaveOrShare?> {
+                    AlertDialog.Builder(activity)
+                        .setTitle(R.string.backup_backup_title)
+                        .setMessage(R.string.backup_backup_message)
+                        .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
+                        .setPositiveButton(R.string.generic_share) { _, _ -> it.resume(SaveOrShare.SHARE) }
+                        .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
+                        .setOnCancelListener { _ -> it.resume(null) }
+                        .show()
+                }
+            } ?: return false
 
-        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val inputStream = FileInputStream(file)
-
-        var ok = true
-        try {
-            withContext(Dispatchers.IO) {
-                inputStream.copyTo(out)
-                out.close()
+        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", file)
+        val intent = when(saveOrShare) {
+            SaveOrShare.SAVE -> {
+                Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                    addCategory(Intent.CATEGORY_OPENABLE)
+                    putExtra(Intent.EXTRA_TITLE, fileName)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    type = saveMimeType
+                }
             }
-        } catch (ex: IOException) {
-            Log.e(TAG, ex.message ?: "Error occurred in backuping db")
-            ok = false
+            SaveOrShare.SHARE -> {
+                Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    if(subject != null) putExtra(Intent.EXTRA_SUBJECT, subject)
+                    if(message != null) putExtra(Intent.EXTRA_TEXT, message)
+                    type = shareMimeType
+                }
+            }
         }
-        hourglass.dismiss()
+        val chooserIntent = Intent.createChooser(intent, chooserTitle)
+        val result = activity.awaitIntent(chooserIntent)
+        val ok = if (saveOrShare == SaveOrShare.SAVE) {
+            result.data?.data?.let { destinationUri ->
+                withContext(Dispatchers.IO) {
+                    val hourglass = Hourglass(activity)
+                    hourglass.show()
+
+                    val out = BibleApplication.application.contentResolver.openOutputStream(destinationUri)!!
+                    val inputStream = FileInputStream(file)
+
+                    var ok = true
+                    try {
+                        out.use {
+                            inputStream.copyTo(out)
+                        }
+                    } catch (ex: IOException) {
+                        Log.e(TAG, ex.message ?: "Error occurred in backuping db")
+                        ok = false
+                    }
+                    hourglass.dismiss()
+                    ok
+                }
+            } ?: false
+        } else result.resultCode == Activity.RESULT_OK || result.resultCode == Activity.RESULT_CANCELED
+
         withContext(Dispatchers.Main) {
             if (ok) {
                 Log.i(TAG, "Copied database to chosen backup location successfully")
-                Dialogs.instance.showMsg2(activity, R.string.backup_success2)
+                if(successMsg != null) Dialogs.showMsg2(activity, successMsg)
             } else {
                 Log.e(TAG, "Error copying database to chosen location.")
-                ErrorReportControl.showErrorDialog(activity, activity.getString(R.string.error_occurred))
-            }
-        }
-    }
-
-    /** backup database to custom target (email, drive etc.) via ACTION_SEND intent
-     */
-    private suspend fun backupDatabaseViaSendIntent(callingActivity: ActivityBase, file: File) {
-        val hourglass = Hourglass(callingActivity)
-        hourglass.show()
-
-        internalDbBackupDir.mkdirs()
-        val targetFile =  File(internalDbBackupDir, file.name)
-        if(targetFile.exists()) targetFile.delete()
-        file.copyTo(targetFile)
-		val subject = callingActivity.getString(R.string.backup_email_subject_2, CommonUtils.applicationNameMedium)
-		val message = callingActivity.getString(R.string.backup_email_message_2, CommonUtils.applicationNameMedium)
-        val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", targetFile)
-		val email = Intent(Intent.ACTION_SEND).apply {
-            putExtra(Intent.EXTRA_STREAM, uri)
-            putExtra(Intent.EXTRA_SUBJECT, subject)
-            putExtra(Intent.EXTRA_TEXT, message)
-            type = "application/x-sqlite3"
-        }
-		val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
-        chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        hourglass.dismiss()
-		callingActivity.awaitIntent(chooserIntent)
-    }
-
-    fun resetDatabase() {
-        val f = File(internalDbDir, DATABASE_NAME)
-        f.delete()
-    }
-
-    /** restore database from custom source
-     */
-    suspend fun restoreDatabaseViaIntent(inputStream: InputStream): Boolean {
-        val fileName = DATABASE_NAME
-        internalDbBackupDir.mkdirs()
-        val f = File(internalDbBackupDir, fileName)
-        var ok = false
-        val header = ByteArray(16)
-        inputStream.read(header)
-        if(String(header) == "SQLite format 3\u0000") {
-            val out = FileOutputStream(f)
-            withContext(Dispatchers.IO) {
-                out.write(header)
-                inputStream.copyTo(out)
-                out.close()
-                val sqlDb = SQLiteDatabase.openDatabase(f.path, null, SQLiteDatabase.OPEN_READONLY)
-                if (sqlDb.version <= DATABASE_VERSION) {
-                    Log.i(TAG, "Loading from backup database with version ${sqlDb.version}")
-                    DatabaseContainer.reset()
-                    BibleApplication.application.deleteDatabase(DATABASE_NAME)
-                    ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
-                }
-                sqlDb.close()
+                ErrorReportControl.showErrorDialog(activity, activity.getString(errorMsg))
             }
         }
 
-        if(!ok) {
-            withContext(Dispatchers.Main) {
-                Log.e(TAG, "Error restoring database")
-                Dialogs.instance.showErrorMsg(R.string.restore_unsuccessfull)
-            }
-        }
-
-        f.delete()
         return ok
+    }
+
+    private suspend fun restoreOldMonolithicDatabaseFromInputStream(uri: Uri): Boolean = withContext(Dispatchers.IO) {
+        val fileName = OLD_MONOLITHIC_DATABASE_NAME
+        internalDbBackupDir.mkdirs()
+        val tmpFile = File(internalDbBackupDir, fileName)
+        var ok = false
+        val header = ByteArray(2)
+        val gzHeaderBytes = byteArrayOf(0x1f.toByte(), 0x8b.toByte())
+
+        val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+        val bufferedInputStream = BufferedInputStream(inputStream)
+        bufferedInputStream.mark(2)
+        bufferedInputStream.read(header)
+        bufferedInputStream.reset()
+
+        val input = if(header.contentEquals(gzHeaderBytes)) {
+            GZIPInputStream(bufferedInputStream)
+        } else {
+            bufferedInputStream
+        }
+
+        input.use {inputStream ->
+            val dbHeader = ByteArray(16)
+            inputStream.read(dbHeader)
+            if(String(dbHeader) == "SQLite format 3\u0000") {
+                val out = FileOutputStream(tmpFile)
+                withContext(Dispatchers.IO) {
+                    out.use {
+                        out.write(dbHeader)
+                        inputStream.copyTo(out)
+                    }
+                    val version = SQLiteDatabase.openDatabase(tmpFile.path, null, SQLiteDatabase.OPEN_READWRITE).use {
+                        it.version
+                    }
+                    if(version <= OLD_DATABASE_VERSION) {
+                        Log.i(TAG, "Loading from backup database with version $version")
+                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
+                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
+                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
+                        DatabaseContainer.reset()
+                        // When restoring old style db, we need to remove all databases first
+                        deleteAllDatabases()
+                        ok = FileManager.copyFile(fileName, internalDbBackupDir, internalDbDir)
+                        if(DatabaseContainer.ready) {
+                            DatabaseContainer.instance // initialize (migrate etc)
+                            afterRestore()
+                        }
+                    }
+                }
+            }
+        }
+        tmpFile.delete()
+
+        return@withContext ok
+    }
+
+    fun deleteAllDatabases() {
+        application.databaseList().forEach { name ->
+            application.deleteDatabase(name)
+        }
     }
 
     private fun getString(id: Int): String {
         return BibleApplication.application.getString(id)
     }
 
-    private suspend fun selectModules(context: Context): List<Book>? {
-        var result: List<Book>? = null
+    private suspend fun selectDatabaseSections(context: Context, available: List<String>): List<String> {
+        var result: List<String>
         withContext(Dispatchers.Main) {
             result = suspendCoroutine {
-                val books = Books.installed().books.sortedBy { it.language }
-                val bookNames = books.map {
-                    context.getString(R.string.something_with_parenthesis, it.name, it.language.code)
+                val backupNames = available.map {
+                    when(it) {
+                        BookmarkDatabase.dbFileName -> context.getString(R.string.db_bookmarks)
+                        ReadingPlanDatabase.dbFileName -> context.getString(R.string.reading_plans_plural)
+                        WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
+                        RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
+                        SettingsDatabase.dbFileName -> context.getString(R.string.settings)
+                        else -> throw IllegalStateException("Unknown database file: $it")
+                    }
                 }.toTypedArray()
 
-                val checkedItems = bookNames.map { false }.toBooleanArray()
+                val checkedItems = backupNames.map { true }.toBooleanArray()
                 val dialog = AlertDialog.Builder(context)
                     .setPositiveButton(R.string.okay) { d, _ ->
-                        val selectedBooks = books.filterIndexed { index, book -> checkedItems[index] }
-                        if(selectedBooks.isEmpty()) {
-                            it.resume(null)
+                        val selectedBooks = available.filterIndexed { index, book -> checkedItems[index] }
+                        if (selectedBooks.isEmpty()) {
+                            it.resume(emptyList())
                         } else {
                             it.resume(selectedBooks)
                         }
                     }
-                    .setMultiChoiceItems(bookNames, checkedItems) { _, pos, value ->
+                    .setMultiChoiceItems(backupNames, checkedItems) { _, pos, value ->
                         checkedItems[pos] = value
                     }
-                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(null) }
-                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(null) }
-                    .setOnCancelListener { _ -> it.resume(null)}
-                    .setTitle(getString(R.string.backup_modules_title))
+                    .setNeutralButton(R.string.select_all) { _, _ -> it.resume(emptyList()) }
+                    .setNegativeButton(R.string.cancel) { _, _ -> it.resume(emptyList()) }
+                    .setOnCancelListener { _ -> it.resume(emptyList())}
+                    .setTitle(getString(R.string.restore_backup_sections))
                     .create()
 
                 dialog.setOnShowListener {
@@ -221,7 +319,7 @@ object BackupControl {
         return result
     }
 
-    private suspend fun createZip(books: List<Book>, zipFile: File) {
+    private suspend fun createModulesZip(books: List<Book>, zipFile: File) {
         fun relativeFileName(rootDir: File, file: File): String {
             val filePath = file.canonicalPath
             val dirPath = rootDir.canonicalPath
@@ -229,32 +327,66 @@ object BackupControl {
             return filePath.substring(dirPath.length + 1)
         }
 
-        fun addFile(outFile: ZipOutputStream, rootDir: File, configFile: File) {
-            FileInputStream(configFile).use { inFile ->
+        fun addFile(outFile: ZipOutputStream, rootDir: File, file: File) {
+            FileInputStream(file).use { inFile ->
                 BufferedInputStream(inFile).use { origin ->
-                    val entry = ZipEntry(relativeFileName(rootDir, configFile))
+                    val entry = ZipEntry(relativeFileName(rootDir, file))
                     outFile.putNextEntry(entry)
                     origin.copyTo(outFile)
                 }
             }
         }
 
-        withContext(Dispatchers.IO) {
-            ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
-                for(b in books) {
-                    val bmd = b.bookMetaData as SwordBookMetaData
-                    val configFile = bmd.configFile
-                    val rootDir = configFile.parentFile!!.parentFile!!
+        fun addModuleFile(outFile: ZipOutputStream, moduleFile: File) {
+            FileInputStream(moduleFile).use { inFile ->
+                BufferedInputStream(inFile).use { origin ->
+                    val fileNameInsideZip = moduleFile.relativeTo(moduleDir).path
+                    val entry = ZipEntry(fileNameInsideZip)
+                    outFile.putNextEntry(entry)
+                    origin.copyTo(outFile)
+                }
+            }
+        }
+        fun addModuleDir(outFile: ZipOutputStream, modDir: File) {
+            for (f in modDir.walkTopDown().filter { it.isFile }) {
+                addFile(outFile, moduleDir, f)
+            }
+        }
 
-                    addFile(outFile, rootDir, configFile)
-                    val dataPath = bmd.getProperty("DataPath")
-                    val dataDir = File(rootDir, dataPath).run {
-                        if(listOf(BookCategory.DICTIONARY, BookCategory.GENERAL_BOOK, BookCategory.MAPS).contains(b.bookCategory))
-                            parentFile
-                        else this
-                    }
-                    for(f in dataDir.walkTopDown().filter { it.isFile }) {
-                        addFile(outFile, rootDir, f)
+        val manifest = AndBibleBackupManifest(backupType = BackupType.MODULE_BACKUP)
+
+        withContext(Dispatchers.IO) {
+            FileOutputStream(zipFile).use { out ->
+                ZipOutputStream(out).use { outFile ->
+                    manifest.saveToZip(outFile)
+                    for (b in books) {
+                        val bmd = b.bookMetaData as SwordBookMetaData
+                        if (b.isManuallyInstalledMyBibleBook) {
+                            addModuleFile(outFile, b.dbFile)
+                        } else if (b.isManuallyInstalledMySwordBook) {
+                            addModuleFile(outFile, b.dbFile)
+                        } else if (b.isManuallyInstalledEpub) {
+                            addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))
+                        }
+                        else {
+                            val configFile = bmd.configFile
+                            val rootDir = configFile.parentFile!!.parentFile!!
+                            addFile(outFile, rootDir, configFile)
+                            val dataPath = bmd.getProperty("DataPath")
+                            val dataDir = File(rootDir, dataPath).run {
+                                if (listOf(
+                                        BookCategory.DICTIONARY,
+                                        BookCategory.GENERAL_BOOK,
+                                        BookCategory.MAPS
+                                    ).contains(b.bookCategory)
+                                )
+                                    parentFile
+                                else this
+                            }
+                            for (f in dataDir.walkTopDown().filter { it.isFile }) {
+                                addFile(outFile, rootDir, f)
+                            }
+                        }
                     }
                 }
             }
@@ -274,233 +406,323 @@ object BackupControl {
         }
     }
 
-    private suspend fun backupModulesToUri(uri: Uri): Boolean {
-        // at this point the zip file has already been created
-        val fileName = MODULE_BACKUP_NAME
-        val zipFile = File(internalDbBackupDir, fileName)
-        val out = BibleApplication.application.contentResolver.openOutputStream(uri)!!
-        val inputStream = FileInputStream(zipFile)
-        var ok = true
-        try {
-            withContext(Dispatchers.IO) {
-                inputStream.copyTo(out)
-                out.close()
-            }
-        } catch (ex: IOException) {
-            ok = false
-        }
-        return ok
-    }
-
     suspend fun backupModulesViaIntent(callingActivity: ActivityBase)  = withContext(Dispatchers.Main)   {
         val fileName = MODULE_BACKUP_NAME
         internalDbBackupDir.mkdirs()
         val zipFile = File(internalDbBackupDir, fileName)
-        val books = selectModules(callingActivity) ?: return@withContext
+        val books = Dialogs.multiselect(
+            callingActivity,
+            R.string.backup_modules_title,
+            Books.installed().books.filter { !it.isPseudoBook }.sortedBy { it.language }
+        ) {
+            callingActivity.getString(R.string.something_with_parenthesis, it.name, "${it.initials}, ${it.language.code}")
+        }
+
+        if (books.isEmpty()) return@withContext
 
         val hourglass = Hourglass(callingActivity)
         hourglass.show()
-        createZip(books, zipFile)
+        createModulesZip(books, zipFile)
         hourglass.dismiss()
 
-        // send intent to pick file
-        var ok = true
-        val result = suspendCoroutine<BackupResult> {
-            AlertDialog.Builder(callingActivity)
-                .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { dialog, which ->
-                    it.resume(BackupResult.STORAGE)
-                }
-                .setPositiveButton(callingActivity.getString(R.string.backup_share)) { dialog, which ->
-                    it.resume(BackupResult.SHARE)
-                }
+        val modulesString = books.joinToString(", ") { it.abbreviation }
+        val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
+        val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
 
-                .setNeutralButton(callingActivity.getString(R.string.cancel), ){ _, _ ->
-                    it.resume(BackupResult.CANCEL)
-                }
-                .show()
-        }
-        hourglass.show()
-        when(result) {
-            BackupResult.STORAGE -> {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/zip"
-                    putExtra(Intent.EXTRA_TITLE, fileName)
-                }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data
-                ok = if(r == null) false else backupModulesToUri(r)
-            }
-            BackupResult.SHARE -> {
-                val modulesString = books.joinToString(", ") { it.abbreviation }
-                val subject = BibleApplication.application.getString(R.string.backup_modules_email_subject_2, CommonUtils.applicationNameMedium)
-                val message = BibleApplication.application.getString(R.string.backup_modules_email_message_2, CommonUtils.applicationNameMedium, modulesString)
-
-                val uri = FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", zipFile)
-                val email = Intent(Intent.ACTION_SEND).apply {
-                    putExtra(Intent.EXTRA_STREAM, uri)
-                    putExtra(Intent.EXTRA_SUBJECT, subject)
-                    putExtra(Intent.EXTRA_TEXT, message)
-                    type = "application/zip"
-                }
-                val chooserIntent = Intent.createChooser(email, getString(R.string.send_backup_file))
-                chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                callingActivity.awaitIntent(chooserIntent)
-            }
-            BackupResult.CANCEL -> {
-                hourglass.dismiss()
-                return@withContext
-            }
-        }
-        hourglass.dismiss()
-        if (ok) {
-            Log.i(TAG, "Copied modules to chosen backup location successfully")
-            Dialogs.instance.showMsg(R.string.backup_modules_success)
-        } else {
-            Log.e(TAG, "Error copying modules to chosen location.")
-            Dialogs.instance.showErrorMsg(R.string.error_occurred)
-        }
-
+        saveOrShare(
+            activity = callingActivity,
+            file = zipFile,
+            fileName = fileName,
+            subject = subject,
+            message = message,
+            chooserTitle = getString(R.string.send_backup_file),
+            successMsg = R.string.backup_modules_success,
+            errorMsg = R.string.error_occurred,
+        )
     }
 
     suspend fun backupApp(callingActivity: ActivityBase) {
         internalDbBackupDir.mkdirs()
 
         val app: ApplicationInfo = callingActivity.applicationContext.applicationInfo
-        val intent = Intent(Intent.ACTION_SEND)
 
-        // MIME of .apk is "application/vnd.android.package-archive".
-        // but Bluetooth does not accept this. Let's use "*/*" instead.
-        intent.type = "*/*"
-        val tempFile = File(internalDbBackupDir, "and-bible.apk")
+        val tempFile = File(internalDbBackupDir, callingActivity.getString(R.string.apk_file))
         withContext(Dispatchers.IO) {
             tempFile.delete()
             File(app.sourceDir).copyTo(tempFile)
         }
 
-        intent.putExtra(Intent.EXTRA_STREAM,
-            FileProvider.getUriForFile(callingActivity, BuildConfig.APPLICATION_ID + ".provider", tempFile))
-
-        withContext(Dispatchers.Main) {
-            callingActivity.awaitIntent(Intent.createChooser(intent, callingActivity.getString(R.string.backup_app)))
-        }
+        saveOrShare(
+            callingActivity,
+            file = tempFile,
+            fileName = "and-bible.apk",
+            chooserTitle = getString(R.string.backup_app2),
+            // MIME of .apk is "application/vnd.android.package-archive".
+            // but Bluetooth does not accept this. Let's use "*/*" instead.
+            shareMimeType = "*/*" ,
+            saveMimeType = "application/vnd.android.package-archive",
+        )
     }
 
-    enum class BackupResult {STORAGE, SHARE, CANCEL}
-    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) {
-        val result = withContext(Dispatchers.Main) {
-            suspendCoroutine <BackupResult> {
-                AlertDialog.Builder(callingActivity)
-                    .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                    .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                    .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { _, _ ->
-                        it.resume(BackupResult.STORAGE)
-                    }
-                    .setPositiveButton(callingActivity.getString(R.string.backup_share)) { _, _ ->
-                        it.resume(BackupResult.SHARE)
-                    }
-                    .setNeutralButton(callingActivity.getString(R.string.cancel)) {_, _ -> it.resume(BackupResult.CANCEL)}
-                    .show()
-            }
+    fun makeDatabaseBackupFile(): File? {
+        if(CommonUtils.initialized && DatabaseContainer.ready) {
+            windowControl.windowRepository.saveIntoDb()
+            DatabaseContainer.vacuum()
+            DatabaseContainer.sync()
         }
-        when(result) {
-            BackupResult.STORAGE -> {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/x-sqlite3"
-                    putExtra(Intent.EXTRA_TITLE, DATABASE_NAME)
-                }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
+        internalDbBackupDir.mkdirs()
+        val zipFile = File(internalDbBackupDir, DATABASE_BACKUP_NAME)
+        if(zipFile.exists()) zipFile.delete()
 
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupDatabaseToUri(callingActivity, r, dbFile)
+        fun addFileToZip(outFile: ZipOutputStream, file: File) {
+            FileInputStream(file).use { inFile ->
+                BufferedInputStream(inFile).use { origin ->
+                    val entry = ZipEntry("db/${file.name}")
+                    outFile.putNextEntry(entry)
+                    origin.copyTo(outFile)
                 }
             }
-            BackupResult.SHARE -> {
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
-                backupDatabaseViaSendIntent(callingActivity, dbFile)
-            }
-            BackupResult.CANCEL -> {}
         }
+        val files = ALL_DB_FILENAMES.map {File(internalDbDir, it)}.filter {it.exists()}
+        if(files.isEmpty()) return null
+
+        val manifest = AndBibleBackupManifest(
+            backupType = BackupType.DB_BACKUP, contains = setOf(
+                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
+            )
+        )
+
+        ZipOutputStream(FileOutputStream(zipFile)).use { outFile ->
+            manifest.saveToZip(outFile)
+            for(b in files) {
+                addFileToZip(outFile, b)
+            }
+        }
+        return zipFile
     }
 
-    private val dbFile get() = BibleApplication.application.getDatabasePath(DATABASE_NAME)
-
-    suspend fun startBackupOldAppDatabase(callingActivity: ActivityBase, file: File) {
-        val result = withContext(Dispatchers.Main) {
-            suspendCoroutine <BackupResult> {
-                AlertDialog.Builder(callingActivity)
-                    .setTitle(callingActivity.getString(R.string.backup_backup_title))
-                    .setMessage(callingActivity.getString(R.string.backup_backup_message))
-                    .setNegativeButton(callingActivity.getString(R.string.backup_phone_storage)) { _, _ ->
-                        it.resume(BackupResult.STORAGE)
-                    }
-                    .setPositiveButton(callingActivity.getString(R.string.backup_share)) { _, _ ->
-                        it.resume(BackupResult.SHARE)
-                    }
-                    .setNeutralButton(callingActivity.getString(R.string.cancel)) {_, _ -> it.resume(BackupResult.CANCEL)}
-                    .show()
-            }
+    suspend fun startBackupAppDatabase(callingActivity: ActivityBase) = withContext(Dispatchers.IO) {
+        val backupZipFile = makeDatabaseBackupFile()?: run {
+            Dialogs.showMsg2(callingActivity, R.string.error_occurred)
+            return@withContext
         }
-        when(result) {
-            BackupResult.STORAGE -> {
-                val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
-                    addCategory(Intent.CATEGORY_OPENABLE)
-                    type = "application/x-sqlite3"
-                    putExtra(Intent.EXTRA_TITLE, file.name)
-                }
-                val r = callingActivity.awaitIntent(intent)?.resultData?.data ?: return
-
-                _mainBibleActivity?.windowRepository?.saveIntoDb()
-                db.sync()
-                GlobalScope.launch(Dispatchers.IO) {
-                    backupDatabaseToUri(callingActivity, r, file)
-                }
-            }
-            BackupResult.SHARE -> {
-                backupDatabaseViaSendIntent(callingActivity, file)
-            }
-            BackupResult.CANCEL -> {}
-        }
+        saveDbBackupFileViaIntent(callingActivity, backupZipFile)
     }
+
+    enum class AbDbFileType {SQLITE3, ZIP, UNKNOWN}
 
     suspend fun restoreAppDatabaseViaIntent(activity: ActivityBase) {
         val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "application/*"
-        val result = activity.awaitIntent(intent) ?: return
+        intent.type = "application/*" // both new .abdb zip files as well as old monolithing .db files (sqlite3)
+        val result = activity.awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
-            val result2 = Dialogs.instance.showMsg2(activity, R.string.restore_confirmation, true)
-            if(result2 != Dialogs.Result.OK) return
-            ABEventBus.getDefault().post(ToastEvent(getString(R.string.loading_backup)))
-            val hourglass = Hourglass(activity)
-            hourglass.show()
-            withContext(Dispatchers.IO) {
-                val inputStream = try {
-                    activity.contentResolver.openInputStream(result.resultData.data!!)
-                } catch (e: FileNotFoundException) {null}
-                if (inputStream != null && restoreDatabaseViaIntent(inputStream)) {
-                    Log.i(TAG, "Restored database successfully")
-                    withContext(Dispatchers.Main) {
-                        _mainBibleActivity?.afterRestore()
-                    }
-                } else {
-                    Dialogs.instance.showMsg(R.string.restore_unsuccessfull)
-                }
+            val uri = result.data?.data!!
+            try {
+                restoreAppDatabaseFromUriWithUI(activity, uri)
+            } catch (e: Exception) {
+                ErrorReportControl.showErrorDialog(activity, e.message ?: getString(R.string.error_occurred), exception = e)
             }
-            hourglass.dismiss()
         }
+    }
+
+    suspend fun restoreAppDatabaseFromUriWithUI(activity: ActivityBase, uri: Uri): Boolean {
+        val filetype = determineFileType(uri)
+        Log.i(TAG, "Filetype: $filetype")
+
+        return if(filetype == AbDbFileType.SQLITE3) {
+            restoreOldMonolithicDatabaseFromUriWithUI(activity, uri)
+        } else {
+            restoreDatabaseZipFileInputStreamWithUI(activity, uri)
+        }
+    }
+
+    private suspend fun isSqliteFile(inputStream: BufferedInputStream): Boolean = withContext(Dispatchers.IO) {
+        val header = ByteArray(16)
+        inputStream.mark(16)
+        inputStream.read(header)
+        inputStream.reset()
+        val headerString = String(header)
+        headerString == "SQLite format 3\u0000"
+    }
+
+    private suspend fun verifyDatabaseBackupFile(file: File): Boolean {
+        val inputStream = BufferedInputStream(file.inputStream())
+        if(!isSqliteFile(inputStream)) return false
+        val version = SQLiteDatabase.openDatabase(file.path, null, SQLiteDatabase.OPEN_READWRITE).use { it.version }
+        return version <= maxDatabaseVersion(file.name)
+    }
+
+    private suspend fun beforeRestore(category: SyncableDatabaseDefinition) {
+        if(DatabaseContainer.ready && CloudSync.signedIn) {
+            category.syncEnabled = false
+            ABEventBus.post(ToastEvent(R.string.disabling_sync))
+            CloudSync.waitUntilFinished()
+        }
+    }
+
+    private suspend fun afterRestore(restoredSelection: List<SyncableDatabaseDefinition>? = null) {
+        val selection: List<SyncableDatabaseDefinition> = restoredSelection?: SyncableDatabaseDefinition.ALL.toList()
+        for(s in selection) {
+            s.syncEnabled = false
+            val db: SyncableRoomDatabase? = when(s) {
+                SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
+                SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
+                SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
+                else -> null
+            }
+            if(db != null) {
+                db.syncDao().clearSyncStatus()
+                db.syncDao().clearSyncConfiguration()
+            }
+        }
+    }
+
+    private suspend fun restoreDatabaseZipFileInputStreamWithUI(
+        activity: ActivityBase,
+        uri: Uri
+    ): Boolean = withContext(Dispatchers.IO) {
+        val hourglass = Hourglass(activity)
+        ABEventBus.post(ToastEvent(getString(R.string.downloading_backup)))
+        hourglass.show()
+
+        val tmpFile = File(internalDbBackupDir, "database.zip")
+        val unzipFolder = File(internalDbBackupDir, "unzip")
+
+        unzipFolder.mkdirs()
+
+        try {
+            val inputStream = application.contentResolver.openInputStream(uri) ?: throw IOException("Failed to open input stream")
+            tmpFile.outputStream().use { inputStream.copyTo(it) }
+            CommonUtils.unzipFile(tmpFile, unzipFolder)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error processing backup file", e)
+            throw IOException("Failed to process backup file: ${e.message}")
+        }
+
+        val restoredSelection =
+            Closeable {
+                tmpFile.delete()
+                unzipFolder.deleteRecursively()
+                activity.lifecycleScope.launch(Dispatchers.Main) { hourglass.dismiss() }
+            }.use {
+                val containedBackups = ALL_DB_FILENAMES.map { File(unzipFolder, "db/${it}") }
+                    .filter { file -> file.exists() && verifyDatabaseBackupFile(file) }
+                    .map { file -> file.name }
+
+                hourglass.dismiss()
+                if (containedBackups.isEmpty()) {
+                    Dialogs.showMsg(R.string.restore_unsuccessfull)
+                    return@withContext false
+                }
+                val selection =
+                    if (containedBackups.size > 1)
+                        selectDatabaseSections(activity, containedBackups)
+                    else
+                        containedBackups
+                val restoredSelection = ArrayList<SyncableDatabaseDefinition>()
+                if (selection.isEmpty()) {
+                    return@withContext false
+                }
+                hourglass.show()
+                for (fileName in selection) {
+                    val category = SyncableDatabaseDefinition.filenameToCategory[fileName]
+                    val f = File(unzipFolder, "db/${fileName}")
+                    val restore =
+                        if (category != null)
+                            askIfRestoreOrImport(category, f, activity)
+                        else true
+                    if (restore == null) continue
+
+                    if (restore) {
+                        if(category != null) {
+                            restoredSelection.add(category)
+                            beforeRestore(category)
+                        }
+
+                        val areYouSure = if (category != null) {
+                            Dialogs.simpleQuestion(
+                                activity,
+                                activity.getString(R.string.overwrite_something,
+                                    getString(category.contentDescription)
+                                )
+                            )
+                        } else true
+                        if (!areYouSure) continue
+                        Log.i(TAG, "Restoring $fileName")
+                        if (DatabaseContainer.ready) DatabaseContainer.instance.dbByFilename[fileName]?.close()
+                        val targetFilePath = activity.getDatabasePath(fileName).path
+                        val targetFile = File(targetFilePath)
+                        f.copyTo(targetFile, overwrite = true)
+                        File("$targetFilePath-journal").delete()
+                        File("$targetFilePath-shm").delete()
+                        File("$targetFilePath-wal").delete()
+                    } else {
+                        importDatabaseFile(category!!, f)
+                    }
+                }
+                DatabaseContainer.reset()
+                restoredSelection
+            }
+        hourglass.show()
+        if (DatabaseContainer.ready) {
+            DatabaseContainer.instance
+            afterRestore(restoredSelection)
+        }
+        hourglass.dismiss()
+        Log.i(TAG, "Restored database successfully")
+        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        true
+    }
+
+    suspend fun askIfRestoreOrImport(category: SyncableDatabaseDefinition, backupFile: File, context: ActivityBase): Boolean?  = withContext(Dispatchers.Main) {
+        val contents = if (category == SyncableDatabaseDefinition.BOOKMARKS && DatabaseContainer.ready) {
+            " (${bookmarksDbStats(category, backupFile)})"
+        } else ""
+        suspendCoroutine {
+            val message =
+                context.getString(R.string.ask_restore_or_import, context.getString(category.contentDescription) + contents)
+            AlertDialog.Builder(context)
+                .setTitle(category.contentDescription)
+                .setMessage(message)
+                .setNeutralButton(R.string.cancel) {_, _ -> it.resume(null) }
+                .setPositiveButton(R.string.restore) { _, _ -> it.resume(true) }
+                .setNegativeButton(R.string.import2) { _, _ -> it.resume(false) }
+                .setOnCancelListener { _ -> it.resume(false) }
+                .show()
+        }
+    }
+
+    private suspend fun restoreOldMonolithicDatabaseFromUriWithUI(
+        activity: ActivityBase,
+        uri: Uri
+    ): Boolean {
+        val result2 = Dialogs.showMsg2(activity, R.string.restore_confirmation, true)
+        if(result2 != Dialogs.Result.OK) return false
+        var result: Boolean
+        ABEventBus.post(ToastEvent(getString(R.string.loading_backup)))
+        val hourglass = Hourglass(activity)
+        hourglass.show()
+        withContext(Dispatchers.IO) {
+            result = if (restoreOldMonolithicDatabaseFromInputStream(uri)) {
+                Log.i(TAG, "Restored database successfully")
+                ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+                Dialogs.showMsg(R.string.restore_success)
+                true
+            } else {
+                Dialogs.showMsg(R.string.restore_unsuccessfull)
+                false
+            }
+        }
+        hourglass.dismiss()
+        return result
     }
 
     suspend fun restoreModulesViaIntent(activity: ActivityBase) {
         val intent = Intent(activity, InstallZip::class.java)
         val result = activity.awaitIntent(intent)
-        if(result?.resultData?.data == null) return
+        if(result.data?.data == null) return
 
-        _mainBibleActivity?.updateDocuments()
+        ABEventBus.post(MainBibleActivity.UpdateMainBibleActivityDocuments())
     }
 
     suspend fun backupPopup(activity: ActivityBase) {
@@ -508,12 +730,16 @@ object BackupControl {
         activity.awaitIntent(intent)
     }
 
+    private var moduleDir: File = SharedConstants.modulesDir
     private lateinit var internalDbDir : File
-    private lateinit var internalDbBackupDir: File // copy of db is created in this dir when doing backups
-    private const val MODULE_BACKUP_NAME = "modules.zip"
+    val internalDbBackupDir: File // copy of db is created in this dir when doing backups
+        get() {
+            val file = File(SharedConstants.internalFilesDir, "/backup")
+            file.mkdirs()
+            return file
+        }
     fun setupDirs(context: Context) {
-        internalDbDir = File(context.getDatabasePath(DATABASE_NAME).parent!!)
-        internalDbBackupDir = File(context.filesDir, "/backup")
+        internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
     }
 
     private const val TAG = "BackupControl"
@@ -521,31 +747,75 @@ object BackupControl {
 
 class BackupActivity: ActivityBase() {
     lateinit var binding: BackupViewBinding
+    override val doNotInitializeApp: Boolean = true
+
+    override fun onBackPressed() {
+        updateSelectionOptions()
+        super.onBackPressed()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            android.R.id.home -> {
+                updateSelectionOptions()
+                finish()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         binding = BackupViewBinding.inflate(layoutInflater)
         setContentView(binding.root)
         binding.apply {
-            restoreModules.text = "${getString(R.string.install_zip)} / ${getString(R.string.restore_modules)}"
+            toggleBackupApplication.isChecked = CommonUtils.settings.getBoolean("backup_application", false)
+            toggleBackupDatabase.isChecked = CommonUtils.settings.getBoolean("backup_database", true)
+            toggleBackupDocuments.isChecked = CommonUtils.settings.getBoolean("backup_documents", false)
+            toggleRestoreDatabase.isChecked = CommonUtils.settings.getBoolean("restore_database", true)
+            toggleRestoreDocuments.isChecked = CommonUtils.settings.getBoolean("restore_documents", false)
 
-            backupApp.setOnClickListener { GlobalScope.launch { BackupControl.backupApp(this@BackupActivity) } }
-            backupAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) } }
-            backupModules.setOnClickListener { GlobalScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) } }
-            restoreAppDatabase.setOnClickListener { GlobalScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) } }
-            restoreModules.setOnClickListener { GlobalScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) } }
-            CommonUtils.dbBackupPath.listFiles()?.forEach { f ->
+            buttonBackup.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleBackupApplication.isChecked -> lifecycleScope.launch { BackupControl.backupApp(this@BackupActivity) }
+                    toggleBackupDatabase.isChecked -> lifecycleScope.launch { BackupControl.startBackupAppDatabase(this@BackupActivity) }
+                    toggleBackupDocuments.isChecked -> lifecycleScope.launch { BackupControl.backupModulesViaIntent(this@BackupActivity) }
+                }
+            }
+            buttonRestore.setOnClickListener {
+                updateSelectionOptions()
+                when {
+                    toggleRestoreDatabase.isChecked -> lifecycleScope.launch { BackupControl.restoreAppDatabaseViaIntent(this@BackupActivity) }
+                    toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
+                }
+            }
+            CommonUtils.dbBackupPath.listFiles()?.sortedByDescending { it.name }?.forEach { f ->
                 val b = Button(this@BackupActivity)
                 val s = f.name
                 b.text = s
                 b.setOnClickListener {
-                    GlobalScope.launch { BackupControl.startBackupOldAppDatabase(this@BackupActivity, f) }
+                    lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, f) }
                 }
                 backupDbButtons.addView(b)
             }
             if(backupDbButtons.childCount == 0) {
                 importExportTitle.visibility = View.GONE
             }
+        }
+    }
+
+    private fun updateSelectionOptions() {
+        if(!CommonUtils.initialized) return
+        // update widget share option settings
+        CommonUtils.settings.apply {
+            setBoolean("backup_application", binding.toggleBackupApplication.isChecked)
+            setBoolean("backup_database", binding.toggleBackupDatabase.isChecked)
+            setBoolean("backup_documents", binding.toggleBackupDocuments.isChecked)
+            setBoolean("restore_database", binding.toggleRestoreDatabase.isChecked)
+            setBoolean("restore_documents", binding.toggleRestoreDocuments.isChecked)
         }
     }
 }

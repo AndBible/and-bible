@@ -20,7 +20,7 @@
  * {{feature_13}}
  * {{feature_09}}
  * {{feature_10}}
- * {{feature_12}}
+ * {{feature_10_1}}
 
 {{subtitle_3}}
 
@@ -32,6 +32,12 @@
  * {{contr_4}}
 
 {{paragraph_4_1 }}
+
+{{buy_title}}
+
+{{buy_1}}
+
+{{buy_2}}: {{buy_development_link}}
 
 {{subtitle_4}}
 
