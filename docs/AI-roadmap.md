@@ -7,7 +7,7 @@
 
 AndBible is expanding its capabilities with AI-powered features designed to enhance Bible study. This roadmap outlines our vision for integrating Large Language Model (LLM) technology into AndBible, giving users powerful new tools while maintaining full control over their data and AI interactions.
 
-Our goal: **make AI a helpful companion for Bible study** — one that saves time on routine tasks, helps discover connections you might miss, and assists in organizing your study materials.
+Goal: **make AI a helpful companion for Bible study** — one that saves time on routine tasks, helps discover connections you might miss, and assists in organizing your study materials.
 
 ## Guiding Principles
 
@@ -32,7 +32,7 @@ Process Bible text automatically as you read, with results displayed inline.
 - Get AI-assisted analysis of original language words in Strong's-enabled Bible modules
 - Apply custom transformations (summaries, simplifications) to any document
 
-**How it works:** Enable LLM Mode in Text Display Settings, select a prompt (e.g., "Translate to Finnish"), and the text is processed verse-by-verse. Results are cached locally — the same document won't be processed twice.
+**How it works:** Enable LLM Mode in Text Display Settings, select a prompt (e.g., "Translate to Finnish"), and the text is processed automatically as you read. Results are cached locally — the same content won't be processed twice.
 
 ---
 
@@ -89,7 +89,7 @@ AI search is integrated into the existing search interface as an additional sear
 
 ### AI-Enhanced Cross-References
 
-Standard cross-reference databases are valuable but limited. AI can suggest additional connections based on:
+Some Bible modules include cross-references, but coverage varies. AI can suggest additional connections based on:
 
 - Thematic similarities
 - Parallel narratives
@@ -97,7 +97,7 @@ Standard cross-reference databases are valuable but limited. AI can suggest addi
 - Linguistic patterns in original languages
 - Theological concepts
 
-**How it works:** When viewing cross-references, an option to "Find more with AI" queries the LLM for additional relevant passages not in your installed cross-reference modules.
+**How it works:** Like LLM Mode, this is enabled in Text Display Settings and configured via Prompt Manager. When active, AI-generated cross-references appear as footnotes in the Bible text alongside regular cross-references — seamlessly integrated into your reading experience.
 
 ---
 
@@ -193,7 +193,7 @@ Since different providers have vastly different pricing, this helps you stay in 
 - **Your API, your data** — Configure your own API endpoint (commercial providers or self-hosted servers)
 - **No third-party data sharing** — Data only goes to your chosen API provider
 - **Local caching** — Processed content stored on your device
-- **Device sync** — AI-generated documents, cached content, and custom prompts sync between your devices via Google Drive or Nextcloud (using AndBible's existing sync feature), just like bookmarks and notes etc.
+- **Device sync** — When enabled, AI-generated documents, cached content, and custom prompts sync between your devices via Google Drive or Nextcloud (using AndBible's existing sync feature), just like bookmarks and notes etc.
 
 ---
 
