@@ -57,6 +57,12 @@
             android:title="@string/auth_password"
             android:icon="@drawable/outline_shield_24"
             />
+        <EditTextPreference
+            android:key="gdrive_folder_path"
+            android:title="@string/auth_folder_path"
+            android:summary="@string/auth_folder_path_summary"
+            android:icon="@drawable/outline_shield_24"
+            />
 	</PreferenceCategory>
 
 	<PreferenceCategory

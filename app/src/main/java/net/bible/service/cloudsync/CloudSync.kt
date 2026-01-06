@@ -74,7 +74,8 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
         NEXT_CLOUD -> NextCloudAdapter(
             CommonUtils.settings.getString("gdrive_server_url"),
             CommonUtils.settings.getString("gdrive_username"),
-            CommonUtils.settings.getString("gdrive_password")
+            CommonUtils.settings.getString("gdrive_password"),
+            CommonUtils.settings.getString("gdrive_folder_path")
         )
     }
 
@@ -136,6 +137,7 @@ object CloudSync {
     private suspend fun initializeSync(dbDef: SyncableDatabaseAccessor<*>) {
         var initialOperation: InitialOperation?= null
         val syncFolderName = "${app.applicationInfo.packageName}-sync-${dbDef.categoryName}"
+
         var syncFolderId = dbDef.dao.getString(SYNC_FOLDER_FILE_ID_KEY)
         if (syncFolderId != null) {
             val syncFolderKnown = adapter.isSyncFolderKnown(dbDef, name=syncFolderName, id=syncFolderId)

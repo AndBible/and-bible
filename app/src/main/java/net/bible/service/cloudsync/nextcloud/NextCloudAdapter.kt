@@ -55,10 +55,31 @@ const val NEXTCLOUD_SECRET_FILE_NAME_KEY = "nextCloudSecretFile"
 class NextCloudAdapter(
     private val serverUrl: String?,
     private val username: String?,
-    private val password: String?
+    private val password: String?,
+    folderPath: String? = null
 ) : CloudAdapter {
     private var _client: OwnCloudClient? = null
     private val client get() = _client!!
+
+    /** Normalized base folder path (e.g., "/AndBible"), or null if using root */
+    private val baseFolderPath: String? = folderPath?.trim()
+        ?.removePrefix("/")
+        ?.removeSuffix("/")
+        ?.replace(Regex("/+"), "/")
+        ?.takeIf { it.isNotBlank() }
+        ?.let { "/$it" }
+
+    /** Cached base folder ID, initialized lazily */
+    private var _baseFolderId: String? = null
+    private suspend fun getBaseFolderId(): String? {
+        if (baseFolderPath == null) return null
+        if (_baseFolderId == null) {
+            CreateFolderRemoteOperation(baseFolderPath, true).execute()
+            _baseFolderId = baseFolderPath
+            Log.i(TAG, "Initialized base folder: $baseFolderPath")
+        }
+        return _baseFolderId
+    }
 
     override val signedIn: Boolean get() = _client != null
 
@@ -118,7 +139,9 @@ class NextCloudAdapter(
         mimeType: String?,
         createdTimeAtLeast: Long?
     ): List<CloudFile> {
-        val results = (parentsIds?: listOf("/")).asyncMap { parentFolder ->
+        // Use base folder as default search location if none specified
+        val defaultParent = getBaseFolderId() ?: "/"
+        val results = (parentsIds ?: listOf(defaultParent)).asyncMap { parentFolder ->
             // NextCloudSearchMethod method is used for searching recently modified
             // patch files (more efficient than listing them all).
             // Method search scope, however, is infinitely deep (NextCloud server, as
@@ -164,7 +187,8 @@ class NextCloudAdapter(
     }
 
     override suspend fun createNewFolder(name: String, parentId: String?): CloudFile {
-        val parentPath = parentId ?: ""
+        // Use base folder as default parent if none specified
+        val parentPath = parentId ?: getBaseFolderId() ?: ""
         val folderPath = "$parentPath/$name"
         CreateFolderRemoteOperation(folderPath, true).execute()
         return CloudFile(

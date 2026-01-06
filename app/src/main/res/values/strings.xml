@@ -1235,6 +1235,8 @@
     <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>
     <string name="auth_password">Password</string>
+    <string name="auth_folder_path">Sync folder path</string>
+    <string name="auth_folder_path_summary">Parent folder for sync data (empty = root)</string>
     <string name="auth_access_token">Access token</string>
     <string name="synchronization_categories">Synchronization categories</string>
     <string name="sync_general_settings">Info &amp; general settings</string>
