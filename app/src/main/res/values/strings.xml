@@ -230,6 +230,10 @@
     <string name="choose_strongs_hebrew_dictionary_summary">Choose Strongs dictionary for Hebrew word definitions</string>
     <string name="choose_strongs_greek_morphology_title">Robinson Greek morphology</string>
     <string name="choose_strongs_greek_morphology_summary">Choose dictionary for Robinson Greek morphology definitions</string>
+    <string name="choose_word_lookup_dictionary_title">Word lookup dictionaries</string>
+    <string name="choose_word_lookup_dictionary_summary">Choose dictionaries for looking up words</string>
+    <string name="lookup_in_dictionary">Look up in dictionaries</string>
+    <string name="word_not_found_in_dictionaries">Word not found in any dictionary</string>
 
     <string name="prefs_top_margin_title_mm">Top margin (%d mm)</string>
     <string name="font_size_title">Font size</string>

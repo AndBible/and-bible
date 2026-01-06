@@ -40,6 +40,11 @@
 			android:summary="@string/choose_strongs_greek_morphology_summary"
 			android:icon="@drawable/ic_morphology_24dp"
 			/>
+		<net.bible.android.view.widget.InverseMultiSelectListPreference android:key="disabled_word_lookup_dictionaries"
+			android:title="@string/choose_word_lookup_dictionary_title"
+			android:summary="@string/choose_word_lookup_dictionary_summary"
+			android:icon="@drawable/ic_dictionary_24dp"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_behavior_customization_cat"

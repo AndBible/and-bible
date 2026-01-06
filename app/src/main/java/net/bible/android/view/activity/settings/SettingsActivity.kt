@@ -43,12 +43,14 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.android.view.widget.InverseMultiSelectListPreference
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
 import net.bible.service.device.ScreenSettings.autoModeAvailable
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.FeatureType
 import java.util.Locale
@@ -132,6 +134,7 @@ class SettingsActivity: ActivityBase() {
                     "strongs_greek_dictionary",
                     "strongs_hebrew_dictionary",
                     "robinson_greek_morphology",
+                    "disabled_word_lookup_dictionaries",
                     "navigate_to_verse_pref",
                     "open_links_in_special_window_pref",
                     "screen_keep_on_pref",
@@ -192,6 +195,26 @@ class SettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun setupPlainDictionary(pref: InverseMultiSelectListPreference): Boolean {
+        // Get all dictionaries except Strong's and morphology
+        val dicts = Books.installed().books.filter {
+            it.bookCategory == BookCategory.DICTIONARY &&
+            !it.hasFeature(FeatureType.GREEK_DEFINITIONS) &&
+            !it.hasFeature(FeatureType.HEBREW_DEFINITIONS) &&
+            !it.hasFeature(FeatureType.GREEK_PARSE)
+        }
+
+        return if(dicts.isEmpty()) {
+            pref.isVisible = false
+            false
+        } else {
+            pref.entries = dicts.map { it.name as CharSequence }.toTypedArray()
+            pref.entryValues = dicts.map { it.initials as CharSequence }.toTypedArray()
+            // No default value needed - empty means all selected (inverse logic)
+            true
+        }
+    }
+
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.settings, rootKey)
@@ -216,8 +239,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val showHebrew = setupDictionary(hebrewStrongs, FeatureType.HEBREW_DEFINITIONS)
         val greekMorph = preferenceScreen.findPreference<MultiSelectListPreference>("robinson_greek_morphology") as MultiSelectListPreference
         val showGreekMorph = setupDictionary(greekMorph, FeatureType.GREEK_PARSE)
+        val wordLookupDicts = preferenceScreen.findPreference<InverseMultiSelectListPreference>("disabled_word_lookup_dictionaries") as InverseMultiSelectListPreference
+        val showWordLookup = setupPlainDictionary(wordLookupDicts)
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
-        dictCategory.isVisible = showGreek || showHebrew || showGreekMorph
+        dictCategory.isVisible = showGreek || showHebrew || showGreekMorph || showWordLookup
         val fontSizeMultiplier = preferenceScreen.findPreference<SeekBarPreference>("font_size_multiplier") as SeekBarPreference
 
         fun getFontSizeMultiplierSummary(value: Int) =

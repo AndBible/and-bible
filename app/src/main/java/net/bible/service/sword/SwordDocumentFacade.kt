@@ -95,6 +95,19 @@ object SwordDocumentFacade {
     val defaultStrongsHebrewDictionary: List<Book> get() =
         getDictionaries("strongs_hebrew_dictionary", "StrongsHebrew", FeatureType.HEBREW_DEFINITIONS)
 
+    val wordLookupDictionaries: List<Book> get() {
+        // Get disabled dictionaries (inverse logic - stores what is NOT selected)
+        val disabledInitials = CommonUtils.settings.getStringSet("disabled_word_lookup_dictionaries")
+        // Return all plain dictionaries minus the disabled ones
+        return Books.installed().books.filter {
+            it.bookCategory == BookCategory.DICTIONARY &&
+            !it.hasFeature(FeatureType.GREEK_DEFINITIONS) &&
+            !it.hasFeature(FeatureType.HEBREW_DEFINITIONS) &&
+            !it.hasFeature(FeatureType.GREEK_PARSE) &&
+            !disabledInitials.contains(it.initials)
+        }
+    }
+
     val defaultBibleWithStrongs: Book? get() = bibles
         .sortedWith(compareBy({ !it.hasFeature(FeatureType.STRONGS_NUMBERS) }, { it.indexStatus != IndexStatus.DONE }))
         .firstOrNull()

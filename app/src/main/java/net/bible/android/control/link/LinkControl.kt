@@ -417,6 +417,56 @@ class LinkControl @Inject constructor(
         return true
     }
 
+    /**
+     * Look up a word/phrase in configured dictionaries.
+     * Uses efficient binary search via book.getKey() for exact matching.
+     * Returns true if results were found, false otherwise.
+     */
+    fun lookupInDictionaries(text: String): Boolean {
+        val dictionaries = SwordDocumentFacade.wordLookupDictionaries
+        if (dictionaries.isEmpty()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val searchText = normalizeSearchText(text)
+        if (searchText.isBlank()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val bookAndKeys = mutableListOf<BookAndKey>()
+
+        for (dict in dictionaries) {
+            // Use getKey() which internally uses binary search - efficient O(log n)
+            // JSword handles case normalization internally (converts to uppercase by default)
+            val key = try {
+                dict.getKey(searchText)
+            } catch (_: NoSuchKeyException) {
+                null
+            }
+            if (key != null) {
+                bookAndKeys.add(BookAndKey(key, dict))
+            }
+        }
+
+        if (bookAndKeys.isEmpty()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val keyList = bookAndKeyListOf(bookAndKeys)
+        keyList.name = text
+        showLink(FakeBookFactory.multiDocument, keyList)
+        return true
+    }
+
+    private fun normalizeSearchText(text: String): String {
+        // Trim and remove trailing punctuation
+        return text.trim()
+            .replace(Regex("[.,;:!?\"'()\\[\\]]+$"), "")
+    }
+
     companion object {
         private val IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_")
         private const val TAG = "LinkControl"
