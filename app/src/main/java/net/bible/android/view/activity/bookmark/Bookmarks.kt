@@ -172,7 +172,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
         // prepare the document list view
         val bookmarkArrayAdapter: ArrayAdapter<BaseBookmarkWithNotes> = BookmarkItemAdapter(
-            this, bookmarkList, bookmarkControl, windowControl
+            this, bookmarkList, bookmarkControl, windowControl, showNotes
         )
         listAdapter = bookmarkArrayAdapter
         loadBookmarkList()
@@ -341,10 +341,14 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString())
         }
 
+    private var showNotes: Boolean
+        get() = settings.getBoolean(BOOKMARK_SHOW_NOTES, true)
+        private set(value) = settings.setBoolean(BOOKMARK_SHOW_NOTES, value)
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         menu.findItem(R.id.importCsv).title = getString(R.string.import_items, "CSV")
         menu.findItem(R.id.exportCsv).title = getString(R.string.export_something, "CSV")
+        menu.findItem(R.id.showNotes).isChecked = showNotes
         return super.onPrepareOptionsMenu(menu)
     }
     /**
@@ -401,6 +405,12 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
                     loadBookmarkList()
                 }
             }
+            R.id.showNotes -> {
+                isHandled = true
+                showNotes = !showNotes
+                val bookmarkArrayAdapter = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, windowControl, showNotes)
+                listAdapter = bookmarkArrayAdapter
+            }
         }
         if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item)
@@ -439,6 +449,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
 
     companion object {
         private const val BOOKMARK_SORT_ORDER = "BookmarkSortOrder"
+        private const val BOOKMARK_SHOW_NOTES = "bookmark_show_notes"
         private const val TAG = "Bookmarks"
         private const val REQUEST_MANAGE_LABELS = 10
     }

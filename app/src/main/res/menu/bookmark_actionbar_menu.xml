@@ -30,6 +30,10 @@
 		  android:title="@string/sort_by_date"
 		  android:icon="@drawable/ic_baseline_sort_24"
 		  appcompat:showAsAction="always"/>
+	<item android:id="@+id/showNotes"
+		  android:title="@string/show_notes"
+		  android:checkable="true"
+		  appcompat:showAsAction="never"/>
 	<item android:id="@+id/exportCsv"
 		  android:title=""
 		  android:icon="@drawable/ic_save_24dp"
