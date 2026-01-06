@@ -519,7 +519,7 @@ class ManageLabels : ListActivityBase() {
         Log.i(TAG, "newLabel")
         val newLabel = BookmarkEntities.Label(new = true)
         newLabel.color = randomColor()
-        editLabel(newLabel)
+        editLabel(newLabel, suggestedName = searchText.takeIf { it.isNotBlank() })
     }
 
     private fun deleteLabel(label: BookmarkEntities.Label, deleteOrphanedBookmarks: Boolean = false) {
@@ -537,7 +537,7 @@ class ManageLabels : ListActivityBase() {
         ensureNotAutoAssignPrimaryLabel(label)
     }
 
-    fun editLabel(label_: BookmarkEntities.Label) {
+    fun editLabel(label_: BookmarkEntities.Label, suggestedName: String? = null) {
         var label = label_
         val isNew = label.new
         Log.i(TAG, "editLabel isNew: $isNew")
@@ -548,7 +548,8 @@ class ManageLabels : ListActivityBase() {
             isAutoAssign = data.autoAssignLabels.contains(label.id),
             isAutoAssignPrimary = data.autoAssignPrimaryLabel == label.id,
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
-            isThisBookmarkSelected = data.selectedLabels.contains(label.id)
+            isThisBookmarkSelected = data.selectedLabels.contains(label.id),
+            suggestedName = suggestedName,
         )
         if(isNew) {
             if(data.mode == Mode.ASSIGN) {

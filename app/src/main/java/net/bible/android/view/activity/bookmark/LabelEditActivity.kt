@@ -165,6 +165,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var isThisBookmarkPrimary: Boolean,
         var delete: Boolean = false,
         var deleteOrphanedBookmarks: Boolean = false,
+        val suggestedName: String? = null,
     ) {
         fun toJSON(): String = json.encodeToString(serializer(), this)
 
@@ -207,7 +208,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         autoAssignCheckBox.isChecked = data.isAutoAssign
         primaryAutoAssignCheckBox.isChecked = data.isAutoAssignPrimary
         primaryLabelCheckBox.isChecked = data.isThisBookmarkPrimary
-        labelName.setText(data.label.displayName)
+        val displayName = if (data.label.name.isEmpty() && data.suggestedName != null) {
+            data.suggestedName
+        } else {
+            data.label.displayName
+        }
+        labelName.setText(displayName)
         underLineStyle.isChecked = data.label.underlineStyle
         underLineStyleWholeVerse.isChecked = data.label.underlineStyleWholeVerse
         val isHideStyle = data.label.hideStyle
