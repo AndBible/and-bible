@@ -15,7 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-console.log("main.ts begin");
+import {Logger} from "./utils/logger";
+const logger = new Logger({module: "main.ts"});
+logger.info("begin");
 
 // We will inject here callbacks / stuff that is manipulated by Android Javascript interface
 import {BibleJavascriptInterface, patchAndroidConsole} from "@/composables/android";
@@ -42,17 +44,16 @@ window.bibleView = {};
 window.bibleViewDebug = {};
 
 patchAndroidConsole();
-
-console.log("main.ts after patching console");
-
-console.log("main.ts After imports");
+logger.info("After imports");
 
 const app = createApp(BibleView);
+// configure policy on suppressing vue warnings
+app.config.warnHandler = logger.vueWarnHandler.bind(logger);
 app.component("AmbiguousSelection", AmbiguousSelection);
 app.component("LabelList", LabelList);
 app.component("BookmarkLabelActions", BookmarkLabelActions);
-console.log("main.ts After vue bootstrap. Mounting.");
+logger.info("After vue bootstrap. Mounting.");
 app.mount('#app')
-console.log("main.ts After vue mount.");
-console.log("NODE_ENV", process.env.NODE_ENV);
+logger.info("After vue mount.");
+logger.info("NODE_ENV", process.env.NODE_ENV);
 

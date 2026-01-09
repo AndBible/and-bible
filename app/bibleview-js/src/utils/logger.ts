@@ -17,6 +17,11 @@ export class Logger {
         return this;
     }
 
+    vueWarnHandler(msg: any, instance: any, trace: any){
+        this.androidOnlyIfErrorBoxActive = true;
+        this._log("warn", msg, instance, trace);
+    }
+
     warn(...data: any[]){
         this._log("warn", ...data);
     }
