@@ -88,6 +88,8 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+    <string name="search_remember_search_text">Remember search text</string>
+    <string name="search_include_all_endings">All endings</string>
     <string name="type_text_or_bible_reference">Type text or bible reference</string>
     <!-- Open (bible reference X) -->
     <string name="go_to_ref">Open %s</string>
