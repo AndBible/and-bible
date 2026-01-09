@@ -119,8 +119,11 @@ import {useSharing} from "@/composables/sharing";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import { Logger } from "../utils/logger";
 
-console.log("BibleView setup");
+const logger = new Logger({module: 'BibleView'});
+
+logger.info("BibleView setup");
 useAddonFonts();
 useFontAwesome();
 const documents: AnyDocument[] = reactive([]);
@@ -195,7 +198,7 @@ const mounted = ref(false);
 
 onMounted(() => {
     mounted.value = true;
-    console.log("BibleView mounted");
+    logger.info("BibleView mounted");
 })
 onUnmounted(() => mounted.value = false)
 
@@ -209,22 +212,24 @@ const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
     async function doAddDocuments() {
-        console.log("doAddDocuments, start")
+        logger.info("doAddDocuments, start")
         loadingCount.value++;
         await document.fonts.ready;
         await nextTick();
         // 2 animation frames seem to make sure that loading indicator is visible.
         await waitNextAnimationFrame();
         await waitNextAnimationFrame();
+        logger.info("doAddDocuments, pushing");
         documents.push(...docs);
         await nextTick();
+        logger.info("doAddDocuments, tick complete");
         await Promise.all(customCss.customCssPromises);
         await waitNextAnimationFrame();
         loadingCount.value--;
         if(loadingCount.value < 0) {
             loadingCount.value = 0;
         }
-        console.log(`doAddDocuments, finish, loadingCount: ${loadingCount.value}`)
+        logger.info(`doAddDocuments, finish, loadingCount: ${loadingCount.value}`)
     }
 
     documentPromise.value = doAddDocuments()
@@ -254,7 +259,7 @@ setupWindowEventListener("error", (e) => {
 });
 
 if (config.developmentMode) {
-    console.log("populating test data");
+    logger.info("populating test data");
     globalBookmarks.updateBookmarkLabels(testBookmarkLabels)
     addDocuments(...testData)
 }

@@ -29,6 +29,8 @@ import OsisSegment from "@/components/documents/OsisSegment.vue";
 import {useCommon} from "@/composables";
 import {customCssKey, osisFragmentKey, hideTitlesKey} from "@/types/constants";
 import {OffsetRange, OrdinalRange, OsisFragment} from "@/types/client-objects";
+import {Logger} from "../../utils/logger";
+const logger = new Logger({module: "OsisFragment"});
 
 const props = withDefaults(defineProps<{
     fragment: OsisFragment
@@ -37,9 +39,10 @@ const props = withDefaults(defineProps<{
     hideTitles?: boolean
     doNotConvert?: boolean
     isEpub?: boolean
-}>(), {doNotConvert: false, hideTitles: false, isEpub: false})
+    }>(), {doNotConvert: false, hideTitles: false, isEpub: false});
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
+logger.info('setup, props are', {props, bookInitials, osisRef});
 const uniqueId = ref(Date.now().toString());
 
 if (props.hideTitles) {

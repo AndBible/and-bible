@@ -106,6 +106,8 @@ let callId = 0;
 
 export const logEntries = reactive<LogEntry[]>([])
 
+const runningInAndroid = !!window.android;
+
 const logEntriesTemp: LogEntry[] = [];
 
 function addLog(logEntry: Pick<LogEntry, "type" | "msg">) {
@@ -322,7 +324,9 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
     }
 
     function setClientReady() {
-        window.android.setClientReady();
+        if(runningInAndroid) {
+            window.android.setClientReady();
+        }
     }
 
     function reportInputFocus(value: boolean) {

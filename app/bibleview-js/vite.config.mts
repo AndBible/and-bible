@@ -51,6 +51,7 @@ export const config: UserConfig = {
     base: '',
     build: {
         sourcemap,
+        minify: false, // no need to minify theres no network download and this is open source
         rollupOptions: {
             input: {
                 main: resolve(__dirname, "index.html")

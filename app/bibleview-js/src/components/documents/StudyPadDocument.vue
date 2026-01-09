@@ -106,6 +106,8 @@ import {
 } from "@/types/client-objects";
 import Color from "color";
 import draggable from "vuedraggable";
+import {Logger} from "../../utils/logger";
+const logger = new Logger({module: "StudyPadDocument"});
 
 const props = defineProps<{ document: StudyPadDocument }>();
 
@@ -154,12 +156,13 @@ const {
 
 updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
-updateBookmarkToLabels(...genericBookmarkToLabels_)
+logger.info('setup, updateBookmarkToLabels()', genericBookmarkToLabels_);
+updateBookmarkToLabels(...(genericBookmarkToLabels_ ?? [])) //bug: genericBookmarkToLabels_ is typed not be undefined
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
 globalBookmarks.updateBookmarks(bookmarks);
-globalBookmarks.updateBookmarks(genericBookmarks);
+globalBookmarks.updateBookmarks(genericBookmarks ?? []);
 
 const journalEntries: Ref<StudyPadItem[]> = computed({
     get:

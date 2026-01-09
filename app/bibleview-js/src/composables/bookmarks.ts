@@ -47,6 +47,8 @@ import {ColorParam} from "@/types/common";
 import Color from "color";
 import {bookmarkIcon, customIconMap, editIcon, speakIcon} from "@/composables/fontawesome";
 import {EditActionMode} from "@/types/client-objects";
+import {Logger} from '../utils/logger';
+const logger = new Logger({module: 'bookmarks.ts'});
 
 type LabelId = IdType
 type LabelCountMap = Map<LabelId, number>
@@ -218,6 +220,7 @@ export function useGlobalBookmarks(config: Config) {
     }
 
     function updateBookmarks(inputData: BaseBookmark[]) {
+        logger.info('updateBookmarks', inputData);
         for (const v of inputData) {
             const bmark = {...v, hasNote: !!v.notes};
             bookmarks.set(v.id, bmark);

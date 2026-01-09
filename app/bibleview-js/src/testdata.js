@@ -52,7 +52,7 @@ if(process.env.NODE_ENV === "development") {
             text: "smaller text",
             fullText: 'Fuller <span class="highlight">text</span>',
             type: "bookmark",
-            verseRange: "Phil 1:2",
+            verseRange: "2 Th 2:2",
         },
         {
             id: 9,
@@ -238,12 +238,12 @@ if(process.env.NODE_ENV === "development") {
         },
         ];
     testBookmarks.forEach(b => {
-        b.verseRangeAbbreviated = "Phil 1:2";
-        b.verseRangeOnlyNumber = "2";
-        b.verseRange = "Philipians 1:2";
-        b.bibleUrl = "http://asdf";
-        b.fullText = "FULL TEXT!";
-        b.osisFragment = {
+        b.verseRangeAbbreviated ??= "Phil 1:2";
+        b.verseRangeOnlyNumber ??= "2";
+        b.verseRange ??= "Philipians 1:2";
+        b.bibleUrl ??= "http://asdf";
+        b.fullText ??= "FULL TEXT!";
+        b.osisFragment ??= {
             xml: "<div>test</div>"
         }
         //b.bookmarkToLabel = {orderNumber: 1, indentLevel: 1};
@@ -258,7 +258,7 @@ if(process.env.NODE_ENV === "development") {
             indentLevel: 1,
         }))
 
-    const mode = "journal"
+    const mode = "multi"
 
     if(mode === "bible") {
         testData = testData.map(
@@ -305,6 +305,7 @@ if(process.env.NODE_ENV === "development") {
                         osisRef: "Gen.1.1",
                         features: {type: "strongs", keyName: "ASDF"},
                         bookCategory: "BIBLE",
+                        bookInitials: "KJV",
                     }
                 ],
                 bookInitials: "KJV",

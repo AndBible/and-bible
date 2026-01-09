@@ -22,6 +22,8 @@
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
 import {computed} from "vue";
+import {Logger} from "../../utils/logger";
+const logger = new Logger({module: "Milestone"});
 
 const props = withDefaults(defineProps<{
     subType?: string
@@ -33,10 +35,11 @@ const props = withDefaults(defineProps<{
     resp: ""
 });
 
+logger.info('setup, props are', JSON.stringify({...props}));
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => props.type === "line");
+const paragraphBreak = computed(() => props.type === "line" || props.type === 'x-p'); // the normal kjv has x-p
 useCommon();
 </script>
 
