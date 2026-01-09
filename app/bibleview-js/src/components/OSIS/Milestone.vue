@@ -15,6 +15,12 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 
+<!--
+  - because verses and paragraphs are separate structures they would logically be <p><v></p></v>
+  - which is html not xml but osis wanted to be xml.  therefore the paragraph structure is marked by
+  - <milestone> which is equivalent to a pilcrow
+  - the crosswire kjv uses type='x-p' and others use type='line'
+-->
 <template>
   <span class="milestone" :class="{paragraphBreak}">{{ marker }}<slot/></span>
 </template>
@@ -29,17 +35,17 @@ const props = withDefaults(defineProps<{
     subType?: string
     type?: string
     marker: string
-    resp: string
+    resp?: string
 }>(),{
     marker: "",
     resp: ""
 });
 
-logger.info('setup, props are', JSON.stringify({...props}));
+logger.debug('setup, props are', {...props});
 checkUnsupportedProps(props, "resp");
-checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => props.type === "line" || props.type === 'x-p'); // the normal kjv has x-p
+const paragraphBreak = computed(() => props.type === "line" || props.type === 'x-p');
 useCommon();
 </script>
 

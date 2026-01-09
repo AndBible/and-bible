@@ -19,6 +19,8 @@ import {getCurrentInstance, inject, reactive, Ref,} from "vue";
 import {abbreviated, adjustedColor, sprintf} from "@/utils";
 import {emit} from "@/eventbus";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, stringsKey, verseInfoKey} from "@/types/constants";
+import {Logger} from "../utils/logger";
+const logger = new Logger({module: 'composables-index'});
 
 export function useCommon() {
     const currentInstance = getCurrentInstance()!;
@@ -59,13 +61,11 @@ export function useCommon() {
 
 export function checkUnsupportedProps(props: Record<string, any>, attributeName: string, values: string[] = []) {
     const value = props[attributeName]
-    const appSettings = inject(appSettingsKey);
-    if (!appSettings?.errorBox) return;
     if (value && !values.includes(value)) {
         const tagName = getCurrentInstance()!.type.name
         const verseInfo = inject(verseInfoKey)
         const origin = verseInfo?.osisID;
-        console.warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}", origin: ${origin}`)
+        logger.androidOnlyIfErrorBox().warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}", origin: ${origin}`)
     }
 }
 
