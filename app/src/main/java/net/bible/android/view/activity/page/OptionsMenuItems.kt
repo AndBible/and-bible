@@ -349,6 +349,20 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
         }
 }
 
+class FootnotesInlinePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FOOTNOTES_INLINE) {
+    override val enabled: Boolean
+        get() {
+            val footnotes = Preference(settings, TextDisplaySettings.Types.FOOTNOTES)
+            return footnotes.value == true
+        }
+
+    override var value: Any
+        get() = if (enabled) super.value else false
+        set(value) {
+            super.value = value
+        }
+}
+
 class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FONTSIZE) {
     override val title: String get() = application.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
