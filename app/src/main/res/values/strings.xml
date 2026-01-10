@@ -93,6 +93,11 @@
     <string name="go_to_ref">Open %s</string>
     <!-- Finx "(keywords x)", keywords based on text selection -->
     <string name="search_what">Find \"%s\"</string>
+    <!-- Multi-translation search -->
+    <string name="search_translations">Translations</string>
+    <string name="choose_translations">Choose translations…</string>
+    <string name="multi_search_results">%1$d verses in %2$d translations</string>
+    <string name="search_index_not_created">no index</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>

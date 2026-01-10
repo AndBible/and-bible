@@ -42,7 +42,12 @@
 		app:layout_constraintTop_toBottomOf="@id/searchText"
 		app:layout_constraintBottom_toTopOf="@id/submit"
 		>
-	
+
+		<LinearLayout
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content">
+
 		<!-- horizontal container to force each pair of controls to use half of screen each -->
 		<LinearLayout android:id="@+id/centreAreaContainer"
 			android:orientation="horizontal"
@@ -101,6 +106,47 @@
 					android:text="@string/search_phrase"
 					android:layout_height="wrap_content"/>
 			</RadioGroup>
+		</LinearLayout>
+
+		<!-- Translations section -->
+		<LinearLayout
+			android:id="@+id/translationsSection"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:padding="5dip">
+
+			<TextView
+				android:text="@string/search_translations"
+				android:layout_height="wrap_content"
+				android:layout_width="wrap_content"/>
+
+			<LinearLayout
+				android:id="@+id/chooseTranslationsButton"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="4dp"
+				android:orientation="horizontal"
+				android:gravity="center_vertical"
+				android:background="?attr/selectableItemBackground"
+				android:padding="8dp">
+
+				<TextView
+					android:id="@+id/selectedTranslationsText"
+					android:layout_width="0dp"
+					android:layout_weight="1"
+					android:layout_height="wrap_content"/>
+
+				<ImageButton
+					android:id="@+id/editTranslationsButton"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:src="@drawable/ic_pen_24dp"
+					android:background="?attr/selectableItemBackgroundBorderless"
+					android:contentDescription="@string/choose_translations"/>
+			</LinearLayout>
+		</LinearLayout>
+
 		</LinearLayout>
 	</ScrollView>
 

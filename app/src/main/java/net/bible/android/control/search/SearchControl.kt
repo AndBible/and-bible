@@ -19,6 +19,8 @@ package net.bible.android.control.search
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
@@ -26,7 +28,6 @@ import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.search.EpubSearch
 import net.bible.android.view.activity.search.Search
 import net.bible.android.view.activity.search.SearchIndex
-import net.bible.android.view.activity.search.SearchResultsDto
 import net.bible.service.sword.SwordContentFacade.search
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.isEpub
@@ -42,6 +43,25 @@ import org.crosswire.jsword.index.search.SearchType
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.Verse
 import javax.inject.Inject
+
+/** Data classes for multi-translation search results */
+data class TranslationMatch(
+    val book: SwordBook,
+    val key: Key  // Original key in this translation's versification
+)
+
+data class GroupedSearchResult(
+    val normalizedVerse: Verse,  // Used for grouping and sorting
+    val translationMatches: List<TranslationMatch>
+) {
+    val displayName: String get() = normalizedVerse.name
+}
+
+class MultiSearchResultsDto {
+    val mainSearchResults = mutableListOf<GroupedSearchResult>()
+    val otherSearchResults = mutableListOf<GroupedSearchResult>()
+    val size: Int get() = mainSearchResults.size + otherSearchResults.size
+}
 
 /** Support for the document search functionality
  *
@@ -114,36 +134,64 @@ class SearchControl @Inject constructor(
         return decorated
     }
 
-    /** do the search query and prepare results in lists ready for display
-     *
+    /** Search translations and group results by verse
      */
     @Throws(BookException::class)
-    fun getSearchResults(document: String?, searchText: String?): SearchResultsDto {
-        Log.i(TAG, "Preparing search results")
-        val searchResults = SearchResultsDto()
+    suspend fun getMultiSearchResults(
+        documentInitials: List<String>,
+        searchText: String?
+    ): MultiSearchResultsDto = withContext(Dispatchers.IO) {
+        Log.i(TAG, "Preparing multi-translation search results for ${documentInitials.size} translations")
+        val searchResults = MultiSearchResultsDto()
 
-        // search the current book
-        val book = SwordDocumentFacade.getDocumentByInitials(document)
-        var result: Key? = null
-        try {
-            result = search(book!!, searchText)
-        } catch (e: BookException) {
-            Log.e(TAG, "Error in executing search: $searchText")
+        if (searchText.isNullOrBlank()) {
+            return@withContext searchResults
         }
-        if (result != null) {
-            val resNum = result.cardinality
-            Log.i(TAG, "Number of results:$resNum")
 
-            //if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
-            val isBibleOrCommentary = book is AbstractPassageBook
-            val keyIterator: Iterator<Key> = result.iterator()
-            for (i in 0 until Math.min(resNum, MAX_SEARCH_RESULTS + 1)) {
-                val key = keyIterator.next()
-                val isMain = !isBibleOrCommentary || Scripture.isScripture((key as Verse).book)
-                searchResults.add(key, isMain)
+        // Map: normalized verse key -> list of matches
+        val groupedResults = mutableMapOf<String, MutableList<TranslationMatch>>()
+
+        for (initials in documentInitials) {
+            val book = SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook
+                ?: continue
+            if (book.indexStatus != IndexStatus.DONE) continue
+
+            try {
+                val result = search(book, searchText)
+                val count = minOf(result.cardinality, MAX_SEARCH_RESULTS + 1)
+                val keyIterator = result.iterator()
+
+                for (i in 0 until count) {
+                    val key = keyIterator.next()
+                    if (key is Verse) {
+                        // Use book ordinal, chapter, verse as grouping key
+                        val normalizedKey = "${key.book.ordinal}:${key.chapter}:${key.verse}"
+                        groupedResults.getOrPut(normalizedKey) { mutableListOf() }
+                            .add(TranslationMatch(book, key))
+                    }
+                }
+            } catch (e: BookException) {
+                Log.e(TAG, "Error searching ${book.initials}: ${e.message}")
             }
         }
-        return searchResults
+
+        // Convert to list and sort
+        for ((_, matches) in groupedResults) {
+            val firstMatch = matches.first()
+            val verse = firstMatch.key as Verse
+            val isMain = Scripture.isScripture(verse.book)
+            val grouped = GroupedSearchResult(verse, matches)
+
+            if (isMain) searchResults.mainSearchResults.add(grouped)
+            else searchResults.otherSearchResults.add(grouped)
+        }
+
+        // Sort by verse ordinal
+        searchResults.mainSearchResults.sortBy { it.normalizedVerse.ordinal }
+        searchResults.otherSearchResults.sortBy { it.normalizedVerse.ordinal }
+
+        Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
+        searchResults
     }
 
     /** double spaces, :, and leading or trailing space cause lucene errors
@@ -217,6 +265,7 @@ class SearchControl @Inject constructor(
         const val SEARCH_TEXT = "SearchText"
         const val SEARCH_DOCUMENT = "SearchDocument"
         const val TARGET_DOCUMENT = "TargetDocument"
+        const val SELECTED_TRANSLATIONS = "SelectedTranslations"
         private const val STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG + ":"
         private const val STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG + "COLON"
         const val MAX_SEARCH_RESULTS = 5000
