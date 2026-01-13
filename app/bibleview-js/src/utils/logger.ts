@@ -1,25 +1,30 @@
+import inspect from "browser-util-inspect";
 import {inject} from "vue";
 import {appSettingsKey} from "@/types/constants";
 
 export const runningInAndroid = !!window.android; // this constant probably belongs somewhere else but only one place
 
+const documentWarningStatistics: Record<string, number> = {};
+
 export class Logger {
     module: string;
-    androidOnlyIfErrorBoxActive: boolean;
+    documentWarningActive: boolean;
 
     constructor({module}: {module: string}){
         this.module = module;
-        this.androidOnlyIfErrorBoxActive = false;
+        this.documentWarningActive = false;
     }
 
-    androidOnlyIfErrorBox(){
-        this.androidOnlyIfErrorBoxActive = true;
+    documentWarning(){
+        this.documentWarningActive = true;
         return this;
     }
 
-    vueWarnHandler(msg: any, instance: any, trace: any){
-        this.androidOnlyIfErrorBoxActive = true;
-        this._log("warn", msg, instance, trace);
+    vueWarnHandler(msg: string, instance: any, trace: any){
+        if(msg.startsWith("Missing required prop: ")){
+            this.documentWarningActive = true;
+        }
+        this._log("warn", {msg, instance, trace});
     }
 
     warn(...data: any[]){
@@ -35,17 +40,26 @@ export class Logger {
     }
 
     _log(method: "warn"|"log"|"debug", ...data: any[]){
+        const msg = data[0];
+        data = [this.module+":", ...data];
+        if(this.documentWarningActive){
+            if(!documentWarningStatistics[msg]){
+                documentWarningStatistics[msg] = 0;
+            }
+            data = [`document warning ${documentWarningStatistics[msg]}:`, ...data];
+            documentWarningStatistics[msg]++;
+        }
         let emitThis = true;
         if(runningInAndroid){
-            data = data.map(x => typeof(x) == "object" ? JSON.stringify(x) : x);
+            data = data.map(x => typeof(x) == "object" ? inspect(x) : x);
             const appSettings = inject(appSettingsKey);
-            if (!appSettings?.errorBox) {
-                emitThis = false;
+            if (this.documentWarningActive && !appSettings?.errorBox) {
+                //emitThis = false;
             }
         }
-        this.androidOnlyIfErrorBoxActive = false;
         if(emitThis){
-            console[method](this.module+":", ...data);
+            console[method](...data);
         }
+        this.documentWarningActive = false;
     }
 }

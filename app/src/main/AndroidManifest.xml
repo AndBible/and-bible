@@ -289,6 +289,17 @@
             android:label="@string/error_occurred"
             android:exported="true"
             />
+        <activity
+            android:name="net.bible.android.activity.ProcessTextActivity"
+            android:label="@string/cite2quote"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
         <service
             android:name="net.bible.service.cloudsync.SyncService"
             android:foregroundServiceType="dataSync" />

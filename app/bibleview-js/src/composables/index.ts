@@ -15,7 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {getCurrentInstance, inject, reactive, Ref,} from "vue";
+import {getCurrentInstance, inject, reactive, Ref} from "vue";
 import {abbreviated, adjustedColor, sprintf} from "@/utils";
 import {emit} from "@/eventbus";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, stringsKey, verseInfoKey} from "@/types/constants";
@@ -62,10 +62,12 @@ export function useCommon() {
 export function checkUnsupportedProps(props: Record<string, any>, attributeName: string, values: string[] = []) {
     const value = props[attributeName]
     if (value && !values.includes(value)) {
-        const tagName = getCurrentInstance()!.type.name
-        const verseInfo = inject(verseInfoKey)
+        const tagName = getCurrentInstance()?.type.__name;
+        const verseInfo = inject(verseInfoKey);
         const origin = verseInfo?.osisID;
-        logger.androidOnlyIfErrorBox().warn(`${tagName}: Unsupported (ignored) attribute "${attributeName}" value "${value}", origin: ${origin}`)
+        logger.documentWarning().warn(
+            `Unsupported (ignored) attribute <${tagName} ${attributeName}="${value}"> at ${origin}`
+        );
     }
 }
 

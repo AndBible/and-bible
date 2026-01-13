@@ -45,14 +45,17 @@ import {exportModeKey, ordinalHighlightKey} from "@/types/constants";
 const props = defineProps<{
     lemma?: string // example: strong:H8064 lemma.TR:XXXXX
     morph?: string // example: strongMorph:TH8792
-    src?: string
+    src?: string // kjv uses this to put a serial number on the words in a verse
     n?: string
     type?: string
     subType?: string
 }>();
 
 checkUnsupportedProps(props, "n")
-checkUnsupportedProps(props, "src")
+//checkUnsupportedProps(props, "src") this isnt expected to do anything, so it doesnt need a warning
+// used to mark a lemma in places where the translation text splits the word of the original language
+// https://wiki.crosswire.org/List_of_eXtensions_to_OSIS_used_in_SWORD#x-split
+// does it need a warning?
 checkUnsupportedProps(props, "type", ["x-split"])
 checkUnsupportedProps(props, "subType")
 const {strings, config} = useCommon();

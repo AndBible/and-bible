@@ -18,6 +18,7 @@ package net.bible.android.view.activity
 
 import dagger.Component
 import net.bible.android.activity.SpeakWidgetManager
+import net.bible.android.activity.ProcessTextActivity;
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.page.ClientBibleBookmark
@@ -107,6 +108,8 @@ interface ActivityComponent {
     fun inject(searchResults: EpubSearchResults)
     fun inject(searchResults: SearchResults)
     fun inject(history: History)
+
+    fun inject(processTextActivity: ProcessTextActivity)
 
     // Services
     fun inject(m: TextToSpeechNotificationManager)

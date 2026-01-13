@@ -41,7 +41,6 @@ const props = withDefaults(defineProps<{
     resp: ""
 });
 
-logger.debug('setup, props are', {...props});
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
@@ -53,3 +52,7 @@ useCommon();
 @use "@/common.scss" as *;
 
 </style>
+
+<!-- 
+<verse osisID="John.1.6" sID="John.1.6"/><milestone type="x-p" marker="¶"/><w src="1" lemma="strong:G1096 lemma.TR:εγενετο" morph="robinson:V-2ADI-3S">There was</w> <w src="2" lemma="strong:G444 lemma.TR:ανθρωπος" morph="robinson:N-NSM">a man</w> <w src="3" lemma="strong:G649 lemma.TR:απεσταλμενος" morph="robinson:V-RPP-NSM">sent</w> <w src="4" lemma="strong:G3844 lemma.TR:παρα" morph="robinson:PREP">from</w> <w src="5" lemma="strong:G2316 lemma.TR:θεου" morph="robinson:N-GSM">God</w>, <w src="7" lemma="strong:G846 lemma.TR:αυτω" morph="robinson:P-DSM">whose</w> <w src="6" lemma="strong:G3686 lemma.TR:ονομα" morph="robinson:N-NSN">name</w> <transChange type="added">was</transChange> <w src="8" lemma="strong:G2491 lemma.TR:ιωαννης" morph="robinson:N-NSM">John</w>.<verse eID="John.1.6"/>
+-->

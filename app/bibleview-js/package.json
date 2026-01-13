@@ -21,10 +21,11 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "~6.7.2",
-    "@fortawesome/free-solid-svg-icons": "~6.7.2",
     "@fortawesome/free-regular-svg-icons": "~6.7.2",
+    "@fortawesome/free-solid-svg-icons": "~6.7.2",
     "@fortawesome/vue-fontawesome": "~3.0.8",
     "@vue/runtime-core": "~3.5.17",
+    "browser-util-inspect": "~0.2.0",
     "color": "~3.2.1",
     "lodash": "~4.17.21",
     "mitt": "~3.0.1",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "~1.12.0",
+    "@types/browser-util-inspect": "^0.2.4",
     "@types/color": "~3.0.6",
     "@types/js-yaml": "~4.0.9",
     "@types/jsdom": "~21.1.7",

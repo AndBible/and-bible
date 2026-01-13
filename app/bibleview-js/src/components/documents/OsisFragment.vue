@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<{
     }>(), {doNotConvert: false, hideTitles: false, isEpub: false});
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
-logger.info('setup, props are', {props, bookInitials, osisRef});
+logger.info('setup, fragment is', toRefs(props.fragment));
 const uniqueId = ref(Date.now().toString());
 
 if (props.hideTitles) {
