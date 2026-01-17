@@ -949,7 +949,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         } else null
                     }  else null) ?: return notFound
 
-                val content = styleSheets.joinToString("\n") { String(it.readBytes()) }
+                val content = styleSheets.filter() { it.exists() }
+                    .joinToString("\n") { String(it.readBytes()) }
                     .replace(colorRe, "")
                     .replace(bodyRe, "")
                     .replace(lineHeightRe, "")
