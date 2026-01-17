@@ -242,4 +242,28 @@ object Dialogs {
     suspend fun <T> multiselect(context: Context, title: Int, items: List<T>, itemToString: ((arg: T) -> String)? = null): List<T> =
         multiselect(context, context.getString(title), items, itemToString)
 
+    /**
+     * Show a dialog asking user permission for an agent tool operation.
+     *
+     * @param context The context to show the dialog in
+     * @param toolName Name of the tool requesting permission
+     * @param toolDescription Description of what the tool does
+     * @return true if user allowed the operation, false if denied or cancelled
+     */
+    suspend fun agentPermissionDialog(
+        context: Context,
+        toolName: String,
+        toolDescription: String
+    ): Boolean = withContext(Dispatchers.Main) {
+        suspendCoroutine { continuation ->
+            AlertDialog.Builder(context)
+                .setTitle(R.string.agent_permission_title)
+                .setMessage(context.getString(R.string.agent_permission_message, toolName, toolDescription))
+                .setPositiveButton(R.string.allow) { _, _ -> continuation.resume(true) }
+                .setNegativeButton(R.string.deny) { _, _ -> continuation.resume(false) }
+                .setCancelable(true)
+                .setOnCancelListener { continuation.resume(false) }
+                .show()
+        }
+    }
 }

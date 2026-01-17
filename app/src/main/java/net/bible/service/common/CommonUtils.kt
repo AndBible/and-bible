@@ -124,6 +124,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
+import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
@@ -473,6 +474,17 @@ object CommonUtils : CommonUtilsBase() {
 
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()
+
+        // Agent Permission Settings
+        var agentPermissionMode: PermissionMode
+            get() = try {
+                PermissionMode.valueOf(
+                    getString("agent_permission_mode", "ALWAYS_ASK") ?: "ALWAYS_ASK"
+                )
+            } catch (e: IllegalArgumentException) {
+                PermissionMode.ALWAYS_ASK
+            }
+            set(value) = setString("agent_permission_mode", value.name)
     }
 
     private var _settings: AndBibleSettings? = null

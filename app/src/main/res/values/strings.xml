@@ -1383,6 +1383,12 @@
     <string name="default_prompt_word_study">Word study</string>
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
 
+    <!-- Agent Permission Dialog -->
+    <string name="agent_permission_title">Agent Permission</string>
+    <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s\n\nAllow this operation?</string>
+    <string name="allow">Allow</string>
+    <string name="deny">Deny</string>
+
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>
     <string name="my_documents_empty">No documents yet. Tap + to create one.</string>

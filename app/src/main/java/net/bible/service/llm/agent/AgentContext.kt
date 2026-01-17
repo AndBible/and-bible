@@ -42,11 +42,18 @@ data class AgentContext(
     val activeDocumentInitials: String? = null,
     val activeLabelId: IdType? = null,
     val windowId: IdType? = null,
-    val selectedText: String? = null
+    val selectedText: String? = null,
+    /** Session-level write permission (for ASK_ONCE_PER_RUN mode) */
+    val grantedWritePermission: Boolean = false
 ) {
     /**
      * Get the verse reference as a string, or null if not available.
      */
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef
+
+    /**
+     * Returns a copy of this context with write permission granted.
+     */
+    fun withWritePermissionGranted() = copy(grantedWritePermission = true)
 }

@@ -25,6 +25,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import net.bible.android.database.IdType
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmProcessingService
@@ -93,6 +96,7 @@ class AgentExecutor(
         context: AgentContext
     ) {
         var iteration = 0
+        var currentContext = context  // Mutable context for session permission tracking
 
         while (iteration < maxIterations) {
             iteration++
@@ -101,7 +105,7 @@ class AgentExecutor(
 
             when (val parsed = callLlmAndParse(messages, tools, iteration)) {
                 is ParsedResponse.ToolCalls -> {
-                    processToolCalls(parsed, messages, context)
+                    currentContext = processToolCalls(parsed, messages, currentContext)
                 }
                 is ParsedResponse.TextResponse -> {
                     Log.d(TAG, "LLM returned final response")
@@ -140,13 +144,15 @@ class AgentExecutor(
 
     /**
      * Process tool calls: execute each tool and add results to messages.
+     * Returns the updated context (with permission granted if a write tool was allowed).
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
         parsed: ParsedResponse.ToolCalls,
         messages: JSONArray,
         context: AgentContext
-    ) {
+    ): AgentContext {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
+        var currentContext = context
 
         parsed.content?.takeIf { it.isNotBlank() }?.let {
             emit(AgentEvent.TextResponse(it, isFinal = false))
@@ -159,12 +165,18 @@ class AgentExecutor(
 
             emit(AgentEvent.ToolCalling(toolCall.id, toolCall.name, toolCall.arguments))
 
-            val result = executeTool(toolCall, context)
+            val result = executeTool(toolCall, currentContext)
+
+            // If write operation succeeded and user allowed, mark permission as granted
+            if (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true) {
+                currentContext = currentContext.withWritePermissionGranted()
+            }
 
             emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.name, result))
 
             messages.put(ToolCallParser.createToolResultMessage(toolCall.id, result.toJson()))
         }
+        return currentContext
     }
 
     /**
@@ -247,6 +259,15 @@ class AgentExecutor(
             return ToolResult.error("Tool not found: ${toolCall.name}", "TOOL_NOT_FOUND")
         }
 
+        // Permission check for write tools
+        if (tool.requiresPermission && !checkWritePermission(tool, context)) {
+            Log.d(TAG, "Permission denied for tool: ${toolCall.name}")
+            return ToolResult.error(
+                "Permission denied for ${toolCall.name}. User did not allow this operation.",
+                "PERMISSION_DENIED"
+            )
+        }
+
         return try {
             Log.d(TAG, "Executing tool: ${toolCall.name} with args: ${toolCall.arguments}")
             val arguments = toolCall.parseArguments()
@@ -257,5 +278,38 @@ class AgentExecutor(
             Log.e(TAG, "Tool execution failed: ${toolCall.name}", e)
             ToolResult.error("Tool execution failed: ${e.message}", "EXECUTION_ERROR")
         }
+    }
+
+    /**
+     * Check if write permission should be granted based on current mode and context.
+     */
+    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): Boolean {
+        val mode = CommonUtils.settings.agentPermissionMode
+
+        return when (mode) {
+            PermissionMode.ALLOW_ALL -> true
+            PermissionMode.DENY_ALL -> false
+            PermissionMode.ASK_ONCE_PER_RUN -> {
+                if (context.grantedWritePermission) {
+                    true
+                } else {
+                    showPermissionDialog(tool)
+                }
+            }
+            PermissionMode.ALWAYS_ASK -> showPermissionDialog(tool)
+        }
+    }
+
+    /**
+     * Show the permission dialog to the user.
+     * Returns true if permission was granted, false otherwise.
+     */
+    private suspend fun showPermissionDialog(tool: Tool): Boolean {
+        val activity = CurrentActivityHolder.currentActivity
+        if (activity == null) {
+            Log.w(TAG, "No current activity, allowing tool by default")
+            return true  // Allow if no activity (e.g., background process)
+        }
+        return Dialogs.agentPermissionDialog(activity, tool.name, tool.description)
     }
 }
