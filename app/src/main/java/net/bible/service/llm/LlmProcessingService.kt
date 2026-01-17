@@ -475,6 +475,109 @@ object LlmProcessingService {
         }
     }
 
+    /**
+     * Call LLM API with tool calling support.
+     *
+     * This method is used by the agent executor to make API calls that can
+     * include tool definitions and receive tool call responses.
+     *
+     * @param messages The conversation messages (system, user, assistant, tool)
+     * @param tools The tools array in OpenAI function calling format
+     * @return The full response JSON object (contains choices[0].message with content or tool_calls)
+     */
+    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray): JSONObject {
+        val settings = CommonUtils.settings
+
+        if (!settings.llmConfigured) {
+            throw LlmProcessingError("LLM not configured")
+        }
+
+        // Test mode for agent: return a simple text response
+        if (settings.llmTestMode) {
+            Log.d(TAG, "Test mode: simulating API call with tools")
+            delay(1000)
+            return JSONObject().apply {
+                put("choices", JSONArray().apply {
+                    put(JSONObject().apply {
+                        put("message", JSONObject().apply {
+                            put("role", "assistant")
+                            put("content", "Test mode response: Tools available but not invoked in test mode.")
+                        })
+                    })
+                })
+            }
+        }
+
+        val endpoint = "${settings.llmEndpoint}/chat/completions"
+
+        val requestBody = JSONObject().apply {
+            put("model", settings.llmModel)
+            put("messages", messages)
+            if (tools.length() > 0) {
+                put("tools", tools)
+            }
+            put("temperature", LLM_TEMPERATURE)
+        }
+
+        Log.d(TAG, "LLM API with tools: $endpoint, model: ${settings.llmModel}, tools: ${tools.length()}")
+
+        val request = Request.Builder()
+            .url(endpoint)
+            .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
+            .addHeader("Content-Type", "application/json")
+            .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
+            .build()
+
+        if (activeRequests.incrementAndGet() == 1) {
+            ABEventBus.post(LlmEvent(running = true))
+        }
+
+        return try {
+            suspendCancellableCoroutine { continuation ->
+                val call = client.newCall(request)
+
+                continuation.invokeOnCancellation {
+                    call.cancel()
+                }
+
+                call.enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        Log.e(TAG, "LLM API call with tools failed: ${e.message}")
+                        continuation.resumeWithException(e)
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        response.use { resp ->
+                            if (!resp.isSuccessful) {
+                                val errorBody = resp.body?.string() ?: "No error body"
+                                Log.e(TAG, "LLM API error: ${resp.code} - $errorBody")
+                                continuation.resumeWithException(
+                                    LlmProcessingError("LLM API error: ${resp.code} - $errorBody")
+                                )
+                                return
+                            }
+
+                            try {
+                                val responseBody = resp.body?.string()
+                                    ?: throw LlmProcessingError("Empty response body")
+                                val responseJson = JSONObject(responseBody)
+                                Log.d(TAG, "LLM API response received")
+                                continuation.resume(responseJson)
+                            } catch (e: Exception) {
+                                Log.e(TAG, "Failed to parse LLM response: ${e.message}")
+                                continuation.resumeWithException(e)
+                            }
+                        }
+                    }
+                })
+            }
+        } finally {
+            if (activeRequests.decrementAndGet() == 0) {
+                ABEventBus.post(LlmEvent(running = false))
+            }
+        }
+    }
+
     fun clearCache() {
         dao.deleteAll()
         Log.i(TAG, "LLM processing cache cleared")

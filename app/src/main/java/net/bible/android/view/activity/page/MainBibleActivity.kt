@@ -885,6 +885,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             }, opensDialog = true)
+            R.id.llmTestSuite -> CommandPreference(launch = { _, _, _ ->
+                val intent = Intent(this, net.bible.android.view.activity.ai.LlmTestActivity::class.java)
+                startActivity(intent)
+            }, opensDialog = true)
             else -> throw RuntimeException("Illegal menu item")
         }
     }

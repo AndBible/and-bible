@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.llm.agent
+
+import net.bible.service.llm.tools.ToolResult
+
+/**
+ * Events emitted during agent execution.
+ *
+ * These events can be observed to show progress in the UI (Agent Log),
+ * update status indicators, etc.
+ */
+sealed class AgentEvent {
+    /**
+     * Agent execution has started.
+     */
+    data object Started : AgentEvent()
+
+    /**
+     * Starting a new iteration of the agent loop.
+     *
+     * @param number The iteration number (1-based)
+     */
+    data class Iteration(val number: Int) : AgentEvent()
+
+    /**
+     * LLM is calling a tool.
+     *
+     * @param toolCallId The unique ID of this tool call (from LLM response)
+     * @param toolName Name of the tool being called
+     * @param arguments JSON string of arguments
+     */
+    data class ToolCalling(
+        val toolCallId: String,
+        val toolName: String,
+        val arguments: String
+    ) : AgentEvent()
+
+    /**
+     * Tool execution completed.
+     *
+     * @param toolCallId The unique ID of this tool call
+     * @param toolName Name of the tool that was called
+     * @param result The result of the tool execution
+     */
+    data class ToolCompleted(
+        val toolCallId: String,
+        val toolName: String,
+        val result: ToolResult
+    ) : AgentEvent()
+
+    /**
+     * LLM returned a text response (potentially intermediate).
+     *
+     * @param text The text content from the LLM
+     * @param isFinal Whether this is the final response (no more tool calls expected)
+     */
+    data class TextResponse(
+        val text: String,
+        val isFinal: Boolean
+    ) : AgentEvent()
+
+    /**
+     * Agent execution completed successfully.
+     *
+     * @param response The final response text from the LLM
+     * @param totalIterations Total number of iterations taken
+     */
+    data class Completed(
+        val response: String,
+        val totalIterations: Int
+    ) : AgentEvent()
+
+    /**
+     * Agent execution failed.
+     *
+     * @param message Error description
+     * @param cause Optional underlying exception
+     */
+    data class Error(
+        val message: String,
+        val cause: Throwable? = null
+    ) : AgentEvent()
+
+    /**
+     * Agent execution was cancelled.
+     */
+    data object Cancelled : AgentEvent()
+}

@@ -57,5 +57,10 @@
 			android:orderInCategory="1000"
 			/>
 	</group>
+	<item android:id="@+id/llmTestSuite"
+		android:title="LLM Test Suite"
+		android:icon="@drawable/ic_bug_report_white_24dp"
+		android:orderInCategory="2000"
+		/>
 
 </menu>

@@ -50,6 +50,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWi
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
+import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
@@ -875,6 +876,15 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
+    private fun updateStudyPadCursorIfNeeded(labelId: IdType, orderNumber: Int) {
+        val workspaceSettings = windowControl.windowRepository?.workspaceSettings ?: return
+        val cursor = workspaceSettings.studyPadCursors[labelId] ?: return
+        if (cursor >= orderNumber) {
+            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+            ABEventBus.post(AppSettingsUpdated())
+        }
+    }
+
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
         val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
 
@@ -882,13 +892,33 @@ open class BookmarkControl @Inject constructor(
         dao.insert(entry.studyPadTextEntryTextEntity)
 
         incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
+        updateStudyPadCursorIfNeeded(labelId, entryOrderNumber + 1)
+    }
 
-        val workspaceSettings = windowControl.windowRepository?.workspaceSettings
-        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)?: return
-        if (cursor >= entryOrderNumber + 1) {
-            workspaceSettings.studyPadCursors[labelId] = cursor + 1
-            ABEventBus.post(AppSettingsUpdated())
-        }
+    fun createStudyPadEntryWithText(
+        labelId: IdType,
+        orderNumber: Int? = null,
+        text: String,
+        contentType: TextContentType? = null,
+        sourcePromptId: IdType? = null
+    ): StudyPadTextEntryWithText {
+        val actualOrderNumber = orderNumber ?: dao.countStudyPadEntities(labelId)
+
+        val entry = StudyPadTextEntryWithText(
+            labelId = labelId,
+            orderNumber = actualOrderNumber,
+            text = text,
+            contentType = contentType,
+            sourcePromptId = sourcePromptId
+        )
+
+        dao.insert(entry.studyPadTextEntryEntity)
+        dao.insert(entry.studyPadTextEntryTextEntity)
+
+        incrementOrderNumbersFrom(labelId, actualOrderNumber, newStudyPadTextEntry = entry)
+        updateStudyPadCursorIfNeeded(labelId, actualOrderNumber)
+
+        return entry
     }
 
     fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {
