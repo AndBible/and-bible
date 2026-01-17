@@ -158,6 +158,7 @@ import net.bible.service.llm.agent.LogEntryType
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -2142,11 +2143,22 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val workspaceId = windowControl.windowRepository.id
 
         lifecycleScope.launch(Dispatchers.IO) {
+            // Get the selected text from the book using SwordContentFacade
+            val selectedText = selection.bookInitials?.let { initials ->
+                val book = Books.installed().getBook(initials)
+                val currentPage = windowControl.activeWindowPageManager.currentPage
+                val key = currentPage.key
+                if (book != null && key != null) {
+                    val ordinalRange = selection.startOrdinal..selection.endOrdinal
+                    SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange).joinToString(" ")
+                } else null
+            } ?: ""
+
             // Create agent context
             val context = AgentContext(
                 promptId = prompt.id,
                 activeDocumentInitials = selection.bookInitials,
-                selectedText = selection.text
+                selectedText = selectedText
             )
 
             // Get or create session and start it
