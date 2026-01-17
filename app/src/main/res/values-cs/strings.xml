@@ -365,6 +365,7 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="add_bookmark_whole_verse">Záložka verše</string>
   <string name="add_bookmark_whole_verse1">Verš</string>
   <string name="add_bookmark_whole_verse2">Celý verš</string>
+  <string name="add_paragraph_break">Zalomení odstavce</string>
   <string name="remove_bookmark">Odstranit</string>
   <string name="bookmark_settings_hide_labels_title">Skrýt konkrétní štítky</string>
   <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétními štítky</string>
@@ -553,7 +554,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_to">Zálohovat do...</string>
   <string name="backup_restore_from">Obnovit z...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
+  <string name="backup_restore_from2">Obnova nebo import z...</string>
   <string name="backup_restore">Obnovit</string>
+  <string name="backup_restore2">Obnova nebo import</string>
+  <string name="overwrite_something">Přepsat %s?</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_what">Které položky chcete obnovit?</string>
   <string name="restore_app_database">Obnovit databázi aplikace z…</string>
@@ -569,12 +573,14 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_modules_email_message_2">Přiložena záloha modulů %1$s, obsahující tyto moduly: %2$s</string>
   <string name="backup_email_subject_2">záloha databáze %s</string>
   <string name="backup_email_message_2">Vaše databáze %s obsahující záložky, poznámky, plány čtení a pracovní plochy přiložena</string>
+  <string name="exported_studypads_subject">Exportované studijní složky</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
   <string name="restore_modules">Načíst dokumenty z...</string>
   <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
   <string name="restore">Obnovit</string>
+  <string name="import2">Import</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Autorská práva: %s</string>
@@ -664,6 +670,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="workspace_listing_with_current">%s (aktuální)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Toto je beta verze!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         Beta verze obsahuje nové funkce, které ještě nejsou dobře otestovány.
         Používání beta verze může zapříčinit neočekávané chování, např. chyby.
@@ -758,6 +765,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="format_mysword">MySword dokumenty (*.mybible)</string>
   <string name="format_mybible">MyBible dokumenty (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumenty (*.epub)</string>
+  <string name="format_ttf">TTF fonty (*.ttf)</string>
+  <string name="format_studypads">Studijní složky z databází AndBible (*.abdb)</string>
   <string name="redownload_message">
        Nalezen seznam předchozích knih/dokumentů. Pro snadné znovustažení klikněte níže.
 </string>
@@ -772,6 +781,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="journal_description">Editovatelné studijní složky s vlastním textem a záložkami</string>
   <string name="my_notes_description">Editovatelné poznámky přiřazené k záložce</string>
   <string name="my_notes_abbreviation">Poznámky</string>
+  <string name="studypad">Studijní složka</string>
   <string name="studypads">Studijní složky</string>
   <string name="multi_description">Více odkazů</string>
   <string name="multi_abbreviation">Více</string>
@@ -787,6 +797,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="unlock_info">Informace o zabezpečení modulu</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
   <string name="show_unlock_info">Informace o modulu a zabezpečení</string>
+  <string name="prefs_experimental_features_title">Experimentální funkce</string>
+  <string name="prefs_experimental_features_summary">Vyberte, které experimentální funkce chcete povolit. Tyto funkce jsou stále ve vývoji a mohou být změněny nebo odstraněny.</string>
   <string name="prefs_show_error_box_title">Zobrazit chybové okno Javascriptu</string>
   <string name="prefs_show_error_box_summary">Vhodné pro vývojáře při debugování chyb BibleView Javascript. Zpomaluje běh aplikace.</string>
   <string name="active_window_indicator_title">Ukázat ohraničení aktivního okna</string>
@@ -794,6 +806,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="app_licence_title">Licence otevřeného softwaru</string>
   <string name="how_to_contribute">Jak se zapojit a přispět?</string>
   <string name="confirm_delete_bookmarks">Opravdu smazat záložku %d včetně přidružených poznámek?</string>
+  <string name="delete_label_and_bookmarks">Smazat štítek a záložky</string>
+  <string name="delete_label_only">Smazat pouze štítek</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Doporučit</string>
   <string name="tell_friend_message1">Doporučuji tuto aplikaci - %s.</string>
@@ -801,6 +815,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tell_friend_message3">Instalace z Play Store: %s</string>
   <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
+  <string name="web_search">Hledat na webu</string>
   <string name="verse_action_copy">Kopírovat</string>
   <string name="generic_share">Sdílet</string>
   <string name="share_verse_menu_title">Sdílet / kopírovat…</string>
@@ -902,18 +917,37 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="label_salvation">Pozdrav</string>
   <string name="label_underline">Podtržení</string>
   <string name="import_menu">Import a export</string>
+  <string name="export">Export</string>
+  <string name="csv_export_success">Exportováno %d záložek do CSV</string>
+  <string name="csv_import_success">Import dokončen: vytvořeno %d, změněno %d</string>
+  <string name="csv_import_errors">Import dokončen s chybami: vytvořeno %d, změněno %d, chyb %d</string>
+  <string name="csv_import_failed">Import CSV se nezdařil: %s</string>
+  <string name="csv_export_failed">Export CSV se nezdařil:: %s</string>
+  <string name="csv_column_selection_title">Vybrav CSV sloupce</string>
+  <string name="choose_csv_file">Zvolit CSV soubor k importu</string>
   <string name="export_fileformat">Exportovat jako %s</string>
+  <string name="export_something">Export %s</string>
   <string name="import_items">Importovat %s</string>
   <string name="import_from_db">Importovat databázový soubor</string>
   <string name="import_error">Import databázového souboru se nezdařil. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
+  <string name="export_bookmarks_csv">Exportovat záložky jako %s</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+  <string name="osis_reference">OSIS Reference</string>
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="bible_reference"> Biblický odkaz</string>
   <string name="document">Dokument</string>
   <string name="book">Kniha</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Začátek kapitoly</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Začátek verše</string>
+  <string name="chapter_end">Konec kapitoly</string>
+  <string name="verse_end">Konec verše</string>
+  <string name="id">Identifikátor</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+  <string name="created_at">Vytvořeno</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="bookmark_notes">Poznámky k záložce</string>
   <string name="chooser_range">Rozsah</string>
   <string name="chooser_jump">Přejít</string>
   <string name="chooser_OT_abbrev">SZ</string>
@@ -937,6 +971,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="verse_tip">Pasáž textu označíte přidržením textu na delší dobu.</string>
   <string name="permission_required">Je potřeba oprávnění</string>
   <string name="labels_search_hint">Hledat</string>
+  <string name="search_mode_content">Obsah</string>
   <string name="progress_status_permission">Pro zobrazení upozornění (stav stahování, zpracování, stav předčítání), potřebujeme schválení oprávnění. </string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Jednoduchá kalkulačka</string>
@@ -1088,5 +1123,16 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="dont_show">
         Tuto zprávu již nezobrazovat
     </string>
+  <string name="pref_font_size_multiplier_title">Násobitel velikosti písma </string>
+  <string name="current_value">Současná hodnota: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Akce při přejetí prstem doleva / doprava</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Gesto přejetí prstem doleva / doprava lze použít k přechodu na další stránku/kapitolu.</string>
   <string name="prefs_swipe_mode_chapter">Kapitola</string>
+  <string name="prefs_swipe_mode_page">Strana</string>
+  <string name="prefs_swipe_mode_none">Nepovoleno</string>
+  <string name="page_number_title">Relativní číslo strany</string>
+  <string name="page_number_summary">Zobrazit poloprůhledné číslo strany. Jde o relativní údaj vůči počáteční pozici.</string>
+  <string name="select_custom_icon">Vybrat vlastní ikonu pro záložku</string>
+  <string name="memorize_description">Zapamatujte si biblické verše</string>
+  <string name="memorize_abbreviation">Zapamatovat</string>
 </resources>

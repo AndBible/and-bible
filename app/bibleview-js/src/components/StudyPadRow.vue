@@ -28,7 +28,7 @@
         <div class="journal-button" @click="addNewEntryAfter">
           <FontAwesomeIcon icon="plus-circle"/>
         </div>
-        <div v-if="!journalText" class="journal-button" @click="editMode = true">
+        <div  v-if="!journalText || props.disableClickToEdit" class="journal-button" @click="editMode = true">
           <FontAwesomeIcon icon="edit"/>
         </div>
 
@@ -70,6 +70,7 @@
           :show-placeholder="journalEntry.type === 'journal'"
           :edit-directly="textEntry.new ?? false"
           :text="journalText"
+          :disable-click-to-edit="props.disableClickToEdit"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
       />
@@ -99,10 +100,13 @@ import {
 import {AreYouSureButton} from "@/types/common";
 
 const emit = defineEmits(['edit-opened', 'add'])
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     journalEntry: StudyPadItem
-    label: Label
-}>();
+    label: Label,
+    disableClickToEdit?: boolean
+}>(), {
+    disableClickToEdit: true
+});
 
 const bookmarkEntry = computed(() => props.journalEntry as StudyPadBibleBookmarkItem)
 const genericBookmarkEntry = computed(() => props.journalEntry as StudyPadGenericBookmarkItem)

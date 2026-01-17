@@ -18,6 +18,9 @@
   <template v-if="isCrossReference && config.showXrefs && config.expandXrefs">
     <slot/>
   </template>
+  <template v-else-if="isFootNote && config.showFootNotes && config.showFootNotesInline">
+    <span class="footnote-inline"><slot/></span>
+  </template>
   <template v-else>
     <AmbiguousSelection do-not-close-modals ref="ambiguousSelection"/>
     <ModalDialog @close="showNote = false" v-if="showNote" :locate-top="locateTop">
@@ -169,5 +172,26 @@ const showHandle = computed(() => {
   @extend .visible-scrollbar;
   overflow-y: auto;
   max-height: calc(var(--max-height) - 25pt);
+}
+
+.footnote-inline {
+  color: #b63afd;
+
+  .night & {
+    color: #d68fff;
+  }
+
+  .monochrome & {
+    color: inherit;
+    font-style: italic;
+  }
+
+  &::before {
+    content: "[";
+  }
+
+  &::after {
+    content: "]";
+  }
 }
 </style>

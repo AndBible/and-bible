@@ -81,7 +81,12 @@ class DocumentControl @Inject constructor(
             Log.w(TAG, "bookFilter: unexpected non-AbstractPassageBook: ${book.initials}")
             false
         } else {
-            book.contains(requiredVerseForSuggestions.toV11n(book.versification))
+            try {
+                book.contains(requiredVerseForSuggestions.toV11n(book.versification))
+            } catch (e: BookException) {
+                // Module may have missing/corrupted data files (see issue #788)
+                false
+            }
         }
     }
 
@@ -90,10 +95,15 @@ class DocumentControl @Inject constructor(
             Log.w(TAG, "commentaryFilter: unexpected non-AbstractPassageBook: ${book.initials}")
             false
         } else {
-            val verse = requiredVerseForSuggestions.toV11n(book.versification)
-            if (!book.contains(verse)) {
+            try {
+                val verse = requiredVerseForSuggestions.toV11n(book.versification)
+                if (!book.contains(verse)) {
+                    false
+                } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+            } catch (e: BookException) {
+                // Module may have missing/corrupted data files (see issue #788)
                 false
-            } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+            }
         }
     }
 

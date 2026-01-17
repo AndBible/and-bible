@@ -142,6 +142,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
         val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
         val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
+        val folderPathPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_folder_path")!!
 
         serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
             val newUrl = newValue as String
@@ -171,10 +172,12 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 usernamePref.isVisible = !isGoogleDrive
                 passwordPref.isVisible = !isGoogleDrive
                 serverUrlPref.isVisible = !isGoogleDrive
+                folderPathPref.isVisible = !isGoogleDrive
                 if(CloudSync.signedIn) {
                     usernamePref.isEnabled = false
                     passwordPref.isEnabled = false
                     serverUrlPref.isEnabled = false
+                    folderPathPref.isEnabled = false
                 }
                 result += " " + getString(R.string.sync_adapter_summary, newValue.displayName)
                 summary = result

@@ -44,6 +44,7 @@ class BookmarkItemAdapter(
     items: List<BookmarkEntities.BaseBookmarkWithNotes>,
     private val bookmarkControl: BookmarkControl,
     private val windowControl: WindowControl,
+    private val showNotes: Boolean = true,
 ) : ArrayAdapter<BookmarkEntities.BaseBookmarkWithNotes>(context, R.layout.bookmark_list_item, items) {
     private lateinit var bindings: BookmarkListItemBinding
 
@@ -96,7 +97,7 @@ class BookmarkItemAdapter(
             }
         }
 
-        if(item.notes != null) {
+        if(showNotes && item.notes != null) {
             bindings.notesText.visibility = View.VISIBLE
             try {
                 val spanned = htmlToSpan(item.notes)

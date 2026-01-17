@@ -42,17 +42,22 @@ private val addStudyPadCursors = makeMigration(6..7) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `workspace_settings_studyPadCursors` TEXT DEFAULT NULL")
 }
 
-private val addTranslateTo = makeMigration(7..8) { _db ->
+private val addFootNotesInline = makeMigration(7..8) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL")
+}
+
+private val addTranslateTo = makeMigration(8..9) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
 }
 
-private val addInfiniteScroll = makeMigration(8..9) { _db ->
+private val addInfiniteScroll = makeMigration(9..10) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
 }
 
-private val addLlmPromptId = makeMigration(9..10) { _db ->
+private val addLlmPromptId = makeMigration(10..11) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
 }
@@ -64,9 +69,10 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addCommentarySourceBookAndKey,
     addPageManagerJsState,
     addStudyPadCursors,
+    addFootNotesInline,
     addTranslateTo,
     addInfiniteScroll,
     addLlmPromptId,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 10
+const val WORKSPACE_DATABASE_VERSION = 11

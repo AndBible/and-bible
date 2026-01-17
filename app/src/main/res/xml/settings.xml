@@ -40,6 +40,11 @@
 			android:summary="@string/choose_strongs_greek_morphology_summary"
 			android:icon="@drawable/ic_morphology_24dp"
 			/>
+		<net.bible.android.view.widget.InverseMultiSelectListPreference android:key="disabled_word_lookup_dictionaries"
+			android:title="@string/choose_word_lookup_dictionary_title"
+			android:summary="@string/choose_word_lookup_dictionary_summary"
+			android:icon="@drawable/ic_dictionary_24dp"
+			/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:title="@string/prefs_behavior_customization_cat"
@@ -93,6 +98,12 @@
             android:entryValues="@array/prefs_bible_view_swipe_mode_values"
             android:icon="@drawable/ic_full_screen_by_scrolling_24dp"
             android:defaultValue="CHAPTER"/>
+		<SwitchPreferenceCompat android:key="volume_keys_scroll"
+			android:title="@string/prefs_volume_keys_scroll_title"
+			android:summary="@string/prefs_volume_keys_scroll_summary"
+			android:defaultValue="true"
+			android:icon="@drawable/ic_baseline_volume_up_24"
+			/>
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"
@@ -122,6 +133,13 @@
             android:summary="@string/prefs_disable_animations_summary"
             android:defaultValue="false"
             android:icon="@drawable/ic_animate_24dp"
+            />
+        <SwitchPreferenceCompat
+            android:key="disable_click_to_edit"
+            android:title="@string/prefs_disable_click_to_edit_title"
+            android:summary="@string/prefs_disable_click_to_edit_summary"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_click_24dp"
             />
         <SeekBarPreference android:key="font_size_multiplier"
             android:title="@string/pref_font_size_multiplier_title"

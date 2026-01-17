@@ -69,8 +69,8 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
-  <string name="prefs_e_ink_mode_title">Nespalvotoji veiksena</string>
-  <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotoje veiksenoje (be spalvų), taip paverčiant ją labiau tinkamą elektroninio popieriaus įrenginiams.</string>
+  <string name="prefs_e_ink_mode_title">Nespalvotasis režimas</string>
+  <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotame režime (be spalvų), taip paverčiant ją labiau tinkama elektroninio popieriaus įrenginiams.</string>
   <string name="prefs_disable_animations_title">Išjungti animacijas</string>
   <string name="prefs_disable_animations_summary">Išjungti įvairias animacijas, tokias kaip, glotnus slinkimas.</string>
   <string name="prefs_paragraph_spacing_title">Tarpai tarp pastraipų (%s mm)</string>
@@ -106,7 +106,7 @@
   <string name="prefs_toolbar_button_action_swap_menu">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti meniu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti dokumentų langą</string>
   <string name="prefs_night_mode_title">Nakties režimo perjungimas</string>
-  <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys palaiko), rankiniu būdu arba per sisteminius nustatymus („Android“ 10+). Rankinį perjungimą galimą atlikti pagrindiniame ekrane, 3 taškų parinkčių meniu.</string>
+  <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys palaiko), rankiniu būdu arba per sisteminius nustatymus („Android“ 10+). Rankinį perjungimą galima atlikti pagrindiniame ekrane, 3 taškų parinkčių meniu.</string>
   <string name="prefs_night_mode_manual">Rankiniu būdu</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>
@@ -132,7 +132,7 @@
   <string name="add_ellipsis">%s…</string>
   <string name="font_size_pt">%d tšk.</string>
   <string name="value_mm">%d mm</string>
-  <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano veikseną. Pastaba: visuomet galima perjungti į viso ekrano veikseną spustelėjus dukart ekrane.</string>
+  <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano režimą. Pastaba: visada galima perjungti į viso ekrano režimą spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
   <string name="prefs_margin_size_mm_title">Paraščių plotis (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Išplėstiniai nustatymai</string>
@@ -166,9 +166,9 @@
   <string name="hide_window_buttons_title">Paslėpti lango mygtukus</string>
   <string name="hide_window_buttons_summary">Biblijos rodinio dešinėje pusėje esantys mygtukai yra paslėpti. Apačioje esanti naršymo juosta yra vis dar rodoma ir jūs galite atverti iškylantįjį langą ant jos paspaudę ir palaikę.</string>
   <string name="hide_bible_reference_overlay_title">Paslėpti Biblijos nuorodų sluoksnį</string>
-  <string name="hide_bible_reference_overlay_summary">Nerodyti pusiau permatomo Biblijos nuorodų sluoksnio, kai programėlė yra atidaryta per visą ekraną</string>
-  <string name="full_screen_hide_buttons_pref_title">Viso ekrano veiksenoje slėpti mygtukų juostą</string>
-  <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano veikseną, automatiškai paslėpti ekrano apačioje esančią lango mygtukų juostą</string>
+  <string name="hide_bible_reference_overlay_summary">Nerodyti pusiau permatomo Biblijos nuorodų sluoksnio, kai programėlė yra atidaryta visame ekrane</string>
+  <string name="full_screen_hide_buttons_pref_title">Viso ekrano režime slėpti lango mygtukų juostą</string>
+  <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano režimą, automatiškai paslėpti ekrano apačioje esančią lango mygtukų juostą</string>
   <string name="prefs_dictionaries_cat">Žodynai</string>
   <string name="choose_strongs_greek_dictionary_title">Strongo graikų žodynas</string>
   <string name="choose_strongs_greek_dictionary_summary">Pasirinkite graikiškų žodžių apibrėžimų Strongo žodyną</string>
@@ -194,8 +194,8 @@
   <string name="color_workspace">Darbo srities spalva</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
-  <string name="colors_day_mode_title">Dienos veiksena</string>
-  <string name="colors_night_mode_title">Nakties veiksena</string>
+  <string name="colors_day_mode_title">Dienos režimas</string>
+  <string name="colors_night_mode_title">Nakties režimas</string>
   <string name="prefs_noise_title">Fono triukšmas</string>
   <string name="prefs_noise_summary">Fonui pridėjus triukšmo, padidėja komfortas akims.</string>
   <string name="cpv_default_title">Pasirinkti spalvą</string>
@@ -530,7 +530,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="speak_fourth">Ketvirtas</string>
   <string name="speak_fifth">Penktas</string>
   <string name="verse_range_mode_disabled">
-        Ištraukos kartojimo veiksena buvo automatiškai išjungta, nes
+        Ištraukos kartojimo režimas buvo automatiškai išjungtas, nes
         kalbėjimas buvo pradėtas už apibrėžtų eilučių srities.
     </string>
   <!--User Notes-->
@@ -698,13 +698,13 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <!--Help-->
   <string name="help_nav_title">Naršymas</string>
   <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
-     Bakstelėkite ekrane dukart, kad perjungtumėte į viso ekrano veikseną.
+     Bakstelėkite ekrane dukart, kad perjungtumėte į viso ekrano režimą.
      Padalinti ekranai (kitaip vadinami langais) turi meniu mygtuką viršutiniame dešiniajame kampe,
      kuris įgalina tam tikras specifines konkretaus lango funkcijas bei nustato lango išvaizdą bei elgseną.</string>
   <string name="help_contextmenus_title">Kontekstiniai meniu</string>
   <string name="help_contextmenus_text">
      Ilgas paspaudimas atveria kontekstinį meniu arba veiksmo meniu keliuose rodiniuose.
-     Ilgas paspaudimas Biblijos rodinyje leis jums atverti veiksmų meniu, kuris turės poveikį dabartinei eilutei.
+     Ilgas paspaudimas Biblijos rodinyje jums leis atverti veiksmų meniu, kuris turės poveikį dabartinei eilutei.
      Ilgas paspaudimas ant dokumentų pasirinkimo arba atsiuntimo rodiniuose esančio dokumento leis jums jį ištrinti arba parodys informaciją apie jį.
      Ilgas paspaudimas ant žymių sąraše esančios žymės leis pridėti etiketę arba pašalinti žymę.
      Ilgas paspaudimas ant nuorodos leis pasirinkti ar atverti ją dabartiniame lange, ar naujame, arba specialiame nuorodų lange.</string>
@@ -765,6 +765,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="format_mysword">MySword dokumentai (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentai (*.SQLite3)</string>
   <string name="format_epub">EPUB dokumentai (*.epub)</string>
+  <string name="format_ttf">TTF šriftai (*.ttf)</string>
   <string name="format_studypads">Bloknotai iš AndBible duomenų bazių (*.abdb)</string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
@@ -774,7 +775,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Aš suprantu</string>
   <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
-  <string name="strongs_mode_title">Pasirinkite Strongo veikseną</string>
+  <string name="strongs_mode_title">Pasirinkite Strongo režimą</string>
   <string name="download_dialog_message">Nepavyko atsisiųsti šių knygų:</string>
   <string name="select_multiple">Žymėti kelias</string>
   <string name="journal_description">Naudotojo redaguojami bloknotai su įterpiamu tekstu ir žymėmis</string>
@@ -796,6 +797,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="unlock_info">Informacija apie šifruoto modulio atrakinimą</string>
   <string name="try_again_passphrase">Slaptafrazė nesuveikė, bandyti dar kartą?</string>
   <string name="show_unlock_info">Modulis ir informacija apie atrakinimą</string>
+  <string name="prefs_experimental_features_title">Eksperimentinės ypatybės</string>
+  <string name="prefs_experimental_features_summary">Pažymėkite, kurias eksperimentines ypatybes norite įjungti. Šios ypatybės yra vis dar plėtojamos ir gali būti pakeistos ar pašalintos</string>
   <string name="prefs_show_error_box_title">Rodyti Javascript klaidų langą</string>
   <string name="prefs_show_error_box_summary">Praverčia plėtotojams derinant BibleView javascript pusės klaidas. Tai sulėtins programėlės veikimą.</string>
   <string name="active_window_indicator_title">Rodyti aktyvaus lango indikatorių</string>
@@ -902,7 +905,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prefs_disable_two_step_bookmarking_title">Vieno žingsnio žymėjimas</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Rodyti „Žymėjimas“ ir „Eilutės“ elementus tiesiogiai Biblijos rodinio žymėjimo meniu</string>
   <string name="prefs_double_tap_to_fullscreen_title">Bakstelėjus du kartus, perjungti į visą ekraną</string>
-  <string name="prefs_double_tap_to_fullscreen_summary">Bakstelėjus du kartus ant lango, įjungti viso ekrano veikseną</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Bakstelėjus du kartus ant lango, įjungti viso ekrano režimą</string>
   <string name="toggle_fullscreen">Visas ekranas</string>
   <string name="exit_fullscreen">Bakstelėkite du kartus, kad išeitumėte iš viso ekrano</string>
   <string name="reset_app_prefs">Ar norite atstatyti visas šiame ekrane rodomas visuotines programėlės nuostatas į jų numatytąsias reikšmes?</string>
@@ -933,11 +936,17 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="document">Dokumentas</string>
   <string name="book">Knyga</string>
   <!--Chapter is the chapter number in the book, starting from 1-->
+  <string name="chapter_start">Skyriaus pradžia</string>
   <!--Verse is the verse number in the chapter, starting from 1-->
+  <string name="verse_start">Eilutės pradžia</string>
+  <string name="chapter_end">Skyriaus pabaiga</string>
+  <string name="verse_end">Eilutės pabaiga</string>
   <string name="id">Identifikatorius</string>
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <string name="created_at">Sukurta</string>
   <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="start_offset">Pradžios poslinkis</string>
+  <string name="end_offset">Pabaigos poslinkis</string>
   <string name="custom_icon">Tinkinta piktograma</string>
   <string name="last_updated_at">Paskiausiai atnaujinta</string>
   <string name="chooser_range">Rėžis</string>

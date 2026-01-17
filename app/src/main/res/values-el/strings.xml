@@ -944,7 +944,11 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="verse_tip">Για να επιλέξετε πολλούς στίχους ή μέρος τους, μπορείτε να πατήσετε παρατεταμένα στο Βιβλικό κείμενο</string>
   <string name="permission_required">Απαιτείται άδεια</string>
   <string name="labels_search_hint">Αναζήτηση</string>
+  <string name="search_mode_name_start">Όνομα (από την αρχή)</string>
+  <string name="search_mode_name_contains">Όνομα (περιεχόμενα)</string>
   <string name="search_mode_content">Περιεχόμενο</string>
+  <string name="search_results_matches">%d αντιστοιχίες</string>
+  <string name="search_results_match">1 αντιστοιχία</string>
   <string name="progress_status_permission">Χρειάζεται η άδειά σας, για την εμφάνιση ειδοποιήσεων (κατάσταση μεταφόρτωσης, πρόοδος, κατάσταση ακρόασης)</string>
   <!--Discrete mode settings-->
   <string name="app_name_calculator">Απλή Αριθμομηχανή</string>

@@ -40,9 +40,13 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.service.sword.SwordDocumentFacade
 
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.crosswire.jsword.index.search.SearchType
 
 import javax.inject.Inject
@@ -58,6 +62,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     private var wordsRadioSelection = R.id.allWords
     private var sectionRadioSelection = R.id.searchAllBible
     private lateinit var currentBookName: String
+    private var selectedTranslations: MutableList<SwordBook> = mutableListOf()
     override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var searchControl: SearchControl
@@ -174,7 +179,92 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         currentBookRadioButton.text = currentBookName
 
+        // Load saved translations or initialize with current document
+        loadSelectedTranslations()
+        if (selectedTranslations.isEmpty()) {
+            selectedTranslations.add(documentToSearch)
+        }
+        updateSelectedTranslationsText()
+
+        // Set up translation selector (both row and edit button are clickable)
+        val translationClickListener = View.OnClickListener {
+            lifecycleScope.launch {
+                showTranslationSelector()
+            }
+        }
+        binding.chooseTranslationsButton.setOnClickListener(translationClickListener)
+        binding.editTranslationsButton.setOnClickListener(translationClickListener)
+
         Log.i(TAG, "Finished displaying Search view")
+    }
+
+    private suspend fun showTranslationSelector() {
+        // Get all Bibles (show index status in label)
+        val allBibles = SwordDocumentFacade.bibles
+            .filterIsInstance<SwordBook>()
+            .sortedBy { it.abbreviation }
+
+        if (allBibles.isEmpty()) {
+            Dialogs.showErrorMsg(R.string.error_occurred)
+            return
+        }
+
+        val selected = Dialogs.multiselect(
+            context = this,
+            title = getString(R.string.choose_translations),
+            items = allBibles,
+            itemToString = { book ->
+                val indexed = book.indexStatus == IndexStatus.DONE
+                if (indexed) {
+                    "${book.abbreviation} - ${book.name}"
+                } else {
+                    "${book.abbreviation} - ${book.name} (${getString(R.string.search_index_not_created)})"
+                }
+            },
+            preSelected = { selectedTranslations.contains(it) }
+        )
+
+        if (selected.isNotEmpty()) {
+            selectedTranslations.clear()
+            selectedTranslations.addAll(selected)
+            // Ensure primary document is first in the list
+            ensurePrimaryDocumentFirst()
+            updateSelectedTranslationsText()
+            saveSelectedTranslations()
+        }
+    }
+
+    private fun updateSelectedTranslationsText() {
+        binding.selectedTranslationsText.text = selectedTranslations.joinToString(", ") { it.abbreviation }
+    }
+
+    private fun ensurePrimaryDocumentFirst() {
+        if (documentToSearch in selectedTranslations && selectedTranslations.first() != documentToSearch) {
+            selectedTranslations.remove(documentToSearch)
+            selectedTranslations.add(0, documentToSearch)
+        }
+    }
+
+    private fun saveSelectedTranslations() {
+        val initials = selectedTranslations.map { it.initials }
+        CommonUtils.settings.setString("search_selected_translations", initials.joinToString(","))
+    }
+
+    private fun loadSelectedTranslations() {
+        val saved = CommonUtils.settings.getString("search_selected_translations", null)
+        if (saved.isNullOrBlank()) return
+
+        val initials = saved.split(",")
+        val books = initials.mapNotNull { initial ->
+            SwordDocumentFacade.bibles
+                .filterIsInstance<SwordBook>()
+                .find { it.initials == initial }
+        }
+        if (books.isNotEmpty()) {
+            selectedTranslations.clear()
+            selectedTranslations.addAll(books)
+            ensurePrimaryDocumentFirst()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -224,6 +314,15 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
+            // Check if any selected translation needs indexing
+            val unindexedTranslations = selectedTranslations.filter { it.indexStatus != IndexStatus.DONE }
+            if (unindexedTranslations.isNotEmpty()) {
+                // Redirect to SearchIndex for the first unindexed translation
+                val intent = Intent(this, SearchIndex::class.java)
+                intent.putExtra(SearchControl.SEARCH_DOCUMENT, unindexedTranslations.first().initials)
+                startActivity(intent)
+                return
+            }
 
             // update current intent so search is restored if we return here via history/back
             // the current intent is saved by HistoryManager
@@ -242,6 +341,11 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             val currentDocInitials = documentToSearch.initials
             intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials)
             intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials)
+
+            // Pass selected translations for multi-translation search
+            val translationInitials = ArrayList(selectedTranslations.map { it.initials })
+            intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, translationInitials)
+
             startActivityForResult(intent, 1)
 
             // Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish

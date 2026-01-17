@@ -51,12 +51,14 @@
                 @click="moveCursorTo(index)"
             />
             <StudyPadRow
-                :key="`studypad-${j.type}-${j.id}`"
-                :ref="setStudyPadRowRef"
-                :journal-entry="j"
-                :label="document.label"
-                @add="adding=true"
+              :key="`studypad-${j.type}-${j.id}`"
+              :ref="setStudyPadRowRef"
+              :journal-entry="j"
+              :label="document.label"
+              :disable-click-to-edit="appSettings.disableClickToEdit"
+              @add="adding=true"
             />
+
           </div>
         </div>
       </template>

@@ -1,0 +1,23 @@
+<!--
+  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<vector android:height="24dp" android:viewportHeight="100"
+    android:viewportWidth="100" android:width="24dp" xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillColor="@color/grey_500"
+        android:pathData="M 23 23 L 23 17 L 31 18 L 31 23 Z M 28 8 L 32 4 L 38 10 L 33 14 Z M 57 18 L 65 17 L 66 23 L 58 23 Z M 51 10 L 56 4 L 61 8 L 55 14 Z M 41 1 L 47 1 L 47 9 L 41 9 Z M 78 43 C 77 43 76 43 75 44 C 74 40 71 38 67 38 C 66 38 65 38 64 38 C 63 35 59 33 56 33 C 55 33 54 33 53 33 L 53 24 C 53 19 49 16 44 16 C 40 16 36 19 36 24 L 36 61 L 33 56 L 33 56 C 29 52 24 51 19 54 C 17 55 16 57 15 60 C 14 63 15 65 17 68 L 31 91 L 31 91 C 35 96 41 100 48 100 L 65 100 C 77 100 86 90 86 78 L 86 52 C 86 47 83 43 78 43 Z M 81 78 C 81 87 74 94 65 94 L 48 94 C 43 94 39 92 36 88 L 21 64 L 21 64 C 21 63 20 62 21 61 C 21 60 22 59 23 58 C 24 57 27 58 28 59 L 42 80 L 42 24 C 42 23 43 21 44 21 C 46 21 47 23 47 24 L 47 53 L 53 53 L 53 41 C 53 40 54 38 56 38 C 57 38 58 40 58 41 L 58 53 L 64 53 L 64 46 C 64 45 65 44 67 44 C 68 44 69 45 69 46 L 69 53 L 75 53 L 75 52 L 75 52 C 75 50 77 49 78 49 C 79 49 81 50 81 52 L 81 78 Z"
+        android:strokeWidth="1"/>
+</vector>

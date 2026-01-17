@@ -86,6 +86,14 @@ class InverseMultiSelectListPreference : DialogPreference {
         persistStringSet(mValues)
     }
 
+    var entries: Array<CharSequence>?
+        get() = mEntries
+        set(value) { mEntries = value }
+
+    var entryValues: Array<CharSequence>?
+        get() = mEntryValues
+        set(value) { mEntryValues = value }
+
     override fun onClick() {
         val entryValues = mEntryValues ?: return
         val entries = mEntries ?: return

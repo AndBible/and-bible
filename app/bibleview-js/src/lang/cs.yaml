@@ -57,17 +57,17 @@ openDownloads: Přejít na stažení doplňků
 verseShare: Sdílet
 verseSpeak: Předčítání
 verseCompare: Porovnat
-verseMemorize: ""
+verseMemorize: Zapamatovat
 verseNote: Poznámka
 verseMyNotes: Poznámky
 verseParagraphBreak: ""
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
-verseMemorizeLong: ""
+verseMemorizeLong: Zapamatovat biblické verše
 verseNoteLong: Napsat poznámku
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Zalomení odstavce
 addBookmark: Záložka
-selectCustomIconTitle: ""
+selectCustomIconTitle: Vybrat vlastní ikonu pro záložku
 bookmarkSettingsTitle: ""
 subtitlePlaceholder: ""
 customIconLabel: ""
@@ -76,7 +76,7 @@ editActionModeLabel: ""
 editActionModeNone: ""
 editActionModeAppend: ""
 editActionModePrepend: ""
-editActionContentLabel: ""
+editActionContentLabel: Obsah
 editActionContentPlaceholder: ""
 experimentalFeatureTitle: ""
 experimentalFeatureHelpTitle: ""

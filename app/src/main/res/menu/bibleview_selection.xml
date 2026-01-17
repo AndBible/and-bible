@@ -76,6 +76,12 @@
             app:showAsAction="always"
             android:visible="false"
             />
+        <item android:id="@+id/lookup_dictionary"
+            android:title="@string/lookup_in_dictionary"
+            android:orderInCategory="2"
+            app:showAsAction="always"
+            android:visible="false"
+            />
         <item android:id="@+id/add_paragraph_break"
             android:title="@string/add_paragraph_break"
             android:orderInCategory="2"

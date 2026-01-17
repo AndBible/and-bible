@@ -193,6 +193,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.STRONGS -> R.string.prefs_show_strongs_title
                 TextDisplaySettings.Types.MORPH -> R.string.prefs_show_morphology_title
                 TextDisplaySettings.Types.FOOTNOTES -> R.string.prefs_show_footnotes_title
+                TextDisplaySettings.Types.FOOTNOTES_INLINE -> R.string.prefs_show_footnotes_inline_title
                 TextDisplaySettings.Types.EXPAND_XREFS -> R.string.prefs_expand_footnotes_title
                 TextDisplaySettings.Types.XREFS -> R.string.prefs_show_xrefs_title
                 TextDisplaySettings.Types.REDLETTERS -> R.string.prefs_red_letter_title
@@ -342,6 +343,20 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
         get() {
             val itm = StrongsPreference(settings)
             return itm.enabled && itm.value as Int > 0
+        }
+
+    override var value: Any
+        get() = if (enabled) super.value else false
+        set(value) {
+            super.value = value
+        }
+}
+
+class FootnotesInlinePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FOOTNOTES_INLINE) {
+    override val enabled: Boolean
+        get() {
+            val footnotes = Preference(settings, TextDisplaySettings.Types.FOOTNOTES)
+            return footnotes.value == true
         }
 
     override var value: Any

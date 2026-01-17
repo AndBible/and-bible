@@ -52,12 +52,14 @@ const props = withDefaults(defineProps<{
     text: Nullable<string>
     maxEditorHeight?: string
     constraintDisplayHeight?: boolean
+    disableClickToEdit?: boolean
 }>(), {
     editDirectly: false,
     showPlaceholder: false,
     text: null,
     maxEditorHeight: "inherit",
-    constraintDisplayHeight: false
+    constraintDisplayHeight: false,
+    disableClickToEdit: false
 })
 
 const editMode = ref<boolean>(props.editDirectly);
@@ -97,7 +99,7 @@ function textChanged(newText: string) {
 }
 
 function handleClicks(event: MouseEvent) {
-    if ((event.target! as HTMLElement).nodeName !== "A") {
+    if (!props.disableClickToEdit && (event.target! as HTMLElement).nodeName !== "A") {
         editMode.value = true;
     }
 }

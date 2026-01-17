@@ -131,6 +131,7 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
@@ -367,6 +368,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             R.id.web_search -> {
                 if (currentSelectionText != null) { openWebSearch(mainBibleActivity, currentSelectionText!!) }
+                return true
+            }
+            R.id.lookup_dictionary -> {
+                val text = currentSelectionText
+                if (text != null) {
+                    linkControl.lookupInDictionaries(text)
+                }
                 return true
             }
             R.id.search -> {
@@ -636,6 +644,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             if (currentSelectionText != null) {
                 menu.findItem(R.id.web_search).apply {
+                    isVisible = true
+                }
+            }
+            if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries.isNotEmpty()) {
+                menu.findItem(R.id.lookup_dictionary).apply {
                     isVisible = true
                 }
             }
@@ -1423,6 +1436,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
+        val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
@@ -1446,6 +1460,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
+                        disableClickToEdit:  $disableClickToEdit,
                     }, 
                     initial: $initial,
                     });

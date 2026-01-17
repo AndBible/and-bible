@@ -339,6 +339,7 @@ class LinkControl @Inject constructor(
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
+
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
         intent = if (needToIndex) {
@@ -347,6 +348,8 @@ class LinkControl @Inject constructor(
             Intent(activity, SearchResults::class.java)
         }
         intent.putExtras(searchParams)
+        //Add single translation in a list to cover for the multitranslation search page.
+        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(listOf(strongsBible.initials)))
         activity.startActivity(intent)
     }
 
@@ -415,6 +418,56 @@ class LinkControl @Inject constructor(
         val key = StudyPadKey(label, bookmarkId)
         showLink(FakeBookFactory.journalDocument, key)
         return true
+    }
+
+    /**
+     * Look up a word/phrase in configured dictionaries.
+     * Uses efficient binary search via book.getKey() for exact matching.
+     * Returns true if results were found, false otherwise.
+     */
+    fun lookupInDictionaries(text: String): Boolean {
+        val dictionaries = SwordDocumentFacade.wordLookupDictionaries
+        if (dictionaries.isEmpty()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val searchText = normalizeSearchText(text)
+        if (searchText.isBlank()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val bookAndKeys = mutableListOf<BookAndKey>()
+
+        for (dict in dictionaries) {
+            // Use getKey() which internally uses binary search - efficient O(log n)
+            // JSword handles case normalization internally (converts to uppercase by default)
+            val key = try {
+                dict.getKey(searchText)
+            } catch (_: NoSuchKeyException) {
+                null
+            }
+            if (key != null) {
+                bookAndKeys.add(BookAndKey(key, dict))
+            }
+        }
+
+        if (bookAndKeys.isEmpty()) {
+            Dialogs.showErrorMsg(R.string.word_not_found_in_dictionaries)
+            return false
+        }
+
+        val keyList = bookAndKeyListOf(bookAndKeys)
+        keyList.name = text
+        showLink(FakeBookFactory.multiDocument, keyList)
+        return true
+    }
+
+    private fun normalizeSearchText(text: String): String {
+        // Trim and remove trailing punctuation
+        return text.trim()
+            .replace(Regex("[.,;:!?\"'()\\[\\]]+$"), "")
     }
 
     companion object {
