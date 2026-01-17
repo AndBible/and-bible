@@ -434,6 +434,7 @@ object CommonUtils : CommonUtilsBase() {
 
         val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
+        val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
         val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)

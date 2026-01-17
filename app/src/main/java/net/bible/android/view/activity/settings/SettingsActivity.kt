@@ -156,6 +156,7 @@ class SettingsActivity: ActivityBase() {
                     "disable_gen_bookmark_modal_buttons",
                     "monochrome_mode",
                     "disable_animations",
+                    "disable_click_to_edit",
                     "font_size_multiplier",
                     "bible_view_swipe_mode",
                     "experimental_features"

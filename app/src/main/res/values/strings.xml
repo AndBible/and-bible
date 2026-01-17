@@ -109,6 +109,9 @@
     <string name="prefs_disable_animations_title">Disable animations</string>
     <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>
 
+    <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>
+    <string name="prefs_disable_click_to_edit_summary">Requires using the edit button to edit notes in the Study Pad.</string>
+
     <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
     <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
 
