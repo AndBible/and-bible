@@ -339,6 +339,7 @@ class LinkControl @Inject constructor(
         val searchParams = Bundle()
         searchParams.putString(SearchControl.SEARCH_TEXT, searchText)
         searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.initials)
+
         searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.initials)
         var intent: Intent? = null
         intent = if (needToIndex) {
@@ -347,6 +348,8 @@ class LinkControl @Inject constructor(
             Intent(activity, SearchResults::class.java)
         }
         intent.putExtras(searchParams)
+        //Add single translation in a list to cover for the multitranslation search page.
+        intent.putStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS, ArrayList(listOf(strongsBible.initials)))
         activity.startActivity(intent)
     }
 
