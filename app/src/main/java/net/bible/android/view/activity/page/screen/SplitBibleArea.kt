@@ -77,11 +77,14 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.shortName
 import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isSpecial
 import net.bible.service.download.isStudyPad
+import net.bible.service.llm.PromptContext
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.book.BookCategory
@@ -797,6 +800,26 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             item.setIcon(R.drawable.ic_text_options_24dp)
         }
 
+        // Populate LLM actions submenu
+        val llmActionsSubMenu = menu.findItem(R.id.llmActionsSubMenu)
+        if (CommonUtils.settings.llmConfigured) {
+            val llmSubMenu = llmActionsSubMenu.subMenu!!
+            llmSubMenu.removeItem(R.id.llmActionItem)
+            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+            val prompts = dao.allPrompts().filter { prompt ->
+                PromptContext.WINDOW_MENU in prompt.showIn
+            }
+            if (prompts.isEmpty()) {
+                llmActionsSubMenu.isVisible = false
+            } else {
+                prompts.forEachIndexed { idx, prompt ->
+                    llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
+                }
+            }
+        } else {
+            llmActionsSubMenu.isVisible = false
+        }
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item)
@@ -1016,6 +1039,27 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     !window.pageManager.isBibleShown &&
                     window.pageManager.currentPage.currentDocument?.isSpecial != true
             )
+            R.id.llmActionsSubMenu -> SubMenuPreference(
+                onlyBibles = false,
+                visible = CommonUtils.settings.llmConfigured && window.isVisible
+            )
+            R.id.llmActionItem -> CommandPreference({ _, _, _ ->
+                // Execute the selected LLM prompt for the entire window content
+                val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+                val prompts = dao.allPrompts().filter { p ->
+                    PromptContext.WINDOW_MENU in p.showIn
+                }
+                if (order < prompts.size) {
+                    val selectedPrompt = prompts[order]
+                    val currentPage = window.pageManager.currentPage
+                    val book = currentPage.currentDocument
+                    val key = currentPage.key
+                    if (book != null && key != null) {
+                        val selection = Selection(book.initials, 0, null)
+                        mainBibleActivity.showLlmPromptSelector(selection)
+                    }
+                }
+            })
             else -> throw RuntimeException("Illegal menu item")
         }
     }

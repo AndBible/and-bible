@@ -144,6 +144,8 @@ type TranslatedStrings = {
     loadMore: string
     previousChapter: string
     nextChapter: string
+    llmAction: string
+    llmActionLong: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

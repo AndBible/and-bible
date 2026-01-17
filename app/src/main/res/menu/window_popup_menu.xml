@@ -111,6 +111,16 @@
 			</item>
 		</menu>
 	</item>
+	<item
+		android:id="@+id/llmActionsSubMenu"
+		android:icon="@drawable/ic_baseline_smart_toy_24"
+		android:title="@string/llm_actions">
+		<menu>
+			<item android:id="@+id/llmActionItem"
+				android:title=""
+				/>
+		</menu>
+	</item>
 	<item android:id="@+id/copyReference"
 		android:title="@string/copyReference"
 		android:icon="@drawable/ic_content_copy_black_24dp"/>

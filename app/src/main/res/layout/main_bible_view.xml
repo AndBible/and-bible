@@ -188,6 +188,14 @@
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
+        <net.bible.android.view.util.widget.AgentLogWidget
+            android:id="@+id/agentLogWidget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/speakTransport"
+            />
+
         <net.bible.android.view.util.widget.SpeakTransportWidget
             android:id="@+id/speakTransport"
             android:layout_width="match_parent"

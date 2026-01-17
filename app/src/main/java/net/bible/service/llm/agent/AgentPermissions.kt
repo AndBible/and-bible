@@ -31,3 +31,16 @@ enum class PermissionMode {
     /** Deny all write operations without asking */
     DENY_ALL
 }
+
+/**
+ * Represents a permission request from an agent tool.
+ *
+ * @param toolName Name of the tool requesting permission
+ * @param description Human-readable description of what the tool wants to do
+ * @param details Additional details about the operation (e.g., parameters)
+ */
+data class AgentPermission(
+    val toolName: String,
+    val description: String,
+    val details: String? = null
+)

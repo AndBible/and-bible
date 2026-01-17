@@ -1,0 +1,204 @@
+/*
+ * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.android.view.util.widget
+
+import android.content.Context
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.LinearLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import net.bible.android.activity.R
+import net.bible.android.activity.databinding.AgentLogWidgetBinding
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
+import net.bible.android.view.activity.ai.AgentLogAdapter
+import net.bible.service.common.CommonUtils.buildActivityComponent
+import net.bible.service.llm.agent.AgentLogEntry
+import net.bible.service.llm.agent.AgentLogUpdatedEvent
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
+import javax.inject.Inject
+
+/**
+ * Event posted when the agent log widget visibility changes.
+ *
+ * @param visible Whether the widget is now visible
+ * @param height The height of the widget (for offset calculation)
+ */
+class AgentLogVisibilityChanged(val visible: Boolean, val height: Int)
+
+/**
+ * Widget for displaying the agent execution log.
+ *
+ * Shows a collapsible list of log entries from the current agent session.
+ * The widget is shown/hidden based on agent activity and user interaction.
+ */
+class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayout(context, attributeSet) {
+
+    private val binding = AgentLogWidgetBinding.inflate(
+        context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
+        this, true
+    )
+
+    @Inject
+    lateinit var windowControl: WindowControl
+
+    private val adapter = AgentLogAdapter()
+    private var isExpanded = false
+    private var workspaceId: IdType? = null
+
+    init {
+        buildActivityComponent().inject(this)
+
+        binding.apply {
+            logRecyclerView.layoutManager = LinearLayoutManager(context)
+            logRecyclerView.adapter = adapter
+
+            expandButton.setOnClickListener { toggleExpanded() }
+            closeButton.setOnClickListener { hide() }
+            headerLayout.setOnClickListener { toggleExpanded() }
+        }
+
+        updateExpandIcon()
+    }
+
+    override fun onDetachedFromWindow() {
+        ABEventBus.unregister(this)
+        super.onDetachedFromWindow()
+    }
+
+    override fun onAttachedToWindow() {
+        ABEventBus.safelyRegister(this)
+        super.onAttachedToWindow()
+
+        // Get current workspace ID and load entries
+        workspaceId = windowControl.windowRepository.id
+        refreshLogEntries()
+    }
+
+    /**
+     * Toggle the expanded state of the log.
+     */
+    private fun toggleExpanded() {
+        isExpanded = !isExpanded
+        binding.logRecyclerView.visibility = if (isExpanded) View.VISIBLE else View.GONE
+        updateExpandIcon()
+        notifyVisibilityChanged()
+    }
+
+    /**
+     * Update the expand/collapse icon based on current state.
+     */
+    private fun updateExpandIcon() {
+        val iconRes = if (isExpanded) {
+            R.drawable.ic_expand_more_24
+        } else {
+            R.drawable.ic_expand_less_24
+        }
+        binding.expandButton.setImageResource(iconRes)
+    }
+
+    /**
+     * Show the widget.
+     */
+    fun show() {
+        visibility = View.VISIBLE
+        notifyVisibilityChanged()
+    }
+
+    /**
+     * Hide the widget.
+     */
+    fun hide() {
+        visibility = View.GONE
+        notifyVisibilityChanged()
+    }
+
+    /**
+     * Post visibility change event for offset calculation.
+     */
+    private fun notifyVisibilityChanged() {
+        val totalHeight = if (visibility == View.VISIBLE) {
+            // Measure the widget height
+            measure(
+                MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+                MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+            )
+            measuredHeight
+        } else {
+            0
+        }
+        ABEventBus.post(AgentLogVisibilityChanged(visibility == View.VISIBLE, totalHeight))
+    }
+
+    /**
+     * Refresh the log entries from the session manager.
+     */
+    private fun refreshLogEntries() {
+        val wsId = workspaceId ?: return
+        val entries = AgentSessionManager.getLogEntries(wsId)
+        adapter.submitList(entries.toList())
+
+        // Update status text based on session state
+        val isRunning = AgentSessionManager.isRunning(wsId)
+        updateStatusText(isRunning)
+    }
+
+    /**
+     * Update the status text.
+     */
+    private fun updateStatusText(isRunning: Boolean) {
+        binding.statusText.text = if (isRunning) {
+            context.getString(R.string.agent_log_running)
+        } else {
+            context.getString(R.string.agent_log_idle)
+        }
+    }
+
+    /**
+     * Handle log update events.
+     */
+    fun onEventMainThread(event: AgentLogUpdatedEvent) {
+        if (event.workspaceId == workspaceId) {
+            refreshLogEntries()
+            // Auto-scroll to bottom when new entries are added
+            if (adapter.itemCount > 0 && isExpanded) {
+                binding.logRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
+            }
+        }
+    }
+
+    /**
+     * Handle session status change events.
+     */
+    fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
+        if (event.workspaceId == workspaceId) {
+            updateStatusText(event.isRunning)
+            // Auto-show when agent starts
+            if (event.isRunning && visibility != View.VISIBLE) {
+                show()
+            }
+        }
+    }
+
+    companion object {
+        const val TAG = "AgentLogWidget"
+    }
+}

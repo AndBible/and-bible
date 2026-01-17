@@ -90,8 +90,8 @@ export type Config = {
     infiniteScroll: boolean,
 }
 
-export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"
-export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
+export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
 export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type AppSettings = {
@@ -120,6 +120,7 @@ export type AppSettings = {
     disableClickToEdit: boolean,
     fontSizeMultiplier: number,
     enabledExperimentalFeatures: Feature[],
+    llmConfigured: boolean,
 }
 
 export type CalculatedConfig = Ref<{
@@ -209,6 +210,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         disableClickToEdit: false,
         fontSizeMultiplier: 1.0,
         enabledExperimentalFeatures: [],
+        llmConfigured: false,
     });
 
     function calcMmInPx() {

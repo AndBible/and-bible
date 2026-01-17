@@ -101,6 +101,8 @@ export type BibleJavascriptInterface = {
     saveState: (newState: string) => void,
     goToNextChapter: () => void,
     goToPreviousChapter: () => void,
+    llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -558,6 +560,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.goToPreviousChapter();
     }
 
+    function llmAction(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.llmAction(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function llmActionGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -611,6 +621,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         saveState,
         goToNextChapter,
         goToPreviousChapter,
+        llmAction,
+        llmActionGeneric,
     }
 
     if (config.developmentMode) return {

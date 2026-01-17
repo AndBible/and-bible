@@ -31,6 +31,7 @@
     <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
     <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
     <FontAwesomeIcon v-else-if="button === 'ADD_PARAGRAPH_BREAK'" :icon="faParagraph"/>
+    <FontAwesomeIcon v-else-if="button === 'LLM_ACTION'" :icon="faRobot"/>
     <div class="title">
       <template v-if="button === 'BOOKMARK'">{{ strings.addBookmark }}</template>
       <template v-else-if="button === 'BOOKMARK_NOTES'">{{ vertical ? strings.verseNoteLong : strings.verseNote }}</template>
@@ -40,6 +41,7 @@
       <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
       <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
       <template v-else-if="button === 'ADD_PARAGRAPH_BREAK'">{{ vertical ? strings.verseParagraphBreakLong : strings.verseParagraphBreak }}</template>
+      <template v-else-if="button === 'LLM_ACTION'">{{ vertical ? strings.llmActionLong : strings.llmAction }}</template>
     </div>
   </div>
 </template>
@@ -49,7 +51,7 @@ import { PropType } from "vue";
 import { FontAwesomeIcon, FontAwesomeLayers } from "@fortawesome/vue-fontawesome";
 import { useCommon } from "@/composables";
 import { ModalButtonId } from "@/composables/config";
-import { faBrain, faParagraph } from "@fortawesome/free-solid-svg-icons";
+import { faBrain, faParagraph, faRobot } from "@fortawesome/free-solid-svg-icons";
 
 defineProps({
   button: {

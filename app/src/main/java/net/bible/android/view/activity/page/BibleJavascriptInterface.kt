@@ -688,5 +688,20 @@ class BibleJavascriptInterface(
             mainBibleActivity.bibleViewFactory.crashAll()
         }
     }
+
+    @JavascriptInterface
+    fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

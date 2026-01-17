@@ -1461,7 +1461,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
                         disableClickToEdit:  $disableClickToEdit,
-                    }, 
+                        llmConfigured: ${CommonUtils.settings.llmConfigured},
+                    },
                     initial: $initial,
                     });
                 """

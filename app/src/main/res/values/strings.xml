@@ -1389,6 +1389,20 @@
     <string name="allow">Allow</string>
     <string name="deny">Deny</string>
 
+    <!-- LLM One Tap Actions -->
+    <string name="select_llm_prompt">Select AI Action</string>
+    <string name="no_llm_prompts_configured">No AI prompts configured for verse selection</string>
+    <string name="llm_prompt_executing">Executing AI prompt: %s</string>
+    <string name="llm_actions">AI Actions</string>
+
+    <!-- Agent Log Widget -->
+    <string name="agent_log_expand">Expand/collapse agent log</string>
+    <string name="agent_log_close">Close agent log</string>
+    <string name="agent_log_idle">AI Assistant</string>
+    <string name="agent_log_running">AI is working…</string>
+    <string name="agent_log_completed">Completed</string>
+    <string name="agent_log_error">Error occurred</string>
+
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>
     <string name="my_documents_empty">No documents yet. Tap + to create one.</string>

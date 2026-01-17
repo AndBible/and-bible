@@ -55,6 +55,7 @@ import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.util.widget.ShareWidget
+import net.bible.android.view.util.widget.AgentLogWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
@@ -104,6 +105,7 @@ interface ActivityComponent {
     fun inject(sel: Selection)
     fun inject(searchIndex: SearchIndex)
     fun inject(w: SpeakTransportWidget)
+    fun inject(w: AgentLogWidget)
     fun inject(search: Search)
     fun inject(search: EpubSearch)
     fun inject(searchResults: EpubSearchResults)

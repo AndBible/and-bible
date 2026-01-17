@@ -107,6 +107,7 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
+import net.bible.android.view.activity.ai.LlmTestActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -127,6 +128,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
+import net.bible.android.view.util.widget.AgentLogVisibilityChanged
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -145,6 +147,7 @@ import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.LlmEvent
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.llm.AgentPrompt
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
@@ -222,6 +225,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             ABEventBus.post(SpeakTransportVisibilityChanged(value))
         }
 
+    // Agent log widget visibility and height for offset calculation
+    private var agentLogVisible = false
+    private var agentLogHeight = 0
+
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -243,10 +250,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
 
-    // WebView UI-only offset (transport + buttons, no navigation bar)
+    // WebView UI-only offset (transport + buttons + agent log, no navigation bar)
     val bottomOffsetForWebView get() =
         (if (transportBarVisible) transportBarHeight else 0) +
-            (if (restoreButtonsVisible) windowButtonHeight else 0)
+            (if (restoreButtonsVisible) windowButtonHeight else 0) +
+            (if (agentLogVisible) agentLogHeight else 0)
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
@@ -375,6 +383,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
+        // Show/hide AI features based on LLM configuration
+        navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.llmConfigured
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
@@ -886,7 +896,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             }, opensDialog = true)
             R.id.llmTestSuite -> CommandPreference(launch = { _, _, _ ->
-                val intent = Intent(this, net.bible.android.view.activity.ai.LlmTestActivity::class.java)
+                val intent = Intent(this, LlmTestActivity::class.java)
                 startActivity(intent)
             }, opensDialog = true)
             else -> throw RuntimeException("Illegal menu item")
@@ -1198,6 +1208,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEventMainThread(event: LlmEvent) {
         binding.llmIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
+    }
+
+    fun onEventMainThread(event: AgentLogVisibilityChanged) {
+        agentLogVisible = event.visible
+        agentLogHeight = event.height
+        updateBottomBars()
     }
 
     private fun openLink(uri: Uri) {
@@ -2073,6 +2089,57 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onStart() {
         super.onStart()
         CommonUtils.onyxSupport?.setupOnyxNormal()
+    }
+
+    /**
+     * Show LLM prompt selector dialog for the given selection.
+     * Filters prompts by VERSE_SELECTION context and shows them in a dialog.
+     */
+    fun showLlmPromptSelector(selection: Selection) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+            val prompts = dao.allPrompts().filter {
+                net.bible.service.llm.PromptContext.VERSE_SELECTION in it.showIn
+            }
+
+            if (prompts.isEmpty()) {
+                launch(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MainBibleActivity,
+                        R.string.no_llm_prompts_configured,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
+
+            val promptNames = prompts.map { it.name }.toTypedArray()
+            launch(Dispatchers.Main) {
+                AlertDialog.Builder(this@MainBibleActivity)
+                    .setTitle(R.string.select_llm_prompt)
+                    .setItems(promptNames) { _, which ->
+                        val selectedPrompt = prompts[which]
+                        executeLlmPrompt(selection, selectedPrompt)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+        }
+    }
+
+    /**
+     * Execute the selected LLM prompt with the given selection.
+     */
+    private fun executeLlmPrompt(selection: Selection, prompt: AgentPrompt) {
+        lifecycleScope.launch(Dispatchers.Main) {
+            // TODO: Implement agent execution with the selection and prompt
+            // This will be implemented in a later phase with AgentSessionManager
+            Toast.makeText(
+                this@MainBibleActivity,
+                getString(R.string.llm_prompt_executing, prompt.name),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 
     companion object {
