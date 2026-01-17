@@ -1402,6 +1402,7 @@
     <string name="agent_log_running">AI is working…</string>
     <string name="agent_log_completed">Completed</string>
     <string name="agent_log_error">Error occurred</string>
+    <string name="agent_execution_completed">Agent execution completed</string>
 
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>

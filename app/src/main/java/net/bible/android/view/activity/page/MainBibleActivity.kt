@@ -148,6 +148,14 @@ import net.bible.service.llm.LlmEvent
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.agent.AgentEvent
+import net.bible.service.llm.agent.AgentExecutor
+import net.bible.service.llm.agent.AgentLogEntry
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.EntryStatus
+import net.bible.service.llm.agent.LogEntryType
+import net.bible.service.llm.tools.ToolResult
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
@@ -2131,14 +2139,79 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Execute the selected LLM prompt with the given selection.
      */
     private fun executeLlmPrompt(selection: Selection, prompt: AgentPrompt) {
-        lifecycleScope.launch(Dispatchers.Main) {
-            // TODO: Implement agent execution with the selection and prompt
-            // This will be implemented in a later phase with AgentSessionManager
-            Toast.makeText(
-                this@MainBibleActivity,
-                getString(R.string.llm_prompt_executing, prompt.name),
-                Toast.LENGTH_SHORT
-            ).show()
+        val workspaceId = windowControl.windowRepository.id
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            // Create agent context
+            val context = AgentContext(
+                promptId = prompt.id,
+                activeDocumentInitials = selection.bookInitials,
+                selectedText = selection.text
+            )
+
+            // Get or create session and start it
+            val session = AgentSessionManager.getOrCreateSession(workspaceId)
+            session.start(context)
+
+            // Execute the prompt using AgentExecutor
+            val executor = AgentExecutor()
+            executor.execute(prompt.id, context).collect { event ->
+                when (event) {
+                    is AgentEvent.Started -> {
+                        session.addLogEntry(
+                            AgentLogEntry.info(
+                                getString(R.string.llm_prompt_executing, prompt.name),
+                                details = selection.osisRef ?: "${selection.startOrdinal}-${selection.endOrdinal}"
+                            )
+                        )
+                    }
+                    is AgentEvent.Iteration -> {
+                        session.addLogEntry(
+                            AgentLogEntry.info("Iteration ${event.number}")
+                        )
+                    }
+                    is AgentEvent.ToolCalling -> {
+                        session.addLogEntry(
+                            AgentLogEntry.action(
+                                "Calling tool: ${event.toolName}",
+                                details = event.arguments
+                            )
+                        )
+                    }
+                    is AgentEvent.ToolCompleted -> {
+                        val isSuccess = event.result is ToolResult.Success
+                        val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
+                        session.addLogEntry(
+                            AgentLogEntry(
+                                type = LogEntryType.ACTION,
+                                message = "Tool ${event.toolName} ${if (isSuccess) "completed" else "failed"}",
+                                details = event.result.toJson(),
+                                status = status
+                            )
+                        )
+                    }
+                    is AgentEvent.TextResponse -> {
+                        if (event.isFinal) {
+                            session.addLogEntry(
+                                AgentLogEntry.info("Response received", details = event.text.take(200))
+                            )
+                        }
+                    }
+                    is AgentEvent.Completed -> {
+                        session.stop(getString(R.string.agent_execution_completed))
+                    }
+                    is AgentEvent.Error -> {
+                        session.addLogEntry(
+                            AgentLogEntry.error(event.message, details = event.cause?.message)
+                        )
+                        session.stop()
+                    }
+                    is AgentEvent.Cancelled -> {
+                        session.addLogEntry(AgentLogEntry.info("Cancelled"))
+                        session.stop()
+                    }
+                }
+            }
         }
     }
 
