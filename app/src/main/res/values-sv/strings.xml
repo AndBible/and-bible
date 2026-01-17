@@ -94,7 +94,7 @@
   <string name="prefs_show_xrefs_title">Parallellhänvisningar</string>
   <string name="prefs_show_footnotes_summary">Visa fotnoter, om de är tillgängliga i dokumentet</string>
   <string name="prefs_show_xrefs_summary">Visa parallellhänvisningar om de är tillgängliga i dokumentet</string>
-  <string name="prefs_show_notes_title">Fotnoter och referenser</string>
+  <string name="prefs_show_notes_title">Fotnoter och parallellhänvisningar</string>
   <string name="prefs_show_strongs_title">Strongs nummer</string>
   <string name="prefs_show_morphology_title">Morfologiska koder</string>
   <string name="prefs_section_title_title">Rubriker</string>
@@ -124,7 +124,7 @@
   <string name="prefs_request_sdcard_permission_title">Manuellt installerade dokument finns</string>
   <string name="prefs_request_sdcard_permission_summary">Aktivera användning av manuellt installerade dokument från jsword/sword mappen i den lokala lagringen</string>
   <string name="prefs_expand_footnotes_title">Parallellhänvisningar inuti texten</string>
-  <string name="prefs_expand_footnotes_summary">Visa parallellhänvisningens innehåll i texten, i stället för en länk som öppnar en dialogruta</string>
+  <string name="prefs_expand_footnotes_summary">Visa parallellhänvisningens innehåll i texten i stället för en länk som öppnar en dialogruta</string>
   <string name="all_text_options_window_menutitle">Alla textinställningar</string>
   <string name="text_options_window_menutitle">Textinställningar</string>
   <string name="auto_fullscreen">Helskärm genom att skrolla</string>
@@ -997,7 +997,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="verse_tip">För att markera en del av en vers eller flera verser kan du långtrycka på bibeltexten.</string>
   <string name="permission_required">Rättigheter behövs</string>
   <string name="labels_search_hint">Sök</string>
-  <string name="search_mode_name_start">Namn (från start)</string>
+  <string name="search_mode_name_start">Namn (från början)</string>
   <string name="search_mode_name_contains">Namn (innehåller)</string>
   <string name="search_mode_content">Innehåll</string>
   <string name="search_results_matches">%d träffar</string>

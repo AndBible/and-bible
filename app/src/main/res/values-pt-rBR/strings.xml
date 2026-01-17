@@ -361,6 +361,7 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="add_bookmark_whole_verse">Adicionar marcador ao versículo</string>
   <string name="add_bookmark_whole_verse1">Versículos</string>
   <string name="add_bookmark_whole_verse2">Versículo inteiro</string>
+  <string name="add_paragraph_break">Quebra de parágrafo</string>
   <string name="remove_bookmark">Remover</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar as etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que são marcados com etiqueta (s) especificada</string>
@@ -665,6 +666,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Na versão beta, há novos recursos que ainda não foram testados corretamente,
 e, portanto, usar uma versão beta pode introduzir um comportamento inesperado, ou seja, erros.
@@ -749,6 +751,7 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (*.SQLite3)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
+  <string name="format_ttf">Fontes TTF (*.ttf)</string>
   <string name="format_studypads">Bloco de estudos dos banco de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
@@ -779,6 +782,7 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="unlock_info">Informação sobre o desbloqueio do módulo</string>
   <string name="try_again_passphrase">A senha não foi reconhecida, tentar novamente?</string>
   <string name="show_unlock_info">Informação de módulo e de desbloqueio</string>
+  <string name="prefs_experimental_features_title">Feitos experimentais</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicativo mais lento.</string>
   <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>
@@ -1066,4 +1070,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
         Não mostrar essa mensagem novamente
     </string>
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
+  <string name="memorize_description">Memorizar versículos bíblicos</string>
+  <string name="memorize_abbreviation">Memorizar</string>
 </resources>
