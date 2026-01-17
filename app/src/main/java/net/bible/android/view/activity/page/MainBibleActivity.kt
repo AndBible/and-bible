@@ -168,6 +168,9 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
@@ -2143,21 +2146,48 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         val workspaceId = windowControl.windowRepository.id
 
         lifecycleScope.launch(Dispatchers.IO) {
-            // Get the selected text from the book using SwordContentFacade
-            val selectedText = selection.bookInitials?.let { initials ->
-                val book = Books.installed().getBook(initials)
-                val currentPage = windowControl.activeWindowPageManager.currentPage
-                val key = currentPage.key
-                if (book != null && key != null) {
-                    val ordinalRange = selection.startOrdinal..selection.endOrdinal
-                    SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange).joinToString(" ")
-                } else null
-            } ?: ""
+            // Get book and prepare context data
+            val book = selection.bookInitials?.let { Books.installed().getBook(it) }
+            val currentPage = windowControl.activeWindowPageManager.currentPage
+            val key = currentPage.key
+            val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
-            // Create agent context
+            // Get selected text
+            val selectedText = if (book != null && key != null) {
+                SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange).joinToString(" ")
+            } else ""
+
+            // Create VerseRange if this is a Bible book
+            val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
+                try {
+                    val v11n = book.versification
+                    val startVerse = Verse(v11n, selection.startOrdinal)
+                    val endVerse = Verse(v11n, selection.endOrdinal)
+                    VerseRange(v11n, startVerse, endVerse)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not create VerseRange from ordinals", e)
+                    null
+                }
+            } else null
+
+            // Get OSIS XML content
+            val osisContent = if (book != null && key != null) {
+                try {
+                    val fragment = SwordContentFacade.readOsisFragment(book, key)
+                    XMLOutputter(Format.getRawFormat()).outputString(fragment)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not get OSIS content", e)
+                    null
+                }
+            } else null
+
+            // Create agent context with full information
             val context = AgentContext(
                 promptId = prompt.id,
+                selectedVerseRange = verseRange,
+                selectedContent = osisContent,
                 activeDocumentInitials = selection.bookInitials,
+                windowId = windowControl.activeWindow.id,
                 selectedText = selectedText
             )
 
