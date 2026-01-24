@@ -247,8 +247,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     var rightOffset1 = 0
     var leftOffset1 = 0
 
-    // Bottom offset with navigation bar and transport bar
-    val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
+    // Bottom offset with navigation bar, transport bar and agent log
+    val bottomOffset2 get() = bottomOffset1 +
+        (if (transportBarVisible) transportBarHeight else 0) +
+        (if (agentLogVisible) agentLogHeight else 0)
 
     // WebView UI-only offset (transport + buttons + agent log, no navigation bar)
     val bottomOffsetForWebView get() =
@@ -1446,6 +1448,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 .start()
         }
+
+        // Position agent log widget above system nav bar and transport bar
+        val agentLogOffset = bottomOffset1 + (if (transportBarVisible) transportBarHeight else 0)
+        binding.agentLogWidget.translationY = -agentLogOffset.toFloat()
+
         ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
