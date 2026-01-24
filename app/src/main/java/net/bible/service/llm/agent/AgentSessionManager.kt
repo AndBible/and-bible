@@ -18,6 +18,8 @@
 package net.bible.service.llm.agent
 
 import android.util.Log
+import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
@@ -360,25 +362,31 @@ object AgentSessionManager {
         context: AgentContext,
         linkControl: LinkControl
     ) {
+        val app = BibleApplication.application
         when (event) {
             is AgentEvent.Started -> {
-                session.addLogEntry(AgentLogEntry.info("Executing: ${prompt.name}"))
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_executing, prompt.name)))
             }
             is AgentEvent.Iteration -> {
-                session.addLogEntry(AgentLogEntry.info("Iteration ${event.number}"))
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
             }
             is AgentEvent.ToolCalling -> {
                 session.addLogEntry(
-                    AgentLogEntry.action("Tool: ${event.toolName}", details = event.arguments)
+                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, event.toolName), details = event.arguments)
                 )
             }
             is AgentEvent.ToolCompleted -> {
                 val isSuccess = event.result is ToolResult.Success
                 val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
+                val message = if (isSuccess) {
+                    app.getString(R.string.agent_log_tool_completed, event.toolName)
+                } else {
+                    app.getString(R.string.agent_log_tool_failed, event.toolName)
+                }
                 session.addLogEntry(
                     AgentLogEntry(
                         type = LogEntryType.ACTION,
-                        message = "Tool ${event.toolName} ${if (isSuccess) "completed" else "failed"}",
+                        message = message,
                         details = event.result.toJson(),
                         status = status
                     )
@@ -387,7 +395,7 @@ object AgentSessionManager {
             is AgentEvent.TextResponse -> {
                 if (event.isFinal) {
                     session.addLogEntry(
-                        AgentLogEntry.info("Response received", details = event.text.take(200))
+                        AgentLogEntry.info(app.getString(R.string.agent_log_response_received), details = event.text.take(200))
                     )
                 }
             }
@@ -403,24 +411,24 @@ object AgentSessionManager {
                     sourceContext = context.verseRefString
                 )
 
-                session.addLogEntry(AgentLogEntry.info("Saved: $title"))
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
                 // Open the page in linked window
                 linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
 
-                session.stop("Completed")
+                session.stop(app.getString(R.string.agent_log_completed))
             }
             is AgentEvent.CompletedWithoutDocument -> {
                 // Task completed without creating a document (e.g., just created a bookmark)
-                session.addLogEntry(AgentLogEntry.info("Done: ${event.message}"))
-                session.stop("Completed")
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                session.stop(app.getString(R.string.agent_log_completed))
             }
             is AgentEvent.Error -> {
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
                 session.stop()
             }
             is AgentEvent.Cancelled -> {
-                session.addLogEntry(AgentLogEntry.info("Cancelled"))
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
                 session.stop()
             }
         }

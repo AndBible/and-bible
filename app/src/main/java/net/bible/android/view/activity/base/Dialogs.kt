@@ -243,26 +243,42 @@ object Dialogs {
         multiselect(context, context.getString(title), items, itemToString)
 
     /**
+     * Result of agent permission dialog.
+     */
+    enum class AgentPermissionResult {
+        ALLOW,              // Allow this operation
+        ALLOW_FOR_SESSION,  // Allow and don't ask again for this session
+        DENY                // Deny this operation
+    }
+
+    /**
      * Show a dialog asking user permission for an agent tool operation.
      *
      * @param context The context to show the dialog in
      * @param toolName Name of the tool requesting permission
      * @param toolDescription Description of what the tool does
-     * @return true if user allowed the operation, false if denied or cancelled
+     * @return AgentPermissionResult indicating user's choice
      */
     suspend fun agentPermissionDialog(
         context: Context,
         toolName: String,
         toolDescription: String
-    ): Boolean = withContext(Dispatchers.Main) {
+    ): AgentPermissionResult = withContext(Dispatchers.Main) {
         suspendCoroutine { continuation ->
             AlertDialog.Builder(context)
                 .setTitle(R.string.agent_permission_title)
                 .setMessage(context.getString(R.string.agent_permission_message, toolName, toolDescription))
-                .setPositiveButton(R.string.allow) { _, _ -> continuation.resume(true) }
-                .setNegativeButton(R.string.deny) { _, _ -> continuation.resume(false) }
+                .setPositiveButton(R.string.allow) { _, _ ->
+                    continuation.resume(AgentPermissionResult.ALLOW)
+                }
+                .setNeutralButton(R.string.allow_for_session) { _, _ ->
+                    continuation.resume(AgentPermissionResult.ALLOW_FOR_SESSION)
+                }
+                .setNegativeButton(R.string.deny) { _, _ ->
+                    continuation.resume(AgentPermissionResult.DENY)
+                }
                 .setCancelable(true)
-                .setOnCancelListener { continuation.resume(false) }
+                .setOnCancelListener { continuation.resume(AgentPermissionResult.DENY) }
                 .show()
         }
     }

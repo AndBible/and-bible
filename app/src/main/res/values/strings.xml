@@ -1391,6 +1391,7 @@
     <string name="agent_permission_title">Agent Permission</string>
     <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s\n\nAllow this operation?</string>
     <string name="allow">Allow</string>
+    <string name="allow_for_session">Allow (don\'t ask again)</string>
     <string name="deny">Deny</string>
 
     <!-- LLM One Tap Actions -->
@@ -1406,6 +1407,15 @@
     <string name="agent_log_running">AI is working…</string>
     <string name="agent_log_completed">Completed</string>
     <string name="agent_log_error">Error occurred</string>
+    <string name="agent_log_executing">Executing: %s</string>
+    <string name="agent_log_iteration">Iteration %d</string>
+    <string name="agent_log_tool">Tool: %s</string>
+    <string name="agent_log_tool_completed">Tool %s completed</string>
+    <string name="agent_log_tool_failed">Tool %s failed</string>
+    <string name="agent_log_response_received">Response received</string>
+    <string name="agent_log_saved">Saved: %s</string>
+    <string name="agent_log_done">Done: %s</string>
+    <string name="agent_log_cancelled">Cancelled</string>
     <string name="agent_execution_completed">Agent execution completed</string>
 
     <!-- My Documents -->

@@ -185,10 +185,12 @@ class AgentExecutor(
 
             emit(AgentEvent.ToolCalling(toolCall.id, toolCall.name, toolCall.arguments))
 
-            val result = executeTool(toolCall, currentContext)
+            val execResult = executeTool(toolCall, currentContext)
+            val result = execResult.result
 
-            // If write operation succeeded and user allowed, mark permission as granted
-            if (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true) {
+            // If user chose "allow for session" or write operation succeeded, mark permission as granted
+            if (execResult.grantSessionPermission ||
+                (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
 
@@ -300,25 +302,40 @@ class AgentExecutor(
     }
 
     /**
+     * Result of tool execution including permission info.
+     */
+    private data class ToolExecutionResult(
+        val result: ToolResult,
+        val grantSessionPermission: Boolean = false
+    )
+
+    /**
      * Execute a single tool call.
      */
-    private suspend fun executeTool(toolCall: ToolCall, context: AgentContext): ToolResult {
+    private suspend fun executeTool(toolCall: ToolCall, context: AgentContext): ToolExecutionResult {
         val tool = ToolRegistry.get(toolCall.name)
         if (tool == null) {
             Log.w(TAG, "Tool not found: ${toolCall.name}")
-            return ToolResult.error("Tool not found: ${toolCall.name}", "TOOL_NOT_FOUND")
+            return ToolExecutionResult(ToolResult.error("Tool not found: ${toolCall.name}", "TOOL_NOT_FOUND"))
         }
 
         // Permission check for write tools
-        if (tool.requiresPermission && !checkWritePermission(tool, context)) {
-            Log.d(TAG, "Permission denied for tool: ${toolCall.name}")
-            return ToolResult.error(
-                "Permission denied for ${toolCall.name}. User did not allow this operation.",
-                "PERMISSION_DENIED"
-            )
+        var grantSession = false
+        if (tool.requiresPermission) {
+            when (checkWritePermission(tool, context)) {
+                PermissionCheckResult.Allowed -> { /* proceed */ }
+                PermissionCheckResult.AllowedForSession -> { grantSession = true }
+                PermissionCheckResult.Denied -> {
+                    Log.d(TAG, "Permission denied for tool: ${toolCall.name}")
+                    return ToolExecutionResult(ToolResult.error(
+                        "Permission denied for ${toolCall.name}. User did not allow this operation.",
+                        "PERMISSION_DENIED"
+                    ))
+                }
+            }
         }
 
-        return try {
+        val result = try {
             Log.d(TAG, "Executing tool: ${toolCall.name} with args: ${toolCall.arguments}")
             val arguments = toolCall.parseArguments()
             tool.execute(arguments, context)
@@ -328,20 +345,31 @@ class AgentExecutor(
             Log.e(TAG, "Tool execution failed: ${toolCall.name}", e)
             ToolResult.error("Tool execution failed: ${e.message}", "EXECUTION_ERROR")
         }
+
+        return ToolExecutionResult(result, grantSession)
+    }
+
+    /**
+     * Result of permission check.
+     */
+    private sealed class PermissionCheckResult {
+        object Allowed : PermissionCheckResult()
+        object AllowedForSession : PermissionCheckResult()
+        object Denied : PermissionCheckResult()
     }
 
     /**
      * Check if write permission should be granted based on current mode and context.
      */
-    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): Boolean {
+    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): PermissionCheckResult {
         val mode = CommonUtils.settings.agentPermissionMode
 
         return when (mode) {
-            PermissionMode.ALLOW_ALL -> true
-            PermissionMode.DENY_ALL -> false
+            PermissionMode.ALLOW_ALL -> PermissionCheckResult.Allowed
+            PermissionMode.DENY_ALL -> PermissionCheckResult.Denied
             PermissionMode.ASK_ONCE_PER_RUN -> {
                 if (context.grantedWritePermission) {
-                    true
+                    PermissionCheckResult.Allowed
                 } else {
                     showPermissionDialog(tool)
                 }
@@ -352,14 +380,17 @@ class AgentExecutor(
 
     /**
      * Show the permission dialog to the user.
-     * Returns true if permission was granted, false otherwise.
      */
-    private suspend fun showPermissionDialog(tool: Tool): Boolean {
+    private suspend fun showPermissionDialog(tool: Tool): PermissionCheckResult {
         val activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.w(TAG, "No current activity, allowing tool by default")
-            return true  // Allow if no activity (e.g., background process)
+            return PermissionCheckResult.Allowed  // Allow if no activity (e.g., background process)
         }
-        return Dialogs.agentPermissionDialog(activity, tool.name, tool.description)
+        return when (Dialogs.agentPermissionDialog(activity, tool.name, tool.description)) {
+            Dialogs.AgentPermissionResult.ALLOW -> PermissionCheckResult.Allowed
+            Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> PermissionCheckResult.AllowedForSession
+            Dialogs.AgentPermissionResult.DENY -> PermissionCheckResult.Denied
+        }
     }
 }
