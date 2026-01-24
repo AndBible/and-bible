@@ -216,6 +216,92 @@ object DefaultPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
             ),
+
+            // TEST: Dictionary lookup
+            AgentPrompt(
+                name = "🧪 Test: Dictionary",
+                description = "Test dictionary entry retrieval",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getInstalledDocuments to find available dictionaries
+                    2. If a dictionary is available, use getDictionaryEntry to look up a key term from the selected text
+                    3. Report what you found
+
+                    If no dictionary is installed, explain that.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: Read bookmarks
+            AgentPrompt(
+                name = "🧪 Test: Read Bookmarks",
+                description = "Test reading bookmarks for verses and by label",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getBookmarksForVerse to check if the selected verses have any bookmarks
+                    2. Use getAllLabels to list available labels
+                    3. If labels exist, use getBookmarksWithLabel to get bookmarks for the first label
+                    4. Report what you found
+
+                    Summarize any bookmarks and their notes.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: Labels management
+            AgentPrompt(
+                name = "🧪 Test: Labels",
+                description = "Test label creation and assignment",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getAllLabels to list existing labels
+                    2. Create a new label called "Test Label" using createLabel
+                    3. Create a bookmark for the selected verses using createBookmark
+                    4. Add the new label to the bookmark using addLabelToBookmark
+                    5. Report what you created
+
+                    Note: If "Test Label" already exists, use a different unique name.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: StudyPad operations
+            AgentPrompt(
+                name = "🧪 Test: StudyPad",
+                description = "Test StudyPad read/write operations",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getAllLabels to find StudyPads (labels can be used as StudyPads)
+                    2. Use searchStudyPads to search for any existing content
+                    3. If a StudyPad exists, use getStudyPadContent to read its content
+                    4. Add a new entry to a StudyPad using addStudyPadEntry with a brief note about the selected verses
+                    5. Report what you found and created
+
+                    If no StudyPad exists, create a label first to use as a StudyPad.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: Update bookmark note
+            AgentPrompt(
+                name = "🧪 Test: Update Note",
+                description = "Test updating existing bookmark notes",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getBookmarksForVerse to find bookmarks on the selected verses
+                    2. If a bookmark exists with a note, use updateBookmarkNote to append " [Updated by AI]" to the note
+                    3. If no bookmark exists, create one first with createBookmark and addBookmarkNote
+                    4. Report what you did
+
+                    This tests the updateBookmarkNote tool.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
         )
     }
 
