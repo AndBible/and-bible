@@ -17,10 +17,13 @@
 
 package net.bible.android.view.util.widget
 
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.LinearInterpolator
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.bible.android.activity.R
@@ -67,6 +70,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private val adapter = AgentLogAdapter()
     private var isExpanded = false
     private var workspaceId: IdType? = null
+    private var spinAnimator: ObjectAnimator? = null
 
     init {
         buildActivityComponent().inject(this)
@@ -85,6 +89,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
     override fun onDetachedFromWindow() {
         ABEventBus.unregister(this)
+        stopSpinAnimation()
         super.onDetachedFromWindow()
     }
 
@@ -96,6 +101,12 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         workspaceId = windowControl.windowRepository.id
         refreshLogEntries()
         updateBackgroundColor()
+
+        // Start animation if agent is already running
+        val wsId = workspaceId
+        if (wsId != null && AgentSessionManager.isRunning(wsId)) {
+            startSpinAnimation()
+        }
     }
 
     /**
@@ -209,6 +220,31 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
+     * Start spinning animation on the status icon.
+     * Respects the disable_animations setting (e.g., for e-ink devices).
+     */
+    private fun startSpinAnimation() {
+        if (CommonUtils.settings.disableAnimations) return
+        if (spinAnimator?.isRunning == true) return
+
+        spinAnimator = ObjectAnimator.ofFloat(binding.statusIcon, "rotation", 0f, 360f).apply {
+            duration = 2000
+            repeatCount = ValueAnimator.INFINITE
+            interpolator = LinearInterpolator()
+            start()
+        }
+    }
+
+    /**
+     * Stop spinning animation on the status icon.
+     */
+    private fun stopSpinAnimation() {
+        spinAnimator?.cancel()
+        spinAnimator = null
+        binding.statusIcon.rotation = 0f
+    }
+
+    /**
      * Handle log update events.
      */
     fun onEventMainThread(event: AgentLogUpdatedEvent) {
@@ -229,6 +265,14 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             val entries = AgentSessionManager.getLogEntries(event.workspaceId)
             val latestMessage = getLatestMeaningfulMessage(entries)
             updateStatusText(latestMessage)
+
+            // Start/stop spin animation based on running state
+            if (event.isRunning) {
+                startSpinAnimation()
+            } else {
+                stopSpinAnimation()
+            }
+
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
