@@ -24,6 +24,7 @@ import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.agent.CacheableContext
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.Books
@@ -412,14 +413,16 @@ object MyDocumentBookManager {
      * @param response The LLM response content (markdown)
      * @param title Title for the page
      * @param sourcePromptId ID of the prompt that generated this response
-     * @param sourceContext Optional context string (e.g., verse reference)
+     * @param cacheableContext Context data for cache key computation
+     * @param usedWriteTools Whether the agent used write tools (bookmarks, notes, etc.)
      * @return Information about the saved page
      */
     fun saveAIResponse(
         response: String,
         title: String,
         sourcePromptId: IdType,
-        sourceContext: String? = null
+        cacheableContext: CacheableContext,
+        usedWriteTools: Boolean = false
     ): SavedPageInfo {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val aiDocument = getOrCreateAIDocument()
@@ -432,7 +435,11 @@ object MyDocumentBookManager {
             contentType = MyDocumentContentType.MARKDOWN,
             orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
             sourcePromptId = sourcePromptId,
-            sourceContext = sourceContext
+            sourceContext = cacheableContext.toJson(),
+            kjvOrdinalStart = cacheableContext.kjvOrdinalStart,
+            kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
+            contextHash = cacheableContext.computeHash(),
+            usedWriteTools = usedWriteTools
         )
 
         dao.insertPageWithContent(page, response)

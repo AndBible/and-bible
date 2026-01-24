@@ -1368,6 +1368,11 @@
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>
+    <string name="prompt_cache_settings">Cache settings</string>
+    <string name="prompt_strict_context_matching">Context-dependent cache</string>
+    <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
+    <string name="ai_document_delete_confirmation">Delete this AI document?</string>
+    <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="llm_prompt_title">AI prompt</string>
     <string name="llm_prompt_disabled">Disabled</string>
 

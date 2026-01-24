@@ -120,6 +120,30 @@
             android:layout_height="wrap_content"
             android:text="@string/prompt_context_note_editor" />
 
+        <!-- Cache settings -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/prompt_cache_settings"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <CheckBox
+            android:id="@+id/checkStrictContextMatching"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/prompt_strict_context_matching" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:text="@string/prompt_strict_context_matching_description"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary" />
+
     </LinearLayout>
 
 </ScrollView>

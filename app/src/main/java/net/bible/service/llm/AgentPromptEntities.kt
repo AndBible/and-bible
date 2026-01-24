@@ -63,6 +63,17 @@ data class AgentPrompt(
     var showIn: Set<PromptContext> = emptySet(),
     @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
     @ColumnInfo(defaultValue = "0") var createdAt: Long = System.currentTimeMillis(),
+    /**
+     * Controls cache key matching strictness:
+     * - true (default): Cache key = promptId + full context hash (Bible version, selected text, etc.)
+     * - false: Cache key = promptId + KJVA ordinals only (verse range)
+     *
+     * Examples:
+     * - "Translate to Finnish" → true (translation depends on source text)
+     * - "Word study" → false (focuses on original languages, translation doesn't matter)
+     * - "Cross-references" → false (same across all versions)
+     */
+    @ColumnInfo(defaultValue = "1") var strictContextMatching: Boolean = true,
 )
 
 @Dao

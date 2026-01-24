@@ -17,8 +17,14 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.VerseRange
+import java.security.MessageDigest
 
 /**
  * Context information available during agent prompt execution.
@@ -58,4 +64,66 @@ data class AgentContext(
      * Returns a copy of this context with write permission granted.
      */
     fun withWritePermissionGranted() = copy(grantedWritePermission = true)
+}
+
+/**
+ * Context data for cache key computation.
+ *
+ * Contains all fields that affect the LLM's output, used for:
+ * 1. Computing a SHA-256 hash for strict context matching
+ * 2. Extracting KJVA ordinals for loose matching (verse-only)
+ * 3. JSON serialization for debugging/display
+ */
+@Serializable
+data class CacheableContext(
+    val kjvOrdinalStart: Int?,
+    val kjvOrdinalEnd: Int?,
+    val activeDocumentInitials: String?,
+    val selectedContent: String?,
+    val selectedText: String?,
+    val highlightedText: String?
+) {
+    companion object {
+        private val json = Json { prettyPrint = false }
+
+        /**
+         * Create CacheableContext from AgentContext.
+         * Converts verse range to KJVA versification for cross-version caching.
+         */
+        fun fromAgentContext(ctx: AgentContext): CacheableContext {
+            val kjvRange = ctx.selectedVerseRange?.let {
+                try {
+                    it.toV11n(KJVA)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+            return CacheableContext(
+                kjvOrdinalStart = kjvRange?.start?.ordinal,
+                kjvOrdinalEnd = kjvRange?.end?.ordinal,
+                activeDocumentInitials = ctx.activeDocumentInitials,
+                selectedContent = ctx.selectedContent,
+                selectedText = ctx.selectedText,
+                highlightedText = ctx.highlightedText
+            )
+        }
+    }
+
+    /**
+     * Compute SHA-256 hash of the full context.
+     * Used for cache lookup when strictContextMatching=true.
+     *
+     * @return Hex string of first 16 bytes of SHA-256 hash (32 chars)
+     */
+    fun computeHash(): String {
+        val jsonStr = json.encodeToString(this)
+        val bytes = MessageDigest.getInstance("SHA-256").digest(jsonStr.toByteArray())
+        return bytes.take(16).joinToString("") { "%02x".format(it) }
+    }
+
+    /**
+     * Serialize context to JSON string.
+     * Stored in sourceContext field for debugging/display.
+     */
+    fun toJson(): String = json.encodeToString(this)
 }

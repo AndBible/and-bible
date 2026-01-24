@@ -70,7 +70,10 @@ data class MyDocument(
     ],
     indices = [
         Index(value = ["documentId"]),
-        Index(value = ["documentId", "pageKey"], unique = true)
+        Index(value = ["documentId", "pageKey"], unique = true),
+        // Cache lookup indices
+        Index(value = ["sourcePromptId", "contextHash"]),  // strict=true lookup
+        Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"])  // strict=false lookup
     ]
 )
 data class MyDocumentPage(
@@ -83,7 +86,12 @@ data class MyDocumentPage(
     var createdAt: Long = System.currentTimeMillis(),
     var updatedAt: Long = System.currentTimeMillis(),
     var sourcePromptId: IdType? = null,  // Which prompt created this page (null = user-created)
-    var sourceContext: String? = null    // E.g., "Matt.5:1-12"
+    var sourceContext: String? = null,   // JSON-serialized context (for debug/display)
+    // Cache fields
+    var kjvOrdinalStart: Int? = null,    // KJVA verse ordinal start (for cross-version cache lookup)
+    var kjvOrdinalEnd: Int? = null,      // KJVA verse ordinal end
+    var contextHash: String? = null,     // SHA-256 hash of full context (for strict matching)
+    var usedWriteTools: Boolean = false  // Whether the agent used write tools (bookmarks, notes, etc.)
 )
 
 /**
@@ -124,5 +132,9 @@ data class MyDocumentPageWithContent(
     val updatedAt: Long,
     val sourcePromptId: IdType?,
     val sourceContext: String?,
+    val kjvOrdinalStart: Int?,
+    val kjvOrdinalEnd: Int?,
+    val contextHash: String?,
+    val usedWriteTools: Boolean,
     val content: String?
 )

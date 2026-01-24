@@ -110,6 +110,7 @@ object DefaultPrompts {
             ),
 
             // Word study - for verse and text selection
+            // strictContextMatching=false: focuses on original languages, Bible version doesn't matter
             AgentPrompt(
                 name = context.getString(R.string.default_prompt_word_study),
                 description = context.getString(R.string.default_prompt_word_study_desc),
@@ -126,6 +127,7 @@ object DefaultPrompts {
                     PromptContext.TEXT_SELECTION
                 ),
                 orderNumber = order++,
+                strictContextMatching = false,
             ),
         ) + createTestPrompts(order)
     }
@@ -155,6 +157,7 @@ object DefaultPrompts {
             ),
 
             // TEST: Cross-references with sword:// links
+            // strictContextMatching=false: cross-references are same across all Bible versions
             AgentPrompt(
                 name = "🧪 Test: Cross-References",
                 description = "Test that cross-reference links are formatted correctly",
@@ -169,6 +172,7 @@ object DefaultPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                strictContextMatching = false,
             ),
 
             // TEST: Create bookmark with note (action-only, no document)

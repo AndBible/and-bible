@@ -19,6 +19,7 @@ package net.bible.android.view.activity.page
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.SearchManager
 import android.content.ClipData
 import android.content.Context
@@ -42,6 +43,7 @@ import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.widget.Toast
 import android.webkit.JsResult
 import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebChromeClient
@@ -129,8 +131,10 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
@@ -947,6 +951,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
         const val SCHEME_SWORD = "sword"
+        const val SCHEME_ACTION = "ab-action"
     }
 
     class ModuleAssetHandler: PathHandler {
@@ -1199,9 +1204,66 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             linkControl.loadApplicationUrl(BibleLink("sword", url), null)
             true
         }
+        UriConstants.SCHEME_ACTION -> {
+            // Handle ab-action://regenerate?pageId=xxx or ab-action://delete?pageId=xxx
+            val action = uri.host
+            val pageIdStr = uri.getQueryParameter("pageId")
+            if (pageIdStr != null) {
+                handleAIDocumentAction(action, IdType(pageIdStr))
+            }
+            true
+        }
         else -> {
             Log.e(TAG, "Unsupported scheme ${uri.scheme}")
             true
+        }
+    }
+
+    /**
+     * Handle AI document actions (regenerate, delete).
+     */
+    private fun handleAIDocumentAction(action: String?, pageId: IdType) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val page = dao.pageById(pageId)
+        if (page == null) {
+            Log.w(TAG, "AI document page not found: $pageId")
+            return
+        }
+
+        when (action) {
+            "delete" -> {
+                AlertDialog.Builder(mainBibleActivity)
+                    .setMessage(R.string.ai_document_delete_confirmation)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        dao.deletePageWithContent(page)
+                        MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
+                        // Try to navigate to another page in the AI document
+                        val aiDoc = dao.documentByInitials(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
+                        aiDoc?.let { doc ->
+                            val pages = dao.pagesForDocument(doc.id)
+                            if (pages.isNotEmpty()) {
+                                val book = Books.installed().getBook(doc.initials)
+                                book?.getKey(pages.first().pageKey)?.let { newKey ->
+                                    linkControl.showLink(book, newKey)
+                                }
+                            }
+                        }
+                    }
+                    .setNegativeButton(R.string.no, null)
+                    .show()
+            }
+            "regenerate" -> {
+                // TODO: Implement regeneration using stored context
+                Log.i(TAG, "Regenerate requested for page: $pageId, prompt: ${page.sourcePromptId}")
+                Toast.makeText(
+                    mainBibleActivity,
+                    R.string.ai_document_regenerate_not_implemented,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            else -> {
+                Log.w(TAG, "Unknown AI document action: $action")
+            }
         }
     }
 

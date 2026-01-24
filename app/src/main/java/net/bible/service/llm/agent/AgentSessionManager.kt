@@ -25,7 +25,9 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.Selection
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -37,6 +39,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Event posted when the agent log is updated.
@@ -222,10 +225,11 @@ object AgentSessionManager {
      *
      * This is the main entry point for running LLM prompts. It:
      * 1. Builds the AgentContext from the selection
-     * 2. Creates/starts an AgentSession
-     * 3. Executes the prompt via AgentExecutor
-     * 4. Saves the response to AI Documents
-     * 5. Opens the saved page in a linked window
+     * 2. Checks cache for existing result
+     * 3. If cached, opens the cached document directly
+     * 4. If not cached, executes the prompt via AgentExecutor
+     * 5. Saves the response to AI Documents
+     * 6. Opens the saved page in a linked window
      *
      * @param prompt The AgentPrompt to execute
      * @param selection The user's selection (verses, text, etc.)
@@ -240,17 +244,57 @@ object AgentSessionManager {
     ) {
         val workspaceId = windowControl.windowRepository.id
 
-        // Build AgentContext
+        // Build AgentContext and CacheableContext
         val context = buildAgentContext(prompt, selection, windowControl)
+        val cacheableContext = CacheableContext.fromAgentContext(context)
+
+        // Check cache
+        val cached = findCachedPage(prompt, cacheableContext)
+        if (cached != null) {
+            Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
+            // Open cached document directly
+            linkControl.openAIDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey)
+            return
+        }
 
         // Start session
         val session = getOrCreateSession(workspaceId)
         session.start(context)
 
+        // Track write tools usage
+        val usedWriteToolsTracker = AtomicBoolean(false)
+
         // Execute via AgentExecutor
         val executor = AgentExecutor()
         executor.execute(prompt.id, context).collect { event ->
-            handleAgentEvent(event, session, prompt, context, linkControl)
+            handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, linkControl)
+        }
+    }
+
+    /**
+     * Find a cached page for the given prompt and context.
+     *
+     * Uses strict or loose matching based on prompt's strictContextMatching setting:
+     * - strict (true): Matches full context hash (Bible version, selected text, etc.)
+     * - loose (false): Matches only KJVA verse ordinals (cross-version)
+     */
+    private fun findCachedPage(
+        prompt: AgentPrompt,
+        cacheableContext: CacheableContext
+    ): net.bible.android.database.mydocument.MyDocumentPageWithContent? {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+
+        return if (prompt.strictContextMatching) {
+            // Strict: match full context
+            val contextHash = cacheableContext.computeHash()
+            dao.findCachedPageByContextHash(prompt.id, contextHash)
+        } else {
+            // Loose: match only verse ordinals
+            val start = cacheableContext.kjvOrdinalStart
+            val end = cacheableContext.kjvOrdinalEnd
+            if (start != null && end != null) {
+                dao.findCachedPageByVerseRange(prompt.id, start, end)
+            } else null
         }
     }
 
@@ -360,6 +404,8 @@ object AgentSessionManager {
         session: AgentSession,
         prompt: AgentPrompt,
         context: AgentContext,
+        cacheableContext: CacheableContext,
+        usedWriteToolsTracker: AtomicBoolean,
         linkControl: LinkControl
     ) {
         val app = BibleApplication.application
@@ -391,6 +437,14 @@ object AgentSessionManager {
                         status = status
                     )
                 )
+
+                // Track write tools usage
+                if (isSuccess) {
+                    val tool = ToolRegistry.get(event.toolName)
+                    if (tool?.requiresPermission == true) {
+                        usedWriteToolsTracker.set(true)
+                    }
+                }
             }
             is AgentEvent.TextResponse -> {
                 if (event.isFinal) {
@@ -408,7 +462,8 @@ object AgentSessionManager {
                     response = content,
                     title = title,
                     sourcePromptId = context.promptId,
-                    sourceContext = context.verseRefString
+                    cacheableContext = cacheableContext,
+                    usedWriteTools = usedWriteToolsTracker.get()
                 )
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
@@ -424,7 +479,8 @@ object AgentSessionManager {
                     response = event.content,
                     title = event.title,
                     sourcePromptId = context.promptId,
-                    sourceContext = context.verseRefString
+                    cacheableContext = cacheableContext,
+                    usedWriteTools = usedWriteToolsTracker.get()
                 )
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))

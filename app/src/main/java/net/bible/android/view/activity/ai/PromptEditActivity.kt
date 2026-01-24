@@ -56,6 +56,7 @@ class PromptEditActivity : ActivityBase() {
     private lateinit var checkWindowMenu: CheckBox
     private lateinit var checkWorkspaceMenu: CheckBox
     private lateinit var checkNoteEditor: CheckBox
+    private lateinit var checkStrictContextMatching: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +73,7 @@ class PromptEditActivity : ActivityBase() {
         checkWindowMenu = findViewById(R.id.checkWindowMenu)
         checkWorkspaceMenu = findViewById(R.id.checkWorkspaceMenu)
         checkNoteEditor = findViewById(R.id.checkNoteEditor)
+        checkStrictContextMatching = findViewById(R.id.checkStrictContextMatching)
 
         val promptIdStr = intent.getStringExtra(EXTRA_PROMPT_ID)
         if (promptIdStr != null) {
@@ -80,6 +82,8 @@ class PromptEditActivity : ActivityBase() {
         } else {
             isNewPrompt = true
             title = getString(R.string.new_prompt)
+            // Set default value for strictContextMatching on new prompts
+            checkStrictContextMatching.isChecked = true
         }
     }
 
@@ -111,6 +115,7 @@ class PromptEditActivity : ActivityBase() {
         checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
         checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
         checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
+        checkStrictContextMatching.isChecked = prompt.strictContextMatching
     }
 
     private fun collectShowIn(): Set<PromptContext> {
@@ -142,6 +147,7 @@ class PromptEditActivity : ActivityBase() {
 
         val description = descriptionEdit.text.toString().trim().takeIf { it.isNotEmpty() }
         val showIn = collectShowIn()
+        val strictContextMatching = checkStrictContextMatching.isChecked
 
         lifecycleScope.launch {
             val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
@@ -153,6 +159,7 @@ class PromptEditActivity : ActivityBase() {
                         description = description,
                         promptTemplate = template,
                         showIn = showIn,
+                        strictContextMatching = strictContextMatching,
                     )
                     dao.insert(newPrompt)
                 } else {
@@ -161,6 +168,7 @@ class PromptEditActivity : ActivityBase() {
                         it.description = description
                         it.promptTemplate = template
                         it.showIn = showIn
+                        it.strictContextMatching = strictContextMatching
                         dao.update(it)
                     }
                 }

@@ -46,6 +46,7 @@ import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.android.database.migrations.llmProcessingMigrations
+import net.bible.android.database.migrations.myDocumentMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
@@ -224,7 +225,7 @@ class DatabaseContainer {
             application, MyDocumentDatabase::class.java, filename
         )
             .allowMainThreadQueries()
-            .addMigrations()
+            .addMigrations(*myDocumentMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()

@@ -102,6 +102,42 @@ interface MyDocumentDao {
     @Query("SELECT * FROM MyDocumentPageWithContent WHERE documentId = :documentId AND pageKey = :pageKey")
     fun pageByKeyWithContent(documentId: IdType, pageKey: String): MyDocumentPageWithContent?
 
+    // ==================== Cache lookup ====================
+
+    /**
+     * Find cached page by full context hash (strict matching).
+     * Used when strictContextMatching=true.
+     */
+    @Query("""
+        SELECT * FROM MyDocumentPageWithContent
+        WHERE sourcePromptId = :promptId
+        AND contextHash = :contextHash
+        ORDER BY createdAt DESC
+        LIMIT 1
+    """)
+    fun findCachedPageByContextHash(
+        promptId: IdType,
+        contextHash: String
+    ): MyDocumentPageWithContent?
+
+    /**
+     * Find cached page by verse range only (loose matching).
+     * Used when strictContextMatching=false.
+     */
+    @Query("""
+        SELECT * FROM MyDocumentPageWithContent
+        WHERE sourcePromptId = :promptId
+        AND kjvOrdinalStart = :kjvOrdinalStart
+        AND kjvOrdinalEnd = :kjvOrdinalEnd
+        ORDER BY createdAt DESC
+        LIMIT 1
+    """)
+    fun findCachedPageByVerseRange(
+        promptId: IdType,
+        kjvOrdinalStart: Int,
+        kjvOrdinalEnd: Int
+    ): MyDocumentPageWithContent?
+
     // ==================== Transaction helpers ====================
 
     @Transaction
