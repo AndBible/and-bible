@@ -29,6 +29,9 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.ai.AgentLogAdapter
+import net.bible.service.device.ScreenSettings
+import net.bible.android.view.util.UiUtils
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
@@ -92,6 +95,25 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         // Get current workspace ID and load entries
         workspaceId = windowControl.windowRepository.id
         refreshLogEntries()
+        updateBackgroundColor()
+    }
+
+    /**
+     * Update background color to match the bottom window's background.
+     */
+    fun updateBackgroundColor() {
+        val lastWindow = windowControl.windowRepository.visibleWindows.lastOrNull()
+        val backgroundColor = if (lastWindow != null) {
+            val colors = lastWindow.pageManager.actualTextDisplaySettings.colors
+            val monochromeMode = CommonUtils.settings.monochromeMode
+            val nightBackground = if (monochromeMode) -16777216 else colors?.nightBackground
+            val dayBackground = if (monochromeMode) -1 else colors?.dayBackground
+            (if (ScreenSettings.nightMode) nightBackground else dayBackground)
+                ?: UiUtils.bibleViewDefaultBackgroundColor
+        } else {
+            UiUtils.bibleViewDefaultBackgroundColor
+        }
+        binding.rootLayout.setBackgroundColor(backgroundColor)
     }
 
     /**
@@ -121,6 +143,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun show() {
         visibility = View.VISIBLE
+        updateBackgroundColor()
         notifyVisibilityChanged()
     }
 
