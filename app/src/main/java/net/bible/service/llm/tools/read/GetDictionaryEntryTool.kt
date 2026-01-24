@@ -47,6 +47,10 @@ object GetDictionaryEntryTool : Tool {
 
         IMPORTANT: The result includes a 'linkUrl' field. When referencing dictionary entries in your response,
         ALWAYS create clickable links using this URL. Example: [G2316](sword://StrongsGreek/G2316)
+
+        When writing your response, convert ALL Strong's number references (G1234, H5678 format) to clickable links:
+        [G1234](sword://StrongsGreek/G1234), [H5678](sword://StrongsHebrew/H5678)
+        This includes references found within dictionary content itself.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
