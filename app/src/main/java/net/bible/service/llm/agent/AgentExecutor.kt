@@ -291,6 +291,24 @@ class AgentExecutor(
             append("- Only specify a module (e.g., sword://MHC/Matt.5.3) for commentaries or specific documents\n")
             append("\n")
 
+            // Source attribution instructions
+            append("IMPORTANT - Source Attribution:\n")
+            append("When summarizing content from commentaries, dictionaries, or other reference works:\n")
+            append("\n")
+            append("1. ALWAYS cite the source by name when using its content:\n")
+            append("   - \"Matthew Henry's Commentary (MHC) explains...\"\n")
+            append("   - \"According to MHC, this means...\"\n")
+            append("   - \"Strong's Greek Dictionary (StrongsGreek) defines...\"\n")
+            append("\n")
+            append("2. Include clickable links to specific commentary/dictionary entries:\n")
+            append("   - Commentary: [MHC](sword://MHC/Matt.5.3)\n")
+            append("   - Dictionary: [Strong's G2316](sword://StrongsGreek/G2316)\n")
+            append("\n")
+            append("3. When using multiple sources, compare their perspectives and cite each one.\n")
+            append("\n")
+            append("4. End documents with a 'Sources' section listing all used sources with links.\n")
+            append("\n")
+
             // Add context information
             if (context.activeDocumentInitials != null) {
                 append("Current active document: ${context.activeDocumentInitials}\n")

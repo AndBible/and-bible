@@ -115,7 +115,9 @@ object DefaultPrompts {
                 description = context.getString(R.string.default_prompt_word_study_desc),
                 promptTemplate = """
                     Analyze the original Hebrew/Greek words in the selected text.
-                    If Strongs numbers are available, use them to identify the original words.
+                    If Strongs numbers are available, use getDictionaryEntry to look up definitions.
+                    Include links to dictionary entries: [Strong's G2316](sword://StrongsGreek/G2316)
+                    Cite each dictionary source by name when referencing definitions.
                     Explain the etymology, usage, and theological significance of key terms.
                     Use ${getUiLanguageName()} for your response.
                 """.trimIndent(),
