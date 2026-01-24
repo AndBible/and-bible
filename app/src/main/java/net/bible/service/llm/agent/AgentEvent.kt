@@ -101,6 +101,22 @@ sealed class AgentEvent {
     ) : AgentEvent()
 
     /**
+     * Agent execution completed with a document to save.
+     *
+     * Used when the agent called finishWithDocument tool to explicitly
+     * provide the title and content for the AI document.
+     *
+     * @param title Plain text title for the document (used in TOC)
+     * @param content Full markdown content including title with links
+     * @param totalIterations Total number of iterations taken
+     */
+    data class CompletedWithDocument(
+        val title: String,
+        val content: String,
+        val totalIterations: Int
+    ) : AgentEvent()
+
+    /**
      * Agent execution failed.
      *
      * @param message Error description

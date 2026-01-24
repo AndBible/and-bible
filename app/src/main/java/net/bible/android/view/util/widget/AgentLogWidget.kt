@@ -102,11 +102,14 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         refreshLogEntries()
         updateBackgroundColor()
 
-        // Start animation if agent is already running
+        // Check if agent is already running
         val wsId = workspaceId
-        if (wsId != null && AgentSessionManager.isRunning(wsId)) {
+        val isRunning = wsId != null && AgentSessionManager.isRunning(wsId)
+        if (isRunning) {
             startSpinAnimation()
         }
+        // Update close button state
+        updateCloseButton(!isRunning)
     }
 
     /**
@@ -273,11 +276,22 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
                 stopSpinAnimation()
             }
 
+            // Update close button - disabled while agent is running
+            updateCloseButton(!event.isRunning)
+
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
             }
         }
+    }
+
+    /**
+     * Update close button enabled state.
+     */
+    private fun updateCloseButton(enabled: Boolean) {
+        binding.closeButton.isEnabled = enabled
+        binding.closeButton.alpha = if (enabled) 1.0f else 0.3f
     }
 
     companion object {

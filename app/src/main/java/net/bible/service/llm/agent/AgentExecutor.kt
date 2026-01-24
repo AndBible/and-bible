@@ -34,6 +34,7 @@ import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.write.FinishWithDocumentTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import org.json.JSONArray
 import org.json.JSONObject
@@ -48,6 +49,8 @@ private const val DEFAULT_MAX_ITERATIONS = 10
 private sealed class ProcessToolsResult {
     /** Continue iterating with updated context */
     data class Continue(val context: AgentContext) : ProcessToolsResult()
+    /** Finish with a document */
+    data class FinishWithDocument(val title: String, val content: String, val context: AgentContext) : ProcessToolsResult()
     /** Finish without creating a document */
     data class FinishWithoutDocument(val message: String, val context: AgentContext) : ProcessToolsResult()
 }
@@ -120,6 +123,11 @@ class AgentExecutor(
                     when (val result = processToolCalls(parsed, messages, currentContext)) {
                         is ProcessToolsResult.Continue -> {
                             currentContext = result.context
+                        }
+                        is ProcessToolsResult.FinishWithDocument -> {
+                            Log.d(TAG, "Agent finished with document: ${result.title}")
+                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration))
+                            return
                         }
                         is ProcessToolsResult.FinishWithoutDocument -> {
                             Log.d(TAG, "Agent finished without document: ${result.message}")
@@ -199,6 +207,14 @@ class AgentExecutor(
 
             messages.put(ToolCallParser.createToolResultMessage(toolCall.id, result.toJson()))
 
+            // Check if finishWithDocument was called
+            if (toolCall.name == FinishWithDocumentTool.name && result is ToolResult.Success) {
+                val data = result.data as? JSONObject
+                val title = data?.optString("title") ?: "AI Response"
+                val content = data?.optString("content") ?: ""
+                return ProcessToolsResult.FinishWithDocument(title, content, currentContext)
+            }
+
             // Check if finishWithoutDocument was called
             if (toolCall.name == FinishWithoutDocumentTool.name && result is ToolResult.Success) {
                 val data = result.data as? JSONObject
@@ -248,10 +264,17 @@ class AgentExecutor(
             append("- Use tools to gather information when needed\n")
             append("- Be concise and helpful in your responses\n")
             append("- If you need to read verse content, use the appropriate tool\n")
-            append("- IMPORTANT: Always start your response with a descriptive title as a markdown H1 heading (# Title)\n")
-            append("  The title should be short (max 60 chars) and describe the content, e.g.:\n")
-            append("  # The Beatitudes: Path to True Blessing\n")
-            append("  # Understanding Grace in Romans 8\n")
+            append("\n")
+
+            append("IMPORTANT - Finishing your response:\n")
+            append("When you are done and want to provide a written response, you MUST use the finishWithDocument tool.\n")
+            append("- title: Plain text for the table of contents (max 60 chars, NO markdown)\n")
+            append("- content: Full markdown content, including a title heading that CAN have links\n")
+            append("Example:\n")
+            append("  finishWithDocument(\n")
+            append("    title: \"Romans 8:28 - God's Promise\",\n")
+            append("    content: \"# [Rom. 8:28](sword:///Rom.8.28) - God's Promise\\n\\nThis verse teaches...\")\n")
+            append("  )\n")
             append("\n")
 
             // Link formatting instructions

@@ -418,6 +418,22 @@ object AgentSessionManager {
 
                 session.stop(app.getString(R.string.agent_log_completed))
             }
+            is AgentEvent.CompletedWithDocument -> {
+                // LLM explicitly provided title and content via finishWithDocument tool
+                val pageInfo = MyDocumentBookManager.saveAIResponse(
+                    response = event.content,
+                    title = event.title,
+                    sourcePromptId = context.promptId,
+                    sourceContext = context.verseRefString
+                )
+
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
+
+                // Open the page in linked window
+                linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
+
+                session.stop(app.getString(R.string.agent_log_completed))
+            }
             is AgentEvent.CompletedWithoutDocument -> {
                 // Task completed without creating a document (e.g., just created a bookmark)
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
