@@ -259,15 +259,10 @@ object AgentSessionManager {
     ): AgentContext {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
-        val key = currentPage.key
+        val pageKey = currentPage.key
         val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
-        // Get selected text
-        val selectedText = if (book != null && key != null) {
-            SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange).joinToString(" ")
-        } else ""
-
-        // Create VerseRange if Bible book
+        // Create VerseRange if Bible book (needed for both text extraction and OSIS content)
         val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
             try {
                 val v11n = book.versification
@@ -280,11 +275,20 @@ object AgentSessionManager {
             }
         } else null
 
-        // Get OSIS XML content
-        val osisContent = if (book != null && key != null) {
+        // Get selected text
+        val selectedText = if (book != null && pageKey != null) {
+            SwordContentFacade.getTextWithinOrdinalsAsString(book, pageKey, ordinalRange).joinToString(" ")
+        } else ""
+
+        // Get OSIS XML content for the selected verses (not the whole page)
+        val osisContent = if (book != null) {
             try {
-                val fragment = SwordContentFacade.readOsisFragment(book, key)
-                XMLOutputter(Format.getRawFormat()).outputString(fragment)
+                // Use verseRange for Bible books, otherwise use pageKey
+                val keyForOsis = verseRange ?: pageKey
+                if (keyForOsis != null) {
+                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis)
+                    XMLOutputter(Format.getRawFormat()).outputString(fragment)
+                } else null
             } catch (e: Exception) {
                 Log.w(TAG, "Could not get OSIS content", e)
                 null
