@@ -1056,7 +1056,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     val key = currentPage.key
                     if (book != null && key != null) {
                         val selection = Selection(book.initials, 0, null)
-                        mainBibleActivity.showLlmPromptSelector(selection)
+                        mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
                     }
                 }
             })

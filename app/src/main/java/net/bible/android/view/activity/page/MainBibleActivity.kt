@@ -144,6 +144,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmEvent
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
@@ -2096,6 +2097,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onStart() {
         super.onStart()
         CommonUtils.onyxSupport?.setupOnyxNormal()
+    }
+
+    /**
+     * Execute a specific LLM prompt with the given selection.
+     * Called directly when prompt is already selected (e.g., from window button menu).
+     */
+    fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            AgentSessionManager.executePrompt(
+                prompt,
+                selection,
+                windowControl,
+                linkControl
+            )
+        }
     }
 
     /**
