@@ -93,6 +93,11 @@
     <string name="go_to_ref">Open %s</string>
     <!-- Finx "(keywords x)", keywords based on text selection -->
     <string name="search_what">Find \"%s\"</string>
+    <!-- Multi-translation search -->
+    <string name="search_translations">Translations</string>
+    <string name="choose_translations">Choose translations…</string>
+    <string name="multi_search_results">%1$d verses in %2$d translations</string>
+    <string name="search_index_not_created">no index</string>
 
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Chapter &amp; verse numbers</string>
@@ -103,6 +108,9 @@
 
     <string name="prefs_disable_animations_title">Disable animations</string>
     <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>
+
+    <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>
+    <string name="prefs_disable_click_to_edit_summary">Requires using the edit button to edit notes in the Study Pad.</string>
 
     <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
     <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>

@@ -60,7 +60,7 @@ verseCompare: Lyginti
 verseMemorize: Išmokti mintinai
 verseNote: Pastaba
 verseMyNotes: Mano pastabos
-verseParagraphBreak: ""
+verseParagraphBreak: Pastraipa
 verseShareLong: Bendrinti šią eilutę
 verseCompareLong: Lyginti eilutę
 verseMemorizeLong: Išmokti mintinai Biblijos eilutes
@@ -70,25 +70,25 @@ addBookmark: Pridėti žymę
 selectCustomIconTitle: Pasirinkti tinkintą žymeklio piktogramą
 bookmarkSettingsTitle: ""
 subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
+customIconLabel: Tinkinta piktograma
+editActionLabel: Taisyti veiksmą
+editActionModeLabel: Režimas
+editActionModeNone: Nėra
 editActionModeAppend: ""
 editActionModePrepend: ""
 editActionContentLabel: ""
 editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
+experimentalFeatureTitle: Eksperimentinė
+experimentalFeatureHelpTitle: Apie eksperimentines ypatybes
 experimentalFeatureHelpContent: ""
 insertParagraphBreak: ""
 insertSubtitle: ""
-xmlParseError: ""
+xmlParseError: XML nagrinėjimo klaida
 invalidTag: ""
 invalidClosingTag: ""
 unmatchedClosingTag: ""
 unclosedTag: ""
-unknownError: ""
+unknownError: Nežinoma klaida
 blur: ""
 reset: Atstatyti
 peek: ""

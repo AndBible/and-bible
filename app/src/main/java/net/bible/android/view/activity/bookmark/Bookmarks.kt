@@ -175,7 +175,15 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             this, bookmarkList, bookmarkControl, windowControl, showNotes
         )
         listAdapter = bookmarkArrayAdapter
+        updateSearchLayoutVisibility()
         loadBookmarkList()
+    }
+
+    private fun updateSearchLayoutVisibility() {
+        binding.textSearchLayout.visibility = if (showNotes) View.VISIBLE else View.GONE
+        if (!showNotes) {
+            searchText = ""
+        }
     }
 
     override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
@@ -408,6 +416,7 @@ class Bookmarks : ListActivityBase(), ActionModeActivity {
             R.id.showNotes -> {
                 isHandled = true
                 showNotes = !showNotes
+                updateSearchLayoutVisibility()
                 val bookmarkArrayAdapter = BookmarkItemAdapter(this, bookmarkList, bookmarkControl, windowControl, showNotes)
                 listAdapter = bookmarkArrayAdapter
             }

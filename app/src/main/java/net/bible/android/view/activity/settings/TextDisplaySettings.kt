@@ -53,6 +53,7 @@ import net.bible.android.view.activity.page.HideLabelsPreference
 import net.bible.android.view.activity.page.LineSpacingPreference
 import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_CHANGED
 import net.bible.android.view.activity.page.MarginSizePreference
+import net.bible.android.view.activity.page.FootnotesInlinePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
@@ -112,7 +113,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.VERSENUMBERS -> ItemPreference(settings, Types.VERSENUMBERS)
         Types.VERSEPERLINE -> ItemPreference(settings, Types.VERSEPERLINE)
         Types.FOOTNOTES -> ItemPreference(settings, Types.FOOTNOTES)
-        Types.FOOTNOTES_INLINE -> ItemPreference(settings, Types.FOOTNOTES_INLINE)
+        Types.FOOTNOTES_INLINE -> FootnotesInlinePreference(settings)
         Types.EXPAND_XREFS -> ExpandXrefsPreference(settings)
         Types.XREFS -> ItemPreference(settings, Types.XREFS)
         Types.MYNOTES -> MyNotesPreference(settings)

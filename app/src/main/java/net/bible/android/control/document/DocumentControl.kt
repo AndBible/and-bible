@@ -76,14 +76,24 @@ class DocumentControl @Inject constructor(
     // only show bibles that contain verse
 
     private val bookFilter = Filter<Book> { book ->
-        book.contains(requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification))
+        try {
+            book.contains(requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification))
+        } catch (e: BookException) {
+            // Module may have missing/corrupted data files (see issue #788)
+            false
+        }
     }
 
     private val commentaryFilter = Filter<Book> { book ->
-        val verse = requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification)
-        if (!book.contains(verse)) {
+        try {
+            val verse = requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification)
+            if (!book.contains(verse)) {
+                false
+            } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+        } catch (e: BookException) {
+            // Module may have missing/corrupted data files (see issue #788)
             false
-        } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+        }
     }
 
     val biblesForVerse : List<Book>

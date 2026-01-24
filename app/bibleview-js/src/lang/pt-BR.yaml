@@ -57,23 +57,23 @@ openDownloads: ir para Baixar Módulos
 verseShare: Compartilhar
 verseSpeak: Falar
 verseCompare: Comparar
-verseMemorize: ""
+verseMemorize: Memorizar
 verseNote: Nota
 verseMyNotes: Minhas notas
-verseParagraphBreak: ""
+verseParagraphBreak: Parágrafo
 verseShareLong: Compartilhar este versículo
 verseCompareLong: Comparar versículo
-verseMemorizeLong: ""
+verseMemorizeLong: Memorizar versículos bíblicos
 verseNoteLong: Escrever uma nota
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Quebra de parágrafo
 addBookmark: Marcador
 selectCustomIconTitle: ""
 bookmarkSettingsTitle: ""
 subtitlePlaceholder: ""
-customIconLabel: ""
+customIconLabel: Ícone personalizado
 editActionLabel: ""
 editActionModeLabel: ""
-editActionModeNone: ""
+editActionModeNone: Nenhum
 editActionModeAppend: ""
 editActionModePrepend: ""
 editActionContentLabel: ""

@@ -1185,8 +1185,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
-            val bf = view.parent as BibleFrame
-            bf.recreate()
+            val bf = view.parent as? BibleFrame
+            if (bf != null) {
+                bf.recreate()
+            } else {
+                Log.w(TAG, "WebView parent is null in onRenderProcessGone, cannot recreate")
+            }
             return true
         }
     }
@@ -1397,6 +1401,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
         val disableAnimations = CommonUtils.settings.disableAnimations
+        val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
         return """
                 bibleView.emit('set_config', {
@@ -1420,6 +1425,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
+                        disableClickToEdit:  $disableClickToEdit,
                     }, 
                     initial: $initial,
                     });
