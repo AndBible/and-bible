@@ -88,6 +88,12 @@
             android:visible="true"
             app:showAsAction="always"
             />
+        <item android:id="@+id/llm_action"
+            android:title="@string/llm_actions"
+            android:orderInCategory="3"
+            android:visible="false"
+            app:showAsAction="always"
+            />
 
     </group>
 </menu>

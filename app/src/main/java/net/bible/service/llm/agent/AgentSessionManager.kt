@@ -339,13 +339,17 @@ object AgentSessionManager {
             } else null
         }
 
+        // Get highlighted text (specific words selected by user) if available
+        val highlightedText = selection.text.takeIf { it.isNotBlank() }
+
         return AgentContext(
             promptId = prompt.id,
             selectedVerseRange = verseRange,
             selectedContent = osisContent,
             activeDocumentInitials = selection.bookInitials,
             windowId = windowControl.activeWindow.id,
-            selectedText = selectedText
+            selectedText = selectedText,
+            highlightedText = highlightedText
         )
     }
 

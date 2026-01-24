@@ -33,7 +33,8 @@ import org.crosswire.jsword.passage.VerseRange
  * @param activeDocumentInitials Initials of the active document (e.g., "KJV")
  * @param activeLabelId ID of the active label/StudyPad (if in StudyPad context)
  * @param windowId ID of the window where the prompt was invoked
- * @param selectedText Plain text of the user's selection (for free text selection)
+ * @param selectedText Plain text of the verse/page context
+ * @param highlightedText Specific text highlighted/selected by user (words, phrases)
  */
 data class AgentContext(
     val promptId: IdType,
@@ -43,6 +44,7 @@ data class AgentContext(
     val activeLabelId: IdType? = null,
     val windowId: IdType? = null,
     val selectedText: String? = null,
+    val highlightedText: String? = null,
     /** Session-level write permission (for ASK_ONCE_PER_RUN mode) */
     val grantedWritePermission: Boolean = false
 ) {

@@ -255,12 +255,18 @@ class AgentExecutor(
             // The prompt template
             append(prompt.promptTemplate)
 
+            // Add highlighted text if user selected specific words/phrases
+            if (context.highlightedText != null) {
+                append("\n\n--- User's Highlighted Text (FOCUS ON THIS) ---\n")
+                append(context.highlightedText)
+            }
+
             // Add selected content if available
             if (context.selectedContent != null) {
-                append("\n\n--- Selected Content (OSIS XML) ---\n")
+                append("\n\n--- Context (OSIS XML) ---\n")
                 append(context.selectedContent)
             } else if (context.selectedText != null) {
-                append("\n\n--- Selected Text ---\n")
+                append("\n\n--- Context ---\n")
                 append(context.selectedText)
             }
         }

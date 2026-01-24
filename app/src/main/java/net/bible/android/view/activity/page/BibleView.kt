@@ -377,6 +377,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 }
                 return true
             }
+            R.id.llm_action -> {
+                val sel = currentSelection
+                if (sel != null) {
+                    mainBibleActivity.showLlmPromptSelector(sel)
+                }
+                mode.finish()
+                return true
+            }
             R.id.search -> {
                 val text = currentSelectionText
                 val sel = currentSelection
@@ -649,6 +657,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries.isNotEmpty()) {
                 menu.findItem(R.id.lookup_dictionary).apply {
+                    isVisible = true
+                }
+            }
+            if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
+                menu.findItem(R.id.llm_action).apply {
                     isVisible = true
                 }
             }
