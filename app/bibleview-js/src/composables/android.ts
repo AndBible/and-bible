@@ -34,6 +34,7 @@ import {
 } from "@/types/client-objects";
 import {AnyDocument} from "@/types/documents";
 import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
+import {runningInAndroid} from "@/utils/logger";
 
 export type BibleJavascriptInterface = {
     scrolledToOrdinal: (key: string, ordinal: number) => void,
@@ -105,8 +106,6 @@ export type UseAndroid = ReturnType<typeof useAndroid>
 let callId = 0;
 
 export const logEntries = reactive<LogEntry[]>([])
-
-const runningInAndroid = !!window.android;
 
 const logEntriesTemp: LogEntry[] = [];
 

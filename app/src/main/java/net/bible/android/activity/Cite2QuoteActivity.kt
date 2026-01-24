@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import net.bible.android.BibleApplication
-import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.DaggerActivityComponent
 import javax.inject.Inject
 import android.widget.Toast;
@@ -21,12 +20,12 @@ import java.io.StringReader
  * An activity to handle text selection and get a Bible quote from it.
  * This is triggered by the `android.intent.action.PROCESS_TEXT` intent.
  */
-class ProcessTextActivity : ComponentActivity() {
+class Cite2QuoteActivity : ComponentActivity() {
     @Inject lateinit var documentControl: DocumentControl
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "ProcessTextActivity created")
+        Log.d(TAG, "Cite2QuoteActivity created")
 
         DaggerActivityComponent.builder()
             .applicationComponent(BibleApplication.application.applicationComponent)
@@ -46,36 +45,38 @@ class ProcessTextActivity : ComponentActivity() {
             Log.i(TAG, "Cite2Quote: got cite '$selectedText', isReadOnly: $isReadOnly")
 
             if (!selectedText.isNullOrEmpty()) {
-                val theCite = selectedText.toString();
-                val theBible = documentControl.suggestedBible;
+                val cite = selectedText.toString()
+                val theBible = documentControl.suggestedBible
                 if(theBible == null) {
-                    val theMsg = "No Bible selected";
-                    Log.w(TAG, theMsg);
-                    Toast.makeText(this, theMsg, Toast.LENGTH_SHORT).show();
+                    val theMsg = "No Bible selected"
+                    Log.w(TAG, theMsg)
+                    Toast.makeText(this, theMsg, Toast.LENGTH_SHORT).show()
                     return;
                 }
-                val theKey = theBible.getKey(theCite);
-                if(theKey == null){
-                    val theMsg = "No verse found for '$theCite'";
+                val swordKey = theBible.getKey(cite)
+                if(swordKey == null){
+                    val theMsg = "No verse found for '$cite'"
                     Log.w(TAG, theMsg);
-                    Toast.makeText(this, theMsg, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, theMsg, Toast.LENGTH_SHORT).show()
                     return;
                 }
-                val theRawQuote = theBible.getRawText(theKey);
-                val theQuote = preprocess(theRawQuote, linebreaks=true, pilcrows=true, verseNumbers=true, chevrons=true);
-                Log.i(TAG, "Cite2Quote: quote is '$theQuote'");
-                val out = theQuote + ' ' + theCite;
+                val rawQuote = theBible.getRawText(swordKey)
+                val quote = preprocess(rawQuote, linebreaks=true, pilcrows=true, verseNumbers=true, chevrons=true)
+                Log.i(TAG, "quote is '$quote'")
+                val out = quote + ' ' + cite
                 // if not readonly, replace cite with quote, otherwise put quote in clipboard
                 if(!isReadOnly){
-                    intent.putExtra(Intent.EXTRA_PROCESS_TEXT, out)
+                    val resultIntent = Intent()
+                    resultIntent.putExtra(Intent.EXTRA_PROCESS_TEXT, out)
+                    setResult(RESULT_OK, resultIntent)
                 } else {
-                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager;
-                    val clip = android.content.ClipData.newPlainText("Quote", out);
-                    clipboard.setPrimaryClip(clip);
-                    Toast.makeText(this, "$theCite copied to clipboard", Toast.LENGTH_SHORT).show();
+                    val clipboard = getSystemService(CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                    val clip = android.content.ClipData.newPlainText("Quote", out)
+                    clipboard.setPrimaryClip(clip)
+                    Toast.makeText(this, "$cite copied to clipboard", Toast.LENGTH_SHORT).show()
                 }
             } else {
-                Log.w(TAG, "No text selected, this should be impossible?");
+                Log.w(TAG, "No text selected, this should be impossible?")
             }
         } else {
             Log.w(TAG, "Intent action is not PROCESS_TEXT: ${intent?.action}")

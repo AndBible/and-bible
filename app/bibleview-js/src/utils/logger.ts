@@ -1,5 +1,5 @@
 import inspect from "browser-util-inspect";
-import {inject} from "vue";
+import {inject, hasInjectionContext} from "vue";
 import {appSettingsKey} from "@/types/constants";
 
 export const runningInAndroid = !!window.android; // this constant probably belongs somewhere else but only one place
@@ -52,10 +52,12 @@ export class Logger {
         let emitThis = true;
         if(runningInAndroid){
             data = data.map(x => typeof(x) == "object" ? inspect(x) : x);
+            if(hasInjectionContext()){
             const appSettings = inject(appSettingsKey);
-            if (this.documentWarningActive && !appSettings?.errorBox) {
-                //emitThis = false;
+                if (this.documentWarningActive && !appSettings?.errorBox) {
+                    emitThis = false;
             }
+        }
         }
         if(emitThis){
             console[method](...data);

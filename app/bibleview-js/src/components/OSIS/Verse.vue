@@ -80,20 +80,6 @@ function verseClicked(event: Event) {
 
 const {config} = useCommon();
 
-/*const verseStartsWithParagraph = ref(false);
-const thisVerse = (ref(null) as any) as Element;
-onMounted(() => {
-    for(let i=0; i<thisVerse.childNodes.length; i++){
-        const n = thisVerse.childNodes[i];
-        if(n.nodeType == n.ELEMENT_NODE && (n as Element).tagName.toLowerCase() == "milestone" && ["line", "x-p"].includes((n as any).type)){
-          verseStartsWithParagraph.value = true;
-        }
-        if(n.nodeType == n.TEXT_NODE && n.textContent?.trim() == ""){
-          continue;
-        }
-        break;
-    }
-})*/
 </script>
 
 <style lang="scss">

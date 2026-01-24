@@ -40,6 +40,6 @@ const {sprintf, strings} = useCommon();
   font-size: 60%;
   margin-right: 1pt;
   color: var(--verse-number-color);
-  content: attr(verse-num);
+  //content: attr(verse-num);
 }
 </style>

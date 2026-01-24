@@ -290,7 +290,7 @@
             android:exported="true"
             />
         <activity
-            android:name="net.bible.android.activity.ProcessTextActivity"
+            android:name="net.bible.android.activity.Cite2QuoteActivity"
             android:label="@string/cite2quote"
             android:exported="true">
             <intent-filter>
