@@ -260,40 +260,84 @@ object AgentSessionManager {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
         val pageKey = currentPage.key
-        val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
-        // Create VerseRange if Bible book (needed for both text extraction and OSIS content)
-        val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
-            try {
-                val v11n = book.versification
-                val startVerse = Verse(v11n, selection.startOrdinal)
-                val endVerse = Verse(v11n, selection.endOrdinal)
-                VerseRange(v11n, startVerse, endVerse)
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not create VerseRange", e)
-                null
-            }
-        } else null
+        // Check if this is "whole page" mode (ordinals are -1)
+        val isWholePageMode = selection.startOrdinal < 0
 
-        // Get selected text
-        val selectedText = if (book != null && pageKey != null) {
-            SwordContentFacade.getTextWithinOrdinalsAsString(book, pageKey, ordinalRange).joinToString(" ")
-        } else ""
+        // For whole page mode, use osisRef to get the key; otherwise use ordinals
+        val verseRange: VerseRange?
+        val selectedText: String
+        val osisContent: String?
 
-        // Get OSIS XML content for the selected verses (not the whole page)
-        val osisContent = if (book != null) {
-            try {
-                // Use verseRange for Bible books, otherwise use pageKey
-                val keyForOsis = verseRange ?: pageKey
-                if (keyForOsis != null) {
-                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis)
+        if (isWholePageMode && book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
+            // Whole page mode: use osisRef or pageKey
+            val keyToUse = selection.osisRef?.let {
+                try {
+                    book.getKey(it)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not parse osisRef: $it", e)
+                    null
+                }
+            } ?: pageKey
+
+            verseRange = keyToUse as? VerseRange ?: (keyToUse as? Verse)?.let { VerseRange(it.versification, it, it) }
+
+            // Get all text from the page
+            selectedText = if (book != null && keyToUse != null) {
+                try {
+                    SwordContentFacade.getCanonicalText(book, keyToUse, false)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not get canonical text", e)
+                    ""
+                }
+            } else ""
+
+            // Get OSIS content for the whole page
+            osisContent = if (keyToUse != null) {
+                try {
+                    val fragment = SwordContentFacade.readOsisFragment(book, keyToUse)
                     XMLOutputter(Format.getRawFormat()).outputString(fragment)
-                } else null
-            } catch (e: Exception) {
-                Log.w(TAG, "Could not get OSIS content", e)
-                null
-            }
-        } else null
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not get OSIS content", e)
+                    null
+                }
+            } else null
+        } else {
+            // Selection mode: use ordinals
+            val ordinalRange = selection.startOrdinal..selection.endOrdinal
+
+            // Create VerseRange if Bible book
+            verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
+                try {
+                    val v11n = book.versification
+                    val startVerse = Verse(v11n, selection.startOrdinal)
+                    val endVerse = Verse(v11n, selection.endOrdinal)
+                    VerseRange(v11n, startVerse, endVerse)
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not create VerseRange", e)
+                    null
+                }
+            } else null
+
+            // Get selected text
+            selectedText = if (book != null && pageKey != null) {
+                SwordContentFacade.getTextWithinOrdinalsAsString(book, pageKey, ordinalRange).joinToString(" ")
+            } else ""
+
+            // Get OSIS XML content for the selected verses
+            osisContent = if (book != null) {
+                try {
+                    val keyForOsis = verseRange ?: pageKey
+                    if (keyForOsis != null) {
+                        val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis)
+                        XMLOutputter(Format.getRawFormat()).outputString(fragment)
+                    } else null
+                } catch (e: Exception) {
+                    Log.w(TAG, "Could not get OSIS content", e)
+                    null
+                }
+            } else null
+        }
 
         return AgentContext(
             promptId = prompt.id,

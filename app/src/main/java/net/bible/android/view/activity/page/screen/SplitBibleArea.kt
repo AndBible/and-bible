@@ -1055,7 +1055,8 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     val book = currentPage.currentDocument
                     val key = currentPage.key
                     if (book != null && key != null) {
-                        val selection = Selection(book.initials, 0, null)
+                        // Use osisRef with -1 ordinals to indicate "whole page" mode
+                        val selection = Selection(book.initials, key.osisRef, -1, -1)
                         mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
                     }
                 }
