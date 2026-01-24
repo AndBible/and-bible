@@ -1364,6 +1364,9 @@
     <string name="prompt_context_workspace_menu">Workspace menu</string>
     <string name="prompt_context_note_editor">Note editor</string>
     <string name="new_prompt">New prompt</string>
+    <string name="reset_prompts_to_defaults">Reset to defaults</string>
+    <string name="reset_prompts_confirm_title">Reset prompts?</string>
+    <string name="reset_prompts_confirm_message">This will delete all existing prompts and recreate the default prompts. Continue?</string>
     <string name="edit_prompt">Edit prompt</string>
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>

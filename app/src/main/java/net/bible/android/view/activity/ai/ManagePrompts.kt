@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
@@ -107,7 +108,31 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
                 createNewPrompt()
                 true
             }
+            R.id.reset_prompts -> {
+                confirmResetToDefaults()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun confirmResetToDefaults() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.reset_prompts_confirm_title)
+            .setMessage(R.string.reset_prompts_confirm_message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                resetToDefaults()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun resetToDefaults() {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                DefaultPrompts.resetToDefaults()
+            }
+            loadPrompts()
         }
     }
 

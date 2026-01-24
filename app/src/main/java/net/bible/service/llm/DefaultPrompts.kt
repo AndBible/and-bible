@@ -125,6 +125,97 @@ object DefaultPrompts {
                 ),
                 orderNumber = order++,
             ),
+        ) + createTestPrompts(order)
+    }
+
+    /**
+     * Creates test prompts for development/testing purposes.
+     * These can be removed or disabled after testing phase.
+     */
+    private fun createTestPrompts(startOrder: Int): List<AgentPrompt> {
+        var order = startOrder
+
+        return listOf(
+            // TEST: Tool calling - read verses from different documents
+            AgentPrompt(
+                name = "🧪 Test: Tool Calling",
+                description = "Test that tools work correctly",
+                promptTemplate = """
+                    This is a test prompt. Please do the following:
+                    1. Use getInstalledDocuments to list available Bible translations
+                    2. Pick one Bible translation and use getVerseContent to read John 3:16 from it
+                    3. Report what you found
+
+                    Format your response with clear headings for each step.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+            ),
+
+            // TEST: Cross-references with sword:// links
+            AgentPrompt(
+                name = "🧪 Test: Cross-References",
+                description = "Test that cross-reference links are formatted correctly",
+                promptTemplate = """
+                    This is a test prompt. Analyze the selected verses and:
+                    1. Find 3-5 related Bible passages
+                    2. Format each as a clickable link using sword:// protocol
+                    3. Briefly explain why each passage is related
+
+                    Remember to use the format: [Display Text](sword:///Book.Chapter.Verse)
+                    Example: [John 3:16](sword:///John.3.16)
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: Create bookmark with note
+            AgentPrompt(
+                name = "🧪 Test: Create Bookmark",
+                description = "Test bookmark creation with notes",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Create a bookmark for the selected verses
+                    2. Add a short note explaining the key theme of these verses
+                    3. Report what you created
+
+                    Use the createBookmark and addBookmarkNote tools.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            // TEST: Search and summarize
+            AgentPrompt(
+                name = "🧪 Test: Search Bible",
+                description = "Test Bible search functionality",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use searchBible to find verses containing the word "love"
+                    2. Summarize the top 5 results
+                    3. Create cross-reference links to each result
+
+                    Report your findings with proper sword:// links.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+            ),
+
+            // TEST: Commentary lookup
+            AgentPrompt(
+                name = "🧪 Test: Commentary",
+                description = "Test commentary retrieval",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Use getInstalledDocuments to find available commentaries
+                    2. If a commentary is available, use getCommentaries to get commentary on the selected verses
+                    3. Summarize what the commentary says
+
+                    If no commentary is installed, explain that and provide your own brief commentary.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
         )
     }
 
@@ -148,5 +239,17 @@ object DefaultPrompts {
             createDefaultPrompts().forEach { dao.insert(it) }
         }
         initialized = true
+    }
+
+    /**
+     * Reset prompts to defaults by deleting all existing prompts
+     * and recreating the default set.
+     */
+    fun resetToDefaults() {
+        val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+        // Delete all existing prompts
+        dao.allPrompts().forEach { dao.delete(it) }
+        // Recreate defaults
+        createDefaultPrompts().forEach { dao.insert(it) }
     }
 }

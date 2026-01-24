@@ -25,4 +25,10 @@
         android:title="@string/new_prompt"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/reset_prompts"
+        android:icon="@drawable/baseline_settings_backup_restore_24"
+        android:title="@string/reset_prompts_to_defaults"
+        app:showAsAction="never" />
+
 </menu>
