@@ -59,6 +59,7 @@ import net.bible.android.view.util.widget.AgentLogWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
+import net.bible.service.llm.agent.AgentSessionManagerBase
 import net.bible.service.sword.SwordContentFacade
 
 /**
@@ -116,6 +117,7 @@ interface ActivityComponent {
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
     fun inject(c: CommonUtilsBase)
+    fun inject(a: AgentSessionManagerBase)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)

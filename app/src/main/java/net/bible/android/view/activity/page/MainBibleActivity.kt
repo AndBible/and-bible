@@ -2091,12 +2091,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
         lifecycleScope.launch(Dispatchers.IO) {
-            AgentSessionManager.executePrompt(
-                prompt,
-                selection,
-                windowControl,
-                linkControl
-            )
+            AgentSessionManager.executePrompt(prompt, selection)
         }
     }
 
@@ -2130,12 +2125,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         val selectedPrompt = prompts[which]
                         // Execute via AgentSessionManager
                         lifecycleScope.launch(Dispatchers.IO) {
-                            AgentSessionManager.executePrompt(
-                                selectedPrompt,
-                                selection,
-                                windowControl,
-                                linkControl
-                            )
+                            AgentSessionManager.executePrompt(selectedPrompt, selection)
                         }
                     }
                     .setNegativeButton(R.string.cancel, null)

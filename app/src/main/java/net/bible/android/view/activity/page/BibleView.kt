@@ -133,6 +133,7 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.SwordDocumentFacade
@@ -1223,43 +1224,29 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
      * Handle AI document actions (regenerate, delete).
      */
     private fun handleAIDocumentAction(action: String?, pageId: IdType) {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val page = dao.pageById(pageId)
-        if (page == null) {
-            Log.w(TAG, "AI document page not found: $pageId")
-            return
-        }
-
         when (action) {
             "delete" -> {
                 AlertDialog.Builder(mainBibleActivity)
                     .setMessage(R.string.ai_document_delete_confirmation)
                     .setPositiveButton(R.string.yes) { _, _ ->
-                        dao.deletePageWithContent(page)
-                        MyDocumentBookManager.refreshDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
-                        // Try to navigate to another page in the AI document
-                        val aiDoc = dao.documentByInitials(MyDocumentBookManager.AI_DOCUMENTS_INITIALS)
-                        aiDoc?.let { doc ->
-                            val pages = dao.pagesForDocument(doc.id)
-                            if (pages.isNotEmpty()) {
-                                val book = Books.installed().getBook(doc.initials)
-                                book?.getKey(pages.first().pageKey)?.let { newKey ->
-                                    linkControl.showLink(book, newKey)
-                                }
-                            }
+                        MyDocumentBookManager.deleteAIDocumentPage(pageId)
+                        // Close the window if it's a links window
+                        if (window.isLinksWindow) {
+                            windowControl.closeWindow(window)
                         }
                     }
                     .setNegativeButton(R.string.no, null)
                     .show()
             }
             "regenerate" -> {
-                // TODO: Implement regeneration using stored context
-                Log.i(TAG, "Regenerate requested for page: $pageId, prompt: ${page.sourcePromptId}")
-                Toast.makeText(
-                    mainBibleActivity,
-                    R.string.ai_document_regenerate_not_implemented,
-                    Toast.LENGTH_SHORT
-                ).show()
+                mainBibleActivity.lifecycleScope.launch(Dispatchers.IO) {
+                    val success = AgentSessionManager.regenerateAIDocument(pageId)
+                    if (!success) {
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(mainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
             }
             else -> {
                 Log.w(TAG, "Unknown AI document action: $action")

@@ -405,6 +405,29 @@ object MyDocumentBookManager {
     }
 
     /**
+     * Get an AI document page by ID.
+     */
+    fun getAIDocumentPage(pageId: IdType): MyDocumentPage? {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        return dao.pageById(pageId)
+    }
+
+    /**
+     * Delete an AI document page.
+     *
+     * @param pageId ID of the page to delete
+     * @return true if the page was deleted, false if not found
+     */
+    fun deleteAIDocumentPage(pageId: IdType): Boolean {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val page = dao.pageById(pageId) ?: return false
+        dao.deletePageWithContent(page)
+        refreshDocument(AI_DOCUMENTS_INITIALS)
+        Log.i(TAG, "Deleted AI document page: $pageId")
+        return true
+    }
+
+    /**
      * Data class containing information about a saved AI response page.
      */
     data class SavedPageInfo(

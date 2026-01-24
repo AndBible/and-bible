@@ -18,13 +18,17 @@
 package net.bible.service.llm.agent
 
 import android.util.Log
+import kotlinx.serialization.json.Json.Default.decodeFromString
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.common.toV11n
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.Selection
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.tools.ToolRegistry
@@ -40,6 +44,15 @@ import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
+import javax.inject.Inject
+
+/**
+ * Base class for AgentSessionManager with injected dependencies.
+ */
+open class AgentSessionManagerBase {
+    @Inject lateinit var windowControl: WindowControl
+    @Inject lateinit var linkControl: LinkControl
+}
 
 /**
  * Event posted when the agent log is updated.
@@ -144,9 +157,22 @@ class AgentSession(val workspaceId: IdType) {
  * Log entries are workspace-specific, meaning different workspaces have
  * independent agent logs.
  */
-object AgentSessionManager {
+object AgentSessionManager : AgentSessionManagerBase() {
     /** Active sessions, keyed by workspace ID */
     private val activeSessions = mutableMapOf<IdType, AgentSession>()
+
+    private var initialized = false
+
+    /**
+     * Ensure dependencies are injected. Called lazily before first use.
+     */
+    @Synchronized
+    private fun ensureInitialized() {
+        if (!initialized) {
+            CommonUtils.buildActivityComponent().inject(this)
+            initialized = true
+        }
+    }
 
     /**
      * Get or create an agent session for the given workspace.
@@ -233,19 +259,16 @@ object AgentSessionManager {
      *
      * @param prompt The AgentPrompt to execute
      * @param selection The user's selection (verses, text, etc.)
-     * @param windowControl WindowControl for accessing current window state
-     * @param linkControl LinkControl for opening the result
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
-        selection: Selection,
-        windowControl: WindowControl,
-        linkControl: LinkControl
+        selection: Selection
     ) {
+        ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
         // Build AgentContext and CacheableContext
-        val context = buildAgentContext(prompt, selection, windowControl)
+        val context = buildAgentContext(prompt, selection)
         val cacheableContext = CacheableContext.fromAgentContext(context)
 
         // Check cache
@@ -267,7 +290,7 @@ object AgentSessionManager {
         // Execute via AgentExecutor
         val executor = AgentExecutor()
         executor.execute(prompt.id, context).collect { event ->
-            handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, linkControl)
+            handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker)
         }
     }
 
@@ -300,8 +323,7 @@ object AgentSessionManager {
 
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
-        selection: Selection,
-        windowControl: WindowControl
+        selection: Selection
     ): AgentContext {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
@@ -405,8 +427,7 @@ object AgentSessionManager {
         prompt: AgentPrompt,
         context: AgentContext,
         cacheableContext: CacheableContext,
-        usedWriteToolsTracker: AtomicBoolean,
-        linkControl: LinkControl
+        usedWriteToolsTracker: AtomicBoolean
     ) {
         val app = BibleApplication.application
         when (event) {
@@ -538,6 +559,84 @@ object AgentSessionManager {
             }.take(80)
             Pair(fallbackTitle, response)
         }
+    }
+
+    /**
+     * Regenerate an AI document using stored context.
+     *
+     * @param pageId ID of the page to regenerate
+     * @return true if regeneration was started, false if it failed
+     */
+    suspend fun regenerateAIDocument(pageId: IdType): Boolean {
+        ensureInitialized()
+        val page = MyDocumentBookManager.getAIDocumentPage(pageId)
+        if (page == null) {
+            Log.w(TAG, "Cannot regenerate: page not found: $pageId")
+            return false
+        }
+
+        val promptId = page.sourcePromptId
+        if (promptId == null) {
+            Log.w(TAG, "Cannot regenerate: no sourcePromptId")
+            return false
+        }
+
+        // Get the prompt
+        val promptDao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+        val prompt = promptDao.promptById(promptId)
+        if (prompt == null) {
+            Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
+            return false
+        }
+
+        // Get stored context for regeneration
+        val kjvOrdinalStart = page.kjvOrdinalStart
+        val kjvOrdinalEnd = page.kjvOrdinalEnd
+
+        // Parse stored context to get book initials
+        val storedContext = page.sourceContext?.let {
+            try {
+                decodeFromString<CacheableContext>(it)
+            } catch (e: Exception) {
+                Log.w(TAG, "Failed to parse stored context", e)
+                null
+            }
+        }
+
+        val bookInitials = storedContext?.activeDocumentInitials
+        val book = bookInitials?.let { Books.installed().getBook(it) } as? SwordBook
+
+        // Create selection for regeneration
+        val selection: Selection
+        if (kjvOrdinalStart != null && kjvOrdinalEnd != null && book != null) {
+            // Convert KJVA ordinals to target versification
+            val targetVersification = book.versification
+
+            val kjvaStart = Verse(KJVA, kjvOrdinalStart)
+            val kjvaEnd = Verse(KJVA, kjvOrdinalEnd)
+
+            val targetStart = kjvaStart.toV11n(targetVersification)
+            val targetEnd = kjvaEnd.toV11n(targetVersification)
+
+            selection = Selection(
+                bookInitials = bookInitials,
+                startOrdinal = targetStart.ordinal,
+                startOffset = null,
+                endOrdinal = targetEnd.ordinal,
+                endOffset = null,
+                bookmarks = emptyList(),
+                notes = null,
+                text = storedContext.selectedText ?: ""
+            )
+        } else {
+            Log.w(TAG, "Cannot regenerate: missing ordinal data")
+            return false
+        }
+
+        // Delete the current page and execute the prompt with the reconstructed selection
+        MyDocumentBookManager.deleteAIDocumentPage(pageId)
+        executePrompt(prompt, selection)
+        return true
     }
 
     private const val TAG = "AgentSessionManager"
