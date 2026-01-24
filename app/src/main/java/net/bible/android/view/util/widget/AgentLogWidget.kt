@@ -156,19 +156,21 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         val entries = AgentSessionManager.getLogEntries(wsId)
         adapter.submitList(entries.toList())
 
-        // Update status text based on session state
+        // Update status text based on session state and latest entry
         val isRunning = AgentSessionManager.isRunning(wsId)
-        updateStatusText(isRunning)
+        val latestMessage = entries.lastOrNull()?.message
+        updateStatusText(isRunning, latestMessage)
     }
 
     /**
      * Update the status text.
+     * Shows the latest log entry message when running, or "Idle" when not.
      */
-    private fun updateStatusText(isRunning: Boolean) {
-        binding.statusText.text = if (isRunning) {
-            context.getString(R.string.agent_log_running)
-        } else {
-            context.getString(R.string.agent_log_idle)
+    private fun updateStatusText(isRunning: Boolean, latestMessage: String? = null) {
+        binding.statusText.text = when {
+            isRunning && latestMessage != null -> latestMessage
+            isRunning -> context.getString(R.string.agent_log_running)
+            else -> context.getString(R.string.agent_log_idle)
         }
     }
 
@@ -190,7 +192,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
         if (event.workspaceId == workspaceId) {
-            updateStatusText(event.isRunning)
+            val latestMessage = AgentSessionManager.getLogEntries(event.workspaceId).lastOrNull()?.message
+            updateStatusText(event.isRunning, latestMessage)
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
