@@ -18,6 +18,7 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
@@ -36,6 +37,12 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 
 private const val TAG = "MyDocumentBook"
+
+/**
+ * Event posted when a MyDocument is updated (pages added/removed).
+ * Used to invalidate caches that depend on the document's key list.
+ */
+class MyDocumentUpdatedEvent(val initials: String)
 
 /**
  * OpenFileState for MyDocument backend.
@@ -297,6 +304,9 @@ object MyDocumentBookManager {
         // Unregister and re-register
         unregisterDocument(initials)
         registerDocument(document)
+
+        // Notify listeners to invalidate their caches
+        ABEventBus.post(MyDocumentUpdatedEvent(initials))
     }
 
     /**

@@ -18,8 +18,10 @@ package net.bible.android.control.page
 
 import android.util.Log
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.isMyDocument
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
@@ -33,6 +35,22 @@ abstract class CachedKeyPage internal constructor(
     pageManager: CurrentPageManager
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
+
+    init {
+        ABEventBus.register(this)
+    }
+
+    /**
+     * Called when a MyDocument is updated (pages added/removed).
+     * Clears the cache if the current document matches.
+     */
+    fun onEvent(event: MyDocumentUpdatedEvent) {
+        val doc = currentDocument
+        if (doc != null && doc.isMyDocument && doc.initials == event.initials) {
+            Log.d(TAG, "Clearing cached key list for updated MyDocument: ${event.initials}")
+            mCachedGlobalKeyList = null
+        }
+    }
 
 
 	override fun setCurrentDocument(doc: Book?) {
