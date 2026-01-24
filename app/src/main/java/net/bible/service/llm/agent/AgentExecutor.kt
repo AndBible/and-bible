@@ -37,6 +37,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.Locale
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -235,9 +236,13 @@ class AgentExecutor(
      * Build the system prompt with context information.
      */
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
+        val appLanguage = Locale.getDefault().displayLanguage
+
         return buildString {
             append("You are a Bible study assistant integrated with the AndBible application. ")
             append("You have access to tools that can read Bible content, search, and manage bookmarks and notes.\n\n")
+
+            append("IMPORTANT: Always respond in $appLanguage (the user's app language).\n\n")
 
             append("Guidelines:\n")
             append("- Use tools to gather information when needed\n")
