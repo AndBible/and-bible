@@ -42,10 +42,19 @@ object DefaultPrompts {
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
                     Translate the following text to ${getUiLanguageName()}.
+
+                    You MAY use getInstalledDocuments to check if a ${getUiLanguageName()} Bible translation is installed.
+                    If one exists, use getVerseContent to get the text from that translation.
+                    If NO ${getUiLanguageName()} translation is installed, translate the text yourself directly.
+
                     Preserve the XML structure exactly, only translate the text content between tags.
                     Do not add any explanations or commentary.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS),
+                showIn = setOf(
+                    PromptContext.TEXT_DISPLAY_SETTINGS,
+                    PromptContext.VERSE_SELECTION,
+                    PromptContext.WINDOW_MENU
+                ),
                 orderNumber = order++,
             ),
 
@@ -55,6 +64,11 @@ object DefaultPrompts {
                 description = context.getString(R.string.default_prompt_translate_to_english_desc),
                 promptTemplate = """
                     Translate the following text to English.
+
+                    You MAY use getInstalledDocuments to check if an English Bible translation is installed.
+                    If one exists, use getVerseContent to get the text from that translation.
+                    If NO English translation is installed, translate the text yourself directly.
+
                     Preserve the XML structure exactly, only translate the text content between tags.
                     Do not add any explanations or commentary.
                 """.trimIndent(),

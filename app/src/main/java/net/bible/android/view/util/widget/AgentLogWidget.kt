@@ -34,6 +34,7 @@ import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.AgentSessionStatusChangedEvent
+import net.bible.service.llm.agent.LogEntryType
 import javax.inject.Inject
 
 /**
@@ -156,10 +157,25 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         val entries = AgentSessionManager.getLogEntries(wsId)
         adapter.submitList(entries.toList())
 
-        // Update status text based on session state and latest entry
+        // Update status text based on session state and latest meaningful entry
         val isRunning = AgentSessionManager.isRunning(wsId)
-        val latestMessage = entries.lastOrNull()?.message
+        val latestMessage = getLatestMeaningfulMessage(entries)
         updateStatusText(isRunning, latestMessage)
+    }
+
+    /**
+     * Get the latest meaningful message for status display.
+     * Prefers ACTION entries (tool calls) over INFO entries (iterations, etc.).
+     */
+    private fun getLatestMeaningfulMessage(entries: List<AgentLogEntry>): String? {
+        // Prefer the latest ACTION entry (tool calls are more informative)
+        val latestAction = entries.lastOrNull { it.type == LogEntryType.ACTION }
+        if (latestAction != null) {
+            return latestAction.message
+        }
+        // Fall back to the latest non-INFO entry, or the very last entry
+        return entries.lastOrNull { it.type != LogEntryType.INFO }?.message
+            ?: entries.lastOrNull()?.message
     }
 
     /**
@@ -192,7 +208,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
         if (event.workspaceId == workspaceId) {
-            val latestMessage = AgentSessionManager.getLogEntries(event.workspaceId).lastOrNull()?.message
+            val entries = AgentSessionManager.getLogEntries(event.workspaceId)
+            val latestMessage = getLatestMeaningfulMessage(entries)
             updateStatusText(event.isRunning, latestMessage)
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
