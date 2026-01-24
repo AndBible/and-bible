@@ -26,7 +26,7 @@
 # commons compress does not need classes for other platforms
 -dontwarn org.tukaani.xz.**
 
--keep class org.apache.commons.compress.archivers.zip.**
+-keep class org.apache.commons.compress.archivers.zip.** { *; }
 
 # hopefully these JDOm dependencies aren't used because I don't think Android provides them
 -dontwarn javax.xml.stream.**
@@ -56,34 +56,45 @@
 
 -keep class net.bible.android.view.activity.settings.ColorSettingsFragment
 
-# keep dynamically loaded Jsword classes
--keep class org.crosswire.jsword.book.install.sword.HttpsSwordInstallerFactory
--keep class org.crosswire.jsword.book.install.sword.HttpSwordInstallerFactory
--keep class org.crosswire.jsword.index.lucene.analysis.**
--keep class org.crosswire.jsword.book.sword.SwordBookDriver
--keep class org.crosswire.jsword.index.lucene.LuceneIndexManager
--keep class org.crosswire.jsword.index.lucene.LuceneQueryBuilder
--keep class org.crosswire.jsword.index.lucene.LuceneQueryDecorator
--keep class org.crosswire.jsword.index.lucene.LuceneSearcher
--keep class org.crosswire.jsword.book.filter.**
+# Prevent R8 class merging for core JSword classes
+-keep class org.crosswire.jsword.book.Books { *; }
+-keep class org.crosswire.jsword.book.BookCategory { *; }
+-keep class org.crosswire.jsword.index.** { *; }
+-keep class org.crosswire.common.util.** { *; }
+
+# keep dynamically loaded Jsword classes (loaded via .plugin files using reflection)
+-keep class org.crosswire.jsword.book.install.sword.HttpsSwordInstallerFactory { *; }
+-keep class org.crosswire.jsword.book.install.sword.HttpSwordInstallerFactory { *; }
+-keep class org.crosswire.jsword.index.lucene.analysis.** { *; }
+-keep class org.crosswire.jsword.book.sword.SwordBookDriver { *; }
+-keep class org.crosswire.jsword.index.lucene.LuceneIndexManager { *; }
+-keep class org.crosswire.jsword.index.lucene.LuceneQueryBuilder { *; }
+-keep class org.crosswire.jsword.index.lucene.LuceneQueryDecorator { *; }
+-keep class org.crosswire.jsword.index.lucene.LuceneSearcher { *; }
+-keep class org.crosswire.jsword.book.filter.** { *; }
+-keep class org.crosswire.jsword.book.basic.DefaultBookmark { *; }
+-keep class org.crosswire.common.config.** { *; }
+-keep class org.crosswire.jsword.xml.ConfigurableConverter { *; }
 
 # This class has a number of dynamic invocation so let's not
 # touch it
 # DO WE NEED THESE 2 LINES
 -keep class org.apache.lucene.util.Attribute* { *; }
--keep class org.apache.lucene.analysis.tokenattributes.TermAttribute
+-keep class org.apache.lucene.analysis.tokenattributes.TermAttribute { *; }
+# Keep all Lucene classes - uses heavy reflection (VirtualMethod, codecs, analyzers)
+-keep class org.apache.lucene.** { *; }
 # Lucene classes
--keep class org.apache.lucene.codecs.Codec
--keep class * extends org.apache.lucene.codecs.Codec
--keep class org.apache.lucene.codecs.PostingsFormat
--keep class * extends org.apache.lucene.codecs.PostingsFormat
--keep class org.apache.lucene.codecs.DocValuesFormat
--keep class * extends org.apache.lucene.codecs.DocValuesFormat
--keep class org.apache.lucene.analysis.tokenattributes.**
--keep class org.apache.lucene.**Attribute
--keep class * implements org.apache.lucene.**Attribute
+-keep class org.apache.lucene.codecs.Codec { *; }
+-keep class * extends org.apache.lucene.codecs.Codec { *; }
+-keep class org.apache.lucene.codecs.PostingsFormat { *; }
+-keep class * extends org.apache.lucene.codecs.PostingsFormat { *; }
+-keep class org.apache.lucene.codecs.DocValuesFormat { *; }
+-keep class * extends org.apache.lucene.codecs.DocValuesFormat { *; }
+-keep class org.apache.lucene.analysis.tokenattributes.** { *; }
+-keep class org.apache.lucene.**Attribute { *; }
+-keep class * implements org.apache.lucene.**Attribute { *; }
 # required for non-English searches
--keep class * extends org.tartarus.snowball.SnowballProgram
+-keep class * extends org.tartarus.snowball.SnowballProgram { *; }
 
 -keepclassmembers class * extends org.tartarus.snowball.SnowballProgram {
     *;
@@ -119,7 +130,7 @@
 -dontnote kotlinx.serialization.AnnotationsKt # core serialization annotations
 
 
--keep class net.bible.android.database.bookmarks.VerseRangeSerializer
+-keep class net.bible.android.database.bookmarks.VerseRangeSerializer { *; }
 
 # Google Drive
 -keepattributes *Annotation*,InnerClasses,Signature,SourceFile,LineNumberTable
@@ -132,7 +143,7 @@
 
 -dontwarn java.lang.invoke.StringConcatFactory
 
--keep class org.jaxen.saxpath.base.XPathReader
+-keep class org.jaxen.saxpath.base.XPathReader { *; }
 
 # Nextcloud
 -keep,allowshrinking class com.owncloud.android.** { *; }
