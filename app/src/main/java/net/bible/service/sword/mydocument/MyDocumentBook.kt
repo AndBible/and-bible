@@ -18,6 +18,8 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
+import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -442,7 +444,18 @@ object MyDocumentBookManager {
             usedWriteTools = usedWriteTools
         )
 
-        dao.insertPageWithContent(page, response)
+        // Add footer with action links
+        val app = BibleApplication.application
+        val regenerateLabel = app.getString(R.string.ai_document_regenerate)
+        val deleteLabel = app.getString(R.string.ai_document_delete)
+        val contentWithFooter = """
+$response
+
+---
+[🔄 $regenerateLabel](ab-action://regenerate?pageId=${page.id}) | [🗑️ $deleteLabel](ab-action://delete?pageId=${page.id})
+        """.trim()
+
+        dao.insertPageWithContent(page, contentWithFooter)
         refreshDocument(aiDocument.initials)
 
         Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/$pageKey")
