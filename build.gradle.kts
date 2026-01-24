@@ -18,12 +18,13 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 plugins {
-    id("com.google.devtools.ksp") version "2.2.0-2.0.2" apply false
+    // KSP version must match AGP 9.0's built-in Kotlin version (2.2.10)
+    id("com.google.devtools.ksp") version "2.2.10-2.0.2" apply false
     id("app.accrescent.tools.bundletool") version "0.2.4" apply false
 }
 
 buildscript {
-    val kotlinVersion by extra("2.2.0")
+    val kotlinVersion by extra("2.2.10") // Must match AGP 9.0's built-in Kotlin version
     val coroutinesVersion by extra("1.10.2")
     val roomVersion by extra("2.7.2")
     val jdomVersion by extra("2.0.6.1") // make sure this is same version as in jsword!
@@ -43,8 +44,8 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:8.13.2")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:2.2.0")
+        classpath("com.android.tools.build:gradle:9.0.0")
+        // kotlin-gradle-plugin not needed - AGP 9.0 has built-in Kotlin support
         classpath("org.jetbrains.kotlin:kotlin-serialization:$kotlinVersion")
 
         // NOTE: Do not place your application dependencies here; they belong
