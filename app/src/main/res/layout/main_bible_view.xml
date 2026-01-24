@@ -94,19 +94,6 @@
                     app:tint="?attr/toolbarTextColor"
                     />
 
-                <ImageView
-                    android:id="@+id/llmIcon"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="14dp"
-                    android:visibility="invisible"
-                    android:contentDescription="@string/llm_working"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_baseline_smart_toy_24"
-                    app:tint="?attr/toolbarTextColor"
-                    />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout

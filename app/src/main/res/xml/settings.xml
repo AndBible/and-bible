@@ -246,12 +246,6 @@
 			android:max="5000"
 			android:icon="@drawable/ic_baseline_refresh_24"
 			/>
-		<SwitchPreferenceCompat android:key="llm_test_mode"
-			android:title="@string/llm_test_mode_title"
-			android:summary="@string/llm_test_mode_summary"
-			android:defaultValue="false"
-			android:icon="@drawable/ic_bug_report_white_24dp"
-			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<MultiSelectListPreference android:key="experimental_features"

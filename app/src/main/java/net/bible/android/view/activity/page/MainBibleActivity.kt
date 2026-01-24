@@ -107,7 +107,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.defaultWorkspaceColor
-import net.bible.android.view.activity.ai.LlmTestActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -145,8 +144,6 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.LlmEvent
-import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
@@ -312,9 +309,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
         // register for passage change and appToBackground events
         ABEventBus.register(this)
-
-        // Check if LLM processing is already running (may have started before we registered)
-        binding.llmIcon.visibility = if(LlmProcessingService.isRunning) View.VISIBLE else View.INVISIBLE
 
         setupToolbarButtons()
         setupToolbarFlingDetection()
@@ -898,10 +892,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             }, opensDialog = true)
-            R.id.llmTestSuite -> CommandPreference(launch = { _, _, _ ->
-                val intent = Intent(this, LlmTestActivity::class.java)
-                startActivity(intent)
-            }, opensDialog = true)
             else -> throw RuntimeException("Illegal menu item")
         }
     }
@@ -1207,10 +1197,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     fun onEventMainThread(event: CloudSyncEvent) {
         binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
-    }
-
-    fun onEventMainThread(event: LlmEvent) {
-        binding.llmIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
     }
 
     fun onEventMainThread(event: AgentLogVisibilityChanged) {

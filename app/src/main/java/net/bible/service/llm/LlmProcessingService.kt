@@ -385,19 +385,6 @@ object LlmProcessingService {
 
     private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
         val settings = CommonUtils.settings
-
-        // Test mode: skip actual API call, simulate latency and return text with uppercase content
-        // Preserves XML structure by only uppercasing text between tags
-        if (settings.llmTestMode) {
-            Log.d(TAG, "Test mode: simulating API call with 1s delay")
-            delay(1000)
-
-            // Uppercase only text content, not XML tags
-            return userContent.replace(Regex(">([^<]+)<")) { match ->
-                ">${match.groupValues[1].uppercase()}<"
-            }
-        }
-
         val endpoint = "${settings.llmEndpoint}/chat/completions"
 
         val requestBody = JSONObject().apply {
@@ -490,22 +477,6 @@ object LlmProcessingService {
 
         if (!settings.llmConfigured) {
             throw LlmProcessingError("LLM not configured")
-        }
-
-        // Test mode for agent: return a simple text response
-        if (settings.llmTestMode) {
-            Log.d(TAG, "Test mode: simulating API call with tools")
-            delay(1000)
-            return JSONObject().apply {
-                put("choices", JSONArray().apply {
-                    put(JSONObject().apply {
-                        put("message", JSONObject().apply {
-                            put("role", "assistant")
-                            put("content", "Test mode response: Tools available but not invoked in test mode.")
-                        })
-                    })
-                })
-            }
         }
 
         val endpoint = "${settings.llmEndpoint}/chat/completions"

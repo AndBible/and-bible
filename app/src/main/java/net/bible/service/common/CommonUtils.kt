@@ -468,10 +468,6 @@ object CommonUtils : CommonUtilsBase() {
             get() = getInt("llm_debounce_ms", 1000)
             set(value) = setInt("llm_debounce_ms", value)
 
-        var llmTestMode: Boolean
-            get() = getBoolean("llm_test_mode", false)
-            set(value) = setBoolean("llm_test_mode", value)
-
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()
 

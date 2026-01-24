@@ -183,12 +183,6 @@
             android:parentActivityName="net.bible.android.view.activity.ai.ManagePrompts"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.LlmTestActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/llm_test_activity_title"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

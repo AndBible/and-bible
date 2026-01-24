@@ -1340,9 +1340,6 @@
     <string name="llm_user_cancelled">AI processing cancelled by user</string>
     <string name="llm_debounce_title">API call delay (ms)</string>
     <string name="llm_debounce_summary">Delay before API call when confirmation is disabled (0-5000ms)</string>
-    <string name="llm_test_mode_title">Test mode (development)</string>
-    <string name="llm_test_mode_summary">Skip API calls, return uppercase text after 1s delay</string>
-    <string name="llm_test_activity_title">LLM Test Suite</string>
     <string name="llm_request_superseded">Request superseded by newer request</string>
     <string name="llm_processing_failed">AI processing failed: %1$s</string>
     <string name="translate_to_title">Translate document</string>
