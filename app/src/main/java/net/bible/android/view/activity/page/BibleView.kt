@@ -1239,6 +1239,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     .show()
             }
             "regenerate" -> {
+                // Close the window immediately before regenerating
+                if (window.isLinksWindow) {
+                    windowControl.closeWindow(window)
+                }
                 mainBibleActivity.lifecycleScope.launch(Dispatchers.IO) {
                     val success = AgentSessionManager.regenerateAIDocument(pageId)
                     if (!success) {
