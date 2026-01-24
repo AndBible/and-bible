@@ -44,6 +44,9 @@ object GetDictionaryEntryTool : Tool {
         Returns the OSIS XML content for the dictionary entry.
         Useful for looking up definitions of biblical terms, places, people, and Strong's numbers.
         For Strong's numbers, use H prefix for Hebrew (e.g., 'H430' for Elohim) or G prefix for Greek (e.g., 'G2316' for Theos).
+
+        IMPORTANT: The result includes a 'linkUrl' field. When referencing dictionary entries in your response,
+        ALWAYS create clickable links using this URL. Example: [G2316](sword://StrongsGreek/G2316)
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -92,10 +95,13 @@ object GetDictionaryEntryTool : Tool {
             val outputter = XMLOutputter(Format.getRawFormat())
             val osisXml = outputter.outputString(fragment)
 
+            val linkUrl = "sword://$dictionaryInitials/$key"
+
             ToolResult.success {
                 put("dictionary", dictionaryInitials)
                 put("dictionaryName", dictionary.name)
                 put("key", key)
+                put("linkUrl", linkUrl)
                 put("osisXml", osisXml)
             }
         } catch (e: Exception) {

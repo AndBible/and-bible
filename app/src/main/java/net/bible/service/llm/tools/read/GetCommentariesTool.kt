@@ -43,6 +43,9 @@ object GetCommentariesTool : Tool {
         Get commentary entries for a verse reference from all installed commentaries.
         Returns OSIS XML content from each commentary that has content for the specified verse.
         Useful for gathering scholarly insights and interpretations.
+
+        IMPORTANT: Each entry includes 'linkUrl'. When citing commentaries in your response,
+        ALWAYS create clickable links. Example: [MHC](sword://MHC/Matt.5.3)
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -98,9 +101,11 @@ object GetCommentariesTool : Tool {
                     continue
                 }
 
+                val linkUrl = "sword://${commentary.initials}/$verseRef"
                 results.put(JSONObject().apply {
                     put("commentary", commentary.initials)
                     put("name", commentary.name)
+                    put("linkUrl", linkUrl)
                     put("osisXml", osisXml)
                 })
             } catch (e: Exception) {
