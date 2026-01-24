@@ -410,6 +410,11 @@ object AgentSessionManager {
 
                 session.stop("Completed")
             }
+            is AgentEvent.CompletedWithoutDocument -> {
+                // Task completed without creating a document (e.g., just created a bookmark)
+                session.addLogEntry(AgentLogEntry.info("Done: ${event.message}"))
+                session.stop("Completed")
+            }
             is AgentEvent.Error -> {
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
                 session.stop()

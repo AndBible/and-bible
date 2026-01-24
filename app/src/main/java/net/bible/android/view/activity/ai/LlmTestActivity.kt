@@ -276,6 +276,7 @@ class LlmTestActivity : ActivityBase() {
                             appendResult(event.text.take(800))
                         }
                         is AgentEvent.Completed -> appendResult("\n✓ Completed in ${event.totalIterations} iterations")
+                        is AgentEvent.CompletedWithoutDocument -> appendResult("\n✓ Done (no document): ${event.message}")
                         is AgentEvent.Error -> appendResult("✗ ERROR: ${event.message}")
                         is AgentEvent.Cancelled -> appendResult("Cancelled")
                     }
@@ -331,6 +332,7 @@ class LlmTestActivity : ActivityBase() {
                                 appendResult(event.text.take(500))
                             }
                             is AgentEvent.Completed -> appendResult("\nAgent completed in ${event.totalIterations} iterations")
+                            is AgentEvent.CompletedWithoutDocument -> appendResult("\nDone (no document): ${event.message}")
                             is AgentEvent.Error -> appendResult("ERROR: ${event.message}")
                             is AgentEvent.Cancelled -> appendResult("Agent cancelled")
                         }

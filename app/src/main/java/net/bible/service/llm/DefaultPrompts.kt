@@ -169,17 +169,18 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Create bookmark with note
+            // TEST: Create bookmark with note (action-only, no document)
             AgentPrompt(
                 name = "🧪 Test: Create Bookmark",
-                description = "Test bookmark creation with notes",
+                description = "Test bookmark creation without creating a document",
                 promptTemplate = """
                     This is a test prompt. Please:
-                    1. Create a bookmark for the selected verses
-                    2. Add a short note explaining the key theme of these verses
-                    3. Report what you created
+                    1. Create a bookmark for the selected verses using createBookmark
+                    2. Add a short note explaining the key theme using addBookmarkNote
+                    3. Call finishWithoutDocument with a message confirming what you created
 
-                    Use the createBookmark and addBookmarkNote tools.
+                    This is an action-only task - do NOT write a document response.
+                    Use finishWithoutDocument to end the task after creating the bookmark.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -250,19 +251,20 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Labels management
+            // TEST: Labels management (action-only)
             AgentPrompt(
                 name = "🧪 Test: Labels",
-                description = "Test label creation and assignment",
+                description = "Test label creation and assignment without document",
                 promptTemplate = """
                     This is a test prompt. Please:
                     1. Use getAllLabels to list existing labels
                     2. Create a new label called "Test Label" using createLabel
                     3. Create a bookmark for the selected verses using createBookmark
                     4. Add the new label to the bookmark using addLabelToBookmark
-                    5. Report what you created
+                    5. Call finishWithoutDocument with a message confirming what you created
 
                     Note: If "Test Label" already exists, use a different unique name.
+                    This is an action-only task - use finishWithoutDocument to end.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -286,18 +288,18 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Update bookmark note
+            // TEST: Update bookmark note (action-only)
             AgentPrompt(
                 name = "🧪 Test: Update Note",
-                description = "Test updating existing bookmark notes",
+                description = "Test updating bookmark notes without document",
                 promptTemplate = """
                     This is a test prompt. Please:
                     1. Use getBookmarksForVerse to find bookmarks on the selected verses
                     2. If a bookmark exists with a note, use updateBookmarkNote to append " [Updated by AI]" to the note
                     3. If no bookmark exists, create one first with createBookmark and addBookmarkNote
-                    4. Report what you did
+                    4. Call finishWithoutDocument with a message confirming what you did
 
-                    This tests the updateBookmarkNote tool.
+                    This is an action-only task - use finishWithoutDocument to end.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,

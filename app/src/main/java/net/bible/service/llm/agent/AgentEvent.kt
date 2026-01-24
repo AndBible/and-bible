@@ -87,6 +87,20 @@ sealed class AgentEvent {
     ) : AgentEvent()
 
     /**
+     * Agent execution completed without creating a document.
+     *
+     * Used when the agent called finishWithoutDocument tool to indicate
+     * that the task is done but no AI document should be created.
+     *
+     * @param message A brief message about what was done
+     * @param totalIterations Total number of iterations taken
+     */
+    data class CompletedWithoutDocument(
+        val message: String,
+        val totalIterations: Int
+    ) : AgentEvent()
+
+    /**
      * Agent execution failed.
      *
      * @param message Error description

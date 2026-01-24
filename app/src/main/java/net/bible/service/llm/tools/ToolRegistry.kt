@@ -33,6 +33,7 @@ import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import org.json.JSONArray
 import org.json.JSONObject
@@ -69,6 +70,7 @@ object ToolRegistry {
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
         register(AddStudyPadEntryTool)
+        register(FinishWithoutDocumentTool)
 
         Log.i(TAG, "ToolRegistry initialized with ${tools.size} tools")
     }

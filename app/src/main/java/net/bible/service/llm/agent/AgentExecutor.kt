@@ -34,11 +34,22 @@ import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import org.json.JSONArray
 import org.json.JSONObject
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
+
+/**
+ * Result of processing tool calls.
+ */
+private sealed class ProcessToolsResult {
+    /** Continue iterating with updated context */
+    data class Continue(val context: AgentContext) : ProcessToolsResult()
+    /** Finish without creating a document */
+    data class FinishWithoutDocument(val message: String, val context: AgentContext) : ProcessToolsResult()
+}
 
 /**
  * Executes agent prompts with tool calling capability.
@@ -105,7 +116,16 @@ class AgentExecutor(
 
             when (val parsed = callLlmAndParse(messages, tools, iteration)) {
                 is ParsedResponse.ToolCalls -> {
-                    currentContext = processToolCalls(parsed, messages, currentContext)
+                    when (val result = processToolCalls(parsed, messages, currentContext)) {
+                        is ProcessToolsResult.Continue -> {
+                            currentContext = result.context
+                        }
+                        is ProcessToolsResult.FinishWithoutDocument -> {
+                            Log.d(TAG, "Agent finished without document: ${result.message}")
+                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration))
+                            return
+                        }
+                    }
                 }
                 is ParsedResponse.TextResponse -> {
                     Log.d(TAG, "LLM returned final response")
@@ -144,13 +164,13 @@ class AgentExecutor(
 
     /**
      * Process tool calls: execute each tool and add results to messages.
-     * Returns the updated context (with permission granted if a write tool was allowed).
+     * Returns ProcessToolsResult indicating whether to continue or finish without document.
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
         parsed: ParsedResponse.ToolCalls,
         messages: JSONArray,
         context: AgentContext
-    ): AgentContext {
+    ): ProcessToolsResult {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
         var currentContext = context
 
@@ -175,8 +195,15 @@ class AgentExecutor(
             emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.name, result))
 
             messages.put(ToolCallParser.createToolResultMessage(toolCall.id, result.toJson()))
+
+            // Check if finishWithoutDocument was called
+            if (toolCall.name == FinishWithoutDocumentTool.name && result is ToolResult.Success) {
+                val data = result.data as? JSONObject
+                val message = data?.optString("message") ?: "Task completed"
+                return ProcessToolsResult.FinishWithoutDocument(message, currentContext)
+            }
         }
-        return currentContext
+        return ProcessToolsResult.Continue(currentContext)
     }
 
     /**
