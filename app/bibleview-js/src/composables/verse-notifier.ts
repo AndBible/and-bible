@@ -54,8 +54,6 @@ export function useVerseNotifier(
     // totally frozen during scrolling
     const onScroll = throttle(() => {
         if (isScrolling.value) return;
-        // Start closer to the top offset to accurately detect the current verse,
-        // especially with larger font sizes where verses span multiple lines.
         let y = calculatedConfig.value.topOffset + lineHeight.value * 0.3;
 
         // Find element, starting from right
@@ -82,7 +80,6 @@ export function useVerseNotifier(
                         }
                     }
                 }
-                // Use larger increment to better handle multi-line verses with large fonts
                 y += lineHeight.value * 1.0;
             }
         }
