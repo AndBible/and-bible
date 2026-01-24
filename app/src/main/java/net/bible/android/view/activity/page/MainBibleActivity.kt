@@ -147,18 +147,9 @@ import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.LlmEvent
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.download.FakeBookFactory
-import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.agent.AgentContext
-import net.bible.service.llm.agent.AgentEvent
-import net.bible.service.llm.agent.AgentExecutor
-import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentSessionManager
-import net.bible.service.llm.agent.EntryStatus
-import net.bible.service.llm.agent.LogEntryType
-import net.bible.service.llm.tools.ToolResult
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
-import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -168,9 +159,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
-import org.crosswire.jsword.passage.VerseRange
-import org.jdom2.output.Format
-import org.jdom2.output.XMLOutputter
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
@@ -2131,128 +2119,18 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     .setTitle(R.string.select_llm_prompt)
                     .setItems(promptNames) { _, which ->
                         val selectedPrompt = prompts[which]
-                        executeLlmPrompt(selection, selectedPrompt)
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-            }
-        }
-    }
-
-    /**
-     * Execute the selected LLM prompt with the given selection.
-     */
-    private fun executeLlmPrompt(selection: Selection, prompt: AgentPrompt) {
-        val workspaceId = windowControl.windowRepository.id
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            // Get book and prepare context data
-            val book = selection.bookInitials?.let { Books.installed().getBook(it) }
-            val currentPage = windowControl.activeWindowPageManager.currentPage
-            val key = currentPage.key
-            val ordinalRange = selection.startOrdinal..selection.endOrdinal
-
-            // Get selected text
-            val selectedText = if (book != null && key != null) {
-                SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange).joinToString(" ")
-            } else ""
-
-            // Create VerseRange if this is a Bible book
-            val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
-                try {
-                    val v11n = book.versification
-                    val startVerse = Verse(v11n, selection.startOrdinal)
-                    val endVerse = Verse(v11n, selection.endOrdinal)
-                    VerseRange(v11n, startVerse, endVerse)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not create VerseRange from ordinals", e)
-                    null
-                }
-            } else null
-
-            // Get OSIS XML content
-            val osisContent = if (book != null && key != null) {
-                try {
-                    val fragment = SwordContentFacade.readOsisFragment(book, key)
-                    XMLOutputter(Format.getRawFormat()).outputString(fragment)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not get OSIS content", e)
-                    null
-                }
-            } else null
-
-            // Create agent context with full information
-            val context = AgentContext(
-                promptId = prompt.id,
-                selectedVerseRange = verseRange,
-                selectedContent = osisContent,
-                activeDocumentInitials = selection.bookInitials,
-                windowId = windowControl.activeWindow.id,
-                selectedText = selectedText
-            )
-
-            // Get or create session and start it
-            val session = AgentSessionManager.getOrCreateSession(workspaceId)
-            session.start(context)
-
-            // Execute the prompt using AgentExecutor
-            val executor = AgentExecutor()
-            executor.execute(prompt.id, context).collect { event ->
-                when (event) {
-                    is AgentEvent.Started -> {
-                        session.addLogEntry(
-                            AgentLogEntry.info(
-                                getString(R.string.llm_prompt_executing, prompt.name),
-                                details = selection.osisRef ?: "${selection.startOrdinal}-${selection.endOrdinal}"
-                            )
-                        )
-                    }
-                    is AgentEvent.Iteration -> {
-                        session.addLogEntry(
-                            AgentLogEntry.info("Iteration ${event.number}")
-                        )
-                    }
-                    is AgentEvent.ToolCalling -> {
-                        session.addLogEntry(
-                            AgentLogEntry.action(
-                                "Calling tool: ${event.toolName}",
-                                details = event.arguments
-                            )
-                        )
-                    }
-                    is AgentEvent.ToolCompleted -> {
-                        val isSuccess = event.result is ToolResult.Success
-                        val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
-                        session.addLogEntry(
-                            AgentLogEntry(
-                                type = LogEntryType.ACTION,
-                                message = "Tool ${event.toolName} ${if (isSuccess) "completed" else "failed"}",
-                                details = event.result.toJson(),
-                                status = status
-                            )
-                        )
-                    }
-                    is AgentEvent.TextResponse -> {
-                        if (event.isFinal) {
-                            session.addLogEntry(
-                                AgentLogEntry.info("Response received", details = event.text.take(200))
+                        // Execute via AgentSessionManager
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            AgentSessionManager.executePrompt(
+                                selectedPrompt,
+                                selection,
+                                windowControl,
+                                linkControl
                             )
                         }
                     }
-                    is AgentEvent.Completed -> {
-                        session.stop(getString(R.string.agent_execution_completed))
-                    }
-                    is AgentEvent.Error -> {
-                        session.addLogEntry(
-                            AgentLogEntry.error(event.message, details = event.cause?.message)
-                        )
-                        session.stop()
-                    }
-                    is AgentEvent.Cancelled -> {
-                        session.addLogEntry(AgentLogEntry.info("Cancelled"))
-                        session.stop()
-                    }
-                }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
             }
         }
     }

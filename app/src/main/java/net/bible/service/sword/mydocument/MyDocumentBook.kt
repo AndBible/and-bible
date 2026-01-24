@@ -21,6 +21,7 @@ import android.util.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookMetaData
@@ -85,14 +86,15 @@ class MyDocumentBackend(
             return DefaultLeafKeyList("", "")
         }
         val page = pages[index]
-        // Use pageKey for both name and osisRef so getKey() can find it
-        // Title is used as the display name via DefaultLeafKeyList's toString()
-        return DefaultLeafKeyList(page.pageKey, page.pageKey)
+        // Use title for display name, pageKey for osisRef (internal lookup)
+        return DefaultLeafKeyList(page.title, page.pageKey)
     }
 
     override fun indexOf(that: Key): Int {
         val pages = dao.pagesForDocument(documentId)
-        return pages.indexOfFirst { it.pageKey == that.name }
+        // Compare using osisRef (pageKey) for lookup, or name if osisRef not available
+        val searchKey = that.osisRef?.takeIf { it.isNotEmpty() } ?: that.name
+        return pages.indexOfFirst { it.pageKey == searchKey }
     }
 
     override fun readIndex(): Key {
@@ -106,15 +108,16 @@ class MyDocumentBackend(
     override fun iterator(): MutableIterator<Key> {
         val pages = dao.pagesForDocument(documentId)
         return pages.map { page ->
-            // Use pageKey for both name and osisRef so getKey() can find it
-            DefaultLeafKeyList(page.pageKey, page.pageKey) as Key
+            // Use title for display name, pageKey for osisRef (internal lookup)
+            DefaultLeafKeyList(page.title, page.pageKey) as Key
         }.toMutableList().iterator()
     }
 
     override fun readRawContent(state: MyDocumentOpenFileState?, key: Key?): String {
         if (key == null) return ""
 
-        val pageKey = key.name
+        // Use osisRef (pageKey) for lookup, fallback to name
+        val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
         val page = dao.pageByKeyWithContent(documentId, pageKey)
 
         if (page == null) {
@@ -145,8 +148,8 @@ class MyDocumentBackend(
         val pages = dao.pagesForDocument(documentId)
         val keyList = DefaultKeyList()
         pages.forEach { page ->
-            // Use pageKey for both name and osisRef for consistency
-            keyList.addAll(DefaultLeafKeyList(page.pageKey, page.pageKey))
+            // Use title for display name, pageKey for osisRef (internal lookup)
+            keyList.addAll(DefaultLeafKeyList(page.title, page.pageKey))
         }
         return keyList
     }
@@ -383,5 +386,49 @@ object MyDocumentBookManager {
         }
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         return dao.pageCount(document.id) == 0
+    }
+
+    /**
+     * Data class containing information about a saved AI response page.
+     */
+    data class SavedPageInfo(
+        val documentInitials: String,
+        val pageKey: String
+    )
+
+    /**
+     * Save an AI response as a new page in the AI Documents.
+     *
+     * @param response The LLM response content (markdown)
+     * @param title Title for the page
+     * @param sourcePromptId ID of the prompt that generated this response
+     * @param sourceContext Optional context string (e.g., verse reference)
+     * @return Information about the saved page
+     */
+    fun saveAIResponse(
+        response: String,
+        title: String,
+        sourcePromptId: IdType,
+        sourceContext: String? = null
+    ): SavedPageInfo {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val aiDocument = getOrCreateAIDocument()
+
+        val pageKey = "ai_${System.currentTimeMillis()}"
+        val page = MyDocumentPage(
+            documentId = aiDocument.id,
+            title = title,
+            pageKey = pageKey,
+            contentType = MyDocumentContentType.MARKDOWN,
+            orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
+            sourcePromptId = sourcePromptId,
+            sourceContext = sourceContext
+        )
+
+        dao.insertPageWithContent(page, response)
+        refreshDocument(aiDocument.initials)
+
+        Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/$pageKey")
+        return SavedPageInfo(aiDocument.initials, pageKey)
     }
 }

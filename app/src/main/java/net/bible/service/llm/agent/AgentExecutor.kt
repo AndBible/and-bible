@@ -213,8 +213,25 @@ class AgentExecutor(
             append("Guidelines:\n")
             append("- Use tools to gather information when needed\n")
             append("- Be concise and helpful in your responses\n")
-            append("- When referencing Bible verses, use the OSIS reference format (e.g., Matt.5.3)\n")
             append("- If you need to read verse content, use the appropriate tool\n")
+            append("- IMPORTANT: Always start your response with a descriptive title as a markdown H1 heading (# Title)\n")
+            append("  The title should be short (max 60 chars) and describe the content, e.g.:\n")
+            append("  # The Beatitudes: Path to True Blessing\n")
+            append("  # Understanding Grace in Romans 8\n")
+            append("\n")
+
+            // Link formatting instructions
+            append("IMPORTANT - Cross-reference formatting:\n")
+            append("When referencing Bible verses in your response, ALWAYS format them as clickable markdown links using the sword:// protocol:\n")
+            append("- Format: [Display Text](sword:///Reference) - note the empty module (three slashes)\n")
+            append("- Use OSIS reference format: Book.Chapter.Verse or Book.Chapter.StartVerse-EndVerse\n")
+            append("- Examples:\n")
+            append("  - [Matt. 5:3](sword:///Matt.5.3)\n")
+            append("  - [John 3:16-17](sword:///John.3.16-17)\n")
+            append("  - [Genesis 1:1-3](sword:///Gen.1.1-3)\n")
+            append("  - [Rom. 8:28](sword:///Rom.8.28)\n")
+            append("- Leave module empty so the user's active Bible is used\n")
+            append("- Only specify a module (e.g., sword://MHC/Matt.5.3) for commentaries or specific documents\n")
             append("\n")
 
             // Add context information
