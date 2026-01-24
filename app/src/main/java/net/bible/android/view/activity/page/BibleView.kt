@@ -1185,8 +1185,12 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
             Log.i(TAG, "onRenderProcessGone")
-            val bf = view.parent as BibleFrame
-            bf.recreate()
+            val bf = view.parent as? BibleFrame
+            if (bf != null) {
+                bf.recreate()
+            } else {
+                Log.w(TAG, "WebView parent is null in onRenderProcessGone, cannot recreate")
+            }
             return true
         }
     }
