@@ -46,6 +46,7 @@ import A from "@/components/OSIS/A.vue";
 import Abbr from "@/components/OSIS/Abbr.vue";
 import Markdown from "@/components/OSIS/Markdown.vue";
 import Html from "@/components/OSIS/Html.vue";
+import AiFooter from "@/components/OSIS/AiFooter.vue";
 import BibleViewAnchor from "@/components/BibleViewAnchor.vue";
 import AndBibleLink from "@/components/OSIS/AndBibleLink.vue";
 import Pb from "@/components/MyBible/Pb.vue";
@@ -81,6 +82,7 @@ const osisComponents = {
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
     Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
     Markdown, Html,  // For MyDocument content rendering
+    AiFooter,        // For AI-generated document action links
 }
 
 const allComponents = {

@@ -95,3 +95,5 @@ peek: Vilkaise
 wordBlur: Sanan sumennus
 wordScramble: Sanojen sekoitus
 more: Lisää
+aiDocumentRegenerate: Generoi uudelleen
+aiDocumentDelete: Poista

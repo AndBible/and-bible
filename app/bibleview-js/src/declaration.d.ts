@@ -146,6 +146,8 @@ type TranslatedStrings = {
     nextChapter: string
     llmAction: string
     llmActionLong: string
+    aiDocumentRegenerate: string
+    aiDocumentDelete: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings
