@@ -387,9 +387,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 }
             } else null
 
-            // Get selected text
-            selectedText = if (book != null && pageKey != null) {
-                SwordContentFacade.getTextWithinOrdinalsAsString(book, pageKey, ordinalRange).joinToString(" ")
+            // Get selected text using verseRange (not pageKey, which may be from a different document)
+            selectedText = if (book != null && verseRange != null) {
+                SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange).joinToString(" ")
             } else ""
 
             // Get OSIS XML content for the selected verses
