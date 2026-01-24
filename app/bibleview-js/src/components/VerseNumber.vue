@@ -35,10 +35,11 @@ const {sprintf, strings} = useCommon();
 <style lang="scss">
 @use "@/common.scss" as *;
 
-.verseNumber {
+.verseNumber::after {
   @extend .superscript;
   font-size: 60%;
   margin-right: 1pt;
   color: var(--verse-number-color);
+  content: attr(verse-num);
 }
 </style>
