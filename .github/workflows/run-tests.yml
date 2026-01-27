@@ -64,7 +64,7 @@ jobs:
         unzip -o -d $HOME/.sword ./testmods.zip
 
     - name: Build with Gradle and run unit tests
-      run: ./gradlew --console plain testStandardGoogleplayRelease
+      run: ./gradlew --console plain testStandardGoogleplayDebugUnitTest
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
