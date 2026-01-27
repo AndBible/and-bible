@@ -34,9 +34,9 @@ const props = withDefaults(defineProps<{
 });
 
 checkUnsupportedProps(props, "resp");
-checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]); // x-p is found in crosswire kjv
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => props.type === "line");
+const paragraphBreak = computed(() => ["line", "x-p"].includes(props.type as string));
 useCommon();
 </script>
 

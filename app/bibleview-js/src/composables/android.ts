@@ -102,6 +102,8 @@ export type BibleJavascriptInterface = {
 
 export type UseAndroid = ReturnType<typeof useAndroid>
 
+const runningInAndroid = !!window.android;
+
 let callId = 0;
 
 export const logEntries = reactive<LogEntry[]>([])
@@ -322,7 +324,9 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
     }
 
     function setClientReady() {
-        window.android.setClientReady();
+        if(runningInAndroid){
+            window.android.setClientReady();
+        }
     }
 
     function reportInputFocus(value: boolean) {
