@@ -186,9 +186,17 @@ class SearchControl @Inject constructor(
             else searchResults.otherSearchResults.add(grouped)
         }
 
-        // Sort by verse ordinal
-        searchResults.mainSearchResults.sortBy { it.normalizedVerse.ordinal }
-        searchResults.otherSearchResults.sortBy { it.normalizedVerse.ordinal }
+
+        searchResults.mainSearchResults.sortWith(compareBy(
+            { it.normalizedVerse.book.ordinal },
+            { it.normalizedVerse.chapter },
+            { it.normalizedVerse.verse }
+        ))
+        searchResults.otherSearchResults.sortWith(compareBy(
+            { it.normalizedVerse.book.ordinal },
+            { it.normalizedVerse.chapter },
+            { it.normalizedVerse.verse }
+        ))
 
         Log.i(TAG, "Multi-search found ${searchResults.size} unique verses")
         searchResults
