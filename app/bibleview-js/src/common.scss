@@ -17,6 +17,7 @@
 .paragraphBreak::before {
   display: block;
   height: 0.5em;
+  content: ""
 }
 
 .menu {

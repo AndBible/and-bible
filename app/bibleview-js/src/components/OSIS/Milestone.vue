@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
     subType?: string
     type?: string
     marker: string
-    resp: string
+    resp?: string
 }>(),{
     marker: "",
     resp: ""
