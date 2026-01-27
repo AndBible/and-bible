@@ -380,7 +380,7 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
      * @param historyTraversalFactory
      */
     @Inject
-    internal fun setNewHistoryTraversal(historyTraversalFactory: HistoryTraversalFactory) {
+    fun setNewHistoryTraversal(historyTraversalFactory: HistoryTraversalFactory) {
         // Ensure we don't end up overwriting the initialised class
         if (!::historyTraversal.isInitialized) {
             this.historyTraversal = historyTraversalFactory.createHistoryTraversal(integrateWithHistoryManager)

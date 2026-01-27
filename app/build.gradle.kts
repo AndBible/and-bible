@@ -22,9 +22,7 @@ import java.util.Properties
 
 plugins {
     id("com.android.application")
-    id("kotlin-android")
-    id("kotlinx-serialization")
-    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.devtools.ksp")
     id("app.accrescent.tools.bundletool")
 }
@@ -48,29 +46,19 @@ val dimDistributionChannelName = "distchannel"
 
 
 fun getGitHash(): String =
-    ByteArrayOutputStream().use { stdout ->
-        exec {
-            commandLine("git", "rev-parse", "--short", "HEAD")
-            standardOutput = stdout
-        }
-        return stdout.toString().trim()
-    }
+    providers.exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+    }.standardOutput.asText.get().trim()
 
-fun getGitDescribe(): String  = ByteArrayOutputStream().use { stdout ->
-    exec {
+fun getGitDescribe(): String =
+    providers.exec {
         commandLine("git", "describe", "--always")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
+    }.standardOutput.asText.get().trim()
 
-fun getGitCommitDate(): String = ByteArrayOutputStream().use { stdout ->
-    exec {
+fun getGitCommitDate(): String =
+    providers.exec {
         commandLine("git", "log", "-1", "--format=%ad", "--date=format:%d/%m/%y %H:%M:%S")
-        standardOutput = stdout
-    }
-    return stdout.toString().trim()
-}
+    }.standardOutput.asText.get().trim()
 
 val npmVersion = "11"
 val npmUpgrade by tasks.registering(Exec::class) {
@@ -166,7 +154,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro")
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
@@ -252,13 +240,9 @@ android {
     compileOptions {
         val sourceCompatibilityVersion: JavaVersion by rootProject.extra
         val targetCompatibilityVersion: JavaVersion by rootProject.extra
-        val jvmTargetVersion: String by rootProject.extra
 
         sourceCompatibility = sourceCompatibilityVersion
         targetCompatibility = targetCompatibilityVersion
-        kotlinOptions {
-            jvmTarget = jvmTargetVersion
-        }
     }
 
     testOptions {
@@ -275,8 +259,8 @@ android {
             }
         }
         managedDevices {
-            devices {
-                maybeCreate<com.android.build.api.dsl.ManagedVirtualDevice>("emulator").apply {
+            localDevices {
+                create("emulator") {
                     device = "Pixel 3"
                     apiLevel = 31
                     systemImageSource = "aosp"
@@ -316,6 +300,9 @@ val jvmToolChainVersion: Int by rootProject.extra
 
 kotlin {
     jvmToolchain(jvmToolChainVersion)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+    }
 }
 
 if(gradle.startParameter.taskNames.any { it.contains("Fdroid") }) {
@@ -510,10 +497,10 @@ bundletool {
         if (storeFilePath != null && keyAliasValue != null &&
             storePasswordValue != null && keyPasswordValue != null) {
             signingConfig {
-                this.storeFile = file(storeFilePath)
-                this.storePassword = storePasswordValue
-                this.keyAlias = keyAliasValue
-                this.keyPassword = keyPasswordValue
+                storeFile.set(file(storeFilePath))
+                storePassword.set(storePasswordValue)
+                keyAlias.set(keyAliasValue)
+                keyPassword.set(keyPasswordValue)
             }
             println("✓ Accrescent signing configuration loaded successfully")
         } else {
@@ -542,14 +529,12 @@ configurations {
     }
 }
 
-afterEvaluate {
-    android.applicationVariants.all { variant ->
-        if (listOf("Googleplay", "Github", "Amazon", "Samsung", "Huawei", "Accrescent").find { variant.flavorName.endsWith(it) } != null) {
-            repositories {
-                maven { url = uri("https://repo.boox.com/repository/maven-public/") }
-            }
-        }
-        true
+// Boox repository for Onyx SDK (e-ink devices) - NOT allowed in F-droid builds
+if (gradle.startParameter.taskNames.any { it.contains("Fdroid", ignoreCase = true) }) {
+    println("F-droid build: Boox repository excluded")
+} else {
+    repositories {
+        maven { url = uri("https://repo.boox.com/repository/maven-public/") }
     }
 }
 
