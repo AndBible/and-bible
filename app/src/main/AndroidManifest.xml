@@ -131,7 +131,13 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="net.bible.android.action.SEARCH" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="net.bible.android.view.activity.search.EpubSearch"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
