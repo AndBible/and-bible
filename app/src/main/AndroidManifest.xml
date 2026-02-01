@@ -312,6 +312,15 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
+        <activity
+            android:name="net.bible.android.activity.GetPassageActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="net.bible.android.action.GET_PASSAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
         <uses-library

@@ -17,6 +17,7 @@
 package net.bible.android.view.activity
 
 import dagger.Component
+import net.bible.android.activity.GetPassageActivity
 import net.bible.android.activity.SpeakWidgetManager
 import net.bible.android.control.ApplicationComponent
 import net.bible.android.control.backup.BackupControl
@@ -112,6 +113,7 @@ interface ActivityComponent {
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
     fun inject(c: CommonUtilsBase)
+    fun inject(g: GetPassageActivity)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)
