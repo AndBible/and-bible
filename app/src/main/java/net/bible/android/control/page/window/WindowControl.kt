@@ -44,6 +44,7 @@ import net.bible.service.common.firstBibleDoc
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.VerseKey
 import javax.inject.Inject
 
 import kotlin.coroutines.resume
@@ -101,7 +102,13 @@ open class WindowControl @Inject constructor() {
             linksWindow.windowState = WindowState.VISIBLE
         }
 
-        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
+        // Ensure we have a proper Bible document for verse keys to prevent
+        // trying to look up Bible verses in non-Bible documents (like EPUBs)
+        val actualDocument = document ?: if (key is VerseKey<*>) {
+            activeWindow.pageManager.currentBible.currentDocument ?: firstBibleDoc
+        } else null
+
+        linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
 
         if (!linksWindowWasVisible) {
             ABEventBus.post(NumberOfWindowsChangedEvent())
