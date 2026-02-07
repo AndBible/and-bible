@@ -75,7 +75,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
 
-        selectedTranslations = intent.getStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS) ?: emptyList()
+        selectedTranslations = intent.getStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS)
+            ?: intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?.let { listOf(it) }
+            ?: emptyList()
 
         binding.closeButton.setOnClickListener {
             finish()
