@@ -55,7 +55,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private var mSearchAdapter: MultiSearchItemAdapter? = null
     private var isScriptureResultsCurrentlyShown = true
     override val integrateWithHistoryManager: Boolean = true
-    var searchDocument: SwordBook? = null
+
     private var selectedTranslations: List<String> = emptyList()
 
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
@@ -167,11 +167,6 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             Log.i(TAG, "Searching: $searchText in ${selectedTranslations.size} translations")
 
             mSearchResultsHolder = searchControl.getMultiSearchResults(selectedTranslations, searchText)
-
-            // Use the first translation as the primary search document
-            mSearchResultsHolder?.mainSearchResults?.firstOrNull()?.translationMatches?.firstOrNull()?.book?.let {
-                this@SearchResults.searchDocument = it
-            }
 
             withContext(Dispatchers.Main) {
                 val resultCount = mSearchResultsHolder?.size ?: 0
