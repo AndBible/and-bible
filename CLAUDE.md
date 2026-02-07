@@ -226,6 +226,16 @@ node --version
 echo $ANDROID_SDK_ROOT
 ```
 
+## Git Conventions
+
+- When fixing a GitHub issue, start the commit message with `Fixes #NNN (short bug description)` so GitHub auto-closes the issue. Additional details go on subsequent lines. Example:
+  ```
+  Fixes #3626 (popup menu search returning 0 results)
+
+  SearchResults now falls back to SEARCH_DOCUMENT when
+  SELECTED_TRANSLATIONS is not provided.
+  ```
+
 ## Notes
 
 - Current stable branch that where most development is also done currently: `current-stable`
