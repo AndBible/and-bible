@@ -102,13 +102,7 @@ open class WindowControl @Inject constructor() {
             linksWindow.windowState = WindowState.VISIBLE
         }
 
-        // Ensure we have a proper Bible document for verse keys to prevent
-        // trying to look up Bible verses in non-Bible documents (like EPUBs)
-        val actualDocument = document ?: if (key is VerseKey<*>) {
-            activeWindow.pageManager.currentBible.currentDocument ?: firstBibleDoc
-        } else null
-
-        linksWindow.pageManager.setCurrentDocumentAndKey(actualDocument, key)
+        linksWindow.pageManager.setCurrentDocumentAndKey(document, key)
 
         if (!linksWindowWasVisible) {
             ABEventBus.post(NumberOfWindowsChangedEvent())
