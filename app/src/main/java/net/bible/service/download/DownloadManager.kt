@@ -95,8 +95,8 @@ class DownloadManager(
             // If we know the name of the installer we can get it directly
             installer = installManager.getInstaller(repo)
             documents = if (installer == null) {
-                log.error("Error getting installer for repo $repo")
-                Dialogs.showErrorMsg(R.string.error_occurred, Exception("Error getting installer for repo $repo"))
+                log.warn("No installer found for repo $repo, skipping")
+                markFailed(repo)
                 emptyList()
             } else {
                 // Now we can get the list of books
