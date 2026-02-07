@@ -260,8 +260,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var wasAtRightEdge: Boolean = false
     private var wasAtLeftEdge: Boolean = false
 
-    private var minChapter = -1
-    private var maxChapter = -1
+    @Volatile private var minChapter = -1
+    @Volatile private var maxChapter = -1
 
     private var gestureDetector: GestureDetectorCompat
 
@@ -1462,8 +1462,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(latestDocumentStr == null || !needsDocument) return
             needsDocument = false
             contentVisible = true
-            minChapter = verse?.chapter ?: -1
-            maxChapter = verse?.chapter ?: -1
+            synchronized(requestMoreLock) {
+                minChapter = verse?.chapter ?: -1
+                maxChapter = verse?.chapter ?: -1
+            }
             latestDocumentStr
         }
 
