@@ -143,6 +143,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     }
 
     private fun onTranslationPillClick(book: SwordBook, key: Key) {
+        intent.putExtra("listPosition", listView.firstVisiblePosition)
         windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
         val intent = Intent(this, MainBibleActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
