@@ -55,7 +55,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     private var mSearchAdapter: MultiSearchItemAdapter? = null
     private var isScriptureResultsCurrentlyShown = true
     override val integrateWithHistoryManager: Boolean = true
-    var searchDocument: SwordBook? = null
+
     private var selectedTranslations: List<String> = emptyList()
 
     @Inject lateinit var searchResultsActionBarManager: SearchResultsActionBarManager
@@ -75,7 +75,9 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         isScriptureResultsCurrentlyShown = searchControl.isCurrentlyShowingScripture
 
-        selectedTranslations = intent.getStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS) ?: emptyList()
+        selectedTranslations = intent.getStringArrayListExtra(SearchControl.SELECTED_TRANSLATIONS)
+            ?: intent.getStringExtra(SearchControl.SEARCH_DOCUMENT)?.let { listOf(it) }
+            ?: emptyList()
 
         binding.closeButton.setOnClickListener {
             finish()
@@ -141,6 +143,7 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
     }
 
     private fun onTranslationPillClick(book: SwordBook, key: Key) {
+        intent.putExtra("listPosition", listView.firstVisiblePosition)
         windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
         val intent = Intent(this, MainBibleActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -164,11 +167,6 @@ class SearchResults : ListActivityBase(R.menu.empty_menu) {
             Log.i(TAG, "Searching: $searchText in ${selectedTranslations.size} translations")
 
             mSearchResultsHolder = searchControl.getMultiSearchResults(selectedTranslations, searchText)
-
-            // Use the first translation as the primary search document
-            mSearchResultsHolder?.mainSearchResults?.firstOrNull()?.translationMatches?.firstOrNull()?.book?.let {
-                this@SearchResults.searchDocument = it
-            }
 
             withContext(Dispatchers.Main) {
                 val resultCount = mSearchResultsHolder?.size ?: 0

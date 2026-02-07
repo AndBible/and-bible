@@ -744,7 +744,7 @@ a {
 
 .bottom-touch-block {
   position: fixed;
-  bottom: calc(var(--visual-viewport-offset, 0px));
+  bottom: 0;
   width: 100%;
   background: var(--background-color);
 

@@ -250,13 +250,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         (if (transportBarVisible) transportBarHeight else 0) +
         (if (agentLogVisible) agentLogHeight else 0)
 
-    // WebView UI-only offset (transport + buttons + agent log, no navigation bar)
+    // WebView bottom offset: navigation bar + transport + buttons + agent log + IME keyboard, no navigation bar
+    // On pre-Android 15, bottomOffset1 is always 0, so only transport + buttons.
     val bottomOffsetForWebView get() =
-        (if (transportBarVisible) transportBarHeight else 0) +
+        bottomOffset1 + // navigation bar + IME (edge-to-edge on Android 15+, 0 on older)
+            (if (transportBarVisible) transportBarHeight else 0) +
             (if (restoreButtonsVisible) windowButtonHeight else 0) +
             (if (agentLogVisible) agentLogHeight else 0)
 
-    private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
+    private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", true)
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true

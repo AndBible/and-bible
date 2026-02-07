@@ -820,6 +820,9 @@ object SwordContentFacade {
             }
         } catch (e: ArrayIndexOutOfBoundsException) {
             return false
+        } catch (e: NullPointerException) {
+            // JSword RawLDBackend can throw NPE when module data files are not properly initialized
+            return false
         }
         return false
     }
