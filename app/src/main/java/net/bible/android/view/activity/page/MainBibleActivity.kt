@@ -240,10 +240,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // Bottom offset with navigation bar and transport bar
     val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
 
-    // WebView UI-only offset (transport + buttons, no navigation bar)
+    // WebView UI-only offset (transport + buttons + IME keyboard, no navigation bar)
     val bottomOffsetForWebView get() =
         (if (transportBarVisible) transportBarHeight else 0) +
-            (if (restoreButtonsVisible) windowButtonHeight else 0)
+            (if (restoreButtonsVisible) windowButtonHeight else 0) +
+            (bottomOffset1 - bottomOffset1WithoutIme) // IME keyboard height (0 when keyboard hidden)
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", false)
 
