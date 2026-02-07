@@ -80,7 +80,7 @@ export function useVerseNotifier(
                         }
                     }
                 }
-                y += lineHeight.value * 1.0;
+                y += lineHeight.value * 0.6;
             }
         }
     }, 50);
