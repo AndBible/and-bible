@@ -82,12 +82,14 @@ Only run Android builds when testing Android-specific integration.
 
 ## Testing
 
-**Vue.js Tests (recommended for rapid iteration)**
+**IMPORTANT: Only run tests relevant to the changes made.** If only Kotlin/Java files changed, run Android tests. If only Vue.js/TypeScript files changed, run Vue.js tests. Do not run Vue.js tests for Kotlin-only changes or vice versa.
+
+**Vue.js Tests (for Vue.js/TypeScript changes)**
 - Test files: `app/bibleview-js/src/__tests__/*.spec.js`
 - Run: `cd app/bibleview-js && npm run test:ci`
 - Coverage: 140+ tests including DOM manipulation, bookmarks, verse rendering, colors
 
-**Android Tests (use sparingly during development)**
+**Android Tests (for Kotlin/Java changes)**
 - Test files: `app/src/test/java/**/*Test.kt`
 - Run: `./gradlew testStandardGoogleplayDebugUnitTest`
 - For specific tests: `./gradlew testStandardGoogleplayDebugUnitTest --tests "*.BookmarkControlTest"`
