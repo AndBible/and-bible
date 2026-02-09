@@ -238,14 +238,20 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     var leftOffset1 = 0
 
     // Bottom offset with navigation bar and transport bar
-    val bottomOffset2 get() = bottomOffset1 + if (transportBarVisible) transportBarHeight else 0
+    // When IME is visible, bottomOffset1 is excluded because mainBibleView padding handles it.
+    val bottomOffset2 get() = (if (imeHeight > 0) 0 else bottomOffset1) + if (transportBarVisible) transportBarHeight else 0
 
-    // WebView bottom offset: navigation bar + transport + buttons + IME keyboard
+    // WebView bottom offset: navigation bar + transport + buttons
+    // When IME is visible on Android 15+, bottomOffset1 is excluded because the WebView
+    // is already resized above the keyboard via mainBibleView padding.
     // On pre-Android 15, bottomOffset1 is always 0, so only transport + buttons.
     val bottomOffsetForWebView get() =
-        bottomOffset1 + // navigation bar + IME (edge-to-edge on Android 15+, 0 on older)
+        (if (imeHeight > 0) 0 else bottomOffset1) + // navigation bar (excluded when IME padding applied)
             (if (transportBarVisible) transportBarHeight else 0) +
             (if (restoreButtonsVisible) windowButtonHeight else 0)
+
+    // IME keyboard height in pixels (0 when keyboard hidden)
+    val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
 
     private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", true)
 
@@ -437,6 +443,14 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     bottomOffset1 = maxOf(systemBarInsets.bottom, imeInsets.bottom)
                 } else {
                     bottomOffset1 = systemBarInsets.bottom
+                }
+
+                // Resize WebView area when keyboard is visible to fix position:fixed drift.
+                // This restores the pre-Android 15 ADJUST_RESIZE behavior manually.
+                if (imeInsets.bottom > systemBarInsets.bottom) {
+                    binding.mainBibleView.setPadding(0, 0, 0, bottomOffset1)
+                } else {
+                    binding.mainBibleView.setPadding(0, 0, 0, 0)
                 }
 
                 // Trigger any layout updates that depend on these offsets

@@ -1755,7 +1755,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)
-            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate});")
+            executeJavascriptOnUiThread("bibleView.emit('set_offsets', $topOffset, $bottomOffset, {immediate: $immediate, imeOpen: ${mainBibleActivity.imeHeight > 0}});")
     }
 
     fun onEvent(event: WebViewsBuiltEvent) {
