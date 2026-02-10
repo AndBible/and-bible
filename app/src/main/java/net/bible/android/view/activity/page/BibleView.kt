@@ -119,6 +119,7 @@ import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.BibleFrame
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
+import net.bible.android.view.util.widget.AgentLogVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.search.SearchIndex
@@ -1858,6 +1859,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: RestoreButtonsVisibilityChanged) = updateOffsets()
 
     fun onEvent(event: SpeakTransportVisibilityChanged) = updateOffsets(true)
+
+    fun onEvent(event: MainBibleActivity.AgentLogOffsetsUpdated) {
+        Log.i(TAG, "BibleView received AgentLogOffsetsUpdated")
+        updateOffsets(true)
+    }
 
     private fun updateOffsets(immediate: Boolean = false) {
         if(isTopWindow || isBottomWindow && contentVisible && window.isVisible)

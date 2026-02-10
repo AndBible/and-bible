@@ -1216,10 +1216,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     fun onEventMainThread(event: AgentLogVisibilityChanged) {
+        Log.i(TAG, "AgentLogVisibilityChanged: visible=${event.visible}, height=${event.height}")
         agentLogVisible = event.visible
         agentLogHeight = event.height
         updateBottomBars()
+        // Trigger BibleView offset updates after values are updated
+        ABEventBus.post(AgentLogOffsetsUpdated())
     }
+
+    class AgentLogOffsetsUpdated
 
     private fun openLink(uri: Uri) {
         when (uri.host) {

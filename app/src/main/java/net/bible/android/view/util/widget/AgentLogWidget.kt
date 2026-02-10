@@ -21,6 +21,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -183,6 +184,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         } else {
             0
         }
+        Log.i(TAG, "notifyVisibilityChanged: visible=${visibility == View.VISIBLE}, height=$totalHeight, expanded=$isExpanded")
         ABEventBus.post(AgentLogVisibilityChanged(visibility == View.VISIBLE, totalHeight))
     }
 
