@@ -46,12 +46,13 @@ export function useScroll(
     function setToolbarOffset(
         topOffset: number,
         bottomOffset: number,
-        {doNotScroll = false, immediate = false} = {}
+        {doNotScroll = false, immediate = false, imeOpen = false} = {}
     ) {
-        console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate});
+        console.log("setToolbarOffset", {topOffset, bottomOffset, doNotScroll, immediate, imeOpen});
         const diff = appSettings.topOffset - topOffset;
         appSettings.topOffset = topOffset;
         appSettings.bottomOffset = bottomOffset;
+        appSettings.imeOpen = imeOpen;
         const delay = immediate ? 0 : 500;
 
         if (diff !== 0 && !doNotScroll) {
