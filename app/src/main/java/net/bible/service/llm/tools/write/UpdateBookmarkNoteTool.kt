@@ -22,6 +22,7 @@ import net.bible.android.database.IdType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -54,7 +55,7 @@ object UpdateBookmarkNoteTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val bookmarkIdStr = arguments.optString("bookmarkId", "")
-        val note = arguments.optString("note", "")
+        val note = normalizeLlmText(arguments.optString("note", ""))
 
         if (bookmarkIdStr.isBlank()) {
             return ToolResult.error("Missing required parameter: bookmarkId")

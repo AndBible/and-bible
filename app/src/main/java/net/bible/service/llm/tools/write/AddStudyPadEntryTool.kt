@@ -23,6 +23,7 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -66,7 +67,7 @@ object AddStudyPadEntryTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val labelIdStr = arguments.optString("labelId", "")
-        val text = arguments.optString("text", "")
+        val text = normalizeLlmText(arguments.optString("text", ""))
         val contentTypeStr = arguments.optString("contentType", "MARKDOWN")
         val orderNumber = if (arguments.has("orderNumber")) arguments.getInt("orderNumber") else null
 

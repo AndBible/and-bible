@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.write
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -64,7 +65,7 @@ object FinishWithDocumentTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val title = arguments.optString("title", "").take(80)
-        val content = arguments.optString("content", "")
+        val content = normalizeLlmText(arguments.optString("content", ""))
 
         if (title.isBlank()) {
             return ToolResult.error("Title is required", "MISSING_TITLE")

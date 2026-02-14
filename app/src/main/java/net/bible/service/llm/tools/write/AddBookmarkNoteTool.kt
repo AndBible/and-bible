@@ -23,6 +23,7 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -62,7 +63,7 @@ object AddBookmarkNoteTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val bookmarkIdStr = arguments.optString("bookmarkId", "")
-        val note = arguments.optString("note", "")
+        val note = normalizeLlmText(arguments.optString("note", ""))
         val contentTypeStr = arguments.optString("contentType", "MARKDOWN")
 
         if (bookmarkIdStr.isBlank()) {

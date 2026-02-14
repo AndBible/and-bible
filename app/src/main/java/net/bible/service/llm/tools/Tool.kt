@@ -77,3 +77,15 @@ interface Tool {
      */
     suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult
 }
+
+/**
+ * Normalize text content from LLM output.
+ *
+ * Some LLM providers return literal "\n" (backslash + n) in their JSON tool call
+ * arguments instead of actual newline characters. This happens due to double-escaping
+ * in the JSON arguments string. This function converts those literal escape sequences
+ * back to actual characters.
+ */
+fun normalizeLlmText(text: String): String = text
+    .replace("\\n", "\n")
+    .replace("\\t", "\t")

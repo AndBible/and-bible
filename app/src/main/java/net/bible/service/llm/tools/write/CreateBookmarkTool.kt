@@ -25,6 +25,7 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
@@ -73,7 +74,7 @@ object CreateBookmarkTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val verseRef = arguments.optString("verseRef", "")
-        val note = if (arguments.has("note") && !arguments.isNull("note")) arguments.getString("note") else null
+        val note = if (arguments.has("note") && !arguments.isNull("note")) normalizeLlmText(arguments.getString("note")) else null
         val noteContentTypeStr = arguments.optString("noteContentType", "MARKDOWN")
         val labelIdsArray = arguments.optJSONArray("labelIds")
 

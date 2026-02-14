@@ -34,6 +34,7 @@ import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.write.FinishWithDocumentTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
@@ -146,8 +147,9 @@ class AgentExecutor(
                 }
                 is ParsedResponse.TextResponse -> {
                     Log.d(TAG, "LLM returned final response")
-                    emit(AgentEvent.TextResponse(parsed.content, isFinal = true))
-                    emit(AgentEvent.Completed(parsed.content, iteration))
+                    val normalizedContent = normalizeLlmText(parsed.content)
+                    emit(AgentEvent.TextResponse(normalizedContent, isFinal = true))
+                    emit(AgentEvent.Completed(normalizedContent, iteration))
                     return
                 }
                 is ParsedResponse.ParseError -> {
