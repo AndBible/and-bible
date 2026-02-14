@@ -33,7 +33,7 @@ import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
-import net.bible.service.llm.tools.write.FinishWithDocumentTool
+import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
@@ -72,7 +72,7 @@ object ToolRegistry {
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
         register(AddStudyPadEntryTool)
-        register(FinishWithDocumentTool)
+        register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
         register(FinishWithoutDocumentTool)
 

@@ -306,7 +306,7 @@ object DefaultPrompts {
                     4. Add 1-2 text entries to the StudyPad using addStudyPadEntry with brief commentary about the selected verses
                     5. Call finishWithStudyPad with the label ID and a message like "Created study notes"
 
-                    IMPORTANT: Do NOT use finishWithDocument. Use finishWithStudyPad to open the StudyPad directly.
+                    IMPORTANT: Do NOT use setDocumentTitle. Use finishWithStudyPad to open the StudyPad directly.
                     This tests the StudyPad-as-result flow instead of creating an AI document.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),

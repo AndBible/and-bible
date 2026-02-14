@@ -33,6 +33,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.stripMarkdownFromTitle
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.crosswire.jsword.book.BookCategory
@@ -515,7 +516,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.stop(app.getString(R.string.agent_log_completed))
             }
             is AgentEvent.CompletedWithDocument -> {
-                // LLM explicitly provided title and content via finishWithDocument tool
+                // LLM explicitly provided title and content via setDocumentTitle tool
                 val pageInfo = MyDocumentBookManager.saveAIResponse(
                     response = event.content,
                     title = event.title,
@@ -573,7 +574,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val match = h1Regex.find(response)
 
         return if (match != null) {
-            val title = match.groupValues[1].trim().take(80) // Limit title length
+            val title = stripMarkdownFromTitle(match.groupValues[1].trim()).take(80)
             // Keep the content as-is (including the heading for display)
             Pair(title, response)
         } else {

@@ -20,7 +20,7 @@ package net.bible.service.llm.tools.write
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
-import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.stripMarkdownFromTitle
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -31,24 +31,27 @@ import org.json.JSONObject
  * ensuring the title in the table of contents is clean (no markdown links)
  * while the content can include rich formatting with links.
  */
-object FinishWithDocumentTool : Tool {
-    override val name = "finishWithDocument"
+object SetDocumentTitleTool : Tool {
+    override val name = "setDocumentTitle"
 
     override val description = """
-        Finish the current task and save the response as an AI document.
+        Set the title for your AI document and finish the task.
 
-        Use this tool as your FINAL action when you want to provide a written response.
-        This tool explicitly separates the title (for table of contents) from the content.
+        You MUST call this tool to give your document a proper title.
+        The document content comes from your text output in the SAME response.
 
-        The title should be:
-        - Plain text (no markdown formatting or links)
-        - Short and descriptive (max 60 characters)
-        - Example: "Romans 8:28 - God's Promise"
+        **How to use:**
+        1. Output your complete markdown content as text
+        2. Call this tool with a short, plain text title (no markdown, no links)
 
-        The content should be:
-        - Full markdown with formatting and Bible verse links
-        - Include a title as markdown H1 that CAN have links
-        - Example: "# [Romans 8:28](sword:///Rom.8.28) - God's Promise\n\nAnalysis..."
+        **Example:**
+        Your text output: (full markdown analysis of Romans 8:28)
+        Your tool call: setDocumentTitle(title: "Romans 8:28 - God's Promise")
+
+        **CRITICAL:**
+        - The title must be plain text only — NO markdown, NO links, NO formatting
+        - Output content as TEXT, not as a tool argument
+        - Do NOT use XML tags or function_call syntax
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -57,27 +60,19 @@ object FinishWithDocumentTool : Tool {
           title:
             type: string
             description: "Plain text title for the document (shown in table of contents, max 60 chars, NO markdown)"
-          content:
-            type: string
-            description: "Full markdown content including a title heading with optional links"
-        required: [title, content]
+        required: [title]
     """)
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val title = arguments.optString("title", "").take(80)
-        val content = normalizeLlmText(arguments.optString("content", ""))
+        val title = stripMarkdownFromTitle(arguments.optString("title", "")).take(80)
 
         if (title.isBlank()) {
             return ToolResult.error("Title is required", "MISSING_TITLE")
-        }
-        if (content.isBlank()) {
-            return ToolResult.error("Content is required", "MISSING_CONTENT")
         }
 
         return ToolResult.success {
             put("finished", true)
             put("title", title)
-            put("content", content)
         }
     }
 }

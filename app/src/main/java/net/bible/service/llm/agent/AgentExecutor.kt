@@ -35,7 +35,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
-import net.bible.service.llm.tools.write.FinishWithDocumentTool
+import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import org.json.JSONArray
@@ -146,7 +146,7 @@ class AgentExecutor(
                     }
                 }
                 is ParsedResponse.TextResponse -> {
-                    Log.d(TAG, "LLM returned final response")
+                    Log.d(TAG, "LLM returned final text response without tool call")
                     val normalizedContent = normalizeLlmText(parsed.content)
                     emit(AgentEvent.TextResponse(normalizedContent, isFinal = true))
                     emit(AgentEvent.Completed(normalizedContent, iteration))
@@ -217,12 +217,28 @@ class AgentExecutor(
 
             messages.put(ToolCallParser.createToolResultMessage(toolCall.id, result.toJson()))
 
-            // Check if finishWithDocument was called
-            if (toolCall.name == FinishWithDocumentTool.name && result is ToolResult.Success) {
+            // Check if setDocumentTitle was called (finishes with a document)
+            if (toolCall.name == SetDocumentTitleTool.name && result is ToolResult.Success) {
                 val data = result.data as? JSONObject
                 val title = data?.optString("title") ?: "AI Response"
-                val content = data?.optString("content") ?: ""
-                return ProcessToolsResult.FinishWithDocument(title, content, currentContext)
+
+                // Extract content from the text response that accompanied the tool call
+                val content = parsed.content?.takeIf { it.isNotBlank() }
+
+                if (content == null) {
+                    Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
+                    messages.put(ToolCallParser.createToolResultMessage(
+                        toolCall.id,
+                        ToolResult.error(
+                            "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
+                            "MISSING_CONTENT"
+                        ).toJson()
+                    ))
+                    continue
+                }
+
+                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+                return ProcessToolsResult.FinishWithDocument(title, normalizeLlmText(content), currentContext)
             }
 
             // Check if finishWithoutDocument was called
@@ -286,17 +302,26 @@ class AgentExecutor(
             append("\n")
 
             append("IMPORTANT - Finishing your response:\n")
-            append("When you are done and want to provide a written response, you MUST use the finishWithDocument tool.\n")
-            append("- title: Plain text for the table of contents (max 60 chars, NO markdown)\n")
-            append("- content: Full markdown content, including a title heading that CAN have links\n")
-            append("Example:\n")
-            append("  finishWithDocument(\n")
-            append("    title: \"Romans 8:28 - God's Promise\",\n")
-            append("    content: \"# [Rom. 8:28](sword:///Rom.8.28) - God's Promise\\n\\nThis verse teaches...\")\n")
-            append("  )\n")
+            append("When you are done and want to provide a written response:\n")
+            append("1. Output your complete markdown content as text (NOT as a tool argument)\n")
+            append("2. Call setDocumentTitle tool with a short, plain text title\n")
+            append("\n")
+            append("You MUST call setDocumentTitle to give your document a proper title.\n")
+            append("\n")
+            append("Example - output both text and tool call in the same response:\n")
+            append("```\n")
+            append("# [Rom. 8:28](sword:///Rom.8.28) - God's Promise\n\n")
+            append("This verse teaches about God's sovereignty and providence...\n")
+            append("[...full analysis in markdown...]\n")
+            append("```\n")
+            append("Then call: setDocumentTitle(title: \"Romans 8:28 - God's Promise\")\n")
+            append("\n")
+            append("CRITICAL: The title MUST be plain text — NO markdown, NO links, NO formatting.\n")
+            append("Output the markdown content as text in the SAME response where you call setDocumentTitle.\n")
+            append("Do NOT put content in the tool argument. Do NOT use XML tags or function_call syntax.\n")
             append("\n")
 
-            append("If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of finishWithDocument.\n")
+            append("If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of setDocumentTitle.\n")
             append("First create/populate the StudyPad using createLabel + addStudyPadEntry tools, then call:\n")
             append("  finishWithStudyPad(labelId: \"...\", message: \"Created study notes on Romans 8\")\n")
             append("Optionally scroll to a specific entry:\n")

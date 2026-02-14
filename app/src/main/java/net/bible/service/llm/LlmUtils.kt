@@ -28,7 +28,7 @@ enum class LlmProvider(
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1",
         listOf("gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-4o-mini"), "sk-"),
     XAI("xAI (Grok)", "https://api.x.ai/v1",
-        listOf("grok-4-1-fast-reasoning", "grok-4-0709", "grok-3-mini"), "xai-"),
+        listOf("grok-4-0709", "grok-4-1-fast-reasoning", "grok-3-mini"), "xai-"),
     MISTRAL("Mistral", "https://api.mistral.ai/v1",
         listOf("mistral-small-latest", "mistral-large-latest")),
     DEEPSEEK("DeepSeek", "https://api.deepseek.com/v1",

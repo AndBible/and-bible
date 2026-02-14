@@ -104,8 +104,8 @@ sealed class AgentEvent {
     /**
      * Agent execution completed with a document to save.
      *
-     * Used when the agent called finishWithDocument tool to explicitly
-     * provide the title and content for the AI document.
+     * Used when the agent called setDocumentTitle tool to explicitly
+     * provide the title, with content from the text response.
      *
      * @param title Plain text title for the document (used in TOC)
      * @param content Full markdown content including title with links
