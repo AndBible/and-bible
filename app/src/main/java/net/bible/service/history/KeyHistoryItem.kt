@@ -40,6 +40,9 @@ class KeyHistoryItem(
     override val createdAt: Date = Date(System.currentTimeMillis())
 ) : HistoryItemBase(window) {
 
+    // End position is set when the user navigates away from this history entry
+    var endAnchorOrdinal: OrdinalRange? = null
+
     override val description: String
         get() {
             val desc = StringBuilder()
