@@ -516,6 +516,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 session.stop(app.getString(R.string.agent_log_completed))
             }
+            is AgentEvent.CompletedWithStudyPad -> {
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                linkControl.openStudyPad(event.labelId, event.scrollToEntryId)
+                session.stop(app.getString(R.string.agent_log_completed))
+            }
             is AgentEvent.Error -> {
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
                 session.stop()

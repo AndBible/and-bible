@@ -1155,9 +1155,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         }
         UriConstants.SCHEME_STUDYPAD -> {
             val id = uri.getQueryParameter("id")
-            val bookmarkId = uri.getQueryParameter("bookmarkId")
+            val entryId = uri.getQueryParameter("entryId") ?: uri.getQueryParameter("bookmarkId")
             if (id != null) {
-                linkControl.openStudyPad(IdType(id), IdType(bookmarkId))
+                linkControl.openStudyPad(IdType(id), IdType(entryId))
             } else false
         }
         UriConstants.SCHEME_REFERENCE -> {
@@ -1583,8 +1583,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val doc = firstDocument
         val jumpToId =
-            if(doc is StudyPadDocument && doc.bookmarkId != null)
-                "o-${abs(doc.bookmarkId.hashCode())}"
+            if(doc is StudyPadDocument && doc.entryId != null)
+                "o-${abs(doc.entryId.hashCode())}"
             else initialHtmlId
 
         executeJavascriptOnUiThread("""

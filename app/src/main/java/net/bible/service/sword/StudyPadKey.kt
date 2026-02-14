@@ -27,7 +27,7 @@ import java.lang.UnsupportedOperationException
 
 class StudyPadKey(
     @Transient val label: BookmarkEntities.Label,
-    @Transient val bookmarkId: IdType? = null,
+    @Transient val entryId: IdType? = null,
 ): Key {
     private val labelId = label.id
 

@@ -35,6 +35,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.write.FinishWithDocumentTool
+import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import org.json.JSONArray
 import org.json.JSONObject
@@ -53,6 +54,8 @@ private sealed class ProcessToolsResult {
     data class FinishWithDocument(val title: String, val content: String, val context: AgentContext) : ProcessToolsResult()
     /** Finish without creating a document */
     data class FinishWithoutDocument(val message: String, val context: AgentContext) : ProcessToolsResult()
+    /** Finish by opening a StudyPad */
+    data class FinishWithStudyPad(val labelId: IdType, val scrollToEntryId: IdType?, val message: String, val context: AgentContext) : ProcessToolsResult()
 }
 
 /**
@@ -132,6 +135,11 @@ class AgentExecutor(
                         is ProcessToolsResult.FinishWithoutDocument -> {
                             Log.d(TAG, "Agent finished without document: ${result.message}")
                             emit(AgentEvent.CompletedWithoutDocument(result.message, iteration))
+                            return
+                        }
+                        is ProcessToolsResult.FinishWithStudyPad -> {
+                            Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
+                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration))
                             return
                         }
                     }
@@ -221,6 +229,15 @@ class AgentExecutor(
                 val message = data?.optString("message") ?: "Task completed"
                 return ProcessToolsResult.FinishWithoutDocument(message, currentContext)
             }
+
+            // Check if finishWithStudyPad was called
+            if (toolCall.name == FinishWithStudyPadTool.name && result is ToolResult.Success) {
+                val data = result.data as? JSONObject
+                val labelId = IdType(data?.optString("labelId") ?: "")
+                val scrollToEntryId = data?.optString("scrollToEntryId")?.takeIf { it.isNotBlank() }?.let { IdType(it) }
+                val message = data?.optString("message") ?: "StudyPad opened"
+                return ProcessToolsResult.FinishWithStudyPad(labelId, scrollToEntryId, message, currentContext)
+            }
         }
         return ProcessToolsResult.Continue(currentContext)
     }
@@ -277,6 +294,13 @@ class AgentExecutor(
             append("  )\n")
             append("\n")
 
+            append("If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of finishWithDocument.\n")
+            append("First create/populate the StudyPad using createLabel + addStudyPadEntry tools, then call:\n")
+            append("  finishWithStudyPad(labelId: \"...\", message: \"Created study notes on Romans 8\")\n")
+            append("Optionally scroll to a specific entry:\n")
+            append("  finishWithStudyPad(labelId: \"...\", scrollToEntryId: \"...\", message: \"...\")\n")
+            append("\n")
+
             // Link formatting instructions
             append("CRITICAL - Bible Reference Links:\n")
             append("EVERY Bible reference in your response MUST be a clickable link. NO EXCEPTIONS.\n")
@@ -301,6 +325,12 @@ class AgentExecutor(
             append("2Pet, 1John, 2John, 3John, Jude, Rev\n")
             append("\n")
             append("Only specify a module (sword://MHC/Matt.5.3) for commentaries or specific documents.\n")
+            append("\n")
+
+            // StudyPad link format
+            append("StudyPad links:\n")
+            append("- [StudyPad Name](journal://?id=LABEL_ID) — links to a StudyPad\n")
+            append("- [Entry](journal://?id=LABEL_ID&entryId=ENTRY_ID) — links to a specific entry in a StudyPad\n")
             append("\n")
 
             // Source attribution instructions

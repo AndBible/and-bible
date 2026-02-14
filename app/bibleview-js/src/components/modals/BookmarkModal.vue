@@ -77,7 +77,7 @@
              class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon
               icon="file-alt"/></span>
-          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{
+          <a :href="`journal://?id=${label.id}&entryId=${bookmark.id}`">{{
               sprintf(strings.openStudyPad, label.name)
             }}</a>
         </div>

@@ -205,7 +205,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
-    val bookmarkId: IdType?,
+    val entryId: IdType?,
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BibleBookmarkToLabel>,

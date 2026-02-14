@@ -294,6 +294,25 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
+            // TEST: Create StudyPad and open it with finishWithStudyPad
+            AgentPrompt(
+                name = "🧪 Test: Finish with StudyPad",
+                description = "Test creating a StudyPad and opening it as the result",
+                promptTemplate = """
+                    This is a test prompt. Please:
+                    1. Create a new label/StudyPad using createLabel with name "AI Study Notes" (or add a unique suffix if it already exists)
+                    2. Create a bookmark for the selected verses using createBookmark
+                    3. Add the new label to the bookmark using addLabelToBookmark (so the bookmark appears in the StudyPad)
+                    4. Add 1-2 text entries to the StudyPad using addStudyPadEntry with brief commentary about the selected verses
+                    5. Call finishWithStudyPad with the label ID and a message like "Created study notes"
+
+                    IMPORTANT: Do NOT use finishWithDocument. Use finishWithStudyPad to open the StudyPad directly.
+                    This tests the StudyPad-as-result flow instead of creating an AI document.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
             // TEST: Update bookmark note (action-only)
             AgentPrompt(
                 name = "🧪 Test: Update Note",

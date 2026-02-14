@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.android.database.IdType
 import net.bible.service.llm.tools.ToolResult
 
 /**
@@ -113,6 +114,24 @@ sealed class AgentEvent {
     data class CompletedWithDocument(
         val title: String,
         val content: String,
+        val totalIterations: Int
+    ) : AgentEvent()
+
+    /**
+     * Agent execution completed by opening a StudyPad.
+     *
+     * Used when the agent called finishWithStudyPad tool to open an
+     * already-created StudyPad as the result.
+     *
+     * @param labelId ID of the StudyPad (label) to open
+     * @param scrollToEntryId Optional ID of an entry to scroll to
+     * @param message Brief message about what was done
+     * @param totalIterations Total number of iterations taken
+     */
+    data class CompletedWithStudyPad(
+        val labelId: IdType,
+        val scrollToEntryId: IdType?,
+        val message: String,
         val totalIterations: Int
     ) : AgentEvent()
 

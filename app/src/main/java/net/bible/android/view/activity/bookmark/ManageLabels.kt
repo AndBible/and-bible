@@ -491,7 +491,7 @@ class ManageLabels : ListActivityBase() {
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
                 FakeBookFactory.journalDocument,
-                StudyPadKey(journal, bookmarkId = firstMatch?.entryId)
+                StudyPadKey(journal, entryId = firstMatch?.entryId)
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)
