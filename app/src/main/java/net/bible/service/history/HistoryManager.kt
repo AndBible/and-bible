@@ -145,8 +145,19 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         // if we cause the change by requesting Back then ignore it
         val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
+            val stack = getHistoryStack(activeWindow.id)
+
+            // Update the previous entry's end ordinal with the current position
+            // (i.e., where the user was just before navigating away)
+            if (stack.isNotEmpty()) {
+                val previous = stack.peek()
+                if (previous is KeyHistoryItem && previous.endAnchorOrdinal == null) {
+                    previous.endAnchorOrdinal = activeWindow.pageManager.currentPage.anchorOrdinal
+                }
+            }
+
             val item = createHistoryItem(activeWindow, intent)
-            add(getHistoryStack(activeWindow.id), item)
+            add(stack, item)
         }
     }
 
