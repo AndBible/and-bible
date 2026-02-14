@@ -35,6 +35,7 @@ import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.llm.LlmProvider
+import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +71,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var modelCategory: PreferenceCategory
     private lateinit var modelPref: ListPreference
     private lateinit var behaviorCategory: PreferenceCategory
+    private lateinit var manageToolPermissionsPref: Preference
 
     companion object {
         private const val CUSTOM_MODEL_SENTINEL = "__custom__"
@@ -86,6 +88,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         modelCategory = preferenceScreen.findPreference("ai_model_category")!!
         modelPref = preferenceScreen.findPreference("llm_model")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
+        manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
 
         // Migrate: if provider is empty but endpoint is set, detect provider from endpoint
         if (settings.llmProvider.isBlank() && settings.llmEndpoint.isNotBlank()) {
@@ -97,6 +100,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupProvider()
         setupApiKey()
         setupModel()
+        setupToolPermissions()
         updateVisibility()
     }
 
@@ -294,6 +298,95 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             modelPref.value = provider.models.first()
             modelPref.summary = provider.models.first()
         }
+    }
+
+    private fun setupToolPermissions() {
+        updateToolPermissionsSummary()
+        manageToolPermissionsPref.setOnPreferenceClickListener {
+            showToolPermissionsDialog()
+            true
+        }
+    }
+
+    private fun updateToolPermissionsSummary() {
+        val allowed = settings.permanentlyAllowedTools.size
+        val denied = settings.permanentlyDeniedTools.size
+        val total = allowed + denied
+        manageToolPermissionsPref.summary = if (total > 0) {
+            getString(R.string.manage_tool_permissions_summary) + " ($total)"
+        } else {
+            getString(R.string.manage_tool_permissions_summary)
+        }
+    }
+
+    private fun showToolPermissionsDialog() {
+        val tools = ToolRegistry.getPermissionTools()
+        if (tools.isEmpty()) return
+
+        val allowed = settings.permanentlyAllowedTools
+        val denied = settings.permanentlyDeniedTools
+
+        val items = tools.map { tool ->
+            val displayName = ToolRegistry.getDisplayName(tool)
+            val status = when (tool.name) {
+                in allowed -> getString(R.string.permission_status_allowed)
+                in denied -> getString(R.string.permission_status_denied)
+                else -> getString(R.string.permission_status_default)
+            }
+            "$displayName — $status"
+        }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.manage_tool_permissions_title)
+            .setItems(items) { _, which ->
+                showToolPermissionOptionDialog(tools[which])
+            }
+            .setNeutralButton(R.string.reset_all_permissions) { _, _ ->
+                settings.permanentlyAllowedTools = emptySet()
+                settings.permanentlyDeniedTools = emptySet()
+                updateToolPermissionsSummary()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showToolPermissionOptionDialog(tool: net.bible.service.llm.tools.Tool) {
+        val displayName = ToolRegistry.getDisplayName(tool)
+        val options = arrayOf(
+            getString(R.string.permission_option_default),
+            getString(R.string.permission_option_always_allow),
+            getString(R.string.permission_option_always_deny)
+        )
+
+        val currentIndex = when (tool.name) {
+            in settings.permanentlyAllowedTools -> 1
+            in settings.permanentlyDeniedTools -> 2
+            else -> 0
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(displayName)
+            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
+                val toolName = tool.name
+                when (which) {
+                    0 -> {
+                        settings.permanentlyAllowedTools -= toolName
+                        settings.permanentlyDeniedTools -= toolName
+                    }
+                    1 -> {
+                        settings.permanentlyAllowedTools += toolName
+                        settings.permanentlyDeniedTools -= toolName
+                    }
+                    2 -> {
+                        settings.permanentlyDeniedTools += toolName
+                        settings.permanentlyAllowedTools -= toolName
+                    }
+                }
+                updateToolPermissionsSummary()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun showCustomModelDialog() {

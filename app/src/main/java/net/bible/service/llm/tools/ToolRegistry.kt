@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools
 
 import android.util.Log
+import net.bible.android.BibleApplication
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
@@ -151,6 +152,20 @@ object ToolRegistry {
         }
         return toolsArray
     }
+
+    /**
+     * Get the user-facing display name for a tool.
+     * Uses the translated string resource if available, otherwise falls back to the code name.
+     */
+    fun getDisplayName(tool: Tool): String =
+        if (tool.displayNameResId != 0) BibleApplication.application.getString(tool.displayNameResId)
+        else tool.name
+
+    /**
+     * Get all tools that require user permission (write tools), sorted by display name.
+     */
+    fun getPermissionTools(): List<Tool> =
+        tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
 
     /**
      * Clear all registered tools (mainly for testing).

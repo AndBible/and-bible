@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -32,6 +33,7 @@ import org.json.JSONObject
  */
 object FinishWithStudyPadTool : Tool {
     override val name = "finishWithStudyPad"
+    override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """
         Finish the current task and open a StudyPad (journal).

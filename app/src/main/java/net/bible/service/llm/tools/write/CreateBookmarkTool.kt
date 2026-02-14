@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools.write
 
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.KJVA
@@ -69,6 +70,7 @@ object CreateBookmarkTool : Tool {
     """)
 
     override val requiresPermission = true
+    override val displayNameResId = R.string.tool_create_bookmark
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 

@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools.read
 
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -32,6 +33,7 @@ import org.json.JSONObject
  */
 object SearchStudyPadsTool : Tool {
     override val name = "searchStudyPads"
+    override val displayNameResId = R.string.tool_search_study_pads
 
     override val description = """
         Search for text across all StudyPads.

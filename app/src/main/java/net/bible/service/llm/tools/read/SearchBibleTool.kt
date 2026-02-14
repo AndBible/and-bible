@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.read
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -37,6 +38,7 @@ import org.json.JSONObject
  */
 object SearchBibleTool : Tool {
     override val name = "searchBible"
+    override val displayNameResId = R.string.tool_search_bible
 
     override val description = """
         Search for words or phrases in Bible translations.

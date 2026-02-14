@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
@@ -33,6 +34,7 @@ import org.json.JSONObject
  */
 object GetStudyPadContentTool : Tool {
     override val name = "getStudyPadContent"
+    override val displayNameResId = R.string.tool_get_study_pad_content
 
     override val description = """
         Get the full content of a StudyPad (label).

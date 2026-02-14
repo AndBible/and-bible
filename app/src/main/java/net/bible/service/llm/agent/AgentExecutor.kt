@@ -24,6 +24,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -207,8 +208,10 @@ class AgentExecutor(
             val execResult = executeTool(toolCall, currentContext)
             val result = execResult.result
 
-            // If user chose "allow for session" or write operation succeeded, mark permission as granted
-            if (execResult.grantSessionPermission ||
+            // Update session permissions based on user's dialog choice
+            if (execResult.grantAllToolsPermission) {
+                currentContext = currentContext.withAllToolsPermissionGranted()
+            } else if (execResult.grantSessionPermission ||
                 (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
@@ -421,7 +424,8 @@ class AgentExecutor(
      */
     private data class ToolExecutionResult(
         val result: ToolResult,
-        val grantSessionPermission: Boolean = false
+        val grantSessionPermission: Boolean = false,
+        val grantAllToolsPermission: Boolean = false
     )
 
     /**
@@ -436,11 +440,13 @@ class AgentExecutor(
 
         // Permission check for write tools
         var grantSession = false
+        var grantAllTools = false
         if (tool.requiresPermission) {
             when (checkWritePermission(tool, context)) {
-                PermissionCheckResult.Allowed -> { /* proceed */ }
-                PermissionCheckResult.AllowedForSession -> { grantSession = true }
-                PermissionCheckResult.Denied -> {
+                DialogResult.Allowed -> { /* proceed */ }
+                DialogResult.AllowedForSession -> { grantSession = true }
+                DialogResult.AllowedAllForSession -> { grantAllTools = true }
+                DialogResult.Denied -> {
                     Log.d(TAG, "Permission denied for tool: ${toolCall.name}")
                     return ToolExecutionResult(ToolResult.error(
                         "Permission denied for ${toolCall.name}. User did not allow this operation.",
@@ -461,57 +467,78 @@ class AgentExecutor(
             ToolResult.error("Tool execution failed: ${e.message}", "EXECUTION_ERROR")
         }
 
-        return ToolExecutionResult(result, grantSession)
+        return ToolExecutionResult(result, grantSession, grantAllTools)
     }
 
     /**
-     * Result of permission check.
+     * Result of dialog-based permission check (extends the pure logic result with session grants).
      */
-    private sealed class PermissionCheckResult {
-        object Allowed : PermissionCheckResult()
-        object AllowedForSession : PermissionCheckResult()
-        object Denied : PermissionCheckResult()
+    private sealed class DialogResult {
+        object Allowed : DialogResult()
+        object AllowedForSession : DialogResult()
+        object AllowedAllForSession : DialogResult()
+        object Denied : DialogResult()
     }
 
     /**
      * Check if write permission should be granted based on current mode and context.
+     * Delegates pure decision logic to [PermissionChecker] and handles dialog when needed.
      */
-    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): PermissionCheckResult {
-        val mode = CommonUtils.settings.agentPermissionMode
-
-        return when (mode) {
-            PermissionMode.ALLOW_ALL -> PermissionCheckResult.Allowed
-            PermissionMode.DENY_ALL -> PermissionCheckResult.Denied
-            PermissionMode.ASK_ONCE_PER_RUN -> {
-                if (context.grantedWritePermission) {
-                    PermissionCheckResult.Allowed
-                } else {
-                    showPermissionDialog(tool)
-                }
-            }
-            PermissionMode.ALWAYS_ASK -> {
-                if (context.grantedWritePermission) {
-                    PermissionCheckResult.Allowed
-                } else {
-                    showPermissionDialog(tool)
-                }
-            }
+    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
+        return when (PermissionChecker.check(
+            toolName = tool.name,
+            settings = PermissionSettings(
+                globalMode = CommonUtils.settings.agentPermissionMode,
+                permanentlyAllowedTools = CommonUtils.settings.permanentlyAllowedTools,
+                permanentlyDeniedTools = CommonUtils.settings.permanentlyDeniedTools,
+            ),
+            promptAllowedTools = context.promptAllowedTools,
+            promptDeniedTools = context.promptDeniedTools,
+            promptPermissionMode = context.promptPermissionMode,
+            grantedWritePermission = context.grantedWritePermission,
+            grantedAllToolsPermission = context.grantedAllToolsPermission,
+        )) {
+            PermissionCheckResult.Allowed -> DialogResult.Allowed
+            PermissionCheckResult.Denied -> DialogResult.Denied
+            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool)
         }
     }
 
     /**
      * Show the permission dialog to the user.
+     *
+     * If user selects "Always allow", shows a confirmation dialog. On confirm,
+     * persists the tool to permanentlyAllowedTools. The operation is allowed
+     * regardless of confirmation result.
      */
-    private suspend fun showPermissionDialog(tool: Tool): PermissionCheckResult {
+    private suspend fun showPermissionDialog(tool: Tool): DialogResult {
         val activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.w(TAG, "No current activity, allowing tool by default")
-            return PermissionCheckResult.Allowed  // Allow if no activity (e.g., background process)
+            return DialogResult.Allowed
         }
-        return when (Dialogs.agentPermissionDialog(activity, tool.name, tool.description)) {
-            Dialogs.AgentPermissionResult.ALLOW -> PermissionCheckResult.Allowed
-            Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> PermissionCheckResult.AllowedForSession
-            Dialogs.AgentPermissionResult.DENY -> PermissionCheckResult.Denied
+        val toolDisplayName = ToolRegistry.getDisplayName(tool)
+        return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description)) {
+            Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
+            Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
+            Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession
+            Dialogs.AgentPermissionResult.ALLOW_ALWAYS -> {
+                // Show confirmation dialog
+                val confirmed = Dialogs.simpleQuestion(
+                    activity,
+                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName),
+                    title = activity.getString(R.string.permission_always_allow_confirm_title)
+                )
+                if (confirmed) {
+                    val settings = CommonUtils.settings
+                    settings.permanentlyAllowedTools = settings.permanentlyAllowedTools + tool.name
+                    // Also remove from denied set if present
+                    settings.permanentlyDeniedTools = settings.permanentlyDeniedTools - tool.name
+                }
+                // Allow this operation regardless of confirmation
+                DialogResult.Allowed
+            }
+            Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
         }
     }
 }

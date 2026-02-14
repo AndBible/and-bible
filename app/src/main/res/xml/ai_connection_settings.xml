@@ -82,6 +82,11 @@
             android:defaultValue="ALWAYS_ASK"
             android:icon="@drawable/ic_baseline_security_24"
             />
+        <Preference android:key="manage_tool_permissions"
+            android:title="@string/manage_tool_permissions_title"
+            android:summary="@string/manage_tool_permissions_summary"
+            android:icon="@drawable/ic_baseline_security_24"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>

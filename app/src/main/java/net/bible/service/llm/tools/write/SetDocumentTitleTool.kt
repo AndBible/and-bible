@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -33,6 +34,7 @@ import org.json.JSONObject
  */
 object SetDocumentTitleTool : Tool {
     override val name = "setDocumentTitle"
+    override val displayNameResId = R.string.tool_set_document_title
 
     override val description = """
         Set the title for your AI document and finish the task.

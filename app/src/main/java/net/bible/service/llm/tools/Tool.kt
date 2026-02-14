@@ -61,12 +61,17 @@ interface Tool {
      * Whether this tool requires user permission before execution.
      * Read-only tools typically don't require permission (false).
      * Write tools (creating bookmarks, documents) should require permission (true).
-     *
-     * Note: Permission handling is implemented in a later phase.
-     * For now, all tools execute without explicit permission.
      */
     val requiresPermission: Boolean
         get() = false
+
+    /**
+     * String resource ID for the user-facing display name of this tool.
+     * Used in permission dialogs and settings UI.
+     * Return 0 to use the tool's code name as fallback.
+     */
+    val displayNameResId: Int
+        get() = 0
 
     /**
      * Execute the tool with the given arguments.

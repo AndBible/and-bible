@@ -492,6 +492,14 @@ object CommonUtils : CommonUtilsBase() {
                 PermissionMode.ALWAYS_ASK
             }
             set(value) = setString("agent_permission_mode", value.name)
+
+        var permanentlyAllowedTools: Set<String>
+            get() = getStringSet("agent_permanently_allowed_tools")
+            set(value) = setStringSet("agent_permanently_allowed_tools", value)
+
+        var permanentlyDeniedTools: Set<String>
+            get() = getStringSet("agent_permanently_denied_tools")
+            set(value) = setStringSet("agent_permanently_denied_tools", value)
     }
 
     private var _settings: AndBibleSettings? = null

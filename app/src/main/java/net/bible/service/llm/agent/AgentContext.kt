@@ -51,8 +51,15 @@ data class AgentContext(
     val windowId: IdType? = null,
     val selectedText: String? = null,
     val highlightedText: String? = null,
-    /** Session-level write permission (for ASK_ONCE_PER_RUN mode) */
-    val grantedWritePermission: Boolean = false
+    /** Session-level write permission for a single tool (for ASK_ONCE_PER_RUN mode) */
+    val grantedWritePermission: Boolean = false,
+    /** Session-level write permission for ALL tools */
+    val grantedAllToolsPermission: Boolean = false,
+    /** Per-prompt permission mode override (null = use global default) */
+    val promptPermissionMode: PermissionMode? = null,
+    /** Per-prompt tool permission overrides (null = no override, use global defaults) */
+    val promptAllowedTools: Set<String>? = null,
+    val promptDeniedTools: Set<String>? = null
 ) {
     /**
      * Get the verse reference as a string, or null if not available.
@@ -64,6 +71,7 @@ data class AgentContext(
      * Returns a copy of this context with write permission granted.
      */
     fun withWritePermissionGranted() = copy(grantedWritePermission = true)
+    fun withAllToolsPermissionGranted() = copy(grantedAllToolsPermission = true, grantedWritePermission = true)
 }
 
 /**

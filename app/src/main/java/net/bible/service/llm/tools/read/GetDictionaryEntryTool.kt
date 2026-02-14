@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.read
 import net.bible.android.BibleApplication
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -38,6 +39,7 @@ import org.json.JSONObject
  */
 object GetDictionaryEntryTool : Tool {
     override val name = "getDictionaryEntry"
+    override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """
         Look up an entry in a Bible dictionary, including Strong's dictionaries.

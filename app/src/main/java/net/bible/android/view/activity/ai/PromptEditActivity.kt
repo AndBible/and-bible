@@ -18,14 +18,17 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -55,6 +58,12 @@ class PromptEditActivity : ActivityBase() {
     private var initialShowIn = emptySet<PromptContext>()
     private var initialStrictContextMatching = true
     private var initialPermissionModeIndex = 0
+    private var initialAllowedTools: Set<String>? = null
+    private var initialDeniedTools: Set<String>? = null
+
+    private var currentAllowedTools: MutableSet<String> = mutableSetOf()
+    private var currentDeniedTools: MutableSet<String> = mutableSetOf()
+    private var hasToolPermissionOverrides = false
 
     private lateinit var nameEdit: EditText
     private lateinit var descriptionEdit: EditText
@@ -67,6 +76,23 @@ class PromptEditActivity : ActivityBase() {
     private lateinit var checkNoteEditor: CheckBox
     private lateinit var checkStrictContextMatching: CheckBox
     private lateinit var permissionModeSpinner: Spinner
+    private lateinit var toolPermissionsButton: Button
+
+    private val toolPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            val allowed = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS)
+            val denied = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS)
+            if (allowed != null && denied != null) {
+                currentAllowedTools = allowed.toMutableSet()
+                currentDeniedTools = denied.toMutableSet()
+                hasToolPermissionOverrides = currentAllowedTools.isNotEmpty() || currentDeniedTools.isNotEmpty()
+                updateToolPermissionsButtonText()
+            }
+        }
+    }
 
     /** Maps spinner position to PermissionMode? (null = use default) */
     private val permissionModeValues: Array<PermissionMode?> = arrayOf(
@@ -94,6 +120,9 @@ class PromptEditActivity : ActivityBase() {
         checkNoteEditor = findViewById(R.id.checkNoteEditor)
         checkStrictContextMatching = findViewById(R.id.checkStrictContextMatching)
         permissionModeSpinner = findViewById(R.id.permissionModeSpinner)
+        toolPermissionsButton = findViewById(R.id.btnPromptToolPermissions)
+        toolPermissionsButton.setOnClickListener { launchToolPermissions() }
+        updateToolPermissionsButtonText()
 
         val entries = resources.getStringArray(R.array.prompt_permission_mode_entries)
         permissionModeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, entries).apply {
@@ -144,6 +173,11 @@ class PromptEditActivity : ActivityBase() {
         checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
         checkStrictContextMatching.isChecked = prompt.strictContextMatching
         permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
+
+        hasToolPermissionOverrides = prompt.allowedTools != null || prompt.deniedTools != null
+        currentAllowedTools = prompt.allowedTools?.toMutableSet() ?: mutableSetOf()
+        currentDeniedTools = prompt.deniedTools?.toMutableSet() ?: mutableSetOf()
+        updateToolPermissionsButtonText()
     }
 
     private fun collectShowIn(): Set<PromptContext> {
@@ -164,6 +198,8 @@ class PromptEditActivity : ActivityBase() {
         initialShowIn = collectShowIn()
         initialStrictContextMatching = checkStrictContextMatching.isChecked
         initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
+        initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
+        initialDeniedTools = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
     }
 
     private fun isDirty(): Boolean {
@@ -172,8 +208,16 @@ class PromptEditActivity : ActivityBase() {
             templateEdit.text.toString() != initialTemplate ||
             collectShowIn() != initialShowIn ||
             checkStrictContextMatching.isChecked != initialStrictContextMatching ||
-            permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex
+            permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
+            currentToolAllowed != initialAllowedTools ||
+            currentToolDenied != initialDeniedTools
     }
+
+    private val currentToolAllowed: Set<String>?
+        get() = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
+
+    private val currentToolDenied: Set<String>?
+        get() = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
 
     private fun cancelOrConfirmDiscard() {
         if (isDirty()) {
@@ -207,6 +251,8 @@ class PromptEditActivity : ActivityBase() {
         val showIn = collectShowIn()
         val strictContextMatching = checkStrictContextMatching.isChecked
         val selectedPermissionMode = permissionModeValues[permissionModeSpinner.selectedItemPosition]
+        val allowedTools = currentToolAllowed
+        val deniedTools = currentToolDenied
 
         lifecycleScope.launch {
             val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
@@ -220,6 +266,8 @@ class PromptEditActivity : ActivityBase() {
                         showIn = showIn,
                         strictContextMatching = strictContextMatching,
                         permissionMode = selectedPermissionMode,
+                        allowedTools = allowedTools,
+                        deniedTools = deniedTools,
                     )
                     dao.insert(newPrompt)
                 } else {
@@ -230,6 +278,8 @@ class PromptEditActivity : ActivityBase() {
                         it.showIn = showIn
                         it.strictContextMatching = strictContextMatching
                         it.permissionMode = selectedPermissionMode
+                        it.allowedTools = allowedTools
+                        it.deniedTools = deniedTools
                         dao.update(it)
                     }
                 }
@@ -286,5 +336,29 @@ class PromptEditActivity : ActivityBase() {
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
         cancelOrConfirmDiscard()
+    }
+
+    private fun updateToolPermissionsButtonText() {
+        val total = currentAllowedTools.size + currentDeniedTools.size
+        val base = getString(R.string.prompt_tool_permissions)
+        toolPermissionsButton.text = if (hasToolPermissionOverrides && total > 0) {
+            "$base ($total)"
+        } else {
+            base
+        }
+    }
+
+    private fun launchToolPermissions() {
+        val intent = Intent(this, PromptToolPermissionsActivity::class.java).apply {
+            putStringArrayListExtra(
+                PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS,
+                ArrayList(currentAllowedTools)
+            )
+            putStringArrayListExtra(
+                PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS,
+                ArrayList(currentDeniedTools)
+            )
+        }
+        toolPermissionsLauncher.launch(intent)
     }
 }

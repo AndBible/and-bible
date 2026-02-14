@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -36,6 +37,7 @@ import org.json.JSONObject
  */
 object GetVerseContentTool : Tool {
     override val name = "getVerseContent"
+    override val displayNameResId = R.string.tool_get_verse_content
 
     override val description = """
         Get the OSIS XML content for a verse, verse range, or chapters from a Bible translation.

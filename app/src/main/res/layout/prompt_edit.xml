@@ -136,6 +136,15 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp" />
 
+        <!-- Per-prompt tool permissions -->
+        <Button
+            android:id="@+id/btnPromptToolPermissions"
+            style="?android:attr/buttonBarButtonStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:textAllCaps="false" />
+
         <!-- Cache settings -->
         <TextView
             android:layout_width="wrap_content"

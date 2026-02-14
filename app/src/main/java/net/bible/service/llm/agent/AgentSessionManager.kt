@@ -438,7 +438,10 @@ object AgentSessionManager : AgentSessionManagerBase() {
             activeDocumentInitials = selection.bookInitials,
             windowId = windowControl.activeWindow.id,
             selectedText = selectedText,
-            highlightedText = highlightedText
+            highlightedText = highlightedText,
+            promptPermissionMode = prompt.permissionMode,
+            promptAllowedTools = prompt.allowedTools,
+            promptDeniedTools = prompt.deniedTools
         )
     }
 
@@ -459,17 +462,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
             }
             is AgentEvent.ToolCalling -> {
+                val displayName = ToolRegistry.get(event.toolName)?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
                 session.addLogEntry(
-                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, event.toolName), details = event.arguments)
+                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, displayName), details = event.arguments)
                 )
             }
             is AgentEvent.ToolCompleted -> {
+                val displayName = ToolRegistry.get(event.toolName)?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
                 val isSuccess = event.result is ToolResult.Success
                 val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
                 val message = if (isSuccess) {
-                    app.getString(R.string.agent_log_tool_completed, event.toolName)
+                    app.getString(R.string.agent_log_tool_completed, displayName)
                 } else {
-                    app.getString(R.string.agent_log_tool_failed, event.toolName)
+                    app.getString(R.string.agent_log_tool_failed, displayName)
                 }
                 session.addLogEntry(
                     AgentLogEntry(

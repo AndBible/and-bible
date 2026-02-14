@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
@@ -36,6 +37,7 @@ import org.json.JSONObject
  */
 object GetBookmarksForVerseTool : Tool {
     override val name = "getBookmarksForVerse"
+    override val displayNameResId = R.string.tool_get_bookmarks_for_verse
 
     override val description = """
         Get all bookmarks associated with a verse or verse range.

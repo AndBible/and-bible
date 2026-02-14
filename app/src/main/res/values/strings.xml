@@ -1435,12 +1435,52 @@
     <string name="default_prompt_word_study">Word study</string>
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
 
+    <!-- Agent Tool Display Names -->
+    <string name="tool_create_bookmark">Create bookmark</string>
+    <string name="tool_add_bookmark_note">Add bookmark note</string>
+    <string name="tool_update_bookmark_note">Update bookmark note</string>
+    <string name="tool_create_label">Create label</string>
+    <string name="tool_add_label_to_bookmark">Add label to bookmark</string>
+    <string name="tool_add_study_pad_entry">Add study pad entry</string>
+    <string name="tool_set_document_title">Set document title</string>
+    <string name="tool_finish_with_study_pad">Open study pad</string>
+    <string name="tool_finish_without_document">Finish without document</string>
+    <string name="tool_get_verse_content">Read verse content</string>
+    <string name="tool_get_commentaries">Read commentaries</string>
+    <string name="tool_get_dictionary_entry">Look up dictionary entry</string>
+    <string name="tool_search_bible">Search Bible</string>
+    <string name="tool_get_installed_documents">List installed documents</string>
+    <string name="tool_get_all_labels">List all labels</string>
+    <string name="tool_get_bookmarks_for_verse">Get bookmarks for verse</string>
+    <string name="tool_get_bookmarks_with_label">Get bookmarks with label</string>
+    <string name="tool_get_study_pad_content">Read study pad content</string>
+    <string name="tool_search_study_pads">Search study pads</string>
+
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
-    <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s\n\nAllow this operation?</string>
-    <string name="allow">Allow</string>
-    <string name="allow_for_session">Allow (don\'t ask again)</string>
-    <string name="deny">Deny</string>
+    <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s</string>
+    <string name="permission_allow_once">Allow once</string>
+    <string name="permission_allow_for_session">Allow for this session</string>
+    <string name="permission_allow_all_session">Allow all tools this session</string>
+    <string name="permission_allow_always">Always allow \"%1$s\"</string>
+    <string name="permission_deny">Deny</string>
+    <string name="permission_always_allow_confirm_title">Always allow?</string>
+    <string name="permission_always_allow_confirm">Are you sure you want to permanently allow \"%1$s\"?\n\nYou can reset this in AI Settings.</string>
+
+    <!-- Agent Tool Permission Settings -->
+    <string name="manage_tool_permissions_title">Tool permissions</string>
+    <string name="manage_tool_permissions_summary">Manage per-tool permission overrides</string>
+    <string name="permission_status_default">Ask (default)</string>
+    <string name="permission_status_allowed">Always allowed</string>
+    <string name="permission_status_denied">Always denied</string>
+    <string name="permission_option_default">Ask each time (default)</string>
+    <string name="permission_option_always_allow">Always allow</string>
+    <string name="permission_option_always_deny">Always deny</string>
+    <string name="reset_all_permissions">Reset all</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+    <string name="prompt_tool_permissions">Tool permissions</string>
+    <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
 
     <!-- LLM One Tap Actions -->
     <string name="select_llm_prompt">Select AI Action</string>

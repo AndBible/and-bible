@@ -20,6 +20,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -246,40 +247,63 @@ object Dialogs {
      * Result of agent permission dialog.
      */
     enum class AgentPermissionResult {
-        ALLOW,              // Allow this operation
-        ALLOW_FOR_SESSION,  // Allow and don't ask again for this session
+        ALLOW,              // Allow this one operation
+        ALLOW_FOR_SESSION,  // Allow this tool for this session
+        ALLOW_ALL_SESSION,  // Allow all tools for this session
+        ALLOW_ALWAYS,       // Permanently allow this tool
         DENY                // Deny this operation
     }
 
     /**
      * Show a dialog asking user permission for an agent tool operation.
      *
+     * Uses a list dialog with 4 options instead of 3 buttons (AlertDialog only supports 3 buttons).
+     *
      * @param context The context to show the dialog in
-     * @param toolName Name of the tool requesting permission
+     * @param toolDisplayName User-facing translated name of the tool
      * @param toolDescription Description of what the tool does
      * @return AgentPermissionResult indicating user's choice
      */
     suspend fun agentPermissionDialog(
         context: Context,
-        toolName: String,
+        toolDisplayName: String,
         toolDescription: String
     ): AgentPermissionResult = withContext(Dispatchers.Main) {
         suspendCoroutine { continuation ->
-            AlertDialog.Builder(context)
+            val view = LayoutInflater.from(context).inflate(R.layout.dialog_agent_permission, null)
+
+            view.findViewById<TextView>(R.id.permission_message).text =
+                context.getString(R.string.agent_permission_message, toolDisplayName, toolDescription)
+
+            val dialog = AlertDialog.Builder(context)
                 .setTitle(R.string.agent_permission_title)
-                .setMessage(context.getString(R.string.agent_permission_message, toolName, toolDescription))
-                .setPositiveButton(R.string.allow) { _, _ ->
-                    continuation.resume(AgentPermissionResult.ALLOW)
-                }
-                .setNeutralButton(R.string.allow_for_session) { _, _ ->
-                    continuation.resume(AgentPermissionResult.ALLOW_FOR_SESSION)
-                }
-                .setNegativeButton(R.string.deny) { _, _ ->
-                    continuation.resume(AgentPermissionResult.DENY)
-                }
+                .setView(view)
                 .setCancelable(true)
                 .setOnCancelListener { continuation.resume(AgentPermissionResult.DENY) }
-                .show()
+                .create()
+
+            view.findViewById<Button>(R.id.btn_allow_once).apply {
+                text = context.getString(R.string.permission_allow_once)
+                setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW) }
+            }
+            view.findViewById<Button>(R.id.btn_allow_session).apply {
+                text = context.getString(R.string.permission_allow_for_session)
+                setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_FOR_SESSION) }
+            }
+            view.findViewById<Button>(R.id.btn_allow_all_session).apply {
+                text = context.getString(R.string.permission_allow_all_session)
+                setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALL_SESSION) }
+            }
+            view.findViewById<Button>(R.id.btn_allow_always).apply {
+                text = context.getString(R.string.permission_allow_always)
+                setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALWAYS) }
+            }
+            view.findViewById<Button>(R.id.btn_deny).apply {
+                text = context.getString(R.string.permission_deny)
+                setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.DENY) }
+            }
+
+            dialog.show()
         }
     }
 }

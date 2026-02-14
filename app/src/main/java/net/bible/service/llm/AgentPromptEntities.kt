@@ -81,6 +81,9 @@ data class AgentPrompt(
      * Explicit value = override for this prompt
      */
     @ColumnInfo(defaultValue = "NULL") var permissionMode: PermissionMode? = null,
+    /** Per-prompt tool permission overrides. null = no override (use global defaults). */
+    @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<String>? = null,
+    @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<String>? = null,
 )
 
 @Dao

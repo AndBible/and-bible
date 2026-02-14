@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -38,6 +39,7 @@ import org.json.JSONObject
  */
 object GetCommentariesTool : Tool {
     override val name = "getCommentaries"
+    override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """
         Get commentary entries for a verse reference from all installed commentaries.

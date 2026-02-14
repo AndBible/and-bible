@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools.write
 
 import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
@@ -58,6 +59,7 @@ object AddBookmarkNoteTool : Tool {
     """)
 
     override val requiresPermission = true
+    override val displayNameResId = R.string.tool_add_bookmark_note
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 

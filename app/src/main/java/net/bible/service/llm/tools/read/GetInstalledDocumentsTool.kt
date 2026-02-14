@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -35,6 +36,7 @@ import org.json.JSONObject
  */
 object GetInstalledDocumentsTool : Tool {
     override val name = "getInstalledDocuments"
+    override val displayNameResId = R.string.tool_get_installed_documents
 
     override val description = """
         Get a list of installed documents (Bibles, commentaries, dictionaries, etc.).

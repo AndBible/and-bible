@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.activity.R
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
@@ -32,6 +33,7 @@ import org.json.JSONObject
  */
 object GetAllLabelsTool : Tool {
     override val name = "getAllLabels"
+    override val displayNameResId = R.string.tool_get_all_labels
 
     override val description = """
         Get all available labels (tags/categories).
