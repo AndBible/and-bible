@@ -103,11 +103,15 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         refreshLogEntries()
         updateBackgroundColor()
 
-        // Check if agent is already running
+        // Check if agent is already running (handles race condition where
+        // AgentSessionStatusChangedEvent was posted before widget was attached)
         val wsId = workspaceId
         val isRunning = wsId != null && AgentSessionManager.isRunning(wsId)
         if (isRunning) {
             startSpinAnimation()
+            if (visibility != View.VISIBLE) {
+                show()
+            }
         }
         // Update close/stop button state
         updateCloseStopButton(isRunning)

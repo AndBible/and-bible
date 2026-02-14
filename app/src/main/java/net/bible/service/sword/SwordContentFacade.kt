@@ -393,11 +393,18 @@ object SwordContentFacade {
                             Log.d(TAG, "LLM cache hit for ${cacheKey.documentInitials}:${cacheKey.keyName}")
                             cacheResult.processedXml
                         } else {
-                            // Not in cache, need to process
-                            val outputter = XMLOutputter(Format.getRawFormat())
-                            val originalXml = outputter.outputString(frag)
-                            runBlocking {
-                                LlmProcessingService.processAndCache(processor, cacheKey, originalXml)
+                            // Try chapter-level cache (e.g., verse "Isa.65.9" → chapter "Isa.65")
+                            val chapterResult = LlmProcessingService.getCachedChapter(cacheKey)
+                            if (chapterResult.processedXml != null) {
+                                Log.d(TAG, "LLM chapter cache hit for ${cacheKey.keyName}")
+                                chapterResult.processedXml
+                            } else {
+                                // Not in cache at all, process with tool support
+                                val outputter = XMLOutputter(Format.getRawFormat())
+                                val originalXml = outputter.outputString(frag)
+                                runBlocking {
+                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml)
+                                }
                             }
                         }
                         // Parse the processed XML back to Element

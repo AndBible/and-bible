@@ -1434,6 +1434,8 @@
     <string name="default_prompt_explain_verses_desc">Explains the meaning and context of selected verses</string>
     <string name="default_prompt_word_study">Word study</string>
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
+    <string name="default_prompt_strongs_annotation">Strong\'s number annotation</string>
+    <string name="default_prompt_strongs_annotation_desc">Adds Strong\'s concordance numbers to any Bible translation using KJV as reference</string>
 
     <!-- Agent Tool Display Names -->
     <string name="tool_create_bookmark">Create bookmark</string>

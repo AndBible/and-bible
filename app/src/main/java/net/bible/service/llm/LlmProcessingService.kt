@@ -36,8 +36,18 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.android.database.IdType
+import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.agent.AgentLogEntry
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.EntryStatus
+import net.bible.service.llm.agent.LogEntryType
+import net.bible.service.llm.agent.ParsedResponse
+import net.bible.service.llm.agent.ToolCallParser
 import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
+import net.bible.service.llm.tools.ToolRegistry
+import net.bible.service.llm.tools.ToolResult
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -52,13 +62,14 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "LlmProcessingService"
 private const val CONNECT_TIMEOUT_SECONDS = 120L
-private const val READ_TIMEOUT_SECONDS = 300L  // 5 min for reasoning models
+private const val READ_TIMEOUT_SECONDS = 90L  // 90s per API call; generous for reasoning models
 private const val WRITE_TIMEOUT_SECONDS = 120L
 private const val LLM_TEMPERATURE = 0.3
 
@@ -75,7 +86,6 @@ class LlmRequestSuperseded : Exception("Request superseded")
 private data class RequestState(
     val deferred: CompletableDeferred<String>,
     val job: Job,
-    var inApiCall: Boolean = false,  // True when API call has started (can't be cancelled)
     var dialog: AlertDialog? = null  // Reference to confirmation dialog if shown
 )
 
@@ -157,6 +167,29 @@ object LlmProcessingService {
             CacheResult(cached.processedXml, false)
         } else {
             Log.d(TAG, "Cache miss for ${cacheKey.documentInitials}:${cacheKey.keyName} [${cacheKey.processingType}/${cacheKey.processingParams}]")
+            CacheResult(null, true)
+        }
+    }
+
+    /**
+     * Check if a chapter-level cache entry exists for a verse-level key.
+     * Derives the chapter key from the verse key (e.g., "Isa.65.9" → "Isa.65")
+     * and looks up the chapter cache entry. This avoids redundant API calls when
+     * synced windows or cross-references request individual verses from an
+     * already-processed chapter.
+     */
+    fun getCachedChapter(cacheKey: CacheKey): CacheResult {
+        if (!CommonUtils.settings.llmConfigured) return CacheResult(null, true)
+
+        // Derive chapter key: "Gen.1.5" → "Gen.1", "Isa.65.9" → "Isa.65"
+        val chapterKey = cacheKey.keyName.substringBeforeLast('.', cacheKey.keyName)
+        if (chapterKey == cacheKey.keyName) return CacheResult(null, true) // Already a chapter key
+
+        val cached = dao.get(cacheKey.documentInitials, chapterKey, cacheKey.processingType, cacheKey.processingParams)
+        return if (cached != null) {
+            Log.d(TAG, "Chapter cache hit for ${cacheKey.keyName} via chapter $chapterKey")
+            CacheResult(cached.processedXml, false)
+        } else {
             CacheResult(null, true)
         }
     }
@@ -258,7 +291,7 @@ object LlmProcessingService {
                 // Create new request state (will be populated with job later)
                 val deferred = CompletableDeferred<String>()
                 // Temporary placeholder job - will be replaced
-                val placeholderState = RequestState(deferred, Job(), false, null)
+                val placeholderState = RequestState(deferred, Job())
                 pendingRequests[requestKey] = placeholderState
                 isNewRequest = true
                 Log.d(TAG, "LLM processAndCache: created NEW request placeholder for $requestKey")
@@ -301,13 +334,6 @@ object LlmProcessingService {
                         throw LlmProcessingError(application.getString(R.string.llm_user_cancelled))
                     }
                     ensureActive()
-
-                    // Mark as in API call phase (can't be cancelled anymore)
-                    requestsMutex.withLock {
-                        pendingRequests[requestKey]?.let {
-                            pendingRequests[requestKey] = it.copy(inApiCall = true)
-                        }
-                    }
 
                     // Proceed with actual API call
                     doProcessAndCache(processor, cacheKey, xmlContent)
@@ -381,6 +407,237 @@ object LlmProcessingService {
                 ABEventBus.post(LlmEvent(running = false))
             }
         }
+    }
+
+    /**
+     * Process content with tool calling support.
+     *
+     * This method sends the content to the LLM with read-only tool access,
+     * allowing the LLM to call tools like getVerseContent and getInstalledDocuments
+     * during processing. Used by LlmProcessedBackend for chapter-level processing.
+     *
+     * Features:
+     * - Tool calling loop (up to maxIterations)
+     * - Read-only tools only (no write tools)
+     * - Agent log entries for the current workspace session
+     * - Request deduplication (same key reuses existing request)
+     * - Result caching
+     *
+     * @param processor The LLM processor providing the system prompt
+     * @param cacheKey Cache key for the content
+     * @param xmlContent The XML content to process
+     * @param maxIterations Maximum number of tool-calling iterations
+     * @return The processed XML content
+     */
+    suspend fun processWithTools(
+        processor: LlmProcessor,
+        cacheKey: CacheKey,
+        xmlContent: String,
+        maxIterations: Int = 5
+    ): String {
+        val settings = CommonUtils.settings
+        if (!settings.llmConfigured) {
+            Log.d(TAG, "LLM not configured, returning original content")
+            return xmlContent
+        }
+
+        // Request deduplication using same mechanism as processAndCache
+        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}"
+
+        Log.d(TAG, "processWithTools START: key=${cacheKey.keyName}, requestKey=$requestKey")
+
+        var isNewRequest = false
+        val requestState = requestsMutex.withLock {
+            val existing = pendingRequests[requestKey]
+            if (existing != null) {
+                Log.d(TAG, "processWithTools: REUSING existing request for $requestKey")
+                existing
+            } else {
+                val deferred = CompletableDeferred<String>()
+                val state = RequestState(deferred, Job())
+                pendingRequests[requestKey] = state
+                isNewRequest = true
+                Log.d(TAG, "processWithTools: created NEW request for $requestKey")
+                state
+            }
+        }
+
+        if (!isNewRequest) {
+            return requestState.deferred.await()
+        }
+
+        val resultDeferred = requestState.deferred
+
+        return coroutineScope {
+            val job = async {
+                try {
+                    // Update RequestState with the real Job so cancelAllPendingRequests() works
+                    requestsMutex.withLock {
+                        pendingRequests[requestKey]?.let {
+                            pendingRequests[requestKey] = it.copy(job = coroutineContext[Job]!!)
+                        }
+                    }
+                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations)
+                } finally {
+                    requestsMutex.withLock {
+                        pendingRequests.remove(requestKey)
+                    }
+                }
+            }
+
+            try {
+                val result = job.await()
+                resultDeferred.complete(result)
+                result
+            } catch (e: CancellationException) {
+                val superseded = LlmRequestSuperseded()
+                resultDeferred.completeExceptionally(superseded)
+                throw superseded
+            } catch (e: Exception) {
+                resultDeferred.completeExceptionally(e)
+                throw e
+            }
+        }
+    }
+
+    /**
+     * Internal implementation of processWithTools — handles the tool-calling loop.
+     */
+    private suspend fun doProcessWithTools(
+        processor: LlmProcessor,
+        cacheKey: CacheKey,
+        xmlContent: String,
+        maxIterations: Int
+    ): String {
+        val session = AgentSessionManager.getCurrentSession()
+        // Only manage session lifecycle if no agent is already running
+        // (to avoid clearing an active agent's log)
+        val manageSession = session != null && !session.isRunning
+        val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
+        val tools = ToolRegistry.toOpenAiToolsArray(includeWriteTools = false)
+        val modelId = CommonUtils.settings.llmModel
+
+        Log.d(TAG, "doProcessWithTools: ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}, tools=${tools.length()}")
+
+        if (manageSession) {
+            session!!.start(AgentContext(promptId = IdType.empty()))
+            session.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}..."))
+        }
+
+        val messages = JSONArray().apply {
+            put(JSONObject().apply { put("role", "system"); put("content", systemPrompt) })
+            put(JSONObject().apply { put("role", "user"); put("content", xmlContent) })
+        }
+
+        val startTime = System.currentTimeMillis()
+
+        if (activeRequests.incrementAndGet() == 1) {
+            ABEventBus.post(LlmEvent(running = true))
+        }
+
+        try {
+            for (iteration in 0 until maxIterations) {
+                coroutineContext.ensureActive()  // Stop promptly if cancelled between iterations
+                Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
+                session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
+
+                val response = callLlmApiWithTools(messages, tools)
+                val assistantMessage = response.getJSONArray("choices")
+                    .getJSONObject(0).getJSONObject("message")
+                val parsed = ToolCallParser.parseMessage(assistantMessage)
+
+                when (parsed) {
+                    is ParsedResponse.TextResponse -> {
+                        val result = cleanXmlResponse(parsed.content)
+                        val duration = System.currentTimeMillis() - startTime
+                        Log.d(TAG, "doProcessWithTools completed in ${duration}ms (output: ${result.length} chars)")
+
+                        // Cache result
+                        dao.insert(LlmProcessingCacheEntry(
+                            documentInitials = cacheKey.documentInitials,
+                            keyName = cacheKey.keyName,
+                            processingType = cacheKey.processingType,
+                            processingParams = cacheKey.processingParams,
+                            modelId = modelId,
+                            processedXml = result,
+                            createdAt = System.currentTimeMillis()
+                        ))
+
+                        session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName} complete"))
+                        if (manageSession) session!!.stop("Processing complete")
+                        return result
+                    }
+                    is ParsedResponse.ToolCalls -> {
+                        messages.put(ToolCallParser.createAssistantToolCallMessage(
+                            parsed.toolCalls, parsed.content))
+
+                        for (toolCall in parsed.toolCalls) {
+                            val tool = ToolRegistry.get(toolCall.name)
+                            val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: toolCall.name
+
+                            session?.addLogEntry(AgentLogEntry.action(
+                                "Tool: $displayName", details = toolCall.arguments))
+
+                            if (tool == null || tool.requiresPermission) {
+                                val errorJson = """{"status":"error","message":"Tool not available: ${toolCall.name}"}"""
+                                messages.put(ToolCallParser.createToolResultMessage(
+                                    toolCall.id, errorJson))
+                                session?.addLogEntry(AgentLogEntry.error("Tool not available: $displayName"))
+                                continue
+                            }
+
+                            val context = AgentContext(promptId = IdType.empty())
+                            val toolResult = tool.execute(toolCall.parseArguments(), context)
+                            messages.put(ToolCallParser.createToolResultMessage(
+                                toolCall.id, toolResult.toJson()))
+
+                            val isSuccess = toolResult is ToolResult.Success
+                            session?.addLogEntry(AgentLogEntry(
+                                type = LogEntryType.ACTION,
+                                message = if (isSuccess) "\u2713 $displayName" else "\u2717 $displayName",
+                                status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
+                            ))
+                        }
+                    }
+                    is ParsedResponse.ParseError -> {
+                        session?.addLogEntry(AgentLogEntry.error(parsed.error))
+                        if (manageSession) session!!.stop()
+                        throw LlmProcessingError(parsed.error)
+                    }
+                }
+            }
+
+            session?.addLogEntry(AgentLogEntry.error("Max iterations reached for ${cacheKey.keyName}"))
+            if (manageSession) session!!.stop()
+            throw LlmProcessingError("Max tool iterations reached")
+        } catch (e: CancellationException) {
+            if (manageSession) session!!.stop()
+            throw e
+        } catch (e: LlmProcessingError) {
+            throw e
+        } catch (e: Exception) {
+            val duration = System.currentTimeMillis() - startTime
+            Log.e(TAG, "doProcessWithTools failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
+            session?.addLogEntry(AgentLogEntry.error(e.message ?: "Unknown error"))
+            if (manageSession) session!!.stop()
+            throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
+        } finally {
+            if (activeRequests.decrementAndGet() == 0) {
+                ABEventBus.post(LlmEvent(running = false))
+            }
+        }
+    }
+
+    /**
+     * Clean up LLM response that should be XML.
+     * Removes markdown code blocks that the LLM might have added.
+     */
+    private fun cleanXmlResponse(content: String): String {
+        return content.trim()
+            .removePrefix("```xml")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
     }
 
     private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
@@ -546,6 +803,21 @@ object LlmProcessingService {
             if (activeRequests.decrementAndGet() == 0) {
                 ABEventBus.post(LlmEvent(running = false))
             }
+        }
+    }
+
+    /**
+     * Cancel all pending LLM requests.
+     * Called when user navigates away and in-flight chapters become stale.
+     */
+    fun cancelAllPendingRequests() {
+        val requests = pendingRequests.toMap()
+        if (requests.isEmpty()) return
+        Log.i(TAG, "Cancelling ${requests.size} pending LLM request(s)")
+        for ((key, state) in requests) {
+            Log.d(TAG, "Cancelling stale request: $key")
+            state.dialog?.dismiss()
+            state.job.cancel()
         }
     }
 

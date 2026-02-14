@@ -172,6 +172,11 @@ abstract class CurrentPageBase protected constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
         when (e) {
+            is LlmRequestSuperseded -> {
+                // Cancelled request — return empty document silently, no error flash
+                Log.d(TAG, "LLM request superseded for $key, returning empty document")
+                ErrorDocument("", ErrorSeverity.NORMAL)
+            }
             is LlmProcessingError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)

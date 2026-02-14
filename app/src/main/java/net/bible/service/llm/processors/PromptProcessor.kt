@@ -49,6 +49,8 @@ object PromptProcessor : LlmProcessor {
             // Build a complete system prompt including context and the user's template
             """
 You are an AI assistant for AndBible, a Bible study application.
+You have access to tools for reading Bible content (getVerseContent, getInstalledDocuments, etc.).
+Use them when the task requires data from other documents.
 
 Current context:
 - UI language: $uiLanguage

@@ -59,6 +59,7 @@ import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewAssetLoader.PathHandler
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -134,6 +135,7 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
+import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -1563,6 +1565,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     private fun replaceDocument() {
         Log.i(TAG, "replaceDocument")
+        cancelPendingChapterLoads()
 
         val verse = if(isBible || isMyNotes) initialKey as? Verse else null
         val documentStr = synchronized(documentLoadingLock) {
@@ -2088,6 +2091,19 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     private val requestMoreLock = object {}
+    private val chapterLoadJobs = mutableListOf<Job>()
+
+    /** Cancel all in-flight chapter loads (stale after document replacement / navigation). */
+    private fun cancelPendingChapterLoads() {
+        synchronized(requestMoreLock) {
+            if (chapterLoadJobs.isNotEmpty()) {
+                Log.i(TAG, "Cancelling ${chapterLoadJobs.size} pending chapter load(s)")
+                chapterLoadJobs.forEach { it.cancel() }
+                chapterLoadJobs.clear()
+            }
+        }
+        LlmProcessingService.cancelAllPendingRequests()
+    }
 
     fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {
         Log.i(TAG, "requestMoreTextAtTop")
@@ -2100,7 +2116,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             addChapter(newChap)
 
             val currentPage = window.pageManager.currentBible
-            scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
@@ -2118,7 +2134,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
             firstKey = prevKey
 
-            scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(prevKey)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
@@ -2138,7 +2154,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
             addChapter(newChap)
 
-            scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getDocumentForChapter(newChap)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }
@@ -2154,7 +2170,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 return@synchronized
             }
             lastKey = nextKey
-            scope.launch(Dispatchers.IO) {
+            chapterLoadJobs += scope.launch(Dispatchers.IO) {
                 val doc = currentPage.getPageContent(nextKey)
                 executeJavascriptOnUiThread("bibleView.response($callId, ${doc.asJson});")
             }

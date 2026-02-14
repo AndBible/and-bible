@@ -670,5 +670,23 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return true
     }
 
+    /**
+     * Get the current workspace's agent session, if available.
+     *
+     * Used by LlmProcessingService.processWithTools to post log entries
+     * without requiring a full agent execution context.
+     *
+     * @return The session for the active workspace, or null if unavailable
+     */
+    fun getCurrentSession(): AgentSession? {
+        ensureInitialized()
+        return try {
+            val workspaceId = windowControl.windowRepository.id
+            getOrCreateSession(workspaceId)
+        } catch (e: Exception) {
+            null  // No active workspace (e.g., background processing)
+        }
+    }
+
     private const val TAG = "AgentSessionManager"
 }
