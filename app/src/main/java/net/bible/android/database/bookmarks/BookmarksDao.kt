@@ -315,24 +315,24 @@ interface BookmarkDao {
     fun genericBookmarksWithLabel(label: Label): List<GenericBookmarkWithNotes>
         = genericBookmarksWithLabel(label.id)
 
-    @Query("""INSERT INTO BibleBookmarkNotes (bookmarkId, notes) VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
-    fun _saveBookmarkNote(bookmarkId: IdType, notes: String?)
+    @Query("""INSERT INTO BibleBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    fun _saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
 
-    @Query("""INSERT INTO GenericBookmarkNotes (bookmarkId, notes) VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
-    fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?)
+    @Query("""INSERT INTO GenericBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
      @Query("""UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
 
     @Query("""UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveGenericBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
 
-    fun saveBookmarkNote(bookmarkId: IdType, notes: String?) {
-        _saveBookmarkNote(bookmarkId, notes)
+    fun saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
+        _saveBookmarkNote(bookmarkId, notes, contentType)
         saveBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
     }
 
-    fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?) {
-        _saveGenericBookmarkNote(bookmarkId, notes)
+    fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
+        _saveGenericBookmarkNote(bookmarkId, notes, contentType)
         saveGenericBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
     }
 

@@ -48,6 +48,7 @@
         v-if="!infoShown"
         constraint-display-height
         :text="bookmarkNotes || ''"
+        :content-type="bookmark?.notesContentType"
         @save="changeNote"
         show-placeholder
         :edit-directly="editDirectly"

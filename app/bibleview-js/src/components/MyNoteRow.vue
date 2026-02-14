@@ -47,6 +47,7 @@
       <EditableText
           ref="editor"
           :text="bookmark.notes"
+          :content-type="bookmark.notesContentType"
           @save="save"
       />
     </div>

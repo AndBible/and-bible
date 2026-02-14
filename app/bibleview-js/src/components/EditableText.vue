@@ -18,11 +18,12 @@
 <template>
   <div :style="parentStyle" class="editable-text">
     <div class="editor-container" :class="{constraintDisplayHeight}" v-if="editMode">
-      <TextEditor :text="editText || ''" @save="textChanged" @close="editMode = false"/>
+      <MarkdownEditor v-if="isMarkdown" :text="editText || ''" @save="textChanged" @close="editMode = false"/>
+      <HtmlEditor v-else :text="editText || ''" @save="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
-      <div v-if="editText" class="notes-display" :class="{constraintDisplayHeight}" @click="handleClicks">
-        <div v-html="editText"/>
+      <div v-if="editText" class="notes-display" :class="[{constraintDisplayHeight}, isMarkdown ? 'markdown-notes' : '']" @click="handleClicks">
+        <div v-html="displayHtml"/>
       </div>
       <div class="placeholder" v-else-if="showPlaceholder" @click="handleClicks">
         <slot>
@@ -38,18 +39,24 @@ let cancelOpen = () => {}
 </script>
 
 <script lang="ts" setup>
-import {inject, ref, watch} from "vue";
-import TextEditor from "@/components/TextEditor.vue";
+import {computed, inject, ref, watch} from "vue";
+import HtmlEditor from "@/components/HtmlEditor.vue";
+import MarkdownEditor from "@/components/MarkdownEditor.vue";
 import {useCommon} from "@/composables";
-import {exportModeKey} from "@/types/constants";
+import {appSettingsKey, exportModeKey} from "@/types/constants";
 import {Nullable} from "@/types/common";
+import {TextContentType} from "@/types/client-objects";
+import {Marked} from "marked";
+import DOMPurify from "dompurify";
 
+const markdownParser = new Marked({breaks: true, gfm: true});
 
 const emit = defineEmits(["closed", "save", "opened"]);
 const props = withDefaults(defineProps<{
     editDirectly?: boolean
     showPlaceholder?: boolean
     text: Nullable<string>
+    contentType?: Nullable<TextContentType>
     maxEditorHeight?: string
     constraintDisplayHeight?: boolean
     disableClickToEdit?: boolean
@@ -57,10 +64,25 @@ const props = withDefaults(defineProps<{
     editDirectly: false,
     showPlaceholder: false,
     text: null,
+    contentType: null,
     maxEditorHeight: "inherit",
     constraintDisplayHeight: false,
     disableClickToEdit: false
 })
+
+const appSettings = inject(appSettingsKey)!;
+const isMarkdown = computed(() =>
+    props.contentType === "MARKDOWN" ||
+    (props.contentType == null && appSettings.notesContentType === "MARKDOWN")
+);
+
+const displayHtml = computed(() => {
+    if (!editText.value) return "";
+    if (isMarkdown.value) {
+        return DOMPurify.sanitize(markdownParser.parse(editText.value) as string);
+    }
+    return editText.value;
+});
 
 const editMode = ref<boolean>(props.editDirectly);
 const parentStyle = ref(`--max-height: ${props.maxEditorHeight}; font-family: var(--font-family); font-size: var(--font-size);`);
@@ -164,7 +186,9 @@ defineExpose({editMode});
 }
 </style>
 <style lang="scss">
-div.pell-content, .pell-content div, .notes-display div {
+@use "@/lib/markdown-render" as md;
+
+div.pell-content, .pell-content div, .notes-display:not(.markdown-notes) div {
   margin-top: 5px;
 }
 
@@ -186,5 +210,16 @@ div.pell-content, .pell-content div, .notes-display div {
 
 .editable-text .placeholder {
   padding: 15px;
+}
+
+.markdown-notes {
+  @include md.markdown-content;
+  // Override shared padding with !important for EditableText context
+  ul, ol { padding-left: 1.5em !important; }
+  blockquote { padding-left: 1em !important; }
+}
+
+.night .markdown-notes {
+  @include md.markdown-content-night;
 }
 </style>

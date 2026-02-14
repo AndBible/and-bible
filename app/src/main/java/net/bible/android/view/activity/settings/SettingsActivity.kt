@@ -160,7 +160,8 @@ class SettingsActivity: ActivityBase() {
                     "disable_click_to_edit",
                     "font_size_multiplier",
                     "bible_view_swipe_mode",
-                    "experimental_features"
+                    "experimental_features",
+                    "notes_content_type"
                 )
                 for(key in keys) {
                     editor.removeString(key)

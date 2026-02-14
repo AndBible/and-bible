@@ -23,13 +23,10 @@
 
 <script setup lang="ts">
 import {computed, onMounted, ref, watch} from "vue";
-import {marked} from "marked";
+import {Marked} from "marked";
+import DOMPurify from "dompurify";
 
-// Configure marked for safe rendering
-marked.setOptions({
-    breaks: true,  // Convert \n to <br>
-    gfm: true,     // GitHub Flavored Markdown
-});
+const markdownParser = new Marked({breaks: true, gfm: true});
 
 const slotContent = ref<HTMLElement | null>(null);
 const container = ref<HTMLElement | null>(null);
@@ -60,8 +57,8 @@ const renderedHtml = computed(() => {
         .replace(/&apos;/g, "'")
         .replace(/&amp;/g, "&");
 
-    // Parse markdown to HTML
-    return marked.parse(unescaped) as string;
+    // Parse markdown to HTML and sanitize
+    return DOMPurify.sanitize(markdownParser.parse(unescaped) as string);
 });
 
 /**
@@ -86,101 +83,13 @@ function handleClick(event: MouseEvent) {
 </script>
 
 <style scoped lang="scss">
-.osis-markdown {
-    // Markdown content styling
-    :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
-        margin-top: 1em;
-        margin-bottom: 0.5em;
-        font-weight: bold;
-    }
+@use "@/lib/markdown-render" as md;
 
-    :deep(h1) { font-size: 1.5em; }
-    :deep(h2) { font-size: 1.3em; }
-    :deep(h3) { font-size: 1.2em; }
-
-    :deep(p) {
-        margin: 0.5em 0;
-    }
-
-    :deep(ul), :deep(ol) {
-        margin: 0.5em 0;
-        padding-left: 1.5em;
-    }
-
-    :deep(li) {
-        margin: 0.25em 0;
-    }
-
-    :deep(blockquote) {
-        border-left: 3px solid #ccc;
-        margin: 0.5em 0;
-        padding-left: 1em;
-        color: #666;
-    }
-
-    :deep(code) {
-        background-color: #f4f4f4;
-        padding: 0.2em 0.4em;
-        border-radius: 3px;
-        font-family: monospace;
-    }
-
-    :deep(pre) {
-        background-color: #f4f4f4;
-        padding: 0.5em;
-        border-radius: 5px;
-        overflow-x: auto;
-    }
-
-    :deep(a) {
-        color: #1a73e8;
-        text-decoration: underline;
-    }
-
-    :deep(hr) {
-        border: none;
-        border-top: 1px solid #ccc;
-        margin: 1em 0;
-    }
-
-    :deep(table) {
-        border-collapse: collapse;
-        margin: 0.5em 0;
-        width: 100%;
-    }
-
-    :deep(th), :deep(td) {
-        border: 1px solid #ddd;
-        padding: 0.5em;
-        text-align: left;
-    }
-
-    :deep(th) {
-        background-color: #f4f4f4;
-    }
+.osis-markdown :deep() {
+    @include md.markdown-content;
 }
 
-// Night mode adjustments
-.night .osis-markdown {
-    :deep(blockquote) {
-        border-left-color: #555;
-        color: #aaa;
-    }
-
-    :deep(code), :deep(pre) {
-        background-color: #2d2d2d;
-    }
-
-    :deep(a) {
-        color: #8ab4f8;
-    }
-
-    :deep(th) {
-        background-color: #2d2d2d;
-    }
-
-    :deep(th), :deep(td) {
-        border-color: #444;
-    }
+.night .osis-markdown :deep() {
+    @include md.markdown-content-night;
 }
 </style>

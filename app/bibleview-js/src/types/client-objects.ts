@@ -18,6 +18,8 @@
 import {Nullable} from "@/types/common";
 import {isGenericBookmark} from "@/composables/bookmarks";
 
+export type TextContentType = "HTML" | "MARKDOWN"
+
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
 export type V11N = string
 export type Features = {
@@ -97,6 +99,7 @@ export type BaseBookmark = {
     readonly primaryLabelId: IdType
     lastUpdatedOn: number
     notes: Nullable<string>
+    notesContentType: Nullable<TextContentType>
     hasNote: boolean
     wholeVerse: boolean
     customIcon: Nullable<string>
@@ -135,6 +138,7 @@ export type StudyPadTextItem = {
     text: string
     orderNumber: number
     indentLevel: number
+    contentType: Nullable<TextContentType>
     new?: boolean
 }
 

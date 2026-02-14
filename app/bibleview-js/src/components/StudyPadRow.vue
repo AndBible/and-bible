@@ -70,6 +70,7 @@
           :show-placeholder="journalEntry.type === 'journal'"
           :edit-directly="textEntry.new ?? false"
           :text="journalText"
+          :content-type="journalContentType"
           :disable-click-to-edit="props.disableClickToEdit"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
@@ -144,6 +145,13 @@ const journalText = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
     else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
+    return null;
+});
+
+const journalContentType = computed(() => {
+    if (isBookmark(props.journalEntry))
+        return (props.journalEntry as BaseStudyPadBookmarkItem).notesContentType;
+    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).contentType;
     return null;
 });
 

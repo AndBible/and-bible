@@ -1533,6 +1533,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
+                        notesContentType: "${CommonUtils.settings.notesContentType}",
                     },
                     initial: $initial,
                     });

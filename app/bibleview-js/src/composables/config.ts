@@ -21,6 +21,7 @@ import {emit, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
+import {TextContentType} from "@/types/client-objects";
 
 export type StrongsMode = 0 | 1 | 2 | 3
 export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2, hidden: 3}
@@ -122,6 +123,7 @@ export type AppSettings = {
     fontSizeMultiplier: number,
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
+    notesContentType: TextContentType,
 }
 
 export type CalculatedConfig = Ref<{
@@ -213,6 +215,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         fontSizeMultiplier: 1.0,
         enabledExperimentalFeatures: [],
         llmConfigured: false,
+        notesContentType: "HTML",
     });
 
     function calcMmInPx() {

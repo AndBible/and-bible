@@ -268,6 +268,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
             "customIcon" to wrapString(bookmark.customIcon),
+            "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
@@ -308,6 +309,7 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
             "customIcon" to wrapString(bookmark.customIcon),
+            "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }

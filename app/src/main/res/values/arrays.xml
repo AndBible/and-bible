@@ -220,6 +220,15 @@
 		<item>SPEAK</item>
 	</string-array>
 	
+	<string-array name="prefs_notes_content_type_entries">
+		<item>Rich text (HTML)</item>
+		<item>Markdown</item>
+	</string-array>
+	<string-array name="prefs_notes_content_type_values">
+		<item>HTML</item>
+		<item>MARKDOWN</item>
+	</string-array>
+
 	<!-- Experimental features arrays -->
 	<string-array name="experimental_features_names">
 		<item>@string/experimental_feature_bookmark_edit_actions</item>

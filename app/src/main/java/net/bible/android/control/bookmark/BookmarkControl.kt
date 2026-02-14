@@ -486,7 +486,7 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
-            dao.saveBookmarkNote(bookmarkId, note)
+            dao.saveBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
         }
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
         addLabels(bookmark)
@@ -497,7 +497,7 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
-            dao.saveGenericBookmarkNote(bookmarkId, note)
+            dao.saveGenericBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
         }
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
         addLabels(bookmark)
@@ -886,7 +886,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
-        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
+        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(CommonUtils.settings.notesContentType))
 
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
