@@ -49,6 +49,12 @@ class PromptEditActivity : ActivityBase() {
 
     private var prompt: AgentPrompt? = null
     private var isNewPrompt = true
+    private var initialName = ""
+    private var initialDescription = ""
+    private var initialTemplate = ""
+    private var initialShowIn = emptySet<PromptContext>()
+    private var initialStrictContextMatching = true
+    private var initialPermissionModeIndex = 0
 
     private lateinit var nameEdit: EditText
     private lateinit var descriptionEdit: EditText
@@ -103,6 +109,7 @@ class PromptEditActivity : ActivityBase() {
             title = getString(R.string.new_prompt)
             // Set default value for strictContextMatching on new prompts
             checkStrictContextMatching.isChecked = true
+            captureInitialState()
         }
     }
 
@@ -117,6 +124,7 @@ class PromptEditActivity : ActivityBase() {
                 prompt = loadedPrompt
                 title = getString(R.string.edit_prompt)
                 populateFields(loadedPrompt)
+                captureInitialState()
             } else {
                 finish()
             }
@@ -147,6 +155,36 @@ class PromptEditActivity : ActivityBase() {
         if (checkWorkspaceMenu.isChecked) contexts.add(PromptContext.WORKSPACE_MENU)
         if (checkNoteEditor.isChecked) contexts.add(PromptContext.NOTE_EDITOR)
         return contexts
+    }
+
+    private fun captureInitialState() {
+        initialName = nameEdit.text.toString()
+        initialDescription = descriptionEdit.text.toString()
+        initialTemplate = templateEdit.text.toString()
+        initialShowIn = collectShowIn()
+        initialStrictContextMatching = checkStrictContextMatching.isChecked
+        initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
+    }
+
+    private fun isDirty(): Boolean {
+        return nameEdit.text.toString() != initialName ||
+            descriptionEdit.text.toString() != initialDescription ||
+            templateEdit.text.toString() != initialTemplate ||
+            collectShowIn() != initialShowIn ||
+            checkStrictContextMatching.isChecked != initialStrictContextMatching ||
+            permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex
+    }
+
+    private fun cancelOrConfirmDiscard() {
+        if (isDirty()) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.discard_changes_confirmation)
+                .setPositiveButton(R.string.yes) { _, _ -> finish() }
+                .setNegativeButton(R.string.no, null)
+                .show()
+        } else {
+            finish()
+        }
     }
 
     private fun validateAndSave(): Boolean {
@@ -237,12 +275,16 @@ class PromptEditActivity : ActivityBase() {
                 deletePrompt()
                 true
             }
+            android.R.id.home -> {
+                cancelOrConfirmDiscard()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
 
     @Suppress("OVERRIDE_DEPRECATION")
     override fun onBackPressed() {
-        validateAndSave()
+        cancelOrConfirmDiscard()
     }
 }

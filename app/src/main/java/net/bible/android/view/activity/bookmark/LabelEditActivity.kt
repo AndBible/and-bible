@@ -106,8 +106,9 @@ val customIconMap = mapOf(
 class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     @Inject lateinit var bookmarkControl: BookmarkControl
-    
+
     lateinit var binding: BookmarkLabelEditBinding
+    private lateinit var initialDataJson: String
 
 
     override fun onColorSelected(dialogId: Int, color: Int) {
@@ -126,7 +127,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
-        saveAndExit()
+        cancelOrConfirmDiscard()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -142,9 +143,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         Log.i(TAG, "onOptionsItemSelected ${item.title}")
         var isHandled = true
         when(item.itemId){
+            R.id.save -> saveAndExit()
             R.id.removeLabel -> remove()
             R.id.share -> lifecycleScope.launch { exportStudyPads(this@LabelEditActivity, data.label) }
-            android.R.id.home -> saveAndExit()
+            android.R.id.home -> cancelOrConfirmDiscard()
             else -> isHandled = false
         }
         if (!isHandled) {
@@ -276,6 +278,28 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         finish()
     }
 
+    private fun isDirty(): Boolean {
+        updateData()
+        return data.toJSON() != initialDataJson
+    }
+
+    private fun cancelOrConfirmDiscard() {
+        if (isDirty()) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.discard_changes_confirmation)
+                .setPositiveButton(R.string.yes) { _, _ -> cancelAndExit() }
+                .setNegativeButton(R.string.no, null)
+                .show()
+        } else {
+            cancelAndExit()
+        }
+    }
+
+    private fun cancelAndExit() {
+        setResult(RESULT_CANCELED)
+        finish()
+    }
+
     enum class RemoveOption {
         CANCEL,
         DELETE_LABEL_ONLY,
@@ -366,6 +390,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             updateUI()
             updateData()
             updateUI()
+
+            initialDataJson = data.toJSON()
 
             titleIcon.setOnClickListener { editColor() }
             customIconSelector.setOnClickListener { editCustomIcon() }

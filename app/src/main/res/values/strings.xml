@@ -754,6 +754,7 @@
     <!-- General -->
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="discard_changes_confirmation">Discard unsaved changes?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
