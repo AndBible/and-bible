@@ -55,7 +55,7 @@ interface BaseOsisDocument extends BaseDocument {
     annotateRef: string
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
-    isEpub: boolean
+    isNativeHtml: boolean
 }
 
 export interface OsisDocument extends BaseOsisDocument {

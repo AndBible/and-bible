@@ -18,7 +18,7 @@
 <template>
   <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language"
        :dir="fragment.direction">
-    <OsisSegment :is-epub="isEpub" :osis-template="template"/>
+    <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
   </div>
 </template>
 
@@ -36,8 +36,8 @@ const props = withDefaults(defineProps<{
     highlightOffsetRange?: OffsetRange
     hideTitles?: boolean
     doNotConvert?: boolean
-    isEpub?: boolean
-}>(), {doNotConvert: false, hideTitles: false, isEpub: false})
+    isNativeHtml?: boolean
+}>(), {doNotConvert: false, hideTitles: false, isNativeHtml: false})
 
 const {bookInitials, osisRef} = toRefs(props.fragment);
 const uniqueId = ref(Date.now().toString());
@@ -72,7 +72,7 @@ onMounted(() => {
 
 const template = computed(() => {
     const xml = props.fragment.xml;
-    return (!props.doNotConvert && !props.isEpub) ? osisToTemplateString(xml) : xml;
+    return (!props.doNotConvert && !props.isNativeHtml) ? osisToTemplateString(xml) : xml;
 });
 
 watch(props, () => refreshHighlight());
@@ -92,13 +92,17 @@ useCommon();
 }
 </style>
 <style lang="scss">
+@use "@/lib/markdown-render" as md;
+
 .highlight {
   font-weight: bold;
-  /*
-  background-color: rgba(130, 130, 130, 0.2);
-  .night & {
-    background-color: rgba(168, 165, 165, 0.7);
-  }
-   */
+}
+
+.mydoc-markdown {
+    @include md.markdown-content;
+}
+
+.night .mydoc-markdown {
+    @include md.markdown-content-night;
 }
 </style>

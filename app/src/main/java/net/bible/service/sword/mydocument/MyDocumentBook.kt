@@ -67,11 +67,9 @@ class MyDocumentOpenFileState(
  * Backend for MyDocument that reads content from the database.
  *
  * Content is returned wrapped in OSIS-like tags:
- * - MARKDOWN content: <OsisMarkdown>escaped content</OsisMarkdown>
+ * - MARKDOWN content: converted to XHTML via commonmark-java, then addAnchors() adds BVA elements
  * - HTML content: <OsisHtml>escaped content</OsisHtml>
  * - OSIS content: returned as-is
- *
- * Rendering of Markdown/HTML happens in Vue.js (OsisMarkdown.vue, OsisHtml.vue).
  */
 class MyDocumentBackend(
     private val documentId: IdType,
@@ -140,13 +138,15 @@ class MyDocumentBackend(
             "<aiFooter pageId=\"${page.id}\"/>"
         } else ""
 
-        // Wrap content in appropriate OSIS tag - rendering happens in Vue.js
-        // Note: Tag names are lowercase, osisToTemplateString will convert to OsisMarkdown etc.
-        // BVA (BibleViewAnchor) tag wraps content so verse-notifier.ts can find it via closest(".ordinal")
-        // HTML content goes through SwordContentFacade.addAnchors() which adds BVAs automatically
+        // Wrap content based on type:
+        // MARKDOWN: converted to XHTML, addAnchors() adds BVA elements for scroll tracking
+        // HTML: wrapped in <html> tag, rendered by Vue.js Html component
+        // OSIS: returned as-is
         return when (page.contentType) {
-            MyDocumentContentType.MARKDOWN ->
-                "<div class=\"mydoc-markdown\"><BVA ordinal=\"0\"><markdown>${escapeXml(content)}</markdown></BVA>$aiFooter</div>"
+            MyDocumentContentType.MARKDOWN -> {
+                val xhtml = MarkdownToXhtml.convert(content)
+                "<div class=\"mydoc-markdown\">$xhtml$aiFooter</div>"
+            }
             MyDocumentContentType.HTML ->
                 "<div class=\"mydoc-html\"><html>${escapeXml(content)}</html>$aiFooter</div>"
             MyDocumentContentType.OSIS ->

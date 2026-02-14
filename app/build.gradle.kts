@@ -427,6 +427,9 @@ dependencies {
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
 
+    implementation("org.commonmark:commonmark:0.24.0")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:0.24.0")
+
     // Next cloud related dependencies
     implementation("com.github.nextcloud:android-library:2.20.0") {
         exclude(group = "org.ogce", module = "xpp3") // unused in Android and brings wrong Junit version
