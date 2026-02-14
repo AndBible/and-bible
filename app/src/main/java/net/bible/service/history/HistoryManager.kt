@@ -89,7 +89,8 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     lastItem = it
                     WorkspaceEntities.HistoryItem(
                         windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        it.anchorOrdinal?.start
+                        it.anchorOrdinal?.start,
+                        it.endAnchorOrdinal?.start
                     )
                 }
             } else null
@@ -110,7 +111,9 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
+            val historyItem = KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt)
+            historyItem.endAnchorOrdinal = entity.endAnchorOrdinal?.let { OrdinalRange(it) }
+            stack.add(historyItem)
         }
         windowHistoryStackMap[window.id] = stack
     }
