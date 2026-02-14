@@ -44,6 +44,7 @@ import net.bible.service.common.firstBibleDoc
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.VerseKey
 import javax.inject.Inject
 
 import kotlin.coroutines.resume
