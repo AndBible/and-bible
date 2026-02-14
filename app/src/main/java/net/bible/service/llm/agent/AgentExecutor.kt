@@ -462,7 +462,13 @@ class AgentExecutor(
                     showPermissionDialog(tool)
                 }
             }
-            PermissionMode.ALWAYS_ASK -> showPermissionDialog(tool)
+            PermissionMode.ALWAYS_ASK -> {
+                if (context.grantedWritePermission) {
+                    PermissionCheckResult.Allowed
+                } else {
+                    showPermissionDialog(tool)
+                }
+            }
         }
     }
 
