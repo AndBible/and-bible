@@ -25,3 +25,20 @@
 /ai-local/
 /wiki/
 /readthedocs/
+
+# Sandbox mode dotfiles & git internals
+.bash_profile
+.bashrc
+.profile
+.zprofile
+.zshrc
+.claude/
+.gitconfig
+.gitmodules
+.mcp.json
+.ripgreprc
+HEAD
+config
+hooks
+objects
+refs
