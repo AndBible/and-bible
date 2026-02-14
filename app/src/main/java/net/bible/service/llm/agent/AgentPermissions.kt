@@ -17,10 +17,13 @@
 
 package net.bible.service.llm.agent
 
+import kotlinx.serialization.Serializable
+
 /**
  * Permission modes for agent write operations.
  * Controls when the user is asked for permission before write tools execute.
  */
+@Serializable
 enum class PermissionMode {
     /** Ask permission for every write operation (default) */
     ALWAYS_ASK,

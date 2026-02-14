@@ -24,26 +24,34 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.ViewFlipper
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
-import net.bible.android.view.activity.base.ListActivityBase
+import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.DefaultPrompts
+import net.bible.service.llm.PromptContext
 
 /**
- * Activity for managing AI prompts.
- * Shows a list of prompts and allows creating, editing, and deleting them.
+ * Activity for AI settings.
+ * When LLM is not configured, shows a setup view with a configure button.
+ * When LLM is configured, shows the prompt list with a gear icon for connection settings.
  */
-class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
+class AiSettingsActivity : ActivityBase() {
 
     private val prompts = mutableListOf<AgentPrompt>()
+    private lateinit var viewFlipper: ViewFlipper
+    private var listView: ListView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,21 +59,43 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
 
         buildActivityComponent().inject(this)
 
-        title = getString(R.string.manage_prompts)
+        title = getString(R.string.ai_settings)
 
-        loadPrompts()
+        viewFlipper = findViewById(R.id.viewFlipper)
+
+        findViewById<Button>(R.id.configureConnectionButton).setOnClickListener {
+            startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
+        }
+
+        listView = findViewById(android.R.id.list)
+        listView?.let { lv ->
+            val emptyView = findViewById<View>(android.R.id.empty)
+            lv.emptyView = emptyView
+            lv.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+                editPrompt(prompts[position])
+            }
+        }
     }
 
     override fun onResume() {
         super.onResume()
-        loadPrompts()
+        updateView()
+    }
+
+    private fun updateView() {
+        if (CommonUtils.settings.llmConfigured) {
+            viewFlipper.displayedChild = 1
+            loadPrompts()
+        } else {
+            viewFlipper.displayedChild = 0
+        }
+        invalidateOptionsMenu()
     }
 
     private fun loadPrompts() {
         lifecycleScope.launch {
             val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
 
-            // Initialize default prompts if needed (thread-safe)
             withContext(Dispatchers.IO) {
                 DefaultPrompts.initializeIfNeeded()
             }
@@ -77,13 +107,8 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
             prompts.clear()
             prompts.addAll(loadedPrompts)
 
-            listAdapter = PromptListAdapter()
+            listView?.adapter = PromptListAdapter()
         }
-    }
-
-    override fun onListItemClick(l: ListView, v: View, position: Int, id: Long) {
-        val prompt = prompts[position]
-        editPrompt(prompt)
     }
 
     private fun editPrompt(prompt: AgentPrompt) {
@@ -98,18 +123,39 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        super.onCreateOptionsMenu(menu)
+        menuInflater.inflate(R.menu.manage_prompts_options_menu, menu)
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val configured = CommonUtils.settings.llmConfigured
+        menu.findItem(R.id.new_prompt)?.isVisible = configured
+        menu.findItem(R.id.reset_prompts)?.isVisible = configured
+        menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
+        menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                true
+            }
             R.id.new_prompt -> {
                 createNewPrompt()
                 true
             }
             R.id.reset_prompts -> {
                 confirmResetToDefaults()
+                true
+            }
+            R.id.ai_connection_settings -> {
+                startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
+                true
+            }
+            R.id.reset_all_ai_settings -> {
+                confirmResetAllAiSettings()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -125,6 +171,34 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    private fun confirmResetAllAiSettings() {
+        AlertDialog.Builder(this)
+            .setTitle(R.string.reset_all_ai_settings_confirm_title)
+            .setMessage(R.string.reset_all_ai_settings_confirm_message)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                resetAllAiSettings()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun resetAllAiSettings() {
+        val settings = CommonUtils.settings
+        settings.llmProvider = ""
+        settings.llmApiKey = ""
+        settings.llmEndpoint = ""
+        settings.llmModel = ""
+        settings.llmConfirmBeforeCall = true
+        settings.llmDebounceMs = 1000
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                DefaultPrompts.resetToDefaults()
+            }
+            updateView()
+        }
     }
 
     private fun resetToDefaults() {
@@ -160,17 +234,17 @@ class ManagePrompts : ListActivityBase(R.menu.manage_prompts_options_menu) {
 
             val contextNames = prompt.showIn.map { context ->
                 when (context) {
-                    net.bible.service.llm.PromptContext.TEXT_DISPLAY_SETTINGS ->
+                    PromptContext.TEXT_DISPLAY_SETTINGS ->
                         getString(R.string.prompt_context_text_display_settings)
-                    net.bible.service.llm.PromptContext.VERSE_SELECTION ->
+                    PromptContext.VERSE_SELECTION ->
                         getString(R.string.prompt_context_verse_selection)
-                    net.bible.service.llm.PromptContext.TEXT_SELECTION ->
+                    PromptContext.TEXT_SELECTION ->
                         getString(R.string.prompt_context_text_selection)
-                    net.bible.service.llm.PromptContext.WINDOW_MENU ->
+                    PromptContext.WINDOW_MENU ->
                         getString(R.string.prompt_context_window_menu)
-                    net.bible.service.llm.PromptContext.WORKSPACE_MENU ->
+                    PromptContext.WORKSPACE_MENU ->
                         getString(R.string.prompt_context_workspace_menu)
-                    net.bible.service.llm.PromptContext.NOTE_EDITOR ->
+                    PromptContext.NOTE_EDITOR ->
                         getString(R.string.prompt_context_note_editor)
                 }
             }

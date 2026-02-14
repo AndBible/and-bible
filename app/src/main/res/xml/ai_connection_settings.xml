@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="ai_connection_settings">
+
+    <PreferenceCategory
+        android:key="ai_connection_category"
+        android:title="@string/ai_connection_category">
+
+        <Preference android:key="ai_getting_started"
+            android:title="@string/ai_getting_started_title"
+            android:summary="@string/ai_getting_started_summary"
+            android:icon="@drawable/ic_info_grey_24dp"
+            />
+        <ListPreference android:key="llm_provider"
+            android:title="@string/llm_provider_title"
+            android:summary="@string/llm_provider_summary"
+            android:icon="@drawable/ic_baseline_cloud_24"
+            />
+        <EditTextPreference android:key="llm_api_key"
+            android:title="@string/llm_api_key_title"
+            android:summary="@string/llm_api_key_summary"
+            android:icon="@drawable/ic_baseline_vpn_key_24"
+            />
+        <EditTextPreference android:key="llm_endpoint"
+            android:title="@string/llm_endpoint_title"
+            android:summary="@string/llm_endpoint_summary"
+            android:defaultValue="https://api.openai.com/v1"
+            android:icon="@drawable/ic_baseline_cloud_24"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="ai_model_category"
+        android:title="@string/ai_model_category">
+
+        <ListPreference android:key="llm_model"
+            android:title="@string/llm_model_title"
+            android:summary="@string/llm_model_summary"
+            android:icon="@drawable/ic_baseline_smart_toy_24"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="ai_behavior_category"
+        android:title="@string/ai_behavior_category">
+
+        <SwitchPreferenceCompat android:key="llm_confirm_before_call"
+            android:title="@string/llm_confirm_before_call_title"
+            android:summary="@string/llm_confirm_before_call_summary"
+            android:defaultValue="true"
+            android:icon="@drawable/icon_circle_question"
+            />
+        <SeekBarPreference android:key="llm_debounce_ms"
+            android:title="@string/llm_debounce_title"
+            android:summary="@string/llm_debounce_summary"
+            android:defaultValue="1000"
+            android:max="5000"
+            android:icon="@drawable/ic_baseline_refresh_gray_24"
+            />
+        <ListPreference android:key="agent_permission_mode"
+            android:title="@string/prompt_permission_mode"
+            android:summary="@string/agent_permission_mode_summary"
+            android:entries="@array/agent_permission_mode_entries"
+            android:entryValues="@array/agent_permission_mode_values"
+            android:defaultValue="ALWAYS_ASK"
+            android:icon="@drawable/ic_baseline_security_24"
+            />
+    </PreferenceCategory>
+
+</PreferenceScreen>

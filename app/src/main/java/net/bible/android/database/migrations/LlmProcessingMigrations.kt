@@ -40,7 +40,12 @@ private val addStrictContextMatching = makeMigration(2..3) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `strictContextMatching` INTEGER NOT NULL DEFAULT 1")
 }
 
+private val addPermissionMode = makeMigration(3..4) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `permissionMode` TEXT DEFAULT NULL")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
+    addPermissionMode,
 )

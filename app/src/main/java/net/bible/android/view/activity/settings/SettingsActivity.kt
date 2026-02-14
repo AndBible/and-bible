@@ -40,6 +40,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
+import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
@@ -273,16 +274,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             setOnBindEditTextListener { it.inputType = InputType.TYPE_CLASS_NUMBER }
         }
 
-        // LLM API key should be hidden and auto-detect endpoint/model
-        preferenceScreen.findPreference<EditTextPreference>("llm_api_key")?.run {
-            setOnBindEditTextListener {
-                it.inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
-            }
-            setOnPreferenceChangeListener { _, newValue ->
-                val apiKey = newValue as? String ?: ""
-                autoDetectLlmSettings(apiKey)
-                true
-            }
+        preferenceScreen.findPreference<Preference>("sync_settings_shortcut")?.setOnPreferenceClickListener {
+            startActivity(Intent(context, SyncSettingsActivity::class.java))
+            true
+        }
+
+        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.setOnPreferenceClickListener {
+            startActivity(Intent(context, AiSettingsActivity::class.java))
+            true
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {
@@ -365,59 +364,6 @@ class SettingsFragment : PreferenceFragmentCompat() {
             if(icon != null) {
                 p.icon = makeLarger(icon, 1.5f)
             }
-        }
-    }
-
-    /**
-     * Auto-detect LLM endpoint and model based on API key prefix.
-     * Only updates if current values are defaults or empty.
-     */
-    private fun autoDetectLlmSettings(apiKey: String) {
-        val settings = CommonUtils.settings
-        val currentEndpoint = settings.llmEndpoint
-        val currentModel = settings.llmModel
-
-        // Detect provider from API key prefix (OpenAI-compatible APIs only)
-        val (defaultEndpoint, defaultModel) = when {
-            apiKey.startsWith("xai-") ->
-                "https://api.x.ai/v1" to "grok-3-mini"
-            apiKey.startsWith("AIza") ->
-                // Google AI (Gemini) - OpenAI-compatible endpoint
-                "https://generativelanguage.googleapis.com/v1beta/openai" to "gemini-2.0-flash"
-            apiKey.startsWith("sk-") ->
-                // OpenAI (sk-proj- or sk-)
-                "https://api.openai.com/v1" to "gpt-4o-mini"
-            else -> return // Unknown prefix, don't change anything
-        }
-
-        // List of known default endpoints to allow overwriting
-        val defaultEndpoints = setOf(
-            "https://api.openai.com/v1",
-            "https://api.x.ai/v1",
-            "https://generativelanguage.googleapis.com/v1beta/openai",
-            ""
-        )
-
-        // Only update if current endpoint is a known default or empty
-        if (currentEndpoint in defaultEndpoints) {
-            settings.llmEndpoint = defaultEndpoint
-            preferenceScreen.findPreference<EditTextPreference>("llm_endpoint")?.text = defaultEndpoint
-        }
-
-        // List of known default models to allow overwriting
-        val defaultModels = setOf(
-            "gpt-4o-mini",
-            "gpt-4o",
-            "grok-3-mini",
-            "grok-3",
-            "gemini-2.0-flash",
-            ""
-        )
-
-        // Only update if current model is a known default or empty
-        if (currentModel in defaultModels) {
-            settings.llmModel = defaultModel
-            preferenceScreen.findPreference<EditTextPreference>("llm_model")?.text = defaultModel
         }
     }
 

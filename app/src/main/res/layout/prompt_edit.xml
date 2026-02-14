@@ -120,6 +120,22 @@
             android:layout_height="wrap_content"
             android:text="@string/prompt_context_note_editor" />
 
+        <!-- Permission mode -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/prompt_permission_mode"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/permissionModeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp" />
+
         <!-- Cache settings -->
         <TextView
             android:layout_width="wrap_content"

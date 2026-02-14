@@ -30,6 +30,7 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.PermissionMode
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -298,4 +299,13 @@ class Converters {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
+
+    @TypeConverter
+    fun strToPermissionMode(s: String?): PermissionMode? {
+        if(s == null) return null
+        return try { PermissionMode.valueOf(s) } catch(e: IllegalArgumentException) { null }
+    }
+
+    @TypeConverter
+    fun permissionModeToStr(obj: PermissionMode?): String? = obj?.name
 }

@@ -26,9 +26,20 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/ai_connection_settings"
+        android:icon="@drawable/ic_settings_white_24dp"
+        android:title="@string/ai_connection_settings"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/reset_prompts"
         android:icon="@drawable/baseline_settings_backup_restore_24"
         android:title="@string/reset_prompts_to_defaults"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/reset_all_ai_settings"
+        android:title="@string/reset_all_ai_settings"
         app:showAsAction="never" />
 
 </menu>

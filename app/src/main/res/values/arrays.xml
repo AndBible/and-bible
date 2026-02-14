@@ -229,4 +229,30 @@
 		<item>bookmark_edit_actions</item>
 		<item>add_paragraph_break</item>
 	</string-array>
+	<string-array name="agent_permission_mode_entries">
+		<item>@string/permission_always_ask</item>
+		<item>@string/permission_ask_once_per_run</item>
+		<item>@string/permission_allow_all</item>
+		<item>@string/permission_deny_all</item>
+	</string-array>
+	<string-array name="agent_permission_mode_values">
+		<item>ALWAYS_ASK</item>
+		<item>ASK_ONCE_PER_RUN</item>
+		<item>ALLOW_ALL</item>
+		<item>DENY_ALL</item>
+	</string-array>
+	<string-array name="prompt_permission_mode_entries">
+		<item>@string/prompt_permission_use_default</item>
+		<item>@string/permission_always_ask</item>
+		<item>@string/permission_ask_once_per_run</item>
+		<item>@string/permission_allow_all</item>
+		<item>@string/permission_deny_all</item>
+	</string-array>
+	<string-array name="prompt_permission_mode_values">
+		<item></item>
+		<item>ALWAYS_ASK</item>
+		<item>ASK_ONCE_PER_RUN</item>
+		<item>ALLOW_ALL</item>
+		<item>DENY_ALL</item>
+	</string-array>
 </resources>

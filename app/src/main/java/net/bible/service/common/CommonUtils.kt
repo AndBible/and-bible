@@ -124,6 +124,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
+import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
@@ -452,12 +453,21 @@ object CommonUtils : CommonUtilsBase() {
             get() = getString("llm_api_key", "") ?: ""
             set(value) = setString("llm_api_key", value)
 
+        var llmProvider: String
+            get() = getString("llm_provider", "") ?: ""
+            set(value) = setString("llm_provider", value)
+
         var llmEndpoint: String
             get() = getString("llm_endpoint", "https://api.openai.com/v1") ?: "https://api.openai.com/v1"
             set(value) = setString("llm_endpoint", value)
 
         var llmModel: String
-            get() = getString("llm_model", "gpt-4o-mini") ?: "gpt-4o-mini"
+            get() {
+                val raw = getString("llm_model", "") ?: ""
+                if (raw.isNotBlank()) return raw
+                val provider = try { LlmProvider.valueOf(llmProvider) } catch (_: IllegalArgumentException) { null }
+                return provider?.models?.firstOrNull() ?: ""
+            }
             set(value) = setString("llm_model", value)
 
         var llmConfirmBeforeCall: Boolean

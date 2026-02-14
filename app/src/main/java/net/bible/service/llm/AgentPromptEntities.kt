@@ -28,6 +28,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
+import net.bible.service.llm.agent.PermissionMode
 
 /**
  * Context where a prompt can be shown/used.
@@ -74,6 +75,12 @@ data class AgentPrompt(
      * - "Cross-references" → false (same across all versions)
      */
     @ColumnInfo(defaultValue = "1") var strictContextMatching: Boolean = true,
+    /**
+     * Per-prompt permission mode override.
+     * null = use global default from settings
+     * Explicit value = override for this prompt
+     */
+    @ColumnInfo(defaultValue = "NULL") var permissionMode: PermissionMode? = null,
 )
 
 @Dao

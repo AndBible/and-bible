@@ -214,40 +214,17 @@
 			android:icon="@drawable/ic_calc_pin"
 			/>
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/llm_settings_title">
-		<EditTextPreference android:key="llm_api_key"
-			android:title="@string/llm_api_key_title"
-			android:summary="@string/llm_api_key_summary"
-			android:inputType="textPassword"
-			android:icon="@drawable/ic_baseline_vpn_key_24"
+	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
+		<Preference android:key="sync_settings_shortcut"
+			android:title="@string/cloud_sync_title"
+			android:summary="@string/sync_settings_shortcut_summary"
+			android:icon="@drawable/ic_syncdb_24dp"
 			/>
-		<EditTextPreference android:key="llm_endpoint"
-			android:title="@string/llm_endpoint_title"
-			android:summary="@string/llm_endpoint_summary"
-			android:defaultValue="https://api.openai.com/v1"
-			android:icon="@drawable/ic_baseline_cloud_24"
-			/>
-		<EditTextPreference android:key="llm_model"
-			android:title="@string/llm_model_title"
-			android:summary="@string/llm_model_summary"
-			android:defaultValue="gpt-4o-mini"
+		<Preference android:key="ai_settings_shortcut"
+			android:title="@string/ai_settings"
+			android:summary="@string/ai_settings_shortcut_summary"
 			android:icon="@drawable/ic_baseline_smart_toy_24"
 			/>
-		<SwitchPreferenceCompat android:key="llm_confirm_before_call"
-			android:title="@string/llm_confirm_before_call_title"
-			android:summary="@string/llm_confirm_before_call_summary"
-			android:defaultValue="true"
-			android:icon="@drawable/icon_circle_question"
-			/>
-		<SeekBarPreference android:key="llm_debounce_ms"
-			android:title="@string/llm_debounce_title"
-			android:summary="@string/llm_debounce_summary"
-			android:defaultValue="1000"
-			android:max="5000"
-			android:icon="@drawable/ic_baseline_refresh_24"
-			/>
-	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<MultiSelectListPreference android:key="experimental_features"
 			android:title="@string/prefs_experimental_features_title"
 			android:summary="@string/prefs_experimental_features_summary"

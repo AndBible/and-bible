@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.settings
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.webkit.URLUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
@@ -55,7 +56,14 @@ class SyncSettingsActivity: ActivityBase() {
             .beginTransaction()
             .replace(R.id.settings_container, SyncSettingsFragment())
             .commit()
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
 

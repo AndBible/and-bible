@@ -21,8 +21,10 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +36,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.PermissionMode
 
 /**
  * Activity for creating and editing AI prompts.
@@ -57,6 +60,16 @@ class PromptEditActivity : ActivityBase() {
     private lateinit var checkWorkspaceMenu: CheckBox
     private lateinit var checkNoteEditor: CheckBox
     private lateinit var checkStrictContextMatching: CheckBox
+    private lateinit var permissionModeSpinner: Spinner
+
+    /** Maps spinner position to PermissionMode? (null = use default) */
+    private val permissionModeValues: Array<PermissionMode?> = arrayOf(
+        null,
+        PermissionMode.ALWAYS_ASK,
+        PermissionMode.ASK_ONCE_PER_RUN,
+        PermissionMode.ALLOW_ALL,
+        PermissionMode.DENY_ALL,
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,6 +87,12 @@ class PromptEditActivity : ActivityBase() {
         checkWorkspaceMenu = findViewById(R.id.checkWorkspaceMenu)
         checkNoteEditor = findViewById(R.id.checkNoteEditor)
         checkStrictContextMatching = findViewById(R.id.checkStrictContextMatching)
+        permissionModeSpinner = findViewById(R.id.permissionModeSpinner)
+
+        val entries = resources.getStringArray(R.array.prompt_permission_mode_entries)
+        permissionModeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, entries).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
 
         val promptIdStr = intent.getStringExtra(EXTRA_PROMPT_ID)
         if (promptIdStr != null) {
@@ -116,6 +135,7 @@ class PromptEditActivity : ActivityBase() {
         checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
         checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
         checkStrictContextMatching.isChecked = prompt.strictContextMatching
+        permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
     }
 
     private fun collectShowIn(): Set<PromptContext> {
@@ -148,6 +168,7 @@ class PromptEditActivity : ActivityBase() {
         val description = descriptionEdit.text.toString().trim().takeIf { it.isNotEmpty() }
         val showIn = collectShowIn()
         val strictContextMatching = checkStrictContextMatching.isChecked
+        val selectedPermissionMode = permissionModeValues[permissionModeSpinner.selectedItemPosition]
 
         lifecycleScope.launch {
             val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
@@ -160,6 +181,7 @@ class PromptEditActivity : ActivityBase() {
                         promptTemplate = template,
                         showIn = showIn,
                         strictContextMatching = strictContextMatching,
+                        permissionMode = selectedPermissionMode,
                     )
                     dao.insert(newPrompt)
                 } else {
@@ -169,6 +191,7 @@ class PromptEditActivity : ActivityBase() {
                         it.promptTemplate = template
                         it.showIn = showIn
                         it.strictContextMatching = strictContextMatching
+                        it.permissionMode = selectedPermissionMode
                         dao.update(it)
                     }
                 }

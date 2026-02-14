@@ -1327,12 +1327,23 @@
 
     <!-- LLM Translation Settings -->
     <string name="llm_settings_title">LLM Translation</string>
+    <string name="sync_settings_shortcut_summary">Synchronize data between devices</string>
     <string name="llm_api_key_title">API Key</string>
     <string name="llm_api_key_summary">OpenAI-compatible API key</string>
+    <string name="llm_provider_title">Provider</string>
+    <string name="llm_provider_summary">Choose which AI service provider to use. The API endpoint and available models will be configured automatically.</string>
+    <string name="llm_provider_current">Current: %s</string>
+    <string name="llm_api_key_detected_provider">Detected provider: %s</string>
+    <string name="ai_connection_category">Connection</string>
+    <string name="ai_model_category">Model</string>
+    <string name="ai_behavior_category">Behavior</string>
     <string name="llm_endpoint_title">API Endpoint</string>
     <string name="llm_endpoint_summary">Base URL for the API (e.g. https://api.openai.com/v1)</string>
     <string name="llm_model_title">Model</string>
     <string name="llm_model_summary">Model ID (e.g. gpt-4o-mini)</string>
+    <string name="llm_custom_model">Custom…</string>
+    <string name="llm_custom_model_dialog_title">Custom model</string>
+    <string name="llm_custom_model_dialog_message">Enter the model ID</string>
     <string name="llm_confirm_before_call_title">Confirm before API calls</string>
     <string name="llm_confirm_before_call_summary">Ask for confirmation before each AI processing request</string>
     <string name="llm_confirm_dialog_title">Confirm AI Processing</string>
@@ -1350,6 +1361,28 @@
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
     <string name="manage_prompts_summary">Create and edit AI prompts</string>
+    <string name="ai_settings">AI Settings</string>
+    <string name="ai_connection_settings">Connection settings</string>
+    <string name="ai_setup_title">Configure AI</string>
+    <string name="ai_setup_description">AndBible can use AI to translate Bible text, explain verses, create summaries, and more. To get started, configure a connection to an OpenAI-compatible API provider.</string>
+    <string name="ai_configure_button">Configure Connection</string>
+    <string name="ai_settings_shortcut_summary">AI connection and prompt settings</string>
+    <string name="ai_getting_started_title">Getting started</string>
+    <string name="ai_getting_started_summary">How to get an API key</string>
+    <string name="ai_getting_started_intro">AndBible uses an OpenAI-compatible API to connect to AI services. You need an API key from a provider.</string>
+    <string name="ai_getting_started_providers">Supported providers:</string>
+    <string name="ai_getting_started_gemini">Google Gemini</string>
+    <string name="ai_getting_started_openai">OpenAI (ChatGPT)</string>
+    <string name="ai_getting_started_xai">xAI (Grok)</string>
+    <string name="ai_getting_started_mistral">Mistral</string>
+    <string name="ai_getting_started_deepseek">DeepSeek</string>
+    <string name="ai_getting_started_groq">Groq</string>
+    <string name="ai_getting_started_openrouter">OpenRouter</string>
+    <string name="ai_getting_started_get_api_key">Get API key</string>
+    <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+    <string name="prompt_permission_mode">Permission mode</string>
+    <string name="agent_permission_mode_summary">Controls when user confirmation is required before AI write operations</string>
+    <string name="prompt_permission_use_default">Use default</string>
     <string name="prompt_name">Name</string>
     <string name="prompt_description">Description</string>
     <string name="prompt_template">Prompt template</string>
@@ -1364,6 +1397,13 @@
     <string name="reset_prompts_to_defaults">Reset to defaults</string>
     <string name="reset_prompts_confirm_title">Reset prompts?</string>
     <string name="reset_prompts_confirm_message">This will delete all existing prompts and recreate the default prompts. Continue?</string>
+    <string name="permission_always_ask">Always ask</string>
+    <string name="permission_ask_once_per_run">Ask once per run</string>
+    <string name="permission_allow_all">Allow all</string>
+    <string name="permission_deny_all">Deny all</string>
+    <string name="reset_all_ai_settings">Reset all AI settings</string>
+    <string name="reset_all_ai_settings_confirm_title">Reset all AI settings?</string>
+    <string name="reset_all_ai_settings_confirm_message">This will clear the API key, provider, endpoint, model, and reset all prompts to defaults. Continue?</string>
     <string name="edit_prompt">Edit prompt</string>
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>

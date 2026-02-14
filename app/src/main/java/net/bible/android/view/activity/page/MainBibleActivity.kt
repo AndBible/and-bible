@@ -388,8 +388,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
-        // Show/hide AI features based on LLM configuration
-        navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.llmConfigured
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
