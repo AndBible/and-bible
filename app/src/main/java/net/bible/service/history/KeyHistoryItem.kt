@@ -25,6 +25,7 @@ import net.bible.service.common.CommonUtils
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.passage.Key
+import org.crosswire.jsword.passage.Verse
 import java.util.*
 
 /**
@@ -47,14 +48,50 @@ class KeyHistoryItem(
         get() {
             val desc = StringBuilder()
             try {
-                val verseDesc = CommonUtils.getKeyDescription(key)
-                desc.append(verseDesc).append(" ").append(document.abbreviation)
+                val startDesc = CommonUtils.getKeyDescription(key)
+                val rangeDesc = formatRangeDescription(startDesc)
+                desc.append(rangeDesc).append(" ").append(document.abbreviation)
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting description", e)
             }
 
             return desc.toString()
         }
+
+    /**
+     * Format the description as a range (e.g., "Matt 5:1–48") if we have an end position
+     */
+    private fun formatRangeDescription(startDesc: String): String {
+        val endOrdinal = endAnchorOrdinal?.start ?: return startDesc
+        val startKey = key
+
+        // Only show range for Verse keys (Bible content)
+        if (startKey !is Verse) return startDesc
+
+        return try {
+            val v11n = startKey.versification
+            val endVerse = Verse.fromOrdinal(v11n, endOrdinal)
+
+            when {
+                // Same chapter: show "Matt 5:1–48"
+                endVerse.book == startKey.book &&
+                endVerse.chapter == startKey.chapter &&
+                endVerse.verse > startKey.verse -> {
+                    "$startDesc–${endVerse.verse}"
+                }
+                // Different chapter or book: show "Matt 5:1–6:2"
+                endVerse.ordinal > startKey.ordinal -> {
+                    val endDesc = CommonUtils.getKeyDescription(endVerse)
+                    "$startDesc–$endDesc"
+                }
+                // End is not after start, just show start
+                else -> startDesc
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error formatting range description", e)
+            startDesc
+        }
+    }
 
     /* (non-Javadoc)
 	 * @see net.bible.service.history.HistoryItem#revertTo()
