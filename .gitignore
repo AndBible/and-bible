@@ -33,6 +33,7 @@
 .zprofile
 .zshrc
 .claude/
+.playwright-mcp/
 .gitconfig
 .gitmodules
 .mcp.json
