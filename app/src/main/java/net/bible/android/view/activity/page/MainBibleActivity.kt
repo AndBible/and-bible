@@ -2110,9 +2110,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Called directly when prompt is already selected (e.g., from window button menu).
      */
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
-        lifecycleScope.launch(Dispatchers.IO) {
+        val job = lifecycleScope.launch(Dispatchers.IO) {
             AgentSessionManager.executePrompt(prompt, selection)
         }
+        val workspaceId = windowControl.windowRepository.id
+        AgentSessionManager.getOrCreateSession(workspaceId).job = job
     }
 
     /**
@@ -2144,9 +2146,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     .setItems(promptNames) { _, which ->
                         val selectedPrompt = prompts[which]
                         // Execute via AgentSessionManager
-                        lifecycleScope.launch(Dispatchers.IO) {
+                        val job = lifecycleScope.launch(Dispatchers.IO) {
                             AgentSessionManager.executePrompt(selectedPrompt, selection)
                         }
+                        val wsId = windowControl.windowRepository.id
+                        AgentSessionManager.getOrCreateSession(wsId).job = job
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .show()

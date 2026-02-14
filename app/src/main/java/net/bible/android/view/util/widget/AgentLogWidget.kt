@@ -109,8 +109,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         if (isRunning) {
             startSpinAnimation()
         }
-        // Update close button state
-        updateCloseButton(!isRunning)
+        // Update close/stop button state
+        updateCloseStopButton(isRunning)
     }
 
     /**
@@ -278,8 +278,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
                 stopSpinAnimation()
             }
 
-            // Update close button - disabled while agent is running
-            updateCloseButton(!event.isRunning)
+            // Update close/stop button based on running state
+            updateCloseStopButton(event.isRunning)
 
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
@@ -289,11 +289,26 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
-     * Update close button enabled state.
+     * Update close/stop button based on running state.
+     * When running: shows stop icon, clicking cancels the agent.
+     * When idle: shows close icon, clicking hides the widget.
      */
-    private fun updateCloseButton(enabled: Boolean) {
-        binding.closeButton.isEnabled = enabled
-        binding.closeButton.alpha = if (enabled) 1.0f else 0.3f
+    private fun updateCloseStopButton(isRunning: Boolean) {
+        if (isRunning) {
+            binding.closeButton.setImageResource(R.drawable.ic_stop_black_24dp)
+            binding.closeButton.setColorFilter(CommonUtils.getResourceColor(R.color.grey_500))
+            binding.closeButton.contentDescription = context.getString(R.string.agent_log_stop)
+            binding.closeButton.setOnClickListener {
+                workspaceId?.let { AgentSessionManager.stopAgent(it) }
+            }
+        } else {
+            binding.closeButton.setImageResource(R.drawable.ic_baseline_close_24)
+            binding.closeButton.clearColorFilter()
+            binding.closeButton.contentDescription = context.getString(R.string.agent_log_close)
+            binding.closeButton.setOnClickListener { hide() }
+        }
+        binding.closeButton.isEnabled = true
+        binding.closeButton.alpha = 1.0f
     }
 
     companion object {

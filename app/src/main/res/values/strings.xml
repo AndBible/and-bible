@@ -1451,6 +1451,7 @@
     <!-- Agent Log Widget -->
     <string name="agent_log_expand">Expand/collapse agent log</string>
     <string name="agent_log_close">Close agent log</string>
+    <string name="agent_log_stop">Stop AI</string>
     <string name="agent_log_idle">AI Assistant</string>
     <string name="agent_log_running">AI is working…</string>
     <string name="agent_log_completed">Completed</string>

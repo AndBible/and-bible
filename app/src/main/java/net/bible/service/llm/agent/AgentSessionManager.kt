@@ -42,6 +42,7 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
+import kotlinx.coroutines.Job
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -100,6 +101,9 @@ class AgentSession(val workspaceId: IdType) {
     var context: AgentContext? = null
         private set
 
+    /** Coroutine Job for the running agent, used for cancellation */
+    var job: Job? = null
+
     /**
      * Start the agent session with the given context.
      */
@@ -119,6 +123,8 @@ class AgentSession(val workspaceId: IdType) {
             addLogEntry(AgentLogEntry.info(message))
         }
         this.isRunning = false
+        this.job?.cancel()
+        this.job = null
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false))
     }
 
@@ -216,6 +222,20 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     fun addLogEntry(workspaceId: IdType, entry: AgentLogEntry) {
         getOrCreateSession(workspaceId).addLogEntry(entry)
+    }
+
+    /**
+     * Stop the running agent for a workspace.
+     *
+     * Cancels the coroutine job and stops the session.
+     *
+     * @param workspaceId ID of the workspace
+     */
+    fun stopAgent(workspaceId: IdType) {
+        val session = activeSessions[workspaceId] ?: return
+        if (session.isRunning) {
+            session.stop("Cancelled by user")
+        }
     }
 
     /**
