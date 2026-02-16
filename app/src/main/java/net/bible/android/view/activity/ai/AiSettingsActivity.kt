@@ -20,6 +20,7 @@ package net.bible.android.view.activity.ai
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -29,18 +30,25 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.ViewFlipper
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * Activity for AI settings.
@@ -138,6 +146,8 @@ class AiSettingsActivity : ActivityBase() {
         menu.findItem(R.id.reset_prompts)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
         menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
+        menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
+        menu.findItem(R.id.import_prompts_csv)?.isVisible = configured
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -161,6 +171,14 @@ class AiSettingsActivity : ActivityBase() {
             }
             R.id.reset_all_ai_settings -> {
                 confirmResetAllAiSettings()
+                true
+            }
+            R.id.export_prompts_csv -> {
+                lifecycleScope.launch { exportPrompts() }
+                true
+            }
+            R.id.import_prompts_csv -> {
+                lifecycleScope.launch { importPrompts() }
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -215,6 +233,97 @@ class AiSettingsActivity : ActivityBase() {
         }
     }
 
+    private suspend fun exportPrompts() {
+        try {
+            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+            val userPrompts = withContext(Dispatchers.IO) { dao.allPrompts() }
+
+            if (userPrompts.isEmpty()) {
+                Toast.makeText(this, getString(R.string.no_prompts_to_export), Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            val intent = Intent(Intent.ACTION_CREATE_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/csv"
+                val timestamp = SimpleDateFormat("yyyy-MM-dd_HH-mm", Locale.US).format(Date())
+                putExtra(Intent.EXTRA_TITLE, "ai_prompts_$timestamp.csv")
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    withContext(Dispatchers.IO) {
+                        contentResolver.openOutputStream(uri)?.use { outputStream ->
+                            PromptCsvUtils.exportPromptsToCsv(outputStream, userPrompts)
+                        } ?: throw IllegalArgumentException("Could not open output stream")
+                    }
+                    Toast.makeText(
+                        this,
+                        getString(R.string.prompts_csv_export_success, userPrompts.size),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error exporting prompts to CSV", e)
+            ErrorReportControl.showErrorDialog(
+                this,
+                getString(R.string.prompts_csv_export_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
+    private suspend fun importPrompts() {
+        try {
+            val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "text/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("text/csv", "text/plain", "text/comma-separated-values"))
+            }
+
+            val result = awaitIntent(intent)
+            if (result.resultCode == RESULT_OK) {
+                result.data?.data?.let { uri ->
+                    val importResult = withContext(Dispatchers.IO) {
+                        contentResolver.openInputStream(uri)?.use { inputStream ->
+                            PromptCsvUtils.importPromptsFromCsv(inputStream)
+                        } ?: throw IllegalArgumentException("Could not open input stream")
+                    }
+
+                    if (importResult.errors > 0) {
+                        val message =
+                            getString(R.string.prompts_csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
+                                "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
+                                if (importResult.errorMessages.size > 5) "\n..." else ""
+
+                        AlertDialog.Builder(this)
+                            .setTitle(getString(R.string.import_prompts_csv))
+                            .setMessage(message)
+                            .setPositiveButton(R.string.okay, null)
+                            .show()
+                    } else {
+                        Toast.makeText(
+                            this,
+                            getString(R.string.prompts_csv_import_success, importResult.created, importResult.updated),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+
+                    loadPrompts()
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error importing prompts from CSV", e)
+            ErrorReportControl.showErrorDialog(
+                this,
+                getString(R.string.prompts_csv_import_failed, e.message),
+                exception = e
+            )
+        }
+    }
+
     inner class PromptListAdapter : ArrayAdapter<AgentPrompt>(
         this,
         R.layout.manage_prompts_list_item,
@@ -263,5 +372,9 @@ class AiSettingsActivity : ActivityBase() {
 
             return view
         }
+    }
+
+    companion object {
+        private const val TAG = "AiSettingsActivity"
     }
 }

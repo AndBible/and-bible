@@ -32,6 +32,16 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/export_prompts_csv"
+        android:title="@string/export_prompts_csv"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/import_prompts_csv"
+        android:title="@string/import_prompts_csv"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/reset_prompts"
         android:icon="@drawable/baseline_settings_backup_restore_24"
         android:title="@string/reset_prompts_to_defaults"
