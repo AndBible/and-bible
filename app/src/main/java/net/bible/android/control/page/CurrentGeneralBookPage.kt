@@ -32,8 +32,11 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -72,8 +75,9 @@ class CurrentGeneralBookPage internal constructor(
     override fun startKeyChooser(context: ActivityBase) {
         if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
-            when (currentDocument) {
-                FakeBookFactory.journalDocument -> {
+            val doc = currentDocument
+            when {
+                doc == FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
                         .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                             .applyFrom(context.workspaceSettings)
@@ -84,11 +88,23 @@ class CurrentGeneralBookPage internal constructor(
                         context.workspaceSettings.updateFrom(resultData)
                     }
                 }
-                FakeBookFactory.multiDocument -> {
+                doc == FakeBookFactory.multiDocument -> {
                     context.startActivityForResult(
                         Intent(context, ChooseDocument::class.java),
                         STD_REQUEST_CODE
                     )
+                }
+                doc?.isMyDocument == true -> {
+                    val docId = doc.myDocumentId
+                    if (docId != null) {
+                        context.startActivityForResult(
+                            Intent(context, MyDocumentPagesActivity::class.java)
+                                .putExtra("documentId", docId.toString())
+                                .putExtra("documentInitials", doc.initials)
+                                .putExtra("documentName", doc.name),
+                            STD_REQUEST_CODE
+                        )
+                    }
                 }
                 else -> context.startActivityForResult(Intent(context, ChooseGeneralBookKey::class.java), STD_REQUEST_CODE)
             }

@@ -62,6 +62,9 @@ interface MyDocumentDao {
     @Update
     fun update(page: MyDocumentPage)
 
+    @Update
+    fun updatePages(pages: List<MyDocumentPage>)
+
     @Delete
     fun delete(page: MyDocumentPage)
 

@@ -35,13 +35,11 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MyDocumentsSelectorBinding
 import net.bible.android.database.IdType
@@ -518,29 +516,47 @@ Ask yourself:
 
     internal val changedDocuments = mutableSetOf<IdType>()
 
+    private val pagesActivityLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data = result.data
+            val bookInitials = data?.getStringExtra("documentInitials")
+            val pageKey = data?.getStringExtra("pageKey")
+            if (bookInitials != null && pageKey != null) {
+                resultIntent.putExtra("documentInitials", bookInitials)
+                resultIntent.putExtra("pageKey", pageKey)
+                finishOk()
+                return@registerForActivityResult
+            }
+        }
+    }
+
     fun openDocument(document: MyDocument) {
-        // Return the document initials to open it
         if (isDirty) {
             AlertDialog.Builder(this)
                 .setMessage(R.string.my_document_save_changes)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     applyChanges()
-                    returnWithDocument(document)
+                    launchPagesActivity(document)
                 }
                 .setNegativeButton(R.string.no) { _, _ ->
-                    returnWithDocument(document)
+                    launchPagesActivity(document)
                 }
                 .setNeutralButton(R.string.cancel, null)
                 .create()
                 .show()
         } else {
-            returnWithDocument(document)
+            launchPagesActivity(document)
         }
     }
 
-    private fun returnWithDocument(document: MyDocument) {
-        resultIntent.putExtra("documentInitials", document.initials)
-        finishOk()
+    private fun launchPagesActivity(document: MyDocument) {
+        val intent = Intent(this, MyDocumentPagesActivity::class.java)
+        intent.putExtra("documentId", document.id.toString())
+        intent.putExtra("documentInitials", document.initials)
+        intent.putExtra("documentName", document.name)
+        pagesActivityLauncher.launch(intent)
     }
 
     fun showPopupMenu(view: View, document: MyDocument) {

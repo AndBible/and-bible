@@ -113,6 +113,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
@@ -1815,12 +1816,31 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             updateActions()
                             return
                         }
+                        MyDocumentPagesActivity::class.java.name -> {
+                            val bookInitials = extras.getString("documentInitials")
+                            val pageKey = extras.getString("pageKey")
+                            if (bookInitials != null && pageKey != null) {
+                                val book = Books.installed().getBook(bookInitials)
+                                if (book != null) {
+                                    val key = book.getKey(pageKey)
+                                    windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    updateActions()
+                                }
+                            }
+                            return
+                        }
                         MyDocumentsActivity::class.java.name -> {
                             val bookInitials = extras.getString("documentInitials")
+                            val pageKey = extras.getString("pageKey")
                             if (bookInitials != null) {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
-                                    documentControl.changeDocument(book)
+                                    if (pageKey != null) {
+                                        val key = book.getKey(pageKey)
+                                        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    } else {
+                                        documentControl.changeDocument(book)
+                                    }
                                     updateActions()
                                 }
                             }
