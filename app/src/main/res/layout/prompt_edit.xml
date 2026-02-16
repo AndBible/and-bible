@@ -145,6 +145,31 @@
             android:gravity="start|center_vertical"
             android:textAllCaps="false" />
 
+        <!-- Model override -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/prompt_model_override"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/modelOverrideSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/modelOverrideCustomInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:hint="@string/prompt_model_custom_hint"
+            android:inputType="text"
+            android:singleLine="true"
+            android:visibility="gone" />
+
         <!-- Cache settings -->
         <TextView
             android:layout_width="wrap_content"

@@ -48,8 +48,8 @@ interface LlmProcessor {
      * @param params Processing-specific parameters
      * @return A unique cache key
      */
-    fun getCacheKey(documentInitials: String, keyName: String, params: String): CacheKey =
-        CacheKey(documentInitials, keyName, processorId, params)
+    fun getCacheKey(documentInitials: String, keyName: String, params: String, modelId: String): CacheKey =
+        CacheKey(documentInitials, keyName, processorId, params, modelId)
 
     /**
      * Human-readable description of what this processor does.
@@ -65,5 +65,6 @@ data class CacheKey(
     val documentInitials: String,
     val keyName: String,
     val processingType: String,
-    val processingParams: String
+    val processingParams: String,
+    val modelId: String
 )

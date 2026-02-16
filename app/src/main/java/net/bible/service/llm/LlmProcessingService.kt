@@ -159,7 +159,8 @@ object LlmProcessingService {
             cacheKey.documentInitials,
             cacheKey.keyName,
             cacheKey.processingType,
-            cacheKey.processingParams
+            cacheKey.processingParams,
+            cacheKey.modelId
         )
 
         return if (cached != null) {
@@ -185,7 +186,7 @@ object LlmProcessingService {
         val chapterKey = cacheKey.keyName.substringBeforeLast('.', cacheKey.keyName)
         if (chapterKey == cacheKey.keyName) return CacheResult(null, true) // Already a chapter key
 
-        val cached = dao.get(cacheKey.documentInitials, chapterKey, cacheKey.processingType, cacheKey.processingParams)
+        val cached = dao.get(cacheKey.documentInitials, chapterKey, cacheKey.processingType, cacheKey.processingParams, cacheKey.modelId)
         return if (cached != null) {
             Log.d(TAG, "Chapter cache hit for ${cacheKey.keyName} via chapter $chapterKey")
             CacheResult(cached.processedXml, false)
@@ -265,7 +266,8 @@ object LlmProcessingService {
     suspend fun processAndCache(
         processor: LlmProcessor,
         cacheKey: CacheKey,
-        xmlContent: String
+        xmlContent: String,
+        modelOverride: String? = null
     ): String {
         val settings = CommonUtils.settings
         if (!settings.llmConfigured) {
@@ -274,7 +276,7 @@ object LlmProcessingService {
         }
 
         // Full request key includes all cache key components
-        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}"
+        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}:${cacheKey.modelId}"
 
         Log.d(TAG, "LLM processAndCache START: key=${cacheKey.keyName}, requestKey=$requestKey")
         Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}")
@@ -336,7 +338,7 @@ object LlmProcessingService {
                     ensureActive()
 
                     // Proceed with actual API call
-                    doProcessAndCache(processor, cacheKey, xmlContent)
+                    doProcessAndCache(processor, cacheKey, xmlContent, modelOverride)
                 } finally {
                     requestsMutex.withLock {
                         pendingRequests.remove(requestKey)
@@ -366,9 +368,10 @@ object LlmProcessingService {
     private suspend fun doProcessAndCache(
         processor: LlmProcessor,
         cacheKey: CacheKey,
-        xmlContent: String
+        xmlContent: String,
+        modelOverride: String? = null
     ): String {
-        val modelId = CommonUtils.settings.llmModel
+        val modelId = modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
 
         Log.d(TAG, "Processing ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}/${cacheKey.processingParams}")
         val startTime = System.currentTimeMillis()
@@ -379,7 +382,7 @@ object LlmProcessingService {
 
         return try {
             val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
-            val processed = callLlmApi(systemPrompt, xmlContent)
+            val processed = callLlmApi(systemPrompt, xmlContent, modelOverride)
             val duration = System.currentTimeMillis() - startTime
             Log.d(TAG, "LLM processing completed in ${duration}ms (output size: ${processed.length} chars)")
 
@@ -433,7 +436,8 @@ object LlmProcessingService {
         processor: LlmProcessor,
         cacheKey: CacheKey,
         xmlContent: String,
-        maxIterations: Int = 5
+        maxIterations: Int = 5,
+        modelOverride: String? = null
     ): String {
         val settings = CommonUtils.settings
         if (!settings.llmConfigured) {
@@ -442,7 +446,7 @@ object LlmProcessingService {
         }
 
         // Request deduplication using same mechanism as processAndCache
-        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}"
+        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}:${cacheKey.modelId}"
 
         Log.d(TAG, "processWithTools START: key=${cacheKey.keyName}, requestKey=$requestKey")
 
@@ -477,7 +481,7 @@ object LlmProcessingService {
                             pendingRequests[requestKey] = it.copy(job = coroutineContext[Job]!!)
                         }
                     }
-                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations)
+                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations, modelOverride)
                 } finally {
                     requestsMutex.withLock {
                         pendingRequests.remove(requestKey)
@@ -507,7 +511,8 @@ object LlmProcessingService {
         processor: LlmProcessor,
         cacheKey: CacheKey,
         xmlContent: String,
-        maxIterations: Int
+        maxIterations: Int,
+        modelOverride: String? = null
     ): String {
         val session = AgentSessionManager.getCurrentSession()
         // Only manage session lifecycle if no agent is already running
@@ -515,7 +520,7 @@ object LlmProcessingService {
         val manageSession = session != null && !session.isRunning
         val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
         val tools = ToolRegistry.toOpenAiToolsArray(includeWriteTools = false)
-        val modelId = CommonUtils.settings.llmModel
+        val modelId = modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
 
         Log.d(TAG, "doProcessWithTools: ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}, tools=${tools.length()}")
 
@@ -541,7 +546,7 @@ object LlmProcessingService {
                 Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
                 session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
 
-                val response = callLlmApiWithTools(messages, tools)
+                val response = callLlmApiWithTools(messages, tools, modelOverride)
                 val assistantMessage = response.getJSONArray("choices")
                     .getJSONObject(0).getJSONObject("message")
                 val parsed = ToolCallParser.parseMessage(assistantMessage)
@@ -640,12 +645,13 @@ object LlmProcessingService {
             .trim()
     }
 
-    private suspend fun callLlmApi(systemPrompt: String, userContent: String): String {
+    private suspend fun callLlmApi(systemPrompt: String, userContent: String, modelOverride: String? = null): String {
         val settings = CommonUtils.settings
+        val effectiveModel = modelOverride?.takeIf { it.isNotBlank() } ?: settings.llmModel
         val endpoint = "${settings.llmEndpoint}/chat/completions"
 
         val requestBody = JSONObject().apply {
-            put("model", settings.llmModel)
+            put("model", effectiveModel)
             put("messages", JSONArray().apply {
                 put(JSONObject().apply {
                     put("role", "system")
@@ -659,7 +665,7 @@ object LlmProcessingService {
             put("temperature", LLM_TEMPERATURE)
         }
 
-        Log.d(TAG, "LLM API: $endpoint, model: ${settings.llmModel}")
+        Log.d(TAG, "LLM API: $endpoint, model: $effectiveModel")
 
         val request = Request.Builder()
             .url(endpoint)
@@ -729,17 +735,18 @@ object LlmProcessingService {
      * @param tools The tools array in OpenAI function calling format
      * @return The full response JSON object (contains choices[0].message with content or tool_calls)
      */
-    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray): JSONObject {
+    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null): JSONObject {
         val settings = CommonUtils.settings
 
         if (!settings.llmConfigured) {
             throw LlmProcessingError("LLM not configured")
         }
 
+        val effectiveModel = modelOverride?.takeIf { it.isNotBlank() } ?: settings.llmModel
         val endpoint = "${settings.llmEndpoint}/chat/completions"
 
         val requestBody = JSONObject().apply {
-            put("model", settings.llmModel)
+            put("model", effectiveModel)
             put("messages", messages)
             if (tools.length() > 0) {
                 put("tools", tools)
@@ -747,7 +754,7 @@ object LlmProcessingService {
             put("temperature", LLM_TEMPERATURE)
         }
 
-        Log.d(TAG, "LLM API with tools: $endpoint, model: ${settings.llmModel}, tools: ${tools.length()}")
+        Log.d(TAG, "LLM API with tools: $endpoint, model: $effectiveModel, tools: ${tools.length()}")
 
         val request = Request.Builder()
             .url(endpoint)

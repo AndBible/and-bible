@@ -95,8 +95,9 @@ class AgentExecutor(
 
             val messages = buildInitialMessages(prompt, context)
             val tools = ToolRegistry.toOpenAiToolsArray(includeWriteTools = true)
+            val modelOverride = prompt.modelOverride
 
-            runAgentLoop(messages, tools, context)
+            runAgentLoop(messages, tools, context, modelOverride)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -113,7 +114,8 @@ class AgentExecutor(
     private suspend fun FlowCollector<AgentEvent>.runAgentLoop(
         messages: JSONArray,
         tools: JSONArray,
-        context: AgentContext
+        context: AgentContext,
+        modelOverride: String? = null
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
@@ -123,7 +125,7 @@ class AgentExecutor(
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            when (val parsed = callLlmAndParse(messages, tools, iteration)) {
+            when (val parsed = callLlmAndParse(messages, tools, iteration, modelOverride)) {
                 is ParsedResponse.ToolCalls -> {
                     when (val result = processToolCalls(parsed, messages, currentContext)) {
                         is ProcessToolsResult.Continue -> {
@@ -169,10 +171,11 @@ class AgentExecutor(
     private suspend fun callLlmAndParse(
         messages: JSONArray,
         tools: JSONArray,
-        iteration: Int
+        iteration: Int,
+        modelOverride: String? = null
     ): ParsedResponse {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val response = LlmProcessingService.callLlmApiWithTools(messages, tools)
+        val response = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride)
 
         val assistantMessage = response
             .getJSONArray("choices")

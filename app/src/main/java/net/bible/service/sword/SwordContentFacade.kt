@@ -37,6 +37,8 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.llm.isLlmProcessedBook
+import net.bible.service.llm.llmEffectiveModel
+import net.bible.service.llm.llmModelOverride
 import net.bible.service.llm.LlmProcessingError
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmRequestSuperseded
@@ -385,7 +387,8 @@ object SwordContentFacade {
                     val processor = LlmProcessingService.getProcessor(processorId)
                     Log.d(TAG, "Got processor: ${processor?.processorId}")
                     if (processor != null) {
-                        val cacheKey = processor.getCacheKey(actualBook.initials, key.osisRef, processingParams)
+                        val effectiveModel = book.llmEffectiveModel
+                        val cacheKey = processor.getCacheKey(actualBook.initials, key.osisRef, processingParams, effectiveModel)
 
                         // Check database cache first
                         val cacheResult = LlmProcessingService.getCached(cacheKey)
@@ -403,7 +406,7 @@ object SwordContentFacade {
                                 val outputter = XMLOutputter(Format.getRawFormat())
                                 val originalXml = outputter.outputString(frag)
                                 runBlocking {
-                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml)
+                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml, modelOverride = book.llmModelOverride)
                                 }
                             }
                         }

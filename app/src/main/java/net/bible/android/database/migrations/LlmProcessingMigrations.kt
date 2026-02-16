@@ -49,9 +49,14 @@ private val addPromptToolPermissions = makeMigration(4..5) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `deniedTools` TEXT DEFAULT NULL")
 }
 
+private val addModelOverride = makeMigration(5..6) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `modelOverride` TEXT DEFAULT NULL")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
     addPermissionMode,
     addPromptToolPermissions,
+    addModelOverride,
 )

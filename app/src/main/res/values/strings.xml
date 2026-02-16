@@ -1484,6 +1484,12 @@
     <string name="prompt_tool_permissions">Tool permissions</string>
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
 
+    <!-- Per-Prompt Model Override -->
+    <string name="prompt_model_override">Model</string>
+    <string name="prompt_model_default">Default</string>
+    <string name="prompt_model_custom">Custom</string>
+    <string name="prompt_model_custom_hint">Enter model name</string>
+
     <!-- LLM One Tap Actions -->
     <string name="select_llm_prompt">Select AI Action</string>
     <string name="no_llm_prompts_configured">No AI prompts configured for verse selection</string>

@@ -30,12 +30,14 @@ interface LlmProcessingDao {
         AND keyName = :keyName
         AND processingType = :processingType
         AND processingParams = :processingParams
+        AND modelId = :modelId
     """)
     fun get(
         documentInitials: String,
         keyName: String,
         processingType: String,
-        processingParams: String
+        processingParams: String,
+        modelId: String
     ): LlmProcessingCacheEntry?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -19,6 +19,7 @@ package net.bible.service.llm
 
 import android.util.Log
 import kotlinx.coroutines.runBlocking
+import net.bible.service.common.CommonUtils
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.processors.PromptProcessor
@@ -48,7 +49,8 @@ class LlmProcessedBackendState(
     val wrappedBook: Book,
     val processor: LlmProcessor,
     val processingParams: String,
-    private val ownMetadata: SwordBookMetaData
+    private val ownMetadata: SwordBookMetaData,
+    val modelOverride: String? = null
 ) : OpenFileState {
 
     private var _lastAccess: Long = 0L
@@ -110,7 +112,8 @@ class LlmProcessedBackend(
     override fun readRawContent(state: LlmProcessedBackendState, key: Key): String {
         val originalInitials = state.wrappedBook.initials
         val keyName = key.osisRef
-        val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams)
+        val effectiveModel = state.modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+        val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams, effectiveModel)
 
         val cacheResult = LlmProcessingService.getCached(cacheKey)
         if (cacheResult.processedXml != null) {
@@ -129,7 +132,7 @@ class LlmProcessedBackend(
         val originalXml = XMLOutputter(Format.getRawFormat()).outputString(osisElement)
 
         return runBlocking {
-            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml)
+            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, modelOverride = state.modelOverride)
         }
     }
 
@@ -146,7 +149,8 @@ class LlmProcessedBackend(
         val keyName = key.osisRef
         Log.d(TAG, "readToOsis for $originalInitials key=$keyName")
 
-        val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams)
+        val effectiveModel = state.modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+        val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams, effectiveModel)
 
         // Check cache first (exact key, then chapter-level fallback)
         val cached = LlmProcessingService.getCached(cacheKey)
@@ -171,7 +175,7 @@ class LlmProcessedBackend(
 
         // Process with tool support
         val processedXml = runBlocking {
-            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml)
+            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, modelOverride = state.modelOverride)
         }
 
         return parseXmlToContentList(processedXml, key, processor)
@@ -223,7 +227,8 @@ class LlmProcessedBackend(
 private fun createProcessedMetadata(
     wrappedBook: Book,
     processor: LlmProcessor,
-    processingParams: String
+    processingParams: String,
+    modelOverride: String? = null
 ): SwordBookMetaData {
     val originalMetadata = wrappedBook.bookMetaData as SwordBookMetaData
     val processedInitials = "${wrappedBook.initials}/${processor.processorId}/$processingParams"
@@ -237,7 +242,7 @@ Category=${originalMetadata.bookCategory.getName()}
 AndBibleLlmProcessedModule=1
 AndBibleOriginalModule=${wrappedBook.initials}
 AndBibleProcessorId=${processor.processorId}
-AndBibleProcessingParams=$processingParams
+AndBibleProcessingParams=$processingParams${if (modelOverride != null) "\nAndBibleModelOverride=$modelOverride" else ""}
 Lang=${if (processor.processorId == "translations") processingParams else originalMetadata.language.code}
 Version=0.0
 Encoding=UTF-8
@@ -268,7 +273,7 @@ private val processedBooksCache = ConcurrentHashMap<String, Book>()
  * @param processingParams The processing parameters (e.g., "fi" for Finnish translation)
  * @return A virtual Book that provides processed content
  */
-fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processingParams: String): Book? {
+fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processingParams: String, modelOverride: String? = null): Book? {
     val processor = LlmProcessingService.getProcessor(processorId) ?: run {
         Log.e(TAG, "Unknown processor: $processorId")
         return null
@@ -287,8 +292,8 @@ fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processing
         }
 
         // Create new processed book
-        val metadata = createProcessedMetadata(originalBook, processor, processingParams)
-        val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata)
+        val metadata = createProcessedMetadata(originalBook, processor, processingParams, modelOverride)
+        val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata, modelOverride)
         val backend = LlmProcessedBackend(state, metadata)
 
         // Use SwordBook for all types - it's a generic wrapper that delegates to our backend.
@@ -325,7 +330,7 @@ fun getOrCreateProcessedBookWithPrompt(originalBook: Book, promptId: IdType): Bo
 
     // Use PromptProcessor with the prompt ID as params
     val processor = PromptProcessor
-    return getOrCreateProcessedBook(originalBook, processor.processorId, promptId.toString())
+    return getOrCreateProcessedBook(originalBook, processor.processorId, promptId.toString(), prompt.modelOverride)
 }
 
 /**
@@ -351,6 +356,19 @@ val Book.llmProcessorId: String?
  */
 val Book.llmProcessingParams: String?
     get() = bookMetaData.getProperty("AndBibleProcessingParams")
+
+/**
+ * Extension property to get the model override for a processed book.
+ */
+val Book.llmModelOverride: String?
+    get() = bookMetaData.getProperty("AndBibleModelOverride")
+
+/**
+ * Resolve the effective model ID for a processed book.
+ * Uses the per-prompt model override if set, otherwise falls back to the global setting.
+ */
+val Book.llmEffectiveModel: String
+    get() = llmModelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
 
 /**
  * Parses a book initials string that may be a processed book.
