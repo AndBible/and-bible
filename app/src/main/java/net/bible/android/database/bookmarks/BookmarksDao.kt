@@ -520,6 +520,15 @@ interface BookmarkDao {
 
     fun countStudyPadEntities(labelId: IdType) = countBookmarkEntities(labelId) + countGenericBookmarkEntities(labelId)+ countStudyPadTextEntities(labelId)
 
+    @Query("SELECT COALESCE(SUM(LENGTH(text)), 0) FROM StudyPadTextEntryText WHERE studyPadTextEntryId IN (SELECT id FROM StudyPadTextEntry WHERE labelId=:labelId)")
+    fun estimateStudyPadTextLength(labelId: IdType): Long
+
+    @Query("SELECT COALESCE(SUM(LENGTH(notes)), 0) FROM BibleBookmarkWithNotes WHERE id IN (SELECT bookmarkId FROM BibleBookmarkToLabel WHERE labelId=:labelId) AND notes IS NOT NULL")
+    fun estimateBibleBookmarkNotesLength(labelId: IdType): Long
+
+    @Query("SELECT COALESCE(SUM(LENGTH(notes)), 0) FROM GenericBookmarkWithNotes WHERE id IN (SELECT bookmarkId FROM GenericBookmarkToLabel WHERE labelId=:labelId) AND notes IS NOT NULL")
+    fun estimateGenericBookmarkNotesLength(labelId: IdType): Long
+
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<IdType>)
 

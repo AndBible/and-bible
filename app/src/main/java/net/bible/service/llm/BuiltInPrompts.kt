@@ -62,6 +62,7 @@ object BuiltInPrompts {
     val TEST_STUDYPAD_ID = stableId("test-studypad")
     val TEST_FINISH_STUDYPAD_ID = stableId("test-finish-studypad")
     val TEST_UPDATE_NOTE_ID = stableId("test-update-note")
+    val TEST_STUDYPAD_READ_MODES_ID = stableId("test-studypad-read-modes")
     val TEST_REGENERATE_ID = stableId("test-regenerate")
 
     private fun getUiLanguageName(): String {
@@ -396,6 +397,26 @@ object BuiltInPrompts {
                     This is an action-only task - use finishWithoutDocument to end.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            AgentPrompt(
+                id = TEST_STUDYPAD_READ_MODES_ID,
+                name = "\uD83E\uDDEA Test: StudyPad Read Modes",
+                description = "Test StudyPad read modes: info, index, page",
+                promptTemplate = """
+                    This is a test prompt for StudyPad read modes. Please:
+                    1. Use getAllLabels to find a StudyPad that has content (or create one with a few entries first)
+                    2. Use getStudyPadContent with mode='info' to get metadata (entry counts, estimated size)
+                    3. Use getStudyPadContent with mode='index' to get the lightweight entry index
+                    4. Use getStudyPadContent with mode='page' with offset=0, limit=2 to read the first 2 entries
+                    5. If there are more entries, use mode='page' with offset=2, limit=2 to read the next page
+                    6. Compare: use mode='full' to get all content at once
+                    7. Report all results clearly, showing the differences between each mode's output
+
+                    This tests that all four read modes work correctly and return the expected format.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
             ),
 
