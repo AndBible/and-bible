@@ -47,7 +47,6 @@ object DefaultPrompts {
                     If one exists, use getVerseContent to get the text from that translation.
                     If NO ${getUiLanguageName()} translation is installed, translate the text yourself directly.
 
-                    Preserve the XML structure exactly, only translate the text content between tags.
                     Do not add any explanations or commentary.
                 """.trimIndent(),
                 showIn = setOf(
@@ -69,7 +68,6 @@ object DefaultPrompts {
                     If one exists, use getVerseContent to get the text from that translation.
                     If NO English translation is installed, translate the text yourself directly.
 
-                    Preserve the XML structure exactly, only translate the text content between tags.
                     Do not add any explanations or commentary.
                 """.trimIndent(),
                 showIn = setOf(
@@ -87,7 +85,6 @@ object DefaultPrompts {
                 promptTemplate = """
                     Create a concise summary of the selected text.
                     Focus on the main theological themes and key points.
-                    Use ${getUiLanguageName()} for your response.
                 """.trimIndent(),
                 showIn = setOf(
                     PromptContext.VERSE_SELECTION,
@@ -103,7 +100,6 @@ object DefaultPrompts {
                 promptTemplate = """
                     Explain the meaning and context of the selected verses.
                     Include historical context, theological significance, and practical application.
-                    Use ${getUiLanguageName()} for your response.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -146,7 +142,6 @@ object DefaultPrompts {
                     Include links to dictionary entries: [Strong's G2316](sword://StrongsGreek/G2316)
                     Cite each dictionary source by name when referencing definitions.
                     Explain the etymology, usage, and theological significance of key terms.
-                    Use ${getUiLanguageName()} for your response.
                 """.trimIndent(),
                 showIn = setOf(
                     PromptContext.VERSE_SELECTION,
