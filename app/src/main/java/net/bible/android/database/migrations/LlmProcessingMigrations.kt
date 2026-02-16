@@ -53,10 +53,15 @@ private val addModelOverride = makeMigration(5..6) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `modelOverride` TEXT DEFAULT NULL")
 }
 
+private val addLanguageCode = makeMigration(6..7) { db ->
+    db.execSQL("ALTER TABLE `LlmProcessingCacheEntry` ADD COLUMN `languageCode` TEXT DEFAULT NULL")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
     addPermissionMode,
     addPromptToolPermissions,
     addModelOverride,
+    addLanguageCode,
 )

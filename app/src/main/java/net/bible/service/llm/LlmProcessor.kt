@@ -56,6 +56,15 @@ interface LlmProcessor {
      * Used in UI to describe the processing.
      */
     fun getDescription(params: String): String
+
+    /**
+     * Get the language code for the processed output.
+     * Used for book metadata (Lang=) and TTS locale selection.
+     *
+     * @param params Processing-specific parameters
+     * @return BCP 47 language code (e.g., "fi", "en", "de")
+     */
+    fun getLanguageCode(params: String): String
 }
 
 /**

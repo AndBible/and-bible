@@ -36,6 +36,7 @@ import org.crosswire.jsword.book.sword.state.OpenFileState
 import org.crosswire.jsword.passage.DefaultKeyList
 import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
+import java.util.Locale
 
 private const val TAG = "MyDocumentBook"
 
@@ -189,7 +190,7 @@ private fun createMyDocumentMetadata(document: MyDocument): SwordBookMetaData {
         "Description=${document.name}\n" +
         "Abbreviation=${document.initials}\n" +
         "Category=Generic Books\n" +
-        "Lang=en\n" +
+        "Lang=${Locale.getDefault().language}\n" +
         "Version=1.0\n" +
         "Encoding=UTF-8\n" +
         "LCSH=Documents\n" +
@@ -467,7 +468,8 @@ object MyDocumentBookManager {
             kjvOrdinalStart = cacheableContext.kjvOrdinalStart,
             kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
             contextHash = cacheableContext.computeHash(),
-            usedWriteTools = usedWriteTools
+            usedWriteTools = usedWriteTools,
+            languageCode = Locale.getDefault().language
         )
 
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId

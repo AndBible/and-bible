@@ -157,7 +157,7 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 6
+const val LLM_PROCESSING_DATABASE_VERSION = 7
 
 @Database(
     entities = [

@@ -79,4 +79,6 @@ Process the following content. Preserve XML structure exactly.
         val prompt = PromptRepository.promptById(promptId)
         return prompt?.name ?: "AI Processing"
     }
+
+    override fun getLanguageCode(params: String): String = Locale.getDefault().language
 }

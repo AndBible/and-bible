@@ -91,7 +91,8 @@ data class MyDocumentPage(
     var kjvOrdinalStart: Int? = null,    // KJVA verse ordinal start (for cross-version cache lookup)
     var kjvOrdinalEnd: Int? = null,      // KJVA verse ordinal end
     var contextHash: String? = null,     // SHA-256 hash of full context (for strict matching)
-    var usedWriteTools: Boolean = false  // Whether the agent used write tools (bookmarks, notes, etc.)
+    var usedWriteTools: Boolean = false,  // Whether the agent used write tools (bookmarks, notes, etc.)
+    var languageCode: String? = null      // Language of the page content (for TTS locale selection)
 )
 
 /**
@@ -136,5 +137,6 @@ data class MyDocumentPageWithContent(
     val kjvOrdinalEnd: Int?,
     val contextHash: String?,
     val usedWriteTools: Boolean,
+    val languageCode: String?,
     val content: String?
 )

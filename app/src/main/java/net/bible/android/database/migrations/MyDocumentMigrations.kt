@@ -50,6 +50,17 @@ private val addCacheFields = makeMigration(1..2) { db ->
     LEFT OUTER JOIN MyDocumentPageContent c ON p.id = c.pageId""")
 }
 
+private val addPageLanguageCode = makeMigration(2..3) { db ->
+    db.execSQL("ALTER TABLE `MyDocumentPage` ADD COLUMN `languageCode` TEXT DEFAULT NULL")
+
+    // Recreate the view with the new column
+    db.execSQL("DROP VIEW IF EXISTS `MyDocumentPageWithContent`")
+    db.execSQL("""CREATE VIEW `MyDocumentPageWithContent` AS SELECT p.*, c.content
+    FROM MyDocumentPage p
+    LEFT OUTER JOIN MyDocumentPageContent c ON p.id = c.pageId""")
+}
+
 val myDocumentMigrations: Array<Migration> = arrayOf(
     addCacheFields,
+    addPageLanguageCode,
 )

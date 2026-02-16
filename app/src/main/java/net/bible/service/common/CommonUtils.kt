@@ -130,6 +130,7 @@ import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
@@ -1949,7 +1950,7 @@ val BookAndKey.next: BookAndKey get() {
         else -> {
             val backend = when(val book = this.document!!) {
                 is SwordGenBook -> {
-                    if(book.isEpub) {
+                    if(book.isEpub || book.isMyDocument) {
                         book.backend as AbstractKeyBackend
                     } else {
                         book.backend as GenBookBackend

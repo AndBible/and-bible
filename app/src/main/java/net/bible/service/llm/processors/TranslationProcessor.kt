@@ -44,4 +44,6 @@ IMPORTANT RULES:
         val languageName = Locale(params).displayLanguage
         return "Translated to $languageName"
     }
+
+    override fun getLanguageCode(params: String): String = params
 }

@@ -41,5 +41,6 @@ data class LlmProcessingCacheEntry(
     val processingParams: String,   // e.g., "fi" for translation, "short" for summary
     val modelId: String,            // e.g., "gpt-4o-mini" (informational only)
     val processedXml: String,       // The processed content
-    val createdAt: Long
+    val createdAt: Long,
+    val languageCode: String? = null // Language of the processed output (e.g., "fi", "en")
 )

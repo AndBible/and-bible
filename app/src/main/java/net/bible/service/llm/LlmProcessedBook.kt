@@ -242,7 +242,7 @@ AndBibleLlmProcessedModule=1
 AndBibleOriginalModule=${wrappedBook.initials}
 AndBibleProcessorId=${processor.processorId}
 AndBibleProcessingParams=$processingParams${if (modelOverride != null) "\nAndBibleModelOverride=$modelOverride" else ""}
-Lang=${if (processor.processorId == "translations") processingParams else originalMetadata.language.code}
+Lang=${processor.getLanguageCode(processingParams)}
 Version=0.0
 Encoding=UTF-8
 LCSH=Bible

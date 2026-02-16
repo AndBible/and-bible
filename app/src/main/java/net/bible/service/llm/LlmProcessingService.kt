@@ -343,7 +343,8 @@ object LlmProcessingService {
                             processingParams = cacheKey.processingParams,
                             modelId = modelId,
                             processedXml = result,
-                            createdAt = System.currentTimeMillis()
+                            createdAt = System.currentTimeMillis(),
+                            languageCode = processor.getLanguageCode(cacheKey.processingParams)
                         ))
 
                         session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName} complete"))
