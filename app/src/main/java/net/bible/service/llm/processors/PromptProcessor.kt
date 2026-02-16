@@ -19,14 +19,14 @@ package net.bible.service.llm.processors
 
 import android.util.Log
 import net.bible.android.database.IdType
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmProcessor
+import net.bible.service.llm.PromptRepository
 import java.util.Locale
 
 private const val TAG = "PromptProcessor"
 
 /**
- * LLM Processor that uses AgentPrompt from the database.
+ * LLM Processor that uses AgentPrompt from built-in prompts or the database.
  *
  * The processingParams is the prompt ID (as string).
  * The system prompt is loaded from the AgentPrompt's promptTemplate field.
@@ -36,8 +36,7 @@ object PromptProcessor : LlmProcessor {
 
     override fun getSystemPrompt(processingParams: String): String {
         val promptId = IdType.fromString(processingParams)
-        val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        val prompt = dao.promptById(promptId)
+        val prompt = PromptRepository.promptById(promptId)
 
         Log.d(TAG, "getSystemPrompt: promptId=$promptId, found=${prompt != null}")
         Log.d(TAG, "getSystemPrompt: promptTemplate=${prompt?.promptTemplate?.take(200)}")
@@ -77,8 +76,7 @@ Process the following content. Preserve XML structure exactly.
 
     override fun getDescription(processingParams: String): String {
         val promptId = IdType.fromString(processingParams)
-        val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        val prompt = dao.promptById(promptId)
+        val prompt = PromptRepository.promptById(promptId)
         return prompt?.name ?: "AI Processing"
     }
 }

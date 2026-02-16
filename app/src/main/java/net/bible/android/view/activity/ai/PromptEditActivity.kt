@@ -29,6 +29,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
@@ -38,20 +39,23 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.PermissionMode
 
 /**
  * Activity for creating and editing AI prompts.
+ * Opens in read-only mode for built-in prompts, with a "Copy to customize" option.
  */
 class PromptEditActivity : ActivityBase() {
 
     private var prompt: AgentPrompt? = null
     private var isNewPrompt = true
+    private var isBuiltIn = false
     private var initialName = ""
     private var initialDescription = ""
     private var initialTemplate = ""
@@ -160,20 +164,52 @@ class PromptEditActivity : ActivityBase() {
 
     private fun loadPrompt(id: IdType) {
         lifecycleScope.launch {
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
             val loadedPrompt = withContext(Dispatchers.IO) {
-                dao.promptById(id)
+                PromptRepository.promptById(id)
             }
 
             if (loadedPrompt != null) {
                 prompt = loadedPrompt
-                title = getString(R.string.edit_prompt)
+                isBuiltIn = BuiltInPrompts.isBuiltIn(loadedPrompt.id)
+
+                if (isBuiltIn) {
+                    title = getString(R.string.built_in_prompt)
+                    setReadOnlyMode()
+                } else {
+                    title = getString(R.string.edit_prompt)
+                }
+
                 populateFields(loadedPrompt)
                 captureInitialState()
+                invalidateOptionsMenu()
             } else {
                 finish()
             }
         }
+    }
+
+    /**
+     * Disable all input fields for built-in (read-only) prompts.
+     */
+    private fun setReadOnlyMode() {
+        nameEdit.isEnabled = false
+        descriptionEdit.isEnabled = false
+        templateEdit.isEnabled = false
+        checkTextDisplaySettings.isEnabled = false
+        checkVerseSelection.isEnabled = false
+        checkTextSelection.isEnabled = false
+        checkWindowMenu.isEnabled = false
+        checkWorkspaceMenu.isEnabled = false
+        checkNoteEditor.isEnabled = false
+        checkStrictContextMatching.isEnabled = false
+        permissionModeSpinner.isEnabled = false
+        modelOverrideSpinner.isEnabled = false
+        modelOverrideCustomInput.isEnabled = false
+        toolPermissionsButton.isEnabled = false
+
+        // Show a notice that this is a built-in prompt
+        val noticeView = findViewById<TextView>(R.id.builtInNotice)
+        noticeView?.visibility = View.VISIBLE
     }
 
     private fun populateFields(prompt: AgentPrompt) {
@@ -222,6 +258,7 @@ class PromptEditActivity : ActivityBase() {
     }
 
     private fun isDirty(): Boolean {
+        if (isBuiltIn) return false
         return nameEdit.text.toString() != initialName ||
             descriptionEdit.text.toString() != initialDescription ||
             templateEdit.text.toString() != initialTemplate ||
@@ -253,6 +290,8 @@ class PromptEditActivity : ActivityBase() {
     }
 
     private fun validateAndSave(): Boolean {
+        if (isBuiltIn) return false
+
         val name = nameEdit.text.toString().trim()
         val template = templateEdit.text.toString().trim()
 
@@ -277,8 +316,6 @@ class PromptEditActivity : ActivityBase() {
         val selectedModelOverride = getSelectedModelOverride()
 
         lifecycleScope.launch {
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-
             withContext(Dispatchers.IO) {
                 if (isNewPrompt) {
                     val newPrompt = AgentPrompt(
@@ -292,7 +329,7 @@ class PromptEditActivity : ActivityBase() {
                         deniedTools = deniedTools,
                         modelOverride = selectedModelOverride,
                     )
-                    dao.insert(newPrompt)
+                    PromptRepository.insertPrompt(newPrompt)
                 } else {
                     prompt?.let {
                         it.name = name
@@ -304,7 +341,7 @@ class PromptEditActivity : ActivityBase() {
                         it.allowedTools = allowedTools
                         it.deniedTools = deniedTools
                         it.modelOverride = selectedModelOverride
-                        dao.update(it)
+                        PromptRepository.updatePrompt(it)
                     }
                 }
             }
@@ -316,15 +353,15 @@ class PromptEditActivity : ActivityBase() {
     }
 
     private fun deletePrompt() {
+        if (isBuiltIn) return
         val currentPrompt = prompt ?: return
 
         AlertDialog.Builder(this)
             .setMessage(getString(R.string.delete_prompt_confirmation, currentPrompt.name))
             .setPositiveButton(R.string.yes) { _, _ ->
                 lifecycleScope.launch {
-                    val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
                     withContext(Dispatchers.IO) {
-                        dao.delete(currentPrompt)
+                        PromptRepository.deletePrompt(currentPrompt)
                     }
                     finish()
                 }
@@ -333,10 +370,46 @@ class PromptEditActivity : ActivityBase() {
             .show()
     }
 
+    /**
+     * Copy the current prompt (built-in or user) to create a new editable user prompt.
+     */
+    private fun copyToCustomize() {
+        val currentPrompt = prompt ?: return
+
+        lifecycleScope.launch {
+            val newId = withContext(Dispatchers.IO) {
+                PromptRepository.copyPrompt(currentPrompt.id)
+            }
+
+            if (newId != null) {
+                Toast.makeText(this@PromptEditActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
+                // Open the new copy for editing
+                val intent = Intent(this@PromptEditActivity, PromptEditActivity::class.java)
+                intent.putExtra(EXTRA_PROMPT_ID, newId.toString())
+                startActivity(intent)
+                finish()
+            }
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.prompt_edit_options_menu, menu)
-        menu.findItem(R.id.delete_prompt)?.isVisible = !isNewPrompt
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        if (isBuiltIn) {
+            // Built-in: hide save/delete, show copy
+            menu.findItem(R.id.save_prompt)?.isVisible = false
+            menu.findItem(R.id.delete_prompt)?.isVisible = false
+            menu.findItem(R.id.copy_to_customize)?.isVisible = true
+        } else {
+            // User prompt: show save, show delete for existing, hide copy
+            menu.findItem(R.id.save_prompt)?.isVisible = true
+            menu.findItem(R.id.delete_prompt)?.isVisible = !isNewPrompt
+            menu.findItem(R.id.copy_to_customize)?.isVisible = !isNewPrompt
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -347,6 +420,10 @@ class PromptEditActivity : ActivityBase() {
             }
             R.id.delete_prompt -> {
                 deletePrompt()
+                true
+            }
+            R.id.copy_to_customize -> {
+                copyToCustomize()
                 true
             }
             android.R.id.home -> {

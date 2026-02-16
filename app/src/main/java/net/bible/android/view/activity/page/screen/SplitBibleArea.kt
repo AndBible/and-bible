@@ -77,7 +77,6 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.shortName
 import net.bible.service.db.exportStudyPads
@@ -85,6 +84,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.service.download.isSpecial
 import net.bible.service.download.isStudyPad
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.book.BookCategory
@@ -805,10 +805,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         if (CommonUtils.settings.llmConfigured) {
             val llmSubMenu = llmActionsSubMenu.subMenu!!
             llmSubMenu.removeItem(R.id.llmActionItem)
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-            val prompts = dao.allPrompts().filter { prompt ->
-                PromptContext.WINDOW_MENU in prompt.showIn
-            }
+            val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
             if (prompts.isEmpty()) {
                 llmActionsSubMenu.isVisible = false
             } else {
@@ -1045,10 +1042,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.llmActionItem -> CommandPreference({ _, _, _ ->
                 // Execute the selected LLM prompt for the entire window content
-                val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-                val prompts = dao.allPrompts().filter { p ->
-                    PromptContext.WINDOW_MENU in p.showIn
-                }
+                val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
                 if (order < prompts.size) {
                     val selectedPrompt = prompts[order]
                     val currentPage = window.pageManager.currentPage

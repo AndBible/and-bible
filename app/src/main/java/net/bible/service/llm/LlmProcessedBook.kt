@@ -21,7 +21,6 @@ import android.util.Log
 import kotlinx.coroutines.runBlocking
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.IdType
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import org.crosswire.jsword.book.Book
@@ -322,8 +321,7 @@ fun getOrCreateTranslatedBook(originalBook: Book, targetLanguage: String): Book?
  * @return A virtual Book that provides processed content, or null if prompt not found
  */
 fun getOrCreateProcessedBookWithPrompt(originalBook: Book, promptId: IdType): Book? {
-    val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-    val prompt = dao.promptById(promptId) ?: run {
+    val prompt = PromptRepository.promptById(promptId) ?: run {
         Log.e(TAG, "AgentPrompt not found: $promptId")
         return null
     }

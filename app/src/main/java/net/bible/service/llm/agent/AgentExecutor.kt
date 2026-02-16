@@ -29,8 +29,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
@@ -74,8 +74,6 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    private val promptDao get() = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-
     /**
      * Execute an agent prompt with the given context.
      *
@@ -87,7 +85,7 @@ class AgentExecutor(
         emit(AgentEvent.Started)
 
         try {
-            val prompt = promptDao.promptById(promptId)
+            val prompt = PromptRepository.promptById(promptId)
             if (prompt == null) {
                 emit(AgentEvent.Error("Prompt not found: $promptId"))
                 return@flow

@@ -26,6 +26,18 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Built-in prompt notice (hidden by default) -->
+        <TextView
+            android:id="@+id/builtInNotice"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="?android:attr/colorControlHighlight"
+            android:padding="12dp"
+            android:text="@string/built_in_prompt_notice"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:visibility="gone" />
+
         <!-- Name -->
         <TextView
             android:layout_width="wrap_content"

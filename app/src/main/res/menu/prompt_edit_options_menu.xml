@@ -31,4 +31,10 @@
         android:title="@string/delete"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/copy_to_customize"
+        android:icon="@drawable/ic_content_copy_black_24dp"
+        android:title="@string/copy_to_customize"
+        app:showAsAction="ifRoom" />
+
 </menu>

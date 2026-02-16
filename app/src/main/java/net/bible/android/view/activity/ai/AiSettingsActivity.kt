@@ -37,10 +37,10 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
-import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.DefaultPrompts
+import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 
 /**
  * Activity for AI settings.
@@ -72,7 +72,12 @@ class AiSettingsActivity : ActivityBase() {
             val emptyView = findViewById<View>(android.R.id.empty)
             lv.emptyView = emptyView
             lv.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                editPrompt(prompts[position])
+                val prompt = prompts[position]
+                if (BuiltInPrompts.isBuiltIn(prompt.id)) {
+                    viewBuiltInPrompt(prompt)
+                } else {
+                    editPrompt(prompt)
+                }
             }
         }
     }
@@ -94,14 +99,8 @@ class AiSettingsActivity : ActivityBase() {
 
     private fun loadPrompts() {
         lifecycleScope.launch {
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-
-            withContext(Dispatchers.IO) {
-                DefaultPrompts.initializeIfNeeded()
-            }
-
             val loadedPrompts = withContext(Dispatchers.IO) {
-                dao.allPrompts()
+                PromptRepository.allPrompts()
             }
 
             prompts.clear()
@@ -112,6 +111,12 @@ class AiSettingsActivity : ActivityBase() {
     }
 
     private fun editPrompt(prompt: AgentPrompt) {
+        val intent = Intent(this, PromptEditActivity::class.java)
+        intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, prompt.id.toString())
+        startActivity(intent)
+    }
+
+    private fun viewBuiltInPrompt(prompt: AgentPrompt) {
         val intent = Intent(this, PromptEditActivity::class.java)
         intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, prompt.id.toString())
         startActivity(intent)
@@ -195,7 +200,7 @@ class AiSettingsActivity : ActivityBase() {
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                DefaultPrompts.resetToDefaults()
+                PromptRepository.deleteAllUserPrompts()
             }
             updateView()
         }
@@ -204,7 +209,7 @@ class AiSettingsActivity : ActivityBase() {
     private fun resetToDefaults() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                DefaultPrompts.resetToDefaults()
+                PromptRepository.deleteAllUserPrompts()
             }
             loadPrompts()
         }
@@ -223,14 +228,20 @@ class AiSettingsActivity : ActivityBase() {
             )
 
             val prompt = prompts[position]
+            val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
 
             val nameView = view.findViewById<TextView>(R.id.promptName)
             val descriptionView = view.findViewById<TextView>(R.id.promptDescription)
             val contextsView = view.findViewById<TextView>(R.id.promptContexts)
+            val builtInBadge = view.findViewById<TextView>(R.id.builtInBadge)
 
             nameView.text = prompt.name
             descriptionView.text = prompt.description ?: ""
             descriptionView.visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
+
+            if (builtInBadge != null) {
+                builtInBadge.visibility = if (isBuiltIn) View.VISIBLE else View.GONE
+            }
 
             val contextNames = prompt.showIn.map { context ->
                 when (context) {

@@ -31,6 +31,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.stripMarkdownFromTitle
@@ -638,8 +639,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
 
         // Get the prompt
-        val promptDao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        val prompt = promptDao.promptById(promptId)
+        val prompt = PromptRepository.promptById(promptId)
         if (prompt == null) {
             Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
             return false

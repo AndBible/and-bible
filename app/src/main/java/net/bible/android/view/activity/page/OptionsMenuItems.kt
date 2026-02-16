@@ -45,6 +45,8 @@ import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 import org.crosswire.jsword.book.FeatureType
 import javax.inject.Inject
 
@@ -556,7 +558,7 @@ class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDi
             promptId == null -> application.getString(R.string.llm_prompt_title)
             promptId.isEmpty -> application.getString(R.string.llm_prompt_title) + ": " + application.getString(R.string.llm_prompt_disabled)
             else -> {
-                val prompt = net.bible.service.db.DatabaseContainer.instance.llmProcessingDb.agentPromptDao().promptById(promptId)
+                val prompt = PromptRepository.promptById(promptId)
                 application.getString(R.string.llm_prompt_title) + ": " + (prompt?.name ?: "?")
             }
         }
@@ -565,10 +567,7 @@ class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDi
     override val visible: Boolean get() = CommonUtils.settings.llmConfigured
 
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val dao = net.bible.service.db.DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        val prompts = dao.allPrompts().filter {
-            net.bible.service.llm.PromptContext.TEXT_DISPLAY_SETTINGS in it.showIn
-        }
+        val prompts = PromptRepository.promptsForContext(PromptContext.TEXT_DISPLAY_SETTINGS)
 
         // Build prompt list: first "Disabled" (empty ID), then all prompts
         val options = mutableListOf<Pair<IdType, String>>()

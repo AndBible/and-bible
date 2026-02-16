@@ -145,6 +145,8 @@ import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -2123,10 +2125,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      */
     fun showLlmPromptSelector(selection: Selection) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-            val prompts = dao.allPrompts().filter {
-                net.bible.service.llm.PromptContext.VERSE_SELECTION in it.showIn
-            }
+            val prompts = PromptRepository.promptsForContext(
+                PromptContext.VERSE_SELECTION
+            )
 
             if (prompts.isEmpty()) {
                 launch(Dispatchers.Main) {

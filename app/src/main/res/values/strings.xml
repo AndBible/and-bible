@@ -1400,7 +1400,7 @@
     <string name="new_prompt">New prompt</string>
     <string name="reset_prompts_to_defaults">Reset to defaults</string>
     <string name="reset_prompts_confirm_title">Reset prompts?</string>
-    <string name="reset_prompts_confirm_message">This will delete all existing prompts and recreate the default prompts. Continue?</string>
+    <string name="reset_prompts_confirm_message">This will delete all custom prompts. Built-in prompts are not affected. Continue?</string>
     <string name="permission_always_ask">Always ask</string>
     <string name="permission_ask_once_per_run">Ask once per run</string>
     <string name="permission_allow_all">Allow all</string>
@@ -1409,6 +1409,10 @@
     <string name="reset_all_ai_settings_confirm_title">Reset all AI settings?</string>
     <string name="reset_all_ai_settings_confirm_message">This will clear the API key, provider, endpoint, model, and reset all prompts to defaults. Continue?</string>
     <string name="edit_prompt">Edit prompt</string>
+    <string name="built_in_prompt">Built-in</string>
+    <string name="built_in_prompt_notice">This is a built-in prompt and cannot be edited. Use \"Copy to customize\" to create an editable copy.</string>
+    <string name="copy_to_customize">Copy to customize</string>
+    <string name="prompt_copied">Prompt copied</string>
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>

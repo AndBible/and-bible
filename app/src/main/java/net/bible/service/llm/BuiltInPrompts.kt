@@ -19,25 +19,75 @@ package net.bible.service.llm
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.service.db.DatabaseContainer
+import net.bible.android.database.IdType
 import java.util.Locale
+import java.util.UUID
 
 /**
- * Default prompts that are created when LLM is configured for the first time.
+ * Built-in prompts that are hardcoded and read-only.
+ *
+ * These prompts live in code, not in the database. They have stable deterministic IDs
+ * generated from a key string, so they remain consistent across app restarts and updates.
+ *
+ * Users can copy a built-in prompt to create their own editable version.
  */
-object DefaultPrompts {
+object BuiltInPrompts {
 
     /**
-     * Creates the default set of prompts.
-     * Prompt names and descriptions are localized to the UI language.
+     * Generates a stable deterministic IdType from a key string.
+     * Uses UUID v3 (name-based with MD5) for consistency.
      */
-    fun createDefaultPrompts(): List<AgentPrompt> {
+    private fun stableId(key: String): IdType {
+        val uuid = UUID.nameUUIDFromBytes("andbible-builtin:$key".toByteArray())
+        return IdType.fromString(uuid.toString())
+    }
+
+    // Stable IDs for all built-in prompts
+    val TRANSLATE_UI_LANGUAGE_ID = stableId("translate-ui-language")
+    val TRANSLATE_ENGLISH_ID = stableId("translate-english")
+    val SUMMARY_ID = stableId("summary")
+    val EXPLAIN_VERSES_ID = stableId("explain-verses")
+    val STRONGS_ANNOTATION_ID = stableId("strongs-annotation")
+    val WORD_STUDY_ID = stableId("word-study")
+
+    // Test prompt IDs
+    val TEST_TOOL_CALLING_ID = stableId("test-tool-calling")
+    val TEST_CROSS_REFERENCES_ID = stableId("test-cross-references")
+    val TEST_CREATE_BOOKMARK_ID = stableId("test-create-bookmark")
+    val TEST_SEARCH_BIBLE_ID = stableId("test-search-bible")
+    val TEST_COMMENTARY_ID = stableId("test-commentary")
+    val TEST_DICTIONARY_ID = stableId("test-dictionary")
+    val TEST_READ_BOOKMARKS_ID = stableId("test-read-bookmarks")
+    val TEST_LABELS_ID = stableId("test-labels")
+    val TEST_STUDYPAD_ID = stableId("test-studypad")
+    val TEST_FINISH_STUDYPAD_ID = stableId("test-finish-studypad")
+    val TEST_UPDATE_NOTE_ID = stableId("test-update-note")
+    val TEST_REGENERATE_ID = stableId("test-regenerate")
+
+    private fun getUiLanguageName(): String {
+        val locale = Locale.getDefault()
+        return locale.getDisplayLanguage(locale)
+    }
+
+    /**
+     * Returns all built-in prompts as AgentPrompt objects.
+     *
+     * Display names are localized. Prompt templates use generic language references
+     * (e.g. "user's UI language") since PromptProcessor system prompt already provides
+     * the concrete UI language.
+     */
+    fun allBuiltInPrompts(): List<AgentPrompt> = productionPrompts() + testPrompts()
+
+    /**
+     * Returns only production (non-test) built-in prompts.
+     */
+    fun productionPrompts(): List<AgentPrompt> {
         val context = BibleApplication.application
         var order = 0
 
         return listOf(
-            // Translate to UI language - for TEXT_DISPLAY_SETTINGS
             AgentPrompt(
+                id = TRANSLATE_UI_LANGUAGE_ID,
                 name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
@@ -57,8 +107,8 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // Translate to English - for multiple contexts
             AgentPrompt(
+                id = TRANSLATE_ENGLISH_ID,
                 name = context.getString(R.string.default_prompt_translate_to_english),
                 description = context.getString(R.string.default_prompt_translate_to_english_desc),
                 promptTemplate = """
@@ -78,8 +128,8 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // Summary - for verse selection and window menu
             AgentPrompt(
+                id = SUMMARY_ID,
                 name = context.getString(R.string.default_prompt_summary),
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
@@ -93,8 +143,8 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // Explain verses - for verse selection
             AgentPrompt(
+                id = EXPLAIN_VERSES_ID,
                 name = context.getString(R.string.default_prompt_explain_verses),
                 description = context.getString(R.string.default_prompt_explain_verses_desc),
                 promptTemplate = """
@@ -105,8 +155,8 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // Strong's number annotation - for TEXT_DISPLAY_SETTINGS
             AgentPrompt(
+                id = STRONGS_ANNOTATION_ID,
                 name = context.getString(R.string.default_prompt_strongs_annotation),
                 description = context.getString(R.string.default_prompt_strongs_annotation_desc),
                 promptTemplate = """
@@ -131,9 +181,8 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // Word study - for verse and text selection
-            // strictContextMatching=false: focuses on original languages, Bible version doesn't matter
             AgentPrompt(
+                id = WORD_STUDY_ID,
                 name = context.getString(R.string.default_prompt_word_study),
                 description = context.getString(R.string.default_prompt_word_study_desc),
                 promptTemplate = """
@@ -150,20 +199,20 @@ object DefaultPrompts {
                 orderNumber = order++,
                 strictContextMatching = false,
             ),
-        ) + createTestPrompts(order)
+        )
     }
 
     /**
-     * Creates test prompts for development/testing purposes.
-     * These can be removed or disabled after testing phase.
+     * Returns test prompts (visible only in debug mode).
+     * These have a 🧪 prefix in their names.
      */
-    private fun createTestPrompts(startOrder: Int): List<AgentPrompt> {
-        var order = startOrder
+    fun testPrompts(): List<AgentPrompt> {
+        var order = 100 // Start at 100 to keep them after production prompts
 
         return listOf(
-            // TEST: Tool calling - read verses from different documents
             AgentPrompt(
-                name = "🧪 Test: Tool Calling",
+                id = TEST_TOOL_CALLING_ID,
+                name = "\uD83E\uDDEA Test: Tool Calling",
                 description = "Test that tools work correctly",
                 promptTemplate = """
                     This is a test prompt. Please do the following:
@@ -177,10 +226,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Cross-references with sword:// links
-            // strictContextMatching=false: cross-references are same across all Bible versions
             AgentPrompt(
-                name = "🧪 Test: Cross-References",
+                id = TEST_CROSS_REFERENCES_ID,
+                name = "\uD83E\uDDEA Test: Cross-References",
                 description = "Test that cross-reference links are formatted correctly",
                 promptTemplate = """
                     This is a test prompt. Analyze the selected verses and:
@@ -196,9 +244,9 @@ object DefaultPrompts {
                 strictContextMatching = false,
             ),
 
-            // TEST: Create bookmark with note (action-only, no document)
             AgentPrompt(
-                name = "🧪 Test: Create Bookmark",
+                id = TEST_CREATE_BOOKMARK_ID,
+                name = "\uD83E\uDDEA Test: Create Bookmark",
                 description = "Test bookmark creation without creating a document",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -213,9 +261,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Search and summarize
             AgentPrompt(
-                name = "🧪 Test: Search Bible",
+                id = TEST_SEARCH_BIBLE_ID,
+                name = "\uD83E\uDDEA Test: Search Bible",
                 description = "Test Bible search functionality",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -229,9 +277,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Commentary lookup
             AgentPrompt(
-                name = "🧪 Test: Commentary",
+                id = TEST_COMMENTARY_ID,
+                name = "\uD83E\uDDEA Test: Commentary",
                 description = "Test commentary retrieval",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -245,9 +293,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Dictionary lookup
             AgentPrompt(
-                name = "🧪 Test: Dictionary",
+                id = TEST_DICTIONARY_ID,
+                name = "\uD83E\uDDEA Test: Dictionary",
                 description = "Test dictionary entry retrieval",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -261,9 +309,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Read bookmarks
             AgentPrompt(
-                name = "🧪 Test: Read Bookmarks",
+                id = TEST_READ_BOOKMARKS_ID,
+                name = "\uD83E\uDDEA Test: Read Bookmarks",
                 description = "Test reading bookmarks for verses and by label",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -278,9 +326,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Labels management (action-only)
             AgentPrompt(
-                name = "🧪 Test: Labels",
+                id = TEST_LABELS_ID,
+                name = "\uD83E\uDDEA Test: Labels",
                 description = "Test label creation and assignment without document",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -297,9 +345,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: StudyPad operations
             AgentPrompt(
-                name = "🧪 Test: StudyPad",
+                id = TEST_STUDYPAD_ID,
+                name = "\uD83E\uDDEA Test: StudyPad",
                 description = "Test StudyPad read/write operations",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -315,9 +363,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Create StudyPad and open it with finishWithStudyPad
             AgentPrompt(
-                name = "🧪 Test: Finish with StudyPad",
+                id = TEST_FINISH_STUDYPAD_ID,
+                name = "\uD83E\uDDEA Test: Finish with StudyPad",
                 description = "Test creating a StudyPad and opening it as the result",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -334,9 +382,9 @@ object DefaultPrompts {
                 orderNumber = order++,
             ),
 
-            // TEST: Update bookmark note (action-only)
             AgentPrompt(
-                name = "🧪 Test: Update Note",
+                id = TEST_UPDATE_NOTE_ID,
+                name = "\uD83E\uDDEA Test: Update Note",
                 description = "Test updating bookmark notes without document",
                 promptTemplate = """
                     This is a test prompt. Please:
@@ -350,40 +398,37 @@ object DefaultPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
             ),
+
+            AgentPrompt(
+                id = TEST_REGENERATE_ID,
+                name = "\uD83E\uDDEA Test: Regenerate",
+                description = "Simple prompt for testing regeneration",
+                promptTemplate = """
+                    Write a brief reflection on the selected verses.
+                    Keep it to 2-3 sentences.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
         )
     }
 
-    private fun getUiLanguageName(): String {
-        val locale = Locale.getDefault()
-        return locale.getDisplayLanguage(locale)
+    /** Set of all built-in prompt IDs for quick lookup. */
+    private val builtInIds: Set<IdType> by lazy {
+        allBuiltInPrompts().map { it.id }.toSet()
     }
 
-    private var initialized = false
+    /** Check if a given ID belongs to a built-in prompt. */
+    fun isBuiltIn(id: IdType): Boolean = id in builtInIds
 
-    /**
-     * Initialize default prompts if the database is empty.
-     * Should be called when LLM is configured for the first time.
-     * Thread-safe: uses synchronized block to prevent double initialization.
-     */
-    @Synchronized
-    fun initializeIfNeeded() {
-        if (initialized) return
-        val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        if (dao.getCount() == 0) {
-            createDefaultPrompts().forEach { dao.insert(it) }
-        }
-        initialized = true
+    /** Set of test prompt IDs for quick lookup. */
+    private val testIds: Set<IdType> by lazy {
+        testPrompts().map { it.id }.toSet()
     }
 
-    /**
-     * Reset prompts to defaults by deleting all existing prompts
-     * and recreating the default set.
-     */
-    fun resetToDefaults() {
-        val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
-        // Delete all existing prompts
-        dao.allPrompts().forEach { dao.delete(it) }
-        // Recreate defaults
-        createDefaultPrompts().forEach { dao.insert(it) }
-    }
+    /** Check if a given ID belongs to a test (debug-only) prompt. */
+    fun isTestPrompt(id: IdType): Boolean = id in testIds
+
+    /** Get a built-in prompt by ID, or null if not found. */
+    fun promptById(id: IdType): AgentPrompt? = allBuiltInPrompts().find { it.id == id }
 }

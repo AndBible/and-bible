@@ -35,6 +35,7 @@ import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.llm.LlmProvider
+import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
@@ -350,7 +351,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             .show()
     }
 
-    private fun showToolPermissionOptionDialog(tool: net.bible.service.llm.tools.Tool) {
+    private fun showToolPermissionOptionDialog(tool: Tool) {
         val displayName = ToolRegistry.getDisplayName(tool)
         val options = arrayOf(
             getString(R.string.permission_option_default),
