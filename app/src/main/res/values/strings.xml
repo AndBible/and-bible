@@ -1514,6 +1514,7 @@
     <string name="agent_log_done">Done: %s</string>
     <string name="agent_log_cancelled">Cancelled</string>
     <string name="agent_execution_completed">Agent execution completed</string>
+    <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
 
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>

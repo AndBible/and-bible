@@ -43,7 +43,10 @@ import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
+import android.widget.Toast
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -301,8 +304,18 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return
         }
 
-        // Start session
+        // Start session (prevent concurrent runs)
         val session = getOrCreateSession(workspaceId)
+        if (session.isRunning) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    BibleApplication.application,
+                    R.string.agent_already_running,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            return
+        }
         session.start(context)
 
         // Track write tools usage
@@ -600,6 +613,18 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun regenerateAIDocument(pageId: IdType): Boolean {
         ensureInitialized()
+        val workspaceId = windowControl.windowRepository.id
+        val session = activeSessions[workspaceId]
+        if (session?.isRunning == true) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    BibleApplication.application,
+                    R.string.agent_already_running,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            return false
+        }
         val page = MyDocumentBookManager.getAIDocumentPage(pageId)
         if (page == null) {
             Log.w(TAG, "Cannot regenerate: page not found: $pageId")
