@@ -20,20 +20,16 @@ package net.bible.service.llm
 import android.app.AlertDialog
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.IdType
@@ -65,7 +61,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlin.coroutines.suspendCoroutine
 
 private const val TAG = "LlmProcessingService"
 private const val CONNECT_TIMEOUT_SECONDS = 120L
@@ -196,223 +191,6 @@ object LlmProcessingService {
     }
 
     /**
-     * Show confirmation dialog before LLM API call if setting is enabled.
-     */
-    private suspend fun confirmLlmCall(
-        processor: LlmProcessor,
-        cacheKey: CacheKey,
-        contentSize: Int,
-        requestState: RequestState
-    ): Boolean {
-        val settings = CommonUtils.settings
-        if (!settings.llmConfirmBeforeCall) {
-            Log.d(TAG, "LLM confirmLlmCall: confirmation disabled, auto-approving for ${cacheKey.keyName}")
-            return true  // No confirmation needed
-        }
-
-        val activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d(TAG, "LLM confirmLlmCall: no activity, auto-approving for ${cacheKey.keyName}")
-            return true  // No activity, allow
-        }
-
-        Log.d(TAG, "LLM confirmLlmCall: showing dialog for ${cacheKey.keyName}")
-
-        return withContext(Dispatchers.Main) {
-            suspendCoroutine { continuation ->
-                val description = processor.getDescription(cacheKey.processingParams)
-                val message = activity.getString(
-                    R.string.llm_confirm_dialog_message,
-                    description,
-                    cacheKey.documentInitials,
-                    cacheKey.keyName,
-                    contentSize,
-                    settings.llmModel
-                )
-
-                val dialog = AlertDialog.Builder(activity)
-                    .setTitle(R.string.llm_confirm_dialog_title)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.okay) { _, _ ->
-                        Log.d(TAG, "LLM confirmLlmCall: user APPROVED for ${cacheKey.keyName}")
-                        continuation.resume(true)
-                    }
-                    .setNegativeButton(R.string.cancel) { _, _ ->
-                        Log.d(TAG, "LLM confirmLlmCall: user CANCELLED for ${cacheKey.keyName}")
-                        continuation.resume(false)
-                    }
-                    .setOnCancelListener {
-                        Log.d(TAG, "LLM confirmLlmCall: dialog DISMISSED for ${cacheKey.keyName}")
-                        continuation.resume(false)
-                    }
-                    .create()
-
-                // Store dialog reference for cancellation
-                requestState.dialog = dialog
-                Log.d(TAG, "LLM confirmLlmCall: dialog created and stored in requestState for ${cacheKey.keyName}")
-                dialog.show()
-            }
-        }
-    }
-
-    /**
-     * Process content using the specified processor and cache the result.
-     *
-     * Features:
-     * - Request deduplication: same doc:key:type:params reuses existing request
-     * - Document coordination: cancels pre-API requests when new key comes for same doc
-     * - Debounce: delays API call when confirmation is disabled
-     */
-    suspend fun processAndCache(
-        processor: LlmProcessor,
-        cacheKey: CacheKey,
-        xmlContent: String,
-        modelOverride: String? = null
-    ): String {
-        val settings = CommonUtils.settings
-        if (!settings.llmConfigured) {
-            Log.d(TAG, "LLM not configured, returning original content")
-            return xmlContent
-        }
-
-        // Full request key includes all cache key components
-        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}:${cacheKey.modelId}"
-
-        Log.d(TAG, "LLM processAndCache START: key=${cacheKey.keyName}, requestKey=$requestKey")
-        Log.d(TAG, "LLM processAndCache: pendingRequests.keys=${pendingRequests.keys}")
-
-        // Atomically check/create request state to avoid race conditions
-        // when multiple windows request the same content simultaneously
-        var isNewRequest = false
-        var requestState = requestsMutex.withLock {
-            val existing = pendingRequests[requestKey]
-            if (existing != null) {
-                Log.d(TAG, "LLM processAndCache: REUSING existing request for $requestKey")
-                existing
-            } else {
-                // Create new request state (will be populated with job later)
-                val deferred = CompletableDeferred<String>()
-                // Temporary placeholder job - will be replaced
-                val placeholderState = RequestState(deferred, Job())
-                pendingRequests[requestKey] = placeholderState
-                isNewRequest = true
-                Log.d(TAG, "LLM processAndCache: created NEW request placeholder for $requestKey")
-                placeholderState
-            }
-        }
-
-        // If we're reusing an existing request, just wait for it
-        if (!isNewRequest) {
-            Log.d(TAG, "LLM processAndCache: waiting for existing request result for ${cacheKey.keyName}")
-            return requestState.deferred.await()
-        }
-
-        val resultDeferred = requestState.deferred
-
-        return coroutineScope {
-            val job = async {
-                try {
-                    // Update requestState with actual job
-                    requestsMutex.withLock {
-                        val currentState = pendingRequests[requestKey]
-                        if (currentState != null) {
-                            // Update the job reference
-                            requestState = currentState.copy(job = coroutineContext[Job]!!)
-                            pendingRequests[requestKey] = requestState
-                        }
-                    }
-
-                    // Debounce delay only if confirmation is disabled
-                    if (!settings.llmConfirmBeforeCall) {
-                        val debounceMs = settings.llmDebounceMs.toLong()
-                        if (debounceMs > 0) {
-                            delay(debounceMs)
-                            ensureActive()  // Check if cancelled during delay
-                        }
-                    }
-
-                    // Confirm with user if setting enabled
-                    if (!confirmLlmCall(processor, cacheKey, xmlContent.length, requestState)) {
-                        throw LlmProcessingError(application.getString(R.string.llm_user_cancelled))
-                    }
-                    ensureActive()
-
-                    // Proceed with actual API call
-                    doProcessAndCache(processor, cacheKey, xmlContent, modelOverride)
-                } finally {
-                    requestsMutex.withLock {
-                        pendingRequests.remove(requestKey)
-                    }
-                }
-            }
-
-            try {
-                val result = job.await()
-                resultDeferred.complete(result)
-                result
-            } catch (e: CancellationException) {
-                // Use silent exception - no error display needed since newer request replaced this one
-                val superseded = LlmRequestSuperseded()
-                resultDeferred.completeExceptionally(superseded)
-                throw superseded
-            } catch (e: Exception) {
-                resultDeferred.completeExceptionally(e)
-                throw e
-            }
-        }
-    }
-
-    /**
-     * Internal implementation of processAndCache - handles actual API call and caching.
-     */
-    private suspend fun doProcessAndCache(
-        processor: LlmProcessor,
-        cacheKey: CacheKey,
-        xmlContent: String,
-        modelOverride: String? = null
-    ): String {
-        val modelId = modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
-
-        Log.d(TAG, "Processing ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}/${cacheKey.processingParams}")
-        val startTime = System.currentTimeMillis()
-
-        if (activeRequests.incrementAndGet() == 1) {
-            ABEventBus.post(LlmEvent(running = true))
-        }
-
-        return try {
-            val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
-            val processed = callLlmApi(systemPrompt, xmlContent, modelOverride)
-            val duration = System.currentTimeMillis() - startTime
-            Log.d(TAG, "LLM processing completed in ${duration}ms (output size: ${processed.length} chars)")
-
-            dao.insert(LlmProcessingCacheEntry(
-                documentInitials = cacheKey.documentInitials,
-                keyName = cacheKey.keyName,
-                processingType = cacheKey.processingType,
-                processingParams = cacheKey.processingParams,
-                modelId = modelId,
-                processedXml = processed,
-                createdAt = System.currentTimeMillis()
-            ))
-
-            Log.d(TAG, "Processing successful, saved to cache")
-            processed
-        } catch (e: CancellationException) {
-            // Don't wrap cancellation - rethrow to preserve structured concurrency
-            throw e
-        } catch (e: Exception) {
-            val duration = System.currentTimeMillis() - startTime
-            Log.e(TAG, "Processing failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
-            throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
-        } finally {
-            if (activeRequests.decrementAndGet() == 0) {
-                ABEventBus.post(LlmEvent(running = false))
-            }
-        }
-    }
-
-    /**
      * Process content with tool calling support.
      *
      * This method sends the content to the LLM with read-only tool access,
@@ -445,7 +223,7 @@ object LlmProcessingService {
             return xmlContent
         }
 
-        // Request deduplication using same mechanism as processAndCache
+        // Request deduplication
         val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}:${cacheKey.modelId}"
 
         Log.d(TAG, "processWithTools START: key=${cacheKey.keyName}, requestKey=$requestKey")
@@ -643,86 +421,6 @@ object LlmProcessingService {
             .removePrefix("```")
             .removeSuffix("```")
             .trim()
-    }
-
-    private suspend fun callLlmApi(systemPrompt: String, userContent: String, modelOverride: String? = null): String {
-        val settings = CommonUtils.settings
-        val effectiveModel = modelOverride?.takeIf { it.isNotBlank() } ?: settings.llmModel
-        val endpoint = "${settings.llmEndpoint}/chat/completions"
-
-        val requestBody = JSONObject().apply {
-            put("model", effectiveModel)
-            put("messages", JSONArray().apply {
-                put(JSONObject().apply {
-                    put("role", "system")
-                    put("content", systemPrompt)
-                })
-                put(JSONObject().apply {
-                    put("role", "user")
-                    put("content", userContent)
-                })
-            })
-            put("temperature", LLM_TEMPERATURE)
-        }
-
-        Log.d(TAG, "LLM API: $endpoint, model: $effectiveModel")
-
-        val request = Request.Builder()
-            .url(endpoint)
-            .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
-            .addHeader("Content-Type", "application/json")
-            .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
-            .build()
-
-        return suspendCancellableCoroutine { continuation ->
-            val call = client.newCall(request)
-
-            continuation.invokeOnCancellation {
-                call.cancel()
-            }
-
-            call.enqueue(object : Callback {
-                override fun onFailure(call: Call, e: IOException) {
-                    Log.e(TAG, "LLM API call failed: ${e.message}")
-                    continuation.resumeWithException(e)
-                }
-
-                override fun onResponse(call: Call, response: Response) {
-                    response.use { resp ->
-                        if (!resp.isSuccessful) {
-                            val errorBody = resp.body?.string() ?: "No error body"
-                            Log.e(TAG, "LLM API error: ${resp.code} - $errorBody")
-                            continuation.resumeWithException(Exception("LLM API error: ${resp.code}"))
-                            return
-                        }
-
-                        try {
-                            val responseBody = resp.body?.string()
-                                ?: throw Exception("Empty response body")
-                            val responseJson = JSONObject(responseBody)
-
-                            val content = responseJson
-                                .getJSONArray("choices")
-                                .getJSONObject(0)
-                                .getJSONObject("message")
-                                .getString("content")
-
-                            // Clean up any markdown code blocks that the LLM might have added
-                            val cleanedContent = content.trim()
-                                .removePrefix("```xml")
-                                .removePrefix("```")
-                                .removeSuffix("```")
-                                .trim()
-
-                            continuation.resume(cleanedContent)
-                        } catch (e: Exception) {
-                            Log.e(TAG, "Failed to parse LLM response: ${e.message}")
-                            continuation.resumeWithException(e)
-                        }
-                    }
-                }
-            })
-        }
     }
 
     /**
