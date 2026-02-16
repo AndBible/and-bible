@@ -58,6 +58,17 @@ object CreateLabelTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
+        return "\"$name\""
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        return data.optString("name", "").takeIf { it.isNotBlank() }?.let { "\"$it\"" }
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val name = arguments.optString("name", "")
         val color = if (arguments.has("color")) arguments.getInt("color") else defaultLabelColor

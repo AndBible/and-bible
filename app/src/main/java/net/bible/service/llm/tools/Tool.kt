@@ -17,7 +17,10 @@
 
 package net.bible.service.llm.tools
 
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.llm.agent.AgentContext
+import org.crosswire.jsword.passage.PassageKeyFactory
+import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -81,6 +84,18 @@ interface Tool {
      * @return Result of the tool execution
      */
     suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult
+
+    /**
+     * Format tool arguments for human-readable display in the agent log.
+     * Return null to fall back to the generic [formatJsonForLog] formatter.
+     */
+    fun formatArgsForLog(arguments: JSONObject): String? = null
+
+    /**
+     * Format tool result for human-readable display in the agent log.
+     * Return null to fall back to the generic [formatJsonForLog] formatter.
+     */
+    fun formatResultForLog(result: ToolResult): String? = null
 }
 
 /**
@@ -144,4 +159,57 @@ fun stripToolCallArtifacts(text: String): String = text
     .replace(toolCallTagRegex, "")
     .replace(trailingToolCallRegex, "")
     .trim()
+
+/**
+ * Generic fallback formatter for JSON strings in the agent log.
+ * Parses as JSONObject and outputs key: value pairs.
+ * Unwraps the ToolResult `{"status":"...","data":{...}}` wrapper automatically.
+ * Truncates long values to keep the log readable.
+ */
+fun formatJsonForLog(json: String): String = try {
+    val obj = JSONObject(json)
+    // Unwrap ToolResult wrapper: format "data" contents directly
+    val target = if (obj.has("status") && obj.has("data")) {
+        when (val data = obj.opt("data")) {
+            is JSONObject -> data
+            is JSONArray -> return "${data.length()} items"
+            else -> return data?.toString() ?: json
+        }
+    } else {
+        obj
+    }
+    formatJsonObjectForLog(target)
+} catch (_: Exception) {
+    json
+}
+
+private fun formatJsonObjectForLog(obj: JSONObject): String =
+    obj.keys().asSequence()
+        .filter { it != "status" }
+        .map { key ->
+            val value = obj.opt(key)
+            val str = when (value) {
+                is JSONObject -> "{...}"
+                is JSONArray -> "${value.length()} items"
+                else -> value?.toString() ?: "null"
+            }
+            val truncated = if (str.length > 80) str.take(80) + "..." else str
+            "$key: $truncated"
+        }
+        .joinToString(", ")
+
+/**
+ * Localize an OSIS verse reference to a human-readable name using JSword.
+ * Falls back to the original reference on any error.
+ */
+fun localizeVerseRef(osisRef: String): String = try {
+    PassageKeyFactory.instance().getKey(KJVA, osisRef).name
+} catch (_: Exception) {
+    osisRef
+}
+
+/**
+ * Shorten a UUID string for display (first 8 chars).
+ */
+fun shortId(id: String): String = if (id.length > 8) id.take(8) + "..." else id
 

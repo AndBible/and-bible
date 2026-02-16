@@ -21,6 +21,7 @@ import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
@@ -56,6 +57,13 @@ object GetVerseContentTool : Tool {
             description: "OSIS verse reference, e.g., 'Matt.5.3', 'Gen.1.1-3', 'Rom.8.28-30'."
         required: [book, verseRef]
     """)
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val book = arguments.optString("book", "")
+        val verseRef = arguments.optString("verseRef", "")
+        if (book.isBlank() || verseRef.isBlank()) return null
+        return "$book: ${localizeVerseRef(verseRef)}"
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val bookInitials = arguments.optString("book", "")

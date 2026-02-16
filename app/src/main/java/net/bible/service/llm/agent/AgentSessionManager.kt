@@ -33,7 +33,9 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
+import org.json.JSONObject
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.formatJsonForLog
 import net.bible.service.llm.tools.stripMarkdownFromTitle
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -476,13 +478,21 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
             }
             is AgentEvent.ToolCalling -> {
-                val displayName = ToolRegistry.get(event.toolName)?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
+                val tool = ToolRegistry.get(event.toolName)
+                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
+                val details = if (tool != null) {
+                    val args = try { JSONObject(event.arguments) } catch (_: Exception) { null }
+                    args?.let { tool.formatArgsForLog(it) } ?: formatJsonForLog(event.arguments)
+                } else {
+                    event.arguments
+                }
                 session.addLogEntry(
-                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, displayName), details = event.arguments)
+                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, displayName), details = details)
                 )
             }
             is AgentEvent.ToolCompleted -> {
-                val displayName = ToolRegistry.get(event.toolName)?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
+                val tool = ToolRegistry.get(event.toolName)
+                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
                 val isSuccess = event.result is ToolResult.Success
                 val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
                 val message = if (isSuccess) {
@@ -490,11 +500,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 } else {
                     app.getString(R.string.agent_log_tool_failed, displayName)
                 }
+                val details = tool?.formatResultForLog(event.result) ?: formatJsonForLog(event.result.toJson())
                 session.addLogEntry(
                     AgentLogEntry(
                         type = LogEntryType.ACTION,
                         message = message,
-                        details = event.result.toJson(),
+                        details = details,
                         status = status
                     )
                 )

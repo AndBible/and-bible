@@ -52,6 +52,18 @@ object SearchStudyPadsTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
+        return "\"$query\""
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("studyPadCount", -1)
+        return if (count >= 0) "$count study pads" else null
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val query = arguments.optString("query", "")
 

@@ -58,6 +58,11 @@ object FinishWithoutDocumentTool : Tool {
     /** Marker to indicate this tool was called - checked by AgentExecutor */
     const val FINISH_WITHOUT_DOCUMENT_MARKER = "__FINISH_WITHOUT_DOCUMENT__"
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
+        return if (message.length > 60) "\"${message.take(60)}...\"" else "\"$message\""
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val message = arguments.optString("message", "Task completed")
 

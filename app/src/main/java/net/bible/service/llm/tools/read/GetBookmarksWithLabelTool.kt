@@ -23,6 +23,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -61,6 +62,18 @@ object GetBookmarksWithLabelTool : Tool {
     """)
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        return shortId(labelId)
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("bookmarkCount", -1)
+        return if (count >= 0) "$count bookmarks" else null
+    }
 
     private val defaultFields = setOf("verseRange", "verseName", "createdAt")
 

@@ -65,6 +65,11 @@ object SetDocumentTitleTool : Tool {
         required: [title]
     """)
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
+        return "\"$title\""
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val title = stripMarkdownFromTitle(arguments.optString("title", "")).take(80)
 

@@ -21,6 +21,7 @@ import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -60,6 +61,11 @@ object FinishWithStudyPadTool : Tool {
             description: "A brief message confirming what was done (shown in the agent log)"
         required: [labelId, message]
     """)
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        return shortId(labelId)
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val labelId = arguments.optString("labelId", "")

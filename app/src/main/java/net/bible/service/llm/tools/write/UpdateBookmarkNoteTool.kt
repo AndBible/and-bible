@@ -24,6 +24,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONObject
 
@@ -54,6 +55,11 @@ object UpdateBookmarkNoteTool : Tool {
     override val displayNameResId = R.string.tool_update_bookmark_note
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
+        return shortId(bookmarkId)
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val bookmarkIdStr = arguments.optString("bookmarkId", "")

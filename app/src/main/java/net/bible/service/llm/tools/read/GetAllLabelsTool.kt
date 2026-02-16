@@ -48,6 +48,13 @@ object GetAllLabelsTool : Tool {
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("labelCount", -1)
+        return if (count >= 0) "$count labels" else null
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         return try {
             val labels = dao.allLabelsSortedByName()

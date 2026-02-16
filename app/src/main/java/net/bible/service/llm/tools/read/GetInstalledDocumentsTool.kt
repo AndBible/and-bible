@@ -53,6 +53,18 @@ object GetInstalledDocumentsTool : Tool {
             description: Optional category filter. If not specified, returns all documents.
     """)
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val category = arguments.optString("category", "").takeIf { it.isNotBlank() }
+        return category // null if no category filter (shows all)
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("documentCount", -1)
+        return if (count >= 0) "$count documents" else null
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val categoryStr = arguments.optString("category", "")
 

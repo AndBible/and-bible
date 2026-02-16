@@ -72,6 +72,12 @@ object GetDictionaryEntryTool : Tool {
 
     private val linkControl get() = BibleApplication.application.applicationComponent.linkControl()
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val dictionary = arguments.optString("dictionary", "").takeIf { it.isNotBlank() } ?: return null
+        val key = arguments.optString("key", "").takeIf { it.isNotBlank() } ?: return null
+        return "$dictionary: $key"
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val dictionaryInitials = arguments.optString("dictionary", "")
         val key = arguments.optString("key", "")

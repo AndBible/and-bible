@@ -44,6 +44,7 @@ import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.formatJsonForLog
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -359,8 +360,12 @@ object LlmProcessingService {
                             val tool = ToolRegistry.get(toolCall.name)
                             val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: toolCall.name
 
+                            val argsDetails = tool?.let {
+                                val args = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+                                args?.let { a -> it.formatArgsForLog(a) }
+                            } ?: formatJsonForLog(toolCall.arguments)
                             session?.addLogEntry(AgentLogEntry.action(
-                                "Tool: $displayName", details = toolCall.arguments))
+                                "Tool: $displayName", details = argsDetails))
 
                             if (tool == null || tool.requiresPermission) {
                                 val errorJson = """{"status":"error","message":"Tool not available: ${toolCall.name}"}"""

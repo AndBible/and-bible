@@ -26,6 +26,7 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -73,6 +74,22 @@ object CreateBookmarkTool : Tool {
     override val displayNameResId = R.string.tool_create_bookmark
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
+        val verseName = localizeVerseRef(verseRef)
+        val extras = mutableListOf<String>()
+        if (arguments.has("note") && !arguments.isNull("note")) extras.add("+note")
+        val labelIds = arguments.optJSONArray("labelIds")
+        if (labelIds != null && labelIds.length() > 0) extras.add("+${labelIds.length()} labels")
+        return if (extras.isEmpty()) verseName else "$verseName (${extras.joinToString(", ")})"
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        return data.optString("verseName", "").takeIf { it.isNotBlank() }
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val verseRef = arguments.optString("verseRef", "")

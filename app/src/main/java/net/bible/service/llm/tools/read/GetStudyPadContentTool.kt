@@ -24,6 +24,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
 import org.json.JSONArray
 import org.json.JSONObject
@@ -76,6 +77,12 @@ object GetStudyPadContentTool : Tool {
     """)
 
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        val mode = arguments.optString("mode", "full")
+        return "${shortId(labelId)} ($mode)"
+    }
 
     private data class OrderedEntry(val orderNumber: Int, val entry: JSONObject)
 

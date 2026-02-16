@@ -64,6 +64,25 @@ object SearchBibleTool : Tool {
         required: [query]
     """)
 
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
+        val books = arguments.optJSONArray("books")
+        val maxResults = arguments.optInt("maxResults", 50)
+        val booksPart = if (books != null && books.length() > 0) {
+            " (${(0 until books.length()).joinToString(", ") { books.getString(it) }}, max $maxResults)"
+        } else {
+            " (max $maxResults)"
+        }
+        return "\"$query\"$booksPart"
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("totalResults", -1)
+        return if (count >= 0) "$count results" else null
+    }
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val query = arguments.optString("query", "")
         val booksArray = arguments.optJSONArray("books")

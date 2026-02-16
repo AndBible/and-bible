@@ -21,6 +21,7 @@ import net.bible.android.activity.R
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
@@ -63,6 +64,18 @@ object GetCommentariesTool : Tool {
             description: Optional list of commentary initials to query. If not specified, queries all installed commentaries.
         required: [verseRef]
     """)
+
+    override fun formatArgsForLog(arguments: JSONObject): String? {
+        val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
+        return localizeVerseRef(verseRef)
+    }
+
+    override fun formatResultForLog(result: ToolResult): String? {
+        if (result !is ToolResult.Success || result.data !is JSONObject) return null
+        val data = result.data as JSONObject
+        val count = data.optInt("commentaryCount", -1)
+        return if (count >= 0) "$count commentaries" else null
+    }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val verseRef = arguments.optString("verseRef", "")
