@@ -295,7 +295,7 @@ object Dialogs {
                 setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALL_SESSION) }
             }
             view.findViewById<Button>(R.id.btn_allow_always).apply {
-                text = context.getString(R.string.permission_allow_always)
+                text = context.getString(R.string.permission_allow_always, toolDisplayName)
                 setOnClickListener { dialog.dismiss(); continuation.resume(AgentPermissionResult.ALLOW_ALWAYS) }
             }
             view.findViewById<Button>(R.id.btn_deny).apply {
