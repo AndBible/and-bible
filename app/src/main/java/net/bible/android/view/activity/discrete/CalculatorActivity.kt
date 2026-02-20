@@ -63,6 +63,7 @@ class CalculatorActivity : ActivityBase() {
         setOnTouchListener()
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         Log.i(TAG, "Calculator: onBackPressed")
         setResult(RESULT_CANCELED)
