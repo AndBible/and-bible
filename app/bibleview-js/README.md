@@ -1,24 +1,38 @@
 # bibleview-js
 
-## Project setup
-```
-npm install
+Vue 3 + TypeScript frontend used by AndBible WebView.
+
+## Setup
+
+```bash
+npm ci
 ```
 
-### Compiles and hot-reloads for development
-```
-npm run serve
+## Development
+
+```bash
+npm run dev
 ```
 
-### Compiles and minifies for production
-```
-npm run build
-```
+## Validation
 
-### Lints and fixes files
-```
+```bash
+npm run test:ci
 npm run lint
+npm run type-check
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Build
+
+```bash
+npm run build-debug
+npm run build-production
+```
+
+## Preview production build locally
+
+```bash
+npm run preview
+```
+
+For full project contribution workflow, see `../../CONTRIBUTING.md`.

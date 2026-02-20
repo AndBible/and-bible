@@ -39,7 +39,7 @@ For help, see the [wiki](https://github.com/andbible/and-bible/wiki) and [FAQ](h
 
 ## 🏗️ Developers
 
-Do you know Android development, Kotlin, Javascript, or Vue.js? These are the main technologies used in the project. If you are a developer, your skills would be of great use in this project. Pull requests are welcome! See [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation) in the project wiki for details.
+Do you know Android development, Kotlin, Javascript, or Vue.js? These are the main technologies used in the project. If you are a developer, your skills would be of great use in this project. Pull requests are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup and workflow, and [developer documentation](https://github.com/AndBible/and-bible/wiki/Developer-documentation) in the project wiki for deeper details.
 
 Current Developers:
 
