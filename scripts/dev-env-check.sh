@@ -67,7 +67,7 @@ fi
 if [[ -d "$HOME/.sword" ]]; then
     pass "Found ~/.sword test modules directory"
 else
-    warn "Missing ~/.sword test modules directory (some unit tests will fail)"
+    warn "Missing ~/.sword test modules directory (run ./scripts/bootstrap-test-modules.sh; some unit tests will fail without it)"
 fi
 
 if [[ -f ".nvmrc" ]]; then

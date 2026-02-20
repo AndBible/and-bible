@@ -90,7 +90,29 @@ Full repository check:
 ./gradlew check
 ```
 
-Note: some unit/integration tests rely on local SWORD test module data (`~/.sword`), matching CI setup.
+### Bootstrap SWORD Test Modules (`~/.sword`)
+
+Some unit/integration tests require local SWORD test modules.
+
+CI-like flow (encrypted archive):
+
+```bash
+export DOWNLOAD_TEST_MODULES_URL="https://..."
+export TEST_MODULE_ENCRYPTION_KEY="..."
+./scripts/bootstrap-test-modules.sh
+```
+
+Local plain zip:
+
+```bash
+./scripts/bootstrap-test-modules.sh --zip /path/to/testmods.zip
+```
+
+Local encrypted zip:
+
+```bash
+./scripts/bootstrap-test-modules.sh --encrypted-zip /path/to/testmods.zip.enc --key "..."
+```
 
 ## Style and Conventions
 
