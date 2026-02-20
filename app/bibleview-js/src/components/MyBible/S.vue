@@ -68,5 +68,6 @@ function openLink(event: MouseEvent) {
 
 .monochrome .strongs {
     color: inherit;
+    font-style: italic;
 }
 </style>

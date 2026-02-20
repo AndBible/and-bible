@@ -140,6 +140,7 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 
   .monochrome & {
     color: inherit;
+    font-style: italic;
   }
 }
 </style>
