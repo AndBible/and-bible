@@ -64,6 +64,7 @@ download_or_copy() {
     local source="$1"
     local target="$2"
     if [[ "$source" =~ ^https?:// ]]; then
+        require_cmd wget
         wget -qO "$target" "$source"
     else
         if [[ ! -f "$source" ]]; then
@@ -83,7 +84,6 @@ require_cmd() {
 }
 
 require_cmd unzip
-require_cmd wget
 
 workdir="$(mktemp -d)"
 trap 'rm -rf "$workdir"' EXIT
