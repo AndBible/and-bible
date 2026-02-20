@@ -61,8 +61,12 @@ function openLink(event: MouseEvent) {
 
 <style>
 .strongs {
-    font-size: 0.6em;
+    font-size: 0.9em;
     text-decoration: none;
     color: coral;
+}
+
+.monochrome .strongs {
+    color: inherit;
 }
 </style>
