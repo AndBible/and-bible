@@ -128,7 +128,7 @@ class WindowButtonWidget(
             windowButton.setBackgroundResource(
                 when {
                     isActive -> R.drawable.window_button_active
-                    isWindowVisible -> R.drawable.window_button_visible
+                    isWindowVisible || CommonUtils.settings.monochromeMode -> R.drawable.window_button_visible
                     else -> R.drawable.window_button
                 }
             )

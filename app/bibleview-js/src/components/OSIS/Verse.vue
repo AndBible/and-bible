@@ -70,7 +70,6 @@ if (bibleDocumentInfo?.originalOrdinalRange &&
 function verseClicked(event: Event) {
     if (!fromBibleDocument.value) return;
     if(querySelection() != null) return;
-    if (!config.showBookmarks) return;
 
     const {bookInitials, bibleBookName} = bibleDocumentInfo!;
 
