@@ -97,10 +97,12 @@ Some unit/integration tests require local SWORD test modules.
 CI-like flow (encrypted archive):
 
 ```bash
-export DOWNLOAD_TEST_MODULES_URL="https://..."
 export TEST_MODULE_ENCRYPTION_KEY="..."
 ./scripts/bootstrap-test-modules.sh
 ```
+
+The script defaults to:
+`https://raw.githubusercontent.com/AndBible/data/master/ci/testmods.zip.enc`
 
 Local plain zip:
 

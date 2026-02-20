@@ -5,6 +5,7 @@ DEST_DIR="${HOME}/.sword"
 ZIP_SOURCE=""
 ENC_SOURCE=""
 KEY="${TEST_MODULE_ENCRYPTION_KEY:-}"
+DEFAULT_CI_ENCRYPTED_URL="https://raw.githubusercontent.com/AndBible/data/master/ci/testmods.zip.enc"
 CI_URL="${DOWNLOAD_TEST_MODULES_URL:-}"
 
 usage() {
@@ -24,6 +25,8 @@ Behavior:
   2) Else if --encrypted-zip is provided, decrypts then installs.
   3) Else if DOWNLOAD_TEST_MODULES_URL is set, uses CI-like encrypted flow
      with TEST_MODULE_ENCRYPTION_KEY.
+  4) Else uses default encrypted archive:
+     https://raw.githubusercontent.com/AndBible/data/master/ci/testmods.zip.enc
 EOF
 }
 
@@ -110,9 +113,15 @@ elif [[ -n "$CI_URL" ]]; then
     download_or_copy "$CI_URL" "$enc_path"
     openssl aes-256-cbc -d -a -pbkdf2 -in "$enc_path" -out "$zip_path" -pass "pass:${KEY}"
 else
-    echo "No source provided."
-    usage
-    exit 1
+    echo "No explicit source provided; using default encrypted archive URL."
+    if [[ -z "$KEY" ]]; then
+        echo "Missing TEST_MODULE_ENCRYPTION_KEY (or --key) for default encrypted archive."
+        echo "If you are a contributor, ask maintainers for the CI test-modules passphrase."
+        exit 1
+    fi
+    require_cmd openssl
+    download_or_copy "$DEFAULT_CI_ENCRYPTED_URL" "$enc_path"
+    openssl aes-256-cbc -d -a -pbkdf2 -in "$enc_path" -out "$zip_path" -pass "pass:${KEY}"
 fi
 
 mkdir -p "$DEST_DIR"
