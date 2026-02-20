@@ -121,7 +121,7 @@ const limitAmbiguousModalSize = computed({
     }
 });
 const {bookmarkMap, bookmarkIdsByOrdinal} = inject(globalBookmarksKey)!;
-const {strings} = useCommon();
+const {strings, config} = useCommon();
 const android = inject(androidKey)!;
 const multiSelectionMode = ref(false);
 
@@ -337,7 +337,7 @@ async function handle(event: MouseEvent) {
                 if (!props.doNotCloseModals) {
                     closeModals();
                 }
-            } else if (_verseInfo) {
+            } else if (_verseInfo && (allEventFunctions.length > 0 || config.showBookmarks)) {
                 setInitialVerse(_verseInfo);
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
