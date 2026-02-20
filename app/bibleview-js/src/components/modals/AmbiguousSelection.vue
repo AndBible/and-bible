@@ -300,7 +300,7 @@ async function handle(event: MouseEvent) {
     console.log("AmbiguousSelection handling", event);
     const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
     const eventFunctions = getHighestPriorityEventFunctions(event);
-    const allEventFunctions = getAllEventFunctions(event);
+    const allEventFunctions = getAllEventFunctions(event).filter(e => config.showBookmarks || !e.options.bookmarkId);
     const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
     if (appSettings.actionMode) return;
     const hadHighlights = hasHighlights.value;
@@ -337,7 +337,7 @@ async function handle(event: MouseEvent) {
                 if (!props.doNotCloseModals) {
                     closeModals();
                 }
-            } else if (_verseInfo && (allEventFunctions.length > 0 || config.showBookmarks)) {
+            } else if (_verseInfo) {
                 setInitialVerse(_verseInfo);
                 const s = await select(event, allEventFunctions);
                 if (s && s.type === "callback" && s.callback) s.callback();
