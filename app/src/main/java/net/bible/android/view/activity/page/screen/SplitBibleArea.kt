@@ -537,7 +537,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
                     }  else {
-                        if (!CommonUtils.settings.disableAnimations) {
+                        if (!CommonUtils.settings.disableAnimations && !CommonUtils.settings.monochromeMode) {
                             alpha(hiddenAlpha)
                         }
                         interpolator = AccelerateInterpolator()
