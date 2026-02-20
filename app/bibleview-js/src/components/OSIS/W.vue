@@ -124,14 +124,22 @@ const showStrongsSeparately = computed(() => !exportMode.value && config.strongs
 }
 
 .w-base {
-  font-size: 0.6em;
+  font-size: 0.9em;
   text-decoration: none;
   color: gray;
+
+  .monochrome & {
+    color: inherit;
+  }
 }
 
 .strongs, .morph {
   color: coral;
   text-decoration: none;
   cursor: pointer;
+
+  .monochrome & {
+    color: inherit;
+  }
 }
 </style>
