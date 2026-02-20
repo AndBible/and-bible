@@ -1,145 +1,116 @@
-# Contributing to AndBible
+# How to contribute code
 
-Thank you for contributing to AndBible.
+## Building And Bible
 
-This repository contains:
-- Android app code in `app/src/main/java` (Kotlin)
-- Hybrid Bible rendering frontend in `app/bibleview-js` (Vue 3 + TypeScript)
+### Prerequisites
 
-## Code of Conduct
+- **Java 17** (OpenJDK 17 or higher)
+- **Node.js 20.x** — download from [https://nodejs.org/](https://nodejs.org/)
+- **Android Studio** — download from [https://developer.android.com/studio](https://developer.android.com/studio)
+- **Android SDK** (API level 23 or higher, installed via Android Studio)
 
-By participating in this project, you agree to follow the Code of Conduct in `CODE_OF_CONDUCT.md`.
+### Setup
 
-## Before You Start
-
-- For user support, use the support channels/templates instead of opening a code PR directly.
-- For bugs, feature requests, and tasks, prefer opening or linking an issue first.
-- For larger changes, describe your approach in the issue/PR before implementation.
-
-## Prerequisites
-
-- Java 17
-- Node.js 20.x
-- npm (CI uses Node 20 and upgrades npm)
-- Android SDK (API levels used by this project)
-- Recommended Node version is pinned in `.nvmrc` (`20.19.4`)
-
-## Branching and PR Target
-
-- The default branch is `current-stable`.
-- Unless maintainers ask otherwise, open PRs against `current-stable`.
-- Create your feature/fix branch from `current-stable`.
-
-## Local Setup
-
-```bash
-# Check local toolchain and test-data prerequisites
-./scripts/dev-env-check.sh
-
-# Install JavaScript dependencies
-cd app/bibleview-js
-npm ci
-cd ../..
+1. Open a terminal and clone the repository:
+```
+git clone https://github.com/AndBible/and-bible.git
 ```
 
-## Build and Test
+2. In Android Studio, select **File > Open** and open the `and-bible/and-bible` folder (the one with the green compass icon).
 
-Run tests relevant to your change.
+3. Build and run the app. Node.js dependencies and the Vue.js frontend are built automatically as part of the Gradle build.
 
-### JavaScript / Vue changes
+### Run a separate debug app on your device
 
-```bash
-cd app/bibleview-js
-npm run test:ci
-npm run lint
-npm run type-check
+It is possible to install And Bible as 2 different IDs on your device — effectively 2 installs on one device. To build the debug version as a separate app, open `local.properties` in the project root and add:
+
+```
+APP_SUFFIX=.debug
 ```
 
-Useful development commands:
+Now when you build, a separate And Bible application will be created on your device.
 
-```bash
-cd app/bibleview-js
-npm run dev
-npm run build-debug
-npm run build-production
+## Development tools
+
+Tuomas uses (and recommends) **Android Studio** for native Android/Kotlin code and **WebStorm** for Vue.js/TypeScript development. A free alternative for Vue.js development is **Visual Studio Code** with the Volar extension for Vue.js support.
+
+## Running tests
+
+### CI runs tests automatically
+
+GitHub Actions runs all tests (Android unit tests, Vue.js tests) automatically on every pull request. **You do not need test modules for normal contributions** — CI has them.
+
+### Running tests locally
+
+If you want to run tests locally yourself:
+
+- **Vue.js tests** (fast, ~5-6 seconds):
+  ```
+  cd app/bibleview-js && npm run test:ci
+  ```
+
+- **Android unit tests**:
+  ```
+  ./gradlew testStandardGoogleplayDebugUnitTest
+  ```
+
+For running tests locally, you need to install test modules. One module in the test package cannot be distributed publicly — contact us at **help.andbible@gmail.com** if you need it.
+
+## Contributing code
+
+- Fork the repo
+- Consider writing unit tests (how important this is depends on the type of change)
+- Create a pull request from your fork's feature branch (see [naming convention](#branch-naming)) towards one of these branches:
+  - `develop` — for new features
+  - `current-stable` — for bugfixes or minor improvements
+
+### Commit messages
+
+Commits should be **atomic and descriptive**. A good commit message explains *why* the change was made, not just what changed.
+
+- Use a short imperative subject line (e.g. `Fix crash when bookmarks list is empty`)
+- Optionally add a blank line followed by a more detailed explanation of the motivation
+- If the commit fixes a GitHub issue, start the message with `Fixes #NNN (short description)` — this automatically closes the issue when merged
+
+AI tools (Copilot, Claude, etc.) are welcome for drafting commit messages.
+
+Example:
+```
+Fixes #1234 (crash when bookmarks list is empty)
+
+BookmarkControl now checks for an empty list before accessing
+the first element, preventing a NullPointerException on startup.
 ```
 
-### Kotlin / Android changes
+### Pull request guidelines
 
-```bash
-./gradlew testStandardGoogleplayDebugUnitTest
-./gradlew assembleStandardGithubDebug
-```
+- **One thing per PR**: each PR should address a single concern — a bug fix, a feature, or a refactor. Mixing unrelated changes makes review harder and slower.
 
-If your environment has restricted write access to home directories (common in sandboxed environments), run Gradle via:
+- **PR description**: write a clear description of what was changed and why. AI tools are welcome for drafting the description.
 
-```bash
-./scripts/gradle-safe.sh testStandardGoogleplayDebugUnitTest
-./scripts/gradle-safe.sh assembleStandardGithubDebug
-```
+- **Screenshot**: if the change affects the UI, include a before/after screenshot or GIF. This greatly speeds up review.
 
-Instrumented tests (requires emulator/device):
+- **Size**: keep PRs small and focused. Large, sprawling PRs are hard to review. All PRs must be reviewed by Tuomas before merging — if a PR is very large or complex, there is no guarantee it will get reviewed promptly (or at all), regardless of contribution value.
 
-```bash
-./gradlew connectedStandardGooglePlayDebugAndroidTest
-```
+- **Code documentation**: write readable, self-explanatory code. Add comments where the logic is non-obvious, but avoid over-documenting obvious code.
 
-Full repository check:
+### Code style guide
 
-```bash
-./gradlew check
-```
+- Do not write too long lines (120 characters should be your guide)
+- Preferably write new code in Kotlin (if you need to create a new file, create a Kotlin file)
+- If you are planning to touch a lot of Java files, please discuss with Tuomas first — we are gradually migrating Java files to Kotlin and that should probably be done first
 
-### Bootstrap SWORD Test Modules (`~/.sword`)
+### Branch naming
 
-Some unit/integration tests require local SWORD test modules.
+Please name your branches using the following syntax: `<type>/#<issue-number>_<name>`, where
 
-CI-like flow (encrypted archive):
+- `<type>` can be one of:
+  - `feature`
+  - `bugfix`
+  - `improve`
+  - `docs`
+  - `refactor`
+- `<issue-number>` is the GitHub issue number (use it where applicable; docs or refactor branches may not have an issue)
+- `<name>` is a short human-readable name, spaces replaced with underscores
 
-```bash
-export TEST_MODULE_ENCRYPTION_KEY="..."
-./scripts/bootstrap-test-modules.sh
-```
-
-The script defaults to:
-`https://raw.githubusercontent.com/AndBible/data/master/ci/testmods.zip.enc`
-
-Local plain zip:
-
-```bash
-./scripts/bootstrap-test-modules.sh --zip /path/to/testmods.zip
-```
-
-Local encrypted zip:
-
-```bash
-./scripts/bootstrap-test-modules.sh --encrypted-zip /path/to/testmods.zip.enc --key "..."
-```
-
-## Style and Conventions
-
-- Follow `.editorconfig`.
-- Keep changes focused and avoid unrelated refactors in the same PR.
-- Update docs/tests when behavior changes.
-
-Commit message convention for issue fixes:
-
-```text
-Fixes #NNN (short description)
-```
-
-## Pull Request Checklist
-
-Before opening a PR:
-
-- Ensure relevant tests pass locally.
-- Ensure lint/type checks pass for frontend changes.
-- Include screenshots when UI behavior changes.
-- Fill in `PULL_REQUEST_TEMPLATE.md` (benefits and possible side effects).
-- Link related issue(s).
-
-## Where to Ask Questions
-
-- Developer docs/wiki: <https://github.com/AndBible/and-bible/wiki/Developer-documentation>
-- FAQ: <https://github.com/AndBible/and-bible/wiki/FAQ>
-- Matrix chat: <https://matrix.to/#/#andbible:matrix.org>
+Example: `feature/#100_improve_layout`
