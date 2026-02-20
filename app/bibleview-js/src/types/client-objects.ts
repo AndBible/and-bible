@@ -18,7 +18,7 @@
 import {Nullable} from "@/types/common";
 import {isGenericBookmark} from "@/composables/bookmarks";
 
-export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
+export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK" | "DICTIONARY"
 export type V11N = string
 export type Features = {
     readonly type?: Nullable<"hebrew-and-greek" | "hebrew" | "greek">,
