@@ -38,7 +38,9 @@ class KeyHistoryItem(
     val key: Key,
     val anchorOrdinal: OrdinalRange?,
     window: Window,
-    override val createdAt: Date = Date(System.currentTimeMillis())
+    override val createdAt: Date = Date(System.currentTimeMillis()),
+    // For Bible pages: the verse the user scrolled to (end of reading session)
+    val endKey: Key? = null
 ) : HistoryItemBase(window) {
 
     // End position is set when the user navigates away from this history entry
@@ -59,19 +61,19 @@ class KeyHistoryItem(
         }
 
     /**
-     * Format the description as a range (e.g., "Matt 5:1–48") if we have an end position
+     * Format the description as a range (e.g., "Matt 5:1–48") if we have an end position.
+     * For Bible pages, endKey contains the verse the user scrolled to.
      */
     private fun formatRangeDescription(startDesc: String): String {
-        val endOrdinal = endAnchorOrdinal?.start ?: return startDesc
         val startKey = key
 
         // Only show range for Verse keys (Bible content)
         if (startKey !is Verse) return startDesc
 
-        return try {
-            val v11n = startKey.versification
-            val endVerse = Verse.fromOrdinal(v11n, endOrdinal)
+        // For Bible pages, use endKey (the verse user scrolled to)
+        val endVerse = endKey as? Verse ?: return startDesc
 
+        return try {
             when {
                 // Same chapter: show "Matt 5:1–48"
                 endVerse.book == startKey.book &&

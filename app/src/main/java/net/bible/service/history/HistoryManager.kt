@@ -22,6 +22,7 @@ import android.util.Log
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -31,8 +32,10 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.Verse
 import java.lang.Exception
 
 
@@ -87,10 +90,12 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     null
                 } else {
                     lastItem = it
+                    // For Bible pages, store end verse ordinal; for others, use endAnchorOrdinal
+                    val endOrdinal = (it.endKey as? Verse)?.ordinal ?: it.endAnchorOrdinal?.start
                     WorkspaceEntities.HistoryItem(
                         windowId, it.createdAt, it.document.initials, it.key.osisID,
                         it.anchorOrdinal?.start,
-                        it.endAnchorOrdinal?.start
+                        endOrdinal
                     )
                 }
             } else null
@@ -111,7 +116,15 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            val historyItem = KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt)
+            // For Bible pages, restore end verse from ordinal
+            val endKey = if (key is Verse && entity.endAnchorOrdinal != null) {
+                try {
+                    Verse(key.versification, entity.endAnchorOrdinal)
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+            val historyItem = KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt, endKey)
             historyItem.endAnchorOrdinal = entity.endAnchorOrdinal?.let { OrdinalRange(it) }
             stack.add(historyItem)
         }
@@ -145,19 +158,8 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
         // if we cause the change by requesting Back then ignore it
         val activeWindow = window ?: windowControl.activeWindow
         if (!isGoingBack) {
-            val stack = getHistoryStack(activeWindow.id)
-
-            // Update the previous entry's end ordinal with the current position
-            // (i.e., where the user was just before navigating away)
-            if (stack.isNotEmpty()) {
-                val previous = stack.peek()
-                if (previous is KeyHistoryItem && previous.endAnchorOrdinal == null) {
-                    previous.endAnchorOrdinal = activeWindow.pageManager.currentPage.anchorOrdinal
-                }
-            }
-
             val item = createHistoryItem(activeWindow, intent)
-            add(stack, item)
+            add(getHistoryStack(activeWindow.id), item)
         }
     }
 
@@ -179,11 +181,22 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 return null
             }
 
-            val key = currentPage.singleKey
+            // For Bible pages:
+            // - key (start): originalKey = where user navigated to
+            // - endKey (end): singleKey = where user scrolled to when leaving
+            val key: Key?
+            val endKey: Key?
+            if (currentPage is CurrentBiblePage) {
+                key = currentPage.originalKey ?: currentPage.singleKey
+                endKey = currentPage.singleKey
+            } else {
+                key = currentPage.singleKey
+                endKey = null
+            }
             val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window, endKey = endKey)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {
