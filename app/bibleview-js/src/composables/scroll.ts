@@ -82,7 +82,13 @@ export function useScroll(
         let start: number;
 
         if (noScrolling) {
+            currentScrollAnimation.value = -1;
             window.scrollTo(0, elementY);
+            setTimeout(() => {
+                if (currentScrollAnimation.value === -1) {
+                    currentScrollAnimation.value = null;
+                }
+            }, 100);
             return;
         }
 
@@ -175,7 +181,13 @@ export function useScroll(
             const fontSize = parseFloat(style.getPropertyValue('font-size'));
             delta += 0.5 * (lineHeight - fontSize);
             if (now) {
+                currentScrollAnimation.value = -1;
                 window.scrollTo(0, toElement.offsetTop - delta);
+                setTimeout(() => {
+                    if (currentScrollAnimation.value === -1) {
+                        currentScrollAnimation.value = null;
+                    }
+                }, 100);
             } else {
                 doScrolling(toElement.offsetTop - delta, duration);
             }
