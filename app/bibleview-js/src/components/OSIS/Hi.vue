@@ -50,4 +50,9 @@ useCommon();
 .hi-super, .rend-super {
     vertical-align: super;
 }
+
+.rend-x-indirect {
+    font-style: italic;
+    opacity: 0.7;
+}
 </style>

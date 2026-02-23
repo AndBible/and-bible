@@ -1701,6 +1701,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "Activity result:$resultCode")
+
+        if (requestCode == STD_REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
+            val currentKey = windowControl.activeWindowPageManager.currentPage.key
+            if (currentKey == null) {
+                historyTraversal.goBack()
+            }
+            return
+        }
+
         val extras = data?.extras
         if (extras != null) {
             when (requestCode) {
