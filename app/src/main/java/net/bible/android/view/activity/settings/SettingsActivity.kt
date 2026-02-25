@@ -136,6 +136,7 @@ class SettingsActivity: ActivityBase() {
                     "robinson_greek_morphology",
                     "disabled_word_lookup_dictionaries",
                     "navigate_to_verse_pref",
+                    "passage_chooser_mode",
                     "open_links_in_special_window_pref",
                     "screen_keep_on_pref",
                     "auto_fullscreen_pref",
@@ -360,5 +361,4 @@ class SettingsFragment : PreferenceFragmentCompat() {
         private const val TAG = "SettingsActivity"
     }
 }
-
 

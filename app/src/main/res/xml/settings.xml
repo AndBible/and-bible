@@ -55,6 +55,14 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_chapter_verse_numbers_24dp"
 			/>
+		<ListPreference android:key="passage_chooser_mode"
+			android:title="@string/prefs_passage_chooser_mode_title"
+			android:summary="@string/prefs_passage_chooser_mode_summary"
+			android:entries="@array/prefs_passage_chooser_mode_descriptions"
+			android:entryValues="@array/prefs_passage_chooser_mode_values"
+			android:defaultValue="grid"
+			android:icon="@drawable/ic_chapter_verse_numbers_24dp"
+			/>
 		<SwitchPreferenceCompat android:key="open_links_in_special_window_pref"
 			android:title="@string/prefs_open_links_in_special_window_title"
 			android:summary="@string/prefs_open_links_in_special_window_summary"

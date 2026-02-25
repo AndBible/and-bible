@@ -86,6 +86,7 @@ interface ActivityComponent {
     fun inject(gridChoosePassageBook: GridChoosePassageBook)
     fun inject(gridChoosePassageChapter: GridChoosePassageChapter)
     fun inject(gridChoosePassageVerse: GridChoosePassageVerse)
+    fun inject(oneViewChoosePassage: OneViewChoosePassage)
     fun inject(chooseDictionaryWord: ChooseDictionaryWord)
     fun inject(chooseKeyBase: ChooseKeyBase)
 

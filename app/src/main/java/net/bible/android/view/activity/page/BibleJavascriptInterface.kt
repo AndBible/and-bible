@@ -52,6 +52,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.createChooserIntent
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
@@ -147,10 +148,11 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun refChooserDialog(callId: Long) {
         scope.launch {
-            val intent = Intent(mainBibleActivity, GridChoosePassageBook::class.java).apply {
-                putExtra("isScripture", true)
-                putExtra("navigateToVerse", true)
-            }
+            val intent = createChooserIntent(
+                context = mainBibleActivity,
+                isScripture = true,
+                navigateToVerse = true
+            )
             val result = mainBibleActivity.awaitIntent(intent)
             val verseStr = result?.data?.getStringExtra("verse")
 

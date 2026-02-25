@@ -1117,6 +1117,16 @@
     <string name="chooser_NT_abbrev">NT</string>
     <string name="chooser_style_grid">Grid</string>
     <string name="chooser_style_lists">Lists</string>
+    <string name="choosePassageOneViewName">Choose Passage</string>
+    <string name="book_menu_one_view_chooser">One-view chooser</string>
+    <string name="book_menu_default_grid_chooser">Default grid chooser</string>
+    <string name="chooser_select_passage">Select passage</string>
+    <string name="chapter">Chapter</string>
+    <string name="verse">Verse</string>
+    <string name="prefs_passage_chooser_mode_title">Passage chooser mode</string>
+    <string name="prefs_passage_chooser_mode_summary">Choose which passage picker opens by default.</string>
+    <string name="prefs_passage_chooser_mode_grid">Default grid chooser</string>
+    <string name="prefs_passage_chooser_mode_one_view">One-view chooser</string>
     <string name="chooser_select">Select %s</string>
     <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
@@ -1321,4 +1331,10 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
+    <string name="chapter_description_panel_title">Chapter description</string>
+    <string name="chapter_description_toggle_cd">Expand or collapse chapter description</string>
+    <string name="chapter_description_mock_gen_1_title">Genesis 1 (mock)</string>
+    <string name="chapter_description_mock_gen_1_body">Creation unfolds in ordered stages: light, sky, land, life, and humanity. The chapter emphasizes God\'s intentional design and the repeated refrain that creation is good.</string>
+    <string name="chapter_description_mock_gen_2_title">Genesis 2 (mock)</string>
+    <string name="chapter_description_mock_gen_2_body">The narrative zooms in on human vocation and relationship. God forms the human, places him in the garden to cultivate it, and establishes companionship, highlighting responsibility, intimacy, and trust.</string>
 </resources>

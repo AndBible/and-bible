@@ -246,6 +246,7 @@ const val newFeaturesIntroVideo = "https://youtu.be/bf33j4tLbxQ" // promoAndNewF
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
+const val chapterDescriptionPanelPref = "chapter_description_panel"
 
 val BookmarkEntities.Label.displayName get() =
     when {
@@ -1581,6 +1582,7 @@ object CommonUtils : CommonUtilsBase() {
         else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
+    val showChapterDescriptionPanel get() = BuildConfig.DEBUG || realSharedPreferences.getBoolean(chapterDescriptionPanelPref, false)
 
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
@@ -2018,4 +2020,3 @@ data class AndBibleBackupManifest(
         }
     }
 }
-

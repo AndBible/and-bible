@@ -65,6 +65,16 @@
         <item>@string/prefs_swipe_mode_none</item>
     </string-array>
 
+    <string-array name="prefs_passage_chooser_mode_values">
+        <item>grid</item>
+        <item>one_view</item>
+    </string-array>
+
+    <string-array name="prefs_passage_chooser_mode_descriptions">
+        <item>@string/prefs_passage_chooser_mode_grid</item>
+        <item>@string/prefs_passage_chooser_mode_one_view</item>
+    </string-array>
+
 	<!-- Screen colors: automatic night mode, day, night -->
     <string-array name="prefs_night_mode_descriptions">
 		<item>@string/prefs_night_mode_manual</item>

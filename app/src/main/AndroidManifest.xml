@@ -130,6 +130,11 @@
             android:label="@string/choosePassageVerseName"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
+            android:name="net.bible.android.view.activity.navigation.OneViewChoosePassage"
+            android:configChanges="keyboardHidden|locale"
+            android:label="@string/choosePassageOneViewName"
+            android:theme="@style/GridChoosePassageTheme" />
+        <activity
             android:name="net.bible.android.view.activity.search.Search"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"
