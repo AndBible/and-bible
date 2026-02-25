@@ -233,12 +233,13 @@ class MultiSearchItemAdapter(
     private fun highlightSearchText(searchTermsInput: String, textElement: Element): SpannableString {
         val searchTerms = prepareSearchTerms(searchTermsInput)
         val isStrongsSearch = searchTerms.contains("strong:", ignoreCase = true)
+        val strongsPattern = if (isStrongsSearch) Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE) else null
         val verseString = StringBuilder()
 
         val verses = textElement.getChildren("verse")
         for (verse in verses) {
-            if (isStrongsSearch) {
-                verseString.append(processElementChildrenWithLemmaHighlight(verse, searchTerms, false))
+            if (strongsPattern != null) {
+                verseString.append(processElementChildrenWithLemmaHighlight(verse, strongsPattern, false))
             } else {
                 verseString.append(processElementChildren(verse))
             }
@@ -306,7 +307,7 @@ class MultiSearchItemAdapter(
      */
     private fun processElementChildrenWithLemmaHighlight(
         parentElement: Element,
-        searchTerms: String,
+        strongsPattern: Pattern,
         isBold: Boolean
     ): String {
         val verseString = StringBuilder()
@@ -316,8 +317,7 @@ class MultiSearchItemAdapter(
                     if (!elementsToExclude.contains(o.name)) {
                         val currentIsBold = isBold || try {
                             val lemma = o.getAttributeValue("lemma")
-                            lemma != null && Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE)
-                                .matcher(lemma.trim()).find()
+                            lemma != null && strongsPattern.matcher(lemma.trim()).find()
                         } catch (e: Exception) {
                             false
                         }
@@ -325,7 +325,7 @@ class MultiSearchItemAdapter(
                             val text = o.text ?: ""
                             verseString.append(if (currentIsBold) "<b>$text</b>" else text)
                         } else {
-                            verseString.append(processElementChildrenWithLemmaHighlight(o, searchTerms, currentIsBold))
+                            verseString.append(processElementChildrenWithLemmaHighlight(o, strongsPattern, currentIsBold))
                         }
                     }
                 }
