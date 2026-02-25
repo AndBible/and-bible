@@ -73,7 +73,7 @@ class GetPassageActivity : ComponentActivity() {
         finish()
     }
 
-    companion object {
+        companion object {
         private const val TAG = "GetPassageActivity"
         private const val INTENT_GET_PASSAGE = "net.bible.android.action.GET_PASSAGE"
         private const val INTENT_PUT_PASSAGE = "net.bible.android.action.PUT_PASSAGE"
