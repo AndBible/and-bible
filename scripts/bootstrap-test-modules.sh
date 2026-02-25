@@ -83,6 +83,12 @@ require_cmd() {
     fi
 }
 
+decrypt_archive() {
+    local encrypted_path="$1"
+    local output_path="$2"
+    TEST_MODULE_ENCRYPTION_KEY="$KEY" openssl aes-256-cbc -d -a -pbkdf2 -in "$encrypted_path" -out "$output_path" -pass env:TEST_MODULE_ENCRYPTION_KEY
+}
+
 require_cmd unzip
 
 workdir="$(mktemp -d)"
@@ -102,7 +108,7 @@ elif [[ -n "$ENC_SOURCE" ]]; then
     fi
     require_cmd openssl
     download_or_copy "$ENC_SOURCE" "$enc_path"
-    openssl aes-256-cbc -d -a -pbkdf2 -in "$enc_path" -out "$zip_path" -pass "pass:${KEY}"
+    decrypt_archive "$enc_path" "$zip_path"
 elif [[ -n "$CI_URL" ]]; then
     echo "Installing test modules using DOWNLOAD_TEST_MODULES_URL..."
     if [[ -z "$KEY" ]]; then
@@ -111,7 +117,7 @@ elif [[ -n "$CI_URL" ]]; then
     fi
     require_cmd openssl
     download_or_copy "$CI_URL" "$enc_path"
-    openssl aes-256-cbc -d -a -pbkdf2 -in "$enc_path" -out "$zip_path" -pass "pass:${KEY}"
+    decrypt_archive "$enc_path" "$zip_path"
 else
     echo "No explicit source provided; using default encrypted archive URL."
     if [[ -z "$KEY" ]]; then
@@ -121,7 +127,7 @@ else
     fi
     require_cmd openssl
     download_or_copy "$DEFAULT_CI_ENCRYPTED_URL" "$enc_path"
-    openssl aes-256-cbc -d -a -pbkdf2 -in "$enc_path" -out "$zip_path" -pass "pass:${KEY}"
+    decrypt_archive "$enc_path" "$zip_path"
 fi
 
 mkdir -p "$DEST_DIR"

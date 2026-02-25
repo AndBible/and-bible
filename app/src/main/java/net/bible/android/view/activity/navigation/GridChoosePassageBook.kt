@@ -360,7 +360,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         fun createChooserIntent(
             context: Context,
             isScripture: Boolean,
-            navigateToVerse: Boolean = false,
+            navigateToVerse: Boolean? = null,
             title: CharSequence? = null,
             forceGrid: Boolean = false,
             forceOneView: Boolean = false,
@@ -373,7 +373,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             }
             return Intent(context, targetActivity).apply {
                 putExtra("isScripture", isScripture)
-                putExtra("navigateToVerse", navigateToVerse)
+                navigateToVerse?.let { putExtra("navigateToVerse", it) }
                 title?.let { putExtra("title", it) }
             }
         }
