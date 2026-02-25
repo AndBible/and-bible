@@ -3,7 +3,7 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
 ![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
 <a href="https://matrix.to/#/#andbible:matrix.org">![Matrix](https://img.shields.io/matrix/andbible%3Amatrix.org?logo=Matrix&logoColor=green&logoSize=auto&label=Matrix%20Chat)</a>
-<a href="https://shop.tuomasairaksinen.fi">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
+<a href="https://shop.andbible.org">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
 
 # AndBible: Bible Study
 
