@@ -189,6 +189,7 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             if (currentPage is CurrentBiblePage) {
                 key = currentPage.originalKey ?: currentPage.singleKey
                 endKey = currentPage.singleKey
+                Log.i(TAG, "Creating history: originalKey=${currentPage.originalKey}, singleKey=${currentPage.singleKey}, key=$key, endKey=$endKey")
             } else {
                 key = currentPage.singleKey
                 endKey = null

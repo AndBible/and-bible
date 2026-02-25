@@ -136,6 +136,7 @@ class CurrentBiblePage(
     /** set key without notification **/
 
     override fun doSetKey(key: Key?) {
+        Log.i(TAG, "doSetKey: setting originalKey from $originalKey to $key")
         originalKey = key
         val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
@@ -173,7 +174,6 @@ class CurrentBiblePage(
         WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
-        originalKey = null
         val document = entity.document
         Log.i(TAG, "State document:$document")
         val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
@@ -181,6 +181,9 @@ class CurrentBiblePage(
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
         currentBibleVerse.restoreFrom(entity.verse)
+        // Set originalKey to null AFTER localSetCurrentDocument, because localSetCurrentDocument
+        // calls doSetKey which sets originalKey to the default Genesis 1:1 verse
+        originalKey = null
     }
 
     @Deprecated("Used by test only!!! use setCurrentVerseOrdinal instead")
@@ -197,6 +200,7 @@ class CurrentBiblePage(
         val old = currentBibleVerse.verse.ordinal
         val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
+            Log.i(TAG, "setCurrentVerseOrdinal: updating singleKey from ordinal $old to $value (verse: $newVerse)")
             currentBibleVerse.setVerseSelected(versification, newVerse)
             onVerseChange(window)
         }
