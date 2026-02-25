@@ -43,7 +43,9 @@ class KeyHistoryItem(
     val endKey: Key? = null
 ) : HistoryItemBase(window) {
 
-    // End position is set when the user navigates away from this history entry
+    // End position ordinal, used for persistence/restoration and for non-Bible document types.
+    // For Bible pages, endKey is preferred for display; this field stores the ordinal for DB storage.
+    // For other document types (commentaries, etc.), this stores the scroll position.
     var endAnchorOrdinal: OrdinalRange? = null
 
     override val description: String

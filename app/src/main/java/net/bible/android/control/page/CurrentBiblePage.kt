@@ -136,7 +136,6 @@ class CurrentBiblePage(
     /** set key without notification **/
 
     override fun doSetKey(key: Key?) {
-        Log.i(TAG, "doSetKey: setting originalKey from $originalKey to $key")
         originalKey = key
         val verse = KeyUtil.getVerse(key)
 		//TODO av11n should this be the verse Versification or the Module/doc's Versification
@@ -200,7 +199,6 @@ class CurrentBiblePage(
         val old = currentBibleVerse.verse.ordinal
         val newVerse = Verse(versification, value).toV11n(currentBibleVerse.versificationOfLastSelectedVerse)
         if(newVerse.ordinal != old) {
-            Log.i(TAG, "setCurrentVerseOrdinal: updating singleKey from ordinal $old to $value (verse: $newVerse)")
             currentBibleVerse.setVerseSelected(versification, newVerse)
             onVerseChange(window)
         }

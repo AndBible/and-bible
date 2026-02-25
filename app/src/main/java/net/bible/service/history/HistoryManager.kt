@@ -116,7 +116,9 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            // For Bible pages, restore end verse from ordinal
+            // Restore end position using dual storage mechanism:
+            // - For Bible pages (Verse keys): create endKey from the stored ordinal for range display
+            // - For all types: restore endAnchorOrdinal for persistence and non-Bible document types
             val endKey = if (key is Verse && entity.endAnchorOrdinal != null) {
                 try {
                     Verse(key.versification, entity.endAnchorOrdinal)
@@ -189,7 +191,6 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
             if (currentPage is CurrentBiblePage) {
                 key = currentPage.originalKey ?: currentPage.singleKey
                 endKey = currentPage.singleKey
-                Log.i(TAG, "Creating history: originalKey=${currentPage.originalKey}, singleKey=${currentPage.singleKey}, key=$key, endKey=$endKey")
             } else {
                 key = currentPage.singleKey
                 endKey = null
@@ -259,7 +260,6 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 val existing = stack.peek() as KeyHistoryItem
                 val newEndKey = item.endKey
                 if (newEndKey != null && newEndKey != existing.endKey) {
-                    Log.i(TAG, "Updating existing history entry's endKey from ${existing.endKey} to $newEndKey")
                     // Replace the top item with the new one that has the updated endKey
                     stack.pop()
                     stack.push(item)
