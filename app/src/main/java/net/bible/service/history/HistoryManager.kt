@@ -253,6 +253,17 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                     Log.i(TAG, "Shrinking large stack")
                     stack.removeAt(0)
                 }
+            } else if (item is KeyHistoryItem && stack.peek() is KeyHistoryItem) {
+                // Items are "equal" (same document and start key), but the new item might have
+                // a different endKey (user scrolled further). Update the existing entry's endKey.
+                val existing = stack.peek() as KeyHistoryItem
+                val newEndKey = item.endKey
+                if (newEndKey != null && newEndKey != existing.endKey) {
+                    Log.i(TAG, "Updating existing history entry's endKey from ${existing.endKey} to $newEndKey")
+                    // Replace the top item with the new one that has the updated endKey
+                    stack.pop()
+                    stack.push(item)
+                }
             }
         }
     }
