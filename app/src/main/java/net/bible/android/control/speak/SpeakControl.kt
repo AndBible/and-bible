@@ -149,14 +149,58 @@ class SpeakControl @Inject constructor(
 
     private var speakBook: Book? = null
     private var speakKey: Key? = null
+    private var lastFollowedSpeakKey: Key? = null
+    private var speakAutoFollowEnabled = true
     val speakBookAndKey: BookAndKey? get() = speakKey?.let {BookAndKey(it, speakBook) }
 
     fun onEventMainThread(event: SpeakProgressEvent) {
         speakKey = event.key
         speakBook = event.book
         if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
+            if (AdvancedSpeakSettings.synchronize && !event.forceFollow) {
+                val movedAwayFromSpeak = movedAwayFromFollowedSpeakKey()
+                if (speakAutoFollowEnabled && movedAwayFromSpeak) {
+                    if (restartSpeakFromCurrentSelection()) {
+                        return
+                    } else {
+                        Log.i(TAG, "Suspend speak auto-follow because user moved away from active speak location")
+                        speakAutoFollowEnabled = false
+                    }
+                } else if (!speakAutoFollowEnabled && !movedAwayFromSpeak) {
+                    Log.i(TAG, "Resume speak auto-follow after returning to active speak location")
+                    speakAutoFollowEnabled = true
+                }
+
+                if (!speakAutoFollowEnabled) {
+                    return
+                }
+            }
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
+            lastFollowedSpeakKey = event.key
+        }
+    }
+
+    private fun restartSpeakFromCurrentSelection(): Boolean {
+        if (!isSpeaking && !isPaused) return false
+
+        val page = speakPageManager.currentPage
+        val bibleBook = page.currentDocument as? SwordBook ?: return false
+        val verse = page.singleKey as? Verse ?: return false
+
+        Log.i(TAG, "Restart speak from manually selected verse at boundary: ${verse.osisRef}")
+        speakBible(bibleBook, verse, force = true)
+        return true
+    }
+
+    private fun movedAwayFromFollowedSpeakKey(): Boolean {
+        val previousSpeakKey = lastFollowedSpeakKey ?: return false
+        val currentPageKey = speakPageManager.currentPage.key ?: return false
+        return try {
+            !currentPageKey.contains(previousSpeakKey)
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to compare current key with previous speak key", e)
+            false
         }
     }
 
@@ -287,6 +331,7 @@ class SpeakControl @Inject constructor(
         prepareForSpeaking()
         if(AdvancedSpeakSettings.synchronize || force) {
             speakPageManager.setCurrentDocumentAndKey(book, verse,false)
+            lastFollowedSpeakKey = verse
         }
         try {
             ttsServiceManager.speakBible(book, verse)
@@ -453,6 +498,8 @@ class SpeakControl @Inject constructor(
     }
 
     private fun prepareForSpeaking() {
+        speakAutoFollowEnabled = true
+        lastFollowedSpeakKey = null
         if(CommonUtils.isDiscrete) {
             GlobalScope.launch {
                 CommonUtils.requestNotificationPermission()

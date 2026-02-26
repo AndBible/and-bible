@@ -42,6 +42,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.service.common.AdvancedSpeakSettings
+import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
@@ -224,6 +225,39 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         changeSpeed(204)
         b = bookmarkControl.bibleBookmarkStartingAtVerse((getVerse("Rom.1.5")))[0]
         assertThat(b!!.playbackSettings!!.speed, equalTo(203))
+    }
+
+    @Test
+    fun testSpeakFollowDoesNotJumpBackAfterManualChapterChange() {
+        val acts11 = getVerse("Acts.1.1")
+        val acts12 = getVerse("Acts.1.2")
+        val acts13 = getVerse("Acts.1.3")
+        val rom11 = getVerse("Rom.1.1")
+
+        speakControl.speakBible(book, acts11)
+        speakControl.onEventMainThread(SpeakProgressEvent(book, VerseRange(book.versification, acts11, acts12), null))
+
+        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, rom11)
+        speakControl.onEventMainThread(SpeakProgressEvent(book, VerseRange(book.versification, acts13, acts13), null))
+
+        val currentVerse = windowControl.activeWindowPageManager.currentBible.singleKey
+        assertThat(currentVerse.osisRef, equalTo(rom11.osisRef))
+        speakControl.pause()
+        assertThat(CommonUtils.settings.getString("lastSpeakRef"), equalTo(rom11.osisRef))
+    }
+
+    @Test
+    fun testSpeakFollowStillMovesToNextChapterWhenUserHasNotMovedAway() {
+        val rom131 = getVerse("Rom.1.31")
+        val rom132 = getVerse("Rom.1.32")
+        val rom21 = getVerse("Rom.2.1")
+
+        speakControl.speakBible(book, rom131)
+        speakControl.onEventMainThread(SpeakProgressEvent(book, VerseRange(book.versification, rom131, rom132), null))
+        speakControl.onEventMainThread(SpeakProgressEvent(book, VerseRange(book.versification, rom21, rom21), null))
+
+        val currentVerse = windowControl.activeWindowPageManager.currentBible.singleKey
+        assertThat(currentVerse.osisRef, equalTo(rom21.osisRef))
     }
 }
 
