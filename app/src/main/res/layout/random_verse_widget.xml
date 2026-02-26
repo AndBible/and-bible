@@ -1,26 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/widget_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="@dimen/widget_margin"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:padding="0dp">
 
-    <ListView
-        android:id="@+id/verse_list_view"
+    <!-- This FrameLayout will hold the list and the empty view, allowing them to overlap.
+         The list view system will automatically toggle their visibility. -->
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/verse_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/random_verse_widget_view_item"/>
+
+        <TextView
+            android:id="@+id/widget_empty_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="string/loading_text" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/verse_reference"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="end"
-        android:text="@string/app_name_short"
-        android:textColor="@android:color/white"
-        android:alpha="0.7"
-        android:textSize="12sp"
-        android:textStyle="italic" />
+        android:layout_gravity="end"
+        android:paddingEnd="8dp"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="?android:attr/textColorSecondary"
+        tools:text="John 3:16" />
+
 </LinearLayout>

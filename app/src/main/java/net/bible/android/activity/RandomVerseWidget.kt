@@ -1,260 +1,266 @@
 package net.bible.android.activity
 
-import android.content.Intent
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.text.Html
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import kotlinx.coroutines.runBlocking
+import net.bible.android.BibleApplication
+import org.crosswire.jsword.passage.Verse
 import java.io.StringReader
-import org.crosswire.jsword.book.BookData
 import org.crosswire.common.xml.XMLUtil
+import org.crosswire.jsword.book.BookData
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
-import net.bible.android.BibleApplication
-import net.bible.service.sword.SwordDocumentFacade
 
 class RandomVerseWidget : AppWidgetProvider() {
+
     override fun onReceive(context: Context, intent: Intent) {
+        Log.i(TAG, "onReceive action: ${intent.action}")
         super.onReceive(context, intent)
         if (intent.action == ACTION_REFRESH_VERSE) {
             val appWidgetManager = AppWidgetManager.getInstance(context)
-            val thisAppWidget = ComponentName(context.packageName, javaClass.name)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(thisAppWidget)
-            onUpdate(context, appWidgetManager, appWidgetIds)
+            val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                ComponentName(
+                    context,
+                    RandomVerseWidget::class.java
+                )
+            )
+            appWidgetIds.forEach { appWidgetId ->
+                runBlocking {
+                    refreshWidgetData(context, appWidgetManager, appWidgetId)
+                }
+            }
         }
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
+        Log.i(TAG, "onUpdate")
         for (appWidgetId in appWidgetIds) {
+            // Perform initial setup
             updateAppWidget(context, appWidgetManager, appWidgetId)
+            // Trigger the first data load
+            runBlocking {
+                refreshWidgetData(context, appWidgetManager, appWidgetId)
+            }
         }
     }
 
-    fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        // TODO: get the actual active Bible from the main app somehow
-        val activeBible = SwordDocumentFacade.bibles.firstOrNull()
-        if(activeBible==null){
-            return
+    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.i(TAG, "updateAppWidget for id: $appWidgetId")
+        val intent = Intent(context, VerseWidgetService::class.java).apply {
+            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
         }
-        val allKeys = activeBible.globalKeyList
-        var randomKey: org.crosswire.jsword.passage.Key
-        do {
-          val randomNumber = (0..allKeys.cardinality).random()
-          randomKey = allKeys.get(randomNumber)
-        } while(randomKey.name.split(':')[1] == "0") //idk how this was happenable
-        val bookData = BookData(activeBible, randomKey)
-        val verseTextXml = XMLUtil.writeToString(bookData.saxEventProvider)
-        val verseText = processXml(verseTextXml, false, true, false, false, true)
-        val verseRef = randomKey.name
 
         val views = RemoteViews(context.packageName, R.layout.random_verse_widget)
-        views.setTextViewText(R.id.verse_text, verseText)
-        views.setTextViewText(R.id.verse_reference, verseRef)
+        views.setRemoteAdapter(R.id.verse_list, intent)
+        views.setEmptyView(R.id.verse_list, R.id.widget_empty_view)
 
-        val intent = Intent(context, RandomVerseWidget::class.java).apply {
+        val refreshIntent = Intent(context, RandomVerseWidget::class.java).apply {
             action = ACTION_REFRESH_VERSE
         }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            0,
-            intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        val refreshPendingIntent = PendingIntent.getBroadcast(
+            context, 0, refreshIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
-        views.setOnClickPendingIntent(R.id.widget_root_layout, pendingIntent)
+        views.setOnClickPendingIntent(R.id.widget_root_layout, refreshPendingIntent)
+
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 
-    fun processXml(
-        xmlInput: String,
-        linebreaks: Boolean,
-        pilcrows: Boolean,
-        verseNumbers: Boolean,
-        chevrons: Boolean,
-        brackets: Boolean
-    ): String {
-        //Log.d(TAG, "processXml called with xmlInput: $xmlInput, linebreaks: $linebreaks, pilcrows: $pilcrows, verseNumbers: $verseNumbers, chevrons: $chevrons")
-        val factory = XmlPullParserFactory.newInstance()
-        val xpp = factory.newPullParser()
-        xpp.setInput(StringReader("<root>$xmlInput</root>")) // Wrapped in root for valid XML
-        var eventType = xpp.eventType
-        var verseNumber: String? = null
-        var pilcrow = false
-        var dropText = false
-        var spaceBeforeNextText = false
-        var para = StringBuilder()
-        val paras = mutableListOf(para)
+    private suspend fun refreshWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d(TAG, "Refreshing data for widget: $appWidgetId")
+        val bibleApplication = context.applicationContext as BibleApplication
+        net.bible.service.db.DatabaseContainer.initializeDatabase()
+        val windowControl = bibleApplication.applicationComponent.windowControl()
+        val activeBible = windowControl.defaultBibleDoc()
 
-        val addText = { text: String ->
-            if(!dropText) {
-                if(spaceBeforeNextText){
-                    if(para.isNotEmpty()){
-                        para.append(' ')
-                    }
-                    spaceBeforeNextText = false
-                }
-                if(verseNumber != null){
-                    if(verseNumbers) {
-                        para.append(verseNumber)
-                    }
-                    verseNumber = null
-                }
-                if(pilcrow && pilcrows){
-                    para.append("¶")
-                    pilcrow = false
-                }
-                para.append(text)
+        val verseText: String
+        val verseRef: String
+
+        if (activeBible != null) {
+            val allKeys = activeBible.globalKeyList
+            var randomKey: org.crosswire.jsword.passage.Key
+            do {
+                val randomNumber = (0 until allKeys.cardinality).random()
+                randomKey = allKeys.get(randomNumber)
+            } while (randomKey !is Verse || randomKey.verse == 0)
+
+            val mainVerse = randomKey as Verse
+            val v11n = activeBible.versification
+            val ordinal = v11n.getOrdinal(mainVerse)
+            val prevVerse = v11n.decodeOrdinal(ordinal - 1)
+            val nextVerse = v11n.decodeOrdinal(ordinal + 1)
+
+            val mainVerseText = processXml(XMLUtil.writeToString(BookData(activeBible, mainVerse).saxEventProvider), verseNumbers=true)
+
+            val prevVerseText = if (prevVerse != null && prevVerse != mainVerse) {
+                processXml(XMLUtil.writeToString(BookData(activeBible, prevVerse).saxEventProvider), verseNumbers = true)
+            } else {
+                ""
             }
-        }
 
-        while (eventType != XmlPullParser.END_DOCUMENT) {
-            when (eventType) {
-                XmlPullParser.START_TAG -> {
-                    when (xpp.name) {
-                        "verse" -> {
-                            // Extract the verse number from osisID (e.g., "John.1.6" -> "6")
-                            val osisId = xpp.getAttributeValue(null, "osisID")
-                            osisId?.split('.')?.lastOrNull()?.let {
-                                verseNumber = it
-                            }
-                        }
-                        "milestone" -> {
-                            // Check for the paragraph marker
-                            if (xpp.getAttributeValue(null, "marker") == "¶") {
-                                para = StringBuilder()
-                                paras.add(para)
-                                pilcrow = true
-                            }
-                        }
-                        "title" -> {
-                            dropText = true
-                        }
-                        "chapter" -> {
-                            dropText = true
-                        } // this was never part of the original text
-                        "note" -> {
-                            dropText = true
-                        }
-                        "transChange" -> {
-                            if (brackets) {
-                                addText("[")
-                            }
-                        }
-                    }
-                }
-                XmlPullParser.END_TAG -> {
-                    when (xpp.name) {
-                        "verse" -> {
-                            if(para.length != 0){
-                                spaceBeforeNextText = true
-                            }
-                        }
-                        "title" -> {
-                            dropText = false
-                        }
-                        "chapter" -> {
-                            dropText = false
-                        }
-                        "note" -> {
-                            dropText = false
-                        }
-                        "transChange" -> {
-                            if (brackets) {
-                                addText("]")
-                            }
-                        }
-                    }
-                }
-                XmlPullParser.TEXT -> {
-                    addText(xpp.text)
-                }
+            val nextVerseText = if (nextVerse != null && nextVerse != mainVerse) {
+                processXml(XMLUtil.writeToString(BookData(activeBible, nextVerse).saxEventProvider), verseNumbers=true)
+            } else {
+                ""
             }
-            eventType = xpp.next()
+
+            // Build the HTML string
+            val builder = StringBuilder()
+            if (prevVerseText.isNotEmpty()) {
+                builder.append("<font color='#808080'>").append(prevVerseText).append("</font>")
+            }
+            builder.append(mainVerseText)
+            if (nextVerseText.isNotEmpty()) {
+                builder.append("<font color='#808080'>").append(nextVerseText).append("</font>")
+            }
+
+            verseText = builder.toString()
+            verseRef = mainVerse.name
+        } else {
+            verseText = "context.getString(R.string.no_bibles_installed)"
+            verseRef = "context.getString(R.string.no_bibles_installed)"
         }
 
-        return paras.joinToString(if(linebreaks) "\n" else " ") {
-            (if (chevrons) "> " else "") + it.toString()
-        }
+        // Store the verse text for the factory to retrieve
+        val prefs = context.getSharedPreferences(PREFS_NAME, 0)
+        prefs.edit().putString("$PREF_PREFIX_KEY$appWidgetId", verseText).apply()
+
+        // Create RemoteViews for the partial update of the reference
+        val partialViews = RemoteViews(context.packageName, R.layout.random_verse_widget)
+        partialViews.setTextViewText(R.id.verse_reference, verseRef)
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, partialViews)
+
+        // Notify the ListView to update itself from the factory
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.verse_list)
+
+        Log.i(TAG, "Refreshed widget $appWidgetId with verse: $verseRef")
     }
 
     companion object {
         private const val ACTION_REFRESH_VERSE = "net.bible.android.activity.action.REFRESH_VERSE"
+        private const val TAG = "RandomVerseWidget"
+        const val PREFS_NAME = "RandomVerseWidgetPrefs"
+        const val PREF_PREFIX_KEY = "verse_text_"
     }
 }
+
 class VerseWidgetService : RemoteViewsService() {
     override fun onGetViewFactory(intent: Intent): RemoteViewsFactory {
         return VerseRemoteViewsFactory(this.applicationContext, intent)
     }
 }
 
-class VerseRemoteViewsFactory(
-    private val context: Context,
-    private val intent: Intent
-) : RemoteViewsService.RemoteViewsFactory {
+class VerseRemoteViewsFactory(private val context: Context, private val intent: Intent) : RemoteViewsService.RemoteViewsFactory {
 
-    private var verseText: String = "Loading..."
+    private var verseText: CharSequence = "Loading..."
+    private val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
 
-    override fun onCreate() {
-        // In onCreate, we can do some initial setup.
-        // The data will be loaded in onDataSetChanged.
-    }
+    override fun onCreate() {}
 
     override fun onDataSetChanged() {
-        // This is called when notifyAppWidgetViewDataChanged is called.
-        // We fetch the verse text here.
-        val bibleApplication = context.applicationContext as BibleApplication
-        net.bible.service.db.DatabaseContainer.initializeDatabase()
-
-        val documentControl = bibleApplication.applicationComponent.documentControl()
-        val bible = documentControl.currentBible.currentDocument ?: SwordDocumentFacade.bibles.firstOrNull()
-
-        verseText = if (bible != null) {
-            val randomVerseKey = bible.getRandomVerse()
-            // We also update the reference in the main widget from here
-            val views = RemoteViews(context.packageName, R.layout.random_verse_widget)
-            views.setTextViewText(R.id.verse_reference, randomVerseKey.name)
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
-            appWidgetManager.partiallyUpdateAppWidget(appWidgetId, views)
-
-            bible.getPlainText(randomVerseKey, 1, false)
-        } else {
-            context.getString(R.string.no_bibles_installed)
-        }
+        Log.i(TAG, "onDataSetChanged for widget: $appWidgetId")
+        val prefs = context.getSharedPreferences(RandomVerseWidget.PREFS_NAME, 0)
+        val verseHtml = prefs.getString(
+            "${RandomVerseWidget.PREF_PREFIX_KEY}$appWidgetId",
+            "context.getString(R.string.loading_text)"
+        ) ?: "context.getString(R.string.loading_text)"
+        // FromHtml is needed to render the font tags correctly
+        verseText = Html.fromHtml(verseHtml, Html.FROM_HTML_MODE_LEGACY)
     }
 
-    override fun onDestroy() {
-        // Clean up any resources
-    }
+    override fun onDestroy() {}
 
-    override fun getCount(): Int {
-        // We only have one item: the scrollable text view
-        return 1
-    }
+    override fun getCount(): Int = 1
 
     override fun getViewAt(position: Int): RemoteViews {
-        // Create a RemoteViews object for the list item.
         return RemoteViews(context.packageName, R.layout.random_verse_widget_view_item).apply {
             setTextViewText(R.id.verse_text_item, verseText)
         }
     }
 
-    override fun getLoadingView(): RemoteViews? {
-        // You can return a custom loading view, or null to use the default.
-        return null
+    override fun getLoadingView(): RemoteViews? = null
+
+    override fun getViewTypeCount(): Int = 1
+
+    override fun getItemId(position: Int): Long = position.toLong()
+
+    override fun hasStableIds(): Boolean = true
+
+    companion object {
+        private const val TAG = "VerseRemoteViewsFactory"
+    }
+}
+
+private fun processXml(
+    xmlInput: String,
+    linebreaks: Boolean = false,
+    pilcrows: Boolean = true,
+    verseNumbers: Boolean = false,
+    chevrons: Boolean = false,
+    brackets: Boolean = true,
+    rawOsis: Boolean = false
+): String {
+    if (rawOsis) return xmlInput
+
+    val factory = XmlPullParserFactory.newInstance()
+    val xpp = factory.newPullParser()
+    xpp.setInput(StringReader("<root>$xmlInput</root>")) // Wrapped in root for valid XML
+    var eventType = xpp.eventType
+    var verseNumber: String? = null
+    var pilcrow = false
+    var dropText = false
+    var spaceBeforeNextText = false
+    var para = StringBuilder()
+    val paras = mutableListOf(para)
+
+    val addText = { text: String ->
+        if (!dropText) {
+            if (spaceBeforeNextText) {
+                if (para.isNotEmpty()) para.append(' ')
+                spaceBeforeNextText = false
+            }
+            if (verseNumber != null) {
+                if (verseNumbers) para.append(verseNumber)
+                verseNumber = null
+            }
+            if (pilcrow && pilcrows) {
+                para.append("¶")
+                pilcrow = false
+            }
+            para.append(text)
+        }
     }
 
-    override fun getViewTypeCount(): Int {
-        return 1
+    while (eventType != XmlPullParser.END_DOCUMENT) {
+        when (eventType) {
+            XmlPullParser.START_TAG -> when (xpp.name) {
+                "verse" -> xpp.getAttributeValue(null, "osisID")?.split('.')?.lastOrNull()?.let { verseNumber = it }
+                "milestone" -> if (xpp.getAttributeValue(null, "marker") == "¶") {
+                    para = StringBuilder()
+                    paras.add(para)
+                    pilcrow = true
+                }
+                "title", "chapter", "note" -> dropText = true
+                "transChange" -> if (brackets) addText("[")
+            }
+            XmlPullParser.END_TAG -> when (xpp.name) {
+                "verse" -> if (para.isNotEmpty()) spaceBeforeNextText = true
+                "title", "chapter", "note" -> dropText = false
+                "transChange" -> if (brackets) addText("]")
+            }
+            XmlPullParser.TEXT -> addText(xpp.text)
+        }
+        eventType = xpp.next()
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
-    }
-
-    override fun hasStableIds(): Boolean {
-        return true
-    }
+    return paras.joinToString(if (linebreaks) "\n" else " ") { (if (chevrons) "> " else "") + it.toString() }
 }

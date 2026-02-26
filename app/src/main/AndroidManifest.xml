@@ -331,6 +331,10 @@
                 android:resource="@xml/random_verse_widget_info" />
         </receiver>
 
+        <service
+            android:name=".VerseWidgetService"
+            android:permission="android.permission.BIND_REMOTEVIEWS"
+            android:exported="false" />
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
         <uses-library
