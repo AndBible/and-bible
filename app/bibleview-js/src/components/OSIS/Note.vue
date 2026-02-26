@@ -179,16 +179,22 @@ const showHandle = computed(() => {
 }
 
 .translation-note {
+  font-style: italic;
   font-weight: bold;
-  color: #2e7d32;
+  color: #1565c0;
 
   .night & {
-    color: #81c784;
+    color: #90caf9;
   }
 
   .monochrome & {
-    color: inherit;
-    font-style: italic;
+    color: black;
+    &::before { content: "⟨"; }
+    &::after { content: "⟩"; }
+  }
+
+  .monochrome.night & {
+    color: white;
   }
 }
 
