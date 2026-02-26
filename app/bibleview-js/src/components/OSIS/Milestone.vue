@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span class="milestone" :class="{paragraphBreak}">{{ marker }}<slot/></span>
+  <span class="milestone" :class="{paragraphBreak, paragraphBreakBefore}">{{ marker }}<slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -34,13 +34,19 @@ const props = withDefaults(defineProps<{
 });
 
 checkUnsupportedProps(props, "resp");
-checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]); // x-p is found in crosswire kjv
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => ["line", "x-p"].includes(props.type as string));
+const paragraphBreak = computed(() => props.type == "line");
+// x-p is found in crosswire kjv inside the verse because it is intended to be viewed as verse-per-line.  the eBible kjv uses the cambridge paragraphs
+const paragraphBreakBefore = computed(() => props.type == "x-p");
 useCommon();
 </script>
 
 <style lang="scss">
 @use "@/common.scss" as *;
-
+.paragraphBreakBefore::before {
+  display: block;
+  height: 0.5em;
+  content: ""
+}
 </style>
