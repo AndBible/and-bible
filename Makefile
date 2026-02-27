@@ -39,6 +39,15 @@ test:
 instrumented-tests:
 	./gradlew emulatorStandardGoogleplayDebugAndroidTest
 
+fdroid-release:
+	@VERSION_NAME=$$(grep -o 'android:versionName="[^"]*"' app/src/main/AndroidManifest.xml | grep -o '"[^"]*"' | tr -d '"'); \
+	TAG="v$$VERSION_NAME-fdroid"; \
+	echo "Creating F-Droid tag: $$TAG"; \
+	git tag -a "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
+	echo "Pushing tag to GitHub..."; \
+	git push origin "$$TAG"; \
+	echo "Done: $$TAG"
+
 accrescent:
 	@echo "Building Accrescent APK set with GPG-encrypted credentials..."
 	./scripts/build-accrescent.sh standardAccrescentRelease
@@ -47,4 +56,4 @@ accrescent-debug:
 	@echo "Building Accrescent Debug APK set with GPG-encrypted credentials..."
 	./scripts/build-accrescent.sh standardAccrescentDebug
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests accrescent accrescent-debug
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests fdroid-release accrescent accrescent-debug
