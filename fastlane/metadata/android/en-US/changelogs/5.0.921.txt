@@ -1,0 +1,14 @@
+- Include Strong's and morphology data in all Bible text links (4572f841f)
+- Clean up monochrome styling in Notes view (84cd781e1)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
