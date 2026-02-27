@@ -18,16 +18,12 @@
 <template>
   <div class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
     <div class="strongs-column" v-if="strongsEntries.length > 0">
-      <div class="dict-tabs" v-if="strongsDictionaries.size > 1">
-        <button
-            v-for="[initials, abbreviation] in strongsDictionaries"
-            :key="initials"
-            class="dict-tab"
-            :class="{ active: selectedStrongsDict === initials }"
-            @click="selectedStrongsDict = initials"
-        >{{ abbreviation }}
-        </button>
-      </div>
+      <TabNavigation
+          v-if="strongsDictionaries.size > 1"
+          :tabs="strongsTabsConfig"
+          :active-tab="selectedStrongsDict ?? ''"
+          @tab-change="handleStrongsDictChange"
+      />
       <div v-for="[strongsKey, fragments] in filteredStrongsEntries" :key="strongsKey" class="strongs-group">
         <div class="strongs-header">
           <span class="strongs-number">{{ strongsKey }}</span>
@@ -44,16 +40,12 @@
     </div>
 
     <div class="morph-column" v-if="morphFragments.length > 0">
-      <div class="dict-tabs" v-if="morphDictionaries.size > 1">
-        <button
-            v-for="[initials, abbreviation] in morphDictionaries"
-            :key="initials"
-            class="dict-tab"
-            :class="{ active: selectedMorphDict === initials }"
-            @click="selectedMorphDict = initials"
-        >{{ abbreviation }}
-        </button>
-      </div>
+      <TabNavigation
+          v-if="morphDictionaries.size > 1"
+          :tabs="morphTabsConfig"
+          :active-tab="selectedMorphDict ?? ''"
+          @tab-change="handleMorphDictChange"
+      />
       <div v-for="frag in filteredMorphFragments" :key="frag.key" class="morph-entry">
         <div class="morph-header">
           <span class="morph-code">{{ frag.keyName }}</span>
@@ -67,6 +59,8 @@
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
+import TabNavigation from "@/components/tabs/TabNavigation.vue";
+import type {Tab} from "@/components/tabs/TabContainer.vue";
 import {computed, ref, watch} from "vue";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
@@ -116,6 +110,20 @@ const morphDictionaries = computed(() => {
     return dicts;
 });
 
+const strongsTabsConfig = computed<Tab[]>(() =>
+    [...strongsDictionaries.value.entries()].map(([initials, abbreviation]) => ({
+        id: initials,
+        label: abbreviation,
+    }))
+);
+
+const morphTabsConfig = computed<Tab[]>(() =>
+    [...morphDictionaries.value.entries()].map(([initials, abbreviation]) => ({
+        id: initials,
+        label: abbreviation,
+    }))
+);
+
 function initialStrongsDict(): string | undefined {
     return props.document.state?.selectedStrongsDict
         ?? strongsDictionaries.value.keys().next().value;
@@ -141,6 +149,14 @@ watch(morphDictionaries, (dicts) => {
         selectedMorphDict.value = dicts.keys().next().value;
     }
 });
+
+function handleStrongsDictChange(tabId: string) {
+    selectedStrongsDict.value = tabId;
+}
+
+function handleMorphDictChange(tabId: string) {
+    selectedMorphDict.value = tabId;
+}
 
 const filteredStrongsEntries = computed(() => {
     if (strongsDictionaries.value.size <= 1) return strongsEntries.value;
@@ -187,32 +203,6 @@ function findAllLink(frag: OsisFragmentType): string | null {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1em;
-    }
-  }
-}
-
-.dict-tabs {
-  display: flex;
-  gap: 0.25em;
-  margin-bottom: 0.5em;
-  flex-wrap: wrap;
-}
-
-.dict-tab {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  padding: 0.2em 0.5em;
-  font-size: 0.85em;
-  cursor: pointer;
-  color: currentColor;
-  opacity: 0.6;
-
-  &.active {
-    opacity: 1;
-    border-bottom-color: coral;
-    .monochrome & {
-      border-bottom-color: currentColor;
     }
   }
 }
