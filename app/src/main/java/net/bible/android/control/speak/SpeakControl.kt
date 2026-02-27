@@ -189,6 +189,8 @@ class SpeakControl @Inject constructor(
         val verse = page.singleKey as? Verse ?: return false
 
         Log.i(TAG, "Restart speak from manually selected verse at boundary: ${verse.osisRef}")
+        // This intentionally resets follow-tracking state via prepareForSpeaking().
+        // After a manual jump, auto-follow should restart from the new user-selected verse.
         speakBible(bibleBook, verse, force = true)
         return true
     }
@@ -197,7 +199,12 @@ class SpeakControl @Inject constructor(
         val previousSpeakKey = lastFollowedSpeakKey ?: return false
         val currentPageKey = speakPageManager.currentPage.key ?: return false
         return try {
-            !currentPageKey.contains(previousSpeakKey)
+            // Keys can be Verse or VerseRange depending on event/page context.
+            // Treat either-direction containment as "still on followed location" and only
+            // suspend auto-follow when there is no overlap in either direction.
+            val stillOnFollowedLocation =
+                currentPageKey.contains(previousSpeakKey) || previousSpeakKey.contains(currentPageKey)
+            !stillOnFollowedLocation
         } catch (e: Exception) {
             Log.w(TAG, "Unable to compare current key with previous speak key", e)
             false

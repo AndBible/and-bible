@@ -235,6 +235,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         val rom11 = getVerse("Rom.1.1")
 
         speakControl.speakBible(book, acts11)
+        assertThat(speakControl.isSpeaking || speakControl.isPaused, equalTo(true))
         speakControl.onEventMainThread(SpeakProgressEvent(book, VerseRange(book.versification, acts11, acts12), null))
 
         windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, rom11)
