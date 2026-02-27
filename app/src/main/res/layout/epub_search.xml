@@ -32,7 +32,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		android:layout_alignParentTop="true"
 		android:imeOptions="actionSearch"
-		android:inputType="textNoSuggestions"
+		android:inputType="textCapSentences|textNoSuggestions"
 		android:hint="@string/help_search_title"
 		android:padding="10dip"/>
 
