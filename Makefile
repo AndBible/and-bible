@@ -2,6 +2,8 @@ TMP:=$(shell mktemp -d)
 
 increment-version:
 	./scripts/increment-version.sh
+increment-test-version:
+	./scripts/increment-version.sh --build
 tx-push:
 	tx push -s -r andbible.play-store-main-description
 	tx push -s -r andbible.and-bible-stringsxml
@@ -45,4 +47,4 @@ accrescent-debug:
 	@echo "Building Accrescent Debug APK set with GPG-encrypted credentials..."
 	./scripts/build-accrescent.sh standardAccrescentDebug
 
-.PHONY: increment-version tx-push tx-pull fastlane-supply test instrumented-tests accrescent accrescent-debug
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests accrescent accrescent-debug

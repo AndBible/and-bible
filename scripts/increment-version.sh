@@ -2,6 +2,8 @@
 
 # Version increment script for AndBible
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
+# Usage: ./scripts/increment-version.sh [--build]
+#   --build: Create a test build tag (build-X) instead of production tag (production-X)
 
 set -e  # Exit on any error
 
@@ -11,13 +13,24 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Parse arguments
+BUILD_MODE=false
+if [[ "$1" == "--build" ]]; then
+    BUILD_MODE=true
+fi
+
 # Configuration
 ANDROID_MANIFEST_PATH="app/src/main/AndroidManifest.xml"
 CHANGELOG_DIR="fastlane/metadata/android/en-US/changelogs"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-echo -e "${GREEN}AndBible Version Increment Script${NC}"
-echo "=================================="
+if [[ "$BUILD_MODE" == true ]]; then
+    echo -e "${GREEN}AndBible Test Build Script${NC}"
+    echo "=========================="
+else
+    echo -e "${GREEN}AndBible Version Increment Script${NC}"
+    echo "=================================="
+fi
 
 # Check if we're in the right directory
 if [[ ! -f "$ANDROID_MANIFEST_PATH" ]]; then
@@ -85,7 +98,22 @@ fi
 echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
 
 # Generate changelog with auto-summarized release notes
-PREVIOUS_TAG="production-$CURRENT_VERSION_CODE"
+# Find the previous tag to diff against:
+#   production mode: always the latest production-* tag
+#   build mode: latest build-* tag, falling back to latest production-* tag
+if [[ "$BUILD_MODE" == true ]]; then
+    PREVIOUS_TAG=$(git describe --tags --match 'build-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+    if [[ -z "$PREVIOUS_TAG" ]]; then
+        PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+    fi
+else
+    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+fi
+if [[ -n "$PREVIOUS_TAG" ]]; then
+    echo "Previous tag: $PREVIOUS_TAG"
+else
+    echo -e "${YELLOW}Warning: No previous tag found.${NC}"
+fi
 
 # Extract the fixed footer from the current changelog (starts at the line matching major.minor version)
 MAJOR_MINOR=$(echo "$CURRENT_VERSION_NAME" | sed 's/\.[0-9]*$//')
@@ -99,7 +127,7 @@ fi
 
 # Try to auto-generate release notes summary from git history
 GENERATED_SUMMARY=""
-if git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
+if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
     GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --oneline --no-merges)
     if [[ -n "$GIT_LOG" ]]; then
         echo "Generating release notes from git history (${PREVIOUS_TAG}..HEAD)..."
@@ -164,9 +192,15 @@ echo "Creating commit: $COMMIT_MESSAGE"
 git commit -S -m "$COMMIT_MESSAGE"
 
 # Create tag
-TAG_NAME="production-$NEW_VERSION_CODE"
+if [[ "$BUILD_MODE" == true ]]; then
+    TAG_NAME="build-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Test build $NEW_VERSION_NAME"
+else
+    TAG_NAME="production-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Release $NEW_VERSION_NAME"
+fi
 echo "Creating tag: $TAG_NAME"
-git tag -s "$TAG_NAME" -m "Release $NEW_VERSION_NAME"
+git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
 
