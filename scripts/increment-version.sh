@@ -187,7 +187,11 @@ git add "$ANDROID_MANIFEST_PATH" "$NEW_CHANGELOG"
 # Commit changes
 COMMIT_MESSAGE="Increment version to $NEW_VERSION_NAME"
 echo "Creating commit: $COMMIT_MESSAGE"
-git commit -S -m "$COMMIT_MESSAGE"
+if [[ "$BUILD_MODE" == true ]]; then
+    git commit -m "$COMMIT_MESSAGE"
+else
+    git commit -S -m "$COMMIT_MESSAGE"
+fi
 
 # Create tag
 if [[ "$BUILD_MODE" == true ]]; then
@@ -198,7 +202,11 @@ else
     TAG_MESSAGE="Release $NEW_VERSION_NAME"
 fi
 echo "Creating tag: $TAG_NAME"
-git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
+if [[ "$BUILD_MODE" == true ]]; then
+    git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
+else
+    git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
+fi
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
 

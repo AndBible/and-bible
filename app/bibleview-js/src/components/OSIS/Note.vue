@@ -189,8 +189,6 @@ const showHandle = computed(() => {
 
   .monochrome & {
     color: black;
-    &::before { content: "⟨"; }
-    &::after { content: "⟩"; }
   }
 
   .monochrome.night & {
