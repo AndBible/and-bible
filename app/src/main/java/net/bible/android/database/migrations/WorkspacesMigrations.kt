@@ -47,6 +47,10 @@ private val addFootNotesInline = makeMigration(7..8) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL")
 }
 
+private val addRestoreButtonsVisible = makeMigration(8..9) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `workspace_settings_restoreButtonsVisible` INTEGER DEFAULT 1")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -55,6 +59,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addPageManagerJsState,
     addStudyPadCursors,
     addFootNotesInline,
+    addRestoreButtonsVisible,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 8
+const val WORKSPACE_DATABASE_VERSION = 9

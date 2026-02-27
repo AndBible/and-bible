@@ -613,11 +613,11 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         }
     }
 
-    private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
+    private var restoreButtonsVisible: Boolean
+        get() = windowControl.windowRepository.workspaceSettings.restoreButtonsVisible
         set(value) {
-            CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
+            windowControl.windowRepository.workspaceSettings.restoreButtonsVisible = value
             ABEventBus.post(RestoreButtonsVisibilityChanged())
-            field = value
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {
