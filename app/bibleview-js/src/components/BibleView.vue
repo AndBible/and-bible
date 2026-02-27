@@ -190,11 +190,11 @@ function handleCopyText(): boolean {
         return false;
     }
 
-    // For Bible documents, always use share dialog
+    // For Bible documents, always use direct verse copy (from Ctrl + c shortcut)
     if (documentType.value === "bible") {
         const sel = android.querySelection();
         if (sel != null && typeof sel !== "string") {
-            android.shareVerse(sel.bookInitials, sel.startOrdinal, sel.endOrdinal);
+            android.copyVerse(sel.bookInitials, sel.startOrdinal, sel.endOrdinal);
             return true;
         }
         return false;
