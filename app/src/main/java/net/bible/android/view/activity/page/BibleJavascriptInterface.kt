@@ -401,7 +401,7 @@ class BibleJavascriptInterface(
     fun copyText(text: String) {
         scope.launch(Dispatchers.Main) {
             CommonUtils.copyToClipboard(
-                ClipData.newPlainText("AndBible", text)
+                ClipData.newPlainText(bibleView.context.getString(R.string.app_name), text)
             )
         }
     }
