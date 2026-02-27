@@ -1,0 +1,18 @@
+- Add compact Strong's/morphology display with responsive layout (989b7bee2)
+- Add dotted underline to words in Strong's links mode (96191c94a)
+- Show both Strong's and morphology when either link is clicked (f16a12ed3)
+- Use inherited color for Strong's/morph labels in monochrome mode (88f4b7524)
+- Improve translation-note styling in dictionary view (b04446ee1)
+- Optimize Strong's search performance by compiling Pattern once (4f3cbde10)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
