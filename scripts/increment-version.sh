@@ -102,10 +102,7 @@ echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
 #   production mode: always the latest production-* tag
 #   build mode: latest build-* tag, falling back to latest production-* tag
 if [[ "$BUILD_MODE" == true ]]; then
-    PREVIOUS_TAG=$(git describe --tags --match 'build-*' --abbrev=0 HEAD 2>/dev/null || echo "")
-    if [[ -z "$PREVIOUS_TAG" ]]; then
-        PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
-    fi
+    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --match 'build-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 else
     PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 fi
@@ -137,6 +134,7 @@ if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; th
 Output ONLY a bulleted list (- item) of user-facing changes.
 Group related commits into single items. Skip version increment commits, dependency bumps, CI/docs-only changes, and CLAUDE.md/README changes.
 If a commit references a GitHub issue (#NNN), include it in parentheses at the end of the item.
+If there is no issue number, include the short commit hash instead (e.g. (abc1234)).
 Keep items concise (one line each). Write in English.
 Order: new features first, then improvements, then bug fixes." 2>/dev/null) || true
         fi
