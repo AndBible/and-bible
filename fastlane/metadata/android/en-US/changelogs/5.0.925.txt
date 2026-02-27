@@ -1,0 +1,24 @@
+- Add tab view for multiple Strong's/morphology dictionaries (c159b9d45)
+- Always show both Strong's and morphology data when clicking dictionary links (4572f841f)
+- Add compact Strong's/morphology display with responsive layout (989b7bee2)
+- Add dotted underline to words in Strong's links mode (96191c94a)
+- Store window buttons bar visibility per workspace instead of globally (ab5e718d3)
+- Use TabNavigation component for dictionary tabs in StrongsDocument with horizontal scroll (6c37ea597)
+- Use inherited color for Strong's/morph labels in monochrome mode (88f4b7524)
+- Improve translation-note styling in dictionary view (b04446ee1)
+- Remove decorative content from monochrome styling in Note.vue (84cd781e1)
+- Fix StrongsDocument two-column layout centering and proportions (f8eb9d4b5)
+- Fix rend-x-indirect styling and inline dictionary translation notes (c3129bde8)
+- Compile Strong's search pattern once for better performance (4f3cbde10)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
