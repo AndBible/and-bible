@@ -201,8 +201,8 @@ function findAllLink(frag: OsisFragmentType): string | null {
   &.two-column {
     @media (min-width: 600px) {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1em;
+      grid-template-columns: 2fr 1fr;
+      gap: 2em;
     }
   }
 }
