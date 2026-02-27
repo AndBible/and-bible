@@ -63,7 +63,7 @@ import epubRef from "@/components/ePub/EpubRef.vue";
 
 const teiComponents = {
     Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-    Rdg: Hi, Def: Div, Etym: Hi,
+    Rdg: Hi, Def: Hi, Etym: Hi,
 }
 
 const andBibleComponents = {
