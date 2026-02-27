@@ -43,7 +43,7 @@ fdroid-release:
 	@VERSION_NAME=$$(grep -o 'android:versionName="[^"]*"' app/src/main/AndroidManifest.xml | grep -o '"[^"]*"' | tr -d '"'); \
 	TAG="v$$VERSION_NAME-fdroid"; \
 	echo "Creating F-Droid tag: $$TAG"; \
-	git tag -a "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
+	git tag -s "$$TAG" -m "F-Droid release $$VERSION_NAME"; \
 	echo "Pushing tag to GitHub..."; \
 	git push origin "$$TAG"; \
 	echo "Done: $$TAG"
