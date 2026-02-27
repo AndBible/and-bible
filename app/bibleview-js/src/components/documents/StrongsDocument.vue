@@ -110,6 +110,9 @@ function findAllLink(frag: OsisFragmentType): string | null {
 
 .strongs-number {
   color: coral;
+  .monochrome & {
+    color: inherit;
+  }
 }
 
 .dict-label {
@@ -134,6 +137,9 @@ function findAllLink(frag: OsisFragmentType): string | null {
 
 .morph-code {
   color: coral;
+  .monochrome & {
+    color: inherit;
+  }
 }
 
 .morph-entry {
