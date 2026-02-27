@@ -103,6 +103,13 @@ class OsisFragment(
         } else emptyMap()
     }
 
+    val isStrongsDictionary: Boolean get() =
+        book.hasFeature(FeatureType.HEBREW_DEFINITIONS) ||
+        book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
+    val isMorphDictionary: Boolean get() =
+        book.hasFeature(FeatureType.GREEK_PARSE)
+
     val annotateRef: VerseRange? get() {
         val annotateRef = xml.getChild("div")?.getAttribute("annotateRef")?.value ?: return null
         if(book !is SwordBook) return null

@@ -40,6 +40,7 @@ export interface MultiFragmentDocument extends BaseDocument {
     type: "multi"
     osisFragments: OsisFragment[]
     compare: boolean
+    contentType?: "strongs" | null
 }
 
 
