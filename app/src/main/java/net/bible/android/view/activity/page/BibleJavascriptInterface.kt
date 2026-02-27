@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import android.app.AlertDialog
+import android.content.ClipData
 import android.content.Intent
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -393,6 +394,15 @@ class BibleJavascriptInterface(
     fun copyVerse(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.copySelectionToClipboard(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun copyText(text: String) {
+        scope.launch(Dispatchers.Main) {
+            CommonUtils.copyToClipboard(
+                ClipData.newPlainText("AndBible", text)
+            )
         }
     }
 
