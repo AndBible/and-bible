@@ -212,6 +212,54 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     echo "Pushing tag to GitHub..."
     git push origin "$TAG_NAME"
     echo -e "${GREEN}✓ Changes and tag pushed to GitHub successfully${NC}"
+
+    # Wait for CI workflow to start and approve deployment
+    if command -v gh >/dev/null 2>&1; then
+        echo ""
+        echo "Waiting for CI workflow to start..."
+        RUN_ID=""
+        for i in $(seq 1 30); do
+            RUN_ID=$(gh run list --workflow=build-apk.yml --limit 1 --json databaseId,status,headBranch \
+                --jq ".[] | select(.status == \"waiting\" or .status == \"queued\" or .status == \"in_progress\") | .databaseId" 2>/dev/null)
+            if [[ -n "$RUN_ID" ]]; then
+                break
+            fi
+            sleep 2
+        done
+
+        if [[ -n "$RUN_ID" ]]; then
+            echo "Found workflow run: $RUN_ID"
+            # Wait for it to reach "waiting" (pending approval) state
+            for i in $(seq 1 30); do
+                PENDING=$(gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" --jq '.[].environment.id' 2>/dev/null)
+                if [[ -n "$PENDING" ]]; then
+                    break
+                fi
+                sleep 2
+            done
+
+            if [[ -n "$PENDING" ]]; then
+                echo -e "${YELLOW}Approving deployment for workflow run $RUN_ID...${NC}"
+                # Collect all pending environment IDs as -F array params
+                APPROVE_ARGS=()
+                while IFS= read -r eid; do
+                    APPROVE_ARGS+=(-F "environment_ids[]=$eid")
+                done < <(gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" --jq '.[].environment.id' 2>/dev/null)
+                gh api "repos/{owner}/{repo}/actions/runs/$RUN_ID/pending_deployments" \
+                    --method POST \
+                    "${APPROVE_ARGS[@]}" \
+                    -f state=approved \
+                    -f comment="Approved via increment-version script" \
+                    >/dev/null 2>&1 && \
+                    echo -e "${GREEN}✓ Deployment approved${NC}" || \
+                    echo -e "${YELLOW}Warning: Could not approve deployment. Approve manually at: https://github.com/AndBible/and-bible/actions/runs/$RUN_ID${NC}"
+            else
+                echo -e "${YELLOW}Workflow not waiting for approval yet. Check: https://github.com/AndBible/and-bible/actions/runs/$RUN_ID${NC}"
+            fi
+        else
+            echo -e "${YELLOW}Could not find CI workflow run. Check GitHub Actions manually.${NC}"
+        fi
+    fi
 else
     echo -e "${YELLOW}Changes and tag created locally but not pushed.${NC}"
     echo "To push later, run:"
