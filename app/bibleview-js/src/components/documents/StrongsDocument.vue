@@ -18,7 +18,17 @@
 <template>
   <div class="strongs-layout" :class="{ 'two-column': hasBothColumns }">
     <div class="strongs-column" v-if="strongsEntries.length > 0">
-      <div v-for="[strongsKey, fragments] in strongsEntries" :key="strongsKey" class="strongs-group">
+      <div class="dict-tabs" v-if="strongsDictionaries.size > 1">
+        <button
+            v-for="[initials, abbreviation] in strongsDictionaries"
+            :key="initials"
+            class="dict-tab"
+            :class="{ active: selectedStrongsDict === initials }"
+            @click="selectedStrongsDict = initials"
+        >{{ abbreviation }}
+        </button>
+      </div>
+      <div v-for="[strongsKey, fragments] in filteredStrongsEntries" :key="strongsKey" class="strongs-group">
         <div class="strongs-header">
           <span class="strongs-number">{{ strongsKey }}</span>
         </div>
@@ -29,15 +39,24 @@
         <div class="find-all" v-if="findAllLink(fragments[0])">
           <a :href="findAllLink(fragments[0])!">{{ strings.findAllOccurrences }}</a>
         </div>
-        <div v-if="strongsEntries.length > 1" class="separator"/>
+        <div v-if="filteredStrongsEntries.length > 1" class="separator"/>
       </div>
     </div>
 
     <div class="morph-column" v-if="morphFragments.length > 0">
-      <div v-for="frag in morphFragments" :key="frag.key" class="morph-entry">
+      <div class="dict-tabs" v-if="morphDictionaries.size > 1">
+        <button
+            v-for="[initials, abbreviation] in morphDictionaries"
+            :key="initials"
+            class="dict-tab"
+            :class="{ active: selectedMorphDict === initials }"
+            @click="selectedMorphDict = initials"
+        >{{ abbreviation }}
+        </button>
+      </div>
+      <div v-for="frag in filteredMorphFragments" :key="frag.key" class="morph-entry">
         <div class="morph-header">
           <span class="morph-code">{{ frag.keyName }}</span>
-          <span v-if="morphFragments.length > 1" class="dict-label">&mdash; {{ frag.bookAbbreviation }}</span>
         </div>
         <OsisFragment hide-titles :fragment="frag"/>
       </div>
@@ -48,13 +67,13 @@
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
-import {computed} from "vue";
+import {computed, ref, watch} from "vue";
 import {OsisFragment as OsisFragmentType} from "@/types/client-objects";
 import {MultiFragmentDocument} from "@/types/documents";
 
 const props = defineProps<{ document: MultiFragmentDocument }>();
 
-const {strings} = useCommon();
+const {strings, android} = useCommon();
 
 const strongsEntries = computed(() => {
     const groups = new Map<string, OsisFragmentType[]>();
@@ -75,9 +94,83 @@ const morphFragments = computed(() => {
     return props.document.osisFragments.filter(frag => !frag.features?.type);
 });
 
+const strongsDictionaries = computed(() => {
+    const dicts = new Map<string, string>();
+    for (const [, fragments] of strongsEntries.value) {
+        for (const frag of fragments) {
+            if (!dicts.has(frag.bookInitials)) {
+                dicts.set(frag.bookInitials, frag.bookAbbreviation);
+            }
+        }
+    }
+    return dicts;
+});
+
+const morphDictionaries = computed(() => {
+    const dicts = new Map<string, string>();
+    for (const frag of morphFragments.value) {
+        if (!dicts.has(frag.bookInitials)) {
+            dicts.set(frag.bookInitials, frag.bookAbbreviation);
+        }
+    }
+    return dicts;
+});
+
+function initialStrongsDict(): string | undefined {
+    return props.document.state?.selectedStrongsDict
+        ?? strongsDictionaries.value.keys().next().value;
+}
+
+function initialMorphDict(): string | undefined {
+    return props.document.state?.selectedMorphDict
+        ?? morphDictionaries.value.keys().next().value;
+}
+
+const selectedStrongsDict = ref<string | undefined>(initialStrongsDict());
+const selectedMorphDict = ref<string | undefined>(initialMorphDict());
+
+// Reset selection when available dictionaries change (e.g. hebrew→greek)
+watch(strongsDictionaries, (dicts) => {
+    if (selectedStrongsDict.value && !dicts.has(selectedStrongsDict.value)) {
+        selectedStrongsDict.value = dicts.keys().next().value;
+    }
+});
+
+watch(morphDictionaries, (dicts) => {
+    if (selectedMorphDict.value && !dicts.has(selectedMorphDict.value)) {
+        selectedMorphDict.value = dicts.keys().next().value;
+    }
+});
+
+const filteredStrongsEntries = computed(() => {
+    if (strongsDictionaries.value.size <= 1) return strongsEntries.value;
+    const sel = selectedStrongsDict.value;
+    return strongsEntries.value.map(([key, fragments]) => {
+        const filtered = fragments.filter(f => f.bookInitials === sel);
+        return [key, filtered.length > 0 ? filtered : fragments] as [string, OsisFragmentType[]];
+    });
+});
+
+const filteredMorphFragments = computed(() => {
+    if (morphDictionaries.value.size <= 1) return morphFragments.value;
+    const sel = selectedMorphDict.value;
+    const filtered = morphFragments.value.filter(f => f.bookInitials === sel);
+    return filtered.length > 0 ? filtered : morphFragments.value;
+});
+
 const hasBothColumns = computed(() => {
     return strongsEntries.value.length > 0 && morphFragments.value.length > 0;
 });
+
+function saveState() {
+    android.saveState({
+        selectedStrongsDict: selectedStrongsDict.value,
+        selectedMorphDict: selectedMorphDict.value,
+    });
+}
+
+watch(selectedStrongsDict, saveState);
+watch(selectedMorphDict, saveState);
 
 function findAllLink(frag: OsisFragmentType): string | null {
     const {type: featureType = null, keyName: featureKeyName = null} = frag.features;
@@ -94,6 +187,32 @@ function findAllLink(frag: OsisFragmentType): string | null {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 1em;
+    }
+  }
+}
+
+.dict-tabs {
+  display: flex;
+  gap: 0.25em;
+  margin-bottom: 0.5em;
+  flex-wrap: wrap;
+}
+
+.dict-tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.2em 0.5em;
+  font-size: 0.85em;
+  cursor: pointer;
+  color: currentColor;
+  opacity: 0.6;
+
+  &.active {
+    opacity: 1;
+    border-bottom-color: coral;
+    .monochrome & {
+      border-bottom-color: currentColor;
     }
   }
 }

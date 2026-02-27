@@ -166,7 +166,11 @@ class BibleDocument(
     }
 }
 
-class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, private val compare: Boolean=false): Document {
+class MultiFragmentDocument(
+    private val osisFragments: List<OsisFragment>,
+    private val compare: Boolean = false,
+    private val state: String? = null
+): Document {
     private val contentType: String? get() {
         if (compare) return null
         val hasStrongs = osisFragments.any { it.isStrongsDictionary }
@@ -181,6 +185,7 @@ class MultiFragmentDocument(private val osisFragments: List<OsisFragment>, priva
             "osisFragments" to listToJson(osisFragments.map { mapToJson(it.toHashMap) }),
             "compare" to json.encodeToString(serializer(), compare),
             "contentType" to wrapString(contentType),
+            "state" to (state ?: "undefined"),
         )
 }
 
