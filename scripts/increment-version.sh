@@ -210,10 +210,14 @@ fi
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
 
-# Ask if user wants to push
-echo ""
-echo -e "${YELLOW}Do you want to push the changes and tag to GitHub? (y/n)${NC}"
-read -r push_response
+# Push to GitHub
+if [[ "$BUILD_MODE" == true ]]; then
+    push_response="y"
+else
+    echo ""
+    echo -e "${YELLOW}Do you want to push the changes and tag to GitHub? (y/n)${NC}"
+    read -r push_response
+fi
 if [[ "$push_response" =~ ^[Yy]$ ]]; then
     echo "Pushing changes to GitHub..."
     git push origin
