@@ -216,11 +216,12 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
     # Wait for CI workflow to start and approve deployment
     if command -v gh >/dev/null 2>&1; then
         echo ""
-        echo "Waiting for CI workflow to start..."
+        echo "Waiting for CI workflow to start for tag $TAG_NAME..."
+        HEAD_SHA=$(git rev-parse HEAD)
         RUN_ID=""
         for i in $(seq 1 30); do
-            RUN_ID=$(gh run list --workflow=build-apk.yml --limit 1 --json databaseId,status,headBranch \
-                --jq ".[] | select(.status == \"waiting\" or .status == \"queued\" or .status == \"in_progress\") | .databaseId" 2>/dev/null)
+            RUN_ID=$(gh api "repos/{owner}/{repo}/actions/workflows/build-apk.yml/runs?head_sha=$HEAD_SHA&per_page=1" \
+                --jq '.workflow_runs[0].id // empty' 2>/dev/null)
             if [[ -n "$RUN_ID" ]]; then
                 break
             fi
