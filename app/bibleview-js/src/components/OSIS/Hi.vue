@@ -53,6 +53,17 @@ useCommon();
 
 .rend-x-indirect {
     font-style: italic;
-    opacity: 0.7;
+    color: #78909c;
 }
+
+.night .rend-x-indirect {
+    color: #b0bec5;
+}
+
+.monochrome .rend-x-indirect {
+    color: inherit;
+}
+
+.monochrome .rend-x-indirect::before { content: "⟨"; }
+.monochrome .rend-x-indirect::after { content: "⟩"; }
 </style>
