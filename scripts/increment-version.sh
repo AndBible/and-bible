@@ -2,6 +2,8 @@
 
 # Version increment script for AndBible
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
+# Usage: ./scripts/increment-version.sh [--build]
+#   --build: Create a test build tag (build-X) instead of production tag (production-X)
 
 set -e  # Exit on any error
 
@@ -11,13 +13,24 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Parse arguments
+BUILD_MODE=false
+if [[ "$1" == "--build" ]]; then
+    BUILD_MODE=true
+fi
+
 # Configuration
 ANDROID_MANIFEST_PATH="app/src/main/AndroidManifest.xml"
 CHANGELOG_DIR="fastlane/metadata/android/en-US/changelogs"
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-echo -e "${GREEN}AndBible Version Increment Script${NC}"
-echo "=================================="
+if [[ "$BUILD_MODE" == true ]]; then
+    echo -e "${GREEN}AndBible Test Build Script${NC}"
+    echo "=========================="
+else
+    echo -e "${GREEN}AndBible Version Increment Script${NC}"
+    echo "=================================="
+fi
 
 # Check if we're in the right directory
 if [[ ! -f "$ANDROID_MANIFEST_PATH" ]]; then
@@ -84,22 +97,82 @@ fi
 
 echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
 
-# Copy changelog
-echo "Copying changelog from $CURRENT_CHANGELOG to $NEW_CHANGELOG..."
-cp "$CURRENT_CHANGELOG" "$NEW_CHANGELOG"
-echo -e "${GREEN}✓ Changelog copied successfully${NC}"
+# Generate changelog with auto-summarized release notes
+# Find the previous tag to diff against:
+#   production mode: always the latest production-* tag
+#   build mode: latest build-* tag, falling back to latest production-* tag
+if [[ "$BUILD_MODE" == true ]]; then
+    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --match 'build-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+else
+    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+fi
+if [[ -n "$PREVIOUS_TAG" ]]; then
+    echo "Previous tag: $PREVIOUS_TAG"
+else
+    echo -e "${YELLOW}Warning: No previous tag found.${NC}"
+fi
 
-# Show the changelog content
+# Extract the fixed footer from the current changelog (starts at the line matching major.minor version)
+MAJOR_MINOR=$(echo "$CURRENT_VERSION_NAME" | sed 's/\.[0-9]*$//')
+CHANGELOG_FOOTER=$(sed -n "/^${MAJOR_MINOR}$/,\$p" "$CURRENT_CHANGELOG")
+
+if [[ -z "$CHANGELOG_FOOTER" ]]; then
+    echo -e "${YELLOW}Warning: Could not extract changelog footer from $CURRENT_CHANGELOG${NC}"
+    echo "Using full previous changelog as footer."
+    CHANGELOG_FOOTER=$(cat "$CURRENT_CHANGELOG")
+fi
+
+# Try to auto-generate release notes summary from git history
+GENERATED_SUMMARY=""
+if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
+    GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --oneline --no-merges)
+    if [[ -n "$GIT_LOG" ]]; then
+        echo "Generating release notes from git history (${PREVIOUS_TAG}..HEAD)..."
+        if command -v claude >/dev/null 2>&1; then
+            GENERATED_SUMMARY=$(echo "$GIT_LOG" | claude -p --model haiku \
+                "Generate a changelog summary from these git commits for AndBible Bible study app.
+Output ONLY a bulleted list (- item) of user-facing changes.
+Group related commits into single items. Skip version increment commits, dependency bumps, CI/docs-only changes, and CLAUDE.md/README changes.
+If a commit references a GitHub issue (#NNN), include it in parentheses at the end of the item.
+If there is no issue number, include the short commit hash instead (e.g. (abc1234)).
+Keep items concise (one line each). Write in English.
+Order: new features first, then improvements, then bug fixes." 2>/dev/null) || true
+        fi
+    fi
+fi
+
+if [[ -n "$GENERATED_SUMMARY" ]]; then
+    echo -e "${GREEN}✓ Release notes generated from git history${NC}"
+    # Compose new changelog: generated summary + blank line + footer
+    printf '%s\n\n%s\n' "$GENERATED_SUMMARY" "$CHANGELOG_FOOTER" > "$NEW_CHANGELOG"
+else
+    echo -e "${YELLOW}Warning: Could not generate release notes (claude not available or no commits found).${NC}"
+    echo "Copying previous changelog as fallback."
+    cp "$CURRENT_CHANGELOG" "$NEW_CHANGELOG"
+fi
+
+# Show the changelog content and let user edit if needed
 echo ""
-echo -e "${YELLOW}Current changelog content:${NC}"
+echo -e "${YELLOW}New changelog content:${NC}"
 echo "=========================="
 cat "$NEW_CHANGELOG"
 echo "=========================="
 echo ""
 
-# Ask user if they want to proceed
-echo -e "${YELLOW}Do you want to proceed with the current changelog? (y/n)${NC}"
+echo -e "${YELLOW}Do you want to proceed with this changelog? (y=yes / e=edit / n=abort)${NC}"
 read -r response
+if [[ "$response" =~ ^[Ee]$ ]]; then
+    echo "Opening changelog in editor..."
+    ${EDITOR:-nano} "$NEW_CHANGELOG"
+    echo ""
+    echo -e "${YELLOW}Updated changelog content:${NC}"
+    echo "=========================="
+    cat "$NEW_CHANGELOG"
+    echo "=========================="
+    echo ""
+    echo -e "${YELLOW}Proceed with this changelog? (y/n)${NC}"
+    read -r response
+fi
 if [[ ! "$response" =~ ^[Yy]$ ]]; then
     echo "Aborted by user. Reverting changes..."
     git checkout -- "$ANDROID_MANIFEST_PATH"
@@ -117,9 +190,15 @@ echo "Creating commit: $COMMIT_MESSAGE"
 git commit -S -m "$COMMIT_MESSAGE"
 
 # Create tag
-TAG_NAME="production-$NEW_VERSION_CODE"
+if [[ "$BUILD_MODE" == true ]]; then
+    TAG_NAME="build-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Test build $NEW_VERSION_NAME"
+else
+    TAG_NAME="production-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Release $NEW_VERSION_NAME"
+fi
 echo "Creating tag: $TAG_NAME"
-git tag -s "$TAG_NAME" -m "Release $NEW_VERSION_NAME"
+git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
 
@@ -144,6 +223,6 @@ echo ""
 echo -e "${GREEN}Version increment completed successfully!${NC}"
 echo "Summary:"
 echo "- Version updated from $CURRENT_VERSION_NAME to $NEW_VERSION_NAME"
-echo "- Changelog copied to $NEW_CHANGELOG"
+echo "- Changelog generated at $NEW_CHANGELOG"
 echo "- Commit created: $COMMIT_MESSAGE"
 echo "- Tag created: $TAG_NAME"
