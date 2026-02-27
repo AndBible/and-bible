@@ -36,11 +36,17 @@ export interface BaseDocument {
     type: BibleViewDocumentType
 }
 
+export type StrongsDocumentState = {
+    selectedStrongsDict?: string
+    selectedMorphDict?: string
+}
+
 export interface MultiFragmentDocument extends BaseDocument {
     type: "multi"
     osisFragments: OsisFragment[]
     compare: boolean
     contentType?: "strongs" | null
+    state?: StrongsDocumentState
 }
 
 
