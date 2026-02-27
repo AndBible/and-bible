@@ -253,7 +253,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
 
-    private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", true)
+    private val restoreButtonsVisible get() = windowRepository.workspaceSettings.restoreButtonsVisible
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
