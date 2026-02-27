@@ -32,7 +32,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		android:layout_alignParentTop="true"
 		android:imeOptions="actionSearch"
-		android:inputType="textCapSentences"
+		android:inputType="textNoSuggestions"
 		android:hint="@string/type_text_or_bible_reference"
 		android:padding="10dip"/>
 
