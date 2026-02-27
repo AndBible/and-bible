@@ -20,6 +20,7 @@
   <ErrorDocument v-else-if="document.type === 'error'" :document="error"/>
   <MyNotesDocument v-else-if="document.type === 'notes'" :document="myNotes"/>
   <StudyPadDocument v-else-if="document.type === 'journal'" :document="studyPad"/>
+  <StrongsDocument v-else-if="document.type === 'multi' && multi.contentType === 'strongs'" :document="multi"/>
   <MultiDocument v-else-if="document.type === 'multi'" :document="multi"/>
   <MemorizeDocument v-else-if="document.type === 'memorize'" :document="memorize"/>
 </template>
@@ -31,6 +32,7 @@ import BibleDocument from "@/components/documents/BibleDocument.vue";
 import MyNotesDocument from "@/components/documents/MyNotesDocument.vue";
 import StudyPadDocument from "@/components/documents/StudyPadDocument.vue";
 import MultiDocument from "@/components/documents/MultiDocument.vue";
+import StrongsDocument from "@/components/documents/StrongsDocument.vue";
 import MemorizeDocument from "@/components/documents/MemorizeDocument.vue";
 import {BaseDocument, DocumentOfType} from "@/types/documents";
 
