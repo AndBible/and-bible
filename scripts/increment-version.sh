@@ -3,7 +3,7 @@
 # Version increment script for AndBible
 # This script increments version, creates changelog, commits, tags, and pushes to GitHub
 # Usage: ./scripts/increment-version.sh [--build]
-#   --build: Create a test build tag (build-X) instead of production tag (production-X)
+#   --build: Create a test release tag (test-X) instead of production tag (production-X)
 
 set -e  # Exit on any error
 
@@ -98,14 +98,9 @@ fi
 echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
 
 # Generate changelog with auto-summarized release notes
-# Find the previous tag to diff against:
-#   production mode: always the latest production-* tag
-#   build mode: latest build-* tag, falling back to latest production-* tag
-if [[ "$BUILD_MODE" == true ]]; then
-    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --match 'build-*' --abbrev=0 HEAD 2>/dev/null || echo "")
-else
-    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
-fi
+# Always diff against the latest production-* tag (also for test builds, since test releases
+# are cleaned up automatically and users need to see changes since last stable release)
+PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
 if [[ -n "$PREVIOUS_TAG" ]]; then
     echo "Previous tag: $PREVIOUS_TAG"
 else
@@ -195,8 +190,8 @@ fi
 
 # Create tag
 if [[ "$BUILD_MODE" == true ]]; then
-    TAG_NAME="build-$NEW_VERSION_CODE"
-    TAG_MESSAGE="Test build $NEW_VERSION_NAME"
+    TAG_NAME="test-$NEW_VERSION_CODE"
+    TAG_MESSAGE="Test release $NEW_VERSION_NAME"
 else
     TAG_NAME="production-$NEW_VERSION_CODE"
     TAG_MESSAGE="Release $NEW_VERSION_NAME"
@@ -271,6 +266,24 @@ if [[ "$push_response" =~ ^[Yy]$ ]]; then
             fi
         else
             echo -e "${YELLOW}Could not find CI workflow run. Check GitHub Actions manually.${NC}"
+        fi
+    fi
+
+    # Cleanup old test releases - keep only the most recent one available during build
+    if [[ "$BUILD_MODE" == true ]] && command -v gh >/dev/null 2>&1; then
+        echo ""
+        echo "Cleaning up old test releases (keeping only the most recent)..."
+        OLD_RELEASES=$(gh release list --limit 200 --json tagName \
+            --jq '[.[] | select(.tagName | startswith("test-"))] | .[1:] | .[].tagName' 2>/dev/null || echo "")
+        if [[ -n "$OLD_RELEASES" ]]; then
+            echo "Deleting old test releases:"
+            while IFS= read -r tag; do
+                echo "  Deleting: $tag"
+                gh release delete "$tag" --yes --cleanup-tag 2>/dev/null || echo "  Warning: Could not delete $tag"
+            done <<< "$OLD_RELEASES"
+            echo -e "${GREEN}✓ Old test releases cleaned up${NC}"
+        else
+            echo "No old test releases to clean up."
         fi
     fi
 else
