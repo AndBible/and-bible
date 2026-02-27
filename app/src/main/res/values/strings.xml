@@ -743,6 +743,7 @@
     <string name="doc_type_bible">Bible</string>
     <string name="doc_type_commentary">Commentary</string>
     <string name="doc_type_dictionary">Dictionary</string>
+    <string name="doc_type_daily_devotional">Daily Devotional</string>
     <string name="doc_type_book">Book</string>
     <string name="doc_type_map">Map</string>
     <string name="doc_type_addons">Add-ons</string>

@@ -53,7 +53,7 @@ import javax.inject.Inject
 
 
 enum class DocumentCategory {
-    BIBLE, COMMENTARY, DICTIONARY, GENERAL_BOOK, MAPS, MYNOTE;
+    BIBLE, COMMENTARY, DICTIONARY, DAILY_DEVOTIONS, GENERAL_BOOK, MAPS, MYNOTE;
 
     val bookCategory: BookCategory get() = BookCategory.valueOf(this.name)
 }
@@ -63,6 +63,7 @@ val BookCategory.documentCategory: DocumentCategory get() {
         BookCategory.BIBLE -> DocumentCategory.BIBLE
         BookCategory.COMMENTARY -> DocumentCategory.COMMENTARY
         BookCategory.DICTIONARY -> DocumentCategory.DICTIONARY
+        BookCategory.DAILY_DEVOTIONS -> DocumentCategory.DAILY_DEVOTIONS
         BookCategory.GENERAL_BOOK -> DocumentCategory.GENERAL_BOOK
         BookCategory.MAPS -> DocumentCategory.MAPS
         // This should not normally be there, but user that has used legacy my notes, could have this value stored in DB
@@ -82,6 +83,7 @@ open class CurrentPageManager @Inject constructor(
     val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, this)
     val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser,  this)
     val currentDictionary = CurrentDictionaryPage(this)
+	val currentDailyDevotional = CurrentDailyDevotionalPage(this)
     val currentGeneralBook = CurrentGeneralBookPage(this)
     val currentMap = CurrentMapPage(this)
 
@@ -151,6 +153,8 @@ open class CurrentPageManager @Inject constructor(
 
     val isDictionaryShown: Boolean
         get() = currentDictionary == currentPage
+	val isDailyDevotionalShown: Boolean
+    	get() = currentDailyDevotional == currentPage
     private val isGenBookShown: Boolean
         get() = currentGeneralBook == currentPage
     val isMapShown: Boolean
@@ -175,12 +179,15 @@ open class CurrentPageManager @Inject constructor(
                 PassageChangeMediator.onCurrentPageChanged(window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
+
                 nextPage.setCurrentDocument(nextDocument)
                 currentPage = nextPage
-
                 // page will change due to above
                 // if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
                 if (nextPage.key != null && (nextPage.isShareKeyBetweenDocs || sameDoc || (nextDocument.bookCategory != BookCategory.GENERAL_BOOK && nextDocument.contains(nextPage.key)))) {
+                    PassageChangeMediator.onCurrentPageChanged(window)
+                } else if (nextPage is CurrentDailyDevotionalPage) {
+                    nextPage.setToToday()
                     PassageChangeMediator.onCurrentPageChanged(window)
                 } else {
                     // pop up a key selection screen
@@ -252,6 +259,7 @@ open class CurrentPageManager @Inject constructor(
             DocumentCategory.BIBLE -> currentBible
             DocumentCategory.COMMENTARY -> currentCommentary
             DocumentCategory.DICTIONARY -> currentDictionary
+			DocumentCategory.DAILY_DEVOTIONS -> currentDailyDevotional
             DocumentCategory.GENERAL_BOOK -> currentGeneralBook
             DocumentCategory.MAPS -> currentMap
             DocumentCategory.MYNOTE -> currentMyNotePage
@@ -263,6 +271,7 @@ open class CurrentPageManager @Inject constructor(
             currentBible.entity.copy(),
             currentCommentary.entity.copy(),
             currentDictionary.pageEntity.copy(),
+			currentDailyDevotional.pageEntity.copy(),
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,
@@ -284,6 +293,7 @@ open class CurrentPageManager @Inject constructor(
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
 
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
+		currentDailyDevotional.restoreFrom(pageManagerEntity.dailyDevotionalPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         jsState = pageManagerEntity.jsState
