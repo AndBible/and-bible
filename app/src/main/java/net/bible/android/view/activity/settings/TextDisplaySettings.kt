@@ -55,6 +55,7 @@ import net.bible.android.view.activity.page.MainBibleActivity.Companion.COLORS_C
 import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.FootnotesInlinePreference
 import net.bible.android.view.activity.page.MorphologyPreference
+import net.bible.android.view.activity.page.NonStrongsWordItalicPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
@@ -132,6 +133,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
         Types.LLM_PROMPT -> LlmPromptPreference(settings)
         Types.INFINITE_SCROLL -> ItemPreference(settings, Types.INFINITE_SCROLL)
+        Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -169,6 +171,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
 
         if(itmOptions is StrongsPreference) {
             updateItem(findPreference(Types.MORPH.name)!!)
+            updateItem(findPreference(Types.NON_STRONGS_WORD_ITALIC.name)!!)
         }
     }
 

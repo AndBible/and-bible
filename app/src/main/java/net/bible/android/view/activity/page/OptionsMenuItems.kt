@@ -216,6 +216,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
                 TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
                 TextDisplaySettings.Types.LLM_PROMPT -> R.string.llm_prompt_title
+                TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
             }
             return application.getString(id)
         }
@@ -244,6 +245,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.MYNOTES -> R.drawable.ic_note_regular_24dp
             TextDisplaySettings.Types.PAGENUMBER -> R.drawable.ic_chapter_verse_numbers_24dp
             TextDisplaySettings.Types.INFINITE_SCROLL -> R.drawable.ic_full_screen_by_scrolling_24dp
+            TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.drawable.ic_format_italic_24dp
             else -> R.drawable.ic_baseline_star_24
         }
 }
@@ -315,7 +317,7 @@ class ExpandXrefsPreference (settings: SettingsBundle) : Preference(settings, Te
 }
 
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
-    override val enabled: Boolean get() = pageManager.hasStrongs
+    override val enabled: Boolean get() = window == null || pageManager.hasStrongs
     override var value get() = if (enabled) super.value else 0
         set(value) {
             super.value = value
@@ -343,8 +345,23 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
 class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
         get() {
+            if (window == null) return true
             val itm = StrongsPreference(settings)
-            return itm.enabled && itm.value as Int > 0
+            return itm.enabled
+        }
+
+    override var value: Any
+        get() = if (enabled) super.value else false
+        set(value) {
+            super.value = value
+        }
+}
+
+class NonStrongsWordItalicPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC) {
+    override val enabled: Boolean
+        get() {
+            if (window == null) return true
+            return StrongsPreference(settings).enabled
         }
 
     override var value: Any

@@ -71,6 +71,8 @@ function handleTabClick(tabId: string) {
 
 .tab-navigation {
   display: flex;
+  overflow-x: auto;
+  &::-webkit-scrollbar { display: none; }
   border-bottom: 2px solid #eee;
   
   .night & {
@@ -94,8 +96,7 @@ function handleTabClick(tabId: string) {
   .noAnimation & {
     transition: none;
   }
-  flex: 1;
-  justify-content: center;
+  flex-shrink: 0;
   
   .night & {
     color: #999;

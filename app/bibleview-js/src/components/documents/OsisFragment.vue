@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <div :id="`frag-${uniqueId}`" :class="`sword-${fragment.bookInitials}`" :lang="fragment.language"
+  <div :id="`frag-${uniqueId}`" :class="[`sword-${fragment.bookInitials}`, {'italic-non-strongs': fragment.hasStrongs && config.nonStrongsWordItalic}]" :lang="fragment.language"
        :dir="fragment.direction">
     <OsisSegment :is-native-html="isNativeHtml" :osis-template="template"/>
   </div>
@@ -76,7 +76,7 @@ const template = computed(() => {
 });
 
 watch(props, () => refreshHighlight());
-useCommon();
+const {config} = useCommon();
 </script>
 
 <style scoped>
@@ -104,5 +104,16 @@ useCommon();
 
 .night .mydoc-markdown {
     @include md.markdown-content-night;
+}
+
+.italic-non-strongs {
+  font-style: italic;
+
+  .has-strongs,
+  .w-base,
+  .verseNumber,
+  .titleStyle {
+    font-style: normal;
+  }
 }
 </style>

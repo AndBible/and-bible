@@ -267,7 +267,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
 
-    private val restoreButtonsVisible get() = preferences.getBoolean("restoreButtonsVisible", true)
+    private val restoreButtonsVisible get() = windowRepository.workspaceSettings.restoreButtonsVisible
 
     val workspaceSettings: WorkspaceEntities.WorkspaceSettings get() = windowRepository.workspaceSettings
     override val integrateWithHistoryManager: Boolean = true
@@ -1732,6 +1732,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         Log.i(TAG, "Activity result:$resultCode")
+
+        if (requestCode == STD_REQUEST_CODE && resultCode == Activity.RESULT_CANCELED) {
+            val currentKey = windowControl.activeWindowPageManager.currentPage.key
+            if (currentKey == null) {
+                historyTraversal.goBack()
+            }
+            return
+        }
+
         val extras = data?.extras
         if (extras != null) {
             when (requestCode) {

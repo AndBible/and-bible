@@ -37,6 +37,11 @@
             android:title="@string/prefs_show_morphology_title"
             android:summary="@string/prefs_show_morphology_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="NON_STRONGS_WORD_ITALIC"
+            android:title="@string/prefs_non_strongs_word_italic_title"
+            android:summary="@string/prefs_non_strongs_word_italic_summary"
+            />
 
         <SwitchPreferenceCompat
             android:key="FOOTNOTES"

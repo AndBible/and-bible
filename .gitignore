@@ -25,6 +25,7 @@
 /ai-local/
 /wiki/
 /readthedocs/
+/.playwright-mcp/
 
 # Sandbox mode dotfiles & git internals
 .bash_profile

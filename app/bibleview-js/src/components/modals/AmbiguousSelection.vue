@@ -121,7 +121,7 @@ const limitAmbiguousModalSize = computed({
     }
 });
 const {bookmarkMap, bookmarkIdsByOrdinal} = inject(globalBookmarksKey)!;
-const {strings} = useCommon();
+const {strings, config} = useCommon();
 const android = inject(androidKey)!;
 const multiSelectionMode = ref(false);
 
@@ -300,7 +300,7 @@ async function handle(event: MouseEvent) {
     console.log("AmbiguousSelection handling", event);
     const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
     const eventFunctions = getHighestPriorityEventFunctions(event);
-    const allEventFunctions = getAllEventFunctions(event);
+    const allEventFunctions = getAllEventFunctions(event).filter(e => config.showBookmarks || !e.options.bookmarkId);
     const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
     if (appSettings.actionMode) return;
     const hadHighlights = hasHighlights.value;

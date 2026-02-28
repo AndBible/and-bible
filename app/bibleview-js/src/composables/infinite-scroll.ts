@@ -45,6 +45,7 @@ export function useInfiniteScroll(
     let touchDown = false;
     let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
     let isProcessing = false;
+    let reachedStart = false;
     const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
     const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
     const reachedEnd = ref(false);
@@ -60,6 +61,7 @@ export function useInfiniteScroll(
         clearDocumentCount++;
         reachedEnd.value = false;
         consecutiveEmptyLoads = 0;
+        reachedStart = false;
     }
 
     function needsMoreContent(): boolean {
@@ -104,6 +106,9 @@ export function useInfiniteScroll(
                         insertThisTextAtEnd(...validEndChaps);
                         contentAdded = true;
                         await nextTick();
+                    } else {
+                        reachedEnd.value = true;
+                        console.log("inf: Reached end of content")
                     }
                 }
                 if(topChaps.length > 0) {
@@ -113,6 +118,9 @@ export function useInfiniteScroll(
                         await insertThisTextAtTop(validTopChaps);
                         contentAdded = true;
                         await nextTick();
+                    } else {
+                        reachedStart = true;
+                        console.log("inf: Reached start of content")
                     }
                 }
                 
@@ -183,7 +191,7 @@ export function useInfiniteScroll(
             loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (!isEnabled.value || isProcessing) return;
+            if (!isEnabled.value || isProcessing || reachedStart) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;

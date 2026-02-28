@@ -50,4 +50,20 @@ useCommon();
 .hi-super, .rend-super {
     vertical-align: super;
 }
+
+.rend-x-indirect {
+    font-style: italic;
+    color: #78909c;
+}
+
+.night .rend-x-indirect {
+    color: #b0bec5;
+}
+
+.monochrome .rend-x-indirect {
+    color: inherit;
+}
+
+.monochrome .rend-x-indirect::before { content: "⟨"; }
+.monochrome .rend-x-indirect::after { content: "⟩"; }
 </style>

@@ -22,6 +22,7 @@ import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.os.Build
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
@@ -89,6 +90,7 @@ class TextToSpeechServiceManager @Inject constructor(
 ) {
 
     private var mTts: TextToSpeech? = null
+    private var configuredEnginePackage: String? = null
 
     private var localePreferenceList: MutableList<Locale> = ArrayList()
     private var currentLocale: Locale = Locale.getDefault()
@@ -389,23 +391,49 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun initializeTtsOrStartSpeaking() {
+        val preferredEnginePackage = getPreferredTtsEnginePackage()
         if (mTts == null) {
             Log.i(TAG, "mTts was null so initialising Tts")
-
-            try {
-                // Initialize text-to-speech. This is an asynchronous operation.
-                // The OnInitListener (second argument) (this class) is called after initialization completes.
-                mTts = TextToSpeech(application.applicationContext, this.onInitListener)
-                if(application.isRunningTests) {
-                    this.onInitListener.onInit(TextToSpeech.SUCCESS)
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Error initialising Tts", e)
-                showError(R.string.error_occurred, e)
-            }
-
+            initializeTts(preferredEnginePackage)
+        } else if (preferredEnginePackage != configuredEnginePackage) {
+            Log.i(
+                TAG,
+                "TTS engine preference changed from '$configuredEnginePackage' to '$preferredEnginePackage', reinitialising"
+            )
+            shutdownTtsEngine()
+            initializeTts(preferredEnginePackage)
         } else {
             startSpeaking()
+        }
+    }
+
+    private fun initializeTts(preferredEnginePackage: String?) {
+        try {
+            // Initialize text-to-speech. This is an asynchronous operation.
+            // The OnInitListener (second argument) (this class) is called after initialization completes.
+            mTts = if (preferredEnginePackage != null) {
+                TextToSpeech(application.applicationContext, this.onInitListener, preferredEnginePackage)
+            } else {
+                TextToSpeech(application.applicationContext, this.onInitListener)
+            }
+            configuredEnginePackage = preferredEnginePackage
+            if (application.isRunningTests) {
+                this.onInitListener.onInit(TextToSpeech.SUCCESS)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error initialising Tts", e)
+            showError(R.string.error_occurred, e)
+        }
+    }
+
+    private fun getPreferredTtsEnginePackage(): String? {
+        return try {
+            Settings.Secure.getString(application.contentResolver, Settings.Secure.TTS_DEFAULT_SYNTH)
+                ?.trim()
+                ?.takeIf { it.isNotEmpty() }
+        } catch (e: Exception) {
+            Log.w(TAG, "Unable to read preferred TTS engine from system settings", e)
+            null
         }
     }
 
@@ -633,6 +661,7 @@ class TextToSpeechServiceManager @Inject constructor(
             Log.e(TAG, "Error shutting down Tts engine", e)
         } finally {
             mTts = null
+            configuredEnginePackage = null
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

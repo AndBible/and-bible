@@ -53,6 +53,7 @@ import NoOp from "@/components/OSIS/NoOp.vue";
 import H3 from "@/components/MyBible/H3.vue";
 import I from "@/components/MyBible/I.vue";
 import S from "@/components/MyBible/S.vue";
+import J from "@/components/MyBible/J.vue";
 import B from "@/components/MyBible/B.vue";
 import Br from "@/components/MyBible/Br.vue";
 import Li from "@/components/MyBible/Li.vue";
@@ -65,7 +66,7 @@ import epubRef from "@/components/ePub/EpubRef.vue";
 
 const teiComponents = {
     Ref: Reference, Pron: Hi, Orth: Hi, EntryFree: Div,
-    Rdg: Hi, Def: Div, Etym: Hi,
+    Rdg: Hi, Def: Hi, Etym: Hi,
 }
 
 const andBibleComponents = {
@@ -73,7 +74,7 @@ const andBibleComponents = {
 }
 
 const myBibleComponents = {
-    S, M: NoOp, I, J: Q, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong,
+    S, M: NoOp, I, J, N: Note, Pb, F: NoOp, H: Title, E: Hi, H3, B, Br, Li, Ol, Strong,
 }
 
 const osisComponents = {
@@ -123,4 +124,3 @@ export default defineComponent({
     },
 })
 </script>
-

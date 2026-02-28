@@ -174,13 +174,21 @@ class LinkControl @Inject constructor(
 	}
 
     @Throws(NoSuchKeyException::class)
-    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, book: Book?): BookAndKey? {
+    private fun getSpecificDocRefKey(initials: String?, reference: String, versification: Versification, book: Book?): Key? {
         var ref = reference
         if (StringUtils.isEmpty(initials)) {
             return getBibleKey(ref, versification, book)
         } else {
             val document = SwordDocumentFacade.getDocumentByInitials(initials)
-            if (document == null) { // tell user to install book
+            if (document == null) {
+                val strongsMatch = Regex("^([GH])0*[0-9]+").find(reference)
+                if (strongsMatch != null) {
+                    return when (strongsMatch.groupValues[1]) {
+                        "G" -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, reference, StrongsKeyType.GREEK)
+                        "H" -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, reference, StrongsKeyType.HEBREW)
+                        else -> { Dialogs.showErrorMsg(R.string.document_not_installed, initials); null }
+                    }
+                }
                 Dialogs.showErrorMsg(R.string.document_not_installed, initials)
             } else if(document.bookCategory == BookCategory.BIBLE && book == null) {
                 return getBibleKey(ref, versification, book)
@@ -387,7 +395,7 @@ class LinkControl @Inject constructor(
         if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
-            windowControl.showLink(document, key)
+            windowControl.showLink(document ?: defaultDocument, key)
         } else { // old style - open links in current window
             currentPageManager.setCurrentDocumentAndKey(document ?: defaultDocument, key)
         }

@@ -172,6 +172,7 @@ class WorkspaceEntities {
         @Deprecated("Use llmPromptId instead") @ColumnInfo(defaultValue = "NULL") var translateTo: String? = null,
         @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -198,6 +199,7 @@ class WorkspaceEntities {
             PAGENUMBER,
             LLM_PROMPT,
             INFINITE_SCROLL,
+            NON_STRONGS_WORD_ITALIC,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -225,11 +227,12 @@ class WorkspaceEntities {
             Types.PAGENUMBER -> showPageNumber
             Types.LLM_PROMPT -> llmPromptId
             Types.INFINITE_SCROLL -> infiniteScroll
+            Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
         }
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> strongsMode = value as Int?
+                Types.STRONGS -> strongsMode = (value as Int?)?.let { if (it > 2) 0 else it }
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.FOOTNOTES_INLINE -> showFootNotesInline = value as Boolean?
@@ -253,6 +256,7 @@ class WorkspaceEntities {
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
                 Types.LLM_PROMPT -> llmPromptId = value as IdType?
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
+                Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
             }
         }
 
@@ -313,7 +317,8 @@ class WorkspaceEntities {
                 showPageNumber = false,
                 translateTo = "",
                 llmPromptId = IdType.empty(),
-                infiniteScroll = true
+                infiniteScroll = true,
+                nonStrongsWordItalic = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -365,6 +370,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
+        @ColumnInfo(defaultValue = "1") var restoreButtonsVisible: Boolean = true,
     ) {
         companion object {
             val default get() = WorkspaceSettings()
@@ -381,7 +387,8 @@ class WorkspaceEntities {
             studyPadCursors = studyPadCursors.toMutableMap(),
             hideCompareDocuments = hideCompareDocuments.toMutableSet(),
             limitAmbiguousModalSize = limitAmbiguousModalSize,
-            workspaceColor = workspaceColor
+            workspaceColor = workspaceColor,
+            restoreButtonsVisible = restoreButtonsVisible
         )
     }
 

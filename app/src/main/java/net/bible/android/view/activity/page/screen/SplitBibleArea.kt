@@ -541,7 +541,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         alpha(VISIBLE_ALPHA)
                         interpolator = DecelerateInterpolator()
                     }  else {
-                        if (!CommonUtils.settings.disableAnimations) {
+                        if (!CommonUtils.settings.disableAnimations && !CommonUtils.settings.monochromeMode) {
                             alpha(hiddenAlpha)
                         }
                         interpolator = AccelerateInterpolator()
@@ -617,11 +617,11 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         }
     }
 
-    private var restoreButtonsVisible = CommonUtils.settings.getBoolean("restoreButtonsVisible", true)
+    private var restoreButtonsVisible: Boolean
+        get() = windowControl.windowRepository.workspaceSettings.restoreButtonsVisible
         set(value) {
-            CommonUtils.settings.setBoolean("restoreButtonsVisible", value)
+            windowControl.windowRepository.workspaceSettings.restoreButtonsVisible = value
             ABEventBus.post(RestoreButtonsVisibilityChanged())
-            field = value
         }
 
     private fun updateBibleReferenceOverlay(_show: Boolean) {

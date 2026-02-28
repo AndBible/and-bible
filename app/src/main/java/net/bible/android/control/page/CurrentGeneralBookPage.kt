@@ -145,7 +145,7 @@ class CurrentGeneralBookPage internal constructor(
                             OsisFragment(e.xml, k, doc)
                         }
                     }
-                    MultiFragmentDocument(frags)
+                    MultiFragmentDocument(frags, state = pageManager.jsState)
                 }
                 else -> super.currentPageContent
             }

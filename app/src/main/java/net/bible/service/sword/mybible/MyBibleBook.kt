@@ -51,6 +51,7 @@ fun getConfig(
     category: String,
     hasStrongsDef: Boolean = false,
     hasStrongs: Boolean = false,
+    hasWordsOfChrist: Boolean = false,
     moduleFileName: String,
     downloadUrl: String = "",
 ): String {
@@ -77,6 +78,9 @@ Versification=KJVA"""
     if(hasStrongs) {
         conf += "\nGlobalOptionFilter = OSISStrongs"
     }
+    if(hasWordsOfChrist) {
+        conf += "\nFeature=WordsOfChrist"
+    }
     return conf
 }
 
@@ -84,6 +88,8 @@ const val TAG = "MyBibleBook"
 
 private val re = Regex("[^a-zA-z0-9]")
 fun sanitizeModuleName(name: String): String = name.replace(re, "_")
+private fun parseMyBibleBoolean(value: String?): Boolean =
+    value.equals("true", ignoreCase = true) || value == "1"
 
 class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
@@ -148,6 +154,30 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
             val isBible = tables.contains("verses")
             val isDictionary = tables.contains("dictionary")
             hasStories = tables.contains("stories")
+            val hasWordsOfChrist = if (isBible) {
+                try {
+                    val hasInfoFlag = db.rawQuery(
+                        "select value from info where name in ('is_words_of_christ', 'words_of_christ', 'is_red_letter', 'red_letter')",
+                        null
+                    ).use { cur ->
+                        while (cur.moveToNext()) {
+                            if (parseMyBibleBoolean(cur.getString(0))) {
+                                return@use true
+                            }
+                        }
+                        false
+                    }
+                    hasInfoFlag || db.rawQuery(
+                        "select 1 from verses where instr(lower(text), '<j>') > 0 limit 1",
+                        null
+                    ).use { it.moveToFirst() }
+                } catch (e: SQLiteException) {
+                    Log.w(TAG, "Failed to detect WordsOfChrist support for ${db.path}", e)
+                    false
+                }
+            } else {
+                false
+            }
 
             val category = when {
                 isBible -> "Biblical Texts"
@@ -164,6 +194,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                 category = category,
                 hasStrongsDef = hasStrongsDef,
                 hasStrongs = hasStrongs,
+                hasWordsOfChrist = hasWordsOfChrist,
                 moduleFileName = db.path!!,
             )
             Log.i(TAG, "Creating MyBibleBook metadata $initials, $description $language $category")
