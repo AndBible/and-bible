@@ -416,7 +416,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val text = sel?.text ?: currentSelectionText
         if (!text.isNullOrBlank()) {
             CommonUtils.copyToClipboard(
-                ClipData.newPlainText(application.getString(R.string.add_bookmark3), text)
+                ClipData.newPlainText(application.getString(R.string.app_name), text)
             )
         }
     }
