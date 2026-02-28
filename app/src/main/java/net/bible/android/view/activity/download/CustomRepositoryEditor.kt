@@ -18,7 +18,6 @@
 package net.bible.android.view.activity.download
 
 import android.app.Activity
-import android.annotation.SuppressLint
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -278,7 +277,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
         return isHandled
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
         saveAndExit()

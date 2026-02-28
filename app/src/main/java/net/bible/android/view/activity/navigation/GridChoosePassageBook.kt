@@ -365,6 +365,9 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             forceGrid: Boolean = false,
             forceOneView: Boolean = false,
         ): Intent {
+            require(!(forceGrid && forceOneView)) {
+                "forceGrid and forceOneView are mutually exclusive"
+            }
             val targetActivity = when {
                 forceOneView -> OneViewChoosePassage::class.java
                 forceGrid -> GridChoosePassageBook::class.java

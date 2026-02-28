@@ -19,7 +19,6 @@ package net.bible.android.view.activity.installzip
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -736,7 +735,6 @@ class InstallZip : ActivityBase() {
         true
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {}
 
     private fun updateProgress(percentValue: Int) {

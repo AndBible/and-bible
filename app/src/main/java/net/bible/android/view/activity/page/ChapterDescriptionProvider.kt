@@ -19,6 +19,7 @@ package net.bible.android.view.activity.page
 
 import androidx.annotation.StringRes
 import net.bible.android.activity.R
+import net.bible.android.activity.BuildConfig
 import org.crosswire.jsword.versification.BibleBook
 
 data class ChapterDescription(
@@ -27,16 +28,21 @@ data class ChapterDescription(
 )
 
 object ChapterDescriptionProvider {
-    private val descriptions = mapOf(
-        Pair(BibleBook.GEN, 1) to ChapterDescription(
-            R.string.chapter_description_mock_gen_1_title,
-            R.string.chapter_description_mock_gen_1_body
-        ),
-        Pair(BibleBook.GEN, 2) to ChapterDescription(
-            R.string.chapter_description_mock_gen_2_title,
-            R.string.chapter_description_mock_gen_2_body
-        ),
-    )
+    private val descriptions: Map<Pair<BibleBook, Int>, ChapterDescription> =
+        if (BuildConfig.DEBUG) {
+            mapOf(
+                Pair(BibleBook.GEN, 1) to ChapterDescription(
+                    R.string.chapter_description_mock_gen_1_title,
+                    R.string.chapter_description_mock_gen_1_body
+                ),
+                Pair(BibleBook.GEN, 2) to ChapterDescription(
+                    R.string.chapter_description_mock_gen_2_title,
+                    R.string.chapter_description_mock_gen_2_body
+                ),
+            )
+        } else {
+            emptyMap()
+        }
 
     fun find(book: BibleBook, chapter: Int): ChapterDescription? = descriptions[Pair(book, chapter)]
 }

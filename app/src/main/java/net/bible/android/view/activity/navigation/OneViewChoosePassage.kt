@@ -345,7 +345,7 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
         val selectedVerseNo = if (navigateToVerse) selectedVerse else 1
         val verse = Verse(navigationControl.versification, currentBook, selectedChapter, selectedVerseNo)
         Log.i(TAG, "One-view selected:$verse")
-        val resultIntent = Intent(this, GridChoosePassageBook::class.java).apply {
+        val resultIntent = Intent().apply {
             putExtra("verse", verse.osisID)
         }
         setResult(Activity.RESULT_OK, resultIntent)

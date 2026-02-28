@@ -146,7 +146,6 @@ class ManageLabels : ListActivityBase() {
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         saveAndExit()
     }

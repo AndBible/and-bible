@@ -1318,8 +1318,6 @@
     <string name="pref_font_size_multiplier_summary_1">Multiply text font sizes by this number.</string>
     <string name="pref_font_size_multiplier_summary_2">Useful if you have a synchronized device that is used with larger font.</string>
     <string name="current_value">Current value: %s</string>
-    <string name="pref_seekbar_decrease_by_one_step">Decrease by one step</string>
-    <string name="pref_seekbar_increase_by_one_step">Increase by one step</string>
     <string name="prefs_bible_view_swipe_mode_title">Action for swipe left / right gesture</string>
     <string name="prefs_bible_view_swipe_mode_summary">Swipe left / right gesture can be used to go to next page / chapter.</string>
     <string name="prefs_swipe_mode_chapter">Chapter</string>

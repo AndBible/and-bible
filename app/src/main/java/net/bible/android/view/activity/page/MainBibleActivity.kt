@@ -61,7 +61,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -1337,7 +1336,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private val toolbarColor get() =
         if (ScreenSettings.nightMode)
-            ContextCompat.getColor(this, R.color.actionbar_background_night)
+            resources.getColor(R.color.actionbar_background_night, theme)
         else if (CommonUtils.settings.monochromeMode) {
             Color.BLACK
         } else {

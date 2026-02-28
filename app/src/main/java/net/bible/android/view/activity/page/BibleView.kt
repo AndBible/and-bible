@@ -1034,7 +1034,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     inner class MyAssetsPathHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             return try {
-                val inputStream = application.resources.assets.open(path)
+                val inputStream = context.resources.assets.open(path)
                 val mimeType = when(File(path).extension) {
                     "js" -> "application/javascript"
                     "html" -> "text/html"
