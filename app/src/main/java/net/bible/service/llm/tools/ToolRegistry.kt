@@ -45,6 +45,16 @@ import java.util.concurrent.ConcurrentHashMap
 private const val TAG = "ToolRegistry"
 
 /**
+ * Provider-neutral tool definition (name, description, parameters schema).
+ * Used by [LlmApiAdapter] implementations to build provider-specific tool arrays.
+ */
+data class ToolDefinition(
+    val name: String,
+    val description: String,
+    val parametersSchema: JSONObject
+)
+
+/**
  * Registry for agent tools.
  *
  * Manages registration of tools and provides them to the agent executor.
@@ -151,6 +161,17 @@ object ToolRegistry {
             toolsArray.put(toolObj)
         }
         return toolsArray
+    }
+
+    /**
+     * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].
+     *
+     * @param includeWriteTools Whether to include write tools that require permission
+     */
+    fun getToolDefinitions(includeWriteTools: Boolean = true): List<ToolDefinition> {
+        return tools.values
+            .filter { includeWriteTools || !it.requiresPermission }
+            .map { ToolDefinition(it.name, it.description, it.parametersSchema) }
     }
 
     /**

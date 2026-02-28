@@ -17,16 +17,22 @@
 
 package net.bible.service.llm
 
+enum class ApiFormat { OPENAI, ANTHROPIC }
+
 enum class LlmProvider(
     val displayName: String,
     val endpoint: String,
     val models: List<String>,
-    val apiKeyPrefix: String? = null
+    val apiKeyPrefix: String? = null,
+    val apiFormat: ApiFormat = ApiFormat.OPENAI
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/",
         listOf("gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-flash"), "AIza"),
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1",
         listOf("gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-4o-mini"), "sk-"),
+    ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1",
+        listOf("claude-haiku-4-5", "claude-sonnet-4-6", "claude-opus-4-6"), "sk-ant-",
+        ApiFormat.ANTHROPIC),
     XAI("xAI (Grok)", "https://api.x.ai/v1",
         listOf("grok-4-0709", "grok-4-1-fast-reasoning", "grok-3-mini"), "xai-"),
     MISTRAL("Mistral", "https://api.mistral.ai/v1",
@@ -39,6 +45,11 @@ enum class LlmProvider(
         listOf("anthropic/claude-sonnet-4", "google/gemini-2.5-flash", "openai/gpt-5-mini")),
     CUSTOM("Custom", "", listOf());
 
+    val apiAdapter: LlmApiAdapter get() = when (apiFormat) {
+        ApiFormat.OPENAI -> OpenAiApiAdapter()
+        ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
+    }
+
     companion object {
         fun fromEndpoint(endpoint: String): LlmProvider {
             val normalized = endpoint.trimEnd('/')
@@ -48,6 +59,7 @@ enum class LlmProvider(
         }
 
         fun fromApiKey(apiKey: String): LlmProvider? =
-            entries.firstOrNull { it.apiKeyPrefix != null && apiKey.startsWith(it.apiKeyPrefix!!) }
+            entries.filter { it.apiKeyPrefix != null && apiKey.startsWith(it.apiKeyPrefix!!) }
+                .maxByOrNull { it.apiKeyPrefix!!.length }
     }
 }

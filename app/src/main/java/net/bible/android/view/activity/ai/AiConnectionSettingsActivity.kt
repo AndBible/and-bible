@@ -174,6 +174,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 append("<a href=\"https://aistudio.google.com/apikey\">$getKey</a><br><br>")
                 append("<b>${getString(R.string.ai_getting_started_openai)}</b><br>")
                 append("<a href=\"https://platform.openai.com/api-keys\">$getKey</a><br><br>")
+                append("<b>${getString(R.string.ai_getting_started_anthropic)}</b><br>")
+                append("<a href=\"https://console.anthropic.com/settings/keys\">$getKey</a><br><br>")
                 append("<b>${getString(R.string.ai_getting_started_xai)}</b><br>")
                 append("<a href=\"https://console.x.ai/\">$getKey</a><br><br>")
                 append("<b>${getString(R.string.ai_getting_started_mistral)}</b><br>")

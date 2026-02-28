@@ -30,6 +30,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.LlmApiAdapter
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
@@ -91,11 +92,12 @@ class AgentExecutor(
                 return@flow
             }
 
+            val adapter = LlmProcessingService.resolveAdapter()
             val messages = buildInitialMessages(prompt, context)
-            val tools = ToolRegistry.toOpenAiToolsArray(includeWriteTools = true)
+            val tools = adapter.buildToolsArray(ToolRegistry.getToolDefinitions(includeWriteTools = true))
             val modelOverride = prompt.modelOverride
 
-            runAgentLoop(messages, tools, context, modelOverride)
+            runAgentLoop(messages, tools, adapter, context, modelOverride)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -112,21 +114,22 @@ class AgentExecutor(
     private suspend fun FlowCollector<AgentEvent>.runAgentLoop(
         messages: JSONArray,
         tools: JSONArray,
+        adapter: LlmApiAdapter,
         context: AgentContext,
         modelOverride: String? = null
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
-        val loopHeaders = LlmProcessingService.buildProviderHeaders()
+        val loopHeaders = LlmProcessingService.buildProviderExtraHeaders()
 
         while (iteration < maxIterations) {
             iteration++
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            when (val parsed = callLlmAndParse(messages, tools, iteration, modelOverride, loopHeaders)) {
+            when (val parsed = callLlmAndParse(adapter, messages, tools, iteration, modelOverride, loopHeaders)) {
                 is ParsedResponse.ToolCalls -> {
-                    when (val result = processToolCalls(parsed, messages, currentContext)) {
+                    when (val result = processToolCalls(adapter, parsed, messages, currentContext)) {
                         is ProcessToolsResult.Continue -> {
                             currentContext = result.context
                         }
@@ -168,6 +171,7 @@ class AgentExecutor(
      * Call LLM API and parse the response.
      */
     private suspend fun callLlmAndParse(
+        adapter: LlmApiAdapter,
         messages: JSONArray,
         tools: JSONArray,
         iteration: Int,
@@ -176,20 +180,19 @@ class AgentExecutor(
     ): ParsedResponse {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
         val response = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride, extraHeaders)
-
-        val assistantMessage = response
-            .getJSONArray("choices")
-            .getJSONObject(0)
-            .getJSONObject("message")
-
-        return ToolCallParser.parseMessage(assistantMessage)
+        return adapter.parseResponse(response)
     }
 
     /**
      * Process tool calls: execute each tool and add results to messages.
      * Returns ProcessToolsResult indicating whether to continue or finish without document.
+     *
+     * All tool results are collected first and then added to messages via
+     * [LlmApiAdapter.createToolResultMessages] — this is required because Anthropic
+     * batches all tool results into a single user message.
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
+        adapter: LlmApiAdapter,
         parsed: ParsedResponse.ToolCalls,
         messages: JSONArray,
         context: AgentContext
@@ -201,7 +204,11 @@ class AgentExecutor(
             emit(AgentEvent.TextResponse(it, isFinal = false))
         }
 
-        messages.put(ToolCallParser.createAssistantToolCallMessage(parsed.toolCalls, parsed.content))
+        messages.put(adapter.createAssistantToolCallMessage(parsed.toolCalls, parsed.content))
+
+        // Execute all tools and collect results
+        val toolResults = mutableListOf<Pair<String, String>>()
+        var finishResult: ProcessToolsResult? = null
 
         for (toolCall in parsed.toolCalls) {
             currentCoroutineContext().ensureActive()
@@ -221,49 +228,47 @@ class AgentExecutor(
 
             emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.name, result))
 
-            messages.put(ToolCallParser.createToolResultMessage(toolCall.id, result.toJson()))
+            toolResults.add(toolCall.id to result.toJson())
 
-            // Check if setDocumentTitle was called (finishes with a document)
-            if (toolCall.name == SetDocumentTitleTool.name && result is ToolResult.Success) {
-                val data = result.data as? JSONObject
-                val title = data?.optString("title") ?: "AI Response"
+            // Check for finish tools — record the result but continue collecting tool results
+            if (finishResult == null) {
+                if (toolCall.name == SetDocumentTitleTool.name && result is ToolResult.Success) {
+                    val data = result.data as? JSONObject
+                    val title = data?.optString("title") ?: "AI Response"
+                    val content = parsed.content?.takeIf { it.isNotBlank() }
 
-                // Extract content from the text response that accompanied the tool call
-                val content = parsed.content?.takeIf { it.isNotBlank() }
-
-                if (content == null) {
-                    Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
-                    messages.put(ToolCallParser.createToolResultMessage(
-                        toolCall.id,
-                        ToolResult.error(
+                    if (content == null) {
+                        Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
+                        // Replace last result with error
+                        toolResults[toolResults.lastIndex] = toolCall.id to ToolResult.error(
                             "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
                             "MISSING_CONTENT"
                         ).toJson()
-                    ))
-                    continue
+                        // Don't set finishResult — let the loop continue
+                    } else {
+                        Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+                        finishResult = ProcessToolsResult.FinishWithDocument(title, normalizeLlmText(content), currentContext)
+                    }
+                } else if (toolCall.name == FinishWithoutDocumentTool.name && result is ToolResult.Success) {
+                    val data = result.data as? JSONObject
+                    val message = data?.optString("message") ?: "Task completed"
+                    finishResult = ProcessToolsResult.FinishWithoutDocument(message, currentContext)
+                } else if (toolCall.name == FinishWithStudyPadTool.name && result is ToolResult.Success) {
+                    val data = result.data as? JSONObject
+                    val labelId = IdType(data?.optString("labelId") ?: "")
+                    val scrollToEntryId = data?.optString("scrollToEntryId")?.takeIf { it.isNotBlank() }?.let { IdType(it) }
+                    val message = data?.optString("message") ?: "StudyPad opened"
+                    finishResult = ProcessToolsResult.FinishWithStudyPad(labelId, scrollToEntryId, message, currentContext)
                 }
-
-                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
-                return ProcessToolsResult.FinishWithDocument(title, normalizeLlmText(content), currentContext)
-            }
-
-            // Check if finishWithoutDocument was called
-            if (toolCall.name == FinishWithoutDocumentTool.name && result is ToolResult.Success) {
-                val data = result.data as? JSONObject
-                val message = data?.optString("message") ?: "Task completed"
-                return ProcessToolsResult.FinishWithoutDocument(message, currentContext)
-            }
-
-            // Check if finishWithStudyPad was called
-            if (toolCall.name == FinishWithStudyPadTool.name && result is ToolResult.Success) {
-                val data = result.data as? JSONObject
-                val labelId = IdType(data?.optString("labelId") ?: "")
-                val scrollToEntryId = data?.optString("scrollToEntryId")?.takeIf { it.isNotBlank() }?.let { IdType(it) }
-                val message = data?.optString("message") ?: "StudyPad opened"
-                return ProcessToolsResult.FinishWithStudyPad(labelId, scrollToEntryId, message, currentContext)
             }
         }
-        return ProcessToolsResult.Continue(currentContext)
+
+        // Add all tool results to messages
+        for (msg in adapter.createToolResultMessages(toolResults)) {
+            messages.put(msg)
+        }
+
+        return finishResult ?: ProcessToolsResult.Continue(currentContext)
     }
 
     /**

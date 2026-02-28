@@ -1383,10 +1383,11 @@
     <string name="ai_settings_shortcut_summary">AI connection and prompt settings</string>
     <string name="ai_getting_started_title">Getting started</string>
     <string name="ai_getting_started_summary">How to get an API key</string>
-    <string name="ai_getting_started_intro">AndBible uses an OpenAI-compatible API to connect to AI services. You need an API key from a provider.</string>
+    <string name="ai_getting_started_intro">AndBible connects to AI services via their APIs. You need an API key from a provider.</string>
     <string name="ai_getting_started_providers">Supported providers:</string>
     <string name="ai_getting_started_gemini">Google Gemini</string>
     <string name="ai_getting_started_openai">OpenAI (ChatGPT)</string>
+    <string name="ai_getting_started_anthropic">Anthropic (Claude)</string>
     <string name="ai_getting_started_xai">xAI (Grok)</string>
     <string name="ai_getting_started_mistral">Mistral</string>
     <string name="ai_getting_started_deepseek">DeepSeek</string>

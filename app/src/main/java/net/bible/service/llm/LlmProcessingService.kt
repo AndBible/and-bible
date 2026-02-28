@@ -39,7 +39,6 @@ import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.EntryStatus
 import net.bible.service.llm.agent.LogEntryType
 import net.bible.service.llm.agent.ParsedResponse
-import net.bible.service.llm.agent.ToolCallParser
 import net.bible.service.llm.processors.PromptProcessor
 import net.bible.service.llm.processors.TranslationProcessor
 import net.bible.service.llm.tools.ToolRegistry
@@ -299,7 +298,8 @@ object LlmProcessingService {
         // (to avoid clearing an active agent's log)
         val manageSession = session != null && !session.isRunning
         val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
-        val tools = ToolRegistry.toOpenAiToolsArray(includeWriteTools = false)
+        val adapter = resolveAdapter()
+        val tools = adapter.buildToolsArray(ToolRegistry.getToolDefinitions(includeWriteTools = false))
         val modelId = modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
 
         Log.d(TAG, "doProcessWithTools: ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}, tools=${tools.length()}")
@@ -315,7 +315,7 @@ object LlmProcessingService {
         }
 
         val startTime = System.currentTimeMillis()
-        val loopHeaders = buildProviderHeaders()
+        val loopHeaders = buildProviderExtraHeaders()
 
         if (activeRequests.incrementAndGet() == 1) {
             ABEventBus.post(LlmEvent(running = true))
@@ -328,9 +328,7 @@ object LlmProcessingService {
                 session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
 
                 val response = callLlmApiWithTools(messages, tools, modelOverride, loopHeaders)
-                val assistantMessage = response.getJSONArray("choices")
-                    .getJSONObject(0).getJSONObject("message")
-                val parsed = ToolCallParser.parseMessage(assistantMessage)
+                val parsed = adapter.parseResponse(response)
 
                 when (parsed) {
                     is ParsedResponse.TextResponse -> {
@@ -355,8 +353,10 @@ object LlmProcessingService {
                         return result
                     }
                     is ParsedResponse.ToolCalls -> {
-                        messages.put(ToolCallParser.createAssistantToolCallMessage(
+                        messages.put(adapter.createAssistantToolCallMessage(
                             parsed.toolCalls, parsed.content))
+
+                        val toolResults = mutableListOf<Pair<String, String>>()
 
                         for (toolCall in parsed.toolCalls) {
                             val tool = ToolRegistry.get(toolCall.name)
@@ -371,16 +371,14 @@ object LlmProcessingService {
 
                             if (tool == null || tool.requiresPermission) {
                                 val errorJson = """{"status":"error","message":"Tool not available: ${toolCall.name}"}"""
-                                messages.put(ToolCallParser.createToolResultMessage(
-                                    toolCall.id, errorJson))
+                                toolResults.add(toolCall.id to errorJson)
                                 session?.addLogEntry(AgentLogEntry.error("Tool not available: $displayName"))
                                 continue
                             }
 
                             val context = AgentContext(promptId = IdType.empty())
                             val toolResult = tool.execute(toolCall.parseArguments(), context)
-                            messages.put(ToolCallParser.createToolResultMessage(
-                                toolCall.id, toolResult.toJson()))
+                            toolResults.add(toolCall.id to toolResult.toJson())
 
                             val isSuccess = toolResult is ToolResult.Success
                             session?.addLogEntry(AgentLogEntry(
@@ -388,6 +386,10 @@ object LlmProcessingService {
                                 message = if (isSuccess) "\u2713 $displayName" else "\u2717 $displayName",
                                 status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
                             ))
+                        }
+
+                        for (msg in adapter.createToolResultMessages(toolResults)) {
+                            messages.put(msg)
                         }
                     }
                     is ParsedResponse.ParseError -> {
@@ -432,32 +434,47 @@ object LlmProcessingService {
     }
 
     /**
-     * Call LLM API with tool calling support.
-     *
-     * This method is used by the agent executor to make API calls that can
-     * include tool definitions and receive tool call responses.
-     *
-     * @param messages The conversation messages (system, user, assistant, tool)
-     * @param tools The tools array in OpenAI function calling format
-     * @return The full response JSON object (contains choices[0].message with content or tool_calls)
+     * Resolve the current provider and return its API adapter.
      */
+    internal fun resolveAdapter(): LlmApiAdapter {
+        val provider = resolveProvider()
+        return provider.apiAdapter
+    }
+
     /**
-     * Build provider-specific HTTP headers for prompt caching optimization.
-     * UUID is generated once per call — callers in loops should call this once
-     * before the loop and reuse the result across iterations.
+     * Resolve the current LLM provider from settings.
      */
-    internal fun buildProviderHeaders(): Map<String, String> {
-        val provider = try {
+    private fun resolveProvider(): LlmProvider {
+        return try {
             LlmProvider.valueOf(CommonUtils.settings.llmProvider)
         } catch (_: IllegalArgumentException) {
             LlmProvider.fromEndpoint(CommonUtils.settings.llmEndpoint)
         }
-        return when (provider) {
+    }
+
+    /**
+     * Build provider-specific extra HTTP headers (beyond auth/content-type).
+     * UUID is generated once per call — callers in loops should call this once
+     * before the loop and reuse the result across iterations.
+     */
+    internal fun buildProviderExtraHeaders(): Map<String, String> {
+        return when (resolveProvider()) {
             LlmProvider.XAI -> mapOf("x-grok-conv-id" to UUID.randomUUID().toString())
             else -> emptyMap()
         }
     }
 
+    /**
+     * Call LLM API with tool calling support.
+     *
+     * Uses the provider's API adapter for endpoint URL, headers, and request body format.
+     *
+     * @param messages The conversation messages (system, user, assistant, tool)
+     * @param tools The tools array in provider-specific format
+     * @param modelOverride Optional model override
+     * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
+     * @return The raw response JSON object (provider-specific format)
+     */
     suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null, extraHeaders: Map<String, String> = emptyMap()): JSONObject {
         val settings = CommonUtils.settings
 
@@ -465,26 +482,22 @@ object LlmProcessingService {
             throw LlmProcessingError("LLM not configured")
         }
 
+        val adapter = resolveAdapter()
         val effectiveModel = modelOverride?.takeIf { it.isNotBlank() } ?: settings.llmModel
-        val endpoint = "${settings.llmEndpoint}/chat/completions"
+        val endpoint = adapter.buildEndpointUrl(settings.llmEndpoint)
 
-        val requestBody = JSONObject().apply {
-            put("model", effectiveModel)
-            put("messages", messages)
-            if (tools.length() > 0) {
-                put("tools", tools)
-            }
-            put("temperature", LLM_TEMPERATURE)
-        }
+        val requestBody = adapter.buildRequestBody(effectiveModel, messages, tools, LLM_TEMPERATURE)
 
-        Log.d(TAG, "LLM API with tools: $endpoint, model: $effectiveModel, tools: ${tools.length()}")
+        val bodyString = requestBody.toString()
+        val systemLen = messages.optJSONObject(0)?.optString("content")?.length ?: 0
+        val userLen = messages.optJSONObject(1)?.optString("content")?.length ?: 0
+        Log.d(TAG, "LLM API with tools: $endpoint, model: $effectiveModel, tools: ${tools.length()}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
 
+        val headers = adapter.buildHeaders(settings.llmApiKey, extraHeaders)
         val request = Request.Builder()
             .url(endpoint)
-            .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
-            .addHeader("Content-Type", "application/json")
-            .apply { for ((key, value) in extraHeaders) addHeader(key, value) }
-            .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
+            .apply { for ((key, value) in headers) addHeader(key, value) }
+            .post(bodyString.toRequestBody("application/json".toMediaType()))
             .build()
 
         if (activeRequests.incrementAndGet() == 1) {
