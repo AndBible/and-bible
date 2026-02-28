@@ -64,6 +64,7 @@ object BuiltInPrompts {
     val TEST_UPDATE_NOTE_ID = stableId("test-update-note")
     val TEST_STUDYPAD_READ_MODES_ID = stableId("test-studypad-read-modes")
     val TEST_REGENERATE_ID = stableId("test-regenerate")
+    val TEST_CAPITALIZE_ID = stableId("test-capitalize")
 
     private fun getUiLanguageName(): String {
         val locale = Locale.getDefault()
@@ -429,6 +430,21 @@ object BuiltInPrompts {
                     Keep it to 2-3 sentences.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            AgentPrompt(
+                id = TEST_CAPITALIZE_ID,
+                name = "\uD83E\uDDEA Test: Capitalize First Words",
+                description = "Simple fast test: capitalize first word of each sentence",
+                promptTemplate = """
+                    Capitalize the FIRST WORD of each sentence entirely (all letters uppercase).
+                    Only the first word of each sentence should be fully capitalized, leave the rest as-is.
+                    Do not add any explanations. Just return the modified text.
+
+                    Example: "In the beginning God created" → "IN the beginning God created"
+                """.trimIndent(),
+                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS, PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
             ),
         )

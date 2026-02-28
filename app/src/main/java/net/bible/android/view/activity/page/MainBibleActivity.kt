@@ -1952,6 +1952,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
+        val needsReload = requiresReload || dirtyTypes?.contains(TextDisplaySettings.Types.LLM_PROMPT) == true
         val windowId = settingsBundle.windowId
         if(windowId != null) {
             val window = windowRepository.getWindow(windowId)!!
@@ -1960,7 +1961,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else
                 settingsBundle.pageManagerSettings!!
 
-            if(requiresReload)
+            if(needsReload)
                 window.loadText()
             else {
                 window.bibleView?.updateTextDisplaySettings()
@@ -1976,7 +1977,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(dirtyTypes != null) {
                 windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
             }
-            if(requiresReload) {
+            if(needsReload) {
                 ABEventBus.post(SynchronizeWindowsEvent(true))
             } else {
                 windowRepository.updateAllWindowsTextDisplaySettings()
