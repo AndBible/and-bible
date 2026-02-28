@@ -52,4 +52,11 @@ class MyBibleBookTest {
 
         assertThat(config, not(containsString("Feature=WordsOfChrist")))
     }
+
+    @Test
+    fun `words of christ markup query should match uppercase and lowercase tags`() {
+        assertThat(WORDS_OF_CHRIST_MARKUP_QUERY, containsString("instr(text, '<J>') > 0"))
+        assertThat(WORDS_OF_CHRIST_MARKUP_QUERY, containsString("instr(text, '<j>') > 0"))
+        assertThat(WORDS_OF_CHRIST_MARKUP_QUERY, containsString("limit 1"))
+    }
 }
