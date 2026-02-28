@@ -60,4 +60,36 @@ interface LlmProcessingDao {
 
     @Query("DELETE FROM LlmProcessingCacheEntry WHERE documentInitials = :documentInitials")
     fun deleteByDocument(documentInitials: String)
+
+    @Query("""
+        SELECT documentInitials, keyName, processingType, processingParams,
+               modelId, createdAt, languageCode, LENGTH(processedXml) as xmlSize
+        FROM LlmProcessingCacheEntry
+        ORDER BY createdAt DESC
+    """)
+    fun getAllSummaries(): List<CacheEntrySummary>
+
+    @Query("SELECT DISTINCT documentInitials FROM LlmProcessingCacheEntry ORDER BY documentInitials")
+    fun getDistinctDocuments(): List<String>
+
+    @Query("SELECT DISTINCT processingType FROM LlmProcessingCacheEntry ORDER BY processingType")
+    fun getDistinctProcessingTypes(): List<String>
+
+    @Query("SELECT DISTINCT modelId FROM LlmProcessingCacheEntry ORDER BY modelId")
+    fun getDistinctModels(): List<String>
+
+    @Query("DELETE FROM LlmProcessingCacheEntry WHERE createdAt >= :fromTimestamp AND createdAt <= :toTimestamp")
+    fun deleteByDateRange(fromTimestamp: Long, toTimestamp: Long)
+
+    @Query("""
+        DELETE FROM LlmProcessingCacheEntry
+        WHERE documentInitials = :documentInitials
+        AND keyName = :keyName
+        AND processingType = :processingType
+        AND processingParams = :processingParams
+    """)
+    fun deleteEntry(documentInitials: String, keyName: String, processingType: String, processingParams: String)
+
+    @Query("SELECT COUNT(*) as entryCount, COALESCE(SUM(LENGTH(processedXml)), 0) as totalSize FROM LlmProcessingCacheEntry")
+    fun getCacheStats(): CacheStats
 }

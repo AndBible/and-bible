@@ -1386,6 +1386,41 @@
     <string name="translate_to_disabled">No translation</string>
     <string name="llm_working">AI processing</string>
 
+    <!-- LLM Cache Management -->
+    <string name="llm_cache_management">AI Cache</string>
+    <string name="llm_cache_management_summary">View and manage cached AI results</string>
+    <string name="llm_cache_empty">No cached entries</string>
+    <string name="llm_cache_stats">%1$d entries, %2$s</string>
+    <string name="llm_cache_delete_all">Delete all</string>
+    <string name="llm_cache_delete_older_than">Delete older than…</string>
+    <string name="llm_cache_delete_filtered">Delete filtered entries</string>
+    <string name="llm_cache_delete_confirm_title">Delete cache entries?</string>
+    <string name="llm_cache_delete_confirm_all">This will delete all cached AI results. This cannot be undone.</string>
+    <string name="llm_cache_delete_confirm_selected">Delete %1$d selected entries?</string>
+    <string name="llm_cache_delete_confirm_filtered">Delete %1$d filtered entries?</string>
+    <string name="llm_cache_delete_confirm_older_than">Delete all entries older than %1$d days?</string>
+    <string name="llm_cache_deleted">Cache entries deleted</string>
+    <string name="llm_cache_deleted_count">%1$d entries deleted</string>
+    <string name="llm_cache_selected_count">%1$d selected</string>
+    <string name="llm_cache_filter_all_documents">All documents</string>
+    <string name="llm_cache_filter_all_types">All types</string>
+    <string name="llm_cache_filter_all_models">All models</string>
+    <string name="llm_cache_older_than_title">Delete older than</string>
+    <string name="llm_cache_older_than_7">7 days</string>
+    <string name="llm_cache_older_than_30">30 days</string>
+    <string name="llm_cache_older_than_90">90 days</string>
+    <string name="llm_cache_item_primary">%1$s : %2$s</string>
+    <string name="llm_cache_item_secondary">%1$s / %2$s</string>
+    <string name="llm_cache_item_tertiary">%1$s | %2$s | %3$s</string>
+    <string name="llm_cache_detail_document">Document: %s</string>
+    <string name="llm_cache_detail_key">Key: %s</string>
+    <string name="llm_cache_detail_type">Type: %s</string>
+    <string name="llm_cache_detail_params">Parameters: %s</string>
+    <string name="llm_cache_detail_model">Model: %s</string>
+    <string name="llm_cache_detail_date">Date: %s</string>
+    <string name="llm_cache_detail_size">Size: %s</string>
+    <string name="llm_cache_detail_language">Language: %s</string>
+
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
     <string name="manage_prompts_summary">Create and edit AI prompts</string>

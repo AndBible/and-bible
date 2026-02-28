@@ -114,6 +114,11 @@
             android:summary="@string/llm_custom_output_price_summary"
             android:inputType="numberDecimal"
             />
+        <Preference android:key="llm_manage_cache"
+            android:title="@string/llm_cache_management"
+            android:summary="@string/llm_cache_management_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>

@@ -44,3 +44,19 @@ data class LlmProcessingCacheEntry(
     val createdAt: Long,
     val languageCode: String? = null // Language of the processed output (e.g., "fi", "en")
 )
+
+data class CacheEntrySummary(
+    val documentInitials: String,
+    val keyName: String,
+    val processingType: String,
+    val processingParams: String,
+    val modelId: String,
+    val createdAt: Long,
+    val languageCode: String?,
+    val xmlSize: Int
+)
+
+data class CacheStats(
+    val entryCount: Int,
+    val totalSize: Long
+)

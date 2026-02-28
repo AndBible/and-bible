@@ -18,22 +18,29 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
+import android.text.format.Formatter
 import android.text.InputType
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
@@ -80,6 +87,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var resetUsagePref: Preference
     private lateinit var customInputPricePref: EditTextPreference
     private lateinit var customOutputPricePref: EditTextPreference
+    private lateinit var manageCachePref: Preference
 
     companion object {
         private const val CUSTOM_MODEL_SENTINEL = "__custom__"
@@ -102,6 +110,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
         customInputPricePref = preferenceScreen.findPreference("llm_custom_input_price")!!
         customOutputPricePref = preferenceScreen.findPreference("llm_custom_output_price")!!
+        manageCachePref = preferenceScreen.findPreference("llm_manage_cache")!!
 
         // Migrate: if provider is empty but endpoint is set, detect provider from endpoint
         if (settings.llmProvider.isBlank() && settings.llmEndpoint.isNotBlank()) {
@@ -116,7 +125,15 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupToolPermissions()
         setupUsage()
         setupCustomPricing()
+        setupCacheManagement()
         updateVisibility()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (::manageCachePref.isInitialized) {
+            updateCacheSummary()
+        }
     }
 
     private fun currentProvider(): LlmProvider? {
@@ -475,6 +492,31 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             true
         }
     }
+
+    private fun setupCacheManagement() {
+        manageCachePref.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), LlmCacheActivity::class.java))
+            true
+        }
+        updateCacheSummary()
+    }
+
+    private fun updateCacheSummary() {
+        lifecycleScope.launch {
+            val stats = withContext(Dispatchers.IO) {
+                DatabaseContainer.instance.llmProcessingDb.llmProcessingDao().getCacheStats()
+            }
+            if (stats.entryCount > 0) {
+                val sizeStr = formatSize(stats.totalSize)
+                manageCachePref.summary = "${getString(R.string.llm_cache_management_summary)} (${stats.entryCount}, $sizeStr)"
+            } else {
+                manageCachePref.summary = getString(R.string.llm_cache_management_summary)
+            }
+        }
+    }
+
+    private fun formatSize(bytes: Long): String =
+        Formatter.formatShortFileSize(requireContext(), bytes)
 
     private fun showCustomModelDialog() {
         val editText = EditText(requireContext()).apply {
