@@ -161,17 +161,15 @@ function handleMorphDictChange(tabId: string) {
 const filteredStrongsEntries = computed(() => {
     if (strongsDictionaries.value.size <= 1) return strongsEntries.value;
     const sel = selectedStrongsDict.value;
-    return strongsEntries.value.map(([key, fragments]) => {
-        const filtered = fragments.filter(f => f.bookInitials === sel);
-        return [key, filtered.length > 0 ? filtered : fragments] as [string, OsisFragmentType[]];
-    });
+    return strongsEntries.value
+        .map(([key, fragments]) => [key, fragments.filter(f => f.bookInitials === sel)] as [string, OsisFragmentType[]])
+        .filter(([, fragments]) => fragments.length > 0);
 });
 
 const filteredMorphFragments = computed(() => {
     if (morphDictionaries.value.size <= 1) return morphFragments.value;
     const sel = selectedMorphDict.value;
-    const filtered = morphFragments.value.filter(f => f.bookInitials === sel);
-    return filtered.length > 0 ? filtered : morphFragments.value;
+    return morphFragments.value.filter(f => f.bookInitials === sel);
 });
 
 const hasBothColumns = computed(() => {
