@@ -222,7 +222,7 @@ class WorkspaceEntities {
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> strongsMode = value as Int?
+                Types.STRONGS -> strongsMode = (value as Int?)?.let { if (it > 2) 0 else it }
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.FOOTNOTES_INLINE -> showFootNotesInline = value as Boolean?

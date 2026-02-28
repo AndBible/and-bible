@@ -340,7 +340,7 @@ class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextD
         get() {
             if (window == null) return true
             val itm = StrongsPreference(settings)
-            return itm.enabled && itm.value as Int > 0
+            return itm.enabled
         }
 
     override var value: Any
