@@ -30,7 +30,6 @@ import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
-import android.widget.ArrayAdapter
 import android.widget.TextView
 
 import net.bible.android.activity.R
@@ -51,7 +50,6 @@ import javax.inject.Inject
 class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private lateinit var binding: EpubSearchBinding
-    private lateinit var searchHistoryAdapter: ArrayAdapter<String>
     override val integrateWithHistoryManager: Boolean = true
 
     @Inject lateinit var pageControl: PageControl
@@ -112,7 +110,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
-        setupSearchHistoryDropdown()
+        binding.searchText.setupSearchHistoryDropdown(this, SearchHistoryStore.epubHistory())
         searchType = CommonUtils.settings.getString("epubSearch-SearchType")?.let { SearchType.valueOf(it)}
 
         title = getString(R.string.search_in, documentToSearch.abbreviation)
@@ -132,30 +130,6 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
                 return@setOnKeyListener true
             }
             false
-        }
-    }
-
-    private fun setupSearchHistoryDropdown() {
-        searchHistoryAdapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_dropdown_item_1line,
-            SearchHistoryStore.epubHistory()
-        )
-        binding.searchText.setAdapter(searchHistoryAdapter)
-        binding.searchText.setOnItemClickListener { parent, _, position, _ ->
-            val selected = parent.getItemAtPosition(position).toString()
-            binding.searchText.setText(selected, false)
-            binding.searchText.setSelection(selected.length)
-        }
-        binding.searchText.setOnClickListener {
-            if (searchHistoryAdapter.count > 0) {
-                binding.searchText.showDropDown()
-            }
-        }
-        binding.searchText.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus && searchHistoryAdapter.count > 0 && binding.searchText.text.isNullOrEmpty()) {
-                binding.searchText.post { binding.searchText.showDropDown() }
-            }
         }
     }
 
