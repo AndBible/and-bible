@@ -1,0 +1,25 @@
+- Add "Italicize added words" setting for Strong's modules (c705384)
+- Add tab view for multiple Strong's/morphology dictionaries (c159b9d)
+- Replace Strong's off mode with hidden links mode (#3152)
+
+- Store window buttons bar visibility per workspace instead of globally (ab5e718)
+- Improved Strong's/morphology display with compact layout and visual enhancements (989b7be)
+- Improved dictionary view styling for translation notes and monochrome mode (b04446e)
+
+- Fix infinite scroll busy loop when reaching end/start of book (d9ed120)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda)
+- Respect selected TTS engine (#3567)
+- Fix NPE crash with corrupted Lucene index (e541172)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
