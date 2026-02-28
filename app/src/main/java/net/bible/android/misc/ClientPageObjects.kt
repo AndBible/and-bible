@@ -137,6 +137,7 @@ class OsisFragment(
             "ordinalRange" to ordinalRangeStr,
             "language" to wrapString(book.language.code),
             "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
+            "hasStrongs" to json.encodeToString(serializer(), book.hasFeature(FeatureType.STRONGS_NUMBERS)),
         )
     }
 }
