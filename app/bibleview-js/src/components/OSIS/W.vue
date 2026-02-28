@@ -105,7 +105,7 @@ function goToLink(event: MouseEvent, url: string) {
 }
 
 const exportMode = inject(exportModeKey, ref(false));
-const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongs = computed(() => !exportMode.value);
 const showStrongsHidden = computed(() => !exportMode.value && config.strongsMode == strongsModes.hidden);
 const showStrongsSeparately = computed(() => !exportMode.value && config.strongsMode === strongsModes.links);
 
