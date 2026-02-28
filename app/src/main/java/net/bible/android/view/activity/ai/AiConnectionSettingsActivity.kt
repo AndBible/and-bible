@@ -184,6 +184,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 append("<a href=\"https://platform.deepseek.com/api_keys\">$getKey</a><br><br>")
                 append("<b>${getString(R.string.ai_getting_started_groq)}</b><br>")
                 append("<a href=\"https://console.groq.com/keys\">$getKey</a><br><br>")
+                append("<b>${getString(R.string.ai_getting_started_alibaba)}</b><br>")
+                append("<a href=\"https://bailian.console.alibabacloud.com/?apiKey=1#/api-key\">$getKey</a><br><br>")
                 append("<b>${getString(R.string.ai_getting_started_openrouter)}</b><br>")
                 append("<a href=\"https://openrouter.ai/keys\">$getKey</a><br><br>")
                 append(getString(R.string.ai_getting_started_other))

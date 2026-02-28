@@ -1392,6 +1392,7 @@
     <string name="ai_getting_started_mistral">Mistral</string>
     <string name="ai_getting_started_deepseek">DeepSeek</string>
     <string name="ai_getting_started_groq">Groq</string>
+    <string name="ai_getting_started_alibaba">Alibaba Cloud (Qwen)</string>
     <string name="ai_getting_started_openrouter">OpenRouter</string>
     <string name="ai_getting_started_get_api_key">Get API key</string>
     <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>

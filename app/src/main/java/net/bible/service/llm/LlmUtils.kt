@@ -41,6 +41,8 @@ enum class LlmProvider(
         listOf("deepseek-chat", "deepseek-reasoner")),
     GROQ("Groq", "https://api.groq.com/openai/v1",
         listOf("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant")),
+    ALIBABA("Alibaba Cloud (Qwen)", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+        listOf("qwen-plus", "qwen-turbo", "qwen3-max")),
     OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1",
         listOf("anthropic/claude-sonnet-4", "google/gemini-2.5-flash", "openai/gpt-5-mini")),
     CUSTOM("Custom", "", listOf());
