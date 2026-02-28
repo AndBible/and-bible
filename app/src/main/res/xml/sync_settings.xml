@@ -87,5 +87,11 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_reading_plan_24dp"
 			/>
+		<SwitchPreferenceCompat android:key="gdrive_mydocuments"
+			android:title="@string/my_documents_title"
+			android:summary="@string/my_documents_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_description_gray_24"
+			/>
 	</PreferenceCategory>
 </PreferenceScreen>

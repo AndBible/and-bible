@@ -119,6 +119,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             isVisible = false
         }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_mydocuments")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false

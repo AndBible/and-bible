@@ -161,6 +161,24 @@ class DatabaseContainer {
         return workspaceDb
     }
 
+    fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, MyDocumentDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*myDocumentMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
+
+    fun resetMyDocumentDb(): MyDocumentDatabase {
+        myDocumentDb.close()
+        myDocumentDb = getMyDocumentDb()
+        return myDocumentDb
+    }
+
     init {
         if(!application.isRunningTests) {
             for (dbDef in getDatabaseAccessorFactories(this).map { it.invoke() }) {
@@ -219,24 +237,6 @@ class DatabaseContainer {
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
-
-    fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
-        Room.databaseBuilder(
-            application, MyDocumentDatabase::class.java, filename
-        )
-            .allowMainThreadQueries()
-            .addMigrations(*myDocumentMigrations)
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .build()
-
-    var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
-
-    fun resetMyDocumentDb(): MyDocumentDatabase {
-        myDocumentDb.close()
-        myDocumentDb = getMyDocumentDb()
-        return myDocumentDb
-    }
 
     private fun backupDatabaseIfNeeded() {
         if(application.isRunningTests) return
@@ -382,6 +382,16 @@ class DatabaseContainer {
                     },
                 )
                 },
+                { SyncableDatabaseAccessor(
+                    localDb = myDocumentDb,
+                    dbFactory = { n -> getMyDocumentDb(n) },
+                    _resetLocalDb = { resetMyDocumentDb() },
+                    localDbFile = application.getDatabasePath(MyDocumentDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.MYDOCUMENTS,
+                    _reactToUpdates = {
+                        ABEventBus.post(MyDocumentsUpdatedViaSyncEvent(it))
+                    },
+                ) },
             )
         }
 
@@ -391,3 +401,4 @@ class DatabaseContainer {
 class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
+class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)

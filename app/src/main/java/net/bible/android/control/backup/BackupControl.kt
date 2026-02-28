@@ -568,7 +568,7 @@ object BackupControl {
                 SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
-                else -> null
+                SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
             }
             if(db != null) {
                 db.syncDao().clearSyncStatus()

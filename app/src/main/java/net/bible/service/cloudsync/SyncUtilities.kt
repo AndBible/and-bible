@@ -25,6 +25,7 @@ import net.bible.android.database.LogEntry
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
@@ -36,7 +37,7 @@ import java.lang.Exception
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
-    BOOKMARKS, WORKSPACES, READINGPLANS;
+    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS;
     class Table(
         val tableName: String,
         val idField1: String = "id",
@@ -46,12 +47,14 @@ enum class SyncableDatabaseDefinition {
         READINGPLANS -> R.string.reading_plans_content
         BOOKMARKS -> R.string.bookmarks_contents
         WORKSPACES -> R.string.workspaces_contents
+        MYDOCUMENTS -> R.string.my_documents_contents
     }
 
     val filename get() = when(this) {
         BOOKMARKS -> BookmarkDatabase.dbFileName
         READINGPLANS ->ReadingPlanDatabase.dbFileName
         WORKSPACES -> WorkspaceDatabase.dbFileName
+        MYDOCUMENTS -> MyDocumentDatabase.dbFileName
     }
 
     val tables get() = when(this) {
@@ -100,6 +103,11 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "ReadingPlan"),
             Table(tableName = "ReadingPlanStatus"),
         )
+        MYDOCUMENTS -> listOf(
+            Table(tableName = "MyDocument"),
+            Table(tableName = "MyDocumentPage"),
+            Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
+        )
     }
 
     var syncEnabled
@@ -110,7 +118,7 @@ enum class SyncableDatabaseDefinition {
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
-        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
+        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS)
         val nameToCategory = ALL.associateBy { it.name }
         val filenameToCategory = ALL.associateBy { it.filename }
     }
