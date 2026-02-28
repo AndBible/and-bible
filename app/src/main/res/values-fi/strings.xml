@@ -1023,6 +1023,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="pref_font_size_multiplier_summary_1">Muuta fontin kokoa tällä kertoimella.</string>
   <string name="pref_font_size_multiplier_summary_2">Kätevä jos käytössäsi on synkronoitu laite jolla haluat käyttää suurempaa fonttia.</string>
   <string name="current_value">Nykyinen arvo: %s</string>
+  <string name="pref_seekbar_decrease_by_one_step">Pienennä yhdellä askeleella</string>
+  <string name="pref_seekbar_increase_by_one_step">Suurenna yhdellä askeleella</string>
   <string name="prefs_bible_view_swipe_mode_title">Toiminne pyyhkäisyeleelle (oikea / vasen)</string>
   <string name="prefs_bible_view_swipe_mode_summary">Pyyhkäisyelettä vasemmalle / oikealle voidaan käyttää seuraavaan sivuun / lukuun siirtymiseen.</string>
   <string name="prefs_swipe_mode_chapter">Luku</string>

@@ -149,7 +149,7 @@
             android:defaultValue="false"
             android:icon="@drawable/ic_click_24dp"
             />
-        <SeekBarPreference android:key="font_size_multiplier"
+        <net.bible.android.view.widget.StepSeekBarPreference android:key="font_size_multiplier"
             android:title="@string/pref_font_size_multiplier_title"
             android:summary=""
             android:defaultValue="100"

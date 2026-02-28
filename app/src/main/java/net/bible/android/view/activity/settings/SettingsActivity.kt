@@ -246,17 +246,25 @@ class SettingsFragment : PreferenceFragmentCompat() {
         val dictCategory = preferenceScreen.findPreference<PreferenceCategory>("dictionaries_category") as PreferenceCategory
         dictCategory.isVisible = showGreek || showHebrew || showGreekMorph || showWordLookup
         val fontSizeMultiplier = preferenceScreen.findPreference<SeekBarPreference>("font_size_multiplier") as SeekBarPreference
+        fontSizeMultiplier.seekBarIncrement = 10
+        fontSizeMultiplier.setUpdatesContinuously(true)
 
-        fun getFontSizeMultiplierSummary(value: Int) =
-            getString(R.string.pref_font_size_multiplier_summary_1) + " " +
-            getString(R.string.pref_font_size_multiplier_summary_2) + " " +
-            getString(R.string.current_value,
+        fun getFontSizeMultiplierSummary(value: Int): String {
+            val valueText = getString(
+                R.string.current_value,
                 String.format(Locale.getDefault(), "%1.1fx", value / 100F)
             )
+            return listOf(
+                valueText,
+                "",
+                getString(R.string.pref_font_size_multiplier_summary_1),
+                getString(R.string.pref_font_size_multiplier_summary_2),
+            ).joinToString("\n")
+        }
 
         fontSizeMultiplier.summary = getFontSizeMultiplierSummary(CommonUtils.settings.fontSizeMultiplier)
-        fontSizeMultiplier.setOnPreferenceChangeListener { pref, newValue ->
-            fontSizeMultiplier.summary = getFontSizeMultiplierSummary(newValue as Int)
+        fontSizeMultiplier.setOnPreferenceChangeListener { _, newValue ->
+            fontSizeMultiplier.summary = getFontSizeMultiplierSummary((newValue as Number).toInt())
             true
         }
 
@@ -361,4 +369,3 @@ class SettingsFragment : PreferenceFragmentCompat() {
         private const val TAG = "SettingsActivity"
     }
 }
-
