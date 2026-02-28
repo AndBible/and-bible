@@ -440,7 +440,7 @@ $crashAttachments
                 putExtra(Intent.EXTRA_SUBJECT, subject)
                 putExtra(Intent.EXTRA_TEXT, message)
                 putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
-                type = "text/plain"
+                type = "application/octet-stream"
             }
 
             val chooserIntent = Intent.createChooser(emailIntent, activity.getString(R.string.send_bug_report_title))
