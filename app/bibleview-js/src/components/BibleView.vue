@@ -116,6 +116,7 @@ import {useModal} from "@/composables/modal";
 import {useCustomCss} from "@/composables/custom-css";
 import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
+import {useCopy} from "@/composables/copy";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
@@ -161,53 +162,7 @@ provide(modalKey, modal);
 const keyboard = useKeyboard(android, scroll, lineHeight);
 provide(keyboardKey, keyboard);
 
-// Centralized copy handling for all document types and interaction methods
-const {setupKeyboardListener} = keyboard;
-setupKeyboardListener((e: KeyboardEvent) => {
-    if (e.ctrlKey && e.code === "KeyC") {
-        return handleCopyText();
-    }
-    return false;
-}, 2);
-
-function isSelectionInModal(): boolean {
-    const selection = window.getSelection();
-    if (!selection || selection.rangeCount < 1 || selection.isCollapsed) return false;
-    const range = selection.getRangeAt(0);
-    const node = range.startContainer instanceof Element
-        ? range.startContainer
-        : range.startContainer.parentElement;
-    return node?.closest("#modals") != null;
-}
-
-function handleCopyText(): boolean {
-    if (isSelectionInModal()) {
-        const selectedText = window.getSelection()?.toString();
-        if (selectedText && selectedText.trim()) {
-            android.copyText(selectedText);
-            return true;
-        }
-        return false;
-    }
-
-    // For Bible documents, always use direct verse copy (from Ctrl + c shortcut)
-    if (documentType.value === "bible") {
-        const sel = android.querySelection();
-        if (sel != null && typeof sel !== "string") {
-            android.copyVerse(sel.bookInitials, sel.startOrdinal, sel.endOrdinal);
-            return true;
-        }
-        return false;
-    }
-
-    // For all other document types (commentary, books, etc.), use simple text copy
-    const selectedText = window.getSelection()?.toString();
-    if (selectedText && selectedText.trim()) {
-        android.copyText(selectedText);
-        return true;
-    }
-    return false;
-}
+useCopy({android, keyboard, documentType});
 
 let footNoteCount = 0;
 
