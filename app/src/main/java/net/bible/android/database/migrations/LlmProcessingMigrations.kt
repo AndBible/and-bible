@@ -110,6 +110,31 @@ private val addProviderConfig = makeMigration(7..8) { db ->
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_providerConfigId` ON `AgentPrompt` (`providerConfigId`)")
 }
 
+private val addSyncTables = makeMigration(8..9) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LogEntry` (
+        `tableName` TEXT NOT NULL,
+        `entityId1` BLOB NOT NULL,
+        `entityId2` BLOB NOT NULL DEFAULT x'',
+        `type` TEXT NOT NULL,
+        `lastUpdated` INTEGER NOT NULL DEFAULT 0,
+        `sourceDevice` TEXT NOT NULL,
+        PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `LogEntry` (`lastUpdated`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `LogEntry` (`sourceDevice`)")
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `SyncConfiguration` (
+        `keyName` TEXT NOT NULL,
+        `stringValue` TEXT,
+        `longValue` INTEGER,
+        `booleanValue` INTEGER,
+        PRIMARY KEY(`keyName`))""")
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `SyncStatus` (
+        `sourceDevice` TEXT NOT NULL,
+        `patchNumber` INTEGER NOT NULL,
+        `sizeBytes` INTEGER NOT NULL,
+        `appliedDate` INTEGER NOT NULL,
+        PRIMARY KEY(`sourceDevice`, `patchNumber`))""")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
@@ -118,4 +143,5 @@ val llmProcessingMigrations: Array<Migration> = arrayOf(
     addModelOverride,
     addLanguageCode,
     addProviderConfig,
+    addSyncTables,
 )

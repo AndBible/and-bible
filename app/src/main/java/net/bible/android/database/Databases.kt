@@ -160,18 +160,21 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 8
+const val LLM_PROCESSING_DATABASE_VERSION = 9
 
 @Database(
     entities = [
         LlmProcessingCacheEntry::class,
         AgentPrompt::class,
         LlmProviderConfig::class,
+        LogEntry::class,
+        SyncConfiguration::class,
+        SyncStatus::class,
     ],
     version = LLM_PROCESSING_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class LlmProcessingDatabase: RoomDatabase() {
+abstract class LlmProcessingDatabase: SyncableRoomDatabase() {
     abstract fun llmProcessingDao(): LlmProcessingDao
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao

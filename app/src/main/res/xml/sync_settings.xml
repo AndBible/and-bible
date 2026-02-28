@@ -93,5 +93,11 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_description_gray_24"
 			/>
+		<SwitchPreferenceCompat android:key="gdrive_llmprocessing"
+			android:title="@string/llm_processing_sync_title"
+			android:summary="@string/llm_processing_sync_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_smart_toy_24"
+			/>
 	</PreferenceCategory>
 </PreferenceScreen>

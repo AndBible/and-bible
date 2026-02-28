@@ -569,6 +569,7 @@ object BackupControl {
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
+                SyncableDatabaseDefinition.LLMPROCESSING -> DatabaseContainer.instance.llmProcessingDb
             }
             if(db != null) {
                 db.syncDao().clearSyncStatus()

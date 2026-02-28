@@ -179,6 +179,24 @@ class DatabaseContainer {
         return myDocumentDb
     }
 
+    fun getLlmProcessingDb(filename: String = LlmProcessingDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, LlmProcessingDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*llmProcessingMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var llmProcessingDb: LlmProcessingDatabase = getLlmProcessingDb()
+
+    fun resetLlmProcessingDb(): LlmProcessingDatabase {
+        llmProcessingDb.close()
+        llmProcessingDb = getLlmProcessingDb()
+        return llmProcessingDb
+    }
+
     init {
         if(!application.isRunningTests) {
             for (dbDef in getDatabaseAccessorFactories(this).map { it.invoke() }) {
@@ -224,16 +242,6 @@ class DatabaseContainer {
         )
             .allowMainThreadQueries()
             .addMigrations()
-            .openHelperFactory(dbFactory)
-            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-            .build()
-
-    val llmProcessingDb: LlmProcessingDatabase =
-        Room.databaseBuilder(
-            application, LlmProcessingDatabase::class.java, LlmProcessingDatabase.dbFileName
-        )
-            .allowMainThreadQueries()
-            .addMigrations(*llmProcessingMigrations)
             .openHelperFactory(dbFactory)
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
@@ -287,7 +295,7 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, llmProcessingDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, llmProcessingDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
@@ -392,6 +400,16 @@ class DatabaseContainer {
                         ABEventBus.post(MyDocumentsUpdatedViaSyncEvent(it))
                     },
                 ) },
+                { SyncableDatabaseAccessor(
+                    localDb = llmProcessingDb,
+                    dbFactory = { n -> getLlmProcessingDb(n) },
+                    _resetLocalDb = { resetLlmProcessingDb() },
+                    localDbFile = application.getDatabasePath(LlmProcessingDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.LLMPROCESSING,
+                    _reactToUpdates = {
+                        ABEventBus.post(LlmProcessingUpdatedViaSyncEvent(it))
+                    },
+                ) },
             )
         }
 
@@ -402,3 +420,4 @@ class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)
+class LlmProcessingUpdatedViaSyncEvent(val updated: List<LogEntry>)
