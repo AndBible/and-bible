@@ -58,6 +58,11 @@ private val migrateStrongsMode = makeMigration(9..10) { _db ->
     _db.execSQL("UPDATE `PageManager` SET `text_display_settings_strongsMode` = 0 WHERE `text_display_settings_strongsMode` = 3")
 }
 
+private val addNonStrongsWordItalic = makeMigration(10..11) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -68,6 +73,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addFootNotesInline,
     addRestoreButtonsVisible,
     migrateStrongsMode,
+    addNonStrongsWordItalic,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 10
+const val WORKSPACE_DATABASE_VERSION = 11
