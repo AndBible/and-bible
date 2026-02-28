@@ -117,13 +117,14 @@ class AgentExecutor(
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
+        val loopHeaders = LlmProcessingService.buildProviderHeaders()
 
         while (iteration < maxIterations) {
             iteration++
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            when (val parsed = callLlmAndParse(messages, tools, iteration, modelOverride)) {
+            when (val parsed = callLlmAndParse(messages, tools, iteration, modelOverride, loopHeaders)) {
                 is ParsedResponse.ToolCalls -> {
                     when (val result = processToolCalls(parsed, messages, currentContext)) {
                         is ProcessToolsResult.Continue -> {
@@ -170,10 +171,11 @@ class AgentExecutor(
         messages: JSONArray,
         tools: JSONArray,
         iteration: Int,
-        modelOverride: String? = null
+        modelOverride: String? = null,
+        extraHeaders: Map<String, String> = emptyMap()
     ): ParsedResponse {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val response = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride)
+        val response = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride, extraHeaders)
 
         val assistantMessage = response
             .getJSONArray("choices")

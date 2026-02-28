@@ -55,6 +55,7 @@ import okhttp3.Response
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
+import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -314,6 +315,7 @@ object LlmProcessingService {
         }
 
         val startTime = System.currentTimeMillis()
+        val loopHeaders = buildProviderHeaders()
 
         if (activeRequests.incrementAndGet() == 1) {
             ABEventBus.post(LlmEvent(running = true))
@@ -325,7 +327,7 @@ object LlmProcessingService {
                 Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
                 session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
 
-                val response = callLlmApiWithTools(messages, tools, modelOverride)
+                val response = callLlmApiWithTools(messages, tools, modelOverride, loopHeaders)
                 val assistantMessage = response.getJSONArray("choices")
                     .getJSONObject(0).getJSONObject("message")
                 val parsed = ToolCallParser.parseMessage(assistantMessage)
@@ -439,7 +441,24 @@ object LlmProcessingService {
      * @param tools The tools array in OpenAI function calling format
      * @return The full response JSON object (contains choices[0].message with content or tool_calls)
      */
-    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null): JSONObject {
+    /**
+     * Build provider-specific HTTP headers for prompt caching optimization.
+     * UUID is generated once per call — callers in loops should call this once
+     * before the loop and reuse the result across iterations.
+     */
+    internal fun buildProviderHeaders(): Map<String, String> {
+        val provider = try {
+            LlmProvider.valueOf(CommonUtils.settings.llmProvider)
+        } catch (_: IllegalArgumentException) {
+            LlmProvider.fromEndpoint(CommonUtils.settings.llmEndpoint)
+        }
+        return when (provider) {
+            LlmProvider.XAI -> mapOf("x-grok-conv-id" to UUID.randomUUID().toString())
+            else -> emptyMap()
+        }
+    }
+
+    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null, extraHeaders: Map<String, String> = emptyMap()): JSONObject {
         val settings = CommonUtils.settings
 
         if (!settings.llmConfigured) {
@@ -464,6 +483,7 @@ object LlmProcessingService {
             .url(endpoint)
             .addHeader("Authorization", "Bearer ${settings.llmApiKey}")
             .addHeader("Content-Type", "application/json")
+            .apply { for ((key, value) in extraHeaders) addHeader(key, value) }
             .post(requestBody.toString().toRequestBody("application/json".toMediaType()))
             .build()
 
