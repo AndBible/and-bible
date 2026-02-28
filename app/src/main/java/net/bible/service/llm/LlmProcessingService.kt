@@ -23,6 +23,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -538,11 +539,63 @@ object LlmProcessingService {
         }
     }
 
+    /** Result of a single HTTP call to the LLM API. */
+    private sealed class HttpCallResult {
+        data class Success(val bodyJson: JSONObject) : HttpCallResult()
+        data class Error(val code: Int, val bodyText: String, val retryAfterSeconds: Double?) : HttpCallResult()
+    }
+
+    /**
+     * Execute a single HTTP call to the LLM API.
+     * Returns [HttpCallResult.Success] or [HttpCallResult.Error] instead of throwing on non-2xx.
+     * [IOException] (network errors) are still thrown directly.
+     */
+    private suspend fun executeHttpCall(request: Request): HttpCallResult {
+        return suspendCancellableCoroutine { continuation ->
+            val call = client.newCall(request)
+
+            continuation.invokeOnCancellation {
+                call.cancel()
+            }
+
+            call.enqueue(object : Callback {
+                override fun onFailure(call: Call, e: IOException) {
+                    Log.e(TAG, "LLM API call failed: ${e.message}")
+                    continuation.resumeWithException(e)
+                }
+
+                override fun onResponse(call: Call, response: Response) {
+                    response.use { resp ->
+                        if (!resp.isSuccessful) {
+                            val retryAfter = LlmRetryPolicy.parseRetryAfterHeader(resp.header("retry-after"))
+                            val errorBody = resp.body?.string() ?: "No error body"
+                            continuation.resume(HttpCallResult.Error(resp.code, errorBody, retryAfter))
+                            return
+                        }
+
+                        try {
+                            val responseBody = resp.body?.string()
+                                ?: throw LlmProcessingError("Empty response body")
+                            val json = JSONObject(responseBody)
+                            Log.d(TAG, "LLM API response received")
+                            continuation.resume(HttpCallResult.Success(json))
+                        } catch (e: Exception) {
+                            Log.e(TAG, "Failed to parse LLM response: ${e.message}")
+                            continuation.resumeWithException(e)
+                        }
+                    }
+                }
+            })
+        }
+    }
+
     /**
      * Call LLM API with tool calling support.
      *
      * Uses the provider's API adapter for endpoint URL, headers, and request body format.
      * Extracts token usage from the response and adds it to cumulative tracking.
+     * Retries on rate-limit and transient server errors (429, 502, 503, 529) with
+     * exponential backoff, respecting the Retry-After header when present.
      *
      * @param messages The conversation messages (system, user, assistant, tool)
      * @param tools The tools array in provider-specific format
@@ -578,52 +631,45 @@ object LlmProcessingService {
         activeRequests.incrementAndGet()
 
         return try {
-            val responseJson = suspendCancellableCoroutine { continuation ->
-                val call = client.newCall(request)
+            val session = AgentSessionManager.getCurrentSession()
+            var lastError: HttpCallResult.Error? = null
 
-                continuation.invokeOnCancellation {
-                    call.cancel()
+            for (attempt in 0..LlmRetryPolicy.MAX_RETRIES) {
+                coroutineContext.ensureActive()
+
+                if (attempt > 0) {
+                    val prev = lastError!!
+                    val delayMs = LlmRetryPolicy.calculateDelayMs(attempt - 1, prev.retryAfterSeconds)
+                    val delaySec = "%.1f".format(delayMs / 1000.0)
+                    Log.w(TAG, "Rate limited (HTTP ${prev.code}). Retry $attempt/${LlmRetryPolicy.MAX_RETRIES} after ${delayMs}ms")
+                    session?.addLogEntry(AgentLogEntry.info(
+                        application.getString(R.string.llm_rate_limited_retrying, delaySec)
+                    ))
+                    delay(delayMs)
                 }
 
-                call.enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Log.e(TAG, "LLM API call with tools failed: ${e.message}")
-                        continuation.resumeWithException(e)
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        response.use { resp ->
-                            if (!resp.isSuccessful) {
-                                val errorBody = resp.body?.string() ?: "No error body"
-                                Log.e(TAG, "LLM API error: ${resp.code} - $errorBody")
-                                continuation.resumeWithException(
-                                    LlmProcessingError("LLM API error: ${resp.code} - $errorBody")
-                                )
-                                return
-                            }
-
-                            try {
-                                val responseBody = resp.body?.string()
-                                    ?: throw LlmProcessingError("Empty response body")
-                                val json = JSONObject(responseBody)
-                                Log.d(TAG, "LLM API response received")
-                                continuation.resume(json)
-                            } catch (e: Exception) {
-                                Log.e(TAG, "Failed to parse LLM response: ${e.message}")
-                                continuation.resumeWithException(e)
-                            }
+                when (val result = executeHttpCall(request)) {
+                    is HttpCallResult.Success -> {
+                        val usage = adapter.extractUsage(result.bodyJson)
+                        if (usage.totalTokens > 0) {
+                            LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig?.id)
                         }
+                        return LlmApiResponse(result.bodyJson, usage)
                     }
-                })
+                    is HttpCallResult.Error -> {
+                        if (LlmRetryPolicy.isRetryable(result.code) && attempt < LlmRetryPolicy.MAX_RETRIES) {
+                            Log.w(TAG, "LLM API retryable error: ${result.code} - ${result.bodyText.take(200)}")
+                            lastError = result
+                            continue
+                        }
+                        Log.e(TAG, "LLM API error: ${result.code} - ${result.bodyText}")
+                        throw LlmProcessingError("LLM API error: ${result.code} - ${result.bodyText}")
+                    }
+                }
             }
 
-            // Extract usage and add to cumulative tracking
-            val usage = adapter.extractUsage(responseJson)
-            if (usage.totalTokens > 0) {
-                LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig?.id)
-            }
-
-            LlmApiResponse(responseJson, usage)
+            // Should not reach here, but just in case
+            throw LlmProcessingError("LLM API error: ${lastError!!.code} - ${lastError.bodyText}")
         } finally {
             activeRequests.decrementAndGet()
         }
