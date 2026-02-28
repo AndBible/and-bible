@@ -310,7 +310,7 @@ class ExpandXrefsPreference (settings: SettingsBundle) : Preference(settings, Te
 }
 
 class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.STRONGS) {
-    override val enabled: Boolean get() = pageManager.hasStrongs
+    override val enabled: Boolean get() = window == null || pageManager.hasStrongs
     override var value get() = if (enabled) super.value else 0
         set(value) {
             super.value = value
@@ -338,6 +338,7 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
 class MorphologyPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MORPH) {
     override val enabled: Boolean
         get() {
+            if (window == null) return true
             val itm = StrongsPreference(settings)
             return itm.enabled && itm.value as Int > 0
         }
