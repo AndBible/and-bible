@@ -51,6 +51,7 @@ npm run lint-fix         # Auto-fix lint issues
 npm run type-check       # TypeScript validation
 npm run build-debug      # Debug build with source maps
 npm run build-production # Production build
+npm run test:browser     # Browser tests with Playwright (~8 seconds, requires chromium)
 ```
 
 **Android Gradle Build (requires internet)**
@@ -88,6 +89,12 @@ Only run Android builds when testing Android-specific integration.
 - Test files: `app/bibleview-js/src/__tests__/*.spec.js`
 - Run: `cd app/bibleview-js && npm run test:ci`
 - Coverage: 140+ tests including DOM manipulation, bookmarks, verse rendering, colors
+
+**Vue.js Browser Tests (for features needing real browser APIs like Selection)**
+- Test files: `app/bibleview-js/src/__tests__/*.browser.spec.ts`
+- Run: `cd app/bibleview-js && npm run test:browser`
+- Uses Vitest browser mode with Playwright/Chromium
+- Mounts full `BibleView.vue` component with `window.android` mocked via Proxy
 
 **Android Tests (for Kotlin/Java changes)**
 - Test files: `app/src/test/java/**/*Test.kt`

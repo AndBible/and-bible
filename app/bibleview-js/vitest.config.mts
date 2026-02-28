@@ -40,6 +40,7 @@ const testConfig: any = {
   // @ts-ignore
   test: {
     environment: "jsdom",
+    exclude: ["**/*.browser.spec.ts"],
     css: {
       modules: {
         classNameStrategy: "non-scoped",

@@ -21,3 +21,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Browser test screenshots
+__screenshots__
