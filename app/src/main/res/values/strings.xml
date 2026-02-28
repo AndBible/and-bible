@@ -1446,6 +1446,38 @@
     <string name="ai_getting_started_openrouter">OpenRouter</string>
     <string name="ai_getting_started_get_api_key">Get API key</string>
     <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+
+    <!-- Multi-provider settings -->
+    <string name="ai_providers_category">Providers</string>
+    <string name="ai_add_provider">Add provider</string>
+    <string name="ai_add_provider_summary">Configure a new AI service provider</string>
+    <string name="ai_no_providers">No providers configured. Tap \"Add provider\" to get started.</string>
+    <string name="ai_provider_default_indicator">Default provider</string>
+    <string name="ai_provider_set_default">Set as default</string>
+    <string name="ai_provider_edit">Edit</string>
+    <string name="ai_provider_delete">Delete</string>
+    <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
+    <string name="ai_provider_api_key_masked">API key: ●●●●%1$s</string>
+    <string name="ai_provider_api_key_not_set">API key not set</string>
+    <string name="ai_provider_model">Model: %1$s</string>
+    <string name="ai_provider_select_type">Select provider type</string>
+    <string name="ai_provider_name">Provider name</string>
+    <string name="ai_provider_name_hint">Display name for this provider</string>
+    <string name="ai_provider_api_key">API key</string>
+    <string name="ai_provider_endpoint">API endpoint</string>
+    <string name="ai_provider_endpoint_hint">https://api.example.com/v1</string>
+    <string name="ai_provider_api_format">API format</string>
+    <string name="ai_provider_default_model">Default model</string>
+    <string name="ai_provider_already_exists">This provider is already configured</string>
+    <string name="ai_provider_saved">Provider saved</string>
+    <string name="ai_provider_deleted">Provider deleted</string>
+    <string name="ai_provider_migrate_title">Migrate existing settings?</string>
+    <string name="ai_provider_migrate_message">Your existing LLM configuration will be migrated to the new provider system.</string>
+
+    <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
+    <string name="prompt_provider_override">Provider</string>
+    <string name="prompt_provider_default">Default</string>
+
     <string name="prompt_permission_mode">Permission mode</string>
     <string name="agent_permission_mode_summary">Controls when user confirmation is required before AI write operations</string>
     <string name="prompt_permission_use_default">Use default</string>

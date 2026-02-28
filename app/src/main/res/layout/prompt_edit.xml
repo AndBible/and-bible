@@ -157,6 +157,21 @@
             android:gravity="start|center_vertical"
             android:textAllCaps="false" />
 
+        <!-- Provider override -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/prompt_provider_override"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/providerOverrideSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <!-- Model override -->
         <TextView
             android:layout_width="wrap_content"

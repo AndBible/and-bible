@@ -21,6 +21,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.PrimaryKey
@@ -28,6 +29,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
 /**
@@ -44,15 +46,127 @@ enum class PromptContext {
 }
 
 /**
+ * Persistent configuration for an LLM provider.
+ *
+ * Each row represents one configured provider (e.g. Gemini, OpenAI, a custom endpoint).
+ * Multiple CUSTOM entries are allowed. API keys are stored in SharedPreferences
+ * keyed by `"llm_api_key_${id}"` to keep them out of database backups.
+ */
+@Entity(
+    indices = [
+        Index("orderNumber"),
+    ]
+)
+data class LlmProviderConfig(
+    @PrimaryKey val id: IdType = IdType(),
+    /** LlmProvider enum name (GEMINI, OPENAI, CUSTOM, …) */
+    val providerType: String,
+    /** User-visible name (auto-set for known providers, user-chosen for CUSTOM) */
+    val displayName: String,
+    /** Custom endpoint URL (only used for CUSTOM providerType) */
+    val endpoint: String? = null,
+    /** "OPENAI" or "ANTHROPIC" (only used for CUSTOM providerType) */
+    val apiFormat: String? = null,
+    /** User's preferred model for this provider (null = provider's first model) */
+    val defaultModel: String? = null,
+    /** Whether this is the default provider for new prompts / global usage */
+    @ColumnInfo(defaultValue = "0") val isDefault: Boolean = false,
+    /** Display ordering */
+    @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
+) {
+    /** Resolve the LlmProvider enum for this config. */
+    fun resolveProvider(): LlmProvider = try {
+        LlmProvider.valueOf(providerType)
+    } catch (_: IllegalArgumentException) {
+        LlmProvider.CUSTOM
+    }
+
+    /** Effective endpoint: explicit for CUSTOM, from enum for known providers. */
+    fun resolveEndpoint(): String {
+        val provider = resolveProvider()
+        return if (provider == LlmProvider.CUSTOM) endpoint ?: "" else provider.endpoint
+    }
+
+    /** Effective API format: explicit for CUSTOM, from enum for known providers. */
+    fun resolveApiFormat(): ApiFormat {
+        val provider = resolveProvider()
+        return if (provider == LlmProvider.CUSTOM) {
+            try { ApiFormat.valueOf(apiFormat ?: "OPENAI") } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
+        } else {
+            provider.apiFormat
+        }
+    }
+
+    /** Get the LlmApiAdapter for this provider config. */
+    fun resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
+        ApiFormat.OPENAI -> OpenAiApiAdapter()
+        ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
+    }
+
+    /** Available models for this provider config. */
+    fun resolveModels(): List<String> = resolveProvider().models
+
+    /** Effective default model: explicit choice, or first from provider's list. */
+    fun resolveDefaultModel(): String =
+        defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
+}
+
+/** Extension to get the API key from SharedPreferences. */
+fun LlmProviderConfig.getApiKey(): String =
+    CommonUtils.settings.getString("llm_api_key_${id}", "") ?: ""
+
+/** Extension to set the API key in SharedPreferences. */
+fun LlmProviderConfig.setApiKey(key: String) =
+    CommonUtils.settings.setString("llm_api_key_${id}", key)
+
+/** Extension to remove the API key from SharedPreferences. */
+fun LlmProviderConfig.removeApiKey() =
+    CommonUtils.settings.removeString("llm_api_key_${id}")
+
+@Dao
+interface LlmProviderConfigDao {
+    @Query("SELECT * FROM LlmProviderConfig ORDER BY orderNumber")
+    fun all(): List<LlmProviderConfig>
+
+    @Query("SELECT * FROM LlmProviderConfig WHERE isDefault = 1 LIMIT 1")
+    fun getDefault(): LlmProviderConfig?
+
+    @Query("SELECT * FROM LlmProviderConfig WHERE id = :id")
+    fun getById(id: IdType): LlmProviderConfig?
+
+    @Insert
+    fun insert(config: LlmProviderConfig)
+
+    @Update
+    fun update(config: LlmProviderConfig)
+
+    @Delete
+    fun delete(config: LlmProviderConfig)
+
+    @Query("UPDATE LlmProviderConfig SET isDefault = 0")
+    fun clearDefault()
+
+    @Query("SELECT COUNT(*) FROM LlmProviderConfig")
+    fun getCount(): Int
+}
+
+/**
  * User-defined or default prompt for LLM operations.
  *
  * Prompts can be used in different contexts (showIn) and are displayed
  * in the appropriate menus/dialogs based on their configuration.
  */
 @Entity(
+    foreignKeys = [ForeignKey(
+        entity = LlmProviderConfig::class,
+        parentColumns = ["id"],
+        childColumns = ["providerConfigId"],
+        onDelete = ForeignKey.SET_NULL
+    )],
     indices = [
         Index("orderNumber"),
         Index("createdAt"),
+        Index("providerConfigId"),
     ]
 )
 @Serializable
@@ -86,6 +200,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<String>? = null,
     /** Per-prompt model override. null = use global default from settings. */
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
+    /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */
+    @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
 )
 
 @Dao

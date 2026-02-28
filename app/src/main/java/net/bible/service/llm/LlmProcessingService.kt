@@ -146,7 +146,7 @@ object LlmProcessingService {
      * Check if cached processed content exists.
      */
     fun getCached(cacheKey: CacheKey): CacheResult {
-        if (!CommonUtils.settings.llmConfigured) {
+        if (!isConfiguredAny()) {
             return CacheResult(null, true)
         }
 
@@ -175,7 +175,7 @@ object LlmProcessingService {
      * already-processed chapter.
      */
     fun getCachedChapter(cacheKey: CacheKey): CacheResult {
-        if (!CommonUtils.settings.llmConfigured) return CacheResult(null, true)
+        if (!isConfiguredAny()) return CacheResult(null, true)
 
         // Derive chapter key: "Gen.1.5" → "Gen.1", "Isa.65.9" → "Isa.65"
         val chapterKey = cacheKey.keyName.substringBeforeLast('.', cacheKey.keyName)
@@ -208,6 +208,7 @@ object LlmProcessingService {
      * @param cacheKey Cache key for the content
      * @param xmlContent The XML content to process
      * @param maxIterations Maximum number of tool-calling iterations
+     * @param llmConfig Optional per-prompt provider+model override
      * @return The processed XML content
      */
     suspend fun processWithTools(
@@ -215,10 +216,10 @@ object LlmProcessingService {
         cacheKey: CacheKey,
         xmlContent: String,
         maxIterations: Int = 5,
-        modelOverride: String? = null
+        llmConfig: LlmModelConfig? = null
     ): String {
         val settings = CommonUtils.settings
-        if (!settings.llmConfigured) {
+        if (!isConfigured(llmConfig)) {
             Log.d(TAG, "LLM not configured, returning original content")
             return xmlContent
         }
@@ -259,7 +260,7 @@ object LlmProcessingService {
                             pendingRequests[requestKey] = it.copy(job = coroutineContext[Job]!!)
                         }
                     }
-                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations, modelOverride)
+                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations, llmConfig)
                 } finally {
                     requestsMutex.withLock {
                         pendingRequests.remove(requestKey)
@@ -290,16 +291,17 @@ object LlmProcessingService {
         cacheKey: CacheKey,
         xmlContent: String,
         maxIterations: Int,
-        modelOverride: String? = null
+        llmConfig: LlmModelConfig? = null
     ): String {
         val session = AgentSessionManager.getCurrentSession()
         // Only manage session lifecycle if no agent is already running
         // (to avoid clearing an active agent's log)
         val manageSession = session != null && !session.isRunning
         val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
-        val adapter = resolveAdapter()
+        val resolved = resolveFromConfig(llmConfig)
+        val adapter = resolved.adapter
         val tools = adapter.buildToolsArray(ToolRegistry.getToolDefinitions(includeWriteTools = false))
-        val modelId = modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+        val modelId = resolved.model
 
         Log.d(TAG, "doProcessWithTools: ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}, tools=${tools.length()}")
 
@@ -314,7 +316,7 @@ object LlmProcessingService {
         }
 
         val startTime = System.currentTimeMillis()
-        val loopHeaders = buildProviderExtraHeaders()
+        val loopHeaders = buildProviderExtraHeaders(resolved.providerConfig)
         var totalUsage = LlmUsage()
 
         activeRequests.incrementAndGet()
@@ -325,7 +327,7 @@ object LlmProcessingService {
                 Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
                 session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
 
-                val apiResponse = callLlmApiWithTools(messages, tools, modelOverride, loopHeaders)
+                val apiResponse = callLlmApiWithTools(messages, tools, llmConfig, loopHeaders)
                 val parsed = adapter.parseResponse(apiResponse.json)
                 totalUsage += apiResponse.usage
 
@@ -446,17 +448,76 @@ object LlmProcessingService {
     }
 
     /**
-     * Resolve the current provider and return its API adapter.
+     * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
-    internal fun resolveAdapter(): LlmApiAdapter {
-        val provider = resolveProvider()
-        return provider.apiAdapter
+    internal data class ResolvedProvider(
+        val providerConfig: LlmProviderConfig?,
+        val adapter: LlmApiAdapter,
+        val model: String,
+        val apiKey: String,
+        val endpoint: String,
+    )
+
+    /**
+     * Check if LLM is configured at all (legacy or new provider configs exist).
+     */
+    private fun isConfiguredAny(): Boolean =
+        CommonUtils.settings.llmConfigured || CommonUtils.settings.llmHasProviderConfigs
+
+    /**
+     * Check if a specific llmConfig (or the global default) is configured.
+     */
+    private fun isConfigured(llmConfig: LlmModelConfig?): Boolean {
+        if (llmConfig != null) {
+            val providerConfig = llmConfig.resolveProviderConfig()
+            if (providerConfig != null) return providerConfig.getApiKey().isNotBlank()
+        }
+        return isConfiguredAny()
     }
 
     /**
-     * Resolve the current LLM provider from settings.
+     * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
+     * Falls back to legacy global settings if no provider config is found.
      */
-    private fun resolveProvider(): LlmProvider {
+    internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
+        val providerConfig = llmConfig?.resolveProviderConfig()
+            ?: DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao().getDefault()
+
+        return if (providerConfig != null) {
+            val model = llmConfig?.resolveModel(providerConfig) ?: providerConfig.resolveDefaultModel()
+            ResolvedProvider(
+                providerConfig = providerConfig,
+                adapter = providerConfig.resolveAdapter(),
+                model = model,
+                apiKey = providerConfig.getApiKey(),
+                endpoint = providerConfig.resolveEndpoint(),
+            )
+        } else {
+            // Legacy fallback: use old global settings
+            val settings = CommonUtils.settings
+            val provider = resolveProviderLegacy()
+            ResolvedProvider(
+                providerConfig = null,
+                adapter = provider.apiAdapter,
+                model = llmConfig?.model?.takeIf { it.isNotBlank() } ?: settings.llmModel,
+                apiKey = settings.llmApiKey,
+                endpoint = settings.llmEndpoint,
+            )
+        }
+    }
+
+    /**
+     * Resolve the current provider and return its API adapter.
+     * Uses the default provider config if available, else falls back to legacy settings.
+     */
+    internal fun resolveAdapter(llmConfig: LlmModelConfig? = null): LlmApiAdapter {
+        return resolveFromConfig(llmConfig).adapter
+    }
+
+    /**
+     * Resolve the current LLM provider from legacy settings.
+     */
+    private fun resolveProviderLegacy(): LlmProvider {
         return try {
             LlmProvider.valueOf(CommonUtils.settings.llmProvider)
         } catch (_: IllegalArgumentException) {
@@ -469,8 +530,9 @@ object LlmProcessingService {
      * UUID is generated once per call — callers in loops should call this once
      * before the loop and reuse the result across iterations.
      */
-    internal fun buildProviderExtraHeaders(): Map<String, String> {
-        return when (resolveProvider()) {
+    internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig? = null): Map<String, String> {
+        val provider = providerConfig?.resolveProvider() ?: resolveProviderLegacy()
+        return when (provider) {
             LlmProvider.XAI -> mapOf("x-grok-conv-id" to UUID.randomUUID().toString())
             else -> emptyMap()
         }
@@ -484,20 +546,20 @@ object LlmProcessingService {
      *
      * @param messages The conversation messages (system, user, assistant, tool)
      * @param tools The tools array in provider-specific format
-     * @param modelOverride Optional model override
+     * @param llmConfig Optional per-prompt provider+model override
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
      * @return LlmApiResponse containing the raw JSON and extracted token usage
      */
-    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null, extraHeaders: Map<String, String> = emptyMap()): LlmApiResponse {
-        val settings = CommonUtils.settings
+    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap()): LlmApiResponse {
+        val resolved = resolveFromConfig(llmConfig)
 
-        if (!settings.llmConfigured) {
+        if (resolved.apiKey.isBlank()) {
             throw LlmProcessingError("LLM not configured")
         }
 
-        val adapter = resolveAdapter()
-        val effectiveModel = modelOverride?.takeIf { it.isNotBlank() } ?: settings.llmModel
-        val endpoint = adapter.buildEndpointUrl(settings.llmEndpoint)
+        val adapter = resolved.adapter
+        val effectiveModel = resolved.model
+        val endpoint = adapter.buildEndpointUrl(resolved.endpoint)
 
         val requestBody = adapter.buildRequestBody(effectiveModel, messages, tools, LLM_TEMPERATURE)
 
@@ -506,7 +568,7 @@ object LlmProcessingService {
         val userLen = messages.optJSONObject(1)?.optString("content")?.length ?: 0
         Log.d(TAG, "LLM API with tools: $endpoint, model: $effectiveModel, tools: ${tools.length()}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
 
-        val headers = adapter.buildHeaders(settings.llmApiKey, extraHeaders)
+        val headers = adapter.buildHeaders(resolved.apiKey, extraHeaders)
         val request = Request.Builder()
             .url(endpoint)
             .apply { for ((key, value) in headers) addHeader(key, value) }
@@ -558,7 +620,7 @@ object LlmProcessingService {
             // Extract usage and add to cumulative tracking
             val usage = adapter.extractUsage(responseJson)
             if (usage.totalTokens > 0) {
-                LlmCostTracker.addUsage(usage, effectiveModel)
+                LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig?.id)
             }
 
             LlmApiResponse(responseJson, usage)

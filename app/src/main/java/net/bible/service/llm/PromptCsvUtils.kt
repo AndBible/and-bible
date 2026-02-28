@@ -57,6 +57,7 @@ object PromptCsvUtils {
     private const val HEADER_ALLOWED_TOOLS = "allowedTools"
     private const val HEADER_DENIED_TOOLS = "deniedTools"
     private const val HEADER_MODEL_OVERRIDE = "modelOverride"
+    private const val HEADER_PROVIDER_CONFIG_ID = "providerConfigId"
     private const val HEADER_ID = "id"
     private const val HEADER_CREATED_AT = "createdAt"
 
@@ -64,7 +65,7 @@ object PromptCsvUtils {
         HEADER_NAME, HEADER_DESCRIPTION, HEADER_PROMPT_TEMPLATE, HEADER_SHOW_IN,
         HEADER_ORDER_NUMBER, HEADER_STRICT_CONTEXT_MATCHING, HEADER_PERMISSION_MODE,
         HEADER_ALLOWED_TOOLS, HEADER_DENIED_TOOLS, HEADER_MODEL_OVERRIDE,
-        HEADER_ID, HEADER_CREATED_AT
+        HEADER_PROVIDER_CONFIG_ID, HEADER_ID, HEADER_CREATED_AT
     )
 
     /**
@@ -91,6 +92,7 @@ object PromptCsvUtils {
                         prompt.allowedTools?.joinToString(",") ?: "",
                         prompt.deniedTools?.joinToString(",") ?: "",
                         prompt.modelOverride ?: "",
+                        prompt.providerConfigId?.toString() ?: "",
                         prompt.id.toString(),
                         ISO_DATE_FORMAT.format(Date(prompt.createdAt)),
                     )
@@ -220,6 +222,10 @@ object PromptCsvUtils {
             it.ifEmpty { null }
         }
 
+        val providerConfigId = getValueOrNull(values, headerMap, HEADER_PROVIDER_CONFIG_ID)?.let {
+            if (it.isNotEmpty()) IdType(it) else null
+        }
+
         val createdAt = getValueOrNull(values, headerMap, HEADER_CREATED_AT)?.let { str ->
             if (str.isNotEmpty()) {
                 try { ISO_DATE_FORMAT.parse(str)?.time } catch (_: Exception) { null }
@@ -238,6 +244,7 @@ object PromptCsvUtils {
             allowedTools = allowedTools,
             deniedTools = deniedTools,
             modelOverride = modelOverride,
+            providerConfigId = providerConfigId,
             createdAt = createdAt,
         )
     }

@@ -20,40 +20,21 @@
     android:key="ai_connection_settings">
 
     <PreferenceCategory
-        android:key="ai_connection_category"
-        android:title="@string/ai_connection_category">
+        android:key="ai_providers_category"
+        android:title="@string/ai_providers_category">
 
         <Preference android:key="ai_getting_started"
             android:title="@string/ai_getting_started_title"
             android:summary="@string/ai_getting_started_summary"
             android:icon="@drawable/ic_info_grey_24dp"
             />
-        <ListPreference android:key="llm_provider"
-            android:title="@string/llm_provider_title"
-            android:summary="@string/llm_provider_summary"
-            android:icon="@drawable/ic_baseline_cloud_24"
-            />
-        <EditTextPreference android:key="llm_api_key"
-            android:title="@string/llm_api_key_title"
-            android:summary="@string/llm_api_key_summary"
-            android:icon="@drawable/ic_baseline_vpn_key_24"
-            />
-        <EditTextPreference android:key="llm_endpoint"
-            android:title="@string/llm_endpoint_title"
-            android:summary="@string/llm_endpoint_summary"
-            android:defaultValue="https://api.openai.com/v1"
-            android:icon="@drawable/ic_baseline_cloud_24"
-            />
-    </PreferenceCategory>
 
-    <PreferenceCategory
-        android:key="ai_model_category"
-        android:title="@string/ai_model_category">
+        <!-- Dynamic provider items are inserted here programmatically -->
 
-        <ListPreference android:key="llm_model"
-            android:title="@string/llm_model_title"
-            android:summary="@string/llm_model_summary"
-            android:icon="@drawable/ic_baseline_smart_toy_24"
+        <Preference android:key="ai_add_provider"
+            android:title="@string/ai_add_provider"
+            android:summary="@string/ai_add_provider_summary"
+            android:icon="@drawable/ic_baseline_cloud_24"
             />
     </PreferenceCategory>
 
@@ -103,16 +84,6 @@
             android:title="@string/llm_reset_usage_title"
             android:summary="@string/llm_reset_usage_summary"
             android:icon="@drawable/ic_baseline_refresh_gray_24"
-            />
-        <EditTextPreference android:key="llm_custom_input_price"
-            android:title="@string/llm_custom_input_price_title"
-            android:summary="@string/llm_custom_input_price_summary"
-            android:inputType="numberDecimal"
-            />
-        <EditTextPreference android:key="llm_custom_output_price"
-            android:title="@string/llm_custom_output_price_title"
-            android:summary="@string/llm_custom_output_price_summary"
-            android:inputType="numberDecimal"
             />
         <Preference android:key="llm_manage_cache"
             android:title="@string/llm_cache_management"

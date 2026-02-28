@@ -32,6 +32,9 @@ import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
 import net.bible.service.llm.LlmProcessingCacheEntry
+import net.bible.service.llm.LlmProcessingDao
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmProviderConfigDao
 
 
 @Database(
@@ -157,19 +160,21 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 7
+const val LLM_PROCESSING_DATABASE_VERSION = 8
 
 @Database(
     entities = [
         LlmProcessingCacheEntry::class,
         AgentPrompt::class,
+        LlmProviderConfig::class,
     ],
     version = LLM_PROCESSING_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
 abstract class LlmProcessingDatabase: RoomDatabase() {
-    abstract fun llmProcessingDao(): net.bible.service.llm.LlmProcessingDao
+    abstract fun llmProcessingDao(): LlmProcessingDao
     abstract fun agentPromptDao(): AgentPromptDao
+    abstract fun llmProviderConfigDao(): LlmProviderConfigDao
     companion object {
         const val dbFileName = "llm_processing.sqlite3"
     }

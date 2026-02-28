@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmApiAdapter
+import net.bible.service.llm.LlmModelConfig
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
@@ -93,12 +94,12 @@ class AgentExecutor(
                 return@flow
             }
 
-            val adapter = LlmProcessingService.resolveAdapter()
+            val llmConfig = LlmModelConfig.fromPrompt(prompt)
+            val adapter = LlmProcessingService.resolveAdapter(llmConfig)
             val messages = buildInitialMessages(prompt, context)
             val tools = adapter.buildToolsArray(ToolRegistry.getToolDefinitions(includeWriteTools = true))
-            val modelOverride = prompt.modelOverride
 
-            runAgentLoop(messages, tools, adapter, context, modelOverride)
+            runAgentLoop(messages, tools, adapter, context, llmConfig)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -117,19 +118,20 @@ class AgentExecutor(
         tools: JSONArray,
         adapter: LlmApiAdapter,
         context: AgentContext,
-        modelOverride: String? = null
+        llmConfig: LlmModelConfig? = null
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
-        val loopHeaders = LlmProcessingService.buildProviderExtraHeaders()
+        val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
+        val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
         while (iteration < maxIterations) {
             iteration++
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, modelOverride, loopHeaders)
+            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders)
             totalUsage += callUsage
 
             // Emit per-operation usage
@@ -187,11 +189,11 @@ class AgentExecutor(
         messages: JSONArray,
         tools: JSONArray,
         iteration: Int,
-        modelOverride: String? = null,
+        llmConfig: LlmModelConfig? = null,
         extraHeaders: Map<String, String> = emptyMap()
     ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride, extraHeaders)
+        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders)
         val parsed = adapter.parseResponse(apiResponse.json)
         return Pair(parsed, apiResponse.usage)
     }

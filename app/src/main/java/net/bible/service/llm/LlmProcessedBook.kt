@@ -49,7 +49,7 @@ class LlmProcessedBackendState(
     val processor: LlmProcessor,
     val processingParams: String,
     private val ownMetadata: SwordBookMetaData,
-    val modelOverride: String? = null
+    val llmConfig: LlmModelConfig? = null
 ) : OpenFileState {
 
     private var _lastAccess: Long = 0L
@@ -111,7 +111,7 @@ class LlmProcessedBackend(
     override fun readRawContent(state: LlmProcessedBackendState, key: Key): String {
         val originalInitials = state.wrappedBook.initials
         val keyName = key.osisRef
-        val effectiveModel = state.modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+        val effectiveModel = resolveEffectiveModel(state)
         val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams, effectiveModel)
 
         val cacheResult = LlmProcessingService.getCached(cacheKey)
@@ -131,8 +131,15 @@ class LlmProcessedBackend(
         val originalXml = XMLOutputter(Format.getRawFormat()).outputString(osisElement)
 
         return runBlocking {
-            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, modelOverride = state.modelOverride)
+            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, llmConfig = state.llmConfig)
         }
+    }
+
+    /** Resolve the effective model ID from the state's LlmModelConfig. */
+    private fun resolveEffectiveModel(state: LlmProcessedBackendState): String {
+        val config = state.llmConfig ?: return CommonUtils.settings.llmModel
+        val providerConfig = config.resolveProviderConfig() ?: return CommonUtils.settings.llmModel
+        return config.resolveModel(providerConfig)
     }
 
     /**
@@ -148,7 +155,7 @@ class LlmProcessedBackend(
         val keyName = key.osisRef
         Log.d(TAG, "readToOsis for $originalInitials key=$keyName")
 
-        val effectiveModel = state.modelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+        val effectiveModel = resolveEffectiveModel(state)
         val cacheKey = state.processor.getCacheKey(originalInitials, keyName, state.processingParams, effectiveModel)
 
         // Check cache first (exact key, then chapter-level fallback)
@@ -174,7 +181,7 @@ class LlmProcessedBackend(
 
         // Process with tool support
         val processedXml = runBlocking {
-            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, modelOverride = state.modelOverride)
+            LlmProcessingService.processWithTools(state.processor, cacheKey, originalXml, llmConfig = state.llmConfig)
         }
 
         return parseXmlToContentList(processedXml, key, processor)
@@ -227,11 +234,19 @@ private fun createProcessedMetadata(
     wrappedBook: Book,
     processor: LlmProcessor,
     processingParams: String,
-    modelOverride: String? = null
+    llmConfig: LlmModelConfig? = null
 ): SwordBookMetaData {
     val originalMetadata = wrappedBook.bookMetaData as SwordBookMetaData
     val processedInitials = "${wrappedBook.initials}/${processor.processorId}/$processingParams"
     val description = processor.getDescription(processingParams)
+
+    // Serialize llmConfig as a JSON string for metadata (replaces old AndBibleModelOverride)
+    val llmConfigStr = if (llmConfig != null && !llmConfig.isDefault) {
+        val parts = mutableListOf<String>()
+        llmConfig.providerConfigId?.let { parts.add("p=${it}") }
+        llmConfig.model?.let { parts.add("m=${it}") }
+        "\nAndBibleLlmConfig=${parts.joinToString("|")}"
+    } else ""
 
     val conf = """
 [$processedInitials]
@@ -241,7 +256,7 @@ Category=${originalMetadata.bookCategory.getName()}
 AndBibleLlmProcessedModule=1
 AndBibleOriginalModule=${wrappedBook.initials}
 AndBibleProcessorId=${processor.processorId}
-AndBibleProcessingParams=$processingParams${if (modelOverride != null) "\nAndBibleModelOverride=$modelOverride" else ""}
+AndBibleProcessingParams=$processingParams$llmConfigStr
 Lang=${processor.getLanguageCode(processingParams)}
 Version=0.0
 Encoding=UTF-8
@@ -272,7 +287,7 @@ private val processedBooksCache = ConcurrentHashMap<String, Book>()
  * @param processingParams The processing parameters (e.g., "fi" for Finnish translation)
  * @return A virtual Book that provides processed content
  */
-fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processingParams: String, modelOverride: String? = null): Book? {
+fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processingParams: String, llmConfig: LlmModelConfig? = null): Book? {
     val processor = LlmProcessingService.getProcessor(processorId) ?: run {
         Log.e(TAG, "Unknown processor: $processorId")
         return null
@@ -291,8 +306,8 @@ fun getOrCreateProcessedBook(originalBook: Book, processorId: String, processing
         }
 
         // Create new processed book
-        val metadata = createProcessedMetadata(originalBook, processor, processingParams, modelOverride)
-        val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata, modelOverride)
+        val metadata = createProcessedMetadata(originalBook, processor, processingParams, llmConfig)
+        val state = LlmProcessedBackendState(originalBook, processor, processingParams, metadata, llmConfig)
         val backend = LlmProcessedBackend(state, metadata)
 
         // Use SwordBook for all types - it's a generic wrapper that delegates to our backend.
@@ -328,7 +343,7 @@ fun getOrCreateProcessedBookWithPrompt(originalBook: Book, promptId: IdType): Bo
 
     // Use PromptProcessor with the prompt ID as params
     val processor = PromptProcessor
-    return getOrCreateProcessedBook(originalBook, processor.processorId, promptId.toString(), prompt.modelOverride)
+    return getOrCreateProcessedBook(originalBook, processor.processorId, promptId.toString(), LlmModelConfig.fromPrompt(prompt))
 }
 
 /**
@@ -356,17 +371,39 @@ val Book.llmProcessingParams: String?
     get() = bookMetaData.getProperty("AndBibleProcessingParams")
 
 /**
- * Extension property to get the model override for a processed book.
+ * Extension property to get the LlmModelConfig for a processed book.
+ * Parses the "AndBibleLlmConfig" metadata property (format: "p=...,m=...").
+ * Falls back to legacy "AndBibleModelOverride" for backward compatibility.
  */
-val Book.llmModelOverride: String?
-    get() = bookMetaData.getProperty("AndBibleModelOverride")
+val Book.llmModelConfig: LlmModelConfig?
+    get() {
+        val configStr = bookMetaData.getProperty("AndBibleLlmConfig")
+        if (configStr != null) {
+            val separator = if ("|" in configStr) "|" else ","
+            val parts = configStr.split(separator).associate {
+                val (k, v) = it.split("=", limit = 2)
+                k to v
+            }
+            return LlmModelConfig(
+                providerConfigId = parts["p"]?.let { IdType(it) },
+                model = parts["m"],
+            )
+        }
+        // Legacy fallback
+        val modelOverride = bookMetaData.getProperty("AndBibleModelOverride")
+        return if (modelOverride != null) LlmModelConfig(model = modelOverride) else null
+    }
 
 /**
  * Resolve the effective model ID for a processed book.
- * Uses the per-prompt model override if set, otherwise falls back to the global setting.
+ * Uses the per-prompt LlmModelConfig if set, otherwise falls back to the global setting.
  */
 val Book.llmEffectiveModel: String
-    get() = llmModelOverride?.takeIf { it.isNotBlank() } ?: CommonUtils.settings.llmModel
+    get() {
+        val config = llmModelConfig ?: return CommonUtils.settings.llmModel
+        val providerConfig = config.resolveProviderConfig() ?: return CommonUtils.settings.llmModel
+        return config.resolveModel(providerConfig)
+    }
 
 /**
  * Parses a book initials string that may be a processed book.

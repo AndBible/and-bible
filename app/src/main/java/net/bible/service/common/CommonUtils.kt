@@ -450,7 +450,7 @@ object CommonUtils : CommonUtilsBase() {
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
 
-        // LLM Translation Settings
+        // LLM Translation Settings — legacy per-provider settings kept for migration only
         var llmApiKey: String
             get() = getString("llm_api_key", "") ?: ""
             set(value) = setString("llm_api_key", value)
@@ -482,6 +482,12 @@ object CommonUtils : CommonUtilsBase() {
 
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()
+
+        /** Check if any LlmProviderConfig exists in the database. */
+        val llmHasProviderConfigs: Boolean
+            get() = try {
+                DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao().getCount() > 0
+            } catch (_: Exception) { false }
 
         // Agent Permission Settings
         var agentPermissionMode: PermissionMode

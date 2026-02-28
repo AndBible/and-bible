@@ -40,9 +40,11 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmProvider
+import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.PermissionMode
@@ -64,6 +66,7 @@ class PromptEditActivity : ActivityBase() {
     private var initialPermissionModeIndex = 0
     private var initialAllowedTools: Set<String>? = null
     private var initialDeniedTools: Set<String>? = null
+    private var initialProviderSpinnerIndex = 0
     private var initialModelOverrideSpinnerIndex = 0
     private var initialModelOverrideCustomText = ""
 
@@ -82,9 +85,14 @@ class PromptEditActivity : ActivityBase() {
     private lateinit var checkNoteEditor: CheckBox
     private lateinit var checkStrictContextMatching: CheckBox
     private lateinit var permissionModeSpinner: Spinner
+    private lateinit var providerOverrideSpinner: Spinner
     private lateinit var modelOverrideSpinner: Spinner
     private lateinit var modelOverrideCustomInput: EditText
     private lateinit var toolPermissionsButton: Button
+
+    /** Provider config IDs corresponding to spinner positions: null = default */
+    private var providerOverrideValues: List<IdType?> = listOf(null)
+    private var providerConfigs: List<LlmProviderConfig> = emptyList()
 
     /** Model values corresponding to spinner positions: null = default, string = model name, CUSTOM_SENTINEL = custom */
     private var modelOverrideValues: List<String?> = listOf(null)
@@ -119,6 +127,8 @@ class PromptEditActivity : ActivityBase() {
         PermissionMode.DENY_ALL,
     )
 
+    private val providerConfigDao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.prompt_edit)
@@ -136,6 +146,7 @@ class PromptEditActivity : ActivityBase() {
         checkNoteEditor = findViewById(R.id.checkNoteEditor)
         checkStrictContextMatching = findViewById(R.id.checkStrictContextMatching)
         permissionModeSpinner = findViewById(R.id.permissionModeSpinner)
+        providerOverrideSpinner = findViewById(R.id.providerOverrideSpinner)
         modelOverrideSpinner = findViewById(R.id.modelOverrideSpinner)
         modelOverrideCustomInput = findViewById(R.id.modelOverrideCustomInput)
         toolPermissionsButton = findViewById(R.id.btnPromptToolPermissions)
@@ -147,6 +158,7 @@ class PromptEditActivity : ActivityBase() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
+        setupProviderOverrideSpinner()
         setupModelOverrideSpinner()
 
         val promptIdStr = intent.getStringExtra(EXTRA_PROMPT_ID)
@@ -203,6 +215,7 @@ class PromptEditActivity : ActivityBase() {
         checkNoteEditor.isEnabled = false
         checkStrictContextMatching.isEnabled = false
         permissionModeSpinner.isEnabled = false
+        providerOverrideSpinner.isEnabled = false
         modelOverrideSpinner.isEnabled = false
         modelOverrideCustomInput.isEnabled = false
         toolPermissionsButton.isEnabled = false
@@ -230,6 +243,8 @@ class PromptEditActivity : ActivityBase() {
         currentAllowedTools = prompt.allowedTools?.toMutableSet() ?: mutableSetOf()
         currentDeniedTools = prompt.deniedTools?.toMutableSet() ?: mutableSetOf()
         updateToolPermissionsButtonText()
+
+        setProviderOverride(prompt.providerConfigId)
         setModelOverride(prompt.modelOverride)
     }
 
@@ -253,6 +268,7 @@ class PromptEditActivity : ActivityBase() {
         initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
         initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
         initialDeniedTools = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
+        initialProviderSpinnerIndex = providerOverrideSpinner.selectedItemPosition
         initialModelOverrideSpinnerIndex = modelOverrideSpinner.selectedItemPosition
         initialModelOverrideCustomText = modelOverrideCustomInput.text.toString()
     }
@@ -267,6 +283,7 @@ class PromptEditActivity : ActivityBase() {
             permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
             currentToolAllowed != initialAllowedTools ||
             currentToolDenied != initialDeniedTools ||
+            providerOverrideSpinner.selectedItemPosition != initialProviderSpinnerIndex ||
             modelOverrideSpinner.selectedItemPosition != initialModelOverrideSpinnerIndex ||
             modelOverrideCustomInput.text.toString() != initialModelOverrideCustomText
     }
@@ -313,6 +330,7 @@ class PromptEditActivity : ActivityBase() {
         val selectedPermissionMode = permissionModeValues[permissionModeSpinner.selectedItemPosition]
         val allowedTools = currentToolAllowed
         val deniedTools = currentToolDenied
+        val selectedProviderConfigId = getSelectedProviderConfigId()
         val selectedModelOverride = getSelectedModelOverride()
 
         lifecycleScope.launch {
@@ -328,6 +346,7 @@ class PromptEditActivity : ActivityBase() {
                         allowedTools = allowedTools,
                         deniedTools = deniedTools,
                         modelOverride = selectedModelOverride,
+                        providerConfigId = selectedProviderConfigId,
                     )
                     PromptRepository.insertPrompt(newPrompt)
                 } else {
@@ -341,6 +360,7 @@ class PromptEditActivity : ActivityBase() {
                         it.allowedTools = allowedTools
                         it.deniedTools = deniedTools
                         it.modelOverride = selectedModelOverride
+                        it.providerConfigId = selectedProviderConfigId
                         PromptRepository.updatePrompt(it)
                     }
                 }
@@ -463,12 +483,68 @@ class PromptEditActivity : ActivityBase() {
         toolPermissionsLauncher.launch(intent)
     }
 
-    private fun setupModelOverrideSpinner() {
-        val provider = try {
-            LlmProvider.valueOf(CommonUtils.settings.llmProvider)
-        } catch (_: IllegalArgumentException) { null }
+    // ---- Provider override spinner ----
 
-        val globalModel = CommonUtils.settings.llmModel
+    private fun setupProviderOverrideSpinner() {
+        providerConfigs = providerConfigDao.all()
+
+        val displayEntries = mutableListOf<String>()
+        val values = mutableListOf<IdType?>()
+
+        // First entry: "Default"
+        val defaultConfig = providerConfigs.find { it.isDefault }
+        val defaultSuffix = if (defaultConfig != null) " (${defaultConfig.displayName})" else ""
+        displayEntries.add(getString(R.string.prompt_provider_default) + defaultSuffix)
+        values.add(null)
+
+        // Then all configured providers
+        for (config in providerConfigs) {
+            displayEntries.add(config.displayName)
+            values.add(config.id)
+        }
+
+        providerOverrideValues = values
+        providerOverrideSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayEntries).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        providerOverrideSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                // When provider changes, update model spinner to show that provider's models
+                updateModelOverrideSpinnerForProvider()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
+    private fun setProviderOverride(providerConfigId: IdType?) {
+        val idx = if (providerConfigId == null) {
+            0
+        } else {
+            providerOverrideValues.indexOf(providerConfigId).coerceAtLeast(0)
+        }
+        providerOverrideSpinner.setSelection(idx)
+    }
+
+    private fun getSelectedProviderConfigId(): IdType? =
+        providerOverrideValues.getOrNull(providerOverrideSpinner.selectedItemPosition)
+
+    // ---- Model override spinner ----
+
+    private fun setupModelOverrideSpinner() {
+        updateModelOverrideSpinnerForProvider()
+    }
+
+    private fun updateModelOverrideSpinnerForProvider() {
+        val selectedProviderConfigId = getSelectedProviderConfigId()
+        val providerConfig = selectedProviderConfigId?.let { id -> providerConfigs.find { it.id == id } }
+            ?: providerConfigs.find { it.isDefault }
+
+        val provider = providerConfig?.resolveProvider()
+            ?: try { LlmProvider.valueOf(CommonUtils.settings.llmProvider) } catch (_: IllegalArgumentException) { null }
+
+        val globalModel = providerConfig?.resolveDefaultModel()
+            ?: CommonUtils.settings.llmModel
         val defaultSuffix = " (${getString(R.string.prompt_model_default)})"
         val customLabel = getString(R.string.prompt_model_custom)
 
@@ -477,7 +553,7 @@ class PromptEditActivity : ActivityBase() {
         for (model in provider?.models ?: emptyList()) {
             if (model == globalModel) {
                 displayEntries.add(model + defaultSuffix)
-                values.add(null)  // null = use global default
+                values.add(null)  // null = use global/provider default
             } else {
                 displayEntries.add(model)
                 values.add(model)
@@ -485,15 +561,26 @@ class PromptEditActivity : ActivityBase() {
         }
         // If global model wasn't in the provider list, add it at the top
         if (null !in values) {
-            displayEntries.add(0, globalModel + defaultSuffix)
+            displayEntries.add(0, (globalModel.ifEmpty { "default" }) + defaultSuffix)
             values.add(0, null)
         }
         displayEntries.add(customLabel)
         values.add(CUSTOM_SENTINEL)
 
+        // Preserve current selection if possible
+        val currentSelection = if (::modelOverrideSpinner.isInitialized && modelOverrideValues.isNotEmpty()) {
+            modelOverrideValues.getOrNull(modelOverrideSpinner.selectedItemPosition)
+        } else null
+
         modelOverrideValues = values
         modelOverrideSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayEntries).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        // Restore selection
+        if (currentSelection != null) {
+            val idx = values.indexOf(currentSelection)
+            if (idx >= 0) modelOverrideSpinner.setSelection(idx)
         }
 
         modelOverrideSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

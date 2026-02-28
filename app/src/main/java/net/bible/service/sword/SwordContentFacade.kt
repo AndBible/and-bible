@@ -38,7 +38,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHa
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
 import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.llm.llmEffectiveModel
-import net.bible.service.llm.llmModelOverride
+import net.bible.service.llm.llmModelConfig
 import net.bible.service.llm.LlmProcessingError
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmRequestSuperseded
@@ -406,7 +406,7 @@ object SwordContentFacade {
                                 val outputter = XMLOutputter(Format.getRawFormat())
                                 val originalXml = outputter.outputString(frag)
                                 runBlocking {
-                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml, modelOverride = book.llmModelOverride)
+                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml, llmConfig = book.llmModelConfig)
                                 }
                             }
                         }

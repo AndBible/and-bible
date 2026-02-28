@@ -20,15 +20,22 @@ package net.bible.android.view.activity.ai
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.Formatter
 import android.text.InputType
+import android.text.format.Formatter
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.EditTextPreference
-import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -41,9 +48,14 @@ import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.getApiKey
+import net.bible.service.llm.removeApiKey
+import net.bible.service.llm.setApiKey
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
@@ -73,59 +85,38 @@ class AiConnectionSettingsActivity : ActivityBase() {
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private val settings get() = CommonUtils.settings
+    private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference
-    private lateinit var providerPref: ListPreference
-    private lateinit var apiKeyPref: EditTextPreference
-    private lateinit var endpointPref: EditTextPreference
-    private lateinit var modelCategory: PreferenceCategory
-    private lateinit var modelPref: ListPreference
+    private lateinit var providersCategory: PreferenceCategory
+    private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
-    private lateinit var customInputPricePref: EditTextPreference
-    private lateinit var customOutputPricePref: EditTextPreference
     private lateinit var manageCachePref: Preference
-
-    companion object {
-        private const val CUSTOM_MODEL_SENTINEL = "__custom__"
-    }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.ai_connection_settings, rootKey)
 
         gettingStartedPref = preferenceScreen.findPreference("ai_getting_started")!!
-        providerPref = preferenceScreen.findPreference("llm_provider")!!
-        apiKeyPref = preferenceScreen.findPreference("llm_api_key")!!
-        endpointPref = preferenceScreen.findPreference("llm_endpoint")!!
-        modelCategory = preferenceScreen.findPreference("ai_model_category")!!
-        modelPref = preferenceScreen.findPreference("llm_model")!!
+        providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
+        addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
-        customInputPricePref = preferenceScreen.findPreference("llm_custom_input_price")!!
-        customOutputPricePref = preferenceScreen.findPreference("llm_custom_output_price")!!
         manageCachePref = preferenceScreen.findPreference("llm_manage_cache")!!
 
-        // Migrate: if provider is empty but endpoint is set, detect provider from endpoint
-        if (settings.llmProvider.isBlank() && settings.llmEndpoint.isNotBlank()) {
-            val detected = LlmProvider.fromEndpoint(settings.llmEndpoint)
-            settings.llmProvider = detected.name
-        }
-
         setupGettingStarted()
-        setupProvider()
-        setupApiKey()
-        setupModel()
+        setupAddProvider()
         setupToolPermissions()
         setupUsage()
-        setupCustomPricing()
         setupCacheManagement()
+        refreshProviderList()
         updateVisibility()
     }
 
@@ -134,79 +125,402 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         if (::manageCachePref.isInitialized) {
             updateCacheSummary()
         }
+        refreshProviderList()
     }
 
-    private fun currentProvider(): LlmProvider? {
-        val name = settings.llmProvider
-        if (name.isBlank()) return null
-        return try {
-            LlmProvider.valueOf(name)
-        } catch (_: IllegalArgumentException) {
-            null
-        }
-    }
-
-    private fun hasApiKey(): Boolean = settings.llmApiKey.isNotBlank()
-
-    private fun LlmProvider.localizedName(): String = when (this) {
-        LlmProvider.CUSTOM -> getString(R.string.llm_provider_custom)
-        else -> displayName
-    }
+    private fun hasAnyProvider(): Boolean = dao.getCount() > 0
 
     /**
      * Progressive disclosure:
-     * - Provider is always visible
-     * - Getting started is visible only until provider is selected
-     * - API key is visible once provider is selected
-     * - Endpoint is visible only for Custom provider + after API key
-     * - Everything else is visible once API key is entered
+     * - Getting started: visible until at least one provider is added
+     * - Add provider: always visible
+     * - Behavior/Usage: visible once at least one provider exists
      */
     private fun updateVisibility() {
-        val provider = currentProvider()
-        val providerSelected = provider != null
-        val apiKeyEntered = hasApiKey()
-        val configured = providerSelected && apiKeyEntered
+        val hasProviders = hasAnyProvider()
+        gettingStartedPref.isVisible = !hasProviders
+        behaviorCategory.isVisible = hasProviders
+        usageCategory.isVisible = hasProviders
 
-        apiKeyPref.isVisible = providerSelected
-        endpointPref.isVisible = configured && provider == LlmProvider.CUSTOM
+        if (hasProviders) updateUsageSummary()
+    }
 
-        // Update API key summary with detected provider
-        if (apiKeyEntered) {
-            val detected = LlmProvider.fromApiKey(settings.llmApiKey)
-            val base = getString(R.string.llm_api_key_summary)
-            apiKeyPref.summary = if (detected != null) {
-                "$base\n\n${getString(R.string.llm_api_key_detected_provider, detected.localizedName())}"
-            } else {
-                base
+    private fun refreshProviderList() {
+        // Remove all dynamic provider prefs (keep "add_provider")
+        val toRemove = mutableListOf<Preference>()
+        for (i in 0 until providersCategory.preferenceCount) {
+            val pref = providersCategory.getPreference(i)
+            if (pref.key != "ai_add_provider" && pref.key != "ai_getting_started") {
+                toRemove.add(pref)
             }
-        } else {
-            apiKeyPref.summary = getString(R.string.llm_api_key_summary)
         }
-        modelCategory.isVisible = configured
-        behaviorCategory.isVisible = configured
-        usageCategory.isVisible = configured
+        toRemove.forEach { providersCategory.removePreference(it) }
 
-        // Custom pricing visible only when the active model is not in the known pricing table
-        val currentModel = settings.llmModel
-        val showCustomPricing = configured && currentModel.isNotBlank() && !LlmPricing.isKnownModel(currentModel)
-        customInputPricePref.isVisible = showCustomPricing
-        customOutputPricePref.isVisible = showCustomPricing
-
-        if (configured) updateUsageSummary()
-
-        // Update provider summary
-        if (provider != null) {
-            val base = getString(R.string.llm_provider_summary)
-            val current = getString(R.string.llm_provider_current, provider.localizedName())
-            val endpoint = settings.llmEndpoint
-            providerPref.summary = "$base\n\n$current\n$endpoint"
-        } else {
-            providerPref.summary = getString(R.string.llm_provider_summary)
+        val configs = dao.all()
+        for (config in configs) {
+            val pref = Preference(requireContext()).apply {
+                key = "provider_${config.id}"
+                title = config.displayName
+                val apiKey = config.getApiKey()
+                val model = config.resolveDefaultModel()
+                summary = buildString {
+                    if (config.isDefault) {
+                        append(getString(R.string.ai_provider_default_indicator))
+                        append("\n")
+                    }
+                    if (apiKey.isNotBlank()) {
+                        val suffix = apiKey.takeLast(4)
+                        append(getString(R.string.ai_provider_api_key_masked, suffix))
+                    } else {
+                        append(getString(R.string.ai_provider_api_key_not_set))
+                    }
+                    if (model.isNotBlank()) {
+                        append("\n")
+                        append(getString(R.string.ai_provider_model, model))
+                    }
+                    // Show per-provider cost
+                    val cost = LlmCostTracker.getCumulativeCost(config.id)
+                    if (cost > 0) {
+                        append("\n")
+                        append(LlmCostTracker.formatCost(cost))
+                    }
+                }
+                setOnPreferenceClickListener {
+                    showEditProviderDialog(config)
+                    true
+                }
+            }
+            // Insert before the "add provider" pref
+            val addProviderIndex = providersCategory.preferenceCount - 1
+            providersCategory.addPreference(pref)
+            pref.order = addProviderIndex
         }
 
-        if (providerSelected) {
-            updateModelList(provider!!)
+        // Re-order: add provider pref at the end
+        addProviderPref.order = providersCategory.preferenceCount
+        updateVisibility()
+    }
+
+
+    private fun confirmDeleteProvider(config: LlmProviderConfig) {
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.ai_provider_delete)
+            .setMessage(getString(R.string.ai_provider_delete_confirm, config.displayName))
+            .setPositiveButton(R.string.yes) { _, _ ->
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        config.removeApiKey()
+                        LlmCostTracker.reset(config.id)
+                        dao.delete(config)
+                        // If we deleted the default, promote the first remaining config
+                        if (config.isDefault) {
+                            val remaining = dao.all()
+                            if (remaining.isNotEmpty()) {
+                                dao.update(remaining.first().copy(isDefault = true))
+                            }
+                        }
+                    }
+                    Toast.makeText(requireContext(), R.string.ai_provider_deleted, Toast.LENGTH_SHORT).show()
+                    refreshProviderList()
+                }
+            }
+            .setNegativeButton(R.string.no, null)
+            .show()
+    }
+
+    private fun setupAddProvider() {
+        addProviderPref.setOnPreferenceClickListener {
+            showAddProviderTypeDialog()
+            true
         }
+    }
+
+    private fun showAddProviderTypeDialog() {
+        val existingTypes = dao.all().map { it.providerType }.toSet()
+        // All providers. For non-CUSTOM: only show if not already added.
+        val availableProviders = LlmProvider.entries.filter {
+            it == LlmProvider.CUSTOM || it.name !in existingTypes
+        }
+
+        val names = availableProviders.map {
+            if (it == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else it.displayName
+        }.toTypedArray()
+
+        AlertDialog.Builder(requireContext())
+            .setTitle(R.string.ai_provider_select_type)
+            .setItems(names) { _, which ->
+                val provider = availableProviders[which]
+                showEditProviderDialog(null, provider)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Show a dialog to create or edit a provider config.
+     * If config is null, creates a new one of the given providerType.
+     */
+    private fun showEditProviderDialog(config: LlmProviderConfig?, providerType: LlmProvider? = null) {
+        val isNew = config == null
+        val provider = providerType ?: config!!.resolveProvider()
+        val isCustom = provider == LlmProvider.CUSTOM
+
+        val context = requireContext()
+        val scrollView = ScrollView(context)
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val padding = (16 * resources.displayMetrics.density).toInt()
+            setPadding(padding, padding, padding, padding)
+        }
+        scrollView.addView(layout)
+
+        // Display name (editable for CUSTOM only)
+        val nameInput = EditText(context).apply {
+            hint = getString(R.string.ai_provider_name_hint)
+            setText(config?.displayName ?: if (isCustom) "" else provider.displayName)
+            isEnabled = isCustom
+            inputType = InputType.TYPE_CLASS_TEXT
+        }
+        addLabeledField(layout, getString(R.string.ai_provider_name), nameInput)
+
+        // API key
+        val apiKeyInput = EditText(context).apply {
+            hint = getString(R.string.ai_provider_api_key)
+            setText(config?.getApiKey() ?: "")
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+        }
+        addLabeledField(layout, getString(R.string.ai_provider_api_key), apiKeyInput)
+
+        // Endpoint (CUSTOM only)
+        val endpointInput = if (isCustom) {
+            EditText(context).apply {
+                hint = getString(R.string.ai_provider_endpoint_hint)
+                setText(config?.endpoint ?: "")
+                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
+            }.also { addLabeledField(layout, getString(R.string.ai_provider_endpoint), it) }
+        } else null
+
+        // API format spinner (CUSTOM only)
+        val apiFormatSpinner = if (isCustom) {
+            Spinner(context).apply {
+                val formats = ApiFormat.entries.map { it.name }.toTypedArray()
+                adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, formats).apply {
+                    setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                }
+                val currentFormat = config?.apiFormat ?: "OPENAI"
+                val idx = formats.indexOf(currentFormat)
+                if (idx >= 0) setSelection(idx)
+            }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
+        } else null
+
+        // Model selection
+        val models = provider.models.toMutableList()
+        val currentModel = config?.defaultModel ?: ""
+        if (currentModel.isNotBlank() && currentModel !in models) {
+            models.add(0, currentModel)
+        }
+        models.add(getString(R.string.llm_custom_model))
+
+        val modelSpinner = Spinner(context).apply {
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, models).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+            val idx = if (currentModel.isNotBlank()) models.indexOf(currentModel).coerceAtLeast(0) else 0
+            setSelection(idx)
+        }
+        addLabeledField(layout, getString(R.string.ai_provider_default_model), modelSpinner)
+
+        val customModelInput = EditText(context).apply {
+            hint = getString(R.string.llm_custom_model_dialog_message)
+            inputType = InputType.TYPE_CLASS_TEXT
+            visibility = View.GONE
+        }
+        layout.addView(customModelInput)
+
+        // Custom pricing fields (shown when selected model has no known pricing)
+        val customPricingLabel = TextView(context).apply {
+            text = getString(R.string.llm_custom_pricing_label)
+            setTextAppearance(android.R.style.TextAppearance_Small)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.topMargin = (12 * resources.displayMetrics.density).toInt()
+            layoutParams = params
+            visibility = View.GONE
+        }
+        layout.addView(customPricingLabel)
+
+        val existingCustomPricing = config?.let { LlmPricing.getCustomPricing(it.id) }
+        val customInputPriceInput = EditText(context).apply {
+            hint = getString(R.string.llm_custom_input_price_title)
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            existingCustomPricing?.let { setText(it.inputPerMillion.toString()) }
+            visibility = View.GONE
+        }
+        layout.addView(customInputPriceInput)
+
+        val customOutputPriceInput = EditText(context).apply {
+            hint = getString(R.string.llm_custom_output_price_title)
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+            existingCustomPricing?.let { setText(it.outputPerMillion.toString()) }
+            visibility = View.GONE
+        }
+        layout.addView(customOutputPriceInput)
+
+        fun updateCustomPricingVisibility() {
+            val pos = modelSpinner.selectedItemPosition
+            val modelName = if (pos == models.size - 1) {
+                customModelInput.text.toString().trim()
+            } else if (pos >= 0 && pos < models.size - 1) {
+                models[pos]
+            } else ""
+            val needsCustomPricing = modelName.isNotBlank() && !LlmPricing.isKnownModel(modelName)
+            val vis = if (needsCustomPricing) View.VISIBLE else View.GONE
+            customPricingLabel.visibility = vis
+            customInputPriceInput.visibility = vis
+            customOutputPriceInput.visibility = vis
+        }
+
+        modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                customModelInput.visibility = if (position == models.size - 1) View.VISIBLE else View.GONE
+                updateCustomPricingVisibility()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        // Also update when custom model text changes
+        customModelInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
+        })
+
+        updateCustomPricingVisibility()
+
+        // "Set as default" checkbox (only for existing non-default providers)
+        val defaultCheckBox = if (!isNew && !config!!.isDefault) {
+            CheckBox(context).apply {
+                text = getString(R.string.ai_provider_set_default)
+                val params = LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                )
+                params.topMargin = (12 * resources.displayMetrics.density).toInt()
+                layoutParams = params
+            }.also { layout.addView(it) }
+        } else null
+
+        val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(dialogTitle)
+            .setView(scrollView)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val displayName = nameInput.text.toString().trim().ifEmpty { provider.displayName }
+                val apiKey = apiKeyInput.text.toString().trim()
+                val endpoint = endpointInput?.text?.toString()?.trim()
+                val apiFormat = apiFormatSpinner?.selectedItem?.toString()
+                val makeDefault = defaultCheckBox?.isChecked == true
+
+                val selectedModelPosition = modelSpinner.selectedItemPosition
+                val selectedModel = if (selectedModelPosition == models.size - 1) {
+                    customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
+                } else if (selectedModelPosition >= 0 && selectedModelPosition < models.size - 1) {
+                    models[selectedModelPosition]
+                } else null
+
+                val customInputPrice = customInputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
+                val customOutputPrice = customOutputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
+
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        if (isNew) {
+                            val newConfig = LlmProviderConfig(
+                                providerType = provider.name,
+                                displayName = displayName,
+                                endpoint = if (isCustom) endpoint else null,
+                                apiFormat = if (isCustom) apiFormat else null,
+                                defaultModel = selectedModel,
+                                isDefault = dao.getCount() == 0,
+                                orderNumber = dao.getCount(),
+                            )
+                            dao.insert(newConfig)
+                            newConfig.setApiKey(apiKey)
+                            LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, newConfig.id)
+                        } else {
+                            if (makeDefault) {
+                                dao.clearDefault()
+                                val all = dao.all()
+                                var order = 1
+                                for (c in all) {
+                                    if (c.id == config!!.id) continue
+                                    if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
+                                    order++
+                                }
+                            }
+                            val updated = config!!.copy(
+                                displayName = displayName,
+                                endpoint = if (isCustom) endpoint else config.endpoint,
+                                apiFormat = if (isCustom) apiFormat else config.apiFormat,
+                                defaultModel = selectedModel,
+                                isDefault = config.isDefault || makeDefault,
+                                orderNumber = if (makeDefault) 0 else config.orderNumber,
+                            )
+                            dao.update(updated)
+                            updated.setApiKey(apiKey)
+                            LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, config.id)
+                        }
+                    }
+                    Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
+                    refreshProviderList()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .apply {
+                if (!isNew) {
+                    setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
+                        dlg.dismiss()
+                        confirmDeleteProvider(config!!)
+                    }
+                }
+            }
+            .show()
+
+        // Disable OK button until API key is entered
+        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        okButton.isEnabled = apiKeyInput.text.toString().trim().isNotBlank()
+        apiKeyInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
+            }
+        })
+    }
+
+    private fun addLabeledField(layout: LinearLayout, label: String, field: View) {
+        val density = resources.displayMetrics.density
+        val labelView = TextView(requireContext()).apply {
+            text = label
+            setTextAppearance(android.R.style.TextAppearance_Small)
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.topMargin = (8 * density).toInt()
+            layoutParams = params
+        }
+        layout.addView(labelView)
+
+        val fieldParams = LinearLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
+        fieldParams.bottomMargin = (4 * density).toInt()
+        field.layoutParams = fieldParams
+        layout.addView(field)
     }
 
     private fun setupGettingStarted() {
@@ -245,116 +559,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             d.show()
             d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
             true
-        }
-    }
-
-    private fun setupProvider() {
-        val providers = LlmProvider.entries.toTypedArray()
-        providerPref.entries = providers.map { it.localizedName() }.toTypedArray()
-        providerPref.entryValues = providers.map { it.name }.toTypedArray()
-
-        // Set current value if exists
-        val current = currentProvider()
-        if (current != null) {
-            providerPref.value = current.name
-        }
-
-        providerPref.setOnPreferenceChangeListener { _, newValue ->
-            val providerName = newValue as String
-            val provider = try {
-                LlmProvider.valueOf(providerName)
-            } catch (_: IllegalArgumentException) {
-                LlmProvider.CUSTOM
-            }
-
-            settings.llmProvider = provider.name
-
-            // Update endpoint for non-custom providers
-            if (provider != LlmProvider.CUSTOM) {
-                settings.llmEndpoint = provider.endpoint
-                endpointPref.text = provider.endpoint
-            }
-
-            // Reset model to default (empty = use provider's default)
-            settings.llmModel = ""
-
-            // Reset cumulative usage when provider changes
-            LlmCostTracker.reset()
-
-            updateVisibility()
-            true
-        }
-    }
-
-    private fun setupApiKey() {
-        apiKeyPref.setOnPreferenceChangeListener { _, newValue ->
-            val apiKey = newValue as? String ?: ""
-            // Save immediately so updateVisibility sees the new value
-            settings.llmApiKey = apiKey
-
-            // Auto-detect provider from key prefix if it doesn't match current
-            val detected = LlmProvider.fromApiKey(apiKey)
-            if (detected != null && detected != currentProvider()) {
-                settings.llmProvider = detected.name
-                providerPref.value = detected.name
-                settings.llmEndpoint = detected.endpoint
-                endpointPref.text = detected.endpoint
-                settings.llmModel = ""
-            }
-
-            updateVisibility()
-            true
-        }
-    }
-
-    private fun setupModel() {
-        modelPref.setOnPreferenceChangeListener { _, newValue ->
-            val value = newValue as String
-            if (value == CUSTOM_MODEL_SENTINEL) {
-                showCustomModelDialog()
-                false // don't save the sentinel
-            } else {
-                modelPref.summary = value
-                // The value will be saved by the preference framework after this returns true.
-                // Update custom pricing visibility based on the new model.
-                val showCustom = value.isNotBlank() && !LlmPricing.isKnownModel(value)
-                customInputPricePref.isVisible = showCustom
-                customOutputPricePref.isVisible = showCustom
-                true
-            }
-        }
-    }
-
-    private fun updateModelList(provider: LlmProvider) {
-        val modelEntries = mutableListOf<String>()
-        val modelValues = mutableListOf<String>()
-
-        for (model in provider.models) {
-            modelEntries.add(model)
-            modelValues.add(model)
-        }
-
-        // If current model is not in the provider's list, add it (backward compat)
-        val currentModel = settings.llmModel
-        if (currentModel.isNotBlank() && currentModel !in modelValues) {
-            modelEntries.add(0, currentModel)
-            modelValues.add(0, currentModel)
-        }
-
-        // Add "Custom..." option
-        modelEntries.add(getString(R.string.llm_custom_model))
-        modelValues.add(CUSTOM_MODEL_SENTINEL)
-
-        modelPref.entries = modelEntries.toTypedArray()
-        modelPref.entryValues = modelValues.toTypedArray()
-
-        // Set current value and summary
-        if (currentModel.isNotBlank() && currentModel in modelValues) {
-            modelPref.value = currentModel
-            modelPref.summary = currentModel
-        } else if (provider.models.isNotEmpty()) {
-            modelPref.value = provider.models.first()
-            modelPref.summary = provider.models.first()
         }
     }
 
@@ -454,8 +658,17 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 .setTitle(R.string.llm_reset_usage_confirm_title)
                 .setMessage(R.string.llm_reset_usage_confirm_message)
                 .setPositiveButton(R.string.okay) { _, _ ->
-                    LlmCostTracker.reset()
-                    updateUsageSummary()
+                    // Reset all provider configs' usage
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            for (config in dao.all()) {
+                                LlmCostTracker.reset(config.id)
+                            }
+                        }
+                        LlmCostTracker.reset() // Also reset legacy
+                        updateUsageSummary()
+                        refreshProviderList()
+                    }
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()
@@ -464,32 +677,29 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun updateUsageSummary() {
-        val usage = LlmCostTracker.getCumulativeUsage()
-        if (usage.totalTokens == 0L) {
+        // Sum across all provider configs
+        var totalInput = 0L
+        var totalOutput = 0L
+        var totalCost = 0.0
+
+        for (config in dao.all()) {
+            val usage = LlmCostTracker.getCumulativeUsage(config.id)
+            totalInput += usage.inputTokens
+            totalOutput += usage.outputTokens
+            totalCost += LlmCostTracker.getCumulativeCost(config.id)
+        }
+
+        // Also add legacy usage
+        val legacyUsage = LlmCostTracker.getCumulativeUsage()
+        totalInput += legacyUsage.inputTokens
+        totalOutput += legacyUsage.outputTokens
+        totalCost += LlmCostTracker.getCumulativeCost()
+
+        if (totalInput == 0L && totalOutput == 0L) {
             usageSummaryPref.summary = getString(R.string.llm_usage_summary_default)
         } else {
-            val cost = LlmCostTracker.getCumulativeCost()
-            val costStr = LlmCostTracker.formatCost(cost)
-            usageSummaryPref.summary = getString(R.string.llm_usage_summary_format, usage.inputTokens, usage.outputTokens, costStr)
-        }
-    }
-
-    private fun setupCustomPricing() {
-        // Load current values
-        val currentInput = settings.getDouble("llm_custom_input_price", 0.0)
-        val currentOutput = settings.getDouble("llm_custom_output_price", 0.0)
-        if (currentInput > 0) customInputPricePref.text = currentInput.toString()
-        if (currentOutput > 0) customOutputPricePref.text = currentOutput.toString()
-
-        customInputPricePref.setOnPreferenceChangeListener { _, newValue ->
-            val value = (newValue as? String)?.toDoubleOrNull() ?: 0.0
-            LlmPricing.setCustomPricing(value, settings.getDouble("llm_custom_output_price", 0.0))
-            true
-        }
-        customOutputPricePref.setOnPreferenceChangeListener { _, newValue ->
-            val value = (newValue as? String)?.toDoubleOrNull() ?: 0.0
-            LlmPricing.setCustomPricing(settings.getDouble("llm_custom_input_price", 0.0), value)
-            true
+            val costStr = LlmCostTracker.formatCost(totalCost)
+            usageSummaryPref.summary = getString(R.string.llm_usage_summary_format, totalInput, totalOutput, costStr)
         }
     }
 
@@ -517,27 +727,4 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun formatSize(bytes: Long): String =
         Formatter.formatShortFileSize(requireContext(), bytes)
-
-    private fun showCustomModelDialog() {
-        val editText = EditText(requireContext()).apply {
-            setText(settings.llmModel)
-            inputType = InputType.TYPE_CLASS_TEXT
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.llm_custom_model_dialog_title)
-            .setMessage(R.string.llm_custom_model_dialog_message)
-            .setView(editText)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val customModel = editText.text.toString().trim()
-                if (customModel.isNotBlank()) {
-                    settings.llmModel = customModel
-                    val provider = currentProvider()
-                    if (provider != null) updateModelList(provider)
-                    updateVisibility()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
 }

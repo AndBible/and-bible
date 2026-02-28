@@ -57,6 +57,59 @@ private val addLanguageCode = makeMigration(6..7) { db ->
     db.execSQL("ALTER TABLE `LlmProcessingCacheEntry` ADD COLUMN `languageCode` TEXT DEFAULT NULL")
 }
 
+private val addProviderConfig = makeMigration(7..8) { db ->
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `LlmProviderConfig` (
+            `id` BLOB NOT NULL,
+            `providerType` TEXT NOT NULL,
+            `displayName` TEXT NOT NULL,
+            `endpoint` TEXT DEFAULT NULL,
+            `apiFormat` TEXT DEFAULT NULL,
+            `defaultModel` TEXT DEFAULT NULL,
+            `isDefault` INTEGER NOT NULL DEFAULT 0,
+            `orderNumber` INTEGER NOT NULL DEFAULT 0,
+            PRIMARY KEY(`id`)
+        )
+    """.trimIndent())
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProviderConfig_orderNumber` ON `LlmProviderConfig` (`orderNumber`)")
+
+    // SQLite does not support ALTER TABLE ADD FOREIGN KEY, so we must recreate
+    // the AgentPrompt table to add the FK constraint on providerConfigId.
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `AgentPrompt_new` (
+            `id` BLOB NOT NULL,
+            `name` TEXT NOT NULL,
+            `description` TEXT DEFAULT NULL,
+            `promptTemplate` TEXT NOT NULL,
+            `showIn` TEXT NOT NULL,
+            `orderNumber` INTEGER NOT NULL DEFAULT 0,
+            `createdAt` INTEGER NOT NULL DEFAULT 0,
+            `strictContextMatching` INTEGER NOT NULL DEFAULT 1,
+            `permissionMode` TEXT DEFAULT NULL,
+            `allowedTools` TEXT DEFAULT NULL,
+            `deniedTools` TEXT DEFAULT NULL,
+            `modelOverride` TEXT DEFAULT NULL,
+            `providerConfigId` BLOB DEFAULT NULL,
+            PRIMARY KEY(`id`),
+            FOREIGN KEY(`providerConfigId`) REFERENCES `LlmProviderConfig`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+        )
+    """.trimIndent())
+    db.execSQL("""
+        INSERT INTO `AgentPrompt_new` (`id`, `name`, `description`, `promptTemplate`, `showIn`,
+            `orderNumber`, `createdAt`, `strictContextMatching`, `permissionMode`,
+            `allowedTools`, `deniedTools`, `modelOverride`, `providerConfigId`)
+        SELECT `id`, `name`, `description`, `promptTemplate`, `showIn`,
+            `orderNumber`, `createdAt`, `strictContextMatching`, `permissionMode`,
+            `allowedTools`, `deniedTools`, `modelOverride`, NULL
+        FROM `AgentPrompt`
+    """.trimIndent())
+    db.execSQL("DROP TABLE `AgentPrompt`")
+    db.execSQL("ALTER TABLE `AgentPrompt_new` RENAME TO `AgentPrompt`")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_orderNumber` ON `AgentPrompt` (`orderNumber`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_createdAt` ON `AgentPrompt` (`createdAt`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_providerConfigId` ON `AgentPrompt` (`providerConfigId`)")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
@@ -64,4 +117,5 @@ val llmProcessingMigrations: Array<Migration> = arrayOf(
     addPromptToolPermissions,
     addModelOverride,
     addLanguageCode,
+    addProviderConfig,
 )

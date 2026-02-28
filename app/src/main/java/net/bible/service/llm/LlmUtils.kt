@@ -17,6 +17,9 @@
 
 package net.bible.service.llm
 
+import net.bible.android.database.IdType
+import net.bible.service.db.DatabaseContainer
+
 enum class ApiFormat { OPENAI, ANTHROPIC }
 
 /** Pricing per million tokens (USD). */
@@ -123,5 +126,36 @@ enum class LlmProvider(
 
         /** Check if a model has known pricing. */
         fun hasKnownPricing(model: String): Boolean = findPricing(model) != null
+    }
+}
+
+/**
+ * Transport object that travels through the LLM call chain.
+ *
+ * Built from an AgentPrompt's DB columns:
+ *   `LlmModelConfig(prompt.providerConfigId, prompt.modelOverride)`
+ *
+ * When both fields are null, the global default provider is used.
+ */
+data class LlmModelConfig(
+    val providerConfigId: IdType? = null,
+    val model: String? = null,
+) {
+    val isDefault: Boolean get() = providerConfigId == null && model == null
+
+    private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+
+    /** Resolve the LlmProviderConfig from the database. */
+    fun resolveProviderConfig(): LlmProviderConfig? =
+        providerConfigId?.let { dao.getById(it) } ?: dao.getDefault()
+
+    /** Resolve the effective model name. */
+    fun resolveModel(providerConfig: LlmProviderConfig): String =
+        model?.takeIf { it.isNotBlank() } ?: providerConfig.resolveDefaultModel()
+
+    companion object {
+        /** Build from an AgentPrompt's per-prompt overrides. */
+        fun fromPrompt(prompt: AgentPrompt): LlmModelConfig =
+            LlmModelConfig(prompt.providerConfigId, prompt.modelOverride)
     }
 }
