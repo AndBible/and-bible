@@ -29,7 +29,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
-import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.IdType
@@ -71,9 +70,6 @@ private const val LLM_TEMPERATURE = 0.3
 
 /** Wrapper for LLM API response with usage information */
 data class LlmApiResponse(val json: JSONObject, val usage: LlmUsage)
-
-/** Event posted when LLM operations start or complete */
-class LlmEvent(val running: Boolean)
 
 /** Exception thrown when LLM processing fails */
 class LlmProcessingError(message: String) : Exception(message)
@@ -321,9 +317,7 @@ object LlmProcessingService {
         val loopHeaders = buildProviderExtraHeaders()
         var totalUsage = LlmUsage()
 
-        if (activeRequests.incrementAndGet() == 1) {
-            ABEventBus.post(LlmEvent(running = true))
-        }
+        activeRequests.incrementAndGet()
 
         try {
             for (iteration in 0 until maxIterations) {
@@ -424,7 +418,7 @@ object LlmProcessingService {
             if (manageSession) session!!.stop()
             throw LlmProcessingError("Max tool iterations reached")
         } catch (e: CancellationException) {
-            if (manageSession) session!!.stop()
+            if (manageSession) session!!.stop(application.getString(R.string.agent_log_cancelled))
             throw e
         } catch (e: LlmProcessingError) {
             throw e
@@ -435,9 +429,7 @@ object LlmProcessingService {
             if (manageSession) session!!.stop()
             throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
         } finally {
-            if (activeRequests.decrementAndGet() == 0) {
-                ABEventBus.post(LlmEvent(running = false))
-            }
+            activeRequests.decrementAndGet()
         }
     }
 
@@ -521,9 +513,7 @@ object LlmProcessingService {
             .post(bodyString.toRequestBody("application/json".toMediaType()))
             .build()
 
-        if (activeRequests.incrementAndGet() == 1) {
-            ABEventBus.post(LlmEvent(running = true))
-        }
+        activeRequests.incrementAndGet()
 
         return try {
             val responseJson = suspendCancellableCoroutine { continuation ->
@@ -573,9 +563,7 @@ object LlmProcessingService {
 
             LlmApiResponse(responseJson, usage)
         } finally {
-            if (activeRequests.decrementAndGet() == 0) {
-                ABEventBus.post(LlmEvent(running = false))
-            }
+            activeRequests.decrementAndGet()
         }
     }
 

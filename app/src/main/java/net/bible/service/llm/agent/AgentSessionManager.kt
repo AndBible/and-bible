@@ -50,6 +50,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import android.widget.Toast
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
@@ -339,8 +340,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
         // Execute via AgentExecutor
         val executor = AgentExecutor()
-        executor.execute(prompt.id, context).collect { event ->
-            handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker)
+        try {
+            executor.execute(prompt.id, context).collect { event ->
+                handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker)
+            }
+        } catch (e: CancellationException) {
+            // Flow collection may terminate before AgentEvent.Cancelled is collected.
+            // Ensure the session is properly stopped so the UI reflects cancellation.
+            if (session.isRunning) {
+                val app = BibleApplication.application
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
+                session.stop()
+            }
+            throw e
         }
     }
 
