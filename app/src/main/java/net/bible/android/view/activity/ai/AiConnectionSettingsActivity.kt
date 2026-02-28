@@ -131,6 +131,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun hasApiKey(): Boolean = settings.llmApiKey.isNotBlank()
 
+    private fun LlmProvider.localizedName(): String = when (this) {
+        LlmProvider.CUSTOM -> getString(R.string.llm_provider_custom)
+        else -> displayName
+    }
+
     /**
      * Progressive disclosure:
      * - Provider is always visible
@@ -153,7 +158,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             val detected = LlmProvider.fromApiKey(settings.llmApiKey)
             val base = getString(R.string.llm_api_key_summary)
             apiKeyPref.summary = if (detected != null) {
-                "$base\n\n${getString(R.string.llm_api_key_detected_provider, detected.displayName)}"
+                "$base\n\n${getString(R.string.llm_api_key_detected_provider, detected.localizedName())}"
             } else {
                 base
             }
@@ -175,7 +180,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         // Update provider summary
         if (provider != null) {
             val base = getString(R.string.llm_provider_summary)
-            val current = getString(R.string.llm_provider_current, provider.displayName)
+            val current = getString(R.string.llm_provider_current, provider.localizedName())
             val endpoint = settings.llmEndpoint
             providerPref.summary = "$base\n\n$current\n$endpoint"
         } else {
@@ -228,7 +233,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun setupProvider() {
         val providers = LlmProvider.entries.toTypedArray()
-        providerPref.entries = providers.map { it.displayName }.toTypedArray()
+        providerPref.entries = providers.map { it.localizedName() }.toTypedArray()
         providerPref.entryValues = providers.map { it.name }.toTypedArray()
 
         // Set current value if exists

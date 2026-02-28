@@ -1344,6 +1344,7 @@
     <string name="sync_settings_shortcut_summary">Synchronize data between devices</string>
     <string name="llm_api_key_title">API Key</string>
     <string name="llm_api_key_summary">OpenAI-compatible API key</string>
+    <string name="llm_provider_custom">Custom (OpenAI compatible)</string>
     <string name="llm_provider_title">Provider</string>
     <string name="llm_provider_summary">Choose which AI service provider to use. The API endpoint and available models will be configured automatically.</string>
     <string name="llm_provider_current">Current: %s</string>
