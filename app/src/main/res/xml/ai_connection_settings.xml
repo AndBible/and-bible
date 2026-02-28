@@ -89,4 +89,31 @@
             />
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="ai_usage_category"
+        android:title="@string/ai_usage_category">
+
+        <Preference android:key="llm_usage_summary"
+            android:title="@string/llm_usage_summary_title"
+            android:summary="@string/llm_usage_summary_default"
+            android:selectable="false"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+        <Preference android:key="llm_reset_usage"
+            android:title="@string/llm_reset_usage_title"
+            android:summary="@string/llm_reset_usage_summary"
+            android:icon="@drawable/ic_baseline_refresh_gray_24"
+            />
+        <EditTextPreference android:key="llm_custom_input_price"
+            android:title="@string/llm_custom_input_price_title"
+            android:summary="@string/llm_custom_input_price_summary"
+            android:inputType="numberDecimal"
+            />
+        <EditTextPreference android:key="llm_custom_output_price"
+            android:title="@string/llm_custom_output_price_title"
+            android:summary="@string/llm_custom_output_price_summary"
+            android:inputType="numberDecimal"
+            />
+    </PreferenceCategory>
+
 </PreferenceScreen>

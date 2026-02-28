@@ -32,6 +32,7 @@ interface LlmApiAdapter {
     fun buildHeaders(apiKey: String, extraHeaders: Map<String, String>): Map<String, String>
     fun buildRequestBody(model: String, messages: JSONArray, tools: JSONArray, temperature: Double): JSONObject
     fun parseResponse(responseJson: JSONObject): ParsedResponse
+    fun extractUsage(responseJson: JSONObject): LlmUsage
     fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray
     fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): JSONObject
     fun createToolResultMessages(results: List<Pair<String, String>>): List<JSONObject>
@@ -75,6 +76,17 @@ class OpenAiApiAdapter : LlmApiAdapter {
         } catch (e: Exception) {
             ParsedResponse.ParseError("Failed to parse OpenAI response: ${e.message}")
         }
+    }
+
+    override fun extractUsage(responseJson: JSONObject): LlmUsage {
+        val usage = responseJson.optJSONObject("usage") ?: return LlmUsage()
+        val totalInput = usage.optLong("prompt_tokens", 0)
+        val cachedInput = usage.optJSONObject("prompt_tokens_details")?.optLong("cached_tokens", 0) ?: 0
+        return LlmUsage(
+            inputTokens = totalInput - cachedInput,
+            outputTokens = usage.optLong("completion_tokens", 0),
+            cacheReadTokens = cachedInput
+        )
     }
 
     override fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray {
@@ -189,6 +201,16 @@ class AnthropicApiAdapter : LlmApiAdapter {
         } catch (e: Exception) {
             ParsedResponse.ParseError("Failed to parse Anthropic response: ${e.message}")
         }
+    }
+
+    override fun extractUsage(responseJson: JSONObject): LlmUsage {
+        val usage = responseJson.optJSONObject("usage") ?: return LlmUsage()
+        return LlmUsage(
+            inputTokens = usage.optLong("input_tokens", 0),
+            outputTokens = usage.optLong("output_tokens", 0),
+            cacheCreationTokens = usage.optLong("cache_creation_input_tokens", 0),
+            cacheReadTokens = usage.optLong("cache_read_input_tokens", 0)
+        )
     }
 
     override fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray {

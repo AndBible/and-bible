@@ -18,6 +18,7 @@
 package net.bible.service.llm.agent
 
 import net.bible.android.database.IdType
+import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolResult
 
 /**
@@ -66,6 +67,13 @@ sealed class AgentEvent {
     ) : AgentEvent()
 
     /**
+     * An API call completed with token usage information.
+     *
+     * @param usage Token usage from this API call
+     */
+    data class ApiCallCompleted(val usage: LlmUsage) : AgentEvent()
+
+    /**
      * LLM returned a text response (potentially intermediate).
      *
      * @param text The text content from the LLM
@@ -81,10 +89,12 @@ sealed class AgentEvent {
      *
      * @param response The final response text from the LLM
      * @param totalIterations Total number of iterations taken
+     * @param usage Cumulative token usage for this session
      */
     data class Completed(
         val response: String,
-        val totalIterations: Int
+        val totalIterations: Int,
+        val usage: LlmUsage = LlmUsage()
     ) : AgentEvent()
 
     /**
@@ -95,10 +105,12 @@ sealed class AgentEvent {
      *
      * @param message A brief message about what was done
      * @param totalIterations Total number of iterations taken
+     * @param usage Cumulative token usage for this session
      */
     data class CompletedWithoutDocument(
         val message: String,
-        val totalIterations: Int
+        val totalIterations: Int,
+        val usage: LlmUsage = LlmUsage()
     ) : AgentEvent()
 
     /**
@@ -110,11 +122,13 @@ sealed class AgentEvent {
      * @param title Plain text title for the document (used in TOC)
      * @param content Full markdown content including title with links
      * @param totalIterations Total number of iterations taken
+     * @param usage Cumulative token usage for this session
      */
     data class CompletedWithDocument(
         val title: String,
         val content: String,
-        val totalIterations: Int
+        val totalIterations: Int,
+        val usage: LlmUsage = LlmUsage()
     ) : AgentEvent()
 
     /**
@@ -127,12 +141,14 @@ sealed class AgentEvent {
      * @param scrollToEntryId Optional ID of an entry to scroll to
      * @param message Brief message about what was done
      * @param totalIterations Total number of iterations taken
+     * @param usage Cumulative token usage for this session
      */
     data class CompletedWithStudyPad(
         val labelId: IdType,
         val scrollToEntryId: IdType?,
         val message: String,
-        val totalIterations: Int
+        val totalIterations: Int,
+        val usage: LlmUsage = LlmUsage()
     ) : AgentEvent()
 
     /**

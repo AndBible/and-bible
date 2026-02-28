@@ -58,11 +58,21 @@
             android:ellipsize="end" />
     </LinearLayout>
 
+    <!-- Cost info (right-aligned, small) -->
+    <TextView
+        android:id="@+id/costText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:textSize="10sp"
+        android:alpha="0.6"
+        android:visibility="gone" />
+
     <!-- Status indicator -->
     <ImageView
         android:id="@+id/statusIcon"
         android:layout_width="16dp"
         android:layout_height="16dp"
-        android:layout_marginStart="8dp" />
+        android:layout_marginStart="4dp" />
 
 </LinearLayout>

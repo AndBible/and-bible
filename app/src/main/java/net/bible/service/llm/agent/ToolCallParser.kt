@@ -46,6 +46,7 @@ data class ToolCall(
  * Result of parsing an LLM response message.
  */
 sealed class ParsedResponse {
+
     /**
      * The LLM wants to call one or more tools.
      *

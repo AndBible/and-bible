@@ -69,6 +69,9 @@ private const val READ_TIMEOUT_SECONDS = 90L  // 90s per API call; generous for 
 private const val WRITE_TIMEOUT_SECONDS = 120L
 private const val LLM_TEMPERATURE = 0.3
 
+/** Wrapper for LLM API response with usage information */
+data class LlmApiResponse(val json: JSONObject, val usage: LlmUsage)
+
 /** Event posted when LLM operations start or complete */
 class LlmEvent(val running: Boolean)
 
@@ -316,6 +319,7 @@ object LlmProcessingService {
 
         val startTime = System.currentTimeMillis()
         val loopHeaders = buildProviderExtraHeaders()
+        var totalUsage = LlmUsage()
 
         if (activeRequests.incrementAndGet() == 1) {
             ABEventBus.post(LlmEvent(running = true))
@@ -327,8 +331,17 @@ object LlmProcessingService {
                 Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
                 session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
 
-                val response = callLlmApiWithTools(messages, tools, modelOverride, loopHeaders)
-                val parsed = adapter.parseResponse(response)
+                val apiResponse = callLlmApiWithTools(messages, tools, modelOverride, loopHeaders)
+                val parsed = adapter.parseResponse(apiResponse.json)
+                totalUsage += apiResponse.usage
+
+                // Attach per-operation cost to the iteration log entry
+                if (apiResponse.usage.totalTokens > 0) {
+                    val cost = LlmPricing.estimateCost(apiResponse.usage, modelId)
+                    if (cost != null) {
+                        session?.setLastEntryCost(LlmCostTracker.formatCost(cost))
+                    }
+                }
 
                 when (parsed) {
                     is ParsedResponse.TextResponse -> {
@@ -349,6 +362,13 @@ object LlmProcessingService {
                         ))
 
                         session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName} complete"))
+                        // Attach total cost to the completion entry
+                        if (totalUsage.totalTokens > 0) {
+                            val totalCost = LlmPricing.estimateCost(totalUsage, modelId)
+                            if (totalCost != null) {
+                                session?.setLastEntryCost(application.getString(R.string.llm_cost_total, LlmCostTracker.formatCost(totalCost)), isTotalCost = true)
+                            }
+                        }
                         if (manageSession) session!!.stop("Processing complete")
                         return result
                     }
@@ -468,14 +488,15 @@ object LlmProcessingService {
      * Call LLM API with tool calling support.
      *
      * Uses the provider's API adapter for endpoint URL, headers, and request body format.
+     * Extracts token usage from the response and adds it to cumulative tracking.
      *
      * @param messages The conversation messages (system, user, assistant, tool)
      * @param tools The tools array in provider-specific format
      * @param modelOverride Optional model override
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
-     * @return The raw response JSON object (provider-specific format)
+     * @return LlmApiResponse containing the raw JSON and extracted token usage
      */
-    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null, extraHeaders: Map<String, String> = emptyMap()): JSONObject {
+    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, modelOverride: String? = null, extraHeaders: Map<String, String> = emptyMap()): LlmApiResponse {
         val settings = CommonUtils.settings
 
         if (!settings.llmConfigured) {
@@ -505,7 +526,7 @@ object LlmProcessingService {
         }
 
         return try {
-            suspendCancellableCoroutine { continuation ->
+            val responseJson = suspendCancellableCoroutine { continuation ->
                 val call = client.newCall(request)
 
                 continuation.invokeOnCancellation {
@@ -532,9 +553,9 @@ object LlmProcessingService {
                             try {
                                 val responseBody = resp.body?.string()
                                     ?: throw LlmProcessingError("Empty response body")
-                                val responseJson = JSONObject(responseBody)
+                                val json = JSONObject(responseBody)
                                 Log.d(TAG, "LLM API response received")
-                                continuation.resume(responseJson)
+                                continuation.resume(json)
                             } catch (e: Exception) {
                                 Log.e(TAG, "Failed to parse LLM response: ${e.message}")
                                 continuation.resumeWithException(e)
@@ -543,6 +564,14 @@ object LlmProcessingService {
                     }
                 })
             }
+
+            // Extract usage and add to cumulative tracking
+            val usage = adapter.extractUsage(responseJson)
+            if (usage.totalTokens > 0) {
+                LlmCostTracker.addUsage(usage, effectiveModel)
+            }
+
+            LlmApiResponse(responseJson, usage)
         } finally {
             if (activeRequests.decrementAndGet() == 0) {
                 ABEventBus.post(LlmEvent(running = false))

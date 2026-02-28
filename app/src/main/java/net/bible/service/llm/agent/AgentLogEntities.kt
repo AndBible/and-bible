@@ -70,7 +70,9 @@ data class AgentLogEntry(
     val message: String,
     val details: String? = null,
     var status: EntryStatus = EntryStatus.PENDING,
-    val relatedPermission: AgentPermission? = null
+    val relatedPermission: AgentPermission? = null,
+    var costInfo: String? = null,
+    var isTotalCost: Boolean = false
 ) {
     companion object {
         /**

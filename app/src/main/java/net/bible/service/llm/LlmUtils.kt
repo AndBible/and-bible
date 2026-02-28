@@ -19,33 +19,71 @@ package net.bible.service.llm
 
 enum class ApiFormat { OPENAI, ANTHROPIC }
 
+/** Pricing per million tokens (USD). */
+data class ModelPricing(
+    val inputPerMillion: Double,
+    val outputPerMillion: Double,
+    val cacheCreationPerMillion: Double = inputPerMillion,
+    val cacheReadPerMillion: Double = inputPerMillion * 0.1
+)
+
+private fun p(input: Double, output: Double, cacheCreate: Double = input, cacheRead: Double = input * 0.1) =
+    ModelPricing(input, output, cacheCreate, cacheRead)
+
 enum class LlmProvider(
     val displayName: String,
     val endpoint: String,
-    val models: List<String>,
+    val modelPricing: List<Pair<String, ModelPricing?>>,
     val apiKeyPrefix: String? = null,
     val apiFormat: ApiFormat = ApiFormat.OPENAI
 ) {
-    GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/",
-        listOf("gemini-2.5-flash", "gemini-2.5-pro", "gemini-3-flash"), "AIza"),
-    OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1",
-        listOf("gpt-5-mini", "gpt-5-nano", "gpt-5.2", "gpt-4o-mini"), "sk-"),
-    ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1",
-        listOf("claude-haiku-4-5", "claude-sonnet-4-6", "claude-opus-4-6"), "sk-ant-",
-        ApiFormat.ANTHROPIC),
-    XAI("xAI (Grok)", "https://api.x.ai/v1",
-        listOf("grok-4-0709", "grok-4-1-fast-reasoning", "grok-3-mini"), "xai-"),
-    MISTRAL("Mistral", "https://api.mistral.ai/v1",
-        listOf("mistral-small-latest", "mistral-large-latest")),
-    DEEPSEEK("DeepSeek", "https://api.deepseek.com/v1",
-        listOf("deepseek-chat", "deepseek-reasoner")),
-    GROQ("Groq", "https://api.groq.com/openai/v1",
-        listOf("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant")),
-    ALIBABA("Alibaba Cloud (Qwen)", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
-        listOf("qwen-plus", "qwen-turbo", "qwen3-max")),
-    OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1",
-        listOf("anthropic/claude-sonnet-4", "google/gemini-2.5-flash", "openai/gpt-5-mini")),
+    GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
+        "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
+        "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125),
+        "gemini-3-flash" to p(0.15, 0.60),
+    ), "AIza"),
+    OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1", listOf(
+        "gpt-5-mini" to p(0.40, 1.60, 0.40, 0.10),
+        "gpt-5-nano" to p(0.10, 0.40, 0.10, 0.025),
+        "gpt-5.2" to p(2.00, 8.00, 2.00, 0.50),
+        "gpt-4o-mini" to p(0.15, 0.60, 0.15, 0.075),
+    ), "sk-"),
+    ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1", listOf(
+        "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08),
+        "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30),
+        "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50),
+    ), "sk-ant-", ApiFormat.ANTHROPIC),
+    XAI("xAI (Grok)", "https://api.x.ai/v1", listOf(
+        "grok-4-0709" to p(3.00, 15.00),
+        "grok-4-1-fast-reasoning" to p(3.00, 15.00),
+        "grok-3-mini" to p(0.30, 0.50),
+    ), "xai-"),
+    MISTRAL("Mistral", "https://api.mistral.ai/v1", listOf(
+        "mistral-small-latest" to p(0.10, 0.30),
+        "mistral-large-latest" to p(2.00, 6.00),
+    )),
+    DEEPSEEK("DeepSeek", "https://api.deepseek.com/v1", listOf(
+        "deepseek-chat" to p(0.27, 1.10, 0.27, 0.07),
+        "deepseek-reasoner" to p(0.55, 2.19, 0.55, 0.14),
+    )),
+    GROQ("Groq", "https://api.groq.com/openai/v1", listOf(
+        "llama-3.3-70b-versatile" to p(0.59, 0.79),
+        "openai/gpt-oss-120b" to p(0.30, 0.60),
+        "llama-3.1-8b-instant" to p(0.05, 0.08),
+    )),
+    ALIBABA("Alibaba Cloud (Qwen)", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", listOf(
+        "qwen-plus" to p(0.80, 2.00),
+        "qwen-turbo" to p(0.30, 0.60),
+        "qwen3-max" to p(1.60, 6.40),
+    )),
+    OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1", listOf(
+        "anthropic/claude-sonnet-4" to null,
+        "google/gemini-2.5-flash" to null,
+        "openai/gpt-5-mini" to null,
+    )),
     CUSTOM("Custom", "", listOf());
+
+    val models: List<String> get() = modelPricing.map { it.first }
 
     val apiAdapter: LlmApiAdapter get() = when (apiFormat) {
         ApiFormat.OPENAI -> OpenAiApiAdapter()
@@ -63,5 +101,27 @@ enum class LlmProvider(
         fun fromApiKey(apiKey: String): LlmProvider? =
             entries.filter { it.apiKeyPrefix != null && apiKey.startsWith(it.apiKeyPrefix!!) }
                 .maxByOrNull { it.apiKeyPrefix!!.length }
+
+        /** Look up pricing for a model across all providers. */
+        fun findPricing(model: String): ModelPricing? {
+            for (provider in entries) {
+                for ((name, pricing) in provider.modelPricing) {
+                    if (name == model) return pricing
+                }
+            }
+            // Strip OpenRouter prefix (e.g. "anthropic/claude-sonnet-4" → "claude-sonnet-4")
+            val stripped = model.substringAfter('/')
+            if (stripped != model) {
+                for (provider in entries) {
+                    for ((name, pricing) in provider.modelPricing) {
+                        if (name == stripped) return pricing
+                    }
+                }
+            }
+            return null
+        }
+
+        /** Check if a model has known pricing. */
+        fun hasKnownPricing(model: String): Boolean = findPricing(model) != null
     }
 }

@@ -203,6 +203,23 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         // Update status text with latest meaningful entry
         val latestMessage = getLatestMeaningfulMessage(entries)
         updateStatusText(latestMessage)
+        updateHeaderCost(entries)
+    }
+
+    /**
+     * Show session-cumulative cost in the header.
+     * Prefers the total cost entry; falls back to the latest per-call cost.
+     */
+    private fun updateHeaderCost(entries: List<AgentLogEntry>) {
+        val costEntry = entries.lastOrNull { it.isTotalCost }
+            ?: entries.lastOrNull { it.costInfo != null }
+        val costInfo = costEntry?.costInfo
+        if (costInfo != null) {
+            binding.headerCostText.text = costInfo
+            binding.headerCostText.visibility = View.VISIBLE
+        } else {
+            binding.headerCostText.visibility = View.GONE
+        }
     }
 
     /**

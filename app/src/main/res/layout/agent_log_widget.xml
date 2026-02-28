@@ -69,6 +69,17 @@
             android:ellipsize="end"
             android:maxLines="1" />
 
+        <!-- Session cost (visible in collapsed header) -->
+        <TextView
+            android:id="@+id/headerCostText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp"
+            android:textSize="11sp"
+            android:alpha="0.6"
+            android:visibility="gone" />
+
         <!-- Close button -->
         <ImageButton
             android:id="@+id/closeButton"

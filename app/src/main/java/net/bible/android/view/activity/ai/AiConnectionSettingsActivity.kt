@@ -34,6 +34,8 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
+import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
@@ -73,6 +75,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var modelPref: ListPreference
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
+    private lateinit var usageCategory: PreferenceCategory
+    private lateinit var usageSummaryPref: Preference
+    private lateinit var resetUsagePref: Preference
+    private lateinit var customInputPricePref: EditTextPreference
+    private lateinit var customOutputPricePref: EditTextPreference
 
     companion object {
         private const val CUSTOM_MODEL_SENTINEL = "__custom__"
@@ -90,6 +97,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         modelPref = preferenceScreen.findPreference("llm_model")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
+        usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
+        usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
+        resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
+        customInputPricePref = preferenceScreen.findPreference("llm_custom_input_price")!!
+        customOutputPricePref = preferenceScreen.findPreference("llm_custom_output_price")!!
 
         // Migrate: if provider is empty but endpoint is set, detect provider from endpoint
         if (settings.llmProvider.isBlank() && settings.llmEndpoint.isNotBlank()) {
@@ -102,6 +114,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupApiKey()
         setupModel()
         setupToolPermissions()
+        setupUsage()
+        setupCustomPricing()
         updateVisibility()
     }
 
@@ -148,6 +162,15 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         modelCategory.isVisible = configured
         behaviorCategory.isVisible = configured
+        usageCategory.isVisible = configured
+
+        // Custom pricing visible only when the active model is not in the known pricing table
+        val currentModel = settings.llmModel
+        val showCustomPricing = configured && currentModel.isNotBlank() && !LlmPricing.isKnownModel(currentModel)
+        customInputPricePref.isVisible = showCustomPricing
+        customOutputPricePref.isVisible = showCustomPricing
+
+        if (configured) updateUsageSummary()
 
         // Update provider summary
         if (provider != null) {
@@ -233,6 +256,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             // Reset model to default (empty = use provider's default)
             settings.llmModel = ""
 
+            // Reset cumulative usage when provider changes
+            LlmCostTracker.reset()
+
             updateVisibility()
             true
         }
@@ -267,6 +293,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 false // don't save the sentinel
             } else {
                 modelPref.summary = value
+                // The value will be saved by the preference framework after this returns true.
+                // Update custom pricing visibility based on the new model.
+                val showCustom = value.isNotBlank() && !LlmPricing.isKnownModel(value)
+                customInputPricePref.isVisible = showCustom
+                customOutputPricePref.isVisible = showCustom
                 true
             }
         }
@@ -394,6 +425,52 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             .show()
     }
 
+    private fun setupUsage() {
+        updateUsageSummary()
+        resetUsagePref.setOnPreferenceClickListener {
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.llm_reset_usage_confirm_title)
+                .setMessage(R.string.llm_reset_usage_confirm_message)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    LlmCostTracker.reset()
+                    updateUsageSummary()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun updateUsageSummary() {
+        val usage = LlmCostTracker.getCumulativeUsage()
+        if (usage.totalTokens == 0L) {
+            usageSummaryPref.summary = getString(R.string.llm_usage_summary_default)
+        } else {
+            val cost = LlmCostTracker.getCumulativeCost()
+            val costStr = LlmCostTracker.formatCost(cost)
+            usageSummaryPref.summary = getString(R.string.llm_usage_summary_format, usage.inputTokens, usage.outputTokens, costStr)
+        }
+    }
+
+    private fun setupCustomPricing() {
+        // Load current values
+        val currentInput = settings.getDouble("llm_custom_input_price", 0.0)
+        val currentOutput = settings.getDouble("llm_custom_output_price", 0.0)
+        if (currentInput > 0) customInputPricePref.text = currentInput.toString()
+        if (currentOutput > 0) customOutputPricePref.text = currentOutput.toString()
+
+        customInputPricePref.setOnPreferenceChangeListener { _, newValue ->
+            val value = (newValue as? String)?.toDoubleOrNull() ?: 0.0
+            LlmPricing.setCustomPricing(value, settings.getDouble("llm_custom_output_price", 0.0))
+            true
+        }
+        customOutputPricePref.setOnPreferenceChangeListener { _, newValue ->
+            val value = (newValue as? String)?.toDoubleOrNull() ?: 0.0
+            LlmPricing.setCustomPricing(settings.getDouble("llm_custom_input_price", 0.0), value)
+            true
+        }
+    }
+
     private fun showCustomModelDialog() {
         val editText = EditText(requireContext()).apply {
             setText(settings.llmModel)
@@ -410,6 +487,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                     settings.llmModel = customModel
                     val provider = currentProvider()
                     if (provider != null) updateModelList(provider)
+                    updateVisibility()
                 }
             }
             .setNegativeButton(R.string.cancel, null)

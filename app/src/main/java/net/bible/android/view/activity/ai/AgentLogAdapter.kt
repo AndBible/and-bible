@@ -39,6 +39,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         val typeIcon: ImageView = itemView.findViewById(R.id.typeIcon)
         val messageText: TextView = itemView.findViewById(R.id.messageText)
         val detailsText: TextView = itemView.findViewById(R.id.detailsText)
+        val costText: TextView = itemView.findViewById(R.id.costText)
         val statusIcon: ImageView = itemView.findViewById(R.id.statusIcon)
     }
 
@@ -78,6 +79,14 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             holder.detailsText.visibility = View.VISIBLE
         } else {
             holder.detailsText.visibility = View.GONE
+        }
+
+        // Set cost info if available
+        if (entry.costInfo != null) {
+            holder.costText.text = entry.costInfo
+            holder.costText.visibility = View.VISIBLE
+        } else {
+            holder.costText.visibility = View.GONE
         }
 
         // Set status icon based on status

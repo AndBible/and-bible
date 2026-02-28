@@ -31,6 +31,9 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.LlmPricing
+import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
 import org.json.JSONObject
@@ -152,6 +155,16 @@ class AgentSession(val workspaceId: IdType) {
             entry.status = newStatus
             ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
         }
+    }
+
+    /**
+     * Set cost info on the most recent log entry and notify UI.
+     */
+    fun setLastEntryCost(costInfo: String, isTotalCost: Boolean = false) {
+        val entry = _logEntries.lastOrNull() ?: return
+        entry.costInfo = costInfo
+        entry.isTotalCost = isTotalCost
+        ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
     }
 
     /**
@@ -518,6 +531,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     }
                 }
             }
+            is AgentEvent.ApiCallCompleted -> {
+                // Attach cost to the most recent log entry (typically the iteration entry)
+                val model = CommonUtils.settings.llmModel
+                val cost = LlmPricing.estimateCost(event.usage, model)
+                if (cost != null) {
+                    session.setLastEntryCost(LlmCostTracker.formatCost(cost))
+                }
+            }
             is AgentEvent.TextResponse -> {
                 if (event.isFinal) {
                     session.addLogEntry(
@@ -544,6 +565,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
 
                 session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage)
             }
             is AgentEvent.CompletedWithDocument -> {
                 // LLM explicitly provided title and content via setDocumentTitle tool
@@ -561,16 +583,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
 
                 session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage)
             }
             is AgentEvent.CompletedWithoutDocument -> {
                 // Task completed without creating a document (e.g., just created a bookmark)
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage)
             }
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 linkControl.openStudyPad(event.labelId, event.scrollToEntryId)
                 session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage)
             }
             is AgentEvent.Error -> {
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
@@ -579,6 +604,20 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.Cancelled -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
                 session.stop()
+            }
+        }
+    }
+
+    /**
+     * Attach session-total cost to the last log entry (the completion/stop entry).
+     */
+    private fun attachTotalCost(session: AgentSession, usage: LlmUsage) {
+        if (usage.totalTokens > 0) {
+            val model = CommonUtils.settings.llmModel
+            val cost = LlmPricing.estimateCost(usage, model)
+            if (cost != null) {
+                val app = BibleApplication.application
+                session.setLastEntryCost(app.getString(R.string.llm_cost_total, LlmCostTracker.formatCost(cost)), isTotalCost = true)
             }
         }
     }

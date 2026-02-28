@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.LlmApiAdapter
+import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.tools.Tool
@@ -120,6 +121,7 @@ class AgentExecutor(
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
+        var totalUsage = LlmUsage()
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders()
 
         while (iteration < maxIterations) {
@@ -127,7 +129,15 @@ class AgentExecutor(
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            when (val parsed = callLlmAndParse(adapter, messages, tools, iteration, modelOverride, loopHeaders)) {
+            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, modelOverride, loopHeaders)
+            totalUsage += callUsage
+
+            // Emit per-operation usage
+            if (callUsage.totalTokens > 0) {
+                emit(AgentEvent.ApiCallCompleted(callUsage))
+            }
+
+            when (parsed) {
                 is ParsedResponse.ToolCalls -> {
                     when (val result = processToolCalls(adapter, parsed, messages, currentContext)) {
                         is ProcessToolsResult.Continue -> {
@@ -135,17 +145,17 @@ class AgentExecutor(
                         }
                         is ProcessToolsResult.FinishWithDocument -> {
                             Log.d(TAG, "Agent finished with document: ${result.title}")
-                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration))
+                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration, totalUsage))
                             return
                         }
                         is ProcessToolsResult.FinishWithoutDocument -> {
                             Log.d(TAG, "Agent finished without document: ${result.message}")
-                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration))
+                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration, totalUsage))
                             return
                         }
                         is ProcessToolsResult.FinishWithStudyPad -> {
                             Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
-                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration))
+                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration, totalUsage))
                             return
                         }
                     }
@@ -154,7 +164,7 @@ class AgentExecutor(
                     Log.d(TAG, "LLM returned final text response without tool call")
                     val normalizedContent = normalizeLlmText(parsed.content)
                     emit(AgentEvent.TextResponse(normalizedContent, isFinal = true))
-                    emit(AgentEvent.Completed(normalizedContent, iteration))
+                    emit(AgentEvent.Completed(normalizedContent, iteration, totalUsage))
                     return
                 }
                 is ParsedResponse.ParseError -> {
@@ -169,6 +179,8 @@ class AgentExecutor(
 
     /**
      * Call LLM API and parse the response.
+     *
+     * @return Pair of parsed response and token usage from this call
      */
     private suspend fun callLlmAndParse(
         adapter: LlmApiAdapter,
@@ -177,10 +189,11 @@ class AgentExecutor(
         iteration: Int,
         modelOverride: String? = null,
         extraHeaders: Map<String, String> = emptyMap()
-    ): ParsedResponse {
+    ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val response = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride, extraHeaders)
-        return adapter.parseResponse(response)
+        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, modelOverride, extraHeaders)
+        val parsed = adapter.parseResponse(apiResponse.json)
+        return Pair(parsed, apiResponse.usage)
     }
 
     /**
