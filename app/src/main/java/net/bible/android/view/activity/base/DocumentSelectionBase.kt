@@ -96,6 +96,8 @@ data class DocumentConfiguration(
             BookCategory.GENERAL_BOOK -> books
             BookCategory.MAPS -> maps
             BookCategory.DICTIONARY -> dictionaries
+            // SWORD treats DailyDevotion modules similarly to dictionaries (zLD driver),
+            // so we reuse the dictionaries collection for document management.
             BookCategory.DAILY_DEVOTIONS -> dictionaries
             BookCategory.AND_BIBLE -> addons
             else -> emptyMap()

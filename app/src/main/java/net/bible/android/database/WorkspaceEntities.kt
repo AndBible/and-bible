@@ -102,7 +102,7 @@ class WorkspaceEntities {
             biblePage = biblePage.copy(),
             commentaryPage = commentaryPage?.copy(),
             dictionaryPage = dictionaryPage?.copy(),
-			dailyDevotionalPage = dailyDevotionalPage?.copy(),
+            dailyDevotionalPage = dailyDevotionalPage?.copy(),
             generalBookPage = generalBookPage?.copy(),
             mapPage = mapPage?.copy(),
             currentCategoryName = currentCategoryName,

@@ -26,7 +26,7 @@ import org.crosswire.jsword.passage.Key
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-class CurrentDictionaryPage internal constructor(
+open class CurrentDictionaryPage internal constructor(
     pageManager: CurrentPageManager
 ) : CachedKeyPage(false, pageManager),
     CurrentPage

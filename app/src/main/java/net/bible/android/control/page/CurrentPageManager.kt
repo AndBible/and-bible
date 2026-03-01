@@ -83,7 +83,7 @@ open class CurrentPageManager @Inject constructor(
     val currentCommentary = CurrentCommentaryPage(currentBibleVerse, bibleTraverser, this)
     val currentMyNotePage = CurrentMyNotePage(currentBibleVerse, bibleTraverser,  this)
     val currentDictionary = CurrentDictionaryPage(this)
-	val currentDailyDevotional = CurrentDailyDevotionalPage(this)
+    val currentDailyDevotional = CurrentDailyDevotionalPage(this)
     val currentGeneralBook = CurrentGeneralBookPage(this)
     val currentMap = CurrentMapPage(this)
 
@@ -153,8 +153,8 @@ open class CurrentPageManager @Inject constructor(
 
     val isDictionaryShown: Boolean
         get() = currentDictionary == currentPage
-	val isDailyDevotionalShown: Boolean
-    	get() = currentDailyDevotional == currentPage
+    val isDailyDevotionalShown: Boolean
+        get() = currentDailyDevotional == currentPage
     private val isGenBookShown: Boolean
         get() = currentGeneralBook == currentPage
     val isMapShown: Boolean
@@ -168,18 +168,15 @@ open class CurrentPageManager @Inject constructor(
         if (nextDocument != null) {
             ABEventBus.post(AddHistoryItem(window))
             nextPage = getBookPage(nextDocument, null)
-
             // is the next doc the same as the prev doc
             val prevDocInPage = nextPage!!.currentDocument
             val sameDoc = nextDocument == prevDocInPage
-
             if(currentPage.currentDocument == FakeBookFactory.multiDocument && nextPage == currentBible) {
                 currentBible.setCurrentDocument(nextDocument)
                 currentPage = nextPage
                 PassageChangeMediator.onCurrentPageChanged(window)
             } else {
                 // must be in this order because History needs to grab the current doc before change
-
                 nextPage.setCurrentDocument(nextDocument)
                 currentPage = nextPage
                 // page will change due to above
@@ -188,7 +185,11 @@ open class CurrentPageManager @Inject constructor(
                     PassageChangeMediator.onCurrentPageChanged(window)
                 } else if (nextPage is CurrentDailyDevotionalPage) {
                     nextPage.setToToday()
-                    PassageChangeMediator.onCurrentPageChanged(window)
+                    if (nextPage.key != null) {
+                        PassageChangeMediator.onCurrentPageChanged(window)
+                    } else {
+                        nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
+                    }
                 } else {
                     // pop up a key selection screen
                     nextPage.startKeyChooser(CurrentActivityHolder.currentActivity!!)
@@ -259,7 +260,7 @@ open class CurrentPageManager @Inject constructor(
             DocumentCategory.BIBLE -> currentBible
             DocumentCategory.COMMENTARY -> currentCommentary
             DocumentCategory.DICTIONARY -> currentDictionary
-			DocumentCategory.DAILY_DEVOTIONS -> currentDailyDevotional
+            DocumentCategory.DAILY_DEVOTIONS -> currentDailyDevotional
             DocumentCategory.GENERAL_BOOK -> currentGeneralBook
             DocumentCategory.MAPS -> currentMap
             DocumentCategory.MYNOTE -> currentMyNotePage
@@ -271,7 +272,7 @@ open class CurrentPageManager @Inject constructor(
             currentBible.entity.copy(),
             currentCommentary.entity.copy(),
             currentDictionary.pageEntity.copy(),
-			currentDailyDevotional.pageEntity.copy(),
+            currentDailyDevotional.pageEntity.copy(),
             currentGeneralBook.pageEntity.copy(),
             currentMap.pageEntity.copy(),
             currentPage.documentCategory.name,
@@ -293,7 +294,7 @@ open class CurrentPageManager @Inject constructor(
         currentCommentary.restoreFrom(pageManagerEntity.commentaryPage)
 
         currentDictionary.restoreFrom(pageManagerEntity.dictionaryPage)
-		currentDailyDevotional.restoreFrom(pageManagerEntity.dailyDevotionalPage)
+        currentDailyDevotional.restoreFrom(pageManagerEntity.dailyDevotionalPage)
         currentGeneralBook.restoreFrom(pageManagerEntity.generalBookPage)
         currentMap.restoreFrom(pageManagerEntity.mapPage)
         jsState = pageManagerEntity.jsState
@@ -336,6 +337,6 @@ open class CurrentPageManager @Inject constructor(
             return isCurrentBibleBookScripture ||
                 !currentVersification.containsBook(currentBibleBook)
         }
-
+        
     private val TAG get() = "PageManager[${window.displayId}]"
 }
