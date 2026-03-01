@@ -34,7 +34,12 @@ open class AcceptableBookTypeFilter : BookFilter {
      */
     override fun test(book: Book): Boolean {
         val bookCategory = book.bookCategory
-        return bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
+        return bookCategory == BookCategory.BIBLE ||
+            bookCategory == BookCategory.COMMENTARY ||
+            bookCategory == BookCategory.DICTIONARY ||
+            bookCategory == BookCategory.GENERAL_BOOK ||
+            bookCategory == BookCategory.MAPS ||
+            book.isAndBibleCategory
     }
 }
 
@@ -47,7 +52,7 @@ class AndBibleAddonFilter : BookFilter {
      * .Book)
      */
     override fun test(book: Book): Boolean {
-        return book.bookCategory == BookCategory.AND_BIBLE &&
+        return book.isAndBibleCategory &&
             (book.bookMetaData.getProperty("AndBibleMinimumVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
     }
 }

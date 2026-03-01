@@ -41,9 +41,9 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.isAndBibleCategory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
-import org.crosswire.jsword.book.BookCategory
 import java.util.*
 
 /**
@@ -102,7 +102,7 @@ class ChooseDocument : DocumentSelectionBase(R.menu.choose_document_menu, R.menu
     }
 
     override fun handleDocumentSelection(selectedDocument: Book) {
-        if(selectedDocument.bookCategory == BookCategory.AND_BIBLE) return
+        if(selectedDocument.isAndBibleCategory) return
         lifecycleScope.launch(Dispatchers.Main) {
             if(selectedDocument.isLocked && !CommonUtils.unlockDocument(this@ChooseDocument, selectedDocument)) {
                 reloadDocuments()

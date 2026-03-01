@@ -30,6 +30,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.download.hideFromSelector
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
+import net.bible.service.sword.isAndBibleCategory
 
 import org.crosswire.common.util.Filter
 import org.crosswire.jsword.book.Book
@@ -178,7 +179,7 @@ class DocumentControl @Inject constructor(
     @Throws(BookException::class)
     fun deleteDocument(document: Book) {
         SwordDocumentFacade.deleteDocument(document)
-        if(document.bookCategory == BookCategory.AND_BIBLE) return
+        if(document.isAndBibleCategory) return
         documentBackupDao.deleteByOsisId(document.initials)
         val currentPage = windowControl.activeWindowPageManager.getBookPage(document, null)
         currentPage?.checkCurrentDocumenInstalled()

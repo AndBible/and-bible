@@ -33,23 +33,31 @@ import net.bible.android.view.activity.base.DocumentConfiguration
 import net.bible.service.common.CommonUtils
 import net.bible.service.download.DownloadManager
 import net.bible.service.download.isPseudoBook
+import net.bible.service.sword.isAndBibleCategory
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBookMetaData
 
 val Book.imageResource: Int
-    get() = when(bookCategory) {
-        BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
-        BookCategory.COMMENTARY -> R.drawable.ic_commentary
-        BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
-        BookCategory.MAPS -> R.drawable.ic_map_black_24dp
-        BookCategory.GENERAL_BOOK -> R.drawable.ic_book_24dp
-        BookCategory.AND_BIBLE -> R.drawable.ic_addon_24dp
-        else -> R.drawable.ic_book_24dp
+    get() {
+        if (isAndBibleCategory) return R.drawable.ic_addon_24dp
+
+        return when(bookCategory) {
+            BookCategory.BIBLE -> if(CommonUtils.isDiscrete) R.drawable.ic_baseline_menu_book_24 else  R.drawable.ic_bible_24dp
+            BookCategory.COMMENTARY -> R.drawable.ic_commentary
+            BookCategory.DICTIONARY -> R.drawable.ic_dictionary_24dp
+            BookCategory.MAPS -> R.drawable.ic_map_black_24dp
+            BookCategory.GENERAL_BOOK -> R.drawable.ic_book_24dp
+            BookCategory.AND_BIBLE -> R.drawable.ic_addon_24dp
+            else -> R.drawable.ic_book_24dp
+        }
     }
 
+private val Book.bookCategoryForConfiguration: BookCategory
+    get() = if (isAndBibleCategory) BookCategory.AND_BIBLE else bookCategory
+
 fun Book.isRecommended(recommendedDocuments: DocumentConfiguration?): Boolean =
-    recommendedDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
+    recommendedDocuments?.getForBookCategory(bookCategoryForConfiguration)?.get(language.code)?.find {
         if(it.contains("::")) {
             val (initials, repository) = it.split("::")
             initials == this.initials && repository == this.repo
@@ -70,7 +78,7 @@ enum class BadDocumentAction {
     }
 }
 fun Book.isBadDocument(badDocuments: DocumentConfiguration?, actionForDocument: BadDocumentAction): Boolean =
-    badDocuments?.getForBookCategory(bookCategory)?.get(language.code)?.find {
+    badDocuments?.getForBookCategory(bookCategoryForConfiguration)?.get(language.code)?.find {
         val (initials, repository, version, actionStr) = it.split("::")
         val action = BadDocumentAction.getByLetter(actionStr)
         initials == this.initials
