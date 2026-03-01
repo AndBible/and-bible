@@ -16,7 +16,10 @@
  */
 package net.bible.android.control.page
 
+import net.bible.android.control.PassageChangeMediator
+import net.bible.android.view.activity.base.ActivityBase
 import org.crosswire.jsword.passage.PreferredKey
+import java.util.Calendar
 
 /** Daily devotional page — navigates by date key (e.g. MM.DD).
  *  Extends CurrentDictionaryPage since SWORD uses the same zLD driver.
@@ -26,6 +29,44 @@ class CurrentDailyDevotionalPage internal constructor(
 ) : CurrentDictionaryPage(pageManager) {
 
     override val documentCategory = DocumentCategory.DAILY_DEVOTIONS
+
+    override fun startKeyChooser(context: ActivityBase) {
+        android.util.Log.d("DailyDevotional", "startKeyChooser called - showing DatePickerDialog")
+        val cal = Calendar.getInstance()
+        // Pré-remplir avec la date actuelle de la clé si disponible
+        key?.let { k ->
+            try {
+                val parts = k.name.split(".")
+                if (parts.size == 2) {
+                    cal.set(Calendar.MONTH, parts[0].toInt() - 1)
+                    cal.set(Calendar.DAY_OF_MONTH, parts[1].toInt())
+                }
+            } catch (e: Exception) { /* utiliser la date du jour */ }
+        }
+
+        android.app.DatePickerDialog(
+            context,
+            { _, _, month, day ->
+                val keyStr = String.format("%02d.%02d", month + 1, day)
+                currentDocument?.let { doc ->
+                    try {
+                        setKey(doc.getKey(keyStr))
+                        PassageChangeMediator.onCurrentPageChanged(pageManager.window)
+                    } catch (e: Exception) {
+                        // clé non trouvée dans ce module
+                    }
+                }
+            },
+            cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH),
+            cal.get(Calendar.DAY_OF_MONTH)
+        ).apply {
+            // Cacher l'année — les devotionals sont indépendants de l'année
+            datePicker.findViewById<android.view.View>(
+                context.resources.getIdentifier("year", "id", "android")
+            )?.visibility = android.view.View.GONE
+        }.show()
+    }
 
     /** Set key to today's date using JSword's PreferredKey interface */
     fun setToToday() {
