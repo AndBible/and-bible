@@ -19,8 +19,7 @@ jobs:
     if: >
       github.event_name == 'pull_request_target' &&
       (github.event.action == 'opened' || github.event.action == 'ready_for_review') &&
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.user.login != 'tuomas2'
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Check for existing welcome comment
@@ -69,8 +68,7 @@ jobs:
     if: >
       github.event_name == 'pull_request_target' &&
       github.event.action == 'synchronize' &&
-      github.event.pull_request.draft == false &&
-      github.event.pull_request.user.login != 'tuomas2'
+      github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     steps:
       - name: Remove copilot-approved label
@@ -91,8 +89,7 @@ jobs:
   check-after-review:
     if: >
       github.event_name == 'pull_request_review' &&
-      github.event.review.user.login == 'copilot-pull-request-reviewer[bot]' &&
-      github.event.pull_request.user.login != 'tuomas2'
+      github.event.review.user.login == 'copilot-pull-request-reviewer[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check Copilot review threads
@@ -150,8 +147,7 @@ jobs:
   check-threads-on-reply:
     if: >
       github.event_name == 'pull_request_review_comment' &&
-      github.event.comment.user.login != 'copilot-pull-request-reviewer[bot]' &&
-      github.event.pull_request.user.login != 'tuomas2'
+      github.event.comment.user.login != 'copilot-pull-request-reviewer[bot]'
     runs-on: ubuntu-latest
     steps:
       - name: Check if all Copilot threads are now addressed
