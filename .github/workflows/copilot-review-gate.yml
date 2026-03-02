@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   # Periodic check for Copilot review status on open PRs
   schedule:
-    - cron: '*/15 * * * *'
+    - cron: '0 * * * *'
 
 permissions:
   pull-requests: write
@@ -117,7 +117,7 @@ jobs:
 
             # Check if Copilot is still pending (requested but not yet reviewed latest)
             COPILOT_PENDING=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/requested_reviewers" \
-              --jq '[.users[] | select(.login == "Copilot")] | length')
+              --jq '[.users[] | select(.login == "copilot-pull-request-reviewer[bot]")] | length')
 
             if [ "$COPILOT_PENDING" -gt 0 ]; then
               echo "Copilot review still pending. Skipping."
@@ -156,10 +156,10 @@ jobs:
             UNADDRESSED=$(echo "$RESULT" | jq '
               [.data.repository.pullRequest.reviewThreads.nodes[]
                | select(.isResolved == false and .isOutdated == false)
-               | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+               | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer[bot]")
                | select(
                    [.comments.nodes[1:][]
-                    | select(.author.login != "copilot-pull-request-reviewer")
+                    | select(.author.login != "copilot-pull-request-reviewer[bot]")
                    ] | length == 0
                  )
               ] | length')
