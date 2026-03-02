@@ -1,4 +1,5 @@
 # How to contribute code
+<!-- test: trigger copilot-review-gate workflow -->
 
 ## Building And Bible
 
