@@ -21,6 +21,7 @@ jobs:
       (github.event.action == 'opened' || github.event.action == 'ready_for_review') &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    environment: "And Bible branch management"
     steps:
       - name: Check for existing welcome comment
         id: check
@@ -70,6 +71,7 @@ jobs:
       github.event.action == 'synchronize' &&
       github.event.pull_request.draft == false
     runs-on: ubuntu-latest
+    environment: "And Bible branch management"
     steps:
       - name: Remove copilot-approved label
         env:
@@ -91,6 +93,7 @@ jobs:
       github.event_name == 'pull_request_review' &&
       github.event.review.user.login == 'copilot-pull-request-reviewer[bot]'
     runs-on: ubuntu-latest
+    environment: "And Bible branch management"
     steps:
       - name: Check Copilot review threads
         env:
@@ -149,6 +152,7 @@ jobs:
       github.event_name == 'pull_request_review_comment' &&
       github.event.comment.user.login != 'copilot-pull-request-reviewer[bot]'
     runs-on: ubuntu-latest
+    environment: "And Bible branch management"
     steps:
       - name: Check if all Copilot threads are now addressed
         env:
