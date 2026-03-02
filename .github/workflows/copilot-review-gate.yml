@@ -4,10 +4,9 @@ on:
   # pull_request_target to access secrets on fork PRs (safe: no code checkout)
   pull_request_target:
     types: [opened, synchronize, ready_for_review]
-  pull_request_review:
-    types: [submitted]
-  pull_request_review_comment:
-    types: [created]
+  # Periodic check for Copilot review status on open PRs
+  schedule:
+    - cron: '*/15 * * * *'
 
 permissions:
   pull-requests: write
@@ -87,123 +86,90 @@ jobs:
           gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
             --method POST --input - <<< '{"reviewers":["copilot-pull-request-reviewer[bot]"]}' || true
 
-  # After Copilot submits review: check if clean or has unaddressed threads
-  check-after-review:
-    if: >
-      github.event_name == 'pull_request_review' &&
-      github.event.review.user.login == 'copilot-pull-request-reviewer[bot]'
+  # Periodic check: scan open PRs for Copilot review status and manage label
+  check-copilot-review-status:
+    if: github.event_name == 'schedule'
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Copilot review threads
+      - name: Check open PRs for Copilot review status
         env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
         run: |
-          RESULT=$(gh api graphql -f query='
-            query($owner:String!, $name:String!, $number:Int!) {
-              repository(owner:$owner, name:$name) {
-                pullRequest(number:$number) {
-                  reviewThreads(first:100) {
-                    nodes {
-                      isResolved
-                      isOutdated
-                      comments(first:20) {
-                        nodes {
-                          author { login }
+          # Get all open non-draft PRs
+          PRS=$(gh api "repos/${{ github.repository }}/pulls?state=open&per_page=30" \
+            --jq '[.[] | select(.draft == false)] | .[].number')
+
+          for PR_NUMBER in $PRS; do
+            echo "--- Checking PR #${PR_NUMBER} ---"
+
+            # Check if Copilot has reviewed this PR
+            HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
+              --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
+
+            if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
+              echo "No Copilot review. Skipping."
+              continue
+            fi
+
+            # Check if Copilot is still pending (requested but not yet reviewed latest)
+            COPILOT_PENDING=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/requested_reviewers" \
+              --jq '[.users[] | select(.login == "Copilot")] | length')
+
+            if [ "$COPILOT_PENDING" -gt 0 ]; then
+              echo "Copilot review still pending. Skipping."
+              continue
+            fi
+
+            # Check current label status
+            HAS_LABEL=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+              --jq '[.[] | select(.name == "copilot-approved")] | length')
+
+            # Get review threads via GraphQL
+            RESULT=$(gh api graphql -f query='
+              query($owner:String!, $name:String!, $number:Int!) {
+                repository(owner:$owner, name:$name) {
+                  pullRequest(number:$number) {
+                    reviewThreads(first:100) {
+                      nodes {
+                        isResolved
+                        isOutdated
+                        comments(first:20) {
+                          nodes {
+                            author { login }
+                          }
                         }
                       }
                     }
                   }
                 }
-              }
-            }' -f owner="AndBible" -f name="and-bible" -F number="$PR_NUMBER")
+              }' -f owner="${{ github.repository_owner }}" \
+                 -f name="$(echo '${{ github.repository }}' | cut -d/ -f2)" \
+                 -F number="$PR_NUMBER")
 
-          # Count unaddressed Copilot threads:
-          # A thread is "unaddressed" if it is NOT resolved, NOT outdated,
-          # was started by Copilot, and has NO replies from non-Copilot users
-          UNADDRESSED=$(echo "$RESULT" | jq '
-            [.data.repository.pullRequest.reviewThreads.nodes[]
-             | select(.isResolved == false and .isOutdated == false)
-             | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
-             | select(
-                 [.comments.nodes[1:][]
-                  | select(.author.login != "copilot-pull-request-reviewer")
-                 ] | length == 0
-               )
-            ] | length')
+            # Count unaddressed Copilot threads:
+            # A thread is "unaddressed" if NOT resolved, NOT outdated,
+            # started by Copilot, and has NO replies from non-Copilot users
+            UNADDRESSED=$(echo "$RESULT" | jq '
+              [.data.repository.pullRequest.reviewThreads.nodes[]
+               | select(.isResolved == false and .isOutdated == false)
+               | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+               | select(
+                   [.comments.nodes[1:][]
+                    | select(.author.login != "copilot-pull-request-reviewer")
+                   ] | length == 0
+                 )
+              ] | length')
 
-          echo "Unaddressed Copilot threads: $UNADDRESSED"
+            echo "PR #${PR_NUMBER}: $UNADDRESSED unaddressed Copilot thread(s)"
 
-          if [ "$UNADDRESSED" -eq 0 ]; then
-            echo "All Copilot threads addressed (or clean pass). Adding label."
-            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
-              --method POST --input - <<< '{"labels":["copilot-approved"]}'
-          else
-            echo "$UNADDRESSED unaddressed thread(s). Label not added."
-            # Remove label if it somehow exists
-            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
-              --method DELETE 2>/dev/null || true
-          fi
-
-  # When someone replies to a review comment: re-check thread status
-  check-threads-on-reply:
-    if: >
-      github.event_name == 'pull_request_review_comment' &&
-      github.event.comment.user.login != 'copilot-pull-request-reviewer[bot]'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check if all Copilot threads are now addressed
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          # First check if Copilot has even reviewed this PR
-          HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
-            --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
-
-          if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
-            echo "No Copilot review found. Skipping."
-            exit 0
-          fi
-
-          RESULT=$(gh api graphql -f query='
-            query($owner:String!, $name:String!, $number:Int!) {
-              repository(owner:$owner, name:$name) {
-                pullRequest(number:$number) {
-                  reviewThreads(first:100) {
-                    nodes {
-                      isResolved
-                      isOutdated
-                      comments(first:20) {
-                        nodes {
-                          author { login }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }' -f owner="AndBible" -f name="and-bible" -F number="$PR_NUMBER")
-
-          UNADDRESSED=$(echo "$RESULT" | jq '
-            [.data.repository.pullRequest.reviewThreads.nodes[]
-             | select(.isResolved == false and .isOutdated == false)
-             | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
-             | select(
-                 [.comments.nodes[1:][]
-                  | select(.author.login != "copilot-pull-request-reviewer")
-                 ] | length == 0
-               )
-            ] | length')
-
-          echo "Unaddressed Copilot threads: $UNADDRESSED"
-
-          if [ "$UNADDRESSED" -eq 0 ]; then
-            echo "All Copilot threads addressed. Adding label."
-            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
-              --method POST --input - <<< '{"labels":["copilot-approved"]}'
-          else
-            echo "$UNADDRESSED unaddressed thread(s) remaining."
-          fi
+            if [ "$UNADDRESSED" -eq 0 ] && [ "$HAS_LABEL" -eq 0 ]; then
+              echo "All addressed. Adding copilot-approved label."
+              gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+                --method POST --input - <<< '{"labels":["copilot-approved"]}'
+            elif [ "$UNADDRESSED" -gt 0 ] && [ "$HAS_LABEL" -gt 0 ]; then
+              echo "Unaddressed threads found. Removing stale label."
+              gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
+                --method DELETE 2>/dev/null || true
+            fi
+          done
