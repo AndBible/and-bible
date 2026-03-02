@@ -4,6 +4,7 @@ on:
   # pull_request_target to access secrets on fork PRs (safe: no code checkout)
   pull_request_target:
     types: [opened, synchronize, ready_for_review]
+  workflow_dispatch:
   # Periodic check for Copilot review status on open PRs
   schedule:
     - cron: '*/15 * * * *'
@@ -88,7 +89,7 @@ jobs:
 
   # Periodic check: scan open PRs for Copilot review status and manage label
   check-copilot-review-status:
-    if: github.event_name == 'schedule'
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
