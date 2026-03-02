@@ -97,7 +97,7 @@ jobs:
     steps:
       - name: Check Copilot review threads
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           RESULT=$(gh api graphql -f query='
@@ -156,7 +156,7 @@ jobs:
     steps:
       - name: Check if all Copilot threads are now addressed
         env:
-          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           # First check if Copilot has even reviewed this PR
