@@ -62,7 +62,7 @@ jobs:
           GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
         run: |
           gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
-            --method POST --input - <<< '{"reviewers":["Copilot"]}' || true
+            --method POST --input - <<< '{"reviewers":["copilot-pull-request-reviewer[bot]"]}' || true
 
   # On new push: re-request Copilot review + remove stale label
   re-request-on-push:
@@ -85,7 +85,7 @@ jobs:
           GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
         run: |
           gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
-            --method POST --input - <<< '{"reviewers":["Copilot"]}' || true
+            --method POST --input - <<< '{"reviewers":["copilot-pull-request-reviewer[bot]"]}' || true
 
   # After Copilot submits review: check if clean or has unaddressed threads
   check-after-review:
