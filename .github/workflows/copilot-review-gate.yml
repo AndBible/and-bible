@@ -1,0 +1,209 @@
+name: Copilot Review Gate
+
+on:
+  # pull_request_target to access secrets on fork PRs (safe: no code checkout)
+  pull_request_target:
+    types: [opened, synchronize, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Post welcome comment + request Copilot review on new/ready PRs
+  welcome-and-request:
+    if: >
+      github.event_name == 'pull_request_target' &&
+      (github.event.action == 'opened' || github.event.action == 'ready_for_review') &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for existing welcome comment
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+        run: |
+          COMMENTS=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq '.[].body' 2>/dev/null || true)
+          if echo "$COMMENTS" | grep -q "copilot-review-gate"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post welcome comment
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+        run: |
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --method POST \
+            -f body="$(cat <<'BODY'
+          <!-- copilot-review-gate -->
+          ## Welcome and thank you for your contribution!
+
+          This project uses **GitHub Copilot** as a first-pass automated reviewer. Here is how the review process works:
+
+          1. **Copilot reviews your PR first.** It has been automatically requested as a reviewer.
+          2. **Address Copilot's feedback** by either pushing fixes or replying to the comment explaining why you disagree.
+          3. **Human review follows** once all Copilot feedback is addressed — meaning Copilot found no issues, or you have responded to every comment thread.
+
+          > If you used AI tools to write code, please make sure you have personally reviewed and understood every change before submitting. See [CONTRIBUTING.md](https://github.com/AndBible/and-bible/blob/develop/CONTRIBUTING.md#ai-tools-and-code-responsibility) for details.
+          BODY
+          )"
+
+      - name: Request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
+            --method POST --input - <<< '{"reviewers":["Copilot"]}' || true
+
+  # On new push: re-request Copilot review + remove stale label
+  re-request-on-push:
+    if: >
+      github.event_name == 'pull_request_target' &&
+      github.event.action == 'synchronize' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove copilot-approved label
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+        run: |
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/copilot-approved" \
+            --method DELETE 2>/dev/null || true
+
+      - name: Re-request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
+            --method POST --input - <<< '{"reviewers":["Copilot"]}' || true
+
+  # After Copilot submits review: check if clean or has unaddressed threads
+  check-after-review:
+    if: >
+      github.event_name == 'pull_request_review' &&
+      github.event.review.user.login == 'copilot-pull-request-reviewer[bot]' &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Copilot review threads
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          RESULT=$(gh api graphql -f query='
+            query($owner:String!, $name:String!, $number:Int!) {
+              repository(owner:$owner, name:$name) {
+                pullRequest(number:$number) {
+                  reviewThreads(first:100) {
+                    nodes {
+                      isResolved
+                      isOutdated
+                      comments(first:20) {
+                        nodes {
+                          author { login }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f owner="AndBible" -f name="and-bible" -F number="$PR_NUMBER")
+
+          # Count unaddressed Copilot threads:
+          # A thread is "unaddressed" if it is NOT resolved, NOT outdated,
+          # was started by Copilot, and has NO replies from non-Copilot users
+          UNADDRESSED=$(echo "$RESULT" | jq '
+            [.data.repository.pullRequest.reviewThreads.nodes[]
+             | select(.isResolved == false and .isOutdated == false)
+             | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+             | select(
+                 [.comments.nodes[1:][]
+                  | select(.author.login != "copilot-pull-request-reviewer")
+                 ] | length == 0
+               )
+            ] | length')
+
+          echo "Unaddressed Copilot threads: $UNADDRESSED"
+
+          if [ "$UNADDRESSED" -eq 0 ]; then
+            echo "All Copilot threads addressed (or clean pass). Adding label."
+            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+              --method POST --input - <<< '{"labels":["copilot-approved"]}'
+          else
+            echo "$UNADDRESSED unaddressed thread(s). Label not added."
+            # Remove label if it somehow exists
+            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
+              --method DELETE 2>/dev/null || true
+          fi
+
+  # When someone replies to a review comment: re-check thread status
+  check-threads-on-reply:
+    if: >
+      github.event_name == 'pull_request_review_comment' &&
+      github.event.comment.user.login != 'copilot-pull-request-reviewer[bot]' &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check if all Copilot threads are now addressed
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN_CI }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          # First check if Copilot has even reviewed this PR
+          HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
+            --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
+
+          if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
+            echo "No Copilot review found. Skipping."
+            exit 0
+          fi
+
+          RESULT=$(gh api graphql -f query='
+            query($owner:String!, $name:String!, $number:Int!) {
+              repository(owner:$owner, name:$name) {
+                pullRequest(number:$number) {
+                  reviewThreads(first:100) {
+                    nodes {
+                      isResolved
+                      isOutdated
+                      comments(first:20) {
+                        nodes {
+                          author { login }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }' -f owner="AndBible" -f name="and-bible" -F number="$PR_NUMBER")
+
+          UNADDRESSED=$(echo "$RESULT" | jq '
+            [.data.repository.pullRequest.reviewThreads.nodes[]
+             | select(.isResolved == false and .isOutdated == false)
+             | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+             | select(
+                 [.comments.nodes[1:][]
+                  | select(.author.login != "copilot-pull-request-reviewer")
+                 ] | length == 0
+               )
+            ] | length')
+
+          echo "Unaddressed Copilot threads: $UNADDRESSED"
+
+          if [ "$UNADDRESSED" -eq 0 ]; then
+            echo "All Copilot threads addressed. Adding label."
+            gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+              --method POST --input - <<< '{"labels":["copilot-approved"]}'
+          else
+            echo "$UNADDRESSED unaddressed thread(s) remaining."
+          fi
