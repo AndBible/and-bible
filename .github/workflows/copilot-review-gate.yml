@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   # Periodic check for Copilot review status on open PRs
   schedule:
-    - cron: '0 * * * *'
+    - cron: '0 7 * * *'
 
 permissions:
   pull-requests: write
