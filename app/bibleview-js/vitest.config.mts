@@ -17,7 +17,7 @@
 
 import { readFileSync } from 'fs';
 import {config} from "./vite.config.mts";
-import { defineConfig as defineVitestConfig } from 'vitest/config';
+import { configDefaults, defineConfig as defineVitestConfig } from 'vitest/config';
 
 
 function rawText() {
@@ -40,7 +40,7 @@ const testConfig: any = {
   // @ts-ignore
   test: {
     environment: "jsdom",
-    exclude: ["**/*.browser.spec.ts"],
+    exclude: [...configDefaults.exclude, "**/*.browser.spec.ts"],
     css: {
       modules: {
         classNameStrategy: "non-scoped",
