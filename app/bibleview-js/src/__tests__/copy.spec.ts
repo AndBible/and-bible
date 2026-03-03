@@ -2,6 +2,7 @@ import {describe, it, expect, vi, beforeAll, beforeEach, afterEach} from 'vitest
 import {mount, VueWrapper} from '@vue/test-utils'
 import BibleView from '@/components/BibleView.vue'
 import {BibleDocumentType} from '@/types/documents'
+import { nextTick } from 'vue'
 
 function selectText(node: Node) {
     const range = document.createRange()
@@ -40,11 +41,12 @@ describe('copy functionality', () => {
         }) as any
     })
     
-    beforeEach(() => {
+    beforeEach(async () => {
         window.getSelection()?.removeAllRanges()
         vi.mocked(window.android.copyText).mockClear()
         vi.mocked(window.android.copyVerse).mockClear()
         wrapper = mount(BibleView, {attachTo: document.body})
+        await nextTick()
     })
 
     afterEach(() => {
@@ -170,6 +172,7 @@ describe('copy functionality', () => {
 
         beforeEach(async () => {
             window.bibleViewDebug.documents.push(bibleDoc)
+            await nextTick()
         })
 
         it('calls copyVerse when selecting text in a bible verse', () => {
