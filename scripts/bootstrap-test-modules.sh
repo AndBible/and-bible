@@ -83,6 +83,18 @@ require_cmd() {
     fi
 }
 
+validate_zip_entries() {
+    local zip_file="$1"
+    local entry
+    while IFS= read -r entry; do
+        [[ -z "$entry" ]] && continue
+        if [[ "$entry" == /* || "$entry" =~ (^|/)\.\.(/|$) ]]; then
+            echo "Unsafe zip entry detected: $entry"
+            exit 1
+        fi
+    done < <(unzip -Z1 "$zip_file")
+}
+
 decrypt_archive() {
     local encrypted_path="$1"
     local output_path="$2"
@@ -131,6 +143,7 @@ else
 fi
 
 mkdir -p "$DEST_DIR"
+validate_zip_entries "$zip_path"
 unzip -o -d "$DEST_DIR" "$zip_path" >/dev/null
 
 echo "Test modules installed to: $DEST_DIR"

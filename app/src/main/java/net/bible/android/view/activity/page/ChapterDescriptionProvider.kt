@@ -23,8 +23,8 @@ import net.bible.android.activity.BuildConfig
 import org.crosswire.jsword.versification.BibleBook
 
 data class ChapterDescription(
-    @param:StringRes val titleResId: Int,
-    @param:StringRes val bodyResId: Int,
+    @StringRes val titleResId: Int,
+    @StringRes val bodyResId: Int,
 )
 
 object ChapterDescriptionProvider {

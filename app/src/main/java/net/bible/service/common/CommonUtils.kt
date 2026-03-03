@@ -246,7 +246,6 @@ const val newFeaturesIntroVideo = "https://youtu.be/bf33j4tLbxQ" // promoAndNewF
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
-const val chapterDescriptionPanelPref = "chapter_description_panel"
 
 val BookmarkEntities.Label.displayName get() =
     when {

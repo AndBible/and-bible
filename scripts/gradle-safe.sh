@@ -29,6 +29,42 @@ download_file() {
     fi
 }
 
+compute_sha256() {
+    local file="$1"
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$file" | awk '{print $1}'
+    elif command -v shasum >/dev/null 2>&1; then
+        shasum -a 256 "$file" | awk '{print $1}'
+    else
+        echo "Missing required command: sha256sum or shasum"
+        exit 1
+    fi
+}
+
+verify_node_archive_checksum() {
+    local version="$1"
+    local archive="$2"
+    local archive_path="$3"
+    local sums_path="$4"
+    local sums_url="https://nodejs.org/dist/v${version}/SHASUMS256.txt"
+
+    download_file "$sums_url" "$sums_path"
+    local expected actual
+    expected="$(awk -v name="$archive" '$2 == name { print $1 }' "$sums_path")"
+    if [[ -z "$expected" ]]; then
+        echo "Failed to find checksum for ${archive} in SHASUMS256.txt"
+        exit 1
+    fi
+
+    actual="$(compute_sha256 "$archive_path")"
+    if [[ "$actual" != "$expected" ]]; then
+        echo "Checksum verification failed for ${archive}"
+        echo "Expected: $expected"
+        echo "Actual:   $actual"
+        exit 1
+    fi
+}
+
 verify_owned_by_current_user() {
     local path="$1"
     local current_uid owner_uid
@@ -78,12 +114,14 @@ ensure_node20() {
     if [[ ! -x "$node_bin" ]]; then
         local archive="${NODE_DIST}.tar.xz"
         local archive_url="https://nodejs.org/dist/v${NODE_VERSION}/${archive}"
-        local tmp_dir extracted_dir
+        local tmp_dir extracted_dir sums_path
         tmp_dir="$(mktemp -d "${node_parent}/.node-download-XXXXXX")"
         archive="${tmp_dir}/${archive}"
         extracted_dir="${tmp_dir}/${NODE_DIST}"
+        sums_path="${tmp_dir}/SHASUMS256.txt"
         echo "Downloading ${NODE_DIST} to ${NODE_DIR}..."
         download_file "$archive_url" "$archive"
+        verify_node_archive_checksum "$NODE_VERSION" "${NODE_DIST}.tar.xz" "$archive" "$sums_path"
         tar -xf "$archive" -C "$tmp_dir"
         if [[ ! -x "${extracted_dir}/bin/node" ]]; then
             echo "Node archive did not contain expected binary: ${extracted_dir}/bin/node"
