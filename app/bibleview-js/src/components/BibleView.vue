@@ -279,6 +279,7 @@ const contentStyle = computed(() => {
     const textColor = Color(appSettings.nightMode ? nightColor : dayColor);
 
     let style = `
+          box-sizing: border-box;
           max-width: ${config.marginSize.maxWidth}mm;
           margin-left: auto;
           margin-right: auto;

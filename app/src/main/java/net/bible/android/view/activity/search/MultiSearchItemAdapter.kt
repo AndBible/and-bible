@@ -232,36 +232,44 @@ class MultiSearchItemAdapter(
 
     private fun highlightSearchText(searchTermsInput: String, textElement: Element): SpannableString {
         val searchTerms = prepareSearchTerms(searchTermsInput)
+        val isStrongsSearch = searchTerms.contains("strong:", ignoreCase = true)
+        val strongsPattern = if (isStrongsSearch) Pattern.compile(searchTerms, Pattern.CASE_INSENSITIVE) else null
         val verseString = StringBuilder()
 
         val verses = textElement.getChildren("verse")
         for (verse in verses) {
-            verseString.append(processElementChildren(verse))
+            if (strongsPattern != null) {
+                verseString.append(processElementChildrenWithLemmaHighlight(verse, strongsPattern, false))
+            } else {
+                verseString.append(processElementChildren(verse))
+            }
         }
 
         val spannableText = SpannableString(htmlToSpan(verseString.toString()))
 
-        try {
-            val splitTerms = splitSearchTerms(searchTerms)
-            for (originalSearchWord in splitTerms) {
-                var searchWord = prepareSearchWord(originalSearchWord)
-                searchWord = if (originalSearchWord.contains("*")) {
-                    "\\b$searchWord[\\w'\\-]*\\b"
-                } else {
-                    "\\b$searchWord\\b"
+        if (!isStrongsSearch) {
+            try {
+                val splitTerms = splitSearchTerms(searchTerms)
+                for (originalSearchWord in splitTerms) {
+                    var searchWord = prepareSearchWord(originalSearchWord)
+                    searchWord = if (originalSearchWord.contains("*")) {
+                        "\\b$searchWord[\\w'\\-]*\\b"
+                    } else {
+                        "\\b$searchWord\\b"
+                    }
+                    val m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText)
+                    while (m.find()) {
+                        spannableText.setSpan(
+                            StyleSpan(Typeface.BOLD),
+                            m.start(),
+                            m.end(),
+                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                        )
+                    }
                 }
-                val m = Pattern.compile(searchWord, Pattern.CASE_INSENSITIVE).matcher(spannableText)
-                while (m.find()) {
-                    spannableText.setSpan(
-                        StyleSpan(Typeface.BOLD),
-                        m.start(),
-                        m.end(),
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error highlighting search text", e)
             }
-        } catch (e: Exception) {
-            Log.e(TAG, "Error highlighting search text", e)
         }
 
         return spannableText
@@ -284,6 +292,45 @@ class MultiSearchItemAdapter(
                 }
                 is Text -> {
                     verseString.append(o.text)
+                }
+                else -> {
+                    verseString.append(o.toString())
+                }
+            }
+        }
+        return verseString.toString()
+    }
+
+    /**
+     * Process element children for Strong's searches, checking lemma attributes to determine
+     * which words should be bolded. Returns HTML string with <b> tags for matched words.
+     */
+    private fun processElementChildrenWithLemmaHighlight(
+        parentElement: Element,
+        strongsPattern: Pattern,
+        isBold: Boolean
+    ): String {
+        val verseString = StringBuilder()
+        for (o in parentElement.content) {
+            when (o) {
+                is Element -> {
+                    if (!elementsToExclude.contains(o.name)) {
+                        val currentIsBold = isBold || try {
+                            val lemma = o.getAttributeValue("lemma")
+                            lemma != null && strongsPattern.matcher(lemma.trim()).find()
+                        } catch (e: Exception) {
+                            false
+                        }
+                        if (o.children.isEmpty()) {
+                            val text = o.text ?: ""
+                            verseString.append(if (currentIsBold) "<b>$text</b>" else text)
+                        } else {
+                            verseString.append(processElementChildrenWithLemmaHighlight(o, strongsPattern, currentIsBold))
+                        }
+                    }
+                }
+                is Text -> {
+                    verseString.append(if (isBold) "<b>${o.text}</b>" else o.text)
                 }
                 else -> {
                     verseString.append(o.toString())

@@ -1,0 +1,13 @@
+Based on the commit provided, there are no user-facing changes to report. The commit (`da1f78dfd`) is a CI/automation change related to GitHub Actions deployments, which falls under the "skip CI-only changes" category per your instructions.
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

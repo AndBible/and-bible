@@ -103,6 +103,13 @@ class OsisFragment(
         } else emptyMap()
     }
 
+    val isStrongsDictionary: Boolean get() =
+        book.hasFeature(FeatureType.HEBREW_DEFINITIONS) ||
+        book.hasFeature(FeatureType.GREEK_DEFINITIONS)
+
+    val isMorphDictionary: Boolean get() =
+        book.hasFeature(FeatureType.GREEK_PARSE)
+
     val annotateRef: VerseRange? get() {
         val annotateRef = xml.getChild("div")?.getAttribute("annotateRef")?.value ?: return null
         if(book !is SwordBook) return null
@@ -130,6 +137,7 @@ class OsisFragment(
             "ordinalRange" to ordinalRangeStr,
             "language" to wrapString(book.language.code),
             "direction" to wrapString(if(book.isLeftToRight) "ltr" else "rtl"),
+            "hasStrongs" to json.encodeToString(serializer(), book.hasFeature(FeatureType.STRONGS_NUMBERS)),
         )
     }
 }

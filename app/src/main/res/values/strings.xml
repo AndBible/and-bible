@@ -144,6 +144,8 @@
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
+    <string name="prefs_non_strongs_word_italic_title">Italicize added words</string>
+    <string name="prefs_non_strongs_word_italic_summary">Italicize words without Strong\'s numbers</string>
     <string name="prefs_section_title_title">Section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>

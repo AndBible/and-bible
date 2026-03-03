@@ -73,10 +73,46 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
     expect(wrapper.html() + "\n").toBe(renderedHtml);
 }
 
+function mountOsisSegment(xmlTemplate, {showRedLetters = false} = {}) {
+    const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
+    config.showRedLetters = showRedLetters;
+
+    const osisFragment = {
+        bookCategory: "BIBLE",
+    };
+
+    const android = useAndroid({bookmarks: null}, config);
+    const provide = {
+        [osisFragmentKey]: osisFragment,
+        [configKey]: config,
+        [appSettingsKey]: appSettings,
+        [calculatedConfigKey]: calculatedConfig,
+        [footnoteCountKey]: {getFootNoteCount: () => 0},
+        [androidKey]: android,
+        [stringsKey]: useStrings(),
+        [ordinalHighlightKey]: useOrdinalHighlight(),
+        [globalBookmarksKey]: useGlobalBookmarks(config),
+        [modalKey]: useModal(android),
+    };
+    const components = {AmbiguousSelection, LabelList, BookmarkLabelActions};
+    return mount(OsisSegment, {props: {osisTemplate: xmlTemplate, convert: true}, global: {provide, components}});
+}
+
 describe("OsisSegment.vue", () => {
     // Skipping this now. Need to figure out how to make sure scoped css do not break our test
     // This does not seem to work, for some reason
     // https://runthatline.com/test-css-module-classes-in-vue-with-vitest/
     // https://github.com/AndBible/and-bible/issues/2434
     it.skip("Test rendering of Eph 2:8 in KJVA, #1985", () => verifyXmlRendering(test1Xml, test1Result));
+
+    it("renders MyBible J tags as red letters when enabled", () => {
+        const wrapper = mountOsisSegment("<J>Jesus words</J>", {showRedLetters: true});
+        expect(wrapper.find(".redLetters").exists()).toBe(true);
+        expect(wrapper.find(".redLetters").text()).toBe("Jesus words");
+    });
+
+    it("does not add red letter class when disabled", () => {
+        const wrapper = mountOsisSegment("<J>Jesus words</J>", {showRedLetters: false});
+        expect(wrapper.find(".redLetters").exists()).toBe(false);
+    });
 });

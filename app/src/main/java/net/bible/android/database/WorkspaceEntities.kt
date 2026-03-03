@@ -169,6 +169,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -193,6 +194,7 @@ class WorkspaceEntities {
             BOOKMARKS_HIDELABELS,
             MYNOTES,
             PAGENUMBER,
+            NON_STRONGS_WORD_ITALIC,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -218,11 +220,12 @@ class WorkspaceEntities {
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
+            Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
         }
 
         fun setValue(type: Types, value: Any?) {
             when(type) {
-                Types.STRONGS -> strongsMode = value as Int?
+                Types.STRONGS -> strongsMode = (value as Int?)?.let { if (it > 2) 0 else it }
                 Types.MORPH -> showMorphology = value as Boolean?
                 Types.FOOTNOTES -> showFootNotes = value as Boolean?
                 Types.FOOTNOTES_INLINE -> showFootNotesInline = value as Boolean?
@@ -244,6 +247,7 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
+                Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
             }
         }
 
@@ -301,7 +305,8 @@ class WorkspaceEntities {
                 lineSpacing = 16,
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
-                showPageNumber = false
+                showPageNumber = false,
+                nonStrongsWordItalic = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -353,6 +358,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var hideCompareDocuments: MutableSet<String> = mutableSetOf(),
         @ColumnInfo(defaultValue = "0") var limitAmbiguousModalSize: Boolean = false,
         @ColumnInfo(defaultValue = "NULL") var workspaceColor: Int? = defaultWorkspaceColor,
+        @ColumnInfo(defaultValue = "1") var restoreButtonsVisible: Boolean = true,
     ) {
         companion object {
             val default get() = WorkspaceSettings()
@@ -369,7 +375,8 @@ class WorkspaceEntities {
             studyPadCursors = studyPadCursors.toMutableMap(),
             hideCompareDocuments = hideCompareDocuments.toMutableSet(),
             limitAmbiguousModalSize = limitAmbiguousModalSize,
-            workspaceColor = workspaceColor
+            workspaceColor = workspaceColor,
+            restoreButtonsVisible = restoreButtonsVisible
         )
     }
 

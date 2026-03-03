@@ -18,7 +18,7 @@
 import {Nullable} from "@/types/common";
 import {isGenericBookmark} from "@/composables/bookmarks";
 
-export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK"
+export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK" | "DICTIONARY"
 export type V11N = string
 export type Features = {
     readonly type?: Nullable<"hebrew-and-greek" | "hebrew" | "greek">,
@@ -51,6 +51,7 @@ export type OsisFragment = {
     readonly ordinalRange: number[],
     readonly language: string,
     readonly direction: "rtl" | "ltr",
+    readonly hasStrongs: boolean,
 }
 
 export type NumberRange = [start: number, end: number]
