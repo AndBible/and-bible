@@ -17,9 +17,9 @@
 
 package net.bible.service.sword.mybible
 
-import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -31,7 +31,7 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
-@Config(application = Application::class, sdk = [TEST_SDK])
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class MyBibleBookTest {
 
     @Test
