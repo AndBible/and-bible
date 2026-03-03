@@ -69,7 +69,14 @@ verify_owned_by_current_user() {
     local path="$1"
     local current_uid owner_uid
     current_uid="$(id -u)"
-    owner_uid="$(stat -c '%u' "$path")"
+    if owner_uid="$(stat -c '%u' "$path" 2>/dev/null)"; then
+        :
+    elif owner_uid="$(stat -f '%u' "$path" 2>/dev/null)"; then
+        :
+    else
+        echo "Failed to determine owner for path: $path"
+        exit 1
+    fi
     if [[ "$owner_uid" != "$current_uid" ]]; then
         echo "Refusing to use path not owned by current user: $path"
         exit 1
@@ -154,6 +161,8 @@ fi
 export GRADLE_USER_HOME
 
 cd "$REPO_ROOT"
+require_cmd node
+require_cmd npm
 
 if [[ "$#" -eq 0 ]]; then
     set -- testStandardGoogleplayDebugUnitTest

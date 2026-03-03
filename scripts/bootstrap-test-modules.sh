@@ -30,22 +30,36 @@ Behavior:
 EOF
 }
 
+require_option_value() {
+    local option_name="$1"
+    local option_value="${2:-}"
+    if [[ -z "$option_value" ]]; then
+        echo "Error: ${option_name} requires a non-empty argument." >&2
+        usage
+        exit 1
+    fi
+}
+
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --dest)
-            DEST_DIR="${2:-}"
+            require_option_value "--dest" "${2:-}"
+            DEST_DIR="$2"
             shift 2
             ;;
         --zip)
-            ZIP_SOURCE="${2:-}"
+            require_option_value "--zip" "${2:-}"
+            ZIP_SOURCE="$2"
             shift 2
             ;;
         --encrypted-zip)
-            ENC_SOURCE="${2:-}"
+            require_option_value "--encrypted-zip" "${2:-}"
+            ENC_SOURCE="$2"
             shift 2
             ;;
         --key)
-            KEY="${2:-}"
+            require_option_value "--key" "${2:-}"
+            KEY="$2"
             shift 2
             ;;
         --help|-h)
