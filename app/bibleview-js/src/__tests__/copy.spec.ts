@@ -153,6 +153,7 @@ describe('copy functionality', () => {
                 ordinalRange: [0, 1],
                 language: 'en',
                 direction: 'ltr',
+                hasStrongs: false,
             },
             bookInitials: 'KJV',
             bookCategory: 'BIBLE',
