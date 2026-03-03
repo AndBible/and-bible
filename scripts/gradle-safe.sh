@@ -140,7 +140,10 @@ ensure_node20() {
 }
 
 ensure_node20
+require_cmd stat
 mkdir -p "$GRADLE_USER_HOME" "$SANDBOX_HOME"
+verify_owned_by_current_user "$GRADLE_USER_HOME"
+verify_owned_by_current_user "$SANDBOX_HOME"
 
 if [[ "${JAVA_TOOL_OPTIONS:-}" == *"-Duser.home="* ]]; then
     export JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS}"

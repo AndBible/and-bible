@@ -1121,6 +1121,12 @@
     <string name="book_menu_one_view_chooser">One-view chooser</string>
     <string name="book_menu_default_grid_chooser">Default grid chooser</string>
     <string name="chooser_select_passage">Select passage</string>
+    <string name="chooser_previous_book">Previous book</string>
+    <string name="chooser_next_book">Next book</string>
+    <string name="chooser_previous_chapter">Previous chapter</string>
+    <string name="chooser_next_chapter">Next chapter</string>
+    <string name="chooser_previous_verse">Previous verse</string>
+    <string name="chooser_next_verse">Next verse</string>
     <string name="chapter">Chapter</string>
     <string name="verse">Verse</string>
     <string name="prefs_passage_chooser_mode_title">Passage chooser mode</string>

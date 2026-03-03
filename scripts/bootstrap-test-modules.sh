@@ -64,8 +64,14 @@ download_or_copy() {
     local source="$1"
     local target="$2"
     if [[ "$source" =~ ^https?:// ]]; then
-        require_cmd wget
-        wget -qO "$target" "$source"
+        if command -v wget >/dev/null 2>&1; then
+            wget -qO "$target" "$source"
+        elif command -v curl >/dev/null 2>&1; then
+            curl -fsSL "$source" -o "$target"
+        else
+            echo "Neither 'wget' nor 'curl' is available to download: $source"
+            exit 1
+        fi
     else
         if [[ ! -f "$source" ]]; then
             echo "Source file does not exist: $source"

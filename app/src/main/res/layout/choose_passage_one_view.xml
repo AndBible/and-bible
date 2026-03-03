@@ -99,7 +99,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/previous"
+                android:contentDescription="@string/chooser_previous_book"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
@@ -116,7 +116,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/next"
+                android:contentDescription="@string/chooser_next_book"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
@@ -155,7 +155,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/previous"
+                android:contentDescription="@string/chooser_previous_chapter"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
@@ -172,7 +172,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/next"
+                android:contentDescription="@string/chooser_next_chapter"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
@@ -211,7 +211,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/previous"
+                android:contentDescription="@string/chooser_previous_verse"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
@@ -228,7 +228,7 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/next"
+                android:contentDescription="@string/chooser_next_verse"
                 android:padding="6dp"
                 android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
                 android:tint="?android:attr/textColorPrimary" />
