@@ -51,6 +51,18 @@ private val addRestoreButtonsVisible = makeMigration(8..9) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `workspace_settings_restoreButtonsVisible` INTEGER DEFAULT 1")
 }
 
+private val migrateStrongsMode = makeMigration(9..10) { _db ->
+    // Renumber strongs modes: old 0=off,1=inline,2=links,3=hidden -> new 0=hidden,1=inline,2=links
+    // Old hidden (3) -> new hidden (0). Old off (0) stays 0 (now means hidden).
+    _db.execSQL("UPDATE `Workspace` SET `text_display_settings_strongsMode` = 0 WHERE `text_display_settings_strongsMode` = 3")
+    _db.execSQL("UPDATE `PageManager` SET `text_display_settings_strongsMode` = 0 WHERE `text_display_settings_strongsMode` = 3")
+}
+
+private val addNonStrongsWordItalic = makeMigration(10..11) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -60,6 +72,8 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addStudyPadCursors,
     addFootNotesInline,
     addRestoreButtonsVisible,
+    migrateStrongsMode,
+    addNonStrongsWordItalic,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 9
+const val WORKSPACE_DATABASE_VERSION = 11
