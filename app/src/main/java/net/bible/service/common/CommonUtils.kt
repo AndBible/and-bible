@@ -1582,7 +1582,7 @@ object CommonUtils : CommonUtilsBase() {
         else SyncableDatabaseDefinition.ALL.any { it.syncEnabled }
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
-    val showChapterDescriptionPanel get() = BuildConfig.DEBUG || realSharedPreferences.getBoolean(chapterDescriptionPanelPref, false)
+    val showChapterDescriptionPanel get() = BuildConfig.DEBUG
 
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")

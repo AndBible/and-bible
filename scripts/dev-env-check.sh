@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 RECOMMENDED_NODE="20.19.4"
 RECOMMENDED_JAVA_MAJOR="17"
 
@@ -70,8 +71,8 @@ else
     warn "Missing ~/.sword test modules directory (run ./scripts/bootstrap-test-modules.sh; some unit tests will fail without it)"
 fi
 
-if [[ -f ".nvmrc" ]]; then
-    expected_node="$(tr -d '[:space:]' < .nvmrc)"
+if [[ -f "${REPO_ROOT}/.nvmrc" ]]; then
+    expected_node="$(tr -d '[:space:]' < "${REPO_ROOT}/.nvmrc")"
     if [[ "$expected_node" == "$RECOMMENDED_NODE" ]]; then
         pass ".nvmrc is present ($expected_node)"
     else
