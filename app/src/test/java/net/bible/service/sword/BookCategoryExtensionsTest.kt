@@ -26,6 +26,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.Locale
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
@@ -47,6 +48,18 @@ class BookCategoryExtensionsTest {
     fun `isAndBibleCategory should reject non addon categories`() {
         val book = createBook("GeneralBook", "Generic Books")
         assertFalse(book.isAndBibleCategory)
+    }
+
+    @Test
+    fun `isAndBibleCategory should be locale independent`() {
+        val previousLocale = Locale.getDefault()
+        Locale.setDefault(Locale("tr", "TR"))
+        try {
+            val book = createBook("ABUpper", "ANDBIBLE")
+            assertTrue(book.isAndBibleCategory)
+        } finally {
+            Locale.setDefault(previousLocale)
+        }
     }
 
     @Test
@@ -75,4 +88,3 @@ AndBibleMinimumVersion=$minimumVersion
         return FakeBookFactory.createFakeRepoBook(initials, conf, null)
     }
 }
-

@@ -18,12 +18,13 @@ package net.bible.service.sword
 
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import java.util.Locale
 
 private const val CATEGORY_PROPERTY = "Category"
 private const val ANDBIBLE_CATEGORY_NORMALIZED = "andbible"
 
 private fun String.normalizedCategoryValue(): String {
-    return filterNot(Char::isWhitespace).lowercase()
+    return filterNot(Char::isWhitespace).lowercase(Locale.ROOT)
 }
 
 val Book.isAndBibleCategory: Boolean
@@ -35,4 +36,3 @@ val Book.isAndBibleCategory: Boolean
         val rawCategory = bookMetaData.getProperty(CATEGORY_PROPERTY) ?: return false
         return rawCategory.normalizedCategoryValue() == ANDBIBLE_CATEGORY_NORMALIZED
     }
-
