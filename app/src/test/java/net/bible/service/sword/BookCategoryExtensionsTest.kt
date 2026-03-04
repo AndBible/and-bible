@@ -76,6 +76,13 @@ class BookCategoryExtensionsTest {
         assertFalse(filter.test(book))
     }
 
+    @Test
+    fun `AndBibleAddonFilter should reject invalid minimum version metadata`() {
+        val filter = AndBibleAddonFilter()
+        val book = createBook("BrokenAddon", "AndBible", "not-a-number")
+        assertFalse(filter.test(book))
+    }
+
     private fun createBook(initials: String, category: String, minimumVersion: String = "0"): Book {
         val conf = """
 [$initials]

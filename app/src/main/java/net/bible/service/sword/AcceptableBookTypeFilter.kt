@@ -52,7 +52,12 @@ class AndBibleAddonFilter : BookFilter {
      * .Book)
      */
     override fun test(book: Book): Boolean {
+        val minimumVersionValue = book.bookMetaData.getProperty("AndBibleMinimumVersion")
+        val minimumVersion = when {
+            minimumVersionValue == null -> 0L
+            else -> minimumVersionValue.toLongOrNull() ?: return false
+        }
         return book.isAndBibleCategory &&
-            (book.bookMetaData.getProperty("AndBibleMinimumVersion") ?: "0").toLong() <= CommonUtils.applicationVersionNumber
+            minimumVersion <= CommonUtils.applicationVersionNumber
     }
 }
