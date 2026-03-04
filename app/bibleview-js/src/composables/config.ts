@@ -22,8 +22,8 @@ import {isEqual} from "lodash";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
 
-export type StrongsMode = 0 | 1 | 2 | 3
-export const strongsModes: Record<string, StrongsMode> = {off: 0, inline: 1, links: 2, hidden: 3}
+export type StrongsMode = 0 | 1 | 2
+export const strongsModes: Record<string, StrongsMode> = {hidden: 0, inline: 1, links: 2}
 
 export let errorBox = false;
 export const white = -1;
@@ -87,6 +87,7 @@ export type Config = {
     },
     topMargin: number,
     showPageNumber: boolean,
+    nonStrongsWordItalic: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"
@@ -138,7 +139,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showAnnotations: true,
         showChapterNumbers: true,
         showVerseNumbers: true,
-        strongsMode: strongsModes.off,
+        strongsMode: strongsModes.hidden,
         showMorphology: false,
         showRedLetters: false,
         showVersePerLine: false,
@@ -179,6 +180,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         },
         topMargin: 0,
         showPageNumber: false,
+        nonStrongsWordItalic: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
@@ -279,7 +281,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "bookmarksHideLabels"
+            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "bookmarksHideLabels",
+            "nonStrongsWordItalic"
         ];
         return compareConfig(newConfig, keys);
     }

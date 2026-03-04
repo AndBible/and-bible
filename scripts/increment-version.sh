@@ -124,7 +124,7 @@ if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; th
     if [[ -n "$GIT_LOG" ]]; then
         echo "Generating release notes from git history (${PREVIOUS_TAG}..HEAD)..."
         if command -v claude >/dev/null 2>&1; then
-            GENERATED_SUMMARY=$(echo "$GIT_LOG" | claude -p --model haiku \
+            GENERATED_SUMMARY=$(echo "$GIT_LOG" | claude -p --model haiku --tools "" -- \
                 "Generate a changelog summary from these git commits for AndBible Bible study app.
 Output ONLY a bulleted list (- item) of user-facing changes.
 Group related commits into single items. Skip version increment commits, dependency bumps, CI/docs-only changes, and CLAUDE.md/README changes.
