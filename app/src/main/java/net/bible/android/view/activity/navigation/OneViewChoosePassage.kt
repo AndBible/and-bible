@@ -248,9 +248,11 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
             )
             selectButton.isEnabled = false
             chapterDescriptionPanel.visibility = View.GONE
+            clearAndDisableSelectionControls()
             return
         }
 
+        setSelectionControlsEnabled(true)
         selectedBookIndex = preferredBook?.let { bookList.indexOf(it) }?.takeIf { it >= 0 } ?: 0
         selectedChapter = preferredChapter
         selectedVerse = preferredVerse
@@ -333,6 +335,33 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
             selectedVerse = 1
         }
         updateReferencePreview()
+    }
+
+    private fun clearAndDisableSelectionControls() {
+        bookValue.text = ""
+        chapterValue.text = ""
+        verseValue.text = ""
+
+        bookSeekBar.max = 0
+        bookSeekBar.progress = 0
+        chapterSeekBar.max = 0
+        chapterSeekBar.progress = 0
+        verseSeekBar.max = 0
+        verseSeekBar.progress = 0
+
+        setSelectionControlsEnabled(false)
+    }
+
+    private fun setSelectionControlsEnabled(enabled: Boolean) {
+        bookSeekBar.isEnabled = enabled
+        chapterSeekBar.isEnabled = enabled
+        verseSeekBar.isEnabled = enabled
+        bookStepPrev.isEnabled = enabled
+        bookStepNext.isEnabled = enabled
+        chapterStepPrev.isEnabled = enabled
+        chapterStepNext.isEnabled = enabled
+        verseStepPrev.isEnabled = enabled
+        verseStepNext.isEnabled = enabled
     }
 
     private fun applyDescriptionPanelState() {
