@@ -123,6 +123,7 @@
         </LinearLayout>
 
         <RelativeLayout
+            android:id="@+id/verse_row_label"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
@@ -145,6 +146,7 @@
         </RelativeLayout>
 
         <LinearLayout
+            android:id="@+id/verse_controls_row"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"

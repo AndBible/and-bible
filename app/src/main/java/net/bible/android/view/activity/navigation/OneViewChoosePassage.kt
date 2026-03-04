@@ -66,6 +66,8 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
     private lateinit var verseSeekBar: SeekBar
     private lateinit var verseStepPrev: ImageButton
     private lateinit var verseStepNext: ImageButton
+    private lateinit var verseRowLabel: View
+    private lateinit var verseControlsRow: View
     private lateinit var selectButton: Button
     private lateinit var chapterDescriptionPanel: LinearLayout
     private lateinit var chapterDescriptionTitle: TextView
@@ -112,6 +114,8 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
         verseSeekBar = findViewById(R.id.verse_seekbar)
         verseStepPrev = findViewById(R.id.verse_step_prev)
         verseStepNext = findViewById(R.id.verse_step_next)
+        verseRowLabel = findViewById(R.id.verse_row_label)
+        verseControlsRow = findViewById(R.id.verse_controls_row)
         selectButton = findViewById(R.id.select_button)
         chapterDescriptionPanel = findViewById(R.id.chapterDescriptionPanel)
         chapterDescriptionTitle = findViewById(R.id.chapterDescriptionTitle)
@@ -123,6 +127,7 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
             "navigateToVerse",
             CommonUtils.settings.getBoolean("navigate_to_verse_pref", false)
         ) ?: false
+        applyVerseNavigationMode()
 
         val currentVerse = windowControl.activeWindowPageManager.currentVersePage.singleKey as? Verse
         testamentFilter = if ((currentVerse?.book?.ordinal ?: 0) >= BibleBook.MATT.ordinal) {
@@ -176,7 +181,7 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
 
         verseSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                if (isUpdatingUi || !fromUser) return
+                if (isUpdatingUi || !fromUser || !navigateToVerse) return
                 selectedVerse = progress + 1
                 verseValue.text = selectedVerse.toString()
                 updateReferencePreview()
@@ -256,7 +261,11 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
         selectedChapter = selectedChapter.coerceIn(1, chapterCount)
 
         val verseCount = verseCountFor(currentBook, selectedChapter)
-        selectedVerse = selectedVerse.coerceIn(1, verseCount)
+        selectedVerse = if (navigateToVerse) {
+            selectedVerse.coerceIn(1, verseCount)
+        } else {
+            1
+        }
 
         bookSeekBar.max = (bookList.size - 1).coerceAtLeast(0)
         bookSeekBar.progress = selectedBookIndex
@@ -287,7 +296,8 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
 
     private fun updateReferencePreview() {
         val currentBook = currentBookOrNull() ?: return
-        selectedReference.text = "${longNameFor(currentBook)} $selectedChapter:$selectedVerse"
+        val selectedVerseNo = if (navigateToVerse) selectedVerse else 1
+        selectedReference.text = "${longNameFor(currentBook)} $selectedChapter:$selectedVerseNo"
     }
 
     private fun stepBook(delta: Int) {
@@ -303,9 +313,16 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
     }
 
     private fun stepVerse(delta: Int) {
+        if (!navigateToVerse) return
         val currentBook = currentBookOrNull() ?: return
         selectedVerse = (selectedVerse + delta).coerceIn(1, verseCountFor(currentBook, selectedChapter))
         syncAllControls()
+    }
+
+    private fun applyVerseNavigationMode() {
+        val verseVisibility = if (navigateToVerse) View.VISIBLE else View.GONE
+        verseRowLabel.visibility = verseVisibility
+        verseControlsRow.visibility = verseVisibility
     }
 
     private fun applyDescriptionPanelState() {
