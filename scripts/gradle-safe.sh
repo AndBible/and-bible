@@ -3,8 +3,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 NODE_VERSION="${NODE_VERSION:-20.19.4}"
-NODE_DIST="node-v${NODE_VERSION}-linux-x64"
-NODE_DIR="${NODE_DIR:-${HOME}/.cache/andbible-tools/${NODE_DIST}}"
+NODE_DIST="${NODE_DIST:-}"
+NODE_DIR="${NODE_DIR:-}"
 GRADLE_USER_HOME="${GRADLE_USER_HOME:-/tmp/gradle-home-andbible}"
 SANDBOX_HOME="${SANDBOX_HOME:-/tmp/andbible-home}"
 
@@ -95,6 +95,28 @@ ensure_node20() {
     if [[ "$(uname -s)" != "Linux" ]]; then
         echo "Node.js 20 is required in PATH on non-Linux platforms."
         exit 1
+    fi
+
+    if [[ -z "$NODE_DIST" ]]; then
+        local node_arch
+        case "$(uname -m)" in
+            x86_64|amd64)
+                node_arch="x64"
+                ;;
+            aarch64|arm64)
+                node_arch="arm64"
+                ;;
+            *)
+                echo "Unsupported CPU architecture: $(uname -m)" >&2
+                echo "Set NODE_DIST explicitly to a valid Node.js distribution name." >&2
+                exit 1
+                ;;
+        esac
+        NODE_DIST="node-v${NODE_VERSION}-linux-${node_arch}"
+    fi
+
+    if [[ -z "$NODE_DIR" ]]; then
+        NODE_DIR="${HOME}/.cache/andbible-tools/${NODE_DIST}"
     fi
 
     require_cmd tar

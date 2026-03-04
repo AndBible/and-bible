@@ -762,6 +762,8 @@
     <string name="edit">Edit</string>
     <string name="reset_generic">Reset</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
+    <string name="no_books_available">No books available</string>
+    <string name="no_deuterocanonical_books_available">No deuterocanonical books available</string>
     <string name="verse_not_found">Verse not found</string>
 
     <!-- Errors -->

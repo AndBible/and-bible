@@ -239,7 +239,13 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
             testamentToggle.getChildAt(i).isEnabled = isCurrentlyShowingScripture
         }
         if (bookList.isEmpty()) {
-            selectedReference.text = getString(R.string.verse_not_found)
+            selectedReference.text = getString(
+                if (isCurrentlyShowingScripture) {
+                    R.string.no_books_available
+                } else {
+                    R.string.no_deuterocanonical_books_available
+                }
+            )
             selectButton.isEnabled = false
             chapterDescriptionPanel.visibility = View.GONE
             return
@@ -323,6 +329,10 @@ class OneViewChoosePassage : CustomTitlebarActivityBase(R.menu.choose_passage_on
         val verseVisibility = if (navigateToVerse) View.VISIBLE else View.GONE
         verseRowLabel.visibility = verseVisibility
         verseControlsRow.visibility = verseVisibility
+        if (!navigateToVerse) {
+            selectedVerse = 1
+        }
+        updateReferencePreview()
     }
 
     private fun applyDescriptionPanelState() {
