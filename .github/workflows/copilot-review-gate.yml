@@ -103,76 +103,89 @@ jobs:
           PRS=$(gh api "repos/${{ github.repository }}/pulls?state=open&per_page=30" \
             --jq '[.[] | select(.draft == false)] | .[].number')
 
+          FAILED=0
           for PR_NUMBER in $PRS; do
             echo "--- Checking PR #${PR_NUMBER} ---"
 
-            # Check if Copilot has reviewed this PR
-            HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
-              --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
+            # Wrap per-PR logic so a transient API error doesn't abort the whole loop
+            if ! (
+              set -e
 
-            if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
-              echo "No Copilot review. Skipping."
-              continue
-            fi
+              # Check if Copilot has reviewed this PR
+              HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
+                --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
 
-            # Check if Copilot is still pending (requested but not yet reviewed latest)
-            COPILOT_PENDING=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/requested_reviewers" \
-              --jq '[.users[] | select(.login == "Copilot")] | length')
+              if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
+                echo "No Copilot review. Skipping."
+                exit 0
+              fi
 
-            if [ "$COPILOT_PENDING" -gt 0 ]; then
-              echo "Copilot review still pending. Skipping."
-              continue
-            fi
+              # Check if Copilot is still pending (requested but not yet reviewed latest)
+              COPILOT_PENDING=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/requested_reviewers" \
+                --jq '[.users[] | select(.login == "Copilot")] | length')
 
-            # Check current label status
-            HAS_LABEL=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
-              --jq '[.[] | select(.name == "copilot-approved")] | length')
+              if [ "$COPILOT_PENDING" -gt 0 ]; then
+                echo "Copilot review still pending. Skipping."
+                exit 0
+              fi
 
-            # Get review threads via GraphQL
-            RESULT=$(gh api graphql -f query='
-              query($owner:String!, $name:String!, $number:Int!) {
-                repository(owner:$owner, name:$name) {
-                  pullRequest(number:$number) {
-                    reviewThreads(first:100) {
-                      nodes {
-                        isResolved
-                        isOutdated
-                        comments(first:20) {
-                          nodes {
-                            author { login }
+              # Check current label status
+              HAS_LABEL=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+                --jq '[.[] | select(.name == "copilot-approved")] | length')
+
+              # Get review threads via GraphQL
+              RESULT=$(gh api graphql -f query='
+                query($owner:String!, $name:String!, $number:Int!) {
+                  repository(owner:$owner, name:$name) {
+                    pullRequest(number:$number) {
+                      reviewThreads(first:100) {
+                        nodes {
+                          isResolved
+                          isOutdated
+                          comments(first:20) {
+                            nodes {
+                              author { login }
+                            }
                           }
                         }
                       }
                     }
                   }
-                }
-              }' -f owner="${{ github.repository_owner }}" \
-                 -f name="$(echo '${{ github.repository }}' | cut -d/ -f2)" \
-                 -F number="$PR_NUMBER")
+                }' -f owner="${{ github.repository_owner }}" \
+                   -f name="$(echo '${{ github.repository }}' | cut -d/ -f2)" \
+                   -F number="$PR_NUMBER")
 
-            # Count unaddressed Copilot threads:
-            # A thread is "unaddressed" if NOT resolved, NOT outdated,
-            # started by Copilot, and has NO replies from non-Copilot users
-            UNADDRESSED=$(echo "$RESULT" | jq '
-              [.data.repository.pullRequest.reviewThreads.nodes[]
-               | select(.isResolved == false and .isOutdated == false)
-               | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
-               | select(
-                   [.comments.nodes[1:][]
-                    | select(.author.login != "copilot-pull-request-reviewer")
-                   ] | length == 0
-                 )
-              ] | length')
+              # Count unaddressed Copilot threads:
+              # A thread is "unaddressed" if NOT resolved, NOT outdated,
+              # started by Copilot, and has NO replies from non-Copilot users
+              UNADDRESSED=$(echo "$RESULT" | jq '
+                [.data.repository.pullRequest.reviewThreads.nodes[]
+                 | select(.isResolved == false and .isOutdated == false)
+                 | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+                 | select(
+                     [.comments.nodes[1:][]
+                      | select(.author.login != "copilot-pull-request-reviewer")
+                     ] | length == 0
+                   )
+                ] | length')
 
-            echo "PR #${PR_NUMBER}: $UNADDRESSED unaddressed Copilot thread(s)"
+              echo "PR #${PR_NUMBER}: $UNADDRESSED unaddressed Copilot thread(s)"
 
-            if [ "$UNADDRESSED" -eq 0 ] && [ "$HAS_LABEL" -eq 0 ]; then
-              echo "All addressed. Adding copilot-approved label."
-              gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
-                --method POST --input - <<< '{"labels":["copilot-approved"]}'
-            elif [ "$UNADDRESSED" -gt 0 ] && [ "$HAS_LABEL" -gt 0 ]; then
-              echo "Unaddressed threads found. Removing stale label."
-              gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
-                --method DELETE 2>/dev/null || true
+              if [ "$UNADDRESSED" -eq 0 ] && [ "$HAS_LABEL" -eq 0 ]; then
+                echo "All addressed. Adding copilot-approved label."
+                gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+                  --method POST --input - <<< '{"labels":["copilot-approved"]}'
+              elif [ "$UNADDRESSED" -gt 0 ] && [ "$HAS_LABEL" -gt 0 ]; then
+                echo "Unaddressed threads found. Removing stale label."
+                gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
+                  --method DELETE 2>/dev/null || true
+              fi
+            ); then
+              echo "::warning::Failed to process PR #${PR_NUMBER}, skipping."
+              FAILED=$((FAILED + 1))
             fi
           done
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::warning::${FAILED} PR(s) failed due to API errors."
+          fi
