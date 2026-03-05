@@ -34,7 +34,7 @@ open class AcceptableBookTypeFilter : BookFilter {
      */
     override fun test(book: Book): Boolean {
         val bookCategory = book.bookCategory
-        return bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
+        return bookCategory == BookCategory.BIBLE || bookCategory == BookCategory.COMMENTARY || bookCategory == BookCategory.DICTIONARY || bookCategory == BookCategory.DAILY_DEVOTIONS || bookCategory == BookCategory.GENERAL_BOOK || bookCategory == BookCategory.MAPS || bookCategory == BookCategory.AND_BIBLE
     }
 }
 
