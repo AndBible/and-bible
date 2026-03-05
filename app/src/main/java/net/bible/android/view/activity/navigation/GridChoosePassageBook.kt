@@ -38,6 +38,7 @@ import net.bible.android.view.util.buttongrid.ButtonInfo
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
 import net.bible.service.common.CommonUtils
 
+import net.bible.android.control.progress.ProgressControl
 import org.crosswire.jsword.passage.KeyUtil
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
@@ -91,7 +92,14 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                         buttonInfo.textColor = BookColorAndGroup.Color
                         buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     }
-//                    buttonInfo.highlight = book == currentBibleBook  // Highlighting the button adds an underline which is no longer need and looks a little ugly.
+                    val readingProgress = ProgressControl.getReadingProgress(versification, book)
+                    val memorizationProgress = ProgressControl.getMemorizationProgress(versification, book)
+                    buttonInfo.progressFraction = maxOf(readingProgress, memorizationProgress)
+                    if (memorizationProgress > readingProgress) {
+                        buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
+                    } else {
+                        buttonInfo.progressColor = READING_PROGRESS_COLOR
+                    }
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
                 }
@@ -314,6 +322,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         const val CHAPTER_NO = "CHAPTER_NO"
 
         private val NEW_TESTAMENT_TINT = Color.argb(0xFF,0x50,0x50,0x50)
+        private val READING_PROGRESS_COLOR = Color.argb(0xCC, 0x4C, 0xAF, 0x50) // green
+        private val MEMORIZATION_PROGRESS_COLOR = Color.argb(0xCC, 0xFF, 0xD7, 0x00) // gold
 
         // colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
         private val PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE)
