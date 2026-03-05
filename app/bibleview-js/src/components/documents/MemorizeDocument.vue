@@ -43,6 +43,7 @@
           :text-items="document.texts"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
+          @memorize-completed="onMemorizeCompleted"
       />
     </template>
   </TabContainer>
@@ -110,6 +111,12 @@ function handleModeChange(tabId: string) {
 function saveModeConfig(_modeConfig: MemorizeModeConfig) {
     modeConfig.value = {...modeConfig.value, ..._modeConfig};
     saveState()
+}
+
+function onMemorizeCompleted() {
+    if (document.value.bookInitials && document.value.startOrdinal != null && document.value.endOrdinal != null) {
+        android.memorizeCompleted(document.value.bookInitials, document.value.startOrdinal, document.value.endOrdinal);
+    }
 }
 
 watch(selectedMode, saveState);

@@ -149,6 +149,9 @@ export interface MemorizeDocument extends BaseDocument{
     title: string
     texts: MemorizeTextItem[]
     state?: DocumentState
+    bookInitials?: string
+    startOrdinal?: number
+    endOrdinal?: number
 }
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {

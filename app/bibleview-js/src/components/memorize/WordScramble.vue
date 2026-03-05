@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed} from "vue";
+import {ref, onMounted, computed, watch} from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -96,6 +96,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'save-mode-config', config: WordScrambleConfig): void;
+    (e: 'memorize-completed'): void;
 }>();
 
 const { strings } = useCommon();
@@ -107,6 +108,10 @@ const isPeeking = ref<boolean>(false);
 const isCompleted = computed(() => {
   if (scrambledWords.value.length === 0) return false;
   return scrambledWords.value.every(word => word.used);
+});
+
+watch(isCompleted, (completed) => {
+  if (completed) emit('memorize-completed');
 });
 
 // Convert item and word indices to a global word index

@@ -31,6 +31,7 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -65,6 +66,7 @@ import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
@@ -72,6 +74,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
@@ -449,6 +452,16 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
+    }
+
+    @JavascriptInterface
+    fun memorizeCompleted(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val book = Books.installed().getBook(bookInitials) ?: return
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return
+        val startVerse = Verse(v11n, startOrdinal)
+        val endVerse = Verse(v11n, endOrdinal)
+        val verseRange = VerseRange(v11n, startVerse, endVerse)
+        ProgressControl.markVerseMemorized(verseRange)
     }
 
     @JavascriptInterface
