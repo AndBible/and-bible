@@ -1424,6 +1424,12 @@
     <string name="llm_cache_detail_date">Date: %s</string>
     <string name="llm_cache_detail_size">Size: %s</string>
     <string name="llm_cache_detail_language">Language: %s</string>
+    <string name="llm_cache_view_raw">View Raw</string>
+    <string name="llm_cache_raw_title">%1$s : %2$s</string>
+    <string name="llm_cache_copy_raw">Copy to clipboard</string>
+    <string name="llm_cache_raw_copied">Copied to clipboard</string>
+    <string name="llm_cache_raw_empty">(empty)</string>
+    <string name="llm_empty_llm_response">LLM returned empty response</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>

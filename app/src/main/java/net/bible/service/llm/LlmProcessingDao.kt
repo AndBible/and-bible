@@ -78,6 +78,20 @@ interface LlmProcessingDao {
     @Query("SELECT DISTINCT modelId FROM LlmProcessingCacheEntry ORDER BY modelId")
     fun getDistinctModels(): List<String>
 
+    @Query("""
+        SELECT * FROM LlmProcessingCacheEntry
+        WHERE documentInitials = :documentInitials
+        AND keyName = :keyName
+        AND processingType = :processingType
+        AND processingParams = :processingParams
+    """)
+    fun getFullEntry(
+        documentInitials: String,
+        keyName: String,
+        processingType: String,
+        processingParams: String
+    ): LlmProcessingCacheEntry?
+
     @Query("DELETE FROM LlmProcessingCacheEntry WHERE createdAt >= :fromTimestamp AND createdAt <= :toTimestamp")
     fun deleteByDateRange(fromTimestamp: Long, toTimestamp: Long)
 

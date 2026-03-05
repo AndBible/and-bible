@@ -346,6 +346,13 @@ object LlmProcessingService {
                         val duration = System.currentTimeMillis() - startTime
                         Log.d(TAG, "doProcessWithTools completed in ${duration}ms (output: ${result.length} chars)")
 
+                        if (result.isBlank()) {
+                            Log.w(TAG, "LLM returned empty/blank content for ${cacheKey.keyName}")
+                            session?.addLogEntry(AgentLogEntry.error("Empty response for ${cacheKey.keyName}"))
+                            if (manageSession) session!!.stop()
+                            throw LlmProcessingError(application.getString(R.string.llm_empty_llm_response))
+                        }
+
                         // Cache result
                         dao.insert(LlmProcessingCacheEntry(
                             documentInitials = cacheKey.documentInitials,

@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.text.format.Formatter
 import android.view.ActionMode
@@ -171,6 +172,15 @@ class LlmCacheActivity : ActivityBase() {
             .setTitle(getString(R.string.llm_cache_item_primary, entry.documentInitials, entry.keyName))
             .setMessage(message)
             .setPositiveButton(R.string.okay, null)
+            .setNeutralButton(R.string.llm_cache_view_raw) { _, _ ->
+                val intent = Intent(this, CacheEntryDetailActivity::class.java).apply {
+                    putExtra(CacheEntryDetailActivity.EXTRA_DOCUMENT_INITIALS, entry.documentInitials)
+                    putExtra(CacheEntryDetailActivity.EXTRA_KEY_NAME, entry.keyName)
+                    putExtra(CacheEntryDetailActivity.EXTRA_PROCESSING_TYPE, entry.processingType)
+                    putExtra(CacheEntryDetailActivity.EXTRA_PROCESSING_PARAMS, entry.processingParams)
+                }
+                startActivity(intent)
+            }
             .setNegativeButton(R.string.delete) { _, _ ->
                 deleteEntry(entry)
             }

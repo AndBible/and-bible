@@ -189,6 +189,11 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.CacheEntryDetailActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:parentActivityName="net.bible.android.view.activity.ai.LlmCacheActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.PromptEditActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/edit_prompt"
