@@ -1249,6 +1249,8 @@
     <string name="my_documents_contents">My Documents and their content</string>
     <string name="llm_processing_sync_title">AI Settings</string>
     <string name="llm_processing_sync_contents">AI prompts and provider configurations</string>
+    <string name="progress_sync_title">Reading Progress</string>
+    <string name="progress_sync_contents">Memorized verses and chapter reading records</string>
 
     <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
     <string name="cloud_create_new">Copy from this device to Cloud</string>
