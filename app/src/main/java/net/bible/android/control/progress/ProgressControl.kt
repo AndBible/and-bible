@@ -18,6 +18,7 @@
 package net.bible.android.control.progress
 
 import net.bible.android.common.toV11n
+import net.bible.android.control.versification.Scripture
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.progress.ChapterReadingRecord
 import net.bible.android.database.progress.DailyReadingCount
@@ -113,6 +114,7 @@ object ProgressControl {
     val totalBibleChapters: Int by lazy {
         var total = 0
         for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
             total += KJVA.getLastChapter(book)
         }
         total
@@ -129,6 +131,7 @@ object ProgressControl {
     fun getBookReadingProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, Float> {
         val result = mutableMapOf<BibleBook, Float>()
         for (book in KJVA.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
             val totalChapters = KJVA.getLastChapter(book)
             if (totalChapters <= 0) continue
             val readChapters = dao.countReadChaptersForBook(book.ordinal, cycle)

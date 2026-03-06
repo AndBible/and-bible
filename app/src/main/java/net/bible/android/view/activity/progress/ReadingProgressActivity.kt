@@ -32,6 +32,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import net.bible.android.activity.R
 import net.bible.android.control.progress.ProgressControl
+import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import org.crosswire.jsword.passage.Verse
@@ -103,7 +104,7 @@ class ReadingProgressActivity : ActivityBase() {
         ntGrid.removeAllViews()
 
         for (book in kjva.bookIterator) {
-            if (!kjva.containsBook(book)) continue
+            if (!Scripture.isScripture(book)) continue
             val isNT = book.ordinal >= BibleBook.MATT.ordinal
             val grid = if (isNT) ntGrid else otGrid
 
