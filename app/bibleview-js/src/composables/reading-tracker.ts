@@ -37,7 +37,7 @@ export function useReadingTracker(
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
 
     function checkCoverage() {
-        if (markedAsRead || totalVerses <= 0 || chapterNumber <= 0) return;
+        if (markedAsRead || totalVerses <= 0) return;
         const coverage = seenOrdinals.size / totalVerses;
         if (coverage >= COVERAGE_THRESHOLD) {
             markedAsRead = true;

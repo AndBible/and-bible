@@ -25,9 +25,9 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
-    <div v-if="config.showMarkAsReadButton && document.chapterNumber > 0" class="mark-as-read-container">
+    <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <button class="mark-as-read-button" :class="{read: chapterRead, monochrome: appSettings.monochromeMode}" @click="onMarkAsRead">
-        ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, document.chapterNumber) : sprintf(strings.markChapterRead, document.chapterNumber) }}
+        ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
       </button>
     </div>
   </div>
@@ -66,13 +66,14 @@ function getFootNoteCount() {
 provide(footnoteCountKey, {getFootNoteCount});
 
 const containerRef = ref<HTMLElement | null>(null);
-useReadingTracker(containerRef, appSettings, android, bookInitials, ordinalRange, props.document.chapterNumber);
+const displayChapter = Math.max(1, props.document.chapterNumber);
+useReadingTracker(containerRef, appSettings, android, bookInitials, ordinalRange, displayChapter);
 
 const chapterRead = ref(false);
 
 function onMarkAsRead() {
     if (chapterRead.value) return;
-    android.markChapterRead(bookInitials, ordinalRange[0], props.document.chapterNumber);
+    android.markChapterRead(bookInitials, ordinalRange[0], displayChapter);
     chapterRead.value = true;
 }
 </script>
