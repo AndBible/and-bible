@@ -63,6 +63,11 @@ private val addNonStrongsWordItalic = makeMigration(10..11) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
 }
 
+private val addTitleScrollButton = makeMigration(11..12) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -74,6 +79,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addRestoreButtonsVisible,
     migrateStrongsMode,
     addNonStrongsWordItalic,
+    addTitleScrollButton,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 11
+const val WORKSPACE_DATABASE_VERSION = 12

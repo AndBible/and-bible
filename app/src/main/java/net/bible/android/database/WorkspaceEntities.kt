@@ -170,6 +170,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -195,6 +196,7 @@ class WorkspaceEntities {
             MYNOTES,
             PAGENUMBER,
             NON_STRONGS_WORD_ITALIC,
+            TITLE_SCROLL_BUTTON,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -221,6 +223,7 @@ class WorkspaceEntities {
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
+            Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -248,6 +251,7 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
+                Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
             }
         }
 
@@ -306,7 +310,8 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
-                nonStrongsWordItalic = false
+                nonStrongsWordItalic = false,
+                showTitleScrollButton = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
