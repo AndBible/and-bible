@@ -2027,7 +2027,7 @@ val Key.shortName: String get() =
     else name
 
 enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, LLMPROCESSING
 }
 enum class BackupType {
     // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.

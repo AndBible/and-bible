@@ -45,12 +45,14 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.LlmProcessingDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -238,9 +240,9 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
-                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
-                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
+                        for (def in SyncableDatabaseDefinition.ALL) {
+                            beforeRestore(def)
+                        }
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         deleteAllDatabases()
@@ -279,6 +281,8 @@ object BackupControl {
                         WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
                         SettingsDatabase.dbFileName -> context.getString(R.string.settings)
+                        MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
+                        LlmProcessingDatabase.dbFileName -> context.getString(R.string.llm_processing_sync_title)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -490,7 +494,8 @@ object BackupControl {
 
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
-                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
+                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
+                DbType.MYDOCUMENTS, DbType.LLMPROCESSING
             )
         )
 
@@ -869,7 +874,7 @@ class BackupActivity: ActivityBase() {
             }
             val backupFiles = CommonUtils.dbBackupPath.listFiles()
                 ?.sortedByDescending { it.name }
-                ?: emptyArray()
+                ?: emptyList()
 
             if (backupFiles.isEmpty()) {
                 importExportTitle.visibility = View.GONE
@@ -902,6 +907,8 @@ class BackupActivity: ActivityBase() {
                 ResettableDb(R.string.reading_plans_plural, ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
                 ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
                 ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
+                ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
+                ResettableDb(R.string.llm_processing_sync_title, LlmProcessingDatabase.dbFileName, SyncableDatabaseDefinition.LLMPROCESSING),
             )
             for (db in resettableDbs) {
                 val btn = Button(this@BackupActivity)
