@@ -1234,21 +1234,27 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     .setMessage(R.string.ai_document_delete_confirmation)
                     .setPositiveButton(R.string.yes) { _, _ ->
                         MyDocumentBookManager.deleteAIDocumentPage(pageId)
-                        // Close the window if it's a links window
-                        if (window.isLinksWindow) {
-                            windowControl.closeWindow(window)
+                        val errorDoc = ErrorDocument(
+                            mainBibleActivity.getString(R.string.ai_document_deleted),
+                            ErrorSeverity.NORMAL
+                        )
+                        mainBibleActivity.lifecycleScope.launch {
+                            loadDocument(errorDoc)
                         }
                     }
                     .setNegativeButton(R.string.no, null)
                     .show()
             }
             "regenerate" -> {
-                // Close the window immediately before regenerating
-                if (window.isLinksWindow) {
-                    windowControl.closeWindow(window)
+                val errorDoc = ErrorDocument(
+                    mainBibleActivity.getString(R.string.ai_document_regenerating),
+                    ErrorSeverity.NORMAL
+                )
+                mainBibleActivity.lifecycleScope.launch {
+                    loadDocument(errorDoc)
                 }
                 mainBibleActivity.lifecycleScope.launch(Dispatchers.IO) {
-                    val success = AgentSessionManager.regenerateAIDocument(pageId)
+                    val success = AgentSessionManager.regenerateAIDocument(pageId, targetWindowId = window.id)
                     if (!success) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(mainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()

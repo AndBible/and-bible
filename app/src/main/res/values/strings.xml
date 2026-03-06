@@ -1541,6 +1541,8 @@
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
     <string name="ai_document_delete_confirmation">Delete this AI document?</string>
+    <string name="ai_document_deleted">This AI document has been deleted.</string>
+    <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_document_delete">Delete</string>

@@ -303,7 +303,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
-        selection: Selection
+        selection: Selection,
+        targetWindowId: IdType? = null
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
@@ -317,7 +318,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         if (cached != null) {
             Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
             // Open cached document directly
-            linkControl.openAIDocument(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey)
+            openAIDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
             return
         }
 
@@ -342,7 +343,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val executor = AgentExecutor()
         try {
             executor.execute(prompt.id, context).collect { event ->
-                handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker)
+                handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
             }
         } catch (e: CancellationException) {
             // Flow collection may terminate before AgentEvent.Cancelled is collected.
@@ -492,7 +493,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         prompt: AgentPrompt,
         context: AgentContext,
         cacheableContext: CacheableContext,
-        usedWriteToolsTracker: AtomicBoolean
+        usedWriteToolsTracker: AtomicBoolean,
+        targetWindowId: IdType? = null
     ) {
         val app = BibleApplication.application
         when (event) {
@@ -573,8 +575,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
-                // Open the page in linked window
-                linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
+                // Open the page in target window or linked window
+                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage)
@@ -591,8 +593,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
 
-                // Open the page in linked window
-                linkControl.openAIDocument(pageInfo.documentInitials, pageInfo.pageKey)
+                // Open the page in target window or linked window
+                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage)
@@ -674,7 +676,27 @@ object AgentSessionManager : AgentSessionManagerBase() {
      * @param pageId ID of the page to regenerate
      * @return true if regeneration was started, false if it failed
      */
-    suspend fun regenerateAIDocument(pageId: IdType): Boolean {
+    /**
+     * Open an AI document result in the target window, or fall back to linkControl.
+     */
+    private suspend fun openAIDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
+        if (targetWindowId != null) {
+            val window = windowControl.windowRepository.getWindow(targetWindowId)
+            if (window != null) {
+                val book = Books.installed().getBook(documentInitials)
+                val key = try { book?.getKey(pageKey) } catch (e: Exception) { null }
+                if (book != null && key != null) {
+                    withContext(Dispatchers.Main) {
+                        window.pageManager.setCurrentDocumentAndKey(book, key)
+                    }
+                    return
+                }
+            }
+        }
+        linkControl.openAIDocument(documentInitials, pageKey)
+    }
+
+    suspend fun regenerateAIDocument(pageId: IdType, targetWindowId: IdType? = null): Boolean {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
         val session = activeSessions[workspaceId]
@@ -753,7 +775,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
         // Delete the current page and execute the prompt with the reconstructed selection
         MyDocumentBookManager.deleteAIDocumentPage(pageId)
-        executePrompt(prompt, selection)
+        executePrompt(prompt, selection, targetWindowId = targetWindowId)
         return true
     }
 
