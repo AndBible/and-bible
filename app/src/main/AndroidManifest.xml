@@ -190,6 +190,7 @@
             />
         <activity
             android:name="net.bible.android.view.activity.ai.CacheEntryDetailActivity"
+            android:label="@string/llm_cache_management"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:parentActivityName="net.bible.android.view.activity.ai.LlmCacheActivity"
             />
