@@ -90,6 +90,7 @@ export type Config = {
     showPageNumber: boolean,
     infiniteScroll: boolean,
     nonStrongsWordItalic: boolean,
+    showTitleScrollButton: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
@@ -186,6 +187,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showPageNumber: false,
         infiniteScroll: true,
         nonStrongsWordItalic: false,
+        showTitleScrollButton: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
@@ -289,7 +291,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
             "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "bookmarksHideLabels",
-            "nonStrongsWordItalic"
+            "nonStrongsWordItalic",
+            "showTitleScrollButton"
         ];
         return compareConfig(newConfig, keys);
     }
@@ -300,7 +303,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
             "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes",
-            "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin"
+            "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin",
+            "showTitleScrollButton"
         ];
         return compareConfig(newConfig, keys);
     }

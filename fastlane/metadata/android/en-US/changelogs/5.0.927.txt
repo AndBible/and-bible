@@ -1,0 +1,43 @@
+# AndBible Changelog
+
+## New Features
+- Per-workspace label display mode override (7ec5c849b)
+- Scroll-to-top button next to section titles (01b8ac103)
+- Tab view for multiple Strong's/morphology dictionaries (c159b9d45)
+- "Italicize added words" setting for Strong's modules (c7053843b)
+- Dotted underline for Strong's linked words (96191c94a)
+
+## Improvements
+- Monochrome toolbar redesign with white background, black icons, divider, and reduced height (bf8aa0782)
+- Store window buttons bar visibility per workspace instead of globally (ab5e718d3)
+- Display both Strong's and morphology data when either is clicked (f16a12ed3)
+- Use inherited color for Strong's/morph labels in monochrome mode (88f4b7524)
+- Compact Strong's/morphology display with responsive layout (989b7bee2)
+- Cleaner monochrome styling in notes (84cd781e1)
+- Improved translation-note styling in dictionary view (b04446ee1)
+- Enhanced dictionary tabs with horizontal scroll support (d335f3646)
+- Performance: Compile Strong's search pattern once instead of per-element (4f3cbde10)
+
+## Bug Fixes
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Replace Strong's off mode with hidden links mode (#3152) (432bca7b3)
+- Fix MyBible red letter support (1dceeda36)
+- Fix infinite scroll busy loop when reaching end/start of book (d9ed12055)
+- Fix StrongsDocument two-column layout centering and proportions (f8eb9d4b5)
+- Fix rend-x-indirect styling and inline dictionary translation notes (c3129bde8)
+- Fix NPE crash with corrupted Lucene index (e54117221)
+- Morphology toggle no longer greyed out in workspace settings (#3667) (27233ee09)
+- Respect selected TTS engine (#3567) (1a3beb6e9)
+- Fix bug report attachments getting corrupted in OSTicket (363e614e9)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

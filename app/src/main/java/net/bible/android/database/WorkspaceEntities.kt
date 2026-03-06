@@ -173,6 +173,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -200,6 +201,7 @@ class WorkspaceEntities {
             LLM_PROMPT,
             INFINITE_SCROLL,
             NON_STRONGS_WORD_ITALIC,
+            TITLE_SCROLL_BUTTON,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -228,6 +230,7 @@ class WorkspaceEntities {
             Types.LLM_PROMPT -> llmPromptId
             Types.INFINITE_SCROLL -> infiniteScroll
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
+            Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -257,6 +260,7 @@ class WorkspaceEntities {
                 Types.LLM_PROMPT -> llmPromptId = value as IdType?
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
+                Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
             }
         }
 
@@ -318,7 +322,8 @@ class WorkspaceEntities {
                 translateTo = "",
                 llmPromptId = IdType.empty(),
                 infiniteScroll = true,
-                nonStrongsWordItalic = false
+                nonStrongsWordItalic = false,
+                showTitleScrollButton = false
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
@@ -422,6 +427,34 @@ class WorkspaceEntities {
             maximizedWindowId = maximizedWindowId,
             primaryTargetLinksWindowId = primaryTargetLinksWindowId
         )
+    }
+
+    @Entity(
+        primaryKeys = ["workspaceId", "labelId"],
+        foreignKeys = [
+            ForeignKey(
+                entity = Workspace::class,
+                parentColumns = ["id"],
+                childColumns = ["workspaceId"],
+                onDelete = CASCADE
+            )
+        ],
+        indices = [Index("workspaceId")]
+    )
+    @Serializable
+    data class WorkspaceLabelOverride(
+        val workspaceId: IdType,
+        val labelId: IdType,
+        @ColumnInfo(defaultValue = "NULL") val overrideMode: Int? = null,
+    ) {
+        val hasOverride: Boolean get() = overrideMode != null
+
+        companion object {
+            const val MODE_HIGHLIGHT = 0
+            const val MODE_UNDERLINE = 1
+            const val MODE_MARKER = 2
+            const val MODE_HIDDEN = 3
+        }
     }
 
     @Entity(

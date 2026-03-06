@@ -28,6 +28,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.View.GONE
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.BaseAdapter
 import android.widget.GridView
 import android.widget.ImageButton
@@ -46,6 +48,7 @@ import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.BookmarkLabelEditBinding
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
@@ -168,6 +171,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         var delete: Boolean = false,
         var deleteOrphanedBookmarks: Boolean = false,
         val suggestedName: String? = null,
+        var workspaceOverride: WorkspaceEntities.WorkspaceLabelOverride? = null,
+        var hasWorkspaceContext: Boolean = false,
     ) {
         fun toJSON(): String = json.encodeToString(serializer(), this)
 
@@ -177,7 +182,6 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private lateinit var data: LabelData
-
 
     private fun updateData() = binding.apply {
         Log.i(TAG, "updateData")
@@ -202,6 +206,17 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         if(!data.isThisBookmarkSelected) {
             data.isThisBookmarkPrimary = false
         }
+
+        if (data.hasWorkspaceContext) {
+            updateWorkspaceOverrideData()
+        }
+    }
+
+    private fun updateWorkspaceOverrideData() {
+        val override = data.workspaceOverride ?: return
+        val selectedPosition = binding.displayModeSpinner.selectedItemPosition
+        val overrideMode = if (selectedPosition == getGlobalDisplayModeIndex()) null else selectedPosition
+        data.workspaceOverride = override.copy(overrideMode = overrideMode)
     }
 
     private fun updateUI() = binding.apply {
@@ -267,6 +282,53 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
     }
 
+    private fun getGlobalDisplayModeIndex(): Int {
+        val label = data.label
+        return when {
+            label.hideStyle || label.hideStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN
+            label.markerStyle || label.markerStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER
+            label.underlineStyle || label.underlineStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE
+            else -> WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT
+        }
+    }
+
+    private fun setupWorkspaceOverrideUI() {
+        if (!data.hasWorkspaceContext || data.label.isSpecialLabel) {
+            binding.overrideStyleLabel.visibility = GONE
+            binding.displayModeSpinner.visibility = GONE
+            return
+        }
+        binding.overrideStyleLabel.visibility = View.VISIBLE
+        binding.displayModeSpinner.visibility = View.VISIBLE
+
+        val globalModeIndex = getGlobalDisplayModeIndex()
+        val noOverrideSuffix = " " + getString(R.string.no_override_suffix)
+        val modeNames = arrayOf(
+            getString(R.string.display_mode_highlight),
+            getString(R.string.display_mode_underline),
+            getString(R.string.display_mode_marker),
+            getString(R.string.display_mode_hidden),
+        )
+        val options = modeNames.mapIndexed { index, name ->
+            if (index == globalModeIndex) name + noOverrideSuffix else name
+        }.toTypedArray()
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.displayModeSpinner.adapter = adapter
+
+        val override = data.workspaceOverride
+        val selectedPosition = override?.overrideMode ?: globalModeIndex
+        binding.displayModeSpinner.setSelection(selectedPosition)
+
+        binding.displayModeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateWorkspaceOverrideData()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
+
     private fun saveAndExit() {
         Log.i(TAG, "saveAndExit")
 
@@ -312,7 +374,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
         lifecycleScope.launch(Dispatchers.Main) {
             val orphanedBookmarks = bookmarkControl.findOrphanedBookmarks(listOf(data.label.id))
-            
+
             val (dialogMessage, showOrphanedOptions) = if (orphanedBookmarks.isNotEmpty()) {
                 val baseMessage = getString(R.string.delete_label_confirmation, data.label.name)
                 val orphanedMessage = getString(R.string.confirm_delete_orphaned_bookmarks, orphanedBookmarks.size)
@@ -321,12 +383,12 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             } else {
                 Pair(getString(R.string.delete_label_confirmation, data.label.name), false)
             }
-            
+
             val result = if (showOrphanedOptions) {
                 suspendCoroutine { continuation ->
                     AlertDialog.Builder(this@LabelEditActivity)
                         .setMessage(dialogMessage)
-                        .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ -> 
+                        .setPositiveButton(R.string.delete_label_and_bookmarks) { _, _ ->
                             continuation.resume(RemoveOption.DELETE_LABEL_AND_BOOKMARKS)
                         }
                         .setNegativeButton(R.string.delete_label_only) { _, _ ->
@@ -349,7 +411,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 }
                 if (confirmed) RemoveOption.DELETE_LABEL_ONLY else RemoveOption.CANCEL
             }
-            
+
             when (result) {
                 RemoveOption.DELETE_LABEL_AND_BOOKMARKS -> {
                     data.delete = true
@@ -365,7 +427,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
         }
     }
-    
+
     private fun finishWithResult() {
         val resultIntent = Intent()
         resultIntent.putExtra("data", data.toJSON())
@@ -386,6 +448,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             addImage(autoAssignCheckBox, R.drawable.ic_label_circle)
             addImage(primaryAutoAssignCheckBox, R.drawable.ic_baseline_bookmark_24)
             addImage(primaryLabelCheckBox, R.drawable.ic_baseline_bookmark_24)
+
+            setupWorkspaceOverrideUI()
 
             updateUI()
             updateData()
@@ -500,4 +564,3 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         view.setText(spannableString, TextView.BufferType.SPANNABLE)
     }
 }
-

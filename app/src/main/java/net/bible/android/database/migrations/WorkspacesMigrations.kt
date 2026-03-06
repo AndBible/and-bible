@@ -63,17 +63,35 @@ private val addNonStrongsWordItalic = makeMigration(10..11) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
 }
 
-private val addTranslateTo = makeMigration(11..12) { _db ->
+private val addTitleScrollButton = makeMigration(11..12) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+}
+
+private val addLabelOverridesTable = makeMigration(12..13) { _db ->
+    _db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `WorkspaceLabelOverride` (
+            `workspaceId` BLOB NOT NULL,
+            `labelId` BLOB NOT NULL,
+            `overrideMode` INTEGER DEFAULT NULL,
+            PRIMARY KEY(`workspaceId`, `labelId`),
+            FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON DELETE CASCADE
+        )
+    """)
+    _db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkspaceLabelOverride_workspaceId` ON `WorkspaceLabelOverride` (`workspaceId`)")
+}
+
+private val addTranslateTo = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
 }
 
-private val addInfiniteScroll = makeMigration(12..13) { _db ->
+private val addInfiniteScroll = makeMigration(14..15) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
 }
 
-private val addLlmPromptId = makeMigration(13..14) { _db ->
+private val addLlmPromptId = makeMigration(15..16) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
 }
@@ -89,9 +107,11 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addRestoreButtonsVisible,
     migrateStrongsMode,
     addNonStrongsWordItalic,
+    addTitleScrollButton,
+    addLabelOverridesTable,
     addTranslateTo,
     addInfiniteScroll,
     addLlmPromptId,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 14
+const val WORKSPACE_DATABASE_VERSION = 16
