@@ -64,8 +64,9 @@ const titleEl = ref<HTMLElement | null>(null);
 
 function scrollToTitle() {
     if (titleEl.value && calculatedConfig) {
+        const rect = titleEl.value.getBoundingClientRect();
         window.scrollTo({
-            top: titleEl.value.offsetTop - calculatedConfig.value.topOffset,
+            top: window.scrollY + rect.top - calculatedConfig.value.topOffset,
             behavior: appSettings.disableAnimations ? 'instant' : 'smooth'
         });
     }
@@ -94,9 +95,9 @@ h3.isSubTitle {
   background: none;
   border: none;
   opacity: 0.3;
-  font-size: 80%;
+  font-size: 120%;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 8px 12px;
   line-height: 1;
   color: inherit;
 }
