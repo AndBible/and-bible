@@ -29,6 +29,8 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -742,6 +744,78 @@ object BackupControl {
         internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
     }
 
+    suspend fun restoreFromLocalBackupFile(activity: ActivityBase, file: File) {
+        val uri = Uri.fromFile(file)
+        restoreAppDatabaseFromUriWithUI(activity, uri)
+    }
+
+    suspend fun resetDatabase(
+        activity: ActivityBase,
+        dbFileName: String,
+        nameResId: Int,
+        syncCategory: SyncableDatabaseDefinition?
+    ) {
+        val dbName = activity.getString(nameResId)
+        val confirmed = Dialogs.simpleQuestion(
+            activity,
+            activity.getString(R.string.reset_database_confirm, dbName)
+        )
+        if (!confirmed) return
+
+        withContext(Dispatchers.IO) {
+            if (syncCategory != null) {
+                beforeRestore(syncCategory)
+            }
+
+            if (DatabaseContainer.ready) {
+                DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+            }
+
+            val dbPath = activity.getDatabasePath(dbFileName).path
+            File(dbPath).delete()
+            File("$dbPath-journal").delete()
+            File("$dbPath-shm").delete()
+            File("$dbPath-wal").delete()
+
+            DatabaseContainer.reset()
+            if (DatabaseContainer.ready) {
+                DatabaseContainer.instance
+                if (syncCategory != null) {
+                    afterRestore(listOf(syncCategory))
+                }
+            }
+        }
+
+        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        Dialogs.showMsg(R.string.reset_database_success)
+    }
+
+    data class BackupFileInfo(
+        val appVersion: Int?,
+        val displayDate: String,
+        val file: File
+    )
+
+    fun parseBackupFiles(files: List<File>): List<BackupFileInfo> {
+        val dateParser = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
+        val dateFormatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        return files.map { f ->
+            val name = f.name
+            // Format: dbBackup-{appVer}-{v1}-{v2}-...-{yyyyMMdd}-{HHmmss}.abdb.zip
+            val regex = Regex("""dbBackup-(\d+)-(?:[\d]+-)*(\d{8})-(\d{6})\.abdb\.zip""")
+            val match = regex.find(name)
+            if (match != null) {
+                val appVersion = match.groupValues[1].toIntOrNull()
+                val dateStr = "${match.groupValues[2]}-${match.groupValues[3]}"
+                val date = try { dateParser.parse(dateStr) } catch (_: Exception) { null }
+                val displayDate = if (date != null) dateFormatter.format(date) else name
+                BackupFileInfo(appVersion, displayDate, f)
+            } else {
+                BackupFileInfo(null, name, f)
+            }
+        }
+    }
+
     private const val TAG = "BackupControl"
 }
 
@@ -792,17 +866,49 @@ class BackupActivity: ActivityBase() {
                     toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
                 }
             }
-            CommonUtils.dbBackupPath.listFiles()?.sortedByDescending { it.name }?.forEach { f ->
-                val b = Button(this@BackupActivity)
-                val s = f.name
-                b.text = s
-                b.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, f) }
-                }
-                backupDbButtons.addView(b)
-            }
-            if(backupDbButtons.childCount == 0) {
+            val backupFiles = CommonUtils.dbBackupPath.listFiles()
+                ?.sortedByDescending { it.name }
+                ?: emptyArray()
+
+            if (backupFiles.isEmpty()) {
                 importExportTitle.visibility = View.GONE
+            } else {
+                val parsedFiles = BackupControl.parseBackupFiles(backupFiles.toList())
+                for (info in parsedFiles) {
+                    val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
+                    itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
+                    val sizeKb = info.file.length() / 1024
+                    val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
+                    val detailText = if (info.appVersion != null)
+                        getString(R.string.backup_file_info, info.appVersion, sizeStr)
+                    else sizeStr
+                    itemView.findViewById<TextView>(R.id.backupDetails).text = detailText
+                    itemView.findViewById<ImageButton>(R.id.exportButton).setOnClickListener {
+                        lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, info.file) }
+                    }
+                    itemView.findViewById<ImageButton>(R.id.restoreButton).setOnClickListener {
+                        lifecycleScope.launch { BackupControl.restoreFromLocalBackupFile(this@BackupActivity, info.file) }
+                    }
+                    backupDbButtons.addView(itemView)
+                }
+            }
+
+            // Database reset section
+            data class ResettableDb(val nameResId: Int, val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
+            val resettableDbs = listOf(
+                ResettableDb(R.string.db_bookmarks, BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
+                ResettableDb(R.string.help_workspaces_title, WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
+                ResettableDb(R.string.reading_plans_plural, ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
+                ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
+                ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
+            )
+            for (db in resettableDbs) {
+                val btn = Button(this@BackupActivity)
+                btn.text = getString(R.string.reset_something, getString(db.nameResId))
+                btn.setOnClickListener {
+                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, db.nameResId, db.syncCategory) }
+                }
+                resetButtons.addView(btn)
             }
         }
     }
