@@ -669,7 +669,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     isVisible = true
                 }
             }
-            if (currentSelectionText != null && CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured) {
+            if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
                 menu.findItem(R.id.llm_action).apply {
                     isVisible = true
                 }
@@ -1553,7 +1553,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
                         disableClickToEdit:  $disableClickToEdit,
-                        llmConfigured: ${CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured},
+                        llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
                     },
                     initial: $initial,
