@@ -63,6 +63,24 @@ private val addNonStrongsWordItalic = makeMigration(10..11) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL")
 }
 
+private val addTitleScrollButton = makeMigration(11..12) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL")
+}
+
+private val addLabelOverridesTable = makeMigration(12..13) { _db ->
+    _db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `WorkspaceLabelOverride` (
+            `workspaceId` BLOB NOT NULL,
+            `labelId` BLOB NOT NULL,
+            `overrideMode` INTEGER DEFAULT NULL,
+            PRIMARY KEY(`workspaceId`, `labelId`),
+            FOREIGN KEY(`workspaceId`) REFERENCES `Workspace`(`id`) ON DELETE CASCADE
+        )
+    """)
+    _db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkspaceLabelOverride_workspaceId` ON `WorkspaceLabelOverride` (`workspaceId`)")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -74,6 +92,8 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addRestoreButtonsVisible,
     migrateStrongsMode,
     addNonStrongsWordItalic,
+    addTitleScrollButton,
+    addLabelOverridesTable,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 11
+const val WORKSPACE_DATABASE_VERSION = 13

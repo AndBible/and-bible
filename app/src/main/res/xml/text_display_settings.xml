@@ -69,6 +69,12 @@
             />
 
         <SwitchPreferenceCompat
+            android:key="TITLE_SCROLL_BUTTON"
+            android:title="@string/prefs_title_scroll_button_title"
+            android:summary="@string/prefs_title_scroll_button_summary"
+            />
+
+        <SwitchPreferenceCompat
             android:key="VERSENUMBERS"
             android:title="@string/prefs_show_verseno_title"
             android:summary="@string/prefs_show_verseno_summary"
