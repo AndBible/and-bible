@@ -93,8 +93,8 @@ open class DownloadActivity : DocumentSelectionBase(
     enableLoadingIndicator = false,
 ) {
     private fun showHelp() {
-        val moduleFormatsLink = """<a href="$supportedModuleFormatsWikiUrl">${getString(R.string.supported_module_formats)}</a>"""
-        val wikiPageLink = """<a href="$customRepositoriesWikiUrl">${getString(R.string.wiki_page)}</a>"""
+        val moduleFormatsLink = """<a href="$SUPPORTED_MODULE_FORMATS_WIKI_URL">${getString(R.string.supported_module_formats)}</a>"""
+        val wikiPageLink = """<a href="$CUSTOM_REPOSITORIES_WIKI_URL">${getString(R.string.wiki_page)}</a>"""
         val dialog = AlertDialog.Builder(this)
             .setTitle(R.string.download)
             .setMessage(htmlToSpan(getString(R.string.download_documents_help_message, moduleFormatsLink, wikiPageLink)))
@@ -529,8 +529,8 @@ open class DownloadActivity : DocumentSelectionBase(
     }
 
     companion object {
-        private const val supportedModuleFormatsWikiUrl = "https://github.com/AndBible/and-bible/wiki/Supported-3rd-party-module-formats"
-        private const val customRepositoriesWikiUrl = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
+        private const val SUPPORTED_MODULE_FORMATS_WIKI_URL = "https://github.com/AndBible/and-bible/wiki/Supported-3rd-party-module-formats"
+        private const val CUSTOM_REPOSITORIES_WIKI_URL = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
