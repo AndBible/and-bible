@@ -1204,7 +1204,7 @@
     <string name="custom_repositories_help0">You can install documents from external custom repositories by installing custom repositories.</string>
     <string name="duplicate_custom_repository">Repository with name %s already exists, can\'t add another.</string>
     <string name="supported_module_formats">supported module formats</string>
-    <string name="download_documents_help_message">You can install additional documents in AndBible in a few different ways.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Third-party module formats&lt;/b&gt;&lt;br/&gt;AndBible supports manually installed MyBible and MySword modules. You can read more in %1$s.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Custom repositories&lt;/b&gt;&lt;br/&gt;You can also add external SWORD-compatible repositories and install documents from them. You can read more in %2$s.</string>
+    <string name="download_documents_help_message">You can install additional documents in AndBible in a few different ways.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Third-party module formats&lt;/b&gt;&lt;br/&gt;AndBible supports manually installed MyBible and MySword modules. Read more: %1$s.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Custom repositories&lt;/b&gt;&lt;br/&gt;You can also add external SWORD-compatible repositories and install documents from them. Read more: %2$s.</string>
 
     <string name="packages_dir">Packages directory (Zip files)</string>
     <string name="warn_bad_document">Warning: This document might be (at least partially) bad technical quality.</string>
