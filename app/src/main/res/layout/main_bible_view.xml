@@ -165,12 +165,20 @@
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <View
+            android:id="@+id/toolbarDivider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/toolbarLayout" />
+
         <LinearLayout
             android:id="@+id/mainBibleView"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@id/toolbarLayout"
+            app:layout_constraintTop_toBottomOf="@id/toolbarDivider"
             app:layout_constraintBottom_toBottomOf="parent"
             />
 
