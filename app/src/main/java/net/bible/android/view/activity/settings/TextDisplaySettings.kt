@@ -68,6 +68,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.setupPreferenceSearch
 import net.bible.service.common.textDisplaySettingsVideo
 import java.lang.IllegalArgumentException
 import java.lang.RuntimeException
@@ -229,6 +230,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.text_options_opts, menu)
+        fragment.setupPreferenceSearch(menu!!, this)
         return true
     }
 

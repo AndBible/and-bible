@@ -50,6 +50,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.setupPreferenceSearch
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -109,6 +110,8 @@ class SettingsActivity: ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.app_prefs_options, menu)
+        val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? PreferenceFragmentCompat
+        fragment?.setupPreferenceSearch(menu!!, this)
         return true
     }
 

@@ -809,6 +809,7 @@
     <string name="select_all">Select all</string>
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
     <string name="reset_settings">Reset</string>
+    <string name="search_settings">Search settings</string>
     <string name="workspace_dismiss">Dismiss</string>
     <string name="workspace_listing_with_current">%s (current)</string>
 
