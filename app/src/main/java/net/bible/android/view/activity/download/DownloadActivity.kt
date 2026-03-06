@@ -498,6 +498,7 @@ open class DownloadActivity : DocumentSelectionBase(
                     .setMessage(message)
                     .setPositiveButton(R.string.okay, null)
                     .create().show()
+                isHandled = true
             }
             R.id.help -> {
                 showHelp()
