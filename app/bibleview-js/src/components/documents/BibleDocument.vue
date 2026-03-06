@@ -25,8 +25,8 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
-    <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
-      <button class="mark-as-read-button" :class="{read: chapterRead}" @click="onMarkAsRead">
+    <div v-if="config.showMarkAsReadButton && document.chapterNumber > 0" class="mark-as-read-container">
+      <button class="mark-as-read-button" :class="{read: chapterRead, monochrome: appSettings.monochromeMode}" @click="onMarkAsRead">
         ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, document.chapterNumber) : sprintf(strings.markChapterRead, document.chapterNumber) }}
       </button>
     </div>
@@ -101,9 +101,15 @@ function onMarkAsRead() {
 }
 
 .mark-as-read-button.read {
-    opacity: 0.5;
-    border-color: rgba(76, 175, 80, 0.6);
-    color: rgba(76, 175, 80, 0.8);
+    opacity: 0.8;
+    border-color: rgba(46, 125, 50, 0.8);
+    color: rgb(46, 125, 50);
     cursor: default;
+}
+
+.mark-as-read-button.read.monochrome {
+    border-color: currentColor;
+    color: inherit;
+    opacity: 0.6;
 }
 </style>
