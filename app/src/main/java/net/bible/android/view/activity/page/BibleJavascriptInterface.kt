@@ -32,6 +32,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
+import net.bible.android.database.progress.ReadingSource
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -465,11 +466,12 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
+    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
-        ProgressControl.markChapterRead(v11n, verse.book, chapter)
+        val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
+        ProgressControl.markChapterRead(v11n, verse.book, chapter, readingSource)
     }
 
     @JavascriptInterface

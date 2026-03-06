@@ -157,6 +157,8 @@
     <string name="prefs_mark_as_read_button_summary">Show a button at the end of each chapter to mark it as read</string>
     <string name="mark_chapter_read">Mark chapter %d as read</string>
     <string name="chapter_marked_read">Chapter %d marked as read</string>
+    <string name="prefs_auto_track_reading_title">Auto-track reading</string>
+    <string name="prefs_auto_track_reading_summary">Automatically mark chapters as read when you scroll through them</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
 
     <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>

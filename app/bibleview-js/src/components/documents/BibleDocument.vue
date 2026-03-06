@@ -17,6 +17,7 @@
 
 <template>
   <div
+      ref="containerRef"
       :id="`doc-${document.id}`"
        class="document bible-document"
        :data-book-initials="bookInitials"
@@ -40,6 +41,7 @@ import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter.vue";
 import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
+import {useReadingTracker} from "@/composables/reading-tracker";
 
 const props = defineProps<{ document: BibleDocumentType }>();
 
@@ -62,6 +64,9 @@ function getFootNoteCount() {
 }
 
 provide(footnoteCountKey, {getFootNoteCount});
+
+const containerRef = ref<HTMLElement | null>(null);
+useReadingTracker(containerRef, appSettings, android, bookInitials, ordinalRange, props.document.chapterNumber);
 
 const chapterRead = ref(false);
 

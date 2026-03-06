@@ -126,6 +126,7 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
+    autoTrackReading: boolean,
 }
 
 export type CalculatedConfig = Ref<{
@@ -220,6 +221,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
+        autoTrackReading: false,
     });
 
     function calcMmInPx() {
