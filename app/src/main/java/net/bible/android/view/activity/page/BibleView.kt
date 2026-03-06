@@ -110,7 +110,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
-import net.bible.service.db.DatabaseContainer
 import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
