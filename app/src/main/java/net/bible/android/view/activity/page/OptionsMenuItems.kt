@@ -217,6 +217,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
                 TextDisplaySettings.Types.LLM_PROMPT -> R.string.llm_prompt_title
                 TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
+                TextDisplaySettings.Types.MARK_AS_READ_BUTTON -> R.string.prefs_mark_as_read_button_title
             }
             return application.getString(id)
         }
@@ -246,6 +247,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.PAGENUMBER -> R.drawable.ic_chapter_verse_numbers_24dp
             TextDisplaySettings.Types.INFINITE_SCROLL -> R.drawable.ic_full_screen_by_scrolling_24dp
             TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.drawable.ic_format_italic_24dp
+            TextDisplaySettings.Types.MARK_AS_READ_BUTTON -> R.drawable.ic_baseline_check_circle_24
             else -> R.drawable.ic_baseline_star_24
         }
 }

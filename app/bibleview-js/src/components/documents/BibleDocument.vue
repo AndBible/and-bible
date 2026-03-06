@@ -24,6 +24,11 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
+    <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
+      <button class="mark-as-read-button" :class="{read: chapterRead}" @click="onMarkAsRead">
+        ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, document.chapterNumber) : sprintf(strings.markChapterRead, document.chapterNumber) }}
+      </button>
+    </div>
   </div>
 </template>
 
@@ -46,7 +51,7 @@ provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, origin
 const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
-const {config, appSettings, ...common} = useCommon();
+const {config, appSettings, strings, sprintf, android, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
 
@@ -57,8 +62,43 @@ function getFootNoteCount() {
 }
 
 provide(footnoteCountKey, {getFootNoteCount});
+
+const chapterRead = ref(false);
+
+function onMarkAsRead() {
+    if (chapterRead.value) return;
+    android.markChapterRead(bookInitials, ordinalRange[0], props.document.chapterNumber);
+    chapterRead.value = true;
+}
 </script>
 
 <style scoped>
+.mark-as-read-container {
+    text-align: center;
+    padding: 12px 0;
+}
 
+.mark-as-read-button {
+    display: inline-block;
+    padding: 8px 20px;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: 20px;
+    background: transparent;
+    color: inherit;
+    font-size: 0.85em;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.mark-as-read-button:hover {
+    opacity: 1;
+}
+
+.mark-as-read-button.read {
+    opacity: 0.5;
+    border-color: rgba(76, 175, 80, 0.6);
+    color: rgba(76, 175, 80, 0.8);
+    cursor: default;
+}
 </style>

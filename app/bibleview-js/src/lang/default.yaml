@@ -101,3 +101,5 @@ llmAction: AI
 llmActionLong: AI Action
 aiDocumentRegenerate: Regenerate
 aiDocumentDelete: Delete
+markChapterRead: Mark chapter %s as read
+chapterMarkedRead: Chapter %s marked as read

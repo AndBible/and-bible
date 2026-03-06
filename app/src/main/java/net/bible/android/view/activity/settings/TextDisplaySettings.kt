@@ -134,6 +134,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.LLM_PROMPT -> LlmPromptPreference(settings)
         Types.INFINITE_SCROLL -> ItemPreference(settings, Types.INFINITE_SCROLL)
         Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
+        Types.MARK_AS_READ_BUTTON -> ItemPreference(settings, Types.MARK_AS_READ_BUTTON)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

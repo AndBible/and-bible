@@ -79,6 +79,7 @@ export type BibleJavascriptInterface = {
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorizeCompleted: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -417,6 +418,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.memorizeCompleted(bookInitials, startOrdinal, endOrdinal);
     }
 
+    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
+        window.android.markChapterRead(bookInitials, startOrdinal, chapter);
+    }
+
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
         if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
             // Exceptionally here bookmark type does not matter
@@ -619,6 +624,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         compare,
         memorize,
         memorizeCompleted,
+        markChapterRead,
         speak,
         speakGeneric,
         helpDialog,

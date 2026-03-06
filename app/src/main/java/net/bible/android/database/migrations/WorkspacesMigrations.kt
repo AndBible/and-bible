@@ -78,6 +78,11 @@ private val addLlmPromptId = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
 }
 
+private val addMarkAsReadButton = makeMigration(14..15) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -92,6 +97,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addTranslateTo,
     addInfiniteScroll,
     addLlmPromptId,
+    addMarkAsReadButton,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 14
+const val WORKSPACE_DATABASE_VERSION = 15

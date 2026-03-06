@@ -83,6 +83,11 @@
             android:title="@string/prefs_infinite_scroll_title"
             android:summary="@string/prefs_infinite_scroll_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="MARK_AS_READ_BUTTON"
+            android:title="@string/prefs_mark_as_read_button_title"
+            android:summary="@string/prefs_mark_as_read_button_summary"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_appearance_title"
