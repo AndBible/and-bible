@@ -1258,6 +1258,20 @@
     <string name="progress_sync_title">Reading Progress</string>
     <string name="progress_sync_contents">Memorized verses and chapter reading records</string>
 
+    <!-- Reading Progress Activity -->
+    <string name="reading_progress_title">Reading Progress</string>
+    <string name="reading_progress_chapters_read">chapters read</string>
+    <string name="reading_progress_verses_memorized">verses memorized</string>
+    <string name="reading_progress_active_days">active days</string>
+    <string name="reading_progress_overall">%s%% of Bible read</string>
+    <string name="reading_progress_bible_heatmap">Bible Overview</string>
+    <string name="reading_progress_old_testament">Old Testament</string>
+    <string name="reading_progress_new_testament">New Testament</string>
+    <string name="reading_progress_calendar">Reading Activity</string>
+    <string name="reading_progress_cycle">Cycle %d</string>
+    <string name="reading_progress_new_cycle">New Cycle</string>
+    <string name="reading_progress_new_cycle_confirm">Start a new reading cycle? This will begin tracking your progress from scratch, while preserving your previous cycle\'s data.</string>
+
     <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
     <string name="cloud_create_new">Copy from this device to Cloud</string>
     <string name="cloud_disable_sync">Cancel &amp; disable synchronization</string>

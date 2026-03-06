@@ -20,6 +20,7 @@ package net.bible.android.control.progress
 import net.bible.android.common.toV11n
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.progress.ChapterReadingRecord
+import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
@@ -99,5 +100,42 @@ object ProgressControl {
     fun startNewCycle(): Int {
         val newCycle = getCurrentCycle() + 1
         return newCycle
+    }
+
+    // Statistics methods for ReadingProgressActivity
+
+    fun getTotalReadChapters(cycle: Int = getCurrentCycle()): Int = dao.countTotalReadChapters(cycle)
+
+    fun getDistinctReadDays(cycle: Int = getCurrentCycle()): Int = dao.countDistinctReadDays(cycle)
+
+    fun getTotalMemorizedVerses(): Int = dao.countTotalMemorizedVerses()
+
+    val totalBibleChapters: Int by lazy {
+        var total = 0
+        for (book in KJVA.bookIterator) {
+            total += KJVA.getLastChapter(book)
+        }
+        total
+    }
+
+    fun getReadChaptersForBook(book: BibleBook, cycle: Int = getCurrentCycle()): List<Int> {
+        return dao.getReadChaptersForBook(book.ordinal, cycle)
+    }
+
+    fun getReadingCalendar(startMs: Long, endMs: Long): List<DailyReadingCount> {
+        return dao.getReadingCalendar(startMs, endMs)
+    }
+
+    fun getBookReadingProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, Float> {
+        val result = mutableMapOf<BibleBook, Float>()
+        for (book in KJVA.bookIterator) {
+            val totalChapters = KJVA.getLastChapter(book)
+            if (totalChapters <= 0) continue
+            val readChapters = dao.countReadChaptersForBook(book.ordinal, cycle)
+            if (readChapters > 0) {
+                result[book] = readChapters.toFloat() / totalChapters
+            }
+        }
+        return result
     }
 }

@@ -118,6 +118,7 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
@@ -1816,7 +1817,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
                     val classes = arrayOf(
                         GridChoosePassageBook::class.java.name,
-                        Bookmarks::class.java.name
+                        Bookmarks::class.java.name,
+                        ReadingProgressActivity::class.java.name,
                     )
                     val genBookClasses = arrayOf(
                         ChooseGeneralBookKey::class.java.name,
