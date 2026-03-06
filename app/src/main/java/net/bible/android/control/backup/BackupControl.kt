@@ -44,6 +44,7 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
 import net.bible.android.database.LlmProcessingDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
@@ -917,6 +918,24 @@ class BackupActivity: ActivityBase() {
                     lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, db.nameResId, db.syncCategory) }
                 }
                 resetButtons.addView(btn)
+            }
+
+            // Show last crash stack trace if available
+            val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
+            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+            if (crashFile.exists() && crashTime > 0) {
+                try {
+                    val stackTrace = crashFile.readText()
+                    if (stackTrace.isNotBlank()) {
+                        val timeStr = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+                            .format(java.util.Date(crashTime))
+                        crashInfoTitle.visibility = View.VISIBLE
+                        crashInfoText.visibility = View.VISIBLE
+                        crashInfoText.text = "$timeStr\n\n$stackTrace"
+                    }
+                } catch (e: Exception) {
+                    Log.e("BackupActivity", "Error reading crash info", e)
+                }
             }
         }
     }

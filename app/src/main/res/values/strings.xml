@@ -1093,6 +1093,7 @@
     <string name="backup_file_info">App v%1$d, %2$s</string>
     <string name="reset_databases_title">Reset Databases</string>
     <string name="reset_databases_description">Reset individual databases to their initial empty state. This cannot be undone.</string>
+    <string name="last_crash_info_title">Last crash info</string>
     <string name="reset_database_confirm">This will permanently delete all data in \"%1$s\" and reset it to the initial state. This cannot be undone.\n\nAre you sure?</string>
     <string name="reset_database_success">Database has been reset successfully</string>
     <string name="reset_something">Reset: %1$s</string>
