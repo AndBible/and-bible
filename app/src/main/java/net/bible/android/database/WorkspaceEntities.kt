@@ -327,7 +327,7 @@ class WorkspaceEntities {
                 llmPromptId = IdType.empty(),
                 infiniteScroll = true,
                 nonStrongsWordItalic = false,
-                showMarkAsReadButton = true,
+                showMarkAsReadButton = false,
                 showTitleScrollButton = false
             )
 
