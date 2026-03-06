@@ -669,7 +669,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     isVisible = true
                 }
             }
-            if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
+            if (currentSelectionText != null && CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured) {
                 menu.findItem(R.id.llm_action).apply {
                     isVisible = true
                 }
@@ -1519,9 +1519,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
+        val effectiveSettings = if (displaySettings.llmPromptId != null && !displaySettings.llmPromptId!!.isEmpty) {
+            displaySettings.copy(infiniteScroll = false)
+        } else {
+            displaySettings
+        }
         return """
                 bibleView.emit('set_config', {
-                    config: ${displaySettings.toJson()}, 
+                    config: ${effectiveSettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
                         isBottomWindow: $isBottomWindow,
@@ -1542,7 +1547,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,
                         disableClickToEdit:  $disableClickToEdit,
-                        llmConfigured: ${CommonUtils.settings.llmConfigured},
+                        llmConfigured: ${CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
                     },
                     initial: $initial,
@@ -2114,6 +2119,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 chapterLoadJobs.clear()
             }
         }
+        executeJavascriptOnUiThread("bibleView.emit('reset_loading_count')")
         LlmProcessingService.cancelAllPendingRequests()
     }
 

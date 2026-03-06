@@ -35,7 +35,7 @@ object LocaleHelper {
             try {
                 val labelRes =
                     activity.packageManager.getActivityInfo(activity.componentName, 0).labelRes
-                activity.setTitle(labelRes)
+                if (labelRes != 0) activity.setTitle(labelRes)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }

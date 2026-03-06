@@ -570,6 +570,18 @@ class WindowPinningPreference :
     override val isBoolean = true
 }
 
+class InfiniteScrollPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.INFINITE_SCROLL) {
+    private val llmActive: Boolean get() {
+        val actualSettings = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
+        val promptId = actualSettings.llmPromptId
+        return promptId != null && !promptId.isEmpty
+    }
+    override val enabled: Boolean get() = !llmActive
+    override var value
+        get() = if (llmActive) false else super.value
+        set(value) { if (!llmActive) super.value = value }
+}
+
 class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LLM_PROMPT) {
     override val title: String get() {
         val promptId = value as IdType?
@@ -583,7 +595,7 @@ class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDi
         }
     }
 
-    override val visible: Boolean get() = CommonUtils.settings.llmConfigured
+    override val visible: Boolean get() = CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured && settings.windowId != null
 
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val prompts = PromptRepository.promptsForContext(PromptContext.TEXT_DISPLAY_SETTINGS)

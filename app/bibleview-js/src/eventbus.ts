@@ -45,6 +45,7 @@ type EventTypeNames =
     | "scroll_up"
     | "scroll_down"
     | "adjust_loading_count"
+    | "reset_loading_count"
     | "export_html"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()

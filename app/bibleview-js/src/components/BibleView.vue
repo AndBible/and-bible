@@ -390,6 +390,10 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
     }
 });
 
+setupEventBusListener("reset_loading_count", () => {
+    loadingCount.value = 0;
+});
+
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 const scrollAmount = computed(() => {
     let amount = calculatedConfig.value.pageHeight;
