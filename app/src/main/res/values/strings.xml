@@ -150,6 +150,8 @@
     <string name="prefs_non_strongs_word_italic_title">Italicize added words</string>
     <string name="prefs_non_strongs_word_italic_summary">Italicize words without Strong\'s numbers</string>
     <string name="prefs_section_title_title">Section titles</string>
+    <string name="prefs_title_scroll_button_title">Title scroll button</string>
+    <string name="prefs_title_scroll_button_summary">Show scroll-to-top button next to section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_infinite_scroll_title">Infinite scroll</string>
     <string name="prefs_infinite_scroll_summary">Automatically load more content when scrolling</string>
@@ -1052,6 +1054,13 @@
     <string name="whole_verse_turned_on">Bookmark is now marked for whole verse</string>
     <string name="this_bookmark">This bookmark</string>
     <string name="this_workspace">This workspace</string>
+    <string name="override_style">Override style</string>
+    <string name="no_override_suffix">(no override)</string>
+    <string name="display_mode_highlight">Highlight</string>
+    <string name="display_mode_underline">Underline</string>
+    <string name="display_mode_marker">Marker only</string>
+    <string name="display_mode_hidden">Hidden</string>
+    <string name="workspace_override_indicator">This label has workspace-specific display mode</string>
     <string name="primary_label">Primary label</string>
     <string name="highlight_entire_verse">Highlight entire verse</string>
     <string name="favourite_label">Favourite label</string>

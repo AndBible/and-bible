@@ -55,6 +55,7 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -1367,7 +1368,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (ScreenSettings.nightMode)
             resources.getColor(R.color.actionbar_background_night, theme)
         else if (CommonUtils.settings.monochromeMode) {
-            Color.BLACK
+            Color.WHITE
         } else {
             workspaceSettings.workspaceColor ?: defaultWorkspaceColor
         }
@@ -1377,9 +1378,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             window.decorView.windowInsetsController?.apply {
                 show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
                 if (!ScreenSettings.nightMode) {
+                    var appearance = WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                    if (CommonUtils.settings.monochromeMode) {
+                        appearance = appearance or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+                    }
                     setSystemBarsAppearance(
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                        appearance,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS or WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     )
                 }
             }
@@ -1388,6 +1393,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 if (!ScreenSettings.nightMode) {
                     uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
+                    if (CommonUtils.settings.monochromeMode) {
+                        uiFlags = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+                    }
                 }
             }
             window.decorView.systemUiVisibility = uiFlags
@@ -1406,9 +1414,25 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     toolbarButtonLayout.setBackgroundColor(toolbarColor)
                 }
 
-                if (ScreenSettings.nightMode){
+                val isMonochrome = CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode
+                val toolbarIconTint = if (isMonochrome) Color.BLACK else Color.WHITE
+                binding.run {
+                    homeButton.drawable?.setTint(toolbarIconTint)
+                    pageTitle.setTextColor(toolbarIconTint)
+                    documentTitle.setTextColor(toolbarIconTint)
+                    syncIcon.drawable?.setTint(toolbarIconTint)
+                    for (i in 0 until toolbarButtonLayout.childCount) {
+                        val child = toolbarButtonLayout.getChildAt(i)
+                        if (child is ImageButton) {
+                            child.drawable?.setTint(toolbarIconTint)
+                        }
+                    }
+                }
+                if (ScreenSettings.nightMode) {
                     binding.homeButton.drawable.setTint(workspaceSettings.workspaceColor ?: defaultWorkspaceColor)
                 }
+
+                binding.toolbarDivider.visibility = if (isMonochrome) View.VISIBLE else View.GONE
 
                 val color = if (setNavBarColor && !CommonUtils.settings.monochromeMode) {
                     val color = if (ScreenSettings.nightMode) colors.nightBackground else colors.dayBackground
@@ -1646,9 +1670,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun updateToolbar() {
         binding.apply {
+            val toolbarHeightRes = if (CommonUtils.settings.monochromeMode && !ScreenSettings.nightMode)
+                R.dimen.toolbar_height_monochrome else R.dimen.toolbar_height
+            val toolbarHeightPx = resources.getDimensionPixelSize(toolbarHeightRes)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
-                binding.toolbarLayout.layoutParams.height = systemInsets.top + resources.getDimensionPixelSize(R.dimen.toolbar_height)
+                binding.toolbarLayout.layoutParams.height = systemInsets.top + toolbarHeightPx
                 binding.toolbarLayout.setPadding(0, systemInsets.top, 0, 0)
+            } else {
+                binding.toolbarLayout.layoutParams.height = toolbarHeightPx
+                binding.toolbarLayout.minimumHeight = toolbarHeightPx
             }
             toolbarLayout.setPadding(leftOffset1, topOffset1, rightOffset1, 0)
             speakTransport.setPadding(leftOffset1, 0, rightOffset1, 0)

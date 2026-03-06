@@ -1,0 +1,191 @@
+name: Copilot Review Gate
+
+on:
+  # pull_request_target to access secrets on fork PRs (safe: no code checkout)
+  pull_request_target:
+    types: [opened, synchronize, ready_for_review]
+  workflow_dispatch:
+  # Periodic check for Copilot review status on open PRs
+  schedule:
+    - cron: '0 7 * * *'
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  # Post welcome comment + request Copilot review on new/ready PRs
+  welcome-and-request:
+    if: >
+      github.event_name == 'pull_request_target' &&
+      (github.event.action == 'opened' || github.event.action == 'ready_for_review') &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check for existing welcome comment
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          COMMENTS=$(gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --jq '.[].body' 2>/dev/null || true)
+          if echo "$COMMENTS" | grep -q "copilot-review-gate"; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Post welcome comment
+        if: steps.check.outputs.exists == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments" \
+            --method POST \
+            -f body="$(cat <<'BODY'
+          <!-- copilot-review-gate -->
+          ## Welcome and thank you for your contribution!
+
+          This project uses **GitHub Copilot** as a first-pass automated reviewer. Here is how the review process works:
+
+          1. **Copilot reviews your PR first.** It has been automatically requested as a reviewer.
+          2. **Address Copilot's feedback** by either pushing fixes or replying to the comment explaining why you disagree.
+          3. **Human review follows** once all Copilot feedback is addressed — meaning Copilot found no issues, or you have responded to every comment thread.
+
+          > If you used AI tools to write code, please make sure you have personally reviewed and understood every change before submitting. See [CONTRIBUTING.md](https://github.com/AndBible/and-bible/blob/develop/CONTRIBUTING.md#ai-tools-and-code-responsibility) for details.
+          BODY
+          )"
+
+      - name: Request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
+            --method POST --input - <<< '{"reviewers":["copilot-pull-request-reviewer[bot]"]}' || true
+
+  # On new push: re-request Copilot review + remove stale label
+  re-request-on-push:
+    if: >
+      github.event_name == 'pull_request_target' &&
+      github.event.action == 'synchronize' &&
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login != 'tuomas2'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Remove copilot-approved label
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/labels/copilot-approved" \
+            --method DELETE 2>/dev/null || true
+
+      - name: Re-request Copilot review
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          gh api "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/requested_reviewers" \
+            --method POST --input - <<< '{"reviewers":["copilot-pull-request-reviewer[bot]"]}' || true
+
+  # Periodic check: scan open PRs for Copilot review status and manage label
+  check-copilot-review-status:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check open PRs for Copilot review status
+        env:
+          GH_TOKEN: ${{ secrets.COPILOT_REVIEW_TOKEN }}
+        run: |
+          # Get all open non-draft PRs
+          PRS=$(gh api "repos/${{ github.repository }}/pulls?state=open&per_page=30" \
+            --jq '[.[] | select(.draft == false)] | .[].number')
+
+          FAILED=0
+          for PR_NUMBER in $PRS; do
+            echo "--- Checking PR #${PR_NUMBER} ---"
+
+            # Wrap per-PR logic so a transient API error doesn't abort the whole loop
+            if ! (
+              set -e
+
+              # Check if Copilot has reviewed this PR
+              HAS_COPILOT_REVIEW=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/reviews" \
+                --jq '[.[] | select(.user.login == "copilot-pull-request-reviewer[bot]")] | length')
+
+              if [ "$HAS_COPILOT_REVIEW" -eq 0 ]; then
+                echo "No Copilot review. Skipping."
+                exit 0
+              fi
+
+              # Check if Copilot is still pending (requested but not yet reviewed latest)
+              COPILOT_PENDING=$(gh api "repos/${{ github.repository }}/pulls/${PR_NUMBER}/requested_reviewers" \
+                --jq '[.users[] | select(.login == "Copilot")] | length')
+
+              if [ "$COPILOT_PENDING" -gt 0 ]; then
+                echo "Copilot review still pending. Skipping."
+                exit 0
+              fi
+
+              # Check current label status
+              HAS_LABEL=$(gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+                --jq '[.[] | select(.name == "copilot-approved")] | length')
+
+              # Get review threads via GraphQL
+              RESULT=$(gh api graphql -f query='
+                query($owner:String!, $name:String!, $number:Int!) {
+                  repository(owner:$owner, name:$name) {
+                    pullRequest(number:$number) {
+                      reviewThreads(first:100) {
+                        nodes {
+                          isResolved
+                          isOutdated
+                          comments(first:20) {
+                            nodes {
+                              author { login }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }' -f owner="${{ github.repository_owner }}" \
+                   -f name="$(echo '${{ github.repository }}' | cut -d/ -f2)" \
+                   -F number="$PR_NUMBER")
+
+              # Count unaddressed Copilot threads:
+              # A thread is "unaddressed" if NOT resolved, NOT outdated,
+              # started by Copilot, and has NO replies from non-Copilot users
+              UNADDRESSED=$(echo "$RESULT" | jq '
+                [.data.repository.pullRequest.reviewThreads.nodes[]
+                 | select(.isResolved == false and .isOutdated == false)
+                 | select(.comments.nodes[0].author.login == "copilot-pull-request-reviewer")
+                 | select(
+                     [.comments.nodes[1:][]
+                      | select(.author.login != "copilot-pull-request-reviewer")
+                     ] | length == 0
+                   )
+                ] | length')
+
+              echo "PR #${PR_NUMBER}: $UNADDRESSED unaddressed Copilot thread(s)"
+
+              if [ "$UNADDRESSED" -eq 0 ] && [ "$HAS_LABEL" -eq 0 ]; then
+                echo "All addressed. Adding copilot-approved label."
+                gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels" \
+                  --method POST --input - <<< '{"labels":["copilot-approved"]}'
+              elif [ "$UNADDRESSED" -gt 0 ] && [ "$HAS_LABEL" -gt 0 ]; then
+                echo "Unaddressed threads found. Removing stale label."
+                gh api "repos/${{ github.repository }}/issues/${PR_NUMBER}/labels/copilot-approved" \
+                  --method DELETE 2>/dev/null || true
+              fi
+            ); then
+              echo "::warning::Failed to process PR #${PR_NUMBER}, skipping."
+              FAILED=$((FAILED + 1))
+            fi
+          done
+
+          if [ "$FAILED" -gt 0 ]; then
+            echo "::warning::${FAILED} PR(s) failed due to API errors."
+          fi

@@ -106,9 +106,11 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.search.SearchControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.json
+import net.bible.service.db.DatabaseContainer
 import net.bible.android.misc.wrapString
 import net.bible.android.view.activity.base.DocumentView
 import net.bible.android.view.activity.base.IntentHelper
@@ -1386,6 +1388,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     var lastUpdated = 0L
     var bookmarkLabels: List<BookmarkEntities.Label> = emptyList()
+    private var labelOverridesMap: Map<IdType, WorkspaceEntities.WorkspaceLabelOverride> = emptyMap()
 
     var firstDocument: Document? = null
 
@@ -1405,7 +1408,13 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         bookmarkControl.speakLabel
         bookmarkControl.paragraphBreakLabel
 
-        bookmarkLabels = bookmarkControl.assignableLabels.toMutableList()
+        val workspaceId = windowControl.windowRepository.id
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val overridesList = dao.labelOverrides(workspaceId)
+        labelOverridesMap = overridesList.associateBy { it.labelId }
+        bookmarkLabels = bookmarkControl.assignableLabels.map { label ->
+            label.withStyleOverrides(labelOverridesMap[label.id])
+        }
         initialKey = key
 
         initialAnchorOrdinal = anchorOrdinal
@@ -1813,7 +1822,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: LabelAddedOrUpdatedEvent) {
-        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(event.label))
+        val workspaceId = windowControl.windowRepository.id
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        labelOverridesMap = dao.labelOverrides(workspaceId).associateBy { it.labelId }
+        val overriddenLabel = event.label.withStyleOverrides(labelOverridesMap[event.label.id])
+        val labelStr = json.encodeToString(serializer(), ClientBookmarkLabel(overriddenLabel))
         executeJavascriptOnUiThread("""bibleView.emit("update_labels", [$labelStr])""")
     }
 

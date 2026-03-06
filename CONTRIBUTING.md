@@ -94,6 +94,28 @@ the first element, preventing a NullPointerException on startup.
 
 - **Code documentation**: write readable, self-explanatory code. Add comments where the logic is non-obvious, but avoid over-documenting obvious code.
 
+### Automated review process
+
+When you open a pull request, **GitHub Copilot will be automatically requested as a reviewer**. This is the first step of the review process:
+
+1. Copilot reviews your code and may leave comments or suggestions.
+2. Address Copilot's feedback by either fixing the issues (push new commits) or replying to the comment thread with your reasoning if you disagree.
+3. Once Copilot's feedback is addressed, a human maintainer will review your PR.
+
+Human review will not begin until Copilot's feedback is addressed. Responding promptly to Copilot comments speeds up the overall process.
+
+### AI tools and code responsibility
+
+AndBible welcomes contributions that use AI coding assistants (Copilot, Claude, ChatGPT, etc.), but **every line of code you submit must be personally reviewed and understood by you**. AndBible maintains 100% human-approved code — this is not a vibe-coding project.
+
+Before submitting a pull request:
+
+1. **Review your own code.** Read through every change as if you were the reviewer. Ask yourself: does this fit the existing codebase? Is the approach sound? Are there edge cases?
+2. **Run an AI self-review.** If you used an AI tool to generate code, ask it to review the diff for bugs, style issues, and potential problems. Fix anything significant it finds before submitting. You may reasonably disagree with AI review suggestions, but ignoring the review entirely is not acceptable.
+3. **Take personal responsibility.** You are the author. If something breaks, "the AI wrote it" is not an acceptable answer. Only submit code you can explain and defend.
+
+Contributors are expected to have sufficient software development experience and understanding to evaluate whether their solution is correct and appropriate for the AndBible codebase. If you are not yet confident in your ability to review your own code, consider contributing in other ways (testing, documentation, translations) while building your skills.
+
 ### Code style guide
 
 - Do not write too long lines (120 characters should be your guide)

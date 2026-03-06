@@ -56,6 +56,12 @@ interface WorkspaceDao {
                 insertPageManager(pageManager)
             }
         }
+
+        val overrides = labelOverrides(oldWorkspace.id)
+        for (override in overrides) {
+            insertOrUpdateLabelOverride(override.copy(workspaceId = newWorkspace.id))
+        }
+
         return newWorkspace
     }
     @Insert fun insertPageManager(pageManager: WorkspaceEntities.PageManager)
@@ -118,4 +124,16 @@ interface WorkspaceDao {
 
     @Update
     fun updateWorkspaces(items: List<WorkspaceEntities.Workspace>)
+
+    @Query("SELECT * FROM WorkspaceLabelOverride WHERE workspaceId = :workspaceId")
+    fun labelOverrides(workspaceId: IdType): List<WorkspaceEntities.WorkspaceLabelOverride>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertOrUpdateLabelOverride(override: WorkspaceEntities.WorkspaceLabelOverride)
+
+    @Query("DELETE FROM WorkspaceLabelOverride WHERE workspaceId = :workspaceId AND labelId = :labelId")
+    fun deleteLabelOverride(workspaceId: IdType, labelId: IdType)
+
+    @Query("DELETE FROM WorkspaceLabelOverride WHERE labelId = :labelId")
+    fun deleteOverridesByLabelId(labelId: IdType)
 }

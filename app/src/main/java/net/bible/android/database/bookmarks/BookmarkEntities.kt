@@ -36,6 +36,7 @@ import androidx.room.Ignore
 import kotlinx.serialization.Serializable
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
+import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.Key
@@ -716,5 +717,32 @@ class BookmarkEntities {
         val isUnlabeledLabel get() = name == UNLABELED_NAME
         val isParagraphBreakLabel get() = name == PARAGRAH_BREAK_LABEL_NAME
         val isSpecialLabel get() = isSpeakLabel || isUnlabeledLabel || isParagraphBreakLabel
+
+        fun withStyleOverrides(override: WorkspaceEntities.WorkspaceLabelOverride?): Label {
+            if (override?.overrideMode == null) return this
+            return when (override.overrideMode) {
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT -> this.copy(
+                    markerStyle = false, markerStyleWholeVerse = false,
+                    underlineStyle = false, underlineStyleWholeVerse = false,
+                    hideStyle = false, hideStyleWholeVerse = false,
+                )
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE -> this.copy(
+                    markerStyle = false, markerStyleWholeVerse = false,
+                    underlineStyle = true, underlineStyleWholeVerse = true,
+                    hideStyle = false, hideStyleWholeVerse = false,
+                )
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER -> this.copy(
+                    markerStyle = true, markerStyleWholeVerse = true,
+                    underlineStyle = false, underlineStyleWholeVerse = false,
+                    hideStyle = false, hideStyleWholeVerse = false,
+                )
+                WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN -> this.copy(
+                    markerStyle = false, markerStyleWholeVerse = false,
+                    underlineStyle = false, underlineStyleWholeVerse = false,
+                    hideStyle = true, hideStyleWholeVerse = true,
+                )
+                else -> this
+            }
+        }
     }
 }

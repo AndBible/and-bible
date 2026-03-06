@@ -22,8 +22,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainScrollView"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -203,7 +202,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/thisWorkspaceTitle" />
 
-
         <androidx.appcompat.widget.AppCompatCheckBox
             android:id="@+id/primaryAutoAssignCheckBox"
             style="@style/EditBookmarkLabelItemTitle"
@@ -214,6 +212,23 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/autoAssignCheckBox" />
 
+        <TextView
+            android:id="@+id/overrideStyleLabel"
+            style="@style/EditBookmarkLabelItemTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/override_style"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/primaryAutoAssignCheckBox" />
+
+        <Spinner
+            android:id="@+id/displayModeSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/overrideStyleLabel" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

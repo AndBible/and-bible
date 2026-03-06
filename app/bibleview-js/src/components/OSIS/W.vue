@@ -18,13 +18,13 @@
 <template>
   <template v-if="showStrongsSeparately">
     <template v-if="(showStrongs && lemma) && (config.showMorphology && morph)">
-      <span :class="{'link-style': true, 'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(morph)}}</a></span>
+      <span :class="{'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a :class="{isHighlighted}" class="strongs highlight-transition" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(lemma)}}</a>/<a :class="{isHighlighted}" class="morph highlight-transition" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else-if="(showStrongs && lemma) && (!config.showMorphology || !morph)">
-      <span :class="{'link-style': true, 'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(lemma)}}</a></span>
+      <span :class="{'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a class="strongs highlight-transition" :class="{isHighlighted}" :href="formatLink(lemma, morph)" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(lemma)}}</a></span>
     </template>
     <template v-else-if="(!showStrongs || !lemma) && (config.showMorphology && morph)">
-      <span :class="{'link-style': true, 'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(lemma, morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(morph)}}</a></span>
+      <span :class="{'has-strongs': !!lemma}"><slot/></span><span class="w-base skip-offset">&nbsp;<a class="morph highlight-transition" :href="formatLink(lemma, morph)" :class="{isHighlighted}" @click.prevent="goToLink($event, formatLink(lemma, morph))">{{formatName(morph)}}</a></span>
     </template>
     <template v-else><span :class="{'has-strongs': !!lemma}"><slot/></span></template>
   </template>

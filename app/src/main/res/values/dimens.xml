@@ -46,4 +46,5 @@
 	<dimen name="speak_row_padding">10dip</dimen>
 	<dimen name="row_divider_padding">10dip</dimen>
     <dimen name="toolbar_height">56dip</dimen>
+    <dimen name="toolbar_height_monochrome">40dip</dimen>
 </resources>
