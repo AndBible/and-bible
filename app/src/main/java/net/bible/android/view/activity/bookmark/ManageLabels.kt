@@ -47,8 +47,10 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManageLabelsBinding
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.ContentMatch
+import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.db.DatabaseContainer
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.ListActivityBase
@@ -151,6 +153,7 @@ class ManageLabels : ListActivityBase() {
     }
 
     var highlightLabel: BookmarkEntities.Label? = null
+    var overriddenLabelIds: Set<IdType> = emptySet()
 
     private fun showKeyboard() = binding.run {
         editSearchText.requestFocus()
@@ -289,6 +292,13 @@ class ManageLabels : ListActivityBase() {
         loadFilteringSettings()
 
         allLabels.addAll(bookmarkControl.assignableLabels.filter {!it.isUnlabeledLabel})
+
+        val workspaceId = bookmarkControl.windowControl.windowRepository.id
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        overriddenLabelIds = workspaceDao.labelOverrides(workspaceId)
+            .filter { it.hasOverride }
+            .map { it.labelId }
+            .toSet()
 
         if(data.mode == Mode.STUDYPAD) {
             title = getString(R.string.studypads)
@@ -542,6 +552,16 @@ class ManageLabels : ListActivityBase() {
         val isNew = label.new
         Log.i(TAG, "editLabel isNew: $isNew")
         val intent = Intent(this, LabelEditActivity::class.java)
+
+        val workspaceId = bookmarkControl.windowControl.windowRepository.id
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        val existingOverrides = if (!isNew) workspaceDao.labelOverrides(workspaceId) else emptyList()
+        val existingOverride = existingOverrides.find { it.labelId == label.id }
+        val workspaceOverride = existingOverride ?: WorkspaceEntities.WorkspaceLabelOverride(
+            workspaceId = workspaceId,
+            labelId = label.id,
+        )
+
         val labelData = LabelEditActivity.LabelData(
             isAssigning = data.mode == Mode.ASSIGN,
             label = label,
@@ -550,6 +570,8 @@ class ManageLabels : ListActivityBase() {
             isThisBookmarkPrimary = data.bookmarkPrimaryLabel == label.id,
             isThisBookmarkSelected = data.selectedLabels.contains(label.id),
             suggestedName = suggestedName,
+            workspaceOverride = workspaceOverride,
+            hasWorkspaceContext = true,
         )
         if(isNew) {
             if(data.mode == Mode.ASSIGN) {
@@ -608,6 +630,20 @@ class ManageLabels : ListActivityBase() {
                         } else {
                             data.selectedLabels.remove(label.id)
                         }
+                    }
+
+                    // Save workspace override
+                    val returnedOverride = newLabelData.workspaceOverride
+                    if (returnedOverride != null) {
+                        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+                        if (returnedOverride.hasOverride) {
+                            dao.insertOrUpdateLabelOverride(returnedOverride)
+                            overriddenLabelIds = overriddenLabelIds + returnedOverride.labelId
+                        } else {
+                            dao.deleteLabelOverride(returnedOverride.workspaceId, returnedOverride.labelId)
+                            overriddenLabelIds = overriddenLabelIds - returnedOverride.labelId
+                        }
+                        ABEventBus.post(LabelAddedOrUpdatedEvent(label))
                     }
                 }
                 updateLabelList(rePopulate = true, reOrder = isNew)

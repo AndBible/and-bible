@@ -418,6 +418,34 @@ class WorkspaceEntities {
     }
 
     @Entity(
+        primaryKeys = ["workspaceId", "labelId"],
+        foreignKeys = [
+            ForeignKey(
+                entity = Workspace::class,
+                parentColumns = ["id"],
+                childColumns = ["workspaceId"],
+                onDelete = CASCADE
+            )
+        ],
+        indices = [Index("workspaceId")]
+    )
+    @Serializable
+    data class WorkspaceLabelOverride(
+        val workspaceId: IdType,
+        val labelId: IdType,
+        @ColumnInfo(defaultValue = "NULL") val overrideMode: Int? = null,
+    ) {
+        val hasOverride: Boolean get() = overrideMode != null
+
+        companion object {
+            const val MODE_HIGHLIGHT = 0
+            const val MODE_UNDERLINE = 1
+            const val MODE_MARKER = 2
+            const val MODE_HIDDEN = 3
+        }
+    }
+
+    @Entity(
         foreignKeys = [
             ForeignKey(
                 entity = Window::class,

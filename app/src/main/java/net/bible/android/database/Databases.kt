@@ -85,6 +85,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
         WorkspaceEntities.Window::class,
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
+        WorkspaceEntities.WorkspaceLabelOverride::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,

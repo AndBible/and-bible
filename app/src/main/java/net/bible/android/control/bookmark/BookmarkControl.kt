@@ -627,6 +627,10 @@ open class BookmarkControl @Inject constructor(
             dao.genericBookmarksWithPrimaryLabel(labelIdList)
 
         dao.deleteLabelsByIds(labelIdList)
+        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+        for (labelId in labelIdList) {
+            workspaceDao.deleteOverridesByLabelId(labelId)
+        }
         bookmarks =
             dao.bibleBookmarksByIds(bookmarks.map { it.id }) +
             dao.genericBookmarksByIds(bookmarks.map { it.id })
