@@ -71,7 +71,7 @@ object CreateLabelTool : Tool {
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val name = arguments.optString("name", "")
-        val color = if (arguments.has("color")) arguments.getInt("color") else defaultLabelColor
+        val color = arguments.optInt("color", defaultLabelColor)
 
         if (name.isBlank()) {
             return ToolResult.error("Missing required parameter: name")

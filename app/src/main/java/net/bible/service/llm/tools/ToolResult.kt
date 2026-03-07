@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -54,7 +55,10 @@ sealed class ToolResult {
                 is Boolean -> result.put("data", data)
                 is List<*> -> result.put("data", JSONArray(data))
                 is Map<*, *> -> result.put("data", JSONObject(data))
-                else -> result.put("data", data.toString())
+                else -> {
+                    Log.w("ToolResult", "Unexpected data type in ToolResult: ${data::class.simpleName}")
+                    result.put("data", data.toString())
+                }
             }
             result.toString()
         }

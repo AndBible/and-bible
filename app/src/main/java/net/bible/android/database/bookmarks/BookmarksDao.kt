@@ -99,6 +99,9 @@ SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes
     WHERE Label.id = :labelId
 """
 
+data class StudyPadEntryStub(val id: IdType, val orderNumber: Int)
+data class BookmarkToLabelStub(val bookmarkId: IdType, val orderNumber: Int)
+
 @Dao
 interface BookmarkDao {
     @Query("SELECT * from BibleBookmarkWithNotes WHERE $search ORDER BY $orderBy")
@@ -350,6 +353,18 @@ interface BookmarkDao {
     @Query("SELECT * from StudyPadTextEntryWithText WHERE labelId=:id ORDER BY orderNumber")
     fun studyPadTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntryWithText>
 
+    @Query("SELECT id, orderNumber FROM StudyPadTextEntryWithText WHERE labelId=:labelId ORDER BY orderNumber")
+    fun studyPadTextEntryStubs(labelId: IdType): List<StudyPadEntryStub>
+
+    @Query("SELECT bookmarkId, orderNumber FROM BibleBookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber")
+    fun bibleBookmarkToLabelStubs(labelId: IdType): List<BookmarkToLabelStub>
+
+    @Query("SELECT bookmarkId, orderNumber FROM GenericBookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber")
+    fun genericBookmarkToLabelStubs(labelId: IdType): List<BookmarkToLabelStub>
+
+    @Query("SELECT * FROM StudyPadTextEntryWithText WHERE id IN (:ids)")
+    fun studyPadTextEntriesByIds(ids: List<IdType>): List<BookmarkEntities.StudyPadTextEntryWithText>
+
     @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
 
@@ -416,6 +431,9 @@ interface BookmarkDao {
 
     @Query("""SELECT * FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getBookmarkToLabelsForBookmark(bookmarkId: IdType): List<BibleBookmarkToLabel>
+
+    @Query("SELECT * FROM BibleBookmarkToLabel WHERE bookmarkId IN (:bookmarkIds)")
+    fun getBookmarkToLabelsForBookmarks(bookmarkIds: List<IdType>): List<BibleBookmarkToLabel>
 
     @Query("""SELECT * FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getGenericBookmarkToLabelsForBookmark(bookmarkId: IdType): List<GenericBookmarkToLabel>

@@ -86,7 +86,7 @@ object SearchBibleTool : Tool {
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val query = arguments.optString("query", "")
         val booksArray = arguments.optJSONArray("books")
-        val maxResults = arguments.optInt("maxResults", 50)
+        val maxResults = arguments.optInt("maxResults", 50).coerceIn(1, 500)
 
         if (query.isBlank()) {
             return ToolResult.error("Missing required parameter: query")

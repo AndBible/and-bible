@@ -38,7 +38,6 @@ import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
-import org.json.JSONArray
 import org.json.JSONObject
 import java.util.concurrent.ConcurrentHashMap
 
@@ -124,44 +123,6 @@ object ToolRegistry {
      * Get the count of registered tools.
      */
     val count: Int get() = tools.size
-
-    /**
-     * Generate the tools array for OpenAI API request.
-     *
-     * Returns a JSONArray in the format expected by the OpenAI API:
-     * ```json
-     * [
-     *   {
-     *     "type": "function",
-     *     "function": {
-     *       "name": "toolName",
-     *       "description": "Tool description",
-     *       "parameters": { ... }
-     *     }
-     *   }
-     * ]
-     * ```
-     *
-     * @param includeWriteTools Whether to include write tools that require permission
-     */
-    fun toOpenAiToolsArray(includeWriteTools: Boolean = true): JSONArray {
-        val toolsArray = JSONArray()
-        for (tool in tools.values) {
-            if (!includeWriteTools && tool.requiresPermission) {
-                continue
-            }
-            val toolObj = JSONObject().apply {
-                put("type", "function")
-                put("function", JSONObject().apply {
-                    put("name", tool.name)
-                    put("description", tool.description)
-                    put("parameters", tool.parametersSchema)
-                })
-            }
-            toolsArray.put(toolObj)
-        }
-        return toolsArray
-    }
 
     /**
      * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].

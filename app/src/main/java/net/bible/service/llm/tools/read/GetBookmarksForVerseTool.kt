@@ -85,9 +85,17 @@ object GetBookmarksForVerseTool : Tool {
             // Get bookmarks for the verse range
             val bookmarks = dao.bookmarksForVerseRange(verseRange)
 
+            // Batch-fetch labels: 3 queries instead of N+1
+            val bookmarkIds = bookmarks.map { it.id }
+            val btlList = dao.getBookmarkToLabelsForBookmarks(bookmarkIds)
+            val labelIds = btlList.map { it.labelId }.distinct()
+            val labelsById = dao.labelsById(labelIds).associateBy { it.id }
+            val labelsMap = btlList.groupBy({ it.bookmarkId }, { labelsById[it.labelId] })
+                .mapValues { it.value.filterNotNull() }
+
             val results = JSONArray()
             for (bookmark in bookmarks) {
-                val labels = dao.labelsForBookmark(bookmark)
+                val labels = labelsMap[bookmark.id] ?: emptyList()
 
                 results.put(JSONObject().apply {
                     put("id", bookmark.id.toString())
