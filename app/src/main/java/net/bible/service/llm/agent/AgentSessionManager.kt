@@ -773,9 +773,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        // Execute the prompt first, then delete old page if successful
-        executePrompt(prompt, selection, targetWindowId = targetWindowId)
+        // Delete old page first to avoid cache hit, then execute the prompt
         MyDocumentBookManager.deleteAIDocumentPage(pageId)
+        executePrompt(prompt, selection, targetWindowId = targetWindowId)
         return true
     }
 
