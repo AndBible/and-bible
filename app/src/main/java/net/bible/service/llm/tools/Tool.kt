@@ -99,17 +99,6 @@ interface Tool {
 }
 
 /**
- * Normalize text content from LLM output.
- *
- * Some LLM providers return literal "\n" (backslash + n) in their JSON tool call
- * arguments instead of actual newline characters. This happens due to double-escaping
- * in the JSON arguments string. This function converts those literal escape sequences
- * back to actual characters.
- *
- * Also strips tool-call artifacts that some LLMs embed in their text output
- * (e.g. `<function_call>` tags, `setDocumentTitle(...)` syntax).
- */
-/**
  * Strip markdown formatting from a title string.
  * Converts `[text](url)` links to just `text`, removes bold/italic markers, etc.
  * LLMs sometimes put markdown links in titles despite being told not to.
@@ -125,40 +114,17 @@ fun stripMarkdownFromTitle(title: String): String = title
     .replace("#", "")
     .trim()
 
+/**
+ * Normalize text content from LLM output.
+ *
+ * Some LLM providers return literal "\n" (backslash + n) in their JSON tool call
+ * arguments instead of actual newline characters. This happens due to double-escaping
+ * in the JSON arguments string. This function converts those literal escape sequences
+ * back to actual characters.
+ */
 fun normalizeLlmText(text: String): String = text
     .replace("\\n", "\n")
     .replace("\\t", "\t")
-    .let { stripToolCallArtifacts(it) }
-
-/**
- * Patterns for tool-call artifacts that LLMs sometimes embed in text content.
- *
- * Some providers (especially smaller models or those with limited tool-calling support)
- * output tool calls as text rather than structured JSON. This results in tags like
- * `<function_call name="setDocumentTitle">...</function_call>` appearing in the
- * document content.
- */
-private val functionCallTagRegex = Regex(
-    """<function_call\b[^>]*>.*?</function_call>""",
-    setOf(RegexOption.DOT_MATCHES_ALL)
-)
-private val toolCallTagRegex = Regex(
-    """<tool_call\b[^>]*>.*?</tool_call>""",
-    setOf(RegexOption.DOT_MATCHES_ALL)
-)
-private val trailingToolCallRegex = Regex(
-    """\n*(?:finishWith(?:Document|outDocument|StudyPad)|setDocumentTitle)\s*\(.*$""",
-    setOf(RegexOption.DOT_MATCHES_ALL)
-)
-
-/**
- * Strip tool-call artifacts from LLM text output.
- */
-fun stripToolCallArtifacts(text: String): String = text
-    .replace(functionCallTagRegex, "")
-    .replace(toolCallTagRegex, "")
-    .replace(trailingToolCallRegex, "")
-    .trim()
 
 /**
  * Generic fallback formatter for JSON strings in the agent log.

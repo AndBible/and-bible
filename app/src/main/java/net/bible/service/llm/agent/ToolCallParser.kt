@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -164,6 +165,7 @@ object ToolCallParser {
 
             ToolCall(id, name, arguments)
         } catch (e: Exception) {
+            Log.w("ToolCallParser", "Failed to parse tool call: ${e.message}")
             null
         }
     }

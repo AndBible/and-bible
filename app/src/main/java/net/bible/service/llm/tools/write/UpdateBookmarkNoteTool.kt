@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -81,8 +82,11 @@ object UpdateBookmarkNoteTool : Tool {
 
             val previousNoteLength = bookmark.notes?.length ?: 0
 
-            // Update note using BookmarkControl (sends UI events)
-            bookmarkControl.saveBibleBookmarkNote(bookmarkId, note)
+            // Update note fields directly on bookmark (sets provenance and content type)
+            bookmark.notes = note
+            bookmark.notesContentType = TextContentType.MARKDOWN
+            bookmark.notesSourcePromptId = context.promptId
+            bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
 
             ToolResult.success {
                 put("bookmarkId", bookmarkIdStr)

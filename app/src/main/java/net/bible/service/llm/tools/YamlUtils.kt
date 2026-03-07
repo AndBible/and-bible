@@ -31,7 +31,7 @@ fun yamlToJson(yaml: String): JSONObject {
     return mapToJsonObject(map)
 }
 
-private fun mapToJsonObject(map: Map<String, Any>): JSONObject {
+private fun mapToJsonObject(map: Map<String, Any?>): JSONObject {
     val json = JSONObject()
     for ((key, value) in map) {
         json.put(key, convertValue(value))
@@ -43,8 +43,8 @@ private fun convertValue(value: Any?): Any? {
     return when (value) {
         null -> JSONObject.NULL
         is Map<*, *> -> {
-            @Suppress("UNCHECKED_CAST")
-            mapToJsonObject(value as Map<String, Any>)
+            val stringMap = value.entries.associate { (k, v) -> k.toString() to v }
+            mapToJsonObject(stringMap)
         }
         is List<*> -> {
             val array = JSONArray()

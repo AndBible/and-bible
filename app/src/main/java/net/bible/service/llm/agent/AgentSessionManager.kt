@@ -54,6 +54,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
@@ -186,7 +187,7 @@ class AgentSession(val workspaceId: IdType) {
  */
 object AgentSessionManager : AgentSessionManagerBase() {
     /** Active sessions, keyed by workspace ID */
-    private val activeSessions = mutableMapOf<IdType, AgentSession>()
+    private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
 
     private var initialized = false
 
@@ -539,7 +540,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
                 // Track write tools usage
                 if (isSuccess) {
-                    val tool = ToolRegistry.get(event.toolName)
                     if (tool?.requiresPermission == true) {
                         usedWriteToolsTracker.set(true)
                     }
@@ -773,9 +773,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        // Delete the current page and execute the prompt with the reconstructed selection
-        MyDocumentBookManager.deleteAIDocumentPage(pageId)
+        // Execute the prompt first, then delete old page if successful
         executePrompt(prompt, selection, targetWindowId = targetWindowId)
+        MyDocumentBookManager.deleteAIDocumentPage(pageId)
         return true
     }
 

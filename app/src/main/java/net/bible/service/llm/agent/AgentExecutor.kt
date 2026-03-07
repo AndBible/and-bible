@@ -20,6 +20,7 @@ package net.bible.service.llm.agent
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
@@ -237,7 +238,8 @@ class AgentExecutor(
             if (execResult.grantAllToolsPermission) {
                 currentContext = currentContext.withAllToolsPermissionGranted()
             } else if (execResult.grantSessionPermission ||
-                (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true)) {
+                ((currentContext.promptPermissionMode ?: CommonUtils.settings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
+                 result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
 
@@ -535,10 +537,14 @@ class AgentExecutor(
      * regardless of confirmation result.
      */
     private suspend fun showPermissionDialog(tool: Tool): DialogResult {
-        val activity = CurrentActivityHolder.currentActivity
+        var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
-            Log.w(TAG, "No current activity, allowing tool by default")
-            return DialogResult.Allowed
+            Log.d(TAG, "No current activity, waiting for activity to resume...")
+            while (activity == null) {
+                delay(500)
+                activity = CurrentActivityHolder.currentActivity
+            }
+            Log.d(TAG, "Activity resumed, showing permission dialog")
         }
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
         return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description)) {

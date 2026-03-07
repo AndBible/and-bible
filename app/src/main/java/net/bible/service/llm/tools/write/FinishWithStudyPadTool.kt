@@ -18,6 +18,8 @@
 package net.bible.service.llm.tools.write
 
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -75,6 +77,16 @@ object FinishWithStudyPadTool : Tool {
         if (labelId.isBlank()) {
             return ToolResult.error("labelId is required", "MISSING_LABEL_ID")
         }
+
+        val labelIdType = try {
+            IdType.fromString(labelId)
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid labelId format: $labelId", "INVALID_LABEL_ID")
+        }
+
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        dao.labelById(labelIdType)
+            ?: return ToolResult.error("StudyPad not found: $labelId", "LABEL_NOT_FOUND")
 
         return ToolResult.success {
             put("finished", true)
