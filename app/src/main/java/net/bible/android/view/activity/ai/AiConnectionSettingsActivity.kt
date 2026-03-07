@@ -256,6 +256,19 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             .show()
     }
 
+    private data class ProviderDialogFields(
+        val nameInput: EditText,
+        val apiKeyInput: EditText,
+        val endpointInput: EditText?,
+        val apiFormatSpinner: Spinner?,
+        val modelSpinner: Spinner,
+        val customModelInput: EditText,
+        val customInputPriceInput: EditText,
+        val customOutputPriceInput: EditText,
+        val defaultCheckBox: CheckBox?,
+        val models: MutableList<String>,
+    )
+
     /**
      * Show a dialog to create or edit a provider config.
      * If config is null, creates a new one of the given providerType.
@@ -274,7 +287,48 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         scrollView.addView(layout)
 
-        // Display name (editable for CUSTOM only)
+        val fields = buildProviderDialogLayout(layout, config, provider, isCustom)
+        setupModelPricingListeners(fields)
+
+        val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(dialogTitle)
+            .setView(scrollView)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                saveProviderConfig(config, provider, isCustom, fields)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .apply {
+                if (!isNew) {
+                    setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
+                        dlg.dismiss()
+                        confirmDeleteProvider(config!!)
+                    }
+                }
+            }
+            .show()
+
+        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+        okButton.isEnabled = fields.apiKeyInput.text.toString().trim().isNotBlank()
+        fields.apiKeyInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: android.text.Editable?) {
+                okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
+            }
+        })
+    }
+
+    private fun buildProviderDialogLayout(
+        layout: LinearLayout,
+        config: LlmProviderConfig?,
+        provider: LlmProvider,
+        isCustom: Boolean,
+    ): ProviderDialogFields {
+        val isNew = config == null
+        val context = requireContext()
+
         val nameInput = EditText(context).apply {
             hint = getString(R.string.ai_provider_name_hint)
             setText(config?.displayName ?: if (isCustom) "" else provider.displayName)
@@ -283,7 +337,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         addLabeledField(layout, getString(R.string.ai_provider_name), nameInput)
 
-        // API key
         val apiKeyInput = EditText(context).apply {
             hint = getString(R.string.ai_provider_api_key)
             setText(config?.getApiKey() ?: "")
@@ -291,7 +344,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         addLabeledField(layout, getString(R.string.ai_provider_api_key), apiKeyInput)
 
-        // Endpoint (CUSTOM only)
         val endpointInput = if (isCustom) {
             EditText(context).apply {
                 hint = getString(R.string.ai_provider_endpoint_hint)
@@ -300,7 +352,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { addLabeledField(layout, getString(R.string.ai_provider_endpoint), it) }
         } else null
 
-        // API format spinner (CUSTOM only)
         val apiFormatSpinner = if (isCustom) {
             Spinner(context).apply {
                 val formats = ApiFormat.entries.map { it.name }.toTypedArray()
@@ -313,7 +364,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
         } else null
 
-        // Model selection
         val models = provider.models.toMutableList()
         val currentModel = config?.defaultModel ?: ""
         if (currentModel.isNotBlank() && currentModel !in models) {
@@ -337,7 +387,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         layout.addView(customModelInput)
 
-        // Custom pricing fields (shown when selected model has no known pricing)
         val customPricingLabel = TextView(context).apply {
             text = getString(R.string.llm_custom_pricing_label)
             setTextAppearance(android.R.style.TextAppearance_Small)
@@ -368,38 +417,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         layout.addView(customOutputPriceInput)
 
-        fun updateCustomPricingVisibility() {
-            val pos = modelSpinner.selectedItemPosition
-            val modelName = if (pos == models.size - 1) {
-                customModelInput.text.toString().trim()
-            } else if (pos >= 0 && pos < models.size - 1) {
-                models[pos]
-            } else ""
-            val needsCustomPricing = modelName.isNotBlank() && !LlmPricing.isKnownModel(modelName)
-            val vis = if (needsCustomPricing) View.VISIBLE else View.GONE
-            customPricingLabel.visibility = vis
-            customInputPriceInput.visibility = vis
-            customOutputPriceInput.visibility = vis
-        }
-
-        modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                customModelInput.visibility = if (position == models.size - 1) View.VISIBLE else View.GONE
-                updateCustomPricingVisibility()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // Also update when custom model text changes
-        customModelInput.addTextChangedListener(object : android.text.TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
-        })
-
-        updateCustomPricingVisibility()
-
-        // "Set as default" checkbox (only for existing non-default providers)
         val defaultCheckBox = if (!isNew && !config!!.isDefault) {
             CheckBox(context).apply {
                 text = getString(R.string.ai_provider_set_default)
@@ -412,92 +429,122 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { layout.addView(it) }
         } else null
 
-        val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
+        return ProviderDialogFields(
+            nameInput = nameInput,
+            apiKeyInput = apiKeyInput,
+            endpointInput = endpointInput,
+            apiFormatSpinner = apiFormatSpinner,
+            modelSpinner = modelSpinner,
+            customModelInput = customModelInput,
+            customInputPriceInput = customInputPriceInput,
+            customOutputPriceInput = customOutputPriceInput,
+            defaultCheckBox = defaultCheckBox,
+            models = models,
+        )
+    }
 
-        val dialog = AlertDialog.Builder(context)
-            .setTitle(dialogTitle)
-            .setView(scrollView)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val displayName = nameInput.text.toString().trim().ifEmpty { provider.displayName }
-                val apiKey = apiKeyInput.text.toString().trim()
-                val endpoint = endpointInput?.text?.toString()?.trim()
-                val apiFormat = apiFormatSpinner?.selectedItem?.toString()
-                val makeDefault = defaultCheckBox?.isChecked == true
-
-                val selectedModelPosition = modelSpinner.selectedItemPosition
-                val selectedModel = if (selectedModelPosition == models.size - 1) {
-                    customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
-                } else if (selectedModelPosition >= 0 && selectedModelPosition < models.size - 1) {
-                    models[selectedModelPosition]
-                } else null
-
-                val customInputPrice = customInputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
-                val customOutputPrice = customOutputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
-
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        if (isNew) {
-                            val newConfig = LlmProviderConfig(
-                                providerType = provider.name,
-                                displayName = displayName,
-                                endpoint = if (isCustom) endpoint else null,
-                                apiFormat = if (isCustom) apiFormat else null,
-                                defaultModel = selectedModel,
-                                isDefault = dao.getCount() == 0,
-                                orderNumber = dao.getCount(),
-                            )
-                            dao.insert(newConfig)
-                            newConfig.setApiKey(apiKey)
-                            LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, newConfig.id)
-                        } else {
-                            if (makeDefault) {
-                                dao.clearDefault()
-                                val all = dao.all()
-                                var order = 1
-                                for (c in all) {
-                                    if (c.id == config!!.id) continue
-                                    if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
-                                    order++
-                                }
-                            }
-                            val updated = config!!.copy(
-                                displayName = displayName,
-                                endpoint = if (isCustom) endpoint else config.endpoint,
-                                apiFormat = if (isCustom) apiFormat else config.apiFormat,
-                                defaultModel = selectedModel,
-                                isDefault = config.isDefault || makeDefault,
-                                orderNumber = if (makeDefault) 0 else config.orderNumber,
-                            )
-                            dao.update(updated)
-                            updated.setApiKey(apiKey)
-                            LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, config.id)
-                        }
-                    }
-                    Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
-                    refreshProviderList()
-                }
+    private fun setupModelPricingListeners(fields: ProviderDialogFields) {
+        fun updateCustomPricingVisibility() {
+            val pos = fields.modelSpinner.selectedItemPosition
+            val modelName = if (pos == fields.models.size - 1) {
+                fields.customModelInput.text.toString().trim()
+            } else if (pos >= 0 && pos < fields.models.size - 1) {
+                fields.models[pos]
+            } else ""
+            val needsCustomPricing = modelName.isNotBlank() && !LlmPricing.isKnownModel(modelName)
+            val vis = if (needsCustomPricing) View.VISIBLE else View.GONE
+            // Update all pricing-related views (label is the sibling before customInputPriceInput)
+            fields.customInputPriceInput.visibility = vis
+            fields.customOutputPriceInput.visibility = vis
+            val parent = fields.customInputPriceInput.parent as? LinearLayout
+            if (parent != null) {
+                val idx = parent.indexOfChild(fields.customInputPriceInput)
+                if (idx > 0) parent.getChildAt(idx - 1).visibility = vis
             }
-            .setNegativeButton(R.string.cancel, null)
-            .apply {
-                if (!isNew) {
-                    setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
-                        dlg.dismiss()
-                        confirmDeleteProvider(config!!)
-                    }
-                }
-            }
-            .show()
+        }
 
-        // Disable OK button until API key is entered
-        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = apiKeyInput.text.toString().trim().isNotBlank()
-        apiKeyInput.addTextChangedListener(object : android.text.TextWatcher {
+        fields.modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                fields.customModelInput.visibility = if (position == fields.models.size - 1) View.VISIBLE else View.GONE
+                updateCustomPricingVisibility()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        fields.customModelInput.addTextChangedListener(object : android.text.TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
-                okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
-            }
+            override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
         })
+
+        updateCustomPricingVisibility()
+    }
+
+    private fun saveProviderConfig(
+        config: LlmProviderConfig?,
+        provider: LlmProvider,
+        isCustom: Boolean,
+        fields: ProviderDialogFields,
+    ) {
+        val isNew = config == null
+        val displayName = fields.nameInput.text.toString().trim().ifEmpty { provider.displayName }
+        val apiKey = fields.apiKeyInput.text.toString().trim()
+        val endpoint = fields.endpointInput?.text?.toString()?.trim()
+        val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()
+        val makeDefault = fields.defaultCheckBox?.isChecked == true
+
+        val selectedModelPosition = fields.modelSpinner.selectedItemPosition
+        val selectedModel = if (selectedModelPosition == fields.models.size - 1) {
+            fields.customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
+        } else if (selectedModelPosition >= 0 && selectedModelPosition < fields.models.size - 1) {
+            fields.models[selectedModelPosition]
+        } else null
+
+        val customInputPrice = fields.customInputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
+        val customOutputPrice = fields.customOutputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
+
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                if (isNew) {
+                    val newConfig = LlmProviderConfig(
+                        providerType = provider.name,
+                        displayName = displayName,
+                        endpoint = if (isCustom) endpoint else null,
+                        apiFormat = if (isCustom) apiFormat else null,
+                        defaultModel = selectedModel,
+                        isDefault = dao.getCount() == 0,
+                        orderNumber = dao.getCount(),
+                    )
+                    dao.insert(newConfig)
+                    newConfig.setApiKey(apiKey)
+                    LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, newConfig.id)
+                } else {
+                    if (makeDefault) {
+                        dao.clearDefault()
+                        val all = dao.all()
+                        var order = 1
+                        for (c in all) {
+                            if (c.id == config!!.id) continue
+                            if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
+                            order++
+                        }
+                    }
+                    val updated = config!!.copy(
+                        displayName = displayName,
+                        endpoint = if (isCustom) endpoint else config.endpoint,
+                        apiFormat = if (isCustom) apiFormat else config.apiFormat,
+                        defaultModel = selectedModel,
+                        isDefault = config.isDefault || makeDefault,
+                        orderNumber = if (makeDefault) 0 else config.orderNumber,
+                    )
+                    dao.update(updated)
+                    updated.setApiKey(apiKey)
+                    LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, config.id)
+                }
+            }
+            Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
+            refreshProviderList()
+        }
     }
 
     private fun addLabeledField(layout: LinearLayout, label: String, field: View) {

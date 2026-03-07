@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 
 @Dao
 interface LlmProcessingDao {
@@ -106,4 +107,11 @@ interface LlmProcessingDao {
 
     @Query("SELECT COUNT(*) as entryCount, COALESCE(SUM(LENGTH(processedXml)), 0) as totalSize FROM LlmProcessingCacheEntry")
     fun getCacheStats(): CacheStats
+
+    @Transaction
+    fun deleteEntries(keys: List<CacheEntryKey>) {
+        for (key in keys) {
+            deleteEntry(key.documentInitials, key.keyName, key.processingType, key.processingParams)
+        }
+    }
 }

@@ -148,6 +148,9 @@ interface LlmProviderConfigDao {
 
     @Query("SELECT COUNT(*) FROM LlmProviderConfig")
     fun getCount(): Int
+
+    @Query("DELETE FROM LlmProviderConfig")
+    fun deleteAll()
 }
 
 /**

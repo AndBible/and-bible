@@ -44,8 +44,10 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
 import net.bible.service.llm.PromptRepository
+import net.bible.service.llm.removeApiKey
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -80,12 +82,7 @@ class AiSettingsActivity : ActivityBase() {
             val emptyView = findViewById<View>(android.R.id.empty)
             lv.emptyView = emptyView
             lv.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                val prompt = prompts[position]
-                if (BuiltInPrompts.isBuiltIn(prompt.id)) {
-                    viewBuiltInPrompt(prompt)
-                } else {
-                    editPrompt(prompt)
-                }
+                editPrompt(prompts[position])
             }
         }
     }
@@ -119,12 +116,6 @@ class AiSettingsActivity : ActivityBase() {
     }
 
     private fun editPrompt(prompt: AgentPrompt) {
-        val intent = Intent(this, PromptEditActivity::class.java)
-        intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, prompt.id.toString())
-        startActivity(intent)
-    }
-
-    private fun viewBuiltInPrompt(prompt: AgentPrompt) {
         val intent = Intent(this, PromptEditActivity::class.java)
         intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, prompt.id.toString())
         startActivity(intent)
@@ -223,6 +214,13 @@ class AiSettingsActivity : ActivityBase() {
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
+                val providerDao = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+                for (config in providerDao.all()) {
+                    config.removeApiKey()
+                    LlmCostTracker.reset(config.id)
+                }
+                providerDao.deleteAll()
+
                 PromptRepository.deleteAllUserPrompts()
             }
             updateView()

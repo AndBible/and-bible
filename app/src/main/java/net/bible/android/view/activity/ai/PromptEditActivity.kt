@@ -306,8 +306,8 @@ class PromptEditActivity : ActivityBase() {
         }
     }
 
-    private fun validateAndSave(): Boolean {
-        if (isBuiltIn) return false
+    private fun validateAndSave() {
+        if (isBuiltIn) return
 
         val name = nameEdit.text.toString().trim()
         val template = templateEdit.text.toString().trim()
@@ -315,13 +315,13 @@ class PromptEditActivity : ActivityBase() {
         if (name.isEmpty()) {
             Toast.makeText(this, R.string.prompt_name_required, Toast.LENGTH_SHORT).show()
             nameEdit.requestFocus()
-            return false
+            return
         }
 
         if (template.isEmpty()) {
             Toast.makeText(this, R.string.prompt_template_required, Toast.LENGTH_SHORT).show()
             templateEdit.requestFocus()
-            return false
+            return
         }
 
         val description = descriptionEdit.text.toString().trim().takeIf { it.isNotEmpty() }
@@ -368,8 +368,6 @@ class PromptEditActivity : ActivityBase() {
 
             finish()
         }
-
-        return true
     }
 
     private fun deletePrompt() {

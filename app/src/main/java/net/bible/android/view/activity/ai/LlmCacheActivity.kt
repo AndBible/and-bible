@@ -38,7 +38,9 @@ import net.bible.android.activity.R
 import net.bible.android.activity.databinding.LlmCacheManagementBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.CacheEntryKey
 import net.bible.service.llm.CacheEntrySummary
+import net.bible.service.llm.CacheStats
 import net.bible.service.llm.LlmProcessingDao
 import java.text.DateFormat
 import java.util.Date
@@ -98,19 +100,30 @@ class LlmCacheActivity : ActivityBase() {
 
     private fun loadData() {
         lifecycleScope.launch {
-            val entries = withContext(Dispatchers.IO) { dao.getAllSummaries() }
-            allEntries = entries
+            data class CacheData(
+                val entries: List<CacheEntrySummary>,
+                val documents: List<String>,
+                val types: List<String>,
+                val models: List<String>,
+                val stats: CacheStats,
+            )
 
-            val documents = withContext(Dispatchers.IO) { dao.getDistinctDocuments() }
-            val types = withContext(Dispatchers.IO) { dao.getDistinctProcessingTypes() }
-            val models = withContext(Dispatchers.IO) { dao.getDistinctModels() }
-            val stats = withContext(Dispatchers.IO) { dao.getCacheStats() }
+            val data = withContext(Dispatchers.IO) {
+                CacheData(
+                    entries = dao.getAllSummaries(),
+                    documents = dao.getDistinctDocuments(),
+                    types = dao.getDistinctProcessingTypes(),
+                    models = dao.getDistinctModels(),
+                    stats = dao.getCacheStats(),
+                )
+            }
+            allEntries = data.entries
 
-            setupSpinner(binding.documentFilter, documents, selectedDocument, getString(R.string.llm_cache_filter_all_documents)) { selectedDocument = it; applyFilter() }
-            setupSpinner(binding.typeFilter, types, selectedType, getString(R.string.llm_cache_filter_all_types)) { selectedType = it; applyFilter() }
-            setupSpinner(binding.modelFilter, models, selectedModel, getString(R.string.llm_cache_filter_all_models)) { selectedModel = it; applyFilter() }
+            setupSpinner(binding.documentFilter, data.documents, selectedDocument, getString(R.string.llm_cache_filter_all_documents)) { selectedDocument = it; applyFilter() }
+            setupSpinner(binding.typeFilter, data.types, selectedType, getString(R.string.llm_cache_filter_all_types)) { selectedType = it; applyFilter() }
+            setupSpinner(binding.modelFilter, data.models, selectedModel, getString(R.string.llm_cache_filter_all_models)) { selectedModel = it; applyFilter() }
 
-            binding.statsHeader.text = getString(R.string.llm_cache_stats, stats.entryCount, formatSize(stats.totalSize))
+            binding.statsHeader.text = getString(R.string.llm_cache_stats, data.stats.entryCount, formatSize(data.stats.totalSize))
             applyFilter()
         }
     }
@@ -248,7 +261,7 @@ class LlmCacheActivity : ActivityBase() {
         val keys = adapter.selectedItems.toList()
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                keys.forEach { dao.deleteEntry(it.documentInitials, it.keyName, it.processingType, it.processingParams) }
+                dao.deleteEntries(keys.map { CacheEntryKey(it.documentInitials, it.keyName, it.processingType, it.processingParams) })
             }
             actionMode?.finish()
             Toast.makeText(this@LlmCacheActivity, getString(R.string.llm_cache_deleted_count, keys.size), Toast.LENGTH_SHORT).show()
@@ -286,7 +299,7 @@ class LlmCacheActivity : ActivityBase() {
         val entries = filteredEntries.toList()
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                entries.forEach { dao.deleteEntry(it.documentInitials, it.keyName, it.processingType, it.processingParams) }
+                dao.deleteEntries(entries.map { CacheEntryKey(it.documentInitials, it.keyName, it.processingType, it.processingParams) })
             }
             Toast.makeText(this@LlmCacheActivity, getString(R.string.llm_cache_deleted_count, entries.size), Toast.LENGTH_SHORT).show()
             loadData()

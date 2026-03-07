@@ -60,3 +60,10 @@ data class CacheStats(
     val entryCount: Int,
     val totalSize: Long
 )
+
+data class CacheEntryKey(
+    val documentInitials: String,
+    val keyName: String,
+    val processingType: String,
+    val processingParams: String,
+)
