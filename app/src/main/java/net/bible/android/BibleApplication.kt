@@ -164,7 +164,9 @@ open class BibleApplication : Application() {
         upgradeSharedPreferences()
 
         // Migrate secrets to encrypted storage and rename gdrive_* keys
-        SecureStorage.migrateFromPlainStorage()
+        if (!isRunningTests) {
+            SecureStorage.migrateFromPlainStorage()
+        }
 
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()
