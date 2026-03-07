@@ -135,6 +135,30 @@ private val addSyncTables = makeMigration(8..9) { db ->
         PRIMARY KEY(`sourceDevice`, `patchNumber`))""")
 }
 
+private val addModelIdToPrimaryKey = makeMigration(9..10) { db ->
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `LlmProcessingCacheEntry_new` (
+            `documentInitials` TEXT NOT NULL,
+            `keyName` TEXT NOT NULL,
+            `processingType` TEXT NOT NULL,
+            `processingParams` TEXT NOT NULL,
+            `modelId` TEXT NOT NULL,
+            `processedXml` TEXT NOT NULL,
+            `createdAt` INTEGER NOT NULL,
+            `languageCode` TEXT DEFAULT NULL,
+            PRIMARY KEY(`documentInitials`, `keyName`, `processingType`, `processingParams`, `modelId`)
+        )
+    """.trimIndent())
+    db.execSQL("""
+        INSERT INTO `LlmProcessingCacheEntry_new`
+        SELECT * FROM `LlmProcessingCacheEntry`
+    """.trimIndent())
+    db.execSQL("DROP TABLE `LlmProcessingCacheEntry`")
+    db.execSQL("ALTER TABLE `LlmProcessingCacheEntry_new` RENAME TO `LlmProcessingCacheEntry`")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_processingType` ON `LlmProcessingCacheEntry` (`processingType`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_modelId` ON `LlmProcessingCacheEntry` (`modelId`)")
+}
+
 val llmProcessingMigrations: Array<Migration> = arrayOf(
     addAgentPromptTable,
     addStrictContextMatching,
@@ -144,4 +168,5 @@ val llmProcessingMigrations: Array<Migration> = arrayOf(
     addLanguageCode,
     addProviderConfig,
     addSyncTables,
+    addModelIdToPrimaryKey,
 )

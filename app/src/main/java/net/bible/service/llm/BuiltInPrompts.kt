@@ -80,10 +80,15 @@ object BuiltInPrompts {
      */
     fun allBuiltInPrompts(): List<AgentPrompt> = productionPrompts() + testPrompts()
 
+    private val _productionPrompts by lazy { buildProductionPrompts() }
+    private val _testPrompts by lazy { buildTestPrompts() }
+
     /**
      * Returns only production (non-test) built-in prompts.
      */
-    fun productionPrompts(): List<AgentPrompt> {
+    fun productionPrompts(): List<AgentPrompt> = _productionPrompts
+
+    private fun buildProductionPrompts(): List<AgentPrompt> {
         val context = BibleApplication.application
         var order = 0
 
@@ -208,7 +213,9 @@ object BuiltInPrompts {
      * Returns test prompts (visible only in debug mode).
      * These have a 🧪 prefix in their names.
      */
-    fun testPrompts(): List<AgentPrompt> {
+    fun testPrompts(): List<AgentPrompt> = _testPrompts
+
+    private fun buildTestPrompts(): List<AgentPrompt> {
         var order = 100 // Start at 100 to keep them after production prompts
 
         return listOf(

@@ -41,7 +41,7 @@ IMPORTANT RULES:
     }
 
     override fun getDescription(params: String): String {
-        val languageName = Locale(params).displayLanguage
+        val languageName = Locale.forLanguageTag(params).displayLanguage
         return "Translated to $languageName"
     }
 

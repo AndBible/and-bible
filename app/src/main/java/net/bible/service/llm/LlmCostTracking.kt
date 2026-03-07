@@ -17,6 +17,8 @@
 
 package net.bible.service.llm
 
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 
@@ -88,7 +90,9 @@ object LlmCostTracker {
 
     private fun keyPrefix(configId: IdType): String = "llm_cost_${configId}_"
 
-    fun addUsage(usage: LlmUsage, model: String, providerConfigId: IdType? = null) {
+    private val usageMutex = Mutex()
+
+    suspend fun addUsage(usage: LlmUsage, model: String, providerConfigId: IdType? = null) = usageMutex.withLock {
         val settings = CommonUtils.settings
 
         if (providerConfigId != null) {

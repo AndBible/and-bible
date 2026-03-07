@@ -28,7 +28,7 @@ import androidx.room.Index
  */
 @Entity(
     tableName = "LlmProcessingCacheEntry",
-    primaryKeys = ["documentInitials", "keyName", "processingType", "processingParams"],
+    primaryKeys = ["documentInitials", "keyName", "processingType", "processingParams", "modelId"],
     indices = [
         Index("processingType"),
         Index("modelId")

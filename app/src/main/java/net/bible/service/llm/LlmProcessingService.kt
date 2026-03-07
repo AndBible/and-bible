@@ -17,7 +17,6 @@
 
 package net.bible.service.llm
 
-import android.app.AlertDialog
 import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
@@ -82,7 +81,6 @@ class LlmRequestSuperseded : Exception("Request superseded")
 private data class RequestState(
     val deferred: CompletableDeferred<String>,
     val job: Job,
-    var dialog: AlertDialog? = null  // Reference to confirmation dialog if shown
 )
 
 
@@ -320,8 +318,6 @@ object LlmProcessingService {
         val loopHeaders = buildProviderExtraHeaders(resolved.providerConfig)
         var totalUsage = LlmUsage()
 
-        activeRequests.incrementAndGet()
-
         try {
             for (iteration in 0 until maxIterations) {
                 coroutineContext.ensureActive()  // Stop promptly if cancelled between iterations
@@ -438,8 +434,6 @@ object LlmProcessingService {
             session?.addLogEntry(AgentLogEntry.error(e.message ?: "Unknown error"))
             if (manageSession) session!!.stop()
             throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
-        } finally {
-            activeRequests.decrementAndGet()
         }
     }
 
@@ -626,7 +620,8 @@ object LlmProcessingService {
         val bodyString = requestBody.toString()
         val systemLen = messages.optJSONObject(0)?.optString("content")?.length ?: 0
         val userLen = messages.optJSONObject(1)?.optString("content")?.length ?: 0
-        Log.d(TAG, "LLM API with tools: $endpoint, model: $effectiveModel, tools: ${tools.length()}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
+        val safeEndpoint = endpoint.substringBefore('?')
+        Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${tools.length()}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
 
         val headers = adapter.buildHeaders(resolved.apiKey, extraHeaders)
         val request = Request.Builder()
@@ -692,13 +687,13 @@ object LlmProcessingService {
         Log.i(TAG, "Cancelling ${requests.size} pending LLM request(s)")
         for ((key, state) in requests) {
             Log.d(TAG, "Cancelling stale request: $key")
-            state.dialog?.dismiss()
             state.job.cancel()
         }
     }
 
     fun clearCache() {
         dao.deleteAll()
+        clearAllProcessedBooks()
         Log.i(TAG, "LLM processing cache cleared")
     }
 

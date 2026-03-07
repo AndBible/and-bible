@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import android.os.Looper
 import android.util.Log
 import kotlinx.coroutines.runBlocking
 import net.bible.service.common.CommonUtils
@@ -109,6 +110,9 @@ class LlmProcessedBackend(
      * It's only called if someone calls getRawText directly on the backend.
      */
     override fun readRawContent(state: LlmProcessedBackendState, key: Key): String {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "LLM processing must not run on the main thread"
+        }
         val originalInitials = state.wrappedBook.initials
         val keyName = key.osisRef
         val effectiveModel = resolveEffectiveModel(state)
@@ -151,6 +155,9 @@ class LlmProcessedBackend(
      * with fewer API calls (2-3 per chapter vs 100-200 per-verse).
      */
     override fun readToOsis(key: Key, processor: RawTextToXmlProcessor): MutableList<Content> {
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "LLM processing must not run on the main thread"
+        }
         val originalInitials = state.wrappedBook.initials
         val keyName = key.osisRef
         Log.d(TAG, "readToOsis for $originalInitials key=$keyName")
@@ -207,7 +214,7 @@ class LlmProcessedBackend(
                 builder.setFeature("http://xml.org/sax/features/external-general-entities", false)
                 builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
             } catch (e: Exception) {
-                // Android SAX parser may not support these features
+                Log.w(TAG, "Could not disable external entities in SAX parser: ${e.message}")
             }
             val doc = builder.build(StringReader(xml))
             val root = doc.rootElement
@@ -278,6 +285,23 @@ Versification=${if (wrappedBook is SwordBook) wrappedBook.versification.name els
  * Key is "originalInitials/processorId/params"
  */
 private val processedBooksCache = ConcurrentHashMap<String, Book>()
+
+/**
+ * Remove all processed books from the cache and unregister them from Books.installed().
+ * Called when the LLM cache is cleared or on workspace switch.
+ */
+fun clearAllProcessedBooks() {
+    val entries = processedBooksCache.entries.toList()
+    for ((key, book) in entries) {
+        try {
+            Books.installed().removeBook(book)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to remove processed book $key: ${e.message}")
+        }
+    }
+    processedBooksCache.clear()
+    Log.i(TAG, "Cleared ${entries.size} processed book(s) from cache")
+}
 
 /**
  * Gets or creates a virtual LLM-processed book for the given original book.

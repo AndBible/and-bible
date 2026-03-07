@@ -59,6 +59,7 @@ object PromptCsvUtils {
     private const val HEADER_MODEL_OVERRIDE = "modelOverride"
     private const val HEADER_PROVIDER_CONFIG_ID = "providerConfigId"
     private const val HEADER_ID = "id"
+    private const val MAX_IMPORT_ROWS = 1000
     private const val HEADER_CREATED_AT = "createdAt"
 
     private val ALL_HEADERS = listOf(
@@ -127,6 +128,11 @@ object PromptCsvUtils {
                 var recordNumber = 2
                 while (true) {
                     val record = readCsvRecord(reader) ?: break
+
+                    if (recordNumber > MAX_IMPORT_ROWS + 1) {
+                        errorMessages.add("Import limited to $MAX_IMPORT_ROWS prompts")
+                        break
+                    }
 
                     try {
                         if (record.all { it.trim().isEmpty() }) {
