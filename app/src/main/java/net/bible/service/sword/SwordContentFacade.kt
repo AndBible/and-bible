@@ -16,6 +16,7 @@
  */
 package net.bible.service.sword
 
+import android.os.Looper
 import android.text.TextUtils
 import kotlinx.coroutines.runBlocking
 import android.util.LayoutDirection
@@ -405,6 +406,9 @@ object SwordContentFacade {
                                 // Not in cache at all, process with tool support
                                 val outputter = XMLOutputter(Format.getRawFormat())
                                 val originalXml = outputter.outputString(frag)
+                                check(!Looper.getMainLooper().isCurrentThread) {
+                                    "LLM processing must not run on main thread"
+                                }
                                 runBlocking {
                                     LlmProcessingService.processWithTools(processor, cacheKey, originalXml, llmConfig = book.llmModelConfig)
                                 }

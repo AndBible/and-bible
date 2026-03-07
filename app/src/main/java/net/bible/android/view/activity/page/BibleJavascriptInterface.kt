@@ -142,7 +142,11 @@ class BibleJavascriptInterface(
     fun goToNextChapter() {
         Log.i(TAG, "Go to next chapter")
         scope.launch(Dispatchers.Main) {
-            currentPageManager.currentPage.next()
+            try {
+                currentPageManager.currentPage.next()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to next chapter", e)
+            }
         }
     }
 
@@ -150,7 +154,11 @@ class BibleJavascriptInterface(
     fun goToPreviousChapter() {
         Log.i(TAG, "Go to previous chapter")
         scope.launch(Dispatchers.Main) {
-            currentPageManager.currentPage.previous()
+            try {
+                currentPageManager.currentPage.previous()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to previous chapter", e)
+            }
         }
     }
 

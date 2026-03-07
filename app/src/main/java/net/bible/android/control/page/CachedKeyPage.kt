@@ -24,6 +24,7 @@ import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
 import net.bible.service.sword.mydocument.isMyDocument
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import java.util.*
 
@@ -90,7 +91,7 @@ abstract class CachedKeyPage internal constructor(
                     Log.e(TAG, "Error getting keys for $doc", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
-                Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
+                Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
             }
 			mCachedGlobalKeyList = keylist
             return keylist
@@ -107,10 +108,11 @@ abstract class CachedKeyPage internal constructor(
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
         // check bounds
-        newKeyPos = Math.min(newKeyPos, cachedGlobalKeyList!!.size - 1)
+        val keyList = cachedGlobalKeyList ?: return currentKey ?: DefaultLeafKeyList("")
+        newKeyPos = Math.min(newKeyPos, keyList.size - 1)
         newKeyPos = Math.max(newKeyPos, 0)
         // get the actual key at that posn
-        return cachedGlobalKeyList!![newKeyPos]
+        return keyList[newKeyPos]
     }
 
 

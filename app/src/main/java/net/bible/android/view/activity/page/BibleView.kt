@@ -1525,7 +1525,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
-        val effectiveSettings = if (displaySettings.llmPromptId != null && !displaySettings.llmPromptId!!.isEmpty) {
+        val effectiveSettings = if (displaySettings.llmPromptId?.isEmpty == false) {
             displaySettings.copy(infiniteScroll = false)
         } else {
             displaySettings
