@@ -999,7 +999,7 @@
     <string name="show_quotes">Show quotes</string>
     <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
-    <string name="backup_button">Backup</string>
+    <string name="backup_button">Backup &amp; Restore</string>
     <string name="back_button">Back</string>
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
