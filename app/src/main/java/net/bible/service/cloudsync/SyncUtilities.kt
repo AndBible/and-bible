@@ -119,8 +119,8 @@ enum class SyncableDatabaseDefinition {
     }
 
     var syncEnabled
-        get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
-        set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
+        get() = CommonUtils.settings.getBoolean("sync_enable_"+ name.lowercase(), false)
+        set(value) = CommonUtils.settings.setBoolean("sync_enable_"+name.lowercase(), value)
 
     val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)

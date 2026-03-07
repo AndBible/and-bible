@@ -81,17 +81,9 @@ private val addLabelOverridesTable = makeMigration(12..13) { _db ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkspaceLabelOverride_workspaceId` ON `WorkspaceLabelOverride` (`workspaceId`)")
 }
 
-private val addTranslateTo = makeMigration(13..14) { _db ->
-    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
-    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_translateTo` TEXT DEFAULT NULL")
-}
-
-private val addInfiniteScroll = makeMigration(14..15) { _db ->
+private val addInfiniteScrollAndLlmPromptId = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
-}
-
-private val addLlmPromptId = makeMigration(15..16) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
 }
@@ -109,9 +101,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addNonStrongsWordItalic,
     addTitleScrollButton,
     addLabelOverridesTable,
-    addTranslateTo,
-    addInfiniteScroll,
-    addLlmPromptId,
+    addInfiniteScrollAndLlmPromptId,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 16
+const val WORKSPACE_DATABASE_VERSION = 14

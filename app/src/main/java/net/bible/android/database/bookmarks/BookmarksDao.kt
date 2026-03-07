@@ -318,10 +318,10 @@ interface BookmarkDao {
     fun genericBookmarksWithLabel(label: Label): List<GenericBookmarkWithNotes>
         = genericBookmarksWithLabel(label.id)
 
-    @Query("""INSERT INTO BibleBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    @Query("""INSERT INTO BibleBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes, contentType=:contentType WHERE bookmarkId=:bookmarkId""")
     fun _saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
 
-    @Query("""INSERT INTO GenericBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
+    @Query("""INSERT INTO GenericBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes, contentType=:contentType WHERE bookmarkId=:bookmarkId""")
     fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
      @Query("""UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)

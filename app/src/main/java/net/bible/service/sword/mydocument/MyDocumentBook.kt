@@ -18,6 +18,7 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
+import android.util.LruCache
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -78,6 +79,7 @@ class MyDocumentBackend(
 ) : AbstractKeyBackend<MyDocumentOpenFileState>(metadata) {
 
     private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+    private val contentCache = LruCache<String, String>(8)
 
     override fun initState(): MyDocumentOpenFileState {
         return MyDocumentOpenFileState(documentId, bookMetaData as SwordBookMetaData)
@@ -125,6 +127,9 @@ class MyDocumentBackend(
 
         // Use osisRef (pageKey) for lookup, fallback to name
         val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
+
+        contentCache.get(pageKey)?.let { return it }
+
         val page = dao.pageByKeyWithContent(documentId, pageKey)
 
         if (page == null) {
@@ -143,7 +148,7 @@ class MyDocumentBackend(
         // MARKDOWN: converted to XHTML, addAnchors() adds BVA elements for scroll tracking
         // HTML: wrapped in <html> tag, rendered by Vue.js Html component
         // OSIS: returned as-is
-        return when (page.contentType) {
+        val result = when (page.contentType) {
             MyDocumentContentType.MARKDOWN -> {
                 val xhtml = MarkdownToXhtml.convert(content)
                 "<div class=\"mydoc-markdown\">$xhtml$aiFooter</div>"
@@ -153,6 +158,8 @@ class MyDocumentBackend(
             MyDocumentContentType.OSIS ->
                 if (aiFooter.isNotEmpty()) "<div>$content$aiFooter</div>" else content
         }
+        contentCache.put(pageKey, result)
+        return result
     }
 
     /**
@@ -456,11 +463,12 @@ object MyDocumentBookManager {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val aiDocument = getOrCreateAIDocument()
 
-        val pageKey = "ai_${System.currentTimeMillis()}"
+        val pageId = IdType()
         val page = MyDocumentPage(
+            id = pageId,
             documentId = aiDocument.id,
             title = title,
-            pageKey = pageKey,
+            pageKey = "ai_${pageId}",
             contentType = MyDocumentContentType.MARKDOWN,
             orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
             sourcePromptId = sourcePromptId,
@@ -476,7 +484,7 @@ object MyDocumentBookManager {
         dao.insertPageWithContent(page, response)
         refreshDocument(aiDocument.initials)
 
-        Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/$pageKey")
-        return SavedPageInfo(aiDocument.initials, pageKey)
+        Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")
+        return SavedPageInfo(aiDocument.initials, page.pageKey)
     }
 }

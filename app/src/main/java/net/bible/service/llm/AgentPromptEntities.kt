@@ -29,7 +29,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import net.bible.service.llm.agent.PermissionMode
 
 /**
@@ -111,17 +111,17 @@ data class LlmProviderConfig(
         defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
 }
 
-/** Extension to get the API key from SharedPreferences. */
+/** Extension to get the API key from SecureStorage (encrypted). */
 fun LlmProviderConfig.getApiKey(): String =
-    CommonUtils.settings.getString("llm_api_key_${id}", "") ?: ""
+    SecureStorage.getString("llm_api_key_${id}", "") ?: ""
 
-/** Extension to set the API key in SharedPreferences. */
+/** Extension to set the API key in SecureStorage (encrypted). */
 fun LlmProviderConfig.setApiKey(key: String) =
-    CommonUtils.settings.setString("llm_api_key_${id}", key)
+    SecureStorage.setString("llm_api_key_${id}", key)
 
-/** Extension to remove the API key from SharedPreferences. */
+/** Extension to remove the API key from SecureStorage. */
 fun LlmProviderConfig.removeApiKey() =
-    CommonUtils.settings.removeString("llm_api_key_${id}")
+    SecureStorage.remove("llm_api_key_${id}")
 
 @Dao
 interface LlmProviderConfigDao {

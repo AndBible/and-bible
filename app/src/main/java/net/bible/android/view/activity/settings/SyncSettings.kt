@@ -24,6 +24,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.launch
@@ -35,6 +36,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
@@ -69,7 +71,7 @@ class SyncSettingsActivity: ActivityBase() {
 
 class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
-        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
+        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.removePrefix("sync_enable_").uppercase()]!!
         pref.setOnPreferenceChangeListener { _, newValue ->
             val enableSync = newValue as Boolean
             if(enableSync) {
@@ -113,15 +115,15 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.sync_settings, rootKey)
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_bookmarks")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans")!!.run {
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_bookmarks")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_readingplans")!!.run {
             //setupDrivePref(this!!)
             isVisible = false
         }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_mydocuments")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_llmprocessing")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_workspaces")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_llmprocessing")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             }
@@ -138,7 +140,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
-        preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
+        preferenceScreen.findPreference<Preference>("cloud_sync_info")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             } else {
@@ -149,10 +151,20 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
-        val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
-        val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
-        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
-        val folderPathPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_folder_path")!!
+        // Secret preferences use SecureStorage-backed data store
+        val secureDataStore = SecurePreferenceDataStore()
+        val usernamePref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_username")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val passwordPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_password")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_server_url")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val folderPathPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_folder_path")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
 
         serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
             val newUrl = newValue as String
@@ -201,4 +213,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
         }
     }
+}
+
+/**
+ * PreferenceDataStore that routes reads/writes through SecureStorage (EncryptedSharedPreferences).
+ * Used for credential preferences (server URL, username, password, folder path).
+ */
+private class SecurePreferenceDataStore : PreferenceDataStore() {
+    override fun putString(key: String, value: String?) = SecureStorage.setString(key, value)
+    override fun getString(key: String, defValue: String?): String? = SecureStorage.getString(key, defValue)
 }

@@ -134,6 +134,9 @@ class MyDocumentsActivity : ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.my_documents_options_menu, menu)
+        if (!net.bible.android.activity.BuildConfig.DEBUG) {
+            menu?.findItem(R.id.createDemoDocument)?.isVisible = false
+        }
         return true
     }
 

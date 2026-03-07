@@ -48,7 +48,7 @@ import net.bible.service.cloudsync.CloudFile
 import net.bible.service.cloudsync.GZIP_MIMETYPE
 import net.bible.service.cloudsync.SyncableDatabaseAccessor
 import net.bible.service.cloudsync.TAG
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -117,7 +117,7 @@ class GoogleDriveCloudAdapter: CloudAdapter {
 
     private var lastAccount: Account?
         get() {
-            val s = CommonUtils.realSharedPreferences.getString("lastAccount", null)?: return null
+            val s = SecureStorage.getString("cloud_sync_last_account") ?: return null
             return try {
                 val bytes = Base64.decode(s, Base64.DEFAULT)
                 val p = Parcel.obtain()
@@ -126,18 +126,18 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                 val account = Account(p)
                 account
             } catch (e: Exception) {
-                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+                SecureStorage.remove("cloud_sync_last_account")
                 null
             }
         }
         set(value) {
             if(value == null) {
-                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+                SecureStorage.remove("cloud_sync_last_account")
             } else {
                 val p = Parcel.obtain()
                 value.writeToParcel(p, 0)
                 val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
-                CommonUtils.realSharedPreferences.edit().putString("lastAccount", s).apply()
+                SecureStorage.setString("cloud_sync_last_account", s)
             }
         }
 

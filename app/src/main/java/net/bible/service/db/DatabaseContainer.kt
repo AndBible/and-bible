@@ -296,7 +296,7 @@ class DatabaseContainer {
     }
 
     private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, llmProcessingDb)
-    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb, llmProcessingDb)
+    private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
 

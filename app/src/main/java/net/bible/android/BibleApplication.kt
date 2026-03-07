@@ -48,6 +48,7 @@ import net.bible.android.view.util.locale.LocaleHelper
 import net.bible.service.cloudsync.SYNC_NOTIFICATION_CHANNEL
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import net.bible.service.device.ProgressNotificationManager
 import net.bible.service.device.ProgressNotificationManager.Companion.PROGRESS_NOTIFICATION_CHANNEL
 import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
@@ -161,6 +162,9 @@ open class BibleApplication : Application() {
 
         // some changes may be required for different versions
         upgradeSharedPreferences()
+
+        // Migrate secrets to encrypted storage and rename gdrive_* keys
+        SecureStorage.migrateFromPlainStorage()
 
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()

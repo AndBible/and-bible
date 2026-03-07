@@ -453,8 +453,8 @@ object CommonUtils : CommonUtilsBase() {
 
         // LLM Translation Settings — legacy per-provider settings kept for migration only
         var llmApiKey: String
-            get() = getString("llm_api_key", "") ?: ""
-            set(value) = setString("llm_api_key", value)
+            get() = SecureStorage.getString("llm_api_key", "") ?: ""
+            set(value) = SecureStorage.setString("llm_api_key", value)
 
         var llmProvider: String
             get() = getString("llm_provider", "") ?: ""

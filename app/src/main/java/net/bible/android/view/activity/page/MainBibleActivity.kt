@@ -1557,7 +1557,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private val syncInterval get() =
-        CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+        CommonUtils.settings.getLong("cloud_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
     private val lastSynchronized get() =
         CommonUtils.settings.getLong("globalLastSynchronized", 0L)
 

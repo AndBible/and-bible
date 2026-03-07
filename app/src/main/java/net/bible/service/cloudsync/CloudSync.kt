@@ -37,6 +37,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.IOException
@@ -72,10 +73,10 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
             constructor.newInstance() as CloudAdapter
         }
         NEXT_CLOUD -> NextCloudAdapter(
-            CommonUtils.settings.getString("gdrive_server_url"),
-            CommonUtils.settings.getString("gdrive_username"),
-            CommonUtils.settings.getString("gdrive_password"),
-            CommonUtils.settings.getString("gdrive_folder_path")
+            SecureStorage.getString("cloud_sync_server_url"),
+            SecureStorage.getString("cloud_sync_username"),
+            SecureStorage.getString("cloud_sync_password"),
+            SecureStorage.getString("cloud_sync_folder_path")
         )
     }
 
