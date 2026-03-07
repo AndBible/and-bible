@@ -426,6 +426,14 @@ class PromptCsvUtilsTest {
     @Test
     fun testExportAndImportRoundTrip(): Unit = runBlocking {
         val id = IdType()
+        val providerConfigId = IdType()
+        // Insert a provider config so the foreign key is satisfied
+        val providerConfigDao = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+        providerConfigDao.insert(LlmProviderConfig(
+            id = providerConfigId,
+            providerType = "GEMINI",
+            displayName = "Test Provider"
+        ))
         val original = AgentPrompt(
             id = id,
             name = "Round-Trip Prompt",
@@ -438,6 +446,7 @@ class PromptCsvUtilsTest {
             allowedTools = setOf("tool1", "tool2"),
             deniedTools = setOf("tool3"),
             modelOverride = "claude-3-opus",
+            providerConfigId = providerConfigId,
             createdAt = 1640995200000L,
         )
 
@@ -464,6 +473,7 @@ class PromptCsvUtilsTest {
         assertThat(imported.allowedTools, equalTo(setOf("tool1", "tool2")))
         assertThat(imported.deniedTools, equalTo(setOf("tool3")))
         assertThat(imported.modelOverride, equalTo("claude-3-opus"))
+        assertThat(imported.providerConfigId, equalTo(providerConfigId))
         assertThat(imported.createdAt, equalTo(1640995200000L))
     }
 
