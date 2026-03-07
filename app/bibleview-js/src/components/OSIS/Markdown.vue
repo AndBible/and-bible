@@ -16,70 +16,26 @@
   -->
 
 <template>
-  <div class="osis-markdown" v-html="renderedHtml" @click="handleClick" ref="container"/>
+  <div class="osis-markdown" v-html="renderedHtml" @click="handleClick"/>
   <!-- Hidden slot to capture raw content -->
   <span ref="slotContent" style="display: none"><slot/></span>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed} from "vue";
 import {Marked} from "marked";
 import DOMPurify from "dompurify";
+import {useSlotHtmlContent, unescapeXmlEntities} from "@/composables/slot-html-content";
 
 const markdownParser = new Marked({breaks: true, gfm: true});
 
-const slotContent = ref<HTMLElement | null>(null);
-const container = ref<HTMLElement | null>(null);
-const rawContent = ref("");
-
-// Get content from slot after mount
-onMounted(() => {
-    if (slotContent.value) {
-        rawContent.value = slotContent.value.innerText;
-    }
-});
-
-// Watch for changes in slot content
-watch(() => slotContent.value?.innerText, (newVal) => {
-    if (newVal) {
-        rawContent.value = newVal;
-    }
-});
+const {slotContent, rawContent, handleClick} = useSlotHtmlContent();
 
 const renderedHtml = computed(() => {
     if (!rawContent.value) return "";
-
-    // Unescape XML entities that were escaped on the backend
-    const unescaped = rawContent.value
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'")
-        .replace(/&amp;/g, "&");
-
-    // Parse markdown to HTML and sanitize
+    const unescaped = unescapeXmlEntities(rawContent.value);
     return DOMPurify.sanitize(markdownParser.parse(unescaped) as string);
 });
-
-/**
- * Handle clicks on links within the rendered markdown.
- * AndBible protocols (sword://, osis://, ab-w://) are handled by the WebView.
- */
-function handleClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-
-    // Check if clicked element is a link or inside a link
-    const link = target.closest("a") as HTMLAnchorElement | null;
-    if (link) {
-        event.preventDefault();
-        const href = link.getAttribute("href");
-        if (href) {
-            // Let the WebView handle the navigation
-            // sword://, osis://, ab-w:// protocols will be intercepted by Android
-            window.location.assign(href);
-        }
-    }
-}
 </script>
 
 <style scoped lang="scss">

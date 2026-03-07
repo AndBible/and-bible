@@ -97,6 +97,10 @@ $button-grey: var(--modal-grey);
 
 :root {
   --primary-color: #bdbdbd;
+  --link-color: #1a73e8;
+  .night {
+    --link-color: #8ab4f8;
+  }
 }
 
 .button {

@@ -346,9 +346,9 @@ export function useBookmarks(
     });
 
     function truncateToOrdinalRange(bookmark: BaseBookmark): OrdinalAndOffsetRange {
-        const b = {
-            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice() as OrdinalRange,
-            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice() as OffsetRange,
+        const b: { ordinalRange: OrdinalRange | null; offsetRange: OffsetRange | null } = {
+            ordinalRange: bookmark.ordinalRange ? [...bookmark.ordinalRange] as OrdinalRange : null,
+            offsetRange: bookmark.offsetRange ? [...bookmark.offsetRange] as OffsetRange : null,
         };
         b.offsetRange = b.offsetRange || [0, null]
         if (!b.ordinalRange) {
