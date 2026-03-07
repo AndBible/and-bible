@@ -91,6 +91,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var providersCategory: PreferenceCategory
     private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
+    private lateinit var llmModeCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
@@ -105,6 +106,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
+        llmModeCategory = preferenceScreen.findPreference("ai_llm_mode_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
@@ -140,6 +142,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val hasProviders = hasAnyProvider()
         gettingStartedPref.isVisible = !hasProviders
         behaviorCategory.isVisible = hasProviders
+        llmModeCategory.isVisible = hasProviders && settings.llmModeExperimentalEnabled
         usageCategory.isVisible = hasProviders
 
         if (hasProviders) updateUsageSummary()

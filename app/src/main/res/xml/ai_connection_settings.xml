@@ -42,19 +42,6 @@
         android:key="ai_behavior_category"
         android:title="@string/ai_behavior_category">
 
-        <SwitchPreferenceCompat android:key="llm_confirm_before_call"
-            android:title="@string/llm_confirm_before_call_title"
-            android:summary="@string/llm_confirm_before_call_summary"
-            android:defaultValue="true"
-            android:icon="@drawable/icon_circle_question"
-            />
-        <SeekBarPreference android:key="llm_debounce_ms"
-            android:title="@string/llm_debounce_title"
-            android:summary="@string/llm_debounce_summary"
-            android:defaultValue="1000"
-            android:max="5000"
-            android:icon="@drawable/ic_baseline_refresh_gray_24"
-            />
         <ListPreference android:key="agent_permission_mode"
             android:title="@string/prompt_permission_mode"
             android:summary="@string/agent_permission_mode_summary"
@@ -67,6 +54,25 @@
             android:title="@string/manage_tool_permissions_title"
             android:summary="@string/manage_tool_permissions_summary"
             android:icon="@drawable/ic_baseline_security_24"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="ai_llm_mode_category"
+        android:title="@string/ai_llm_mode_category">
+
+        <SwitchPreferenceCompat android:key="llm_confirm_before_call"
+            android:title="@string/llm_confirm_before_call_title"
+            android:summary="@string/llm_confirm_before_call_summary"
+            android:defaultValue="true"
+            android:icon="@drawable/icon_circle_question"
+            />
+        <SeekBarPreference android:key="llm_debounce_ms"
+            android:title="@string/llm_debounce_title"
+            android:summary="@string/llm_debounce_summary"
+            android:defaultValue="1000"
+            android:max="5000"
+            android:icon="@drawable/ic_baseline_refresh_gray_24"
             />
     </PreferenceCategory>
 

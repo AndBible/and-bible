@@ -961,7 +961,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
-    <string name="experimental_feature_llm_mode">LLM mode (AI text processing)</string>
+    <string name="experimental_feature_llm_mode">AI Text Processing</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -1376,6 +1376,7 @@
     <string name="ai_connection_category">Connection</string>
     <string name="ai_model_category">Model</string>
     <string name="ai_behavior_category">Behavior</string>
+    <string name="ai_llm_mode_category">AI Text Processing (Experimental)</string>
     <string name="ai_usage_category">Usage</string>
     <string name="llm_usage_summary_title">Token usage</string>
     <string name="llm_usage_summary_default">No usage data</string>
@@ -1515,7 +1516,7 @@
     <string name="prompt_description">Description</string>
     <string name="prompt_template">Prompt template</string>
     <string name="prompt_show_in">Show in</string>
-    <string name="prompt_context_text_display_settings">Document display (LLM Mode)</string>
+    <string name="prompt_context_text_display_settings">Document display (AI Text Processing)</string>
     <string name="prompt_context_verse_selection">Verse selection</string>
     <string name="prompt_context_text_selection">Text selection</string>
     <string name="prompt_context_window_menu">Window menu</string>
