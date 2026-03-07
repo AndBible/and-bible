@@ -220,8 +220,8 @@
 	</string-array>
 	
 	<string-array name="prefs_notes_content_type_entries">
-		<item>Rich text (HTML)</item>
-		<item>Markdown</item>
+		<item>@string/notes_content_type_html</item>
+		<item>@string/notes_content_type_markdown</item>
 	</string-array>
 	<string-array name="prefs_notes_content_type_values">
 		<item>HTML</item>
