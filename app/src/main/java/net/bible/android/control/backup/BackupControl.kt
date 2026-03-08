@@ -868,12 +868,12 @@ class BackupActivity: ActivityBase() {
             }
             val backupFiles = CommonUtils.dbBackupPath.listFiles()
                 ?.sortedByDescending { it.name }
-                ?: emptyArray()
+                ?: emptyList()
 
             if (backupFiles.isEmpty()) {
                 importExportTitle.visibility = View.GONE
             } else {
-                val parsedFiles = BackupControl.parseBackupFiles(backupFiles.toList())
+                val parsedFiles = BackupControl.parseBackupFiles(backupFiles)
                 for (info in parsedFiles) {
                     val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
                     itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
