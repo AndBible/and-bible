@@ -163,20 +163,23 @@ class WindowButtonWidget(
     }
 
     private fun applyMonochromeStyle(isActive: Boolean, isWindowVisible: Boolean) = binding.apply {
+        val inverse = isRestoreButton && isWindowVisible
         val strokeWidth = CommonUtils.convertDipsToPx(if (isActive) 2 else 1)
-        val bgColor = Color.WHITE
+        val bgColor = if (inverse) Color.BLACK else Color.WHITE
+        val fgColor = if (inverse) Color.WHITE else Color.BLACK
         val bg = windowButton.background
         if (bg is GradientDrawable) {
             bg.setColor(bgColor)
             bg.setStroke(strokeWidth, Color.BLACK)
         }
-        buttonText.setTextColor(Color.BLACK)
-        windowButton.setTextColor(Color.BLACK)
-        topButtonText.setTextColor(Color.BLACK)
-        syncGroup.setTextColor(Color.BLACK)
-        docType.setColorFilter(Color.BLACK)
-        synchronize.setColorFilter(Color.BLACK)
-        pinMode.setColorFilter(Color.BLACK)
+        buttonText.setTextColor(fgColor)
+        windowButton.setTextColor(fgColor)
+        topButtonText.setTextColor(fgColor)
+        syncGroup.setTextColor(fgColor)
+        docType.setColorFilter(fgColor)
+        synchronize.setColorFilter(fgColor)
+        pinMode.setColorFilter(fgColor)
+        unMaximiseImage.setColorFilter(fgColor)
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
