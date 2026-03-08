@@ -177,13 +177,12 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         updateWindows()
         addSeparators()
         rebuildRestoreButtons()
+        binding.restoreButtonsContainer.post { updateRestoreButtons() }
         ensureRestoreButtonVisible()
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         lastSplitVertically = isSplitVertically
-        if(firstTime)
-            updateRestoreButtons()
     }
 
     private fun removeSeparators() {
@@ -331,6 +330,13 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             val restoreButton = createUnmaximiseButton(maxWindow)
             restoreButtonsList.add(restoreButton)
             binding.restoreButtons.addView(restoreButton, llp)
+            binding.hideRestoreButton.visibility = View.GONE
+            binding.hideRestoreButtonExtension.visibility = View.GONE
+            binding.restoreButtonsContainer.background = null
+            // Reset translation so unmaximize button is always visible
+            binding.restoreButtonsContainer.translationX =
+                if (CommonUtils.isRtl) mainBibleActivity.leftOffset1.toFloat()
+                else -mainBibleActivity.rightOffset1.toFloat()
             return
         }
 
@@ -398,7 +404,10 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         if (CommonUtils.settings.monochromeMode) {
             binding.restoreButtonsContainer.setBackgroundColor(Color.WHITE)
+        } else {
+            binding.restoreButtonsContainer.setBackgroundResource(R.drawable.window_bar_background)
         }
+
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -571,10 +580,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             firstTime = false
         }
         val isRtl = CommonUtils.isRtl
+        val isMaximized = windowRepository.isMaximized
         binding.apply {
             val screenWidth = biblesLinearLayout.width
             val transX =
-                if(isRtl)
+                if (isMaximized && !restoreButtonsVisible) {
+                    // When maximized and bar is hidden, keep unmaximize button visible
+                    if (isRtl) mainBibleActivity.leftOffset1.toFloat()
+                    else -mainBibleActivity.rightOffset1.toFloat()
+                }
+                else if(isRtl)
                     (if (restoreButtonsVisible) 0 else
                         -restoreButtonsContainer.width + (hideRestoreButton.width + hideRestoreButtonExtension.width)
                         ).toFloat() + mainBibleActivity.leftOffset1
