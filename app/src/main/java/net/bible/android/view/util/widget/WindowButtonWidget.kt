@@ -163,8 +163,8 @@ class WindowButtonWidget(
     }
 
     private fun applyMonochromeStyle(isActive: Boolean, isWindowVisible: Boolean) = binding.apply {
-        val strokeWidth = CommonUtils.convertDipsToPx(if (isActive) 3 else 1)
-        val bgColor = if (!isRestoreButton || isWindowVisible || isActive) Color.WHITE else 0xFFE0E0E0.toInt()
+        val strokeWidth = CommonUtils.convertDipsToPx(if (isActive) 2 else 1)
+        val bgColor = Color.WHITE
         val bg = windowButton.background
         if (bg is GradientDrawable) {
             bg.setColor(bgColor)
