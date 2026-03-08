@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Rect
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -394,6 +395,10 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         binding.hideRestoreButton.visibility = hideArrow
         binding.hideRestoreButtonExtension.visibility = hideArrow
+
+        if (CommonUtils.settings.monochromeMode) {
+            binding.restoreButtonsContainer.setBackgroundColor(Color.WHITE)
+        }
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
