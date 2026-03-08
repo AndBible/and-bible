@@ -19,6 +19,8 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -151,10 +153,30 @@ class WindowButtonWidget(
             docType.setColorFilter(getResourceColor(R.color.links_button_icon_color))
             docType.visibility = View.VISIBLE
         }
+        if (CommonUtils.settings.monochromeMode) {
+            applyMonochromeStyle(isActive, isWindowVisible)
+        }
         unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
         topButtonText.text = window?.pageManager?.titleText?:""
         topButtonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
         buttonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
+    }
+
+    private fun applyMonochromeStyle(isActive: Boolean, isWindowVisible: Boolean) = binding.apply {
+        val strokeWidth = CommonUtils.convertDipsToPx(if (isActive) 3 else 1)
+        val bgColor = if (!isRestoreButton || isWindowVisible || isActive) Color.WHITE else 0xFFE0E0E0.toInt()
+        val bg = windowButton.background
+        if (bg is GradientDrawable) {
+            bg.setColor(bgColor)
+            bg.setStroke(strokeWidth, Color.BLACK)
+        }
+        buttonText.setTextColor(Color.BLACK)
+        windowButton.setTextColor(Color.BLACK)
+        topButtonText.setTextColor(Color.BLACK)
+        syncGroup.setTextColor(Color.BLACK)
+        docType.setColorFilter(Color.BLACK)
+        synchronize.setColorFilter(Color.BLACK)
+        pinMode.setColorFilter(Color.BLACK)
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -250,6 +272,17 @@ class AddNewWindowButtonWidget(
             pinMode.visibility = View.GONE
             unMaximiseImage.visibility = View.GONE
             windowButton.setBackgroundResource(R.drawable.window_button_visible)
+            if (CommonUtils.settings.monochromeMode) {
+                val bg = windowButton.background
+                if (bg is GradientDrawable) {
+                    bg.setColor(Color.WHITE)
+                    bg.setStroke(CommonUtils.convertDipsToPx(1), Color.BLACK)
+                }
+                windowButton.setTextColor(Color.BLACK)
+                windowButtonIcon.setImageDrawable(
+                    CommonUtils.getTintedDrawable(R.drawable.ic_window_add_outline_black_24dp, android.R.color.black)
+                )
+            }
         }
     }
 
