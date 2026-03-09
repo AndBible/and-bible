@@ -1,0 +1,37 @@
+**New Features**
+- Per-workspace label display mode override (7ec5c849b)
+- Scroll-to-top button next to section titles (01b8ac103)
+- Redesigned Strong's/morphology dictionary view with tabs, compact layout, and dual display (c159b9d45)
+- "Italicize added words" setting for Strong's modules (c7053843b)
+- Replace Strong's off mode with hidden links mode (#3152)
+- Improve backup view with restore from auto-backup and database reset (d00534fad)
+
+**Improvements**
+- Monochrome theme refinements across StudyPad, modals, toolbar, and controls (51fe21e16)
+- Window buttons bar visibility now per-workspace instead of global (ab5e718d3)
+- Translation note styling improvements in dictionary view (1b3beb6e9)
+
+**Bug Fixes**
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Fix infinite scroll busy loop when reaching end/start of book (d9ed12055)
+- Fix unmaximize button visibility and styling when window button bar is hidden (331772e4f)
+- Fix Strong's two-column layout centering and proportions (f8eb9d4b5)
+- Fix title scroll button scroll position and enlarged touch target (2ef335d88)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda36)
+- Fix bug report attachments getting corrupted in OSTicket (363e614e9)
+- Fix rend-x-indirect styling and inline dictionary translation notes (c3129bde8)
+- Respect selected TTS engine (#3567)
+- Fix NPE crash with corrupted Lucene index (e54117221)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
