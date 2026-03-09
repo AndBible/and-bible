@@ -569,9 +569,15 @@ watch(() => selectedEditAction.mode, (newMode) => {
 .format-help {
   margin-top: 8px;
   color: #6c757d;
-  
+  .monochrome & {
+    color: black;
+  }
+
   .night & {
     color: #adb5bd;
+  }
+  .monochrome.night & {
+    color: white;
   }
   
   small {
@@ -600,11 +606,20 @@ watch(() => selectedEditAction.mode, (newMode) => {
   .noAnimation & {
     transition: none;
   }
-  
+  .monochrome & {
+    border-color: black;
+    color: black;
+  }
+
   .night & {
     background: #333;
     border-color: #555;
     color: #ccc;
+  }
+  .monochrome.night & {
+    background: black;
+    border-color: white;
+    color: white;
   }
   
   &:hover {
@@ -687,10 +702,29 @@ watch(() => selectedEditAction.mode, (newMode) => {
     border-color: #6c757d;
     cursor: not-allowed;
     opacity: 0.65;
-    
+    .monochrome & {
+      background: white;
+      border-color: black;
+      color: black;
+      opacity: 1;
+    }
+    .monochrome.night & {
+      background: black;
+      border-color: white;
+      color: white;
+    }
+
     &:hover {
       background: #6c757d;
       border-color: #6c757d;
+      .monochrome & {
+        background: white;
+        border-color: black;
+      }
+      .monochrome.night & {
+        background: black;
+        border-color: white;
+      }
     }
   }
 }
