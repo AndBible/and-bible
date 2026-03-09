@@ -39,8 +39,14 @@
   cursor: pointer;
   z-index: 1;
   color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    color: black;
+  }
   .night & {
     color: rgba(255, 255, 255, 0.6);
+  }
+  .night.monochrome & {
+    color: white;
   }
   margin: 2pt;
   padding: 7pt;

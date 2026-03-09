@@ -227,6 +227,9 @@ async function configureBookmarkSettings() {
   cursor: pointer;
   font-size: 25px;
   color: $button-grey;
+  .monochrome & {
+    color: black;
+  }
   .night.monochrome & {
     color: white;
   }
