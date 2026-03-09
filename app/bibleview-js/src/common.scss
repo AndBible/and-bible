@@ -117,7 +117,17 @@ $button-grey: var(--modal-grey);
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  
+  .monochrome & {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+  .monochrome.night & {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+  }
+
   &.toggled {
     background-color: #474747;
     &.light {
@@ -131,11 +141,15 @@ $button-grey: var(--modal-grey);
   &.light {
     background-color: #bdbdbd;
     color: black;
+    .monochrome & {
+      background-color: white;
+    }
     .night & {
       background-color: #616161;
       color: #bdbdbd;
     }
     .night.monochrome & {
+      background-color: black;
       color: white;
     }
   }
@@ -204,7 +218,9 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 .isHighlighted {
   background-color: rgba(0, 0, 0, 0.1);
   .monochrome & {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: transparent;
+    outline: 2px solid black;
+    outline-offset: 1px;
   }
   .night & {
     background-color: rgba(255, 255, 255, 0.3);
