@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed} from "vue";
+import {ref, onMounted, computed, watch} from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -161,8 +161,13 @@ onMounted(() => {
     } else {
         resetWords();
     }
-    
+
     // Make sure we're not starting on a punctuation token
+    skipPunctuationTokens();
+});
+
+watch(() => props.textItems, () => {
+    resetWords();
     skipPunctuationTokens();
 });
 
