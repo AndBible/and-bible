@@ -158,6 +158,14 @@ function revealWord(textKey: string, wordIndex: number) {
     .noAnimation & {
       transition: none;
     }
+    .monochrome & {
+      background-color: white;
+      border: 1px solid black;
+    }
+    .monochrome.night & {
+      background-color: black;
+      border: 1px solid white;
+    }
   }
   
   &.revealed {
@@ -187,5 +195,12 @@ function revealWord(textKey: string, wordIndex: number) {
 @keyframes flash {
   0% { background-color: rgba(255, 255, 0, 0.5); }
   100% { background-color: transparent; }
+}
+
+.monochrome {
+  @keyframes flash {
+    0% { outline: 2px solid black; }
+    100% { outline: none; }
+  }
 }
 </style>
