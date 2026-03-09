@@ -154,6 +154,14 @@ $button-grey: var(--modal-grey);
 
   &.toggled {
     background-color: #474747;
+    .monochrome & {
+      background-color: black;
+      color: white;
+    }
+    .monochrome.night & {
+      background-color: white;
+      color: black;
+    }
     &.light {
       background-color: #d5d5d5;
     }
@@ -161,6 +169,16 @@ $button-grey: var(--modal-grey);
   &.disabled {
     background-color: #bdbdbd;
     color: #616161;
+    .monochrome & {
+      background-color: white;
+      color: black;
+      border: 1px solid black;
+    }
+    .monochrome.night & {
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+    }
   }
   &.light {
     background-color: #bdbdbd;

@@ -177,6 +177,9 @@ function revealWord(textKey: string, wordIndex: number) {
     &:active {
       transform: translateY(1px);
       opacity: 0.9;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }

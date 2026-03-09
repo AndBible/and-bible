@@ -225,6 +225,9 @@ function findAllLink(frag: OsisFragmentType): string | null {
 .dict-label {
   font-size: 0.8em;
   opacity: 0.6;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 
 .strongs-entry {

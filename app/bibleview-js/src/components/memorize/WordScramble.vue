@@ -361,6 +361,9 @@ function resetWords() {
     
     &.disabled {
       opacity: 0.5;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }
@@ -369,10 +372,13 @@ function resetWords() {
   .button {
     min-width: 100px;
     font-weight: 500;
-    
+
     &:active {
       transform: translateY(1px);
       opacity: 0.9;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }
