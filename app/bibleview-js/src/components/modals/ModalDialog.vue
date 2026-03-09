@@ -258,9 +258,17 @@ $border-radius2: $border-radius - 1.5pt;
   background-color: #acacac;
   color: white;
 
+  .monochrome & {
+    background-color: black;
+    color: white;
+  }
   .night & {
     background-color: #454545;
     color: #bdbdbd;
+  }
+  .monochrome.night & {
+    background-color: white;
+    color: black;
   }
 }
 

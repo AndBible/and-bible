@@ -610,6 +610,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 restoreButtonsContainer.isScrollable = false
                 hideRestoreButton.setBackgroundResource(openRes)
             }
+            if (CommonUtils.settings.monochromeMode) {
+                hideRestoreButton.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
+            }
             if (animate) {
                 Log.i(TAG, "animate started")
                 restoreButtonsContainer.animate()
