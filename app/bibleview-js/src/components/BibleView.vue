@@ -468,6 +468,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 255, 0.6);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-left-corner {
@@ -517,6 +524,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 0, $dayAlpha);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-margin {
