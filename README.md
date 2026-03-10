@@ -80,3 +80,7 @@ AndBible is free software: you can redistribute it and/or modify it under the te
 AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with AndBible. If not, see https://www.gnu.org/licenses/.
+
+## ⭐ Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AndBible/and-bible&type=date&legend=top-left)](https://www.star-history.com/#taigrr/spank&type=date&legend=top-left)
