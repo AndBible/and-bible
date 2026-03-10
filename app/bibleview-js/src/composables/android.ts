@@ -102,7 +102,7 @@ export type BibleJavascriptInterface = {
 
 export type UseAndroid = ReturnType<typeof useAndroid>
 
-const runningInAndroid = !!window.android;
+const runningInAndroid = typeof window !== "undefined" && !!window.android;
 
 let callId = 0;
 
