@@ -154,12 +154,12 @@ const {
 
 updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
-updateBookmarkToLabels(...(genericBookmarkToLabels_ || []))
+updateBookmarkToLabels(...(genericBookmarkToLabels_))
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
 globalBookmarks.updateBookmarks(bookmarks);
-globalBookmarks.updateBookmarks(genericBookmarks ?? []);
+globalBookmarks.updateBookmarks(genericBookmarks);
 
 const journalEntries: Ref<StudyPadItem[]> = computed({
     get:

@@ -285,6 +285,8 @@ if(process.env.NODE_ENV === "development") {
             bookmarks: testBookmarks,
             bookmarkToLabels,
             journalTextEntries,
+            genericBookmarkToLabels: [],
+            genericBookmarks: [],
         }];
     } else if(mode === "notes") {
         testData = [{
