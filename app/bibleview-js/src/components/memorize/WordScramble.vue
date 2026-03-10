@@ -161,15 +161,9 @@ onMounted(() => {
     } else {
         resetWords();
     }
-
-    // Make sure we're not starting on a punctuation token
     skipPunctuationTokens();
 });
 
-watch(() => props.textItems, () => {
-    resetWords();
-    skipPunctuationTokens();
-});
 
 function skipPunctuationTokens() {
     while (currentWordIndex.value < getWordsFromText(props.textItems.map(item => item.text).join(' ')).length) {
