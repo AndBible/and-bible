@@ -161,15 +161,9 @@ onMounted(() => {
     } else {
         resetWords();
     }
-
-    // Make sure we're not starting on a punctuation token
     skipPunctuationTokens();
 });
 
-watch(() => props.textItems, () => {
-    resetWords();
-    skipPunctuationTokens();
-});
 
 function skipPunctuationTokens() {
     while (currentWordIndex.value < getWordsFromText(props.textItems.map(item => item.text).join(' ')).length) {
@@ -286,6 +280,16 @@ function resetWords() {
   transition: border-color 0.3s ease;
   .noAnimation & {
     transition: none;
+  }
+  .monochrome & {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .monochrome.night & {
+    background-color: black;
+    border-color: white;
   }
   .memorize-word {
     margin-right: 4px;

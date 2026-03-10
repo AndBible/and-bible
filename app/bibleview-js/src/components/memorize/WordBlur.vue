@@ -75,6 +75,7 @@ onMounted(() => {
     }
 });
 
+
 watch([blurLevel, revealedWords], () => {
     emit('save-mode-config', {
         blurConfig: {
@@ -145,6 +146,19 @@ function revealWord(textKey: string, wordIndex: number) {
 
 <style scoped lang="scss">
 @use "@/common.scss" as *;
+
+.memorize-text {
+  .monochrome & {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .monochrome.night & {
+    background-color: black;
+    border-color: white;
+  }
+}
 
 .memorize-word {
   &.blurred {

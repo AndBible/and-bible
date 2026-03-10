@@ -200,9 +200,7 @@ open class CurrentPageManager @Inject constructor(
                                  anchorOrdinal: OrdinalRange? = null
     ): CurrentPage? {
         val nextPage = getBookPage(currentBook, key)
-        if (nextPage != currentPage) {
-            jsState = null
-        }
+        jsState = null
         if (nextPage != null) {
             try {
                 nextPage.isInhibitChangeNotifications = true

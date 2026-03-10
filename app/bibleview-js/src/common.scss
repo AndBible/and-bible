@@ -198,6 +198,14 @@ $button-grey: var(--modal-grey);
   &.warning {
     background: rgba(255, 0, 0, 0.5);
     color: black;
+    .monochrome & {
+      background: black;
+      color: white;
+    }
+    .monochrome.night & {
+      background: white;
+      color: black;
+    }
   }
   &.right {
     align-self: end;
