@@ -1,0 +1,46 @@
+New Features
+- Add per-workspace label display mode override (7ec5c849b)
+- Improve backup view with auto-backup restore and database reset (d00534fad)
+- Add "Italicize added words" setting for Strong's modules (c7053843b)
+- Replace Strong's off mode with hidden links mode (#3152)
+- Per-workspace window button bar visibility (ab5e718d3)
+- Tabbed view for multiple Strong's and morphology dictionaries (c159b9d45)
+- Compact Strong's/morphology display with responsive layout (989b7bee2)
+- Scroll-to-top button next to section titles (01b8ac103)
+
+Improvements
+- Monochrome mode styling enhancements (51fe21e16, 0d14e6169, f2b717340, a3852a4ac, bf8aa0782, 84cd781e1)
+- Show both Strong's and morphology data when either link is clicked (f16a12ed3)
+- Improve translation-note styling in dictionary view (b04446ee1)
+- Use inherited color for Strong's/morphology labels in monochrome mode (88f4b7524)
+- Add horizontal scroll overflow to TabNavigation (d335f3646)
+- Compile Strong's search pattern once instead of per-element (4f3cbde10)
+- Remove dotted underline from Strong's links mode (a29598332)
+
+Bug Fixes
+- Fix memorize tab preservation and game state when changing verses (445f3aee6)
+- Fix WordScramble not updating word list when verse changes (c56c8fe9f)
+- Fix monochrome styling issues across components (8be3540a1, 8f5791e27, 9dc55cde8, cb0473a7a)
+- Fix unmaximize button visibility (331772e4f)
+- Fix title scroll button positioning and touch target (2ef335d88)
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Fix infinite scroll busy loop at book boundaries (d9ed12055)
+- Fix bug report attachments corruption in OSTicket (363e614e9)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda36)
+- Fix StrongsDocument layout centering and proportions (f8eb9d4b5)
+- Fix rend-x-indirect styling and translation notes (c3129bde8)
+- Fix NPE crash with corrupted Lucene index (e54117221)
+- Respect selected TTS engine (#3567)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
