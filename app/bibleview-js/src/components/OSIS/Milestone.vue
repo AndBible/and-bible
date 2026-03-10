@@ -44,9 +44,7 @@ useCommon();
 
 <style lang="scss">
 @use "@/common.scss" as *;
-.paragraphBreakBefore::before {
-  display: block;
-  height: 0.5em;
-  content: ""
+.paragraphBreakBefore {
+  @extend .paragraphBreak;
 }
 </style>
