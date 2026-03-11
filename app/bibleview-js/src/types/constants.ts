@@ -55,4 +55,4 @@ export const activeTabKey: InjectionKey<Ref<string>> = Symbol("activeTab");
 export const setActiveTabKey: InjectionKey<(tabId: string) => void> = Symbol("setActiveTab");
 export const journalKey: InjectionKey<ReturnType<typeof useStudyPad>> = Symbol("journal");
 export const hideTitlesKey: InjectionKey<boolean> = Symbol("hideTitles");
-export const hasParagraphBreakKey: InjectionKey<boolean> = Symbol("hasParagraphBreak");
+export const hasParagraphBreakKey: InjectionKey<Ref<boolean>> = Symbol("hasParagraphBreak");
