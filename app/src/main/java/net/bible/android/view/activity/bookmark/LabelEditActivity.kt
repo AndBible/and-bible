@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.bookmark
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -127,6 +128,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         Log.i(TAG, "onDialogDismissed")
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
         saveAndExit()

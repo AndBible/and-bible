@@ -19,6 +19,7 @@ package net.bible.android.view.activity.settings
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.text.SpannableString
@@ -306,6 +307,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         finish()
     }

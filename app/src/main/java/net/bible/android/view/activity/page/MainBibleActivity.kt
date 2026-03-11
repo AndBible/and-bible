@@ -63,6 +63,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.MenuCompat
@@ -1341,7 +1342,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private val toolbarColor get() =
         if (ScreenSettings.nightMode)
-            resources.getColor(R.color.actionbar_background_night, theme)
+            ContextCompat.getColor(this, R.color.actionbar_background_night)
         else if (CommonUtils.settings.monochromeMode) {
             Color.WHITE
         } else {
@@ -2120,4 +2121,3 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
     }
 }
-

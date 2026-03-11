@@ -16,6 +16,7 @@
  */
 package net.bible.android.view.activity.download
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.database.sqlite.SQLiteConstraintException
 import android.os.Bundle
@@ -170,6 +171,7 @@ class CustomRepositories : ListActivityBase() {
         return isHandled
     }
 
+    @SuppressLint("MissingSuperCall")
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
         finish()
