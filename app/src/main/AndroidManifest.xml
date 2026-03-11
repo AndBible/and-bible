@@ -35,7 +35,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" tools:node="remove" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" tools:node="remove" />
     <uses-permission android:name="android.permission.BLUETOOTH" tools:node="remove" />
-    <uses-permission android:name="android.permission.DUMP" tools:node="remove" />
+    <uses-permission
+        android:name="android.permission.DUMP"
+        tools:ignore="ProtectedPermissions"
+        tools:node="remove" />
 
     <!-- Remove permissions added by nextcloud android library (we really don't need them!) -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" tools:node="remove" />
@@ -125,6 +128,11 @@
             android:name="net.bible.android.view.activity.navigation.GridChoosePassageVerse"
             android:configChanges="keyboardHidden|locale"
             android:label="@string/choosePassageVerseName"
+            android:theme="@style/GridChoosePassageTheme" />
+        <activity
+            android:name="net.bible.android.view.activity.navigation.OneViewChoosePassage"
+            android:configChanges="keyboardHidden|locale"
+            android:label="@string/choosePassageOneViewName"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
             android:name="net.bible.android.view.activity.search.Search"

@@ -13,7 +13,9 @@ jobs:
     name: Add issue to project
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/add-to-project@v0.3.0
+      - name: Add issue to project
+        if: ${{ (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) && secrets.PROJECT_ACCESS_TOKEN != '' }}
+        uses: actions/add-to-project@v0.3.0
         with:
           project-url: https://github.com/orgs/AndBible/projects/7
           github-token: ${{ secrets.PROJECT_ACCESS_TOKEN }}

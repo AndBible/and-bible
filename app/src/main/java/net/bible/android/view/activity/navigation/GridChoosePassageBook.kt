@@ -20,6 +20,7 @@ package net.bible.android.view.activity.navigation
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -213,6 +214,18 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             invalidateOptionsMenu()
             true
         }
+        R.id.one_view_chooser -> {
+            setOneViewChooserDefault(true)
+            val myIntent = createChooserIntent(
+                context = this,
+                isScripture = isCurrentlyShowingScripture,
+                navigateToVerse = navigateToVerse,
+                title = intent?.extras?.getCharSequence("title"),
+                forceOneView = true
+            )
+            startActivityForResult(myIntent, 1)
+            true
+        }
         R.id.deut_toggle -> {
             isCurrentlyShowingScripture = !isCurrentlyShowingScripture
             buttonGrid.isCurrentlyShowingScripture = isCurrentlyShowingScripture
@@ -331,7 +344,42 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         public const val BOOK_GRID_SHOW_LONG_NAME = "book_grid_show_long_name"
+        public const val PASSAGE_CHOOSER_MODE_PREF = "passage_chooser_mode"
+        private const val PASSAGE_CHOOSER_MODE_GRID = "grid"
+        private const val PASSAGE_CHOOSER_MODE_ONE_VIEW = "one_view"
         private const val TAG = "GridChoosePassageBook"
+
+        fun isOneViewChooserDefault(): Boolean =
+            CommonUtils.settings.getString(PASSAGE_CHOOSER_MODE_PREF, PASSAGE_CHOOSER_MODE_GRID) == PASSAGE_CHOOSER_MODE_ONE_VIEW
+
+        fun setOneViewChooserDefault(enabled: Boolean) {
+            val mode = if (enabled) PASSAGE_CHOOSER_MODE_ONE_VIEW else PASSAGE_CHOOSER_MODE_GRID
+            CommonUtils.settings.setString(PASSAGE_CHOOSER_MODE_PREF, mode)
+        }
+
+        fun createChooserIntent(
+            context: Context,
+            isScripture: Boolean,
+            navigateToVerse: Boolean? = null,
+            title: CharSequence? = null,
+            forceGrid: Boolean = false,
+            forceOneView: Boolean = false,
+        ): Intent {
+            require(!(forceGrid && forceOneView)) {
+                "forceGrid and forceOneView are mutually exclusive"
+            }
+            val targetActivity = when {
+                forceOneView -> OneViewChoosePassage::class.java
+                forceGrid -> GridChoosePassageBook::class.java
+                isOneViewChooserDefault() -> OneViewChoosePassage::class.java
+                else -> GridChoosePassageBook::class.java
+            }
+            return Intent(context, targetActivity).apply {
+                putExtra("isScripture", isScripture)
+                navigateToVerse?.let { putExtra("navigateToVerse", it) }
+                title?.let { putExtra("title", it) }
+            }
+        }
 
         fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
             // Colour and Grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible

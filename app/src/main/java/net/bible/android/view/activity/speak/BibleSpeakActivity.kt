@@ -38,6 +38,7 @@ import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.navigation.GridChoosePassageBook.Companion.createChooserIntent
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.speakHelpVideo
 import org.crosswire.jsword.passage.Verse
@@ -152,10 +153,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             s.save(updateBookmark = true)
         }
         else {
-            val intent = Intent(this, GridChoosePassageBook::class.java)
-            intent.putExtra("isScripture", true)
-            intent.putExtra("navigateToVerse", true)
-            intent.putExtra("title", getString(R.string.speak_beginning_of_passage))
+            val intent = createChooserIntent(
+                context = this,
+                isScripture = true,
+                navigateToVerse = true,
+                title = getString(R.string.speak_beginning_of_passage)
+            )
             startVerse = null
             endVerse = null
             binding.repeatPassageCheckbox.isChecked = false // not yet!
@@ -174,10 +177,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             val verse = VerseFactory.fromString(v11n, verseStr)
             if(startVerse == null) {
                 startVerse = verse
-                val intent = Intent(this, GridChoosePassageBook::class.java)
-                intent.putExtra("isScripture", true)
-                intent.putExtra("navigateToVerse", true)
-                intent.putExtra("title", getString(R.string.speak_ending_of_passage))
+                val intent = createChooserIntent(
+                    context = this,
+                    isScripture = true,
+                    navigateToVerse = true,
+                    title = getString(R.string.speak_ending_of_passage)
+                )
                 startActivityForResult(intent, STD_REQUEST_CODE)
             }
             else {

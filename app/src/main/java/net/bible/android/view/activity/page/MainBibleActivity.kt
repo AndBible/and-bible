@@ -1820,7 +1820,29 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         ChooseMapKey::class.java.name,
                     )
                     when(val className = data.component?.className) {
-                        null -> {}
+                        null -> {
+                            val verseStr = extras.getString("verse")
+                            val keyStr = extras.getString("key")
+                            val bookStr = extras.getString("book")
+                            if(verseStr != null) {
+                                val verse = try {
+                                    VerseFactory.fromString(navigationControl.versification, verseStr)
+                                } catch (e: NoSuchVerseException) {
+                                    ABEventBus.post(ToastEvent(getString(R.string.verse_not_found)))
+                                    return
+                                }
+                                windowControl.activeWindowPageManager.currentPage.setKey(verse, true)
+                                return
+                            } else if (keyStr != null && bookStr != null) {
+                                val book =
+                                    Books.installed().getBook(bookStr) ?: FakeBookFactory.giveDoesNotExist(bookStr)
+                                val key = book.getKey(keyStr)
+                                val pageManager = windowControl.activeWindowPageManager
+                                val ordinal = extras.getInt("ordinal")
+                                pageManager.setCurrentDocumentAndKey(book, BookAndKey(key, book, OrdinalRange(ordinal)))
+                                return
+                            }
+                        }
                         ChooseDocument::class.java.name -> {
                             val bookStr = extras.getString("book")
                             val book = Books.installed().getBook(bookStr) ?: FakeBookFactory.pseudoDocuments.first { it.initials == bookStr }
@@ -2120,4 +2142,3 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         private const val REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref"
     }
 }
-

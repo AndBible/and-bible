@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2026-2026 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -18,31 +18,13 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <item
         android:id="@+id/deut_toggle"
         android:title="@string/bible"
         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_action_new"
-        />
-
+        android:icon="@drawable/ic_action_new" />
     <item
-        android:id="@+id/alphabetical_order_opt"
-        android:title="@string/sort_by_alphabetical"
-        android:checkable="true"/>
-
-    <item
-        android:id="@+id/row_order_opt"
-        android:title="@string/book_menu_sort_row_opt"
-        android:checkable="true"/>
-    <item
-        android:id="@+id/group_by_category"
-        android:title="@string/book_menu_group_by_category"
-        android:checkable="true"/>
-    <item
-        android:id="@+id/show_long_book_name"
-        android:title="@string/book_menu_show_long_book_name"
-        android:checkable="true"/>
-    <item
-        android:id="@+id/one_view_chooser"
-        android:title="@string/book_menu_one_view_chooser"/>
+        android:id="@+id/default_grid_chooser"
+        android:title="@string/book_menu_default_grid_chooser" />
 </menu>
