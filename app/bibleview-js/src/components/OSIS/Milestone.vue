@@ -44,7 +44,9 @@ useCommon();
 
 <style lang="scss">
 @use "@/common.scss" as *;
-.milestone.paragraphBreakBefore::before {
-  @extend .paragraphBreak;
+.paragraphBreakBefore::before {
+    display: block;
+    height: 0.5em;
+    content: "";
 }
 </style>
