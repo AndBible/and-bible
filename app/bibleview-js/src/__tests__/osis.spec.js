@@ -83,7 +83,7 @@ function verifyXmlRendering(xmlTemplate, renderedHtml) {
         processedXml += serializer.serializeToString(root.childNodes[i]);
     }
 
-    const android = useAndroid({bookmarks: null}, config);
+    const android = useAndroid({bookmarks: ref([])}, config);
     if (android) {
         android.onKeyDown = android.onKeyDown || (() => {});
         android.setEditing = android.setEditing || (() => {});
