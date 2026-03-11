@@ -3,16 +3,16 @@
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
-  - AndBible is free software: you can redistribute it and/or modify it under the
-  - terms of the GNU General Public License as published by the Free Software Foundation,
-  - either version 3 of the License, or (at your option) any later version.
-  -
-  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  - See the GNU General Public License for more details.
-  -
-  - You should have received a copy of the GNU General Public License along with AndBible.
-  - If not, see http://www.gnu.org/licenses/.
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
@@ -44,9 +44,29 @@ useCommon();
 
 <style lang="scss">
 @use "@/common.scss" as *;
-.paragraphBreakBefore::before {
+
+// When a verse contains a paragraph-breaking milestone, we reformat the verse header
+.highlight-transition:has(.paragraphBreakBefore) {
+  // Keep the container inline to allow the verse to flow normally,
+  // but use a block-level pseudo-element to force a break before the content starts.
+  display: inline;
+
+  &::before {
+    content: "";
     display: block;
     height: 0.5em;
-    content: "";
+  }
+
+  .paragraphBreakBefore {
+    // Ensure the pilcrow stays inline and has a small gap after the verse number
+    display: inline;
+    padding-inline-start: 0.3em;
+  }
+}
+
+// Fallback/Standard milestone styling
+.paragraphBreak {
+  display: block;
+  height: 0.5em;
 }
 </style>
