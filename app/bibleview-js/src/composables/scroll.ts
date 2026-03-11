@@ -82,13 +82,7 @@ export function useScroll(
         let start: number;
 
         if (noScrolling) {
-            currentScrollAnimation.value = -1;
             window.scrollTo(0, elementY);
-            setTimeout(() => {
-                if (currentScrollAnimation.value === -1) {
-                    currentScrollAnimation.value = null;
-                }
-            }, 100);
             return;
         }
 

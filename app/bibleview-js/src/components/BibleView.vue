@@ -55,7 +55,7 @@
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
     <div class="pagenumber"
-         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
          @click="resetPageNumber()"
     >
@@ -361,6 +361,10 @@ const scrollAmount = computed(() => {
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
+
+const pageNumberBottom = computed(() =>
+    appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
+);
 
 const pageNumber = computed(() => {
     const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
