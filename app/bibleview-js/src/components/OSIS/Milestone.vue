@@ -36,9 +36,9 @@ const props = withDefaults(defineProps<{
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => props.type == "line");
+const paragraphBreak = computed(() => props.type === "line");
 // x-p is found in crosswire kjv inside the verse because it is intended to be viewed as verse-per-line.  the eBible kjv uses the cambridge paragraphs
-const paragraphBreakBefore = computed(() => props.type == "x-p");
+const paragraphBreakBefore = computed(() => props.type === "x-p");
 useCommon();
 </script>
 
