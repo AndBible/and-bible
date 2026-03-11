@@ -71,10 +71,4 @@ useCommon();
     padding-inline-start: 0.3em;
   }
 }
-
-// Fallback/Standard milestone styling
-.paragraphBreak {
-  display: block;
-  height: 0.5em;
-}
 </style>
