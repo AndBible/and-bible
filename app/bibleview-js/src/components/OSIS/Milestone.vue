@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed, inject, watch} from "vue";
+import {computed, inject} from "vue";
 import {hasParagraphBreakKey} from "@/types/constants";
 
 const props = withDefaults(defineProps<{
@@ -43,14 +43,9 @@ const paragraphBreakBefore = computed(() => props.type === "x-p");
 
 const hasParagraphBreak = inject(hasParagraphBreakKey);
 
-if (hasParagraphBreak) {
-    // immediate: true runs the callback during setup, ensuring the parent renders 
-    // with the correct class initially, avoiding layout shift/flicker.
-    watch(paragraphBreakBefore, (isBreak) => {
-        if (isBreak) {
-            hasParagraphBreak.value = true;
-        }
-    }, { immediate: true });
+// Since OSIS type is static, we set the flag synchronously during setup to avoid layout shift and reactive overhead.
+if (hasParagraphBreak && paragraphBreakBefore.value) {
+    hasParagraphBreak.value = true;
 }
 
 useCommon();
