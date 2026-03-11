@@ -21,6 +21,7 @@ editTextPlaceholder: ""
 inputPlaceholder: ""
 inputReference: ""
 invalidReference: ""
+noReferenceInClipboard: ""
 bookmarkAccurate: Bookmark created in %s
 bookmarkInaccurate: ""
 defaultBook: ""

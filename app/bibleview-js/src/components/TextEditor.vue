@@ -49,7 +49,7 @@ import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBible, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faClipboard, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
@@ -105,6 +105,46 @@ const close = {
     result: () => {
         save();
         emit('close')
+    }
+}
+
+function escapeHtml(text: string): string {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+const pasteReference = {
+    name: 'pasteReference',
+    icon: icon(faClipboard).html,
+    title: 'Paste bible reference from clipboard',
+    result: async () => {
+        const clipboardText = android.getClipboardReferenceText();
+        if (!clipboardText) {
+            android.toast(strings.noReferenceInClipboard || "No Bible reference in clipboard");
+            return;
+        }
+
+        const selection = document.getSelection();
+        const originalRange = (selection && selection.rangeCount > 0) ? selection.getRangeAt(0) : null;
+        let parsed = await android.parseRef(clipboardText);
+        if (parsed === "") {
+            parsed = parse(clipboardText);
+        }
+
+        if (parsed === "") {
+            android.toast(strings.invalidReference);
+            return;
+        }
+
+        if (originalRange && selection) {
+            selection.removeAllRanges();
+            selection.addRange(originalRange);
+        }
+
+        // Insert the reference as a link (escape HTML to prevent XSS)
+        exec('insertHTML', `<a href="osis://?osis=${escapeHtml(parsed)}">${escapeHtml(clipboardText)}</a>`);
+        editor.value!.content.focus();
     }
 }
 
@@ -184,7 +224,7 @@ onMounted(() => {
             dirty.value = true;
         },
         actions: [
-            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
+            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, pasteReference, bibleLink, divider, close
         ],
     });
     editor.value!.content.innerHTML = editText.value;

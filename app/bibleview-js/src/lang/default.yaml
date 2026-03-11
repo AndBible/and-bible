@@ -21,6 +21,7 @@ editTextPlaceholder: Tap to edit text
 inputPlaceholder: Write here
 inputReference: Enter Bible reference
 invalidReference: Verse not found
+noReferenceInClipboard: No Bible reference in clipboard
 bookmarkAccurate: Bookmark was created in %s
 bookmarkInaccurate: Bookmark book information not stored, content is displayed in %s.
 defaultBook: default Bible document
