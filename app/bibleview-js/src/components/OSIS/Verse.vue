@@ -36,7 +36,7 @@ import {computed, inject, provide, reactive, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
-import {androidKey, bibleDocumentInfoKey, ordinalHighlightKey, verseInfoKey} from "@/types/constants";
+import {androidKey, bibleDocumentInfoKey, hasParagraphBreakKey, ordinalHighlightKey, verseInfoKey} from "@/types/constants";
 import {VerseInfo} from "@/types/common";
 
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
@@ -49,7 +49,7 @@ const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
 provide(verseInfoKey, verseInfo);
-provide('hasParagraphBreak', hasParagraphBreak);
+provide(hasParagraphBreakKey, hasParagraphBreak);
 
 const ordinal = computed(() => {
     return parseInt(props.verseOrdinal);

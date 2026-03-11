@@ -21,7 +21,8 @@
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed, inject, onMounted, Ref, watch} from "vue";
+import {computed, inject, onMounted, watch} from "vue";
+import {hasParagraphBreakKey} from "@/types/constants";
 
 const props = withDefaults(defineProps<{
     subType?: string
@@ -40,7 +41,7 @@ const paragraphBreak = computed(() => props.type === "line");
 // x-p is found in crosswire kjv inside the verse because it is intended to be viewed as verse-per-line.  the eBible kjv uses the cambridge paragraphs
 const paragraphBreakBefore = computed(() => props.type === "x-p");
 
-const hasParagraphBreak = inject<Ref<boolean>>('hasParagraphBreak');
+const hasParagraphBreak = inject(hasParagraphBreakKey);
 
 if (hasParagraphBreak) {
     onMounted(() => {
