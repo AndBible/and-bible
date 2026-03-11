@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed} from "vue";
+import {computed, inject, onMounted, Ref, watch} from "vue";
 
 const props = withDefaults(defineProps<{
     subType?: string
@@ -39,16 +39,33 @@ checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
 const paragraphBreak = computed(() => props.type === "line");
 // x-p is found in crosswire kjv inside the verse because it is intended to be viewed as verse-per-line.  the eBible kjv uses the cambridge paragraphs
 const paragraphBreakBefore = computed(() => props.type === "x-p");
+
+const hasParagraphBreak = inject<Ref<boolean>>('hasParagraphBreak');
+
+if (hasParagraphBreak) {
+    onMounted(() => {
+        if (paragraphBreakBefore.value) {
+            hasParagraphBreak.value = true;
+        }
+    });
+
+    // In case the type changes dynamically
+    watch(paragraphBreakBefore, (newVal) => {
+        if (newVal) {
+            hasParagraphBreak.value = true;
+        }
+    });
+}
+
 useCommon();
 </script>
 
 <style lang="scss">
 @use "@/common.scss" as *;
 
-// When a verse contains a paragraph-breaking milestone, we reformat the verse header
-.highlight-transition:has(.paragraphBreakBefore) {
-  // Keep the container inline to allow the verse to flow normally,
-  // but use a block-level pseudo-element to force a break before the content starts.
+// When a verse contains a paragraph-breaking milestone, we reformat the verse header.
+// We target the class added to .highlight-transition in Verse.vue via Provide/Inject.
+.highlight-transition.has-paragraph-break {
   display: inline;
 
   &::before {

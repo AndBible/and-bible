@@ -4,15 +4,15 @@
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
   - AndBible is free software: you can redistribute it and/or modify it under the
-  - terms of the GNU General Public License as published by the Free Software Foundation,
-  - either version 3 of the License, or (at your option) any later version.
-  -
-  - AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  - without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  - See the GNU General Public License for more details.
-  -
-  - You should have received a copy of the GNU General Public License along with AndBible.
-  - If not, see http://www.gnu.org/licenses/.
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
   -->
 
 <template>
@@ -23,7 +23,7 @@
       :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{isHighlighted: highlighted}">
+      <span class="highlight-transition" :class="{isHighlighted: highlighted, 'has-paragraph-break': hasParagraphBreak}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
       </span>
     </span>
@@ -42,12 +42,14 @@ import {VerseInfo} from "@/types/common";
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 
 const shown = ref(true);
+const hasParagraphBreak = ref(false);
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
 const {querySelection} = inject(androidKey)!
 const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
 provide(verseInfoKey, verseInfo);
+provide('hasParagraphBreak', hasParagraphBreak);
 
 const ordinal = computed(() => {
     return parseInt(props.verseOrdinal);
