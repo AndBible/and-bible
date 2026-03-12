@@ -29,32 +29,46 @@ import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.core.text.HtmlCompat
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.service.common.CommonUtils
-import org.crosswire.jsword.passage.Verse
-import java.io.StringReader
-import org.crosswire.common.xml.XMLUtil
+import net.bible.service.common.firstBibleDoc
+import net.bible.service.history.KeyHistoryItem
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.common.xml.XMLUtil
+import java.io.StringReader
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
 
 class RandomVerseWidget : AppWidgetProvider() {
 
+    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+
     override fun onReceive(context: Context, intent: Intent) {
         Log.i(TAG, "onReceive action: ${intent.action}")
         super.onReceive(context, intent)
         if (intent.action == ACTION_REFRESH_VERSE) {
+            val pendingResult = goAsync()
             val appWidgetManager = AppWidgetManager.getInstance(context)
             val appWidgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(
-                    context,
-                    RandomVerseWidget::class.java
-                )
+                ComponentName(context, RandomVerseWidget::class.java)
             )
-            appWidgetIds.forEach { appWidgetId ->
-                runBlocking {
-                    refreshWidgetData(context, appWidgetManager, appWidgetId)
+            
+            widgetScope.launch {
+                try {
+                    appWidgetIds.forEach { appWidgetId ->
+                        refreshWidgetData(context, appWidgetManager, appWidgetId)
+                    }
+                } finally {
+                    pendingResult.finish()
                 }
             }
         }
@@ -62,17 +76,22 @@ class RandomVerseWidget : AppWidgetProvider() {
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.i(TAG, "onUpdate")
-        for (appWidgetId in appWidgetIds) {
-            // Perform initial setup
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-            // Trigger the first data load
-            runBlocking {
-                refreshWidgetData(context, appWidgetManager, appWidgetId)
+        val pendingResult = goAsync()
+        
+        widgetScope.launch {
+            try {
+                for (appWidgetId in appWidgetIds) {
+                    val verseInfo = calculateVerseData(context, appWidgetId)
+                    saveVerseData(context, appWidgetId, verseInfo)
+                    updateAppWidget(context, appWidgetManager, appWidgetId, verseInfo)
+                }
+            } finally {
+                pendingResult.finish()
             }
         }
     }
 
-    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, verseInfo: VerseInfo) {
         Log.i(TAG, "updateAppWidget for id: $appWidgetId")
         val intent = Intent(context, VerseWidgetService::class.java).apply {
             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -82,6 +101,11 @@ class RandomVerseWidget : AppWidgetProvider() {
         val views = RemoteViews(context.packageName, R.layout.random_verse_widget)
         views.setRemoteAdapter(R.id.verse_list, intent)
         views.setEmptyView(R.id.verse_list, R.id.widget_empty_view)
+        views.setTextViewText(R.id.verse_reference, verseInfo.reference)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            views.setScrollPosition(R.id.verse_list, verseInfo.mainVerseIndex)
+        }
 
         val refreshIntent = Intent(context, RandomVerseWidget::class.java).apply {
             action = ACTION_REFRESH_VERSE
@@ -96,30 +120,75 @@ class RandomVerseWidget : AppWidgetProvider() {
 
     private suspend fun refreshWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         Log.d(TAG, "Refreshing data for widget: $appWidgetId")
+        val verseInfo = calculateVerseData(context, appWidgetId)
+        saveVerseData(context, appWidgetId, verseInfo)
+
+        val updateViews = RemoteViews(context.packageName, R.layout.random_verse_widget)
+        updateViews.setTextViewText(R.id.verse_reference, verseInfo.reference)
         
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            updateViews.setScrollPosition(R.id.verse_list, verseInfo.mainVerseIndex)
+        }
+
+        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, updateViews)
+        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.verse_list)
+
+        Log.i(TAG, "Refreshed widget $appWidgetId with verse: ${verseInfo.reference}")
+    }
+
+    data class VerseInfo(val reference: String, val verses: List<String>, val mainVerseIndex: Int)
+
+    private suspend fun calculateVerseData(context: Context, appWidgetId: Int): VerseInfo = withContext(Dispatchers.IO) {
         var verseRef = ""
         val versesToStore = mutableListOf<String>()
         var mainVerseIndex = 0
 
         try {
-            CommonUtils.initializeApp()
+            // Use initializeAppCoroutine() which handles switching to Main thread for sensitive parts
+            CommonUtils.initializeAppCoroutine()
             val bibleApplication = context.applicationContext as BibleApplication
             net.bible.service.db.DatabaseContainer.initializeDatabase()
-            val windowControl = bibleApplication.applicationComponent.windowControl()
-            val activeBible = windowControl.defaultBibleDoc() ?: throw Exception("no Bible installed")
-            val v11n = activeBible.versification
-            if (v11n.maximumOrdinal() <= 0) throw Exception("no verses found")
-            val ordinal = (1 until v11n.maximumOrdinal()+1).random()
+            
+            val appComponent = bibleApplication.applicationComponent
+            val historyManager = appComponent.historyManager()
+            val windowControl = appComponent.windowControl()
 
-            val startOrdinal = (ordinal - 2).coerceAtLeast(0)
-            val endOrdinal = (ordinal + 2).coerceAtMost(v11n.maximumOrdinal())
+            // 1. Try to find most recent Bible from History across all windows
+            val allWindows = windowControl.windowRepository.windowList
+            val mostRecentBibleFromHistory = allWindows
+                .flatMap { historyManager.getHistory(it.id) }
+                .filterIsInstance<KeyHistoryItem>()
+                .filter { it.document.bookCategory == BookCategory.BIBLE }
+                .sortedByDescending { it.createdAt }
+                .map { it.document as SwordBook }
+                .firstOrNull()
+
+            // 2. Fallbacks
+            val activeBible = mostRecentBibleFromHistory 
+                ?: try { windowControl.defaultBibleDoc() } catch (e: Exception) { null }
+                ?: firstBibleDoc 
+                ?: throw Exception("no Bible installed")
+
+            val v11n = activeBible.versification
+            val maxOrdinal = v11n.maximumOrdinal()
+            if (maxOrdinal <= 0) throw Exception("no verses found")
+
+            var mainVerse: Verse
+            var randomOrdinal: Int
+            do {
+                randomOrdinal = (1..maxOrdinal).random()
+                mainVerse = v11n.decodeOrdinal(randomOrdinal)
+            } while (mainVerse.verse == 0)
+
+            val startOrdinal = (randomOrdinal - 2).coerceAtLeast(1)
+            val endOrdinal = (randomOrdinal + 2).coerceAtMost(maxOrdinal)
 
             for (i in startOrdinal..endOrdinal) {
                 val v = v11n.decodeOrdinal(i)
                 val rawXml = XMLUtil.writeToString(BookData(activeBible, v).saxEventProvider)
                 val text = processXml(rawXml, verseNumbers = true)
                 
-                if (i == ordinal) {
+                if (i == randomOrdinal) {
                     mainVerseIndex = versesToStore.size
                     versesToStore.add("<b>&nbsp;&nbsp;$text</b>")
                 } else {
@@ -127,38 +196,26 @@ class RandomVerseWidget : AppWidgetProvider() {
                 }
             }
 
-            verseRef = v11n.decodeOrdinal(ordinal).name
+            verseRef = mainVerse.name
 
         } catch (e: Exception) {
-            Log.e(TAG, "Error refreshing widget data", e)
-            versesToStore.add("context.getString(R.string.no_bibles_installed)")
-            verseRef = "context.getString(R.string.no_bibles_installed)"
+            Log.e(TAG, "Error calculating verse data", e)
+            versesToStore.clear()
+            val errorMsg = context.getString(R.string.no_bibles_installed)
+            versesToStore.add(errorMsg)
+            verseRef = errorMsg
         }
+        VerseInfo(verseRef, versesToStore, mainVerseIndex)
+    }
 
-        // Store the verse parts for the factory to retrieve
+    private suspend fun saveVerseData(context: Context, appWidgetId: Int, verseInfo: VerseInfo) = withContext(Dispatchers.IO) {
         val prefs = context.getSharedPreferences(PREFS_NAME, 0)
         val editor = prefs.edit()
-        editor.putInt("${PREF_PREFIX_KEY}${appWidgetId}_count", versesToStore.size)
-        versesToStore.forEachIndexed { index, s ->
+        editor.putInt("${PREF_PREFIX_KEY}${appWidgetId}_count", verseInfo.verses.size)
+        verseInfo.verses.forEachIndexed { index, s ->
             editor.putString("${PREF_PREFIX_KEY}${appWidgetId}_$index", s)
         }
-        editor.apply()
-
-        // Create RemoteViews for the update
-        val partialViews = RemoteViews(context.packageName, R.layout.random_verse_widget)
-        partialViews.setTextViewText(R.id.verse_reference, verseRef)
-        
-        // On Android 12+, we can explicitly set the scroll position to the main verse
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            partialViews.setScrollPosition(R.id.verse_list, mainVerseIndex)
-        }
-        
-        appWidgetManager.partiallyUpdateAppWidget(appWidgetId, partialViews)
-
-        // Notify the ListView to update itself from the factory
-        appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.verse_list)
-
-        Log.i(TAG, "Refreshed widget $appWidgetId with verse: $verseRef")
+        editor.commit()
     }
 
     companion object {
@@ -196,7 +253,7 @@ class VerseRemoteViewsFactory(private val context: Context, private val intent: 
         }
         
         if (verses.isEmpty()) {
-            verses.add("context.getString(R.string.loading_text)")
+            verses.add(context.getString(R.string.loading_text))
         }
     }
 
@@ -206,7 +263,6 @@ class VerseRemoteViewsFactory(private val context: Context, private val intent: 
 
     override fun getViewAt(position: Int): RemoteViews {
         return RemoteViews(context.packageName, R.layout.random_verse_widget_view_item).apply {
-            // Use HtmlCompat for backward compatibility with API < 24
             val styledText = HtmlCompat.fromHtml(verses[position], HtmlCompat.FROM_HTML_MODE_LEGACY)
             setTextViewText(R.id.verse_text_item, styledText)
         }
@@ -231,7 +287,7 @@ private fun processXml(
 
     val factory = XmlPullParserFactory.newInstance()
     val xpp = factory.newPullParser()
-    xpp.setInput(StringReader("<root>$xmlInput</root>")) // Wrapped in root for valid XML
+    xpp.setInput(StringReader("<root>$xmlInput</root>"))
     var eventType = xpp.eventType
     var verseNumber: String? = null
     var pilcrow = false
