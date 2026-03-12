@@ -28,30 +28,26 @@ class GetPassageActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        DaggerActivityComponent.builder()
-            .applicationComponent(BibleApplication.application.applicationComponent)
-            .build()
-            .inject(this)
-
-        if (intent?.action == INTENT_GET_PASSAGE) {
-            lifecycleScope.launch {
-                doGetPassage()
-            }
-        } else {
-            fail("Incorrect intent action: ${intent?.action}")
+        lifecycleScope.launch {
+            doGetPassage()
         }
     }
 
     private suspend fun doGetPassage() {
-        val cite = intent.getStringExtra("search_string")
-        if (cite.isNullOrBlank()) {
-            fail("No citation provided in search_string")
-            return
-        }
-
         try {
-            Log.i(TAG, "Processing GET_PASSAGE intent for citation: '$cite'")
+            DaggerActivityComponent.builder()
+                .applicationComponent(BibleApplication.application.applicationComponent)
+                .build()
+                .inject(this)
 
+            if (intent?.action != INTENT_GET_PASSAGE) {
+                throw Exception("Incorrect intent action: ${intent?.action}")
+            }
+            val cite = intent.getStringExtra(GET_PASSAGE_SEARCH_STRING)
+            if (cite.isNullOrBlank()) {
+                throw Exception("No citation provided in $GET_PASSAGE_SEARCH_STRING")
+            }
+            Log.i(TAG, "Processing GET_PASSAGE intent for citation: '$cite'")
             // Offload heavy work to IO thread
             val quote = withContext(Dispatchers.IO) {
                 // Ensure app is fully initialized (JSword, DB, etc)
@@ -68,8 +64,7 @@ class GetPassageActivity : ComponentActivity() {
                     .filterIsInstance<KeyHistoryItem>()
                     .filter { it.document.bookCategory == BookCategory.BIBLE }
                     .sortedByDescending { it.createdAt }
-                    .mapNotNull { it.document as? SwordBook }
-                    .firstOrNull() ?: throw Exception("No active Bible found")
+                    .firstNotNullOfOrNull { it.document as? SwordBook } ?: throw Exception("No active Bible found")
 
                 val swordKey = activeBible.getKey(cite) ?: throw Exception("No verse found for '$cite'")
                 val bookData = BookData(activeBible, swordKey)
@@ -85,27 +80,23 @@ class GetPassageActivity : ComponentActivity() {
                 putExtra("format", "application/xml+osis")
             }
             setResult(Activity.RESULT_OK, resultIntent)
-
         } catch (e: Exception) {
-            fail("Error retrieving passage: ${e.message}")
+            val msg = "Error retrieving passage: ${e.message}"
+            Log.w(TAG, msg)
+            setResult(Activity.RESULT_CANCELED, Intent(INTENT_ERROR_MESSAGE).apply {
+                putExtra("message", msg)
+            })
         } finally {
-            // Activity.finish() must be called on the Main thread
             finish()
         }
     }
 
-    private fun fail(msg: String) {
-        Log.w(TAG, msg)
-        setResult(Activity.RESULT_CANCELED, Intent(INTENT_ERROR_MESSAGE).apply {
-            putExtra("message", msg)
-        })
-        finish()
-    }
 
     companion object {
         private const val TAG = "GetPassageActivity"
         private const val INTENT_GET_PASSAGE = "net.bible.android.action.GET_PASSAGE"
         private const val INTENT_PUT_PASSAGE = "net.bible.android.action.PUT_PASSAGE"
         private const val INTENT_ERROR_MESSAGE = "net.bible.android.action.ERROR_MESSAGE"
+        private const val GET_PASSAGE_SEARCH_STRING = "search_string"
     }
 }
