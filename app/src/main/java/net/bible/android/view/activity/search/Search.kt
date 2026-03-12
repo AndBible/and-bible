@@ -178,7 +178,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         val searchString = intent.getStringExtra(SEARCH_STRING)
         if (searchString != null) {
             Log.i(TAG, "Received search string from intent, of size ${searchString.length}")
-            Log.d(TAG, "Search string: $searchString")
+            //Log.d(TAG, "Search string: $searchString")
             binding.searchText.setText(searchString)
             this.onSearch()
         }
@@ -228,7 +228,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     fun onCancel(v: View?) = finish()
 
     private fun onSearch() {
-        Log.d(TAG, "onSearch: CLICKED")
+        Log.i(TAG, "CLICKED")
         var text = binding.searchText.text.toString()
         if (!StringUtils.isEmpty(text)) {
 
@@ -240,7 +240,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
             intent.putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName)
 
             text = searchControl.decorateSearchString(text, searchType, bibleSection, currentBookName)
-            Log.d(TAG, "Search text:$text")
+            Log.i(TAG, "Search text:$text")
 
             // specify search string and doc in new Intent;
             // if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results

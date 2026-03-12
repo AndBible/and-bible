@@ -291,8 +291,8 @@ class DatabaseContainer {
 
         suspend fun initializeDatabase() {
             withContext(Dispatchers.IO) {
-                DatabaseContainer.ready = true
                 DatabaseContainer.instance
+                DatabaseContainer.ready = true
             }
         }
 

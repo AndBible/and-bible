@@ -16,4 +16,3 @@
  */
 
 include(":app")
-include(":andbiblecontextdataextensions")
