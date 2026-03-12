@@ -186,7 +186,7 @@ class RandomVerseWidget : AppWidgetProvider() {
             for (i in startOrdinal..endOrdinal) {
                 val v = v11n.decodeOrdinal(i)
                 val rawXml = XMLUtil.writeToString(BookData(activeBible, v).saxEventProvider)
-                val text = processXml(rawXml, verseNumbers = true)
+                val text = processXml(rawXml, verseNumbers = true, verseNumberSuperscripts = true)
                 
                 if (i == randomOrdinal) {
                     mainVerseIndex = versesToStore.size
@@ -279,6 +279,7 @@ private fun processXml(
     linebreaks: Boolean = false,
     pilcrows: Boolean = true,
     verseNumbers: Boolean = false,
+    verseNumberSuperscripts: Boolean = false,
     chevrons: Boolean = false,
     brackets: Boolean = true,
     rawOsis: Boolean = false
@@ -303,7 +304,14 @@ private fun processXml(
                 spaceBeforeNextText = false
             }
             if (verseNumber != null) {
-                if (verseNumbers) para.append(verseNumber)
+                var displayVerseNumber = verseNumber!!
+                if (verseNumberSuperscripts) {
+                    val superscripts = "⁰¹²³⁴⁵⁶⁷⁸⁹"
+                    displayVerseNumber = displayVerseNumber.map { c ->
+                        if (c in '0'..'9') superscripts[c - '0'] else c
+                    }.joinToString("")
+                }
+                if (verseNumbers) para.append(displayVerseNumber)
                 verseNumber = null
             }
             if (pilcrow && pilcrows) {
