@@ -21,6 +21,8 @@ import android.util.Log
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import io.requery.android.database.sqlite.RequerySQLiteOpenHelperFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.backup.DATABASE_BACKUP_SUFFIX
@@ -284,6 +286,13 @@ class DatabaseContainer {
                     .also {
                         _instance = it
                     }
+            }
+        }
+
+        suspend fun initializeDatabase() {
+            withContext(Dispatchers.IO) {
+                DatabaseContainer.ready = true
+                DatabaseContainer.instance
             }
         }
 

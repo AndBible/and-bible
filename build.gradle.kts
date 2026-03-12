@@ -21,6 +21,7 @@ plugins {
     // KSP version must match AGP 9.0's built-in Kotlin version (2.2.10)
     id("com.google.devtools.ksp") version "2.2.10-2.0.2" apply false
     id("app.accrescent.tools.bundletool") version "0.2.4" apply false
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.21" apply false
 }
 
 buildscript {

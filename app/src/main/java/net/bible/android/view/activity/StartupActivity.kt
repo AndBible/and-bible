@@ -226,20 +226,13 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         super.onDestroy()
     }
 
-    private suspend fun initializeDatabase() {
-        withContext(Dispatchers.IO) {
-            DatabaseContainer.ready = true
-            DatabaseContainer.instance
-        }
-    }
-
     private suspend fun postBasicInitialisationControl() = withContext(Dispatchers.Main) {
         if(!checkWebView()) return@withContext
 
         // When I mess up database, I can re-create database like this.
         //BackupControl.deleteAllDatabases()
 
-        initializeDatabase()
+        net.bible.service.db.DatabaseContainer.initializeDatabase()
 
         // When enabled, go to the calculator first,
         // even when there are no Bible documents already installed.

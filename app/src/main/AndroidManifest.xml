@@ -127,12 +127,6 @@
             android:label="@string/choosePassageVerseName"
             android:theme="@style/GridChoosePassageTheme" />
         <activity
-            android:name="net.bible.android.view.activity.search.Search"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/search"
-            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity
             android:name="net.bible.android.view.activity.search.EpubSearch"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/search"

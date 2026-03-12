@@ -1339,4 +1339,6 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
+    <string name="no_bibles_installed">no Bible found</string>
+    <string name="loading_text">loading a random verse...</string>
 </resources>
