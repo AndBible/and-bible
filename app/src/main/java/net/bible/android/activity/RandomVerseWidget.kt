@@ -1,3 +1,20 @@
+/*
+ * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
 package net.bible.android.activity
 
 import android.app.PendingIntent
@@ -7,12 +24,14 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.text.Html
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
+import net.bible.service.common.CommonUtils
 import org.crosswire.jsword.passage.Verse
 import java.io.StringReader
 import org.crosswire.common.xml.XMLUtil
@@ -77,66 +96,68 @@ class RandomVerseWidget : AppWidgetProvider() {
 
     private suspend fun refreshWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         Log.d(TAG, "Refreshing data for widget: $appWidgetId")
-        val bibleApplication = context.applicationContext as BibleApplication
-        net.bible.service.db.DatabaseContainer.initializeDatabase()
-        val windowControl = bibleApplication.applicationComponent.windowControl()
-        val activeBible = windowControl.defaultBibleDoc()
+        
+        var verseRef = ""
+        val versesToStore = mutableListOf<String>()
+        var mainVerseIndex = 0
 
-        val verseText: String
-        val verseRef: String
+        try {
+            CommonUtils.initializeApp()
+            val bibleApplication = context.applicationContext as BibleApplication
+            net.bible.service.db.DatabaseContainer.initializeDatabase()
+            val windowControl = bibleApplication.applicationComponent.windowControl()
+            val activeBible = windowControl.defaultBibleDoc() ?: throw Exception("no Bible installed")
 
-        if (activeBible != null) {
-            val allKeys = activeBible.globalKeyList
-            var randomKey: org.crosswire.jsword.passage.Key
-            do {
-                val randomNumber = (0 until allKeys.cardinality).random()
-                randomKey = allKeys.get(randomNumber)
-            } while (randomKey !is Verse || randomKey.verse == 0)
+            val allVerseKeys = activeBible.globalKeyList.filter { key -> key is Verse }
+            if (allVerseKeys.isEmpty()) throw Exception("no verses found")
 
-            val mainVerse = randomKey as Verse
+            val randomNumber = (0 until allVerseKeys.size).random()
+            val mainVerse = allVerseKeys[randomNumber] as Verse
             val v11n = activeBible.versification
             val ordinal = v11n.getOrdinal(mainVerse)
-            val prevVerse = v11n.decodeOrdinal(ordinal - 1)
-            val nextVerse = v11n.decodeOrdinal(ordinal + 1)
+            
+            val startOrdinal = (ordinal - 2).coerceAtLeast(0)
+            val endOrdinal = (ordinal + 2).coerceAtMost(v11n.maximumOrdinal() - 1)
 
-            val mainVerseText = processXml(XMLUtil.writeToString(BookData(activeBible, mainVerse).saxEventProvider), verseNumbers=true)
-
-            val prevVerseText = if (prevVerse != null && prevVerse != mainVerse) {
-                processXml(XMLUtil.writeToString(BookData(activeBible, prevVerse).saxEventProvider), verseNumbers = true)
-            } else {
-                ""
+            for (i in startOrdinal..endOrdinal) {
+                val v = v11n.decodeOrdinal(i)
+                val rawXml = XMLUtil.writeToString(BookData(activeBible, v).saxEventProvider)
+                val text = processXml(rawXml, verseNumbers = true)
+                
+                if (i == ordinal) {
+                    mainVerseIndex = versesToStore.size
+                    versesToStore.add("<b>$text</b>")
+                } else {
+                    versesToStore.add(text)
+                }
             }
 
-            val nextVerseText = if (nextVerse != null && nextVerse != mainVerse) {
-                processXml(XMLUtil.writeToString(BookData(activeBible, nextVerse).saxEventProvider), verseNumbers=true)
-            } else {
-                ""
-            }
-
-            // Build the HTML string
-            val builder = StringBuilder()
-            if (prevVerseText.isNotEmpty()) {
-                builder.append("<font color='#808080'>").append(prevVerseText).append("</font>")
-            }
-            builder.append(mainVerseText)
-            if (nextVerseText.isNotEmpty()) {
-                builder.append("<font color='#808080'>").append(nextVerseText).append("</font>")
-            }
-
-            verseText = builder.toString()
             verseRef = mainVerse.name
-        } else {
-            verseText = "context.getString(R.string.no_bibles_installed)"
+
+        } catch (e: Exception) {
+            Log.e(TAG, "Error refreshing widget data", e)
+            versesToStore.add("context.getString(R.string.no_bibles_installed)")
             verseRef = "context.getString(R.string.no_bibles_installed)"
         }
 
-        // Store the verse text for the factory to retrieve
+        // Store the verse parts for the factory to retrieve
         val prefs = context.getSharedPreferences(PREFS_NAME, 0)
-        prefs.edit().putString("$PREF_PREFIX_KEY$appWidgetId", verseText).apply()
+        val editor = prefs.edit()
+        editor.putInt("${PREF_PREFIX_KEY}${appWidgetId}_count", versesToStore.size)
+        versesToStore.forEachIndexed { index, s ->
+            editor.putString("${PREF_PREFIX_KEY}${appWidgetId}_$index", s)
+        }
+        editor.apply()
 
-        // Create RemoteViews for the partial update of the reference
+        // Create RemoteViews for the update
         val partialViews = RemoteViews(context.packageName, R.layout.random_verse_widget)
         partialViews.setTextViewText(R.id.verse_reference, verseRef)
+        
+        // On Android 12+, we can explicitly set the scroll position to the main verse
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            partialViews.setScrollPosition(R.id.verse_list, mainVerseIndex)
+        }
+        
         appWidgetManager.partiallyUpdateAppWidget(appWidgetId, partialViews)
 
         // Notify the ListView to update itself from the factory
@@ -161,43 +182,45 @@ class VerseWidgetService : RemoteViewsService() {
 
 class VerseRemoteViewsFactory(private val context: Context, private val intent: Intent) : RemoteViewsService.RemoteViewsFactory {
 
-    private var verseText: CharSequence = "Loading..."
+    private val verses = mutableListOf<String>()
     private val appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
 
     override fun onCreate() {}
 
     override fun onDataSetChanged() {
-        Log.i(TAG, "onDataSetChanged for widget: $appWidgetId")
+        Log.i("VerseRemoteViewsFactory", "onDataSetChanged for widget: $appWidgetId")
         val prefs = context.getSharedPreferences(RandomVerseWidget.PREFS_NAME, 0)
-        val verseHtml = prefs.getString(
-            "${RandomVerseWidget.PREF_PREFIX_KEY}$appWidgetId",
-            "context.getString(R.string.loading_text)"
-        ) ?: "context.getString(R.string.loading_text)"
-        // FromHtml is needed to render the font tags correctly
-        verseText = Html.fromHtml(verseHtml, Html.FROM_HTML_MODE_LEGACY)
+        verses.clear()
+        
+        val count = prefs.getInt("${RandomVerseWidget.PREF_PREFIX_KEY}${appWidgetId}_count", 0)
+        for (i in 0 until count) {
+            val v = prefs.getString("${RandomVerseWidget.PREF_PREFIX_KEY}${appWidgetId}_$i", "")
+            if (!v.isNullOrEmpty()) {
+                verses.add(v)
+            }
+        }
+        
+        if (verses.isEmpty()) {
+            verses.add("context.getString(R.string.loading_text)")
+        }
     }
 
     override fun onDestroy() {}
 
-    override fun getCount(): Int = 1
+    override fun getCount(): Int = verses.size
 
     override fun getViewAt(position: Int): RemoteViews {
         return RemoteViews(context.packageName, R.layout.random_verse_widget_view_item).apply {
-            setTextViewText(R.id.verse_text_item, verseText)
+            // FromHtml is needed to render the font and bold tags correctly
+            val styledText = Html.fromHtml(verses[position], Html.FROM_HTML_MODE_LEGACY)
+            setTextViewText(R.id.verse_text_item, styledText)
         }
     }
 
     override fun getLoadingView(): RemoteViews? = null
-
     override fun getViewTypeCount(): Int = 1
-
     override fun getItemId(position: Int): Long = position.toLong()
-
     override fun hasStableIds(): Boolean = true
-
-    companion object {
-        private const val TAG = "VerseRemoteViewsFactory"
-    }
 }
 
 private fun processXml(
