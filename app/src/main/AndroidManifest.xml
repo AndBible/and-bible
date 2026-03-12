@@ -314,6 +314,10 @@
         </receiver>
         <activity
             android:name="net.bible.android.activity.GetPassageActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
             android:exported="true">
             <intent-filter>
                 <action android:name="net.bible.android.action.GET_PASSAGE" />

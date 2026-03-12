@@ -7,11 +7,16 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
 import net.bible.android.view.activity.DaggerActivityComponent
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.common.CommonUtils
+import net.bible.service.history.KeyHistoryItem
+import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.common.xml.XMLUtil
 
 /**
@@ -38,35 +43,59 @@ class GetPassageActivity : ComponentActivity() {
     }
 
     private suspend fun doGetPassage() {
+        val cite = intent.getStringExtra("search_string")
+        if (cite.isNullOrBlank()) {
+            fail("No citation provided in search_string")
+            return
+        }
+
         try {
-            val cite = intent.getStringExtra("search_string")
-            Log.i(TAG, "Processing GET_PASSAGE intent, search_string is '$cite'")
+            Log.i(TAG, "Processing GET_PASSAGE intent for citation: '$cite'")
 
-            val bibleApplication = this.application as BibleApplication
-            net.bible.service.db.DatabaseContainer.initializeDatabase()
+            // Offload heavy work to IO thread
+            val quote = withContext(Dispatchers.IO) {
+                // Ensure app is fully initialized (JSword, DB, etc)
+                CommonUtils.initializeAppCoroutine()
+                net.bible.service.db.DatabaseContainer.initializeDatabase()
 
-            val appComponent = bibleApplication.applicationComponent
-            val windowControl = appComponent.windowControl()
-            SwordDocumentFacade.bibles.isEmpty() && return fail("No Bible selected")
-            val activeBible = windowControl.defaultBibleDoc()
-            val swordKey = activeBible.getKey(cite) ?: return fail("No verse found for '$cite'")
-            val bookData = BookData(activeBible, swordKey)
-            val quote = XMLUtil.writeToString(bookData.saxEventProvider)
-            Log.d(TAG, "Successfully retrieved quote: '$quote'")
+                val bibleApplication = application as BibleApplication
+                val appComponent = bibleApplication.applicationComponent
+                val historyManager = appComponent.historyManager()
+                val windowControl = appComponent.windowControl()
+                val allWindows = windowControl.windowRepository.windowList
+                val activeBible = allWindows
+                    .flatMap { historyManager.getHistory(it.id) }
+                    .filterIsInstance<KeyHistoryItem>()
+                    .filter { it.document.bookCategory == BookCategory.BIBLE }
+                    .sortedByDescending { it.createdAt }
+                    .mapNotNull { it.document as? SwordBook }
+                    .firstOrNull() ?: throw Exception("No active Bible found")
+
+                val swordKey = activeBible.getKey(cite) ?: throw Exception("No verse found for '$cite'")
+                val bookData = BookData(activeBible, swordKey)
+                
+                // JSword XML serialization is CPU-intensive
+                XMLUtil.writeToString(bookData.saxEventProvider)
+            }
+
+            Log.d(TAG, "Successfully retrieved passage")
             val resultIntent = Intent(INTENT_PUT_PASSAGE).apply {
                 putExtra("quote", quote)
                 putExtra("citation", cite)
                 putExtra("format", "application/xml+osis")
             }
             setResult(Activity.RESULT_OK, resultIntent)
+
+        } catch (e: Exception) {
+            fail("Error retrieving passage: ${e.message}")
         } finally {
+            // Activity.finish() must be called on the Main thread
             finish()
         }
     }
 
     private fun fail(msg: String) {
         Log.w(TAG, msg)
-        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
         setResult(Activity.RESULT_CANCELED, Intent(INTENT_ERROR_MESSAGE).apply {
             putExtra("message", msg)
         })
