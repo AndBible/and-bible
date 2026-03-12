@@ -174,14 +174,6 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         }
         currentBookRadioButton.text = currentBookName
 
-        val intent = getIntent()
-        val searchString = intent.getStringExtra(SEARCH_STRING)
-        if (searchString != null) {
-            Log.i(TAG, "Received search string from intent: $searchString")
-            binding.searchText.setText(searchString)
-            this.onSearch()
-            Log.i(TAG, "Ran the onSearch() method")
-        }
         Log.i(TAG, "Finished displaying Search view")
     }
 
@@ -258,7 +250,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     companion object {
-        const val SEARCH_STRING = "search_string"
+
         private const val SEARCH_TEXT_SAVE = "Search"
         private const val WORDS_SELECTION_SAVE = "Words"
         private const val SECTION_SELECTION_SAVE = "Selection"

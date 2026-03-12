@@ -302,7 +302,8 @@
         </receiver>
         <receiver
             android:name=".RandomVerseWidget"
-            android:exported="false">
+            android:permission="android.permission.BIND_APPWIDGET"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
