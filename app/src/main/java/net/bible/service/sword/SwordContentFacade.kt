@@ -487,7 +487,7 @@ object SwordContentFacade {
      * if true, quotation marks surround the returned String
      *
      * @param useSuperscriptVerseNumbers
-     * if true, use unicode superscipt verse numbers
+     * if true, use unicode superscript verse numbers
      *
      * @return
      * the selected text, with markup according to options
