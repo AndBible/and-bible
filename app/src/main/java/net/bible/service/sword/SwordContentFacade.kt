@@ -26,7 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.ABStringUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.useSaxBuilder
@@ -531,16 +531,10 @@ object SwordContentFacade {
 
         var startVerseNumber = ""
         if (showVerseNumbers && verseTexts.size > 1 && (!showReferenceAtFront || separateVersesWithNewlines)) {
-            startVerseNumber = "${selection.verseRange?.start?.verse}"
-            if (useSuperscriptVerseNumbers)
-                startVerseNumber = CommonUtils.toSuperscript(startVerseNumber)
-            else
-                startVerseNumber = "${startVerseNumber}. "
+            startVerseNumber = formatVerseNumber(selection.verseRange?.start?.verse, useSuperscriptVerseNumbers)
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
-            if (useSuperscriptVerseNumbers)
-                startVerseNumber = CommonUtils.toSuperscript(startVerseNumber)
         }
         val bookLocale = selection.book?.language?.code?.let { Locale(it) }
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
@@ -596,11 +590,7 @@ object SwordContentFacade {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
                 var endVerseNum = if (showVerseNumbers) {
-                    var num = lastVerse.verse.verse.toString()
-                    if (useSuperscriptVerseNumbers) {
-                        CommonUtils.toSuperscript(num)
-                    } else
-                        "${num}. "
+                    formatVerseNumber(lastVerse.verse.verse, useSuperscriptVerseNumbers)
                 } else
                     ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
@@ -611,11 +601,7 @@ object SwordContentFacade {
                     if (verseTexts.size > 2) {
                         val middleVerses = verseTexts.slice(1 until verseTexts.size - 1).map {
                             if (showVerseNumbers && it.verse.verse != 0) {
-                                var verseNum = it.verse.verse.toString()
-                                if (useSuperscriptVerseNumbers)
-                                    CommonUtils.toSuperscript(verseNum) + it.text
-                                else
-                                    "${verseNum}. ${it.text}"
+                                formatVerseNumber(it.verse.verse, useSuperscriptVerseNumbers) + it.text
                             } else it.text
                         }
                         for (middleVerse in middleVerses) {
@@ -628,11 +614,7 @@ object SwordContentFacade {
                     var middleVerses = if (verseTexts.size > 2) {
                         verseTexts.slice(1 until verseTexts.size - 1).joinToString(" ") {
                             if (showVerseNumbers && it.verse.verse != 0) {
-                                var verseNum = it.verse.verse.toString()
-                                if (useSuperscriptVerseNumbers)
-                                    CommonUtils.toSuperscript(verseNum) + it.text
-                                else
-                                    "${verseNum}. ${it.text}"
+                                formatVerseNumber(it.verse.verse, useSuperscriptVerseNumbers) + it.text
                             } else it.text
                         }
                     } else ""
@@ -670,6 +652,14 @@ object SwordContentFacade {
         } else {
             "$verseText$notes$advertise"
         }
+    }
+
+    private fun formatVerseNumber(verse: Int?, useSuperscriptVerseNumbers: Boolean): String {
+        var verseNum = verse.toString()
+        if (useSuperscriptVerseNumbers)
+            return ABStringUtils.toSuperscript(verseNum) + " "
+        else
+            return "${verseNum}. "
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {

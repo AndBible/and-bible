@@ -72,7 +72,7 @@
             android:id="@+id/toggleSuperscriptVersenumbers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:padding="7dip"
             android:text="@string/use_superscript_versenumbers" />
         <androidx.appcompat.widget.SwitchCompat

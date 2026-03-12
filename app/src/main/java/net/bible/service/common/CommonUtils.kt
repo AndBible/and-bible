@@ -513,13 +513,6 @@ object CommonUtils : CommonUtilsBase() {
         useSuperscriptVerseNumbers = settings.getBoolean("share_superscript_verse_numbers", false)
     )
 
-    fun toSuperscript(anyString: String): String {
-        val superscripts = charArrayOf('⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹')
-        return anyString.map { char ->
-            if (char in '0'..'9') superscripts[char - '0'] else char
-        }.joinToString("")
-    }
-
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
         val bytesAvailable = stat.availableBytes

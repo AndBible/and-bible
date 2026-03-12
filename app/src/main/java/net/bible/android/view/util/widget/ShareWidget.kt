@@ -54,7 +54,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
 
             // apply isChecked to toggles based on settings
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
-            toggleSuperscriptVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_superscript_verse_numbers", true)
+            toggleSuperscriptVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_superscript_verse_numbers", false)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
