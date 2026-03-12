@@ -43,6 +43,7 @@ import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.common.xml.XMLUtil
+import org.crosswire.jsword.book.sword.SwordBook
 import java.io.StringReader
 import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserFactory
