@@ -160,7 +160,7 @@ class RandomVerseWidget : AppWidgetProvider() {
                 .filterIsInstance<KeyHistoryItem>()
                 .filter { it.document.bookCategory == BookCategory.BIBLE }
                 .sortedByDescending { it.createdAt }
-                .map { it.document as SwordBook }
+                .mapNotNull { it.document as? SwordBook }
                 .firstOrNull()
 
             // 2. Fallbacks
