@@ -154,7 +154,7 @@ const {
 
 updateStudyPadTextEntries(...journalTextEntries_);
 updateBookmarkToLabels(...bookmarkToLabels_)
-updateBookmarkToLabels(...(genericBookmarkToLabels_))
+updateBookmarkToLabels(...genericBookmarkToLabels_)
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 
