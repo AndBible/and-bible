@@ -29,7 +29,9 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.IdType
+import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
@@ -140,14 +142,35 @@ open class Preference(val settings: SettingsBundle,
 ) : GeneralPreference(onlyBibles) {
     protected val valueInt get() = (value as Int)
     protected val valueString get() = (value as String)
-    private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
+    private val actualTextSettings get() = TextDisplaySettings.actual(
+        settings.pageManagerSettings, settings.workspaceSettings, settings.globalSettings
+    )
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
+    private val globalSettings = settings.globalSettings
     val window = windowRepository.getWindow(settings.windowId)
 
     protected val default = TextDisplaySettings.default
 
-    override val inherited: Boolean get() = if (window == null) false else pageManagerSettings?.getValue(type) == null
+    override val inherited: Boolean get() = when (settings.level) {
+        SettingsLevel.WINDOW -> pageManagerSettings?.getValue(type) == null
+        SettingsLevel.WORKSPACE -> workspaceSettings.getValue(type) == null
+        SettingsLevel.GLOBAL -> false
+    }
+
+    val inheritedFrom: InheritedFrom get() = when (settings.level) {
+        SettingsLevel.WINDOW -> when {
+            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
+            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.WORKSPACE -> when {
+            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.GLOBAL -> InheritedFrom.NONE
+    }
+
     val pageManager get() = window?.pageManager ?: windowControl.activeWindowPageManager
 
     override val visible: Boolean
@@ -158,10 +181,10 @@ open class Preference(val settings: SettingsBundle,
     override val opensDialog: Boolean = !isBoolean
 
     override fun setNonSpecific() {
-        if(window != null) {
-            pageManagerSettings?.setNonSpecific(type)
-        } else {
-            workspaceSettings.setValue(type, TextDisplaySettings.default.getValue(type))
+        when (settings.level) {
+            SettingsLevel.WINDOW -> pageManagerSettings?.setNonSpecific(type)
+            SettingsLevel.WORKSPACE -> workspaceSettings.setNonSpecific(type)
+            SettingsLevel.GLOBAL -> globalSettings.setValue(type, default.getValue(type))
         }
     }
 
@@ -169,23 +192,36 @@ open class Preference(val settings: SettingsBundle,
         get() = actualTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!
         set(value) {
             CommonUtils.displaySettingChanged(type)
-            if (window != null) {
-                if (workspaceSettings.getValue(type) ?: default.getValue(type) == value)
-                    pageManagerSettings!!.setNonSpecific(type)
-                else
-                    pageManagerSettings!!.setValue(type, value)
-            } else {
-                workspaceSettings.setValue(type, value)
+            when (settings.level) {
+                SettingsLevel.WINDOW -> {
+                    val parentValue = workspaceSettings.getValue(type)
+                        ?: globalSettings.getValue(type)
+                        ?: default.getValue(type)
+                    if (parentValue == value)
+                        pageManagerSettings!!.setNonSpecific(type)
+                    else
+                        pageManagerSettings!!.setValue(type, value)
+                }
+                SettingsLevel.WORKSPACE -> {
+                    val parentValue = globalSettings.getValue(type) ?: default.getValue(type)
+                    if (parentValue == value)
+                        workspaceSettings.setNonSpecific(type)
+                    else
+                        workspaceSettings.setValue(type, value)
+                }
+                SettingsLevel.GLOBAL -> {
+                    globalSettings.setValue(type, value)
+                }
             }
         }
 
     override val isBoolean: Boolean get() = value is Boolean
 
     override fun handle(){
-        if(window == null) {
-            windowRepository.updateAllWindowsTextDisplaySettings()
-        } else {
-            window.bibleView?.updateTextDisplaySettings()
+        when (settings.level) {
+            SettingsLevel.GLOBAL -> windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.WORKSPACE -> windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.WINDOW -> window?.bibleView?.updateTextDisplaySettings()
         }
     }
 
@@ -572,7 +608,7 @@ class WindowPinningPreference :
 
 class InfiniteScrollPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.INFINITE_SCROLL) {
     private val llmActive: Boolean get() {
-        val actualSettings = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
+        val actualSettings = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings, settings.globalSettings)
         val promptId = actualSettings.llmPromptId
         return promptId != null && !promptId.isEmpty
     }

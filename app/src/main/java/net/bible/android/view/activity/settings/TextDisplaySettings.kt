@@ -35,7 +35,9 @@ import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import net.bible.android.database.WorkspaceEntities
@@ -91,7 +93,7 @@ class TextDisplaySettingsDataStore(
 
     override fun getBoolean(key: String, defValue: Boolean): Boolean {
         val type = Types.valueOf(key)
-        val settings = TextDisplaySettings.actual(settingsBundle.pageManagerSettings, settingsBundle.workspaceSettings)
+        val settings = TextDisplaySettings.actual(settingsBundle.pageManagerSettings, settingsBundle.workspaceSettings, settingsBundle.globalSettings)
 
         return (settings.getValue(type) ?: TextDisplaySettings.default.getValue(type)) as Boolean
     }
@@ -158,11 +160,13 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
 
     private fun updateItem(p: Preference) {
         val itmOptions = getPrefItem(settingsBundle, p.key)
-        if(windowId != null) {
-            p.icon = CommonUtils.iconWithSync(itmOptions.icon!!, itmOptions.inherited,  1.5F)
-        } else {
-            p.icon = CommonUtils.combineIcons(itmOptions.icon!!, R.drawable.ic_workspace_overlay_24dp, 1.5F)
-        }
+        val itemPref = itmOptions as? ItemPreference
+        p.icon = CommonUtils.iconWithInheritance(
+            itmOptions.icon!!,
+            itemPref?.inheritedFrom ?: InheritedFrom.NONE,
+            settingsBundle.level,
+            1.5F
+        )
         if(itmOptions.title != null) {
             p.title = itmOptions.title
         }
@@ -276,31 +280,46 @@ class TextDisplaySettingsActivity: ActivityBase() {
         iconStr.setSpan(heartIcon, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
         val spannedBuy = TextUtils.concat(htmlToSpan("<br><br>"), iconStr, htmlToSpan(buyMessage))
 
-        val text = if(isWindow) {
-            val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
-            val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
-            val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
+        val text = when {
+            isGlobal -> {
+                val h1 = getString(R.string.global_text_options_help1)
+                val h3 = getString(R.string.text_options_reset_help, "__ICON1__", getString(R.string.reset_defaults))
+                val text = "$h1\n\n$h3"
+                val start1 = text.indexOf("__ICON1__")
+                val span = SpannableString(text)
+                span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                TextUtils.concat(videoSpan, span, spannedBuy)
+            }
+            isWindow -> {
+                val w1 = getString(R.string.window_text_options_help1, "__ICON1__")
+                val w4 = getString(R.string.text_options_reset_help, "__ICON3__", getString(R.string.reset_workspace_defaults))
+                val icon1 = ImageSpan(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp))
 
-            val text = "$w1\n\n$w4"
-            val start1 = text.indexOf("__ICON1__")
-            val start3 = text.indexOf("__ICON3__")
-            val span = SpannableString(text)
-            span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            TextUtils.concat(videoSpan, span, spannedBuy)
-        } else {
-            val h1 = getString(R.string.workspace_text_options_help1)
-            val h2 = getString(R.string.workspace_text_options_help2)
-            val h3 = getString(R.string.text_options_reset_help, "__ICON1__", getString(R.string.reset_defaults))
-            val text = "$h1 $h2 \n\n$h3"
-            val start1 = text.indexOf("__ICON1__")
-            val span = SpannableString(text)
-            span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
-            TextUtils.concat(videoSpan, span, spannedBuy)
+                val text = "$w1\n\n$w4"
+                val start1 = text.indexOf("__ICON1__")
+                val start3 = text.indexOf("__ICON3__")
+                val span = SpannableString(text)
+                span.setSpan(icon1, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                span.setSpan(resetIcon, start3, start3 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                TextUtils.concat(videoSpan, span, spannedBuy)
+            }
+            else -> {
+                val h1 = getString(R.string.workspace_text_options_help1)
+                val h2 = getString(R.string.workspace_text_options_help2)
+                val h3 = getString(R.string.text_options_reset_help, "__ICON1__", getString(R.string.reset_defaults))
+                val text = "$h1 $h2 \n\n$h3"
+                val start1 = text.indexOf("__ICON1__")
+                val span = SpannableString(text)
+                span.setSpan(resetIcon, start1, start1 + length, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE)
+                TextUtils.concat(videoSpan, span, spannedBuy)
+            }
         }
 
-        val title = if(isWindow) getString(R.string.window_text_options_help_title)
-                    else getString(R.string.workspace_text_options_help_title)
+        val title = when {
+            isGlobal -> getString(R.string.global_text_options_help_title)
+            isWindow -> getString(R.string.window_text_options_help_title)
+            else -> getString(R.string.workspace_text_options_help_title)
+        }
 
         val d = AlertDialog.Builder(this)
             .setPositiveButton(R.string.okay, null)
@@ -313,10 +332,15 @@ class TextDisplaySettingsActivity: ActivityBase() {
     }
 
     override fun onBackPressed() {
+        if (settingsBundle.level == SettingsLevel.GLOBAL && dirtyTypes.isNotEmpty()) {
+            CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
+            CommonUtils.windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
+        }
         finish()
     }
 
-    private val isWindow get() = settingsBundle.windowId != null
+    private val isWindow get() = settingsBundle.level == SettingsLevel.WINDOW
+    private val isGlobal get() = settingsBundle.level == SettingsLevel.GLOBAL
 
     @Inject lateinit var windowControl: WindowControl
 
@@ -332,10 +356,10 @@ class TextDisplaySettingsActivity: ActivityBase() {
         reset = false
 
         val windowId = settingsBundle.windowId
-        title = if(windowId != null) {
-            getString(R.string.window_text_display_settings_title, windowControl.windowPosition(windowId) + 1)
-        } else {
-            getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
+        title = when (settingsBundle.level) {
+            SettingsLevel.GLOBAL -> getString(R.string.global_text_display_settings_title)
+            SettingsLevel.WINDOW -> getString(R.string.window_text_display_settings_title, windowControl.windowPosition(windowId!!) + 1)
+            SettingsLevel.WORKSPACE -> getString(R.string.workspace_text_display_settings_title, settingsBundle.workspaceName)
         }
 
         val fragment = TextDisplaySettingsFragment()

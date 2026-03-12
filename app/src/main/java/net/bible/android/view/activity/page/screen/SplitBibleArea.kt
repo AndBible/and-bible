@@ -63,6 +63,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.BibleViewInputFocusChanged
@@ -860,11 +861,13 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun getItemOptions(window: Window, itemId: Int, order: Int): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
             workspaceId = windowControl.windowRepository.id,
             workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings,
+            globalSettings = CommonUtils.globalTextDisplaySettings,
         )
 
         val isMaximised = windowRepository.isMaximized

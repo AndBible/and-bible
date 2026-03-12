@@ -324,31 +324,38 @@ class WorkspaceEntities {
                 showTitleScrollButton = false
             )
 
-            fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
-                val pg = pageManagerEntity?.textDisplaySettings
-                val ws = workspaceEntity?.textDisplaySettings
-                val def = default
-                return actual(pg?: ws?: def, ws?: def)
-            }
-
-            fun actual(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
-                val pg = pageManagerSettings
-                val ws = workspaceSettings
+            fun actual(
+                pageManagerSettings: TextDisplaySettings?,
+                workspaceSettings: TextDisplaySettings,
+                globalSettings: TextDisplaySettings = TextDisplaySettings()
+            ): TextDisplaySettings {
                 val def = default
                 val result = TextDisplaySettings()
                 for(t in Types.values()) {
-                    result.setValue(t, pg?.getValue(t) ?: ws.getValue(t)?: def.getValue(t)!!)
+                    result.setValue(t,
+                        pageManagerSettings?.getValue(t)
+                            ?: workspaceSettings.getValue(t)
+                            ?: globalSettings.getValue(t)
+                            ?: def.getValue(t)!!
+                    )
                 }
                 return result
             }
 
-            fun markNonSpecific(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings) {
+            fun markNonSpecific(
+                pageManagerSettings: TextDisplaySettings?,
+                workspaceSettings: TextDisplaySettings,
+                globalSettings: TextDisplaySettings = TextDisplaySettings()
+            ) {
                 val pg = pageManagerSettings
-                val ws = workspaceSettings
 
                 if(pg == null) return
+                val def = default
                 for(t in Types.values()) {
-                    if(pg.getValue(t) == ws.getValue(t)) {
+                    val parentValue = workspaceSettings.getValue(t)
+                        ?: globalSettings.getValue(t)
+                        ?: def.getValue(t)
+                    if(pg.getValue(t) == parentValue) {
                         pg.setNonSpecific(t)
                     }
                 }
@@ -519,19 +526,30 @@ class WorkspaceEntities {
     }
 }
 
+@Entity
+data class GlobalTextDisplaySettings(
+    @PrimaryKey val id: Int = 0,
+    @Embedded(prefix = "text_display_settings_")
+    var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
+)
+
+@Serializable
+enum class SettingsLevel { GLOBAL, WORKSPACE, WINDOW }
+
+enum class InheritedFrom { NONE, WORKSPACE, GLOBAL }
+
 @Serializable
 data class SettingsBundle (
-    val workspaceId: IdType,
-    val workspaceName: String,
-    val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
+    val level: SettingsLevel = SettingsLevel.WORKSPACE,
+    val workspaceId: IdType = IdType.empty(),
+    val workspaceName: String = "",
+    val globalSettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
+    val workspaceSettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: IdType? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
-        if(windowId == null)
-            WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings)
-        else
-            WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
+        WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings, workspaceSettings, globalSettings)
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)
