@@ -32,6 +32,7 @@ import androidx.core.text.HtmlCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
@@ -50,25 +51,25 @@ import org.xmlpull.v1.XmlPullParserFactory
 
 class RandomVerseWidget : AppWidgetProvider() {
 
-    private val widgetScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
     override fun onReceive(context: Context, intent: Intent) {
         Log.i(TAG, "onReceive action: ${intent.action}")
         super.onReceive(context, intent)
         if (intent.action == ACTION_REFRESH_VERSE) {
             val pendingResult = goAsync()
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val appWidgetIds = appWidgetManager.getAppWidgetIds(
-                ComponentName(context, RandomVerseWidget::class.java)
-            )
-            
-            widgetScope.launch {
+            // Create a short-lived scope for this specific broadcast
+            val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+            scope.launch {
                 try {
+                    val appWidgetManager = AppWidgetManager.getInstance(context)
+                    val appWidgetIds = appWidgetManager.getAppWidgetIds(
+                        ComponentName(context, RandomVerseWidget::class.java)
+                    )
                     appWidgetIds.forEach { appWidgetId ->
                         refreshWidgetData(context, appWidgetManager, appWidgetId)
                     }
                 } finally {
                     pendingResult.finish()
+                    scope.cancel() // Clean up scope when work is done
                 }
             }
         }
@@ -77,8 +78,9 @@ class RandomVerseWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
         Log.i(TAG, "onUpdate")
         val pendingResult = goAsync()
-        
-        widgetScope.launch {
+        // Create a short-lived scope for this specific update broadcast
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+        scope.launch {
             try {
                 for (appWidgetId in appWidgetIds) {
                     val verseInfo = calculateVerseData(context, appWidgetId)
@@ -87,6 +89,7 @@ class RandomVerseWidget : AppWidgetProvider() {
                 }
             } finally {
                 pendingResult.finish()
+                scope.cancel() // Clean up scope when work is done
             }
         }
     }
