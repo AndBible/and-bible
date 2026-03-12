@@ -26,6 +26,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.page.Selection
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.Logger
 import net.bible.service.common.htmlToSpan
 import net.bible.service.common.useSaxBuilder
@@ -62,7 +63,6 @@ import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
-import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
@@ -486,6 +486,9 @@ object SwordContentFacade {
      * @param showQuotes
      * if true, quotation marks surround the returned String
      *
+     * @param useSuperscriptVerseNumbers
+     * if true, use unicode superscipt verse numbers
+     *
      * @return
      * the selected text, with markup according to options
      */
@@ -502,6 +505,7 @@ object SwordContentFacade {
         showEllipsis: Boolean = true,
         showQuotes: Boolean = true,
         separateVersesWithNewlines: Boolean = false,
+        useSuperscriptVerseNumbers: Boolean = false
     ): String {
 
         class VerseAndText(val verse: Verse, val text: String)
@@ -527,10 +531,16 @@ object SwordContentFacade {
 
         var startVerseNumber = ""
         if (showVerseNumbers && verseTexts.size > 1 && (!showReferenceAtFront || separateVersesWithNewlines)) {
-            startVerseNumber = "${selection.verseRange?.start?.verse}. "
+            startVerseNumber = "${selection.verseRange?.start?.verse}"
+            if (useSuperscriptVerseNumbers)
+                startVerseNumber = CommonUtils.toSuperscript(startVerseNumber)
+            else
+                startVerseNumber = "${startVerseNumber}. "
         }
         if (showSelectionOnly && startOffset > 0 && showEllipsis) {
             startVerseNumber = "$startVerseNumber..."
+            if (useSuperscriptVerseNumbers)
+                startVerseNumber = CommonUtils.toSuperscript(startVerseNumber)
         }
         val bookLocale = selection.book?.language?.code?.let { Locale(it) }
         val isRtl = TextUtils.getLayoutDirectionFromLocale(bookLocale) == LayoutDirection.RTL
@@ -585,7 +595,14 @@ object SwordContentFacade {
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
-                val endVerseNum = if (showVerseNumbers) "${lastVerse.verse.verse}. " else ""
+                var endVerseNum = if (showVerseNumbers) {
+                    var num = lastVerse.verse.verse.toString()
+                    if (useSuperscriptVerseNumbers) {
+                        CommonUtils.toSuperscript(num)
+                    } else
+                        "${num}. "
+                } else
+                    ""
                 val endVerse = lastVerse.text.slice(0 until min(lastVerse.text.length, endOffset))
                 val end = lastVerse.text.slice(endOffset until lastVerse.text.length)
                 
@@ -593,7 +610,13 @@ object SwordContentFacade {
                     var result = startVerse.trimEnd()
                     if (verseTexts.size > 2) {
                         val middleVerses = verseTexts.slice(1 until verseTexts.size - 1).map {
-                            if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                            if (showVerseNumbers && it.verse.verse != 0) {
+                                var verseNum = it.verse.verse.toString()
+                                if (useSuperscriptVerseNumbers)
+                                    CommonUtils.toSuperscript(verseNum) + it.text
+                                else
+                                    "${verseNum}. ${it.text}"
+                            } else it.text
                         }
                         for (middleVerse in middleVerses) {
                             result += "\n\n$middleVerse"
@@ -604,7 +627,13 @@ object SwordContentFacade {
                 } else {
                     var middleVerses = if (verseTexts.size > 2) {
                         verseTexts.slice(1 until verseTexts.size - 1).joinToString(" ") {
-                            if (showVerseNumbers && it.verse.verse != 0) "${it.verse.verse}. ${it.text}" else it.text
+                            if (showVerseNumbers && it.verse.verse != 0) {
+                                var verseNum = it.verse.verse.toString()
+                                if (useSuperscriptVerseNumbers)
+                                    CommonUtils.toSuperscript(verseNum) + it.text
+                                else
+                                    "${verseNum}. ${it.text}"
+                            } else it.text
                         }
                     } else ""
                     if (middleVerses.isNotEmpty()) {

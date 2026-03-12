@@ -501,16 +501,24 @@ object CommonUtils : CommonUtilsBase() {
         selection,
         showVerseNumbers = settings.getBoolean("share_verse_numbers", true),
         advertiseApp = settings.getBoolean("share_show_add", true),
+        showReference = settings.getBoolean("share_show_reference", true),
+        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
         abbreviateReference = settings.getBoolean("share_abbreviate_reference", true),
         showNotes = settings.getBoolean("show_notes", true),
         showVersion = settings.getBoolean("share_show_version", true),
-        showReference = settings.getBoolean("share_show_reference", true),
-        showReferenceAtFront = settings.getBoolean("share_show_reference_at_front", true),
         showSelectionOnly = settings.getBoolean("show_selection_only", true),
         showEllipsis = settings.getBoolean("show_ellipsis", true),
         showQuotes = settings.getBoolean("share_show_quotes", false),
-        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false)
+        separateVersesWithNewlines = settings.getBoolean("share_separate_verses_newlines", false),
+        useSuperscriptVerseNumbers = settings.getBoolean("share_superscript_verse_numbers", false)
     )
+
+    fun toSuperscript(anyString: String): String {
+        val superscripts = charArrayOf('⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹')
+        return anyString.map { char ->
+            if (char in '0'..'9') superscripts[char - '0'] else char
+        }.joinToString("")
+    }
 
     fun getFreeSpace(path: String): Long {
         val stat = StatFs(path)
