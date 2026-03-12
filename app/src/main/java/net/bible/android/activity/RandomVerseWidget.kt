@@ -82,7 +82,7 @@ class RandomVerseWidget : AppWidgetProvider() {
         scope.launch {
             try {
                 for (appWidgetId in appWidgetIds) {
-                    val verseInfo = calculateVerseData(context, appWidgetId)
+                    val verseInfo = calculateVerseData(context)
                     saveVerseData(context, appWidgetId, verseInfo)
                     updateAppWidget(context, appWidgetManager, appWidgetId, verseInfo)
                 }
@@ -122,7 +122,7 @@ class RandomVerseWidget : AppWidgetProvider() {
 
     private suspend fun refreshWidgetData(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         Log.d(TAG, "Refreshing data for widget: $appWidgetId")
-        val verseInfo = calculateVerseData(context, appWidgetId)
+        val verseInfo = calculateVerseData(context)
         saveVerseData(context, appWidgetId, verseInfo)
 
         val updateViews = RemoteViews(context.packageName, R.layout.random_verse_widget)
@@ -140,7 +140,7 @@ class RandomVerseWidget : AppWidgetProvider() {
 
     data class VerseInfo(val reference: String, val verses: List<String>, val mainVerseIndex: Int)
 
-    private suspend fun calculateVerseData(context: Context, appWidgetId: Int): VerseInfo = withContext(Dispatchers.IO) {
+    private suspend fun calculateVerseData(context: Context): VerseInfo = withContext(Dispatchers.IO) {
         var verseRef = ""
         val versesToStore = mutableListOf<String>()
         var mainVerseIndex = 0
