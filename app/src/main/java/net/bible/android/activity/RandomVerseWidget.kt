@@ -41,8 +41,6 @@ import net.bible.service.common.firstBibleDoc
 import net.bible.service.history.KeyHistoryItem
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.BookData
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.common.xml.XMLUtil
 import java.io.StringReader
