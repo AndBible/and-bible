@@ -312,14 +312,6 @@
                 <action android:name="android.intent.action.MEDIA_BUTTON" />
             </intent-filter>
         </receiver>
-        <activity
-            android:name="net.bible.android.activity.GetPassageActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="net.bible.android.action.GET_PASSAGE" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <receiver
             android:name=".RandomVerseWidget"
             android:exported="false">

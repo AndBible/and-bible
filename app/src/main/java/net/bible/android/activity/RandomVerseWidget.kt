@@ -25,10 +25,10 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
-import android.text.Html
 import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
+import androidx.core.text.HtmlCompat
 import kotlinx.coroutines.runBlocking
 import net.bible.android.BibleApplication
 import net.bible.service.common.CommonUtils
@@ -107,17 +107,12 @@ class RandomVerseWidget : AppWidgetProvider() {
             net.bible.service.db.DatabaseContainer.initializeDatabase()
             val windowControl = bibleApplication.applicationComponent.windowControl()
             val activeBible = windowControl.defaultBibleDoc() ?: throw Exception("no Bible installed")
-
-            val allVerseKeys = activeBible.globalKeyList.filter { key -> key is Verse }
-            if (allVerseKeys.isEmpty()) throw Exception("no verses found")
-
-            val randomNumber = (0 until allVerseKeys.size).random()
-            val mainVerse = allVerseKeys[randomNumber] as Verse
             val v11n = activeBible.versification
-            val ordinal = v11n.getOrdinal(mainVerse)
-            
+            if (v11n.maximumOrdinal() <= 0) throw Exception("no verses found")
+            val ordinal = (1 until v11n.maximumOrdinal()+1).random()
+
             val startOrdinal = (ordinal - 2).coerceAtLeast(0)
-            val endOrdinal = (ordinal + 2).coerceAtMost(v11n.maximumOrdinal() - 1)
+            val endOrdinal = (ordinal + 2).coerceAtMost(v11n.maximumOrdinal())
 
             for (i in startOrdinal..endOrdinal) {
                 val v = v11n.decodeOrdinal(i)
@@ -126,13 +121,13 @@ class RandomVerseWidget : AppWidgetProvider() {
                 
                 if (i == ordinal) {
                     mainVerseIndex = versesToStore.size
-                    versesToStore.add("<b>$text</b>")
+                    versesToStore.add("<b>&nbsp;&nbsp;$text</b>")
                 } else {
                     versesToStore.add(text)
                 }
             }
 
-            verseRef = mainVerse.name
+            verseRef = v11n.decodeOrdinal(ordinal).name
 
         } catch (e: Exception) {
             Log.e(TAG, "Error refreshing widget data", e)
@@ -211,8 +206,8 @@ class VerseRemoteViewsFactory(private val context: Context, private val intent: 
 
     override fun getViewAt(position: Int): RemoteViews {
         return RemoteViews(context.packageName, R.layout.random_verse_widget_view_item).apply {
-            // FromHtml is needed to render the font and bold tags correctly
-            val styledText = Html.fromHtml(verses[position], Html.FROM_HTML_MODE_LEGACY)
+            // Use HtmlCompat for backward compatibility with API < 24
+            val styledText = HtmlCompat.fromHtml(verses[position], HtmlCompat.FROM_HTML_MODE_LEGACY)
             setTextViewText(R.id.verse_text_item, styledText)
         }
     }
