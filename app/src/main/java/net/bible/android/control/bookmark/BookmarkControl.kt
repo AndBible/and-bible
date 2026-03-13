@@ -153,7 +153,7 @@ open class BookmarkControl @Inject constructor(
             dao.update(bookmark.bookmarkEntity)
             if(updateNotes) {
                 if (notes != null) {
-                    dao.update(notes)
+                    dao.upsert(notes)
                 } else {
                     dao.deleteBookmarkNotes(bookmark)
                 }
