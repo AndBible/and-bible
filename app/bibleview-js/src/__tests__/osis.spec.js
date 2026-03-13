@@ -71,6 +71,8 @@ async function verifyXmlRendering(xmlTemplate, renderedHtml) {
     };
 
     // Inject missing verseOrdinals into the XML before rendering
+    // so the xml source can come from the disk format without needing sword to process it first
+    // since we expect to have several nodes, we wrap them in a root node, then use a loop to serialize them
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(`<root>${xmlTemplate}</root>`, "text/xml");
     const verses = xmlDoc.getElementsByTagName("verse");
@@ -80,8 +82,7 @@ async function verifyXmlRendering(xmlTemplate, renderedHtml) {
             verses[i].setAttribute("verseOrdinal", (i + 1).toString());
         }
     }
-    
-    // Serialize the modified XML back to a string
+
     const serializer = new XMLSerializer();
     const root = xmlDoc.documentElement;
     let processedXml = "";
