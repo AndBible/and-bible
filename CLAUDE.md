@@ -124,6 +124,16 @@ Only run Android builds when testing Android-specific integration.
 
 Add KDoc/Javadoc-style documentation to new classes, functions, and methods when it provides value beyond what the name already conveys. If the name is self-explanatory, documentation is unnecessary. However, explanatory documentation is valuable and expected for complex logic, non-obvious behavior, and larger components.
 
+## Translations / Localization
+
+**During development, only English strings are needed.** Do not add translations to other languages — the Transifex localization process handles all translations automatically.
+
+However, **all user-facing strings must go through the translation system**:
+- **Android**: Add strings to `app/src/main/res/values/strings.xml`
+- **Vue.js/BibleView**: Add strings to `app/bibleview-js/src/lang/default.yaml`
+
+Never hardcode user-visible text directly in code.
+
 ## Code Patterns
 
 ### View Bindings
