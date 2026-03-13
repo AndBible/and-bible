@@ -657,11 +657,13 @@ object SwordContentFacade {
     private fun formatVerseNumber(verse: Int?, useSuperscriptVerseNumbers: Boolean): String {
         if (verse == null)
             return ""
-        var verseNum = verse.toString()
-        if (useSuperscriptVerseNumbers)
-            return ABStringUtils.toSuperscript(verseNum) + " "
-        else
+        val verseNum = verse.toString()
+        if (useSuperscriptVerseNumbers) {
+            val hairSpace = "\u200A"
+            return ABStringUtils.toSuperscript(verseNum) + hairSpace
+        } else {
             return "${verseNum}. "
+        }
     }
 
     private fun getSpeakCommandsForVerse(settings: SpeakSettings, book: Book, key: Key): ArrayList<SpeakCommand> = try {
