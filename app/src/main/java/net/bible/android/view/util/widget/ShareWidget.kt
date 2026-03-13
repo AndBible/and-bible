@@ -54,6 +54,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
 
             // apply isChecked to toggles based on settings
             toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
+            toggleSuperscriptVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_superscript_verse_numbers", false)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
@@ -69,6 +70,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
 
             // update text when any toggle is clicked
             toggleVersenumbers.setOnClickListener { updateWidgetState() }
+            toggleSuperscriptVersenumbers.setOnClickListener { updateWidgetState() }
             advertise.setOnClickListener { updateWidgetState() }
             toggleShowReference.setOnClickListener { updateWidgetState() }
             toggleAbbreviateReference.setOnClickListener { updateWidgetState() }
@@ -105,6 +107,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         // update widget share option settings
         CommonUtils.settings.apply {
             setBoolean("share_verse_numbers", bindings.toggleVersenumbers.isChecked)
+            setBoolean("share_superscript_verse_numbers", bindings.toggleSuperscriptVersenumbers.isChecked)
             setBoolean("share_show_add", bindings.advertise.isChecked)
             setBoolean("share_show_reference", bindings.toggleShowReference.isChecked)
             setBoolean("share_abbreviate_reference", bindings.toggleAbbreviateReference.isChecked)
@@ -122,6 +125,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
         bindings.toggleShowVersion.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowReferenceAtFront.isEnabled = bindings.toggleShowReference.isChecked
         bindings.toggleShowEllipsis.isEnabled = bindings.toggleShowSelectionOnly.isChecked
+        bindings.toggleSuperscriptVersenumbers.isEnabled = bindings.toggleVersenumbers.isChecked
     }
 
     /**
