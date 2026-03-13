@@ -77,7 +77,6 @@ class PromptEditActivity : ActivityBase() {
     private lateinit var nameEdit: EditText
     private lateinit var descriptionEdit: EditText
     private lateinit var templateEdit: EditText
-    private lateinit var checkTextDisplaySettings: CheckBox
     private lateinit var checkVerseSelection: CheckBox
     private lateinit var checkTextSelection: CheckBox
     private lateinit var checkWindowMenu: CheckBox
@@ -138,7 +137,6 @@ class PromptEditActivity : ActivityBase() {
         nameEdit = findViewById(R.id.promptName)
         descriptionEdit = findViewById(R.id.promptDescription)
         templateEdit = findViewById(R.id.promptTemplate)
-        checkTextDisplaySettings = findViewById(R.id.checkTextDisplaySettings)
         checkVerseSelection = findViewById(R.id.checkVerseSelection)
         checkTextSelection = findViewById(R.id.checkTextSelection)
         checkWindowMenu = findViewById(R.id.checkWindowMenu)
@@ -207,7 +205,6 @@ class PromptEditActivity : ActivityBase() {
         nameEdit.isEnabled = false
         descriptionEdit.isEnabled = false
         templateEdit.isEnabled = false
-        checkTextDisplaySettings.isEnabled = false
         checkVerseSelection.isEnabled = false
         checkTextSelection.isEnabled = false
         checkWindowMenu.isEnabled = false
@@ -230,7 +227,6 @@ class PromptEditActivity : ActivityBase() {
         descriptionEdit.setText(prompt.description ?: "")
         templateEdit.setText(prompt.promptTemplate)
 
-        checkTextDisplaySettings.isChecked = PromptContext.TEXT_DISPLAY_SETTINGS in prompt.showIn
         checkVerseSelection.isChecked = PromptContext.VERSE_SELECTION in prompt.showIn
         checkTextSelection.isChecked = PromptContext.TEXT_SELECTION in prompt.showIn
         checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
@@ -250,7 +246,6 @@ class PromptEditActivity : ActivityBase() {
 
     private fun collectShowIn(): Set<PromptContext> {
         val contexts = mutableSetOf<PromptContext>()
-        if (checkTextDisplaySettings.isChecked) contexts.add(PromptContext.TEXT_DISPLAY_SETTINGS)
         if (checkVerseSelection.isChecked) contexts.add(PromptContext.VERSE_SELECTION)
         if (checkTextSelection.isChecked) contexts.add(PromptContext.TEXT_SELECTION)
         if (checkWindowMenu.isChecked) contexts.add(PromptContext.WINDOW_MENU)

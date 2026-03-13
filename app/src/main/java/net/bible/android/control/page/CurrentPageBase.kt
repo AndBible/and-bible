@@ -31,10 +31,6 @@ import net.bible.service.download.doesNotExist
 import net.bible.service.download.isPseudoBook
 import net.bible.service.download.isRemoved
 import net.bible.service.history.AddHistoryItem
-import net.bible.service.llm.getOrCreateProcessedBookWithPrompt
-import net.bible.service.llm.isLlmProcessedBook
-import net.bible.service.llm.LlmProcessingError
-import net.bible.service.llm.LlmRequestSuperseded
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
@@ -148,16 +144,9 @@ abstract class CurrentPageBase protected constructor(
     override fun getPageContent(key: Key): Document = try {
         val currentDocument = currentDocument!!
 
-        // LLM-processed books handle their own thread safety via LlmProcessingService.
-        // Regular books need synchronization for JSword thread safety.
-        val frag = if (currentDocument.isLlmProcessedBook) {
+        val frag = synchronized(currentDocument) {
             val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
             OsisFragment(xml, key, currentDocument)
-        } else {
-            synchronized(currentDocument) {
-                val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
-                OsisFragment(xml, key, currentDocument)
-            }
         }
 
         annotateKey = frag.annotateRef
@@ -172,12 +161,6 @@ abstract class CurrentPageBase protected constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)
         when (e) {
-            is LlmRequestSuperseded -> {
-                // Cancelled request — return empty document silently, no error flash
-                Log.d(TAG, "LLM request superseded for $key, returning empty document")
-                ErrorDocument("", ErrorSeverity.NORMAL)
-            }
-            is LlmProcessingError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             is DocumentNotFound -> ErrorDocument(e.message, ErrorSeverity.NORMAL)
             is OsisError -> ErrorDocument(e.message, ErrorSeverity.WARNING)
             else -> ErrorDocument(application.getString(R.string.error_occurred), ErrorSeverity.ERROR)
@@ -199,11 +182,7 @@ abstract class CurrentPageBase protected constructor(
 
     private var _currentDocument: Book? = null
 
-    /**
-     * Returns the raw document without any LLM processing wrapper.
-     * Use this for storage, settings, and operations that need the original document.
-     */
-    val rawDocument: Book?
+    override val currentDocument: Book?
         get() {
             if (_currentDocument == null) {
                 _currentDocument = getDefaultBook()
@@ -219,35 +198,6 @@ abstract class CurrentPageBase protected constructor(
                 _currentDocument = getDefaultBook()
             }
             return _currentDocument
-        }
-
-    /**
-     * Returns the effective document, wrapped with LLM processing if configured.
-     * This is what should be used for reading content.
-     * LLM processing is only applied to Bible and Commentary books.
-     */
-    override val currentDocument: Book?
-        get() {
-            val doc = rawDocument ?: return null
-            // Don't wrap if already an LLM-processed book
-            if (doc.isLlmProcessedBook) {
-                return doc
-            }
-            // Only apply LLM processing to supported book types
-            val supportedCategories = setOf(
-                BookCategory.BIBLE,
-                BookCategory.COMMENTARY,
-                BookCategory.DICTIONARY,
-                BookCategory.GENERAL_BOOK
-            )
-            if (doc.bookCategory !in supportedCategories) {
-                return doc
-            }
-            val promptId = pageManager.actualTextDisplaySettings.llmPromptId
-            if (promptId != null && !promptId.isEmpty && CommonUtils.settings.llmConfigured) {
-                return getOrCreateProcessedBookWithPrompt(doc, promptId) ?: doc
-            }
-            return doc
         }
 
     private fun getDefaultBook(): Book? {

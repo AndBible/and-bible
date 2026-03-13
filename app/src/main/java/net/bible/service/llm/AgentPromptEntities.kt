@@ -37,7 +37,6 @@ import net.bible.service.llm.agent.PermissionMode
  */
 @Serializable
 enum class PromptContext {
-    TEXT_DISPLAY_SETTINGS, // AI Text Processing - online processing for document display
     VERSE_SELECTION,       // Verse selection (One Tap Actions)
     TEXT_SELECTION,        // Free text selection
     WINDOW_MENU,           // Window Button popup menu

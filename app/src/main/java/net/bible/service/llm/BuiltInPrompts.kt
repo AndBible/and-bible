@@ -107,7 +107,6 @@ object BuiltInPrompts {
                     Do not add any explanations or commentary.
                 """.trimIndent(),
                 showIn = setOf(
-                    PromptContext.TEXT_DISPLAY_SETTINGS,
                     PromptContext.VERSE_SELECTION,
                     PromptContext.WINDOW_MENU
                 ),
@@ -128,7 +127,6 @@ object BuiltInPrompts {
                     Do not add any explanations or commentary.
                 """.trimIndent(),
                 showIn = setOf(
-                    PromptContext.TEXT_DISPLAY_SETTINGS,
                     PromptContext.VERSE_SELECTION,
                     PromptContext.WINDOW_MENU
                 ),
@@ -159,32 +157,6 @@ object BuiltInPrompts {
                     Include historical context, theological significance, and practical application.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
-                orderNumber = order++,
-            ),
-
-            AgentPrompt(
-                id = STRONGS_ANNOTATION_ID,
-                name = context.getString(R.string.default_prompt_strongs_annotation),
-                description = context.getString(R.string.default_prompt_strongs_annotation_desc),
-                promptTemplate = """
-                    Annotate each word in the Bible text with Strong's concordance numbers.
-
-                    Steps:
-                    1. Use getVerseContent to read the same passage from "KJV" (has Strong's numbers)
-                    2. The KJV text has <w lemma="strong:HXXXX"> tags mapping words to Strong's numbers
-                    3. Map each word/phrase in the source text to the corresponding Strong's number
-                    4. Wrap annotated words: <w lemma="strong:XXXX">word</w>
-                    5. Multiple Strong's: <w lemma="strong:H1234 strong:H5678">word</w>
-                    6. No clear mapping: leave word unwrapped
-                    7. Preserve ALL XML structure, attributes, verse tags exactly
-                    8. Do not translate or change text content
-
-                    Example:
-                    Source: <verse osisID="Gen.1.1">Alussa Jumala loi taivaan ja maan.</verse>
-                    After getVerseContent("KJV", "Gen.1.1"): <w lemma="strong:H7225">In the beginning</w> <w lemma="strong:H0430">God</w>...
-                    Result: <verse osisID="Gen.1.1"><w lemma="strong:H7225">Alussa</w> <w lemma="strong:H0430">Jumala</w>...
-                """.trimIndent(),
-                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS),
                 orderNumber = order++,
             ),
 
@@ -451,7 +423,7 @@ object BuiltInPrompts {
 
                     Example: "In the beginning God created" → "IN the beginning God created"
                 """.trimIndent(),
-                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS, PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
             ),
         )

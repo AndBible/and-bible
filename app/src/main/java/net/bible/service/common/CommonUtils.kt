@@ -449,7 +449,7 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
-        val llmModeExperimentalEnabled: Boolean get() = isExperimentalFeatureEnabled("llm_mode")
+
 
         // LLM Translation Settings — legacy per-provider settings kept for migration only
         var llmApiKey: String
@@ -472,14 +472,6 @@ object CommonUtils : CommonUtilsBase() {
                 return provider?.models?.firstOrNull() ?: ""
             }
             set(value) = setString("llm_model", value)
-
-        var llmConfirmBeforeCall: Boolean
-            get() = getBoolean("llm_confirm_before_call", true)
-            set(value) = setBoolean("llm_confirm_before_call", value)
-
-        var llmDebounceMs: Int
-            get() = getInt("llm_debounce_ms", 1000)
-            set(value) = setInt("llm_debounce_ms", value)
 
         val llmConfigured: Boolean
             get() = llmApiKey.isNotBlank()

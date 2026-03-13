@@ -236,8 +236,7 @@ class ChooseDictionaryWord : ListActivityBase() {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
         myIntent.putExtra("key", selectedKey.osisRef)
         setResult(Activity.RESULT_OK, myIntent)
-        // Use rawDocument for navigation
-        val curDoc = windowControl.activeWindowPageManager.currentDictionary.rawDocument!!
+        val curDoc = windowControl.activeWindowPageManager.currentDictionary.currentDocument!!
         myIntent.putExtra("book", curDoc.initials)
         finish()
     }

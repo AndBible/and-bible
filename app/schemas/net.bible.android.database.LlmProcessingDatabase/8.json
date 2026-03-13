@@ -2,90 +2,8 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "e7d284c0226398bfc36a197c202b20e1",
+    "identityHash": "9acb139ce0350ae8d45abe791a34d5a6",
     "entities": [
-      {
-        "tableName": "LlmProcessingCacheEntry",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`documentInitials` TEXT NOT NULL, `keyName` TEXT NOT NULL, `processingType` TEXT NOT NULL, `processingParams` TEXT NOT NULL, `modelId` TEXT NOT NULL, `processedXml` TEXT NOT NULL, `createdAt` INTEGER NOT NULL, `languageCode` TEXT, PRIMARY KEY(`documentInitials`, `keyName`, `processingType`, `processingParams`))",
-        "fields": [
-          {
-            "fieldPath": "documentInitials",
-            "columnName": "documentInitials",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "keyName",
-            "columnName": "keyName",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "processingType",
-            "columnName": "processingType",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "processingParams",
-            "columnName": "processingParams",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "modelId",
-            "columnName": "modelId",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "processedXml",
-            "columnName": "processedXml",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "createdAt",
-            "columnName": "createdAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "languageCode",
-            "columnName": "languageCode",
-            "affinity": "TEXT"
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "documentInitials",
-            "keyName",
-            "processingType",
-            "processingParams"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_LlmProcessingCacheEntry_processingType",
-            "unique": false,
-            "columnNames": [
-              "processingType"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_processingType` ON `${TABLE_NAME}` (`processingType`)"
-          },
-          {
-            "name": "index_LlmProcessingCacheEntry_modelId",
-            "unique": false,
-            "columnNames": [
-              "modelId"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_modelId` ON `${TABLE_NAME}` (`modelId`)"
-          }
-        ]
-      },
       {
         "tableName": "AgentPrompt",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `description` TEXT DEFAULT NULL, `promptTemplate` TEXT NOT NULL, `showIn` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `createdAt` INTEGER NOT NULL DEFAULT 0, `strictContextMatching` INTEGER NOT NULL DEFAULT 1, `permissionMode` TEXT DEFAULT NULL, `allowedTools` TEXT DEFAULT NULL, `deniedTools` TEXT DEFAULT NULL, `modelOverride` TEXT DEFAULT NULL, `providerConfigId` BLOB DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`providerConfigId`) REFERENCES `LlmProviderConfig`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
@@ -290,11 +208,152 @@
             "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmProviderConfig_orderNumber` ON `${TABLE_NAME}` (`orderNumber`)"
           }
         ]
+      },
+      {
+        "tableName": "LogEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
+        "fields": [
+          {
+            "fieldPath": "tableName",
+            "columnName": "tableName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId1",
+            "columnName": "entityId1",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId2",
+            "columnName": "entityId2",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tableName",
+            "entityId1",
+            "entityId2"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LogEntry_lastUpdated",
+            "unique": false,
+            "columnNames": [
+              "lastUpdated"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
+          },
+          {
+            "name": "index_LogEntry_sourceDevice",
+            "unique": false,
+            "columnNames": [
+              "sourceDevice"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `${TABLE_NAME}` (`sourceDevice`)"
+          }
+        ]
+      },
+      {
+        "tableName": "SyncConfiguration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))",
+        "fields": [
+          {
+            "fieldPath": "keyName",
+            "columnName": "keyName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringValue",
+            "columnName": "stringValue",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "longValue",
+            "columnName": "longValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "booleanValue",
+            "columnName": "booleanValue",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "keyName"
+          ]
+        }
+      },
+      {
+        "tableName": "SyncStatus",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))",
+        "fields": [
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patchNumber",
+            "columnName": "patchNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appliedDate",
+            "columnName": "appliedDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sourceDevice",
+            "patchNumber"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e7d284c0226398bfc36a197c202b20e1')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9acb139ce0350ae8d45abe791a34d5a6')"
     ]
   }
 }

@@ -18,10 +18,8 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
-import android.text.format.Formatter
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.view.View
@@ -91,12 +89,10 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var providersCategory: PreferenceCategory
     private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
-    private lateinit var llmModeCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
-    private lateinit var manageCachePref: Preference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
@@ -106,27 +102,21 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
-        llmModeCategory = preferenceScreen.findPreference("ai_llm_mode_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
-        manageCachePref = preferenceScreen.findPreference("llm_manage_cache")!!
 
         setupGettingStarted()
         setupAddProvider()
         setupToolPermissions()
         setupUsage()
-        setupCacheManagement()
         refreshProviderList()
         updateVisibility()
     }
 
     override fun onResume() {
         super.onResume()
-        if (::manageCachePref.isInitialized) {
-            updateCacheSummary()
-        }
         refreshProviderList()
     }
 
@@ -142,7 +132,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val hasProviders = hasAnyProvider()
         gettingStartedPref.isVisible = !hasProviders
         behaviorCategory.isVisible = hasProviders
-        llmModeCategory.isVisible = hasProviders && settings.llmModeExperimentalEnabled
         usageCategory.isVisible = hasProviders
 
         if (hasProviders) updateUsageSummary()
@@ -753,28 +742,4 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun setupCacheManagement() {
-        manageCachePref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), LlmCacheActivity::class.java))
-            true
-        }
-        updateCacheSummary()
-    }
-
-    private fun updateCacheSummary() {
-        lifecycleScope.launch {
-            val stats = withContext(Dispatchers.IO) {
-                DatabaseContainer.instance.llmProcessingDb.llmProcessingDao().getCacheStats()
-            }
-            if (stats.entryCount > 0) {
-                val sizeStr = formatSize(stats.totalSize)
-                manageCachePref.summary = "${getString(R.string.llm_cache_management_summary)} (${stats.entryCount}, $sizeStr)"
-            } else {
-                manageCachePref.summary = getString(R.string.llm_cache_management_summary)
-            }
-        }
-    }
-
-    private fun formatSize(bytes: Long): String =
-        Formatter.formatShortFileSize(requireContext(), bytes)
 }

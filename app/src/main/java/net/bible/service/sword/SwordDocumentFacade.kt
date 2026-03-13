@@ -26,7 +26,6 @@ import net.bible.service.download.RepoBookDeduplicator
 import net.bible.service.download.RepoFactory
 import net.bible.service.sword.epub.epubBackend
 import net.bible.service.sword.epub.isEpub
-import net.bible.service.llm.isLlmProcessedBook
 import net.bible.service.sword.index.AndroidIndexPolicy
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -47,7 +46,7 @@ object SwordDocumentFacade {
     val bibles: List<Book>
         get() {
             Log.d(TAG, "Getting bibles")
-            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE && !it.isLlmProcessedBook }
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE }
             Log.d(TAG, "Got bibles, Num=" + documents.size)
             return documents
         }
@@ -55,14 +54,14 @@ object SwordDocumentFacade {
     val unlockedBibles: List<Book>
         get() {
             Log.d(TAG, "Getting bibles")
-            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE && !it.isLocked && !it.isLlmProcessedBook }
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE && !it.isLocked }
             Log.d(TAG, "Got bibles, Num=" + documents.size)
             return documents
         }
 
     fun getBooks(bookCategory: BookCategory): List<Book> {
         Log.d(TAG, "Getting books of type " + bookCategory.getName())
-        val documents = Books.installed().getBooks { it.bookCategory == bookCategory && !it.isLlmProcessedBook }
+        val documents = Books.installed().getBooks { it.bookCategory == bookCategory }
         Log.d(TAG, "Got books, Num=" + documents.size)
         return documents
     }
@@ -74,7 +73,7 @@ object SwordDocumentFacade {
         get() {
             Log.d(TAG, "Getting books")
             // currently only bibles and commentaries are supported
-            val allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES).filter { !it.isLlmProcessedBook }
+            val allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES)
             Log.d(TAG, "Got books, Num=" + allDocuments.size)
             return allDocuments
         }

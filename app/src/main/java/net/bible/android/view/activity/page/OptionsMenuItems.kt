@@ -45,8 +45,6 @@ import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.service.llm.PromptContext
-import net.bible.service.llm.PromptRepository
 import org.crosswire.jsword.book.FeatureType
 import javax.inject.Inject
 
@@ -215,7 +213,6 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
                 TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
-                TextDisplaySettings.Types.LLM_PROMPT -> R.string.llm_prompt_title
                 TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
                 TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.string.prefs_title_scroll_button_title
             }
@@ -570,71 +567,5 @@ class WindowPinningPreference :
     override val isBoolean = true
 }
 
-class InfiniteScrollPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.INFINITE_SCROLL) {
-    private val llmActive: Boolean get() {
-        val actualSettings = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
-        val promptId = actualSettings.llmPromptId
-        return promptId != null && !promptId.isEmpty
-    }
-    override val enabled: Boolean get() = !llmActive
-    override var value
-        get() = if (llmActive) false else super.value
-        set(value) { if (!llmActive) super.value = value }
-}
-
-class LlmPromptPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.LLM_PROMPT) {
-    override val title: String get() {
-        val promptId = value as IdType?
-        return when {
-            promptId == null -> application.getString(R.string.llm_prompt_title)
-            promptId.isEmpty -> application.getString(R.string.llm_prompt_title) + ": " + application.getString(R.string.llm_prompt_disabled)
-            else -> {
-                val prompt = PromptRepository.promptById(promptId)
-                application.getString(R.string.llm_prompt_title) + ": " + (prompt?.name ?: "?")
-            }
-        }
-    }
-
-    override val visible: Boolean get() = CommonUtils.settings.llmModeExperimentalEnabled && CommonUtils.settings.llmConfigured && settings.windowId != null
-
-    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        val prompts = PromptRepository.promptsForContext(PromptContext.TEXT_DISPLAY_SETTINGS)
-
-        // Build prompt list: first "Disabled" (empty ID), then all prompts
-        val options = mutableListOf<Pair<IdType, String>>()
-        options.add(IdType.empty() to application.getString(R.string.llm_prompt_disabled))
-
-        for (prompt in prompts) {
-            options.add(prompt.id to prompt.name)
-        }
-
-        val currentValue = value as? IdType ?: IdType.empty()
-        val currentIndex = options.indexOfFirst { it.first == currentValue }.coerceAtLeast(0)
-
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.llm_prompt_title)
-            .setSingleChoiceItems(options.map { it.second }.toTypedArray(), currentIndex) { dialog, which ->
-                val newValue = options[which].first
-                value = newValue
-                handle()
-                onChanged?.invoke(newValue as Any)
-                dialog.dismiss()
-            }
-            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); handle(); onReset?.invoke() }
-            .setNegativeButton(android.R.string.cancel, null)
-            .show()
-
-        return true
-    }
-
-    override fun handle() {
-        if (window == null) {
-            // Workspace-level change: reload all windows
-            windowRepository.windowList.forEach { it.loadText() }
-        } else {
-            // Window-specific change: reload only this window
-            window.loadText()
-        }
-    }
-}
+class InfiniteScrollPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.INFINITE_SCROLL)
 

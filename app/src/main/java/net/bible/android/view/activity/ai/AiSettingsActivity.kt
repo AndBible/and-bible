@@ -137,7 +137,6 @@ class AiSettingsActivity : ActivityBase() {
         menu.findItem(R.id.reset_prompts)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
         menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
-        menu.findItem(R.id.manage_cache)?.isVisible = configured
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.import_prompts_csv)?.isVisible = configured
         return super.onPrepareOptionsMenu(menu)
@@ -159,10 +158,6 @@ class AiSettingsActivity : ActivityBase() {
             }
             R.id.ai_connection_settings -> {
                 startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
-                true
-            }
-            R.id.manage_cache -> {
-                startActivity(Intent(this, LlmCacheActivity::class.java))
                 true
             }
             R.id.reset_all_ai_settings -> {
@@ -209,8 +204,6 @@ class AiSettingsActivity : ActivityBase() {
         settings.llmApiKey = ""
         settings.llmEndpoint = ""
         settings.llmModel = ""
-        settings.llmConfirmBeforeCall = true
-        settings.llmDebounceMs = 1000
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -357,8 +350,6 @@ class AiSettingsActivity : ActivityBase() {
 
             val contextNames = prompt.showIn.map { context ->
                 when (context) {
-                    PromptContext.TEXT_DISPLAY_SETTINGS ->
-                        getString(R.string.prompt_context_text_display_settings)
                     PromptContext.VERSE_SELECTION ->
                         getString(R.string.prompt_context_verse_selection)
                     PromptContext.TEXT_SELECTION ->

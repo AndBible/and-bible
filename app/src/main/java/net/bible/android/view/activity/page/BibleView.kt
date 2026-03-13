@@ -136,7 +136,6 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
-import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -1525,14 +1524,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
-        val effectiveSettings = if (displaySettings.llmPromptId?.isEmpty == false) {
-            displaySettings.copy(infiniteScroll = false)
-        } else {
-            displaySettings
-        }
         return """
                 bibleView.emit('set_config', {
-                    config: ${effectiveSettings.toJson()},
+                    config: ${displaySettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
                         isBottomWindow: $isBottomWindow,
@@ -2126,7 +2120,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
         }
         executeJavascriptOnUiThread("bibleView.emit('reset_loading_count')")
-        LlmProcessingService.cancelAllPendingRequests()
     }
 
     fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {

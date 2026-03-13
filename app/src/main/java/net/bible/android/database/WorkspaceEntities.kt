@@ -169,7 +169,6 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
-        @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
@@ -197,7 +196,6 @@ class WorkspaceEntities {
             BOOKMARKS_HIDELABELS,
             MYNOTES,
             PAGENUMBER,
-            LLM_PROMPT,
             INFINITE_SCROLL,
             NON_STRONGS_WORD_ITALIC,
             TITLE_SCROLL_BUTTON,
@@ -226,7 +224,6 @@ class WorkspaceEntities {
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
-            Types.LLM_PROMPT -> llmPromptId
             Types.INFINITE_SCROLL -> infiniteScroll
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
             Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
@@ -256,7 +253,6 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
-                Types.LLM_PROMPT -> llmPromptId = value as IdType?
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
                 Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
@@ -318,7 +314,6 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
-                llmPromptId = IdType.empty(),
                 infiniteScroll = true,
                 nonStrongsWordItalic = false,
                 showTitleScrollButton = false

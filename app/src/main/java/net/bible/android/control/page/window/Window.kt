@@ -42,7 +42,6 @@ import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.page.windowControl
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import net.bible.service.llm.LlmRequestSuperseded
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
 import org.crosswire.jsword.book.Book
@@ -338,10 +337,6 @@ class Window (
             val document = currentPage.currentDocument
             Log.i(TAG, "Loading document:$document key:${currentPage.key}")
             currentPage.currentPageContent
-        } catch (e: LlmRequestSuperseded) {
-            // Request was superseded by newer one - don't show any document
-            Log.d(TAG, "Request superseded, not loading document")
-            null
         } catch (oom: OutOfMemoryError) {
             Log.e(TAG, "Out of memory error", oom)
             System.gc()

@@ -439,7 +439,7 @@ class PromptCsvUtilsTest {
             name = "Round-Trip Prompt",
             description = "Test description",
             promptTemplate = "Translate {{text}} to {{language}}",
-            showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_DISPLAY_SETTINGS),
+            showIn = setOf(PromptContext.VERSE_SELECTION),
             orderNumber = 7,
             strictContextMatching = false,
             permissionMode = PermissionMode.ASK_ONCE_PER_RUN,

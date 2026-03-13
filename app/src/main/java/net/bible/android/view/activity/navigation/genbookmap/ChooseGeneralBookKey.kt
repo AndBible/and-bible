@@ -37,8 +37,7 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
 
 
     override val keyList: List<Key> get() {
-        // Use rawDocument for navigation - LLM-wrapped books don't provide correct globalKeyList
-        val doc = currentGeneralBookPage.rawDocument!!
+        val doc = currentGeneralBookPage.currentDocument!!
         return if(doc.isEpub) {
             val backend = (doc as SwordGenBook).backend as EpubBackend
             backend.tocKeys
@@ -49,8 +48,7 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
 
     override fun itemSelected(key: Key?) {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
-        // Use rawDocument for navigation
-        val doc = currentGeneralBookPage.rawDocument
+        val doc = currentGeneralBookPage.currentDocument
         if(key is BookAndKey) {
             myIntent.putExtra("bookAndKey", key.serialized)
         } else {

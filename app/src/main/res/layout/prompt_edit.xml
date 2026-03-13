@@ -97,12 +97,6 @@
             android:textStyle="bold" />
 
         <CheckBox
-            android:id="@+id/checkTextDisplaySettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/prompt_context_text_display_settings" />
-
-        <CheckBox
             android:id="@+id/checkVerseSelection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
