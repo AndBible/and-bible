@@ -58,6 +58,12 @@ window.bibleView = {
     setEditing: () => {}
 }
 
+if (!window.android) {
+    window.android = {
+        setClientReady: () => {},
+    };
+}
+
 async function verifyXmlRendering(xmlTemplate, renderedHtml) {
     const {config, appSettings, calculatedConfig} = useConfig(ref("bible"));
     const osisFragment = {
