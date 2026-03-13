@@ -109,7 +109,7 @@ object LlmProcessingService {
      */
     internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
         val providerConfig = llmConfig?.resolveProviderConfig()
-            ?: DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao().getDefault()
+            ?: DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getDefault()
 
         return if (providerConfig != null) {
             val model = llmConfig?.resolveModel(providerConfig) ?: providerConfig.resolveDefaultModel()

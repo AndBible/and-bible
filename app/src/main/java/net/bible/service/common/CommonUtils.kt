@@ -480,7 +480,7 @@ object CommonUtils : CommonUtilsBase() {
         /** Check if any LlmProviderConfig exists in the database. */
         val llmHasProviderConfigs: Boolean
             get() = try {
-                DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao().getCount() > 0
+                DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
             } catch (_: Exception) { false }
 
         // Agent Permission Settings
@@ -2020,7 +2020,7 @@ val Key.shortName: String get() =
     else name
 
 enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, LLMPROCESSING
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
 }
 enum class BackupType {
     // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.

@@ -44,7 +44,7 @@ class PromptCsvUtilsTest {
 
     @Before
     fun setUp() {
-        dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+        dao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
     }
 
     @After
@@ -428,7 +428,7 @@ class PromptCsvUtilsTest {
         val id = IdType()
         val providerConfigId = IdType()
         // Insert a provider config so the foreign key is satisfied
-        val providerConfigDao = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+        val providerConfigDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
         providerConfigDao.insert(LlmProviderConfig(
             id = providerConfigId,
             providerType = "GEMINI",

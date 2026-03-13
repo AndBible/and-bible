@@ -126,7 +126,7 @@ class PromptEditActivity : ActivityBase() {
         PermissionMode.DENY_ALL,
     )
 
-    private val providerConfigDao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+    private val providerConfigDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

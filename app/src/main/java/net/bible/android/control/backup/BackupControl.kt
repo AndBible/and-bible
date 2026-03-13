@@ -46,7 +46,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.LlmProcessingDatabase
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
@@ -283,7 +283,7 @@ object BackupControl {
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
                         SettingsDatabase.dbFileName -> context.getString(R.string.settings)
                         MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
-                        LlmProcessingDatabase.dbFileName -> context.getString(R.string.llm_processing_sync_title)
+                        AiSettingsDatabase.dbFileName -> context.getString(R.string.ai_settings_sync_title)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -496,7 +496,7 @@ object BackupControl {
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
                 DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
-                DbType.MYDOCUMENTS, DbType.LLMPROCESSING
+                DbType.MYDOCUMENTS, DbType.AI_SETTINGS
             )
         )
 
@@ -577,7 +577,7 @@ object BackupControl {
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
-                SyncableDatabaseDefinition.LLMPROCESSING -> DatabaseContainer.instance.llmProcessingDb
+                SyncableDatabaseDefinition.AI_SETTINGS -> DatabaseContainer.instance.aiSettingsDb
             }
             if(db != null) {
                 db.syncDao().clearSyncStatus()
@@ -909,7 +909,7 @@ class BackupActivity: ActivityBase() {
                 ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
                 ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
                 ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
-                ResettableDb(R.string.llm_processing_sync_title, LlmProcessingDatabase.dbFileName, SyncableDatabaseDefinition.LLMPROCESSING),
+                ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
             )
             for (db in resettableDbs) {
                 val btn = Button(this@BackupActivity)

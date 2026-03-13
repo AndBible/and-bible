@@ -207,7 +207,7 @@ class AiSettingsActivity : ActivityBase() {
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                val providerDao = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+                val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
                 for (config in providerDao.all()) {
                     config.removeApiKey()
                     LlmCostTracker.reset(config.id)
@@ -231,7 +231,7 @@ class AiSettingsActivity : ActivityBase() {
 
     private suspend fun exportPrompts() {
         try {
-            val dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+            val dao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
             val userPrompts = withContext(Dispatchers.IO) { dao.allPrompts() }
 
             if (userPrompts.isEmpty()) {

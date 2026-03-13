@@ -32,7 +32,7 @@ import net.bible.service.db.DatabaseContainer
  */
 object PromptRepository {
 
-    private val dao get() = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
 
     /**
      * Get a prompt by ID, checking built-in prompts first, then DB.

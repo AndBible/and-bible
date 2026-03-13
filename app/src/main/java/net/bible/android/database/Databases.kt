@@ -159,7 +159,7 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 8
+const val AI_SETTINGS_DATABASE_VERSION = 1
 
 @Database(
     entities = [
@@ -169,13 +169,13 @@ const val LLM_PROCESSING_DATABASE_VERSION = 8
         SyncConfiguration::class,
         SyncStatus::class,
     ],
-    version = LLM_PROCESSING_DATABASE_VERSION
+    version = AI_SETTINGS_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class LlmProcessingDatabase: SyncableRoomDatabase() {
+abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
     companion object {
-        const val dbFileName = "llm_processing.sqlite3"
+        const val dbFileName = "ai_settings.sqlite3"
     }
 }

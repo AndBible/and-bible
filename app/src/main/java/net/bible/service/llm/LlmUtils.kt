@@ -143,7 +143,7 @@ data class LlmModelConfig(
 ) {
     val isDefault: Boolean get() = providerConfigId == null && model == null
 
-    private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     /** Resolve the LlmProviderConfig from the database. */
     fun resolveProviderConfig(): LlmProviderConfig? =
