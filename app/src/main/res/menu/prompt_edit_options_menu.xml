@@ -37,4 +37,16 @@
         android:title="@string/copy_to_customize"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/view_tools"
+        android:icon="@drawable/ic_info_24dp"
+        android:title="@string/ai_available_tools"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/prompt_help"
+        android:icon="@drawable/ic_help_white_24dp"
+        android:title="@string/help"
+        app:showAsAction="ifRoom" />
+
 </menu>

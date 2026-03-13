@@ -150,6 +150,12 @@ object ToolRegistry {
         tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
 
     /**
+     * Get all tools sorted by category (read first, then write) and display name within each category.
+     */
+    fun getAllTools(): List<Tool> =
+        tools.values.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
+
+    /**
      * Clear all registered tools (mainly for testing).
      */
     fun clear() {

@@ -195,6 +195,12 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.ToolInfoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_available_tools"
+            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

@@ -1553,6 +1553,11 @@
     <string name="permission_option_always_deny">Always deny</string>
     <string name="reset_all_permissions">Reset all</string>
 
+    <!-- Tool Info -->
+    <string name="ai_available_tools">Available tools</string>
+    <string name="ai_read_tools">Read Tools</string>
+    <string name="ai_write_tools">Write Tools</string>
+
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>

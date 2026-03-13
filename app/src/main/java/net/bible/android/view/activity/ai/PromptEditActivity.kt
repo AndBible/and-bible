@@ -19,6 +19,7 @@ package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -437,6 +438,14 @@ class PromptEditActivity : ActivityBase() {
             }
             R.id.copy_to_customize -> {
                 copyToCustomize()
+                true
+            }
+            R.id.view_tools -> {
+                startActivity(Intent(this, ToolInfoActivity::class.java))
+                true
+            }
+            R.id.prompt_help -> {
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://docs.andbible.org/en/latest/ai.html")))
                 true
             }
             android.R.id.home -> {
