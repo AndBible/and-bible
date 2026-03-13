@@ -178,9 +178,7 @@ export function useInfiniteScroll(
            }
         }),
         // Whether infinite scroll is currently active (enabled in settings AND supported by document)
-        isEnabled = computed(() => {
-           return config.infiniteScroll && documentSupportsInfiniteScroll.value;
-        }),
+        isEnabled = computed(() => config.infiniteScroll && documentSupportsInfiniteScroll.value),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
         bodyHeight = () => document.body.scrollHeight,

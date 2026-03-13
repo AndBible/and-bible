@@ -144,14 +144,16 @@ function journalTextChanged(newText: string) {
 const journalText = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
-    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).text;
     return null;
 });
 
 const journalContentType = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notesContentType;
-    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).contentType;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).contentType;
     return null;
 });
 
