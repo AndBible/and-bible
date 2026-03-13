@@ -47,6 +47,8 @@ const shown = ref(true);
 
 /**
  * Recursively inspects VNodes to find if a Milestone x-p is the first meaningful content.
+ * n.b. this is not O(subnodes), it stops at the first word
+ * but it is more complex than using css tricks on the Milestone, but copilot said that was slow and wanted this instead
  */
 function isParagraphStart(nodes: VNode[] | undefined): boolean | null {
     if (!nodes) return null;
