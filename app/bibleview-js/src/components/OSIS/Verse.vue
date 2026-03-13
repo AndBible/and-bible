@@ -23,7 +23,8 @@
       :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
     >
-      <span class="highlight-transition" :class="{isHighlighted: highlighted, 'has-paragraph-break': hasParagraphBreak}">
+      <span v-if="hasParagraphBreak" class="paragraphBreak">&nbsp;</span>
+      <span class="highlight-transition" :class="{isHighlighted: highlighted}">
         <VerseNumber v-if="shown && config.showVerseNumbers && verse !== 0" :verse-num="verse"/><slot/> <span/>
       </span>
     </span>
@@ -32,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, inject, provide, reactive, ref} from "vue";
+import {computed, inject, provide, reactive, ref, useSlots, VNode} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
@@ -40,16 +41,56 @@ import {androidKey, bibleDocumentInfoKey, hasParagraphBreakKey, ordinalHighlight
 import {VerseInfo} from "@/types/common";
 
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
+const slots = useSlots();
 
 const shown = ref(true);
-const hasParagraphBreak = ref(false);
+
+/**
+ * Recursively inspects VNodes to find if a Milestone x-p is the first meaningful content.
+ */
+function isParagraphStart(nodes: VNode[] | undefined): boolean | null {
+    if (!nodes) return null;
+
+    for (const node of nodes) {
+        if (typeof node.children === 'string' && node.children.trim() === '') continue;
+
+        const type = node.type as any;
+        const typeName = type?.name || type?.__name || (typeof type === 'string' ? type : '');
+        if (typeof node.children === 'string' || typeName === 'W') {
+            return false;
+        }
+
+        if (typeName === 'Milestone' && node.props?.type === 'x-p') {
+            return true;
+        }
+
+        if (Array.isArray(node.children)) {
+            const result = isParagraphStart(node.children as VNode[]);
+            if (result !== null) return result;
+        }
+        
+        if (node.children && typeof node.children === 'object' && 'default' in node.children) {
+            const slotNodes = (node.children as any).default?.();
+            const result = isParagraphStart(slotNodes);
+            if (result !== null) return result;
+        }
+    }
+    
+    return null;
+}
+
+const hasParagraphBreak = computed(() => {
+    return isParagraphStart(slots.default?.()) === true;
+});
+
+provide(hasParagraphBreakKey, hasParagraphBreak);
+
 const bibleDocumentInfo = inject(bibleDocumentInfoKey);
 const {querySelection} = inject(androidKey)!
 const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
 const verseInfo: VerseInfo = {...getVerseInfo(props), v11n: bibleDocumentInfo?.v11n, showStack: reactive([shown])};
 provide(verseInfoKey, verseInfo);
-provide(hasParagraphBreakKey, hasParagraphBreak);
 
 const ordinal = computed(() => {
     return parseInt(props.verseOrdinal);
@@ -83,6 +124,7 @@ const {config} = useCommon();
 
 <style lang="scss">
 @use "@/common.scss" as *;
+
 
 .linebreak {
   display: block;

@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span class="milestone" :class="{paragraphBreak, paragraphBreakBefore}">{{ marker }}<slot/></span>
+  <span class="milestone" :class="{paragraphBreak: isParagraphBreak, paragraphBreakBefore: isParagraphBreakBefore}">{{ marker }}<slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -37,16 +37,14 @@ const props = withDefaults(defineProps<{
 checkUnsupportedProps(props, "resp");
 checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
-const paragraphBreak = computed(() => props.type === "line");
-// x-p is found in crosswire kjv inside the verse because it is intended to be viewed as verse-per-line.  the eBible kjv uses the cambridge paragraphs with normal paragraph markings
-const paragraphBreakBefore = computed(() => props.type === "x-p");
 
-const hasParagraphBreak = inject(hasParagraphBreakKey);
+// Injected from Verse.vue. If true, the parent verse already handled the paragraph break.
+const parentHandledParagraphBreak = inject(hasParagraphBreakKey, { value: false });
 
-// Since OSIS type is static, we set the flag synchronously during setup to avoid layout shift and reactive overhead.
-if (hasParagraphBreak && paragraphBreakBefore.value) {
-    hasParagraphBreak.value = true;
-}
+const isParagraphBreak = computed(() => props.type === "line");
+
+// Only trigger a paragraph break styling on the Milestone itself if the parent Verse hasn't already.
+const isParagraphBreakBefore = computed(() => props.type === "x-p" && !parentHandledParagraphBreak.value);
 
 useCommon();
 </script>
@@ -54,21 +52,14 @@ useCommon();
 <style lang="scss">
 @use "@/common.scss" as *;
 
-// When a verse contains a paragraph-breaking milestone, we reformat the verse header.
-// We target the class added to .highlight-transition in Verse.vue via Provide/Inject.
-.highlight-transition.has-paragraph-break {
+.paragraphBreakBefore {
+  // Reuse the common.scss paragraph break logic
+  @extend .paragraphBreak;
+  
+  // Ensure the pilcrow stays inline and has a small gap
   display: inline;
-
-  &::before {
-    content: "";
-    display: block;
-    height: 0.5em;
-  }
-
-  .paragraphBreakBefore {
-    // Ensure the pilcrow stays inline and has a small gap after the verse number
-    display: inline;
-    padding-inline-start: 0.3em;
-  }
+  padding-inline-start: 0.3em;
+  
+  // The line break effect is achieved by common.scss's .paragraphBreak pseudo-elements or display
 }
 </style>
