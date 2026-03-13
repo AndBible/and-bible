@@ -119,7 +119,11 @@ async function verifyXmlRendering(xmlTemplate, renderedHtml) {
     await wrapper.vm.$nextTick(); // wait for reactive updates
     const vueHtml = wrapper.html();
     //import('fs').then(fs => fs.writeFileSync('./test.html', vueHtml + '\n'));
-    expect(vueHtml + "\n").toBe(renderedHtml);
+    try {
+        expect(vueHtml + "\n").toBe(renderedHtml);
+    } finally {
+        wrapper.unmount();
+    }
 }
 
 describe("OsisSegment.vue", () => {
