@@ -396,6 +396,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
+        if (!CommonUtils.settings.aiTextProcessingEnabled) {
+            navigationView.menu.findItem(R.id.managePrompts).isVisible = false
+        }
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()

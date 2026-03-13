@@ -961,6 +961,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
+    <string name="experimental_feature_ai_text_processing">AI Text Processing</string>
 <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>

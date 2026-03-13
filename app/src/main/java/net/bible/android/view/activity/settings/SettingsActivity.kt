@@ -283,9 +283,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, AiSettingsActivity::class.java))
-            true
+        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.apply {
+            if (!CommonUtils.settings.aiTextProcessingEnabled) {
+                isVisible = false
+            }
+            setOnPreferenceClickListener {
+                startActivity(Intent(context, AiSettingsActivity::class.java))
+                true
+            }
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {

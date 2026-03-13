@@ -449,6 +449,7 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
+        val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
 
 
         // LLM Translation Settings — legacy per-provider settings kept for migration only
