@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<{
 });
 
 checkUnsupportedProps(props, "resp");
-checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
 
 // Injected from Verse.vue. If true, the parent verse already handled the paragraph break.
@@ -43,7 +43,7 @@ checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
 // are for the colophons at the ends of epistles according to the cambridge paragraphs
 // which the crosswire kjv doesnt use because its goal is to match the 1769 kjv
 const parentHandledParagraphBreak = inject(hasParagraphBreakKey, { value: false });
-const isParagraphBreak = computed(() => (props.type === "line" || (props.type === "x-p" && !parentHandledParagraphBreak.value));
+const isParagraphBreak = computed(() => (props.type === "line" || (props.type === "x-p" && !parentHandledParagraphBreak.value)));
 
 useCommon();
 </script>
