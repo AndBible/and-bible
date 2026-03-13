@@ -82,6 +82,8 @@ Only run Android builds when testing Android-specific integration.
 
 ## Testing
 
+**When implementing new features or fixing bugs, always consider adding tests.** Tests should be added whenever reasonably possible — which is almost always. This applies to both Vue.js and Android changes.
+
 **IMPORTANT: Only run tests relevant to the changes made.** If only Kotlin/Java files changed, run Android tests. If only Vue.js/TypeScript files changed, run Vue.js tests. Do not run Vue.js tests for Kotlin-only changes or vice versa.
 
 **Vue.js Tests (for Vue.js/TypeScript changes)**
@@ -117,6 +119,10 @@ Only run Android builds when testing Android-specific integration.
 - `app/build.gradle.kts`: Android app-specific build configuration with Vue.js integration
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
+
+## Code Documentation
+
+Add KDoc/Javadoc-style documentation to new classes, functions, and methods when it provides value beyond what the name already conveys. If the name is self-explanatory, documentation is unnecessary. However, explanatory documentation is valuable and expected for complex logic, non-obvious behavior, and larger components.
 
 ## Code Patterns
 
