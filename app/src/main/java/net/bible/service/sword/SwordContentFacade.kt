@@ -655,7 +655,7 @@ object SwordContentFacade {
     }
 
     private fun formatVerseNumber(verse: Int?, useSuperscriptVerseNumbers: Boolean): String {
-        var verseNum = verse.toString()
+        var verseNum = verse?.toString() ?: ""
         if (useSuperscriptVerseNumbers)
             return ABStringUtils.toSuperscript(verseNum) + " "
         else

@@ -733,7 +733,7 @@ Psa 83:1, ESV2011"""
             verseRangeStr = "Ps.43.1-2",
             offsetRange = 0..100,
             showWholeVerse = true,
-            compareText = "“¹Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man. ²For thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy?” (Psa 43:1-2, KJV)",
+            compareText = "“¹ Judge me, O God, and plead my cause against an ungodly nation: O deliver me from the deceitful and unjust man. ² For thou art the God of my strength: why dost thou cast me off? why go I mourning because of the oppression of the enemy?” (Psa 43:1-2, KJV)",
             advertiseApp = false,
             showReference = true,
             abbreviateReference = true,
