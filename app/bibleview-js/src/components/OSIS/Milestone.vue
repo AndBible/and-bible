@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <span class="milestone" :class="{paragraphBreak: isParagraphBreak, paragraphBreakBefore: isParagraphBreakBefore}">{{ marker }}<slot/></span>
+  <span class="milestone" :class="{paragraphBreak: isParagraphBreak}">{{ marker }}<slot/></span>
 </template>
 
 <script setup lang="ts">
@@ -35,31 +35,15 @@ const props = withDefaults(defineProps<{
 });
 
 checkUnsupportedProps(props, "resp");
-checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line", "x-p"]);
+checkUnsupportedProps(props, "type", ["x-strongsMarkup", "x-PN", "line"]);
 checkUnsupportedProps(props, "subType", ["x-PO", "x-PM"]);
 
 // Injected from Verse.vue. If true, the parent verse already handled the paragraph break.
+// in reality, the crosswire kjv never needs this, because the only verses that have a paragraph break inside them
+// are for the colophons at the ends of epistles according to the cambridge paragraphs
+// which the crosswire kjv doesnt use because its goal is to match the 1769 kjv
 const parentHandledParagraphBreak = inject(hasParagraphBreakKey, { value: false });
-
-const isParagraphBreak = computed(() => props.type === "line");
-
-// Only trigger a paragraph break styling on the Milestone itself if the parent Verse hasn't already.
-const isParagraphBreakBefore = computed(() => props.type === "x-p" && !parentHandledParagraphBreak.value);
+const isParagraphBreak = computed(() => (props.type === "line" || (props.type === "x-p" && !parentHandledParagraphBreak.value));
 
 useCommon();
 </script>
-
-<style lang="scss">
-@use "@/common.scss" as *;
-
-.paragraphBreakBefore {
-  // Reuse the common.scss paragraph break logic
-  @extend .paragraphBreak;
-  
-  // Ensure the pilcrow stays inline and has a small gap
-  display: inline;
-  padding-inline-start: 0.3em;
-  
-  // The line break effect is achieved by common.scss's .paragraphBreak pseudo-elements or display
-}
-</style>
