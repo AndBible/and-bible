@@ -659,7 +659,7 @@ object SwordContentFacade {
             return ""
         var verseNum = verse.toString()
         if (useSuperscriptVerseNumbers)
-            return ABStringUtils.toSuperscript(verseNum) + " "
+            return ABStringUtils.toSuperscript(verseNum) + " "
         else
             return "${verseNum}. "
     }
