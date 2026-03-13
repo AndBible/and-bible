@@ -33,13 +33,13 @@
 </template>
 
 <script setup lang="ts">
-import {computed, inject, provide, reactive, ref, useSlots, VNode} from "vue";
+import {computed, inject, provide, reactive, ref, useSlots} from "vue";
+import type { VNode } from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
 import {androidKey, bibleDocumentInfoKey, hasParagraphBreakKey, ordinalHighlightKey, verseInfoKey} from "@/types/constants";
 import {VerseInfo} from "@/types/common";
-
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
 const slots = useSlots();
 
