@@ -126,6 +126,9 @@ Add KDoc/Javadoc-style documentation to new classes, functions, and methods when
 
 ## Code Patterns
 
+### View Bindings
+Always use [View Binding](https://developer.android.com/topic/libraries/view-binding) in new Activities and Fragments. Access views through the generated binding object instead of `findViewById`.
+
 ### Settings Management
 ```kotlin
 // Global app preferences
