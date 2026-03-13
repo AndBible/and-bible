@@ -189,6 +189,8 @@ function scrollToCursor() {
     }
 }
 
+// When the on-screen keyboard opens/closes, the visual viewport changes and the editor
+// toolbar may end up hidden behind the keyboard. Scroll to keep cursor and toolbar visible.
 function onViewportResize() {
     scrollToCursor();
 }
