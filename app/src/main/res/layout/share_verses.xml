@@ -45,21 +45,21 @@
             android:id="@+id/toggleAbbreviateReference"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:padding="7dip"
             android:text="@string/abbreviate_reference" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleShowVersion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:padding="7dip"
             android:text="@string/show_version_name" />
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/toggleShowReferenceAtFront"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:padding="7dip"
             android:text="@string/show_reference_at_front" />
         <androidx.appcompat.widget.SwitchCompat
@@ -104,7 +104,7 @@
             android:id="@+id/toggleShowEllipsis"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:padding="7dip"
             android:text="@string/show_ellipsis" />
         <androidx.appcompat.widget.SwitchCompat
