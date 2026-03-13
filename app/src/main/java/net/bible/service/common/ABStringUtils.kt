@@ -38,8 +38,8 @@ object ABStringUtils : StringUtils() {
         return true
     }
 
+    private val superscripts = charArrayOf('⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹')
     fun toSuperscript(anyString: String): String {
-        val superscripts = charArrayOf('⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹')
         return anyString.map { char ->
             if (char in '0'..'9') superscripts[char - '0'] else char
         }.joinToString("")
