@@ -111,7 +111,7 @@ async function verifyXmlRendering(xmlTemplate, renderedHtml) {
     const wrapper = mount(OsisSegment, {props: {osisTemplate: processedXml, convert: true}, global: {provide, components}});
     await wrapper.vm.$nextTick(); // wait for reactive updates
     const vueHtml = wrapper.html();
-    import('fs').then(fs => fs.writeFileSync('./test.html', vueHtml + '\n'));
+    //import('fs').then(fs => fs.writeFileSync('./test.html', vueHtml + '\n'));
     expect(vueHtml + "\n").toBe(renderedHtml);
 }
 
