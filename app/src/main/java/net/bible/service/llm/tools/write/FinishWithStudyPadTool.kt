@@ -59,13 +59,15 @@ object FinishWithStudyPadTool : Tool {
     override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """
-        Finish the current task and open a StudyPad (journal).
+        Finish the current task and open a StudyPad.
         Use this when you have created or modified a StudyPad and want to show it to the user.
         The StudyPad must already exist — create it first using createLabel + addStudyPadEntry tools.
+        You can also add bookmarks to a StudyPad by assigning the StudyPad's label to a bookmark using addBookmarkLabels.
 
         Call this tool as your final action when:
         - You've created a new StudyPad with content for the user
         - You've added entries to an existing StudyPad
+        - You've added bookmarks to a StudyPad via label assignment
         - The user asked for study notes organized as a StudyPad
     """.trimIndent()
 
