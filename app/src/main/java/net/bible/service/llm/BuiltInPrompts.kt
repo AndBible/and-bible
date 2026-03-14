@@ -44,7 +44,6 @@ object BuiltInPrompts {
 
     // Stable IDs for all built-in prompts
     val TRANSLATE_UI_LANGUAGE_ID = stableId("translate-ui-language")
-    val TRANSLATE_ENGLISH_ID = stableId("translate-english")
     val SUMMARY_ID = stableId("summary")
     val EXPLAIN_VERSES_ID = stableId("explain-verses")
     val STRONGS_ANNOTATION_ID = stableId("strongs-annotation")
@@ -114,32 +113,11 @@ object BuiltInPrompts {
             ),
 
             AgentPrompt(
-                id = TRANSLATE_ENGLISH_ID,
-                name = context.getString(R.string.default_prompt_translate_to_english),
-                description = context.getString(R.string.default_prompt_translate_to_english_desc),
-                promptTemplate = """
-                    Translate the following text to English.
-
-                    You MAY use getInstalledDocuments to check if an English Bible translation is installed.
-                    If one exists, use getVerseContent to get the text from that translation.
-                    If NO English translation is installed, translate the text yourself directly.
-
-                    Do not add any explanations or commentary.
-                """.trimIndent(),
-                showIn = setOf(
-                    PromptContext.VERSE_SELECTION,
-                    PromptContext.WINDOW_MENU
-                ),
-                orderNumber = order++,
-            ),
-
-            AgentPrompt(
                 id = SUMMARY_ID,
                 name = context.getString(R.string.default_prompt_summary),
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
                     Create a concise summary of the selected text.
-                    Focus on the main theological themes and key points.
                 """.trimIndent(),
                 showIn = setOf(
                     PromptContext.VERSE_SELECTION,
@@ -154,7 +132,8 @@ object BuiltInPrompts {
                 description = context.getString(R.string.default_prompt_explain_verses_desc),
                 promptTemplate = """
                     Explain the meaning and context of the selected verses.
-                    Include historical context, theological significance, and practical application.
+                    Do not make up your own ideas and interpretations but use available 
+                    commentaries as a reference. 
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
