@@ -40,11 +40,17 @@ object SearchBibleTool : Tool {
     override val name = "searchBible"
     override val displayNameResId = R.string.tool_search_bible
 
+    private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
+    private data class CachedSearch(val query: String, val bookInitials: List<String>, val results: List<VerseResult>)
+
+    private var cachedSearch: CachedSearch? = null
+
     override val description = """
         Search for words or phrases in Bible translations.
         Returns a list of verses that match the search query.
         The search uses a full-text index and supports basic search operations.
         Note: Only indexed books can be searched.
+        Supports pagination via offset parameter.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -60,7 +66,10 @@ object SearchBibleTool : Tool {
             description: Optional list of book initials to search in. If not specified, searches the first available indexed Bible.
           maxResults:
             type: integer
-            description: "Maximum number of results to return (default: 50)"
+            description: "Maximum number of results to return per page (default: 50)"
+          offset:
+            type: integer
+            description: "Number of results to skip for pagination (default: 0). Use with maxResults to page through results."
         required: [query]
     """)
 
@@ -68,25 +77,29 @@ object SearchBibleTool : Tool {
         val query = arguments.optString("query", "").takeIf { it.isNotBlank() } ?: return null
         val books = arguments.optJSONArray("books")
         val maxResults = arguments.optInt("maxResults", 50)
-        val booksPart = if (books != null && books.length() > 0) {
-            " (${(0 until books.length()).joinToString(", ") { books.getString(it) }}, max $maxResults)"
-        } else {
-            " (max $maxResults)"
+        val offset = arguments.optInt("offset", 0)
+        val parts = mutableListOf<String>()
+        if (books != null && books.length() > 0) {
+            parts.add((0 until books.length()).joinToString(", ") { books.getString(it) })
         }
-        return "\"$query\"$booksPart"
+        if (offset > 0) parts.add("offset $offset")
+        parts.add("max $maxResults")
+        return "\"$query\" (${parts.joinToString(", ")})"
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
         if (result !is ToolResult.Success || result.data !is JSONObject) return null
         val data = result.data as JSONObject
-        val count = data.optInt("totalResults", -1)
-        return if (count >= 0) "$count results" else null
+        val returned = data.optInt("returnedResults", -1)
+        val total = data.optInt("totalResults", -1)
+        return if (returned >= 0 && total >= 0) "$returned/$total results" else null
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val query = arguments.optString("query", "")
         val booksArray = arguments.optJSONArray("books")
         val maxResults = arguments.optInt("maxResults", 50).coerceIn(1, 500)
+        val offset = arguments.optInt("offset", 0).coerceAtLeast(0)
 
         if (query.isBlank()) {
             return ToolResult.error("Missing required parameter: query")
@@ -109,41 +122,46 @@ object SearchBibleTool : Tool {
 
         return try {
             withContext(Dispatchers.IO) {
-                val results = JSONArray()
-                var totalFound = 0
-
-                for (bookInitial in bookInitials) {
-                    val book = Books.installed().getBook(bookInitial) as? SwordBook ?: continue
-
-                    if (book.indexStatus != IndexStatus.DONE) {
-                        continue
+                val allResults = cachedSearch?.takeIf { it.query == query && it.bookInitials == bookInitials }?.results
+                    ?: performSearch(query, bookInitials).also {
+                        cachedSearch = CachedSearch(query, bookInitials, it)
                     }
 
-                    // Perform search using SwordContentFacade
-                    val searchResults = SwordContentFacade.search(book, query)
-
-                    for (key in searchResults) {
-                        if (totalFound >= maxResults) break
-
-                        results.put(JSONObject().apply {
-                            put("book", bookInitial)
-                            put("verseRef", key.osisRef)
-                            put("verseName", key.name)
+                val page = allResults.drop(offset).take(maxResults)
+                val results = JSONArray().apply {
+                    for (r in page) {
+                        put(JSONObject().apply {
+                            put("book", r.book)
+                            put("verseRef", r.osisRef)
+                            put("verseName", r.verseName)
                         })
-                        totalFound++
                     }
-
-                    if (totalFound >= maxResults) break
                 }
 
                 ToolResult.success {
                     put("query", query)
-                    put("totalResults", totalFound)
+                    put("totalResults", allResults.size)
+                    put("returnedResults", page.size)
+                    put("offset", offset)
+                    put("hasMore", offset + page.size < allResults.size)
                     put("results", results)
                 }
             }
         } catch (e: Exception) {
             ToolResult.error("Search failed: ${e.message}", "SEARCH_ERROR")
         }
+    }
+
+    private fun performSearch(query: String, bookInitials: List<String>): List<VerseResult> {
+        val results = mutableListOf<VerseResult>()
+        for (bookInitial in bookInitials) {
+            val book = Books.installed().getBook(bookInitial) as? SwordBook ?: continue
+            if (book.indexStatus != IndexStatus.DONE) continue
+
+            for (key in SwordContentFacade.search(book, query)) {
+                results.add(VerseResult(bookInitial, key.osisRef, key.name))
+            }
+        }
+        return results
     }
 }

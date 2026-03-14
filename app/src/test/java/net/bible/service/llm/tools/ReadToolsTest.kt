@@ -150,15 +150,42 @@ class ReadToolsTest {
     }
 
     @Test
+    fun searchBible_formatArgsForLog_withOffset() {
+        val args = JSONObject().apply {
+            put("query", "love")
+            put("offset", 100)
+            put("maxResults", 25)
+        }
+        val result = SearchBibleTool.formatArgsForLog(args)
+        assertNotNull(result)
+        assertTrue(result!!.contains("offset 100"))
+        assertTrue(result.contains("max 25"))
+    }
+
+    @Test
+    fun searchBible_formatArgsForLog_zeroOffsetNotShown() {
+        val args = JSONObject().apply {
+            put("query", "love")
+            put("offset", 0)
+        }
+        val result = SearchBibleTool.formatArgsForLog(args)
+        assertNotNull(result)
+        assertFalse(result!!.contains("offset"))
+    }
+
+    @Test
     fun searchBible_formatArgsForLog_empty() {
         assertNull(SearchBibleTool.formatArgsForLog(JSONObject()))
     }
 
     @Test
     fun searchBible_formatResultForLog_success() {
-        val data = JSONObject().apply { put("totalResults", 42) }
+        val data = JSONObject().apply {
+            put("returnedResults", 10)
+            put("totalResults", 42)
+        }
         val result = SearchBibleTool.formatResultForLog(ToolResult.Success(data))
-        assertEquals("42 results", result)
+        assertEquals("10/42 results", result)
     }
 
     @Test
