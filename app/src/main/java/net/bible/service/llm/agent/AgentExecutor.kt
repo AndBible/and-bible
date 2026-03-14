@@ -51,17 +51,10 @@ import java.util.Locale
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
-/**
- * Result of processing tool calls.
- */
 private sealed class ProcessToolsResult {
-    /** Continue iterating with updated context */
     data class Continue(val context: AgentContext) : ProcessToolsResult()
-    /** Finish with a document */
     data class FinishWithDocument(val title: String, val content: String, val context: AgentContext) : ProcessToolsResult()
-    /** Finish without creating a document */
     data class FinishWithoutDocument(val message: String, val context: AgentContext) : ProcessToolsResult()
-    /** Finish by opening a StudyPad */
     data class FinishWithStudyPad(val labelId: IdType, val scrollToEntryId: IdType?, val message: String, val context: AgentContext) : ProcessToolsResult()
 }
 
@@ -79,13 +72,6 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    /**
-     * Execute an agent prompt with the given context.
-     *
-     * @param promptId ID of the AgentPrompt to execute
-     * @param context Execution context with selection info, etc.
-     * @return Flow of AgentEvents showing progress and final result
-     */
     fun execute(promptId: IdType, context: AgentContext): Flow<AgentEvent> = flow {
         emit(AgentEvent.Started)
 
@@ -112,9 +98,6 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Run the main agent loop until completion or max iterations.
-     */
     private suspend fun FlowCollector<AgentEvent>.runAgentLoop(
         messages: JSONArray,
         tools: JSONArray,
@@ -181,11 +164,6 @@ class AgentExecutor(
         emit(AgentEvent.Error("Maximum iterations ($maxIterations) reached without completion"))
     }
 
-    /**
-     * Call LLM API and parse the response.
-     *
-     * @return Pair of parsed response and token usage from this call
-     */
     private suspend fun callLlmAndParse(
         adapter: LlmApiAdapter,
         messages: JSONArray,
@@ -201,12 +179,8 @@ class AgentExecutor(
     }
 
     /**
-     * Process tool calls: execute each tool and add results to messages.
-     * Returns ProcessToolsResult indicating whether to continue or finish without document.
-     *
-     * All tool results are collected first and then added to messages via
-     * [LlmApiAdapter.createToolResultMessages] — this is required because Anthropic
-     * batches all tool results into a single user message.
+     * All tool results are collected first and then added via [LlmApiAdapter.createToolResultMessages]
+     * because Anthropic batches all tool results into a single user message.
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
         adapter: LlmApiAdapter,
@@ -289,9 +263,6 @@ class AgentExecutor(
         return finishResult ?: ProcessToolsResult.Continue(currentContext)
     }
 
-    /**
-     * Build the initial messages for the LLM conversation.
-     */
     private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): JSONArray {
         val messages = JSONArray()
 
@@ -312,9 +283,6 @@ class AgentExecutor(
         return messages
     }
 
-    /**
-     * Build the system prompt with context information.
-     */
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
         val appLanguage = Locale.getDefault().displayLanguage
 
@@ -420,9 +388,6 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Build the user message with the prompt and selection.
-     */
     private fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
         return buildString {
             // The prompt template
@@ -445,18 +410,12 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Result of tool execution including permission info.
-     */
     private data class ToolExecutionResult(
         val result: ToolResult,
         val grantSessionPermission: Boolean = false,
         val grantAllToolsPermission: Boolean = false
     )
 
-    /**
-     * Execute a single tool call.
-     */
     private suspend fun executeTool(toolCall: ToolCall, context: AgentContext): ToolExecutionResult {
         val tool = ToolRegistry.get(toolCall.name)
         if (tool == null) {
@@ -496,9 +455,6 @@ class AgentExecutor(
         return ToolExecutionResult(result, grantSession, grantAllTools)
     }
 
-    /**
-     * Result of dialog-based permission check (extends the pure logic result with session grants).
-     */
     private sealed class DialogResult {
         object Allowed : DialogResult()
         object AllowedForSession : DialogResult()
@@ -506,10 +462,7 @@ class AgentExecutor(
         object Denied : DialogResult()
     }
 
-    /**
-     * Check if write permission should be granted based on current mode and context.
-     * Delegates pure decision logic to [PermissionChecker] and handles dialog when needed.
-     */
+    /** Delegates to [PermissionChecker] for pure logic, shows dialog when needed. */
     private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
         val agentTool = AgentTool.fromToolName(tool.name)
             ?: return DialogResult.Denied // Unknown tool
@@ -532,13 +485,7 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Show the permission dialog to the user.
-     *
-     * If user selects "Always allow", shows a confirmation dialog. On confirm,
-     * persists the tool to permanentlyAllowedTools. The operation is allowed
-     * regardless of confirmation result.
-     */
+    /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, agentTool: AgentTool): DialogResult {
         var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {

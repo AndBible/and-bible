@@ -19,21 +19,13 @@ package net.bible.service.llm.agent
 
 import net.bible.service.llm.AgentTool
 
-/**
- * Result of permission check.
- */
 sealed class PermissionCheckResult {
-    /** Tool is allowed to execute */
     object Allowed : PermissionCheckResult()
-    /** Tool is denied */
     object Denied : PermissionCheckResult()
-    /** Need to show permission dialog to the user */
     object NeedsDialog : PermissionCheckResult()
 }
 
-/**
- * Input data for permission checking — avoids coupling to CommonUtils.settings.
- */
+/** Decoupled from CommonUtils.settings for testability. */
 data class PermissionSettings(
     val globalMode: PermissionMode,
     val permanentlyAllowedTools: Set<AgentTool>,

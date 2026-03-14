@@ -59,66 +59,35 @@ import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.inject.Inject
 
-/**
- * Base class for AgentSessionManager with injected dependencies.
- */
 open class AgentSessionManagerBase {
     @Inject lateinit var windowControl: WindowControl
     @Inject lateinit var linkControl: LinkControl
 }
 
-/**
- * Event posted when the agent log is updated.
- *
- * @param workspaceId ID of the workspace where the log was updated
- * @param entry The log entry that was added or updated
- */
 class AgentLogUpdatedEvent(
     val workspaceId: IdType,
     val entry: AgentLogEntry
 )
 
-/**
- * Event posted when an agent session's status changes.
- *
- * @param workspaceId ID of the workspace
- * @param isRunning Whether the agent is currently running
- */
 class AgentSessionStatusChangedEvent(
     val workspaceId: IdType,
     val isRunning: Boolean
 )
 
-/**
- * Represents an active agent session for a workspace.
- *
- * Each workspace can have one active agent session at a time.
- * The session maintains the log entries and execution state.
- *
- * @param workspaceId ID of the workspace this session belongs to
- */
+/** One active session per workspace, maintaining log entries and execution state. */
 class AgentSession(val workspaceId: IdType) {
-    /** Log entries for this session, thread-safe for concurrent access */
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
-
-    /** Read-only view of log entries */
     val logEntries: List<AgentLogEntry> get() = _logEntries.toList()
 
-    /** Whether an agent is currently executing */
     @Volatile
     var isRunning: Boolean = false
         private set
 
-    /** Current context of the running agent */
     var context: AgentContext? = null
         private set
 
-    /** Coroutine Job for the running agent, used for cancellation */
     var job: Job? = null
 
-    /**
-     * Start the agent session with the given context.
-     */
     fun start(context: AgentContext) {
         this.context = context
         this.isRunning = true
@@ -127,9 +96,6 @@ class AgentSession(val workspaceId: IdType) {
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
     }
 
-    /**
-     * Stop the agent session.
-     */
     fun stop(message: String? = null) {
         if (message != null) {
             addLogEntry(AgentLogEntry.info(message))
@@ -140,17 +106,11 @@ class AgentSession(val workspaceId: IdType) {
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false))
     }
 
-    /**
-     * Add a log entry to this session.
-     */
     fun addLogEntry(entry: AgentLogEntry) {
         _logEntries.add(entry)
         ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
     }
 
-    /**
-     * Update the status of an existing log entry.
-     */
     fun updateEntryStatus(entryId: IdType, newStatus: EntryStatus) {
         val entry = _logEntries.find { it.id == entryId }
         if (entry != null) {
@@ -159,9 +119,6 @@ class AgentSession(val workspaceId: IdType) {
         }
     }
 
-    /**
-     * Set cost info on the most recent log entry and notify UI.
-     */
     fun setLastEntryCost(costInfo: String, isTotalCost: Boolean = false) {
         val entry = _logEntries.lastOrNull() ?: return
         entry.costInfo = costInfo
@@ -169,31 +126,16 @@ class AgentSession(val workspaceId: IdType) {
         ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
     }
 
-    /**
-     * Clear all log entries.
-     */
     fun clearLog() {
         _logEntries.clear()
     }
 }
 
-/**
- * Singleton manager for agent sessions.
- *
- * Maintains one agent session per workspace. Sessions are created lazily
- * when first accessed and persist for the lifetime of the workspace.
- * Log entries are workspace-specific, meaning different workspaces have
- * independent agent logs.
- */
+/** One session per workspace, lazily created. */
 object AgentSessionManager : AgentSessionManagerBase() {
-    /** Active sessions, keyed by workspace ID */
     private val activeSessions = ConcurrentHashMap<IdType, AgentSession>()
-
     private var initialized = false
 
-    /**
-     * Ensure dependencies are injected. Called lazily before first use.
-     */
     @Synchronized
     private fun ensureInitialized() {
         if (!initialized) {
@@ -202,57 +144,24 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /**
-     * Get or create an agent session for the given workspace.
-     *
-     * @param workspaceId ID of the workspace
-     * @return The session for this workspace
-     */
     @Synchronized
     fun getOrCreateSession(workspaceId: IdType): AgentSession {
         return activeSessions.getOrPut(workspaceId) { AgentSession(workspaceId) }
     }
 
-    /**
-     * Get the session for a workspace, if it exists.
-     *
-     * @param workspaceId ID of the workspace
-     * @return The session, or null if none exists
-     */
     @Synchronized
     fun getSession(workspaceId: IdType): AgentSession? {
         return activeSessions[workspaceId]
     }
 
-    /**
-     * Check if an agent is running in the given workspace.
-     *
-     * @param workspaceId ID of the workspace
-     * @return True if an agent is running
-     */
     fun isRunning(workspaceId: IdType): Boolean {
         return activeSessions[workspaceId]?.isRunning == true
     }
 
-    /**
-     * Add a log entry to the specified workspace's session.
-     *
-     * Creates the session if it doesn't exist.
-     *
-     * @param workspaceId ID of the workspace
-     * @param entry The log entry to add
-     */
     fun addLogEntry(workspaceId: IdType, entry: AgentLogEntry) {
         getOrCreateSession(workspaceId).addLogEntry(entry)
     }
 
-    /**
-     * Stop the running agent for a workspace.
-     *
-     * Cancels the coroutine job and stops the session.
-     *
-     * @param workspaceId ID of the workspace
-     */
     fun stopAgent(workspaceId: IdType) {
         val session = activeSessions[workspaceId] ?: return
         if (session.isRunning) {
@@ -260,13 +169,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /**
-     * Clear the session for a workspace.
-     *
-     * This stops any running agent and clears the log.
-     *
-     * @param workspaceId ID of the workspace
-     */
     @Synchronized
     fun clearSession(workspaceId: IdType) {
         activeSessions[workspaceId]?.let { session ->
@@ -278,29 +180,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         activeSessions.remove(workspaceId)
     }
 
-    /**
-     * Get log entries for a workspace.
-     *
-     * @param workspaceId ID of the workspace
-     * @return List of log entries, or empty list if no session exists
-     */
     fun getLogEntries(workspaceId: IdType): List<AgentLogEntry> {
         return activeSessions[workspaceId]?.logEntries ?: emptyList()
     }
 
     /**
-     * Execute an LLM prompt with the given selection.
-     *
-     * This is the main entry point for running LLM prompts. It:
-     * 1. Builds the AgentContext from the selection
-     * 2. Checks cache for existing result
-     * 3. If cached, opens the cached document directly
-     * 4. If not cached, executes the prompt via AgentExecutor
-     * 5. Saves the response to AI Documents
-     * 6. Opens the saved page in a linked window
-     *
-     * @param prompt The AgentPrompt to execute
-     * @param selection The user's selection (verses, text, etc.)
+     * Main entry point: builds context, checks cache, executes via AgentExecutor,
+     * saves response to AI Documents, and opens result in a window.
      */
     suspend fun executePrompt(
         prompt: AgentPrompt,
@@ -621,9 +507,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /**
-     * Attach session-total cost to the last log entry (the completion/stop entry).
-     */
     private fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String) {
         if (usage.totalTokens > 0) {
             val cost = LlmPricing.estimateCost(usage, model)
@@ -634,17 +517,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /**
-     * Extract title from response content.
-     *
-     * Looks for a markdown H1 heading (# Title) at the start of the response.
-     * Returns the title and the remaining content (with or without the heading).
-     *
-     * @param response The full LLM response
-     * @param fallbackPromptName Fallback prompt name if no title found
-     * @param fallbackContext Fallback context (e.g., verse ref) if no title found
-     * @return Pair of (title, content)
-     */
+    /** Extracts markdown H1 heading as title, falls back to prompt name + verse ref. */
     private fun extractTitleFromResponse(
         response: String,
         fallbackPromptName: String,
@@ -668,15 +541,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    /**
-     * Regenerate an AI document using stored context.
-     *
-     * @param pageId ID of the page to regenerate
-     * @return true if regeneration was started, false if it failed
-     */
-    /**
-     * Open an AI document result in the target window, or fall back to linkControl.
-     */
     private suspend fun openAIDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
         if (targetWindowId != null) {
             val window = windowControl.windowRepository.getWindow(targetWindowId)
@@ -784,14 +648,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
         return true
     }
 
-    /**
-     * Get the current workspace's agent session, if available.
-     *
-     * Used by LlmProcessingService.processWithTools to post log entries
-     * without requiring a full agent execution context.
-     *
-     * @return The session for the active workspace, or null if unavailable
-     */
     fun getCurrentSession(): AgentSession? {
         ensureInitialized()
         return try {

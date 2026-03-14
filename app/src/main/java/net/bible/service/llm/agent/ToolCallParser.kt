@@ -21,21 +21,11 @@ import android.util.Log
 import org.json.JSONArray
 import org.json.JSONObject
 
-/**
- * Represents a tool call from the LLM response.
- *
- * @param id Unique identifier for this tool call (used to match results)
- * @param name Name of the tool to call
- * @param arguments JSON string of arguments
- */
 data class ToolCall(
     val id: String,
     val name: String,
     val arguments: String
 ) {
-    /**
-     * Parse arguments as JSONObject.
-     */
     fun parseArguments(): JSONObject = if (arguments.isBlank()) {
         JSONObject()
     } else {
@@ -43,66 +33,15 @@ data class ToolCall(
     }
 }
 
-/**
- * Result of parsing an LLM response message.
- */
 sealed class ParsedResponse {
-
-    /**
-     * The LLM wants to call one or more tools.
-     *
-     * @param toolCalls List of tool calls to execute
-     * @param content Optional text content alongside tool calls
-     */
-    data class ToolCalls(
-        val toolCalls: List<ToolCall>,
-        val content: String? = null
-    ) : ParsedResponse()
-
-    /**
-     * The LLM returned a final text response (no tool calls).
-     *
-     * @param content The text content
-     */
+    data class ToolCalls(val toolCalls: List<ToolCall>, val content: String? = null) : ParsedResponse()
     data class TextResponse(val content: String) : ParsedResponse()
-
-    /**
-     * The response could not be parsed.
-     *
-     * @param error Error description
-     */
     data class ParseError(val error: String) : ParsedResponse()
 }
 
-/**
- * Parser for OpenAI API responses with tool calling.
- */
+/** Parses OpenAI-format API responses with tool calling. */
 object ToolCallParser {
 
-    /**
-     * Parse the message object from an LLM response.
-     *
-     * OpenAI format for tool calls:
-     * ```json
-     * {
-     *   "role": "assistant",
-     *   "content": null,  // or optional text
-     *   "tool_calls": [
-     *     {
-     *       "id": "call_abc123",
-     *       "type": "function",
-     *       "function": {
-     *         "name": "getVerseContent",
-     *         "arguments": "{\"book\": \"KJV\", \"verseRef\": \"Matt.5.3\"}"
-     *       }
-     *     }
-     *   ]
-     * }
-     * ```
-     *
-     * @param message The message JSONObject from the LLM response
-     * @return Parsed response indicating tool calls or text response
-     */
     fun parseMessage(message: JSONObject): ParsedResponse {
         return try {
             // Check if there are tool_calls
@@ -131,9 +70,6 @@ object ToolCallParser {
         }
     }
 
-    /**
-     * Parse the tool_calls array.
-     */
     private fun parseToolCalls(toolCallsArray: JSONArray): List<ToolCall> {
         val result = mutableListOf<ToolCall>()
         for (i in 0 until toolCallsArray.length()) {
@@ -146,9 +82,6 @@ object ToolCallParser {
         return result
     }
 
-    /**
-     * Parse a single tool_call object.
-     */
     private fun parseToolCall(toolCallObj: JSONObject): ToolCall? {
         return try {
             val id = toolCallObj.getString("id")
@@ -170,21 +103,6 @@ object ToolCallParser {
         }
     }
 
-    /**
-     * Create a tool result message for the conversation.
-     *
-     * Format:
-     * ```json
-     * {
-     *   "role": "tool",
-     *   "tool_call_id": "call_abc123",
-     *   "content": "{\"status\":\"success\",\"data\":...}"
-     * }
-     * ```
-     *
-     * @param toolCallId The ID of the tool call this is responding to
-     * @param content The JSON content of the result
-     */
     fun createToolResultMessage(toolCallId: String, content: String): JSONObject {
         return JSONObject().apply {
             put("role", "tool")
@@ -193,14 +111,6 @@ object ToolCallParser {
         }
     }
 
-    /**
-     * Create an assistant message with tool calls for adding to conversation history.
-     *
-     * This recreates the assistant's message with tool calls for proper conversation flow.
-     *
-     * @param toolCalls List of tool calls from the assistant
-     * @param content Optional text content from the assistant
-     */
     fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String? = null): JSONObject {
         return JSONObject().apply {
             put("role", "assistant")

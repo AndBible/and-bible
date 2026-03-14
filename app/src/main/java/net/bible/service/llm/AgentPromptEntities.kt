@@ -32,12 +32,7 @@ import net.bible.android.database.IdType
 import net.bible.service.common.SecureStorage
 import net.bible.service.llm.agent.PermissionMode
 
-/**
- * Enum of all agent tools, used for type-safe tool permission sets.
- *
- * The @SerialName values match the camelCase tool names used in ToolRegistry
- * and LLM function calling, ensuring backwards-compatible JSON serialization.
- */
+/** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
 @Serializable
 enum class AgentTool {
     // Read tools
@@ -70,14 +65,10 @@ enum class AgentTool {
             }
         }
 
-        /** Look up an AgentTool by its camelCase tool name (as used in [Tool.name]). */
         fun fromToolName(name: String): AgentTool? = byToolName[name]
     }
 }
 
-/**
- * Context where a prompt can be shown/used.
- */
 @Serializable
 enum class PromptContext {
     VERSE_SELECTION,       // Verse selection (One Tap Actions)
@@ -116,48 +107,42 @@ data class LlmProviderConfig(
     /** Display ordering */
     @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
 ) {
-    /** Resolve the LlmProvider enum for this config. */
     fun resolveProvider(): LlmProvider = try {
         LlmProvider.valueOf(providerType)
     } catch (_: IllegalArgumentException) {
         LlmProvider.CUSTOM
     }
 
-    /** Effective endpoint: explicit for CUSTOM, from enum for known providers. */
+    /** Explicit for CUSTOM, from enum for known providers. */
     fun resolveEndpoint(): String {
         val provider = resolveProvider()
         return if (provider == LlmProvider.CUSTOM) endpoint ?: "" else provider.endpoint
     }
 
-    /** Effective API format: explicit for CUSTOM, from enum for known providers. */
+    /** Explicit for CUSTOM, from enum for known providers. */
     fun resolveApiFormat(): ApiFormat {
         val provider = resolveProvider()
         return if (provider == LlmProvider.CUSTOM) apiFormat ?: ApiFormat.OPENAI else provider.apiFormat
     }
 
-    /** Get the LlmApiAdapter for this provider config. */
     fun resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
         ApiFormat.OPENAI -> OpenAiApiAdapter()
         ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
     }
 
-    /** Available models for this provider config. */
     fun resolveModels(): List<String> = resolveProvider().models
 
-    /** Effective default model: explicit choice, or first from provider's list. */
+    /** Explicit choice, or first from provider's list. */
     fun resolveDefaultModel(): String =
         defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
 }
 
-/** Extension to get the API key from SecureStorage (encrypted). */
 fun LlmProviderConfig.getApiKey(): String =
     SecureStorage.getString("llm_api_key_${id}", "") ?: ""
 
-/** Extension to set the API key in SecureStorage (encrypted). */
 fun LlmProviderConfig.setApiKey(key: String) =
     SecureStorage.setString("llm_api_key_${id}", key)
 
-/** Extension to remove the API key from SecureStorage. */
 fun LlmProviderConfig.removeApiKey() =
     SecureStorage.remove("llm_api_key_${id}")
 
@@ -191,12 +176,7 @@ interface LlmProviderConfigDao {
     fun deleteAll()
 }
 
-/**
- * User-defined or default prompt for LLM operations.
- *
- * Prompts can be used in different contexts (showIn) and are displayed
- * in the appropriate menus/dialogs based on their configuration.
- */
+/** User-defined or default prompt for LLM operations. */
 @Entity(
     foreignKeys = [ForeignKey(
         entity = LlmProviderConfig::class,
@@ -230,11 +210,7 @@ data class AgentPrompt(
      * - "Cross-references" → false (same across all versions)
      */
     @ColumnInfo(defaultValue = "1") var strictContextMatching: Boolean = true,
-    /**
-     * Per-prompt permission mode override.
-     * null = use global default from settings
-     * Explicit value = override for this prompt
-     */
+    /** Per-prompt permission mode override (null = use global default). */
     @ColumnInfo(defaultValue = "NULL") var permissionMode: PermissionMode? = null,
     /** Per-prompt tool permission overrides. null = no override (use global defaults). */
     @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<AgentTool>? = null,
