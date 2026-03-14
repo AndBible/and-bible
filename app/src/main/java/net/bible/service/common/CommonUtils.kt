@@ -1634,6 +1634,11 @@ object CommonUtils : CommonUtilsBase() {
     fun migrateOldSettingsKeys() {
         val sharedPrefs = realSharedPreferences
         val settingsDb = settings
+        // Use DAOs directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
+        // This function runs during DatabaseContainer.init(), before `initialized` is set to true,
+        // so AndBibleSettings.getBoolean would always return the default value, losing the old data.
+        val boolDao = booleanSettings
+        val longDao = longSettings
 
         val secretMigrations = mapOf(
             "gdrive_password" to "cloud_sync_password",
@@ -1666,22 +1671,22 @@ object CommonUtils : CommonUtilsBase() {
             "gdrive_workspaces" to "sync_enable_workspaces",
             "gdrive_readingplans" to "sync_enable_readingplans",
             "gdrive_mydocuments" to "sync_enable_mydocuments",
-            "gdrive_llmprocessing" to "sync_enable_llmprocessing",
+            "gdrive_llmprocessing" to "sync_enable_ai_settings",
         )
         for ((oldKey, newKey) in boolRenames) {
-            val value = settingsDb.getBoolean(oldKey, false)
+            val value = boolDao.get(oldKey, false)
             if (value) {
                 Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
-                settingsDb.setBoolean(newKey, true)
+                boolDao.set(newKey, true)
             }
-            settingsDb.removeBoolean(oldKey)
+            boolDao.set(oldKey, null)
         }
 
-        val oldInterval = settingsDb.getLong("gdrive_sync_interval", Long.MIN_VALUE)
+        val oldInterval = longDao.get("gdrive_sync_interval", Long.MIN_VALUE)
         if (oldInterval != Long.MIN_VALUE) {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
-            settingsDb.setLong("cloud_sync_interval", oldInterval)
-            settingsDb.removeLong("gdrive_sync_interval")
+            longDao.set("cloud_sync_interval", oldInterval)
+            longDao.set("gdrive_sync_interval", null)
         }
     }
 
