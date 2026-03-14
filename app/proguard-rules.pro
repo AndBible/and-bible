@@ -191,4 +191,8 @@
 #end nextcloud
 
 # SnakeYAML introspector requires java.beans classes
--keep class java.beans.** { *; }
+-dontwarn java.beans.BeanInfo
+-dontwarn java.beans.FeatureDescriptor
+-dontwarn java.beans.IntrospectionException
+-dontwarn java.beans.Introspector
+-dontwarn java.beans.PropertyDescriptor
