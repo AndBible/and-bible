@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -510,8 +511,10 @@ class AgentExecutor(
      * Delegates pure decision logic to [PermissionChecker] and handles dialog when needed.
      */
     private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
+        val agentTool = AgentTool.fromToolName(tool.name)
+            ?: return DialogResult.Denied // Unknown tool
         return when (PermissionChecker.check(
-            toolName = tool.name,
+            tool = agentTool,
             settings = PermissionSettings(
                 globalMode = CommonUtils.settings.agentPermissionMode,
                 permanentlyAllowedTools = CommonUtils.settings.permanentlyAllowedTools,
@@ -525,7 +528,7 @@ class AgentExecutor(
         )) {
             PermissionCheckResult.Allowed -> DialogResult.Allowed
             PermissionCheckResult.Denied -> DialogResult.Denied
-            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool)
+            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool, agentTool)
         }
     }
 
@@ -536,7 +539,7 @@ class AgentExecutor(
      * persists the tool to permanentlyAllowedTools. The operation is allowed
      * regardless of confirmation result.
      */
-    private suspend fun showPermissionDialog(tool: Tool): DialogResult {
+    private suspend fun showPermissionDialog(tool: Tool, agentTool: AgentTool): DialogResult {
         var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.d(TAG, "No current activity, waiting for activity to resume...")
@@ -560,9 +563,9 @@ class AgentExecutor(
                 )
                 if (confirmed) {
                     val settings = CommonUtils.settings
-                    settings.permanentlyAllowedTools = settings.permanentlyAllowedTools + tool.name
+                    settings.permanentlyAllowedTools = settings.permanentlyAllowedTools + agentTool
                     // Also remove from denied set if present
-                    settings.permanentlyDeniedTools = settings.permanentlyDeniedTools - tool.name
+                    settings.permanentlyDeniedTools = settings.permanentlyDeniedTools - agentTool
                 }
                 // Allow this operation regardless of confirmation
                 DialogResult.Allowed

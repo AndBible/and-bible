@@ -29,6 +29,7 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.PermissionMode
 import org.crosswire.jsword.book.Book
@@ -281,6 +282,21 @@ class Converters {
 
     @TypeConverter
     fun mapIdTypeIntToStr(obj: Map<IdType, Int>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToAgentToolSet(s: String?): Set<AgentTool>? {
+        if(s == null) return null
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing AgentTool set: $s", e)
+            null
+        }
+    }
+
+    @TypeConverter
+    fun agentToolSetToStr(obj: Set<AgentTool>?): String? {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }

@@ -38,6 +38,7 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.PromptContext
@@ -59,14 +60,14 @@ class PromptEditActivity : ActivityBase() {
     private var initialShowIn = emptySet<PromptContext>()
     private var initialStrictContextMatching = true
     private var initialPermissionModeIndex = 0
-    private var initialAllowedTools: Set<String>? = null
-    private var initialDeniedTools: Set<String>? = null
+    private var initialAllowedTools: Set<AgentTool>? = null
+    private var initialDeniedTools: Set<AgentTool>? = null
     private var initialProviderSpinnerIndex = 0
     private var initialModelOverrideSpinnerIndex = 0
     private var initialModelOverrideCustomText = ""
 
-    private var currentAllowedTools: MutableSet<String> = mutableSetOf()
-    private var currentDeniedTools: MutableSet<String> = mutableSetOf()
+    private var currentAllowedTools: MutableSet<AgentTool> = mutableSetOf()
+    private var currentDeniedTools: MutableSet<AgentTool> = mutableSetOf()
     private var hasToolPermissionOverrides = false
 
     private lateinit var binding: PromptEditBinding
@@ -89,7 +90,9 @@ class PromptEditActivity : ActivityBase() {
         if (result.resultCode == RESULT_OK) {
             val data = result.data
             val allowed = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS)
+                ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
             val denied = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS)
+                ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
             if (allowed != null && denied != null) {
                 currentAllowedTools = allowed.toMutableSet()
                 currentDeniedTools = denied.toMutableSet()
@@ -254,10 +257,10 @@ class PromptEditActivity : ActivityBase() {
         }
     }
 
-    private val currentToolAllowed: Set<String>?
+    private val currentToolAllowed: Set<AgentTool>?
         get() = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
 
-    private val currentToolDenied: Set<String>?
+    private val currentToolDenied: Set<AgentTool>?
         get() = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
 
     private fun cancelOrConfirmDiscard() {
@@ -445,11 +448,11 @@ class PromptEditActivity : ActivityBase() {
         val intent = Intent(this, PromptToolPermissionsActivity::class.java).apply {
             putStringArrayListExtra(
                 PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS,
-                ArrayList(currentAllowedTools)
+                ArrayList(currentAllowedTools.map { it.name })
             )
             putStringArrayListExtra(
                 PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS,
-                ArrayList(currentDeniedTools)
+                ArrayList(currentDeniedTools.map { it.name })
             )
         }
         toolPermissionsLauncher.launch(intent)

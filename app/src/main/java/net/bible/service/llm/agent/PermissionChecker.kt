@@ -17,6 +17,8 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.AgentTool
+
 /**
  * Result of permission check.
  */
@@ -34,8 +36,8 @@ sealed class PermissionCheckResult {
  */
 data class PermissionSettings(
     val globalMode: PermissionMode,
-    val permanentlyAllowedTools: Set<String>,
-    val permanentlyDeniedTools: Set<String>,
+    val permanentlyAllowedTools: Set<AgentTool>,
+    val permanentlyDeniedTools: Set<AgentTool>,
 )
 
 /**
@@ -58,10 +60,10 @@ data class PermissionSettings(
 object PermissionChecker {
 
     fun check(
-        toolName: String,
+        tool: AgentTool,
         settings: PermissionSettings,
-        promptAllowedTools: Set<String>?,
-        promptDeniedTools: Set<String>?,
+        promptAllowedTools: Set<AgentTool>?,
+        promptDeniedTools: Set<AgentTool>?,
         promptPermissionMode: PermissionMode?,
         grantedWritePermission: Boolean,
         grantedAllToolsPermission: Boolean,
@@ -72,22 +74,22 @@ object PermissionChecker {
         }
 
         // 2. Per-tool permanently denied
-        if (toolName in settings.permanentlyDeniedTools) {
+        if (tool in settings.permanentlyDeniedTools) {
             return PermissionCheckResult.Denied
         }
 
         // 3. Per-tool permanently allowed
-        if (toolName in settings.permanentlyAllowedTools) {
+        if (tool in settings.permanentlyAllowedTools) {
             return PermissionCheckResult.Allowed
         }
 
         // 3.5 Per-prompt per-tool denied
-        if (promptDeniedTools?.contains(toolName) == true) {
+        if (promptDeniedTools?.contains(tool) == true) {
             return PermissionCheckResult.Denied
         }
 
         // 3.6 Per-prompt per-tool allowed
-        if (promptAllowedTools?.contains(toolName) == true) {
+        if (promptAllowedTools?.contains(tool) == true) {
             return PermissionCheckResult.Allowed
         }
 

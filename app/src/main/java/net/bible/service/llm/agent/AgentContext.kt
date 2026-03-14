@@ -22,6 +22,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
+import net.bible.service.llm.AgentTool
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.VerseRange
 import java.security.MessageDigest
@@ -58,8 +59,8 @@ data class AgentContext(
     /** Per-prompt permission mode override (null = use global default) */
     val promptPermissionMode: PermissionMode? = null,
     /** Per-prompt tool permission overrides (null = no override, use global defaults) */
-    val promptAllowedTools: Set<String>? = null,
-    val promptDeniedTools: Set<String>? = null
+    val promptAllowedTools: Set<AgentTool>? = null,
+    val promptDeniedTools: Set<AgentTool>? = null
 ) {
     /**
      * Get the verse reference as a string, or null if not available.

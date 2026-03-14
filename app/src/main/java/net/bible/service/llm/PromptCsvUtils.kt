@@ -90,8 +90,8 @@ object PromptCsvUtils {
                         prompt.orderNumber.toString(),
                         prompt.strictContextMatching.toString(),
                         prompt.permissionMode?.name ?: "",
-                        prompt.allowedTools?.joinToString(",") ?: "",
-                        prompt.deniedTools?.joinToString(",") ?: "",
+                        prompt.allowedTools?.joinToString(",") { it.name } ?: "",
+                        prompt.deniedTools?.joinToString(",") { it.name } ?: "",
                         prompt.modelOverride ?: "",
                         prompt.providerConfigId?.toString() ?: "",
                         prompt.id.toString(),
@@ -215,12 +215,16 @@ object PromptCsvUtils {
         }
 
         val allowedTools = getValueOrNull(values, headerMap, HEADER_ALLOWED_TOOLS)?.let { str ->
-            if (str.isNotEmpty()) str.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            if (str.isNotEmpty()) str.split(",").mapNotNull {
+                try { AgentTool.valueOf(it.trim()) } catch (_: IllegalArgumentException) { null }
+            }.toSet()
             else null
         }
 
         val deniedTools = getValueOrNull(values, headerMap, HEADER_DENIED_TOOLS)?.let { str ->
-            if (str.isNotEmpty()) str.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toSet()
+            if (str.isNotEmpty()) str.split(",").mapNotNull {
+                try { AgentTool.valueOf(it.trim()) } catch (_: IllegalArgumentException) { null }
+            }.toSet()
             else null
         }
 

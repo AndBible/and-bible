@@ -124,6 +124,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
@@ -430,6 +431,15 @@ object CommonUtils : CommonUtilsBase() {
             else setString(key, json.encodeToString(serializer(), values))
         }
 
+        inline fun <reified T> getEnumSet(key: String, defValues: Set<T> = emptySet()): Set<T> {
+            val s = getString(key, null) ?: return defValues
+            return try { json.decodeFromString(s) } catch (e: SerializationException) { defValues }
+        }
+
+        inline fun <reified T> setEnumSet(key: String, values: Set<T>) {
+            setString(key, json.encodeToString(values))
+        }
+
         fun removeString(key: String) = setString(key, null)
         fun removeDouble(key: String) = setDouble(key, null)
         fun removeLong(key: String) = setLong(key, null)
@@ -468,13 +478,13 @@ object CommonUtils : CommonUtilsBase() {
             }
             set(value) = setString("agent_permission_mode", value.name)
 
-        var permanentlyAllowedTools: Set<String>
-            get() = getStringSet("agent_permanently_allowed_tools")
-            set(value) = setStringSet("agent_permanently_allowed_tools", value)
+        var permanentlyAllowedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_allowed_tools")
+            set(value) = setEnumSet("agent_permanently_allowed_tools", value)
 
-        var permanentlyDeniedTools: Set<String>
-            get() = getStringSet("agent_permanently_denied_tools")
-            set(value) = setStringSet("agent_permanently_denied_tools", value)
+        var permanentlyDeniedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_denied_tools")
+            set(value) = setEnumSet("agent_permanently_denied_tools", value)
     }
 
     private var _settings: AndBibleSettings? = null

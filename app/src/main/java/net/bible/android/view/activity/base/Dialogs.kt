@@ -21,6 +21,7 @@ import android.content.Context
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import kotlinx.coroutines.Dispatchers

@@ -57,6 +57,7 @@ import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
 import net.bible.service.llm.tools.Tool
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
@@ -634,7 +635,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val items = tools.map { tool ->
             val displayName = ToolRegistry.getDisplayName(tool)
-            val status = when (tool.name) {
+            val agentTool = AgentTool.fromToolName(tool.name)
+            val status = when (agentTool) {
                 in allowed -> getString(R.string.permission_status_allowed)
                 in denied -> getString(R.string.permission_status_denied)
                 else -> getString(R.string.permission_status_default)
@@ -658,13 +660,14 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun showToolPermissionOptionDialog(tool: Tool) {
         val displayName = ToolRegistry.getDisplayName(tool)
+        val agentTool = AgentTool.fromToolName(tool.name) ?: return
         val options = arrayOf(
             getString(R.string.permission_option_default),
             getString(R.string.permission_option_always_allow),
             getString(R.string.permission_option_always_deny)
         )
 
-        val currentIndex = when (tool.name) {
+        val currentIndex = when (agentTool) {
             in settings.permanentlyAllowedTools -> 1
             in settings.permanentlyDeniedTools -> 2
             else -> 0
@@ -673,19 +676,18 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         AlertDialog.Builder(requireContext())
             .setTitle(displayName)
             .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                val toolName = tool.name
                 when (which) {
                     0 -> {
-                        settings.permanentlyAllowedTools -= toolName
-                        settings.permanentlyDeniedTools -= toolName
+                        settings.permanentlyAllowedTools -= agentTool
+                        settings.permanentlyDeniedTools -= agentTool
                     }
                     1 -> {
-                        settings.permanentlyAllowedTools += toolName
-                        settings.permanentlyDeniedTools -= toolName
+                        settings.permanentlyAllowedTools += agentTool
+                        settings.permanentlyDeniedTools -= agentTool
                     }
                     2 -> {
-                        settings.permanentlyDeniedTools += toolName
-                        settings.permanentlyAllowedTools -= toolName
+                        settings.permanentlyDeniedTools += agentTool
+                        settings.permanentlyAllowedTools -= agentTool
                     }
                 }
                 updateToolPermissionsSummary()

@@ -33,6 +33,49 @@ import net.bible.service.common.SecureStorage
 import net.bible.service.llm.agent.PermissionMode
 
 /**
+ * Enum of all agent tools, used for type-safe tool permission sets.
+ *
+ * The @SerialName values match the camelCase tool names used in ToolRegistry
+ * and LLM function calling, ensuring backwards-compatible JSON serialization.
+ */
+@Serializable
+enum class AgentTool {
+    // Read tools
+    GET_VERSE_CONTENT,
+    SEARCH_BIBLE,
+    GET_COMMENTARIES,
+    GET_DICTIONARY_ENTRY,
+    GET_BOOKMARKS_FOR_VERSE,
+    GET_BOOKMARKS_WITH_LABEL,
+    GET_ALL_LABELS,
+    GET_STUDY_PAD_CONTENT,
+    SEARCH_STUDY_PADS,
+    GET_INSTALLED_DOCUMENTS,
+
+    // Write tools
+    CREATE_BOOKMARK,
+    ADD_BOOKMARK_NOTE,
+    UPDATE_BOOKMARK_NOTE,
+    CREATE_LABEL,
+    ADD_LABEL_TO_BOOKMARK,
+    ADD_STUDY_PAD_ENTRY,
+    SET_DOCUMENT_TITLE,
+    FINISH_WITH_STUDY_PAD,
+    FINISH_WITHOUT_DOCUMENT;
+
+    companion object {
+        private val byToolName: Map<String, AgentTool> by lazy {
+            entries.associateBy {
+                it.name.lowercase().replace(Regex("_([a-z])")) { m -> m.groupValues[1].uppercase() }
+            }
+        }
+
+        /** Look up an AgentTool by its camelCase tool name (as used in [Tool.name]). */
+        fun fromToolName(name: String): AgentTool? = byToolName[name]
+    }
+}
+
+/**
  * Context where a prompt can be shown/used.
  */
 @Serializable
@@ -198,8 +241,8 @@ data class AgentPrompt(
      */
     @ColumnInfo(defaultValue = "NULL") var permissionMode: PermissionMode? = null,
     /** Per-prompt tool permission overrides. null = no override (use global defaults). */
-    @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<String>? = null,
-    @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<String>? = null,
+    @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<AgentTool>? = null,
+    @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<AgentTool>? = null,
     /** Per-prompt model override. null = use global default from settings. */
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
     /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */

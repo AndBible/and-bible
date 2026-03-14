@@ -17,23 +17,24 @@
 
 package net.bible.service.llm.agent
 
+import net.bible.service.llm.AgentTool
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class PermissionCheckerTest {
 
     private fun check(
-        toolName: String = "createBookmark",
+        tool: AgentTool = AgentTool.CREATE_BOOKMARK,
         globalMode: PermissionMode = PermissionMode.ALWAYS_ASK,
-        permanentlyAllowedTools: Set<String> = emptySet(),
-        permanentlyDeniedTools: Set<String> = emptySet(),
-        promptAllowedTools: Set<String>? = null,
-        promptDeniedTools: Set<String>? = null,
+        permanentlyAllowedTools: Set<AgentTool> = emptySet(),
+        permanentlyDeniedTools: Set<AgentTool> = emptySet(),
+        promptAllowedTools: Set<AgentTool>? = null,
+        promptDeniedTools: Set<AgentTool>? = null,
         promptPermissionMode: PermissionMode? = null,
         grantedWritePermission: Boolean = false,
         grantedAllToolsPermission: Boolean = false,
     ): PermissionCheckResult = PermissionChecker.check(
-        toolName = toolName,
+        tool = tool,
         settings = PermissionSettings(globalMode, permanentlyAllowedTools, permanentlyDeniedTools),
         promptAllowedTools = promptAllowedTools,
         promptDeniedTools = promptDeniedTools,
@@ -54,7 +55,7 @@ class PermissionCheckerTest {
     fun globalDenyAll_blocksEvenPromptAllowedTool() {
         val result = check(
             globalMode = PermissionMode.DENY_ALL,
-            promptAllowedTools = setOf("createBookmark"),
+            promptAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -63,7 +64,7 @@ class PermissionCheckerTest {
     fun globalDenyAll_blocksEvenPermanentlyAllowedTool() {
         val result = check(
             globalMode = PermissionMode.DENY_ALL,
-            permanentlyAllowedTools = setOf("createBookmark"),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -74,7 +75,7 @@ class PermissionCheckerTest {
     fun permanentlyDeniedTool_isBlocked() {
         val result = check(
             globalMode = PermissionMode.ALLOW_ALL,
-            permanentlyDeniedTools = setOf("createBookmark"),
+            permanentlyDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -82,8 +83,8 @@ class PermissionCheckerTest {
     @Test
     fun permanentlyDeniedTool_blocksEvenIfPromptAllows() {
         val result = check(
-            permanentlyDeniedTools = setOf("createBookmark"),
-            promptAllowedTools = setOf("createBookmark"),
+            permanentlyDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            promptAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -94,7 +95,7 @@ class PermissionCheckerTest {
     fun permanentlyAllowedTool_passes() {
         val result = check(
             globalMode = PermissionMode.ALWAYS_ASK,
-            permanentlyAllowedTools = setOf("createBookmark"),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
@@ -102,8 +103,8 @@ class PermissionCheckerTest {
     @Test
     fun permanentlyAllowedTool_passesEvenIfPromptDenies() {
         val result = check(
-            permanentlyAllowedTools = setOf("createBookmark"),
-            promptDeniedTools = setOf("createBookmark"),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            promptDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
@@ -113,8 +114,8 @@ class PermissionCheckerTest {
         // Tool not in any permanent set → should fall through to later checks
         val result = check(
             globalMode = PermissionMode.ALLOW_ALL,
-            permanentlyAllowedTools = setOf("otherTool"),
-            permanentlyDeniedTools = setOf("anotherTool"),
+            permanentlyAllowedTools = setOf(AgentTool.ADD_BOOKMARK_NOTE),
+            permanentlyDeniedTools = setOf(AgentTool.ADD_STUDY_PAD_ENTRY),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
@@ -125,7 +126,7 @@ class PermissionCheckerTest {
     fun promptDeniedTool_isBlocked() {
         val result = check(
             globalMode = PermissionMode.ALLOW_ALL,
-            promptDeniedTools = setOf("createBookmark"),
+            promptDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -134,7 +135,7 @@ class PermissionCheckerTest {
     fun promptAllowedTool_passes() {
         val result = check(
             globalMode = PermissionMode.ALWAYS_ASK,
-            promptAllowedTools = setOf("createBookmark"),
+            promptAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
@@ -262,7 +263,7 @@ class PermissionCheckerTest {
     fun globalDenyBeatsPromptAllow() {
         val result = check(
             globalMode = PermissionMode.DENY_ALL,
-            promptAllowedTools = setOf("createBookmark"),
+            promptAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
             promptPermissionMode = PermissionMode.ALLOW_ALL,
         )
         assertEquals(PermissionCheckResult.Denied, result)
@@ -271,8 +272,8 @@ class PermissionCheckerTest {
     @Test
     fun globalAllowToolBeatsPromptDeny() {
         val result = check(
-            permanentlyAllowedTools = setOf("createBookmark"),
-            promptDeniedTools = setOf("createBookmark"),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            promptDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
@@ -281,7 +282,7 @@ class PermissionCheckerTest {
     fun promptDenyBeatsGlobalAllowAll() {
         val result = check(
             globalMode = PermissionMode.ALLOW_ALL,
-            promptDeniedTools = setOf("createBookmark"),
+            promptDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -290,7 +291,7 @@ class PermissionCheckerTest {
     fun promptAllowBeatsSessionDialogNeed() {
         val result = check(
             globalMode = PermissionMode.ALWAYS_ASK,
-            promptAllowedTools = setOf("createBookmark"),
+            promptAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
             grantedWritePermission = false,
         )
         assertEquals(PermissionCheckResult.Allowed, result)
@@ -300,8 +301,8 @@ class PermissionCheckerTest {
     fun permanentDenyBeatsPermanentAllow_whenBothSet() {
         // If a tool appears in both sets, deny wins (checked first)
         val result = check(
-            permanentlyDeniedTools = setOf("createBookmark"),
-            permanentlyAllowedTools = setOf("createBookmark"),
+            permanentlyDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_BOOKMARK),
         )
         assertEquals(PermissionCheckResult.Denied, result)
     }
@@ -310,7 +311,7 @@ class PermissionCheckerTest {
     fun sessionAllToolsGrant_doesNotOverridePromptDeny() {
         val result = check(
             globalMode = PermissionMode.ALWAYS_ASK,
-            promptDeniedTools = setOf("createBookmark"),
+            promptDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
             grantedAllToolsPermission = true,
         )
         assertEquals(PermissionCheckResult.Denied, result)
@@ -319,10 +320,10 @@ class PermissionCheckerTest {
     @Test
     fun differentTool_notAffectedByOtherToolPermissions() {
         val result = check(
-            toolName = "addBookmarkNote",
+            tool = AgentTool.ADD_BOOKMARK_NOTE,
             globalMode = PermissionMode.ALLOW_ALL,
-            permanentlyDeniedTools = setOf("createBookmark"),
-            permanentlyAllowedTools = setOf("createLabel"),
+            permanentlyDeniedTools = setOf(AgentTool.CREATE_BOOKMARK),
+            permanentlyAllowedTools = setOf(AgentTool.CREATE_LABEL),
         )
         assertEquals(PermissionCheckResult.Allowed, result)
     }
