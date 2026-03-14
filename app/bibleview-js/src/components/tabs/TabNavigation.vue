@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -74,9 +74,15 @@ function handleTabClick(tabId: string) {
   overflow-x: auto;
   &::-webkit-scrollbar { display: none; }
   border-bottom: 2px solid #eee;
-  
+
+  .monochrome & {
+    border-bottom-color: black;
+  }
   .night & {
     border-bottom-color: #444;
+  }
+  .monochrome.night & {
+    border-bottom-color: white;
   }
 }
 
@@ -97,40 +103,72 @@ function handleTabClick(tabId: string) {
     transition: none;
   }
   flex-shrink: 0;
-  
+
+  .monochrome & {
+    color: black;
+  }
   .night & {
     color: #999;
   }
-  
+  .monochrome.night & {
+    color: white;
+  }
+
   &:hover:not(:disabled) {
     color: #007bff;
     background: #f8f9fa;
-    
+
+    .monochrome & {
+      color: black;
+      background: transparent;
+      font-weight: 700;
+    }
     .night & {
       color: #1e90ff;
       background: #333;
     }
+    .monochrome.night & {
+      color: white;
+      background: transparent;
+      font-weight: 700;
+    }
   }
-  
+
   &.active {
     color: #007bff;
     border-bottom-color: #007bff;
-    
+
+    .monochrome & {
+      color: black;
+      border-bottom-color: black;
+    }
     .night & {
       color: #1e90ff;
       border-bottom-color: #1e90ff;
     }
+    .monochrome.night & {
+      color: white;
+      border-bottom-color: white;
+    }
   }
-  
+
   &:disabled,
   &.disabled {
     color: #ccc;
     cursor: not-allowed;
-    
+
+    .monochrome & {
+      color: black;
+      opacity: 0.5;
+    }
     .night & {
       color: #555;
     }
-    
+    .monochrome.night & {
+      color: white;
+      opacity: 0.5;
+    }
+
     &:hover {
       background: transparent;
     }

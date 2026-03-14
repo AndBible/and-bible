@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -46,7 +46,7 @@ import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
-import net.bible.android.database.LlmProcessingDatabase
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
@@ -92,6 +92,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -283,7 +284,7 @@ object BackupControl {
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
                         SettingsDatabase.dbFileName -> context.getString(R.string.settings)
                         MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
-                        LlmProcessingDatabase.dbFileName -> context.getString(R.string.llm_processing_sync_title)
+                        AiSettingsDatabase.dbFileName -> context.getString(R.string.ai_settings_sync_title)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -496,7 +497,7 @@ object BackupControl {
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
                 DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
-                DbType.MYDOCUMENTS, DbType.LLMPROCESSING
+                DbType.MYDOCUMENTS, DbType.AI_SETTINGS
             )
         )
 
@@ -577,7 +578,7 @@ object BackupControl {
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
-                SyncableDatabaseDefinition.LLMPROCESSING -> DatabaseContainer.instance.llmProcessingDb
+                SyncableDatabaseDefinition.AI_SETTINGS -> DatabaseContainer.instance.aiSettingsDb
             }
             if(db != null) {
                 db.syncDao().clearSyncStatus()
@@ -880,7 +881,7 @@ class BackupActivity: ActivityBase() {
             if (backupFiles.isEmpty()) {
                 importExportTitle.visibility = View.GONE
             } else {
-                val parsedFiles = BackupControl.parseBackupFiles(backupFiles.toList())
+                val parsedFiles = BackupControl.parseBackupFiles(backupFiles)
                 for (info in parsedFiles) {
                     val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
                     itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
@@ -909,7 +910,7 @@ class BackupActivity: ActivityBase() {
                 ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
                 ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
                 ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
-                ResettableDb(R.string.llm_processing_sync_title, LlmProcessingDatabase.dbFileName, SyncableDatabaseDefinition.LLMPROCESSING),
+                ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
             )
             for (db in resettableDbs) {
                 val btn = Button(this@BackupActivity)
@@ -927,8 +928,8 @@ class BackupActivity: ActivityBase() {
                 try {
                     val stackTrace = crashFile.readText()
                     if (stackTrace.isNotBlank()) {
-                        val timeStr = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
-                            .format(java.util.Date(crashTime))
+                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            .format(Date(crashTime))
                         crashInfoTitle.visibility = View.VISIBLE
                         crashInfoText.visibility = View.VISIBLE
                         crashInfoText.text = "$timeStr\n\n$stackTrace"

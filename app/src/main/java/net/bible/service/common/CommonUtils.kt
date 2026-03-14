@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -127,7 +127,7 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
-import net.bible.service.llm.LlmProvider
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
@@ -434,6 +434,15 @@ object CommonUtils : CommonUtilsBase() {
             else setString(key, json.encodeToString(serializer(), values))
         }
 
+        inline fun <reified T> getEnumSet(key: String, defValues: Set<T> = emptySet()): Set<T> {
+            val s = getString(key, null) ?: return defValues
+            return try { json.decodeFromString(s) } catch (e: SerializationException) { defValues }
+        }
+
+        inline fun <reified T> setEnumSet(key: String, values: Set<T>) {
+            setString(key, json.encodeToString(values))
+        }
+
         fun removeString(key: String) = setString(key, null)
         fun removeDouble(key: String) = setDouble(key, null)
         fun removeLong(key: String) = setLong(key, null)
@@ -452,45 +461,13 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
-        val llmModeExperimentalEnabled: Boolean get() = isExperimentalFeatureEnabled("llm_mode")
+        val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
 
-        // LLM Translation Settings — legacy per-provider settings kept for migration only
-        var llmApiKey: String
-            get() = SecureStorage.getString("llm_api_key", "") ?: ""
-            set(value) = SecureStorage.setString("llm_api_key", value)
-
-        var llmProvider: String
-            get() = getString("llm_provider", "") ?: ""
-            set(value) = setString("llm_provider", value)
-
-        var llmEndpoint: String
-            get() = getString("llm_endpoint", "https://api.openai.com/v1") ?: "https://api.openai.com/v1"
-            set(value) = setString("llm_endpoint", value)
-
-        var llmModel: String
-            get() {
-                val raw = getString("llm_model", "") ?: ""
-                if (raw.isNotBlank()) return raw
-                val provider = try { LlmProvider.valueOf(llmProvider) } catch (_: IllegalArgumentException) { null }
-                return provider?.models?.firstOrNull() ?: ""
-            }
-            set(value) = setString("llm_model", value)
-
-        var llmConfirmBeforeCall: Boolean
-            get() = getBoolean("llm_confirm_before_call", true)
-            set(value) = setBoolean("llm_confirm_before_call", value)
-
-        var llmDebounceMs: Int
-            get() = getInt("llm_debounce_ms", 1000)
-            set(value) = setInt("llm_debounce_ms", value)
-
-        val llmConfigured: Boolean
-            get() = llmApiKey.isNotBlank()
 
         /** Check if any LlmProviderConfig exists in the database. */
-        val llmHasProviderConfigs: Boolean
+        val llmConfigured: Boolean
             get() = try {
-                DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao().getCount() > 0
+                DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
             } catch (_: Exception) { false }
 
         // Agent Permission Settings
@@ -504,13 +481,13 @@ object CommonUtils : CommonUtilsBase() {
             }
             set(value) = setString("agent_permission_mode", value.name)
 
-        var permanentlyAllowedTools: Set<String>
-            get() = getStringSet("agent_permanently_allowed_tools")
-            set(value) = setStringSet("agent_permanently_allowed_tools", value)
+        var permanentlyAllowedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_allowed_tools")
+            set(value) = setEnumSet("agent_permanently_allowed_tools", value)
 
-        var permanentlyDeniedTools: Set<String>
-            get() = getStringSet("agent_permanently_denied_tools")
-            set(value) = setStringSet("agent_permanently_denied_tools", value)
+        var permanentlyDeniedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_denied_tools")
+            set(value) = setEnumSet("agent_permanently_denied_tools", value)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -1674,6 +1651,65 @@ object CommonUtils : CommonUtilsBase() {
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
+    /**
+     * One-time migration: renames gdrive_* settings keys to cloud_sync_* / sync_enable_* prefixes.
+     * Moves secrets from SettingsDatabase to realSharedPreferences.
+     * Idempotent — safe to call on every app start.
+     */
+    fun migrateOldSettingsKeys() {
+        val sharedPrefs = realSharedPreferences
+        val settingsDb = settings
+
+        val secretMigrations = mapOf(
+            "gdrive_password" to "cloud_sync_password",
+            "gdrive_username" to "cloud_sync_username",
+            "gdrive_server_url" to "cloud_sync_server_url",
+            "gdrive_folder_path" to "cloud_sync_folder_path",
+        )
+        for ((oldKey, newKey) in secretMigrations) {
+            if (sharedPrefs.getString(newKey, null) != null) continue
+            val value = settingsDb.getString(oldKey) ?: sharedPrefs.getString(oldKey, null)
+            if (value != null) {
+                Log.i(TAG, "Migrating setting '$oldKey' → '$newKey'")
+                sharedPrefs.edit().putString(newKey, value).apply()
+                settingsDb.removeString(oldKey)
+                sharedPrefs.edit().remove(oldKey).apply()
+            }
+        }
+
+        if (sharedPrefs.getString("cloud_sync_last_account", null) == null) {
+            val lastAccount = sharedPrefs.getString("lastAccount", null)
+            if (lastAccount != null) {
+                Log.i(TAG, "Migrating 'lastAccount' → 'cloud_sync_last_account'")
+                sharedPrefs.edit().putString("cloud_sync_last_account", lastAccount).apply()
+                sharedPrefs.edit().remove("lastAccount").apply()
+            }
+        }
+
+        val boolRenames = mapOf(
+            "gdrive_bookmarks" to "sync_enable_bookmarks",
+            "gdrive_workspaces" to "sync_enable_workspaces",
+            "gdrive_readingplans" to "sync_enable_readingplans",
+            "gdrive_mydocuments" to "sync_enable_mydocuments",
+            "gdrive_llmprocessing" to "sync_enable_llmprocessing",
+        )
+        for ((oldKey, newKey) in boolRenames) {
+            val value = settingsDb.getBoolean(oldKey, false)
+            if (value) {
+                Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
+                settingsDb.setBoolean(newKey, true)
+            }
+            settingsDb.removeBoolean(oldKey)
+        }
+
+        val oldInterval = settingsDb.getLong("gdrive_sync_interval", Long.MIN_VALUE)
+        if (oldInterval != Long.MIN_VALUE) {
+            Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
+            settingsDb.setLong("cloud_sync_interval", oldInterval)
+            settingsDb.removeLong("gdrive_sync_interval")
+        }
+    }
+
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
         val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
@@ -2053,7 +2089,7 @@ val Key.shortName: String get() =
     else name
 
 enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, LLMPROCESSING
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
 }
 enum class BackupType {
     // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.

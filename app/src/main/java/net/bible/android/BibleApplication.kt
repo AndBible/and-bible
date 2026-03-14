@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -161,10 +161,6 @@ open class BibleApplication : Application() {
 
         // some changes may be required for different versions
         upgradeSharedPreferences()
-
-        // Note: SecureStorage.migrateFromPlainStorage() is called from
-        // StartupActivity.initializeDatabase() after DatabaseContainer is ready,
-        // because it needs CommonUtils.settings (SettingsDatabase).
 
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()

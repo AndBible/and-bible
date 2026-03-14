@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -227,6 +227,9 @@ async function configureBookmarkSettings() {
   cursor: pointer;
   font-size: 25px;
   color: $button-grey;
+  .monochrome & {
+    color: black;
+  }
   .night.monochrome & {
     color: white;
   }

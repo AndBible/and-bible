@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2025 Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -225,6 +225,9 @@ function findAllLink(frag: OsisFragmentType): string | null {
 .dict-label {
   font-size: 0.8em;
   opacity: 0.6;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 
 .strongs-entry {

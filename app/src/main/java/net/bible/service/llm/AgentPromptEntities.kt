@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -29,15 +29,51 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
-import net.bible.service.common.SecureStorage
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
-/**
- * Context where a prompt can be shown/used.
- */
+/** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
+@Serializable
+enum class AgentTool {
+    // Read tools
+    GET_VERSE_CONTENT,
+    SEARCH_BIBLE,
+    GET_COMMENTARIES,
+    GET_DICTIONARY_ENTRY,
+    GET_BOOKMARKS_FOR_VERSE,
+    GET_BOOKMARKS_WITH_LABEL,
+    GET_ALL_LABELS,
+    GET_STUDY_PAD_CONTENT,
+    SEARCH_STUDY_PADS,
+    GET_INSTALLED_DOCUMENTS,
+
+    // Write tools
+    CREATE_BOOKMARK,
+    ADD_BOOKMARK_NOTE,
+    UPDATE_BOOKMARK_NOTE,
+    CREATE_LABEL,
+    ADD_LABEL_TO_BOOKMARK,
+    ADD_STUDY_PAD_ENTRY,
+    SET_DOCUMENT_TITLE,
+    FINISH_WITH_STUDY_PAD,
+    FINISH_WITHOUT_DOCUMENT;
+
+    /** camelCase name used in LLM function calling (e.g. GET_VERSE_CONTENT -> "getVerseContent") */
+    val camelCaseName: String by lazy {
+        name.lowercase().replace(Regex("_([a-z])")) { m -> m.groupValues[1].uppercase() }
+    }
+
+    companion object {
+        private val byToolName: Map<String, AgentTool> by lazy {
+            entries.associateBy { it.camelCaseName }
+        }
+
+        fun fromToolName(name: String): AgentTool? = byToolName[name]
+    }
+}
+
 @Serializable
 enum class PromptContext {
-    TEXT_DISPLAY_SETTINGS, // AI Text Processing - online processing for document display
     VERSE_SELECTION,       // Verse selection (One Tap Actions)
     TEXT_SELECTION,        // Free text selection
     WINDOW_MENU,           // Window Button popup menu
@@ -65,8 +101,8 @@ data class LlmProviderConfig(
     val displayName: String,
     /** Custom endpoint URL (only used for CUSTOM providerType) */
     val endpoint: String? = null,
-    /** "OPENAI" or "ANTHROPIC" (only used for CUSTOM providerType) */
-    val apiFormat: String? = null,
+    /** API wire format (only used for CUSTOM providerType) */
+    val apiFormat: ApiFormat? = null,
     /** User's preferred model for this provider (null = provider's first model) */
     val defaultModel: String? = null,
     /** Whether this is the default provider for new prompts / global usage */
@@ -74,54 +110,46 @@ data class LlmProviderConfig(
     /** Display ordering */
     @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
 ) {
-    /** Resolve the LlmProvider enum for this config. */
     fun resolveProvider(): LlmProvider = try {
         LlmProvider.valueOf(providerType)
     } catch (_: IllegalArgumentException) {
         LlmProvider.CUSTOM
     }
 
-    /** Effective endpoint: explicit for CUSTOM, from enum for known providers. */
+    /** Explicit for CUSTOM, from enum for known providers. */
     fun resolveEndpoint(): String {
         val provider = resolveProvider()
         return if (provider == LlmProvider.CUSTOM) endpoint ?: "" else provider.endpoint
     }
 
-    /** Effective API format: explicit for CUSTOM, from enum for known providers. */
+    /** Explicit for CUSTOM, from enum for known providers. */
     fun resolveApiFormat(): ApiFormat {
         val provider = resolveProvider()
-        return if (provider == LlmProvider.CUSTOM) {
-            try { ApiFormat.valueOf(apiFormat ?: "OPENAI") } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
-        } else {
-            provider.apiFormat
-        }
+        return if (provider == LlmProvider.CUSTOM) apiFormat ?: ApiFormat.OPENAI else provider.apiFormat
     }
 
-    /** Get the LlmApiAdapter for this provider config. */
     fun resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
         ApiFormat.OPENAI -> OpenAiApiAdapter()
         ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
     }
 
-    /** Available models for this provider config. */
     fun resolveModels(): List<String> = resolveProvider().models
 
-    /** Effective default model: explicit choice, or first from provider's list. */
+    /** Explicit choice, or first from provider's list. */
     fun resolveDefaultModel(): String =
         defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
 }
 
-/** Extension to get the API key from SecureStorage (encrypted). */
+private val prefs get() = CommonUtils.realSharedPreferences
+
 fun LlmProviderConfig.getApiKey(): String =
-    SecureStorage.getString("llm_api_key_${id}", "") ?: ""
+    prefs.getString("llm_api_key_${id}", "") ?: ""
 
-/** Extension to set the API key in SecureStorage (encrypted). */
 fun LlmProviderConfig.setApiKey(key: String) =
-    SecureStorage.setString("llm_api_key_${id}", key)
+    prefs.edit().putString("llm_api_key_${id}", key).apply()
 
-/** Extension to remove the API key from SecureStorage. */
 fun LlmProviderConfig.removeApiKey() =
-    SecureStorage.remove("llm_api_key_${id}")
+    prefs.edit().remove("llm_api_key_${id}").apply()
 
 @Dao
 interface LlmProviderConfigDao {
@@ -153,12 +181,7 @@ interface LlmProviderConfigDao {
     fun deleteAll()
 }
 
-/**
- * User-defined or default prompt for LLM operations.
- *
- * Prompts can be used in different contexts (showIn) and are displayed
- * in the appropriate menus/dialogs based on their configuration.
- */
+/** User-defined or default prompt for LLM operations. */
 @Entity(
     foreignKeys = [ForeignKey(
         entity = LlmProviderConfig::class,
@@ -192,15 +215,11 @@ data class AgentPrompt(
      * - "Cross-references" → false (same across all versions)
      */
     @ColumnInfo(defaultValue = "1") var strictContextMatching: Boolean = true,
-    /**
-     * Per-prompt permission mode override.
-     * null = use global default from settings
-     * Explicit value = override for this prompt
-     */
+    /** Per-prompt permission mode override (null = use global default). */
     @ColumnInfo(defaultValue = "NULL") var permissionMode: PermissionMode? = null,
     /** Per-prompt tool permission overrides. null = no override (use global defaults). */
-    @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<String>? = null,
-    @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<String>? = null,
+    @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<AgentTool>? = null,
+    @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<AgentTool>? = null,
     /** Per-prompt model override. null = use global default from settings. */
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
     /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */

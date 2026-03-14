@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -144,14 +144,16 @@ function journalTextChanged(newText: string) {
 const journalText = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
-    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).text;
     return null;
 });
 
 const journalContentType = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notesContentType;
-    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).contentType;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).contentType;
     return null;
 });
 
@@ -249,5 +251,11 @@ defineExpose({editor});
   border-radius: 5px;
   border-style: solid;
   border-color: rgba(0, 0, 255, 0.5);
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 </style>

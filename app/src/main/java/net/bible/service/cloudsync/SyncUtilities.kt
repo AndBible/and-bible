@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -25,7 +25,7 @@ import net.bible.android.database.LogEntry
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
-import net.bible.android.database.LlmProcessingDatabase
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
@@ -38,7 +38,7 @@ import java.lang.Exception
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
-    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, LLMPROCESSING;
+    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS;
     class Table(
         val tableName: String,
         val idField1: String = "id",
@@ -49,7 +49,7 @@ enum class SyncableDatabaseDefinition {
         BOOKMARKS -> R.string.bookmarks_contents
         WORKSPACES -> R.string.workspaces_contents
         MYDOCUMENTS -> R.string.my_documents_contents
-        LLMPROCESSING -> R.string.llm_processing_sync_contents
+        AI_SETTINGS -> R.string.ai_settings_sync_contents
     }
 
     val filename get() = when(this) {
@@ -57,7 +57,7 @@ enum class SyncableDatabaseDefinition {
         READINGPLANS ->ReadingPlanDatabase.dbFileName
         WORKSPACES -> WorkspaceDatabase.dbFileName
         MYDOCUMENTS -> MyDocumentDatabase.dbFileName
-        LLMPROCESSING -> LlmProcessingDatabase.dbFileName
+        AI_SETTINGS -> AiSettingsDatabase.dbFileName
     }
 
     val tables get() = when(this) {
@@ -112,7 +112,7 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "MyDocumentPage"),
             Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
         )
-        LLMPROCESSING -> listOf(
+        AI_SETTINGS -> listOf(
             Table(tableName = "AgentPrompt"),
             Table(tableName = "LlmProviderConfig"),
         )
@@ -126,7 +126,7 @@ enum class SyncableDatabaseDefinition {
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
-        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, LLMPROCESSING)
+        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS)
         val nameToCategory = ALL.associateBy { it.name }
         val filenameToCategory = ALL.associateBy { it.filename }
     }

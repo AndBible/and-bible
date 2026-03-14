@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -69,8 +69,7 @@ abstract class CachedKeyPage internal constructor(
     val cachedGlobalKeyList: List<Key>?
         get() {
             var keylist = mCachedGlobalKeyList
-            // Use rawDocument for navigation - LLM-wrapped books don't provide correct globalKeyList
-            val doc = rawDocument
+            val doc = currentDocument
             if (doc != null && keylist == null) {
                 try {
                     Log.i(TAG, "Start to create cached key list for $doc")

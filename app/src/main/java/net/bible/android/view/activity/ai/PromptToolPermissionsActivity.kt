@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -24,11 +24,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.LinearLayout
 import android.widget.RadioGroup
-import android.widget.TextView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ActivityPromptToolPermissionsBinding
+import net.bible.android.activity.databinding.ItemToolPermissionBinding
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
@@ -48,55 +49,60 @@ class PromptToolPermissionsActivity : ActivityBase() {
     private data class ToolRow(val tool: Tool, val radioGroup: RadioGroup)
 
     private val toolRows = mutableListOf<ToolRow>()
-    private var initialAllowed = emptySet<String>()
-    private var initialDenied = emptySet<String>()
+    private var initialAllowed = emptySet<AgentTool>()
+    private var initialDenied = emptySet<AgentTool>()
+
+    private lateinit var binding: ActivityPromptToolPermissionsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_prompt_tool_permissions)
+        binding = ActivityPromptToolPermissionsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         title = getString(R.string.prompt_tool_permissions)
 
-        val allowedTools = intent.getStringArrayListExtra(EXTRA_ALLOWED_TOOLS)?.toSet() ?: emptySet()
-        val deniedTools = intent.getStringArrayListExtra(EXTRA_DENIED_TOOLS)?.toSet() ?: emptySet()
+        val allowedTools = intent.getStringArrayListExtra(EXTRA_ALLOWED_TOOLS)
+            ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
+            ?.toSet() ?: emptySet()
+        val deniedTools = intent.getStringArrayListExtra(EXTRA_DENIED_TOOLS)
+            ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
+            ?.toSet() ?: emptySet()
         initialAllowed = allowedTools
         initialDenied = deniedTools
 
-        val container = findViewById<LinearLayout>(R.id.toolListContainer)
-        val inflater = LayoutInflater.from(this)
         val tools = ToolRegistry.getPermissionTools()
 
         for (tool in tools) {
-            val itemView = inflater.inflate(R.layout.item_tool_permission, container, false)
-            val toolName = itemView.findViewById<TextView>(R.id.toolName)
-            val radioGroup = itemView.findViewById<RadioGroup>(R.id.permissionRadioGroup)
+            val itemBinding = ItemToolPermissionBinding.inflate(LayoutInflater.from(this), binding.toolListContainer, false)
 
-            toolName.text = ToolRegistry.getDisplayName(tool)
+            itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
-            when (tool.name) {
-                in allowedTools -> radioGroup.check(R.id.radioAllow)
-                in deniedTools -> radioGroup.check(R.id.radioDeny)
-                else -> radioGroup.check(R.id.radioAsk)
+            when (tool.agentTool) {
+                in allowedTools -> itemBinding.permissionRadioGroup.check(R.id.radioAllow)
+                in deniedTools -> itemBinding.permissionRadioGroup.check(R.id.radioDeny)
+                else -> itemBinding.permissionRadioGroup.check(R.id.radioAsk)
             }
 
-            container.addView(itemView)
-            toolRows.add(ToolRow(tool, radioGroup))
+            binding.toolListContainer.addView(itemBinding.root)
+            toolRows.add(ToolRow(tool, itemBinding.permissionRadioGroup))
         }
     }
 
-    private fun collectAllowed(): Set<String> =
-        toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioAllow }.map { it.tool.name }.toSet()
+    private fun collectAllowed(): Set<AgentTool> =
+        toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioAllow }
+            .map { it.tool.agentTool }.toSet()
 
-    private fun collectDenied(): Set<String> =
-        toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioDeny }.map { it.tool.name }.toSet()
+    private fun collectDenied(): Set<AgentTool> =
+        toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioDeny }
+            .map { it.tool.agentTool }.toSet()
 
     private fun isDirty(): Boolean =
         collectAllowed() != initialAllowed || collectDenied() != initialDenied
 
     private fun saveAndFinish() {
         val result = Intent().apply {
-            putStringArrayListExtra(EXTRA_ALLOWED_TOOLS, ArrayList(collectAllowed()))
-            putStringArrayListExtra(EXTRA_DENIED_TOOLS, ArrayList(collectDenied()))
+            putStringArrayListExtra(EXTRA_ALLOWED_TOOLS, ArrayList(collectAllowed().map { it.name }))
+            putStringArrayListExtra(EXTRA_DENIED_TOOLS, ArrayList(collectDenied().map { it.name }))
         }
         setResult(Activity.RESULT_OK, result)
         finish()

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -100,5 +100,8 @@ h3.isSubTitle {
   padding: 8px 12px;
   line-height: 1;
   color: inherit;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 </style>

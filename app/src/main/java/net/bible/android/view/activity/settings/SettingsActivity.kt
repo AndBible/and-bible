@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -285,9 +285,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, AiSettingsActivity::class.java))
-            true
+        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.apply {
+            if (!CommonUtils.settings.aiTextProcessingEnabled) {
+                isVisible = false
+            }
+            setOnPreferenceClickListener {
+                startActivity(Intent(context, AiSettingsActivity::class.java))
+                true
+            }
         }
 
         preferenceScreen.findPreference<Preference>("global_text_display_settings")?.setOnPreferenceClickListener {

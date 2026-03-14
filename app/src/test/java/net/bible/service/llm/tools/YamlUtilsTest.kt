@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,25 +17,23 @@
 
 package net.bible.service.llm.tools
 
-import net.bible.android.TEST_SDK
-import net.bible.android.TestBibleApplication
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.boolean
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.*
 import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
-@RunWith(RobolectricTestRunner::class)
-@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class YamlUtilsTest {
 
     @Test
     fun simpleKeyValue() {
         val result = yamlToJson("name: John\nage: 30")
-        assertEquals("John", result.getString("name"))
-        assertEquals(30, result.getInt("age"))
+        assertEquals("John", result["name"]!!.jsonPrimitive.content)
+        assertEquals(30, result["age"]!!.jsonPrimitive.int)
     }
 
     @Test
@@ -46,9 +44,9 @@ class YamlUtilsTest {
               count: 5
         """.trimIndent()
         val result = yamlToJson(yaml)
-        val outer = result.getJSONObject("outer")
-        assertEquals("value", outer.getString("inner"))
-        assertEquals(5, outer.getInt("count"))
+        val outer = result["outer"]!!.jsonObject
+        assertEquals("value", outer["inner"]!!.jsonPrimitive.content)
+        assertEquals(5, outer["count"]!!.jsonPrimitive.int)
     }
 
     @Test
@@ -60,34 +58,34 @@ class YamlUtilsTest {
               - gamma
         """.trimIndent()
         val result = yamlToJson(yaml)
-        val items = result.getJSONArray("items")
-        assertEquals(3, items.length())
-        assertEquals("alpha", items.getString(0))
-        assertEquals("beta", items.getString(1))
-        assertEquals("gamma", items.getString(2))
+        val items = result["items"]!!.jsonArray
+        assertEquals(3, items.size)
+        assertEquals("alpha", items[0].jsonPrimitive.content)
+        assertEquals("beta", items[1].jsonPrimitive.content)
+        assertEquals("gamma", items[2].jsonPrimitive.content)
     }
 
     @Test
     fun booleanAndNumberTypes() {
         val yaml = "enabled: true\ncount: 42\nprice: 9.99"
         val result = yamlToJson(yaml)
-        assertEquals(true, result.getBoolean("enabled"))
-        assertEquals(42, result.getInt("count"))
-        assertEquals(9.99, result.getDouble("price"), 0.001)
+        assertEquals(true, result["enabled"]!!.jsonPrimitive.boolean)
+        assertEquals(42, result["count"]!!.jsonPrimitive.int)
+        assertEquals(9.99, result["price"]!!.jsonPrimitive.double, 0.001)
     }
 
     @Test
     fun nullValue() {
         val yaml = "key: null"
         val result = yamlToJson(yaml)
-        assertTrue(result.isNull("key"))
+        assertEquals(JsonNull, result["key"])
     }
 
     @Test
     fun stringWithSpecialCharacters() {
         val yaml = """key: "value with: colon and 'quotes'" """
         val result = yamlToJson(yaml)
-        assertEquals("value with: colon and 'quotes'", result.getString("key"))
+        assertEquals("value with: colon and 'quotes'", result["key"]!!.jsonPrimitive.content)
     }
 
     @Test(expected = Exception::class)
@@ -106,9 +104,9 @@ class YamlUtilsTest {
                 age: 30
         """.trimIndent()
         val result = yamlToJson(yaml)
-        val people = result.getJSONArray("people")
-        assertEquals(2, people.length())
-        assertEquals("Alice", people.getJSONObject(0).getString("name"))
-        assertEquals(30, people.getJSONObject(1).getInt("age"))
+        val people = result["people"]!!.jsonArray
+        assertEquals(2, people.size)
+        assertEquals("Alice", people[0].jsonObject["name"]!!.jsonPrimitive.content)
+        assertEquals(30, people[1].jsonObject["age"]!!.jsonPrimitive.int)
     }
 }

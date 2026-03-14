@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -47,8 +47,6 @@ import net.bible.android.view.util.widget.LineSpacingWidget
 import net.bible.android.view.util.widget.TopMarginWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.ScreenSettings
-import net.bible.service.llm.PromptContext
-import net.bible.service.llm.PromptRepository
 import org.crosswire.jsword.book.FeatureType
 import javax.inject.Inject
 
@@ -251,7 +249,6 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
                 TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
-                TextDisplaySettings.Types.LLM_PROMPT -> R.string.llm_prompt_title
                 TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
                 TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.string.prefs_title_scroll_button_title
             }

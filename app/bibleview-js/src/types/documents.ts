@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -63,6 +63,7 @@ interface BaseOsisDocument extends BaseDocument {
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
     isNativeHtml: boolean
+    isAiDocument: boolean
 }
 
 export interface OsisDocument extends BaseOsisDocument {

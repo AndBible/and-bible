@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,11 +17,16 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -32,7 +37,17 @@ import org.json.JSONObject
  * require a written response.
  */
 object FinishWithoutDocumentTool : Tool {
-    override val name = "finishWithoutDocument"
+    @Serializable
+    data class Args(val message: String = "")
+
+    @Serializable
+    data class Result(
+        val finished: Boolean,
+        val message: String,
+        val marker: String
+    )
+
+    override val agentTool = AgentTool.FINISH_WITHOUT_DOCUMENT
     override val displayNameResId = R.string.tool_finish_without_document
 
     override val description = """
@@ -64,12 +79,13 @@ object FinishWithoutDocumentTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val message = arguments.optString("message", "Task completed")
-
-        return ToolResult.success {
-            put("finished", true)
-            put("message", message)
-            put("marker", FINISH_WITHOUT_DOCUMENT_MARKER)
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
         }
+        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_task_completed) }
+
+        return typedSuccess(Result(finished = true, message = message, marker = FINISH_WITHOUT_DOCUMENT_MARKER))
     }
 }

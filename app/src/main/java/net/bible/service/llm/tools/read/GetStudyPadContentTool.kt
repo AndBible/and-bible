@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -23,11 +23,14 @@ import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkToLabelStub
 import net.bible.android.database.bookmarks.StudyPadEntryStub
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -41,7 +44,15 @@ import org.json.JSONObject
  * - page: paginated full content with offset/limit
  */
 object GetStudyPadContentTool : Tool {
-    override val name = "getStudyPadContent"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val mode: String = "full",
+        val offset: Int = 0,
+        val limit: Int = 20,
+    )
+
+    override val agentTool = AgentTool.GET_STUDY_PAD_CONTENT
     override val displayNameResId = R.string.tool_get_study_pad_content
 
     override val description = """
@@ -52,7 +63,7 @@ object GetStudyPadContentTool : Tool {
         - 'index': lightweight overview with type, position, and ~80-char preview for each entry.
         - 'page': paginated full content (use offset/limit to read in chunks).
         - 'full': all entries with full content (default). May be large for big StudyPads.
-        For large StudyPads, use 'info' first, then 'index' or 'page' to read selectively.
+        Use 'info' first, then depending on size, 'full' or 'index' / 'page' to read selectively.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -89,24 +100,28 @@ object GetStudyPadContentTool : Tool {
     private data class OrderedEntry(val orderNumber: Int, val entry: JSONObject)
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelIdStr = arguments.optString("labelId", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
 
-        if (labelIdStr.isBlank()) {
+        if (args.labelId.isEmpty) {
             return ToolResult.error("Missing required parameter: labelId")
         }
 
-        val mode = arguments.optString("mode", "full")
+        val mode = args.mode
+        val labelIdStr = args.labelId.toString()
 
         return try {
-            val labelId = IdType.fromString(labelIdStr)
-            val label = dao.labelById(labelId)
+            val label = dao.labelById(args.labelId)
                 ?: return ToolResult.error("Label not found: $labelIdStr", "LABEL_NOT_FOUND")
 
             when (mode) {
-                "info" -> executeInfo(labelIdStr, labelId, label)
-                "index" -> executeIndex(labelIdStr, labelId, label)
-                "page" -> executePage(labelIdStr, labelId, label, arguments)
-                else -> executeFull(labelIdStr, labelId, label)
+                "info" -> executeInfo(labelIdStr, args.labelId, label)
+                "index" -> executeIndex(labelIdStr, args.labelId, label)
+                "page" -> executePage(labelIdStr, args.labelId, label, args)
+                else -> executeFull(labelIdStr, args.labelId, label)
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to get StudyPad content: ${e.message}", "READ_ERROR")
@@ -332,10 +347,10 @@ object GetStudyPadContentTool : Tool {
         labelIdStr: String,
         labelId: IdType,
         label: BookmarkEntities.Label,
-        arguments: JSONObject
+        args: Args
     ): ToolResult {
-        val offset = arguments.optInt("offset", 0)
-        val limit = arguments.optInt("limit", 20)
+        val offset = args.offset
+        val limit = args.limit
 
         val allStubs = loadEntryStubs(labelId)
         val totalEntries = allStubs.size

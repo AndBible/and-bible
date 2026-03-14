@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -22,6 +22,8 @@ import net.bible.service.db.DatabaseContainer
 
 enum class ApiFormat { OPENAI, ANTHROPIC }
 
+enum class ProviderTier { RECOMMENDED, COMMUNITY, UNCATEGORIZED }
+
 /** Pricing per million tokens (USD). */
 data class ModelPricing(
     val inputPerMillion: Double,
@@ -37,74 +39,60 @@ enum class LlmProvider(
     val displayName: String,
     val endpoint: String,
     val modelPricing: List<Pair<String, ModelPricing?>>,
-    val apiKeyPrefix: String? = null,
-    val apiFormat: ApiFormat = ApiFormat.OPENAI
+
+    val apiFormat: ApiFormat = ApiFormat.OPENAI,
+    val tier: ProviderTier = ProviderTier.RECOMMENDED,
+    val apiKeyUrl: String? = null,
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
         "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
         "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125),
         "gemini-3-flash" to p(0.15, 0.60),
-    ), "AIza"),
+    ), apiKeyUrl = "https://aistudio.google.com/apikey"),
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1", listOf(
         "gpt-5-mini" to p(0.40, 1.60, 0.40, 0.10),
         "gpt-5-nano" to p(0.10, 0.40, 0.10, 0.025),
         "gpt-5.2" to p(2.00, 8.00, 2.00, 0.50),
         "gpt-4o-mini" to p(0.15, 0.60, 0.15, 0.075),
-    ), "sk-"),
+    ), apiKeyUrl = "https://platform.openai.com/api-keys"),
     ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1", listOf(
         "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08),
         "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30),
         "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50),
-    ), "sk-ant-", ApiFormat.ANTHROPIC),
+    ), apiFormat = ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys"),
     XAI("xAI (Grok)", "https://api.x.ai/v1", listOf(
         "grok-4-0709" to p(3.00, 15.00),
         "grok-4-1-fast-reasoning" to p(3.00, 15.00),
         "grok-3-mini" to p(0.30, 0.50),
-    ), "xai-"),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://console.x.ai/"),
     MISTRAL("Mistral", "https://api.mistral.ai/v1", listOf(
         "mistral-small-latest" to p(0.10, 0.30),
         "mistral-large-latest" to p(2.00, 6.00),
-    )),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://console.mistral.ai/api-keys"),
     DEEPSEEK("DeepSeek", "https://api.deepseek.com/v1", listOf(
         "deepseek-chat" to p(0.27, 1.10, 0.27, 0.07),
         "deepseek-reasoner" to p(0.55, 2.19, 0.55, 0.14),
-    )),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://platform.deepseek.com/api_keys"),
     GROQ("Groq", "https://api.groq.com/openai/v1", listOf(
         "llama-3.3-70b-versatile" to p(0.59, 0.79),
         "openai/gpt-oss-120b" to p(0.30, 0.60),
         "llama-3.1-8b-instant" to p(0.05, 0.08),
-    )),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://console.groq.com/keys"),
     ALIBABA("Alibaba Cloud (Qwen)", "https://dashscope-intl.aliyuncs.com/compatible-mode/v1", listOf(
         "qwen-plus" to p(0.80, 2.00),
         "qwen-turbo" to p(0.30, 0.60),
         "qwen3-max" to p(1.60, 6.40),
-    )),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://bailian.console.alibabacloud.com/?apiKey=1#/api-key"),
     OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1", listOf(
         "anthropic/claude-sonnet-4" to null,
         "google/gemini-2.5-flash" to null,
         "openai/gpt-5-mini" to null,
-    )),
-    CUSTOM("Custom", "", listOf());
+    ), tier = ProviderTier.UNCATEGORIZED, apiKeyUrl = "https://openrouter.ai/keys"),
+    CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED);
 
     val models: List<String> get() = modelPricing.map { it.first }
 
-    val apiAdapter: LlmApiAdapter get() = when (apiFormat) {
-        ApiFormat.OPENAI -> OpenAiApiAdapter()
-        ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
-    }
-
     companion object {
-        fun fromEndpoint(endpoint: String): LlmProvider {
-            val normalized = endpoint.trimEnd('/')
-            return entries.firstOrNull {
-                it != CUSTOM && it.endpoint.trimEnd('/') == normalized
-            } ?: CUSTOM
-        }
-
-        fun fromApiKey(apiKey: String): LlmProvider? =
-            entries.filter { it.apiKeyPrefix != null && apiKey.startsWith(it.apiKeyPrefix!!) }
-                .maxByOrNull { it.apiKeyPrefix!!.length }
-
         /** Look up pricing for a model across all providers. */
         fun findPricing(model: String): ModelPricing? {
             for (provider in entries) {
@@ -141,9 +129,9 @@ data class LlmModelConfig(
     val providerConfigId: IdType? = null,
     val model: String? = null,
 ) {
-    val isDefault: Boolean get() = providerConfigId == null && model == null
 
-    private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     /** Resolve the LlmProviderConfig from the database. */
     fun resolveProviderConfig(): LlmProviderConfig? =

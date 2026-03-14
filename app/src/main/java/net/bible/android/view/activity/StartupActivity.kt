@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -63,7 +63,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.SecureStorage
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 
@@ -231,7 +230,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            SecureStorage.migrateFromPlainStorage()
         }
     }
 

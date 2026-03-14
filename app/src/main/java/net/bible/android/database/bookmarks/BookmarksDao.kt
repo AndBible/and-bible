@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import org.crosswire.jsword.passage.Verse
@@ -227,6 +228,15 @@ interface BookmarkDao {
     fun update(entity: BaseBookmarkNotes) = when(entity) {
         is BibleBookmarkNotes -> update(entity)
         is GenericBookmarkNotes -> update(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
+
+    @Upsert fun upsert(entity: BibleBookmarkNotes)
+    @Upsert fun upsert(entity: GenericBookmarkNotes)
+
+    fun upsert(entity: BaseBookmarkNotes) = when(entity) {
+        is BibleBookmarkNotes -> upsert(entity)
+        is GenericBookmarkNotes -> upsert(entity)
         else -> throw RuntimeException("Wrong type")
     }
 

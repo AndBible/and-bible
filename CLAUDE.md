@@ -82,6 +82,8 @@ Only run Android builds when testing Android-specific integration.
 
 ## Testing
 
+**When implementing new features or fixing bugs, always consider adding tests.** Tests should be added whenever reasonably possible — which is almost always. This applies to both Vue.js and Android changes.
+
 **IMPORTANT: Only run tests relevant to the changes made.** If only Kotlin/Java files changed, run Android tests. If only Vue.js/TypeScript files changed, run Vue.js tests. Do not run Vue.js tests for Kotlin-only changes or vice versa.
 
 **Vue.js Tests (for Vue.js/TypeScript changes)**
@@ -118,7 +120,27 @@ Only run Android builds when testing Android-specific integration.
 - `app/bibleview-js/vite.config.mts`: Vue.js build configuration using Vite
 - `app/bibleview-js/package.json`: Vue.js dependencies and build scripts
 
+## Code Documentation
+
+Add KDoc/Javadoc-style documentation to new classes, functions, and methods when it provides value beyond what the name already conveys. If the name is self-explanatory, documentation is unnecessary. However, explanatory documentation is valuable and expected for complex logic, non-obvious behavior, and larger components.
+
+## Translations / Localization
+
+**During development, only English strings are needed.** Do not add translations to other languages — the Transifex localization process handles all translations automatically.
+
+However, **all user-facing strings must go through the translation system**:
+- **Android**: Add strings to `app/src/main/res/values/strings.xml`
+- **Vue.js/BibleView**: Add strings to `app/bibleview-js/src/lang/default.yaml`
+
+Never hardcode user-visible text directly in code.
+
 ## Code Patterns
+
+### View Bindings
+Always use [View Binding](https://developer.android.com/topic/libraries/view-binding) in new Activities and Fragments. Access views through the generated binding object instead of `findViewById`.
+
+### Kotlin Idioms
+Use Kotlin scope functions (`apply`, `let`, `with`, `also`, `run`) to reduce repetition. For example, prefer `binding.apply { ... }` over repeating `binding.` on every line. Apply this consistently whenever it improves readability.
 
 ### Settings Management
 ```kotlin

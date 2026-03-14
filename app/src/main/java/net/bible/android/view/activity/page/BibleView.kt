@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -136,7 +136,6 @@ import net.bible.service.common.CommonUtils.parseAndBibleReference
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
-import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.mydocument.MyDocumentBookManager
@@ -959,6 +958,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_ACTION = "ab-action"
     }
 
+    enum class AiDocumentAction(val value: String) {
+        DELETE("delete"),
+        REGENERATE("regenerate");
+
+        companion object {
+            fun fromString(action: String?): AiDocumentAction? =
+                entries.find { it.value == action }
+        }
+    }
+
     class ModuleAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
@@ -1210,8 +1219,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             true
         }
         UriConstants.SCHEME_ACTION -> {
-            // Handle ab-action://regenerate?pageId=xxx or ab-action://delete?pageId=xxx
-            val action = uri.host
+            val action = AiDocumentAction.fromString(uri.host)
             val pageIdStr = uri.getQueryParameter("pageId")
             if (pageIdStr != null) {
                 handleAIDocumentAction(action, IdType(pageIdStr))
@@ -1227,9 +1235,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * Handle AI document actions (regenerate, delete).
      */
-    private fun handleAIDocumentAction(action: String?, pageId: IdType) {
+    private fun handleAIDocumentAction(action: AiDocumentAction?, pageId: IdType) {
         when (action) {
-            "delete" -> {
+            AiDocumentAction.DELETE -> {
                 AlertDialog.Builder(mainBibleActivity)
                     .setMessage(R.string.ai_document_delete_confirmation)
                     .setPositiveButton(R.string.yes) { _, _ ->
@@ -1245,7 +1253,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     .setNegativeButton(R.string.no, null)
                     .show()
             }
-            "regenerate" -> {
+            AiDocumentAction.REGENERATE -> {
                 val errorDoc = ErrorDocument(
                     mainBibleActivity.getString(R.string.ai_document_regenerating),
                     ErrorSeverity.NORMAL
@@ -1262,8 +1270,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     }
                 }
             }
-            else -> {
-                Log.w(TAG, "Unknown AI document action: $action")
+            null -> {
+                Log.w(TAG, "Unknown AI document action")
             }
         }
     }
@@ -1525,14 +1533,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
-        val effectiveSettings = if (displaySettings.llmPromptId?.isEmpty == false) {
-            displaySettings.copy(infiniteScroll = false)
-        } else {
-            displaySettings
-        }
         return """
                 bibleView.emit('set_config', {
-                    config: ${effectiveSettings.toJson()},
+                    config: ${displaySettings.toJson()},
                     appSettings: {
                         activeWindow: $isActive,
                         isBottomWindow: $isBottomWindow,
@@ -2126,7 +2129,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             }
         }
         executeJavascriptOnUiThread("bibleView.emit('reset_loading_count')")
-        LlmProcessingService.cancelAllPendingRequests()
     }
 
     fun requestMoreToBeginning(callId: Long) = synchronized(requestMoreLock) {

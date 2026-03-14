@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -18,10 +18,11 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
-import android.content.Intent
+import android.graphics.Typeface
+import android.util.TypedValue
 import android.os.Bundle
 import android.text.InputType
-import android.text.format.Formatter
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.view.View
@@ -43,6 +44,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
@@ -53,6 +55,7 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
@@ -60,9 +63,12 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
+    private lateinit var binding: SettingsActivityBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        binding = SettingsActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
 
         title = getString(R.string.ai_connection_settings)
@@ -85,18 +91,16 @@ class AiConnectionSettingsActivity : ActivityBase() {
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private val settings get() = CommonUtils.settings
-    private val dao get() = DatabaseContainer.instance.llmProcessingDb.llmProviderConfigDao()
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference
     private lateinit var providersCategory: PreferenceCategory
     private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
-    private lateinit var llmModeCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
-    private lateinit var manageCachePref: Preference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
@@ -106,27 +110,21 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
-        llmModeCategory = preferenceScreen.findPreference("ai_llm_mode_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
-        manageCachePref = preferenceScreen.findPreference("llm_manage_cache")!!
 
         setupGettingStarted()
         setupAddProvider()
         setupToolPermissions()
         setupUsage()
-        setupCacheManagement()
         refreshProviderList()
         updateVisibility()
     }
 
     override fun onResume() {
         super.onResume()
-        if (::manageCachePref.isInitialized) {
-            updateCacheSummary()
-        }
         refreshProviderList()
     }
 
@@ -142,7 +140,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val hasProviders = hasAnyProvider()
         gettingStartedPref.isVisible = !hasProviders
         behaviorCategory.isVisible = hasProviders
-        llmModeCategory.isVisible = hasProviders && settings.llmModeExperimentalEnabled
         usageCategory.isVisible = hasProviders
 
         if (hasProviders) updateUsageSummary()
@@ -173,7 +170,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                     }
                     if (apiKey.isNotBlank()) {
                         val suffix = apiKey.takeLast(4)
-                        append(getString(R.string.ai_provider_api_key_masked, suffix))
+                        append(getString(R.string.ai_provider_api_key_masked, getString(R.string.ai_provider_api_key), suffix))
                     } else {
                         append(getString(R.string.ai_provider_api_key_not_set))
                     }
@@ -240,20 +237,52 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun showAddProviderTypeDialog() {
         val existingTypes = dao.all().map { it.providerType }.toSet()
-        // All providers. For non-CUSTOM: only show if not already added.
         val availableProviders = LlmProvider.entries.filter {
             it == LlmProvider.CUSTOM || it.name !in existingTypes
         }
 
-        val names = availableProviders.map {
-            if (it == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else it.displayName
-        }.toTypedArray()
+        // Build flat list with tier headers as null entries
+        val items = mutableListOf<Pair<String, LlmProvider?>>() // displayName to provider (null = header)
+        for (tier in ProviderTier.entries) {
+            val inTier = availableProviders.filter { it.tier == tier }
+            if (inTier.isEmpty()) continue
+            if (tier == ProviderTier.RECOMMENDED) {
+                items.add(getString(R.string.ai_provider_tier_recommended) to null)
+            } else if (tier == ProviderTier.COMMUNITY) {
+                items.add(getString(R.string.ai_provider_tier_community) to null)
+            }
+            for (p in inTier) {
+                val name = if (p == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else p.displayName
+                items.add(name to p)
+            }
+        }
+
+        val adapter = object : ArrayAdapter<String>(
+            requireContext(), android.R.layout.simple_list_item_1, items.map { it.first }
+        ) {
+            override fun isEnabled(position: Int) = items[position].second != null
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                val tv = view as TextView
+                if (items[position].second == null) {
+                    tv.setTypeface(null, Typeface.BOLD)
+                    tv.setTextColor(resources.getColor(android.R.color.darker_gray, null))
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+                } else {
+                    tv.setTypeface(null, Typeface.NORMAL)
+                    tv.setTextColor(resources.getColor(android.R.color.primary_text_light, null))
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                }
+                return view
+            }
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.ai_provider_select_type)
-            .setItems(names) { _, which ->
-                val provider = availableProviders[which]
-                showEditProviderDialog(null, provider)
+            .setAdapter(adapter) { _, which ->
+                items[which].second?.let { provider ->
+                    showEditProviderDialog(null, provider)
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -306,7 +335,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 if (!isNew) {
                     setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
                         dlg.dismiss()
-                        confirmDeleteProvider(config!!)
+                        confirmDeleteProvider(config)
                     }
                 }
             }
@@ -314,7 +343,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         okButton.isEnabled = fields.apiKeyInput.text.toString().trim().isNotBlank()
-        fields.apiKeyInput.addTextChangedListener(object : android.text.TextWatcher {
+        fields.apiKeyInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -361,7 +390,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, formats).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
-                val currentFormat = config?.apiFormat ?: "OPENAI"
+                val currentFormat = (config?.apiFormat ?: ApiFormat.OPENAI).name
                 val idx = formats.indexOf(currentFormat)
                 if (idx >= 0) setSelection(idx)
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
@@ -393,7 +422,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val customPricingLabel = TextView(context).apply {
             text = getString(R.string.llm_custom_pricing_label)
             setTextAppearance(android.R.style.TextAppearance_Small)
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTypeface(typeface, Typeface.BOLD)
             val params = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
             )
@@ -420,7 +449,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         layout.addView(customOutputPriceInput)
 
-        val defaultCheckBox = if (!isNew && !config!!.isDefault) {
+        val defaultCheckBox = if (!isNew && !config.isDefault) {
             CheckBox(context).apply {
                 text = getString(R.string.ai_provider_set_default)
                 val params = LinearLayout.LayoutParams(
@@ -474,7 +503,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        fields.customModelInput.addTextChangedListener(object : android.text.TextWatcher {
+        fields.customModelInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
@@ -493,7 +522,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val displayName = fields.nameInput.text.toString().trim().ifEmpty { provider.displayName }
         val apiKey = fields.apiKeyInput.text.toString().trim()
         val endpoint = fields.endpointInput?.text?.toString()?.trim()
-        val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()
+        val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()?.let {
+            try { ApiFormat.valueOf(it) } catch (_: IllegalArgumentException) { null }
+        }
         val makeDefault = fields.defaultCheckBox?.isChecked == true
 
         val selectedModelPosition = fields.modelSpinner.selectedItemPosition
@@ -527,12 +558,12 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                         val all = dao.all()
                         var order = 1
                         for (c in all) {
-                            if (c.id == config!!.id) continue
+                            if (c.id == config.id) continue
                             if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
                             order++
                         }
                     }
-                    val updated = config!!.copy(
+                    val updated = config.copy(
                         displayName = displayName,
                         endpoint = if (isCustom) endpoint else config.endpoint,
                         apiFormat = if (isCustom) apiFormat else config.apiFormat,
@@ -578,25 +609,20 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             val getKey = getString(R.string.ai_getting_started_get_api_key)
             val html = buildString {
                 append(getString(R.string.ai_getting_started_intro))
-                append("<br><br><b>${getString(R.string.ai_getting_started_providers)}</b><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_gemini)}</b><br>")
-                append("<a href=\"https://aistudio.google.com/apikey\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_openai)}</b><br>")
-                append("<a href=\"https://platform.openai.com/api-keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_anthropic)}</b><br>")
-                append("<a href=\"https://console.anthropic.com/settings/keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_xai)}</b><br>")
-                append("<a href=\"https://console.x.ai/\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_mistral)}</b><br>")
-                append("<a href=\"https://console.mistral.ai/api-keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_deepseek)}</b><br>")
-                append("<a href=\"https://platform.deepseek.com/api_keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_groq)}</b><br>")
-                append("<a href=\"https://console.groq.com/keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_alibaba)}</b><br>")
-                append("<a href=\"https://bailian.console.alibabacloud.com/?apiKey=1#/api-key\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_openrouter)}</b><br>")
-                append("<a href=\"https://openrouter.ai/keys\">$getKey</a><br><br>")
+
+                val tierHeaders = mapOf(
+                    ProviderTier.RECOMMENDED to getString(R.string.ai_getting_started_recommended_providers),
+                    ProviderTier.COMMUNITY to getString(R.string.ai_getting_started_community_providers),
+                )
+                for (tier in listOf(ProviderTier.RECOMMENDED, ProviderTier.COMMUNITY, ProviderTier.UNCATEGORIZED)) {
+                    val providers = LlmProvider.entries.filter { it.tier == tier && it.apiKeyUrl != null }
+                    if (providers.isEmpty()) continue
+                    tierHeaders[tier]?.let { append("<br><br><b>$it</b><br><br>") } ?: append("<br>")
+                    for (p in providers) {
+                        append("<b>${p.displayName}</b><br>")
+                        append("<a href=\"${p.apiKeyUrl}\">$getKey</a><br><br>")
+                    }
+                }
                 append(getString(R.string.ai_getting_started_other))
             }
             val spanned = htmlToSpan(html)
@@ -640,7 +666,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val items = tools.map { tool ->
             val displayName = ToolRegistry.getDisplayName(tool)
-            val status = when (tool.name) {
+            val status = when (tool.agentTool) {
                 in allowed -> getString(R.string.permission_status_allowed)
                 in denied -> getString(R.string.permission_status_denied)
                 else -> getString(R.string.permission_status_default)
@@ -670,7 +696,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.permission_option_always_deny)
         )
 
-        val currentIndex = when (tool.name) {
+        val currentIndex = when (tool.agentTool) {
             in settings.permanentlyAllowedTools -> 1
             in settings.permanentlyDeniedTools -> 2
             else -> 0
@@ -679,19 +705,18 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         AlertDialog.Builder(requireContext())
             .setTitle(displayName)
             .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                val toolName = tool.name
                 when (which) {
                     0 -> {
-                        settings.permanentlyAllowedTools -= toolName
-                        settings.permanentlyDeniedTools -= toolName
+                        settings.permanentlyAllowedTools -= tool.agentTool
+                        settings.permanentlyDeniedTools -= tool.agentTool
                     }
                     1 -> {
-                        settings.permanentlyAllowedTools += toolName
-                        settings.permanentlyDeniedTools -= toolName
+                        settings.permanentlyAllowedTools += tool.agentTool
+                        settings.permanentlyDeniedTools -= tool.agentTool
                     }
                     2 -> {
-                        settings.permanentlyDeniedTools += toolName
-                        settings.permanentlyAllowedTools -= toolName
+                        settings.permanentlyDeniedTools += tool.agentTool
+                        settings.permanentlyAllowedTools -= tool.agentTool
                     }
                 }
                 updateToolPermissionsSummary()
@@ -715,7 +740,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                                 LlmCostTracker.reset(config.id)
                             }
                         }
-                        LlmCostTracker.reset() // Also reset legacy
                         updateUsageSummary()
                         refreshProviderList()
                     }
@@ -739,12 +763,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             totalCost += LlmCostTracker.getCumulativeCost(config.id)
         }
 
-        // Also add legacy usage
-        val legacyUsage = LlmCostTracker.getCumulativeUsage()
-        totalInput += legacyUsage.inputTokens
-        totalOutput += legacyUsage.outputTokens
-        totalCost += LlmCostTracker.getCumulativeCost()
-
         if (totalInput == 0L && totalOutput == 0L) {
             usageSummaryPref.summary = getString(R.string.llm_usage_summary_default)
         } else {
@@ -753,28 +771,4 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun setupCacheManagement() {
-        manageCachePref.setOnPreferenceClickListener {
-            startActivity(Intent(requireContext(), LlmCacheActivity::class.java))
-            true
-        }
-        updateCacheSummary()
-    }
-
-    private fun updateCacheSummary() {
-        lifecycleScope.launch {
-            val stats = withContext(Dispatchers.IO) {
-                DatabaseContainer.instance.llmProcessingDb.llmProcessingDao().getCacheStats()
-            }
-            if (stats.entryCount > 0) {
-                val sizeStr = formatSize(stats.totalSize)
-                manageCachePref.summary = "${getString(R.string.llm_cache_management_summary)} (${stats.entryCount}, $sizeStr)"
-            } else {
-                manageCachePref.summary = getString(R.string.llm_cache_management_summary)
-            }
-        }
-    }
-
-    private fun formatSize(bytes: Long): String =
-        Formatter.formatShortFileSize(requireContext(), bytes)
 }

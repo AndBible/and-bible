@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -501,6 +501,8 @@ function scrollToCursor() {
     }
 }
 
+// When the on-screen keyboard opens/closes, the visual viewport changes and the editor
+// toolbar may end up hidden behind the keyboard. Scroll to keep cursor and toolbar visible.
 function onViewportResize() {
     scrollToCursor();
 }

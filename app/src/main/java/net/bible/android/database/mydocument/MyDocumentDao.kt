@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -105,14 +105,20 @@ interface MyDocumentDao {
     @Query("SELECT * FROM MyDocumentPageWithContent WHERE documentId = :documentId AND pageKey = :pageKey")
     fun pageByKeyWithContent(documentId: IdType, pageKey: String): MyDocumentPageWithContent?
 
-    // ==================== Cache lookup ====================
+    // ==================== AI page cache ====================
+
+    @Insert
+    fun insert(cacheEntry: AiPageCacheEntry)
+
+    @Query("SELECT * FROM AiPageCacheEntry WHERE pageId = :pageId")
+    fun getCacheEntry(pageId: IdType): AiPageCacheEntry?
 
     /**
      * Find cached page by full context hash (strict matching).
      * Used when strictContextMatching=true.
      */
     @Query("""
-        SELECT * FROM MyDocumentPageWithContent
+        SELECT * FROM AiCachedPageWithContent
         WHERE sourcePromptId = :promptId
         AND contextHash = :contextHash
         ORDER BY createdAt DESC
@@ -121,14 +127,14 @@ interface MyDocumentDao {
     fun findCachedPageByContextHash(
         promptId: IdType,
         contextHash: String
-    ): MyDocumentPageWithContent?
+    ): AiCachedPageWithContent?
 
     /**
      * Find cached page by verse range only (loose matching).
      * Used when strictContextMatching=false.
      */
     @Query("""
-        SELECT * FROM MyDocumentPageWithContent
+        SELECT * FROM AiCachedPageWithContent
         WHERE sourcePromptId = :promptId
         AND kjvOrdinalStart = :kjvOrdinalStart
         AND kjvOrdinalEnd = :kjvOrdinalEnd
@@ -139,7 +145,7 @@ interface MyDocumentDao {
         promptId: IdType,
         kjvOrdinalStart: Int,
         kjvOrdinalEnd: Int
-    ): MyDocumentPageWithContent?
+    ): AiCachedPageWithContent?
 
     // ==================== Transaction helpers ====================
 
@@ -147,6 +153,13 @@ interface MyDocumentDao {
     fun insertPageWithContent(page: MyDocumentPage, content: String) {
         insert(page)
         insertOrUpdateContent(MyDocumentPageContent(pageId = page.id, content = content))
+    }
+
+    @Transaction
+    fun insertPageWithCacheEntry(page: MyDocumentPage, content: String, cacheEntry: AiPageCacheEntry) {
+        insert(page)
+        insertOrUpdateContent(MyDocumentPageContent(pageId = page.id, content = content))
+        insert(cacheEntry)
     }
 
     @Transaction

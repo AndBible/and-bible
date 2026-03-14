@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -29,6 +29,8 @@ import net.bible.android.database.bookmarks.LabelType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.agent.PermissionMode
 import org.crosswire.jsword.book.Book
@@ -286,6 +288,21 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToAgentToolSet(s: String?): Set<AgentTool>? {
+        if(s == null) return null
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing AgentTool set: $s", e)
+            null
+        }
+    }
+
+    @TypeConverter
+    fun agentToolSetToStr(obj: Set<AgentTool>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
     fun strToPromptContextSet(s: String?): Set<PromptContext> {
         if(s == null) return emptySet()
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
@@ -299,6 +316,15 @@ class Converters {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
+
+    @TypeConverter
+    fun strToApiFormat(s: String?): ApiFormat? {
+        if (s == null) return null
+        return try { ApiFormat.valueOf(s) } catch (_: IllegalArgumentException) { null }
+    }
+
+    @TypeConverter
+    fun apiFormatToStr(obj: ApiFormat?): String? = obj?.name
 
     @TypeConverter
     fun strToPermissionMode(s: String?): PermissionMode? {

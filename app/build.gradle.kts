@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -370,7 +370,6 @@ dependencies {
     implementation("androidx.preference:preference:1.2.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
     implementation("androidx.recyclerview:recyclerview:1.4.0")
-    implementation("androidx.security:security-crypto:1.1.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")

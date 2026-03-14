@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -31,8 +31,6 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
-import net.bible.service.llm.LlmProcessingCacheEntry
-import net.bible.service.llm.LlmProcessingDao
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.LlmProviderConfigDao
 
@@ -163,25 +161,23 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val LLM_PROCESSING_DATABASE_VERSION = 10
+const val AI_SETTINGS_DATABASE_VERSION = 1
 
 @Database(
     entities = [
-        LlmProcessingCacheEntry::class,
         AgentPrompt::class,
         LlmProviderConfig::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
     ],
-    version = LLM_PROCESSING_DATABASE_VERSION
+    version = AI_SETTINGS_DATABASE_VERSION
 )
 @TypeConverters(Converters::class)
-abstract class LlmProcessingDatabase: SyncableRoomDatabase() {
-    abstract fun llmProcessingDao(): LlmProcessingDao
+abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
     companion object {
-        const val dbFileName = "llm_processing.sqlite3"
+        const val dbFileName = "ai_settings.sqlite3"
     }
 }

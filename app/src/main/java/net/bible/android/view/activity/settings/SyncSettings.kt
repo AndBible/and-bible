@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -36,7 +36,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.SecureStorage
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
@@ -122,7 +121,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
         }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_workspaces")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_llmprocessing")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run {
+            if (!CommonUtils.settings.aiTextProcessingEnabled) {
+                isVisible = false
+            } else {
+                setupDrivePref(this)
+            }
+        }
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
@@ -151,8 +156,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
-        // Secret preferences use SecureStorage-backed data store
-        val secureDataStore = SecurePreferenceDataStore()
+        val secureDataStore = SharedPrefsDataStore()
         val usernamePref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_username")!!.apply {
             preferenceDataStore = secureDataStore
         }
@@ -215,11 +219,11 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     }
 }
 
-/**
- * PreferenceDataStore that routes reads/writes through SecureStorage (EncryptedSharedPreferences).
- * Used for credential preferences (server URL, username, password, folder path).
- */
-private class SecurePreferenceDataStore : PreferenceDataStore() {
-    override fun putString(key: String, value: String?) = SecureStorage.setString(key, value)
-    override fun getString(key: String, defValue: String?): String? = SecureStorage.getString(key, defValue)
+private class SharedPrefsDataStore : PreferenceDataStore() {
+    private val prefs get() = CommonUtils.realSharedPreferences
+    override fun putString(key: String, value: String?) {
+        if (value == null) prefs.edit().remove(key).apply()
+        else prefs.edit().putString(key, value).apply()
+    }
+    override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.graphics.Insets
 import android.media.AudioManager
@@ -397,6 +398,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
+        navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -438,7 +440,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 currentSliderOffset = slideOffset
             }
 
-            override fun onDrawerOpened(drawerView: View) {}
+            override fun onDrawerOpened(drawerView: View) {
+                navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+            }
 
             override fun onDrawerClosed(drawerView: View) {
                 windowRepository.activeWindow.bibleView?.requestFocus()
@@ -1074,6 +1078,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.strongsButton.alpha = alpha
         } else
             binding.strongsButton.alpha = 1.0F
+        if (CommonUtils.settings.monochromeMode) {
+            binding.strongsButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
+        }
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument

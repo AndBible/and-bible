@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -64,7 +64,6 @@ import net.bible.android.view.activity.page.RedLettersPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.android.view.activity.page.InfiniteScrollPreference
-import net.bible.android.view.activity.page.LlmPromptPreference
 import net.bible.android.view.activity.page.buyDevelopmentLink
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.getTintedDrawable
@@ -135,7 +134,6 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.LINE_SPACING -> LineSpacingPreference(settings)
         Types.BOOKMARKS_HIDELABELS -> HideLabelsPreference(settings, Types.BOOKMARKS_HIDELABELS)
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
-        Types.LLM_PROMPT -> LlmPromptPreference(settings)
         Types.INFINITE_SCROLL -> InfiniteScrollPreference(settings)
         Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)

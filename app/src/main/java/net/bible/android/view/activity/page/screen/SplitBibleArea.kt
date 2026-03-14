@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -22,6 +22,7 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.graphics.Color
 import android.graphics.Rect
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -181,13 +182,12 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         updateWindows()
         addSeparators()
         rebuildRestoreButtons()
+        binding.restoreButtonsContainer.post { updateRestoreButtons() }
         ensureRestoreButtonVisible()
 
         resetTouchTimer()
         mainBibleActivity.resetSystemUi()
         lastSplitVertically = isSplitVertically
-        if(firstTime)
-            updateRestoreButtons()
     }
 
     private fun removeSeparators() {
@@ -335,6 +335,13 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             val restoreButton = createUnmaximiseButton(maxWindow)
             restoreButtonsList.add(restoreButton)
             binding.restoreButtons.addView(restoreButton, llp)
+            binding.hideRestoreButton.visibility = View.GONE
+            binding.hideRestoreButtonExtension.visibility = View.GONE
+            binding.restoreButtonsContainer.background = null
+            // Reset translation so unmaximize button is always visible
+            binding.restoreButtonsContainer.translationX =
+                if (CommonUtils.isRtl) mainBibleActivity.leftOffset1.toFloat()
+                else -mainBibleActivity.rightOffset1.toFloat()
             return
         }
 
@@ -399,6 +406,13 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
         binding.hideRestoreButton.visibility = hideArrow
         binding.hideRestoreButtonExtension.visibility = hideArrow
+
+        if (CommonUtils.settings.monochromeMode) {
+            binding.restoreButtonsContainer.setBackgroundColor(Color.WHITE)
+        } else {
+            binding.restoreButtonsContainer.setBackgroundResource(R.drawable.window_bar_background)
+        }
+
     }
 
     fun onEvent(event: MainBibleActivity.FullScreenEvent) {
@@ -571,10 +585,16 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             firstTime = false
         }
         val isRtl = CommonUtils.isRtl
+        val isMaximized = windowRepository.isMaximized
         binding.apply {
             val screenWidth = biblesLinearLayout.width
             val transX =
-                if(isRtl)
+                if (isMaximized && !restoreButtonsVisible) {
+                    // When maximized and bar is hidden, keep unmaximize button visible
+                    if (isRtl) mainBibleActivity.leftOffset1.toFloat()
+                    else -mainBibleActivity.rightOffset1.toFloat()
+                }
+                else if(isRtl)
                     (if (restoreButtonsVisible) 0 else
                         -restoreButtonsContainer.width + (hideRestoreButton.width + hideRestoreButtonExtension.width)
                         ).toFloat() + mainBibleActivity.leftOffset1
@@ -594,6 +614,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 restoreButtonsContainer.fullScroll(if(isRtl) View.FOCUS_RIGHT else View.FOCUS_LEFT)
                 restoreButtonsContainer.isScrollable = false
                 hideRestoreButton.setBackgroundResource(openRes)
+            }
+            if (CommonUtils.settings.monochromeMode) {
+                hideRestoreButton.backgroundTintList = ColorStateList.valueOf(Color.BLACK)
             }
             if (animate) {
                 Log.i(TAG, "animate started")

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2025 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *

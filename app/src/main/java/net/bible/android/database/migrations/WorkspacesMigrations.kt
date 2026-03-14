@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -81,11 +81,9 @@ private val addLabelOverridesTable = makeMigration(12..13) { _db ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkspaceLabelOverride_workspaceId` ON `WorkspaceLabelOverride` (`workspaceId`)")
 }
 
-private val addInfiniteScrollAndLlmPromptId = makeMigration(13..14) { _db ->
+private val addInfiniteScroll = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
-    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
-    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_llmPromptId` BLOB DEFAULT NULL")
 }
 
 private val addGlobalTextDisplaySettings = makeMigration(14..15) { _db ->

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -21,10 +21,13 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.defaultLabelColor
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -33,7 +36,13 @@ import org.json.JSONObject
  * Labels are used to organize bookmarks and can function as StudyPads.
  */
 object CreateLabelTool : Tool {
-    override val name = "createLabel"
+    @Serializable
+    data class Args(
+        val name: String = "",
+        val color: Int = 0
+    )
+
+    override val agentTool = AgentTool.CREATE_LABEL
 
     override val description = """
         Create a new label (category/StudyPad).
@@ -70,8 +79,13 @@ object CreateLabelTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val name = arguments.optString("name", "")
-        val color = arguments.optInt("color", defaultLabelColor)
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val name = args.name
+        val color = if (args.color != 0) args.color else defaultLabelColor
 
         if (name.isBlank()) {
             return ToolResult.error("Missing required parameter: name")

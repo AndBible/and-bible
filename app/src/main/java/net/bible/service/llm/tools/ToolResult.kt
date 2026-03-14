@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2026 Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -18,6 +18,7 @@
 package net.bible.service.llm.tools
 
 import android.util.Log
+import net.bible.service.llm.llmJson
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -28,9 +29,13 @@ sealed class ToolResult {
     /**
      * Successful tool execution with result data.
      *
-     * @param data The result data, can be any JSON-serializable value
+     * @param data The result data — a JSONObject/JSONArray for legacy tools, or a @Serializable
+     *   object for typed tools. Serialized to JSON via [toJson] for the LLM. Also used directly
+     *   by AgentExecutor for finish tools (cast to the concrete Result type).
+     * @param jsonOverride Pre-serialized JSON string of [data], set by [typedSuccess] to avoid
+     *   reflection-based serialization in [toJson].
      */
-    data class Success(val data: Any) : ToolResult()
+    data class Success(val data: Any, internal val jsonOverride: String? = null) : ToolResult()
 
     /**
      * Failed tool execution.
@@ -47,7 +52,9 @@ sealed class ToolResult {
         is Success -> {
             val result = JSONObject()
             result.put("status", "success")
-            when (data) {
+            if (jsonOverride != null) {
+                result.put("data", JSONObject(jsonOverride))
+            } else when (data) {
                 is JSONObject -> result.put("data", data)
                 is JSONArray -> result.put("data", data)
                 is String -> result.put("data", data)
@@ -92,3 +99,11 @@ sealed class ToolResult {
         fun error(message: String, code: String? = null): ToolResult = Error(message, code)
     }
 }
+
+/**
+ * Create a typed success result from a @Serializable object.
+ * The object is stored as-is for direct access (e.g. by AgentExecutor)
+ * and pre-serialized to JSON for [ToolResult.toJson].
+ */
+inline fun <reified T> typedSuccess(data: T & Any): ToolResult =
+    ToolResult.Success(data = data, jsonOverride = llmJson.encodeToString(data))

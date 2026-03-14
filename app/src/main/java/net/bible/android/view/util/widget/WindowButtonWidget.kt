@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -19,6 +19,8 @@ package net.bible.android.view.util.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.util.AttributeSet
 import android.view.KeyEvent
@@ -151,10 +153,33 @@ class WindowButtonWidget(
             docType.setColorFilter(getResourceColor(R.color.links_button_icon_color))
             docType.visibility = View.VISIBLE
         }
+        if (CommonUtils.settings.monochromeMode) {
+            applyMonochromeStyle(isActive, isWindowVisible)
+        }
         unMaximiseImage.visibility = if (isMaximised) View.VISIBLE else View.GONE
         topButtonText.text = window?.pageManager?.titleText?:""
         topButtonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
         buttonText.visibility = if(isMaximised||!isRestoreButton) View.GONE else View.VISIBLE
+    }
+
+    private fun applyMonochromeStyle(isActive: Boolean, isWindowVisible: Boolean) = binding.apply {
+        val inverse = isRestoreButton && isWindowVisible
+        val strokeWidth = CommonUtils.convertDipsToPx(if (isActive) 2 else 1)
+        val bgColor = if (inverse) Color.BLACK else Color.WHITE
+        val fgColor = if (inverse) Color.WHITE else Color.BLACK
+        val bg = windowButton.background
+        if (bg is GradientDrawable) {
+            bg.setColor(bgColor)
+            bg.setStroke(strokeWidth, Color.BLACK)
+        }
+        buttonText.setTextColor(fgColor)
+        windowButton.setTextColor(fgColor)
+        topButtonText.setTextColor(fgColor)
+        syncGroup.setTextColor(fgColor)
+        docType.setColorFilter(fgColor)
+        synchronize.setColorFilter(fgColor)
+        pinMode.setColorFilter(fgColor)
+        unMaximiseImage.setColorFilter(fgColor)
     }
 
     override fun setOnClickListener(l: OnClickListener?) {
@@ -250,6 +275,17 @@ class AddNewWindowButtonWidget(
             pinMode.visibility = View.GONE
             unMaximiseImage.visibility = View.GONE
             windowButton.setBackgroundResource(R.drawable.window_button_visible)
+            if (CommonUtils.settings.monochromeMode) {
+                val bg = windowButton.background
+                if (bg is GradientDrawable) {
+                    bg.setColor(Color.WHITE)
+                    bg.setStroke(CommonUtils.convertDipsToPx(1), Color.BLACK)
+                }
+                windowButton.setTextColor(Color.BLACK)
+                windowButtonIcon.setImageDrawable(
+                    CommonUtils.getTintedDrawable(R.drawable.ic_window_add_outline_black_24dp, android.R.color.black)
+                )
+            }
         }
     }
 
