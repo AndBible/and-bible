@@ -47,7 +47,7 @@ private val addFootNotesInline = makeMigration(7..8) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL")
 }
 
-private val addHistoryEndAnchorOrdinal = makeMigration(8..9) { _db ->
+private val addHistoryEndAnchorOrdinal = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `HistoryItem` ADD COLUMN `endAnchorOrdinal` INTEGER DEFAULT NULL")
 }
 
@@ -101,4 +101,4 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addHistoryEndAnchorOrdinal,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 13
+const val WORKSPACE_DATABASE_VERSION = 14

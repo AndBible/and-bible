@@ -256,13 +256,22 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 }
             } else if (item is KeyHistoryItem && stack.peek() is KeyHistoryItem) {
                 // Items are "equal" (same document and start key), but the new item might have
-                // a different endKey (user scrolled further). Update the existing entry's endKey.
+                // a different endKey (user scrolled further). Update the existing entry's endKey
+                // while preserving the original createdAt timestamp.
                 val existing = stack.peek() as KeyHistoryItem
                 val newEndKey = item.endKey
                 if (newEndKey != null && newEndKey != existing.endKey) {
-                    // Replace the top item with the new one that has the updated endKey
+                    // Create updated item preserving the original timestamp
+                    val updatedItem = KeyHistoryItem(
+                        document = existing.document,
+                        key = existing.key,
+                        anchorOrdinal = existing.anchorOrdinal,
+                        window = existing.window,
+                        createdAt = existing.createdAt,
+                        endKey = newEndKey
+                    )
                     stack.pop()
-                    stack.push(item)
+                    stack.push(updatedItem)
                 }
             }
         }
