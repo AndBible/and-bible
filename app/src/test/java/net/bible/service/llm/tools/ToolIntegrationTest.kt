@@ -415,11 +415,11 @@ class ToolIntegrationTest {
         val finishResult = FinishWithStudyPadTool.execute(finishArgs, context)
         assertTrue("Finish should succeed with real label", finishResult is ToolResult.Success)
 
-        val finishData = (finishResult as ToolResult.Success).data as JSONObject
-        assertTrue(finishData.getBoolean("finished"))
-        assertEquals(labelId, finishData.getString("labelId"))
-        assertEquals("Study pad ready", finishData.getString("message"))
-        assertFalse(finishData.has("scrollToEntryId"))
+        val finishData = (finishResult as ToolResult.Success).data as FinishWithStudyPadTool.Result
+        assertTrue(finishData.finished)
+        assertEquals(labelId, finishData.labelId)
+        assertEquals("Study pad ready", finishData.message)
+        assertEquals(null, finishData.scrollToEntryId)
     }
 
     @Test
@@ -443,8 +443,8 @@ class ToolIntegrationTest {
         val finishResult = FinishWithStudyPadTool.execute(finishArgs, context)
         assertTrue(finishResult is ToolResult.Success)
 
-        val finishData = (finishResult as ToolResult.Success).data as JSONObject
-        assertEquals(entryId, finishData.getString("scrollToEntryId"))
+        val finishData = (finishResult as ToolResult.Success).data as FinishWithStudyPadTool.Result
+        assertEquals(entryId, finishData.scrollToEntryId)
     }
 
     // === Multiple StudyPad entries + index/page modes ===
