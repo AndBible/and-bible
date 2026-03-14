@@ -246,7 +246,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         for (tier in ProviderTier.entries) {
             val inTier = availableProviders.filter { it.tier == tier }
             if (inTier.isEmpty()) continue
-            if (tier == ProviderTier.COMMUNITY) {
+            if (tier == ProviderTier.RECOMMENDED) {
+                items.add(getString(R.string.ai_provider_tier_recommended) to null)
+            } else if (tier == ProviderTier.COMMUNITY) {
                 items.add(getString(R.string.ai_provider_tier_community) to null)
             }
             for (p in inTier) {
@@ -263,11 +265,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 val view = super.getView(position, convertView, parent)
                 val tv = view as TextView
                 if (items[position].second == null) {
-                    tv.setTypeface(tv.typeface, Typeface.BOLD)
+                    tv.setTypeface(null, Typeface.BOLD)
                     tv.setTextColor(resources.getColor(android.R.color.darker_gray, null))
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 } else {
-                    tv.setTypeface(tv.typeface, Typeface.NORMAL)
+                    tv.setTypeface(null, Typeface.NORMAL)
                     tv.setTextColor(resources.getColor(android.R.color.primary_text_light, null))
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 }

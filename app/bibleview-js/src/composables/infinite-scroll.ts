@@ -167,8 +167,8 @@ export function useInfiniteScroll(
     }
 
     const
-        // Whether the current document type supports infinite scroll (Bible or GenBook)
-        documentSupportsInfiniteScroll = computed(() => {
+        // Whether the current document type supports chapter navigation (Bible or GenBook)
+        documentSupportsChapterNavigation = computed(() => {
            if(bibleViewDocuments.length === 0) return false;
            const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
@@ -177,8 +177,14 @@ export function useInfiniteScroll(
                return doc.type === "bible";
            }
         }),
-        // Whether infinite scroll is currently active (enabled in settings AND supported by document)
-        isEnabled = computed(() => config.infiniteScroll && documentSupportsInfiniteScroll.value),
+        // Whether infinite scroll is currently active (enabled in settings, supported by document,
+        // and not an AI document which is single-page content)
+        isEnabled = computed(() => {
+            if(!config.infiniteScroll || !documentSupportsChapterNavigation.value) return false;
+            const doc = bibleViewDocuments[0];
+            if(isOsisDocument(doc) && doc.isAiDocument) return false;
+            return true;
+        }),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
         bodyHeight = () => document.body.scrollHeight,
@@ -268,7 +274,8 @@ export function useInfiniteScroll(
         loadingAtTop,
         loadTextAtTop,
         loadTextAtEnd,
-        documentSupportsInfiniteScroll,
+        documentSupportsChapterNavigation,
+        infiniteScrollIsEnabled: isEnabled,
         reachedEnd,
     };
 }
