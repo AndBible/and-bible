@@ -189,3 +189,6 @@
 
 -keepattributes InnerClasses
 #end nextcloud
+
+# SnakeYAML introspector requires java.beans classes
+-keep class java.beans.** { *; }
