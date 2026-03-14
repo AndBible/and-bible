@@ -24,6 +24,8 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 -->
 <resources>
 	<string name="homepage">https://andbible.org</string>
+    <string name="ai_provider_api_key_masked">%1$s: ●●●●%2$s</string>
+    <string name="ai_provider_endpoint_hint">https://api.example.com/v1</string>
 	<string name="github_page">https://github.com/AndBible/and-bible</string>
     <!-- Languages -->
 	<string name="lang_afrikaans">af: Afrikaans</string>

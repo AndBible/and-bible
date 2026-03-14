@@ -477,7 +477,8 @@ class AgentExecutor(
                 // Show confirmation dialog
                 val confirmed = Dialogs.simpleQuestion(
                     activity,
-                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName),
+                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
+                        "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
                     title = activity.getString(R.string.permission_always_allow_confirm_title)
                 )
                 if (confirmed) {

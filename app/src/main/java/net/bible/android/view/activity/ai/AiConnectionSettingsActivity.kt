@@ -170,7 +170,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                     }
                     if (apiKey.isNotBlank()) {
                         val suffix = apiKey.takeLast(4)
-                        append(getString(R.string.ai_provider_api_key_masked, suffix))
+                        append(getString(R.string.ai_provider_api_key_masked, getString(R.string.ai_provider_api_key), suffix))
                     } else {
                         append(getString(R.string.ai_provider_api_key_not_set))
                     }
