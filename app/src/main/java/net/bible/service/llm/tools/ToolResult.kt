@@ -25,18 +25,17 @@ import org.json.JSONObject
 /**
  * Result of a tool execution.
  */
-/** Decode the success data to a typed @Serializable class. */
-inline fun <reified T> ToolResult.Success.decodeData(): T? = try {
-    (data as? JSONObject)?.toString()?.let { llmJson.decodeFromString<T>(it) }
-} catch (_: Exception) { null }
-
 sealed class ToolResult {
     /**
      * Successful tool execution with result data.
      *
-     * @param data The result data, can be any JSON-serializable value
+     * @param data The result data — a JSONObject/JSONArray for legacy tools, or a @Serializable
+     *   object for typed tools. Serialized to JSON via [toJson] for the LLM. Also used directly
+     *   by AgentExecutor for finish tools (cast to the concrete Result type).
+     * @param jsonOverride Pre-serialized JSON string of [data], set by [typedSuccess] to avoid
+     *   reflection-based serialization in [toJson].
      */
-    data class Success(val data: Any) : ToolResult()
+    data class Success(val data: Any, internal val jsonOverride: String? = null) : ToolResult()
 
     /**
      * Failed tool execution.
@@ -53,7 +52,9 @@ sealed class ToolResult {
         is Success -> {
             val result = JSONObject()
             result.put("status", "success")
-            when (data) {
+            if (jsonOverride != null) {
+                result.put("data", JSONObject(jsonOverride))
+            } else when (data) {
                 is JSONObject -> result.put("data", data)
                 is JSONArray -> result.put("data", data)
                 is String -> result.put("data", data)
@@ -98,3 +99,11 @@ sealed class ToolResult {
         fun error(message: String, code: String? = null): ToolResult = Error(message, code)
     }
 }
+
+/**
+ * Create a typed success result from a @Serializable object.
+ * The object is stored as-is for direct access (e.g. by AgentExecutor)
+ * and pre-serialized to JSON for [ToolResult.toJson].
+ */
+inline fun <reified T> typedSuccess(data: T & Any): ToolResult =
+    ToolResult.Success(data = data, jsonOverride = llmJson.encodeToString(data))

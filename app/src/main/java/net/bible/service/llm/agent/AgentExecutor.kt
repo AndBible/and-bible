@@ -45,7 +45,6 @@ import net.bible.service.llm.ToolResultBlock
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
-import net.bible.service.llm.tools.decodeData
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
@@ -275,7 +274,7 @@ class AgentExecutor(
             if (finishResult == null && result is ToolResult.Success) {
                 when (toolCall.tool) {
                     AgentTool.SET_DOCUMENT_TITLE -> {
-                        val data = result.decodeData<SetDocumentTitleTool.Result>()
+                        val data = result.data as? SetDocumentTitleTool.Result
                         val title = data?.title ?: application.getString(R.string.llm_default_document_title)
                         val content = parsed.content?.takeIf { it.isNotBlank() }
 
@@ -297,7 +296,7 @@ class AgentExecutor(
                         }
                     }
                     AgentTool.FINISH_WITHOUT_DOCUMENT -> {
-                        val data = result.decodeData<FinishWithoutDocumentTool.Result>()
+                        val data = result.data as? FinishWithoutDocumentTool.Result
                         val message = data?.message ?: application.getString(R.string.llm_default_task_completed)
                         finishResult = ProcessToolsResult.FinishWithoutDocument(
                             message = message,
@@ -305,7 +304,7 @@ class AgentExecutor(
                         )
                     }
                     AgentTool.FINISH_WITH_STUDY_PAD -> {
-                        val data = result.decodeData<FinishWithStudyPadTool.Result>()
+                        val data = result.data as? FinishWithStudyPadTool.Result
                         val labelId = IdType(data?.labelId ?: "")
                         val scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) }
                         val message = data?.message ?: application.getString(R.string.llm_default_studypad_opened)

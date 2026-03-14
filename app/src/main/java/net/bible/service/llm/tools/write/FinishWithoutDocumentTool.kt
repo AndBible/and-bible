@@ -24,6 +24,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -85,10 +86,6 @@ object FinishWithoutDocumentTool : Tool {
         }
         val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_task_completed) }
 
-        return ToolResult.success {
-            put("finished", true)
-            put("message", message)
-            put("marker", FINISH_WITHOUT_DOCUMENT_MARKER)
-        }
+        return typedSuccess(Result(finished = true, message = message, marker = FINISH_WITHOUT_DOCUMENT_MARKER))
     }
 }

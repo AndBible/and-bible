@@ -24,6 +24,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.stripMarkdownFromTitle
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -94,9 +95,6 @@ object SetDocumentTitleTool : Tool {
             return ToolResult.error("Title is required", "MISSING_TITLE")
         }
 
-        return ToolResult.success {
-            put("finished", true)
-            put("title", title)
-        }
+        return typedSuccess(Result(finished = true, title = title))
     }
 }

@@ -27,6 +27,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -110,13 +111,11 @@ object FinishWithStudyPadTool : Tool {
                 code = "LABEL_NOT_FOUND"
             )
 
-        return ToolResult.success {
-            put("finished", true)
-            put("labelId", args.labelId.toString())
-            if (!args.scrollToEntryId.isEmpty) {
-                put("scrollToEntryId", args.scrollToEntryId.toString())
-            }
-            put("message", message)
-        }
+        return typedSuccess(Result(
+            finished = true,
+            labelId = args.labelId.toString(),
+            scrollToEntryId = if (!args.scrollToEntryId.isEmpty) args.scrollToEntryId.toString() else null,
+            message = message
+        ))
     }
 }
