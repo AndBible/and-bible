@@ -43,6 +43,8 @@ export function useInfiniteScroll(
     let touchDown = false;
     let textToBeInsertedAtTop: Nullable<AnyDocument[]> = null;
     let isProcessing = false;
+    let reachedEnd = false;
+    let reachedStart = false;
     const addChaptersToTop: Promise<Nullable<AnyDocument>>[] = [];
     const addChaptersToEnd: Promise<Nullable<AnyDocument>>[] = [];
 
@@ -54,6 +56,8 @@ export function useInfiniteScroll(
         addChaptersToTop.splice(0);
         addChaptersToEnd.splice(0);
         clearDocumentCount++;
+        reachedEnd = false;
+        reachedStart = false;
     }
 
     function needsMoreContent(): boolean {
@@ -99,6 +103,9 @@ export function useInfiniteScroll(
                         insertThisTextAtEnd(...validEndChaps);
                         contentAdded = true;
                         await nextTick();
+                    } else {
+                        reachedEnd = true;
+                        console.log("inf: Reached end of content")
                     }
                 }
                 if(topChaps.length > 0) {
@@ -108,6 +115,9 @@ export function useInfiniteScroll(
                         await insertThisTextAtTop(validTopChaps);
                         contentAdded = true;
                         await nextTick();
+                    } else {
+                        reachedStart = true;
+                        console.log("inf: Reached start of content")
                     }
                 }
                 
@@ -139,7 +149,7 @@ export function useInfiniteScroll(
         await processQueues();
         await waitNextAnimationFrame();
 
-        if (isEnabled.value && needsMoreContent() && !isProcessing) {
+        if (isEnabled.value && needsMoreContent() && !isProcessing && !reachedEnd) {
             await loadTextAtEnd();
         }
     }
@@ -160,11 +170,11 @@ export function useInfiniteScroll(
         scrollPosition = () => window.pageYOffset,
         setScrollPosition = (offset: number) => window.scrollTo(0, offset),
         addMoreAtEnd = () => {
-            if (!isEnabled.value || isProcessing) return;
+            if (!isEnabled.value || isProcessing || reachedEnd) return;
             loadTextAtEnd();
         },
         addMoreAtTop = () => {
-            if (!isEnabled.value || isProcessing) return;
+            if (!isEnabled.value || isProcessing || reachedStart) return;
             if (touchDown) {
                 // adding at top is tricky and if the user is still holding there seems no way to set the scroll position after insert
                 addMoreAtTopOnTouchUp = true;

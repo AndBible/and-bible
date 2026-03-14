@@ -285,6 +285,9 @@ const {sprintf} = useCommon();
   }
 
   opacity: 0.8;
+  .monochrome & {
+    opacity: 1;
+  }
   font-size: 10px;
   z-index: 0;
 }

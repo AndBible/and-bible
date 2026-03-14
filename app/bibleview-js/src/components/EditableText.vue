@@ -126,6 +126,9 @@ defineExpose({editMode});
 
 .placeholder {
   opacity: 0.5;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 
 .editor-container {

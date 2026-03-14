@@ -15,7 +15,10 @@
   - If not, see http://www.gnu.org/licenses/.
   -->
 <template>
-  <template v-if="isCrossReference && config.showXrefs && config.expandXrefs">
+  <template v-if="isTranslationNote">
+    <span class="translation-note"><slot/></span>
+  </template>
+  <template v-else-if="isCrossReference && config.showXrefs && config.expandXrefs">
     <slot/>
   </template>
   <template v-else-if="isFootNote && config.showFootNotes && config.showFootNotesInline">
@@ -90,6 +93,7 @@ const isFootNote = computed(() => ["x-footnote", "explanation", "translation", "
 const typeStr = computed(() => get(typeStrings, props.type!));
 const noteType = computed(() => typeStr.value ? sprintf(strings.noteText, typeStr.value) : strings.noteTextWithoutType);
 const isCrossReference = computed(() => props.type === "crossReference");
+const isTranslationNote = computed(() => props.type === "translation" && bookCategory === "DICTIONARY");
 const isOther = computed(() => !isCrossReference.value && !isFootNote.value);
 
 function noteClicked(event: MouseEvent) {
@@ -111,7 +115,7 @@ const typeStrings = {
     variant: strings.footnoteTypeVariant,
     alternative: strings.footnoteTypeAlternative,
 };
-const {v11n} = inject(osisFragmentKey)!
+const {v11n, bookCategory} = inject(osisFragmentKey)!
 const referenceCollector = useReferenceCollector();
 provide(referenceCollectorKey, referenceCollector);
 
@@ -172,6 +176,24 @@ const showHandle = computed(() => {
   @extend .visible-scrollbar;
   overflow-y: auto;
   max-height: calc(var(--max-height) - 25pt);
+}
+
+.translation-note {
+  font-style: italic;
+  font-weight: bold;
+  color: #1565c0;
+
+  .night & {
+    color: #90caf9;
+  }
+
+  .monochrome & {
+    color: black;
+  }
+
+  .monochrome.night & {
+    color: white;
+  }
 }
 
 .footnote-inline {

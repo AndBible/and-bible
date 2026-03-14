@@ -32,6 +32,11 @@
             android:title="@string/prefs_show_morphology_title"
             android:summary="@string/prefs_show_morphology_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="NON_STRONGS_WORD_ITALIC"
+            android:title="@string/prefs_non_strongs_word_italic_title"
+            android:summary="@string/prefs_non_strongs_word_italic_summary"
+            />
 
         <SwitchPreferenceCompat
             android:key="FOOTNOTES"
@@ -61,6 +66,12 @@
             android:key="SECTIONTITLES"
             android:title="@string/prefs_section_title_title"
             android:summary="@string/prefs_section_title_summary"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="TITLE_SCROLL_BUTTON"
+            android:title="@string/prefs_title_scroll_button_title"
+            android:summary="@string/prefs_title_scroll_button_summary"
             />
 
         <SwitchPreferenceCompat

@@ -24,7 +24,6 @@
 <script setup lang="ts">
 
 import {computed, inject, ref} from "vue";
-import {strongsModes} from "@/composables/config";
 import {useCommon} from "@/composables";
 import {addEventFunction, EventPriorities} from "@/utils";
 import {exportModeKey, osisFragmentKey} from "@/types/constants";
@@ -40,10 +39,10 @@ const link = computed(() => {
     const strongsNum = slot.value.innerText
     return `ab-w://?strong=${letter}${strongsNum}`
 });
-const {config, strings} = useCommon();
+const {strings} = useCommon();
 
 const exportMode = inject(exportModeKey, ref(false));
-const showStrongs = computed(() => !exportMode.value && config.strongsMode !== strongsModes.off);
+const showStrongs = computed(() => !exportMode.value);
 
 function openLink(event: MouseEvent) {
     addEventFunction(event, () => {
@@ -61,8 +60,13 @@ function openLink(event: MouseEvent) {
 
 <style>
 .strongs {
-    font-size: 0.6em;
+    font-size: 0.9em;
     text-decoration: none;
     color: coral;
+}
+
+.monochrome .strongs {
+    color: inherit;
+    font-style: italic;
 }
 </style>

@@ -233,6 +233,8 @@ class ManageLabelItemAdapter(context: Context?,
                     }
                     customIcon.setColorFilter(item.color)
 
+                    overrideIndicator.visibility = if (manageLabels.overriddenLabelIds.contains(item.id)) View.VISIBLE else View.GONE
+
                     // TODO: implement otherwise
                     bookmarkStyleAdapterHelper.styleView(labelName, item, context, false, false)
                     if (data.mode != ManageLabels.Mode.STUDYPAD) {

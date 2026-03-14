@@ -16,12 +16,17 @@
   -->
 
 <template>
-  <h3 class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}" v-if="show"><slot/></h3>
+  <div class="title-wrapper" v-if="show">
+    <h3 ref="titleEl" class="titleStyle" :class="{'skip-offset': isBibleDoc && !isCanonical, isSubTitle}">
+      <slot/>
+    </h3>
+    <button v-if="config.showTitleScrollButton" class="title-scroll-btn" @click.stop="scrollToTitle">↑</button>
+  </div>
 </template>
 
 <script setup lang="ts">
 import {checkUnsupportedProps, useCommon} from "@/composables";
-import {computed, inject} from "vue";
+import {computed, inject, ref} from "vue";
 import {bibleDocumentInfoKey, hideTitlesKey} from "@/types/constants";
 
 const props = withDefaults(
@@ -40,7 +45,7 @@ const isBibleDoc = inject(bibleDocumentInfoKey) != undefined
 checkUnsupportedProps(props, "type", ["sub", "x-gen", "x-psalm-book", "main", "chapter", "section"]);
 checkUnsupportedProps(props, "subType", ["x-Chapter", "x-preverse"]);
 checkUnsupportedProps(props, "canonical", ["true", "false"]);
-const {config} = useCommon();
+const {config, appSettings, calculatedConfig} = useCommon();
 const hideTitles = inject(hideTitlesKey, false);
 
 const isCanonical = computed(() => props.canonical === "true");
@@ -54,6 +59,18 @@ const show = computed(() =>
 );
 
 const isSubTitle = computed(() => props.type === "sub");
+
+const titleEl = ref<HTMLElement | null>(null);
+
+function scrollToTitle() {
+    if (titleEl.value && calculatedConfig) {
+        const rect = titleEl.value.getBoundingClientRect();
+        window.scrollTo({
+            top: window.scrollY + rect.top - calculatedConfig.value.topOffset,
+            behavior: appSettings.disableAnimations ? 'instant' : 'smooth'
+        });
+    }
+}
 </script>
 
 <style lang="scss">
@@ -64,5 +81,27 @@ const isSubTitle = computed(() => props.type === "sub");
 h3.isSubTitle {
   font-size: 110%;
   margin-inline-start: 1em;
+}
+
+.title-wrapper {
+  position: relative;
+}
+
+.title-scroll-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  opacity: 0.3;
+  font-size: 120%;
+  cursor: pointer;
+  padding: 8px 12px;
+  line-height: 1;
+  color: inherit;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 </style>

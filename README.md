@@ -3,7 +3,7 @@
 ![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/andbible/and-bible/run-tests.yml?branch=develop&label=Android%20CI)
 ![GitHub License](https://img.shields.io/github/license/andbible/and-bible)
 <a href="https://matrix.to/#/#andbible:matrix.org">![Matrix](https://img.shields.io/matrix/andbible%3Amatrix.org?logo=Matrix&logoColor=green&logoSize=auto&label=Matrix%20Chat)</a>
-<a href="https://shop.tuomasairaksinen.fi">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
+<a href="https://shop.andbible.org">![Static Badge](https://img.shields.io/badge/%E2%9D%A4%EF%B8%8F%20Sponsor%20AndBible%20-%20blue)</a>
 
 # AndBible: Bible Study
 
@@ -80,3 +80,7 @@ AndBible is free software: you can redistribute it and/or modify it under the te
 AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with AndBible. If not, see https://www.gnu.org/licenses/.
+
+## ⭐ Star history
+
+[![Star History Chart](https://api.star-history.com/svg?repos=AndBible/and-bible&type=date&legend=top-left)](https://www.star-history.com/#taigrr/spank&type=date&legend=top-left)
