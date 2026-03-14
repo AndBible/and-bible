@@ -90,7 +90,7 @@ data class LlmProviderConfig(
     fun resolveApiFormat(): ApiFormat {
         val provider = resolveProvider()
         return if (provider == LlmProvider.CUSTOM) {
-            try { ApiFormat.valueOf(apiFormat ?: "OPENAI") } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
+            try { ApiFormat.valueOf(apiFormat ?: ApiFormat.OPENAI.name) } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
         } else {
             provider.apiFormat
         }

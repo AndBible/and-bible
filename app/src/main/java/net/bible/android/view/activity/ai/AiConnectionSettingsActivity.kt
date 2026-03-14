@@ -20,6 +20,7 @@ package net.bible.android.view.activity.ai
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.InputType
+import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.view.View
@@ -303,7 +304,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         okButton.isEnabled = fields.apiKeyInput.text.toString().trim().isNotBlank()
-        fields.apiKeyInput.addTextChangedListener(object : android.text.TextWatcher {
+        fields.apiKeyInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) {
@@ -350,7 +351,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, formats).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
-                val currentFormat = config?.apiFormat ?: "OPENAI"
+                val currentFormat = config?.apiFormat ?: ApiFormat.OPENAI.name
                 val idx = formats.indexOf(currentFormat)
                 if (idx >= 0) setSelection(idx)
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }

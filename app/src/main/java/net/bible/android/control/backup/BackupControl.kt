@@ -92,6 +92,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -927,8 +928,8 @@ class BackupActivity: ActivityBase() {
                 try {
                     val stackTrace = crashFile.readText()
                     if (stackTrace.isNotBlank()) {
-                        val timeStr = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
-                            .format(java.util.Date(crashTime))
+                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            .format(Date(crashTime))
                         crashInfoTitle.visibility = View.VISIBLE
                         crashInfoText.visibility = View.VISIBLE
                         crashInfoText.text = "$timeStr\n\n$stackTrace"
