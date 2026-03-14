@@ -1,0 +1,20 @@
+- Hide My Documents behind the AI experimental feature flag (84c9322ab)
+- Disable infinite scroll for AI documents, show nav buttons instead (f74c040c3)
+- Rename AI text processing feature to "AI features" in experimental settings (d153afc8b)
+- Improve LLM content extraction by skipping preamble (7da64dea8)
+- Update AI provider tier labels and text styling (e044aa54c)
+- Fix sync settings migration losing enabled state on upgrade (c38a70440)
+- Fix OpenAI-compatible API tool calls missing 'type' field (50a7f9208)
+- Fix AI settings menu visibility when drawer opens (dbea70807)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
