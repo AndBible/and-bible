@@ -43,7 +43,7 @@ object GetCommentariesTool : Tool {
     override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """
-        Get commentary entries for a verse reference from all installed commentaries.
+        Get commentary entries for a verse reference from installed commentaries.
         Returns OSIS XML content from each commentary that has content for the specified verse.
         Useful for gathering scholarly insights and interpretations.
 

@@ -52,7 +52,7 @@ object GetStudyPadContentTool : Tool {
         - 'index': lightweight overview with type, position, and ~80-char preview for each entry.
         - 'page': paginated full content (use offset/limit to read in chunks).
         - 'full': all entries with full content (default). May be large for big StudyPads.
-        For large StudyPads, use 'info' first, then 'index' or 'page' to read selectively.
+        Use 'info' first, then depending on size, 'full' or 'index' / 'page' to read selectively.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

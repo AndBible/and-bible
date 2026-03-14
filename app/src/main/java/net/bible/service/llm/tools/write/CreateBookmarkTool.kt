@@ -46,7 +46,6 @@ object CreateBookmarkTool : Tool {
     override val description = """
         Create a new bookmark at a verse or verse range.
         Bookmarks can include notes and be assigned to labels (categories/StudyPads).
-        The bookmark will be marked as AI-generated with a reference to this prompt.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
