@@ -79,7 +79,7 @@ object LlmProcessingService {
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
     internal data class ResolvedProvider(
-        val providerConfig: LlmProviderConfig?,
+        val providerConfig: LlmProviderConfig,
         val adapter: LlmApiAdapter,
         val model: String,
         val apiKey: String,
@@ -87,10 +87,10 @@ object LlmProcessingService {
     )
 
     /**
-     * Check if LLM is configured at all (legacy or new provider configs exist).
+     * Check if LLM is configured at all (any provider configs exist).
      */
     private fun isConfiguredAny(): Boolean =
-        CommonUtils.settings.llmConfigured || CommonUtils.settings.llmHasProviderConfigs
+        CommonUtils.settings.llmConfigured
 
     /**
      * Check if a specific llmConfig (or the global default) is configured.
@@ -105,52 +105,27 @@ object LlmProcessingService {
 
     /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
-     * Falls back to legacy global settings if no provider config is found.
      */
     internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
         val providerConfig = llmConfig?.resolveProviderConfig()
             ?: DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getDefault()
+            ?: throw IllegalStateException("No LLM provider configured")
 
-        return if (providerConfig != null) {
-            val model = llmConfig?.resolveModel(providerConfig) ?: providerConfig.resolveDefaultModel()
-            ResolvedProvider(
-                providerConfig = providerConfig,
-                adapter = providerConfig.resolveAdapter(),
-                model = model,
-                apiKey = providerConfig.getApiKey(),
-                endpoint = providerConfig.resolveEndpoint(),
-            )
-        } else {
-            // Legacy fallback: use old global settings
-            val settings = CommonUtils.settings
-            val provider = resolveProviderLegacy()
-            ResolvedProvider(
-                providerConfig = null,
-                adapter = provider.apiAdapter,
-                model = llmConfig?.model?.takeIf { it.isNotBlank() } ?: settings.llmModel,
-                apiKey = settings.llmApiKey,
-                endpoint = settings.llmEndpoint,
-            )
-        }
+        val model = llmConfig?.resolveModel(providerConfig) ?: providerConfig.resolveDefaultModel()
+        return ResolvedProvider(
+            providerConfig = providerConfig,
+            adapter = providerConfig.resolveAdapter(),
+            model = model,
+            apiKey = providerConfig.getApiKey(),
+            endpoint = providerConfig.resolveEndpoint(),
+        )
     }
 
     /**
      * Resolve the current provider and return its API adapter.
-     * Uses the default provider config if available, else falls back to legacy settings.
      */
     internal fun resolveAdapter(llmConfig: LlmModelConfig? = null): LlmApiAdapter {
         return resolveFromConfig(llmConfig).adapter
-    }
-
-    /**
-     * Resolve the current LLM provider from legacy settings.
-     */
-    private fun resolveProviderLegacy(): LlmProvider {
-        return try {
-            LlmProvider.valueOf(CommonUtils.settings.llmProvider)
-        } catch (_: IllegalArgumentException) {
-            LlmProvider.fromEndpoint(CommonUtils.settings.llmEndpoint)
-        }
     }
 
     /**
@@ -158,8 +133,8 @@ object LlmProcessingService {
      * UUID is generated once per call — callers in loops should call this once
      * before the loop and reuse the result across iterations.
      */
-    internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig? = null): Map<String, String> {
-        val provider = providerConfig?.resolveProvider() ?: resolveProviderLegacy()
+    internal fun buildProviderExtraHeaders(providerConfig: LlmProviderConfig): Map<String, String> {
+        val provider = providerConfig.resolveProvider()
         return when (provider) {
             LlmProvider.XAI -> mapOf("x-grok-conv-id" to UUID.randomUUID().toString())
             else -> emptyMap()
@@ -280,7 +255,7 @@ object LlmProcessingService {
                     is HttpCallResult.Success -> {
                         val usage = adapter.extractUsage(result.bodyJson)
                         if (usage.totalTokens > 0) {
-                            LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig?.id)
+                            LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig.id)
                         }
                         return LlmApiResponse(result.bodyJson, usage)
                     }

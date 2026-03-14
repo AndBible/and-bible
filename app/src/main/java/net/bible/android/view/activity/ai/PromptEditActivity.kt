@@ -40,11 +40,9 @@ import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
-import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
@@ -543,10 +541,8 @@ class PromptEditActivity : ActivityBase() {
             ?: providerConfigs.find { it.isDefault }
 
         val provider = providerConfig?.resolveProvider()
-            ?: try { LlmProvider.valueOf(CommonUtils.settings.llmProvider) } catch (_: IllegalArgumentException) { null }
 
-        val globalModel = providerConfig?.resolveDefaultModel()
-            ?: CommonUtils.settings.llmModel
+        val globalModel = providerConfig?.resolveDefaultModel() ?: ""
         val defaultSuffix = " (${getString(R.string.prompt_model_default)})"
         val customLabel = getString(R.string.prompt_model_custom)
 

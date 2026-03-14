@@ -705,7 +705,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                                 LlmCostTracker.reset(config.id)
                             }
                         }
-                        LlmCostTracker.reset() // Also reset legacy
                         updateUsageSummary()
                         refreshProviderList()
                     }
@@ -728,12 +727,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             totalOutput += usage.outputTokens
             totalCost += LlmCostTracker.getCumulativeCost(config.id)
         }
-
-        // Also add legacy usage
-        val legacyUsage = LlmCostTracker.getCumulativeUsage()
-        totalInput += legacyUsage.inputTokens
-        totalOutput += legacyUsage.outputTokens
-        totalCost += LlmCostTracker.getCumulativeCost()
 
         if (totalInput == 0L && totalOutput == 0L) {
             usageSummaryPref.summary = getString(R.string.llm_usage_summary_default)

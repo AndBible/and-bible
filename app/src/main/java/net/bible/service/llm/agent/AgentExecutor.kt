@@ -137,7 +137,7 @@ class AgentExecutor(
 
             // Emit per-operation usage
             if (callUsage.totalTokens > 0) {
-                emit(AgentEvent.ApiCallCompleted(callUsage))
+                emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model))
             }
 
             when (parsed) {
@@ -148,17 +148,17 @@ class AgentExecutor(
                         }
                         is ProcessToolsResult.FinishWithDocument -> {
                             Log.d(TAG, "Agent finished with document: ${result.title}")
-                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration, totalUsage, resolved.model))
                             return
                         }
                         is ProcessToolsResult.FinishWithoutDocument -> {
                             Log.d(TAG, "Agent finished without document: ${result.message}")
-                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration, totalUsage, resolved.model))
                             return
                         }
                         is ProcessToolsResult.FinishWithStudyPad -> {
                             Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
-                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration, totalUsage, resolved.model))
                             return
                         }
                     }
@@ -167,7 +167,7 @@ class AgentExecutor(
                     Log.d(TAG, "LLM returned final text response without tool call")
                     val normalizedContent = normalizeLlmText(parsed.content)
                     emit(AgentEvent.TextResponse(normalizedContent, isFinal = true))
-                    emit(AgentEvent.Completed(normalizedContent, iteration, totalUsage))
+                    emit(AgentEvent.Completed(normalizedContent, iteration, totalUsage, resolved.model))
                     return
                 }
                 is ParsedResponse.ParseError -> {

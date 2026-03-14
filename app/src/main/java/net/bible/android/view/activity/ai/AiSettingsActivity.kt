@@ -199,12 +199,6 @@ class AiSettingsActivity : ActivityBase() {
     }
 
     private fun resetAllAiSettings() {
-        val settings = CommonUtils.settings
-        settings.llmProvider = ""
-        settings.llmApiKey = ""
-        settings.llmEndpoint = ""
-        settings.llmModel = ""
-
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
                 val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()

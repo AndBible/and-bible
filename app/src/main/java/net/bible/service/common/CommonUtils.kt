@@ -124,7 +124,6 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
-import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
@@ -452,33 +451,8 @@ object CommonUtils : CommonUtilsBase() {
         val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
 
 
-        // LLM Translation Settings — legacy per-provider settings kept for migration only
-        var llmApiKey: String
-            get() = SecureStorage.getString("llm_api_key", "") ?: ""
-            set(value) = SecureStorage.setString("llm_api_key", value)
-
-        var llmProvider: String
-            get() = getString("llm_provider", "") ?: ""
-            set(value) = setString("llm_provider", value)
-
-        var llmEndpoint: String
-            get() = getString("llm_endpoint", "https://api.openai.com/v1") ?: "https://api.openai.com/v1"
-            set(value) = setString("llm_endpoint", value)
-
-        var llmModel: String
-            get() {
-                val raw = getString("llm_model", "") ?: ""
-                if (raw.isNotBlank()) return raw
-                val provider = try { LlmProvider.valueOf(llmProvider) } catch (_: IllegalArgumentException) { null }
-                return provider?.models?.firstOrNull() ?: ""
-            }
-            set(value) = setString("llm_model", value)
-
-        val llmConfigured: Boolean
-            get() = llmApiKey.isNotBlank()
-
         /** Check if any LlmProviderConfig exists in the database. */
-        val llmHasProviderConfigs: Boolean
+        val llmConfigured: Boolean
             get() = try {
                 DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
             } catch (_: Exception) { false }

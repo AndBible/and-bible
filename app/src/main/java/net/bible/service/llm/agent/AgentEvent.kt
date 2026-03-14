@@ -70,8 +70,9 @@ sealed class AgentEvent {
      * An API call completed with token usage information.
      *
      * @param usage Token usage from this API call
+     * @param model The model used for this API call
      */
-    data class ApiCallCompleted(val usage: LlmUsage) : AgentEvent()
+    data class ApiCallCompleted(val usage: LlmUsage, val model: String) : AgentEvent()
 
     /**
      * LLM returned a text response (potentially intermediate).
@@ -94,7 +95,8 @@ sealed class AgentEvent {
     data class Completed(
         val response: String,
         val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage()
+        val usage: LlmUsage = LlmUsage(),
+        val model: String = ""
     ) : AgentEvent()
 
     /**
@@ -110,7 +112,8 @@ sealed class AgentEvent {
     data class CompletedWithoutDocument(
         val message: String,
         val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage()
+        val usage: LlmUsage = LlmUsage(),
+        val model: String = ""
     ) : AgentEvent()
 
     /**
@@ -128,7 +131,8 @@ sealed class AgentEvent {
         val title: String,
         val content: String,
         val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage()
+        val usage: LlmUsage = LlmUsage(),
+        val model: String = ""
     ) : AgentEvent()
 
     /**
@@ -148,7 +152,8 @@ sealed class AgentEvent {
         val scrollToEntryId: IdType?,
         val message: String,
         val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage()
+        val usage: LlmUsage = LlmUsage(),
+        val model: String = ""
     ) : AgentEvent()
 
     /**
