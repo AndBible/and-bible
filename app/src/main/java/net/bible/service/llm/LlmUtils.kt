@@ -48,23 +48,23 @@ enum class LlmProvider(
         "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
         "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125),
         "gemini-3-flash" to p(0.15, 0.60),
-    ), "AIza", apiKeyUrl = "https://aistudio.google.com/apikey"),
+    ), apiKeyUrl = "https://aistudio.google.com/apikey"),
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1", listOf(
         "gpt-5-mini" to p(0.40, 1.60, 0.40, 0.10),
         "gpt-5-nano" to p(0.10, 0.40, 0.10, 0.025),
         "gpt-5.2" to p(2.00, 8.00, 2.00, 0.50),
         "gpt-4o-mini" to p(0.15, 0.60, 0.15, 0.075),
-    ), "sk-", apiKeyUrl = "https://platform.openai.com/api-keys"),
+    ), apiKeyUrl = "https://platform.openai.com/api-keys"),
     ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1", listOf(
         "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08),
         "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30),
         "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50),
-    ), "sk-ant-", ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys"),
+    ), apiFormat = ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys"),
     XAI("xAI (Grok)", "https://api.x.ai/v1", listOf(
         "grok-4-0709" to p(3.00, 15.00),
         "grok-4-1-fast-reasoning" to p(3.00, 15.00),
         "grok-3-mini" to p(0.30, 0.50),
-    ), "xai-", tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://console.x.ai/"),
+    ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://console.x.ai/"),
     MISTRAL("Mistral", "https://api.mistral.ai/v1", listOf(
         "mistral-small-latest" to p(0.10, 0.30),
         "mistral-large-latest" to p(2.00, 6.00),
