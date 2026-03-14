@@ -18,6 +18,8 @@
 package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
+import android.graphics.Typeface
+import android.util.TypedValue
 import android.os.Bundle
 import android.text.InputType
 import android.text.TextWatcher
@@ -53,6 +55,7 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
@@ -234,20 +237,50 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun showAddProviderTypeDialog() {
         val existingTypes = dao.all().map { it.providerType }.toSet()
-        // All providers. For non-CUSTOM: only show if not already added.
         val availableProviders = LlmProvider.entries.filter {
             it == LlmProvider.CUSTOM || it.name !in existingTypes
         }
 
-        val names = availableProviders.map {
-            if (it == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else it.displayName
-        }.toTypedArray()
+        // Build flat list with tier headers as null entries
+        val items = mutableListOf<Pair<String, LlmProvider?>>() // displayName to provider (null = header)
+        for (tier in ProviderTier.entries) {
+            val inTier = availableProviders.filter { it.tier == tier }
+            if (inTier.isEmpty()) continue
+            if (tier == ProviderTier.COMMUNITY) {
+                items.add(getString(R.string.ai_provider_tier_community) to null)
+            }
+            for (p in inTier) {
+                val name = if (p == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else p.displayName
+                items.add(name to p)
+            }
+        }
+
+        val adapter = object : ArrayAdapter<String>(
+            requireContext(), android.R.layout.simple_list_item_1, items.map { it.first }
+        ) {
+            override fun isEnabled(position: Int) = items[position].second != null
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = super.getView(position, convertView, parent)
+                val tv = view as TextView
+                if (items[position].second == null) {
+                    tv.setTypeface(tv.typeface, Typeface.BOLD)
+                    tv.setTextColor(resources.getColor(android.R.color.darker_gray, null))
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+                } else {
+                    tv.setTypeface(tv.typeface, Typeface.NORMAL)
+                    tv.setTextColor(resources.getColor(android.R.color.primary_text_light, null))
+                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                }
+                return view
+            }
+        }
 
         AlertDialog.Builder(requireContext())
             .setTitle(R.string.ai_provider_select_type)
-            .setItems(names) { _, which ->
-                val provider = availableProviders[which]
-                showEditProviderDialog(null, provider)
+            .setAdapter(adapter) { _, which ->
+                items[which].second?.let { provider ->
+                    showEditProviderDialog(null, provider)
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -387,7 +420,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val customPricingLabel = TextView(context).apply {
             text = getString(R.string.llm_custom_pricing_label)
             setTextAppearance(android.R.style.TextAppearance_Small)
-            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTypeface(typeface, Typeface.BOLD)
             val params = LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
             )
@@ -574,25 +607,20 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             val getKey = getString(R.string.ai_getting_started_get_api_key)
             val html = buildString {
                 append(getString(R.string.ai_getting_started_intro))
-                append("<br><br><b>${getString(R.string.ai_getting_started_providers)}</b><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_gemini)}</b><br>")
-                append("<a href=\"https://aistudio.google.com/apikey\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_openai)}</b><br>")
-                append("<a href=\"https://platform.openai.com/api-keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_anthropic)}</b><br>")
-                append("<a href=\"https://console.anthropic.com/settings/keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_xai)}</b><br>")
-                append("<a href=\"https://console.x.ai/\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_mistral)}</b><br>")
-                append("<a href=\"https://console.mistral.ai/api-keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_deepseek)}</b><br>")
-                append("<a href=\"https://platform.deepseek.com/api_keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_groq)}</b><br>")
-                append("<a href=\"https://console.groq.com/keys\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_alibaba)}</b><br>")
-                append("<a href=\"https://bailian.console.alibabacloud.com/?apiKey=1#/api-key\">$getKey</a><br><br>")
-                append("<b>${getString(R.string.ai_getting_started_openrouter)}</b><br>")
-                append("<a href=\"https://openrouter.ai/keys\">$getKey</a><br><br>")
+
+                val tierHeaders = mapOf(
+                    ProviderTier.RECOMMENDED to getString(R.string.ai_getting_started_recommended_providers),
+                    ProviderTier.COMMUNITY to getString(R.string.ai_getting_started_community_providers),
+                )
+                for (tier in listOf(ProviderTier.RECOMMENDED, ProviderTier.COMMUNITY, ProviderTier.UNCATEGORIZED)) {
+                    val providers = LlmProvider.entries.filter { it.tier == tier && it.apiKeyUrl != null }
+                    if (providers.isEmpty()) continue
+                    tierHeaders[tier]?.let { append("<br><br><b>$it</b><br><br>") } ?: append("<br>")
+                    for (p in providers) {
+                        append("<b>${p.displayName}</b><br>")
+                        append("<a href=\"${p.apiKeyUrl}\">$getKey</a><br><br>")
+                    }
+                }
                 append(getString(R.string.ai_getting_started_other))
             }
             val spanned = htmlToSpan(html)

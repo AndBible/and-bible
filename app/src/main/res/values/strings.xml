@@ -1420,18 +1420,11 @@
     <string name="ai_getting_started_title">Getting started</string>
     <string name="ai_getting_started_summary">How to get an API key</string>
     <string name="ai_getting_started_intro">AndBible connects to AI services via their APIs. You need an API key from a provider.</string>
-    <string name="ai_getting_started_providers">Supported providers:</string>
-    <string name="ai_getting_started_gemini">Google Gemini</string>
-    <string name="ai_getting_started_openai">OpenAI (ChatGPT)</string>
-    <string name="ai_getting_started_anthropic">Anthropic (Claude)</string>
-    <string name="ai_getting_started_xai">xAI (Grok)</string>
-    <string name="ai_getting_started_mistral">Mistral</string>
-    <string name="ai_getting_started_deepseek">DeepSeek</string>
-    <string name="ai_getting_started_groq">Groq</string>
-    <string name="ai_getting_started_alibaba">Alibaba Cloud (Qwen)</string>
-    <string name="ai_getting_started_openrouter">OpenRouter</string>
+    <string name="ai_getting_started_recommended_providers">Recommended providers:</string>
+    <string name="ai_getting_started_community_providers">Other providers (community, not officially tested):</string>
     <string name="ai_getting_started_get_api_key">Get API key</string>
     <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+    <string name="ai_provider_tier_community">Other providers (not tested)</string>
 
     <!-- Multi-provider settings -->
     <string name="ai_providers_category">Providers</string>
