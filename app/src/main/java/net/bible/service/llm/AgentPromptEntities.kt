@@ -107,8 +107,8 @@ data class LlmProviderConfig(
     val displayName: String,
     /** Custom endpoint URL (only used for CUSTOM providerType) */
     val endpoint: String? = null,
-    /** "OPENAI" or "ANTHROPIC" (only used for CUSTOM providerType) */
-    val apiFormat: String? = null,
+    /** API wire format (only used for CUSTOM providerType) */
+    val apiFormat: ApiFormat? = null,
     /** User's preferred model for this provider (null = provider's first model) */
     val defaultModel: String? = null,
     /** Whether this is the default provider for new prompts / global usage */
@@ -132,11 +132,7 @@ data class LlmProviderConfig(
     /** Effective API format: explicit for CUSTOM, from enum for known providers. */
     fun resolveApiFormat(): ApiFormat {
         val provider = resolveProvider()
-        return if (provider == LlmProvider.CUSTOM) {
-            try { ApiFormat.valueOf(apiFormat ?: ApiFormat.OPENAI.name) } catch (_: IllegalArgumentException) { ApiFormat.OPENAI }
-        } else {
-            provider.apiFormat
-        }
+        return if (provider == LlmProvider.CUSTOM) apiFormat ?: ApiFormat.OPENAI else provider.apiFormat
     }
 
     /** Get the LlmApiAdapter for this provider config. */

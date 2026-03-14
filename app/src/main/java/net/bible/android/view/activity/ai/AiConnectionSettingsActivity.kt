@@ -356,7 +356,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, formats).apply {
                     setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                 }
-                val currentFormat = config?.apiFormat ?: ApiFormat.OPENAI.name
+                val currentFormat = (config?.apiFormat ?: ApiFormat.OPENAI).name
                 val idx = formats.indexOf(currentFormat)
                 if (idx >= 0) setSelection(idx)
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
@@ -488,7 +488,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val displayName = fields.nameInput.text.toString().trim().ifEmpty { provider.displayName }
         val apiKey = fields.apiKeyInput.text.toString().trim()
         val endpoint = fields.endpointInput?.text?.toString()?.trim()
-        val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()
+        val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()?.let {
+            try { ApiFormat.valueOf(it) } catch (_: IllegalArgumentException) { null }
+        }
         val makeDefault = fields.defaultCheckBox?.isChecked == true
 
         val selectedModelPosition = fields.modelSpinner.selectedItemPosition
