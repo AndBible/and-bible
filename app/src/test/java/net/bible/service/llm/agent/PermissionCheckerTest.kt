@@ -33,7 +33,7 @@ class PermissionCheckerTest {
         promptPermissionMode: PermissionMode? = null,
         grantedWritePermission: Boolean = false,
         grantedAllToolsPermission: Boolean = false,
-    ): PermissionCheckResult = PermissionChecker.check(
+    ): PermissionCheckResult = checkPermission(
         tool = tool,
         settings = PermissionSettings(globalMode, permanentlyAllowedTools, permanentlyDeniedTools),
         promptAllowedTools = promptAllowedTools,
