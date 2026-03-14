@@ -125,9 +125,6 @@ class MyDocumentsActivity : ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.my_documents_options_menu, menu)
-        if (!net.bible.android.activity.BuildConfig.DEBUG) {
-            menu?.findItem(R.id.createDemoDocument)?.isVisible = false
-        }
         return true
     }
 
@@ -135,7 +132,6 @@ class MyDocumentsActivity : ActivityBase() {
         var isHandled = true
         when (item.itemId) {
             R.id.newItem -> createNewDocument()
-            R.id.createDemoDocument -> createDemoDocument()
             android.R.id.home -> onBackPressed()
             else -> isHandled = false
         }
@@ -261,132 +257,6 @@ class MyDocumentsActivity : ActivityBase() {
 
         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         dialog.show()
-    }
-
-    /**
-     * Debug function: Create a demo document with sample markdown content
-     */
-    private fun createDemoDocument() {
-        val name = "Demo Document ${dataSet.size + 1}"
-        val initials = MyDocumentBookManager.generateInitials(name)
-        val newDocument = MyDocument(
-            name = name,
-            description = "A demo document with sample markdown content",
-            initials = initials,
-            orderNumber = dataSet.size
-        )
-        dao.insert(newDocument)
-
-        // Create sample pages with markdown content
-        val pages = listOf(
-            Triple("intro", "Introduction", """
-# Welcome to My Documents
-
-This is a **demo document** created for testing the My Documents feature.
-
-## Features
-
-- Supports **bold** and *italic* text
-- Lists (like this one)
-- [Links to Bible references](sword://KJV/John.3.16)
-- Code blocks and more
-
-## Bible Links
-
-You can link to Bible verses:
-- [John 3:16](sword://KJV/John.3.16)
-- [Psalm 23](sword://KJV/Ps.23)
-- [Romans 8:28](sword://KJV/Rom.8.28)
-
----
-
-Navigate using the table of contents on the left.
-            """.trimIndent()),
-
-            Triple("theology", "Theological Notes", """
-# Theological Notes
-
-## The Trinity
-
-The doctrine of the Trinity teaches that:
-
-1. There is one God
-2. The Father is God
-3. The Son is God
-4. The Holy Spirit is God
-5. The Father, Son, and Holy Spirit are distinct persons
-
-### Key Verses
-
-> "Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit"
-> — [Matthew 28:19](sword://KJV/Matt.28.19)
-
-## Salvation by Grace
-
-| Concept | Description |
-|---------|-------------|
-| Grace | Unmerited favor from God |
-| Faith | Trust in Christ alone |
-| Works | Result of salvation, not cause |
-
-See [Ephesians 2:8-9](sword://KJV/Eph.2.8-9) for the key passage.
-            """.trimIndent()),
-
-            Triple("study", "Study Methods", """
-# Bible Study Methods
-
-## Inductive Bible Study
-
-The inductive method involves three steps:
-
-### 1. Observation
-*What does the text say?*
-
-- Read the passage multiple times
-- Note key words and phrases
-- Identify the literary genre
-
-### 2. Interpretation
-*What does the text mean?*
-
-```
-Context → Grammar → Word Study → Cross-references
-```
-
-### 3. Application
-*How does this apply to my life?*
-
-Ask yourself:
-- Is there a command to obey?
-- Is there a promise to claim?
-- Is there an example to follow?
-
----
-
-**Remember:** Always let Scripture interpret Scripture!
-            """.trimIndent())
-        )
-
-        pages.forEachIndexed { index, (key, title, content) ->
-            val page = MyDocumentPage(
-                documentId = newDocument.id,
-                title = title,
-                pageKey = key,
-                contentType = MyDocumentContentType.MARKDOWN,
-                orderNumber = index
-            )
-            dao.insertPageWithContent(page, content)
-        }
-
-        // Register the document with JSword
-        MyDocumentBookManager.registerDocument(newDocument)
-
-        // Update UI
-        dataSet.add(newDocument)
-        documentAdapter.notifyItemInserted(dataSet.size - 1)
-        binding.emptyView.visibility = View.GONE
-
-        Log.i(TAG, "Created demo document: ${newDocument.initials} with ${pages.size} pages")
     }
 
     private fun finishOk() {

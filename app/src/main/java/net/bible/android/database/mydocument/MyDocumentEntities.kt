@@ -89,7 +89,7 @@ data class MyDocumentPage(
 
 /**
  * Page content stored separately (like BookmarkNotes)
- * This optimizes queries when only metadata is needed
+ * This optimizes device sync when only metadata has changed
  */
 @Entity(
     foreignKeys = [

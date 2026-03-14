@@ -18,6 +18,7 @@
 package net.bible.android.view.util.widget
 
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
@@ -125,8 +126,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         val backgroundColor = if (lastWindow != null) {
             val colors = lastWindow.pageManager.actualTextDisplaySettings.colors
             val monochromeMode = CommonUtils.settings.monochromeMode
-            val nightBackground = if (monochromeMode) -16777216 else colors?.nightBackground
-            val dayBackground = if (monochromeMode) -1 else colors?.dayBackground
+            val nightBackground = if (monochromeMode) Color.BLACK else colors?.nightBackground
+            val dayBackground = if (monochromeMode) Color.WHITE else colors?.dayBackground
             (if (ScreenSettings.nightMode) nightBackground else dayBackground)
                 ?: UiUtils.bibleViewDefaultBackgroundColor
         } else {

@@ -1608,7 +1608,7 @@
     <string name="my_document_rename">Rename</string>
     <string name="my_document_edit_description">Edit description</string>
     <string name="my_document_delete">Delete</string>
-    <string name="my_document_create_demo">Create demo document (debug)</string>
+
     <string name="my_document_pages_title">%s - Pages</string>
     <string name="my_document_pages_empty">No pages in this document.</string>
     <string name="my_document_page_rename_title">Rename page</string>
