@@ -296,7 +296,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 if (!isNew) {
                     setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
                         dlg.dismiss()
-                        confirmDeleteProvider(config!!)
+                        confirmDeleteProvider(config)
                     }
                 }
             }
@@ -410,7 +410,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         layout.addView(customOutputPriceInput)
 
-        val defaultCheckBox = if (!isNew && !config!!.isDefault) {
+        val defaultCheckBox = if (!isNew && !config.isDefault) {
             CheckBox(context).apply {
                 text = getString(R.string.ai_provider_set_default)
                 val params = LinearLayout.LayoutParams(
@@ -464,7 +464,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        fields.customModelInput.addTextChangedListener(object : android.text.TextWatcher {
+        fields.customModelInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
@@ -517,12 +517,12 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                         val all = dao.all()
                         var order = 1
                         for (c in all) {
-                            if (c.id == config!!.id) continue
+                            if (c.id == config.id) continue
                             if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
                             order++
                         }
                     }
-                    val updated = config!!.copy(
+                    val updated = config.copy(
                         displayName = displayName,
                         endpoint = if (isCustom) endpoint else config.endpoint,
                         apiFormat = if (isCustom) apiFormat else config.apiFormat,
