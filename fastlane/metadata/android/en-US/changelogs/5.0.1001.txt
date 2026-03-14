@@ -1,0 +1,34 @@
+AI & LLM Features:
+- Comprehensive LLM agent system with tool calling, granular permissions, and document caching, experimental (23d22cf57)
+
+Other Features:
+- Whole-page bookmarks with OSIS fragment support (a74fb2a1a)
+- Genbook (generic book) support (826e2ac3e)
+- Markdown editor for notes with content type setting (b11214aaf)
+- Cloud synchronization for LLM and MyDocument databases (6b236760f, cc1e6c1b2)
+- SearchBible tool pagination with caching (940e51b60)
+- SWORD URI scheme support in BibleView (e40e865d8)
+- Text Display setting to disable infinite scroll (4a0ed2215)
+- Application and Text Display settings search/filter (3cf9d1878)
+- MyDocument pages viewer (463afe93d)
+- Backup/restore support for LLM and MyDocument databases (0acb16185)
+- Crash stack trace viewer in backup view (594556baf)
+
+Fixes:
+- Fix bookmark notes not saved when adding to existing bookmark (f921e612b)
+- Fix infinite scroll issue when reaching last page (25ff7730d)
+- Fix "allow for session" permission mode not working (7fbf52982)
+- Fix verse-notifier in MyDocuments (0b34a43bb)
+- Fix whole-page bookmark display with many genbook pages (5bb3d7c72)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
