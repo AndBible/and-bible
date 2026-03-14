@@ -337,7 +337,7 @@ class WorkspaceEntities {
                 val def = default
                 val result = TextDisplaySettings()
                 for(t in Types.values()) {
-                    result.setValue(t, pg?.getValue(t) ?: ws.getValue(t)?: def.getValue(t)!!)
+                    result.setValue(t, pg?.getValue(t) ?: ws.getValue(t) ?: def.getValue(t))
                 }
                 return result
             }
