@@ -62,6 +62,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
@@ -708,6 +709,35 @@ class BibleJavascriptInterface(
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    private val windowControl get() = bibleView.windowControl
+
+    @JavascriptInterface
+    fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey)
+            val jsonResult = if (result != null) {
+                json.encodeToString(serializer(), result)
+            } else {
+                "null"
+            }
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+        }
+    }
+
+    @JavascriptInterface
+    fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
+        scope.launch {
+            MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
+        }
+    }
+
+    @JavascriptInterface
+    fun reloadMyDocumentPage(bookInitials: String) {
+        scope.launch {
+            MyDocumentBookManager.refreshDocument(bookInitials)
         }
     }
 

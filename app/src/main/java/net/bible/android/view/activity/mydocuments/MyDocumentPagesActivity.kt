@@ -18,31 +18,47 @@
 package net.bible.android.view.activity.mydocuments
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MyDocumentPageListItemBinding
 import net.bible.android.activity.databinding.MyDocumentPagesSelectorBinding
+import net.bible.android.control.backup.BackupControl
 import net.bible.android.database.IdType
+import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.mydocument.MyDocumentBookManager
+import java.io.File
 
 private const val TAG = "MyDocPagesActivity"
 
@@ -147,6 +163,13 @@ class MyDocumentPagesActivity : ActivityBase() {
         binding.save.isEnabled = true
     }
 
+    private val importFileLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        importFile(uri)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         super.buildActivityComponent().inject(this)
@@ -218,14 +241,116 @@ class MyDocumentPagesActivity : ActivityBase() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.my_document_pages_options_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.newPage -> {
+                createNewPage()
+                return true
+            }
+            R.id.importPage -> {
+                importFileLauncher.launch(arrayOf("text/*"))
+                return true
+            }
             android.R.id.home -> {
                 onBackPressed()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun createNewPage() {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 16, 48, 0)
+        }
+
+        val nameEdit = EditText(this)
+        nameEdit.text = SpannableStringBuilder(getString(R.string.my_document_new_page_name, dataSet.size + 1))
+
+        val typeLabel = TextView(this).apply {
+            text = getString(R.string.my_document_content_type_label)
+            setPadding(0, 16, 0, 4)
+        }
+
+        val typeSpinner = Spinner(this)
+        val contentTypes = arrayOf("MARKDOWN", "HTML")
+        typeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, contentTypes)
+
+        layout.addView(nameEdit)
+        layout.addView(typeLabel)
+        layout.addView(typeSpinner)
+
+        nameEdit.selectAll()
+        nameEdit.requestFocus()
+
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(getString(R.string.my_document_create_page_title))
+            .setView(layout)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val title = nameEdit.text.toString().trim()
+                if (title.isNotEmpty()) {
+                    val contentType = if (typeSpinner.selectedItemPosition == 0)
+                        MyDocumentContentType.MARKDOWN else MyDocumentContentType.HTML
+                    addPageToList(title, contentType, "")
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        dialog.show()
+    }
+
+    private fun addPageToList(title: String, contentType: MyDocumentContentType, content: String) {
+        val pageId = IdType()
+        val page = MyDocumentPage(
+            id = pageId,
+            documentId = documentId,
+            title = title,
+            pageKey = "page_$pageId",
+            contentType = contentType,
+            orderNumber = dataSet.size
+        )
+        dao.insertPageWithContent(page, content)
+        dataSet.add(page)
+        pageAdapter.notifyItemInserted(dataSet.size - 1)
+        binding.emptyView.visibility = View.GONE
+        setDirty()
+    }
+
+    private fun importFile(uri: Uri) {
+        try {
+            val fileName = getFileName(uri) ?: "Imported"
+            val content = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: return
+
+            val contentType = when {
+                fileName.endsWith(".html", ignoreCase = true) || fileName.endsWith(".htm", ignoreCase = true) ->
+                    MyDocumentContentType.HTML
+                else -> MyDocumentContentType.MARKDOWN
+            }
+
+            val title = fileName.substringBeforeLast(".")
+            addPageToList(title, contentType, content)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to import file", e)
+            android.widget.Toast.makeText(this, R.string.error_occurred, android.widget.Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun getFileName(uri: Uri): String? {
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex >= 0 && cursor.moveToFirst()) {
+                return cursor.getString(nameIndex)
+            }
+        }
+        return uri.lastPathSegment
     }
 
     private fun finishOk() {
@@ -268,6 +393,9 @@ class MyDocumentPagesActivity : ActivityBase() {
         val position = dataSet.indexOf(page)
 
         when (item?.itemId) {
+            R.id.exportPage -> {
+                exportPage(page)
+            }
             R.id.deletePage -> {
                 AlertDialog.Builder(this)
                     .setMessage(getString(R.string.my_document_page_delete_confirmation, page.title))
@@ -304,6 +432,28 @@ class MyDocumentPagesActivity : ActivityBase() {
             }
         }
         return false
+    }
+
+    private fun exportPage(page: MyDocumentPage) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val pageWithContent = dao.pageByIdWithContent(page.id) ?: return@launch
+            val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+            val sanitizedTitle = page.title.replace(Regex("[^a-zA-Z0-9._\\- ]"), "").take(50).ifEmpty { "page" }
+            val fileName = "$sanitizedTitle.$ext"
+            val targetDir = File(SharedConstants.internalFilesDir, "export/")
+            targetDir.mkdirs()
+            val targetFile = File(targetDir, fileName)
+            targetFile.writeText(pageWithContent.content ?: "")
+            val mimeType = if (ext == "html") "text/html" else "text/markdown"
+            BackupControl.saveOrShare(
+                activity = this@MyDocumentPagesActivity,
+                file = targetFile,
+                fileName = fileName,
+                shareMimeType = mimeType,
+                saveMimeType = mimeType,
+                chooserTitle = getString(R.string.my_document_export_page),
+            )
+        }
     }
 
     override fun onBackPressed() {

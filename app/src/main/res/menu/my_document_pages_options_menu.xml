@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -18,13 +18,12 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/renamePage"
-        android:title="@string/my_document_page_rename"
+    <item android:id="@+id/newPage"
+        android:title="@string/my_document_create_page_title"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_circle_outline_white_24dp"
         />
-    <item android:id="@+id/exportPage"
-        android:title="@string/my_document_page_export"
-        />
-    <item android:id="@+id/deletePage"
-        android:title="@string/my_document_page_delete"
+    <item android:id="@+id/importPage"
+        android:title="@string/my_document_import_page"
         />
 </menu>

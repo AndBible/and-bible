@@ -960,7 +960,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
     enum class AiDocumentAction(val value: String) {
         DELETE("delete"),
-        REGENERATE("regenerate");
+        REGENERATE("regenerate"),
+        EDIT("edit");
 
         companion object {
             fun fromString(action: String?): AiDocumentAction? =
@@ -1252,6 +1253,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     }
                     .setNegativeButton(R.string.no, null)
                     .show()
+            }
+            AiDocumentAction.EDIT -> {
+                executeJavascriptOnUiThread("bibleView.emit('start_mydocument_edit');")
             }
             AiDocumentAction.REGENERATE -> {
                 val errorDoc = ErrorDocument(
