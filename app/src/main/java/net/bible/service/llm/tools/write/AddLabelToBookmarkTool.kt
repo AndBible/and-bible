@@ -67,6 +67,16 @@ object AddLabelToBookmarkTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
+        val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
+        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        val labelName = label?.name ?: shortId(labelId)
+        return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null

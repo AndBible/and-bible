@@ -82,6 +82,18 @@ interface Tool {
     suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult
 
     /**
+     * Format a human-readable description of the specific action this tool will perform
+     * with the given arguments. Used in the permission dialog to show the user exactly
+     * what will happen (e.g. "Create bookmark at Matthew 5:3" instead of the generic description).
+     *
+     * Unlike [formatArgsForLog], this method resolves IDs to human-readable names
+     * (e.g. bookmark ID → verse reference, label ID → label name) via database lookups.
+     *
+     * @return A human-readable action description, or null to fall back to [description]
+     */
+    suspend fun formatActionDescription(arguments: JSONObject): String? = null
+
+    /**
      * Format tool arguments for human-readable display in the agent log.
      * Return null to fall back to the generic [formatJsonForLog] formatter.
      */

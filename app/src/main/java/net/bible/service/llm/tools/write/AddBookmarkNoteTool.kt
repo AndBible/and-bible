@@ -73,6 +73,13 @@ object AddBookmarkNoteTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
+        val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
+        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        return BibleApplication.application.getString(R.string.action_add_note_to_bookmark_at, verseName)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(bookmarkId)

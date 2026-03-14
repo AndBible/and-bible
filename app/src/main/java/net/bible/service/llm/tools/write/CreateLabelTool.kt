@@ -67,6 +67,11 @@ object CreateLabelTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
+        return BibleApplication.application.getString(R.string.action_create_label, name)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$name\""

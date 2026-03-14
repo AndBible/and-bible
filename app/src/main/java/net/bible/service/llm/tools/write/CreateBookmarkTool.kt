@@ -85,6 +85,26 @@ object CreateBookmarkTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val app = BibleApplication.application
+        val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
+        val verseName = localizeVerseRef(verseRef)
+        val extras = mutableListOf<String>()
+        if (arguments.has("note") && !arguments.isNull("note")) extras.add(app.getString(R.string.action_with_note))
+        val labelIds = arguments.optJSONArray("labelIds")
+        if (labelIds != null && labelIds.length() > 0) {
+            val names = (0 until labelIds.length()).mapNotNull { i ->
+                try { bookmarkControl.labelById(IdType(labelIds.getString(i)))?.name } catch (_: Exception) { null }
+            }
+            if (names.isNotEmpty()) extras.add(app.getString(R.string.action_labels, names.joinToString(", ")))
+        }
+        return if (extras.isEmpty()) {
+            app.getString(R.string.action_create_bookmark_at, verseName)
+        } else {
+            app.getString(R.string.action_create_bookmark_at_with_extras, verseName, extras.joinToString(", "))
+        }
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
         val verseName = localizeVerseRef(verseRef)

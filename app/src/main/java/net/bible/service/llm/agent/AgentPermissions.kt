@@ -63,7 +63,7 @@ data class PermissionSettings(
  *    - DENY_ALL → deny
  *    - ALLOW_ALL → allow
  *    - ASK_ONCE_PER_RUN → allow if session-granted, else dialog
- *    - ALWAYS_ASK → dialog
+ *    - ALWAYS_ASK → allow if session-granted, else dialog
  */
 fun checkPermission(
     tool: AgentTool,
@@ -122,6 +122,12 @@ fun checkPermission(
                 PermissionCheckResult.NeedsDialog
             }
         }
-        PermissionMode.ALWAYS_ASK -> PermissionCheckResult.NeedsDialog
+        PermissionMode.ALWAYS_ASK -> {
+            if (grantedWritePermission) {
+                PermissionCheckResult.Allowed
+            } else {
+                PermissionCheckResult.NeedsDialog
+            }
+        }
     }
 }
