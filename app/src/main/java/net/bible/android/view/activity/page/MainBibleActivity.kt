@@ -397,9 +397,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
-        if (!CommonUtils.settings.aiTextProcessingEnabled) {
-            navigationView.menu.findItem(R.id.managePrompts).isVisible = false
-        }
+        navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -441,7 +439,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 currentSliderOffset = slideOffset
             }
 
-            override fun onDrawerOpened(drawerView: View) {}
+            override fun onDrawerOpened(drawerView: View) {
+                navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+            }
 
             override fun onDrawerClosed(drawerView: View) {
                 windowRepository.activeWindow.bibleView?.requestFocus()
