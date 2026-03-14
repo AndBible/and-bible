@@ -368,7 +368,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private fun findCachedPage(
         prompt: AgentPrompt,
         cacheableContext: CacheableContext
-    ): net.bible.android.database.mydocument.MyDocumentPageWithContent? {
+    ): net.bible.android.database.mydocument.AiCachedPageWithContent? {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
 
         return if (prompt.strictContextMatching) {
@@ -729,12 +729,19 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        // Get stored context for regeneration
-        val kjvOrdinalStart = page.kjvOrdinalStart
-        val kjvOrdinalEnd = page.kjvOrdinalEnd
+        // Get cache entry for regeneration context
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val cacheEntry = dao.getCacheEntry(pageId)
+        if (cacheEntry == null) {
+            Log.w(TAG, "Cannot regenerate: no cache entry for page: $pageId")
+            return false
+        }
+
+        val kjvOrdinalStart = cacheEntry.kjvOrdinalStart
+        val kjvOrdinalEnd = cacheEntry.kjvOrdinalEnd
 
         // Parse stored context to get book initials
-        val storedContext = page.sourceContext?.let {
+        val storedContext = cacheEntry.sourceContext?.let {
             try {
                 decodeFromString<CacheableContext>(it)
             } catch (e: Exception) {

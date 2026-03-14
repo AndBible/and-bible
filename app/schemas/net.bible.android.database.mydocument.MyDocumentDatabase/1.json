@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "e31c653a8e2dab0e82f98a5853be1df4",
+    "identityHash": "3d9da6a85cf175bed7debb4a3edb195c",
     "entities": [
       {
         "tableName": "MyDocument",
@@ -75,7 +75,7 @@
       },
       {
         "tableName": "MyDocumentPage",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `documentId` BLOB NOT NULL, `title` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `contentType` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `sourcePromptId` BLOB, `sourceContext` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`documentId`) REFERENCES `MyDocument`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `documentId` BLOB NOT NULL, `title` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `contentType` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `sourcePromptId` BLOB, `languageCode` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`documentId`) REFERENCES `MyDocument`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -131,8 +131,8 @@
             "affinity": "BLOB"
           },
           {
-            "fieldPath": "sourceContext",
-            "columnName": "sourceContext",
+            "fieldPath": "languageCode",
+            "columnName": "languageCode",
             "affinity": "TEXT"
           }
         ],
@@ -200,6 +200,92 @@
             "pageId"
           ]
         },
+        "foreignKeys": [
+          {
+            "table": "MyDocumentPage",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pageId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "AiPageCacheEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pageId` BLOB NOT NULL, `sourcePromptId` BLOB NOT NULL, `sourceContext` TEXT, `kjvOrdinalStart` INTEGER, `kjvOrdinalEnd` INTEGER, `contextHash` TEXT, `usedWriteTools` INTEGER NOT NULL, PRIMARY KEY(`pageId`), FOREIGN KEY(`pageId`) REFERENCES `MyDocumentPage`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "pageId",
+            "columnName": "pageId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePromptId",
+            "columnName": "sourcePromptId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceContext",
+            "columnName": "sourceContext",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "kjvOrdinalStart",
+            "columnName": "kjvOrdinalStart",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "kjvOrdinalEnd",
+            "columnName": "kjvOrdinalEnd",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "contextHash",
+            "columnName": "contextHash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usedWriteTools",
+            "columnName": "usedWriteTools",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pageId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AiPageCacheEntry_sourcePromptId_contextHash",
+            "unique": false,
+            "columnNames": [
+              "sourcePromptId",
+              "contextHash"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_sourcePromptId_contextHash` ON `${TABLE_NAME}` (`sourcePromptId`, `contextHash`)"
+          },
+          {
+            "name": "index_AiPageCacheEntry_sourcePromptId_kjvOrdinalStart_kjvOrdinalEnd",
+            "unique": false,
+            "columnNames": [
+              "sourcePromptId",
+              "kjvOrdinalStart",
+              "kjvOrdinalEnd"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_sourcePromptId_kjvOrdinalStart_kjvOrdinalEnd` ON `${TABLE_NAME}` (`sourcePromptId`, `kjvOrdinalStart`, `kjvOrdinalEnd`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "MyDocumentPage",
@@ -360,11 +446,15 @@
       {
         "viewName": "MyDocumentPageWithContent",
         "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.*, c.content\n    FROM MyDocumentPage p\n    LEFT OUTER JOIN MyDocumentPageContent c ON p.id = c.pageId"
+      },
+      {
+        "viewName": "AiCachedPageWithContent",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.*, p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId"
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e31c653a8e2dab0e82f98a5853be1df4')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3d9da6a85cf175bed7debb4a3edb195c')"
     ]
   }
 }

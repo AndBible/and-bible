@@ -23,6 +23,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.AiPageCacheEntry
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.CacheableContext
@@ -472,16 +473,21 @@ object MyDocumentBookManager {
             contentType = MyDocumentContentType.MARKDOWN,
             orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
             sourcePromptId = sourcePromptId,
+            languageCode = Locale.getDefault().language
+        )
+
+        val cacheEntry = AiPageCacheEntry(
+            pageId = pageId,
+            sourcePromptId = sourcePromptId,
             sourceContext = cacheableContext.toJson(),
             kjvOrdinalStart = cacheableContext.kjvOrdinalStart,
             kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
             contextHash = cacheableContext.computeHash(),
-            usedWriteTools = usedWriteTools,
-            languageCode = Locale.getDefault().language
+            usedWriteTools = usedWriteTools
         )
 
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId
-        dao.insertPageWithContent(page, response)
+        dao.insertPageWithCacheEntry(page, response, cacheEntry)
         refreshDocument(aiDocument.initials)
 
         Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")
