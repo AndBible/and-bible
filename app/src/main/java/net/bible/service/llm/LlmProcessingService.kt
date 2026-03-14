@@ -37,10 +37,28 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
 
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import net.bible.android.database.IdType
+import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.agent.EntryStatus
+import net.bible.service.llm.agent.LogEntryType
+import net.bible.service.llm.processors.PromptProcessor
+import net.bible.service.llm.processors.TranslationProcessor
+import net.bible.service.llm.tools.ToolRegistry
+import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.formatJsonForLog
+import org.json.JSONObject
 import java.io.IOException
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -60,12 +78,21 @@ data class LlmApiResponse(
 /** Exception thrown when LLM processing fails */
 class LlmProcessingError(message: String) : Exception(message)
 
+/** Silent exception - request was superseded, no error display needed */
+class LlmRequestSuperseded : Exception("Request superseded")
+
+/** Tracks state of a pending request for a specific document:key */
+private data class RequestState(
+    val deferred: CompletableDeferred<String>,
+    val job: Job,
+)
 
 /**
- * Service for LLM API communication.
+ * Service for LLM API communication and document processing.
  *
  * Provides the core API call infrastructure used by AgentExecutor
- * for agent-based LLM interactions.
+ * for agent-based LLM interactions, and document-level processing
+ * for LLM Mode (AI Text Processing).
  */
 object LlmProcessingService {
     private val activeRequests = AtomicInteger(0)
@@ -73,11 +100,325 @@ object LlmProcessingService {
     /** Check if any LLM processing is currently active */
     val isRunning: Boolean get() = activeRequests.get() > 0
 
+    // Track pending requests per full cache key (doc:key:type:params)
+    // Used for request deduplication - same request returns same Deferred
+    private val pendingRequests = ConcurrentHashMap<String, RequestState>()
+
+    // Mutex for coroutine-safe state management
+    private val requestsMutex = Mutex()
+
     private val client = OkHttpClient.Builder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
+
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProcessingDao()
+
+    /** Registered processors by their ID */
+    private val processors = ConcurrentHashMap<String, LlmProcessor>()
+
+    init {
+        // Register built-in processors
+        registerProcessor(TranslationProcessor)
+        registerProcessor(PromptProcessor)
+    }
+
+    /**
+     * Register a processor for use with this service.
+     */
+    fun registerProcessor(processor: LlmProcessor) {
+        processors[processor.processorId] = processor
+        Log.i(TAG, "Registered processor: ${processor.processorId}")
+    }
+
+    /**
+     * Get a processor by ID.
+     */
+    fun getProcessor(processorId: String): LlmProcessor? = processors[processorId]
+
+    /**
+     * Result of checking cache for processed content.
+     */
+    data class CacheResult(
+        val processedXml: String?,
+        val documentNeeded: Boolean
+    )
+
+    /**
+     * Check if cached processed content exists.
+     */
+    fun getCached(cacheKey: CacheKey): CacheResult {
+        if (!isConfiguredAny()) {
+            return CacheResult(null, true)
+        }
+
+        val cached = dao.get(
+            cacheKey.documentInitials,
+            cacheKey.keyName,
+            cacheKey.processingType,
+            cacheKey.processingParams,
+            cacheKey.modelId
+        )
+
+        return if (cached != null) {
+            Log.d(TAG, "Cache hit for ${cacheKey.documentInitials}:${cacheKey.keyName} [${cacheKey.processingType}/${cacheKey.processingParams}]")
+            CacheResult(cached.processedXml, false)
+        } else {
+            Log.d(TAG, "Cache miss for ${cacheKey.documentInitials}:${cacheKey.keyName} [${cacheKey.processingType}/${cacheKey.processingParams}]")
+            CacheResult(null, true)
+        }
+    }
+
+    /**
+     * Check if a chapter-level cache entry exists for a verse-level key.
+     */
+    fun getCachedChapter(cacheKey: CacheKey): CacheResult {
+        if (!isConfiguredAny()) return CacheResult(null, true)
+
+        val chapterKey = cacheKey.keyName.substringBeforeLast('.', cacheKey.keyName)
+        if (chapterKey == cacheKey.keyName) return CacheResult(null, true)
+
+        val cached = dao.get(cacheKey.documentInitials, chapterKey, cacheKey.processingType, cacheKey.processingParams, cacheKey.modelId)
+        return if (cached != null) {
+            Log.d(TAG, "Chapter cache hit for ${cacheKey.keyName} via chapter $chapterKey")
+            CacheResult(cached.processedXml, false)
+        } else {
+            CacheResult(null, true)
+        }
+    }
+
+    /**
+     * Process content with tool calling support.
+     * Used by LlmProcessedBackend for chapter-level processing.
+     */
+    suspend fun processWithTools(
+        processor: LlmProcessor,
+        cacheKey: CacheKey,
+        xmlContent: String,
+        maxIterations: Int = 5,
+        llmConfig: LlmModelConfig? = null
+    ): String {
+        if (!isConfigured(llmConfig)) {
+            Log.d(TAG, "LLM not configured, returning original content")
+            return xmlContent
+        }
+
+        val requestKey = "${cacheKey.documentInitials}:${cacheKey.keyName}:${cacheKey.processingType}:${cacheKey.processingParams}:${cacheKey.modelId}"
+        Log.d(TAG, "processWithTools START: key=${cacheKey.keyName}, requestKey=$requestKey")
+
+        var isNewRequest = false
+        val requestState = requestsMutex.withLock {
+            val existing = pendingRequests[requestKey]
+            if (existing != null) {
+                Log.d(TAG, "processWithTools: REUSING existing request for $requestKey")
+                existing
+            } else {
+                val deferred = CompletableDeferred<String>()
+                val state = RequestState(deferred, Job())
+                pendingRequests[requestKey] = state
+                isNewRequest = true
+                Log.d(TAG, "processWithTools: created NEW request for $requestKey")
+                state
+            }
+        }
+
+        if (!isNewRequest) {
+            return requestState.deferred.await()
+        }
+
+        val resultDeferred = requestState.deferred
+
+        return coroutineScope {
+            val job = async {
+                try {
+                    requestsMutex.withLock {
+                        pendingRequests[requestKey]?.let {
+                            pendingRequests[requestKey] = it.copy(job = coroutineContext[Job]!!)
+                        }
+                    }
+                    doProcessWithTools(processor, cacheKey, xmlContent, maxIterations, llmConfig)
+                } finally {
+                    requestsMutex.withLock {
+                        pendingRequests.remove(requestKey)
+                    }
+                }
+            }
+
+            try {
+                val result = job.await()
+                resultDeferred.complete(result)
+                result
+            } catch (e: CancellationException) {
+                val superseded = LlmRequestSuperseded()
+                resultDeferred.completeExceptionally(superseded)
+                throw superseded
+            } catch (e: Exception) {
+                resultDeferred.completeExceptionally(e)
+                throw e
+            }
+        }
+    }
+
+    /**
+     * Internal implementation of processWithTools -- handles the tool-calling loop.
+     * Uses the ChatMessage-based API for provider-agnostic message handling.
+     */
+    private suspend fun doProcessWithTools(
+        processor: LlmProcessor,
+        cacheKey: CacheKey,
+        xmlContent: String,
+        maxIterations: Int,
+        llmConfig: LlmModelConfig? = null
+    ): String {
+        val session = AgentSessionManager.getCurrentSession()
+        val manageSession = session != null && !session.isRunning
+        val systemPrompt = processor.getSystemPrompt(cacheKey.processingParams)
+        val resolved = resolveFromConfig(llmConfig)
+        val adapter = resolved.adapter
+        val toolDefs = ToolRegistry.getToolDefinitions(includeWriteTools = false)
+        val modelId = resolved.model
+
+        Log.d(TAG, "doProcessWithTools: ${cacheKey.documentInitials}:${cacheKey.keyName} with ${processor.processorId}, tools=${toolDefs.size}")
+
+        if (manageSession) {
+            session!!.start(AgentContext(promptId = IdType.empty()))
+            session.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}..."))
+        }
+
+        val messages = mutableListOf(
+            ChatMessage(ChatMessage.Role.SYSTEM, systemPrompt),
+            ChatMessage(ChatMessage.Role.USER, xmlContent)
+        )
+
+        val startTime = System.currentTimeMillis()
+        val loopHeaders = buildProviderExtraHeaders(resolved.providerConfig)
+        var totalUsage = LlmUsage()
+
+        try {
+            for (iteration in 0 until maxIterations) {
+                currentCoroutineContext().ensureActive()
+                Log.d(TAG, "doProcessWithTools: iteration ${iteration + 1}")
+                session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName}: iteration ${iteration + 1}"))
+
+                val apiResponse = callLlmApiWithTools(messages, toolDefs, llmConfig, loopHeaders)
+                val parsed = adapter.parseResponse(apiResponse.responseBody)
+                totalUsage += apiResponse.usage
+
+                if (apiResponse.usage.totalTokens > 0) {
+                    val cost = LlmPricing.estimateCost(apiResponse.usage, modelId)
+                    if (cost != null) {
+                        session?.setLastEntryCost(LlmCostTracker.formatCost(cost))
+                    }
+                }
+
+                when (parsed) {
+                    is ParsedResponse.TextResponse -> {
+                        val result = cleanXmlResponse(parsed.content)
+                        val duration = System.currentTimeMillis() - startTime
+                        Log.d(TAG, "doProcessWithTools completed in ${duration}ms (output: ${result.length} chars)")
+
+                        if (result.isBlank()) {
+                            Log.w(TAG, "LLM returned empty/blank content for ${cacheKey.keyName}")
+                            session?.addLogEntry(AgentLogEntry.error("Empty response for ${cacheKey.keyName}"))
+                            if (manageSession) session!!.stop()
+                            throw LlmProcessingError(application.getString(R.string.llm_empty_llm_response))
+                        }
+
+                        dao.insert(LlmProcessingCacheEntry(
+                            documentInitials = cacheKey.documentInitials,
+                            keyName = cacheKey.keyName,
+                            processingType = cacheKey.processingType,
+                            processingParams = cacheKey.processingParams,
+                            modelId = modelId,
+                            processedXml = result,
+                            createdAt = System.currentTimeMillis(),
+                            languageCode = processor.getLanguageCode(cacheKey.processingParams)
+                        ))
+
+                        session?.addLogEntry(AgentLogEntry.info("Processing ${cacheKey.keyName} complete"))
+                        if (totalUsage.totalTokens > 0) {
+                            val totalCost = LlmPricing.estimateCost(totalUsage, modelId)
+                            if (totalCost != null) {
+                                session?.setLastEntryCost(application.getString(R.string.llm_cost_total, LlmCostTracker.formatCost(totalCost)), isTotalCost = true)
+                            }
+                        }
+                        if (manageSession) session!!.stop("Processing complete")
+                        return result
+                    }
+                    is ParsedResponse.ToolCalls -> {
+                        // Add assistant message with tool calls using the adapter helper
+                        messages.add(adapter.createAssistantToolCallMessage(parsed.toolCalls, parsed.content))
+
+                        val toolResultBlocks = mutableListOf<ToolResultBlock>()
+
+                        for (toolCall in parsed.toolCalls) {
+                            val tool = ToolRegistry.get(toolCall.tool)
+                            val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: toolCall.tool.camelCaseName
+
+                            val argsDetails = tool?.let {
+                                val args = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+                                args?.let { a -> it.formatArgsForLog(a) }
+                            } ?: formatJsonForLog(toolCall.arguments)
+                            session?.addLogEntry(AgentLogEntry.action("Tool: $displayName", details = argsDetails))
+
+                            if (tool == null || tool.requiresPermission) {
+                                val errorJson = """{"status":"error","message":"Tool not available: ${toolCall.tool.camelCaseName}"}"""
+                                toolResultBlocks.add(ToolResultBlock(toolCall.id, errorJson))
+                                session?.addLogEntry(AgentLogEntry.error("Tool not available: $displayName"))
+                                continue
+                            }
+
+                            val context = AgentContext(promptId = IdType.empty())
+                            val toolResult = tool.execute(toolCall.parseArguments(), context)
+                            toolResultBlocks.add(ToolResultBlock(toolCall.id, toolResult.toJson()))
+
+                            val isSuccess = toolResult is ToolResult.Success
+                            session?.addLogEntry(AgentLogEntry(
+                                type = LogEntryType.ACTION,
+                                message = if (isSuccess) "\u2713 $displayName" else "\u2717 $displayName",
+                                status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
+                            ))
+                        }
+
+                        // Add tool result messages using the adapter helper
+                        messages.addAll(adapter.createToolResultMessages(toolResultBlocks))
+                    }
+                    is ParsedResponse.ParseError -> {
+                        session?.addLogEntry(AgentLogEntry.error(parsed.error))
+                        if (manageSession) session!!.stop()
+                        throw LlmProcessingError(parsed.error)
+                    }
+                }
+            }
+
+            session?.addLogEntry(AgentLogEntry.error("Max iterations reached for ${cacheKey.keyName}"))
+            if (manageSession) session!!.stop()
+            throw LlmProcessingError("Max tool iterations reached")
+        } catch (e: CancellationException) {
+            if (manageSession) session!!.stop(application.getString(R.string.agent_log_cancelled))
+            throw e
+        } catch (e: LlmProcessingError) {
+            throw e
+        } catch (e: Exception) {
+            val duration = System.currentTimeMillis() - startTime
+            Log.e(TAG, "doProcessWithTools failed after ${duration}ms: ${e.javaClass.simpleName}: ${e.message}")
+            session?.addLogEntry(AgentLogEntry.error(e.message ?: "Unknown error"))
+            if (manageSession) session!!.stop()
+            throw LlmProcessingError(application.getString(R.string.llm_processing_failed, e.message))
+        }
+    }
+
+    /**
+     * Clean up LLM response that should be XML.
+     */
+    private fun cleanXmlResponse(content: String): String {
+        return content.trim()
+            .removePrefix("```xml")
+            .removePrefix("```")
+            .removeSuffix("```")
+            .trim()
+    }
 
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
@@ -282,5 +623,33 @@ object LlmProcessingService {
             activeRequests.decrementAndGet()
         }
     }
+
+    /**
+     * Cancel all pending LLM requests.
+     */
+    fun cancelAllPendingRequests() {
+        val requests = pendingRequests.toMap()
+        if (requests.isEmpty()) return
+        Log.i(TAG, "Cancelling ${requests.size} pending LLM request(s)")
+        for ((key, state) in requests) {
+            Log.d(TAG, "Cancelling stale request: $key")
+            state.job.cancel()
+        }
+    }
+
+    fun clearCache() {
+        dao.deleteAll()
+        clearAllProcessedBooks()
+        Log.i(TAG, "LLM processing cache cleared")
+    }
+
+    fun clearCacheByType(processingType: String) {
+        dao.deleteByType(processingType)
+        Log.i(TAG, "LLM processing cache cleared for type: $processingType")
+    }
+
+    fun getCacheCount(): Int = dao.count()
+
+    fun getCacheCountByType(processingType: String): Int = dao.countByType(processingType)
 
 }

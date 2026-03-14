@@ -201,6 +201,14 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
+            android:name=".view.activity.ai.LlmCacheActivity"
+            android:label="@string/llm_cache_management_title"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".view.activity.ai.CacheEntryDetailActivity"
+            android:label="@string/llm_cache_entry_detail_title"
+            android:theme="@style/AppTheme" />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

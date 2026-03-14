@@ -19,4 +19,24 @@ package net.bible.android.database.migrations
 
 import androidx.room.migration.Migration
 
-val aiSettingsMigrations: Array<Migration> = arrayOf()
+private val addLlmProcessingCacheEntry = makeMigration(1..2) { db ->
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `LlmProcessingCacheEntry` (
+            `documentInitials` TEXT NOT NULL,
+            `keyName` TEXT NOT NULL,
+            `processingType` TEXT NOT NULL,
+            `processingParams` TEXT NOT NULL,
+            `modelId` TEXT NOT NULL,
+            `processedXml` TEXT NOT NULL,
+            `createdAt` INTEGER NOT NULL,
+            `languageCode` TEXT DEFAULT NULL,
+            PRIMARY KEY(`documentInitials`, `keyName`, `processingType`, `processingParams`, `modelId`)
+        )
+    """.trimIndent())
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_processingType` ON `LlmProcessingCacheEntry` (`processingType`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProcessingCacheEntry_modelId` ON `LlmProcessingCacheEntry` (`modelId`)")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(
+    addLlmProcessingCacheEntry,
+)

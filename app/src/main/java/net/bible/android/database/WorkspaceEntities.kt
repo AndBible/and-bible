@@ -172,6 +172,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -199,6 +200,7 @@ class WorkspaceEntities {
             INFINITE_SCROLL,
             NON_STRONGS_WORD_ITALIC,
             TITLE_SCROLL_BUTTON,
+            LLM_PROMPT,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -227,6 +229,7 @@ class WorkspaceEntities {
             Types.INFINITE_SCROLL -> infiniteScroll
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
             Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
+            Types.LLM_PROMPT -> llmPromptId
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -256,6 +259,7 @@ class WorkspaceEntities {
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
                 Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
+                Types.LLM_PROMPT -> llmPromptId = value as IdType?
             }
         }
 
@@ -316,7 +320,8 @@ class WorkspaceEntities {
                 showPageNumber = false,
                 infiniteScroll = true,
                 nonStrongsWordItalic = false,
-                showTitleScrollButton = false
+                showTitleScrollButton = false,
+                llmPromptId = null
             )
 
             fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {

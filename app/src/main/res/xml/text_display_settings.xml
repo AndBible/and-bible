@@ -84,6 +84,7 @@
             android:title="@string/prefs_infinite_scroll_title"
             android:summary="@string/prefs_infinite_scroll_summary"
             />
+        <Preference android:key="LLM_PROMPT" />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_appearance_title"

@@ -177,6 +177,7 @@ class PromptEditActivity : ActivityBase() {
         promptName.isEnabled = false
         promptDescription.isEnabled = false
         promptTemplate.isEnabled = false
+        checkTextDisplaySettings.isEnabled = false
         checkVerseSelection.isEnabled = false
         checkTextSelection.isEnabled = false
         checkWindowMenu.isEnabled = false
@@ -198,6 +199,7 @@ class PromptEditActivity : ActivityBase() {
             promptDescription.setText(prompt.description ?: "")
             promptTemplate.setText(prompt.promptTemplate)
 
+            checkTextDisplaySettings.isChecked = PromptContext.TEXT_DISPLAY_SETTINGS in prompt.showIn
             checkVerseSelection.isChecked = PromptContext.VERSE_SELECTION in prompt.showIn
             checkTextSelection.isChecked = PromptContext.TEXT_SELECTION in prompt.showIn
             checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
@@ -218,6 +220,7 @@ class PromptEditActivity : ActivityBase() {
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
         val contexts = mutableSetOf<PromptContext>()
+        if (checkTextDisplaySettings.isChecked) contexts.add(PromptContext.TEXT_DISPLAY_SETTINGS)
         if (checkVerseSelection.isChecked) contexts.add(PromptContext.VERSE_SELECTION)
         if (checkTextSelection.isChecked) contexts.add(PromptContext.TEXT_SELECTION)
         if (checkWindowMenu.isChecked) contexts.add(PromptContext.WINDOW_MENU)

@@ -126,6 +126,12 @@
             android:layout_height="wrap_content"
             android:text="@string/prompt_context_note_editor" />
 
+        <CheckBox
+            android:id="@+id/checkTextDisplaySettings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/llm_prompt_title" />
+
         <!-- Permission mode -->
         <TextView
             android:layout_width="wrap_content"

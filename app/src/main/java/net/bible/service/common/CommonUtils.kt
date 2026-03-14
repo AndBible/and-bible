@@ -458,6 +458,7 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
+        val llmModeExperimentalEnabled: Boolean get() = isExperimentalFeatureEnabled("llm_mode")
         val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
 
 
@@ -485,6 +486,14 @@ object CommonUtils : CommonUtilsBase() {
         var permanentlyDeniedTools: Set<AgentTool>
             get() = getEnumSet("agent_permanently_denied_tools")
             set(value) = setEnumSet("agent_permanently_denied_tools", value)
+
+        var llmConfirmBeforeCall: Boolean
+            get() = getBoolean("llm_confirm_before_call", true)
+            set(value) = setBoolean("llm_confirm_before_call", value)
+
+        var llmDebounceMs: Int
+            get() = getInt("llm_debounce_ms", 1000)
+            set(value) = setInt("llm_debounce_ms", value)
     }
 
     private var _settings: AndBibleSettings? = null

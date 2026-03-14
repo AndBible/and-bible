@@ -1998,7 +1998,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
-        val needsReload = requiresReload
+        val needsReload = requiresReload || dirtyTypes?.contains(TextDisplaySettings.Types.LLM_PROMPT) == true
         val windowId = settingsBundle.windowId
         if(windowId != null) {
             val window = windowRepository.getWindow(windowId)!!

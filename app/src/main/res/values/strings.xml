@@ -962,6 +962,7 @@
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="experimental_feature_ai_features">AI features</string>
+    <string name="experimental_feature_llm_mode">AI Text Processing</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -1376,6 +1377,7 @@
     <string name="ai_connection_category">Connection</string>
     <string name="ai_model_category">Model</string>
     <string name="ai_behavior_category">Behavior</string>
+    <string name="ai_llm_mode_category">AI Text Processing (Experimental)</string>
     <string name="ai_usage_category">Usage</string>
     <string name="llm_usage_summary_title">Token usage</string>
     <string name="llm_usage_summary_default">No usage data</string>
@@ -1396,7 +1398,61 @@
     <string name="llm_custom_model">Custom…</string>
     <string name="llm_custom_model_dialog_title">Custom model</string>
     <string name="llm_custom_model_dialog_message">Enter the model ID</string>
+    <string name="llm_confirm_before_call_title">Confirm before API calls</string>
+    <string name="llm_confirm_before_call_summary">Ask for confirmation before each AI processing request</string>
+    <string name="llm_confirm_dialog_title">Confirm AI Processing</string>
+    <string name="llm_confirm_dialog_message">%1$s\n\nDocument: %2$s:%3$s\nContent size: %4$d characters\nModel: %5$s\n\nThis may take a while. Continue?</string>
+    <string name="llm_user_cancelled">AI processing cancelled by user</string>
+    <string name="llm_debounce_title">API call delay (ms)</string>
+    <string name="llm_debounce_summary">Delay before API call when confirmation is disabled (0-5000ms)</string>
+    <string name="llm_request_superseded">Request superseded by newer request</string>
+    <string name="llm_processing_failed">AI processing failed: %1$s</string>
     <string name="llm_rate_limited_retrying">Rate limited. Retrying in %1$ss\u2026</string>
+    <string name="translate_to_title">Translate document</string>
+    <string name="translate_to_summary">Use LLM to translate document content</string>
+    <string name="translate_to_disabled">No translation</string>
+    <string name="llm_working">AI processing</string>
+
+    <!-- LLM Cache Management -->
+    <string name="llm_cache_management">AI Cache</string>
+    <string name="llm_cache_management_summary">View and manage cached AI results</string>
+    <string name="llm_cache_empty">No cached entries</string>
+    <string name="llm_cache_stats">%1$d entries, %2$s</string>
+    <string name="llm_cache_delete_all">Delete all</string>
+    <string name="llm_cache_delete_older_than">Delete older than…</string>
+    <string name="llm_cache_delete_filtered">Delete filtered entries</string>
+    <string name="llm_cache_delete_confirm_title">Delete cache entries?</string>
+    <string name="llm_cache_delete_confirm_all">This will delete all cached AI results. This cannot be undone.</string>
+    <string name="llm_cache_delete_confirm_selected">Delete %1$d selected entries?</string>
+    <string name="llm_cache_delete_confirm_filtered">Delete %1$d filtered entries?</string>
+    <string name="llm_cache_delete_confirm_older_than">Delete all entries older than %1$d days?</string>
+    <string name="llm_cache_deleted">Cache entries deleted</string>
+    <string name="llm_cache_deleted_count">%1$d entries deleted</string>
+    <string name="llm_cache_selected_count">%1$d selected</string>
+    <string name="llm_cache_filter_all_documents">All documents</string>
+    <string name="llm_cache_filter_all_types">All types</string>
+    <string name="llm_cache_filter_all_models">All models</string>
+    <string name="llm_cache_older_than_title">Delete older than</string>
+    <string name="llm_cache_older_than_7">7 days</string>
+    <string name="llm_cache_older_than_30">30 days</string>
+    <string name="llm_cache_older_than_90">90 days</string>
+    <string name="llm_cache_item_primary">%1$s : %2$s</string>
+    <string name="llm_cache_item_secondary">%1$s / %2$s</string>
+    <string name="llm_cache_item_tertiary">%1$s | %2$s | %3$s</string>
+    <string name="llm_cache_detail_document">Document: %s</string>
+    <string name="llm_cache_detail_key">Key: %s</string>
+    <string name="llm_cache_detail_type">Type: %s</string>
+    <string name="llm_cache_detail_params">Parameters: %s</string>
+    <string name="llm_cache_detail_model">Model: %s</string>
+    <string name="llm_cache_detail_date">Date: %s</string>
+    <string name="llm_cache_detail_size">Size: %s</string>
+    <string name="llm_cache_detail_language">Language: %s</string>
+    <string name="llm_cache_view_raw">View Raw</string>
+    <string name="llm_cache_raw_title">%1$s : %2$s</string>
+    <string name="llm_cache_copy_raw">Copy to clipboard</string>
+    <string name="llm_cache_raw_copied">Copied to clipboard</string>
+    <string name="llm_cache_raw_empty">(empty)</string>
+    <string name="llm_empty_llm_response">LLM returned empty response</string>
     <string name="llm_default_document_title">AI Response</string>
     <string name="llm_default_task_completed">Task completed</string>
     <string name="llm_default_studypad_opened">StudyPad opened</string>
@@ -1463,6 +1519,7 @@
     <string name="prompt_description">Description</string>
     <string name="prompt_template">Prompt template</string>
     <string name="prompt_show_in">Show in</string>
+    <string name="prompt_context_text_display_settings">Document display (AI Text Processing)</string>
     <string name="prompt_context_verse_selection">Verse selection</string>
     <string name="prompt_context_text_selection">Text selection</string>
     <string name="prompt_context_window_menu">Window menu</string>
@@ -1496,6 +1553,8 @@
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_document_delete">Delete</string>
+    <string name="llm_prompt_title">AI prompt</string>
+    <string name="llm_prompt_disabled">Disabled</string>
 
     <!-- Default prompts -->
     <string name="default_prompt_translate_to_language">Translate to %s</string>
@@ -1618,4 +1677,29 @@
     <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
     <string name="my_document_page_rename">Rename</string>
     <string name="my_document_page_delete">Delete</string>
+
+    <!-- LLM Mode / AI Text Processing -->
+    <string name="llm_cache_management_title">AI Processing Cache</string>
+    <string name="llm_cache_entry_detail_title">Cache Entry Detail</string>
+    <string name="llm_cache_entries_count">%d entries</string>
+    <string name="llm_cache_size">Cache size: %s</string>
+    <string name="llm_cache_clear_all">Clear all cache</string>
+    <string name="llm_cache_clear_all_confirm">Clear all %d cached entries?</string>
+    <string name="llm_cache_cleared">Cache cleared</string>
+    <string name="llm_cache_filter_document">Filter by document</string>
+    <string name="llm_cache_filter_type">Filter by type</string>
+    <string name="llm_cache_filter_model">Filter by model</string>
+    <string name="llm_cache_no_entries">No cached entries</string>
+    <string name="llm_cache_entry_document">Document: %s</string>
+    <string name="llm_cache_entry_key">Key: %s</string>
+    <string name="llm_cache_entry_type">Type: %s</string>
+    <string name="llm_cache_entry_params">Params: %s</string>
+    <string name="llm_cache_entry_model">Model: %s</string>
+    <string name="llm_cache_entry_date">Date: %s</string>
+    <string name="llm_cache_entry_size">Size: %s</string>
+    <string name="llm_cache_entry_language">Language: %s</string>
+    <string name="llm_cache_delete_selected">Delete %d selected entries?</string>
+    <string name="llm_cache_entry_deleted">Entry deleted</string>
+    <string name="llm_cache_entry_original_xml">Original XML</string>
+    <string name="llm_cache_entry_processed_xml">Processed XML</string>
 </resources>

@@ -52,4 +52,8 @@
         android:title="@string/reset_all_ai_settings"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/manage_cache"
+        android:title="@string/llm_cache_management" />
+
 </menu>

@@ -62,7 +62,7 @@ class PromptCsvUtilsTest {
             name = "Test Prompt",
             description = "A test description",
             promptTemplate = "Translate {{text}} to Finnish",
-            showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION),
+            showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS, PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION),
             orderNumber = 5,
             strictContextMatching = false,
             createdAt = 1640995200000L, // 2022-01-01T00:00:00Z
@@ -83,7 +83,7 @@ class PromptCsvUtilsTest {
         assertTrue("Name should be present", dataLine.startsWith("Test Prompt;"))
         assertTrue("Description should be present", dataLine.contains("A test description"))
         assertTrue("Template should be present", dataLine.contains("Translate {{text}} to Finnish"))
-        assertTrue("showIn should contain both contexts", dataLine.contains("VERSE_SELECTION") && dataLine.contains("TEXT_SELECTION"))
+        assertTrue("showIn should contain all contexts", dataLine.contains("TEXT_DISPLAY_SETTINGS") && dataLine.contains("VERSE_SELECTION") && dataLine.contains("TEXT_SELECTION"))
         assertTrue("orderNumber should be 5", dataLine.contains(";5;"))
         assertTrue("strictContextMatching should be false", dataLine.contains(";false;"))
         assertTrue("createdAt should be formatted", dataLine.contains("2022-01-01T00:00:00Z"))

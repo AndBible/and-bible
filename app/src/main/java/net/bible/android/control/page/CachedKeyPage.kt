@@ -69,7 +69,8 @@ abstract class CachedKeyPage internal constructor(
     val cachedGlobalKeyList: List<Key>?
         get() {
             var keylist = mCachedGlobalKeyList
-            val doc = currentDocument
+            // Use rawDocument for navigation - LLM-wrapped books don't provide correct globalKeyList
+            val doc = rawDocument
             if (doc != null && keylist == null) {
                 try {
                     Log.i(TAG, "Start to create cached key list for $doc")

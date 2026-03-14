@@ -31,6 +31,8 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
+import net.bible.service.llm.LlmProcessingCacheEntry
+import net.bible.service.llm.LlmProcessingDao
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.LlmProviderConfigDao
 
@@ -159,11 +161,12 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val AI_SETTINGS_DATABASE_VERSION = 1
+const val AI_SETTINGS_DATABASE_VERSION = 2
 
 @Database(
     entities = [
         AgentPrompt::class,
+        LlmProcessingCacheEntry::class,
         LlmProviderConfig::class,
         LogEntry::class,
         SyncConfiguration::class,
@@ -174,6 +177,7 @@ const val AI_SETTINGS_DATABASE_VERSION = 1
 @TypeConverters(Converters::class)
 abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
+    abstract fun llmProcessingDao(): LlmProcessingDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
     companion object {
         const val dbFileName = "ai_settings.sqlite3"

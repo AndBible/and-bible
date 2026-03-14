@@ -16,7 +16,9 @@
  */
 package net.bible.service.sword
 
+import android.os.Looper
 import android.text.TextUtils
+import kotlinx.coroutines.runBlocking
 import android.util.LayoutDirection
 import android.util.Log
 import android.util.LruCache
@@ -35,6 +37,15 @@ import net.bible.service.device.speak.TextCommand
 import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler
+import net.bible.service.llm.isLlmProcessedBook
+import net.bible.service.llm.llmEffectiveModel
+import net.bible.service.llm.llmModelConfig
+import net.bible.service.llm.LlmProcessingError
+import net.bible.service.llm.LlmProcessingService
+import net.bible.service.llm.LlmRequestSuperseded
+import net.bible.service.llm.llmProcessingParams
+import net.bible.service.llm.llmProcessorId
+import net.bible.service.llm.originalBookInitials
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.epub.xhtmlNamespace
@@ -62,6 +73,9 @@ import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
+import org.jdom2.input.SAXBuilder
+import org.jdom2.output.Format
+import org.jdom2.output.XMLOutputter
 import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
@@ -165,13 +179,24 @@ object SwordContentFacade {
             }
         }
 
-        return synchronized(book) {
+        // LLM-processed books handle their own thread safety via LlmProcessingService.
+        // Regular books need synchronization for JSword thread safety.
+        return if (book.isLlmProcessedBook) {
             osisFragmentCache.get(cacheKey) ?: let {
-                Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                Log.d(TAG, "Cache key $cacheKey not found in cache (LLM book, no sync)")
                 readXmlTextStandardJSwordMethod(book, key)
             }.also {
                 osisFragmentCache.put(cacheKey, it)
-                Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+            }
+        } else {
+            synchronized(book) {
+                osisFragmentCache.get(cacheKey) ?: let {
+                    Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                    readXmlTextStandardJSwordMethod(book, key)
+                }.also {
+                    osisFragmentCache.put(cacheKey, it)
+                    Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+                }
             }
         }
     }
@@ -338,30 +363,90 @@ object SwordContentFacade {
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
-        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.osisRef}")
+        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.osisRef}, isLlmProcessed=${book.isLlmProcessedBook}")
         return try {
-            val data = BookData(book, key)
-            val frag = data.osisFragment
+            // For LLM-processed books, read from original book and process
+            val (actualBook, needsLlmProcessing) = if (book.isLlmProcessedBook) {
+                val originalInitials = book.originalBookInitials
+                    ?: throw OsisError("LLM book missing original initials")
+                val originalBook = Books.installed().getBook(originalInitials)
+                    ?: throw DocumentNotFound(application.getString(R.string.document_not_installed, originalInitials))
+                originalBook to true
+            } else {
+                book to false
+            }
 
-            val bookCategory = book.bookCategory
+            val data = BookData(actualBook, key)
+            var frag = data.osisFragment
+
+            // Process with LLM if needed
+            if (needsLlmProcessing) {
+                val processorId = book.llmProcessorId
+                val processingParams = book.llmProcessingParams
+                Log.d(TAG, "LLM processing needed: processorId=$processorId, params=$processingParams")
+                if (processorId != null && processingParams != null) {
+                    val processor = LlmProcessingService.getProcessor(processorId)
+                    Log.d(TAG, "Got processor: ${processor?.processorId}")
+                    if (processor != null) {
+                        val effectiveModel = book.llmEffectiveModel
+                        val cacheKey = processor.getCacheKey(actualBook.initials, key.osisRef, processingParams, effectiveModel)
+
+                        // Check database cache first
+                        val cacheResult = LlmProcessingService.getCached(cacheKey)
+                        val processedXml = if (cacheResult.processedXml != null) {
+                            Log.d(TAG, "LLM cache hit for ${cacheKey.documentInitials}:${cacheKey.keyName}")
+                            cacheResult.processedXml
+                        } else {
+                            // Try chapter-level cache (e.g., verse "Isa.65.9" → chapter "Isa.65")
+                            val chapterResult = LlmProcessingService.getCachedChapter(cacheKey)
+                            if (chapterResult.processedXml != null) {
+                                Log.d(TAG, "LLM chapter cache hit for ${cacheKey.keyName}")
+                                chapterResult.processedXml
+                            } else {
+                                // Not in cache at all, process with tool support
+                                val outputter = XMLOutputter(Format.getRawFormat())
+                                val originalXml = outputter.outputString(frag)
+                                check(!Looper.getMainLooper().isCurrentThread) {
+                                    "LLM processing must not run on main thread"
+                                }
+                                runBlocking {
+                                    LlmProcessingService.processWithTools(processor, cacheKey, originalXml, llmConfig = book.llmModelConfig)
+                                }
+                            }
+                        }
+                        // Parse the processed XML back to Element
+                        val builder = SAXBuilder()
+                        // Try to disable external entities for security, but ignore if not supported (Android)
+                        try {
+                            builder.setFeature("http://xml.org/sax/features/external-general-entities", false)
+                            builder.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+                        } catch (e: Exception) {
+                            // Android SAX parser may not support these features - that's OK
+                        }
+                        frag = builder.build(StringReader(processedXml)).rootElement.detach() as Element
+                    }
+                }
+            }
+
+            val bookCategory = actualBook.bookCategory
             if (bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
                             R.string.error_key_not_in_document2,
                             key.name,
-                            book.initials
+                            actualBook.initials
                         )
                     )
                 val verseContent = verse.content.toList()
                 verse.removeContent()
                 frag.removeContent()
                 frag.addContent(verseContent)
-                addAnchors(frag, book.language.code)
+                addAnchors(frag, actualBook.language.code)
                 frag
             } else if(bookCategory != BookCategory.BIBLE) {
-                if(!book.isEpub) {
-                    addAnchors(frag, book.language.code)
+                if(!actualBook.isEpub) {
+                    addAnchors(frag, actualBook.language.code)
                 }
 
                 frag
@@ -369,6 +454,12 @@ object SwordContentFacade {
                 frag
             }
         } catch (e: OsisError) {
+            throw e
+        } catch (e: LlmProcessingError) {
+            // LLM errors (user cancellation, API failure) pass through to caller
+            throw e
+        } catch (e: LlmRequestSuperseded) {
+            // Silent exception - request was replaced by newer one, no error display needed
             throw e
         } catch (e: Throwable) {
             if (e is Exception)
