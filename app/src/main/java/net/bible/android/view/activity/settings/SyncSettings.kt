@@ -36,7 +36,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync

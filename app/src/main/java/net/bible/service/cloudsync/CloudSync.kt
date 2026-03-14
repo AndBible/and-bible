@@ -37,7 +37,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.IOException
