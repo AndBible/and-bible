@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2019-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -169,6 +169,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
     ) {
@@ -195,6 +196,7 @@ class WorkspaceEntities {
             BOOKMARKS_HIDELABELS,
             MYNOTES,
             PAGENUMBER,
+            INFINITE_SCROLL,
             NON_STRONGS_WORD_ITALIC,
             TITLE_SCROLL_BUTTON,
         }
@@ -222,6 +224,7 @@ class WorkspaceEntities {
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
+            Types.INFINITE_SCROLL -> infiniteScroll
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
             Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
         }
@@ -250,6 +253,7 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
+                Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
                 Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
             }
@@ -310,6 +314,7 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
+                infiniteScroll = true,
                 nonStrongsWordItalic = false,
                 showTitleScrollButton = false
             )

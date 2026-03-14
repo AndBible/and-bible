@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -73,9 +73,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -115,6 +117,8 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
 import net.bible.android.view.activity.bookmark.Bookmarks
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -128,6 +132,7 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.util.UiUtils
+import net.bible.android.view.util.widget.AgentLogVisibilityChanged
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
@@ -136,6 +141,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.common.windowPinningVideo
 import net.bible.service.common.newFeaturesIntroVideo
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.MyDocumentsUpdatedViaSyncEvent
 import net.bible.service.db.WorkspacesUpdatedViaSyncEvent
 import net.bible.service.device.ScreenSettings
 import net.bible.service.device.speak.event.SpeakEvent
@@ -143,10 +149,15 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
+import net.bible.service.llm.AgentPrompt
 import net.bible.service.download.FakeBookFactory
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -221,6 +232,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             ABEventBus.post(SpeakTransportVisibilityChanged(value))
         }
 
+    // Agent log widget visibility and height for offset calculation
+    private var agentLogVisible = false
+    private var agentLogHeight = 0
+
     private val dao get() = DatabaseContainer.instance.workspaceDb.workspaceDao()
     private val docDao get() = DatabaseContainer.instance.repoDb.swordDocumentInfoDao()
 
@@ -239,18 +254,21 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     var rightOffset1 = 0
     var leftOffset1 = 0
 
-    // Bottom offset with navigation bar and transport bar
+    // Bottom offset with navigation bar, transport bar and agent log
     // When IME is visible, bottomOffset1 is excluded because mainBibleView padding handles it.
-    val bottomOffset2 get() = (if (imeHeight > 0) 0 else bottomOffset1) + if (transportBarVisible) transportBarHeight else 0
+    val bottomOffset2 get() = (if (imeHeight > 0) 0 else bottomOffset1) +
+        (if (transportBarVisible) transportBarHeight else 0) +
+        (if (agentLogVisible) agentLogHeight else 0)
 
-    // WebView bottom offset: navigation bar + transport + buttons
+    // WebView bottom offset: navigation bar + transport + buttons + agent log
     // When IME is visible on Android 15+, bottomOffset1 is excluded because the WebView
     // is already resized above the keyboard via mainBibleView padding.
     // On pre-Android 15, bottomOffset1 is always 0, so only transport + buttons.
     val bottomOffsetForWebView get() =
         (if (imeHeight > 0) 0 else bottomOffset1) + // navigation bar (excluded when IME padding applied)
             (if (transportBarVisible) transportBarHeight else 0) +
-            (if (restoreButtonsVisible) windowButtonHeight else 0)
+            (if (restoreButtonsVisible) windowButtonHeight else 0) +
+            (if (agentLogVisible) agentLogHeight else 0)
 
     // IME keyboard height in pixels (0 when keyboard hidden)
     val imeHeight get() = bottomOffset1 - bottomOffset1WithoutIme
@@ -379,6 +397,10 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
+        if (!CommonUtils.settings.aiTextProcessingEnabled) {
+            navigationView.menu.findItem(R.id.managePrompts).isVisible = false
+        }
+
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
             mainMenuCommandHandler.handleMenuRequest(menuItem)
@@ -1207,6 +1229,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         binding.syncIcon.visibility = if(event.running) View.VISIBLE else View.INVISIBLE
     }
 
+    fun onEventMainThread(event: AgentLogVisibilityChanged) {
+        Log.i(TAG, "AgentLogVisibilityChanged: visible=${event.visible}, height=${event.height}")
+        agentLogVisible = event.visible
+        agentLogHeight = event.height
+        updateBottomBars()
+        // Trigger BibleView offset updates after values are updated
+        ABEventBus.post(AgentLogOffsetsUpdated())
+    }
+
+    class AgentLogOffsetsUpdated
+
     private fun openLink(uri: Uri) {
         when (uri.host) {
             "read.andbible.org" -> {
@@ -1460,6 +1493,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 }
                 .start()
         }
+
+        // Position agent log widget above system nav bar and transport bar
+        val agentLogOffset = bottomOffset1 + (if (transportBarVisible) transportBarHeight else 0)
+        binding.agentLogWidget.translationY = -agentLogOffset.toFloat()
+
         ABEventBus.post(UpdateRestoreWindowButtons())
     }
 
@@ -1528,7 +1566,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private val syncInterval get() =
-        CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+        CommonUtils.settings.getLong("cloud_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
     private val lastSynchronized get() =
         CommonUtils.settings.getLong("globalLastSynchronized", 0L)
 
@@ -1594,6 +1632,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if(windowsChanged || workspaceChanged) {
             currentWorkspaceId = currentWorkspaceId
         }
+    }
+
+    fun onEventMainThread(event: MyDocumentsUpdatedViaSyncEvent) {
+        MyDocumentBookManager.clear()
+        MyDocumentBookManager.registerAllDocuments()
     }
 
     fun onEventMainThread(event: WorkspaceRefreshRequired) {
@@ -1828,6 +1871,36 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             updateActions()
                             return
                         }
+                        MyDocumentPagesActivity::class.java.name -> {
+                            val bookInitials = extras.getString("documentInitials")
+                            val pageKey = extras.getString("pageKey")
+                            if (bookInitials != null && pageKey != null) {
+                                val book = Books.installed().getBook(bookInitials)
+                                if (book != null) {
+                                    val key = book.getKey(pageKey)
+                                    windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    updateActions()
+                                }
+                            }
+                            return
+                        }
+                        MyDocumentsActivity::class.java.name -> {
+                            val bookInitials = extras.getString("documentInitials")
+                            val pageKey = extras.getString("pageKey")
+                            if (bookInitials != null) {
+                                val book = Books.installed().getBook(bookInitials)
+                                if (book != null) {
+                                    if (pageKey != null) {
+                                        val key = book.getKey(pageKey)
+                                        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    } else {
+                                        documentControl.changeDocument(book)
+                                    }
+                                    updateActions()
+                                }
+                            }
+                            return
+                        }
                         in classes -> {
                             val isFromBookmark = className == Bookmarks::class.java.name
                             val verseStr = extras.getString("verse")
@@ -1925,6 +1998,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
+        val needsReload = requiresReload
         val windowId = settingsBundle.windowId
         if(windowId != null) {
             val window = windowRepository.getWindow(windowId)!!
@@ -1933,7 +2007,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             else
                 settingsBundle.pageManagerSettings!!
 
-            if(requiresReload)
+            if(needsReload)
                 window.loadText()
             else {
                 window.bibleView?.updateTextDisplaySettings()
@@ -1949,7 +2023,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             if(dirtyTypes != null) {
                 windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
             }
-            if(requiresReload) {
+            if(needsReload) {
                 ABEventBus.post(SynchronizeWindowsEvent(true))
             } else {
                 windowRepository.updateAllWindowsTextDisplaySettings()
@@ -2107,6 +2181,76 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     override fun onStart() {
         super.onStart()
         CommonUtils.onyxSupport?.setupOnyxNormal()
+    }
+
+    /**
+     * Execute a specific LLM prompt with the given selection.
+     * Called directly when prompt is already selected (e.g., from window button menu).
+     */
+    fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
+        val workspaceId = windowControl.windowRepository.id
+        val job = lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                AgentSessionManager.executePrompt(prompt, selection)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "LLM prompt execution failed", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+        AgentSessionManager.getOrCreateSession(workspaceId).job = job
+    }
+
+    /**
+     * Show LLM prompt selector dialog for the given selection.
+     * Filters prompts by VERSE_SELECTION context and shows them in a dialog.
+     */
+    fun showLlmPromptSelector(selection: Selection) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val prompts = PromptRepository.promptsForContext(
+                PromptContext.VERSE_SELECTION
+            )
+
+            if (prompts.isEmpty()) {
+                launch(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MainBibleActivity,
+                        R.string.no_llm_prompts_configured,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+                return@launch
+            }
+
+            val promptNames = prompts.map { it.name }.toTypedArray()
+            launch(Dispatchers.Main) {
+                AlertDialog.Builder(this@MainBibleActivity)
+                    .setTitle(R.string.select_llm_prompt)
+                    .setItems(promptNames) { _, which ->
+                        val selectedPrompt = prompts[which]
+                        // Execute via AgentSessionManager
+                        val wsId = windowControl.windowRepository.id
+                        val job = lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                AgentSessionManager.executePrompt(selectedPrompt, selection)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                Log.e(TAG, "LLM prompt execution failed", e)
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                        AgentSessionManager.getOrCreateSession(wsId).job = job
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+        }
     }
 
     companion object {

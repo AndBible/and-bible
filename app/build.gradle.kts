@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -374,6 +374,7 @@ dependencies {
     implementation("androidx.webkit:webkit:1.14.0")
     implementation("net.objecthunter:exp4j:0.4.8")
     implementation("com.github.requery:sqlite-android:$sqliteAndroidVersion")
+    implementation("org.yaml:snakeyaml:2.2")
 
     for(variantImplementation in listOf("googleplay", "github", "amazon", "samsung", "huawei", "accrescent").map { "${it}Implementation" }) {
         // Onyx SDK (e-ink devices)
@@ -425,6 +426,9 @@ dependencies {
 
     implementation("org.jdom:jdom2:$jdomVersion")
     implementation("jaxen:jaxen:2.0.0")
+
+    implementation("org.commonmark:commonmark:0.24.0")
+    implementation("org.commonmark:commonmark-ext-gfm-tables:0.24.0")
 
     // Next cloud related dependencies
     implementation("com.github.nextcloud:android-library:2.20.0") {

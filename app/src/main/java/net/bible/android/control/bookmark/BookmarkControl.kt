@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -50,6 +50,7 @@ import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWi
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
+import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
@@ -152,7 +153,7 @@ open class BookmarkControl @Inject constructor(
             dao.update(bookmark.bookmarkEntity)
             if(updateNotes) {
                 if (notes != null) {
-                    dao.update(notes)
+                    dao.upsert(notes)
                 } else {
                     dao.deleteBookmarkNotes(bookmark)
                 }
@@ -485,7 +486,7 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteBookmarkNotes(bookmarkId)
         } else {
-            dao.saveBookmarkNote(bookmarkId, note)
+            dao.saveBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
         }
         val bookmark = dao.bibleBookmarkById(bookmarkId)!!
         addLabels(bookmark)
@@ -496,7 +497,7 @@ open class BookmarkControl @Inject constructor(
         if(note == null) {
             dao.deleteGenericBookmarkNotes(bookmarkId)
         } else {
-            dao.saveGenericBookmarkNote(bookmarkId, note)
+            dao.saveGenericBookmarkNote(bookmarkId, note, CommonUtils.settings.notesContentType)
         }
         val bookmark = dao.genericBookmarkById(bookmarkId)!!
         addLabels(bookmark)
@@ -679,8 +680,24 @@ open class BookmarkControl @Inject constructor(
         val book = b.book?: return
         try {
             val key = b.bookKey ?: book.getKey(b.key)
-            val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart..b.ordinalEnd)
-            addText(b, verseTexts, b.wholeVerse)
+            val isWholePage = b.ordinalStart == null || b.ordinalEnd == null
+
+            if (isWholePage) {
+                // Whole-page bookmark: get full OSIS fragment for rendering
+                b.osisFragment = OsisFragment(SwordContentFacade.readOsisFragment(book, key), key, book)
+                // For oneliner preview, get text from beginning of page
+                val ordinalRange = SwordContentFacade.ordinalRangeFor(book, key)
+                val allTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, ordinalRange)
+                // Use first text element as preview
+                b.text = allTexts.firstOrNull()?.take(200)?.trim() ?: ""
+                b.fullText = b.text
+                b.startText = ""
+                b.endText = ""
+            } else {
+                // Regular bookmark with ordinal range
+                val verseTexts = SwordContentFacade.getTextWithinOrdinalsAsString(book, key, b.ordinalStart!!..b.ordinalEnd!!)
+                addText(b, verseTexts, b.wholeVerse)
+            }
         } catch (e: OsisError) {
             b.text = e.stringMsg
             return
@@ -863,20 +880,49 @@ open class BookmarkControl @Inject constructor(
         }
     }
 
+    private fun updateStudyPadCursorIfNeeded(labelId: IdType, orderNumber: Int) {
+        val workspaceSettings = windowControl.windowRepository?.workspaceSettings ?: return
+        val cursor = workspaceSettings.studyPadCursors[labelId] ?: return
+        if (cursor >= orderNumber) {
+            workspaceSettings.studyPadCursors[labelId] = cursor + 1
+            ABEventBus.post(AppSettingsUpdated())
+        }
+    }
+
     fun createStudyPadEntry(labelId: IdType, entryOrderNumber: Int) {
-        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1)
+        val entry = StudyPadTextEntryWithText(labelId = labelId, orderNumber = entryOrderNumber + 1, contentType = TextContentType.valueOf(CommonUtils.settings.notesContentType))
 
         dao.insert(entry.studyPadTextEntryEntity)
         dao.insert(entry.studyPadTextEntryTextEntity)
 
         incrementOrderNumbersFrom(labelId, entryOrderNumber + 1, newStudyPadTextEntry = entry)
+        updateStudyPadCursorIfNeeded(labelId, entryOrderNumber + 1)
+    }
 
-        val workspaceSettings = windowControl.windowRepository?.workspaceSettings
-        val cursor = workspaceSettings?.studyPadCursors?.get(labelId)?: return
-        if (cursor >= entryOrderNumber + 1) {
-            workspaceSettings.studyPadCursors[labelId] = cursor + 1
-            ABEventBus.post(AppSettingsUpdated())
-        }
+    fun createStudyPadEntryWithText(
+        labelId: IdType,
+        orderNumber: Int? = null,
+        text: String,
+        contentType: TextContentType? = null,
+        sourcePromptId: IdType? = null
+    ): StudyPadTextEntryWithText {
+        val actualOrderNumber = orderNumber ?: dao.countStudyPadEntities(labelId)
+
+        val entry = StudyPadTextEntryWithText(
+            labelId = labelId,
+            orderNumber = actualOrderNumber,
+            text = text,
+            contentType = contentType,
+            sourcePromptId = sourcePromptId
+        )
+
+        dao.insert(entry.studyPadTextEntryEntity)
+        dao.insert(entry.studyPadTextEntryTextEntity)
+
+        incrementOrderNumbersFrom(labelId, actualOrderNumber, newStudyPadTextEntry = entry)
+        updateStudyPadCursorIfNeeded(labelId, actualOrderNumber)
+
+        return entry
     }
 
     fun removeBibleBookmarkLabel(bookmarkId: IdType, labelId: IdType) {

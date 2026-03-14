@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -62,7 +62,6 @@ import org.jdom2.Element
 import org.jdom2.Namespace
 import org.jdom2.Text
 import org.jdom2.filter.Filters
-import org.jdom2.input.SAXBuilder
 import org.jdom2.xpath.XPathFactory
 import org.xml.sax.ContentHandler
 import java.io.StringReader
@@ -168,11 +167,11 @@ object SwordContentFacade {
 
         return synchronized(book) {
             osisFragmentCache.get(cacheKey) ?: let {
-                Log.e(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
+                Log.d(TAG, "Cache key $cacheKey not found in cache, size now ${osisFragmentCache.size()}")
                 readXmlTextStandardJSwordMethod(book, key)
             }.also {
                 osisFragmentCache.put(cacheKey, it)
-                Log.i(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
+                Log.d(TAG, "Put to cache $cacheKey, size ${osisFragmentCache.size()}")
             }
         }
     }
@@ -339,12 +338,13 @@ object SwordContentFacade {
     }
     @Throws(OsisError::class)
     private fun readXmlTextStandardJSwordMethod(book: Book, key: Key): Element {
-        log.debug("Using standard JSword to fetch document data")
+        Log.d(TAG, "readXmlTextStandardJSwordMethod: book=${book.initials}, key=${key.osisRef}")
         return try {
             val data = BookData(book, key)
             val frag = data.osisFragment
 
-            if (book.bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
+            val bookCategory = book.bookCategory
+            if (bookCategory == BookCategory.COMMENTARY && key.cardinality == 1) {
                 val verse = frag.getChild("verse")
                     ?: throw DocumentNotFound(
                         application.getString(
@@ -359,7 +359,7 @@ object SwordContentFacade {
                 frag.addContent(verseContent)
                 addAnchors(frag, book.language.code)
                 frag
-            } else if(book.bookCategory != BookCategory.BIBLE) {
+            } else if(bookCategory != BookCategory.BIBLE) {
                 if(!book.isEpub) {
                     addAnchors(frag, book.language.code)
                 }

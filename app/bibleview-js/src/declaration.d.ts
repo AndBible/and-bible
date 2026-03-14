@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -141,6 +141,13 @@ type TranslatedStrings = {
     wordBlur: string
     wordScramble: string
     more: string
+    loadMore: string
+    previousChapter: string
+    nextChapter: string
+    llmAction: string
+    llmActionLong: string
+    aiDocumentRegenerate: string
+    aiDocumentDelete: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

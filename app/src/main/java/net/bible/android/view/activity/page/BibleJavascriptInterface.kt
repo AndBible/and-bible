@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -136,6 +136,30 @@ class BibleJavascriptInterface(
     fun requestMoreToEnd(callId: Long) {
         Log.i(TAG, "Request more text at end")
         bibleView.requestMoreToEnd(callId)
+    }
+
+    @JavascriptInterface
+    fun goToNextChapter() {
+        Log.i(TAG, "Go to next chapter")
+        scope.launch(Dispatchers.Main) {
+            try {
+                currentPageManager.currentPage.next()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to next chapter", e)
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun goToPreviousChapter() {
+        Log.i(TAG, "Go to previous chapter")
+        scope.launch(Dispatchers.Main) {
+            try {
+                currentPageManager.currentPage.previous()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to previous chapter", e)
+            }
+        }
     }
 
     @JavascriptInterface
@@ -417,6 +441,11 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun createWholePageBookmark(bookInitials: String, bookKey: String) {
+        bibleView.createWholePageBookmark(bookInitials, bookKey)
+    }
+
+    @JavascriptInterface
     fun compare(bookInitials: String, verseOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             bibleView.compareSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
@@ -667,5 +696,20 @@ class BibleJavascriptInterface(
             mainBibleActivity.bibleViewFactory.crashAll()
         }
     }
+
+    @JavascriptInterface
+    fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @JavascriptInterface
+    fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
     private val TAG get() = "BibleView[${bibleView.windowRef.get()?.displayId}] JSInt"
 }

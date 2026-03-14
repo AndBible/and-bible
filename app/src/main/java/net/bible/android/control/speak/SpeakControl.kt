@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -537,11 +537,12 @@ class SpeakControl @Inject constructor(
                 }
             }
             is BookmarkEntities.GenericBookmarkWithNotes -> {
+                val ordinalStart = dto.ordinalStart ?: return
                 speakGeneric(
                     BookAndKey(
                         dto.bookKey?: dto.originalKey!!,
                         dto.book,
-                        OrdinalRange(dto.ordinalStart)
+                        OrdinalRange(ordinalStart)
                     )
 
                 )

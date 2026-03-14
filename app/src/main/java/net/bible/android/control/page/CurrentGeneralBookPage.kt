@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -32,8 +32,11 @@ import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_C
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.navigation.ChooseDocument
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.service.common.firstBibleDoc
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -72,8 +75,9 @@ class CurrentGeneralBookPage internal constructor(
     override fun startKeyChooser(context: ActivityBase) {
         if(context !is MainBibleActivity) return
         context.lifecycleScope.launch(Dispatchers.Main) {
-            when (currentDocument) {
-                FakeBookFactory.journalDocument -> {
+            val doc = currentDocument
+            when {
+                doc == FakeBookFactory.journalDocument -> {
                     val result = context.awaitIntent(Intent(context, ManageLabels::class.java)
                         .putExtra("data", ManageLabels.ManageLabelsData(mode = ManageLabels.Mode.STUDYPAD)
                             .applyFrom(context.workspaceSettings)
@@ -84,11 +88,23 @@ class CurrentGeneralBookPage internal constructor(
                         context.workspaceSettings.updateFrom(resultData)
                     }
                 }
-                FakeBookFactory.multiDocument -> {
+                doc == FakeBookFactory.multiDocument -> {
                     context.startActivityForResult(
                         Intent(context, ChooseDocument::class.java),
                         STD_REQUEST_CODE
                     )
+                }
+                doc?.isMyDocument == true -> {
+                    val docId = doc.myDocumentId
+                    if (docId != null) {
+                        context.startActivityForResult(
+                            Intent(context, MyDocumentPagesActivity::class.java)
+                                .putExtra("documentId", docId.toString())
+                                .putExtra("documentInitials", doc.initials)
+                                .putExtra("documentName", doc.name),
+                            STD_REQUEST_CODE
+                        )
+                    }
                 }
                 else -> context.startActivityForResult(Intent(context, ChooseGeneralBookKey::class.java), STD_REQUEST_CODE)
             }
@@ -107,8 +123,8 @@ class CurrentGeneralBookPage internal constructor(
                     val journalTextEntries = pageManager.bookmarkControl.getStudyPadTextEntriesForLabel(key.label)
                     val bookmarkToLabels = bookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.BibleBookmarkToLabel? }
                     val genericBookmarkToLabels = genericBookmarks.mapNotNull { pageManager.bookmarkControl.getBookmarkToLabel(it, key.label.id) as BookmarkEntities.GenericBookmarkToLabel? }
-                    val bookmarkId = key.bookmarkId
-                    StudyPadDocument(key.label, bookmarkId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
+                    val entryId = key.entryId
+                    StudyPadDocument(key.label, entryId, bookmarks, genericBookmarks, bookmarkToLabels, genericBookmarkToLabels, journalTextEntries)
                 }
                 is BookAndKeyList -> {
                     val frags = key.filterIsInstance<BookAndKey>().map {

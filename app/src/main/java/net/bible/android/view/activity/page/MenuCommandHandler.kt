@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -43,9 +43,11 @@ import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.bookmark.ManageLabels
 import net.bible.android.view.activity.bookmark.updateFrom
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
+import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -168,6 +170,9 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                     // force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
                     requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH
                 }
+                R.id.managePrompts -> {
+                    handlerIntent = Intent(mainBibleActivity, AiSettingsActivity::class.java)
+                }
                 R.id.historyButton -> handlerIntent = Intent(mainBibleActivity, History::class.java)
                 R.id.bookmarksButton -> handlerIntent = Intent(mainBibleActivity, Bookmarks::class.java)
                 R.id.studyPadsButton -> {
@@ -182,6 +187,9 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                             windowControl.windowRepository.workspaceSettings.updateFrom(resultData)
                         }
                     }
+                }
+                R.id.myDocumentsButton -> {
+                    handlerIntent = Intent(mainBibleActivity, MyDocumentsActivity::class.java)
                 }
                 R.id.speakButton -> {
                     if(currentPage.isSpeakable) {

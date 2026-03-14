@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -112,6 +112,11 @@
     <string name="prefs_disable_click_to_edit_title">Disable Study Pad click-to-edit</string>
     <string name="prefs_disable_click_to_edit_summary">Requires using the edit button to edit notes in the Study Pad.</string>
 
+    <string name="prefs_notes_content_type_title">Format for new bookmark notes</string>
+    <string name="prefs_notes_content_type_summary">Text format used when creating new bookmark notes and Study Pad entries</string>
+    <string name="notes_content_type_html">Rich text (HTML)</string>
+    <string name="notes_content_type_markdown">Markdown</string>
+
     <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
     <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
 
@@ -150,6 +155,8 @@
     <string name="prefs_title_scroll_button_title">Title scroll button</string>
     <string name="prefs_title_scroll_button_summary">Show scroll-to-top button next to section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
+    <string name="prefs_infinite_scroll_title">Infinite scroll</string>
+    <string name="prefs_infinite_scroll_summary">Automatically load more content when scrolling</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
 
     <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>
@@ -456,6 +463,7 @@
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
     <string name="add_bookmark_whole_verse2">Full verses</string>
+    <string name="add_whole_page_bookmark">Add bookmark for whole page</string>
     <string name="add_paragraph_break">Paragraph break</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
@@ -755,6 +763,7 @@
     <!-- General -->
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="discard_changes_confirmation">Discard unsaved changes?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
@@ -802,6 +811,7 @@
     <string name="select_all">Select all</string>
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
     <string name="reset_settings">Reset</string>
+    <string name="search_settings">Search settings</string>
     <string name="workspace_dismiss">Dismiss</string>
     <string name="workspace_listing_with_current">%s (current)</string>
 
@@ -951,6 +961,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
+    <string name="experimental_feature_ai_text_processing">AI Text Processing</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -988,7 +999,7 @@
     <string name="show_quotes">Show quotes</string>
     <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
-    <string name="backup_button">Backup</string>
+    <string name="backup_button">Backup &amp; Restore</string>
     <string name="back_button">Back</string>
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
@@ -1085,6 +1096,7 @@
     <string name="backup_file_info">App v%1$d, %2$s</string>
     <string name="reset_databases_title">Reset Databases</string>
     <string name="reset_databases_description">Reset individual databases to their initial empty state. This cannot be undone.</string>
+    <string name="last_crash_info_title">Last crash info</string>
     <string name="reset_database_confirm">This will permanently delete all data in \"%1$s\" and reset it to the initial state. This cannot be undone.\n\nAre you sure?</string>
     <string name="reset_database_success">Database has been reset successfully</string>
     <string name="reset_something">Reset: %1$s</string>
@@ -1094,6 +1106,14 @@
     <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
     <string name="csv_import_failed">CSV import failed: %s</string>
     <string name="csv_export_failed">CSV export failed: %s</string>
+    <string name="export_prompts_csv">Export prompts to CSV</string>
+    <string name="import_prompts_csv">Import prompts from CSV</string>
+    <string name="prompts_csv_export_success">Exported %d prompts to CSV</string>
+    <string name="prompts_csv_import_success">Import completed: %d created, %d updated</string>
+    <string name="prompts_csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
+    <string name="prompts_csv_import_failed">CSV import failed: %s</string>
+    <string name="prompts_csv_export_failed">CSV export failed: %s</string>
+    <string name="no_prompts_to_export">No user prompts to export</string>
     <string name="csv_column_selection_title">Select CSV Columns</string>
     <string name="choose_csv_file">Choose CSV file to import</string>
     <string name="no_bookmarks_to_export">No bookmarks available to export</string>
@@ -1247,6 +1267,9 @@
     <string name="reading_plans_content">Reading plans and their statuses</string>
     <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
     <string name="workspaces_contents">Workspaces and Windows</string>
+    <string name="my_documents_contents">My Documents and their content</string>
+    <string name="ai_settings_sync_title">AI Settings</string>
+    <string name="ai_settings_sync_contents">AI prompts and provider configurations</string>
 
     <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
     <string name="cloud_create_new">Copy from this device to Cloud</string>
@@ -1339,4 +1362,259 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
+
+    <!-- LLM Translation Settings -->
+    <string name="llm_settings_title">LLM Translation</string>
+    <string name="sync_settings_shortcut_summary">Synchronize data between devices</string>
+    <string name="llm_api_key_title">API Key</string>
+    <string name="llm_api_key_summary">OpenAI-compatible API key</string>
+    <string name="llm_provider_custom">Custom (OpenAI compatible)</string>
+    <string name="llm_provider_title">Provider</string>
+    <string name="llm_provider_summary">Choose which AI service provider to use. The API endpoint and available models will be configured automatically.</string>
+    <string name="llm_provider_current">Current: %s</string>
+    <string name="llm_api_key_detected_provider">Detected provider: %s</string>
+    <string name="ai_connection_category">Connection</string>
+    <string name="ai_model_category">Model</string>
+    <string name="ai_behavior_category">Behavior</string>
+    <string name="ai_usage_category">Usage</string>
+    <string name="llm_usage_summary_title">Token usage</string>
+    <string name="llm_usage_summary_default">No usage data</string>
+    <string name="llm_usage_summary_format">Input: %1$d tokens | Output: %2$d tokens\nEstimated cost: %3$s</string>
+    <string name="llm_reset_usage_title">Reset usage data</string>
+    <string name="llm_reset_usage_summary">Clear cumulative token and cost tracking</string>
+    <string name="llm_reset_usage_confirm_title">Reset usage data?</string>
+    <string name="llm_reset_usage_confirm_message">This will clear all cumulative usage data.</string>
+    <string name="llm_custom_input_price_title">Input price ($/Mtoken)</string>
+    <string name="llm_custom_input_price_summary">Cost per million input tokens for this model</string>
+    <string name="llm_custom_output_price_title">Output price ($/Mtoken)</string>
+    <string name="llm_custom_output_price_summary">Cost per million output tokens for this model</string>
+    <string name="llm_cost_total">Total: %1$s</string>
+    <string name="llm_endpoint_title">API Endpoint</string>
+    <string name="llm_endpoint_summary">Base URL for the API</string>
+    <string name="llm_model_title">Model</string>
+    <string name="llm_model_summary">Model ID</string>
+    <string name="llm_custom_model">Custom…</string>
+    <string name="llm_custom_model_dialog_title">Custom model</string>
+    <string name="llm_custom_model_dialog_message">Enter the model ID</string>
+    <string name="llm_rate_limited_retrying">Rate limited. Retrying in %1$ss\u2026</string>
+    <string name="llm_default_document_title">AI Response</string>
+    <string name="llm_default_task_completed">Task completed</string>
+    <string name="llm_default_studypad_opened">StudyPad opened</string>
+    <string name="llm_parse_error">Failed to parse LLM response: %1$s</string>
+    <string name="llm_parse_error_no_choices">No choices in OpenAI response</string>
+    <string name="llm_parse_error_openai">Failed to parse OpenAI response: %1$s</string>
+    <string name="llm_parse_error_anthropic">Failed to parse Anthropic response: %1$s</string>
+    <string name="llm_error_prompt_not_found">Prompt not found: %1$s</string>
+    <string name="llm_error_unknown">Unknown error</string>
+    <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
+
+    <!-- Prompt Manager -->
+    <string name="manage_prompts">Manage AI Prompts</string>
+    <string name="manage_prompts_summary">Create and edit AI prompts</string>
+    <string name="ai_settings">AI Settings</string>
+    <string name="ai_connection_settings">Connection settings</string>
+    <string name="ai_setup_title">Configure AI</string>
+    <string name="ai_setup_description">AndBible can use AI to translate Bible text, explain verses, create summaries, and more. To get started, configure a connection to an OpenAI-compatible API provider.</string>
+    <string name="ai_configure_button">Configure Connection</string>
+    <string name="ai_settings_shortcut_summary">AI connection and prompt settings</string>
+    <string name="ai_getting_started_title">Getting started</string>
+    <string name="ai_getting_started_summary">How to get an API key</string>
+    <string name="ai_getting_started_intro">AndBible connects to AI services via their APIs. You need an API key from a provider.</string>
+    <string name="ai_getting_started_recommended_providers">Recommended providers:</string>
+    <string name="ai_getting_started_community_providers">Other providers (community, not officially tested):</string>
+    <string name="ai_getting_started_get_api_key">Get API key</string>
+    <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+    <string name="ai_provider_tier_community">Other providers (not tested)</string>
+
+    <!-- Multi-provider settings -->
+    <string name="ai_providers_category">Providers</string>
+    <string name="ai_add_provider">Add provider</string>
+    <string name="ai_add_provider_summary">Configure a new AI service provider</string>
+    <string name="ai_no_providers">No providers configured. Tap \"Add provider\" to get started.</string>
+    <string name="ai_provider_default_indicator">Default provider</string>
+    <string name="ai_provider_set_default">Set as default</string>
+    <string name="ai_provider_edit">Edit</string>
+    <string name="ai_provider_delete">Delete</string>
+    <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
+    <string name="ai_provider_api_key_not_set">API key not set</string>
+    <string name="ai_provider_model">Model: %1$s</string>
+    <string name="ai_provider_select_type">Select provider type</string>
+    <string name="ai_provider_name">Provider name</string>
+    <string name="ai_provider_name_hint">Display name for this provider</string>
+    <string name="ai_provider_api_key">API key</string>
+    <string name="ai_provider_endpoint">API endpoint</string>
+    <string name="ai_provider_api_format">API format</string>
+    <string name="ai_provider_default_model">Default model</string>
+    <string name="ai_provider_already_exists">This provider is already configured</string>
+    <string name="ai_provider_saved">Provider saved</string>
+    <string name="ai_provider_deleted">Provider deleted</string>
+    <string name="ai_provider_migrate_title">Migrate existing settings?</string>
+    <string name="ai_provider_migrate_message">Your existing LLM configuration will be migrated to the new provider system.</string>
+
+    <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
+    <string name="prompt_provider_override">Provider</string>
+    <string name="prompt_provider_default">Default</string>
+
+    <string name="prompt_permission_mode">Permission mode</string>
+    <string name="agent_permission_mode_summary">Controls when user confirmation is required before AI write operations</string>
+    <string name="prompt_permission_use_default">Use default</string>
+    <string name="prompt_name">Name</string>
+    <string name="prompt_description">Description</string>
+    <string name="prompt_template">Prompt template</string>
+    <string name="prompt_show_in">Show in</string>
+    <string name="prompt_context_verse_selection">Verse selection</string>
+    <string name="prompt_context_text_selection">Text selection</string>
+    <string name="prompt_context_window_menu">Window menu</string>
+    <string name="prompt_context_workspace_menu">Workspace menu</string>
+    <string name="prompt_context_note_editor">Note editor</string>
+    <string name="new_prompt">New prompt</string>
+    <string name="reset_prompts_to_defaults">Reset to defaults</string>
+    <string name="reset_prompts_confirm_title">Reset prompts?</string>
+    <string name="reset_prompts_confirm_message">This will delete all custom prompts. Built-in prompts are not affected. Continue?</string>
+    <string name="permission_always_ask">Always ask</string>
+    <string name="permission_ask_once_per_run">Ask once per run</string>
+    <string name="permission_allow_all">Allow all</string>
+    <string name="permission_deny_all">Deny all</string>
+    <string name="reset_all_ai_settings">Reset all AI settings</string>
+    <string name="reset_all_ai_settings_confirm_title">Reset all AI settings?</string>
+    <string name="reset_all_ai_settings_confirm_message">This will clear the API key, provider, endpoint, model, and reset all prompts to defaults. Continue?</string>
+    <string name="edit_prompt">Edit prompt</string>
+    <string name="built_in_prompt">Built-in</string>
+    <string name="built_in_prompt_notice">This is a built-in prompt and cannot be edited. Use \"Copy to customize\" to create an editable copy.</string>
+    <string name="copy_to_customize">Copy to customize</string>
+    <string name="prompt_copied">Prompt copied</string>
+    <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
+    <string name="prompt_name_required">Prompt name is required</string>
+    <string name="prompt_template_required">Prompt template is required</string>
+    <string name="prompt_cache_settings">Cache settings</string>
+    <string name="prompt_strict_context_matching">Context-dependent cache</string>
+    <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
+    <string name="ai_document_delete_confirmation">Delete this AI document?</string>
+    <string name="ai_document_deleted">This AI document has been deleted.</string>
+    <string name="ai_document_regenerating">Regenerating AI document…</string>
+    <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
+    <string name="ai_document_regenerate">Regenerate</string>
+    <string name="ai_document_delete">Delete</string>
+
+    <!-- Default prompts -->
+    <string name="default_prompt_translate_to_language">Translate to %s</string>
+    <string name="default_prompt_translate_to_ui_language">Translate to UI language</string>
+    <string name="default_prompt_translate_to_ui_language_desc">Translates document text to the app interface language</string>
+    <string name="default_prompt_translate_to_english">Translate to English</string>
+    <string name="default_prompt_translate_to_english_desc">Translates selected text to English</string>
+    <string name="default_prompt_summary">Summary</string>
+    <string name="default_prompt_summary_desc">Creates a concise summary of the selected text</string>
+    <string name="default_prompt_explain_verses">Explain verses</string>
+    <string name="default_prompt_explain_verses_desc">Explains the meaning and context of selected verses</string>
+    <string name="default_prompt_word_study">Word study</string>
+    <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
+    <string name="default_prompt_strongs_annotation">Strong\'s number annotation</string>
+    <string name="default_prompt_strongs_annotation_desc">Adds Strong\'s concordance numbers to any Bible translation using KJV as reference</string>
+
+    <!-- Agent Tool Display Names -->
+    <string name="tool_create_bookmark">Create bookmark</string>
+    <string name="tool_add_bookmark_note">Add bookmark note</string>
+    <string name="tool_update_bookmark_note">Update bookmark note</string>
+    <string name="tool_create_label">Create label</string>
+    <string name="tool_add_label_to_bookmark">Add label to bookmark</string>
+    <string name="tool_add_study_pad_entry">Add study pad entry</string>
+    <string name="tool_set_document_title">Set document title</string>
+    <string name="tool_finish_with_study_pad">Open study pad</string>
+    <string name="tool_finish_without_document">Finish without document</string>
+    <string name="tool_get_verse_content">Read verse content</string>
+    <string name="tool_get_commentaries">Read commentaries</string>
+    <string name="tool_get_dictionary_entry">Look up dictionary entry</string>
+    <string name="tool_search_bible">Search Bible</string>
+    <string name="tool_get_installed_documents">List installed documents</string>
+    <string name="tool_get_all_labels">List all labels</string>
+    <string name="tool_get_bookmarks_for_verse">Get bookmarks for verse</string>
+    <string name="tool_get_bookmarks_with_label">Get bookmarks with label</string>
+    <string name="tool_get_study_pad_content">Read study pad content</string>
+    <string name="tool_search_study_pads">Search study pads</string>
+
+    <!-- Agent Permission Dialog -->
+    <string name="agent_permission_title">Agent Permission</string>
+    <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s</string>
+    <string name="permission_allow_once">Allow once</string>
+    <string name="permission_allow_for_session">Allow for this session</string>
+    <string name="permission_allow_all_session">Allow all tools this session</string>
+    <string name="permission_allow_always">Always allow \"%1$s\"</string>
+    <string name="permission_deny">Deny</string>
+    <string name="permission_always_allow_confirm_title">Always allow?</string>
+    <string name="permission_always_allow_confirm">Are you sure you want to permanently allow \"%1$s\"?</string>
+    <string name="permission_always_allow_confirm_reset_hint">You can reset this in AI Settings.</string>
+
+    <!-- Agent Tool Permission Settings -->
+    <string name="manage_tool_permissions_title">Tool permissions</string>
+    <string name="manage_tool_permissions_summary">Manage per-tool permission overrides</string>
+    <string name="permission_status_default">Ask (default)</string>
+    <string name="permission_status_allowed">Always allowed</string>
+    <string name="permission_status_denied">Always denied</string>
+    <string name="permission_option_default">Ask each time (default)</string>
+    <string name="permission_option_always_allow">Always allow</string>
+    <string name="permission_option_always_deny">Always deny</string>
+    <string name="reset_all_permissions">Reset all</string>
+
+    <!-- Tool Info -->
+    <string name="ai_available_tools">Available tools</string>
+    <string name="ai_read_tools">Read Tools</string>
+    <string name="ai_write_tools">Write Tools</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+    <string name="prompt_tool_permissions">Tool permissions</string>
+    <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
+
+    <!-- Per-Prompt Model Override -->
+    <string name="prompt_model_override">Model</string>
+    <string name="prompt_model_default">Default</string>
+    <string name="prompt_model_custom">Custom</string>
+    <string name="prompt_model_custom_hint">Enter model name</string>
+
+    <!-- LLM One Tap Actions -->
+    <string name="select_llm_prompt">Select AI Action</string>
+    <string name="no_llm_prompts_configured">No AI prompts configured for verse selection</string>
+    <string name="llm_prompt_executing">Executing AI prompt: %s</string>
+    <string name="llm_actions">AI Actions</string>
+
+    <!-- Agent Log Widget -->
+    <string name="agent_log_expand">Expand/collapse agent log</string>
+    <string name="agent_log_close">Close agent log</string>
+    <string name="agent_log_stop">Stop AI</string>
+    <string name="agent_log_idle">AI Assistant</string>
+    <string name="agent_log_running">AI is working…</string>
+    <string name="agent_log_completed">Completed</string>
+    <string name="agent_log_error">Error occurred</string>
+    <string name="agent_log_executing">Executing: %s</string>
+    <string name="agent_log_iteration">Iteration %d</string>
+    <string name="agent_log_tool">Tool: %s</string>
+    <string name="agent_log_tool_completed">Tool %s completed</string>
+    <string name="agent_log_tool_failed">Tool %s failed</string>
+    <string name="agent_log_response_received">Response received</string>
+    <string name="agent_log_saved">Saved: %s</string>
+    <string name="agent_log_done">Done: %s</string>
+    <string name="agent_log_cancelled">Cancelled</string>
+    <string name="agent_execution_completed">Agent execution completed</string>
+    <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
+
+    <!-- My Documents -->
+    <string name="my_documents_title">My Documents</string>
+    <string name="my_documents_empty">No documents yet. Tap + to create one.</string>
+    <string name="my_document_new_name">Document %d</string>
+    <string name="my_document_create_title">Create new document</string>
+    <string name="my_document_rename_title">Rename document</string>
+    <string name="my_document_edit_description_title">Edit description</string>
+    <string name="my_document_delete_confirmation">Delete document \"%s\"?</string>
+    <string name="my_document_cannot_delete_ai_documents">AI Documents cannot be deleted while it contains pages. Delete the pages first.</string>
+    <string name="my_document_save_changes">Save changes?</string>
+    <string name="my_document_no_description">No description</string>
+    <string name="my_document_rename">Rename</string>
+    <string name="my_document_edit_description">Edit description</string>
+    <string name="my_document_delete">Delete</string>
+
+    <string name="my_document_pages_title">%s - Pages</string>
+    <string name="my_document_pages_empty">No pages in this document.</string>
+    <string name="my_document_page_rename_title">Rename page</string>
+    <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
+    <string name="my_document_page_rename">Rename</string>
+    <string name="my_document_page_delete">Delete</string>
 </resources>

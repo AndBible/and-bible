@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -22,9 +22,10 @@
       :data-book-initials="bookInitials"
       :data-osis-ref="osisRef"
   >
-    <OsisFragment :is-epub="document.isEpub" :fragment="osisFragment"/>
+    <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
     <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
+    <WholePageBookmarks :book-initials="bookInitials" :book-key="annotateRef"/>
   </div>
 </template>
 
@@ -32,6 +33,7 @@
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
+import WholePageBookmarks from "@/components/WholePageBookmarks.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
 import {inject, provide, ref} from "vue";

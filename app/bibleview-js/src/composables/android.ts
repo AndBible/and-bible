@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -33,7 +33,7 @@ import {
     StudyPadTextItem
 } from "@/types/client-objects";
 import {AnyDocument} from "@/types/documents";
-import {isBibleBookmark, isGenericBookmark} from "@/composables/bookmarks";
+import {isBibleBookmark, isGenericBookmark, isWholePageBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
     scrolledToOrdinal: (key: string, ordinal: number) => void,
@@ -75,6 +75,7 @@ export type BibleJavascriptInterface = {
     addGenericBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, addNote: boolean) => void,
     addParagraphBreakBookmark: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addGenericParagraphBreakBookmark: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    createWholePageBookmark: (bookInitials: string, bookKey: string) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -98,6 +99,10 @@ export type BibleJavascriptInterface = {
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
     saveState: (newState: string) => void,
+    goToNextChapter: () => void,
+    goToPreviousChapter: () => void,
+    llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -227,18 +232,20 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
             }
         }
 
-        function bookmarkRange(b: BaseBookmark): CombinedRange {
+        function bookmarkRange(b: BaseBookmark): CombinedRange | null {
+            if (isWholePageBookmark(b)) return null;
             const offsetRange = b.offsetRange || [0, null]
             if (b.bookInitials !== bookInitials) {
                 offsetRange[0] = 0;
                 offsetRange[1] = null;
             }
-            return [[b.ordinalRange[0], offsetRange[0]], [b.ordinalRange[1], offsetRange[1]]]
+            return [[b.ordinalRange![0], offsetRange[0]], [b.ordinalRange![1], offsetRange[1]]]
         }
 
-        const filteredBookmarks = bookmarks.value.filter(b => rangeInside(
-            bookmarkRange(b), [[startOrdinal, startOffset], [endOrdinal, endOffset]])
-        );
+        const filteredBookmarks = bookmarks.value.filter(b => {
+            const range = bookmarkRange(b);
+            return range && rangeInside(range, [[startOrdinal, startOffset], [endOrdinal, endOffset]]);
+        });
 
         const deleteBookmarks = union(filteredBookmarks.map(b => b.id));
 
@@ -393,6 +400,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.addGenericParagraphBreakBookmark(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function createWholePageBookmark(bookInitials: string, bookKey: string) {
+        window.android.createWholePageBookmark(bookInitials, bookKey);
+    }
+
     function compare(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
         window.android.compare(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
@@ -541,6 +552,22 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.saveState(JSON.stringify(newState));
     }
 
+    function goToNextChapter() {
+        window.android.goToNextChapter();
+    }
+
+    function goToPreviousChapter() {
+        window.android.goToPreviousChapter();
+    }
+
+    function llmAction(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.llmAction(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function llmActionGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -583,6 +610,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         addGenericBookmark,
         addParagraphBreakBookmark,
         addGenericParagraphBreakBookmark,
+        createWholePageBookmark,
         compare,
         memorize,
         speak,
@@ -591,6 +619,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         onKeyDown,
         parseRef,
         saveState,
+        goToNextChapter,
+        goToPreviousChapter,
+        llmAction,
+        llmActionGeneric,
     }
 
     if (config.developmentMode) return {

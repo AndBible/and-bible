@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -70,6 +70,7 @@
           :show-placeholder="journalEntry.type === 'journal'"
           :edit-directly="textEntry.new ?? false"
           :text="journalText"
+          :content-type="journalContentType"
           :disable-click-to-edit="props.disableClickToEdit"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
@@ -143,7 +144,16 @@ function journalTextChanged(newText: string) {
 const journalText = computed(() => {
     if (isBookmark(props.journalEntry))
         return (props.journalEntry as BaseStudyPadBookmarkItem).notes;
-    else if (props.journalEntry.type === "journal") return (props.journalEntry as StudyPadTextItem).text;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).text;
+    return null;
+});
+
+const journalContentType = computed(() => {
+    if (isBookmark(props.journalEntry))
+        return (props.journalEntry as BaseStudyPadBookmarkItem).notesContentType;
+    else if (props.journalEntry.type === "journal")
+        return (props.journalEntry as StudyPadTextItem).contentType;
     return null;
 });
 
@@ -211,7 +221,7 @@ const genericUrl = computed(
         const bookmarkItem = props.journalEntry as StudyPadGenericBookmarkItem
         const doc = bookmarkItem.bookInitials;
         const osis = bookmarkItem.key;
-        const ordinal = bookmarkItem.ordinalRange[0];
+        const ordinal = bookmarkItem.ordinalRange ? bookmarkItem.ordinalRange[0] : 0;
 
         if(exportMode.value) {
             return ""

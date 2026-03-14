@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -76,7 +76,7 @@ class CurrentBiblePage(
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
-                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey
+                bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
             )
         } else doc
     }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -59,21 +59,12 @@
 		app:layout_constraintTop_toBottomOf="@id/manifestUrl"
 		android:visibility="gone"
 		/>
-	<Button
-		android:id="@+id/submitButton"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:text="@string/custom_repositories_create_button_label"
-		android:layout_marginTop="15pt"
-		android:enabled="false"
-		app:layout_constraintTop_toBottomOf="@+id/manifestUrl"
-		/>
 	<TextView
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="12dp"
 		android:id="@+id/infoText"
-		app:layout_constraintTop_toBottomOf="@id/submitButton"
+		app:layout_constraintTop_toBottomOf="@+id/manifestUrl"
 		/>
 	<ProgressBar
 		android:id="@+id/loadingIndicator"

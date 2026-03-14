@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -93,6 +93,7 @@
                     app:srcCompat="@drawable/ic_syncdb_24dp"
                     app:tint="?attr/toolbarTextColor"
                     />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <LinearLayout
@@ -180,6 +181,14 @@
             android:orientation="vertical"
             app:layout_constraintTop_toBottomOf="@id/toolbarDivider"
             app:layout_constraintBottom_toBottomOf="parent"
+            />
+
+        <net.bible.android.view.util.widget.AgentLogWidget
+            android:id="@+id/agentLogWidget"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@id/speakTransport"
             />
 
         <net.bible.android.view.util.widget.SpeakTransportWidget

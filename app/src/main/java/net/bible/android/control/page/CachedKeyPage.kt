@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -18,10 +18,13 @@ package net.bible.android.control.page
 
 import android.util.Log
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.isMyDocument
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import java.util.*
 
@@ -33,6 +36,22 @@ abstract class CachedKeyPage internal constructor(
     pageManager: CurrentPageManager
 ) : CurrentPageBase(shareKeyBetweenDocs, pageManager) {
     private var mCachedGlobalKeyList: MutableList<Key>? = null
+
+    init {
+        ABEventBus.register(this)
+    }
+
+    /**
+     * Called when a MyDocument is updated (pages added/removed).
+     * Clears the cache if the current document matches.
+     */
+    fun onEvent(event: MyDocumentUpdatedEvent) {
+        val doc = currentDocument
+        if (doc != null && doc.isMyDocument && doc.initials == event.initials) {
+            Log.d(TAG, "Clearing cached key list for updated MyDocument: ${event.initials}")
+            mCachedGlobalKeyList = null
+        }
+    }
 
 
 	override fun setCurrentDocument(doc: Book?) {
@@ -50,13 +69,13 @@ abstract class CachedKeyPage internal constructor(
     val cachedGlobalKeyList: List<Key>?
         get() {
             var keylist = mCachedGlobalKeyList
-            val currentDocument = currentDocument
-            if (currentDocument != null && keylist == null) {
+            val doc = currentDocument
+            if (doc != null && keylist == null) {
                 try {
-                    Log.i(TAG, "Start to create cached key list for $currentDocument")
+                    Log.i(TAG, "Start to create cached key list for $doc")
                     // this cache is cleared in setCurrentDoc
                     keylist = ArrayList()
-                    for (key in currentDocument.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
+                    for (key in doc.globalKeyList) { // root key has no name and can be ignored but also check for any other keys with no name
                         if (!StringUtils.isEmpty(key.name)) {
                             keylist.add(key)
                         }
@@ -68,10 +87,10 @@ abstract class CachedKeyPage internal constructor(
                 } catch (e: Exception) {
                     keylist = null
                     System.gc()
-                    Log.e(TAG, "Error getting keys for $currentDocument", e)
+                    Log.e(TAG, "Error getting keys for $doc", e)
                     Dialogs.showErrorMsg(R.string.error_occurred, e)
                 }
-                Log.i(TAG, "Finished creating cached key list len:" + keylist!!.size)
+                Log.i(TAG, "Finished creating cached key list len:" + (keylist?.size ?: 0))
             }
 			mCachedGlobalKeyList = keylist
             return keylist
@@ -88,10 +107,11 @@ abstract class CachedKeyPage internal constructor(
         // move forward or backward to new posn
         var newKeyPos = keyPos + num
         // check bounds
-        newKeyPos = Math.min(newKeyPos, cachedGlobalKeyList!!.size - 1)
+        val keyList = cachedGlobalKeyList ?: return currentKey ?: DefaultLeafKeyList("")
+        newKeyPos = Math.min(newKeyPos, keyList.size - 1)
         newKeyPos = Math.max(newKeyPos, 0)
         // get the actual key at that posn
-        return cachedGlobalKeyList!![newKeyPos]
+        return keyList[newKeyPos]
     }
 
 

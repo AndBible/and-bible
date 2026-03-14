@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -34,13 +34,19 @@ import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SETTINGS_DATABASE_VERSION
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.TemporaryDatabase
+import net.bible.android.database.AiSettingsDatabase
+import net.bible.android.database.AI_SETTINGS_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
+import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
 import net.bible.android.database.migrations.DatabaseSplitMigrations
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
+import net.bible.android.database.migrations.aiSettingsMigrations
+import net.bible.android.database.migrations.myDocumentMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
@@ -63,7 +69,9 @@ val ALL_DB_FILENAMES = arrayOf(
     ReadingPlanDatabase.dbFileName,
     WorkspaceDatabase.dbFileName,
     RepoDatabase.dbFileName,
-    SettingsDatabase.dbFileName
+    SettingsDatabase.dbFileName,
+    AiSettingsDatabase.dbFileName,
+    MyDocumentDatabase.dbFileName
 )
 
 class DataBaseNotReady: Exception()
@@ -151,6 +159,42 @@ class DatabaseContainer {
         workspaceDb.close()
         workspaceDb = getWorkspaceDb()
         return workspaceDb
+    }
+
+    fun getMyDocumentDb(filename: String = MyDocumentDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, MyDocumentDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*myDocumentMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var myDocumentDb: MyDocumentDatabase = getMyDocumentDb()
+
+    fun resetMyDocumentDb(): MyDocumentDatabase {
+        myDocumentDb.close()
+        myDocumentDb = getMyDocumentDb()
+        return myDocumentDb
+    }
+
+    fun getAiSettingsDb(filename: String = AiSettingsDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, AiSettingsDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*aiSettingsMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var aiSettingsDb: AiSettingsDatabase = getAiSettingsDb()
+
+    fun resetAiSettingsDb(): AiSettingsDatabase {
+        aiSettingsDb.close()
+        aiSettingsDb = getAiSettingsDb()
+        return aiSettingsDb
     }
 
     init {
@@ -251,7 +295,7 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
@@ -283,6 +327,7 @@ class DatabaseContainer {
                 }
                     .also {
                         _instance = it
+                        CommonUtils.migrateOldSettingsKeys()
                     }
             }
         }
@@ -306,6 +351,8 @@ class DatabaseContainer {
             WorkspaceDatabase.dbFileName -> WORKSPACE_DATABASE_VERSION
             RepoDatabase.dbFileName -> REPO_DATABASE_VERSION
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
+            AiSettingsDatabase.dbFileName -> AI_SETTINGS_DATABASE_VERSION
+            MyDocumentDatabase.dbFileName -> MY_DOCUMENT_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 
@@ -344,6 +391,26 @@ class DatabaseContainer {
                     },
                 )
                 },
+                { SyncableDatabaseAccessor(
+                    localDb = myDocumentDb,
+                    dbFactory = { n -> getMyDocumentDb(n) },
+                    _resetLocalDb = { resetMyDocumentDb() },
+                    localDbFile = application.getDatabasePath(MyDocumentDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.MYDOCUMENTS,
+                    _reactToUpdates = {
+                        ABEventBus.post(MyDocumentsUpdatedViaSyncEvent(it))
+                    },
+                ) },
+                { SyncableDatabaseAccessor(
+                    localDb = aiSettingsDb,
+                    dbFactory = { n -> getAiSettingsDb(n) },
+                    _resetLocalDb = { resetAiSettingsDb() },
+                    localDbFile = application.getDatabasePath(AiSettingsDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.AI_SETTINGS,
+                    _reactToUpdates = {
+                        ABEventBus.post(AiSettingsUpdatedViaSyncEvent(it))
+                    },
+                ) },
             )
         }
 
@@ -353,3 +420,5 @@ class DatabaseContainer {
 class ReadingPlansUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
+class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)
+class AiSettingsUpdatedViaSyncEvent(val updated: List<LogEntry>)

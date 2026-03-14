@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denh// Mock the useCommon composable
+ * Copyright (c) 2021-2026 Martin Denh// Mock the useCommon composable
 vi.mock("@/composables", () => ({
   useCommon: () => ({
     strings: {

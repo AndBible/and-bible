@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -44,6 +44,7 @@ import org.crosswire.jsword.passage.DefaultLeafKeyList
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.VerseRange
+import org.jdom2.Element
 
 /** Common functionality for different document page types
  *
@@ -144,8 +145,8 @@ abstract class CurrentPageBase protected constructor(
         val currentDocument = currentDocument!!
 
         val frag = synchronized(currentDocument) {
-            val frag = SwordContentFacade.readOsisFragment(currentDocument, key)
-            OsisFragment(frag, key, currentDocument)
+            val xml = SwordContentFacade.readOsisFragment(currentDocument, key)
+            OsisFragment(xml, key, currentDocument)
         }
 
         annotateKey = frag.annotateRef
@@ -155,7 +156,7 @@ abstract class CurrentPageBase protected constructor(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true)
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

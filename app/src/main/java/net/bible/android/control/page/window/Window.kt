@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -214,6 +214,14 @@ class Window (
             if(adjusted) {
                 b?.adjustLoadingCount(-1)
             }
+
+            // null means request was superseded - don't load anything
+            if (doc == null) {
+                if(notifyLocationChange)
+                    PassageChangeMediator.contentChangeFinished()
+                return@launch
+            }
+
             val checksum = if(pageManager.isCommentaryShown && doc is OsisDocument) {
                 val checksum = doc.osisFragment.xmlStr.hashCode()
                 if (lastChecksum == checksum && bibleView?.firstDocument != null) {
@@ -323,7 +331,7 @@ class Window (
         loadText(notifyLocationChange = true)
     }
 
-    private suspend fun fetchDocument(): Document = withContext(Dispatchers.IO) {
+    private suspend fun fetchDocument(): Document? = withContext(Dispatchers.IO) {
         val currentPage = pageManager.currentPage
         return@withContext try {
             val document = currentPage.currentDocument

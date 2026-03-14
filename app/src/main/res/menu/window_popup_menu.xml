@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -63,6 +63,9 @@
 				/>
 		</menu>
 	</item>
+	<item android:id="@+id/addWholePageBookmark"
+		android:title="@string/add_whole_page_bookmark"
+		android:icon="@drawable/ic_baseline_bookmark_24"/>
 	<item android:id="@+id/exportHtml"
 		android:title=""
 		android:icon="@drawable/file_export"
@@ -106,6 +109,16 @@
 						/>
 				</menu>
 			</item>
+		</menu>
+	</item>
+	<item
+		android:id="@+id/llmActionsSubMenu"
+		android:icon="@drawable/ic_baseline_smart_toy_24"
+		android:title="@string/llm_actions">
+		<menu>
+			<item android:id="@+id/llmActionItem"
+				android:title=""
+				/>
 		</menu>
 	</item>
 	<item android:id="@+id/copyReference"

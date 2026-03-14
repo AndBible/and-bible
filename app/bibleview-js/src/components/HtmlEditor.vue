@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -54,12 +54,13 @@ import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
-import {androidKey, customFeaturesKey, keyboardKey} from "@/types/constants";
+import {androidKey, appSettingsKey, customFeaturesKey, keyboardKey} from "@/types/constants";
 
 const props = defineProps<{ text: string }>();
 const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
+const appSettings = inject(appSettingsKey)!;
 const {parse, features} = inject(customFeaturesKey)!
 const {editorMode} = inject(keyboardKey)!;
 const hasRefParser = computed(() => features.has("RefParser"));
@@ -176,6 +177,24 @@ async function refChooserDialog() {
     inputText.value!.setText(await android.refChooserDialog());
 }
 
+function scrollToCursor() {
+    const el = editorElement.value;
+    if (!el || !editor.value?.content.contains(document.activeElement)) return;
+    const actionbar = el.querySelector('.pell-actionbar');
+    if (!actionbar) return;
+    const barRect = actionbar.getBoundingClientRect();
+    const visibleBottom = window.innerHeight - appSettings.bottomOffset;
+    if (barRect.bottom > visibleBottom) {
+        window.scrollBy({top: barRect.bottom - visibleBottom + 8, behavior: appSettings.disableAnimations ? "instant" : "smooth"});
+    }
+}
+
+// When the on-screen keyboard opens/closes, the visual viewport changes and the editor
+// toolbar may end up hidden behind the keyboard. Scroll to keep cursor and toolbar visible.
+function onViewportResize() {
+    scrollToCursor();
+}
+
 onMounted(() => {
     editor.value = init({
         element: editorElement.value!,
@@ -190,6 +209,7 @@ onMounted(() => {
     editor.value!.content.innerHTML = editText.value;
     editor.value!.content.focus();
     editorMode.value ++;
+    window.visualViewport?.addEventListener("resize", onViewportResize);
 });
 
 setupElementEventListener(editorElement, "keyup", e => {
@@ -202,6 +222,7 @@ setupElementEventListener(editorElement, "keyup", e => {
 
 onBeforeUnmount(() => {
     save();
+    window.visualViewport?.removeEventListener("resize", onViewportResize);
 });
 
 onUnmounted(() => {
@@ -213,25 +234,18 @@ const {sprintf} = useCommon();
 <style lang="scss">
 @use "@/lib/pell/pell.scss" as pell;
 @use "@/common.scss" as *;
+@use "@/editor-common.scss";
 
-.pell-content {
-  @extend .visible-scrollbar;
-  max-height: calc(var(--max-height) - #{pell.$pell-button-height} - 2 * #{pell.$pell-content-padding});
-  height: inherit;
+.edit-area .pell-content {
   padding: 0 7px 5px 7px;
   z-index: 1;
   position: relative;
 }
 
 .pell-button {
-  color: inherit;
-  width: pell.$pell-button-width *0.9;
-  height: pell.$pell-button-height *0.9;
+  width: pell.$pell-button-width * 0.9;
+  height: pell.$pell-button-height * 0.9;
   margin: 0 1px 0 1px;
-
-  .night & {
-    color: inherit;
-  }
 
   &.end {
     position: absolute;
@@ -243,70 +257,7 @@ const {sprintf} = useCommon();
     [dir=rtl] & {
       left: 0;
     }
-
-    //.studypad-text-entry & {
-    //  [dir=ltr] & {
-    //    right: 40px;
-    //  }
-    //  [dir=rtl] & {
-    //    left: 40px;
-    //  }
-    //}
   }
-}
-
-.pell-button-selected {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 5px;
-
-  .night & {
-    background-color: rgba(255, 255, 255, 0.2);
-  }
-}
-
-.pell-actionbar {
-  background-color: inherit;
-  color: rgba(0, 0, 0, 0.6);
-
-  .night & {
-    color: rgba(255, 255, 255, 0.5);
-  }
-}
-
-.saved-notice {
-  position: absolute;
-  right: 5px;
-  bottom: pell.$pell-button-height;
-  padding-inline-end: 3pt;
-  color: hsla(112, 40%, 33%, 0.8);
-
-  .night & {
-    color: hsla(112, 40%, 33%, 0.8);
-  }
-
-  opacity: 0.8;
-  .monochrome & {
-    opacity: 1;
-  }
-  font-size: 10px;
-  z-index: 0;
-}
-
-.pell-divider {
-  background-color: hsla(0, 0%, 0%, 0.2);
-
-  .night & {
-    background-color: hsla(0, 0%, 100%, 0.2);
-  }
-}
-
-.edit-area {
-  width: 100%;
-  position: relative;
-}
-
-.edit-area, .pell {
-  margin: 0;
 }
 
 .header {
@@ -314,6 +265,4 @@ const {sprintf} = useCommon();
   justify-content: space-between;
   width: 100%;
 }
-
-
 </style>

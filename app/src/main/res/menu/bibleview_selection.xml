@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -86,6 +86,12 @@
             android:title="@string/add_paragraph_break"
             android:orderInCategory="2"
             android:visible="true"
+            app:showAsAction="always"
+            />
+        <item android:id="@+id/llm_action"
+            android:title="@string/llm_actions"
+            android:orderInCategory="3"
+            android:visible="false"
             app:showAsAction="always"
             />
 
