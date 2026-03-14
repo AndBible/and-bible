@@ -39,7 +39,7 @@ enum class LlmProvider(
     val displayName: String,
     val endpoint: String,
     val modelPricing: List<Pair<String, ModelPricing?>>,
-    val apiKeyPrefix: String? = null,
+
     val apiFormat: ApiFormat = ApiFormat.OPENAI,
     val tier: ProviderTier = ProviderTier.RECOMMENDED,
     val apiKeyUrl: String? = null,
@@ -92,23 +92,7 @@ enum class LlmProvider(
 
     val models: List<String> get() = modelPricing.map { it.first }
 
-    val apiAdapter: LlmApiAdapter get() = when (apiFormat) {
-        ApiFormat.OPENAI -> OpenAiApiAdapter()
-        ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
-    }
-
     companion object {
-        fun fromEndpoint(endpoint: String): LlmProvider {
-            val normalized = endpoint.trimEnd('/')
-            return entries.firstOrNull {
-                it != CUSTOM && it.endpoint.trimEnd('/') == normalized
-            } ?: CUSTOM
-        }
-
-        fun fromApiKey(apiKey: String): LlmProvider? =
-            entries.filter { it.apiKeyPrefix != null && apiKey.startsWith(it.apiKeyPrefix!!) }
-                .maxByOrNull { it.apiKeyPrefix!!.length }
-
         /** Look up pricing for a model across all providers. */
         fun findPricing(model: String): ModelPricing? {
             for (provider in entries) {
@@ -145,7 +129,7 @@ data class LlmModelConfig(
     val providerConfigId: IdType? = null,
     val model: String? = null,
 ) {
-    val isDefault: Boolean get() = providerConfigId == null && model == null
+
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
