@@ -232,7 +232,7 @@
 	<string-array name="experimental_features_names">
 		<item>@string/experimental_feature_bookmark_edit_actions</item>
 		<item>@string/experimental_feature_add_paragraph_break</item>
-		<item>@string/experimental_feature_ai_text_processing</item>
+		<item>@string/experimental_feature_ai_features</item>
 	</string-array>
 	<string-array name="experimental_features_values">
 		<item>bookmark_edit_actions</item>
