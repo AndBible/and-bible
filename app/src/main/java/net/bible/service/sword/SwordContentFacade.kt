@@ -589,7 +589,7 @@ object SwordContentFacade {
             verseTexts.size > 1 -> {
                 startVerse = startVerse.slice(startOffset until startVerse.length)
                 val lastVerse = verseTexts.last()
-                var endVerseNum = if (showVerseNumbers) {
+                val endVerseNum = if (showVerseNumbers) {
                     formatVerseNumber(lastVerse.verse.verse, useSuperscriptVerseNumbers)
                 } else
                     ""

@@ -50,11 +50,11 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             if (!selection.hasRange) {
                 toggleShowSelectionOnly.visibility = View.GONE
                 toggleShowEllipsis.visibility = View.GONE
+                toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
+                toggleSuperscriptVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_superscript_verse_numbers", false)
             }
 
             // apply isChecked to toggles based on settings
-            toggleVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_verse_numbers", true)
-            toggleSuperscriptVersenumbers.isChecked = CommonUtils.settings.getBoolean("share_superscript_verse_numbers", false)
             advertise.isChecked = CommonUtils.settings.getBoolean("share_show_add", true)
             toggleShowReference.isChecked = CommonUtils.settings.getBoolean("share_show_reference", true)
             toggleAbbreviateReference.isChecked = CommonUtils.settings.getBoolean("share_abbreviate_reference", true)
