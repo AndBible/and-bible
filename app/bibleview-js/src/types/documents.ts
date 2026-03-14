@@ -63,6 +63,7 @@ interface BaseOsisDocument extends BaseDocument {
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
     isNativeHtml: boolean
+    isAiDocument: boolean
 }
 
 export interface OsisDocument extends BaseOsisDocument {

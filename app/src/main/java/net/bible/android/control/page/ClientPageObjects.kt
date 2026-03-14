@@ -35,6 +35,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -134,6 +135,7 @@ open class OsisDocument(
             "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
             "highlightedOrdinalRange" to highlightedOrdinalRange,
             "isNativeHtml" to json.encodeToString(serializer(), book.isEpub || book.isMyDocument),
+            "isAiDocument" to json.encodeToString(serializer(), book.initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
         )
     }
 }

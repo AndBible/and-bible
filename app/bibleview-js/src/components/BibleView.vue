@@ -208,12 +208,13 @@ const {
     loadingAtTop,
     loadTextAtTop,
     loadTextAtEnd,
-    documentSupportsInfiniteScroll,
+    documentSupportsChapterNavigation,
+    infiniteScrollIsEnabled,
     reachedEnd
 } = useInfiniteScroll(android, scroll, documents, config);
 
 const showChapterNavButtons = computed(() => {
-    return !config.infiniteScroll && documentSupportsInfiniteScroll.value;
+    return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
 });
 const loadingCount = ref(0);
 
