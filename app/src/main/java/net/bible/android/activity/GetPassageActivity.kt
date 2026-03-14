@@ -70,13 +70,21 @@ class GetPassageActivity : ComponentActivity() {
                 XMLUtil.writeToString(bookData.saxEventProvider)
             }
 
-            Log.d(TAG, "Successfully retrieved passage")
-            val resultIntent = Intent(INTENT_PUT_PASSAGE).apply {
-                putExtra("quote", quote)
-                putExtra("citation", cite)
-                putExtra("format", "application/xml+osis")
+            if (quote.length > MAX_INTENT_EXTRA_SIZE) {
+                val msg = "Passage too large (${quote.length} bytes)"
+                Log.w(TAG, msg)
+                setResult(Activity.RESULT_CANCELED, Intent(INTENT_ERROR_MESSAGE).apply {
+                    putExtra("message", msg)
+                })
+            } else {
+                Log.d(TAG, "Successfully retrieved passage")
+                val resultIntent = Intent(INTENT_PUT_PASSAGE).apply {
+                    putExtra("quote", quote)
+                    putExtra("citation", cite)
+                    putExtra("format", "application/xml+osis")
+                }
+                setResult(Activity.RESULT_OK, resultIntent)
             }
-            setResult(Activity.RESULT_OK, resultIntent)
         } catch (e: Exception) {
             val msg = "Error retrieving passage: ${e.message}"
             Log.w(TAG, msg)
@@ -92,5 +100,8 @@ class GetPassageActivity : ComponentActivity() {
         private const val INTENT_PUT_PASSAGE = "net.bible.android.action.PUT_PASSAGE"
         private const val INTENT_ERROR_MESSAGE = "net.bible.android.action.ERROR_MESSAGE"
         private const val GET_PASSAGE_SEARCH_STRING = "search_string"
+        
+        // Safety limit for Intent extras to avoid TransactionTooLargeException crashing the process
+        private const val MAX_INTENT_EXTRA_SIZE = 100_000
     }
 }
