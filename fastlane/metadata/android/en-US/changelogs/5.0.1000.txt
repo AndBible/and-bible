@@ -1,0 +1,14 @@
+- Fix page number hidden behind restore button when button bar is hidden (eb6765aaa)
+- Fix page up/down not updating Bible reference (7a65c5016)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
