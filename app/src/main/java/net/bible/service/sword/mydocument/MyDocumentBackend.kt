@@ -18,7 +18,6 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
-import android.util.LruCache
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
@@ -68,7 +67,6 @@ class MyDocumentBackend(
 ) : AbstractKeyBackend<MyDocumentOpenFileState>(metadata) {
 
     private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-    private val contentCache = LruCache<String, String>(8)
 
     override fun initState(): MyDocumentOpenFileState {
         return MyDocumentOpenFileState(documentId, bookMetaData as SwordBookMetaData)
@@ -117,8 +115,6 @@ class MyDocumentBackend(
         // Use osisRef (pageKey) for lookup, fallback to name
         val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
 
-        contentCache.get(pageKey)?.let { return it }
-
         val page = dao.pageByKeyWithContent(documentId, pageKey)
 
         if (page == null) {
@@ -147,7 +143,6 @@ class MyDocumentBackend(
             MyDocumentContentType.OSIS ->
                 if (aiFooter.isNotEmpty()) "<div>$content$aiFooter</div>" else content
         }
-        contentCache.put(pageKey, result)
         return result
     }
 
