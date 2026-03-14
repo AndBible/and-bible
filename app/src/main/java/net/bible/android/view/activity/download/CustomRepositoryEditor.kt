@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -43,8 +43,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.CustomRepositoryEditorBinding
-import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.event.ToastEvent
 import net.bible.android.database.CustomRepository
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.service.common.CommonUtils
@@ -77,12 +75,15 @@ data class RepositoryData (
 class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     private lateinit var binding: CustomRepositoryEditorBinding
     private lateinit var data: RepositoryData
+    private lateinit var initialDataJson: String
+    private var saveMenuItem: MenuItem? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         buildActivityComponent().inject(this)
         data = RepositoryData.fromJSON(intent.getStringExtra("data")!!)
         binding = CustomRepositoryEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        initialDataJson = data.toJSON()
         updateUI()
         if(data.repository?.manifestUrl?.isNotEmpty() == true) {
             binding.manifestUrl.setText(data.repository?.manifestUrl?: "")
@@ -102,12 +103,6 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
                     oldText = s.toString()
                 }
             })
-            submitButton.setOnClickListener {
-                saveAndExit()
-            }
-            if(data.repository != null) {
-                submitButton.text = getString(R.string.save_and_exit)
-            }
         }
     }
 
@@ -116,7 +111,7 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
     var valid: Boolean = false
         set(value) {
             binding.okCheck.visibility = if(value) View.VISIBLE else View.INVISIBLE
-            binding.submitButton.isEnabled = value
+            saveMenuItem?.isEnabled = value
             field = value
         }
 
@@ -261,14 +256,17 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.custom_repository_editor_options_menu, menu)
+        saveMenuItem = menu.findItem(R.id.save)
+        saveMenuItem?.isEnabled = valid
         return true
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var isHandled = true
         when(item.itemId){
+            R.id.save -> saveAndExit()
             R.id.delete -> delete()
             R.id.help -> help()
-            android.R.id.home -> saveAndExit()
+            android.R.id.home -> cancelOrConfirmDiscard()
             else -> isHandled = false
         }
         if (!isHandled) {
@@ -279,18 +277,38 @@ class CustomRepositoryEditor: CustomTitlebarActivityBase() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
-        saveAndExit()
+        cancelOrConfirmDiscard()
     }
 
     private fun saveAndExit() {
         Log.i(TAG, "saveAndExit")
         updateData()
         val resultIntent = Intent()
-        if (!data.delete && !valid) {
-            data.cancel = true
-            ABEventBus.post(ToastEvent(R.string.invalid_repository_not_saved))
-        }
+        resultIntent.putExtra("data", data.toJSON())
+        setResult(Activity.RESULT_OK, resultIntent)
+        finish()
+    }
 
+    private fun isDirty(): Boolean {
+        updateData()
+        return data.toJSON() != initialDataJson
+    }
+
+    private fun cancelOrConfirmDiscard() {
+        if (isDirty()) {
+            AlertDialog.Builder(this)
+                .setMessage(R.string.discard_changes_confirmation)
+                .setPositiveButton(R.string.yes) { _, _ -> cancelAndExit() }
+                .setNegativeButton(R.string.no, null)
+                .show()
+        } else {
+            cancelAndExit()
+        }
+    }
+
+    private fun cancelAndExit() {
+        data.cancel = true
+        val resultIntent = Intent()
         resultIntent.putExtra("data", data.toJSON())
         setResult(Activity.RESULT_OK, resultIntent)
         finish()

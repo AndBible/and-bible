@@ -97,3 +97,7 @@ peek: Peek
 wordBlur: Word Blur
 wordScramble: Word Scramble
 more: More
+llmAction: AI
+llmActionLong: AI Action
+aiDocumentRegenerate: Regenerate
+aiDocumentDelete: Delete

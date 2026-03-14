@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="934"
-    android:versionName="5.0.934">
+    android:versionCode="1000"
+    android:versionName="5.0.1000">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
@@ -171,6 +171,36 @@
             android:parentActivityName="net.bible.android.view.activity.bookmark.Bookmarks"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.AiSettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_settings"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_connection_settings"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.PromptEditActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/edit_prompt"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.PromptToolPermissionsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/prompt_tool_permissions"
+            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.ToolInfoActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_available_tools"
+            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"
@@ -212,6 +242,18 @@
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/workspace_selector_title"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.mydocuments.MyDocumentsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/my_documents_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/my_document_pages_title"
+            android:parentActivityName="net.bible.android.view.activity.mydocuments.MyDocumentsActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.settings.ColorSettingsActivity"

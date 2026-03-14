@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -71,12 +71,14 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
             val constructor = adapter.getDeclaredConstructor()
             constructor.newInstance() as CloudAdapter
         }
-        NEXT_CLOUD -> NextCloudAdapter(
-            CommonUtils.settings.getString("gdrive_server_url"),
-            CommonUtils.settings.getString("gdrive_username"),
-            CommonUtils.settings.getString("gdrive_password"),
-            CommonUtils.settings.getString("gdrive_folder_path")
-        )
+        NEXT_CLOUD -> CommonUtils.realSharedPreferences.let { prefs ->
+            NextCloudAdapter(
+                prefs.getString("cloud_sync_server_url", null),
+                prefs.getString("cloud_sync_username", null),
+                prefs.getString("cloud_sync_password", null),
+                prefs.getString("cloud_sync_folder_path", null)
+            )
+        }
     }
 
     companion object {

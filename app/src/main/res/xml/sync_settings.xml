@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -17,7 +17,7 @@
   -->
 
 <!-- Preference configuration
- 
+
  @author Martin Denham [mjdenham at gmail dot com]
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
@@ -32,33 +32,33 @@
 			android:icon="@drawable/ic_syncdb_24dp"
 			/>
 		<Preference
-			android:key="gdrive_reset_sync"
+			android:key="cloud_sync_reset"
 			android:title="@string/reset_sync"
 			android:summary="@string/prefs_reset_sync_summary"
 			android:icon="@drawable/baseline_logout_24"
 			/>
 		<Preference
-			android:key="gdrive_info"
+			android:key="cloud_sync_info"
 			android:title="@string/cloud_info"
 			android:icon="@drawable/ic_info_grey_24dp"
 			/>
         <EditTextPreference
-            android:key="gdrive_server_url"
+            android:key="cloud_sync_server_url"
             android:title="@string/auth_server_uri"
             android:icon="@drawable/outline_shield_24"
             />
         <EditTextPreference
-            android:key="gdrive_username"
+            android:key="cloud_sync_username"
             android:title="@string/auth_username"
             android:icon="@drawable/outline_shield_24"
             />
         <EditTextPreference
-            android:key="gdrive_password"
+            android:key="cloud_sync_password"
             android:title="@string/auth_password"
             android:icon="@drawable/outline_shield_24"
             />
         <EditTextPreference
-            android:key="gdrive_folder_path"
+            android:key="cloud_sync_folder_path"
             android:title="@string/auth_folder_path"
             android:summary="@string/auth_folder_path_summary"
             android:icon="@drawable/outline_shield_24"
@@ -69,23 +69,35 @@
 		android:key="sync_category"
 		android:title="@string/synchronization_categories"
 		>
-		<SwitchPreferenceCompat android:key="gdrive_bookmarks"
+		<SwitchPreferenceCompat android:key="sync_enable_bookmarks"
 			android:title="@string/bookmarks"
 			android:summary="@string/bookmarks_contents"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_bookmark_24dp"
 			/>
-		<SwitchPreferenceCompat android:key="gdrive_workspaces"
+		<SwitchPreferenceCompat android:key="sync_enable_workspaces"
 			android:title="@string/help_workspaces_title"
 			android:summary="@string/workspaces_contents"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_workspace_24"
 			/>
-		<SwitchPreferenceCompat android:key="gdrive_readingplans"
+		<SwitchPreferenceCompat android:key="sync_enable_readingplans"
 			android:title="@string/reading_plans_plural"
 			android:summary="@string/reading_plans_content"
 			android:defaultValue="false"
 			android:icon="@drawable/ic_reading_plan_24dp"
+			/>
+		<SwitchPreferenceCompat android:key="sync_enable_mydocuments"
+			android:title="@string/my_documents_title"
+			android:summary="@string/my_documents_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_description_gray_24"
+			/>
+		<SwitchPreferenceCompat android:key="sync_enable_ai_settings"
+			android:title="@string/ai_settings_sync_title"
+			android:summary="@string/ai_settings_sync_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_smart_toy_24"
 			/>
 	</PreferenceCategory>
 </PreferenceScreen>

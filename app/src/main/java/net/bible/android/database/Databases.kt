@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -29,6 +29,10 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.makeMigration
 import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
+import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AgentPromptDao
+import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmProviderConfigDao
 
 
 @Database(
@@ -152,5 +156,26 @@ abstract class SettingsDatabase: RoomDatabase() {
     abstract fun doubleSettingDao(): DoubleSettingDao
     companion object {
         const val dbFileName = "settings.sqlite3"
-    }    
+    }
+}
+
+const val AI_SETTINGS_DATABASE_VERSION = 1
+
+@Database(
+    entities = [
+        AgentPrompt::class,
+        LlmProviderConfig::class,
+        LogEntry::class,
+        SyncConfiguration::class,
+        SyncStatus::class,
+    ],
+    version = AI_SETTINGS_DATABASE_VERSION
+)
+@TypeConverters(Converters::class)
+abstract class AiSettingsDatabase: SyncableRoomDatabase() {
+    abstract fun agentPromptDao(): AgentPromptDao
+    abstract fun llmProviderConfigDao(): LlmProviderConfigDao
+    companion object {
+        const val dbFileName = "ai_settings.sqlite3"
+    }
 }

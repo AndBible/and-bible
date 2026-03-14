@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -43,9 +43,12 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
 
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
@@ -283,7 +286,14 @@ class TextToSpeechServiceManager @Inject constructor(
     fun speakGeneric(key: BookAndKey) {
         switchProvider(generalSpeakTextProvider)
         generalSpeakTextProvider.setupReading(key)
-        localePreferenceList = calculateLocalePreferenceList(key.document!!)
+
+        val pageLanguage = getMyDocumentPageLanguage(key)
+        localePreferenceList = if (pageLanguage != null) {
+            calculateLocalePreferenceListForCode(pageLanguage)
+        } else {
+            calculateLocalePreferenceList(key.document!!)
+        }
+
         initializeTtsOrStartSpeaking()
     }
 
@@ -306,10 +316,14 @@ class TextToSpeechServiceManager @Inject constructor(
     }
 
     private fun calculateLocalePreferenceList(fromBook: Book): MutableList<Locale> {
+        return calculateLocalePreferenceListForCode(fromBook.language?.code)
+    }
+
+    private fun calculateLocalePreferenceListForCode(languageCode: String?): MutableList<Locale> {
         //calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
-        var bookLanguageCode = fromBook.language?.code
+        var bookLanguageCode = languageCode
         Log.i(TAG, "Book has language code:$bookLanguageCode")
 
         // Validate and sanitize the language code to prevent TTS crashes
@@ -338,6 +352,15 @@ class TextToSpeechServiceManager @Inject constructor(
         // finally just add the language of the book
         localePreferenceList.add(Locale(bookLanguageCode))
         return localePreferenceList
+    }
+
+    private fun getMyDocumentPageLanguage(key: BookAndKey): String? {
+        val doc = key.document ?: return null
+        if (!doc.isMyDocument) return null
+        val documentId = doc.myDocumentId ?: return null
+        val pageKey = key.key?.osisRef ?: return null
+        return DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+            .pageByKey(documentId, pageKey)?.languageCode
     }
 
     private fun getDefaultCountryCode(language: String): String? {

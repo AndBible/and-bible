@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -21,6 +21,7 @@ import {emit, setupEventBusListener} from "@/eventbus";
 import {isEqual} from "lodash";
 import {Deferred, setupWindowEventListener} from "@/utils";
 import {BibleViewDocumentType} from "@/types/documents";
+import {TextContentType} from "@/types/client-objects";
 
 export type StrongsMode = 0 | 1 | 2
 export const strongsModes: Record<string, StrongsMode> = {hidden: 0, inline: 1, links: 2}
@@ -87,12 +88,13 @@ export type Config = {
     },
     topMargin: number,
     showPageNumber: boolean,
+    infiniteScroll: boolean,
     nonStrongsWordItalic: boolean,
     showTitleScrollButton: boolean,
 }
 
-export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"
-export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
+export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
 export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
 export type AppSettings = {
@@ -122,6 +124,8 @@ export type AppSettings = {
     disableClickToEdit: boolean,
     fontSizeMultiplier: number,
     enabledExperimentalFeatures: Feature[],
+    llmConfigured: boolean,
+    notesContentType: TextContentType,
 }
 
 export type CalculatedConfig = Ref<{
@@ -181,6 +185,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         },
         topMargin: 0,
         showPageNumber: false,
+        infiniteScroll: true,
         nonStrongsWordItalic: false,
         showTitleScrollButton: false,
     });
@@ -213,6 +218,8 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         disableClickToEdit: false,
         fontSizeMultiplier: 1.0,
         enabledExperimentalFeatures: [],
+        llmConfigured: false,
+        notesContentType: "HTML",
     });
 
     function calcMmInPx() {

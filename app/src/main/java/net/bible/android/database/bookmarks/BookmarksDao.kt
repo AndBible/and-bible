@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -22,6 +22,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
+import androidx.room.Upsert
 import net.bible.android.common.toV11n
 import net.bible.android.database.IdType
 import org.crosswire.jsword.passage.Verse
@@ -98,6 +99,9 @@ SELECT GenericBookmarkWithNotes.* FROM GenericBookmarkWithNotes
     JOIN Label ON GenericBookmarkToLabel.labelId = Label.id
     WHERE Label.id = :labelId
 """
+
+data class StudyPadEntryStub(val id: IdType, val orderNumber: Int)
+data class BookmarkToLabelStub(val bookmarkId: IdType, val orderNumber: Int)
 
 @Dao
 interface BookmarkDao {
@@ -227,6 +231,15 @@ interface BookmarkDao {
         else -> throw RuntimeException("Wrong type")
     }
 
+    @Upsert fun upsert(entity: BibleBookmarkNotes)
+    @Upsert fun upsert(entity: GenericBookmarkNotes)
+
+    fun upsert(entity: BaseBookmarkNotes) = when(entity) {
+        is BibleBookmarkNotes -> upsert(entity)
+        is GenericBookmarkNotes -> upsert(entity)
+        else -> throw RuntimeException("Wrong type")
+    }
+
     @Query("DELETE FROM BibleBookmarkNotes WHERE bookmarkId=:id")
     fun deleteBookmarkNotes(id: IdType)
     @Query("DELETE FROM GenericBookmarkNotes WHERE bookmarkId=:id")
@@ -315,24 +328,24 @@ interface BookmarkDao {
     fun genericBookmarksWithLabel(label: Label): List<GenericBookmarkWithNotes>
         = genericBookmarksWithLabel(label.id)
 
-    @Query("""INSERT INTO BibleBookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
-    fun _saveBookmarkNote(bookmarkId: IdType, notes: String?)
+    @Query("""INSERT INTO BibleBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes, contentType=:contentType WHERE bookmarkId=:bookmarkId""")
+    fun _saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
 
-    @Query("""INSERT INTO GenericBookmarkNotes VALUES (:bookmarkId, :notes) ON CONFLICT DO UPDATE SET notes=:notes WHERE bookmarkId=:bookmarkId""")
-    fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?)
+    @Query("""INSERT INTO GenericBookmarkNotes (bookmarkId, notes, contentType) VALUES (:bookmarkId, :notes, :contentType) ON CONFLICT DO UPDATE SET notes=:notes, contentType=:contentType WHERE bookmarkId=:bookmarkId""")
+    fun _saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String)
      @Query("""UPDATE BibleBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
 
     @Query("""UPDATE GenericBookmark SET lastUpdatedOn=:lastUpdatedOn WHERE id=:bookmarkId""")
     fun saveGenericBookmarkLastUpdatedOn(bookmarkId: IdType, lastUpdatedOn: Long)
 
-    fun saveBookmarkNote(bookmarkId: IdType, notes: String?) {
-        _saveBookmarkNote(bookmarkId, notes)
+    fun saveBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
+        _saveBookmarkNote(bookmarkId, notes, contentType)
         saveBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
     }
 
-    fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?) {
-        _saveGenericBookmarkNote(bookmarkId, notes)
+    fun saveGenericBookmarkNote(bookmarkId: IdType, notes: String?, contentType: String) {
+        _saveGenericBookmarkNote(bookmarkId, notes, contentType)
         saveGenericBookmarkLastUpdatedOn(bookmarkId, System.currentTimeMillis())
     }
 
@@ -349,6 +362,18 @@ interface BookmarkDao {
 
     @Query("SELECT * from StudyPadTextEntryWithText WHERE labelId=:id ORDER BY orderNumber")
     fun studyPadTextEntriesByLabelId(id: IdType): List<BookmarkEntities.StudyPadTextEntryWithText>
+
+    @Query("SELECT id, orderNumber FROM StudyPadTextEntryWithText WHERE labelId=:labelId ORDER BY orderNumber")
+    fun studyPadTextEntryStubs(labelId: IdType): List<StudyPadEntryStub>
+
+    @Query("SELECT bookmarkId, orderNumber FROM BibleBookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber")
+    fun bibleBookmarkToLabelStubs(labelId: IdType): List<BookmarkToLabelStub>
+
+    @Query("SELECT bookmarkId, orderNumber FROM GenericBookmarkToLabel WHERE labelId=:labelId ORDER BY orderNumber")
+    fun genericBookmarkToLabelStubs(labelId: IdType): List<BookmarkToLabelStub>
+
+    @Query("SELECT * FROM StudyPadTextEntryWithText WHERE id IN (:ids)")
+    fun studyPadTextEntriesByIds(ids: List<IdType>): List<BookmarkEntities.StudyPadTextEntryWithText>
 
     @Query("SELECT * from StudyPadTextEntryWithText WHERE id=:id")
     fun studyPadTextEntryById(id: IdType): BookmarkEntities.StudyPadTextEntryWithText?
@@ -416,6 +441,9 @@ interface BookmarkDao {
 
     @Query("""SELECT * FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getBookmarkToLabelsForBookmark(bookmarkId: IdType): List<BibleBookmarkToLabel>
+
+    @Query("SELECT * FROM BibleBookmarkToLabel WHERE bookmarkId IN (:bookmarkIds)")
+    fun getBookmarkToLabelsForBookmarks(bookmarkIds: List<IdType>): List<BibleBookmarkToLabel>
 
     @Query("""SELECT * FROM GenericBookmarkToLabel WHERE bookmarkId=:bookmarkId""")
     fun getGenericBookmarkToLabelsForBookmark(bookmarkId: IdType): List<GenericBookmarkToLabel>
@@ -519,6 +547,15 @@ interface BookmarkDao {
     fun countStudyPadTextEntities(labelId: IdType): Int
 
     fun countStudyPadEntities(labelId: IdType) = countBookmarkEntities(labelId) + countGenericBookmarkEntities(labelId)+ countStudyPadTextEntities(labelId)
+
+    @Query("SELECT COALESCE(SUM(LENGTH(text)), 0) FROM StudyPadTextEntryText WHERE studyPadTextEntryId IN (SELECT id FROM StudyPadTextEntry WHERE labelId=:labelId)")
+    fun estimateStudyPadTextLength(labelId: IdType): Long
+
+    @Query("SELECT COALESCE(SUM(LENGTH(notes)), 0) FROM BibleBookmarkWithNotes WHERE id IN (SELECT bookmarkId FROM BibleBookmarkToLabel WHERE labelId=:labelId) AND notes IS NOT NULL")
+    fun estimateBibleBookmarkNotesLength(labelId: IdType): Long
+
+    @Query("SELECT COALESCE(SUM(LENGTH(notes)), 0) FROM GenericBookmarkWithNotes WHERE id IN (SELECT bookmarkId FROM GenericBookmarkToLabel WHERE labelId=:labelId) AND notes IS NOT NULL")
+    fun estimateGenericBookmarkNotesLength(labelId: IdType): Long
 
     @Query("DELETE FROM Label WHERE id IN (:toList)")
     fun deleteLabelsByIds(toList: List<IdType>)

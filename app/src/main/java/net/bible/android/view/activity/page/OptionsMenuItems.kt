@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -212,6 +212,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
+                TextDisplaySettings.Types.INFINITE_SCROLL -> R.string.prefs_infinite_scroll_title
                 TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
                 TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.string.prefs_title_scroll_button_title
             }
@@ -241,6 +242,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.HYPHENATION -> R.drawable.ic_hyphenation_24dp
             TextDisplaySettings.Types.MYNOTES -> R.drawable.ic_note_regular_24dp
             TextDisplaySettings.Types.PAGENUMBER -> R.drawable.ic_chapter_verse_numbers_24dp
+            TextDisplaySettings.Types.INFINITE_SCROLL -> R.drawable.ic_full_screen_by_scrolling_24dp
             TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.drawable.ic_format_italic_24dp
             TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.drawable.ic_section_titles_24dp
             else -> R.drawable.ic_baseline_star_24
@@ -564,4 +566,6 @@ class WindowPinningPreference :
 
     override val isBoolean = true
 }
+
+class InfiniteScrollPreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.INFINITE_SCROLL)
 

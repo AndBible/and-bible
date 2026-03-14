@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -78,10 +78,14 @@ import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.android.view.util.widget.AddNewWindowButtonWidget
 import net.bible.android.view.util.widget.WindowButtonWidget
 import net.bible.service.common.CommonUtils
+import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.shortName
 import net.bible.service.db.exportStudyPads
 import net.bible.service.device.ScreenSettings
+import net.bible.service.download.isSpecial
 import net.bible.service.download.isStudyPad
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.PromptRepository
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.StudyPadKey
 import org.crosswire.jsword.book.BookCategory
@@ -819,6 +823,23 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             item.setIcon(R.drawable.ic_text_options_24dp)
         }
 
+        // Populate LLM actions submenu
+        val llmActionsSubMenu = menu.findItem(R.id.llmActionsSubMenu)
+        if (CommonUtils.settings.llmConfigured) {
+            val llmSubMenu = llmActionsSubMenu.subMenu!!
+            llmSubMenu.removeItem(R.id.llmActionItem)
+            val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
+            if (prompts.isEmpty()) {
+                llmActionsSubMenu.isVisible = false
+            } else {
+                prompts.forEachIndexed { idx, prompt ->
+                    llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
+                }
+            }
+        } else {
+            llmActionsSubMenu.isVisible = false
+        }
+
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
                 val itmOptions = getItemOptions(window, item)
@@ -1025,6 +1046,38 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             },
                 visible = window.isVisible && (firstDoc is StudyPadDocument)
             )
+            R.id.addWholePageBookmark -> CommandPreference(
+                launch = { _, _, _ ->
+                    val currentPage = window.pageManager.currentPage
+                    val book = currentPage.currentDocument
+                    val key = currentPage.key
+                    if (book != null && key != null) {
+                        window.bibleView?.createWholePageBookmark(book.initials, key.osisRef)
+                    }
+                },
+                visible = window.isVisible &&
+                    !window.pageManager.isBibleShown &&
+                    window.pageManager.currentPage.currentDocument?.isSpecial != true
+            )
+            R.id.llmActionsSubMenu -> SubMenuPreference(
+                onlyBibles = false,
+                visible = CommonUtils.settings.llmConfigured && window.isVisible
+            )
+            R.id.llmActionItem -> CommandPreference({ _, _, _ ->
+                // Execute the selected LLM prompt for the entire window content
+                val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
+                if (order < prompts.size) {
+                    val selectedPrompt = prompts[order]
+                    val currentPage = window.pageManager.currentPage
+                    val book = currentPage.currentDocument
+                    val key = currentPage.key
+                    if (book != null && key != null) {
+                        // Use osisRef with -1 ordinals to indicate "whole page" mode
+                        val selection = Selection(book.initials, key.osisRef, -1, -1)
+                        mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
+                    }
+                }
+            })
             else -> throw RuntimeException("Illegal menu item")
         }
     }

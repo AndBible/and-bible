@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -154,5 +154,14 @@
 	<color name="transparent">#00ffffff</color>
 	<color name="background_color_60">#99FFFFFF</color>
     <color name="green">#00FF00</color>
+
+    <!-- Agent Log Entry Colors -->
+    <color name="log_info">#2196F3</color>
+    <color name="log_action">#FF9800</color>
+    <color name="log_permission">#9C27B0</color>
+    <color name="log_error">#F44336</color>
+    <color name="status_pending">#FFC107</color>
+    <color name="status_success">#4CAF50</color>
+    <color name="status_error">#F44336</color>
 
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -26,8 +26,13 @@ import kotlinx.serialization.serializer
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.BookmarkType
 import net.bible.android.database.bookmarks.LabelType
+import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SpeakSettings
+import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ApiFormat
+import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.PermissionMode
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
@@ -68,6 +73,12 @@ class Converters {
 
     @TypeConverter
     fun fromBookmarkStyle(value: BookmarkStyle?) = value?.name
+
+    @TypeConverter
+    fun toTextContentType(value: String?) = if(value==null) null else TextContentType.valueOf(value)
+
+    @TypeConverter
+    fun fromTextContentType(value: TextContentType?) = value?.name
 
     @TypeConverter
     fun fromTimestamp(value: Long): Date = Date(value)
@@ -275,4 +286,52 @@ class Converters {
         if(obj == null) return null
         return json.encodeToString(serializer(), obj)
     }
+
+    @TypeConverter
+    fun strToAgentToolSet(s: String?): Set<AgentTool>? {
+        if(s == null) return null
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing AgentTool set: $s", e)
+            null
+        }
+    }
+
+    @TypeConverter
+    fun agentToolSetToStr(obj: Set<AgentTool>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToPromptContextSet(s: String?): Set<PromptContext> {
+        if(s == null) return emptySet()
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing PromptContext set: $s", e)
+            emptySet()
+        }
+    }
+
+    @TypeConverter
+    fun promptContextSetToStr(obj: Set<PromptContext>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
+    fun strToApiFormat(s: String?): ApiFormat? {
+        if (s == null) return null
+        return try { ApiFormat.valueOf(s) } catch (_: IllegalArgumentException) { null }
+    }
+
+    @TypeConverter
+    fun apiFormatToStr(obj: ApiFormat?): String? = obj?.name
+
+    @TypeConverter
+    fun strToPermissionMode(s: String?): PermissionMode? {
+        if(s == null) return null
+        return try { PermissionMode.valueOf(s) } catch(e: IllegalArgumentException) { null }
+    }
+
+    @TypeConverter
+    fun permissionModeToStr(obj: PermissionMode?): String? = obj?.name
 }

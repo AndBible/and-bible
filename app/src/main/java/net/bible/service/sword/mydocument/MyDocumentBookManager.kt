@@ -1,0 +1,314 @@
+/*
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.sword.mydocument
+
+import android.util.Log
+import net.bible.android.control.event.ABEventBus
+import net.bible.android.database.IdType
+import net.bible.android.database.mydocument.AiPageCacheEntry
+import net.bible.android.database.mydocument.MyDocument
+import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.agent.CacheableContext
+import org.crosswire.jsword.book.Book
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordGenBook
+import java.util.Locale
+
+private const val TAG = "MyDocumentBookManager"
+
+/**
+ * Event posted when a MyDocument is updated (pages added/removed).
+ * Used to invalidate caches that depend on the document's key list.
+ */
+class MyDocumentUpdatedEvent(val initials: String)
+
+/**
+ * Extension property to check if a book is a MyDocument.
+ */
+val Book.isMyDocument: Boolean
+    get() = bookMetaData.getProperty("AndBibleMyDocument") != null
+
+/**
+ * Extension property to get the MyDocument ID for a book.
+ */
+val Book.myDocumentId: IdType?
+    get() = bookMetaData.getProperty("AndBibleMyDocumentId")?.let { IdType(it) }
+
+/**
+ * Extension property to check if a MyDocument is the AI Documents.
+ */
+val MyDocument.isAIDocument: Boolean
+    get() = initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS
+
+/**
+ * Singleton manager for MyDocument books.
+ * Handles registration/unregistration with JSword's Books.
+ */
+object MyDocumentBookManager {
+    private val registeredBooks = mutableMapOf<String, SwordGenBook>()
+
+    /** Special initials for the AI Documents default document */
+    const val AI_DOCUMENTS_INITIALS = "AIDocuments"
+
+    /**
+     * Register all MyDocuments from the database.
+     * Called at app startup.
+     */
+    fun registerAllDocuments() {
+        Log.i(TAG, "Registering all MyDocuments")
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val documents = dao.allDocuments()
+
+        for (document in documents) {
+            registerDocument(document)
+        }
+        Log.i(TAG, "Registered ${documents.size} MyDocuments")
+    }
+
+    /**
+     * Register a single MyDocument with JSword.
+     */
+    fun registerDocument(document: MyDocument): SwordGenBook? {
+        // Check if already registered
+        if (registeredBooks.containsKey(document.initials)) {
+            Log.d(TAG, "Document already registered: ${document.initials}")
+            return registeredBooks[document.initials]
+        }
+
+        // Check if already in Books.installed()
+        val existing = Books.installed().getBook(document.initials)
+        if (existing != null) {
+            Log.d(TAG, "Document already in Books.installed(): ${document.initials}")
+            return existing as? SwordGenBook
+        }
+
+        try {
+            val book = createMyDocumentBook(document)
+            Books.installed().addBook(book)
+            registeredBooks[document.initials] = book
+            Log.i(TAG, "Registered MyDocument: ${document.initials}")
+            return book
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to register MyDocument: ${document.initials}", e)
+            return null
+        }
+    }
+
+    /**
+     * Unregister a MyDocument from JSword.
+     */
+    fun unregisterDocument(initials: String) {
+        val book = registeredBooks.remove(initials)
+        if (book != null) {
+            try {
+                Books.installed().removeBook(book)
+                Log.i(TAG, "Unregistered MyDocument: $initials")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to unregister MyDocument: $initials", e)
+            }
+        }
+    }
+
+    /**
+     * Refresh a MyDocument's registration (e.g., after adding/removing pages).
+     * This re-creates the book with updated TOC.
+     */
+    fun refreshDocument(initials: String) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val document = dao.documentByInitials(initials) ?: return
+
+        // Unregister and re-register
+        unregisterDocument(initials)
+        registerDocument(document)
+
+        // Notify listeners to invalidate their caches
+        ABEventBus.post(MyDocumentUpdatedEvent(initials))
+    }
+
+    /**
+     * Get a registered MyDocument book by initials.
+     */
+    fun getBook(initials: String): SwordGenBook? {
+        return registeredBooks[initials]
+    }
+
+    /**
+     * Generate unique initials for a new MyDocument.
+     * Checks Books.installed(), registeredBooks, and the database.
+     */
+    fun generateInitials(baseName: String): String {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val sanitized = baseName
+            .replace(Regex("[^a-zA-Z0-9]"), "")
+            .take(10)
+            .ifEmpty { "MyDoc" }
+
+        var initials = "MyDoc_$sanitized"
+        var counter = 1
+
+        fun exists(initials: String): Boolean =
+            Books.installed().getBook(initials) != null ||
+            registeredBooks.containsKey(initials) ||
+            dao.documentByInitials(initials) != null
+
+        while (exists(initials)) {
+            initials = "MyDoc_${sanitized}_$counter"
+            counter++
+        }
+
+        return initials
+    }
+
+    /**
+     * Clear all registered books (for testing).
+     */
+    fun clear() {
+        for (initials in registeredBooks.keys.toList()) {
+            unregisterDocument(initials)
+        }
+    }
+
+    /**
+     * Get or create the AI Documents default document.
+     * This document is automatically created when AI-generated content needs to be saved.
+     */
+    fun getOrCreateAIDocument(): MyDocument {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+
+        // Check if AI Documents already exists
+        val existing = dao.documentByInitials(AI_DOCUMENTS_INITIALS)
+        if (existing != null) {
+            return existing
+        }
+
+        // Create new AI Documents
+        val aiDocument = MyDocument(
+            name = "AI Documents",
+            description = "Automatically generated documents from AI",
+            initials = AI_DOCUMENTS_INITIALS,
+            orderNumber = 0  // Always first in the list
+        )
+        dao.insert(aiDocument)
+        registerDocument(aiDocument)
+
+        // Shift other documents' order numbers
+        val allDocs = dao.allDocuments()
+        allDocs.filter { it.id != aiDocument.id }.forEachIndexed { index, doc ->
+            doc.orderNumber = index + 1
+            dao.update(doc)
+        }
+
+        Log.i(TAG, "Created AI Documents: $AI_DOCUMENTS_INITIALS")
+        return aiDocument
+    }
+
+    /**
+     * Check if a document can be deleted.
+     * AI Documents cannot be deleted if it contains pages.
+     */
+    fun canDeleteDocument(document: MyDocument): Boolean {
+        if (!document.isAIDocument) {
+            return true
+        }
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        return dao.pageCount(document.id) == 0
+    }
+
+    /**
+     * Get an AI document page by ID.
+     */
+    fun getAIDocumentPage(pageId: IdType): MyDocumentPage? {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        return dao.pageById(pageId)
+    }
+
+    /**
+     * Delete an AI document page.
+     *
+     * @param pageId ID of the page to delete
+     * @return true if the page was deleted, false if not found
+     */
+    fun deleteAIDocumentPage(pageId: IdType): Boolean {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val page = dao.pageById(pageId) ?: return false
+        dao.deletePageWithContent(page)
+        refreshDocument(AI_DOCUMENTS_INITIALS)
+        Log.i(TAG, "Deleted AI document page: $pageId")
+        return true
+    }
+
+    /**
+     * Data class containing information about a saved AI response page.
+     */
+    data class SavedPageInfo(
+        val documentInitials: String,
+        val pageKey: String
+    )
+
+    /**
+     * Save an AI response as a new page in the AI Documents.
+     *
+     * @param response The LLM response content (markdown)
+     * @param title Title for the page
+     * @param sourcePromptId ID of the prompt that generated this response
+     * @param cacheableContext Context data for cache key computation
+     * @param usedWriteTools Whether the agent used write tools (bookmarks, notes, etc.)
+     * @return Information about the saved page
+     */
+    fun saveAIResponse(
+        response: String,
+        title: String,
+        sourcePromptId: IdType,
+        cacheableContext: CacheableContext,
+        usedWriteTools: Boolean = false
+    ): SavedPageInfo {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val aiDocument = getOrCreateAIDocument()
+
+        val pageId = IdType()
+        val page = MyDocumentPage(
+            id = pageId,
+            documentId = aiDocument.id,
+            title = title,
+            pageKey = "ai_${pageId}",
+            contentType = MyDocumentContentType.MARKDOWN,
+            orderNumber = (dao.maxOrderNumber(aiDocument.id) ?: -1) + 1,
+            sourcePromptId = sourcePromptId,
+            languageCode = Locale.getDefault().language
+        )
+
+        val cacheEntry = AiPageCacheEntry(
+            pageId = pageId,
+            sourcePromptId = sourcePromptId,
+            sourceContext = cacheableContext.toJson(),
+            kjvOrdinalStart = cacheableContext.kjvOrdinalStart,
+            kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
+            contextHash = cacheableContext.computeHash(),
+            usedWriteTools = usedWriteTools
+        )
+
+        // Save clean content - footer is rendered by Vue.js based on sourcePromptId
+        dao.insertPageWithCacheEntry(page, response, cacheEntry)
+        refreshDocument(aiDocument.initials)
+
+        Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")
+        return SavedPageInfo(aiDocument.initials, page.pageKey)
+    }
+}

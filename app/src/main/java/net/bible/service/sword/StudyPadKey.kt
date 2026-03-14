@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -27,7 +27,7 @@ import java.lang.UnsupportedOperationException
 
 class StudyPadKey(
     @Transient val label: BookmarkEntities.Label,
-    @Transient val bookmarkId: IdType? = null,
+    @Transient val entryId: IdType? = null,
 ): Key {
     private val labelId = label.id
 

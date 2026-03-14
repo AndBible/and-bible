@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -23,6 +23,11 @@
           v-if="isBibleBookmark(bookmark) && bookmark.osisFragment"
           :highlight-ordinal-range="bookmark.originalOrdinalRange"
           :highlight-offset-range="highlightOffset || undefined"
+          :fragment="bookmark.osisFragment"
+          hide-titles
+      />
+      <OsisFragment
+          v-else-if="isGenericBookmark(bookmark) && bookmark.osisFragment"
           :fragment="bookmark.osisFragment"
           hide-titles
       />

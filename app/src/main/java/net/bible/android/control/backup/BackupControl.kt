@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -44,13 +44,16 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -89,6 +92,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -238,9 +242,9 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
-                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
-                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
+                        for (def in SyncableDatabaseDefinition.ALL) {
+                            beforeRestore(def)
+                        }
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         deleteAllDatabases()
@@ -279,6 +283,8 @@ object BackupControl {
                         WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
                         SettingsDatabase.dbFileName -> context.getString(R.string.settings)
+                        MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
+                        AiSettingsDatabase.dbFileName -> context.getString(R.string.ai_settings_sync_title)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -490,7 +496,8 @@ object BackupControl {
 
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
-                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
+                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
+                DbType.MYDOCUMENTS, DbType.AI_SETTINGS
             )
         )
 
@@ -570,7 +577,8 @@ object BackupControl {
                 SyncableDatabaseDefinition.BOOKMARKS -> DatabaseContainer.instance.bookmarkDb
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
-                else -> null
+                SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
+                SyncableDatabaseDefinition.AI_SETTINGS -> DatabaseContainer.instance.aiSettingsDb
             }
             if(db != null) {
                 db.syncDao().clearSyncStatus()
@@ -901,6 +909,8 @@ class BackupActivity: ActivityBase() {
                 ResettableDb(R.string.reading_plans_plural, ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
                 ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
                 ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
+                ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
+                ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
             )
             for (db in resettableDbs) {
                 val btn = Button(this@BackupActivity)
@@ -909,6 +919,24 @@ class BackupActivity: ActivityBase() {
                     lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, db.nameResId, db.syncCategory) }
                 }
                 resetButtons.addView(btn)
+            }
+
+            // Show last crash stack trace if available
+            val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
+            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+            if (crashFile.exists() && crashTime > 0) {
+                try {
+                    val stackTrace = crashFile.readText()
+                    if (stackTrace.isNotBlank()) {
+                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            .format(Date(crashTime))
+                        crashInfoTitle.visibility = View.VISIBLE
+                        crashInfoText.visibility = View.VISIBLE
+                        crashInfoText.text = "$timeStr\n\n$stackTrace"
+                    }
+                } catch (e: Exception) {
+                    Log.e("BackupActivity", "Error reading crash info", e)
+                }
             }
         }
     }

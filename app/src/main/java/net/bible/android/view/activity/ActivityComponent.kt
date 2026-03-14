@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -53,10 +53,14 @@ import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.android.view.activity.speak.SpeakSettingsActivity
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
+import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.util.widget.ShareWidget
+import net.bible.android.view.util.widget.AgentLogWidget
 import net.bible.android.view.util.widget.SpeakTransportWidget
 import net.bible.service.common.CommonUtilsBase
 import net.bible.service.device.speak.TextToSpeechNotificationManager
+import net.bible.service.llm.agent.AgentSessionManagerBase
 import net.bible.service.sword.SwordContentFacade
 
 /**
@@ -77,6 +81,8 @@ interface ActivityComponent {
 
     fun inject(colorSettings: ColorSettingsActivity)
     fun inject(activity: WorkspaceSelectorActivity)
+    fun inject(activity: MyDocumentsActivity)
+    fun inject(activity: MyDocumentPagesActivity)
 
     fun inject(startupActivity: StartupActivity)
 
@@ -102,6 +108,7 @@ interface ActivityComponent {
     fun inject(sel: Selection)
     fun inject(searchIndex: SearchIndex)
     fun inject(w: SpeakTransportWidget)
+    fun inject(w: AgentLogWidget)
     fun inject(search: Search)
     fun inject(search: EpubSearch)
     fun inject(searchResults: EpubSearchResults)
@@ -112,6 +119,7 @@ interface ActivityComponent {
     fun inject(m: TextToSpeechNotificationManager)
     fun inject(w: SpeakWidgetManager)
     fun inject(c: CommonUtilsBase)
+    fun inject(a: AgentSessionManagerBase)
 
     // progress status screens
     fun inject(searchIndexProgressStatus: SearchIndexProgressStatus)

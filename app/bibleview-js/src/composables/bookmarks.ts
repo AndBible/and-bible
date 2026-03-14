@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -75,6 +75,12 @@ export function resolveIcon(bookmark: BaseBookmark, label: LabelAndStyle): Icon 
         if (custom) return custom;
     }
     return null;
+}
+
+// Whole-page bookmarks have ordinalRange as [null, null]
+export function isWholePageBookmark(b: BaseBookmark): boolean {
+    if (b.ordinalRange === null) return true;
+    return b.ordinalRange[0] === null && b.ordinalRange[1] === null;
 }
 
 const allStyleRangeArrays = reactive<Set<Ref<StyleRange[]>>>(new Set());
@@ -177,6 +183,7 @@ export function useGlobalBookmarks(config: Config) {
     const bookmarkIdsByOrdinal: Map<BookmarkOrdinalKey, Set<IdType>> = reactive(new Map());
 
     function addBookmarkToOrdinalMap(b: BaseBookmark) {
+        if (!b.ordinalRange) return;
         for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
             const key = getBookmarkOrdinalKey(b, o);
             let bSet: Set<IdType> | undefined = bookmarkIdsByOrdinal.get(key);
@@ -189,6 +196,7 @@ export function useGlobalBookmarks(config: Config) {
     }
 
     function removeBookmarkFromOrdinalMap(b: BaseBookmark) {
+        if (!b.ordinalRange) return;
         for (let o = b.ordinalRange[0]; o <= b.ordinalRange[1]; o++) {
             const bSet = bookmarkIdsByOrdinal.get(getBookmarkOrdinalKey(b, o))
             if (bSet) {
@@ -306,15 +314,15 @@ export function useBookmarks(
     onMounted(() => isMounted.value++);
     onUnmounted(() => isMounted.value--);
 
-    const noOrdinalNeeded = (b: BaseBookmark) => b.ordinalRange === null && ordinalRange === null
+    const noOrdinalNeeded = (b: BaseBookmark) => isWholePageBookmark(b) && ordinalRange === null
     const checkOrdinal = (b: BaseBookmark) => {
-        return b.ordinalRange !== null && ordinalRange !== null
-            && rangesOverlap(b.ordinalRange, ordinalRange, {addRange: true, inclusive: true})
+        return !isWholePageBookmark(b) && ordinalRange !== null
+            && rangesOverlap(b.ordinalRange!, ordinalRange, {addRange: true, inclusive: true})
     };
 
     const checkOrdinalEnd = (b: BaseBookmark) => {
-        if (b.ordinalRange == null && ordinalRange == null) return false
-        const bOrdinalRange: OrdinalRange = [b.ordinalRange[1], b.ordinalRange[1]]
+        if (isWholePageBookmark(b) || ordinalRange == null) return false
+        const bOrdinalRange: OrdinalRange = [b.ordinalRange![1], b.ordinalRange![1]]
         return rangesOverlap(bOrdinalRange, ordinalRange, {addRange: true, inclusive: true})
     };
 
@@ -338,16 +346,19 @@ export function useBookmarks(
     });
 
     function truncateToOrdinalRange(bookmark: BaseBookmark): OrdinalAndOffsetRange {
-        const b = {
-            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice() as OrdinalRange,
-            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice() as OffsetRange,
+        const b: { ordinalRange: OrdinalRange | null; offsetRange: OffsetRange | null } = {
+            ordinalRange: bookmark.ordinalRange ? [...bookmark.ordinalRange] as OrdinalRange : null,
+            offsetRange: bookmark.offsetRange ? [...bookmark.offsetRange] as OffsetRange : null,
         };
         b.offsetRange = b.offsetRange || [0, null]
-        if (b.ordinalRange[0] < ordinalRange[0]) {
+        if (!b.ordinalRange) {
+            b.ordinalRange = ordinalRange ? ordinalRange.slice() as OrdinalRange : [0, 0];
+        }
+        if (ordinalRange && b.ordinalRange[0] < ordinalRange[0]) {
             b.ordinalRange[0] = ordinalRange[0];
             b.offsetRange[0] = 0;
         }
-        if (b.ordinalRange[1] > ordinalRange[1]) {
+        if (ordinalRange && b.ordinalRange[1] > ordinalRange[1]) {
             b.ordinalRange[1] = ordinalRange[1];
             b.offsetRange[1] = null;
         }
@@ -437,6 +448,7 @@ export function useBookmarks(
     }
 
     function showHighlight(b: BaseBookmark) {
+        if (isWholePageBookmark(b)) return false;
         return b.offsetRange == null || b.bookInitials === bookInitials;
     }
 
@@ -806,6 +818,7 @@ export function useBookmarks(
         const hideLabels = new Set(config.bookmarksHideLabels);
 
         for (const b of markerBookmarks.value) {
+            if (!b.ordinalRange) continue;
             // Add event listener to all verses within bookmark range
             for (let ordinal = b.ordinalRange[0]; ordinal <= b.ordinalRange[1]; ordinal++) {
                 const elem = document.querySelector(`#doc-${documentId} #o-${ordinal}`) as HTMLElement;

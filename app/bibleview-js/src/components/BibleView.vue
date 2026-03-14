@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -40,15 +40,23 @@
       <div class="bottom-right-corner"/>
     </div>
     <div id="top"/>
+    <ChapterNavigationButtons
+      v-if="showChapterNavButtons"
+      position="top"
+      :loading="loadingAtTop"
+      @load-more="loadTextAtTop"
+      @navigate-prev="android.goToPreviousChapter"
+      @navigate-next="android.goToNextChapter"
+    />
     <div class="loading" v-if="isLoading">
-      <div v-if="appSettings.disableAnimations" class="loading-icon">
-        <FontAwesomeIcon size="2x" icon="fa-regular fa-clock"/>
-      </div>
-      <div v-else class="lds-ring"><div/><div/><div/><div/></div>
+      <LoadingSpinner/>
     </div>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <DocumentBroker v-for="document in documents" :key="document.id" :document="document"/>
+      <div class="infinite-scroll-loading" v-if="loadingAtEnd">
+        <LoadingSpinner small/>
+      </div>
     </div>
     <template v-if="!modalOpen">
       <div class="prev-page-button" @click.stop="scrollUpDown(true)" :style="{width: `${calculatedConfig.marginLeft}px`}"/>
@@ -73,6 +81,15 @@
         v-if="appSettings.isBottomWindow && !appSettings.bottomOffset"
         @touchmove.stop.prevent
         class="invisible-bottom-touch-block"
+    />
+    <ChapterNavigationButtons
+      v-if="showChapterNavButtons"
+      position="bottom"
+      :loading="loadingAtEnd"
+      :reached-end="reachedEnd"
+      @load-more="loadTextAtEnd"
+      @navigate-prev="android.goToPreviousChapter"
+      @navigate-next="android.goToNextChapter"
     />
     <div id="bottom"/>
   </div>
@@ -118,7 +135,8 @@ import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -184,7 +202,19 @@ const {currentVerse} = useVerseNotifier(config, calculatedConfig, mounted, andro
 const customFeatures = useCustomFeatures(android);
 provide(customFeaturesKey, customFeatures);
 
-const {documentsCleared} = useInfiniteScroll(android, scroll, documents);
+const {
+    documentsCleared,
+    loadingAtEnd,
+    loadingAtTop,
+    loadTextAtTop,
+    loadTextAtEnd,
+    documentSupportsInfiniteScroll,
+    reachedEnd
+} = useInfiniteScroll(android, scroll, documents, config);
+
+const showChapterNavButtons = computed(() => {
+    return !config.infiniteScroll && documentSupportsInfiniteScroll.value;
+});
 const loadingCount = ref(0);
 
 function addDocuments(...docs: AnyDocument[]) {
@@ -347,6 +377,15 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
         console.error("Loading count now below zero, setting to 0", loadingCount.value);
         loadingCount.value = 0;
     }
+    // Clear error documents when loading starts to avoid spinner on top of old error
+    // Only clear if first document is an error - preserve normal content during reload
+    if (a > 0 && documents.length > 0 && documents[0].type === "error") {
+        documents.splice(0);
+    }
+});
+
+setupEventBusListener("reset_loading_count", () => {
+    loadingCount.value = 0;
 });
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
@@ -385,64 +424,17 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 <style lang="scss">
 @use "@/common.scss" as *;
 
-$ring-size: 35px;
-$ring-thickness: calc(#{$ring-size} / 12);
-
 .loading {
   position: fixed;
-  left: calc(50% - #{$ring-size} / 2);
-  top: calc(50% - #{$ring-size} / 2);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
-.loading-icon {
-  border-radius: 50%;
-  background: white;
-  .night & {
-    background: black;
-  }
-}
-
-$ring-color: $button-grey;
-
-.lds-ring {
-  display: inline-block;
-  position: relative;
-  width: $ring-size;
-  height: $ring-size;
-
-  & div {
-    box-sizing: border-box;
-    display: block;
-    position: absolute;
-    width: $ring-size;
-    height: $ring-size;
-    margin: 8px;
-    border: $ring-thickness solid $ring-color;
-    border-radius: 50%;
-    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: $ring-color transparent transparent transparent;
-
-    &:nth-child(1) {
-      animation-delay: -0.45s;
-    }
-
-    &:nth-child(2) {
-      animation-delay: -0.3s;
-    }
-
-    &:nth-child(3) {
-      animation-delay: -0.15s;
-    }
-  }
-}
-
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+.infinite-scroll-loading {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
 }
 
 .background {

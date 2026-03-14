@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -33,7 +33,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.search.SearchIndex
 import net.bible.android.view.activity.search.SearchResults
-import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.settings
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
@@ -45,6 +44,7 @@ import net.bible.service.sword.bookAndKeyListOf
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
+import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.BookException
 import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.book.sword.SwordBook
@@ -323,7 +323,7 @@ class LinkControl @Inject constructor(
     }
 
     fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {
-        val currentBible = currentPageManager.currentBible.currentDocument!!
+        val currentBible = currentPageManager.currentBible.currentDocument ?: return
         // if current bible has no Strongs refs then try to find one that has
         val strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
             currentBible
@@ -391,7 +391,11 @@ class LinkControl @Inject constructor(
 
     fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
-        val defaultDocument = currentPageManager.currentBible.currentDocument!!
+        val defaultDocument = currentPageManager.currentBible.currentDocument
+        if (defaultDocument == null) {
+            Log.w(TAG, "No current Bible document available for link navigation")
+            return
+        }
         if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {
@@ -421,10 +425,37 @@ class LinkControl @Inject constructor(
         return true
     }
 
-    fun openStudyPad(labelId: IdType, bookmarkId: IdType?): Boolean {
+    fun openStudyPad(labelId: IdType, entryId: IdType?): Boolean {
         val label = bookmarkControl.labelById(labelId) ?: return false
-        val key = StudyPadKey(label, bookmarkId)
+        val key = StudyPadKey(label, entryId)
         showLink(FakeBookFactory.journalDocument, key)
+        return true
+    }
+
+    /**
+     * Open an AI Document page in the dedicated links window.
+     *
+     * @param documentInitials The initials of the AI Document (e.g., "AIDocuments")
+     * @param pageKey The page key within the document
+     * @return True if the page was successfully opened, false otherwise
+     */
+    fun openAIDocument(documentInitials: String, pageKey: String): Boolean {
+        val book = Books.installed().getBook(documentInitials)
+        if (book == null) {
+            Log.w(TAG, "AI Document not found: $documentInitials")
+            return false
+        }
+        val key = try {
+            book.getKey(pageKey)
+        } catch (e: NoSuchKeyException) {
+            Log.w(TAG, "Page key not found: $pageKey in $documentInitials", e)
+            return false
+        }
+        if (key == null) {
+            Log.w(TAG, "Page key returned null: $pageKey")
+            return false
+        }
+        showLink(book, key)
         return true
     }
 

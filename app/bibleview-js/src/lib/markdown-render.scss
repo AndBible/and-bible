@@ -1,0 +1,98 @@
+// Shared styles for rendered markdown content.
+// Used by EditableText.vue (.markdown-notes) and OsisFragment.vue (.mydoc-markdown).
+
+@mixin markdown-content {
+    h1, h2, h3, h4, h5, h6 {
+        margin-top: 1em;
+        margin-bottom: 0.5em;
+        font-weight: bold;
+    }
+
+    h1 { font-size: 1.5em; }
+    h2 { font-size: 1.3em; }
+    h3 { font-size: 1.2em; }
+
+    p {
+        margin: 0.5em 0;
+    }
+
+    ul, ol {
+        margin: 0.5em 0;
+        padding-left: 1.5em;
+    }
+
+    li {
+        margin: 0.25em 0;
+    }
+
+    blockquote {
+        border-left: 3px solid #ccc;
+        margin: 0.5em 0;
+        padding-left: 1em;
+        color: #666;
+    }
+
+    code {
+        background-color: #f4f4f4;
+        padding: 0.2em 0.4em;
+        border-radius: 3px;
+        font-family: monospace;
+    }
+
+    pre {
+        background-color: #f4f4f4;
+        padding: 0.5em;
+        border-radius: 5px;
+        overflow-x: auto;
+    }
+
+    a {
+        color: var(--link-color);
+        text-decoration: underline;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid #ccc;
+        margin: 1em 0;
+    }
+
+    table {
+        border-collapse: collapse;
+        margin: 0.5em 0;
+        width: 100%;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 0.5em;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f4f4f4;
+    }
+}
+
+@mixin markdown-content-night {
+    blockquote {
+        border-left-color: #555;
+        color: #aaa;
+    }
+
+    code, pre {
+        background-color: #2d2d2d;
+    }
+
+    a {
+        color: var(--link-color);
+    }
+
+    th {
+        background-color: #2d2d2d;
+    }
+
+    th, td {
+        border-color: #444;
+    }
+}

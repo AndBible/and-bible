@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -48,6 +48,7 @@
         v-if="!infoShown"
         constraint-display-height
         :text="bookmarkNotes || ''"
+        :content-type="bookmark?.notesContentType"
         @save="changeNote"
         show-placeholder
         :edit-directly="editDirectly"
@@ -77,7 +78,7 @@
              class="link-line">
           <span class="link-icon" :style="`color: ${adjustedColor(label.color).string()};`"><FontAwesomeIcon
               icon="file-alt"/></span>
-          <a :href="`journal://?id=${label.id}&bookmarkId=${bookmark.id}`">{{
+          <a :href="`journal://?id=${label.id}&entryId=${bookmark.id}`">{{
               sprintf(strings.openStudyPad, label.name)
             }}</a>
         </div>
@@ -195,7 +196,8 @@ const originalBookLink = computed<string>(() => {
         const bibleUrl = encodeURI(`osis://?osis=${doc}:${bookmark.value!.osisRef}&v11n=${bookmark.value!.v11n}`)
         return `<a href="${bibleUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     } else if(isGenericBookmark(bookmark.value)) {
-        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${bookmark.value.ordinalRange[0]}`)
+        const ordinal = bookmark.value.ordinalRange ? bookmark.value.ordinalRange[0] : 0;
+        const docUrl = encodeURI(`osis://?osis=${bookmark.value!.key}&doc=${doc}&ordinal=${ordinal}`)
         return `<a href="${docUrl}">${bookmark.value!.bookName || strings.defaultBook}</a>`;
     } else {
         throw new Error("Illegal type")

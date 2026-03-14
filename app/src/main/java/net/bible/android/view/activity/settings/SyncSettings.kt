@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -18,11 +18,13 @@
 package net.bible.android.view.activity.settings
 
 import android.os.Bundle
+import android.view.MenuItem
 import android.webkit.URLUtil
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
+import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.SwitchPreferenceCompat
 import kotlinx.coroutines.launch
@@ -55,13 +57,20 @@ class SyncSettingsActivity: ActivityBase() {
             .beginTransaction()
             .replace(R.id.settings_container, SyncSettingsFragment())
             .commit()
+    }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finish()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
 
 class SyncSettingsFragment: PreferenceFragmentCompat() {
     private fun setupDrivePref(pref: SwitchPreferenceCompat) {
-        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.split("_")[1].uppercase()]!!
+        val category = SyncableDatabaseDefinition.nameToCategory[pref.key.removePrefix("sync_enable_").uppercase()]!!
         pref.setOnPreferenceChangeListener { _, newValue ->
             val enableSync = newValue as Boolean
             if(enableSync) {
@@ -105,13 +114,21 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.sync_settings, rootKey)
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_bookmarks")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_readingplans")!!.run {
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_bookmarks")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_readingplans")!!.run {
             //setupDrivePref(this!!)
             isVisible = false
         }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("gdrive_workspaces")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<Preference>("gdrive_reset_sync")!!.run {
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_workspaces")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run {
+            if (!CommonUtils.settings.aiTextProcessingEnabled) {
+                isVisible = false
+            } else {
+                setupDrivePref(this)
+            }
+        }
+        preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             }
@@ -128,7 +145,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 true
             }
         }
-        preferenceScreen.findPreference<Preference>("gdrive_info")!!.run {
+        preferenceScreen.findPreference<Preference>("cloud_sync_info")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false
             } else {
@@ -139,10 +156,19 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
-        val usernamePref = preferenceScreen.findPreference<Preference>("gdrive_username")!!
-        val passwordPref = preferenceScreen.findPreference<Preference>("gdrive_password")!!
-        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_server_url")!!
-        val folderPathPref = preferenceScreen.findPreference<EditTextPreference>("gdrive_folder_path")!!
+        val secureDataStore = SharedPrefsDataStore()
+        val usernamePref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_username")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val passwordPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_password")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val serverUrlPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_server_url")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
+        val folderPathPref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_folder_path")!!.apply {
+            preferenceDataStore = secureDataStore
+        }
 
         serverUrlPref.setOnPreferenceChangeListener { _, newValue ->
             val newUrl = newValue as String
@@ -191,4 +217,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             }
         }
     }
+}
+
+private class SharedPrefsDataStore : PreferenceDataStore() {
+    private val prefs get() = CommonUtils.realSharedPreferences
+    override fun putString(key: String, value: String?) {
+        if (value == null) prefs.edit().remove(key).apply()
+        else prefs.edit().putString(key, value).apply()
+    }
+    override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
 }

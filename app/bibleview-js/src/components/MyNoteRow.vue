@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -47,6 +47,7 @@
       <EditableText
           ref="editor"
           :text="bookmark.notes"
+          :content-type="bookmark.notesContentType"
           @save="save"
       />
     </div>

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -90,12 +90,15 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_PARAGRAPH_BREAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     } else {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     }
     if (!isExperimentalFeatureEnabled(appSettings, "add_paragraph_break")) {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
+    }
+    if (!appSettings.llmConfigured) {
+        allButtons = allButtons.filter(b => b !== "LLM_ACTION");
     }
     let disabledButtons: ModalButtonId[];
     if(verseInfo.value) {
@@ -202,6 +205,9 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'ADD_PARAGRAPH_BREAK':
             addParagraphBreak();
             break;
+        case 'LLM_ACTION':
+            llmAction();
+            break;
     }
 }
 
@@ -261,6 +267,15 @@ function addParagraphBreak() {
         android.addParagraphBreakBookmark(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     } else if(ordinalInfo.value) {
         android.addGenericParagraphBreakBookmark(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
+    }
+    emit("close");
+}
+
+function llmAction() {
+    if(verseInfo.value) {
+        android.llmAction(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    } else if(ordinalInfo.value) {
+        android.llmActionGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
     }
     emit("close");
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -68,7 +68,7 @@ class WindowSync(private val windowRepository: WindowRepository) {
 
     val scope get() = windowRepository.scope
     private val delayedSynchronizeWindows: (sourceWindow: Window) -> Unit
-        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow)}
+        = debounce(200, scope) { sourceWindow -> immediateSynchronizeWindows(sourceWindow) }
 
     private fun immediateSynchronizeWindows(sourceWindow: Window) = synchronized(this) {
         Log.i(TAG, "...delayedSynchronizeWindows $sourceWindow")

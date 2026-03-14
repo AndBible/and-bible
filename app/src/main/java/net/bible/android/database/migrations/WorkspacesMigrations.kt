@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -81,6 +81,11 @@ private val addLabelOverridesTable = makeMigration(12..13) { _db ->
     _db.execSQL("CREATE INDEX IF NOT EXISTS `index_WorkspaceLabelOverride_workspaceId` ON `WorkspaceLabelOverride` (`workspaceId`)")
 }
 
+private val addInfiniteScroll = makeMigration(13..14) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -94,6 +99,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addNonStrongsWordItalic,
     addTitleScrollButton,
     addLabelOverridesTable,
+    addInfiniteScroll,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 13
+const val WORKSPACE_DATABASE_VERSION = 14

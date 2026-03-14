@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -25,6 +25,8 @@ import net.bible.android.database.LogEntry
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.AiSettingsDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
@@ -36,7 +38,7 @@ import java.lang.Exception
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
-    BOOKMARKS, WORKSPACES, READINGPLANS;
+    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS;
     class Table(
         val tableName: String,
         val idField1: String = "id",
@@ -46,12 +48,16 @@ enum class SyncableDatabaseDefinition {
         READINGPLANS -> R.string.reading_plans_content
         BOOKMARKS -> R.string.bookmarks_contents
         WORKSPACES -> R.string.workspaces_contents
+        MYDOCUMENTS -> R.string.my_documents_contents
+        AI_SETTINGS -> R.string.ai_settings_sync_contents
     }
 
     val filename get() = when(this) {
         BOOKMARKS -> BookmarkDatabase.dbFileName
         READINGPLANS ->ReadingPlanDatabase.dbFileName
         WORKSPACES -> WorkspaceDatabase.dbFileName
+        MYDOCUMENTS -> MyDocumentDatabase.dbFileName
+        AI_SETTINGS -> AiSettingsDatabase.dbFileName
     }
 
     val tables get() = when(this) {
@@ -101,17 +107,26 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "ReadingPlan"),
             Table(tableName = "ReadingPlanStatus"),
         )
+        MYDOCUMENTS -> listOf(
+            Table(tableName = "MyDocument"),
+            Table(tableName = "MyDocumentPage"),
+            Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
+        )
+        AI_SETTINGS -> listOf(
+            Table(tableName = "AgentPrompt"),
+            Table(tableName = "LlmProviderConfig"),
+        )
     }
 
     var syncEnabled
-        get() = CommonUtils.settings.getBoolean("gdrive_"+ name.lowercase(), false)
-        set(value) = CommonUtils.settings.setBoolean("gdrive_"+name.lowercase(), value)
+        get() = CommonUtils.settings.getBoolean("sync_enable_"+ name.lowercase(), false)
+        set(value) = CommonUtils.settings.setBoolean("sync_enable_"+name.lowercase(), value)
 
     val accessor get() = DatabaseContainer.databaseAccessorsByCategory[this]!!
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
-        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS)
+        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS)
         val nameToCategory = ALL.associateBy { it.name }
         val filenameToCategory = ALL.associateBy { it.filename }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,6 +17,8 @@
 
 import {Nullable} from "@/types/common";
 import {isGenericBookmark} from "@/composables/bookmarks";
+
+export type TextContentType = "HTML" | "MARKDOWN"
 
 export type BookCategory = "BIBLE" | "COMMENTARY" | "GENERAL_BOOK" | "DICTIONARY"
 export type V11N = string
@@ -85,7 +87,7 @@ export type BaseBookmark = {
     readonly id: IdType
     readonly type: "bookmark" | "generic-bookmark"
     readonly hashCode: number
-    readonly ordinalRange: OrdinalRange
+    readonly ordinalRange: Nullable<OrdinalRange>
     readonly offsetRange: Nullable<OffsetRange>
     readonly labels: IdType[]
     readonly bookInitials: string
@@ -98,14 +100,17 @@ export type BaseBookmark = {
     readonly primaryLabelId: IdType
     lastUpdatedOn: number
     notes: Nullable<string>
+    notesContentType: Nullable<TextContentType>
     hasNote: boolean
     wholeVerse: boolean
     customIcon: Nullable<string>
     editAction: EditAction
+    readonly sourcePromptId: Nullable<IdType>
 }
 
 export type BibleBookmark = BaseBookmark & {
     readonly type: "bookmark"
+    readonly ordinalRange: OrdinalRange
     readonly osisRef: string
     readonly originalOrdinalRange: OrdinalRange
     readonly verseRange: string
@@ -118,10 +123,12 @@ export type BibleBookmark = BaseBookmark & {
 
 export type GenericBookmark = BaseBookmark & {
     readonly type: "generic-bookmark"
+    readonly ordinalRange: OrdinalRange | null
     readonly key: string
     readonly keyName: string
     readonly bookmarkToLabels: GenericBookmarkToLabel[]
     readonly highlightedText: string
+    readonly osisFragment: OsisFragment | null
 }
 
 export type StudyPadTextItem = {
@@ -132,6 +139,7 @@ export type StudyPadTextItem = {
     text: string
     orderNumber: number
     indentLevel: number
+    contentType: Nullable<TextContentType>
     new?: boolean
 }
 

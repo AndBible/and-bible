@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,15 +15,8 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-$pell-actionbar-color: #FFF !default;
-$pell-border-color: rgba(10, 10, 10, 0.1) !default;
-$pell-border-style: solid !default;
-$pell-border-width: 1px !default;
-$pell-button-height: 30px !default;
-$pell-button-selected-color: #F0F0F0 !default;
-$pell-button-width: 30px !default;
-$pell-content-height: 300px !default;
-$pell-content-padding: 10px !default;
+@forward "pell-vars";
+@use "pell-vars" as *;
 
 .pell {
   //border: $pell-border-width $pell-border-style $pell-border-color;
@@ -32,9 +25,9 @@ $pell-content-padding: 10px !default;
 
 .pell-content {
   box-sizing: border-box;
-  height: $pell-content-height;
+  min-height: 1em;
   outline: 0;
-  overflow-y: auto;
+  overflow-y: hidden;
   padding: $pell-content-padding;
 }
 

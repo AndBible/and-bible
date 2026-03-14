@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -44,6 +44,8 @@ import Foreign from "@/components/OSIS/Foreign.vue";
 import Figure from "@/components/OSIS/Figure.vue";
 import A from "@/components/OSIS/A.vue";
 import Abbr from "@/components/OSIS/Abbr.vue";
+import Html from "@/components/OSIS/Html.vue";
+import AiFooter from "@/components/OSIS/AiFooter.vue";
 import BibleViewAnchor from "@/components/BibleViewAnchor.vue";
 import AndBibleLink from "@/components/OSIS/AndBibleLink.vue";
 import Pb from "@/components/MyBible/Pb.vue";
@@ -79,6 +81,8 @@ const osisComponents = {
     Verse, W, Div, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
     Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
+    Html,      // For MyDocument HTML content rendering
+    AiFooter,  // For AI-generated document action links
 }
 
 const allComponents = {
@@ -94,9 +98,9 @@ function prefixComponents(components: Record<string, Component>): Record<string,
     return result;
 }
 
-function getComponents(isEpub: boolean): Record<string, Component> {
-    if(isEpub) {
-        return {BVA: BibleViewAnchor, epubRef, reference: Reference, epubA: A, ...andBibleComponents}
+function getComponents(isNativeHtml: boolean): Record<string, Component> {
+    if(isNativeHtml) {
+        return {BVA: BibleViewAnchor, aiFooter: AiFooter, epubRef, reference: Reference, epubA: A, ...andBibleComponents}
     } else {
         return prefixComponents(allComponents)
     }
@@ -107,12 +111,12 @@ export default defineComponent({
     props: {
         osisTemplate: {type: String, required: true},
         convert: {type: Boolean, default: false},
-        isEpub: {type: Boolean, default: false},
+        isNativeHtml: {type: Boolean, default: false},
     },
     render() {
         return h({
             template: this.convert ? osisToTemplateString(this.osisTemplate) : this.osisTemplate,
-            components: getComponents(this.isEpub),
+            components: getComponents(this.isNativeHtml),
             compilerOptions: {
                 whitespace: 'preserve',
             },

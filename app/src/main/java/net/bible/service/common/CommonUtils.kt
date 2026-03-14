@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -124,11 +124,15 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
+import net.bible.service.llm.AgentTool
+import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import org.apache.commons.lang3.StringUtils
@@ -427,6 +431,15 @@ object CommonUtils : CommonUtilsBase() {
             else setString(key, json.encodeToString(serializer(), values))
         }
 
+        inline fun <reified T> getEnumSet(key: String, defValues: Set<T> = emptySet()): Set<T> {
+            val s = getString(key, null) ?: return defValues
+            return try { json.decodeFromString(s) } catch (e: SerializationException) { defValues }
+        }
+
+        inline fun <reified T> setEnumSet(key: String, values: Set<T>) {
+            setString(key, json.encodeToString(values))
+        }
+
         fun removeString(key: String) = setString(key, null)
         fun removeDouble(key: String) = setDouble(key, null)
         fun removeLong(key: String) = setLong(key, null)
@@ -435,6 +448,7 @@ object CommonUtils : CommonUtilsBase() {
         val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
+        val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"
         val fontSizeMultiplier: Int get() = getInt("font_size_multiplier", 100)
         val fontSizeMultiplierFloat: Float get() = getInt("font_size_multiplier", 100) / 100F
         val bibleViewSwipeMode: BibleViewSwipeMode get() = BibleViewSwipeMode.valueOf(getString("bible_view_swipe_mode", "CHAPTER")!!)
@@ -444,6 +458,33 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
+        val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
+
+
+        /** Check if any LlmProviderConfig exists in the database. */
+        val llmConfigured: Boolean
+            get() = try {
+                DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
+            } catch (_: Exception) { false }
+
+        // Agent Permission Settings
+        var agentPermissionMode: PermissionMode
+            get() = try {
+                PermissionMode.valueOf(
+                    getString("agent_permission_mode", "ALWAYS_ASK") ?: "ALWAYS_ASK"
+                )
+            } catch (e: IllegalArgumentException) {
+                PermissionMode.ALWAYS_ASK
+            }
+            set(value) = setString("agent_permission_mode", value.name)
+
+        var permanentlyAllowedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_allowed_tools")
+            set(value) = setEnumSet("agent_permanently_allowed_tools", value)
+
+        var permanentlyDeniedTools: Set<AgentTool>
+            get() = getEnumSet("agent_permanently_denied_tools")
+            set(value) = setEnumSet("agent_permanently_denied_tools", value)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -1132,6 +1173,7 @@ object CommonUtils : CommonUtilsBase() {
             addManuallyInstalledMySwordBooks()
             addManuallyInstalledEpubBooks()
             addManuallyInstalledTtfBooks()
+            MyDocumentBookManager.registerAllDocuments()
 
             // IN practice we don't need to restore this data, because it is stored by JSword in book
             // metadata (persisted by JSWORD to files) too.
@@ -1186,6 +1228,7 @@ object CommonUtils : CommonUtilsBase() {
                 addManuallyInstalledMySwordBooks()
                 addManuallyInstalledEpubBooks()
                 addManuallyInstalledTtfBooks()
+                MyDocumentBookManager.registerAllDocuments()
             }
             initializeOnyx()
 
@@ -1582,6 +1625,65 @@ object CommonUtils : CommonUtilsBase() {
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
+    /**
+     * One-time migration: renames gdrive_* settings keys to cloud_sync_* / sync_enable_* prefixes.
+     * Moves secrets from SettingsDatabase to realSharedPreferences.
+     * Idempotent — safe to call on every app start.
+     */
+    fun migrateOldSettingsKeys() {
+        val sharedPrefs = realSharedPreferences
+        val settingsDb = settings
+
+        val secretMigrations = mapOf(
+            "gdrive_password" to "cloud_sync_password",
+            "gdrive_username" to "cloud_sync_username",
+            "gdrive_server_url" to "cloud_sync_server_url",
+            "gdrive_folder_path" to "cloud_sync_folder_path",
+        )
+        for ((oldKey, newKey) in secretMigrations) {
+            if (sharedPrefs.getString(newKey, null) != null) continue
+            val value = settingsDb.getString(oldKey) ?: sharedPrefs.getString(oldKey, null)
+            if (value != null) {
+                Log.i(TAG, "Migrating setting '$oldKey' → '$newKey'")
+                sharedPrefs.edit().putString(newKey, value).apply()
+                settingsDb.removeString(oldKey)
+                sharedPrefs.edit().remove(oldKey).apply()
+            }
+        }
+
+        if (sharedPrefs.getString("cloud_sync_last_account", null) == null) {
+            val lastAccount = sharedPrefs.getString("lastAccount", null)
+            if (lastAccount != null) {
+                Log.i(TAG, "Migrating 'lastAccount' → 'cloud_sync_last_account'")
+                sharedPrefs.edit().putString("cloud_sync_last_account", lastAccount).apply()
+                sharedPrefs.edit().remove("lastAccount").apply()
+            }
+        }
+
+        val boolRenames = mapOf(
+            "gdrive_bookmarks" to "sync_enable_bookmarks",
+            "gdrive_workspaces" to "sync_enable_workspaces",
+            "gdrive_readingplans" to "sync_enable_readingplans",
+            "gdrive_mydocuments" to "sync_enable_mydocuments",
+            "gdrive_llmprocessing" to "sync_enable_llmprocessing",
+        )
+        for ((oldKey, newKey) in boolRenames) {
+            val value = settingsDb.getBoolean(oldKey, false)
+            if (value) {
+                Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
+                settingsDb.setBoolean(newKey, true)
+            }
+            settingsDb.removeBoolean(oldKey)
+        }
+
+        val oldInterval = settingsDb.getLong("gdrive_sync_interval", Long.MIN_VALUE)
+        if (oldInterval != Long.MIN_VALUE) {
+            Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
+            settingsDb.setLong("cloud_sync_interval", oldInterval)
+            settingsDb.removeLong("gdrive_sync_interval")
+        }
+    }
+
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
         val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))
@@ -1891,7 +1993,7 @@ val BookAndKey.next: BookAndKey get() {
         else -> {
             val backend = when(val book = this.document!!) {
                 is SwordGenBook -> {
-                    if(book.isEpub) {
+                    if(book.isEpub || book.isMyDocument) {
                         book.backend as AbstractKeyBackend
                     } else {
                         book.backend as GenBookBackend
@@ -1961,7 +2063,7 @@ val Key.shortName: String get() =
     else name
 
 enum class DbType {
-    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS
+    BOOKMARKS, WORKSPACES, READINGPLANS, SETTINGS, REPOSITORIES, MODULES, EPUBS, MYDOCUMENTS, AI_SETTINGS
 }
 enum class BackupType {
     // Note! We can only trust STUDYPAD_EXPORT, as manifest is not existing before AB version 822.

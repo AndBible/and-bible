@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2018-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2018-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -35,6 +35,9 @@
     <item android:id="@+id/studyPadsButton"
         android:title="@string/studypads"
         android:icon="@drawable/ic_baseline_studypads_24"/>
+    <item android:id="@+id/myDocumentsButton"
+        android:title="@string/my_documents_title"
+        android:icon="@drawable/ic_baseline_description_24"/>
     <item android:id="@+id/dailyReadingPlanButton"
         android:title="@string/rdg_plan_title"
         android:icon="@drawable/ic_reading_plan_24dp"/>
@@ -56,6 +59,10 @@
                 android:id="@+id/googleDriveSync"
                 android:icon="@drawable/ic_syncdb_24dp"
                 android:title="@string/cloud_sync_title" />
+
+            <item android:id="@+id/managePrompts"
+                android:title="@string/ai_settings"
+                android:icon="@drawable/ic_baseline_smart_toy_24"/>
 
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,6 +17,7 @@
 
 package net.bible.android.control.document
 
+import android.util.Log
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.ApplicationScope
@@ -76,23 +77,33 @@ class DocumentControl @Inject constructor(
     // only show bibles that contain verse
 
     private val bookFilter = Filter<Book> { book ->
-        try {
-            book.contains(requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification))
-        } catch (e: BookException) {
-            // Module may have missing/corrupted data files (see issue #788)
+        if (book !is AbstractPassageBook) {
+            Log.w(TAG, "bookFilter: unexpected non-AbstractPassageBook: ${book.initials}")
             false
+        } else {
+            try {
+                book.contains(requiredVerseForSuggestions.toV11n(book.versification))
+            } catch (e: BookException) {
+                // Module may have missing/corrupted data files (see issue #788)
+                false
+            }
         }
     }
 
     private val commentaryFilter = Filter<Book> { book ->
-        try {
-            val verse = requiredVerseForSuggestions.toV11n((book as AbstractPassageBook).versification)
-            if (!book.contains(verse)) {
-                false
-            } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
-        } catch (e: BookException) {
-            // Module may have missing/corrupted data files (see issue #788)
+        if (book !is AbstractPassageBook) {
+            Log.w(TAG, "commentaryFilter: unexpected non-AbstractPassageBook: ${book.initials}")
             false
+        } else {
+            try {
+                val verse = requiredVerseForSuggestions.toV11n(book.versification)
+                if (!book.contains(verse)) {
+                    false
+                } else book.getInitials() != "TDavid" || verse.book == BibleBook.PS
+            } catch (e: BookException) {
+                // Module may have missing/corrupted data files (see issue #788)
+                false
+            }
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -48,11 +48,12 @@ class ChooseGeneralBookKey : ChooseKeyBase() {
 
     override fun itemSelected(key: Key?) {
         val myIntent = Intent(this, ChooseGeneralBookKey::class.java)
+        val doc = currentGeneralBookPage.currentDocument
         if(key is BookAndKey) {
             myIntent.putExtra("bookAndKey", key.serialized)
         } else {
-            myIntent.putExtra("key", key?.osisRef?: currentGeneralBookPage.currentDocument!!.globalKeyList.first().osisRef)
-            myIntent.putExtra("book", currentGeneralBookPage.currentDocument?.initials)
+            myIntent.putExtra("key", key?.osisRef?: doc!!.globalKeyList.first().osisRef)
+            myIntent.putExtra("book", doc?.initials)
         }
 
         setResult(Activity.RESULT_OK, myIntent)

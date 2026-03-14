@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -35,6 +35,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.displayName
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
@@ -103,7 +104,7 @@ open class OsisDocument(
     val book: Book,
     val key: Key,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes> = emptyList(),
-    val highlightRange: IntRange? = null
+    val highlightRange: IntRange? = null,
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -132,7 +133,7 @@ open class OsisDocument(
             "v11n" to wrapString(if(book is SwordBook) book.versification.name else null),
             "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
             "highlightedOrdinalRange" to highlightedOrdinalRange,
-            "isEpub" to json.encodeToString(serializer(), book.isEpub),
+            "isNativeHtml" to json.encodeToString(serializer(), book.isEpub || book.isMyDocument),
         )
     }
 }
@@ -218,7 +219,7 @@ class MyNotesDocument(val bookmarks: List<BookmarkEntities.BibleBookmarkWithNote
 
 class StudyPadDocument(
     val label: BookmarkEntities.Label,
-    val bookmarkId: IdType?,
+    val entryId: IdType?,
     val bookmarks: List<BookmarkEntities.BibleBookmarkWithNotes>,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes>,
     private val bookmarkToLabels: List<BookmarkEntities.BibleBookmarkToLabel>,
@@ -281,6 +282,7 @@ class ClientBibleBookmark(val bookmark: BookmarkEntities.BibleBookmarkWithNotes,
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to (bookmark.wholeVerse || bookmark.book == null).toString(),
             "customIcon" to wrapString(bookmark.customIcon),
+            "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }
@@ -316,10 +318,12 @@ class ClientGenericBookmark(val bookmark: BookmarkEntities.GenericBookmarkWithNo
             "fullText" to wrapString(bookmark.fullText),
             "highlightedText" to wrapString(bookmark.highlightedText),
             "bookmarkToLabels" to json.encodeToString(serializer(), bookmark.bookmarkToLabels),
+            "osisFragment" to mapToJson(bookmark.osisFragment?.toHashMap),
             "type" to wrapString("generic-bookmark"),
             "primaryLabelId" to wrapString(bookmark.primaryLabelId?.toString()),
             "wholeVerse" to bookmark.wholeVerse.toString(),
             "customIcon" to wrapString(bookmark.customIcon),
+            "notesContentType" to wrapString(bookmark.notesContentType?.name),
             "editAction" to json.encodeToString(serializer(), bookmark.editAction ?: BookmarkEntities.EditAction()),
         )
     }

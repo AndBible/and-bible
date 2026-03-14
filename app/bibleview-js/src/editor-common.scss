@@ -1,0 +1,79 @@
+/*
+ * Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+// Common styles shared between HtmlEditor and MarkdownEditor components.
+
+@use "@/lib/pell/pell-vars" as pell;
+
+.pell-actionbar {
+  background-color: var(--background-color);
+  color: rgba(0, 0, 0, 0.6);
+
+  .night & {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.pell-button {
+  color: inherit;
+
+  .night & {
+    color: inherit;
+  }
+}
+
+.pell-divider {
+  background-color: hsla(0, 0%, 0%, 0.2);
+
+  .night & {
+    background-color: hsla(0, 0%, 100%, 0.2);
+  }
+}
+
+.edit-area {
+  width: 100%;
+  position: relative;
+}
+
+.edit-area, .pell {
+  margin: 0;
+}
+
+.pell-button-selected {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+
+  .night & {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.saved-notice {
+  position: absolute;
+  right: 5px;
+  bottom: pell.$pell-button-height;
+  padding-inline-end: 3pt;
+  color: hsla(112, 40%, 33%, 0.8);
+
+  .night & {
+    color: hsla(112, 40%, 33%, 0.8);
+  }
+
+  opacity: 0.8;
+  font-size: 10px;
+  z-index: 2;
+}

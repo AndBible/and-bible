@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -501,7 +501,7 @@ class ManageLabels : ListActivityBase() {
         try {
             windowControl.activeWindowPageManager.setCurrentDocumentAndKey(
                 FakeBookFactory.journalDocument,
-                StudyPadKey(journal, bookmarkId = firstMatch?.entryId)
+                StudyPadKey(journal, entryId = firstMatch?.entryId)
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error on attempt to show journal", e)

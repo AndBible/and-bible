@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -78,6 +78,11 @@
             android:key="VERSENUMBERS"
             android:title="@string/prefs_show_verseno_title"
             android:summary="@string/prefs_show_verseno_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="INFINITE_SCROLL"
+            android:title="@string/prefs_infinite_scroll_title"
+            android:summary="@string/prefs_infinite_scroll_summary"
             />
     </PreferenceCategory>
     <PreferenceCategory
