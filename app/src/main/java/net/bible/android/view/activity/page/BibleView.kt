@@ -958,6 +958,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_ACTION = "ab-action"
     }
 
+    enum class AiDocumentAction(val value: String) {
+        DELETE("delete"),
+        REGENERATE("regenerate");
+
+        companion object {
+            fun fromString(action: String?): AiDocumentAction? =
+                entries.find { it.value == action }
+        }
+    }
+
     class ModuleAssetHandler: PathHandler {
         override fun handle(path: String): WebResourceResponse {
             val parts = path.split("/", limit = 2);
@@ -1209,8 +1219,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             true
         }
         UriConstants.SCHEME_ACTION -> {
-            // Handle ab-action://regenerate?pageId=xxx or ab-action://delete?pageId=xxx
-            val action = uri.host
+            val action = AiDocumentAction.fromString(uri.host)
             val pageIdStr = uri.getQueryParameter("pageId")
             if (pageIdStr != null) {
                 handleAIDocumentAction(action, IdType(pageIdStr))
@@ -1226,9 +1235,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     /**
      * Handle AI document actions (regenerate, delete).
      */
-    private fun handleAIDocumentAction(action: String?, pageId: IdType) {
+    private fun handleAIDocumentAction(action: AiDocumentAction?, pageId: IdType) {
         when (action) {
-            "delete" -> {
+            AiDocumentAction.DELETE -> {
                 AlertDialog.Builder(mainBibleActivity)
                     .setMessage(R.string.ai_document_delete_confirmation)
                     .setPositiveButton(R.string.yes) { _, _ ->
@@ -1244,7 +1253,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     .setNegativeButton(R.string.no, null)
                     .show()
             }
-            "regenerate" -> {
+            AiDocumentAction.REGENERATE -> {
                 val errorDoc = ErrorDocument(
                     mainBibleActivity.getString(R.string.ai_document_regenerating),
                     ErrorSeverity.NORMAL
@@ -1261,8 +1270,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     }
                 }
             }
-            else -> {
-                Log.w(TAG, "Unknown AI document action: $action")
+            null -> {
+                Log.w(TAG, "Unknown AI document action")
             }
         }
     }
