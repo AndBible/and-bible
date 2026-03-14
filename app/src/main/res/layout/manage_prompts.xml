@@ -61,14 +61,14 @@
         android:orientation="vertical">
 
         <ListView
-            android:id="@android:id/list"
+            android:id="@+id/list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:divider="@android:color/darker_gray"
             android:dividerHeight="1dp" />
 
         <TextView
-            android:id="@android:id/empty"
+            android:id="@+id/empty"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"

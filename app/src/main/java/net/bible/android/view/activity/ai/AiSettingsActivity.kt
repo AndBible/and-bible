@@ -27,16 +27,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.TextView
 import android.widget.Toast
-import android.widget.ViewFlipper
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ManagePromptsBinding
+import net.bible.android.activity.databinding.ManagePromptsListItemBinding
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
@@ -60,30 +58,24 @@ import java.util.Locale
 class AiSettingsActivity : ActivityBase() {
 
     private val prompts = mutableListOf<AgentPrompt>()
-    private lateinit var viewFlipper: ViewFlipper
-    private var listView: ListView? = null
+    private lateinit var binding: ManagePromptsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.manage_prompts)
+        binding = ManagePromptsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         buildActivityComponent().inject(this)
 
         title = getString(R.string.ai_settings)
 
-        viewFlipper = findViewById(R.id.viewFlipper)
-
-        findViewById<Button>(R.id.configureConnectionButton).setOnClickListener {
+        binding.configureConnectionButton.setOnClickListener {
             startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
         }
 
-        listView = findViewById(android.R.id.list)
-        listView?.let { lv ->
-            val emptyView = findViewById<View>(android.R.id.empty)
-            lv.emptyView = emptyView
-            lv.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                editPrompt(prompts[position])
-            }
+        binding.list.emptyView = binding.empty
+        binding.list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            editPrompt(prompts[position])
         }
     }
 
@@ -94,10 +86,10 @@ class AiSettingsActivity : ActivityBase() {
 
     private fun updateView() {
         if (CommonUtils.settings.llmConfigured) {
-            viewFlipper.displayedChild = 1
+            binding.viewFlipper.displayedChild = 1
             loadPrompts()
         } else {
-            viewFlipper.displayedChild = 0
+            binding.viewFlipper.displayedChild = 0
         }
         invalidateOptionsMenu()
     }
@@ -111,7 +103,7 @@ class AiSettingsActivity : ActivityBase() {
             prompts.clear()
             prompts.addAll(loadedPrompts)
 
-            listView?.adapter = PromptListAdapter()
+            binding.list.adapter = PromptListAdapter()
         }
     }
 
@@ -320,27 +312,19 @@ class AiSettingsActivity : ActivityBase() {
         prompts
     ) {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-            val view = convertView ?: layoutInflater.inflate(
-                R.layout.manage_prompts_list_item,
-                parent,
-                false
-            )
+            val itemBinding = if (convertView != null) {
+                ManagePromptsListItemBinding.bind(convertView)
+            } else {
+                ManagePromptsListItemBinding.inflate(layoutInflater, parent, false)
+            }
 
             val prompt = prompts[position]
             val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
 
-            val nameView = view.findViewById<TextView>(R.id.promptName)
-            val descriptionView = view.findViewById<TextView>(R.id.promptDescription)
-            val contextsView = view.findViewById<TextView>(R.id.promptContexts)
-            val builtInBadge = view.findViewById<TextView>(R.id.builtInBadge)
-
-            nameView.text = prompt.name
-            descriptionView.text = prompt.description ?: ""
-            descriptionView.visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
-
-            if (builtInBadge != null) {
-                builtInBadge.visibility = if (isBuiltIn) View.VISIBLE else View.GONE
-            }
+            itemBinding.promptName.text = prompt.name
+            itemBinding.promptDescription.text = prompt.description ?: ""
+            itemBinding.promptDescription.visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
+            itemBinding.builtInBadge.visibility = if (isBuiltIn) View.VISIBLE else View.GONE
 
             val contextNames = prompt.showIn.map { context ->
                 when (context) {
@@ -356,9 +340,9 @@ class AiSettingsActivity : ActivityBase() {
                         getString(R.string.prompt_context_note_editor)
                 }
             }
-            contextsView.text = contextNames.joinToString(", ")
+            itemBinding.promptContexts.text = contextNames.joinToString(", ")
 
-            return view
+            return itemBinding.root
         }
     }
 

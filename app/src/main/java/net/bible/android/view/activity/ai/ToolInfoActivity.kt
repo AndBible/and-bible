@@ -27,6 +27,8 @@ import android.view.MenuItem
 import android.widget.LinearLayout
 import android.widget.TextView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ActivityToolInfoBinding
+import net.bible.android.activity.databinding.ItemToolInfoBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.llm.tools.ToolRegistry
 
@@ -35,27 +37,28 @@ import net.bible.service.llm.tools.ToolRegistry
  */
 class ToolInfoActivity : ActivityBase() {
 
+    private lateinit var binding: ActivityToolInfoBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tool_info)
+        binding = ActivityToolInfoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         title = getString(R.string.ai_available_tools)
 
-        val container = findViewById<LinearLayout>(R.id.toolInfoContainer)
-        val inflater = LayoutInflater.from(this)
         val allTools = ToolRegistry.getAllTools()
 
         val readTools = allTools.filter { !it.requiresPermission }
         val writeTools = allTools.filter { it.requiresPermission }
 
-        addSectionHeader(container, getString(R.string.ai_read_tools))
+        addSectionHeader(binding.toolInfoContainer, getString(R.string.ai_read_tools))
         for (tool in readTools) {
-            addToolItem(inflater, container, ToolRegistry.getDisplayName(tool), tool.description)
+            addToolItem(binding.toolInfoContainer, ToolRegistry.getDisplayName(tool), tool.description)
         }
 
-        addSectionHeader(container, getString(R.string.ai_write_tools))
+        addSectionHeader(binding.toolInfoContainer, getString(R.string.ai_write_tools))
         for (tool in writeTools) {
-            addToolItem(inflater, container, ToolRegistry.getDisplayName(tool), tool.description)
+            addToolItem(binding.toolInfoContainer, ToolRegistry.getDisplayName(tool), tool.description)
         }
     }
 
@@ -73,11 +76,11 @@ class ToolInfoActivity : ActivityBase() {
         container.addView(header)
     }
 
-    private fun addToolItem(inflater: LayoutInflater, container: LinearLayout, name: String, description: String) {
-        val itemView = inflater.inflate(R.layout.item_tool_info, container, false)
-        itemView.findViewById<TextView>(R.id.toolName).text = name
-        itemView.findViewById<TextView>(R.id.toolDescription).text = description
-        container.addView(itemView)
+    private fun addToolItem(container: LinearLayout, name: String, description: String) {
+        val itemBinding = ItemToolInfoBinding.inflate(LayoutInflater.from(this), container, false)
+        itemBinding.toolName.text = name
+        itemBinding.toolDescription.text = description
+        container.addView(itemBinding.root)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

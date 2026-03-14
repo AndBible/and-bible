@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.common.CommonUtils
@@ -59,9 +60,12 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
+    private lateinit var binding: SettingsActivityBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.settings_activity)
+        binding = SettingsActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         buildActivityComponent().inject(this)
 
         title = getString(R.string.ai_connection_settings)

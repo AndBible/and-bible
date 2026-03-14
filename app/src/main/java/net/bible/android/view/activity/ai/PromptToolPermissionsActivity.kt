@@ -24,10 +24,10 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.LinearLayout
 import android.widget.RadioGroup
-import android.widget.TextView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ActivityPromptToolPermissionsBinding
+import net.bible.android.activity.databinding.ItemToolPermissionBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
@@ -51,9 +51,12 @@ class PromptToolPermissionsActivity : ActivityBase() {
     private var initialAllowed = emptySet<String>()
     private var initialDenied = emptySet<String>()
 
+    private lateinit var binding: ActivityPromptToolPermissionsBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_prompt_tool_permissions)
+        binding = ActivityPromptToolPermissionsBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         title = getString(R.string.prompt_tool_permissions)
 
@@ -62,25 +65,21 @@ class PromptToolPermissionsActivity : ActivityBase() {
         initialAllowed = allowedTools
         initialDenied = deniedTools
 
-        val container = findViewById<LinearLayout>(R.id.toolListContainer)
-        val inflater = LayoutInflater.from(this)
         val tools = ToolRegistry.getPermissionTools()
 
         for (tool in tools) {
-            val itemView = inflater.inflate(R.layout.item_tool_permission, container, false)
-            val toolName = itemView.findViewById<TextView>(R.id.toolName)
-            val radioGroup = itemView.findViewById<RadioGroup>(R.id.permissionRadioGroup)
+            val itemBinding = ItemToolPermissionBinding.inflate(LayoutInflater.from(this), binding.toolListContainer, false)
 
-            toolName.text = ToolRegistry.getDisplayName(tool)
+            itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
             when (tool.name) {
-                in allowedTools -> radioGroup.check(R.id.radioAllow)
-                in deniedTools -> radioGroup.check(R.id.radioDeny)
-                else -> radioGroup.check(R.id.radioAsk)
+                in allowedTools -> itemBinding.permissionRadioGroup.check(R.id.radioAllow)
+                in deniedTools -> itemBinding.permissionRadioGroup.check(R.id.radioDeny)
+                else -> itemBinding.permissionRadioGroup.check(R.id.radioAsk)
             }
 
-            container.addView(itemView)
-            toolRows.add(ToolRow(tool, radioGroup))
+            binding.toolListContainer.addView(itemBinding.root)
+            toolRows.add(ToolRow(tool, itemBinding.permissionRadioGroup))
         }
     }
 

@@ -32,15 +32,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MyDocumentListItemBinding
 import net.bible.android.activity.databinding.MyDocumentsSelectorBinding
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -53,15 +51,14 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 
 private const val TAG = "MyDocumentsActivity"
 
-class MyDocumentViewHolder(val layout: ViewGroup) : RecyclerView.ViewHolder(layout)
+class MyDocumentViewHolder(val binding: MyDocumentListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapter<MyDocumentViewHolder>() {
     val items get() = activity.dataSet
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyDocumentViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.my_document_list_item, parent, false) as ViewGroup
-        return MyDocumentViewHolder(view)
+        val binding = MyDocumentListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyDocumentViewHolder(binding)
     }
 
     override fun getItemId(position: Int): Long = items[position].id.hashCode().toLong()
@@ -69,13 +66,7 @@ class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapte
     override fun getItemCount() = items.size
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onBindViewHolder(holder: MyDocumentViewHolder, position: Int) {
-        val dragHolder = holder.layout.findViewById<ImageView>(R.id.dragHolder)
-        val title = holder.layout.findViewById<TextView>(R.id.title)
-        val summary = holder.layout.findViewById<TextView>(R.id.summary)
-        val menuButton = holder.layout.findViewById<ImageButton>(R.id.menuButton)
-        val aiIcon = holder.layout.findViewById<ImageView>(R.id.aiIcon)
-        val layout = holder.layout
+    override fun onBindViewHolder(holder: MyDocumentViewHolder, position: Int) = holder.binding.run {
         val document = items[position]
 
         title.text = document.name
@@ -84,10 +75,10 @@ class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapte
         // Show AI icon if document was created by AI
         aiIcon.visibility = if (document.sourcePromptId != null) View.VISIBLE else View.GONE
 
-        layout.setOnClickListener {
+        root.setOnClickListener {
             activity.openDocument(document)
         }
-        layout.setOnLongClickListener { true }
+        root.setOnLongClickListener { true }
         dragHolder.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                 activity.itemTouchHelper.startDrag(holder)
