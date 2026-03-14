@@ -139,6 +139,9 @@ Never hardcode user-visible text directly in code.
 ### View Bindings
 Always use [View Binding](https://developer.android.com/topic/libraries/view-binding) in new Activities and Fragments. Access views through the generated binding object instead of `findViewById`.
 
+### Kotlin Idioms
+Use Kotlin scope functions (`apply`, `let`, `with`, `also`, `run`) to reduce repetition. For example, prefer `binding.apply { ... }` over repeating `binding.` on every line. Apply this consistently whenever it improves readability.
+
 ### Settings Management
 ```kotlin
 // Global app preferences
