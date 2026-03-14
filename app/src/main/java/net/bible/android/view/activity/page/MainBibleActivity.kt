@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.graphics.Insets
 import android.media.AudioManager
@@ -1072,6 +1073,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.strongsButton.alpha = alpha
         } else
             binding.strongsButton.alpha = 1.0F
+        if (CommonUtils.settings.monochromeMode) {
+            binding.strongsButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
+        }
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument

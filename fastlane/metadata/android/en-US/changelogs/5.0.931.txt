@@ -1,0 +1,37 @@
+- Add per-workspace label display mode override (7ec5c849b)
+- Add scroll-to-top button next to section titles (01b8ac103)
+- Add "Italicize added words" setting for Strong's modules (c7053843b)
+- Add tab view for multiple Strong's/morphology dictionaries (c159b9d45)
+- Add compact Strong's/morphology display with responsive layout (989b7bee2)
+- Monochrome mode styling: pure black/white for StudyPad, modals, toolbar, and window buttons (51fe21e16, 0d14e6169, f2b717340, fd42e4ed5, bf8aa0782)
+- Improve backup view: clean list, restore from auto-backup, and database reset (d00534fad)
+- Replace Strong's off mode with hidden links mode (#3152)
+- Store window buttons bar visibility per workspace instead of globally (ab5e718d3)
+- Tab navigation for dictionary tabs in StrongsDocument (d335f3646, 6c37ea597)
+- Show both Strong's and morphology data when either link is clicked (4572f841f, f16a12ed3)
+- Improve styling for Strong's/morphology labels and translation notes in dictionary view (88f4b7524, 84cd781e1, b04446ee1, c3129bde8)
+- Performance: compile Strong's search pattern once instead of per-element (4f3cbde10)
+- Update JSword to 2.4.28 (fix NPE crash with corrupted Lucene index) (e54117221)
+- Remove dotted underline from Strong's links mode (a29598332)
+- Fix monochrome color and opacity issues across JS components (9dc55cde8)
+- Fix monochrome styling for unmaximize icon, visible windows indicator, and button colors (cb0473a7a)
+- Fix unmaximize button visibility when window button bar is hidden (331772e4f)
+- Fix title scroll button: correct scroll position and enlarge touch target (2ef335d88)
+- Fix infinite scroll busy loop when reaching end/start of book (d9ed12055)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda36)
+- Fix StrongsDocument two-column layout centering and proportions (f8eb9d4b5)
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Respect selected TTS engine (#3567)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

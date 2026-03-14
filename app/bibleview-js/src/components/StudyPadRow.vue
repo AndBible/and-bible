@@ -251,5 +251,11 @@ defineExpose({editor});
   border-radius: 5px;
   border-style: solid;
   border-color: rgba(0, 0, 255, 0.5);
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 </style>

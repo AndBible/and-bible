@@ -352,8 +352,14 @@ $cursorColor: rgb(0, 161, 0);
 
   border-style: dashed;
   border-color: rgba(0, 0, 0, 0.15);
+  .monochrome & {
+    border-color: black;
+  }
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
+  }
+  .monochrome.night & {
+    border-color: white;
   }
   border-width: 1pt 0 0 0;
 
@@ -370,16 +376,32 @@ $cursorColor: rgb(0, 161, 0);
 .drag-ghost {
   background: rgba(0, 0, 0, 0.2);
 
+  .monochrome & {
+    background: transparent;
+    outline: 2px solid black;
+  }
   .night & {
     background: rgba(255, 255, 255, 0.2);
+  }
+  .monochrome.night & {
+    background: transparent;
+    outline: 2px solid white;
   }
 }
 
 .drag-chosen {
   background: rgba(0, 0, 0, 0.2);
 
+  .monochrome & {
+    background: transparent;
+    outline: 2px solid black;
+  }
   .night & {
     background: rgba(255, 255, 255, 0.2);
+  }
+  .monochrome.night & {
+    background: transparent;
+    outline: 2px solid white;
   }
 }
 </style>

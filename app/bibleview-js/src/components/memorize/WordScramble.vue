@@ -70,7 +70,7 @@
 </template>
 
 <script setup lang="ts">
-import {ref, onMounted, computed} from "vue";
+import {ref, onMounted, computed, watch} from "vue";
 import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
 
@@ -161,10 +161,9 @@ onMounted(() => {
     } else {
         resetWords();
     }
-    
-    // Make sure we're not starting on a punctuation token
     skipPunctuationTokens();
 });
+
 
 function skipPunctuationTokens() {
     while (currentWordIndex.value < getWordsFromText(props.textItems.map(item => item.text).join(' ')).length) {
@@ -282,6 +281,16 @@ function resetWords() {
   .noAnimation & {
     transition: none;
   }
+  .monochrome & {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .monochrome.night & {
+    background-color: black;
+    border-color: white;
+  }
   .memorize-word {
     margin-right: 4px;
     min-width: 1.5em;
@@ -303,12 +312,20 @@ function resetWords() {
   &.preview {
     border: 1px dashed var(--primary-color);
     background-color: rgba(0, 0, 0, 0.03);
+    .monochrome & {
+      background-color: transparent;
+      border-color: black;
+    }
     .night & {
       background-color: rgba(255, 255, 255, 0.03);
     }
+    .monochrome.night & {
+      background-color: transparent;
+      border-color: white;
+    }
     padding: 1rem;
   }
-  
+
   &.completed {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
@@ -316,8 +333,16 @@ function resetWords() {
     border-radius: 8px;
     padding: 1rem;
     background-color: rgba(40, 167, 69, 0.05);
+    .monochrome & {
+      background-color: transparent;
+      border-color: black;
+    }
     .night & {
       background-color: rgba(40, 167, 69, 0.1);
+    }
+    .monochrome.night & {
+      background-color: transparent;
+      border-color: white;
     }
     animation: completionPulse 2s;
     .noAnimation & {
@@ -353,6 +378,14 @@ function resetWords() {
     
     &.incorrect {
       background-color: #e74c3c;
+      .monochrome & {
+        background-color: black;
+        color: white;
+      }
+      .monochrome.night & {
+        background-color: white;
+        color: black;
+      }
       animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
       .noAnimation & {
         animation: none;
@@ -361,6 +394,9 @@ function resetWords() {
     
     &.disabled {
       opacity: 0.5;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }
@@ -369,10 +405,13 @@ function resetWords() {
   .button {
     min-width: 100px;
     font-weight: 500;
-    
+
     &:active {
       transform: translateY(1px);
       opacity: 0.9;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }

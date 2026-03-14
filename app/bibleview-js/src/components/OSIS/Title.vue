@@ -100,5 +100,8 @@ h3.isSubTitle {
   padding: 8px 12px;
   line-height: 1;
   color: inherit;
+  .monochrome & {
+    opacity: 1;
+  }
 }
 </style>

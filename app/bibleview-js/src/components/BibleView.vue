@@ -63,7 +63,7 @@
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
     <div class="pagenumber"
-         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
          @click="resetPageNumber()"
     >
@@ -401,6 +401,10 @@ function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
 
+const pageNumberBottom = computed(() =>
+    appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
+);
+
 const pageNumber = computed(() => {
     const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
     return num.toFixed(1);
@@ -460,6 +464,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 255, 0.6);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-left-corner {
@@ -509,6 +520,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 0, $dayAlpha);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-margin {

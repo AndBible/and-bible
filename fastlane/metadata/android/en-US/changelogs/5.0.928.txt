@@ -1,0 +1,36 @@
+- Per-workspace label display mode override (7ec5c849b)
+- Scroll-to-top button next to section titles (01b8ac103)
+- Tab view for multiple Strong's/morphology dictionaries (c159b9d45)
+- "Italicize added words" setting for Strong's modules (c7053843b)
+- Replace Strong's off mode with hidden links mode (#3152)
+- Dotted underline for words in Strong's links mode (96191c94a)
+- Compact Strong's/morphology display with responsive layout (989b7bee2)
+- Monochrome window buttons: thinner borders, all white background (a3852a4ac)
+- Monochrome toolbar: white background and black icons (bf8aa0782)
+- Backup view improvements: clean list, restore from auto-backup, database reset (d00534fad)
+- StrongsDocument two-column layout centering and proportions (f8eb9d4b5)
+- Window buttons bar visibility now per-workspace (ab5e718d3)
+- Dictionary tab navigation with horizontal scroll (6c37ea597)
+- Always show both Strong's and morphology when either link clicked (4572f841f)
+- Translation-note styling improvements (b04446ee1)
+- Strong's/morphology labels inherit color in monochrome mode (88f4b7524)
+- Fix title scroll button: correct scroll position and enlarge touch target (2ef335d88)
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Fix infinite scroll busy loop at end/start of book (d9ed12055)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda36)
+- Fix rend-x-indirect styling and inline dictionary translation notes (c3129bde8)
+- Fix bug report attachments getting corrupted in OSTicket (363e614e9)
+- Respect selected TTS engine (#3567)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
