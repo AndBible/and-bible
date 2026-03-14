@@ -36,6 +36,14 @@
             android:label="@string/install_zip_module_discrete"
             tools:replace="android:label"
             />
+
+        <activity
+            android:name="net.bible.android.view.activity.search.Search"
+            android:exported="false"
+            tools:replace="android:exported">
+            <intent-filter tools:node="remove" />
+        </activity>
+
     </application>
 
 </manifest>

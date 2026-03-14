@@ -131,6 +131,20 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/speak_bookmark_widget_info" />
         </receiver>
+
+        <activity
+            android:name="net.bible.android.activity.GetPassageActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:exported="true">
+            <intent-filter>
+                <action android:name="net.bible.android.action.GET_PASSAGE" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
     </application>
 
 </manifest>
