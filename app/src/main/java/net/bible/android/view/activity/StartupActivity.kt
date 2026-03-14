@@ -63,7 +63,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.checkPoorTranslations
 import net.bible.service.common.CommonUtils.json
 import net.bible.service.common.htmlToSpan
-import net.bible.service.common.SecureStorage
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.sword.SwordDocumentFacade
 
@@ -231,7 +230,6 @@ open class StartupActivity : CustomTitlebarActivityBase() {
         withContext(Dispatchers.IO) {
             DatabaseContainer.ready = true
             DatabaseContainer.instance
-            SecureStorage.migrateFromPlainStorage()
         }
     }
 

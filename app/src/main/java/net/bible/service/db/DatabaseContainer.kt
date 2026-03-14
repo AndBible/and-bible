@@ -41,6 +41,7 @@ import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.SecureStorage
 import net.bible.android.database.migrations.DatabaseSplitMigrations
 import net.bible.android.database.migrations.READING_PLAN_DATABASE_VERSION
 import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
@@ -327,6 +328,7 @@ class DatabaseContainer {
                 }
                     .also {
                         _instance = it
+                        SecureStorage.migrateFromPlainStorage()
                     }
             }
         }

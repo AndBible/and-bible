@@ -162,10 +162,6 @@ open class BibleApplication : Application() {
         // some changes may be required for different versions
         upgradeSharedPreferences()
 
-        // Note: SecureStorage.migrateFromPlainStorage() is called from
-        // StartupActivity.initializeDatabase() after DatabaseContainer is ready,
-        // because it needs CommonUtils.settings (SettingsDatabase).
-
         // initialise link to Android progress control display in Notification bar
         ProgressNotificationManager.instance.initialise()
 
