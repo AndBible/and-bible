@@ -13,6 +13,27 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
+# Retry wrapper for GPG/network operations that may fail due to YubiKey timeout
+# Usage: retry_command <description> <command...>
+retry_command() {
+    local desc="$1"
+    shift
+    local max_retries=3
+    local attempt=1
+    while true; do
+        if "$@"; then
+            return 0
+        fi
+        if [[ $attempt -ge $max_retries ]]; then
+            echo -e "${RED}$desc failed after $max_retries attempts.${NC}"
+            return 1
+        fi
+        echo -e "${YELLOW}$desc failed (attempt $attempt/$max_retries). Touch YubiKey and press Enter to retry...${NC}"
+        read -r
+        attempt=$((attempt + 1))
+    done
+}
+
 # Parse arguments
 BUILD_MODE=false
 if [[ "$1" == "--build" ]]; then
@@ -185,7 +206,7 @@ echo "Creating commit: $COMMIT_MESSAGE"
 if [[ "$BUILD_MODE" == true ]]; then
     git commit -m "$COMMIT_MESSAGE"
 else
-    git commit -S -m "$COMMIT_MESSAGE"
+    retry_command "Signed commit" git commit -S -m "$COMMIT_MESSAGE"
 fi
 
 # Create tag
@@ -200,7 +221,7 @@ echo "Creating tag: $TAG_NAME"
 if [[ "$BUILD_MODE" == true ]]; then
     git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
 else
-    git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
+    retry_command "Signed tag" git tag -s "$TAG_NAME" -m "$TAG_MESSAGE"
 fi
 
 echo -e "${GREEN}✓ Commit and tag created successfully${NC}"
@@ -215,9 +236,9 @@ else
 fi
 if [[ "$push_response" =~ ^[Yy]$ ]]; then
     echo "Pushing changes to GitHub..."
-    git push origin
+    retry_command "Push to GitHub" git push origin
     echo "Pushing tag to GitHub..."
-    git push origin "$TAG_NAME"
+    retry_command "Push tag to GitHub" git push origin "$TAG_NAME"
     echo -e "${GREEN}✓ Changes and tag pushed to GitHub successfully${NC}"
 
     # Wait for CI workflow to start and approve deployment

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -22,11 +22,6 @@
     <PreferenceCategory
         android:title="@string/prefs_text_display_settings_title"
         >
-        <Preference
-            android:key="LLM_PROMPT"
-            android:title="@string/llm_prompt_title"
-            android:summary="@string/translate_to_summary"
-            />
         <Preference
             android:key="STRONGS"
             android:title="@string/prefs_show_strongs_title"

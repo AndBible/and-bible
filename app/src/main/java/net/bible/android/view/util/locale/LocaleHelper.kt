@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -35,7 +35,7 @@ object LocaleHelper {
             try {
                 val labelRes =
                     activity.packageManager.getActivityInfo(activity.componentName, 0).labelRes
-                activity.setTitle(labelRes)
+                if (labelRes != 0) activity.setTitle(labelRes)
             } catch (e: PackageManager.NameNotFoundException) {
                 e.printStackTrace()
             }

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -16,77 +16,35 @@
   -->
 
 <template>
-  <div class="osis-html" v-html="renderedHtml" @click="handleClick" ref="container"/>
+  <div class="osis-html" v-html="renderedHtml" @click="handleClick"/>
   <!-- Hidden slot to capture raw content -->
   <span ref="slotContent" style="display: none"><slot/></span>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
+import {computed} from "vue";
+import DOMPurify from "dompurify";
+import {useSlotHtmlContent, unescapeXmlEntities} from "@/composables/slot-html-content";
 
-const slotContent = ref<HTMLElement | null>(null);
-const container = ref<HTMLElement | null>(null);
-const rawContent = ref("");
-
-// Get content from slot after mount
-onMounted(() => {
-    if (slotContent.value) {
-        rawContent.value = slotContent.value.innerText;
-    }
-});
-
-// Watch for changes in slot content
-watch(() => slotContent.value?.innerText, (newVal) => {
-    if (newVal) {
-        rawContent.value = newVal;
-    }
-});
+const {slotContent, rawContent, handleClick} = useSlotHtmlContent();
 
 const renderedHtml = computed(() => {
     if (!rawContent.value) return "";
-
-    // Unescape XML entities that were escaped on the backend
-    return rawContent.value
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">")
-        .replace(/&quot;/g, '"')
-        .replace(/&apos;/g, "'")
-        .replace(/&amp;/g, "&");
+    return DOMPurify.sanitize(unescapeXmlEntities(rawContent.value));
 });
-
-/**
- * Handle clicks on links within the rendered HTML.
- * AndBible protocols (sword://, osis://, ab-w://) are handled by the WebView.
- */
-function handleClick(event: MouseEvent) {
-    const target = event.target as HTMLElement;
-
-    // Check if clicked element is a link or inside a link
-    const link = target.closest("a") as HTMLAnchorElement | null;
-    if (link) {
-        event.preventDefault();
-        const href = link.getAttribute("href");
-        if (href) {
-            // Let the WebView handle the navigation
-            window.location.assign(href);
-        }
-    }
-}
 </script>
 
 <style scoped lang="scss">
 .osis-html {
-    // Basic HTML content styling - inherits most from parent
     :deep(a) {
-        color: #1a73e8;
+        color: var(--link-color);
         text-decoration: underline;
     }
 }
 
-// Night mode adjustments
 .night .osis-html {
     :deep(a) {
-        color: #8ab4f8;
+        color: var(--link-color);
     }
 }
 </style>

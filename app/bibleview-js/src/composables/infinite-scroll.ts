@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -167,8 +167,8 @@ export function useInfiniteScroll(
     }
 
     const
-        // Whether the current document type supports infinite scroll (Bible or GenBook)
-        documentSupportsInfiniteScroll = computed(() => {
+        // Whether the current document type supports chapter navigation (Bible or GenBook)
+        documentSupportsChapterNavigation = computed(() => {
            if(bibleViewDocuments.length === 0) return false;
            const doc = bibleViewDocuments[0];
            if(isOsisDocument(doc)) {
@@ -177,9 +177,13 @@ export function useInfiniteScroll(
                return doc.type === "bible";
            }
         }),
-        // Whether infinite scroll is currently active (enabled in settings AND supported by document)
+        // Whether infinite scroll is currently active (enabled in settings, supported by document,
+        // and not an AI document which is single-page content)
         isEnabled = computed(() => {
-           return config.infiniteScroll && documentSupportsInfiniteScroll.value;
+            if(!config.infiniteScroll || !documentSupportsChapterNavigation.value) return false;
+            const doc = bibleViewDocuments[0];
+            if(isOsisDocument(doc) && doc.isAiDocument) return false;
+            return true;
         }),
         UP_MARGIN = 2,
         DOWN_MARGIN = 200,
@@ -270,7 +274,8 @@ export function useInfiniteScroll(
         loadingAtTop,
         loadTextAtTop,
         loadTextAtEnd,
-        documentSupportsInfiniteScroll,
+        documentSupportsChapterNavigation,
+        infiniteScrollIsEnabled: isEnabled,
         reachedEnd,
     };
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2023-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -115,9 +115,11 @@ class GoogleDriveCloudAdapter: CloudAdapter {
         }
     }
 
+    private val prefs get() = CommonUtils.realSharedPreferences
+
     private var lastAccount: Account?
         get() {
-            val s = CommonUtils.realSharedPreferences.getString("lastAccount", null)?: return null
+            val s = prefs.getString("cloud_sync_last_account", null) ?: return null
             return try {
                 val bytes = Base64.decode(s, Base64.DEFAULT)
                 val p = Parcel.obtain()
@@ -126,18 +128,18 @@ class GoogleDriveCloudAdapter: CloudAdapter {
                 val account = Account(p)
                 account
             } catch (e: Exception) {
-                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+                prefs.edit().remove("cloud_sync_last_account").apply()
                 null
             }
         }
         set(value) {
             if(value == null) {
-                CommonUtils.realSharedPreferences.edit().remove("lastAccount").apply()
+                prefs.edit().remove("cloud_sync_last_account").apply()
             } else {
                 val p = Parcel.obtain()
                 value.writeToParcel(p, 0)
                 val s = String(Base64.encode(p.marshall(), Base64.DEFAULT))
-                CommonUtils.realSharedPreferences.edit().putString("lastAccount", s).apply()
+                prefs.edit().putString("cloud_sync_last_account", s).apply()
             }
         }
 

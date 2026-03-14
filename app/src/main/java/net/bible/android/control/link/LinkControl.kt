@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -323,7 +323,7 @@ class LinkControl @Inject constructor(
     }
 
     fun showAllOccurrences(ref: String, bibleSection: SearchBibleSection) {
-        val currentBible = currentPageManager.currentBible.currentDocument!!
+        val currentBible = currentPageManager.currentBible.currentDocument ?: return
         // if current bible has no Strongs refs then try to find one that has
         val strongsBible = if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
             currentBible
@@ -391,7 +391,11 @@ class LinkControl @Inject constructor(
 
     fun showLink(document: Book?, key: Key, forceOpenHere: Boolean = false) {
         val currentPageManager = currentPageManager
-        val defaultDocument = currentPageManager.currentBible.currentDocument!!
+        val defaultDocument = currentPageManager.currentBible.currentDocument
+        if (defaultDocument == null) {
+            Log.w(TAG, "No current Bible document available for link navigation")
+            return
+        }
         if (windowMode == WindowMode.WINDOW_MODE_NEW) {
             windowControl.addNewWindow(document?: defaultDocument, key)
         } else if (checkIfOpenLinksInDedicatedWindow() && !forceOpenHere) {

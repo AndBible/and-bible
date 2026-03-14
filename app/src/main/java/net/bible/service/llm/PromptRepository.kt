@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -32,7 +32,7 @@ import net.bible.service.db.DatabaseContainer
  */
 object PromptRepository {
 
-    private val dao get() = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
 
     /**
      * Get a prompt by ID, checking built-in prompts first, then DB.

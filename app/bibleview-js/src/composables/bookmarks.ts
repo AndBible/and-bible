@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -346,9 +346,9 @@ export function useBookmarks(
     });
 
     function truncateToOrdinalRange(bookmark: BaseBookmark): OrdinalAndOffsetRange {
-        const b = {
-            ordinalRange: bookmark.ordinalRange && bookmark.ordinalRange.slice() as OrdinalRange,
-            offsetRange: bookmark.offsetRange && bookmark.offsetRange.slice() as OffsetRange,
+        const b: { ordinalRange: OrdinalRange | null; offsetRange: OffsetRange | null } = {
+            ordinalRange: bookmark.ordinalRange ? [...bookmark.ordinalRange] as OrdinalRange : null,
+            offsetRange: bookmark.offsetRange ? [...bookmark.offsetRange] as OffsetRange : null,
         };
         b.offsetRange = b.offsetRange || [0, null]
         if (!b.ordinalRange) {

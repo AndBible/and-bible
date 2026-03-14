@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -39,11 +39,6 @@
     <item
         android:id="@+id/import_prompts_csv"
         android:title="@string/import_prompts_csv"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/manage_cache"
-        android:title="@string/llm_cache_management"
         app:showAsAction="never" />
 
     <item

@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -49,19 +49,13 @@
       @navigate-next="android.goToNextChapter"
     />
     <div class="loading" v-if="isLoading">
-      <div v-if="appSettings.disableAnimations" class="loading-icon">
-        <FontAwesomeIcon size="2x" icon="fa-regular fa-clock"/>
-      </div>
-      <div v-else class="lds-ring"><div/><div/><div/><div/></div>
+      <LoadingSpinner/>
     </div>
     <div id="content" ref="topElement" :style="contentStyle">
       <div style="position: absolute; top: -5000px;" v-if="documents.length === 0">Invisible element to make fonts load properly</div>
       <DocumentBroker v-for="document in documents" :key="document.id" :document="document"/>
       <div class="infinite-scroll-loading" v-if="loadingAtEnd">
-        <div v-if="appSettings.disableAnimations" class="loading-icon">
-          <FontAwesomeIcon icon="fa-regular fa-clock"/>
-        </div>
-        <div v-else class="lds-ring small"><div/><div/><div/><div/></div>
+        <LoadingSpinner small/>
       </div>
     </div>
     <template v-if="!modalOpen">
@@ -69,7 +63,7 @@
       <div class="next-page-button" @click.stop="scrollUpDown()" :style="{width: `${calculatedConfig.marginRight}px`}" />
     </template>
     <div class="pagenumber"
-         :style="{bottom: `${appSettings.bottomOffset}px`}"
+         :style="{bottom: pageNumberBottom}"
          v-if="config.showPageNumber"
          @click="resetPageNumber()"
     >
@@ -141,8 +135,8 @@ import {useCustomFeatures} from "@/composables/features";
 import {useSharing} from "@/composables/sharing";
 import {AnyDocument, BibleViewDocumentType} from "@/types/documents";
 import AmbiguousSelection from "@/components/modals/AmbiguousSelection.vue";
-import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import ChapterNavigationButtons from "@/components/ChapterNavigationButtons.vue";
+import LoadingSpinner from "@/components/LoadingSpinner.vue";
 
 console.log("BibleView setup");
 useAddonFonts();
@@ -214,12 +208,13 @@ const {
     loadingAtTop,
     loadTextAtTop,
     loadTextAtEnd,
-    documentSupportsInfiniteScroll,
+    documentSupportsChapterNavigation,
+    infiniteScrollIsEnabled,
     reachedEnd
 } = useInfiniteScroll(android, scroll, documents, config);
 
 const showChapterNavButtons = computed(() => {
-    return !config.infiniteScroll && documentSupportsInfiniteScroll.value;
+    return documentSupportsChapterNavigation.value && !infiniteScrollIsEnabled.value;
 });
 const loadingCount = ref(0);
 
@@ -390,6 +385,10 @@ setupEventBusListener("adjust_loading_count", (a: number) => {
     }
 });
 
+setupEventBusListener("reset_loading_count", () => {
+    loadingCount.value = 0;
+});
+
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 const scrollAmount = computed(() => {
     let amount = calculatedConfig.value.pageHeight;
@@ -402,6 +401,10 @@ const scrollAmount = computed(() => {
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
+
+const pageNumberBottom = computed(() =>
+    appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
+);
 
 const pageNumber = computed(() => {
     const num = (scrollY.value - scrollYAtStart.value) / scrollAmount.value;
@@ -422,83 +425,17 @@ const direction = computed(() => appSettings.rightToLeft ? "rtl" : "ltr");
 <style lang="scss">
 @use "@/common.scss" as *;
 
-$ring-size: 35px;
-$ring-thickness: calc(#{$ring-size} / 12);
-
 .loading {
   position: fixed;
-  left: calc(50% - #{$ring-size} / 2);
-  top: calc(50% - #{$ring-size} / 2);
-}
-
-.loading-icon {
-  border-radius: 50%;
-  background: white;
-  .night & {
-    background: black;
-  }
-}
-
-$ring-color: $button-grey;
-
-.lds-ring {
-  display: inline-block;
-  position: relative;
-  width: $ring-size;
-  height: $ring-size;
-
-  & div {
-    box-sizing: border-box;
-    display: block;
-    position: absolute;
-    width: $ring-size;
-    height: $ring-size;
-    margin: 8px;
-    border: $ring-thickness solid $ring-color;
-    border-radius: 50%;
-    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: $ring-color transparent transparent transparent;
-
-    &:nth-child(1) {
-      animation-delay: -0.45s;
-    }
-
-    &:nth-child(2) {
-      animation-delay: -0.3s;
-    }
-
-    &:nth-child(3) {
-      animation-delay: -0.15s;
-    }
-  }
-}
-
-@keyframes lds-ring {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .infinite-scroll-loading {
   display: flex;
   justify-content: center;
   padding: 20px 0;
-
-  .lds-ring.small {
-    $small-size: 24px;
-    width: $small-size;
-    height: $small-size;
-
-    & div {
-      width: $small-size;
-      height: $small-size;
-      margin: 4px;
-      border-width: 2px;
-    }
-  }
 }
 
 .background {
@@ -528,6 +465,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 255, 0.6);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-left-corner {
@@ -577,6 +521,13 @@ $borderDistance: 0;
   }
 
   border-color: rgba(0, 0, 0, $dayAlpha);
+
+  .monochrome & {
+    border-color: black;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
 }
 
 .top-margin {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -19,10 +19,13 @@ package net.bible.service.llm.tools.read
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -32,7 +35,10 @@ import org.json.JSONObject
  * Searches through all StudyPads for matching text in notes and text entries.
  */
 object SearchStudyPadsTool : Tool {
-    override val name = "searchStudyPads"
+    @Serializable
+    data class Args(val query: String = "")
+
+    override val agentTool = AgentTool.SEARCH_STUDY_PADS
     override val displayNameResId = R.string.tool_search_study_pads
 
     override val description = """
@@ -65,7 +71,12 @@ object SearchStudyPadsTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val query = arguments.optString("query", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val query = args.query
 
         if (query.isBlank()) {
             return ToolResult.error("Missing required parameter: query")

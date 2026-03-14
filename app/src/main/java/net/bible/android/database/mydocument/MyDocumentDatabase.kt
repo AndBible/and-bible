@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -25,19 +25,21 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.database.SyncStatus
 import net.bible.android.database.SyncableRoomDatabase
 
-const val MY_DOCUMENT_DATABASE_VERSION = 3
+const val MY_DOCUMENT_DATABASE_VERSION = 1
 
 @Database(
     entities = [
         MyDocument::class,
         MyDocumentPage::class,
         MyDocumentPageContent::class,
+        AiPageCacheEntry::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
     ],
     views = [
         MyDocumentPageWithContent::class,
+        AiCachedPageWithContent::class,
     ],
     version = MY_DOCUMENT_DATABASE_VERSION
 )

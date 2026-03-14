@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -44,7 +44,6 @@ object BuiltInPrompts {
 
     // Stable IDs for all built-in prompts
     val TRANSLATE_UI_LANGUAGE_ID = stableId("translate-ui-language")
-    val TRANSLATE_ENGLISH_ID = stableId("translate-english")
     val SUMMARY_ID = stableId("summary")
     val EXPLAIN_VERSES_ID = stableId("explain-verses")
     val STRONGS_ANNOTATION_ID = stableId("strongs-annotation")
@@ -80,10 +79,15 @@ object BuiltInPrompts {
      */
     fun allBuiltInPrompts(): List<AgentPrompt> = productionPrompts() + testPrompts()
 
+    private val _productionPrompts by lazy { buildProductionPrompts() }
+    private val _testPrompts by lazy { buildTestPrompts() }
+
     /**
      * Returns only production (non-test) built-in prompts.
      */
-    fun productionPrompts(): List<AgentPrompt> {
+    fun productionPrompts(): List<AgentPrompt> = _productionPrompts
+
+    private fun buildProductionPrompts(): List<AgentPrompt> {
         val context = BibleApplication.application
         var order = 0
 
@@ -102,28 +106,6 @@ object BuiltInPrompts {
                     Do not add any explanations or commentary.
                 """.trimIndent(),
                 showIn = setOf(
-                    PromptContext.TEXT_DISPLAY_SETTINGS,
-                    PromptContext.VERSE_SELECTION,
-                    PromptContext.WINDOW_MENU
-                ),
-                orderNumber = order++,
-            ),
-
-            AgentPrompt(
-                id = TRANSLATE_ENGLISH_ID,
-                name = context.getString(R.string.default_prompt_translate_to_english),
-                description = context.getString(R.string.default_prompt_translate_to_english_desc),
-                promptTemplate = """
-                    Translate the following text to English.
-
-                    You MAY use getInstalledDocuments to check if an English Bible translation is installed.
-                    If one exists, use getVerseContent to get the text from that translation.
-                    If NO English translation is installed, translate the text yourself directly.
-
-                    Do not add any explanations or commentary.
-                """.trimIndent(),
-                showIn = setOf(
-                    PromptContext.TEXT_DISPLAY_SETTINGS,
                     PromptContext.VERSE_SELECTION,
                     PromptContext.WINDOW_MENU
                 ),
@@ -136,7 +118,6 @@ object BuiltInPrompts {
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
                     Create a concise summary of the selected text.
-                    Focus on the main theological themes and key points.
                 """.trimIndent(),
                 showIn = setOf(
                     PromptContext.VERSE_SELECTION,
@@ -151,35 +132,10 @@ object BuiltInPrompts {
                 description = context.getString(R.string.default_prompt_explain_verses_desc),
                 promptTemplate = """
                     Explain the meaning and context of the selected verses.
-                    Include historical context, theological significance, and practical application.
+                    Do not make up your own ideas and interpretations but use available 
+                    commentaries as a reference. 
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
-                orderNumber = order++,
-            ),
-
-            AgentPrompt(
-                id = STRONGS_ANNOTATION_ID,
-                name = context.getString(R.string.default_prompt_strongs_annotation),
-                description = context.getString(R.string.default_prompt_strongs_annotation_desc),
-                promptTemplate = """
-                    Annotate each word in the Bible text with Strong's concordance numbers.
-
-                    Steps:
-                    1. Use getVerseContent to read the same passage from "KJV" (has Strong's numbers)
-                    2. The KJV text has <w lemma="strong:HXXXX"> tags mapping words to Strong's numbers
-                    3. Map each word/phrase in the source text to the corresponding Strong's number
-                    4. Wrap annotated words: <w lemma="strong:XXXX">word</w>
-                    5. Multiple Strong's: <w lemma="strong:H1234 strong:H5678">word</w>
-                    6. No clear mapping: leave word unwrapped
-                    7. Preserve ALL XML structure, attributes, verse tags exactly
-                    8. Do not translate or change text content
-
-                    Example:
-                    Source: <verse osisID="Gen.1.1">Alussa Jumala loi taivaan ja maan.</verse>
-                    After getVerseContent("KJV", "Gen.1.1"): <w lemma="strong:H7225">In the beginning</w> <w lemma="strong:H0430">God</w>...
-                    Result: <verse osisID="Gen.1.1"><w lemma="strong:H7225">Alussa</w> <w lemma="strong:H0430">Jumala</w>...
-                """.trimIndent(),
-                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS),
                 orderNumber = order++,
             ),
 
@@ -208,7 +164,9 @@ object BuiltInPrompts {
      * Returns test prompts (visible only in debug mode).
      * These have a 🧪 prefix in their names.
      */
-    fun testPrompts(): List<AgentPrompt> {
+    fun testPrompts(): List<AgentPrompt> = _testPrompts
+
+    private fun buildTestPrompts(): List<AgentPrompt> {
         var order = 100 // Start at 100 to keep them after production prompts
 
         return listOf(
@@ -444,7 +402,7 @@ object BuiltInPrompts {
 
                     Example: "In the beginning God created" → "IN the beginning God created"
                 """.trimIndent(),
-                showIn = setOf(PromptContext.TEXT_DISPLAY_SETTINGS, PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
             ),
         )

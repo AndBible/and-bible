@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -20,19 +20,29 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.TextContentType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
  * Tool for updating an existing bookmark note.
  */
 object UpdateBookmarkNoteTool : Tool {
-    override val name = "updateBookmarkNote"
+    @Serializable
+    data class Args(
+        val bookmarkId: IdType = IdType.empty(),
+        val note: String = ""
+    )
+
+    override val agentTool = AgentTool.UPDATE_BOOKMARK_NOTE
 
     override val description = """
         Update the note text of an existing bookmark.
@@ -62,10 +72,14 @@ object UpdateBookmarkNoteTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val bookmarkIdStr = arguments.optString("bookmarkId", "")
-        val note = normalizeLlmText(arguments.optString("note", ""))
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val note = normalizeLlmText(args.note)
 
-        if (bookmarkIdStr.isBlank()) {
+        if (args.bookmarkId.isEmpty) {
             return ToolResult.error("Missing required parameter: bookmarkId")
         }
         if (note.isBlank()) {
@@ -73,19 +87,20 @@ object UpdateBookmarkNoteTool : Tool {
         }
 
         return try {
-            val bookmarkId = IdType.fromString(bookmarkIdStr)
-
             // Check if bookmark exists
-            val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId)
-                ?: return ToolResult.error("Bookmark not found: $bookmarkIdStr", "BOOKMARK_NOT_FOUND")
+            val bookmark = bookmarkControl.bibleBookmarkById(args.bookmarkId)
+                ?: return ToolResult.error("Bookmark not found: ${args.bookmarkId}", "BOOKMARK_NOT_FOUND")
 
             val previousNoteLength = bookmark.notes?.length ?: 0
 
-            // Update note using BookmarkControl (sends UI events)
-            bookmarkControl.saveBibleBookmarkNote(bookmarkId, note)
+            // Update note fields directly on bookmark (sets provenance and content type)
+            bookmark.notes = note
+            bookmark.notesContentType = TextContentType.MARKDOWN
+            bookmark.notesSourcePromptId = context.promptId
+            bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
 
             ToolResult.success {
-                put("bookmarkId", bookmarkIdStr)
+                put("bookmarkId", args.bookmarkId.toString())
                 put("noteLength", note.length)
                 put("previousNoteLength", previousNoteLength)
             }

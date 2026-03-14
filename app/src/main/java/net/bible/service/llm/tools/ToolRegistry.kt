@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -19,6 +19,7 @@ package net.bible.service.llm.tools
 
 import android.util.Log
 import net.bible.android.BibleApplication
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
@@ -38,8 +39,7 @@ import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonObject
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ToolRegistry"
@@ -49,10 +49,13 @@ private const val TAG = "ToolRegistry"
  * Used by [LlmApiAdapter] implementations to build provider-specific tool arrays.
  */
 data class ToolDefinition(
-    val name: String,
+    val tool: AgentTool,
     val description: String,
-    val parametersSchema: JSONObject
-)
+    val parametersSchema: JsonObject
+) {
+    /** camelCase name for the wire format (JSON tool definitions sent to LLM). */
+    val name: String get() = tool.camelCaseName
+}
 
 /**
  * Registry for agent tools.
@@ -61,7 +64,7 @@ data class ToolDefinition(
  * Tools are registered at application startup and remain available throughout.
  */
 object ToolRegistry {
-    private val tools = ConcurrentHashMap<String, Tool>()
+    private val tools = ConcurrentHashMap<AgentTool, Tool>()
 
     init {
         // Register read tools
@@ -97,71 +100,32 @@ object ToolRegistry {
      * @throws IllegalArgumentException if a tool with the same name is already registered
      */
     fun register(tool: Tool) {
-        val existing = tools.putIfAbsent(tool.name, tool)
+        val existing = tools.putIfAbsent(tool.agentTool, tool)
         if (existing != null) {
-            throw IllegalArgumentException("Tool '${tool.name}' is already registered")
+            throw IllegalArgumentException("Tool '${tool.agentTool.camelCaseName}' is already registered")
         }
-        Log.i(TAG, "Registered tool: ${tool.name}")
+        Log.i(TAG, "Registered tool: ${tool.agentTool.camelCaseName}")
     }
 
-    /**
-     * Get a tool by name.
-     *
-     * @param name The tool name
-     * @return The tool, or null if not found
-     */
-    fun get(name: String): Tool? = tools[name]
+    /** Get a tool by its AgentTool enum value. */
+    fun get(tool: AgentTool): Tool? = tools[tool]
 
-    /**
-     * Check if a tool is registered.
-     *
-     * @param name The tool name
-     * @return true if the tool is registered
-     */
-    fun has(name: String): Boolean = tools.containsKey(name)
+    /** Get a tool by its camelCase name (for backward compatibility). */
+    fun get(name: String): Tool? {
+        val agentTool = AgentTool.fromToolName(name) ?: return null
+        return tools[agentTool]
+    }
+
+    /** Check if a tool is registered by its camelCase name. */
+    fun has(name: String): Boolean {
+        val agentTool = AgentTool.fromToolName(name) ?: return false
+        return tools.containsKey(agentTool)
+    }
 
     /**
      * Get the count of registered tools.
      */
     val count: Int get() = tools.size
-
-    /**
-     * Generate the tools array for OpenAI API request.
-     *
-     * Returns a JSONArray in the format expected by the OpenAI API:
-     * ```json
-     * [
-     *   {
-     *     "type": "function",
-     *     "function": {
-     *       "name": "toolName",
-     *       "description": "Tool description",
-     *       "parameters": { ... }
-     *     }
-     *   }
-     * ]
-     * ```
-     *
-     * @param includeWriteTools Whether to include write tools that require permission
-     */
-    fun toOpenAiToolsArray(includeWriteTools: Boolean = true): JSONArray {
-        val toolsArray = JSONArray()
-        for (tool in tools.values) {
-            if (!includeWriteTools && tool.requiresPermission) {
-                continue
-            }
-            val toolObj = JSONObject().apply {
-                put("type", "function")
-                put("function", JSONObject().apply {
-                    put("name", tool.name)
-                    put("description", tool.description)
-                    put("parameters", tool.parametersSchema)
-                })
-            }
-            toolsArray.put(toolObj)
-        }
-        return toolsArray
-    }
 
     /**
      * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].
@@ -171,7 +135,7 @@ object ToolRegistry {
     fun getToolDefinitions(includeWriteTools: Boolean = true): List<ToolDefinition> {
         return tools.values
             .filter { includeWriteTools || !it.requiresPermission }
-            .map { ToolDefinition(it.name, it.description, it.parametersSchema) }
+            .map { ToolDefinition(it.agentTool, it.description, it.parametersSchema) }
     }
 
     /**
@@ -180,13 +144,19 @@ object ToolRegistry {
      */
     fun getDisplayName(tool: Tool): String =
         if (tool.displayNameResId != 0) BibleApplication.application.getString(tool.displayNameResId)
-        else tool.name
+        else tool.agentTool.camelCaseName
 
     /**
      * Get all tools that require user permission (write tools), sorted by display name.
      */
     fun getPermissionTools(): List<Tool> =
         tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
+
+    /**
+     * Get all tools sorted by category (read first, then write) and display name within each category.
+     */
+    fun getAllTools(): List<Tool> =
+        tools.values.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
 
     /**
      * Clear all registered tools (mainly for testing).

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,12 +17,19 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -33,17 +40,34 @@ import org.json.JSONObject
  * via createLabel + addStudyPadEntry tools earlier in the session).
  */
 object FinishWithStudyPadTool : Tool {
-    override val name = "finishWithStudyPad"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val scrollToEntryId: IdType = IdType.empty(),
+        val message: String = ""
+    )
+
+    @Serializable
+    data class Result(
+        val finished: Boolean,
+        val labelId: String,
+        val scrollToEntryId: String? = null,
+        val message: String
+    )
+
+    override val agentTool = AgentTool.FINISH_WITH_STUDY_PAD
     override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """
-        Finish the current task and open a StudyPad (journal).
+        Finish the current task and open a StudyPad.
         Use this when you have created or modified a StudyPad and want to show it to the user.
         The StudyPad must already exist — create it first using createLabel + addStudyPadEntry tools.
+        You can also add bookmarks to a StudyPad by assigning the StudyPad's label to a bookmark using addBookmarkLabels.
 
         Call this tool as your final action when:
         - You've created a new StudyPad with content for the user
         - You've added entries to an existing StudyPad
+        - You've added bookmarks to a StudyPad via label assignment
         - The user asked for study notes organized as a StudyPad
     """.trimIndent()
 
@@ -68,21 +92,32 @@ object FinishWithStudyPadTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelId = arguments.optString("labelId", "")
-        val scrollToEntryId = arguments.optString("scrollToEntryId", "").takeIf { it.isNotBlank() }
-        val message = arguments.optString("message", "StudyPad opened")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_studypad_opened) }
 
-        if (labelId.isBlank()) {
-            return ToolResult.error("labelId is required", "MISSING_LABEL_ID")
+        if (args.labelId.isEmpty) {
+            return ToolResult.error(
+                message = "labelId is required",
+                code = "MISSING_LABEL_ID"
+            )
         }
 
-        return ToolResult.success {
-            put("finished", true)
-            put("labelId", labelId)
-            if (scrollToEntryId != null) {
-                put("scrollToEntryId", scrollToEntryId)
-            }
-            put("message", message)
-        }
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        dao.labelById(args.labelId)
+            ?: return ToolResult.error(
+                message = "StudyPad not found: ${args.labelId}",
+                code = "LABEL_NOT_FOUND"
+            )
+
+        return typedSuccess(Result(
+            finished = true,
+            labelId = args.labelId.toString(),
+            scrollToEntryId = if (!args.scrollToEntryId.isEmpty) args.scrollToEntryId.toString() else null,
+            message = message
+        ))
     }
 }

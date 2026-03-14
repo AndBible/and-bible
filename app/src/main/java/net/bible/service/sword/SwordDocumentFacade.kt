@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -54,7 +54,7 @@ object SwordDocumentFacade {
     val unlockedBibles: List<Book>
         get() {
             Log.d(TAG, "Getting bibles")
-            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE  && !it.isLocked}
+            val documents = Books.installed().getBooks { it.bookCategory == BookCategory.BIBLE && !it.isLocked }
             Log.d(TAG, "Got bibles, Num=" + documents.size)
             return documents
         }

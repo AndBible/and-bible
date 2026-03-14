@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -120,6 +120,9 @@ function dragStart() {
   background: var(--background-color);
   border-style: solid;
   border-color: rgba(0, 0, 0, 0.3);
+  .monochrome & {
+    border-color: black;
+  }
   border-width: 1pt;
   border-radius: 10pt;
   position: absolute;
@@ -129,9 +132,15 @@ function dragStart() {
   z-index: 1;
   top: 0;
   opacity: 0.8;
+  .monochrome & {
+    opacity: 1;
+  }
 
   .night & {
     border-color: rgba(255, 255, 255, 0.6);
+  }
+  .monochrome.night & {
+    border-color: white;
   }
 }
 </style>

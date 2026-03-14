@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -138,7 +138,7 @@
             android:id="@+id/import_export_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/import_menu"
+            android:text="@string/auto_backups_title"
             android:layout_marginTop="20dp"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -149,5 +149,48 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/reset_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_databases_title"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/reset_databases_description"
+            android:layout_marginBottom="8dp"
+            />
+        <LinearLayout
+            android:id="@+id/reset_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/crash_info_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/last_crash_info_title"
+            android:layout_marginTop="20dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            />
+        <TextView
+            android:id="@+id/crash_info_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="monospace"
+            android:textSize="10sp"
+            android:textIsSelectable="true"
+            android:visibility="gone"
+            android:layout_marginTop="8dp"
+            />
     </LinearLayout>
 </ScrollView>

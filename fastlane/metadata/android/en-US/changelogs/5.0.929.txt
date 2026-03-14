@@ -1,0 +1,45 @@
+# AndBible Changelog
+
+## New Features
+
+- Add per-workspace label display mode override (7ec5c849b)
+- Add scroll-to-top button next to section titles (01b8ac103)
+- Add "Italicize added words" setting for Strong's modules (c7053843b)
+- Add tab view with responsive layout for multiple Strong's/morphology dictionaries (c159b9d45, 989b7bee2)
+
+## Improvements
+
+- Improve backup view with cleaner UI, auto-backup restore, and database reset (d00534fad)
+- Enhance monochrome toolbar and window button styling (bf8aa0782, fd42e4ed5, a3852a4ac)
+- Store window button bar visibility per workspace (ab5e718d3)
+- Show both Strong's and morphology data when clicking links (4572f841f, f16a12ed3)
+- Improve translation note styling in dictionary (b04446ee1, c3129bde8)
+- Use inherited colors for Strong's/morphology labels in monochrome mode (88f4b7524)
+- Improve dictionary title scroll button positioning and touch target (2ef335d88)
+
+## Bug Fixes
+
+- Fix unmaximize button visibility when window button bar is hidden (331772e4f)
+- Fix monochrome unmaximize icon and button colors (cb0473a7a)
+- Remove dotted underline from Strong's links (a29598332)
+- Fix Strong's dictionary filter showing wrong entries (23b438a40)
+- Replace Strong's "off" mode with "hidden" links (#3152)
+- Fix morphology toggle visibility in workspace settings (#3667)
+- Fix MyBible red letter support (1dceeda36)
+- Fix infinite scroll busy loop at end/start of book (d9ed12055)
+- Fix StrongsDocument two-column layout centering (f8eb9d4b5)
+- Respect selected text-to-speech engine (#3567)
+- Fix jsword crash with corrupted Lucene index (e54117221)
+- Fix bug report attachments corruption (363e614e9)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

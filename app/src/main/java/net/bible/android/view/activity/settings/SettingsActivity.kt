@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -50,6 +50,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.makeLarger
 import net.bible.service.common.getPreferenceList
 import net.bible.service.common.htmlToSpan
+import net.bible.service.common.setupPreferenceSearch
 import net.bible.service.device.ScreenSettings.autoModeAvailable
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -109,6 +110,8 @@ class SettingsActivity: ActivityBase() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.app_prefs_options, menu)
+        val fragment = supportFragmentManager.findFragmentById(R.id.settings_container) as? PreferenceFragmentCompat
+        fragment?.setupPreferenceSearch(menu!!, this)
         return true
     }
 
@@ -280,9 +283,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             true
         }
 
-        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, AiSettingsActivity::class.java))
-            true
+        preferenceScreen.findPreference<Preference>("ai_settings_shortcut")?.apply {
+            if (!CommonUtils.settings.aiTextProcessingEnabled) {
+                isVisible = false
+            }
+            setOnPreferenceClickListener {
+                startActivity(Intent(context, AiSettingsActivity::class.java))
+                true
+            }
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -30,14 +30,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MyDocumentPageListItemBinding
 import net.bible.android.activity.databinding.MyDocumentPagesSelectorBinding
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentPage
@@ -48,15 +46,14 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 
 private const val TAG = "MyDocPagesActivity"
 
-class MyDocumentPageViewHolder(val layout: ViewGroup) : RecyclerView.ViewHolder(layout)
+class MyDocumentPageViewHolder(val binding: MyDocumentPageListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 class MyDocumentPageAdapter(val activity: MyDocumentPagesActivity) : RecyclerView.Adapter<MyDocumentPageViewHolder>() {
     val items get() = activity.dataSet
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyDocumentPageViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.my_document_page_list_item, parent, false) as ViewGroup
-        return MyDocumentPageViewHolder(view)
+        val binding = MyDocumentPageListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyDocumentPageViewHolder(binding)
     }
 
     override fun getItemId(position: Int): Long = items[position].id.hashCode().toLong()
@@ -64,13 +61,7 @@ class MyDocumentPageAdapter(val activity: MyDocumentPagesActivity) : RecyclerVie
     override fun getItemCount() = items.size
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onBindViewHolder(holder: MyDocumentPageViewHolder, position: Int) {
-        val dragHolder = holder.layout.findViewById<ImageView>(R.id.dragHolder)
-        val title = holder.layout.findViewById<TextView>(R.id.title)
-        val subtitle = holder.layout.findViewById<TextView>(R.id.subtitle)
-        val menuButton = holder.layout.findViewById<ImageButton>(R.id.menuButton)
-        val aiIcon = holder.layout.findViewById<ImageView>(R.id.aiIcon)
-        val layout = holder.layout
+    override fun onBindViewHolder(holder: MyDocumentPageViewHolder, position: Int) = holder.binding.run {
         val page = items[position]
 
         title.text = page.title
@@ -78,10 +69,10 @@ class MyDocumentPageAdapter(val activity: MyDocumentPagesActivity) : RecyclerVie
 
         aiIcon.visibility = if (page.sourcePromptId != null) View.VISIBLE else View.GONE
 
-        layout.setOnClickListener {
+        root.setOnClickListener {
             activity.openPage(page)
         }
-        layout.setOnLongClickListener { true }
+        root.setOnLongClickListener { true }
         dragHolder.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                 activity.itemTouchHelper.startDrag(holder)

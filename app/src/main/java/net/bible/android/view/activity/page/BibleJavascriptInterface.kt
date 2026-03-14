@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -146,7 +146,11 @@ class BibleJavascriptInterface(
     fun goToNextChapter() {
         Log.i(TAG, "Go to next chapter")
         scope.launch(Dispatchers.Main) {
-            currentPageManager.currentPage.next()
+            try {
+                currentPageManager.currentPage.next()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to next chapter", e)
+            }
         }
     }
 
@@ -154,7 +158,11 @@ class BibleJavascriptInterface(
     fun goToPreviousChapter() {
         Log.i(TAG, "Go to previous chapter")
         scope.launch(Dispatchers.Main) {
-            currentPageManager.currentPage.previous()
+            try {
+                currentPageManager.currentPage.previous()
+            } catch (e: Exception) {
+                Log.e(TAG, "Error navigating to previous chapter", e)
+            }
         }
     }
 

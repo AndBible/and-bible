@@ -36,8 +36,7 @@ class ChooseMapKey : ChooseKeyBase() {
     override fun itemSelected(key: Key?) {
         val myIntent = Intent(this, ChooseMapKey::class.java)
         myIntent.putExtra("key", key?.osisRef)
-        // Use rawDocument for navigation
-        myIntent.putExtra("book", currentMapPage.rawDocument?.initials)
+        myIntent.putExtra("book", currentMapPage.currentDocument?.initials)
         setResult(Activity.RESULT_OK, myIntent)
     }
 

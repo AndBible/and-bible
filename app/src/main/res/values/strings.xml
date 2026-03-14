@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -114,6 +114,8 @@
 
     <string name="prefs_notes_content_type_title">Format for new bookmark notes</string>
     <string name="prefs_notes_content_type_summary">Text format used when creating new bookmark notes and Study Pad entries</string>
+    <string name="notes_content_type_html">Rich text (HTML)</string>
+    <string name="notes_content_type_markdown">Markdown</string>
 
     <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
     <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
@@ -815,6 +817,7 @@
     <string name="select_all">Select all</string>
     <string name="copy_settings_workspaces_title">To which workspaces do you want to copy settings?</string>
     <string name="reset_settings">Reset</string>
+    <string name="search_settings">Search settings</string>
     <string name="workspace_dismiss">Dismiss</string>
     <string name="workspace_listing_with_current">%s (current)</string>
 
@@ -964,6 +967,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
+    <string name="experimental_feature_ai_features">AI features</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -1001,7 +1005,7 @@
     <string name="show_quotes">Show quotes</string>
     <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
-    <string name="backup_button">Backup</string>
+    <string name="backup_button">Backup &amp; Restore</string>
     <string name="back_button">Back</string>
     <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
@@ -1094,6 +1098,14 @@
     <string name="label_salvation">Salvation</string>
     <string name="label_underline">Underline</string>
     <string name="import_menu">Import &amp; Export</string>
+    <string name="auto_backups_title">Auto-Backups</string>
+    <string name="backup_file_info">App v%1$d, %2$s</string>
+    <string name="reset_databases_title">Reset Databases</string>
+    <string name="reset_databases_description">Reset individual databases to their initial empty state. This cannot be undone.</string>
+    <string name="last_crash_info_title">Last crash info</string>
+    <string name="reset_database_confirm">This will permanently delete all data in \"%1$s\" and reset it to the initial state. This cannot be undone.\n\nAre you sure?</string>
+    <string name="reset_database_success">Database has been reset successfully</string>
+    <string name="reset_something">Reset: %1$s</string>
     <string name="export">Export</string>
     <string name="csv_export_success">Exported %d bookmarks to CSV</string>
     <string name="csv_import_success">Import completed: %d created, %d updated</string>
@@ -1262,8 +1274,8 @@
     <string name="bookmarks_contents">Bookmarks, Labels and Study Pads</string>
     <string name="workspaces_contents">Workspaces and Windows</string>
     <string name="my_documents_contents">My Documents and their content</string>
-    <string name="llm_processing_sync_title">AI Settings</string>
-    <string name="llm_processing_sync_contents">AI prompts and provider configurations</string>
+    <string name="ai_settings_sync_title">AI Settings</string>
+    <string name="ai_settings_sync_contents">AI prompts and provider configurations</string>
     <string name="progress_sync_title">Reading Progress</string>
     <string name="progress_sync_contents">Memorized verses and chapter reading records</string>
 
@@ -1400,67 +1412,23 @@
     <string name="llm_custom_output_price_summary">Cost per million output tokens for this model</string>
     <string name="llm_cost_total">Total: %1$s</string>
     <string name="llm_endpoint_title">API Endpoint</string>
-    <string name="llm_endpoint_summary">Base URL for the API (e.g. https://api.openai.com/v1)</string>
+    <string name="llm_endpoint_summary">Base URL for the API</string>
     <string name="llm_model_title">Model</string>
-    <string name="llm_model_summary">Model ID (e.g. gpt-4o-mini)</string>
+    <string name="llm_model_summary">Model ID</string>
     <string name="llm_custom_model">Custom…</string>
     <string name="llm_custom_model_dialog_title">Custom model</string>
     <string name="llm_custom_model_dialog_message">Enter the model ID</string>
-    <string name="llm_confirm_before_call_title">Confirm before API calls</string>
-    <string name="llm_confirm_before_call_summary">Ask for confirmation before each AI processing request</string>
-    <string name="llm_confirm_dialog_title">Confirm AI Processing</string>
-    <string name="llm_confirm_dialog_message">%1$s\n\nDocument: %2$s:%3$s\nContent size: %4$d characters\nModel: %5$s\n\nThis may take a while. Continue?</string>
-    <string name="llm_user_cancelled">AI processing cancelled by user</string>
-    <string name="llm_debounce_title">API call delay (ms)</string>
-    <string name="llm_debounce_summary">Delay before API call when confirmation is disabled (0-5000ms)</string>
-    <string name="llm_request_superseded">Request superseded by newer request</string>
-    <string name="llm_processing_failed">AI processing failed: %1$s</string>
     <string name="llm_rate_limited_retrying">Rate limited. Retrying in %1$ss\u2026</string>
-    <string name="translate_to_title">Translate document</string>
-    <string name="translate_to_summary">Use LLM to translate document content</string>
-    <string name="translate_to_disabled">No translation</string>
-    <string name="llm_working">AI processing</string>
-
-    <!-- LLM Cache Management -->
-    <string name="llm_cache_management">AI Cache</string>
-    <string name="llm_cache_management_summary">View and manage cached AI results</string>
-    <string name="llm_cache_empty">No cached entries</string>
-    <string name="llm_cache_stats">%1$d entries, %2$s</string>
-    <string name="llm_cache_delete_all">Delete all</string>
-    <string name="llm_cache_delete_older_than">Delete older than…</string>
-    <string name="llm_cache_delete_filtered">Delete filtered entries</string>
-    <string name="llm_cache_delete_confirm_title">Delete cache entries?</string>
-    <string name="llm_cache_delete_confirm_all">This will delete all cached AI results. This cannot be undone.</string>
-    <string name="llm_cache_delete_confirm_selected">Delete %1$d selected entries?</string>
-    <string name="llm_cache_delete_confirm_filtered">Delete %1$d filtered entries?</string>
-    <string name="llm_cache_delete_confirm_older_than">Delete all entries older than %1$d days?</string>
-    <string name="llm_cache_deleted">Cache entries deleted</string>
-    <string name="llm_cache_deleted_count">%1$d entries deleted</string>
-    <string name="llm_cache_selected_count">%1$d selected</string>
-    <string name="llm_cache_filter_all_documents">All documents</string>
-    <string name="llm_cache_filter_all_types">All types</string>
-    <string name="llm_cache_filter_all_models">All models</string>
-    <string name="llm_cache_older_than_title">Delete older than</string>
-    <string name="llm_cache_older_than_7">7 days</string>
-    <string name="llm_cache_older_than_30">30 days</string>
-    <string name="llm_cache_older_than_90">90 days</string>
-    <string name="llm_cache_item_primary">%1$s : %2$s</string>
-    <string name="llm_cache_item_secondary">%1$s / %2$s</string>
-    <string name="llm_cache_item_tertiary">%1$s | %2$s | %3$s</string>
-    <string name="llm_cache_detail_document">Document: %s</string>
-    <string name="llm_cache_detail_key">Key: %s</string>
-    <string name="llm_cache_detail_type">Type: %s</string>
-    <string name="llm_cache_detail_params">Parameters: %s</string>
-    <string name="llm_cache_detail_model">Model: %s</string>
-    <string name="llm_cache_detail_date">Date: %s</string>
-    <string name="llm_cache_detail_size">Size: %s</string>
-    <string name="llm_cache_detail_language">Language: %s</string>
-    <string name="llm_cache_view_raw">View Raw</string>
-    <string name="llm_cache_raw_title">%1$s : %2$s</string>
-    <string name="llm_cache_copy_raw">Copy to clipboard</string>
-    <string name="llm_cache_raw_copied">Copied to clipboard</string>
-    <string name="llm_cache_raw_empty">(empty)</string>
-    <string name="llm_empty_llm_response">LLM returned empty response</string>
+    <string name="llm_default_document_title">AI Response</string>
+    <string name="llm_default_task_completed">Task completed</string>
+    <string name="llm_default_studypad_opened">StudyPad opened</string>
+    <string name="llm_parse_error">Failed to parse LLM response: %1$s</string>
+    <string name="llm_parse_error_no_choices">No choices in OpenAI response</string>
+    <string name="llm_parse_error_openai">Failed to parse OpenAI response: %1$s</string>
+    <string name="llm_parse_error_anthropic">Failed to parse Anthropic response: %1$s</string>
+    <string name="llm_error_prompt_not_found">Prompt not found: %1$s</string>
+    <string name="llm_error_unknown">Unknown error</string>
+    <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
@@ -1474,18 +1442,12 @@
     <string name="ai_getting_started_title">Getting started</string>
     <string name="ai_getting_started_summary">How to get an API key</string>
     <string name="ai_getting_started_intro">AndBible connects to AI services via their APIs. You need an API key from a provider.</string>
-    <string name="ai_getting_started_providers">Supported providers:</string>
-    <string name="ai_getting_started_gemini">Google Gemini</string>
-    <string name="ai_getting_started_openai">OpenAI (ChatGPT)</string>
-    <string name="ai_getting_started_anthropic">Anthropic (Claude)</string>
-    <string name="ai_getting_started_xai">xAI (Grok)</string>
-    <string name="ai_getting_started_mistral">Mistral</string>
-    <string name="ai_getting_started_deepseek">DeepSeek</string>
-    <string name="ai_getting_started_groq">Groq</string>
-    <string name="ai_getting_started_alibaba">Alibaba Cloud (Qwen)</string>
-    <string name="ai_getting_started_openrouter">OpenRouter</string>
+    <string name="ai_getting_started_recommended_providers">Recommended providers:</string>
+    <string name="ai_getting_started_community_providers">Other providers (community, not officially tested):</string>
     <string name="ai_getting_started_get_api_key">Get API key</string>
     <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+    <string name="ai_provider_tier_recommended">Recommended</string>
+    <string name="ai_provider_tier_community">Other providers (not tested)</string>
 
     <!-- Multi-provider settings -->
     <string name="ai_providers_category">Providers</string>
@@ -1497,7 +1459,6 @@
     <string name="ai_provider_edit">Edit</string>
     <string name="ai_provider_delete">Delete</string>
     <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
-    <string name="ai_provider_api_key_masked">API key: ●●●●%1$s</string>
     <string name="ai_provider_api_key_not_set">API key not set</string>
     <string name="ai_provider_model">Model: %1$s</string>
     <string name="ai_provider_select_type">Select provider type</string>
@@ -1505,7 +1466,6 @@
     <string name="ai_provider_name_hint">Display name for this provider</string>
     <string name="ai_provider_api_key">API key</string>
     <string name="ai_provider_endpoint">API endpoint</string>
-    <string name="ai_provider_endpoint_hint">https://api.example.com/v1</string>
     <string name="ai_provider_api_format">API format</string>
     <string name="ai_provider_default_model">Default model</string>
     <string name="ai_provider_already_exists">This provider is already configured</string>
@@ -1525,7 +1485,6 @@
     <string name="prompt_description">Description</string>
     <string name="prompt_template">Prompt template</string>
     <string name="prompt_show_in">Show in</string>
-    <string name="prompt_context_text_display_settings">Document display (LLM Mode)</string>
     <string name="prompt_context_verse_selection">Verse selection</string>
     <string name="prompt_context_text_selection">Text selection</string>
     <string name="prompt_context_window_menu">Window menu</string>
@@ -1554,11 +1513,11 @@
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
     <string name="ai_document_delete_confirmation">Delete this AI document?</string>
+    <string name="ai_document_deleted">This AI document has been deleted.</string>
+    <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_document_delete">Delete</string>
-    <string name="llm_prompt_title">AI prompt</string>
-    <string name="llm_prompt_disabled">Disabled</string>
 
     <!-- Default prompts -->
     <string name="default_prompt_translate_to_language">Translate to %s</string>
@@ -1605,7 +1564,8 @@
     <string name="permission_allow_always">Always allow \"%1$s\"</string>
     <string name="permission_deny">Deny</string>
     <string name="permission_always_allow_confirm_title">Always allow?</string>
-    <string name="permission_always_allow_confirm">Are you sure you want to permanently allow \"%1$s\"?\n\nYou can reset this in AI Settings.</string>
+    <string name="permission_always_allow_confirm">Are you sure you want to permanently allow \"%1$s\"?</string>
+    <string name="permission_always_allow_confirm_reset_hint">You can reset this in AI Settings.</string>
 
     <!-- Agent Tool Permission Settings -->
     <string name="manage_tool_permissions_title">Tool permissions</string>
@@ -1617,6 +1577,11 @@
     <string name="permission_option_always_allow">Always allow</string>
     <string name="permission_option_always_deny">Always deny</string>
     <string name="reset_all_permissions">Reset all</string>
+
+    <!-- Tool Info -->
+    <string name="ai_available_tools">Available tools</string>
+    <string name="ai_read_tools">Read Tools</string>
+    <string name="ai_write_tools">Write Tools</string>
 
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
@@ -1668,7 +1633,7 @@
     <string name="my_document_rename">Rename</string>
     <string name="my_document_edit_description">Edit description</string>
     <string name="my_document_delete">Delete</string>
-    <string name="my_document_create_demo">Create demo document (debug)</string>
+
     <string name="my_document_pages_title">%s - Pages</string>
     <string name="my_document_pages_empty">No pages in this document.</string>
     <string name="my_document_page_rename_title">Rename page</string>

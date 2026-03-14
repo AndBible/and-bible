@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -49,13 +49,17 @@
   </TabContainer>
 </template>
 
+<script lang="ts">
+import {MemorizeStateMode} from "@/types/documents";
+let lastSelectedMode: MemorizeStateMode | null = null;
+</script>
+
 <script setup lang="ts">
 import {useCommon} from "@/composables";
 import {ref, computed, watch, toRefs} from "vue";
 import {
     MemorizeDocument,
     MemorizeModeConfig,
-    MemorizeStateMode,
     MemorizeStateModeEnum, MemorizeState
 } from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
@@ -67,7 +71,7 @@ const props = defineProps<{ document: MemorizeDocument }>();
 
 const {document} = toRefs(props);
 
-const selectedMode = ref<MemorizeStateMode>(document.value.state?.memorize?.mode ?? MemorizeStateModeEnum.BLUR);
+const selectedMode = ref<MemorizeStateMode>(document.value.state?.memorize?.mode ?? lastSelectedMode ?? MemorizeStateModeEnum.BLUR);
 const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.memorize?.modeConfig);
 
 // Computed for mapping selected mode to tab ID
@@ -105,6 +109,7 @@ function handleModeChange(tabId: string) {
     const modeData = tabsConfig.value.find(config => config.id === tabId);
     if (modeData) {
         selectedMode.value = modeData.value;
+        lastSelectedMode = modeData.value;
     }
 }
 

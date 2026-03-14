@@ -1,0 +1,49 @@
+## Features
+
+- Add per-workspace label display mode override (7ec5c849b)
+- Add scroll-to-top button next to section titles (01b8ac103)
+- Add "Italicize added words" setting for Strong's modules (c7053843b)
+- Replace Strong's off mode with hidden links mode (#3152)
+- Add tab view for multiple Strong's/morphology dictionaries (c159b9d45)
+- Show both Strong's and morphology when either link is clicked (f16a12ed3)
+- Add compact Strong's/morphology display with responsive layout (989b7bee2)
+
+## Improvements
+
+- Improve backup view with cleaner list, auto-backup restore, and database reset (d00534fad)
+- Enhance title scroll button with better scroll position and larger touch target (2ef335d88)
+- Refine monochrome mode styling: pure black/white colors, toolbars, buttons, and labels (51fe21e16, bf8aa0782, 88f4b7524)
+- Store window buttons visibility per workspace (ab5e718d3)
+- Add horizontal scroll overflow to tab navigation (d335f3646)
+- Use TabNavigation component for Strong's dictionary tabs (6c37ea597)
+- Display both Strong's and morphology data in click links (4572f841f)
+- Improve translation-note styling in dictionary view (b04446ee1)
+- Optimize Strong's search performance by compiling patterns once (4f3cbde10)
+
+## Bug Fixes
+
+- Fix WordScramble not updating word list when verse changes (c56c8fe9f)
+- Fix WordBlur boxes, WordScramble colors, and tab navigation in monochrome mode (8f5791e27)
+- Fix remaining gray colors and opacity issues in monochrome components (9dc55cde8)
+- Fix unmaximize button visibility when button bar is hidden (331772e4f)
+- Fix Strong's dictionary filter showing entries from other dictionaries (23b438a40)
+- Fix infinite scroll busy loop when reaching end/start of book (d9ed12055)
+- Fix bug report attachments getting corrupted in OSTicket (363e614e9)
+- Fix morphology toggle greyed out in workspace settings (#3667)
+- Fix MyBible red letter text support (1dceeda36)
+- Fix StrongsDocument two-column layout centering and proportions (f8eb9d4b5)
+- Fix translation-note styling and rend-x-indirect rendering (c3129bde8)
+- Remove decorative content from monochrome styling in notes (84cd781e1)
+- Respect user's selected TTS engine (#3567)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

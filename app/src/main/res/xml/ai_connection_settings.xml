@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2024-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -42,19 +42,6 @@
         android:key="ai_behavior_category"
         android:title="@string/ai_behavior_category">
 
-        <SwitchPreferenceCompat android:key="llm_confirm_before_call"
-            android:title="@string/llm_confirm_before_call_title"
-            android:summary="@string/llm_confirm_before_call_summary"
-            android:defaultValue="true"
-            android:icon="@drawable/icon_circle_question"
-            />
-        <SeekBarPreference android:key="llm_debounce_ms"
-            android:title="@string/llm_debounce_title"
-            android:summary="@string/llm_debounce_summary"
-            android:defaultValue="1000"
-            android:max="5000"
-            android:icon="@drawable/ic_baseline_refresh_gray_24"
-            />
         <ListPreference android:key="agent_permission_mode"
             android:title="@string/prompt_permission_mode"
             android:summary="@string/agent_permission_mode_summary"
@@ -84,11 +71,6 @@
             android:title="@string/llm_reset_usage_title"
             android:summary="@string/llm_reset_usage_summary"
             android:icon="@drawable/ic_baseline_refresh_gray_24"
-            />
-        <Preference android:key="llm_manage_cache"
-            android:title="@string/llm_cache_management"
-            android:summary="@string/llm_cache_management_summary"
-            android:icon="@drawable/ic_baseline_description_gray_24"
             />
     </PreferenceCategory>
 

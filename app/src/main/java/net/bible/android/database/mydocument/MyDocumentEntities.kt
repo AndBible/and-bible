@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -21,6 +21,7 @@ import androidx.room.DatabaseView
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -71,33 +72,24 @@ data class MyDocument(
     indices = [
         Index(value = ["documentId"]),
         Index(value = ["documentId", "pageKey"], unique = true),
-        // Cache lookup indices
-        Index(value = ["sourcePromptId", "contextHash"]),  // strict=true lookup
-        Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"])  // strict=false lookup
     ]
 )
 data class MyDocumentPage(
     @PrimaryKey val id: IdType = IdType(),
-    val documentId: IdType,
-    var title: String,
-    var pageKey: String,               // Unique key within the document
-    var contentType: MyDocumentContentType = MyDocumentContentType.MARKDOWN,
-    var orderNumber: Int,
-    var createdAt: Long = System.currentTimeMillis(),
-    var updatedAt: Long = System.currentTimeMillis(),
-    var sourcePromptId: IdType? = null,  // Which prompt created this page (null = user-created)
-    var sourceContext: String? = null,   // JSON-serialized context (for debug/display)
-    // Cache fields
-    var kjvOrdinalStart: Int? = null,    // KJVA verse ordinal start (for cross-version cache lookup)
-    var kjvOrdinalEnd: Int? = null,      // KJVA verse ordinal end
-    var contextHash: String? = null,     // SHA-256 hash of full context (for strict matching)
-    var usedWriteTools: Boolean = false,  // Whether the agent used write tools (bookmarks, notes, etc.)
-    var languageCode: String? = null      // Language of the page content (for TTS locale selection)
-)
+    override val documentId: IdType,
+    override var title: String,
+    override var pageKey: String,               // Unique key within the document
+    override var contentType: MyDocumentContentType = MyDocumentContentType.MARKDOWN,
+    override var orderNumber: Int,
+    override var createdAt: Long = System.currentTimeMillis(),
+    override var updatedAt: Long = System.currentTimeMillis(),
+    override var sourcePromptId: IdType? = null,  // Which prompt created this page (null = user-created)
+    override var languageCode: String? = null     // Language of the page content (for TTS locale selection)
+): BaseMyDocumentPage
 
 /**
  * Page content stored separately (like BookmarkNotes)
- * This optimizes queries when only metadata is needed
+ * This optimizes device sync when only metadata has changed
  */
 @Entity(
     foreignKeys = [
@@ -114,6 +106,46 @@ data class MyDocumentPageContent(
     var content: String
 )
 
+interface BaseMyDocumentPage {
+    val title: String
+    val pageKey: String
+    val contentType: MyDocumentContentType
+    val documentId: IdType
+    val orderNumber: Int
+    val createdAt: Long
+    val updatedAt: Long
+    val sourcePromptId: IdType?
+    val languageCode: String?
+}
+
+/**
+ * Cache metadata for AI-generated pages. Separated from MyDocumentPage to keep
+ * page entity clean — cache fields are only relevant for LLM agent response caching.
+ */
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = MyDocumentPage::class,
+            parentColumns = ["id"],
+            childColumns = ["pageId"],
+            onDelete = CASCADE
+        )
+    ],
+    indices = [
+        Index(value = ["sourcePromptId", "contextHash"]),
+        Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"])
+    ]
+)
+data class AiPageCacheEntry(
+    @PrimaryKey val pageId: IdType,
+    val sourcePromptId: IdType,
+    var sourceContext: String?,
+    var kjvOrdinalStart: Int?,
+    var kjvOrdinalEnd: Int?,
+    var contextHash: String?,
+    var usedWriteTools: Boolean = false
+)
+
 /**
  * DatabaseView combining page metadata with content
  */
@@ -124,19 +156,54 @@ data class MyDocumentPageContent(
 """)
 data class MyDocumentPageWithContent(
     val id: IdType,
-    val documentId: IdType,
-    val title: String,
-    val pageKey: String,
-    val contentType: MyDocumentContentType,
-    val orderNumber: Int,
-    val createdAt: Long,
-    val updatedAt: Long,
-    val sourcePromptId: IdType?,
+    override val documentId: IdType,
+    override val title: String,
+    override val pageKey: String,
+    override val contentType: MyDocumentContentType,
+    override val orderNumber: Int,
+    override val createdAt: Long,
+    override val updatedAt: Long,
+    override val sourcePromptId: IdType?,
+    override val languageCode: String?,
+    val content: String?
+): BaseMyDocumentPage
+
+/**
+ * DatabaseView for cache lookups: combines AiPageCacheEntry with page metadata and content.
+ */
+@DatabaseView("""
+    SELECT c.*, p.title, p.pageKey, p.contentType, p.documentId,
+           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content
+    FROM AiPageCacheEntry c
+    INNER JOIN MyDocumentPage p ON c.pageId = p.id
+    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId
+""")
+data class AiCachedPageWithContent(
+    val pageId: IdType,
+    override val sourcePromptId: IdType,
     val sourceContext: String?,
     val kjvOrdinalStart: Int?,
     val kjvOrdinalEnd: Int?,
     val contextHash: String?,
     val usedWriteTools: Boolean,
-    val languageCode: String?,
+    override val title: String,
+    override val pageKey: String,
+    override val contentType: MyDocumentContentType,
+    override val documentId: IdType,
+    override val orderNumber: Int,
+    override val createdAt: Long,
+    override val updatedAt: Long,
+    override val languageCode: String?,
     val content: String?
-)
+): BaseMyDocumentPage {
+    @Ignore
+    val cacheEntry = AiPageCacheEntry(
+        pageId = pageId,
+        sourcePromptId = sourcePromptId,
+        sourceContext = sourceContext,
+        kjvOrdinalStart = kjvOrdinalStart,
+        kjvOrdinalEnd = kjvOrdinalEnd,
+        contextHash = contextHash,
+        usedWriteTools = usedWriteTools
+    )
+}

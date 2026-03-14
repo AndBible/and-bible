@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -82,13 +82,7 @@ export function useScroll(
         let start: number;
 
         if (noScrolling) {
-            currentScrollAnimation.value = -1;
             window.scrollTo(0, elementY);
-            setTimeout(() => {
-                if (currentScrollAnimation.value === -1) {
-                    currentScrollAnimation.value = null;
-                }
-            }, 100);
             return;
         }
 

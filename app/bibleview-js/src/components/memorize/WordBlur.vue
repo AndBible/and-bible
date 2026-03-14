@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -75,6 +75,7 @@ onMounted(() => {
     }
 });
 
+
 watch([blurLevel, revealedWords], () => {
     emit('save-mode-config', {
         blurConfig: {
@@ -146,6 +147,19 @@ function revealWord(textKey: string, wordIndex: number) {
 <style scoped lang="scss">
 @use "@/common.scss" as *;
 
+.memorize-text {
+  .monochrome & {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 1rem;
+  }
+  .monochrome.night & {
+    background-color: black;
+    border-color: white;
+  }
+}
+
 .memorize-word {
   &.blurred {
     padding: 2px 4px;
@@ -157,6 +171,14 @@ function revealWord(textKey: string, wordIndex: number) {
     -ms-user-select: none;
     .noAnimation & {
       transition: none;
+    }
+    .monochrome & {
+      background-color: white;
+      border: 1px solid black;
+    }
+    .monochrome.night & {
+      background-color: black;
+      border: 1px solid white;
     }
   }
   
@@ -177,6 +199,9 @@ function revealWord(textKey: string, wordIndex: number) {
     &:active {
       transform: translateY(1px);
       opacity: 0.9;
+      .monochrome & {
+        opacity: 1;
+      }
     }
   }
 }
@@ -184,5 +209,12 @@ function revealWord(textKey: string, wordIndex: number) {
 @keyframes flash {
   0% { background-color: rgba(255, 255, 0, 0.5); }
   100% { background-color: transparent; }
+}
+
+.monochrome {
+  @keyframes flash {
+    0% { outline: 2px solid black; }
+    100% { outline: none; }
+  }
 }
 </style>

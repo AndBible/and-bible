@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2021-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -284,11 +284,7 @@ function replaceSelection(replacement: string, cursorOffset?: number) {
     editText.value = before + replacement + after;
 
     const newPos = cursorOffset !== undefined ? start + cursorOffset : start + replacement.length;
-    nextTick(() => {
-        ta.focus();
-        ta.selectionStart = newPos;
-        ta.selectionEnd = newPos;
-    });
+    setCursorAfterEdit(newPos);
 }
 
 function wrapSelection(prefix: string, suffix: string) {
@@ -310,51 +306,48 @@ function getLineStart(text: string, pos: number): number {
     return idx === -1 ? 0 : idx + 1;
 }
 
+function setCursorAfterEdit(position: number) {
+    const ta = textareaEl.value;
+    if (!ta) return;
+    nextTick(() => {
+        ta.focus();
+        ta.selectionStart = position;
+        ta.selectionEnd = position;
+    });
+}
+
+function getLineContext(pos: number) {
+    const ta = textareaEl.value!;
+    const lineStart = getLineStart(ta.value, pos);
+    const lineEnd = ta.value.indexOf("\n", pos);
+    const actualLineEnd = lineEnd === -1 ? ta.value.length : lineEnd;
+    const line = ta.value.substring(lineStart, actualLineEnd);
+    const before = ta.value.substring(0, lineStart);
+    const after = ta.value.substring(actualLineEnd);
+    return {lineStart, lineEnd: actualLineEnd, line, before, after};
+}
+
 function toggleHeading(level: number) {
     pushUndo();
     const ta = textareaEl.value;
     if (!ta) return;
     const start = ta.selectionStart;
-    const lineStart = getLineStart(ta.value, start);
-    const lineEnd = ta.value.indexOf("\n", start);
-    const actualLineEnd = lineEnd === -1 ? ta.value.length : lineEnd;
-    const line = ta.value.substring(lineStart, actualLineEnd);
-
-    const before = ta.value.substring(0, lineStart);
-    const after = ta.value.substring(actualLineEnd);
+    const {lineStart, line, before, after} = getLineContext(start);
     const prefix = "#".repeat(level) + " ";
 
-    // Remove any existing heading prefix
     const headingMatch = line.match(/^(#{1,6})\s/);
     if (headingMatch) {
         const stripped = line.substring(headingMatch[0].length);
         if (headingMatch[1].length === level) {
-            // Same level — toggle off
             editText.value = before + stripped + after;
-            nextTick(() => {
-                ta.focus();
-                const newPos = Math.max(lineStart, start - headingMatch[0].length);
-                ta.selectionStart = newPos;
-                ta.selectionEnd = newPos;
-            });
+            setCursorAfterEdit(Math.max(lineStart, start - headingMatch[0].length));
         } else {
-            // Different level — replace
             editText.value = before + prefix + stripped + after;
-            const delta = prefix.length - headingMatch[0].length;
-            nextTick(() => {
-                ta.focus();
-                ta.selectionStart = start + delta;
-                ta.selectionEnd = start + delta;
-            });
+            setCursorAfterEdit(start + prefix.length - headingMatch[0].length);
         }
     } else {
-        // No heading — add
         editText.value = before + prefix + line + after;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = start + prefix.length;
-            ta.selectionEnd = start + prefix.length;
-        });
+        setCursorAfterEdit(start + prefix.length);
     }
 }
 
@@ -363,28 +356,14 @@ function toggleLinePrefix(prefix: string) {
     const ta = textareaEl.value;
     if (!ta) return;
     const start = ta.selectionStart;
-    const lineStart = getLineStart(ta.value, start);
-    const lineEnd = ta.value.indexOf("\n", start);
-    const actualLineEnd = lineEnd === -1 ? ta.value.length : lineEnd;
-    const line = ta.value.substring(lineStart, actualLineEnd);
-
-    const before = ta.value.substring(0, lineStart);
-    const after = ta.value.substring(actualLineEnd);
+    const {line, before, after} = getLineContext(start);
 
     if (line.startsWith(prefix)) {
         editText.value = before + line.substring(prefix.length) + after;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = start - prefix.length;
-            ta.selectionEnd = start - prefix.length;
-        });
+        setCursorAfterEdit(start - prefix.length);
     } else {
         editText.value = before + prefix + line + after;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = start + prefix.length;
-            ta.selectionEnd = start + prefix.length;
-        });
+        setCursorAfterEdit(start + prefix.length);
     }
 }
 
@@ -393,29 +372,15 @@ function changeIndent(direction: number) {
     const ta = textareaEl.value;
     if (!ta) return;
     const start = ta.selectionStart;
-    const lineStart = getLineStart(ta.value, start);
-    const lineEnd = ta.value.indexOf("\n", start);
-    const actualLineEnd = lineEnd === -1 ? ta.value.length : lineEnd;
-    const line = ta.value.substring(lineStart, actualLineEnd);
-
-    const before = ta.value.substring(0, lineStart);
-    const after = ta.value.substring(actualLineEnd);
+    const {lineStart, line, before, after} = getLineContext(start);
     const indent = "  ";
 
     if (direction > 0) {
         editText.value = before + indent + line + after;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = start + indent.length;
-            ta.selectionEnd = start + indent.length;
-        });
+        setCursorAfterEdit(start + indent.length);
     } else if (line.startsWith(indent)) {
         editText.value = before + line.substring(indent.length) + after;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = Math.max(lineStart, start - indent.length);
-            ta.selectionEnd = Math.max(lineStart, start - indent.length);
-        });
+        setCursorAfterEdit(Math.max(lineStart, start - indent.length));
     }
 }
 
@@ -449,12 +414,7 @@ async function insertBibleLink() {
         const before = ta.value.substring(0, selStart);
         const after = ta.value.substring(selEnd);
         editText.value = before + mdLink + after;
-        const newPos = selStart + mdLink.length;
-        nextTick(() => {
-            ta.focus();
-            ta.selectionStart = newPos;
-            ta.selectionEnd = newPos;
-        });
+        setCursorAfterEdit(selStart + mdLink.length);
     } else {
         ta.focus();
     }
@@ -495,31 +455,17 @@ function handleKeyDown(e: KeyboardEvent) {
         const ulMatch = currentLine.match(/^(\s*)-\s/);
         if (ulMatch) {
             if (currentLine.trim() === "-") {
-                // Empty list item — remove it
                 e.preventDefault();
                 pushUndo();
-                const before = ta.value.substring(0, lineStart);
-                const after = ta.value.substring(pos);
-                editText.value = before + after;
-                nextTick(() => {
-                    ta.focus();
-                    ta.selectionStart = lineStart;
-                    ta.selectionEnd = lineStart;
-                });
+                editText.value = ta.value.substring(0, lineStart) + ta.value.substring(pos);
+                setCursorAfterEdit(lineStart);
                 return;
             }
             e.preventDefault();
             pushUndo();
             const prefix = ulMatch[1] + "- ";
-            const before = ta.value.substring(0, pos);
-            const after = ta.value.substring(pos);
-            editText.value = before + "\n" + prefix + after;
-            const newPos = pos + 1 + prefix.length;
-            nextTick(() => {
-                ta.focus();
-                ta.selectionStart = newPos;
-                ta.selectionEnd = newPos;
-            });
+            editText.value = ta.value.substring(0, pos) + "\n" + prefix + ta.value.substring(pos);
+            setCursorAfterEdit(pos + 1 + prefix.length);
             return;
         }
 
@@ -528,31 +474,17 @@ function handleKeyDown(e: KeyboardEvent) {
         if (olMatch) {
             const num = parseInt(olMatch[2]);
             if (currentLine.trim() === `${num}.`) {
-                // Empty list item — remove it
                 e.preventDefault();
                 pushUndo();
-                const before = ta.value.substring(0, lineStart);
-                const after = ta.value.substring(pos);
-                editText.value = before + after;
-                nextTick(() => {
-                    ta.focus();
-                    ta.selectionStart = lineStart;
-                    ta.selectionEnd = lineStart;
-                });
+                editText.value = ta.value.substring(0, lineStart) + ta.value.substring(pos);
+                setCursorAfterEdit(lineStart);
                 return;
             }
             e.preventDefault();
             pushUndo();
             const prefix = olMatch[1] + `${num + 1}. `;
-            const before = ta.value.substring(0, pos);
-            const after = ta.value.substring(pos);
-            editText.value = before + "\n" + prefix + after;
-            const newPos = pos + 1 + prefix.length;
-            nextTick(() => {
-                ta.focus();
-                ta.selectionStart = newPos;
-                ta.selectionEnd = newPos;
-            });
+            editText.value = ta.value.substring(0, pos) + "\n" + prefix + ta.value.substring(pos);
+            setCursorAfterEdit(pos + 1 + prefix.length);
             return;
         }
     }
@@ -569,6 +501,8 @@ function scrollToCursor() {
     }
 }
 
+// When the on-screen keyboard opens/closes, the visual viewport changes and the editor
+// toolbar may end up hidden behind the keyboard. Scroll to keep cursor and toolbar visible.
 function onViewportResize() {
     scrollToCursor();
 }

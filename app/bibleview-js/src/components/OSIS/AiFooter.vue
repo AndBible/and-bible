@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  - Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   -
   - This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   -
@@ -42,8 +42,8 @@ const props = defineProps<{
 
 const {strings} = useCommon();
 
-const regenerateLink = computed(() => `ab-action://regenerate?pageId=${props.pageId}`);
-const deleteLink = computed(() => `ab-action://delete?pageId=${props.pageId}`);
+const regenerateLink = computed(() => `ab-action://regenerate?pageId=${encodeURIComponent(props.pageId)}`);
+const deleteLink = computed(() => `ab-action://delete?pageId=${encodeURIComponent(props.pageId)}`);
 </script>
 
 <style scoped lang="scss">
@@ -64,7 +64,7 @@ const deleteLink = computed(() => `ab-action://delete?pageId=${props.pageId}`);
 }
 
 .ai-action-link {
-    color: #1a73e8;
+    color: var(--link-color);
     text-decoration: none;
     padding: 0.25em 0.5em;
 
@@ -89,7 +89,7 @@ const deleteLink = computed(() => `ab-action://delete?pageId=${props.pageId}`);
     }
 
     .ai-action-link {
-        color: #8ab4f8;
+        color: var(--link-color);
     }
 
     .ai-action-separator {

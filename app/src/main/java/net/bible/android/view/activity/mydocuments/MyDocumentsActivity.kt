@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -32,15 +32,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.MyDocumentListItemBinding
 import net.bible.android.activity.databinding.MyDocumentsSelectorBinding
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
@@ -53,15 +51,14 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 
 private const val TAG = "MyDocumentsActivity"
 
-class MyDocumentViewHolder(val layout: ViewGroup) : RecyclerView.ViewHolder(layout)
+class MyDocumentViewHolder(val binding: MyDocumentListItemBinding) : RecyclerView.ViewHolder(binding.root)
 
 class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapter<MyDocumentViewHolder>() {
     val items get() = activity.dataSet
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyDocumentViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.my_document_list_item, parent, false) as ViewGroup
-        return MyDocumentViewHolder(view)
+        val binding = MyDocumentListItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return MyDocumentViewHolder(binding)
     }
 
     override fun getItemId(position: Int): Long = items[position].id.hashCode().toLong()
@@ -69,13 +66,7 @@ class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapte
     override fun getItemCount() = items.size
 
     @SuppressLint("ClickableViewAccessibility")
-    override fun onBindViewHolder(holder: MyDocumentViewHolder, position: Int) {
-        val dragHolder = holder.layout.findViewById<ImageView>(R.id.dragHolder)
-        val title = holder.layout.findViewById<TextView>(R.id.title)
-        val summary = holder.layout.findViewById<TextView>(R.id.summary)
-        val menuButton = holder.layout.findViewById<ImageButton>(R.id.menuButton)
-        val aiIcon = holder.layout.findViewById<ImageView>(R.id.aiIcon)
-        val layout = holder.layout
+    override fun onBindViewHolder(holder: MyDocumentViewHolder, position: Int) = holder.binding.run {
         val document = items[position]
 
         title.text = document.name
@@ -84,10 +75,10 @@ class MyDocumentAdapter(val activity: MyDocumentsActivity) : RecyclerView.Adapte
         // Show AI icon if document was created by AI
         aiIcon.visibility = if (document.sourcePromptId != null) View.VISIBLE else View.GONE
 
-        layout.setOnClickListener {
+        root.setOnClickListener {
             activity.openDocument(document)
         }
-        layout.setOnLongClickListener { true }
+        root.setOnLongClickListener { true }
         dragHolder.setOnTouchListener { _, event ->
             if (event.actionMasked == MotionEvent.ACTION_DOWN) {
                 activity.itemTouchHelper.startDrag(holder)
@@ -141,7 +132,6 @@ class MyDocumentsActivity : ActivityBase() {
         var isHandled = true
         when (item.itemId) {
             R.id.newItem -> createNewDocument()
-            R.id.createDemoDocument -> createDemoDocument()
             android.R.id.home -> onBackPressed()
             else -> isHandled = false
         }
@@ -267,132 +257,6 @@ class MyDocumentsActivity : ActivityBase() {
 
         dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
         dialog.show()
-    }
-
-    /**
-     * Debug function: Create a demo document with sample markdown content
-     */
-    private fun createDemoDocument() {
-        val name = "Demo Document ${dataSet.size + 1}"
-        val initials = MyDocumentBookManager.generateInitials(name)
-        val newDocument = MyDocument(
-            name = name,
-            description = "A demo document with sample markdown content",
-            initials = initials,
-            orderNumber = dataSet.size
-        )
-        dao.insert(newDocument)
-
-        // Create sample pages with markdown content
-        val pages = listOf(
-            Triple("intro", "Introduction", """
-# Welcome to My Documents
-
-This is a **demo document** created for testing the My Documents feature.
-
-## Features
-
-- Supports **bold** and *italic* text
-- Lists (like this one)
-- [Links to Bible references](sword://KJV/John.3.16)
-- Code blocks and more
-
-## Bible Links
-
-You can link to Bible verses:
-- [John 3:16](sword://KJV/John.3.16)
-- [Psalm 23](sword://KJV/Ps.23)
-- [Romans 8:28](sword://KJV/Rom.8.28)
-
----
-
-Navigate using the table of contents on the left.
-            """.trimIndent()),
-
-            Triple("theology", "Theological Notes", """
-# Theological Notes
-
-## The Trinity
-
-The doctrine of the Trinity teaches that:
-
-1. There is one God
-2. The Father is God
-3. The Son is God
-4. The Holy Spirit is God
-5. The Father, Son, and Holy Spirit are distinct persons
-
-### Key Verses
-
-> "Go therefore and make disciples of all nations, baptizing them in the name of the Father and of the Son and of the Holy Spirit"
-> — [Matthew 28:19](sword://KJV/Matt.28.19)
-
-## Salvation by Grace
-
-| Concept | Description |
-|---------|-------------|
-| Grace | Unmerited favor from God |
-| Faith | Trust in Christ alone |
-| Works | Result of salvation, not cause |
-
-See [Ephesians 2:8-9](sword://KJV/Eph.2.8-9) for the key passage.
-            """.trimIndent()),
-
-            Triple("study", "Study Methods", """
-# Bible Study Methods
-
-## Inductive Bible Study
-
-The inductive method involves three steps:
-
-### 1. Observation
-*What does the text say?*
-
-- Read the passage multiple times
-- Note key words and phrases
-- Identify the literary genre
-
-### 2. Interpretation
-*What does the text mean?*
-
-```
-Context → Grammar → Word Study → Cross-references
-```
-
-### 3. Application
-*How does this apply to my life?*
-
-Ask yourself:
-- Is there a command to obey?
-- Is there a promise to claim?
-- Is there an example to follow?
-
----
-
-**Remember:** Always let Scripture interpret Scripture!
-            """.trimIndent())
-        )
-
-        pages.forEachIndexed { index, (key, title, content) ->
-            val page = MyDocumentPage(
-                documentId = newDocument.id,
-                title = title,
-                pageKey = key,
-                contentType = MyDocumentContentType.MARKDOWN,
-                orderNumber = index
-            )
-            dao.insertPageWithContent(page, content)
-        }
-
-        // Register the document with JSword
-        MyDocumentBookManager.registerDocument(newDocument)
-
-        // Update UI
-        dataSet.add(newDocument)
-        documentAdapter.notifyItemInserted(dataSet.size - 1)
-        binding.emptyView.visibility = View.GONE
-
-        Log.i(TAG, "Created demo document: ${newDocument.initials} with ${pages.size} pages")
     }
 
     private fun finishOk() {

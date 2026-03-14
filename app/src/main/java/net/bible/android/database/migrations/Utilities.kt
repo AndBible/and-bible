@@ -26,7 +26,35 @@ abstract class Migration(startVersion: Int, endVersion: Int): RoomMigration(star
 
     override fun migrate(db: SupportSQLiteDatabase) {
         Log.i(TAG, "Migrating from version $startVersion to $endVersion")
-        doMigrate(db)
+        disableSyncTriggers(db)
+        try {
+            doMigrate(db)
+        } finally {
+            enableSyncTriggers(db)
+        }
+    }
+}
+
+/**
+ * Disable sync triggers during migrations to prevent unnecessary LogEntry rows
+ * from data-shuffling operations (e.g. column migrations with UPDATE statements).
+ * SyncConfiguration table may not exist yet in early migrations, so we check first.
+ */
+private fun disableSyncTriggers(db: SupportSQLiteDatabase) {
+    if (hasSyncConfigurationTable(db)) {
+        db.execSQL("INSERT OR REPLACE INTO SyncConfiguration (keyName, booleanValue) VALUES ('triggersDisabled', 1)")
+    }
+}
+
+private fun enableSyncTriggers(db: SupportSQLiteDatabase) {
+    if (hasSyncConfigurationTable(db)) {
+        db.execSQL("DELETE FROM SyncConfiguration WHERE keyName = 'triggersDisabled'")
+    }
+}
+
+private fun hasSyncConfigurationTable(db: SupportSQLiteDatabase): Boolean {
+    db.query("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='SyncConfiguration'").use { cursor ->
+        return cursor.moveToFirst() && cursor.getInt(0) > 0
     }
 }
 

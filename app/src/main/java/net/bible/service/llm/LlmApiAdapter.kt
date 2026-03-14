@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -17,12 +17,58 @@
 
 package net.bible.service.llm
 
-import net.bible.service.llm.agent.ParsedResponse
-import net.bible.service.llm.agent.ToolCall
-import net.bible.service.llm.agent.ToolCallParser
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.json.Json
+import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.activity.R
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+
 import net.bible.service.llm.tools.ToolDefinition
-import org.json.JSONArray
+import android.util.Log
 import org.json.JSONObject
+
+/** Shared Json instance for all LLM serialization. */
+val llmJson = Json { ignoreUnknownKeys = true; isLenient = true; encodeDefaults = true; explicitNulls = false }
+
+data class ToolCall(
+    val id: String,
+    val tool: AgentTool,
+    val arguments: String
+) {
+    fun parseArguments(): JSONObject = if (arguments.isBlank()) {
+        JSONObject()
+    } else {
+        JSONObject(arguments)
+    }
+}
+
+sealed class ParsedResponse {
+    data class ToolCalls(val toolCalls: List<ToolCall>, val content: String? = null) : ParsedResponse()
+    data class TextResponse(val content: String) : ParsedResponse()
+    data class ParseError(val error: String) : ParsedResponse()
+}
+
+/** Provider-agnostic message type. Adapters convert to provider-specific JSON. */
+data class ChatMessage(
+    val role: Role,
+    val content: String? = null,
+    val toolCalls: List<ToolCall>? = null,
+    val toolCallId: String? = null,
+    val toolResultBlocks: List<ToolResultBlock>? = null
+) {
+    enum class Role { SYSTEM, USER, ASSISTANT, TOOL }
+}
+
+data class ToolResultBlock(val toolCallId: String, val content: String)
+
+private fun ChatMessage.Role.toWireRole(): WireRole = when (this) {
+    ChatMessage.Role.SYSTEM -> WireRole.SYSTEM
+    ChatMessage.Role.USER -> WireRole.USER
+    ChatMessage.Role.ASSISTANT -> WireRole.ASSISTANT
+    ChatMessage.Role.TOOL -> WireRole.TOOL
+}
 
 /**
  * Abstracts API format differences between LLM providers (OpenAI vs Anthropic).
@@ -30,12 +76,11 @@ import org.json.JSONObject
 interface LlmApiAdapter {
     fun buildEndpointUrl(baseEndpoint: String): String
     fun buildHeaders(apiKey: String, extraHeaders: Map<String, String>): Map<String, String>
-    fun buildRequestBody(model: String, messages: JSONArray, tools: JSONArray, temperature: Double): JSONObject
-    fun parseResponse(responseJson: JSONObject): ParsedResponse
-    fun extractUsage(responseJson: JSONObject): LlmUsage
-    fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray
-    fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): JSONObject
-    fun createToolResultMessages(results: List<Pair<String, String>>): List<JSONObject>
+    fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String
+    fun parseResponse(responseBody: String): ParsedResponse
+    fun extractUsage(responseBody: String): LlmUsage
+    fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage
+    fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage>
 }
 
 /**
@@ -55,62 +100,113 @@ class OpenAiApiAdapter : LlmApiAdapter {
         return headers
     }
 
-    override fun buildRequestBody(model: String, messages: JSONArray, tools: JSONArray, temperature: Double): JSONObject {
-        return JSONObject().apply {
-            put("model", model)
-            put("messages", messages)
-            if (tools.length() > 0) {
-                put("tools", tools)
+    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String {
+        val wireMessages = messages.map { it.toOpenAiWire() }
+        val wireTools = toolDefs.map { def ->
+            OpenAiWireTool(function = OpenAiWireToolDef(
+                name = def.name,
+                description = def.description,
+                parameters = def.parametersSchema
+            ))
+        }
+        val request = OpenAiRequest(
+            model = model,
+            messages = wireMessages,
+            tools = wireTools.ifEmpty { null },
+            temperature = temperature
+        )
+        return llmJson.encodeToString(request)
+    }
+
+    private fun ChatMessage.toOpenAiWire(): OpenAiWireMessage = when {
+        // Tool result message
+        role == ChatMessage.Role.TOOL && toolCallId != null -> OpenAiWireMessage(
+            role = WireRole.TOOL,
+            content = JsonPrimitive(content ?: ""),
+            toolCallId = toolCallId
+        )
+        // Assistant message with tool calls
+        toolCalls != null -> OpenAiWireMessage(
+            role = WireRole.ASSISTANT,
+            content = if (content != null) JsonPrimitive(content) else JsonNull,
+            toolCalls = toolCalls.map { tc ->
+                OpenAiWireToolCall(
+                    id = tc.id,
+                    function = OpenAiWireFunction(
+                        name = tc.tool.camelCaseName,
+                        arguments = tc.arguments
+                    )
+                )
             }
-            put("temperature", temperature)
-        }
-    }
-
-    override fun parseResponse(responseJson: JSONObject): ParsedResponse {
-        return try {
-            val assistantMessage = responseJson
-                .getJSONArray("choices")
-                .getJSONObject(0)
-                .getJSONObject("message")
-            ToolCallParser.parseMessage(assistantMessage)
-        } catch (e: Exception) {
-            ParsedResponse.ParseError("Failed to parse OpenAI response: ${e.message}")
-        }
-    }
-
-    override fun extractUsage(responseJson: JSONObject): LlmUsage {
-        val usage = responseJson.optJSONObject("usage") ?: return LlmUsage()
-        val totalInput = usage.optLong("prompt_tokens", 0)
-        val cachedInput = usage.optJSONObject("prompt_tokens_details")?.optLong("cached_tokens", 0) ?: 0
-        return LlmUsage(
-            inputTokens = totalInput - cachedInput,
-            outputTokens = usage.optLong("completion_tokens", 0),
-            cacheReadTokens = cachedInput
+        )
+        // Simple text message
+        else -> OpenAiWireMessage(
+            role = role.toWireRole(),
+            content = JsonPrimitive(content ?: "")
         )
     }
 
-    override fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray {
-        val array = JSONArray()
-        for (def in toolDefs) {
-            array.put(JSONObject().apply {
-                put("type", "function")
-                put("function", JSONObject().apply {
-                    put("name", def.name)
-                    put("description", def.description)
-                    put("parameters", def.parametersSchema)
-                })
-            })
+    override fun parseResponse(responseBody: String): ParsedResponse {
+        return try {
+            val response = llmJson.decodeFromString<OpenAiResponse>(responseBody)
+            val message = response.choices.firstOrNull()?.message
+                ?: return ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_no_choices))
+
+            val toolCalls = message.toolCalls?.mapNotNull { tc ->
+                if (tc.type != "function") null
+                else {
+                    val agentTool = AgentTool.fromToolName(tc.function.name)
+                    if (agentTool == null) {
+                        Log.w("LlmApiAdapter", "Unknown tool name from LLM: ${tc.function.name}")
+                        null
+                    } else {
+                        ToolCall(tc.id, agentTool, tc.function.arguments)
+                    }
+                }
+            }
+
+            val content = message.content?.takeIf { it.isNotBlank() }
+
+            if (!toolCalls.isNullOrEmpty()) {
+                ParsedResponse.ToolCalls(toolCalls, content)
+            } else {
+                ParsedResponse.TextResponse(content ?: "")
+            }
+        } catch (e: Exception) {
+            ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_openai, e.message ?: ""))
         }
-        return array
     }
 
-    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): JSONObject {
-        return ToolCallParser.createAssistantToolCallMessage(toolCalls, content)
+    override fun extractUsage(responseBody: String): LlmUsage {
+        return try {
+            val response = llmJson.decodeFromString<OpenAiResponse>(responseBody)
+            val usage = response.usage ?: return LlmUsage()
+            val cachedInput = usage.promptTokensDetails?.cachedTokens ?: 0
+            LlmUsage(
+                inputTokens = usage.promptTokens - cachedInput,
+                outputTokens = usage.completionTokens,
+                cacheReadTokens = cachedInput
+            )
+        } catch (_: Exception) {
+            LlmUsage()
+        }
     }
 
-    override fun createToolResultMessages(results: List<Pair<String, String>>): List<JSONObject> {
+    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage {
+        return ChatMessage(
+            role = ChatMessage.Role.ASSISTANT,
+            content = content,
+            toolCalls = toolCalls
+        )
+    }
+
+    override fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage> {
         return results.map { (toolCallId, content) ->
-            ToolCallParser.createToolResultMessage(toolCallId, content)
+            ChatMessage(
+                role = ChatMessage.Role.TOOL,
+                content = content,
+                toolCallId = toolCallId
+            )
         }
     }
 }
@@ -138,55 +234,96 @@ class AnthropicApiAdapter : LlmApiAdapter {
         return headers
     }
 
-    override fun buildRequestBody(model: String, messages: JSONArray, tools: JSONArray, temperature: Double): JSONObject {
-        // Extract system message from messages array, add cache_control for prompt caching
-        var systemContent: JSONArray? = null
-        val apiMessages = JSONArray()
+    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String {
+        var systemBlocks: List<AnthropicSystemBlock>? = null
+        val wireMessages = mutableListOf<AnthropicWireMessage>()
 
-        for (i in 0 until messages.length()) {
-            val msg = messages.getJSONObject(i)
-            if (msg.getString("role") == "system") {
-                // System message goes to top-level "system" field with prompt caching
-                systemContent = JSONArray().put(JSONObject().apply {
-                    put("type", "text")
-                    put("text", msg.getString("content"))
-                    put("cache_control", JSONObject().put("type", "ephemeral"))
-                })
+        for (msg in messages) {
+            if (msg.role == ChatMessage.Role.SYSTEM) {
+                systemBlocks = listOf(AnthropicSystemBlock(
+                    text = msg.content ?: "",
+                    cacheControl = AnthropicCacheControl()
+                ))
             } else {
-                apiMessages.put(msg)
+                wireMessages.add(msg.toAnthropicWire())
             }
         }
 
-        return JSONObject().apply {
-            put("model", model)
-            if (systemContent != null) {
-                put("system", systemContent)
-            }
-            put("messages", apiMessages)
-            put("max_tokens", DEFAULT_MAX_TOKENS)
-            if (tools.length() > 0) {
-                put("tools", tools)
-            }
-            put("temperature", temperature)
+        val wireTools = toolDefs.map { def ->
+            AnthropicWireTool(
+                name = def.name,
+                description = def.description,
+                inputSchema = def.parametersSchema
+            )
         }
+
+        val request = AnthropicRequest(
+            model = model,
+            system = systemBlocks,
+            messages = wireMessages,
+            maxTokens = DEFAULT_MAX_TOKENS,
+            tools = wireTools.ifEmpty { null },
+            temperature = temperature
+        )
+        return llmJson.encodeToString(request)
     }
 
-    override fun parseResponse(responseJson: JSONObject): ParsedResponse {
+    private fun ChatMessage.toAnthropicWire(): AnthropicWireMessage = when {
+        // User message with batched tool results
+        toolResultBlocks != null -> AnthropicWireMessage(
+            role = WireRole.USER,
+            content = llmJson.encodeToJsonElement(ListSerializer(AnthropicRequestContentBlock.serializer()), toolResultBlocks.map { block ->
+                AnthropicRequestContentBlock.ToolResult(
+                    toolUseId = block.toolCallId,
+                    content = block.content
+                )
+            })
+        )
+        // Assistant message with tool calls
+        toolCalls != null -> {
+            val blocks = mutableListOf<AnthropicRequestContentBlock>()
+            if (content != null) {
+                blocks.add(AnthropicRequestContentBlock.Text(content))
+            }
+            for (tc in toolCalls) {
+                blocks.add(AnthropicRequestContentBlock.ToolUse(
+                    id = tc.id,
+                    name = tc.tool.camelCaseName,
+                    input = llmJson.parseToJsonElement(tc.arguments) as? JsonObject ?: JsonObject(emptyMap())
+                ))
+            }
+            AnthropicWireMessage(
+                role = WireRole.ASSISTANT,
+                content = llmJson.encodeToJsonElement(ListSerializer(AnthropicRequestContentBlock.serializer()), blocks.toList())
+            )
+        }
+        // Simple text message
+        else -> AnthropicWireMessage(
+            role = role.toWireRole(),
+            content = JsonPrimitive(content ?: "")
+        )
+    }
+
+    override fun parseResponse(responseBody: String): ParsedResponse {
         return try {
-            val contentArray = responseJson.getJSONArray("content")
+            val response = llmJson.decodeFromString<AnthropicResponse>(responseBody)
             val textParts = mutableListOf<String>()
             val toolCalls = mutableListOf<ToolCall>()
 
-            for (i in 0 until contentArray.length()) {
-                val block = contentArray.getJSONObject(i)
-                when (block.getString("type")) {
-                    "text" -> textParts.add(block.getString("text"))
-                    "tool_use" -> {
-                        toolCalls.add(ToolCall(
-                            id = block.getString("id"),
-                            name = block.getString("name"),
-                            arguments = block.getJSONObject("input").toString()
-                        ))
+            for (block in response.content) {
+                when (block) {
+                    is AnthropicContentBlock.Text -> textParts.add(block.text)
+                    is AnthropicContentBlock.ToolUse -> {
+                        val agentTool = AgentTool.fromToolName(block.name)
+                        if (agentTool == null) {
+                            Log.w("LlmApiAdapter", "Unknown tool name from LLM: ${block.name}")
+                        } else {
+                            toolCalls.add(ToolCall(
+                                id = block.id,
+                                tool = agentTool,
+                                arguments = block.input.toString()
+                            ))
+                        }
                     }
                 }
             }
@@ -199,72 +336,38 @@ class AnthropicApiAdapter : LlmApiAdapter {
                 ParsedResponse.TextResponse(textContent ?: "")
             }
         } catch (e: Exception) {
-            ParsedResponse.ParseError("Failed to parse Anthropic response: ${e.message}")
+            ParsedResponse.ParseError(application.getString(R.string.llm_parse_error_anthropic, e.message ?: ""))
         }
     }
 
-    override fun extractUsage(responseJson: JSONObject): LlmUsage {
-        val usage = responseJson.optJSONObject("usage") ?: return LlmUsage()
-        return LlmUsage(
-            inputTokens = usage.optLong("input_tokens", 0),
-            outputTokens = usage.optLong("output_tokens", 0),
-            cacheCreationTokens = usage.optLong("cache_creation_input_tokens", 0),
-            cacheReadTokens = usage.optLong("cache_read_input_tokens", 0)
+    override fun extractUsage(responseBody: String): LlmUsage {
+        return try {
+            val response = llmJson.decodeFromString<AnthropicResponse>(responseBody)
+            val usage = response.usage ?: return LlmUsage()
+            LlmUsage(
+                inputTokens = usage.inputTokens,
+                outputTokens = usage.outputTokens,
+                cacheCreationTokens = usage.cacheCreationTokens,
+                cacheReadTokens = usage.cacheReadTokens
+            )
+        } catch (_: Exception) {
+            LlmUsage()
+        }
+    }
+
+    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage {
+        return ChatMessage(
+            role = ChatMessage.Role.ASSISTANT,
+            content = content,
+            toolCalls = toolCalls
         )
     }
 
-    override fun buildToolsArray(toolDefs: List<ToolDefinition>): JSONArray {
-        val array = JSONArray()
-        for (def in toolDefs) {
-            array.put(JSONObject().apply {
-                put("name", def.name)
-                put("description", def.description)
-                put("input_schema", def.parametersSchema)
-            })
-        }
-        return array
-    }
-
-    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): JSONObject {
-        val contentArray = JSONArray()
-
-        // Add text block if present
-        if (content != null) {
-            contentArray.put(JSONObject().apply {
-                put("type", "text")
-                put("text", content)
-            })
-        }
-
-        // Add tool_use blocks
-        for (toolCall in toolCalls) {
-            contentArray.put(JSONObject().apply {
-                put("type", "tool_use")
-                put("id", toolCall.id)
-                put("name", toolCall.name)
-                put("input", JSONObject(toolCall.arguments))
-            })
-        }
-
-        return JSONObject().apply {
-            put("role", "assistant")
-            put("content", contentArray)
-        }
-    }
-
-    override fun createToolResultMessages(results: List<Pair<String, String>>): List<JSONObject> {
+    override fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage> {
         // Anthropic requires all tool results in a single user message
-        val contentArray = JSONArray()
-        for ((toolCallId, content) in results) {
-            contentArray.put(JSONObject().apply {
-                put("type", "tool_result")
-                put("tool_use_id", toolCallId)
-                put("content", content)
-            })
-        }
-        return listOf(JSONObject().apply {
-            put("role", "user")
-            put("content", contentArray)
-        })
+        return listOf(ChatMessage(
+            role = ChatMessage.Role.USER,
+            toolResultBlocks = results
+        ))
     }
 }

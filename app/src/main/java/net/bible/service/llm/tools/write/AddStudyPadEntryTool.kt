@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -21,12 +21,15 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -35,7 +38,15 @@ import org.json.JSONObject
  * StudyPads (labels) can contain both bookmark references and standalone text entries.
  */
 object AddStudyPadEntryTool : Tool {
-    override val name = "addStudyPadEntry"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val text: String = "",
+        val contentType: TextContentType = TextContentType.MARKDOWN,
+        val orderNumber: Int = 0
+    )
+
+    override val agentTool = AgentTool.ADD_STUDY_PAD_ENTRY
 
     override val description = """
         Add a text entry to a StudyPad (label).
@@ -75,12 +86,15 @@ object AddStudyPadEntryTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelIdStr = arguments.optString("labelId", "")
-        val text = normalizeLlmText(arguments.optString("text", ""))
-        val contentTypeStr = arguments.optString("contentType", "MARKDOWN")
-        val orderNumber = if (arguments.has("orderNumber")) arguments.getInt("orderNumber") else null
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val text = normalizeLlmText(args.text)
+        val orderNumber = args.orderNumber.takeIf { it != 0 }
 
-        if (labelIdStr.isBlank()) {
+        if (args.labelId.isEmpty) {
             return ToolResult.error("Missing required parameter: labelId")
         }
         if (text.isBlank()) {
@@ -88,34 +102,26 @@ object AddStudyPadEntryTool : Tool {
         }
 
         return try {
-            val labelId = IdType.fromString(labelIdStr)
-
             // Check if label exists
-            val label = bookmarkControl.labelById(labelId)
-                ?: return ToolResult.error("Label not found: $labelIdStr", "LABEL_NOT_FOUND")
-
-            val contentType = try {
-                TextContentType.valueOf(contentTypeStr)
-            } catch (e: IllegalArgumentException) {
-                TextContentType.MARKDOWN
-            }
+            val label = bookmarkControl.labelById(args.labelId)
+                ?: return ToolResult.error("Label not found: ${args.labelId}", "LABEL_NOT_FOUND")
 
             // Create entry using BookmarkControl (sends UI events)
             // If orderNumber is null, BookmarkControl adds to end
             val entry = bookmarkControl.createStudyPadEntryWithText(
-                labelId = labelId,
+                labelId = args.labelId,
                 orderNumber = orderNumber,
                 text = text,
-                contentType = contentType,
+                contentType = args.contentType,
                 sourcePromptId = context.promptId
             )
 
             ToolResult.success {
                 put("entryId", entry.id.toString())
-                put("labelId", labelIdStr)
+                put("labelId", args.labelId.toString())
                 put("labelName", label.name)
                 put("textLength", text.length)
-                put("contentType", contentType.name)
+                put("contentType", args.contentType.name)
                 put("orderNumber", entry.orderNumber)
             }
         } catch (e: Exception) {

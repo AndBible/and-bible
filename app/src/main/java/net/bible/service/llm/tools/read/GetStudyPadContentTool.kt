@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -20,12 +20,17 @@ package net.bible.service.llm.tools.read
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
+import net.bible.android.database.bookmarks.BookmarkToLabelStub
+import net.bible.android.database.bookmarks.StudyPadEntryStub
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -39,7 +44,15 @@ import org.json.JSONObject
  * - page: paginated full content with offset/limit
  */
 object GetStudyPadContentTool : Tool {
-    override val name = "getStudyPadContent"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val mode: String = "full",
+        val offset: Int = 0,
+        val limit: Int = 20,
+    )
+
+    override val agentTool = AgentTool.GET_STUDY_PAD_CONTENT
     override val displayNameResId = R.string.tool_get_study_pad_content
 
     override val description = """
@@ -50,7 +63,7 @@ object GetStudyPadContentTool : Tool {
         - 'index': lightweight overview with type, position, and ~80-char preview for each entry.
         - 'page': paginated full content (use offset/limit to read in chunks).
         - 'full': all entries with full content (default). May be large for big StudyPads.
-        For large StudyPads, use 'info' first, then 'index' or 'page' to read selectively.
+        Use 'info' first, then depending on size, 'full' or 'index' / 'page' to read selectively.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -87,24 +100,28 @@ object GetStudyPadContentTool : Tool {
     private data class OrderedEntry(val orderNumber: Int, val entry: JSONObject)
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelIdStr = arguments.optString("labelId", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
 
-        if (labelIdStr.isBlank()) {
+        if (args.labelId.isEmpty) {
             return ToolResult.error("Missing required parameter: labelId")
         }
 
-        val mode = arguments.optString("mode", "full")
+        val mode = args.mode
+        val labelIdStr = args.labelId.toString()
 
         return try {
-            val labelId = IdType.fromString(labelIdStr)
-            val label = dao.labelById(labelId)
+            val label = dao.labelById(args.labelId)
                 ?: return ToolResult.error("Label not found: $labelIdStr", "LABEL_NOT_FOUND")
 
             when (mode) {
-                "info" -> executeInfo(labelIdStr, labelId, label)
-                "index" -> executeIndex(labelIdStr, labelId, label)
-                "page" -> executePage(labelIdStr, labelId, label, arguments)
-                else -> executeFull(labelIdStr, labelId, label)
+                "info" -> executeInfo(labelIdStr, args.labelId, label)
+                "index" -> executeIndex(labelIdStr, args.labelId, label)
+                "page" -> executePage(labelIdStr, args.labelId, label, args)
+                else -> executeFull(labelIdStr, args.labelId, label)
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to get StudyPad content: ${e.message}", "READ_ERROR")
@@ -208,35 +225,110 @@ object GetStudyPadContentTool : Tool {
         else stripped.substring(0, maxLength) + "..."
     }
 
+    private sealed class EntryStub(val orderNumber: Int) {
+        class Text(orderNumber: Int, val id: IdType) : EntryStub(orderNumber)
+        class BibleBookmark(orderNumber: Int, val bookmarkId: IdType) : EntryStub(orderNumber)
+        class GenericBookmark(orderNumber: Int, val bookmarkId: IdType) : EntryStub(orderNumber)
+    }
+
+    private fun loadEntryStubs(labelId: IdType): List<EntryStub> {
+        val stubs = mutableListOf<EntryStub>()
+        dao.studyPadTextEntryStubs(labelId).mapTo(stubs) { EntryStub.Text(it.orderNumber, it.id) }
+        dao.bibleBookmarkToLabelStubs(labelId).mapTo(stubs) { EntryStub.BibleBookmark(it.orderNumber, it.bookmarkId) }
+        dao.genericBookmarkToLabelStubs(labelId).mapTo(stubs) { EntryStub.GenericBookmark(it.orderNumber, it.bookmarkId) }
+        stubs.sortBy { it.orderNumber }
+        return stubs
+    }
+
+    private fun loadFullEntriesForStubs(stubs: List<EntryStub>): List<JSONObject> {
+        val textIds = stubs.filterIsInstance<EntryStub.Text>().map { it.id }
+        val bibleIds = stubs.filterIsInstance<EntryStub.BibleBookmark>().map { it.bookmarkId }
+        val genericIds = stubs.filterIsInstance<EntryStub.GenericBookmark>().map { it.bookmarkId }
+
+        val textsById = if (textIds.isNotEmpty()) dao.studyPadTextEntriesByIds(textIds).associateBy { it.id } else emptyMap()
+        val bibleById = if (bibleIds.isNotEmpty()) dao.bibleBookmarksByIds(bibleIds).associateBy { it.id } else emptyMap()
+        val genericById = if (genericIds.isNotEmpty()) dao.genericBookmarksByIds(genericIds).associateBy { it.id } else emptyMap()
+
+        return stubs.mapNotNull { stub ->
+            when (stub) {
+                is EntryStub.Text -> {
+                    val entry = textsById[stub.id] ?: return@mapNotNull null
+                    JSONObject().apply {
+                        put("type", "text")
+                        put("id", entry.id.toString())
+                        put("orderNumber", entry.orderNumber)
+                        put("text", entry.text)
+                        put("contentType", entry.contentType?.name ?: "HTML")
+                    }
+                }
+                is EntryStub.BibleBookmark -> {
+                    val bookmark = bibleById[stub.bookmarkId] ?: return@mapNotNull null
+                    JSONObject().apply {
+                        put("type", "bibleBookmark")
+                        put("id", bookmark.id.toString())
+                        put("orderNumber", stub.orderNumber)
+                        put("verseRange", bookmark.verseRange.osisRef)
+                        put("verseName", bookmark.verseRange.name)
+                        put("notes", bookmark.notes ?: JSONObject.NULL)
+                    }
+                }
+                is EntryStub.GenericBookmark -> {
+                    val bookmark = genericById[stub.bookmarkId] ?: return@mapNotNull null
+                    JSONObject().apply {
+                        put("type", "genericBookmark")
+                        put("id", bookmark.id.toString())
+                        put("orderNumber", stub.orderNumber)
+                        put("book", bookmark.book?.initials ?: "unknown")
+                        put("key", bookmark.key)
+                        put("notes", bookmark.notes ?: JSONObject.NULL)
+                    }
+                }
+            }
+        }
+    }
+
     private fun executeIndex(
         labelIdStr: String,
         labelId: IdType,
         label: BookmarkEntities.Label
     ): ToolResult {
-        val orderedEntries = loadAllEntries(labelId)
+        val stubs = loadEntryStubs(labelId)
+
+        // For index mode, fetch only text entries (for preview) and bookmark metadata
+        val textIds = stubs.filterIsInstance<EntryStub.Text>().map { it.id }
+        val bibleIds = stubs.filterIsInstance<EntryStub.BibleBookmark>().map { it.bookmarkId }
+        val genericIds = stubs.filterIsInstance<EntryStub.GenericBookmark>().map { it.bookmarkId }
+
+        val textsById = if (textIds.isNotEmpty()) dao.studyPadTextEntriesByIds(textIds).associateBy { it.id } else emptyMap()
+        val bibleById = if (bibleIds.isNotEmpty()) dao.bibleBookmarksByIds(bibleIds).associateBy { it.id } else emptyMap()
+        val genericById = if (genericIds.isNotEmpty()) dao.genericBookmarksByIds(genericIds).associateBy { it.id } else emptyMap()
+
         val indexEntries = JSONArray()
+        for ((position, stub) in stubs.withIndex()) {
+            val indexEntry = JSONObject().apply { put("position", position) }
 
-        for ((position, orderedEntry) in orderedEntries.withIndex()) {
-            val entry = orderedEntry.entry
-            val indexEntry = JSONObject().apply {
-                put("position", position)
-                put("type", entry.getString("type"))
-                put("id", entry.getString("id"))
-            }
-
-            when (entry.getString("type")) {
-                "text" -> {
-                    indexEntry.put("preview", makePreview(entry.optString("text")))
+            when (stub) {
+                is EntryStub.Text -> {
+                    val entry = textsById[stub.id] ?: continue
+                    indexEntry.put("type", "text")
+                    indexEntry.put("id", entry.id.toString())
+                    indexEntry.put("preview", makePreview(entry.text))
                 }
-                "bibleBookmark" -> {
-                    indexEntry.put("verseRange", entry.getString("verseRange"))
-                    indexEntry.put("verseName", entry.getString("verseName"))
-                    indexEntry.put("hasNotes", entry.opt("notes") != JSONObject.NULL)
+                is EntryStub.BibleBookmark -> {
+                    val bookmark = bibleById[stub.bookmarkId] ?: continue
+                    indexEntry.put("type", "bibleBookmark")
+                    indexEntry.put("id", bookmark.id.toString())
+                    indexEntry.put("verseRange", bookmark.verseRange.osisRef)
+                    indexEntry.put("verseName", bookmark.verseRange.name)
+                    indexEntry.put("hasNotes", bookmark.notes != null)
                 }
-                "genericBookmark" -> {
-                    indexEntry.put("book", entry.getString("book"))
-                    indexEntry.put("key", entry.getString("key"))
-                    indexEntry.put("hasNotes", entry.opt("notes") != JSONObject.NULL)
+                is EntryStub.GenericBookmark -> {
+                    val bookmark = genericById[stub.bookmarkId] ?: continue
+                    indexEntry.put("type", "genericBookmark")
+                    indexEntry.put("id", bookmark.id.toString())
+                    indexEntry.put("book", bookmark.book?.initials ?: "unknown")
+                    indexEntry.put("key", bookmark.key)
+                    indexEntry.put("hasNotes", bookmark.notes != null)
                 }
             }
 
@@ -246,7 +338,7 @@ object GetStudyPadContentTool : Tool {
         return ToolResult.success {
             put("labelId", labelIdStr)
             put("labelName", label.name)
-            put("totalEntries", orderedEntries.size)
+            put("totalEntries", stubs.size)
             put("entries", indexEntries)
         }
     }
@@ -255,21 +347,18 @@ object GetStudyPadContentTool : Tool {
         labelIdStr: String,
         labelId: IdType,
         label: BookmarkEntities.Label,
-        arguments: JSONObject
+        args: Args
     ): ToolResult {
-        val offset = arguments.optInt("offset", 0)
-        val limit = arguments.optInt("limit", 20)
+        val offset = args.offset
+        val limit = args.limit
 
-        val allEntries = loadAllEntries(labelId)
-        val totalEntries = allEntries.size
-
-        val pageEntries = allEntries
-            .drop(offset)
-            .take(limit)
+        val allStubs = loadEntryStubs(labelId)
+        val totalEntries = allStubs.size
+        val pageStubs = allStubs.drop(offset).take(limit)
 
         val results = JSONArray()
-        for (entry in pageEntries) {
-            results.put(entry.entry)
+        for (entry in loadFullEntriesForStubs(pageStubs)) {
+            results.put(entry)
         }
 
         return ToolResult.success {

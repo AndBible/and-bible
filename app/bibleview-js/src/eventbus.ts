@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -45,6 +45,7 @@ type EventTypeNames =
     | "scroll_up"
     | "scroll_down"
     | "adjust_loading_count"
+    | "reset_loading_count"
     | "export_html"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()

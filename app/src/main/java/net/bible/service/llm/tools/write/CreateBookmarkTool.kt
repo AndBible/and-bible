@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -23,12 +23,15 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.TextContentType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.localizeVerseRef
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
@@ -41,12 +44,19 @@ import org.json.JSONObject
  * The sourcePromptId is automatically set to link the bookmark to the AI prompt.
  */
 object CreateBookmarkTool : Tool {
-    override val name = "createBookmark"
+    @Serializable
+    data class Args(
+        val verseRef: String = "",
+        val note: String? = null,
+        val noteContentType: TextContentType = TextContentType.MARKDOWN,
+        val labelIds: List<IdType>? = null
+    )
+
+    override val agentTool = AgentTool.CREATE_BOOKMARK
 
     override val description = """
         Create a new bookmark at a verse or verse range.
         Bookmarks can include notes and be assigned to labels (categories/StudyPads).
-        The bookmark will be marked as AI-generated with a reference to this prompt.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -92,10 +102,14 @@ object CreateBookmarkTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val verseRef = arguments.optString("verseRef", "")
-        val note = if (arguments.has("note") && !arguments.isNull("note")) normalizeLlmText(arguments.getString("note")) else null
-        val noteContentTypeStr = arguments.optString("noteContentType", "MARKDOWN")
-        val labelIdsArray = arguments.optJSONArray("labelIds")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val verseRef = args.verseRef
+        val note = args.note?.let { normalizeLlmText(it) }
+        val labelIdsList = args.labelIds
 
         if (verseRef.isBlank()) {
             return ToolResult.error("Missing required parameter: verseRef")
@@ -106,12 +120,6 @@ object CreateBookmarkTool : Tool {
             val key = PassageKeyFactory.instance().getKey(KJVA, verseRef)
             val verseRange = key.getRangeAt(0, RestrictionType.NONE)
                 ?: return ToolResult.error("Invalid verse reference: $verseRef", "INVALID_REFERENCE")
-
-            val noteContentType = try {
-                TextContentType.valueOf(noteContentTypeStr)
-            } catch (e: IllegalArgumentException) {
-                TextContentType.MARKDOWN
-            }
 
             // Create bookmark (always whole verse for LLM-created bookmarks)
             val bookmark = BibleBookmarkWithNotes(
@@ -127,15 +135,13 @@ object CreateBookmarkTool : Tool {
             // Set note if provided
             if (note != null) {
                 bookmark.notes = note
-                bookmark.notesContentType = noteContentType
+                bookmark.notesContentType = args.noteContentType
                 bookmark.notesSourcePromptId = context.promptId
             }
 
             // Parse label IDs
-            val labelIds = if (labelIdsArray != null && labelIdsArray.length() > 0) {
-                (0 until labelIdsArray.length()).map { idx ->
-                    IdType.fromString(labelIdsArray.getString(idx))
-                }.toSet()
+            val labelIds = if (!labelIdsList.isNullOrEmpty()) {
+                labelIdsList.toSet()
             } else {
                 null
             }

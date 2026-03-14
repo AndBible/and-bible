@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -22,6 +22,7 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.hamcrest.CoreMatchers.equalTo
@@ -44,7 +45,7 @@ class PromptCsvUtilsTest {
 
     @Before
     fun setUp() {
-        dao = DatabaseContainer.instance.llmProcessingDb.agentPromptDao()
+        dao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
     }
 
     @After
@@ -132,8 +133,8 @@ class PromptCsvUtilsTest {
             name = "Advanced Prompt",
             promptTemplate = "Complex task",
             permissionMode = PermissionMode.ALLOW_ALL,
-            allowedTools = setOf("createBookmark", "searchBible"),
-            deniedTools = setOf("deleteBookmark"),
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE),
+            deniedTools = setOf(AgentTool.SET_DOCUMENT_TITLE),
             modelOverride = "gpt-4",
             createdAt = 1640995200000L,
         )
@@ -145,8 +146,8 @@ class PromptCsvUtilsTest {
         val dataLine = csv.split("\n")[1]
 
         assertTrue("permissionMode present", dataLine.contains("ALLOW_ALL"))
-        assertTrue("allowedTools present", dataLine.contains("createBookmark") && dataLine.contains("searchBible"))
-        assertTrue("deniedTools present", dataLine.contains("deleteBookmark"))
+        assertTrue("allowedTools present", dataLine.contains("CREATE_BOOKMARK") && dataLine.contains("SEARCH_BIBLE"))
+        assertTrue("deniedTools present", dataLine.contains("SET_DOCUMENT_TITLE"))
         assertTrue("modelOverride present", dataLine.contains("gpt-4"))
     }
 
@@ -348,7 +349,7 @@ class PromptCsvUtilsTest {
     @Test
     fun testImportWithPermissionModeAndTools(): Unit = runBlocking {
         val csv = "name;promptTemplate;permissionMode;allowedTools;deniedTools;modelOverride\n" +
-            "Advanced;Do it;ALLOW_ALL;createBookmark,searchBible;deleteBookmark;gpt-4\n"
+            "Advanced;Do it;ALLOW_ALL;CREATE_BOOKMARK,SEARCH_BIBLE;SET_DOCUMENT_TITLE;gpt-4\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
         val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
@@ -358,9 +359,9 @@ class PromptCsvUtilsTest {
 
         val prompt = dao.allPrompts()[0]
         assertThat(prompt.permissionMode, equalTo(PermissionMode.ALLOW_ALL))
-        assertTrue(prompt.allowedTools!!.contains("createBookmark"))
-        assertTrue(prompt.allowedTools!!.contains("searchBible"))
-        assertTrue(prompt.deniedTools!!.contains("deleteBookmark"))
+        assertTrue(prompt.allowedTools!!.contains(AgentTool.CREATE_BOOKMARK))
+        assertTrue(prompt.allowedTools!!.contains(AgentTool.SEARCH_BIBLE))
+        assertTrue(prompt.deniedTools!!.contains(AgentTool.SET_DOCUMENT_TITLE))
         assertThat(prompt.modelOverride, equalTo("gpt-4"))
     }
 
@@ -426,18 +427,27 @@ class PromptCsvUtilsTest {
     @Test
     fun testExportAndImportRoundTrip(): Unit = runBlocking {
         val id = IdType()
+        val providerConfigId = IdType()
+        // Insert a provider config so the foreign key is satisfied
+        val providerConfigDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+        providerConfigDao.insert(LlmProviderConfig(
+            id = providerConfigId,
+            providerType = "GEMINI",
+            displayName = "Test Provider"
+        ))
         val original = AgentPrompt(
             id = id,
             name = "Round-Trip Prompt",
             description = "Test description",
             promptTemplate = "Translate {{text}} to {{language}}",
-            showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_DISPLAY_SETTINGS),
+            showIn = setOf(PromptContext.VERSE_SELECTION),
             orderNumber = 7,
             strictContextMatching = false,
             permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
-            allowedTools = setOf("tool1", "tool2"),
-            deniedTools = setOf("tool3"),
+            allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE),
+            deniedTools = setOf(AgentTool.CREATE_LABEL),
             modelOverride = "claude-3-opus",
+            providerConfigId = providerConfigId,
             createdAt = 1640995200000L,
         )
 
@@ -461,9 +471,10 @@ class PromptCsvUtilsTest {
         assertThat(imported.orderNumber, equalTo(7))
         assertFalse(imported.strictContextMatching)
         assertThat(imported.permissionMode, equalTo(PermissionMode.ASK_ONCE_PER_RUN))
-        assertThat(imported.allowedTools, equalTo(setOf("tool1", "tool2")))
-        assertThat(imported.deniedTools, equalTo(setOf("tool3")))
+        assertThat(imported.allowedTools, equalTo(setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE)))
+        assertThat(imported.deniedTools, equalTo(setOf(AgentTool.CREATE_LABEL)))
         assertThat(imported.modelOverride, equalTo("claude-3-opus"))
+        assertThat(imported.providerConfigId, equalTo(providerConfigId))
         assertThat(imported.createdAt, equalTo(1640995200000L))
     }
 

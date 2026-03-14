@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2022-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2022-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -220,8 +220,8 @@
 	</string-array>
 	
 	<string-array name="prefs_notes_content_type_entries">
-		<item>Rich text (HTML)</item>
-		<item>Markdown</item>
+		<item>@string/notes_content_type_html</item>
+		<item>@string/notes_content_type_markdown</item>
 	</string-array>
 	<string-array name="prefs_notes_content_type_values">
 		<item>HTML</item>
@@ -232,10 +232,12 @@
 	<string-array name="experimental_features_names">
 		<item>@string/experimental_feature_bookmark_edit_actions</item>
 		<item>@string/experimental_feature_add_paragraph_break</item>
+		<item>@string/experimental_feature_ai_features</item>
 	</string-array>
 	<string-array name="experimental_features_values">
 		<item>bookmark_edit_actions</item>
 		<item>add_paragraph_break</item>
+		<item>ai_text_processing</item>
 	</string-array>
 	<string-array name="agent_permission_mode_entries">
 		<item>@string/permission_always_ask</item>

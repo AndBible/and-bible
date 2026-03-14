@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2019-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -169,8 +169,6 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var lineSpacing: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var bookmarksHideLabels: List<IdType>? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageNumber: Boolean? = null,
-        @Deprecated("Use llmPromptId instead") @ColumnInfo(defaultValue = "NULL") var translateTo: String? = null,
-        @ColumnInfo(defaultValue = "NULL") var llmPromptId: IdType? = null,
         @ColumnInfo(defaultValue = "NULL") var infiniteScroll: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var nonStrongsWordItalic: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMarkAsReadButton: Boolean? = null,
@@ -199,7 +197,6 @@ class WorkspaceEntities {
             BOOKMARKS_HIDELABELS,
             MYNOTES,
             PAGENUMBER,
-            LLM_PROMPT,
             INFINITE_SCROLL,
             NON_STRONGS_WORD_ITALIC,
             MARK_AS_READ_BUTTON,
@@ -229,7 +226,6 @@ class WorkspaceEntities {
             Types.BOOKMARKS_SHOW -> showBookmarks
             Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels
             Types.PAGENUMBER -> showPageNumber
-            Types.LLM_PROMPT -> llmPromptId
             Types.INFINITE_SCROLL -> infiniteScroll
             Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic
             Types.MARK_AS_READ_BUTTON -> showMarkAsReadButton
@@ -260,7 +256,6 @@ class WorkspaceEntities {
                 Types.BOOKMARKS_SHOW -> showBookmarks = value as Boolean?
                 Types.BOOKMARKS_HIDELABELS -> bookmarksHideLabels = value as List<IdType>?
                 Types.PAGENUMBER -> showPageNumber = value as Boolean?
-                Types.LLM_PROMPT -> llmPromptId = value as IdType?
                 Types.INFINITE_SCROLL -> infiniteScroll = value as Boolean?
                 Types.NON_STRONGS_WORD_ITALIC -> nonStrongsWordItalic = value as Boolean?
                 Types.MARK_AS_READ_BUTTON -> showMarkAsReadButton = value as Boolean?
@@ -323,8 +318,6 @@ class WorkspaceEntities {
                 showBookmarks = true,
                 bookmarksHideLabels = emptyList(),
                 showPageNumber = false,
-                translateTo = "",
-                llmPromptId = IdType.empty(),
                 infiniteScroll = true,
                 nonStrongsWordItalic = false,
                 showMarkAsReadButton = false,

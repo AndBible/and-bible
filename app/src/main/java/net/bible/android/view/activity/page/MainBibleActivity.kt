@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -24,6 +24,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.content.res.ColorStateList
 import android.graphics.Color
 import androidx.core.graphics.Insets
 import android.media.AudioManager
@@ -72,9 +73,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
@@ -395,6 +398,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         if (!CommonUtils.isCloudSyncAvailable) {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
+        navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -436,7 +440,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 currentSliderOffset = slideOffset
             }
 
-            override fun onDrawerOpened(drawerView: View) {}
+            override fun onDrawerOpened(drawerView: View) {
+                navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+            }
 
             override fun onDrawerClosed(drawerView: View) {
                 windowRepository.activeWindow.bibleView?.requestFocus()
@@ -1068,6 +1074,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             binding.strongsButton.alpha = alpha
         } else
             binding.strongsButton.alpha = 1.0F
+        if (CommonUtils.settings.monochromeMode) {
+            binding.strongsButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
+        }
     }
 
     private val currentDocument get() = windowControl.activeWindow.pageManager.currentPage.currentDocument
@@ -1558,7 +1567,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private val syncInterval get() =
-        CommonUtils.settings.getLong("gdrive_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
+        CommonUtils.settings.getLong("cloud_sync_interval", DEFAULT_SYNC_INTERVAL) * 1000
     private val lastSynchronized get() =
         CommonUtils.settings.getLong("globalLastSynchronized", 0L)
 
@@ -1991,7 +2000,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
-        val needsReload = requiresReload || dirtyTypes?.contains(TextDisplaySettings.Types.LLM_PROMPT) == true
+        val needsReload = requiresReload
         val windowId = settingsBundle.windowId
         if(windowId != null) {
             val window = windowRepository.getWindow(windowId)!!
@@ -2181,10 +2190,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
      * Called directly when prompt is already selected (e.g., from window button menu).
      */
     fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
-        val job = lifecycleScope.launch(Dispatchers.IO) {
-            AgentSessionManager.executePrompt(prompt, selection)
-        }
         val workspaceId = windowControl.windowRepository.id
+        val job = lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                AgentSessionManager.executePrompt(prompt, selection)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e(TAG, "LLM prompt execution failed", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
         AgentSessionManager.getOrCreateSession(workspaceId).job = job
     }
 
@@ -2216,10 +2234,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     .setItems(promptNames) { _, which ->
                         val selectedPrompt = prompts[which]
                         // Execute via AgentSessionManager
-                        val job = lifecycleScope.launch(Dispatchers.IO) {
-                            AgentSessionManager.executePrompt(selectedPrompt, selection)
-                        }
                         val wsId = windowControl.windowRepository.id
+                        val job = lifecycleScope.launch(Dispatchers.IO) {
+                            try {
+                                AgentSessionManager.executePrompt(selectedPrompt, selection)
+                            } catch (e: CancellationException) {
+                                throw e
+                            } catch (e: Exception) {
+                                Log.e(TAG, "LLM prompt execution failed", e)
+                                withContext(Dispatchers.Main) {
+                                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
                         AgentSessionManager.getOrCreateSession(wsId).job = job
                     }
                     .setNegativeButton(R.string.cancel, null)

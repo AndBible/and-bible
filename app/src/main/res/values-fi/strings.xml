@@ -775,7 +775,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="show_version_name">Sisällytä raamatunkäännöksen nimi</string>
   <string name="show_ellipsis">Näytä kolme pistettä (…)</string>
   <string name="show_quotes">Näytä lainausmerkit</string>
-  <string name="backup_button">Varmuuskopioi</string>
+  <string name="backup_button">Varmuuskopioi tai palauta</string>
   <string name="back_button">Takaisin</string>
   <string name="upgrading_database">Päivitetään tietokantaa. Odota hetki…</string>
   <string name="initializing_app">Käynnistetään sovellusta…</string>

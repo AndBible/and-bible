@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2020-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -29,6 +29,8 @@ import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.TextView
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -42,13 +44,16 @@ import net.bible.android.activity.databinding.BackupViewBinding
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.control.report.LAST_CRASH_STACKTRACE_FILE
 import net.bible.android.database.BookmarkDatabase
+import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.OLD_DATABASE_VERSION
 import net.bible.android.database.ReadingPlanDatabase
 import net.bible.android.database.RepoDatabase
 import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -87,6 +92,7 @@ import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.ZipEntry
@@ -236,9 +242,9 @@ object BackupControl {
                     }
                     if(version <= OLD_DATABASE_VERSION) {
                         Log.i(TAG, "Loading from backup database with version $version")
-                        beforeRestore(SyncableDatabaseDefinition.BOOKMARKS)
-                        beforeRestore(SyncableDatabaseDefinition.WORKSPACES)
-                        beforeRestore(SyncableDatabaseDefinition.READINGPLANS)
+                        for (def in SyncableDatabaseDefinition.ALL) {
+                            beforeRestore(def)
+                        }
                         DatabaseContainer.reset()
                         // When restoring old style db, we need to remove all databases first
                         deleteAllDatabases()
@@ -277,6 +283,8 @@ object BackupControl {
                         WorkspaceDatabase.dbFileName -> context.getString(R.string.help_workspaces_title)
                         RepoDatabase.dbFileName -> context.getString(R.string.db_repositories)
                         SettingsDatabase.dbFileName -> context.getString(R.string.settings)
+                        MyDocumentDatabase.dbFileName -> context.getString(R.string.my_documents_title)
+                        AiSettingsDatabase.dbFileName -> context.getString(R.string.ai_settings_sync_title)
                         else -> throw IllegalStateException("Unknown database file: $it")
                     }
                 }.toTypedArray()
@@ -488,7 +496,8 @@ object BackupControl {
 
         val manifest = AndBibleBackupManifest(
             backupType = BackupType.DB_BACKUP, contains = setOf(
-                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS
+                DbType.BOOKMARKS, DbType.WORKSPACES, DbType.READINGPLANS, DbType.REPOSITORIES, DbType.SETTINGS,
+                DbType.MYDOCUMENTS, DbType.AI_SETTINGS
             )
         )
 
@@ -569,7 +578,7 @@ object BackupControl {
                 SyncableDatabaseDefinition.READINGPLANS -> DatabaseContainer.instance.readingPlanDb
                 SyncableDatabaseDefinition.WORKSPACES -> DatabaseContainer.instance.workspaceDb
                 SyncableDatabaseDefinition.MYDOCUMENTS -> DatabaseContainer.instance.myDocumentDb
-                SyncableDatabaseDefinition.LLMPROCESSING -> DatabaseContainer.instance.llmProcessingDb
+                SyncableDatabaseDefinition.AI_SETTINGS -> DatabaseContainer.instance.aiSettingsDb
                 SyncableDatabaseDefinition.PROGRESS -> DatabaseContainer.instance.progressDb
             }
             if(db != null) {
@@ -744,6 +753,78 @@ object BackupControl {
         internalDbDir = File(context.getDatabasePath(OLD_MONOLITHIC_DATABASE_NAME).parent!!)
     }
 
+    suspend fun restoreFromLocalBackupFile(activity: ActivityBase, file: File) {
+        val uri = Uri.fromFile(file)
+        restoreAppDatabaseFromUriWithUI(activity, uri)
+    }
+
+    suspend fun resetDatabase(
+        activity: ActivityBase,
+        dbFileName: String,
+        nameResId: Int,
+        syncCategory: SyncableDatabaseDefinition?
+    ) {
+        val dbName = activity.getString(nameResId)
+        val confirmed = Dialogs.simpleQuestion(
+            activity,
+            activity.getString(R.string.reset_database_confirm, dbName)
+        )
+        if (!confirmed) return
+
+        withContext(Dispatchers.IO) {
+            if (syncCategory != null) {
+                beforeRestore(syncCategory)
+            }
+
+            if (DatabaseContainer.ready) {
+                DatabaseContainer.instance.dbByFilename[dbFileName]?.close()
+            }
+
+            val dbPath = activity.getDatabasePath(dbFileName).path
+            File(dbPath).delete()
+            File("$dbPath-journal").delete()
+            File("$dbPath-shm").delete()
+            File("$dbPath-wal").delete()
+
+            DatabaseContainer.reset()
+            if (DatabaseContainer.ready) {
+                DatabaseContainer.instance
+                if (syncCategory != null) {
+                    afterRestore(listOf(syncCategory))
+                }
+            }
+        }
+
+        ABEventBus.post(MainBibleActivity.MainBibleAfterRestore())
+        Dialogs.showMsg(R.string.reset_database_success)
+    }
+
+    data class BackupFileInfo(
+        val appVersion: Int?,
+        val displayDate: String,
+        val file: File
+    )
+
+    fun parseBackupFiles(files: List<File>): List<BackupFileInfo> {
+        val dateParser = java.text.SimpleDateFormat("yyyyMMdd-HHmmss", Locale.getDefault())
+        val dateFormatter = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        return files.map { f ->
+            val name = f.name
+            // Format: dbBackup-{appVer}-{v1}-{v2}-...-{yyyyMMdd}-{HHmmss}.abdb.zip
+            val regex = Regex("""dbBackup-(\d+)-(?:[\d]+-)*(\d{8})-(\d{6})\.abdb\.zip""")
+            val match = regex.find(name)
+            if (match != null) {
+                val appVersion = match.groupValues[1].toIntOrNull()
+                val dateStr = "${match.groupValues[2]}-${match.groupValues[3]}"
+                val date = try { dateParser.parse(dateStr) } catch (_: Exception) { null }
+                val displayDate = if (date != null) dateFormatter.format(date) else name
+                BackupFileInfo(appVersion, displayDate, f)
+            } else {
+                BackupFileInfo(null, name, f)
+            }
+        }
+    }
+
     private const val TAG = "BackupControl"
 }
 
@@ -794,17 +875,69 @@ class BackupActivity: ActivityBase() {
                     toggleRestoreDocuments.isChecked -> lifecycleScope.launch { BackupControl.restoreModulesViaIntent(this@BackupActivity) }
                 }
             }
-            CommonUtils.dbBackupPath.listFiles()?.sortedByDescending { it.name }?.forEach { f ->
-                val b = Button(this@BackupActivity)
-                val s = f.name
-                b.text = s
-                b.setOnClickListener {
-                    lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, f) }
-                }
-                backupDbButtons.addView(b)
-            }
-            if(backupDbButtons.childCount == 0) {
+            val backupFiles = CommonUtils.dbBackupPath.listFiles()
+                ?.sortedByDescending { it.name }
+                ?: emptyList()
+
+            if (backupFiles.isEmpty()) {
                 importExportTitle.visibility = View.GONE
+            } else {
+                val parsedFiles = BackupControl.parseBackupFiles(backupFiles)
+                for (info in parsedFiles) {
+                    val itemView = layoutInflater.inflate(R.layout.backup_file_list_item, backupDbButtons, false)
+                    itemView.findViewById<TextView>(R.id.backupTitle).text = info.displayDate
+                    val sizeKb = info.file.length() / 1024
+                    val sizeStr = if (sizeKb > 1024) "${sizeKb / 1024} MB" else "$sizeKb KB"
+                    val detailText = if (info.appVersion != null)
+                        getString(R.string.backup_file_info, info.appVersion, sizeStr)
+                    else sizeStr
+                    itemView.findViewById<TextView>(R.id.backupDetails).text = detailText
+                    itemView.findViewById<ImageButton>(R.id.exportButton).setOnClickListener {
+                        lifecycleScope.launch { BackupControl.saveDbBackupFileViaIntent(this@BackupActivity, info.file) }
+                    }
+                    itemView.findViewById<ImageButton>(R.id.restoreButton).setOnClickListener {
+                        lifecycleScope.launch { BackupControl.restoreFromLocalBackupFile(this@BackupActivity, info.file) }
+                    }
+                    backupDbButtons.addView(itemView)
+                }
+            }
+
+            // Database reset section
+            data class ResettableDb(val nameResId: Int, val dbFileName: String, val syncCategory: SyncableDatabaseDefinition?)
+            val resettableDbs = listOf(
+                ResettableDb(R.string.db_bookmarks, BookmarkDatabase.dbFileName, SyncableDatabaseDefinition.BOOKMARKS),
+                ResettableDb(R.string.help_workspaces_title, WorkspaceDatabase.dbFileName, SyncableDatabaseDefinition.WORKSPACES),
+                ResettableDb(R.string.reading_plans_plural, ReadingPlanDatabase.dbFileName, SyncableDatabaseDefinition.READINGPLANS),
+                ResettableDb(R.string.db_repositories, RepoDatabase.dbFileName, null),
+                ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
+                ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
+                ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
+            )
+            for (db in resettableDbs) {
+                val btn = Button(this@BackupActivity)
+                btn.text = getString(R.string.reset_something, getString(db.nameResId))
+                btn.setOnClickListener {
+                    lifecycleScope.launch { BackupControl.resetDatabase(this@BackupActivity, db.dbFileName, db.nameResId, db.syncCategory) }
+                }
+                resetButtons.addView(btn)
+            }
+
+            // Show last crash stack trace if available
+            val crashFile = File(SharedConstants.internalFilesDir, "log/$LAST_CRASH_STACKTRACE_FILE")
+            val crashTime = CommonUtils.realSharedPreferences.getLong("app-crashed-time", 0L)
+            if (crashFile.exists() && crashTime > 0) {
+                try {
+                    val stackTrace = crashFile.readText()
+                    if (stackTrace.isNotBlank()) {
+                        val timeStr = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+                            .format(Date(crashTime))
+                        crashInfoTitle.visibility = View.VISIBLE
+                        crashInfoText.visibility = View.VISIBLE
+                        crashInfoText.text = "$timeStr\n\n$stackTrace"
+                    }
+                } catch (e: Exception) {
+                    Log.e("BackupActivity", "Error reading crash info", e)
+                }
             }
         }
     }

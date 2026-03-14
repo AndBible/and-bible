@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+  ~ Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
   ~
   ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
   ~
@@ -95,12 +95,6 @@
             android:text="@string/prompt_show_in"
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textStyle="bold" />
-
-        <CheckBox
-            android:id="@+id/checkTextDisplaySettings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/prompt_context_text_display_settings" />
 
         <CheckBox
             android:id="@+id/checkVerseSelection"

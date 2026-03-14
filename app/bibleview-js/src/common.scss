@@ -1,5 +1,5 @@
 /*!
- * Copyright (c) 2021-2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2021-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -39,15 +39,27 @@
   cursor: pointer;
   z-index: 1;
   color: rgba(0, 0, 0, 0.5);
+  .monochrome & {
+    color: black;
+  }
   .night & {
     color: rgba(255, 255, 255, 0.6);
+  }
+  .night.monochrome & {
+    color: white;
   }
   margin: 2pt;
   padding: 7pt;
   &.toggled {
     color: #474747;
+    .monochrome & {
+      color: black;
+    }
     &.light {
       color: #d5d5d5;
+    }
+    .monochrome.night & {
+      color: white;
     }
   }
 }
@@ -58,8 +70,14 @@
   margin: 4pt 2pt 2pt;
   border-style: dashed;
   border-color: rgba(0, 0, 0, 0.15);
+  .monochrome & {
+    border-color: black;
+  }
   .night & {
     border-color: rgba(255, 255, 255, 0.3);
+  }
+  .monochrome.night & {
+    border-color: white;
   }
   border-width: 1pt 0 0 0;
   padding: 5pt 0 0 1pt;
@@ -79,14 +97,26 @@
   }
   &::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, .3);
+    .monochrome & {
+      background-color: black;
+    }
     .night & {
       background-color: rgba(255, 255, 255, .3);
+    }
+    .monochrome.night & {
+      background-color: white;
     }
   };
   &::-webkit-scrollbar-track {
     background-color: rgba(0, 0, 0, 0.1);
+    .monochrome & {
+      background-color: black;
+    }
     .night & {
       background-color: rgba(255, 255, 255, .1);
+    }
+    .monochrome.night & {
+      background-color: white;
     }
   }
 }
@@ -97,6 +127,10 @@ $button-grey: var(--modal-grey);
 
 :root {
   --primary-color: #bdbdbd;
+  --link-color: #1a73e8;
+  .night {
+    --link-color: #8ab4f8;
+  }
 }
 
 .button {
@@ -111,9 +145,27 @@ $button-grey: var(--modal-grey);
   text-align: center;
   text-decoration: none;
   display: inline-block;
-  
+  .monochrome & {
+    background-color: white;
+    color: black;
+    border: 1px solid black;
+  }
+  .monochrome.night & {
+    background-color: black;
+    color: white;
+    border: 1px solid white;
+  }
+
   &.toggled {
     background-color: #474747;
+    .monochrome & {
+      background-color: black;
+      color: white;
+    }
+    .monochrome.night & {
+      background-color: white;
+      color: black;
+    }
     &.light {
       background-color: #d5d5d5;
     }
@@ -121,21 +173,43 @@ $button-grey: var(--modal-grey);
   &.disabled {
     background-color: #bdbdbd;
     color: #616161;
+    .monochrome & {
+      background-color: white;
+      color: black;
+      border: 1px solid black;
+    }
+    .monochrome.night & {
+      background-color: black;
+      color: white;
+      border: 1px solid white;
+    }
   }
   &.light {
     background-color: #bdbdbd;
     color: black;
+    .monochrome & {
+      background-color: white;
+    }
     .night & {
       background-color: #616161;
       color: #bdbdbd;
     }
     .night.monochrome & {
+      background-color: black;
       color: white;
     }
   }
   &.warning {
     background: rgba(255, 0, 0, 0.5);
     color: black;
+    .monochrome & {
+      background: black;
+      color: white;
+    }
+    .monochrome.night & {
+      background: white;
+      color: black;
+    }
   }
   &.right {
     align-self: end;
@@ -178,7 +252,7 @@ $button-grey: var(--modal-grey);
 :root {
   --modal-grey:  rgb(172,172,172);
   .monochrome {
-    --modal-grey: rgb(76, 76, 76);
+    --modal-grey: black;
   }
 }
 
@@ -198,7 +272,9 @@ $modal-content-background-color-night: rgb(33, 33, 33);
 .isHighlighted {
   background-color: rgba(0, 0, 0, 0.1);
   .monochrome & {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: transparent;
+    outline: 2px solid black;
+    outline-offset: 1px;
   }
   .night & {
     background-color: rgba(255, 255, 255, 0.3);
@@ -419,17 +495,31 @@ table {
   border-radius: 2px;
   transition: all 0.2s ease;
 
+  .monochrome & {
+    color: black;
+  }
   .night & {
     color: #adb5bd;
+  }
+  .monochrome.night & {
+    color: white;
   }
 
   &:hover {
     background: rgba(108, 117, 125, 0.1);
     color: #495057;
 
+    .monochrome & {
+      background: transparent;
+      color: black;
+    }
     .night & {
       background: rgba(173, 181, 189, 0.1);
       color: #ced4da;
+    }
+    .monochrome.night & {
+      background: transparent;
+      color: white;
     }
   }
 }

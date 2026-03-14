@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -20,21 +20,28 @@ package net.bible.service.llm.agent
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.ChatMessage
 import net.bible.service.llm.LlmApiAdapter
 import net.bible.service.llm.LlmModelConfig
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
+import net.bible.service.llm.ParsedResponse
+import net.bible.service.llm.ToolCall
+import net.bible.service.llm.ToolResultBlock
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
@@ -42,25 +49,31 @@ import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
-import org.json.JSONArray
-import org.json.JSONObject
+import net.bible.service.llm.tools.ToolDefinition
 import java.util.Locale
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
-/**
- * Result of processing tool calls.
- */
 private sealed class ProcessToolsResult {
-    /** Continue iterating with updated context */
-    data class Continue(val context: AgentContext) : ProcessToolsResult()
-    /** Finish with a document */
-    data class FinishWithDocument(val title: String, val content: String, val context: AgentContext) : ProcessToolsResult()
-    /** Finish without creating a document */
-    data class FinishWithoutDocument(val message: String, val context: AgentContext) : ProcessToolsResult()
-    /** Finish by opening a StudyPad */
-    data class FinishWithStudyPad(val labelId: IdType, val scrollToEntryId: IdType?, val message: String, val context: AgentContext) : ProcessToolsResult()
+    data class Continue(
+        val context: AgentContext
+    ) : ProcessToolsResult()
+    data class FinishWithDocument(
+        val title: String,
+        val content: String,
+        val context: AgentContext
+    ) : ProcessToolsResult()
+    data class FinishWithoutDocument(
+        val message: String,
+        val context: AgentContext
+    ) : ProcessToolsResult()
+    data class FinishWithStudyPad(
+        val labelId: IdType,
+        val scrollToEntryId: IdType?,
+        val message: String,
+        val context: AgentContext
+    ) : ProcessToolsResult()
 }
 
 /**
@@ -77,45 +90,35 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    /**
-     * Execute an agent prompt with the given context.
-     *
-     * @param promptId ID of the AgentPrompt to execute
-     * @param context Execution context with selection info, etc.
-     * @return Flow of AgentEvents showing progress and final result
-     */
     fun execute(promptId: IdType, context: AgentContext): Flow<AgentEvent> = flow {
         emit(AgentEvent.Started)
 
         try {
             val prompt = PromptRepository.promptById(promptId)
             if (prompt == null) {
-                emit(AgentEvent.Error("Prompt not found: $promptId"))
+                emit(AgentEvent.Error(application.getString(R.string.llm_error_prompt_not_found, promptId)))
                 return@flow
             }
 
             val llmConfig = LlmModelConfig.fromPrompt(prompt)
             val adapter = LlmProcessingService.resolveAdapter(llmConfig)
             val messages = buildInitialMessages(prompt, context)
-            val tools = adapter.buildToolsArray(ToolRegistry.getToolDefinitions(includeWriteTools = true))
+            val toolDefs = ToolRegistry.getToolDefinitions(includeWriteTools = true)
 
-            runAgentLoop(messages, tools, adapter, context, llmConfig)
+            runAgentLoop(messages, toolDefs, adapter, context, llmConfig)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
             throw e
         } catch (e: Exception) {
             Log.e(TAG, "Agent execution failed", e)
-            emit(AgentEvent.Error(e.message ?: "Unknown error", e))
+            emit(AgentEvent.Error(e.message ?: application.getString(R.string.llm_error_unknown), e))
         }
     }
 
-    /**
-     * Run the main agent loop until completion or max iterations.
-     */
     private suspend fun FlowCollector<AgentEvent>.runAgentLoop(
-        messages: JSONArray,
-        tools: JSONArray,
+        messages: MutableList<ChatMessage>,
+        tools: List<ToolDefinition>,
         adapter: LlmApiAdapter,
         context: AgentContext,
         llmConfig: LlmModelConfig? = null
@@ -136,7 +139,7 @@ class AgentExecutor(
 
             // Emit per-operation usage
             if (callUsage.totalTokens > 0) {
-                emit(AgentEvent.ApiCallCompleted(callUsage))
+                emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model))
             }
 
             when (parsed) {
@@ -147,17 +150,35 @@ class AgentExecutor(
                         }
                         is ProcessToolsResult.FinishWithDocument -> {
                             Log.d(TAG, "Agent finished with document: ${result.title}")
-                            emit(AgentEvent.CompletedWithDocument(result.title, result.content, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithDocument(
+                                title = result.title,
+                                content = result.content,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model
+                            ))
                             return
                         }
                         is ProcessToolsResult.FinishWithoutDocument -> {
                             Log.d(TAG, "Agent finished without document: ${result.message}")
-                            emit(AgentEvent.CompletedWithoutDocument(result.message, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithoutDocument(
+                                message = result.message,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model
+                            ))
                             return
                         }
                         is ProcessToolsResult.FinishWithStudyPad -> {
                             Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
-                            emit(AgentEvent.CompletedWithStudyPad(result.labelId, result.scrollToEntryId, result.message, iteration, totalUsage))
+                            emit(AgentEvent.CompletedWithStudyPad(
+                                labelId = result.labelId,
+                                scrollToEntryId = result.scrollToEntryId,
+                                message = result.message,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model
+                            ))
                             return
                         }
                     }
@@ -165,51 +186,50 @@ class AgentExecutor(
                 is ParsedResponse.TextResponse -> {
                     Log.d(TAG, "LLM returned final text response without tool call")
                     val normalizedContent = normalizeLlmText(parsed.content)
-                    emit(AgentEvent.TextResponse(normalizedContent, isFinal = true))
-                    emit(AgentEvent.Completed(normalizedContent, iteration, totalUsage))
+                    emit(AgentEvent.TextResponse(
+                        text = normalizedContent,
+                        isFinal = true
+                    ))
+                    emit(AgentEvent.Completed(
+                        response = normalizedContent,
+                        totalIterations = iteration,
+                        usage = totalUsage,
+                        model = resolved.model
+                    ))
                     return
                 }
                 is ParsedResponse.ParseError -> {
-                    emit(AgentEvent.Error("Failed to parse LLM response: ${parsed.error}"))
+                    emit(AgentEvent.Error(application.getString(R.string.llm_parse_error, parsed.error)))
                     return
                 }
             }
         }
 
-        emit(AgentEvent.Error("Maximum iterations ($maxIterations) reached without completion"))
+        emit(AgentEvent.Error(application.getString(R.string.llm_error_max_iterations, maxIterations)))
     }
 
-    /**
-     * Call LLM API and parse the response.
-     *
-     * @return Pair of parsed response and token usage from this call
-     */
     private suspend fun callLlmAndParse(
         adapter: LlmApiAdapter,
-        messages: JSONArray,
-        tools: JSONArray,
+        messages: List<ChatMessage>,
+        tools: List<ToolDefinition>,
         iteration: Int,
         llmConfig: LlmModelConfig? = null,
         extraHeaders: Map<String, String> = emptyMap()
     ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
         val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders)
-        val parsed = adapter.parseResponse(apiResponse.json)
+        val parsed = adapter.parseResponse(apiResponse.responseBody)
         return Pair(parsed, apiResponse.usage)
     }
 
     /**
-     * Process tool calls: execute each tool and add results to messages.
-     * Returns ProcessToolsResult indicating whether to continue or finish without document.
-     *
-     * All tool results are collected first and then added to messages via
-     * [LlmApiAdapter.createToolResultMessages] — this is required because Anthropic
-     * batches all tool results into a single user message.
+     * All tool results are collected first and then added via [LlmApiAdapter.createToolResultMessages]
+     * because Anthropic batches all tool results into a single user message.
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
         adapter: LlmApiAdapter,
         parsed: ParsedResponse.ToolCalls,
-        messages: JSONArray,
+        messages: MutableList<ChatMessage>,
         context: AgentContext
     ): ProcessToolsResult {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
@@ -219,16 +239,20 @@ class AgentExecutor(
             emit(AgentEvent.TextResponse(it, isFinal = false))
         }
 
-        messages.put(adapter.createAssistantToolCallMessage(parsed.toolCalls, parsed.content))
+        messages.add(adapter.createAssistantToolCallMessage(parsed.toolCalls, parsed.content))
 
         // Execute all tools and collect results
-        val toolResults = mutableListOf<Pair<String, String>>()
+        val toolResults = mutableListOf<ToolResultBlock>()
         var finishResult: ProcessToolsResult? = null
 
         for (toolCall in parsed.toolCalls) {
             currentCoroutineContext().ensureActive()
 
-            emit(AgentEvent.ToolCalling(toolCall.id, toolCall.name, toolCall.arguments))
+            emit(AgentEvent.ToolCalling(
+                toolCallId = toolCall.id,
+                tool = toolCall.tool,
+                arguments = toolCall.arguments
+            ))
 
             val execResult = executeTool(toolCall, currentContext)
             val result = execResult.result
@@ -237,174 +261,89 @@ class AgentExecutor(
             if (execResult.grantAllToolsPermission) {
                 currentContext = currentContext.withAllToolsPermissionGranted()
             } else if (execResult.grantSessionPermission ||
-                (result is ToolResult.Success && ToolRegistry.get(toolCall.name)?.requiresPermission == true)) {
+                ((currentContext.promptPermissionMode ?: CommonUtils.settings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
+                 result is ToolResult.Success && ToolRegistry.get(toolCall.tool)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
 
-            emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.name, result))
+            emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.tool, result))
 
-            toolResults.add(toolCall.id to result.toJson())
+            toolResults.add(ToolResultBlock(toolCall.id, result.toJson()))
 
             // Check for finish tools — record the result but continue collecting tool results
-            if (finishResult == null) {
-                if (toolCall.name == SetDocumentTitleTool.name && result is ToolResult.Success) {
-                    val data = result.data as? JSONObject
-                    val title = data?.optString("title") ?: "AI Response"
-                    val content = parsed.content?.takeIf { it.isNotBlank() }
+            if (finishResult == null && result is ToolResult.Success) {
+                when (toolCall.tool) {
+                    AgentTool.SET_DOCUMENT_TITLE -> {
+                        val data = result.data as? SetDocumentTitleTool.Result
+                        val title = data?.title ?: application.getString(R.string.llm_default_document_title)
+                        val content = parsed.content?.takeIf { it.isNotBlank() }
 
-                    if (content == null) {
-                        Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
-                        // Replace last result with error
-                        toolResults[toolResults.lastIndex] = toolCall.id to ToolResult.error(
-                            "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
-                            "MISSING_CONTENT"
-                        ).toJson()
-                        // Don't set finishResult — let the loop continue
-                    } else {
-                        Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
-                        finishResult = ProcessToolsResult.FinishWithDocument(title, normalizeLlmText(content), currentContext)
+                        if (content == null) {
+                            Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
+                            toolResults[toolResults.lastIndex] = ToolResultBlock(
+                                toolCallId = toolCall.id, content = ToolResult.error(
+                                    "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
+                                    "MISSING_CONTENT"
+                                ).toJson()
+                            )
+                        } else {
+                            Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+                            finishResult = ProcessToolsResult.FinishWithDocument(
+                                title = title,
+                                content = normalizeLlmText(content),
+                                context = currentContext
+                            )
+                        }
                     }
-                } else if (toolCall.name == FinishWithoutDocumentTool.name && result is ToolResult.Success) {
-                    val data = result.data as? JSONObject
-                    val message = data?.optString("message") ?: "Task completed"
-                    finishResult = ProcessToolsResult.FinishWithoutDocument(message, currentContext)
-                } else if (toolCall.name == FinishWithStudyPadTool.name && result is ToolResult.Success) {
-                    val data = result.data as? JSONObject
-                    val labelId = IdType(data?.optString("labelId") ?: "")
-                    val scrollToEntryId = data?.optString("scrollToEntryId")?.takeIf { it.isNotBlank() }?.let { IdType(it) }
-                    val message = data?.optString("message") ?: "StudyPad opened"
-                    finishResult = ProcessToolsResult.FinishWithStudyPad(labelId, scrollToEntryId, message, currentContext)
+                    AgentTool.FINISH_WITHOUT_DOCUMENT -> {
+                        val data = result.data as? FinishWithoutDocumentTool.Result
+                        val message = data?.message ?: application.getString(R.string.llm_default_task_completed)
+                        finishResult = ProcessToolsResult.FinishWithoutDocument(
+                            message = message,
+                            context = currentContext
+                        )
+                    }
+                    AgentTool.FINISH_WITH_STUDY_PAD -> {
+                        val data = result.data as? FinishWithStudyPadTool.Result
+                        val labelId = IdType(data?.labelId ?: "")
+                        val scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) }
+                        val message = data?.message ?: application.getString(R.string.llm_default_studypad_opened)
+                        finishResult = ProcessToolsResult.FinishWithStudyPad(
+                            labelId = labelId,
+                            scrollToEntryId = scrollToEntryId,
+                            message = message,
+                            context = currentContext
+                        )
+                    }
+                    else -> { /* Not a finish tool — no special handling */ }
                 }
             }
         }
 
         // Add all tool results to messages
-        for (msg in adapter.createToolResultMessages(toolResults)) {
-            messages.put(msg)
-        }
+        messages.addAll(adapter.createToolResultMessages(toolResults))
 
         return finishResult ?: ProcessToolsResult.Continue(currentContext)
     }
 
-    /**
-     * Build the initial messages for the LLM conversation.
-     */
-    private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): JSONArray {
-        val messages = JSONArray()
-
-        // System message with context and available tools info
+    private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
         val systemPrompt = buildSystemPrompt(prompt, context)
-        messages.put(JSONObject().apply {
-            put("role", "system")
-            put("content", systemPrompt)
-        })
-
-        // User message with the actual request
         val userMessage = buildUserMessage(prompt, context)
-        messages.put(JSONObject().apply {
-            put("role", "user")
-            put("content", userMessage)
-        })
-
-        return messages
+        return mutableListOf(
+            ChatMessage(ChatMessage.Role.SYSTEM, content = systemPrompt),
+            ChatMessage(ChatMessage.Role.USER, content = userMessage)
+        )
     }
 
-    /**
-     * Build the system prompt with context information.
-     */
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
         val appLanguage = Locale.getDefault().displayLanguage
 
         return buildString {
-            append("You are a Bible study assistant integrated with the AndBible application. ")
-            append("You have access to tools that can read Bible content, search, and manage bookmarks and notes.\n\n")
+            val template = application.resources.openRawResource(R.raw.llm_agent_system_prompt)
+                .bufferedReader()
+                .use { it.readText() }
+            append(template.replace("{{APP_LANGUAGE}}", appLanguage))
 
-            append("IMPORTANT: Always respond in $appLanguage (the user's app language).\n\n")
-
-            append("Guidelines:\n")
-            append("- Use tools to gather information when needed\n")
-            append("- Be concise and helpful in your responses\n")
-            append("- If you need to read verse content, use the appropriate tool\n")
-            append("\n")
-
-            append("IMPORTANT - Finishing your response:\n")
-            append("When you are done and want to provide a written response:\n")
-            append("1. Output your complete markdown content as text (NOT as a tool argument)\n")
-            append("2. Call setDocumentTitle tool with a short, plain text title\n")
-            append("\n")
-            append("You MUST call setDocumentTitle to give your document a proper title.\n")
-            append("\n")
-            append("Example - output both text and tool call in the same response:\n")
-            append("```\n")
-            append("# [Rom. 8:28](sword:///Rom.8.28) - God's Promise\n\n")
-            append("This verse teaches about God's sovereignty and providence...\n")
-            append("[...full analysis in markdown...]\n")
-            append("```\n")
-            append("Then call: setDocumentTitle(title: \"Romans 8:28 - God's Promise\")\n")
-            append("\n")
-            append("CRITICAL: The title MUST be plain text — NO markdown, NO links, NO formatting.\n")
-            append("Output the markdown content as text in the SAME response where you call setDocumentTitle.\n")
-            append("Do NOT put content in the tool argument. Do NOT use XML tags or function_call syntax.\n")
-            append("\n")
-
-            append("If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of setDocumentTitle.\n")
-            append("First create/populate the StudyPad using createLabel + addStudyPadEntry tools, then call:\n")
-            append("  finishWithStudyPad(labelId: \"...\", message: \"Created study notes on Romans 8\")\n")
-            append("Optionally scroll to a specific entry:\n")
-            append("  finishWithStudyPad(labelId: \"...\", scrollToEntryId: \"...\", message: \"...\")\n")
-            append("\n")
-
-            // Link formatting instructions
-            append("CRITICAL - Bible Reference Links:\n")
-            append("EVERY Bible reference in your response MUST be a clickable link. NO EXCEPTIONS.\n")
-            append("This applies to ALL references: in headings, inline text, lists, parentheses, everywhere.\n")
-            append("\n")
-            append("Format: [Display Text](sword:///OSIS.Reference) - note three slashes (empty module)\n")
-            append("\n")
-            append("Examples of CORRECT formatting:\n")
-            append("  - \"As [John 3:16](sword:///John.3.16) teaches...\" (inline)\n")
-            append("  - \"See also [Rom. 8:28](sword:///Rom.8.28)\" (reference)\n")
-            append("  - \"([Matt. 5:3-12](sword:///Matt.5.3-12))\" (parenthetical)\n")
-            append("  - \"# [Genesis 1:1](sword:///Gen.1.1) - Creation\" (heading)\n")
-            append("\n")
-            append("WRONG (never do this):\n")
-            append("  - \"John 3:16 teaches...\" (missing link!)\n")
-            append("  - \"See Romans 8:28\" (missing link!)\n")
-            append("\n")
-            append("OSIS book abbreviations: Gen, Exod, Lev, Num, Deut, Josh, Judg, Ruth, 1Sam, 2Sam, 1Kgs, 2Kgs, ")
-            append("1Chr, 2Chr, Ezra, Neh, Esth, Job, Ps, Prov, Eccl, Song, Isa, Jer, Lam, Ezek, Dan, Hos, Joel, ")
-            append("Amos, Obad, Jonah, Mic, Nah, Hab, Zeph, Hag, Zech, Mal, Matt, Mark, Luke, John, Acts, Rom, ")
-            append("1Cor, 2Cor, Gal, Eph, Phil, Col, 1Thess, 2Thess, 1Tim, 2Tim, Titus, Phlm, Heb, Jas, 1Pet, ")
-            append("2Pet, 1John, 2John, 3John, Jude, Rev\n")
-            append("\n")
-            append("Only specify a module (sword://MHC/Matt.5.3) for commentaries or specific documents.\n")
-            append("\n")
-
-            // StudyPad link format
-            append("StudyPad links:\n")
-            append("- [StudyPad Name](journal://?id=LABEL_ID) — links to a StudyPad\n")
-            append("- [Entry](journal://?id=LABEL_ID&entryId=ENTRY_ID) — links to a specific entry in a StudyPad\n")
-            append("\n")
-
-            // Source attribution instructions
-            append("IMPORTANT - Source Attribution:\n")
-            append("When summarizing content from commentaries, dictionaries, or other reference works:\n")
-            append("\n")
-            append("1. ALWAYS cite the source by name when using its content:\n")
-            append("   - \"Matthew Henry's Commentary (MHC) explains...\"\n")
-            append("   - \"According to MHC, this means...\"\n")
-            append("   - \"Strong's Greek Dictionary (StrongsGreek) defines...\"\n")
-            append("\n")
-            append("2. Include clickable links to specific commentary/dictionary entries:\n")
-            append("   - Commentary: [MHC](sword://MHC/Matt.5.3)\n")
-            append("   - Dictionary: [Strong's G2316](sword://StrongsGreek/G2316)\n")
-            append("\n")
-            append("3. When using multiple sources, compare their perspectives and cite each one.\n")
-            append("\n")
-            append("4. End documents with a 'Sources' section listing all used sources with links.\n")
-            append("\n")
-
-            // Add context information
             if (context.activeDocumentInitials != null) {
                 append("Current active document: ${context.activeDocumentInitials}\n")
             }
@@ -417,9 +356,6 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Build the user message with the prompt and selection.
-     */
     private fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
         return buildString {
             // The prompt template
@@ -442,23 +378,20 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Result of tool execution including permission info.
-     */
     private data class ToolExecutionResult(
         val result: ToolResult,
         val grantSessionPermission: Boolean = false,
         val grantAllToolsPermission: Boolean = false
     )
 
-    /**
-     * Execute a single tool call.
-     */
     private suspend fun executeTool(toolCall: ToolCall, context: AgentContext): ToolExecutionResult {
-        val tool = ToolRegistry.get(toolCall.name)
+        val tool = ToolRegistry.get(toolCall.tool)
         if (tool == null) {
-            Log.w(TAG, "Tool not found: ${toolCall.name}")
-            return ToolExecutionResult(ToolResult.error("Tool not found: ${toolCall.name}", "TOOL_NOT_FOUND"))
+            Log.w(TAG, "Tool not found: ${toolCall.tool.camelCaseName}")
+            return ToolExecutionResult(ToolResult.error(
+                message = "Tool not found: ${toolCall.tool.camelCaseName}",
+                code = "TOOL_NOT_FOUND"
+            ))
         }
 
         // Permission check for write tools
@@ -470,32 +403,32 @@ class AgentExecutor(
                 DialogResult.AllowedForSession -> { grantSession = true }
                 DialogResult.AllowedAllForSession -> { grantAllTools = true }
                 DialogResult.Denied -> {
-                    Log.d(TAG, "Permission denied for tool: ${toolCall.name}")
+                    Log.d(TAG, "Permission denied for tool: ${toolCall.tool.camelCaseName}")
                     return ToolExecutionResult(ToolResult.error(
-                        "Permission denied for ${toolCall.name}. User did not allow this operation.",
-                        "PERMISSION_DENIED"
+                        message = "Permission denied for ${toolCall.tool.camelCaseName}. User did not allow this operation.",
+                        code = "PERMISSION_DENIED"
                     ))
                 }
             }
         }
 
         val result = try {
-            Log.d(TAG, "Executing tool: ${toolCall.name} with args: ${toolCall.arguments}")
+            Log.d(TAG, "Executing tool: ${toolCall.tool.camelCaseName} with args: ${toolCall.arguments}")
             val arguments = toolCall.parseArguments()
             tool.execute(arguments, context)
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            Log.e(TAG, "Tool execution failed: ${toolCall.name}", e)
-            ToolResult.error("Tool execution failed: ${e.message}", "EXECUTION_ERROR")
+            Log.e(TAG, "Tool execution failed: ${toolCall.tool.camelCaseName}", e)
+            ToolResult.error(
+                message = "Tool execution failed: ${e.message}",
+                code = "EXECUTION_ERROR"
+            )
         }
 
         return ToolExecutionResult(result, grantSession, grantAllTools)
     }
 
-    /**
-     * Result of dialog-based permission check (extends the pure logic result with session grants).
-     */
     private sealed class DialogResult {
         object Allowed : DialogResult()
         object AllowedForSession : DialogResult()
@@ -503,13 +436,10 @@ class AgentExecutor(
         object Denied : DialogResult()
     }
 
-    /**
-     * Check if write permission should be granted based on current mode and context.
-     * Delegates pure decision logic to [PermissionChecker] and handles dialog when needed.
-     */
+    /** Delegates to [checkPermission] for pure logic, shows dialog when needed. */
     private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
-        return when (PermissionChecker.check(
-            toolName = tool.name,
+        return when (checkPermission(
+            tool = tool.agentTool,
             settings = PermissionSettings(
                 globalMode = CommonUtils.settings.agentPermissionMode,
                 permanentlyAllowedTools = CommonUtils.settings.permanentlyAllowedTools,
@@ -527,18 +457,16 @@ class AgentExecutor(
         }
     }
 
-    /**
-     * Show the permission dialog to the user.
-     *
-     * If user selects "Always allow", shows a confirmation dialog. On confirm,
-     * persists the tool to permanentlyAllowedTools. The operation is allowed
-     * regardless of confirmation result.
-     */
+    /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool): DialogResult {
-        val activity = CurrentActivityHolder.currentActivity
+        var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
-            Log.w(TAG, "No current activity, allowing tool by default")
-            return DialogResult.Allowed
+            Log.d(TAG, "No current activity, waiting for activity to resume...")
+            while (activity == null) {
+                delay(500)
+                activity = CurrentActivityHolder.currentActivity
+            }
+            Log.d(TAG, "Activity resumed, showing permission dialog")
         }
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
         return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description)) {
@@ -549,14 +477,15 @@ class AgentExecutor(
                 // Show confirmation dialog
                 val confirmed = Dialogs.simpleQuestion(
                     activity,
-                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName),
+                    message = activity.getString(R.string.permission_always_allow_confirm, toolDisplayName) +
+                        "\n\n" + activity.getString(R.string.permission_always_allow_confirm_reset_hint),
                     title = activity.getString(R.string.permission_always_allow_confirm_title)
                 )
                 if (confirmed) {
                     val settings = CommonUtils.settings
-                    settings.permanentlyAllowedTools = settings.permanentlyAllowedTools + tool.name
+                    settings.permanentlyAllowedTools += tool.agentTool
                     // Also remove from denied set if present
-                    settings.permanentlyDeniedTools = settings.permanentlyDeniedTools - tool.name
+                    settings.permanentlyDeniedTools -= tool.agentTool
                 }
                 // Allow this operation regardless of confirmation
                 DialogResult.Allowed

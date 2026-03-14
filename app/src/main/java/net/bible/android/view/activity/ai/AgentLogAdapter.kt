@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -20,12 +20,11 @@ package net.bible.android.view.activity.ai
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.AgentLogItemBinding
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.EntryStatus
 import net.bible.service.llm.agent.LogEntryType
@@ -35,22 +34,16 @@ import net.bible.service.llm.agent.LogEntryType
  */
 class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(DiffCallback()) {
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val typeIcon: ImageView = itemView.findViewById(R.id.typeIcon)
-        val messageText: TextView = itemView.findViewById(R.id.messageText)
-        val detailsText: TextView = itemView.findViewById(R.id.detailsText)
-        val costText: TextView = itemView.findViewById(R.id.costText)
-        val statusIcon: ImageView = itemView.findViewById(R.id.statusIcon)
-    }
+    class ViewHolder(val binding: AgentLogItemBinding) : RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.agent_log_item, parent, false)
-        return ViewHolder(view)
+        val binding = AgentLogItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.binding.run {
         val entry = getItem(position)
+        val context = root.context
 
         // Set type icon based on entry type
         val typeIconRes = when (entry.type) {
@@ -59,7 +52,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.PERMISSION_REQUEST -> R.drawable.ic_baseline_security_24
             LogEntryType.ERROR -> R.drawable.ic_baseline_error_24
         }
-        holder.typeIcon.setImageResource(typeIconRes)
+        typeIcon.setImageResource(typeIconRes)
 
         // Set type icon color based on type
         val typeColor = when (entry.type) {
@@ -68,25 +61,25 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.PERMISSION_REQUEST -> R.color.log_permission
             LogEntryType.ERROR -> R.color.log_error
         }
-        holder.typeIcon.setColorFilter(holder.itemView.context.getColor(typeColor))
+        typeIcon.setColorFilter(context.getColor(typeColor))
 
         // Set message
-        holder.messageText.text = entry.message
+        messageText.text = entry.message
 
         // Set details if available
         if (entry.details != null) {
-            holder.detailsText.text = entry.details
-            holder.detailsText.visibility = View.VISIBLE
+            detailsText.text = entry.details
+            detailsText.visibility = View.VISIBLE
         } else {
-            holder.detailsText.visibility = View.GONE
+            detailsText.visibility = View.GONE
         }
 
         // Set cost info if available
         if (entry.costInfo != null) {
-            holder.costText.text = entry.costInfo
-            holder.costText.visibility = View.VISIBLE
+            costText.text = entry.costInfo
+            costText.visibility = View.VISIBLE
         } else {
-            holder.costText.visibility = View.GONE
+            costText.visibility = View.GONE
         }
 
         // Set status icon based on status
@@ -97,10 +90,10 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             EntryStatus.COMPLETED -> R.drawable.ic_baseline_check_circle_24
             EntryStatus.FAILED -> R.drawable.ic_baseline_error_24
         }
-        holder.statusIcon.setImageResource(statusIconRes)
+        statusIcon.setImageResource(statusIconRes)
 
         // Set status icon visibility - only show for non-completed info entries
-        holder.statusIcon.visibility = if (entry.type == LogEntryType.INFO && entry.status == EntryStatus.COMPLETED) {
+        statusIcon.visibility = if (entry.type == LogEntryType.INFO && entry.status == EntryStatus.COMPLETED) {
             View.GONE
         } else {
             View.VISIBLE
@@ -112,7 +105,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             EntryStatus.APPROVED, EntryStatus.COMPLETED -> R.color.status_success
             EntryStatus.DENIED, EntryStatus.FAILED -> R.color.status_error
         }
-        holder.statusIcon.setColorFilter(holder.itemView.context.getColor(statusColor))
+        statusIcon.setColorFilter(context.getColor(statusColor))
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<AgentLogEntry>() {
