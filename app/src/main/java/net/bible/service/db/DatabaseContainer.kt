@@ -291,8 +291,9 @@ class DatabaseContainer {
 
         suspend fun initializeDatabase() {
             withContext(Dispatchers.IO) {
-                DatabaseContainer.instance
+                // copilot pointed out that this is backwards and gemini wanted to refactor it so getInstance() flags ready.  gotta put that as an issue though not address it in this pr
                 DatabaseContainer.ready = true
+                DatabaseContainer.instance
             }
         }
 

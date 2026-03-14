@@ -4,14 +4,12 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.bible.android.BibleApplication
-import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.service.common.CommonUtils
 import net.bible.service.history.KeyHistoryItem
 import org.crosswire.jsword.book.BookCategory
@@ -29,17 +27,16 @@ class GetPassageActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launch {
-            doGetPassage()
+            try {
+                doGetPassage()
+            } finally {
+                finish()
+            }
         }
     }
 
     private suspend fun doGetPassage() {
         try {
-            DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.application.applicationComponent)
-                .build()
-                .inject(this)
-
             if (intent?.action != INTENT_GET_PASSAGE) {
                 throw Exception("Incorrect intent action: ${intent?.action}")
             }
@@ -47,8 +44,8 @@ class GetPassageActivity : ComponentActivity() {
             if (cite.isNullOrBlank()) {
                 throw Exception("No citation provided in $GET_PASSAGE_SEARCH_STRING")
             }
-            Log.i(TAG, "Processing GET_PASSAGE intent for citation: '$cite'")
-            // Offload heavy work to IO thread
+            Log.i(TAG, "Processing GET_PASSAGE intent for citation of length ${cite.length}")
+            
             val quote = withContext(Dispatchers.IO) {
                 // Ensure app is fully initialized (JSword, DB, etc)
                 CommonUtils.initializeAppCoroutine()
@@ -86,11 +83,8 @@ class GetPassageActivity : ComponentActivity() {
             setResult(Activity.RESULT_CANCELED, Intent(INTENT_ERROR_MESSAGE).apply {
                 putExtra("message", msg)
             })
-        } finally {
-            finish()
         }
     }
-
 
     companion object {
         private const val TAG = "GetPassageActivity"

@@ -134,7 +134,7 @@
 
         <activity
             android:name="net.bible.android.activity.GetPassageActivity"
-            android:theme="@android:style/Theme.NoDisplay"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:taskAffinity=""
