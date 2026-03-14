@@ -398,6 +398,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
         navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+        navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -441,6 +442,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             override fun onDrawerOpened(drawerView: View) {
                 navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+                navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
             }
 
             override fun onDrawerClosed(drawerView: View) {
