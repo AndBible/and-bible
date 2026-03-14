@@ -78,10 +78,17 @@ class KeyHistoryItem(
         return try {
             when {
                 // Same chapter: show "Matt 5:1–48"
+                // Special case: if start verse is 0 (intro/title), use full end description
+                // to avoid ambiguous output like "Genesis 1–10"
                 endVerse.book == startKey.book &&
                 endVerse.chapter == startKey.chapter &&
                 endVerse.verse > startKey.verse -> {
-                    "$startDesc–${endVerse.verse}"
+                    if (startKey.verse == 0) {
+                        val endDesc = CommonUtils.getKeyDescription(endVerse)
+                        "$startDesc–$endDesc"
+                    } else {
+                        "$startDesc–${endVerse.verse}"
+                    }
                 }
                 // Different chapter or book: show "Matt 5:1–6:2"
                 endVerse.ordinal > startKey.ordinal -> {

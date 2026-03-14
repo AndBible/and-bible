@@ -97,9 +97,10 @@ class KeyHistoryItemTest {
 
     @Test
     fun testSameChapterRangeFormat() {
-        // Test same chapter range: "Matt 5:1–48"
+        // Test same chapter range format
         val startVerse = Verse(kjvV11n, BibleBook.MATT, 5, 1)
         val endVerse = Verse(kjvV11n, BibleBook.MATT, 5, 48)
+        val expectedStartDesc = CommonUtils.getKeyDescription(startVerse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -111,15 +112,17 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain the range format with en-dash
-        assertThat(description, containsString("Matt 5:1"))
-        assertThat(description, containsString("–48"))
+        assertThat(description, containsString(expectedStartDesc))
+        assertThat(description, containsString("–${endVerse.verse}"))
     }
 
     @Test
     fun testCrossChapterRangeFormat() {
-        // Test cross-chapter range: "Matt 5:1–6:2"
+        // Test cross-chapter range format
         val startVerse = Verse(kjvV11n, BibleBook.MATT, 5, 1)
         val endVerse = Verse(kjvV11n, BibleBook.MATT, 6, 2)
+        val expectedStartDesc = CommonUtils.getKeyDescription(startVerse)
+        val expectedEndDesc = CommonUtils.getKeyDescription(endVerse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -131,9 +134,9 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain both chapter references
-        assertThat(description, containsString("Matt 5:1"))
+        assertThat(description, containsString(expectedStartDesc))
         assertThat(description, containsString("–"))
-        assertThat(description, containsString("6:2"))
+        assertThat(description, containsString(expectedEndDesc))
     }
 
     @Test
@@ -141,6 +144,8 @@ class KeyHistoryItemTest {
         // Test cross-book range
         val startVerse = Verse(kjvV11n, BibleBook.MATT, 28, 20)
         val endVerse = Verse(kjvV11n, BibleBook.MARK, 1, 5)
+        val expectedStartDesc = CommonUtils.getKeyDescription(startVerse)
+        val expectedEndDesc = CommonUtils.getKeyDescription(endVerse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -152,15 +157,16 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain both book references
-        assertThat(description, containsString("Matt"))
+        assertThat(description, containsString(expectedStartDesc))
         assertThat(description, containsString("–"))
-        assertThat(description, containsString("Mark"))
+        assertThat(description, containsString(expectedEndDesc))
     }
 
     @Test
     fun testNoRangeWhenEndKeyMissing() {
         // Test fallback to single verse when endKey is null
         val startVerse = Verse(kjvV11n, BibleBook.MATT, 5, 1)
+        val expectedStartDesc = CommonUtils.getKeyDescription(startVerse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -172,7 +178,7 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain start verse but no range indicator
-        assertThat(description, containsString("Matt 5:1"))
+        assertThat(description, containsString(expectedStartDesc))
         assertThat(description, not(containsString("–")))
     }
 
@@ -180,6 +186,7 @@ class KeyHistoryItemTest {
     fun testNoRangeWhenEndKeyEqualsStartKey() {
         // Test fallback to single verse when endKey equals startKey
         val verse = Verse(kjvV11n, BibleBook.MATT, 5, 1)
+        val expectedDesc = CommonUtils.getKeyDescription(verse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -191,7 +198,7 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain start verse but no range
-        assertThat(description, containsString("Matt 5:1"))
+        assertThat(description, containsString(expectedDesc))
         assertThat(description, not(containsString("–")))
     }
 
@@ -200,6 +207,7 @@ class KeyHistoryItemTest {
         // Test fallback to single verse when endKey is before startKey
         val startVerse = Verse(kjvV11n, BibleBook.MATT, 5, 10)
         val endVerse = Verse(kjvV11n, BibleBook.MATT, 5, 5)
+        val expectedStartDesc = CommonUtils.getKeyDescription(startVerse)
 
         val historyItem = KeyHistoryItem(
             document = ESV,
@@ -211,7 +219,7 @@ class KeyHistoryItemTest {
 
         val description = historyItem.description
         // Should contain start verse but no range (end is before start)
-        assertThat(description, containsString("Matt 5:10"))
+        assertThat(description, containsString(expectedStartDesc))
         assertThat(description, not(containsString("–")))
     }
 

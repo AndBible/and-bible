@@ -261,11 +261,12 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 val existing = stack.peek() as KeyHistoryItem
                 val newEndKey = item.endKey
                 if (newEndKey != null && newEndKey != existing.endKey) {
-                    // Create updated item preserving the original timestamp
+                    // Create updated item preserving the original timestamp but using
+                    // the latest anchorOrdinal from the new item for accurate scroll position
                     val updatedItem = KeyHistoryItem(
                         document = existing.document,
                         key = existing.key,
-                        anchorOrdinal = existing.anchorOrdinal,
+                        anchorOrdinal = item.anchorOrdinal,
                         window = existing.window,
                         createdAt = existing.createdAt,
                         endKey = newEndKey
