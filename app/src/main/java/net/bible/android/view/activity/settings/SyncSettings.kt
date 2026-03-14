@@ -120,7 +120,13 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             isVisible = false
         }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_workspaces")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run {
+            if (!CommonUtils.settings.myDocumentsEnabled) {
+                isVisible = false
+            } else {
+                setupDrivePref(this)
+            }
+        }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run {
             if (!CommonUtils.settings.aiTextProcessingEnabled) {
                 isVisible = false
