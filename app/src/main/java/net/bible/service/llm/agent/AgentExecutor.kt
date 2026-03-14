@@ -436,9 +436,9 @@ class AgentExecutor(
         object Denied : DialogResult()
     }
 
-    /** Delegates to [PermissionChecker] for pure logic, shows dialog when needed. */
+    /** Delegates to [checkPermission] for pure logic, shows dialog when needed. */
     private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
-        return when (PermissionChecker.check(
+        return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
                 globalMode = CommonUtils.settings.agentPermissionMode,
