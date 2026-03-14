@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.jsonPrimitive
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import org.junit.Assert.assertEquals
@@ -83,7 +84,7 @@ class ToolRegistryTest {
         // Check definition structure
         val def = defs.first { it.name == "getVerseContent" }
         assertTrue(def.description.isNotBlank())
-        assertTrue(def.parametersSchema.has("type"))
+        assertTrue(def.parametersSchema.containsKey("type"))
     }
 
     @Test
@@ -103,7 +104,7 @@ class ToolRegistryTest {
         val permTools = ToolRegistry.getPermissionTools()
         assertTrue(permTools.isNotEmpty())
         for (tool in permTools) {
-            assertTrue("${tool.name} should require permission", tool.requiresPermission)
+            assertTrue("${tool.agentTool.camelCaseName} should require permission", tool.requiresPermission)
         }
         // setDocumentTitle and finishWithoutDocument are write tools but not in permissionTools
         // Actually all write tools have requiresPermission = false for finish tools?
@@ -114,7 +115,7 @@ class ToolRegistryTest {
         )
         for (name in writeToolsWithPermission) {
             assertTrue("$name should be in permission tools",
-                permTools.any { it.name == name })
+                permTools.any { it.agentTool.camelCaseName == name })
         }
     }
 
@@ -138,9 +139,9 @@ class ToolRegistryTest {
         val defs = ToolRegistry.getToolDefinitions()
         for (def in defs) {
             assertEquals("${def.name} schema should have type 'object'",
-                "object", def.parametersSchema.getString("type"))
+                "object", def.parametersSchema["type"]?.jsonPrimitive?.content)
             assertTrue("${def.name} schema should have 'properties'",
-                def.parametersSchema.has("properties"))
+                def.parametersSchema.containsKey("properties"))
         }
     }
 }

@@ -1397,6 +1397,16 @@
     <string name="llm_custom_model_dialog_title">Custom model</string>
     <string name="llm_custom_model_dialog_message">Enter the model ID</string>
     <string name="llm_rate_limited_retrying">Rate limited. Retrying in %1$ss\u2026</string>
+    <string name="llm_default_document_title">AI Response</string>
+    <string name="llm_default_task_completed">Task completed</string>
+    <string name="llm_default_studypad_opened">StudyPad opened</string>
+    <string name="llm_parse_error">Failed to parse LLM response: %1$s</string>
+    <string name="llm_parse_error_no_choices">No choices in OpenAI response</string>
+    <string name="llm_parse_error_openai">Failed to parse OpenAI response: %1$s</string>
+    <string name="llm_parse_error_anthropic">Failed to parse Anthropic response: %1$s</string>
+    <string name="llm_error_prompt_not_found">Prompt not found: %1$s</string>
+    <string name="llm_error_unknown">Unknown error</string>
+    <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>

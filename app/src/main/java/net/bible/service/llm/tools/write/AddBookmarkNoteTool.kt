@@ -21,12 +21,15 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -35,7 +38,13 @@ import org.json.JSONObject
  * If the bookmark already has a note, this will fail - use updateBookmarkNote instead.
  */
 object AddBookmarkNoteTool : Tool {
-    override val name = "addBookmarkNote"
+    @Serializable
+    data class Args(
+        val bookmarkId: IdType = IdType.empty(),
+        val note: String = "",
+        val contentType: TextContentType = TextContentType.MARKDOWN)
+
+    override val agentTool = AgentTool.ADD_BOOKMARK_NOTE
 
     override val description = """
         Add a note to an existing bookmark that doesn't have a note yet.
@@ -70,11 +79,14 @@ object AddBookmarkNoteTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val bookmarkIdStr = arguments.optString("bookmarkId", "")
-        val note = normalizeLlmText(arguments.optString("note", ""))
-        val contentTypeStr = arguments.optString("contentType", "MARKDOWN")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val note = normalizeLlmText(args.note)
 
-        if (bookmarkIdStr.isBlank()) {
+        if (args.bookmarkId.isEmpty) {
             return ToolResult.error("Missing required parameter: bookmarkId")
         }
         if (note.isBlank()) {
@@ -82,11 +94,9 @@ object AddBookmarkNoteTool : Tool {
         }
 
         return try {
-            val bookmarkId = IdType.fromString(bookmarkIdStr)
-
             // Check if bookmark exists
-            val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId)
-                ?: return ToolResult.error("Bookmark not found: $bookmarkIdStr", "BOOKMARK_NOT_FOUND")
+            val bookmark = bookmarkControl.bibleBookmarkById(args.bookmarkId)
+                ?: return ToolResult.error("Bookmark not found: ${args.bookmarkId}", "BOOKMARK_NOT_FOUND")
 
             // Check if note already exists
             if (bookmark.notes != null) {
@@ -96,24 +106,18 @@ object AddBookmarkNoteTool : Tool {
                 )
             }
 
-            val contentType = try {
-                TextContentType.valueOf(contentTypeStr)
-            } catch (e: IllegalArgumentException) {
-                TextContentType.MARKDOWN
-            }
-
             // Set note fields directly on bookmark (noteEntity is computed from these)
             bookmark.notes = note
-            bookmark.notesContentType = contentType
+            bookmark.notesContentType = args.contentType
             bookmark.notesSourcePromptId = context.promptId
 
             // Save using BookmarkControl (sends UI events)
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
 
             ToolResult.success {
-                put("bookmarkId", bookmarkIdStr)
+                put("bookmarkId", args.bookmarkId.toString())
                 put("noteLength", note.length)
-                put("contentType", contentType.name)
+                put("contentType", args.contentType.name)
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to add note: ${e.message}", "ADD_ERROR")

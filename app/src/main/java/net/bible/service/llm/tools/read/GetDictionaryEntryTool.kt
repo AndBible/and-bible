@@ -21,10 +21,13 @@ import net.bible.android.BibleApplication
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -38,7 +41,13 @@ import org.json.JSONObject
  * Returns OSIS XML content from a dictionary.
  */
 object GetDictionaryEntryTool : Tool {
-    override val name = "getDictionaryEntry"
+    @Serializable
+    data class Args(
+        val dictionary: String = "",
+        val key: String = ""
+    )
+
+    override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
     override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """
@@ -79,8 +88,13 @@ object GetDictionaryEntryTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val dictionaryInitials = arguments.optString("dictionary", "")
-        val key = arguments.optString("key", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val dictionaryInitials = args.dictionary
+        val key = args.key
 
         if (dictionaryInitials.isBlank()) {
             return ToolResult.error("Missing required parameter: dictionary")

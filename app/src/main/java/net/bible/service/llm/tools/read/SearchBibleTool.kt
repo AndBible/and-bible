@@ -20,10 +20,13 @@ package net.bible.service.llm.tools.read
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -37,7 +40,15 @@ import org.json.JSONObject
  * Uses the Lucene index to search for words or phrases.
  */
 object SearchBibleTool : Tool {
-    override val name = "searchBible"
+    @Serializable
+    data class Args(
+        val query: String = "",
+        val books: List<String> = emptyList(),
+        val maxResults: Int = 50,
+        val offset: Int = 0,
+    )
+
+    override val agentTool = AgentTool.SEARCH_BIBLE
     override val displayNameResId = R.string.tool_search_bible
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
@@ -96,19 +107,21 @@ object SearchBibleTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val query = arguments.optString("query", "")
-        val booksArray = arguments.optJSONArray("books")
-        val maxResults = arguments.optInt("maxResults", 50).coerceIn(1, 500)
-        val offset = arguments.optInt("offset", 0).coerceAtLeast(0)
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val query = args.query
+        val maxResults = args.maxResults.coerceIn(1, 500)
+        val offset = args.offset.coerceAtLeast(0)
 
         if (query.isBlank()) {
             return ToolResult.error("Missing required parameter: query")
         }
 
         // Get books to search
-        val bookInitials = if (booksArray != null && booksArray.length() > 0) {
-            (0 until booksArray.length()).map { booksArray.getString(it) }
-        } else {
+        val bookInitials = args.books.ifEmpty {
             // Find first indexed Bible
             val indexedBible = Books.installed().books
                 .filterIsInstance<SwordBook>()

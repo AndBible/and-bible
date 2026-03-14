@@ -58,11 +58,14 @@ enum class AgentTool {
     FINISH_WITH_STUDY_PAD,
     FINISH_WITHOUT_DOCUMENT;
 
+    /** camelCase name used in LLM function calling (e.g. GET_VERSE_CONTENT -> "getVerseContent") */
+    val camelCaseName: String by lazy {
+        name.lowercase().replace(Regex("_([a-z])")) { m -> m.groupValues[1].uppercase() }
+    }
+
     companion object {
         private val byToolName: Map<String, AgentTool> by lazy {
-            entries.associateBy {
-                it.name.lowercase().replace(Regex("_([a-z])")) { m -> m.groupValues[1].uppercase() }
-            }
+            entries.associateBy { it.camelCaseName }
         }
 
         fun fromToolName(name: String): AgentTool? = byToolName[name]

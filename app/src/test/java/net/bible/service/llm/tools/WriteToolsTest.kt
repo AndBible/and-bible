@@ -367,7 +367,7 @@ class WriteToolsTest {
         }
         val result = FinishWithStudyPadTool.execute(args, context)
         assertTrue(result is ToolResult.Error)
-        assertEquals("INVALID_LABEL_ID", (result as ToolResult.Error).code)
+        assertEquals("INVALID_ARGS", (result as ToolResult.Error).code)
     }
 
     @Test

@@ -18,11 +18,14 @@
 package net.bible.service.llm.tools.write
 
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.stripMarkdownFromTitle
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -33,7 +36,16 @@ import org.json.JSONObject
  * while the content can include rich formatting with links.
  */
 object SetDocumentTitleTool : Tool {
-    override val name = "setDocumentTitle"
+    @Serializable
+    data class Args(val title: String = "")
+
+    @Serializable
+    data class Result(
+        val finished: Boolean,
+        val title: String
+    )
+
+    override val agentTool = AgentTool.SET_DOCUMENT_TITLE
     override val displayNameResId = R.string.tool_set_document_title
 
     override val description = """
@@ -71,7 +83,12 @@ object SetDocumentTitleTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val title = stripMarkdownFromTitle(arguments.optString("title", "")).take(80)
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val title = stripMarkdownFromTitle(args.title).take(80)
 
         if (title.isBlank()) {
             return ToolResult.error("Title is required", "MISSING_TITLE")

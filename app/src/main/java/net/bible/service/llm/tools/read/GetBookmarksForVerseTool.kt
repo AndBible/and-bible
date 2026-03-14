@@ -20,11 +20,14 @@ package net.bible.service.llm.tools.read
 import net.bible.android.activity.R
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
@@ -37,7 +40,10 @@ import org.json.JSONObject
  * Returns bookmark information including notes and labels.
  */
 object GetBookmarksForVerseTool : Tool {
-    override val name = "getBookmarksForVerse"
+    @Serializable
+    data class Args(val verseRef: String = "")
+
+    override val agentTool = AgentTool.GET_BOOKMARKS_FOR_VERSE
     override val displayNameResId = R.string.tool_get_bookmarks_for_verse
 
     override val description = """
@@ -70,7 +76,12 @@ object GetBookmarksForVerseTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val verseRef = arguments.optString("verseRef", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val verseRef = args.verseRef
 
         if (verseRef.isBlank()) {
             return ToolResult.error("Missing required parameter: verseRef")

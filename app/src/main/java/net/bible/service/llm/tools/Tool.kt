@@ -17,11 +17,18 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.JsonObject
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.llmJson
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.json.JSONArray
 import org.json.JSONObject
+
+/** Decode tool arguments from JSONObject to a typed @Serializable data class. */
+inline fun <reified T> JSONObject.decodeArgs(): T =
+    llmJson.decodeFromString<T>(this.toString())
 
 /**
  * Interface for agent tools that can be called by the LLM.
@@ -30,11 +37,8 @@ import org.json.JSONObject
  * such as reading verse content, searching, or creating bookmarks.
  */
 interface Tool {
-    /**
-     * Unique name of the tool, used in OpenAI function calling.
-     * Should be camelCase, e.g., "getVerseContent", "searchBible".
-     */
-    val name: String
+    /** The AgentTool enum value identifying this tool. */
+    val agentTool: AgentTool
 
     /**
      * Description of what this tool does, shown to the LLM.
@@ -58,7 +62,7 @@ interface Tool {
      * }
      * ```
      */
-    val parametersSchema: JSONObject
+    val parametersSchema: JsonObject
 
     /**
      * Whether this tool requires user permission before execution.

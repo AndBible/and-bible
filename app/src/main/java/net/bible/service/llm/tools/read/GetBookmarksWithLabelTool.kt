@@ -20,11 +20,14 @@ package net.bible.service.llm.tools.read
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -34,7 +37,14 @@ import org.json.JSONObject
  * Useful for retrieving the contents of a StudyPad or all bookmarks in a category.
  */
 object GetBookmarksWithLabelTool : Tool {
-    override val name = "getBookmarksWithLabel"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val maxResults: Int = 100,
+        val fields: List<String>? = null,
+    )
+
+    override val agentTool = AgentTool.GET_BOOKMARKS_WITH_LABEL
     override val displayNameResId = R.string.tool_get_bookmarks_with_label
 
     override val description = """
@@ -78,23 +88,25 @@ object GetBookmarksWithLabelTool : Tool {
     private val defaultFields = setOf("verseRange", "verseName", "createdAt")
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelIdStr = arguments.optString("labelId", "")
-        val maxResults = arguments.optInt("maxResults", 100)
-        val fieldsArray = arguments.optJSONArray("fields")
-        val fields = if (fieldsArray != null && fieldsArray.length() > 0) {
-            (0 until fieldsArray.length()).map { fieldsArray.getString(it) }.toSet()
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val maxResults = args.maxResults
+        val fields = if (!args.fields.isNullOrEmpty()) {
+            args.fields.toSet()
         } else {
             defaultFields
         }
 
-        if (labelIdStr.isBlank()) {
+        if (args.labelId.isEmpty) {
             return ToolResult.error("Missing required parameter: labelId")
         }
 
         return try {
-            val labelId = IdType.fromString(labelIdStr)
-            val label = dao.labelById(labelId)
-                ?: return ToolResult.error("Label not found: $labelIdStr", "LABEL_NOT_FOUND")
+            val label = dao.labelById(args.labelId)
+                ?: return ToolResult.error("Label not found: ${args.labelId}", "LABEL_NOT_FOUND")
 
             // Get Bible bookmarks with this label
             val bibleBookmarks = dao.bookmarksWithLabel(label)
@@ -131,7 +143,7 @@ object GetBookmarksWithLabelTool : Tool {
             }
 
             ToolResult.success {
-                put("labelId", labelIdStr)
+                put("labelId", args.labelId.toString())
                 put("labelName", label.name)
                 put("bookmarkCount", results.length())
                 put("bookmarks", results)

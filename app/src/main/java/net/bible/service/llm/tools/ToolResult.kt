@@ -18,12 +18,18 @@
 package net.bible.service.llm.tools
 
 import android.util.Log
+import net.bible.service.llm.llmJson
 import org.json.JSONArray
 import org.json.JSONObject
 
 /**
  * Result of a tool execution.
  */
+/** Decode the success data to a typed @Serializable class. */
+inline fun <reified T> ToolResult.Success.decodeData(): T? = try {
+    (data as? JSONObject)?.toString()?.let { llmJson.decodeFromString<T>(it) }
+} catch (_: Exception) { null }
+
 sealed class ToolResult {
     /**
      * Successful tool execution with result data.

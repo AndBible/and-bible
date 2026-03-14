@@ -27,6 +27,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.tools.ToolDefinition
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.MediaType.Companion.toMediaType
@@ -34,8 +35,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import okhttp3.Response
-import org.json.JSONArray
-import org.json.JSONObject
+
 import java.io.IOException
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -51,7 +51,10 @@ private const val WRITE_TIMEOUT_SECONDS = 120L
 private const val LLM_TEMPERATURE = 0.3
 
 /** Wrapper for LLM API response with usage information */
-data class LlmApiResponse(val json: JSONObject, val usage: LlmUsage)
+data class LlmApiResponse(
+    val responseBody: String,
+    val usage: LlmUsage
+)
 
 /** Exception thrown when LLM processing fails */
 class LlmProcessingError(message: String) : Exception(message)
@@ -143,8 +146,12 @@ object LlmProcessingService {
 
     /** Result of a single HTTP call to the LLM API. */
     private sealed class HttpCallResult {
-        data class Success(val bodyJson: JSONObject) : HttpCallResult()
-        data class Error(val code: Int, val bodyText: String, val retryAfterSeconds: Double?) : HttpCallResult()
+        data class Success(val body: String) : HttpCallResult()
+        data class Error(
+            val code: Int,
+            val bodyText: String,
+            val retryAfterSeconds: Double?
+        ) : HttpCallResult()
     }
 
     /**
@@ -178,11 +185,10 @@ object LlmProcessingService {
                         try {
                             val responseBody = resp.body?.string()
                                 ?: throw LlmProcessingError("Empty response body")
-                            val json = JSONObject(responseBody)
                             Log.d(TAG, "LLM API response received")
-                            continuation.resume(HttpCallResult.Success(json))
+                            continuation.resume(HttpCallResult.Success(responseBody))
                         } catch (e: Exception) {
-                            Log.e(TAG, "Failed to parse LLM response: ${e.message}")
+                            Log.e(TAG, "Failed to read LLM response: ${e.message}")
                             continuation.resumeWithException(e)
                         }
                     }
@@ -200,12 +206,12 @@ object LlmProcessingService {
      * exponential backoff, respecting the Retry-After header when present.
      *
      * @param messages The conversation messages (system, user, assistant, tool)
-     * @param tools The tools array in provider-specific format
+     * @param toolDefs Tool definitions to include in the request
      * @param llmConfig Optional per-prompt provider+model override
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
-     * @return LlmApiResponse containing the raw JSON and extracted token usage
+     * @return LlmApiResponse containing the response body string and extracted token usage
      */
-    suspend fun callLlmApiWithTools(messages: JSONArray, tools: JSONArray, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap()): LlmApiResponse {
+    suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap()): LlmApiResponse {
         val resolved = resolveFromConfig(llmConfig)
 
         if (resolved.apiKey.isBlank()) {
@@ -216,13 +222,11 @@ object LlmProcessingService {
         val effectiveModel = resolved.model
         val endpoint = adapter.buildEndpointUrl(resolved.endpoint)
 
-        val requestBody = adapter.buildRequestBody(effectiveModel, messages, tools, LLM_TEMPERATURE)
-
-        val bodyString = requestBody.toString()
-        val systemLen = messages.optJSONObject(0)?.optString("content")?.length ?: 0
-        val userLen = messages.optJSONObject(1)?.optString("content")?.length ?: 0
+        val bodyString = adapter.buildRequestBody(effectiveModel, messages, toolDefs, LLM_TEMPERATURE)
+        val systemLen = messages.firstOrNull { it.role == ChatMessage.Role.SYSTEM }?.content?.length ?: 0
+        val userLen = messages.firstOrNull { it.role == ChatMessage.Role.USER }?.content?.length ?: 0
         val safeEndpoint = endpoint.substringBefore('?')
-        Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${tools.length()}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
+        Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${toolDefs.size}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
 
         val headers = adapter.buildHeaders(resolved.apiKey, extraHeaders)
         val request = Request.Builder()
@@ -253,11 +257,11 @@ object LlmProcessingService {
 
                 when (val result = executeHttpCall(request)) {
                     is HttpCallResult.Success -> {
-                        val usage = adapter.extractUsage(result.bodyJson)
+                        val usage = adapter.extractUsage(result.body)
                         if (usage.totalTokens > 0) {
                             LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig.id)
                         }
-                        return LlmApiResponse(result.bodyJson, usage)
+                        return LlmApiResponse(result.body, usage)
                     }
                     is HttpCallResult.Error -> {
                         if (LlmRetryPolicy.isRetryable(result.code) && attempt < LlmRetryPolicy.MAX_RETRIES) {

@@ -77,8 +77,7 @@ class PromptToolPermissionsActivity : ActivityBase() {
 
             itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
-            val agentTool = AgentTool.fromToolName(tool.name)
-            when (agentTool) {
+            when (tool.agentTool) {
                 in allowedTools -> itemBinding.permissionRadioGroup.check(R.id.radioAllow)
                 in deniedTools -> itemBinding.permissionRadioGroup.check(R.id.radioDeny)
                 else -> itemBinding.permissionRadioGroup.check(R.id.radioAsk)
@@ -91,11 +90,11 @@ class PromptToolPermissionsActivity : ActivityBase() {
 
     private fun collectAllowed(): Set<AgentTool> =
         toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioAllow }
-            .mapNotNull { AgentTool.fromToolName(it.tool.name) }.toSet()
+            .map { it.tool.agentTool }.toSet()
 
     private fun collectDenied(): Set<AgentTool> =
         toolRows.filter { it.radioGroup.checkedRadioButtonId == R.id.radioDeny }
-            .mapNotNull { AgentTool.fromToolName(it.tool.name) }.toSet()
+            .map { it.tool.agentTool }.toSet()
 
     private fun isDirty(): Boolean =
         collectAllowed() != initialAllowed || collectDenied() != initialDenied

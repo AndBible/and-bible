@@ -17,42 +17,39 @@
 
 package net.bible.service.llm.tools
 
-import org.json.JSONArray
-import org.json.JSONObject
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import org.yaml.snakeyaml.Yaml
 
 /**
- * Convert YAML string to JSONObject.
+ * Convert YAML string to kotlinx.serialization JsonObject.
  * Useful for defining tool parameter schemas in a more readable format.
  */
-fun yamlToJson(yaml: String): JSONObject {
+fun yamlToJson(yaml: String): JsonObject {
     val yamlParser = Yaml()
     val map: Map<String, Any> = yamlParser.load(yaml)
     return mapToJsonObject(map)
 }
 
-private fun mapToJsonObject(map: Map<String, Any?>): JSONObject {
-    val json = JSONObject()
-    for ((key, value) in map) {
-        json.put(key, convertValue(value))
-    }
-    return json
+private fun mapToJsonObject(map: Map<String, Any?>): JsonObject {
+    val entries = map.entries.associate { (key, value) -> key to convertValue(value) }
+    return JsonObject(entries)
 }
 
-private fun convertValue(value: Any?): Any? {
+private fun convertValue(value: Any?): JsonElement {
     return when (value) {
-        null -> JSONObject.NULL
+        null -> JsonNull
         is Map<*, *> -> {
             val stringMap = value.entries.associate { (k, v) -> k.toString() to v }
             mapToJsonObject(stringMap)
         }
-        is List<*> -> {
-            val array = JSONArray()
-            for (item in value) {
-                array.put(convertValue(item))
-            }
-            array
-        }
-        else -> value
+        is List<*> -> JsonArray(value.map { convertValue(it) })
+        is String -> JsonPrimitive(value)
+        is Number -> JsonPrimitive(value)
+        is Boolean -> JsonPrimitive(value)
+        else -> JsonPrimitive(value.toString())
     }
 }

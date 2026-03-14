@@ -17,14 +17,18 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -35,7 +39,22 @@ import org.json.JSONObject
  * via createLabel + addStudyPadEntry tools earlier in the session).
  */
 object FinishWithStudyPadTool : Tool {
-    override val name = "finishWithStudyPad"
+    @Serializable
+    data class Args(
+        val labelId: IdType = IdType.empty(),
+        val scrollToEntryId: IdType = IdType.empty(),
+        val message: String = ""
+    )
+
+    @Serializable
+    data class Result(
+        val finished: Boolean,
+        val labelId: String,
+        val scrollToEntryId: String? = null,
+        val message: String
+    )
+
+    override val agentTool = AgentTool.FINISH_WITH_STUDY_PAD
     override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """
@@ -70,29 +89,32 @@ object FinishWithStudyPadTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val labelId = arguments.optString("labelId", "")
-        val scrollToEntryId = arguments.optString("scrollToEntryId", "").takeIf { it.isNotBlank() }
-        val message = arguments.optString("message", "StudyPad opened")
-
-        if (labelId.isBlank()) {
-            return ToolResult.error("labelId is required", "MISSING_LABEL_ID")
-        }
-
-        val labelIdType = try {
-            IdType.fromString(labelId)
+        val args = try {
+            arguments.decodeArgs<Args>()
         } catch (e: Exception) {
-            return ToolResult.error("Invalid labelId format: $labelId", "INVALID_LABEL_ID")
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val message = args.message.ifBlank { BibleApplication.application.getString(R.string.llm_default_studypad_opened) }
+
+        if (args.labelId.isEmpty) {
+            return ToolResult.error(
+                message = "labelId is required",
+                code = "MISSING_LABEL_ID"
+            )
         }
 
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        dao.labelById(labelIdType)
-            ?: return ToolResult.error("StudyPad not found: $labelId", "LABEL_NOT_FOUND")
+        dao.labelById(args.labelId)
+            ?: return ToolResult.error(
+                message = "StudyPad not found: ${args.labelId}",
+                code = "LABEL_NOT_FOUND"
+            )
 
         return ToolResult.success {
             put("finished", true)
-            put("labelId", labelId)
-            if (scrollToEntryId != null) {
-                put("scrollToEntryId", scrollToEntryId)
+            put("labelId", args.labelId.toString())
+            if (!args.scrollToEntryId.isEmpty) {
+                put("scrollToEntryId", args.scrollToEntryId.toString())
             }
             put("message", message)
         }

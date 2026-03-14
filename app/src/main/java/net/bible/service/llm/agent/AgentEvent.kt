@@ -18,6 +18,7 @@
 package net.bible.service.llm.agent
 
 import net.bible.android.database.IdType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolResult
 
@@ -28,13 +29,13 @@ sealed class AgentEvent {
 
     data class ToolCalling(
         val toolCallId: String,
-        val toolName: String,
+        val tool: AgentTool,
         val arguments: String
     ) : AgentEvent()
 
     data class ToolCompleted(
         val toolCallId: String,
-        val toolName: String,
+        val tool: AgentTool,
         val result: ToolResult
     ) : AgentEvent()
 

@@ -18,11 +18,14 @@
 package net.bible.service.llm.tools.read
 
 import net.bible.android.activity.R
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -39,7 +42,13 @@ import org.json.JSONObject
  * Returns commentary content from all installed commentaries.
  */
 object GetCommentariesTool : Tool {
-    override val name = "getCommentaries"
+    @Serializable
+    data class Args(
+        val verseRef: String = "",
+        val commentaries: List<String>? = null
+    )
+
+    override val agentTool = AgentTool.GET_COMMENTARIES
     override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """
@@ -78,17 +87,20 @@ object GetCommentariesTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val verseRef = arguments.optString("verseRef", "")
-        val commentariesArray = arguments.optJSONArray("commentaries")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
+        val verseRef = args.verseRef
 
         if (verseRef.isBlank()) {
             return ToolResult.error("Missing required parameter: verseRef")
         }
 
         // Get commentaries to query
-        val commentaries = if (commentariesArray != null && commentariesArray.length() > 0) {
-            (0 until commentariesArray.length()).mapNotNull { idx ->
-                val initials = commentariesArray.getString(idx)
+        val commentaries = if (!args.commentaries.isNullOrEmpty()) {
+            args.commentaries.mapNotNull { initials ->
                 SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook
             }
         } else {

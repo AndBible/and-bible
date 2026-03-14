@@ -20,11 +20,14 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
 import net.bible.service.llm.tools.yamlToJson
+import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
@@ -33,7 +36,13 @@ import org.json.JSONObject
  * Associates a bookmark with a label (category/StudyPad).
  */
 object AddLabelToBookmarkTool : Tool {
-    override val name = "addLabelToBookmark"
+    @Serializable
+    data class Args(
+        val bookmarkId: IdType = IdType.empty(),
+        val labelId: IdType = IdType.empty()
+    )
+
+    override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
 
     override val description = """
         Add a label to an existing bookmark.
@@ -65,42 +74,42 @@ object AddLabelToBookmarkTool : Tool {
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
-        val bookmarkIdStr = arguments.optString("bookmarkId", "")
-        val labelIdStr = arguments.optString("labelId", "")
+        val args = try {
+            arguments.decodeArgs<Args>()
+        } catch (e: Exception) {
+            return ToolResult.error("Invalid arguments: ${e.message}", "INVALID_ARGS")
+        }
 
-        if (bookmarkIdStr.isBlank()) {
+        if (args.bookmarkId.isEmpty) {
             return ToolResult.error("Missing required parameter: bookmarkId")
         }
-        if (labelIdStr.isBlank()) {
+        if (args.labelId.isEmpty) {
             return ToolResult.error("Missing required parameter: labelId")
         }
 
         return try {
-            val bookmarkId = IdType.fromString(bookmarkIdStr)
-            val labelId = IdType.fromString(labelIdStr)
-
             // Check if bookmark exists
-            val bookmark = bookmarkControl.bibleBookmarkById(bookmarkId)
-                ?: return ToolResult.error("Bookmark not found: $bookmarkIdStr", "BOOKMARK_NOT_FOUND")
+            val bookmark = bookmarkControl.bibleBookmarkById(args.bookmarkId)
+                ?: return ToolResult.error("Bookmark not found: ${args.bookmarkId}", "BOOKMARK_NOT_FOUND")
 
             // Check if label exists
-            val label = bookmarkControl.labelById(labelId)
-                ?: return ToolResult.error("Label not found: $labelIdStr", "LABEL_NOT_FOUND")
+            val label = bookmarkControl.labelById(args.labelId)
+                ?: return ToolResult.error("Label not found: ${args.labelId}", "LABEL_NOT_FOUND")
 
             // Check if already linked
             val existingLabels = bookmarkControl.labelsForBookmark(bookmark)
-            if (existingLabels.any { it.id == labelId }) {
+            if (existingLabels.any { it.id == args.labelId }) {
                 return ToolResult.error("Bookmark already has this label", "ALREADY_LINKED")
             }
 
             // Add the label using BookmarkControl (sends UI events)
             val currentLabelIds = existingLabels.map { it.id }.toMutableSet()
-            currentLabelIds.add(labelId)
+            currentLabelIds.add(args.labelId)
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = currentLabelIds)
 
             ToolResult.success {
-                put("bookmarkId", bookmarkIdStr)
-                put("labelId", labelIdStr)
+                put("bookmarkId", args.bookmarkId.toString())
+                put("labelId", args.labelId.toString())
                 put("labelName", label.name)
             }
         } catch (e: Exception) {

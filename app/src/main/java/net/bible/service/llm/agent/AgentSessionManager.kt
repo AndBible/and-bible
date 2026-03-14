@@ -392,8 +392,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))
             }
             is AgentEvent.ToolCalling -> {
-                val tool = ToolRegistry.get(event.toolName)
-                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
+                val tool = ToolRegistry.get(event.tool)
+                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.tool.camelCaseName
                 val details = if (tool != null) {
                     val args = try { JSONObject(event.arguments) } catch (_: Exception) { null }
                     args?.let { tool.formatArgsForLog(it) } ?: formatJsonForLog(event.arguments)
@@ -405,8 +405,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 )
             }
             is AgentEvent.ToolCompleted -> {
-                val tool = ToolRegistry.get(event.toolName)
-                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.toolName
+                val tool = ToolRegistry.get(event.tool)
+                val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.tool.camelCaseName
                 val isSuccess = event.result is ToolResult.Success
                 val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
                 val message = if (isSuccess) {
