@@ -18,6 +18,7 @@
 package net.bible.service.llm
 
 import android.util.Log
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -242,7 +243,7 @@ object LlmProcessingService {
             var lastError: HttpCallResult.Error? = null
 
             for (attempt in 0..LlmRetryPolicy.MAX_RETRIES) {
-                coroutineContext.ensureActive()
+                currentCoroutineContext().ensureActive()
 
                 if (attempt > 0) {
                     val prev = lastError!!
