@@ -1424,6 +1424,7 @@
     <string name="ai_getting_started_community_providers">Other providers (community, not officially tested):</string>
     <string name="ai_getting_started_get_api_key">Get API key</string>
     <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
+    <string name="ai_provider_tier_recommended">Recommended</string>
     <string name="ai_provider_tier_community">Other providers (not tested)</string>
 
     <!-- Multi-provider settings -->
