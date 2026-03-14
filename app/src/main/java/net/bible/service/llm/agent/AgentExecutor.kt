@@ -50,6 +50,7 @@ import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.ToolDefinition
+import org.json.JSONObject
 import java.util.Locale
 
 private const val TAG = "AgentExecutor"
@@ -394,11 +395,23 @@ class AgentExecutor(
             ))
         }
 
+        // Parse arguments early so we can show specific details in the permission dialog
+        val arguments = try {
+            Log.d(TAG, "Executing tool: ${toolCall.tool.camelCaseName} with args: ${toolCall.arguments}")
+            toolCall.parseArguments()
+        } catch (e: Exception) {
+            Log.e(TAG, "Tool argument parsing failed: ${toolCall.tool.camelCaseName}", e)
+            return ToolExecutionResult(ToolResult.error(
+                message = "Invalid arguments: ${e.message}",
+                code = "INVALID_ARGS"
+            ))
+        }
+
         // Permission check for write tools
         var grantSession = false
         var grantAllTools = false
         if (tool.requiresPermission) {
-            when (checkWritePermission(tool, context)) {
+            when (checkWritePermission(tool, arguments, context)) {
                 DialogResult.Allowed -> { /* proceed */ }
                 DialogResult.AllowedForSession -> { grantSession = true }
                 DialogResult.AllowedAllForSession -> { grantAllTools = true }
@@ -413,8 +426,6 @@ class AgentExecutor(
         }
 
         val result = try {
-            Log.d(TAG, "Executing tool: ${toolCall.tool.camelCaseName} with args: ${toolCall.arguments}")
-            val arguments = toolCall.parseArguments()
             tool.execute(arguments, context)
         } catch (e: CancellationException) {
             throw e
@@ -437,7 +448,7 @@ class AgentExecutor(
     }
 
     /** Delegates to [checkPermission] for pure logic, shows dialog when needed. */
-    private suspend fun checkWritePermission(tool: Tool, context: AgentContext): DialogResult {
+    private suspend fun checkWritePermission(tool: Tool, arguments: JSONObject, context: AgentContext): DialogResult {
         return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
@@ -453,12 +464,12 @@ class AgentExecutor(
         )) {
             PermissionCheckResult.Allowed -> DialogResult.Allowed
             PermissionCheckResult.Denied -> DialogResult.Denied
-            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool)
+            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool, arguments)
         }
     }
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
-    private suspend fun showPermissionDialog(tool: Tool): DialogResult {
+    private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject): DialogResult {
         var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.d(TAG, "No current activity, waiting for activity to resume...")
@@ -469,7 +480,13 @@ class AgentExecutor(
             Log.d(TAG, "Activity resumed, showing permission dialog")
         }
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
-        return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description)) {
+        val actionDescription = try {
+            tool.formatActionDescription(arguments)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to format action description for ${tool.agentTool.camelCaseName}", e)
+            null
+        }
+        return when (Dialogs.agentPermissionDialog(activity, toolDisplayName, tool.description, actionDescription)) {
             Dialogs.AgentPermissionResult.ALLOW -> DialogResult.Allowed
             Dialogs.AgentPermissionResult.ALLOW_FOR_SESSION -> DialogResult.AllowedForSession
             Dialogs.AgentPermissionResult.ALLOW_ALL_SESSION -> DialogResult.AllowedAllForSession

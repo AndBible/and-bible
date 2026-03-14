@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.write
 
+import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
@@ -77,6 +78,11 @@ object SetDocumentTitleTool : Tool {
             description: "Plain text title for the document (shown in table of contents, max 60 chars, NO markdown)"
         required: [title]
     """)
+
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null
+        return BibleApplication.application.getString(R.string.action_set_document_title, title)
+    }
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val title = arguments.optString("title", "").takeIf { it.isNotBlank() } ?: return null

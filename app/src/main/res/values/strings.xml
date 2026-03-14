@@ -1536,6 +1536,21 @@
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
     <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s</string>
+    <string name="agent_permission_message_with_action">The AI assistant wants to:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+    <string name="action_create_bookmark_at">Create bookmark at %1$s</string>
+    <string name="action_create_bookmark_at_with_extras">Create bookmark at %1$s (%2$s)</string>
+    <string name="action_with_note">with note</string>
+    <string name="action_labels">labels: %1$s</string>
+    <string name="action_add_note_to_bookmark_at">Add note to bookmark at %1$s</string>
+    <string name="action_update_note_on_bookmark_at">Update note on bookmark at %1$s</string>
+    <string name="action_create_label">Create label \"%1$s\"</string>
+    <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
+    <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
+    <string name="action_set_document_title">Set document title: \"%1$s\"</string>
+    <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
+    <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
     <string name="permission_allow_all_session">Allow all tools this session</string>
