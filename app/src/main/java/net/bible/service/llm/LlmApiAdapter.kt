@@ -30,7 +30,7 @@ import android.util.Log
 import org.json.JSONObject
 
 /** Shared Json instance for all LLM serialization. */
-val llmJson = Json { ignoreUnknownKeys = true; isLenient = true }
+val llmJson = Json { ignoreUnknownKeys = true; isLenient = true; encodeDefaults = true; explicitNulls = false }
 
 data class ToolCall(
     val id: String,
