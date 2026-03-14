@@ -1625,6 +1625,65 @@ object CommonUtils : CommonUtilsBase() {
     val isDiscrete get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("discrete_mode", false)
     val showCalculator get() = BuildVariant.Appearance.isDiscrete || realSharedPreferences.getBoolean("show_calculator", false)
 
+    /**
+     * One-time migration: renames gdrive_* settings keys to cloud_sync_* / sync_enable_* prefixes.
+     * Moves secrets from SettingsDatabase to realSharedPreferences.
+     * Idempotent — safe to call on every app start.
+     */
+    fun migrateOldSettingsKeys() {
+        val sharedPrefs = realSharedPreferences
+        val settingsDb = settings
+
+        val secretMigrations = mapOf(
+            "gdrive_password" to "cloud_sync_password",
+            "gdrive_username" to "cloud_sync_username",
+            "gdrive_server_url" to "cloud_sync_server_url",
+            "gdrive_folder_path" to "cloud_sync_folder_path",
+        )
+        for ((oldKey, newKey) in secretMigrations) {
+            if (sharedPrefs.getString(newKey, null) != null) continue
+            val value = settingsDb.getString(oldKey) ?: sharedPrefs.getString(oldKey, null)
+            if (value != null) {
+                Log.i(TAG, "Migrating setting '$oldKey' → '$newKey'")
+                sharedPrefs.edit().putString(newKey, value).apply()
+                settingsDb.removeString(oldKey)
+                sharedPrefs.edit().remove(oldKey).apply()
+            }
+        }
+
+        if (sharedPrefs.getString("cloud_sync_last_account", null) == null) {
+            val lastAccount = sharedPrefs.getString("lastAccount", null)
+            if (lastAccount != null) {
+                Log.i(TAG, "Migrating 'lastAccount' → 'cloud_sync_last_account'")
+                sharedPrefs.edit().putString("cloud_sync_last_account", lastAccount).apply()
+                sharedPrefs.edit().remove("lastAccount").apply()
+            }
+        }
+
+        val boolRenames = mapOf(
+            "gdrive_bookmarks" to "sync_enable_bookmarks",
+            "gdrive_workspaces" to "sync_enable_workspaces",
+            "gdrive_readingplans" to "sync_enable_readingplans",
+            "gdrive_mydocuments" to "sync_enable_mydocuments",
+            "gdrive_llmprocessing" to "sync_enable_llmprocessing",
+        )
+        for ((oldKey, newKey) in boolRenames) {
+            val value = settingsDb.getBoolean(oldKey, false)
+            if (value) {
+                Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
+                settingsDb.setBoolean(newKey, true)
+            }
+            settingsDb.removeBoolean(oldKey)
+        }
+
+        val oldInterval = settingsDb.getLong("gdrive_sync_interval", Long.MIN_VALUE)
+        if (oldInterval != Long.MIN_VALUE) {
+            Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
+            settingsDb.setLong("cloud_sync_interval", oldInterval)
+            settingsDb.removeLong("gdrive_sync_interval")
+        }
+    }
+
     fun md5Hash(str: String): String {
         val md = MessageDigest.getInstance("MD5")
         val bigInt = BigInteger(1, md.digest(str.toByteArray(Charsets.UTF_8)))

@@ -37,7 +37,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.cloudsync.nextcloud.NextCloudAdapter
 import net.bible.service.common.BuildVariant
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.SecureStorage
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.asyncMap
 import net.bible.service.db.DatabaseContainer
 import java.io.IOException
@@ -72,12 +72,14 @@ enum class CloudAdapters(val isEnabled: Boolean = true) {
             val constructor = adapter.getDeclaredConstructor()
             constructor.newInstance() as CloudAdapter
         }
-        NEXT_CLOUD -> NextCloudAdapter(
-            SecureStorage.getString("cloud_sync_server_url"),
-            SecureStorage.getString("cloud_sync_username"),
-            SecureStorage.getString("cloud_sync_password"),
-            SecureStorage.getString("cloud_sync_folder_path")
-        )
+        NEXT_CLOUD -> CommonUtils.realSharedPreferences.let { prefs ->
+            NextCloudAdapter(
+                prefs.getString("cloud_sync_server_url", null),
+                prefs.getString("cloud_sync_username", null),
+                prefs.getString("cloud_sync_password", null),
+                prefs.getString("cloud_sync_folder_path", null)
+            )
+        }
     }
 
     companion object {

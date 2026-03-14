@@ -29,7 +29,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
-import net.bible.service.common.SecureStorage
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
 
 /** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
@@ -137,14 +137,16 @@ data class LlmProviderConfig(
         defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
 }
 
+private val prefs get() = CommonUtils.realSharedPreferences
+
 fun LlmProviderConfig.getApiKey(): String =
-    SecureStorage.getString("llm_api_key_${id}", "") ?: ""
+    prefs.getString("llm_api_key_${id}", "") ?: ""
 
 fun LlmProviderConfig.setApiKey(key: String) =
-    SecureStorage.setString("llm_api_key_${id}", key)
+    prefs.edit().putString("llm_api_key_${id}", key).apply()
 
 fun LlmProviderConfig.removeApiKey() =
-    SecureStorage.remove("llm_api_key_${id}")
+    prefs.edit().remove("llm_api_key_${id}").apply()
 
 @Dao
 interface LlmProviderConfigDao {

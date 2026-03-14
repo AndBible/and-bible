@@ -36,7 +36,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.util.Hourglass
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.SecureStorage
+import net.bible.service.common.CommonUtils
 import net.bible.service.cloudsync.CloudAdapters
 import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.cloudsync.CloudSync
@@ -157,8 +157,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 }
             }
         }
-        // Secret preferences use SecureStorage-backed data store
-        val secureDataStore = SecurePreferenceDataStore()
+        val secureDataStore = SharedPrefsDataStore()
         val usernamePref = preferenceScreen.findPreference<EditTextPreference>("cloud_sync_username")!!.apply {
             preferenceDataStore = secureDataStore
         }
@@ -221,11 +220,11 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
     }
 }
 
-/**
- * PreferenceDataStore that routes reads/writes through SecureStorage (EncryptedSharedPreferences).
- * Used for credential preferences (server URL, username, password, folder path).
- */
-private class SecurePreferenceDataStore : PreferenceDataStore() {
-    override fun putString(key: String, value: String?) = SecureStorage.setString(key, value)
-    override fun getString(key: String, defValue: String?): String? = SecureStorage.getString(key, defValue)
+private class SharedPrefsDataStore : PreferenceDataStore() {
+    private val prefs get() = CommonUtils.realSharedPreferences
+    override fun putString(key: String, value: String?) {
+        if (value == null) prefs.edit().remove(key).apply()
+        else prefs.edit().putString(key, value).apply()
+    }
+    override fun getString(key: String, defValue: String?): String? = prefs.getString(key, defValue)
 }
