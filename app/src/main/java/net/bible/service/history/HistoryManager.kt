@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
@@ -83,23 +84,38 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     }
 
     fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
-        var lastItem: KeyHistoryItem? = null
-        return windowHistoryStackMap[windowId]?.mapNotNull {
-            if (it is KeyHistoryItem) {
-                if(it.document == lastItem?.document && it.key == lastItem?.key) {
-                    null
-                } else {
-                    lastItem = it
-                    // For Bible pages, store end verse ordinal; for others, use endAnchorOrdinal
-                    val endOrdinal = (it.endKey as? Verse)?.ordinal ?: it.endAnchorOrdinal?.start
+        val stack = windowHistoryStackMap[windowId] ?: return emptyList()
+        // Iterate from newest to oldest so that when collapsing consecutive
+        // duplicates (by document+key), the most recent item is kept.
+        var lastDocument: Book? = null
+        var lastKey: Key? = null
+        val result = ArrayList<WorkspaceEntities.HistoryItem>()
+        for (index in stack.size - 1 downTo 0) {
+            val item = stack[index]
+            if (item is KeyHistoryItem) {
+                if (item.document == lastDocument && item.key == lastKey) {
+                    // Older duplicate of the same document+key; skip it
+                    continue
+                }
+                lastDocument = item.document
+                lastKey = item.key
+                // For Bible pages, store end verse ordinal; for others, use endAnchorOrdinal
+                val endOrdinal = (item.endKey as? Verse)?.ordinal ?: item.endAnchorOrdinal?.start
+                result.add(
                     WorkspaceEntities.HistoryItem(
-                        windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        it.anchorOrdinal?.start,
+                        windowId,
+                        item.createdAt,
+                        item.document.initials,
+                        item.key.osisID,
+                        item.anchorOrdinal?.start,
                         endOrdinal
                     )
-                }
-            } else null
-        } ?: emptyList()
+                )
+            }
+        }
+        // Reverse back to chronological order (oldest first) for persistence
+        result.reverse()
+        return result
     }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
