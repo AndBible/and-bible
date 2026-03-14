@@ -464,6 +464,8 @@ class WorkspaceEntities {
         val key: String,
         @ColumnInfo(defaultValue = "NULL")
         val anchorOrdinal: Int?,
+        @ColumnInfo(defaultValue = "NULL")
+        val endAnchorOrdinal: Int?,
         @PrimaryKey(autoGenerate = true) val id: Long = 0,
     )
 

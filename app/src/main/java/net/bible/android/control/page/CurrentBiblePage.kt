@@ -173,7 +173,6 @@ class CurrentBiblePage(
         WorkspaceEntities.BiblePage(currentDocument?.initials, currentBibleVerse.entity)
 
     fun restoreFrom(entity: WorkspaceEntities.BiblePage) {
-        originalKey = null
         val document = entity.document
         Log.i(TAG, "State document:$document")
         val book = SwordDocumentFacade.getDocumentByInitials(document) ?: if(document!= null) FakeBookFactory.giveDoesNotExist(document) else null
@@ -181,6 +180,9 @@ class CurrentBiblePage(
         // bypass setter to avoid automatic notifications
         localSetCurrentDocument(book)
         currentBibleVerse.restoreFrom(entity.verse)
+        // Set originalKey to null AFTER localSetCurrentDocument, because localSetCurrentDocument
+        // calls doSetKey which sets originalKey to the default Genesis 1:1 verse
+        originalKey = null
     }
 
     @Deprecated("Used by test only!!! use setCurrentVerseOrdinal instead")

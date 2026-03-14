@@ -22,6 +22,7 @@ import android.util.Log
 
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.event.ABEventBus
+import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
@@ -30,9 +31,12 @@ import net.bible.android.view.activity.base.AndBibleActivity
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.database.WorkspaceEntities
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.Verse
 import java.lang.Exception
 
 
@@ -80,20 +84,38 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
     }
 
     fun getEntities(windowId: IdType): List<WorkspaceEntities.HistoryItem> {
-        var lastItem: KeyHistoryItem? = null
-        return windowHistoryStackMap[windowId]?.mapNotNull {
-            if (it is KeyHistoryItem) {
-                if(it.document == lastItem?.document && it.key == lastItem?.key) {
-                    null
-                } else {
-                    lastItem = it
-                    WorkspaceEntities.HistoryItem(
-                        windowId, it.createdAt, it.document.initials, it.key.osisID,
-                        it.anchorOrdinal?.start
-                    )
+        val stack = windowHistoryStackMap[windowId] ?: return emptyList()
+        // Iterate from newest to oldest so that when collapsing consecutive
+        // duplicates (by document+key), the most recent item is kept.
+        var lastDocument: Book? = null
+        var lastKey: Key? = null
+        val result = ArrayList<WorkspaceEntities.HistoryItem>()
+        for (index in stack.size - 1 downTo 0) {
+            val item = stack[index]
+            if (item is KeyHistoryItem) {
+                if (item.document == lastDocument && item.key == lastKey) {
+                    // Older duplicate of the same document+key; skip it
+                    continue
                 }
-            } else null
-        } ?: emptyList()
+                lastDocument = item.document
+                lastKey = item.key
+                // For Bible pages, store end verse ordinal; for others, use endAnchorOrdinal
+                val endOrdinal = (item.endKey as? Verse)?.ordinal ?: item.endAnchorOrdinal?.start
+                result.add(
+                    WorkspaceEntities.HistoryItem(
+                        windowId,
+                        item.createdAt,
+                        item.document.initials,
+                        item.key.osisID,
+                        item.anchorOrdinal?.start,
+                        endOrdinal
+                    )
+                )
+            }
+        }
+        // Reverse back to chronological order (oldest first) for persistence
+        result.reverse()
+        return result
     }
 
     fun restoreFrom(window: Window, historyItems: List<WorkspaceEntities.HistoryItem>) {
@@ -110,7 +132,19 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 Log.e(TAG, "Could not load key ${entity.key} from ${entity.document}")
                 continue
             }
-            stack.add(KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt))
+            // Restore end position using dual storage mechanism:
+            // - For Bible pages (Verse keys): create endKey from the stored ordinal for range display
+            // - For all types: restore endAnchorOrdinal for persistence and non-Bible document types
+            val endKey = if (key is Verse && entity.endAnchorOrdinal != null) {
+                try {
+                    Verse(key.versification, entity.endAnchorOrdinal)
+                } catch (e: Exception) {
+                    null
+                }
+            } else null
+            val historyItem = KeyHistoryItem(doc, key, entity.anchorOrdinal?.let { OrdinalRange(it) }, window, entity.createdAt, endKey)
+            historyItem.endAnchorOrdinal = entity.endAnchorOrdinal?.let { OrdinalRange(it) }
+            stack.add(historyItem)
         }
         windowHistoryStackMap[window.id] = stack
     }
@@ -165,11 +199,22 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 return null
             }
 
-            val key = currentPage.singleKey
+            // For Bible pages:
+            // - key (start): originalKey = where user navigated to
+            // - endKey (end): singleKey = where user scrolled to when leaving
+            val key: Key?
+            val endKey: Key?
+            if (currentPage is CurrentBiblePage) {
+                key = currentPage.originalKey ?: currentPage.singleKey
+                endKey = currentPage.singleKey
+            } else {
+                key = currentPage.singleKey
+                endKey = null
+            }
             val anchorOrdinal = currentPage.anchorOrdinal
             if(doc == null) return null
             historyItem =
-                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window)
+                if(key != null) KeyHistoryItem(doc, key, anchorOrdinal, window, endKey = endKey)
                 else null
 
         } else if (currentActivity is AndBibleActivity) {
@@ -224,6 +269,26 @@ class HistoryManager @Inject constructor(private val windowControl: WindowContro
                 while (stack.size > MAX_HISTORY) {
                     Log.i(TAG, "Shrinking large stack")
                     stack.removeAt(0)
+                }
+            } else if (item is KeyHistoryItem && stack.peek() is KeyHistoryItem) {
+                // Items are "equal" (same document and start key), but the new item might have
+                // a different endKey (user scrolled further). Update the existing entry's endKey
+                // while preserving the original createdAt timestamp.
+                val existing = stack.peek() as KeyHistoryItem
+                val newEndKey = item.endKey
+                if (newEndKey != null && newEndKey != existing.endKey) {
+                    // Create updated item preserving the original timestamp but using
+                    // the latest anchorOrdinal from the new item for accurate scroll position
+                    val updatedItem = KeyHistoryItem(
+                        document = existing.document,
+                        key = existing.key,
+                        anchorOrdinal = item.anchorOrdinal,
+                        window = existing.window,
+                        createdAt = existing.createdAt,
+                        endKey = newEndKey
+                    )
+                    stack.pop()
+                    stack.push(updatedItem)
                 }
             }
         }
