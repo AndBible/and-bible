@@ -112,16 +112,5 @@ object SecureStorage {
             settingsDb.setLong("cloud_sync_interval", oldInterval)
             settingsDb.removeLong("gdrive_sync_interval")
         }
-
-        // LLM API keys: move from SettingsDatabase → SecureStorage
-        // Legacy single key
-        val legacyApiKey = settingsDb.getString("llm_api_key")
-        if (legacyApiKey != null && legacyApiKey.isNotBlank()) {
-            if (getString("llm_api_key") == null) {
-                Log.i(TAG, "Migrating legacy 'llm_api_key' to SecureStorage")
-                setString("llm_api_key", legacyApiKey)
-            }
-            settingsDb.removeString("llm_api_key")
-        }
     }
 }
