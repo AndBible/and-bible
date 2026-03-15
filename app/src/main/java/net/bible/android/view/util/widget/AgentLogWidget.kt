@@ -22,7 +22,6 @@ import android.graphics.Color
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -92,7 +91,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     override fun onDetachedFromWindow() {
-        Log.i(TAG, "onDetachedFromWindow: workspaceId=$workspaceId, identity=${System.identityHashCode(this)}")
         ABEventBus.unregister(this)
         stopSpinAnimation()
         super.onDetachedFromWindow()
@@ -102,14 +100,12 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         ABEventBus.safelyRegister(this)
         super.onAttachedToWindow()
 
-        Log.i(TAG, "onAttachedToWindow: workspaceId=$workspaceId, identity=${System.identityHashCode(this)}")
         refreshLogEntries()
         updateBackgroundColor()
 
         // Check if agent is already running (handles race condition where
         // AgentSessionStatusChangedEvent was posted before widget was attached)
         val isRunning = AgentSessionManager.isRunning(workspaceId)
-        Log.i(TAG, "onAttachedToWindow: isRunning=$isRunning, currentVisibility=${visibility == View.VISIBLE}")
         if (isRunning) {
             startSpinAnimation()
             if (visibility != View.VISIBLE) {
@@ -191,7 +187,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         } else {
             0
         }
-        Log.i(TAG, "notifyVisibilityChanged: visible=${visibility == View.VISIBLE}, height=$totalHeight, expanded=$isExpanded")
         ABEventBus.post(AgentLogVisibilityChanged(visibility == View.VISIBLE, totalHeight))
     }
 
@@ -289,10 +284,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Handle session status change events.
      */
     fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
-        Log.i(TAG, "AgentSessionStatusChangedEvent: event.workspaceId=${event.workspaceId}, " +
-            "widget.workspaceId=$workspaceId, match=${event.workspaceId == workspaceId}, " +
-            "isRunning=${event.isRunning}, currentVisibility=${visibility == View.VISIBLE}, " +
-            "identity=${System.identityHashCode(this)}")
         if (event.workspaceId == workspaceId) {
             val entries = AgentSessionManager.getLogEntries(event.workspaceId)
             val latestMessage = getLatestMeaningfulMessage(entries)
@@ -336,9 +327,5 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         binding.closeButton.isEnabled = true
         binding.closeButton.alpha = 1.0f
-    }
-
-    companion object {
-        const val TAG = "AgentLogWidget"
     }
 }
