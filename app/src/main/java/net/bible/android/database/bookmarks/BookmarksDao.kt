@@ -533,6 +533,35 @@ interface BookmarkDao {
     @Query("SELECT * from Label WHERE name = '${UNLABELED_NAME}' LIMIT 1")
     fun unlabeledLabelByName(): Label?
 
+    @Query("SELECT * FROM Label WHERE name = :name")
+    fun allLabelsByName(name: String): List<Label>
+
+    @Query("SELECT COUNT(*) FROM Label WHERE name IN ('${SPEAK_LABEL_NAME}', '${UNLABELED_NAME}', '${PARAGRAH_BREAK_LABEL_NAME}') AND id NOT IN (:canonicalIds)")
+    fun countNonCanonicalSpecialLabels(canonicalIds: List<IdType>): Int
+
+    // Remap methods for merging special labels to canonical IDs.
+    // BibleBookmarkToLabel has composite PK (bookmarkId, labelId), so we must use INSERT OR IGNORE + DELETE.
+    @Query("INSERT OR IGNORE INTO BibleBookmarkToLabel (bookmarkId, labelId, orderNumber, indentLevel, expandContent) SELECT bookmarkId, :newId, orderNumber, indentLevel, expandContent FROM BibleBookmarkToLabel WHERE labelId = :oldId")
+    fun _copyBibleBookmarkToLabel(oldId: IdType, newId: IdType)
+    @Query("DELETE FROM BibleBookmarkToLabel WHERE labelId = :oldId")
+    fun _deleteBibleBookmarkToLabel(oldId: IdType)
+    fun remapBibleBookmarkToLabel(oldId: IdType, newId: IdType) { _copyBibleBookmarkToLabel(oldId, newId); _deleteBibleBookmarkToLabel(oldId) }
+
+    @Query("INSERT OR IGNORE INTO GenericBookmarkToLabel (bookmarkId, labelId, orderNumber, indentLevel, expandContent) SELECT bookmarkId, :newId, orderNumber, indentLevel, expandContent FROM GenericBookmarkToLabel WHERE labelId = :oldId")
+    fun _copyGenericBookmarkToLabel(oldId: IdType, newId: IdType)
+    @Query("DELETE FROM GenericBookmarkToLabel WHERE labelId = :oldId")
+    fun _deleteGenericBookmarkToLabel(oldId: IdType)
+    fun remapGenericBookmarkToLabel(oldId: IdType, newId: IdType) { _copyGenericBookmarkToLabel(oldId, newId); _deleteGenericBookmarkToLabel(oldId) }
+
+    @Query("UPDATE BibleBookmark SET primaryLabelId = :newId WHERE primaryLabelId = :oldId")
+    fun remapBibleBookmarkPrimaryLabel(oldId: IdType, newId: IdType)
+
+    @Query("UPDATE GenericBookmark SET primaryLabelId = :newId WHERE primaryLabelId = :oldId")
+    fun remapGenericBookmarkPrimaryLabel(oldId: IdType, newId: IdType)
+
+    @Query("UPDATE StudyPadTextEntry SET labelId = :newId WHERE labelId = :oldId")
+    fun remapStudyPadTextEntryLabel(oldId: IdType, newId: IdType)
+
     @Query("DELETE FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: IdType)
     fun deleteLabels(bookmark: BibleBookmarkWithNotes) = deleteLabels(bookmark.id)
