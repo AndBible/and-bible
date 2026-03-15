@@ -71,8 +71,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
     private val adapter = AgentLogAdapter()
     private var isExpanded = false
-    private var workspaceId: IdType? = null
     private var spinAnimator: ObjectAnimator? = null
+
+    /** Always reads the current workspace ID so it stays correct after workspace switches. */
+    private val workspaceId: IdType get() = windowControl.windowRepository.id
 
     init {
         buildActivityComponent().inject(this)
@@ -100,16 +102,13 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         ABEventBus.safelyRegister(this)
         super.onAttachedToWindow()
 
-        // Get current workspace ID and load entries
-        workspaceId = windowControl.windowRepository.id
         Log.i(TAG, "onAttachedToWindow: workspaceId=$workspaceId, identity=${System.identityHashCode(this)}")
         refreshLogEntries()
         updateBackgroundColor()
 
         // Check if agent is already running (handles race condition where
         // AgentSessionStatusChangedEvent was posted before widget was attached)
-        val wsId = workspaceId
-        val isRunning = wsId != null && AgentSessionManager.isRunning(wsId)
+        val isRunning = AgentSessionManager.isRunning(workspaceId)
         Log.i(TAG, "onAttachedToWindow: isRunning=$isRunning, currentVisibility=${visibility == View.VISIBLE}")
         if (isRunning) {
             startSpinAnimation()
@@ -200,8 +199,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Refresh the log entries from the session manager.
      */
     private fun refreshLogEntries() {
-        val wsId = workspaceId ?: return
-        val entries = AgentSessionManager.getLogEntries(wsId)
+        val entries = AgentSessionManager.getLogEntries(workspaceId)
         adapter.submitList(entries.toList())
 
         // Update status text with latest meaningful entry
@@ -278,9 +276,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Handle log update events.
      */
     fun onEventMainThread(event: AgentLogUpdatedEvent) {
-        if (event.workspaceId != workspaceId) {
-            Log.w(TAG, "AgentLogUpdatedEvent IGNORED: event.workspaceId=${event.workspaceId}, widget.workspaceId=$workspaceId")
-        }
         if (event.workspaceId == workspaceId) {
             refreshLogEntries()
             // Auto-scroll to bottom when new entries are added
@@ -331,7 +326,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             binding.closeButton.setColorFilter(CommonUtils.getResourceColor(R.color.grey_500))
             binding.closeButton.contentDescription = context.getString(R.string.agent_log_stop)
             binding.closeButton.setOnClickListener {
-                workspaceId?.let { AgentSessionManager.stopAgent(it) }
+                AgentSessionManager.stopAgent(workspaceId)
             }
         } else {
             binding.closeButton.setImageResource(R.drawable.ic_baseline_close_24)
