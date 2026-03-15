@@ -90,6 +90,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     override fun onDetachedFromWindow() {
+        Log.i(TAG, "onDetachedFromWindow: workspaceId=$workspaceId, identity=${System.identityHashCode(this)}")
         ABEventBus.unregister(this)
         stopSpinAnimation()
         super.onDetachedFromWindow()
@@ -101,6 +102,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
         // Get current workspace ID and load entries
         workspaceId = windowControl.windowRepository.id
+        Log.i(TAG, "onAttachedToWindow: workspaceId=$workspaceId, identity=${System.identityHashCode(this)}")
         refreshLogEntries()
         updateBackgroundColor()
 
@@ -108,6 +110,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         // AgentSessionStatusChangedEvent was posted before widget was attached)
         val wsId = workspaceId
         val isRunning = wsId != null && AgentSessionManager.isRunning(wsId)
+        Log.i(TAG, "onAttachedToWindow: isRunning=$isRunning, currentVisibility=${visibility == View.VISIBLE}")
         if (isRunning) {
             startSpinAnimation()
             if (visibility != View.VISIBLE) {
@@ -275,6 +278,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Handle log update events.
      */
     fun onEventMainThread(event: AgentLogUpdatedEvent) {
+        if (event.workspaceId != workspaceId) {
+            Log.w(TAG, "AgentLogUpdatedEvent IGNORED: event.workspaceId=${event.workspaceId}, widget.workspaceId=$workspaceId")
+        }
         if (event.workspaceId == workspaceId) {
             refreshLogEntries()
             // Auto-scroll to bottom when new entries are added
@@ -288,6 +294,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Handle session status change events.
      */
     fun onEventMainThread(event: AgentSessionStatusChangedEvent) {
+        Log.i(TAG, "AgentSessionStatusChangedEvent: event.workspaceId=${event.workspaceId}, " +
+            "widget.workspaceId=$workspaceId, match=${event.workspaceId == workspaceId}, " +
+            "isRunning=${event.isRunning}, currentVisibility=${visibility == View.VISIBLE}, " +
+            "identity=${System.identityHashCode(this)}")
         if (event.workspaceId == workspaceId) {
             val entries = AgentSessionManager.getLogEntries(event.workspaceId)
             val latestMessage = getLatestMeaningfulMessage(entries)
