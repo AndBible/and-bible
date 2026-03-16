@@ -106,6 +106,8 @@ open class OsisDocument(
     val key: Key,
     val genericBookmarks: List<BookmarkEntities.GenericBookmarkWithNotes> = emptyList(),
     val highlightRange: IntRange? = null,
+    val myDocumentPageId: String? = null,
+    val sourcePromptId: String? = null,
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -136,6 +138,8 @@ open class OsisDocument(
             "highlightedOrdinalRange" to highlightedOrdinalRange,
             "isNativeHtml" to json.encodeToString(serializer(), book.isEpub || book.isMyDocument),
             "isAiDocument" to json.encodeToString(serializer(), book.initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
+            "myDocumentPageId" to wrapString(myDocumentPageId),
+            "sourcePromptId" to wrapString(sourcePromptId),
         )
     }
 }

@@ -299,6 +299,13 @@ class BibleJavascriptInterface(
                     linkControl.loadApplicationUrl(bibleLink)
                 }
             }
+            link.startsWith("sword://") || link.startsWith("osis:") -> {
+                // Internal app links (e.g. sword://CalvinCommentaries/Eph.1.11)
+                val bibleLink = BibleView.BibleLink("sword", target=link)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
             else -> {
                 CommonUtils.openLink(link, forceAsk=true)
             }

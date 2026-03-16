@@ -64,6 +64,8 @@ interface BaseOsisDocument extends BaseDocument {
     ordinalRange: OrdinalRange
     isNativeHtml: boolean
     isAiDocument: boolean
+    myDocumentPageId: string | null
+    sourcePromptId: string | null
 }
 
 export interface OsisDocument extends BaseOsisDocument {
