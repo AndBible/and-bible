@@ -23,6 +23,7 @@
       :data-osis-ref="osisRef"
   >
     <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
+    <AiFooter v-if="document.sourcePromptId && document.myDocumentPageId" :page-id="document.myDocumentPageId"/>
     <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
     <FeaturesLink :fragment="osisFragment"/>
     <WholePageBookmarks :book-initials="bookInitials" :book-key="annotateRef"/>
@@ -31,6 +32,7 @@
 
 <script setup lang="ts">
 import OsisFragment from "@/components/documents/OsisFragment.vue";
+import AiFooter from "@/components/OSIS/AiFooter.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import WholePageBookmarks from "@/components/WholePageBookmarks.vue";
