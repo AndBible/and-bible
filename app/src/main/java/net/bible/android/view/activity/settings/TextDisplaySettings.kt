@@ -28,11 +28,9 @@ import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
@@ -173,49 +171,26 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
     }
 
     private fun openWorkspaceSettings() {
-        val activity = activity as TextDisplaySettingsActivity
-        activity.lifecycleScope.launch {
-            val intent = Intent(context, TextDisplaySettingsActivity::class.java)
-            val wsBundle = SettingsBundle(
-                level = SettingsLevel.WORKSPACE,
-                workspaceId = settingsBundle.workspaceId,
-                workspaceName = settingsBundle.workspaceName,
-                workspaceSettings = settingsBundle.workspaceSettings,
-                globalSettings = settingsBundle.globalSettings,
-            )
-            intent.putExtra("settingsBundle", wsBundle.toJson())
-            val result = activity.awaitIntent(intent)
-            if (result.resultCode == Activity.RESULT_OK) {
-                val returnedBundle = SettingsBundle.fromJson(result.data?.getStringExtra("settingsBundle")!!)
-                activity.settingsBundle = settingsBundle.copy(
-                    workspaceSettings = returnedBundle.workspaceSettings,
-                    globalSettings = returnedBundle.globalSettings,
-                )
-                activity.setResult()
-                updateItems()
-            }
-        }
+        val intent = Intent(context, TextDisplaySettingsActivity::class.java)
+        val wsBundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
+            workspaceId = settingsBundle.workspaceId,
+            workspaceName = settingsBundle.workspaceName,
+            workspaceSettings = settingsBundle.workspaceSettings,
+            globalSettings = settingsBundle.globalSettings,
+        )
+        intent.putExtra("settingsBundle", wsBundle.toJson())
+        startActivity(intent)
     }
 
     private fun openGlobalSettings() {
-        val activity = activity as TextDisplaySettingsActivity
-        activity.lifecycleScope.launch {
-            val intent = Intent(context, TextDisplaySettingsActivity::class.java)
-            val globalBundle = SettingsBundle(
-                level = SettingsLevel.GLOBAL,
-                globalSettings = settingsBundle.globalSettings,
-            )
-            intent.putExtra("settingsBundle", globalBundle.toJson())
-            val result = activity.awaitIntent(intent)
-            if (result.resultCode == Activity.RESULT_OK) {
-                val returnedBundle = SettingsBundle.fromJson(result.data?.getStringExtra("settingsBundle")!!)
-                activity.settingsBundle = settingsBundle.copy(
-                    globalSettings = returnedBundle.globalSettings,
-                )
-                activity.setResult()
-                updateItems()
-            }
-        }
+        val intent = Intent(context, TextDisplaySettingsActivity::class.java)
+        val globalBundle = SettingsBundle(
+            level = SettingsLevel.GLOBAL,
+            globalSettings = settingsBundle.globalSettings,
+        )
+        intent.putExtra("settingsBundle", globalBundle.toJson())
+        startActivity(intent)
     }
 
     private val parentSettingsKeys = setOf("open_workspace_settings", "open_global_settings")
@@ -303,6 +278,7 @@ class TextDisplaySettingsActivity: ActivityBase() {
     private var requiresReload = false
     private var reset = false
     private val dirtyTypes = mutableSetOf<Types>()
+    private val bundleStack = ArrayDeque<SettingsBundle>()
 
     internal lateinit var settingsBundle: SettingsBundle
     private lateinit var binding: SettingsDialogBinding
@@ -406,26 +382,30 @@ class TextDisplaySettingsActivity: ActivityBase() {
         d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val newBundleJson = intent?.getStringExtra("settingsBundle") ?: return
+        // Save current state to stack before switching to the new level
+        bundleStack.addLast(settingsBundle)
+        loadSettingsBundle(SettingsBundle.fromJson(newBundleJson))
+    }
+
     override fun onBackPressed() {
         if (settingsBundle.level == SettingsLevel.GLOBAL && dirtyTypes.isNotEmpty()) {
             CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
             CommonUtils.windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
         }
+        if (bundleStack.isNotEmpty()) {
+            // Return to previous level, refreshing global settings from DB
+            val previous = bundleStack.removeLast()
+            loadSettingsBundle(previous.copy(globalSettings = CommonUtils.globalTextDisplaySettings))
+            return
+        }
         finish()
     }
 
-    private val isWindow get() = settingsBundle.level == SettingsLevel.WINDOW
-    private val isGlobal get() = settingsBundle.level == SettingsLevel.GLOBAL
-
-    @Inject lateinit var windowControl: WindowControl
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
-        super.onCreate(savedInstanceState)
-
-        binding = SettingsDialogBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-        super.buildActivityComponent().inject(this)
+    private fun loadSettingsBundle(bundle: SettingsBundle) {
+        settingsBundle = bundle
         dirtyTypes.clear()
         requiresReload = false
         reset = false
@@ -444,6 +424,21 @@ class TextDisplaySettingsActivity: ActivityBase() {
             .commit()
         this.fragment = fragment
         setResult()
+    }
+
+    private val isWindow get() = settingsBundle.level == SettingsLevel.WINDOW
+    private val isGlobal get() = settingsBundle.level == SettingsLevel.GLOBAL
+
+    @Inject lateinit var windowControl: WindowControl
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        settingsBundle = SettingsBundle.fromJson(intent.extras?.getString("settingsBundle")!!)
+        super.onCreate(savedInstanceState)
+
+        binding = SettingsDialogBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        super.buildActivityComponent().inject(this)
+        loadSettingsBundle(settingsBundle)
     }
 
     fun setDirty(type: Types) {
