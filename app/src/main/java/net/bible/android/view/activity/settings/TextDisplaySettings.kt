@@ -155,7 +155,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val globalLink = findPreference<Preference>("open_global_settings")
 
         workspaceLink?.icon = CommonUtils.makeLarger(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp), 1.5F)
-        globalLink?.icon = CommonUtils.makeLarger(getTintedDrawable(R.drawable.ic_baseline_public_24), 1.5F)
+        globalLink?.icon = CommonUtils.makeLarger(getTintedDrawable(R.drawable.ic_settings_black_24dp), 1.5F)
 
         when (settingsBundle.level) {
             SettingsLevel.WINDOW -> {

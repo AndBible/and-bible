@@ -1462,11 +1462,11 @@ object CommonUtils : CommonUtilsBase() {
     fun iconWithInheritance(icon: Int, inheritedFrom: InheritedFrom, level: SettingsLevel, sizeMultiplier: Float? = null): Drawable {
         return when {
             level == SettingsLevel.GLOBAL ->
-                combineIcons(icon, R.drawable.ic_baseline_public_24, sizeMultiplier)
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
             inheritedFrom == InheritedFrom.WORKSPACE ->
                 iconWithSync(icon, true, sizeMultiplier)
             inheritedFrom == InheritedFrom.GLOBAL ->
-                combineIcons(icon, R.drawable.ic_baseline_public_24, sizeMultiplier)
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
             level == SettingsLevel.WORKSPACE ->
                 combineIcons(icon, R.drawable.ic_workspace_overlay_24dp, sizeMultiplier)
             else ->
