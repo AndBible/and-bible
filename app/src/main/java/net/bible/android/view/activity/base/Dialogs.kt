@@ -268,13 +268,17 @@ object Dialogs {
     suspend fun agentPermissionDialog(
         context: Context,
         toolDisplayName: String,
-        toolDescription: String
+        toolDescription: String,
+        actionDescription: String? = null
     ): AgentPermissionResult = withContext(Dispatchers.Main) {
         suspendCoroutine { continuation ->
             val dialogBinding = DialogAgentPermissionBinding.inflate(LayoutInflater.from(context))
 
-            dialogBinding.permissionMessage.text =
+            dialogBinding.permissionMessage.text = if (actionDescription != null) {
+                context.getString(R.string.agent_permission_message_with_action, actionDescription)
+            } else {
                 context.getString(R.string.agent_permission_message, toolDisplayName, toolDescription)
+            }
 
             val dialog = AlertDialog.Builder(context)
                 .setTitle(R.string.agent_permission_title)

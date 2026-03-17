@@ -79,6 +79,13 @@ object AddStudyPadEntryTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
+        val labelName = label?.name ?: shortId(labelId)
+        return BibleApplication.application.getString(R.string.action_add_entry_to_studypad, labelName)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         val contentType = arguments.optString("contentType", "MARKDOWN")

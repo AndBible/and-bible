@@ -1,0 +1,26 @@
+## Changelog Summary
+
+**Features & Improvements:**
+- Hide My Documents behind the AI experimental feature flag (84c9322ab)
+- Disable infinite scroll for AI documents, show nav buttons instead (f74c040c3)
+- Instruct LLM to skip preamble and go straight to document content (7da64dea8)
+- Update AI provider tier labels and adjust text styling (e044aa54c)
+- Rename "AI text processing" to "AI features" in experimental settings (d153afc8b)
+
+**Bug Fixes:**
+- Fix agent permission dialog and ALWAYS_ASK session grant (77dd25c0d)
+- Fix sync settings migration losing enabled state on upgrade (c38a70440)
+- Fix OpenAI-compatible API tool calls missing 'type' field (50a7f9208)
+- Refresh AI settings menu visibility when drawer opens (dbea70807)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
