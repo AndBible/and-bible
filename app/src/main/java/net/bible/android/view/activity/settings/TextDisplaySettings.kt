@@ -156,24 +156,15 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val workspaceLink = findPreference<Preference>("open_workspace_settings")
         val globalLink = findPreference<Preference>("open_global_settings")
 
+        workspaceLink?.icon = CommonUtils.makeLarger(getTintedDrawable(R.drawable.ic_workspace_overlay_24dp), 1.5F)
+        globalLink?.icon = CommonUtils.makeLarger(getTintedDrawable(R.drawable.ic_baseline_public_24), 1.5F)
+
         when (settingsBundle.level) {
             SettingsLevel.WINDOW -> {
                 workspaceLink?.title = getString(R.string.workspace_text_options_link, settingsBundle.workspaceName)
-                workspaceLink?.setOnPreferenceClickListener {
-                    openWorkspaceSettings()
-                    true
-                }
-                globalLink?.setOnPreferenceClickListener {
-                    openGlobalSettings()
-                    true
-                }
             }
             SettingsLevel.WORKSPACE -> {
                 workspaceLink?.isVisible = false
-                globalLink?.setOnPreferenceClickListener {
-                    openGlobalSettings()
-                    true
-                }
             }
             SettingsLevel.GLOBAL -> {
                 parentCategory?.isVisible = false
@@ -264,7 +255,10 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
 
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
-        if (preference.key in parentSettingsKeys) return super.onPreferenceTreeClick(preference)
+        when (preference.key) {
+            "open_workspace_settings" -> { openWorkspaceSettings(); return true }
+            "open_global_settings" -> { openGlobalSettings(); return true }
+        }
         var returnValue = true
         val prefItem = getPrefItem(settingsBundle, preference.key)
         val type = try {Types.valueOf(preference.key)} catch (e: IllegalArgumentException) { null }
