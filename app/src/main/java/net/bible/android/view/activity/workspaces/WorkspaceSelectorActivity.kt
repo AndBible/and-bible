@@ -51,6 +51,7 @@ import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.ActivityScope
@@ -319,11 +320,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
             R.id.settings -> {
                 val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
                 val settings = SettingsBundle(
+                    level = SettingsLevel.WORKSPACE,
                     workspaceId = workspaceId,
                     workspaceName = workspace.name,
-                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default).apply {
+                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()).apply {
                         colors?.workspaceColor = workspace.workspaceSettings?.workspaceColor
                     },
+                    globalSettings = CommonUtils.globalTextDisplaySettings,
                 )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -378,8 +381,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
 
     private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(workspace.id, workspace.name, workspace.textDisplaySettings
-                ?: WorkspaceEntities.TextDisplaySettings.default), it).title
+            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = workspace.id, workspaceName = workspace.name,
+                workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+                globalSettings = CommonUtils.globalTextDisplaySettings), it).title
         }.toTypedArray()
         val checkedItems = items.map { false }.toBooleanArray()
         val dialog = AlertDialog.Builder(this)
@@ -420,7 +424,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 for ((wsIdx, ws) in dataSet.withIndex())
                     for ((tIdx, type) in types.withIndex()) {
                         if(checkedTypes[tIdx] && checkedItems[wsIdx] && workspace.id != ws.id) {
-                            val s = ws.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+                            val s = ws.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
                             s.setValue(type, workspace.textDisplaySettings?.getValue(type))
                             ws.textDisplaySettings = s
                         }
@@ -475,7 +479,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             val settings = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
             val workspaceItem = dataSet.find {it.id == settings.workspaceId}!!
             workspaceItem.textDisplaySettings =
-                if(reset) WorkspaceEntities.TextDisplaySettings.default
+                if(reset) WorkspaceEntities.TextDisplaySettings()
                 else settings.workspaceSettings
             if(reset) {
                 workspaceItem.workspaceSettings?.workspaceColor = defaultWorkspaceColor

@@ -40,6 +40,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.bible.android.BibleApplication
+import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
@@ -291,6 +293,17 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 startActivity(Intent(context, AiSettingsActivity::class.java))
                 true
             }
+        }
+
+        preferenceScreen.findPreference<Preference>("global_text_display_settings")?.setOnPreferenceClickListener {
+            val settingsBundle = SettingsBundle(
+                level = SettingsLevel.GLOBAL,
+                globalSettings = CommonUtils.globalTextDisplaySettings,
+            )
+            val intent = Intent(context, TextDisplaySettingsActivity::class.java)
+            intent.putExtra("settingsBundle", settingsBundle.toJson())
+            startActivity(intent)
+            true
         }
 
         (preferenceScreen.findPreference<EditTextPreference>("discrete_mode") as Preference).run {
