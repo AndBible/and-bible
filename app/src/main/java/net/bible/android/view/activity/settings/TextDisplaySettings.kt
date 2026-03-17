@@ -28,9 +28,11 @@ import android.text.style.ImageSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.preference.Preference
 import androidx.preference.PreferenceDataStore
 import androidx.preference.PreferenceFragmentCompat
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
@@ -145,11 +147,91 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         val activity = activity as TextDisplaySettingsActivity
         preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, settingsBundle)
         setPreferencesFromResource(R.xml.text_display_settings, rootKey)
+        setupParentSettingsLinks()
         updateItems()
     }
 
+    private fun setupParentSettingsLinks() {
+        val parentCategory = findPreference<androidx.preference.PreferenceCategory>("parent_settings_category")
+        val workspaceLink = findPreference<Preference>("open_workspace_settings")
+        val globalLink = findPreference<Preference>("open_global_settings")
+
+        when (settingsBundle.level) {
+            SettingsLevel.WINDOW -> {
+                workspaceLink?.title = getString(R.string.workspace_text_options_link, settingsBundle.workspaceName)
+                workspaceLink?.setOnPreferenceClickListener {
+                    openWorkspaceSettings()
+                    true
+                }
+                globalLink?.setOnPreferenceClickListener {
+                    openGlobalSettings()
+                    true
+                }
+            }
+            SettingsLevel.WORKSPACE -> {
+                workspaceLink?.isVisible = false
+                globalLink?.setOnPreferenceClickListener {
+                    openGlobalSettings()
+                    true
+                }
+            }
+            SettingsLevel.GLOBAL -> {
+                parentCategory?.isVisible = false
+            }
+        }
+    }
+
+    private fun openWorkspaceSettings() {
+        val activity = activity as TextDisplaySettingsActivity
+        activity.lifecycleScope.launch {
+            val intent = Intent(context, TextDisplaySettingsActivity::class.java)
+            val wsBundle = SettingsBundle(
+                level = SettingsLevel.WORKSPACE,
+                workspaceId = settingsBundle.workspaceId,
+                workspaceName = settingsBundle.workspaceName,
+                workspaceSettings = settingsBundle.workspaceSettings,
+                globalSettings = settingsBundle.globalSettings,
+            )
+            intent.putExtra("settingsBundle", wsBundle.toJson())
+            val result = activity.awaitIntent(intent)
+            if (result.resultCode == Activity.RESULT_OK) {
+                val returnedBundle = SettingsBundle.fromJson(result.data?.getStringExtra("settingsBundle")!!)
+                activity.settingsBundle = settingsBundle.copy(
+                    workspaceSettings = returnedBundle.workspaceSettings,
+                    globalSettings = returnedBundle.globalSettings,
+                )
+                activity.setResult()
+                updateItems()
+            }
+        }
+    }
+
+    private fun openGlobalSettings() {
+        val activity = activity as TextDisplaySettingsActivity
+        activity.lifecycleScope.launch {
+            val intent = Intent(context, TextDisplaySettingsActivity::class.java)
+            val globalBundle = SettingsBundle(
+                level = SettingsLevel.GLOBAL,
+                globalSettings = settingsBundle.globalSettings,
+            )
+            intent.putExtra("settingsBundle", globalBundle.toJson())
+            val result = activity.awaitIntent(intent)
+            if (result.resultCode == Activity.RESULT_OK) {
+                val returnedBundle = SettingsBundle.fromJson(result.data?.getStringExtra("settingsBundle")!!)
+                activity.settingsBundle = settingsBundle.copy(
+                    globalSettings = returnedBundle.globalSettings,
+                )
+                activity.setResult()
+                updateItems()
+            }
+        }
+    }
+
+    private val parentSettingsKeys = setOf("open_workspace_settings", "open_global_settings")
+
     internal fun updateItems() {
         for(p in getPreferenceList()) {
+            if (p.key in parentSettingsKeys) continue
             updateItem(p)
         }
     }
@@ -182,6 +264,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
 
 
     override fun onPreferenceTreeClick(preference: Preference): Boolean {
+        if (preference.key in parentSettingsKeys) return super.onPreferenceTreeClick(preference)
         var returnValue = true
         val prefItem = getPrefItem(settingsBundle, preference.key)
         val type = try {Types.valueOf(preference.key)} catch (e: IllegalArgumentException) { null }

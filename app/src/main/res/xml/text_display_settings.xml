@@ -170,4 +170,21 @@
             android:summary="@string/bookmark_settings_hide_labels_summary"
             />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:key="parent_settings_category"
+        android:title="@string/parent_settings_category_title"
+        >
+        <Preference
+            android:key="open_workspace_settings"
+            android:title="@string/workspace_text_options_link"
+            android:summary="@string/workspace_text_options_link_summary"
+            android:icon="@drawable/ic_workspace_overlay_24dp"
+            />
+        <Preference
+            android:key="open_global_settings"
+            android:title="@string/global_text_options_link"
+            android:summary="@string/global_text_options_link_summary"
+            android:icon="@drawable/ic_baseline_public_24"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>
