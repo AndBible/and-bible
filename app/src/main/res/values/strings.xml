@@ -214,6 +214,13 @@
     <string name="text_display_settings_activity_title">Text display settings</string>
     <string name="workspace_text_display_settings_title">Text options - %s</string>
     <string name="window_text_display_settings_title">Text options - Window %d</string>
+    <string name="global_text_display_settings_title">Global text options</string>
+    <string name="global_text_display_settings_summary">Default text display settings for all workspaces</string>
+    <string name="parent_settings_category_title">Parent settings</string>
+    <string name="workspace_text_options_link">Workspace text options — %s</string>
+    <string name="workspace_text_options_link_summary">Edit text display settings for this workspace</string>
+    <string name="global_text_options_link">Global text options</string>
+    <string name="global_text_options_link_summary">Edit default text display settings for all workspaces</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
 
@@ -581,8 +588,11 @@
     <!-- param is refresh icon -->
     <string name="assing_labels_help5">Tap %s to re-order the list based on your selections.</string>
 
+    <string name="global_text_options_help_title">Global text options</string>
+    <string name="global_text_options_help1">These are the global default settings for all workspaces. Each workspace can override these with its own settings.</string>
+
     <string name="workspace_text_options_help_title">Workspace text options</string>
-    <string name="workspace_text_options_help1">These settings determine the default for all workspace windows.</string>
+    <string name="workspace_text_options_help1">These settings determine the default for all workspace windows. Settings inherited from global defaults are indicated accordingly.</string>
     <string name="workspace_text_options_help2">You can override these by changing the individual window settings.</string>
 
     <string name="window_text_options_help_title">Window text options</string>
@@ -961,7 +971,7 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
-    <string name="experimental_feature_ai_features">AI features</string>
+    <string name="experimental_feature_ai_features">AI features &amp; My Documents</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -1536,6 +1546,21 @@
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
     <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s</string>
+    <string name="agent_permission_message_with_action">The AI assistant wants to:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+    <string name="action_create_bookmark_at">Create bookmark at %1$s</string>
+    <string name="action_create_bookmark_at_with_extras">Create bookmark at %1$s (%2$s)</string>
+    <string name="action_with_note">with note</string>
+    <string name="action_labels">labels: %1$s</string>
+    <string name="action_add_note_to_bookmark_at">Add note to bookmark at %1$s</string>
+    <string name="action_update_note_on_bookmark_at">Update note on bookmark at %1$s</string>
+    <string name="action_create_label">Create label \"%1$s\"</string>
+    <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
+    <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
+    <string name="action_set_document_title">Set document title: \"%1$s\"</string>
+    <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
+    <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
     <string name="permission_allow_all_session">Allow all tools this session</string>

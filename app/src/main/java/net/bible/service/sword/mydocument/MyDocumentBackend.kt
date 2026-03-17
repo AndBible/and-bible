@@ -124,23 +124,20 @@ class MyDocumentBackend(
 
         val content = page.content ?: ""
 
-        // Add footer element for MyDocument pages
-        val isAiPage = page.sourcePromptId != null
-        val myDocFooter = "<myDocFooter pageId=\"${page.id}\" isAiPage=\"$isAiPage\"/>"
-
         // Wrap content based on type:
         // MARKDOWN: converted to XHTML, addAnchors() adds BVA elements for scroll tracking
         // HTML: wrapped in <html> tag, rendered by Vue.js Html component
         // OSIS: returned as-is
+        // Note: AI footer (regenerate/delete) is rendered by Vue.js OsisDocument component,
+        // not embedded in the content, so it doesn't leak into bookmarks or other contexts.
         val result = when (page.contentType) {
             MyDocumentContentType.MARKDOWN -> {
                 val xhtml = MarkdownToXhtml.convert(content)
-                "<div class=\"mydoc-markdown\">$xhtml$myDocFooter</div>"
+                "<div class=\"mydoc-markdown\">$xhtml</div>"
             }
             MyDocumentContentType.HTML ->
-                "<div class=\"mydoc-html\"><html>${escapeXml(content)}</html>$myDocFooter</div>"
-            MyDocumentContentType.OSIS ->
-                "<div>$content$myDocFooter</div>"
+                "<div class=\"mydoc-html\"><html>${escapeXml(content)}</html></div>"
+            MyDocumentContentType.OSIS -> content
         }
         return result
     }

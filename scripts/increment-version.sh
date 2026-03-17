@@ -119,9 +119,14 @@ fi
 echo -e "${GREEN}✓ AndroidManifest.xml updated successfully${NC}"
 
 # Generate changelog with auto-summarized release notes
-# Always diff against the latest production-* tag (also for test builds, since test releases
-# are cleaned up automatically and users need to see changes since last stable release)
-PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+# For production builds, diff against the latest production-* tag
+# For test builds, diff against the latest test-* tag (to show only changes since last test build)
+if [[ "$BUILD_MODE" == true ]]; then
+    PREVIOUS_TAG=$(git describe --tags --match 'test-*' --abbrev=0 HEAD 2>/dev/null || \
+                   git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+else
+    PREVIOUS_TAG=$(git describe --tags --match 'production-*' --abbrev=0 HEAD 2>/dev/null || echo "")
+fi
 if [[ -n "$PREVIOUS_TAG" ]]; then
     echo "Previous tag: $PREVIOUS_TAG"
 else
@@ -141,7 +146,7 @@ fi
 # Try to auto-generate release notes summary from git history
 GENERATED_SUMMARY=""
 if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
-    GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --oneline --no-merges)
+    GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --oneline --first-parent)
     if [[ -n "$GIT_LOG" ]]; then
         echo "Generating release notes from git history (${PREVIOUS_TAG}..HEAD)..."
         if command -v claude >/dev/null 2>&1; then

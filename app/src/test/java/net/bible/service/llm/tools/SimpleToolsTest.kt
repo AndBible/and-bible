@@ -46,9 +46,9 @@ class SimpleToolsTest {
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals("Romans 8:28 Analysis", data.getString("title"))
-        assertTrue(data.getBoolean("finished"))
+        val data = (result as ToolResult.Success).data as SetDocumentTitleTool.Result
+        assertEquals("Romans 8:28 Analysis", data.title)
+        assertTrue(data.finished)
     }
 
     @Test
@@ -76,8 +76,8 @@ class SimpleToolsTest {
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals("Romans 8:28 - Analysis", data.getString("title"))
+        val data = (result as ToolResult.Success).data as SetDocumentTitleTool.Result
+        assertEquals("Romans 8:28 - Analysis", data.title)
     }
 
     @Test
@@ -87,8 +87,8 @@ class SimpleToolsTest {
         val result = SetDocumentTitleTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals(80, data.getString("title").length)
+        val data = (result as ToolResult.Success).data as SetDocumentTitleTool.Result
+        assertEquals(80, data.title.length)
     }
 
     @Test
@@ -119,13 +119,10 @@ class SimpleToolsTest {
         val result = FinishWithoutDocumentTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertTrue(data.getBoolean("finished"))
-        assertEquals("Bookmark created successfully", data.getString("message"))
-        assertEquals(
-            FinishWithoutDocumentTool.FINISH_WITHOUT_DOCUMENT_MARKER,
-            data.getString("marker")
-        )
+        val data = (result as ToolResult.Success).data as FinishWithoutDocumentTool.Result
+        assertTrue(data.finished)
+        assertEquals("Bookmark created successfully", data.message)
+        assertEquals(FinishWithoutDocumentTool.FINISH_WITHOUT_DOCUMENT_MARKER, data.marker)
     }
 
     @Test
@@ -134,8 +131,8 @@ class SimpleToolsTest {
         val result = FinishWithoutDocumentTool.execute(args, context)
 
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals("Task completed", data.getString("message"))
+        val data = (result as ToolResult.Success).data as FinishWithoutDocumentTool.Result
+        assertEquals("Task completed", data.message)
     }
 
     @Test

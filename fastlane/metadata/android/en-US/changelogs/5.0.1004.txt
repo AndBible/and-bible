@@ -1,0 +1,21 @@
+Based on the commits provided:
+
+**No user-facing changes found.**
+
+These commits contain:
+- `3592fd405` - CI/build tooling (changelog generation) — skipped per criteria
+- `da58019bb` - Diagnostic logging for an internal issue — not a user-facing change
+
+If you have additional commits to include in the changelog, please provide them and I'll generate the summary.
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

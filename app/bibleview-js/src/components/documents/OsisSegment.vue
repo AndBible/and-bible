@@ -45,7 +45,6 @@ import Figure from "@/components/OSIS/Figure.vue";
 import A from "@/components/OSIS/A.vue";
 import Abbr from "@/components/OSIS/Abbr.vue";
 import Html from "@/components/OSIS/Html.vue";
-import MyDocFooter from "@/components/OSIS/MyDocFooter.vue";
 import BibleViewAnchor from "@/components/BibleViewAnchor.vue";
 import AndBibleLink from "@/components/OSIS/AndBibleLink.vue";
 import Pb from "@/components/MyBible/Pb.vue";
@@ -81,8 +80,7 @@ const osisComponents = {
     Verse, W, Div, Chapter, Reference, Note, TransChange,
     DivineName, Seg, Milestone, Title, Q, Hi, CatchWord, List, Item, P,
     Cell, L, Lb, Lg, Row, Table, Foreign, Figure, A, Abbr,
-    Html,         // For MyDocument HTML content rendering
-    MyDocFooter,  // For MyDocument page action links (edit, regenerate, delete)
+    Html,      // For MyDocument HTML content rendering
 }
 
 const allComponents = {
@@ -100,7 +98,7 @@ function prefixComponents(components: Record<string, Component>): Record<string,
 
 function getComponents(isNativeHtml: boolean): Record<string, Component> {
     if(isNativeHtml) {
-        return {BVA: BibleViewAnchor, myDocFooter: MyDocFooter, epubRef, reference: Reference, epubA: A, ...andBibleComponents}
+        return {BVA: BibleViewAnchor, epubRef, reference: Reference, epubA: A, ...andBibleComponents}
     } else {
         return prefixComponents(allComponents)
     }

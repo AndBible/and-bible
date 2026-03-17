@@ -65,6 +65,8 @@ interface BaseOsisDocument extends BaseDocument {
     isNativeHtml: boolean
     isMyDocument: boolean
     isAiDocument: boolean
+    myDocumentPageId: string | null
+    sourcePromptId: string | null
 }
 
 export interface OsisDocument extends BaseOsisDocument {

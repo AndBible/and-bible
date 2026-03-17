@@ -107,6 +107,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
@@ -398,6 +399,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
         navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+        navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -441,6 +443,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             override fun onDrawerOpened(drawerView: View) {
                 navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+                navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -843,10 +846,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val dummyStrongsPrefOption
         get() = StrongsPreference(
             SettingsBundle(
+                level = SettingsLevel.WINDOW,
                 pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
                 workspaceId = windowRepository.id,
                 workspaceName = windowRepository.name,
                 workspaceSettings = windowRepository.textDisplaySettings,
+                globalSettings = CommonUtils.globalTextDisplaySettings,
                 windowId = windowControl.activeWindow.id
             ))
 
@@ -893,11 +898,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
             workspaceId = windowRepository.id,
             workspaceName = windowRepository.name,
             workspaceSettings = windowRepository.textDisplaySettings.apply {
                 colors?.workspaceColor = windowRepository.workspaceSettings.workspaceColor
             },
+            globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
@@ -1411,7 +1418,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
-                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
+                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
 
                 binding.run {
                     toolbarLayout.setBackgroundColor(toolbarColor)
@@ -1999,34 +2006,45 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
         val needsReload = requiresReload
-        val windowId = settingsBundle.windowId
-        if(windowId != null) {
-            val window = windowRepository.getWindow(windowId)!!
-            window.pageManager.textDisplaySettings = if(reset)
-                TextDisplaySettings()
-            else
-                settingsBundle.pageManagerSettings!!
+        when (settingsBundle.level) {
+            SettingsLevel.WINDOW -> {
+                val window = windowRepository.getWindow(settingsBundle.windowId!!)!!
+                window.pageManager.textDisplaySettings = if(reset)
+                    TextDisplaySettings()
+                else
+                    settingsBundle.pageManagerSettings!!
 
-            if(needsReload)
-                window.loadText()
-            else {
-                window.bibleView?.updateTextDisplaySettings()
+                if(needsReload)
+                    window.loadText()
+                else {
+                    window.bibleView?.updateTextDisplaySettings()
+                }
             }
-        } else {
-            if(reset) {
-                windowRepository.textDisplaySettings = TextDisplaySettings.default
-                windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
-            } else {
-                windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
-                windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+            SettingsLevel.WORKSPACE -> {
+                if(reset) {
+                    windowRepository.textDisplaySettings = TextDisplaySettings()
+                    windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                } else {
+                    windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                    windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+                }
+                if(dirtyTypes != null) {
+                    windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+                }
+                if(needsReload) {
+                    ABEventBus.post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateAllWindowsTextDisplaySettings()
+                }
             }
-            if(dirtyTypes != null) {
-                windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
-            }
-            if(needsReload) {
-                ABEventBus.post(SynchronizeWindowsEvent(true))
-            } else {
-                windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.GLOBAL -> {
+                // Global settings are saved in TextDisplaySettingsActivity.onBackPressed()
+                // Just update all windows to reflect the changes
+                if(needsReload) {
+                    ABEventBus.post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateAllWindowsTextDisplaySettings()
+                }
             }
         }
         resetSystemUi()
