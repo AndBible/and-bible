@@ -120,7 +120,6 @@ private val addGlobalTextDisplaySettings = makeMigration(14..15) { _db ->
             `text_display_settings_lineSpacing` INTEGER DEFAULT NULL,
             `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL,
             `text_display_settings_showPageNumber` INTEGER DEFAULT NULL,
-            `text_display_settings_llmPromptId` BLOB DEFAULT NULL,
             `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL,
             `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL,
             `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL
@@ -177,7 +176,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addNonStrongsWordItalic,
     addTitleScrollButton,
     addLabelOverridesTable,
-    addInfiniteScrollAndLlmPromptId,
+    addInfiniteScroll,
     addGlobalTextDisplaySettings,
 )
 
