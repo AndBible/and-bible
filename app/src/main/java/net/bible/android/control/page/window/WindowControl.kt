@@ -35,6 +35,7 @@ import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.settings.getPrefItem
@@ -287,8 +288,8 @@ open class WindowControl @Inject constructor() {
     private suspend fun chooseSettingsToCopy(window: Window) = suspendCoroutine {
         val context = CurrentActivityHolder.currentActivity!!
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(windowRepository.id, windowRepository.name,
-                window.pageManager.textDisplaySettings), it).title
+            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = windowRepository.id, workspaceName = windowRepository.name,
+                workspaceSettings = window.pageManager.textDisplaySettings, globalSettings = CommonUtils.globalTextDisplaySettings), it).title
         }.toTypedArray()
 
         val checkedItems = items.map { false }.toBooleanArray()

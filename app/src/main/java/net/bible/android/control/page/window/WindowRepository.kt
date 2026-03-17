@@ -52,7 +52,7 @@ open class WindowRepository(val scope: CoroutineScope) {
     var orderNumber: Int = 0
     val lastSyncWindow: Window? get() = getWindow(lastSyncWindowId)
     var windowList: MutableList<Window> = ArrayList()
-    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings.default
+    var textDisplaySettings = WorkspaceEntities.TextDisplaySettings()
     var workspaceSettings = WorkspaceEntities.WorkspaceSettings.default
     var maximizedWindowId: IdType? = null
     var primaryTargetLinksWindowId: IdType? = null
@@ -346,7 +346,7 @@ open class WindowRepository(val scope: CoroutineScope) {
         maximizedWindowId = entity.maximizedWindowId
         primaryTargetLinksWindowId = entity.primaryTargetLinksWindowId
 
-        textDisplaySettings = entity.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+        textDisplaySettings = entity.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
         workspaceSettings = entity.workspaceSettings?: WorkspaceEntities.WorkspaceSettings.default
         SpeakSettings.currentSettings = workspaceSettings.speakSettings
 
