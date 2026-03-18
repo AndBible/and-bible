@@ -23,5 +23,8 @@
         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_add_circle_outline_white_24dp"
         />
+    <item android:id="@+id/importDocument"
+        android:title="@string/my_document_import_document"
+        />
 
 </menu>

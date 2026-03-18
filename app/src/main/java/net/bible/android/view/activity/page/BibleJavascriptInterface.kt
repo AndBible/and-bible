@@ -23,9 +23,11 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
@@ -37,6 +39,8 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.ErrorDocument
+import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
@@ -62,6 +66,8 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
@@ -715,6 +721,76 @@ class BibleJavascriptInterface(
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    private val windowControl get() = bibleView.windowControl
+
+    @JavascriptInterface
+    fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey)
+            val jsonResult = if (result != null) {
+                json.encodeToString(serializer(), result)
+            } else {
+                "null"
+            }
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+        }
+    }
+
+    @JavascriptInterface
+    fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
+        scope.launch {
+            MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
+        }
+    }
+
+    @JavascriptInterface
+    fun reloadMyDocumentPage(bookInitials: String) {
+        scope.launch {
+            MyDocumentBookManager.refreshDocument(bookInitials)
+        }
+    }
+
+    @JavascriptInterface
+    fun regenerateMyDocumentPage(pageId: String) {
+        val id = IdType(pageId)
+        scope.launch {
+            val errorDoc = ErrorDocument(
+                mainBibleActivity.getString(R.string.ai_document_regenerating),
+                ErrorSeverity.NORMAL
+            )
+            bibleView.loadDocument(errorDoc)
+        }
+        scope.launch(Dispatchers.IO) {
+            val success = AgentSessionManager.regenerateAIDocument(id, targetWindowId = bibleView.window.id)
+            if (!success) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(mainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun deleteMyDocumentPage(pageId: String) {
+        val id = IdType(pageId)
+        scope.launch {
+            AlertDialog.Builder(mainBibleActivity)
+                .setMessage(R.string.ai_document_delete_confirmation)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    MyDocumentBookManager.deleteAIDocumentPage(id)
+                    val errorDoc = ErrorDocument(
+                        mainBibleActivity.getString(R.string.ai_document_deleted),
+                        ErrorSeverity.NORMAL
+                    )
+                    scope.launch {
+                        bibleView.loadDocument(errorDoc)
+                    }
+                }
+                .setNegativeButton(R.string.no, null)
+                .show()
         }
     }
 

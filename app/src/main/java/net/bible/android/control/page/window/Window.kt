@@ -44,6 +44,8 @@ import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.epub.isEpub
+import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
+import net.bible.service.sword.mydocument.isMyDocument
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.passage.Key
@@ -257,6 +259,13 @@ class Window (
                 Log.e(TAG, "waitForBibleView timed out")
                 return;
             }
+        }
+    }
+
+    fun onEvent(e: MyDocumentUpdatedEvent) {
+        val doc = displayedBook ?: return
+        if (doc.isMyDocument && doc.initials == e.initials) {
+            loadText()
         }
     }
 

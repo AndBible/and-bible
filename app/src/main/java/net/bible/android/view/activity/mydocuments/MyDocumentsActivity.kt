@@ -21,7 +21,9 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.SpannableStringBuilder
 import android.util.Log
 import android.view.LayoutInflater
@@ -32,11 +34,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.documentfile.provider.DocumentFile
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.MyDocumentListItemBinding
 import net.bible.android.activity.databinding.MyDocumentsSelectorBinding
@@ -132,6 +140,7 @@ class MyDocumentsActivity : ActivityBase() {
         var isHandled = true
         when (item.itemId) {
             R.id.newItem -> createNewDocument()
+            R.id.importDocument -> importFilesLauncher.launch(arrayOf("text/*"))
             android.R.id.home -> onBackPressed()
             else -> isHandled = false
         }
@@ -329,6 +338,10 @@ class MyDocumentsActivity : ActivityBase() {
                     .create()
                     .show()
             }
+            R.id.exportDocument -> {
+                pendingExportDocument = document
+                exportTreeLauncher.launch(null)
+            }
             R.id.editDescription -> {
                 val descEdit = EditText(this)
                 descEdit.text = SpannableStringBuilder(document.description ?: "")
@@ -421,6 +434,168 @@ class MyDocumentsActivity : ActivityBase() {
         intent.putExtra("documentInitials", document.initials)
         intent.putExtra("documentName", document.name)
         pagesActivityLauncher.launch(intent)
+    }
+
+    private var pendingExportDocument: MyDocument? = null
+
+    private val exportTreeLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+        if (uri == null) return@registerForActivityResult
+        val document = pendingExportDocument ?: return@registerForActivityResult
+        pendingExportDocument = null
+        exportDocumentToFolder(document, uri)
+    }
+
+    private val importFilesLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenMultipleDocuments()
+    ) { uris ->
+        if (uris.isNullOrEmpty()) return@registerForActivityResult
+        showImportNameDialog(uris)
+    }
+
+    private fun exportDocumentToFolder(document: MyDocument, treeUri: Uri) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val pages = dao.pagesWithContentForDocument(document.id)
+                if (pages.isEmpty()) return@launch
+
+                val treeDoc = DocumentFile.fromTreeUri(this@MyDocumentsActivity, treeUri)
+                    ?: return@launch
+
+                for ((index, page) in pages.withIndex()) {
+                    val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
+                    val mimeType = if (ext == "html") "text/html" else "text/markdown"
+                    val orderPrefix = String.format("%02d", index + 1)
+                    val sanitizedTitle = page.title
+                        .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
+                        .take(50)
+                        .ifEmpty { getString(R.string.my_document_export_fallback_name) }
+                    val entryName = "$orderPrefix-$sanitizedTitle.$ext"
+
+                    val file = treeDoc.createFile(mimeType, entryName) ?: continue
+                    contentResolver.openOutputStream(file.uri)?.use { out ->
+                        out.write((page.content ?: "").toByteArray(Charsets.UTF_8))
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(
+                        this@MyDocumentsActivity,
+                        R.string.my_document_export_success,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to export document", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MyDocumentsActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun showImportNameDialog(uris: List<Uri>) {
+        val nameEdit = EditText(this)
+        nameEdit.text = SpannableStringBuilder(getString(R.string.my_document_new_name, dataSet.size + 1))
+
+        val dialog = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val name = nameEdit.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    importDocumentFromFiles(name, uris)
+                }
+            }
+            .setView(nameEdit)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.my_document_create_title))
+            .create()
+
+        nameEdit.selectAll()
+        nameEdit.requestFocus()
+        dialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+        dialog.show()
+    }
+
+    private fun importDocumentFromFiles(documentName: String, uris: List<Uri>) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                data class FileEntry(val fileName: String, val content: String)
+
+                val entries = uris.mapNotNull { uri ->
+                    val fileName = getFileName(uri) ?: return@mapNotNull null
+                    val content = contentResolver.openInputStream(uri)
+                        ?.bufferedReader(Charsets.UTF_8)
+                        ?.use { it.readText() }
+                        ?: return@mapNotNull null
+                    FileEntry(fileName, content)
+                }.sortedBy { it.fileName }
+
+                if (entries.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@MyDocumentsActivity,
+                            R.string.my_document_import_empty_selection,
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                    return@launch
+                }
+
+                val initials = MyDocumentBookManager.generateInitials(documentName)
+                val newDocument = MyDocument(
+                    name = documentName,
+                    initials = initials,
+                    orderNumber = dataSet.size
+                )
+                dao.insert(newDocument)
+
+                for ((index, entry) in entries.withIndex()) {
+                    val contentType = when {
+                        entry.fileName.endsWith(".html", true)
+                            || entry.fileName.endsWith(".htm", true) -> MyDocumentContentType.HTML
+                        else -> MyDocumentContentType.MARKDOWN
+                    }
+                    val rawName = entry.fileName.substringBeforeLast(".")
+                    val title = rawName.replace(Regex("^\\d+-"), "").trim().ifEmpty { getString(R.string.my_document_new_page_name, index + 1) }
+
+                    val pageId = IdType()
+                    val page = MyDocumentPage(
+                        id = pageId,
+                        documentId = newDocument.id,
+                        title = title,
+                        pageKey = "page_$pageId",
+                        contentType = contentType,
+                        orderNumber = index
+                    )
+                    dao.insertPageWithContent(page, entry.content)
+                }
+
+                MyDocumentBookManager.registerDocument(newDocument)
+
+                withContext(Dispatchers.Main) {
+                    dataSet.add(newDocument)
+                    documentAdapter.notifyItemInserted(dataSet.size - 1)
+                    binding.emptyView.visibility = View.GONE
+                    setDirty()
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to import files", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MyDocumentsActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun getFileName(uri: Uri): String? {
+        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIndex >= 0 && cursor.moveToFirst()) {
+                return cursor.getString(nameIndex)
+            }
+        }
+        return uri.lastPathSegment
     }
 
     fun showPopupMenu(view: View, document: MyDocument) {

@@ -137,6 +137,7 @@ open class OsisDocument(
             "genericBookmarks" to listToJson(genericBookmarks.map { ClientGenericBookmark(it).asJson }),
             "highlightedOrdinalRange" to highlightedOrdinalRange,
             "isNativeHtml" to json.encodeToString(serializer(), book.isEpub || book.isMyDocument),
+            "isMyDocument" to json.encodeToString(serializer(), book.isMyDocument),
             "isAiDocument" to json.encodeToString(serializer(), book.initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
             "myDocumentPageId" to wrapString(myDocumentPageId),
             "sourcePromptId" to wrapString(sourcePromptId),

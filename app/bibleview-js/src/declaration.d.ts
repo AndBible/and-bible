@@ -66,6 +66,7 @@ type TranslatedStrings = {
     footnoteTypeTranslation: string
     clearLog: string
     editTextPlaceholder: string
+    myDocumentEdit: string
     inputPlaceholder: string
     inputReference: string
     invalidReference: string
