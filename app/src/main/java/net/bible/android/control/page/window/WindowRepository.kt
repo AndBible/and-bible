@@ -406,17 +406,33 @@ open class WindowRepository(val scope: CoroutineScope) {
 
         for (ws in dao.allWorkspaces()) {
             val wsTds = ws.textDisplaySettings ?: continue
-            val windows = dao.windows(ws.id)
-            val pmList = windows.mapNotNull { dao.pageManager(it.id) }
-            val windowTdsList = pmList.mapNotNull { it.textDisplaySettings }
-
-            val changed = WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
-                dirtyTypes, globalSettings, listOf(wsTds to windowTdsList)
-            )
-
-            if (changed) {
+            var wsChanged = false
+            for (t in dirtyTypes) {
+                if (wsTds.getValue(t) == globalSettings.getValue(t)) {
+                    wsTds.setNonSpecific(t)
+                    wsChanged = true
+                }
+            }
+            if (wsChanged) {
                 dao.updateWorkspace(ws)
-                dao.updatePageManagers(pmList)
+            }
+
+            for (win in dao.windows(ws.id)) {
+                val pm = dao.pageManager(win.id) ?: continue
+                val pmTds = pm.textDisplaySettings ?: continue
+                var pmChanged = false
+                for (t in dirtyTypes) {
+                    val parentValue = wsTds.getValue(t)
+                        ?: globalSettings.getValue(t)
+                        ?: WorkspaceEntities.TextDisplaySettings.default.getValue(t)
+                    if (pmTds.getValue(t) == parentValue) {
+                        pmTds.setNonSpecific(t)
+                        pmChanged = true
+                    }
+                }
+                if (pmChanged) {
+                    dao.updatePageManagers(listOf(pm))
+                }
             }
         }
 
