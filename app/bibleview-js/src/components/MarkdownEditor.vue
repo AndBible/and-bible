@@ -239,8 +239,14 @@ function applyIndent(direction: number) {
 function autoResize() {
     const ta = textareaEl.value;
     if (ta) {
+        // Save scroll position to prevent jump when resetting height
+        const scrollY = window.scrollY;
         ta.style.height = "0";
         ta.style.height = ta.scrollHeight + "px";
+        // Restore scroll position if it shifted during resize
+        if (window.scrollY !== scrollY) {
+            window.scrollTo({top: scrollY});
+        }
     }
 }
 

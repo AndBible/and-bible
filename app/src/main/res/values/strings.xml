@@ -1644,4 +1644,16 @@
     <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
     <string name="my_document_page_rename">Rename</string>
     <string name="my_document_page_delete">Delete</string>
+    <string name="my_document_page_export">Export</string>
+    <string name="my_document_new_page_name">Page %1$d</string>
+    <string name="my_document_create_page_title">New page</string>
+    <string name="my_document_content_type_label">Content type</string>
+    <string name="my_document_import_page">Import Markdown/HTML</string>
+    <string name="my_document_export_page">Export page</string>
+    <string name="my_document_imported_page_name">Imported</string>
+    <string name="my_document_export_fallback_name">page</string>
+    <string name="my_document_export_document">Export all pages</string>
+    <string name="my_document_import_document">Import files as document</string>
+    <string name="my_document_import_empty_selection">No importable files selected</string>
+    <string name="my_document_export_success">Pages exported successfully</string>
 </resources>

@@ -18,6 +18,7 @@
 package net.bible.service.sword.mydocument
 
 import android.util.Log
+import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.AiPageCacheEntry
@@ -27,6 +28,7 @@ import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.CacheableContext
 import org.crosswire.jsword.book.Book
+import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.util.Locale
@@ -118,6 +120,12 @@ object MyDocumentBookManager {
         val book = registeredBooks.remove(initials)
         if (book != null) {
             try {
+                // Deactivate before removing so that Activator's internal set
+                // doesn't retain a stale entry. Without this, a newly registered
+                // book with the same initials would match via equals/hashCode,
+                // causing Activator.activate() to skip activation and leaving
+                // SwordGenBook's internal map null.
+                Activator.deactivate(book)
                 Books.installed().removeBook(book)
                 Log.i(TAG, "Unregistered MyDocument: $initials")
             } catch (e: Exception) {
@@ -131,12 +139,20 @@ object MyDocumentBookManager {
      * This re-creates the book with updated TOC.
      */
     fun refreshDocument(initials: String) {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val document = dao.documentByInitials(initials) ?: return
-
-        // Unregister and re-register
-        unregisterDocument(initials)
-        registerDocument(document)
+        val book = registeredBooks[initials]
+        if (book != null) {
+            // Force re-activation of existing book so its internal key map
+            // (built from readIndex()) reflects the current database state.
+            // This avoids creating a new SwordGenBook instance, which causes
+            // stale Activator entries and null key maps.
+            Activator.deactivate(book)
+            Activator.activate(book)
+        } else {
+            // Book not registered yet — register it
+            val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+            val document = dao.documentByInitials(initials) ?: return
+            registerDocument(document)
+        }
 
         // Notify listeners to invalidate their caches
         ABEventBus.post(MyDocumentUpdatedEvent(initials))
@@ -252,6 +268,70 @@ object MyDocumentBookManager {
         refreshDocument(AI_DOCUMENTS_INITIALS)
         Log.i(TAG, "Deleted AI document page: $pageId")
         return true
+    }
+
+    @Serializable
+    data class PageRawContent(
+        val pageId: String,
+        val contentType: String,
+        val content: String,
+        val title: String,
+        val sourcePromptId: String?
+    )
+
+    /**
+     * Get raw content for a page (for editing in WebView).
+     */
+    fun getPageRawContent(initials: String, pageKey: String): PageRawContent? {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val document = dao.documentByInitials(initials) ?: return null
+        val page = dao.pageByKeyWithContent(document.id, pageKey) ?: return null
+        return PageRawContent(
+            pageId = page.id.toString(),
+            contentType = page.contentType.name,
+            content = page.content ?: "",
+            title = page.title,
+            sourcePromptId = page.sourcePromptId?.toString()
+        )
+    }
+
+    /**
+     * Save page content without refreshing the document registration.
+     * Call refreshDocument separately after editing is complete.
+     */
+    fun savePageContent(pageId: IdType, content: String, title: String?) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val page = dao.pageById(pageId) ?: return
+        if (title != null) {
+            page.title = title
+            page.updatedAt = System.currentTimeMillis()
+            dao.update(page)
+        }
+        dao.insertOrUpdateContent(net.bible.android.database.mydocument.MyDocumentPageContent(pageId = pageId, content = content))
+    }
+
+    /**
+     * Create a new page in a document.
+     */
+    fun createPage(documentId: IdType, title: String, contentType: MyDocumentContentType): MyDocumentPage {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val pageId = IdType()
+        val page = MyDocumentPage(
+            id = pageId,
+            documentId = documentId,
+            title = title,
+            pageKey = "page_${pageId}",
+            contentType = contentType,
+            orderNumber = (dao.maxOrderNumber(documentId) ?: -1) + 1,
+            languageCode = Locale.getDefault().language
+        )
+        dao.insertPageWithContent(page, "")
+
+        val document = dao.documentById(documentId)
+        if (document != null) {
+            refreshDocument(document.initials)
+        }
+        return page
     }
 
     /**
