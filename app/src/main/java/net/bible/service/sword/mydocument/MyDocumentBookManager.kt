@@ -139,12 +139,20 @@ object MyDocumentBookManager {
      * This re-creates the book with updated TOC.
      */
     fun refreshDocument(initials: String) {
-        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
-        val document = dao.documentByInitials(initials) ?: return
-
-        // Unregister and re-register
-        unregisterDocument(initials)
-        registerDocument(document)
+        val book = registeredBooks[initials]
+        if (book != null) {
+            // Force re-activation of existing book so its internal key map
+            // (built from readIndex()) reflects the current database state.
+            // This avoids creating a new SwordGenBook instance, which causes
+            // stale Activator entries and null key maps.
+            Activator.deactivate(book)
+            Activator.activate(book)
+        } else {
+            // Book not registered yet — register it
+            val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+            val document = dao.documentByInitials(initials) ?: return
+            registerDocument(document)
+        }
 
         // Notify listeners to invalidate their caches
         ABEventBus.post(MyDocumentUpdatedEvent(initials))
