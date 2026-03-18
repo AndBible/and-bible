@@ -19,16 +19,16 @@
   <div class="mydoc-footer">
     <hr />
     <div class="mydoc-footer-actions">
-      <button class="mydoc-action-button" @click="emit('start_mydocument_edit')">
+      <button class="mydoc-action-button" @click.stop="emit('start_mydocument_edit')">
         <FontAwesomeIcon :icon="faEdit" class="mydoc-action-icon"/>
         {{ strings.myDocumentEdit }}
       </button>
       <template v-if="isAiPage">
-        <button class="mydoc-action-button" @click="android.regenerateMyDocumentPage(pageId)">
+        <button class="mydoc-action-button" @click.stop="android.regenerateMyDocumentPage(pageId)">
           <FontAwesomeIcon :icon="faSync" class="mydoc-action-icon"/>
           {{ strings.aiDocumentRegenerate }}
         </button>
-        <button class="mydoc-action-button" @click="android.deleteMyDocumentPage(pageId)">
+        <button class="mydoc-action-button" @click.stop="android.deleteMyDocumentPage(pageId)">
           <FontAwesomeIcon :icon="faTrash" class="mydoc-action-icon"/>
           {{ strings.aiDocumentDelete }}
         </button>
