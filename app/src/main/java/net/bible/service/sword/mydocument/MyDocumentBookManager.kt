@@ -28,6 +28,7 @@ import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.CacheableContext
 import org.crosswire.jsword.book.Book
+import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordGenBook
 import java.util.Locale
@@ -119,6 +120,12 @@ object MyDocumentBookManager {
         val book = registeredBooks.remove(initials)
         if (book != null) {
             try {
+                // Deactivate before removing so that Activator's internal set
+                // doesn't retain a stale entry. Without this, a newly registered
+                // book with the same initials would match via equals/hashCode,
+                // causing Activator.activate() to skip activation and leaving
+                // SwordGenBook's internal map null.
+                Activator.deactivate(book)
                 Books.installed().removeBook(book)
                 Log.i(TAG, "Unregistered MyDocument: $initials")
             } catch (e: Exception) {

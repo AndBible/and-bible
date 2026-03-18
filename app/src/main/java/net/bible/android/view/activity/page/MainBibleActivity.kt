@@ -1884,13 +1884,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             if (bookInitials != null && pageKey != null) {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
-                                    try {
-                                        val key = book.getKey(pageKey)
-                                        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-                                        updateActions()
-                                    } catch (e: NullPointerException) {
-                                        Log.e(TAG, "Failed to get key '$pageKey' from book '$bookInitials'", e)
-                                    }
+                                    val key = book.getKey(pageKey)
+                                    windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    updateActions()
                                 }
                             }
                             return
@@ -1901,17 +1897,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             if (bookInitials != null) {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
-                                    try {
-                                        if (pageKey != null) {
-                                            val key = book.getKey(pageKey)
-                                            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
-                                        } else {
-                                            documentControl.changeDocument(book)
-                                        }
-                                        updateActions()
-                                    } catch (e: NullPointerException) {
-                                        Log.e(TAG, "Failed to get key '$pageKey' from book '$bookInitials'", e)
+                                    if (pageKey != null) {
+                                        val key = book.getKey(pageKey)
+                                        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                    } else {
+                                        documentControl.changeDocument(book)
                                     }
+                                    updateActions()
                                 }
                             }
                             return
