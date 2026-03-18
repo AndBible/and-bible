@@ -21,6 +21,9 @@
     <item android:id="@+id/renamePage"
         android:title="@string/my_document_page_rename"
         />
+    <item android:id="@+id/exportPage"
+        android:title="@string/my_document_page_export"
+        />
     <item android:id="@+id/deletePage"
         android:title="@string/my_document_page_delete"
         />

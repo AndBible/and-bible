@@ -104,6 +104,9 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.GlobalTextDisplaySettings
+import net.bible.android.database.InheritedFrom
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -494,6 +497,14 @@ object CommonUtils : CommonUtilsBase() {
         if(s != null) return s
         return AndBibleSettings().apply { _settings = this }
     }
+
+    var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+        get() = DatabaseContainer.instance.workspaceDb
+            .globalTextDisplaySettingsDao().get()?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
+        set(value) {
+            DatabaseContainer.instance.workspaceDb
+                .globalTextDisplaySettingsDao().set(GlobalTextDisplaySettings(textDisplaySettings = value))
+        }
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -1446,6 +1457,21 @@ object CommonUtils : CommonUtilsBase() {
             }
         else
             d1
+    }
+
+    fun iconWithInheritance(icon: Int, inheritedFrom: InheritedFrom, level: SettingsLevel, sizeMultiplier: Float? = null): Drawable {
+        return when {
+            level == SettingsLevel.GLOBAL ->
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
+            inheritedFrom == InheritedFrom.WORKSPACE ->
+                iconWithSync(icon, true, sizeMultiplier)
+            inheritedFrom == InheritedFrom.GLOBAL ->
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
+            level == SettingsLevel.WORKSPACE ->
+                combineIcons(icon, R.drawable.ic_workspace_overlay_24dp, sizeMultiplier)
+            else ->
+                getTintedDrawable(icon).let { if (sizeMultiplier != null) makeLarger(it, sizeMultiplier) else it }
+        }
     }
 
     fun fixAlertDialogButtons(dialog: AlertDialog) {

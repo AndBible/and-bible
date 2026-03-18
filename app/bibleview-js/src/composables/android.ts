@@ -103,6 +103,11 @@ export type BibleJavascriptInterface = {
     goToPreviousChapter: () => void,
     llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    getMyDocumentPageRawContent: (callId: number, bookInitials: string, pageKey: string) => void,
+    saveMyDocumentPageContent: (bookInitials: string, pageId: string, content: string, title: string | null) => void,
+    reloadMyDocumentPage: (bookInitials: string) => void,
+    regenerateMyDocumentPage: (pageId: string) => void,
+    deleteMyDocumentPage: (pageId: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -568,6 +573,26 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    async function getMyDocumentPageRawContent(bookInitials: string, pageKey: string): Promise<any> {
+        return deferredCall((callId) => window.android.getMyDocumentPageRawContent(callId, bookInitials, pageKey));
+    }
+
+    function saveMyDocumentPageContent(bookInitials: string, pageId: string, content: string, title: string | null) {
+        window.android.saveMyDocumentPageContent(bookInitials, pageId, content, title);
+    }
+
+    function reloadMyDocumentPage(bookInitials: string) {
+        window.android.reloadMyDocumentPage(bookInitials);
+    }
+
+    function regenerateMyDocumentPage(pageId: string) {
+        window.android.regenerateMyDocumentPage(pageId);
+    }
+
+    function deleteMyDocumentPage(pageId: string) {
+        window.android.deleteMyDocumentPage(pageId);
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -623,6 +648,11 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         goToPreviousChapter,
         llmAction,
         llmActionGeneric,
+        getMyDocumentPageRawContent,
+        saveMyDocumentPageContent,
+        reloadMyDocumentPage,
+        regenerateMyDocumentPage,
+        deleteMyDocumentPage,
     }
 
     if (config.developmentMode) return {

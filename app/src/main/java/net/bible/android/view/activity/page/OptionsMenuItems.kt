@@ -29,7 +29,9 @@ import net.bible.android.control.document.DocumentControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.page.PageTiltScrollControl
 import net.bible.android.database.IdType
+import net.bible.android.database.InheritedFrom
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.view.activity.base.ActivityBase
@@ -136,16 +138,37 @@ open class Preference(val settings: SettingsBundle,
                       var type: TextDisplaySettings.Types,
                       onlyBibles: Boolean = false,
 ) : GeneralPreference(onlyBibles) {
-    protected val valueInt get() = (value as Int)
-    protected val valueString get() = (value as String)
-    private val actualTextSettings get() = TextDisplaySettings.actual(settings.pageManagerSettings, settings.workspaceSettings)
+    protected val valueInt get() = value as? Int ?: default.getValue(type) as Int
+    protected val valueString get() = value as? String ?: default.getValue(type) as String
+    private val actualTextSettings get() = TextDisplaySettings.actual(
+        settings.pageManagerSettings, settings.workspaceSettings, settings.globalSettings
+    )
     private val pageManagerSettings = settings.pageManagerSettings
     private val workspaceSettings = settings.workspaceSettings
+    private val globalSettings = settings.globalSettings
     val window = windowRepository.getWindow(settings.windowId)
 
     protected val default = TextDisplaySettings.default
 
-    override val inherited: Boolean get() = if (window == null) false else pageManagerSettings?.getValue(type) == null
+    override val inherited: Boolean get() = when (settings.level) {
+        SettingsLevel.WINDOW -> pageManagerSettings?.getValue(type) == null
+        SettingsLevel.WORKSPACE -> workspaceSettings.getValue(type) == null
+        SettingsLevel.GLOBAL -> false
+    }
+
+    val inheritedFrom: InheritedFrom get() = when (settings.level) {
+        SettingsLevel.WINDOW -> when {
+            pageManagerSettings?.getValue(type) != null -> InheritedFrom.NONE
+            workspaceSettings.getValue(type) != null -> InheritedFrom.WORKSPACE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.WORKSPACE -> when {
+            workspaceSettings.getValue(type) != null -> InheritedFrom.NONE
+            else -> InheritedFrom.GLOBAL
+        }
+        SettingsLevel.GLOBAL -> InheritedFrom.NONE
+    }
+
     val pageManager get() = window?.pageManager ?: windowControl.activeWindowPageManager
 
     override val visible: Boolean
@@ -156,10 +179,10 @@ open class Preference(val settings: SettingsBundle,
     override val opensDialog: Boolean = !isBoolean
 
     override fun setNonSpecific() {
-        if(window != null) {
-            pageManagerSettings?.setNonSpecific(type)
-        } else {
-            workspaceSettings.setValue(type, TextDisplaySettings.default.getValue(type))
+        when (settings.level) {
+            SettingsLevel.WINDOW -> pageManagerSettings?.setNonSpecific(type)
+            SettingsLevel.WORKSPACE -> workspaceSettings.setNonSpecific(type)
+            SettingsLevel.GLOBAL -> globalSettings.setValue(type, default.getValue(type))
         }
     }
 
@@ -167,23 +190,36 @@ open class Preference(val settings: SettingsBundle,
         get() = actualTextSettings.getValue(type)?: TextDisplaySettings.default.getValue(type)!!
         set(value) {
             CommonUtils.displaySettingChanged(type)
-            if (window != null) {
-                if (workspaceSettings.getValue(type) ?: default.getValue(type) == value)
-                    pageManagerSettings!!.setNonSpecific(type)
-                else
-                    pageManagerSettings!!.setValue(type, value)
-            } else {
-                workspaceSettings.setValue(type, value)
+            when (settings.level) {
+                SettingsLevel.WINDOW -> {
+                    val parentValue = workspaceSettings.getValue(type)
+                        ?: globalSettings.getValue(type)
+                        ?: default.getValue(type)
+                    if (parentValue == value)
+                        pageManagerSettings!!.setNonSpecific(type)
+                    else
+                        pageManagerSettings!!.setValue(type, value)
+                }
+                SettingsLevel.WORKSPACE -> {
+                    val parentValue = globalSettings.getValue(type) ?: default.getValue(type)
+                    if (parentValue == value)
+                        workspaceSettings.setNonSpecific(type)
+                    else
+                        workspaceSettings.setValue(type, value)
+                }
+                SettingsLevel.GLOBAL -> {
+                    globalSettings.setValue(type, value)
+                }
             }
         }
 
     override val isBoolean: Boolean get() = value is Boolean
 
     override fun handle(){
-        if(window == null) {
-            windowRepository.updateAllWindowsTextDisplaySettings()
-        } else {
-            window.bibleView?.updateTextDisplaySettings()
+        when (settings.level) {
+            SettingsLevel.GLOBAL -> windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.WORKSPACE -> windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.WINDOW -> window?.bibleView?.updateTextDisplaySettings()
         }
     }
 
@@ -327,7 +363,7 @@ class StrongsPreference (settings: SettingsBundle) : Preference(settings, TextDi
         var newChoice = value
         val dialog = AlertDialog.Builder(activity)
             .setTitle(R.string.strongs_mode_title)
-            .setSingleChoiceItems(items, value as Int) { _, v ->
+            .setSingleChoiceItems(items, valueInt) { _, v ->
                 newChoice = v
             }
             .setPositiveButton(R.string.okay) { _,_ ->
@@ -388,7 +424,7 @@ class FontSizePreference(settings: SettingsBundle): Preference(settings, TextDis
     override val title: String get() = application.getString(R.string.font_size_title_pt, valueInt)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, value as Int, {
+        FontSizeWidget.dialog(activity, settings.actualSettings.fontFamily!!, valueInt, {
             setNonSpecific()
             onReset?.invoke()
         }) {
@@ -403,7 +439,7 @@ class TopMarginPreference(settings: SettingsBundle): Preference(settings, TextDi
     override val title: String get() = application.getString(R.string.prefs_top_margin_title_mm, valueInt)
     override val visible = pageManager.isBibleShown
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        TopMarginWidget.dialog(activity, value as Int, {
+        TopMarginWidget.dialog(activity, valueInt, {
             setNonSpecific()
             onReset?.invoke()
         }) {
@@ -418,7 +454,7 @@ class FontFamilyPreference(settings: SettingsBundle): Preference(settings, TextD
     override val title: String get() = application.getString(R.string.pref_font_family_label_name, valueString)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, value as String, {
+        FontFamilyWidget.dialog(activity, settings.actualSettings.fontSize!!, valueString, {
             setNonSpecific()
             onReset?.invoke()
         }) {
@@ -457,7 +493,8 @@ class ColorPreference(settings: SettingsBundle): Preference(settings, TextDispla
 class HideLabelsPreference(settings: SettingsBundle, type: TextDisplaySettings.Types): Preference(settings, type) {
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val intent = Intent(activity, ManageLabels::class.java)
-        val originalValues = value as List<IdType>
+        @Suppress("UNCHECKED_CAST")
+        val originalValues = value as? List<IdType> ?: emptyList()
 
         intent.putExtra("data", ManageLabels.ManageLabelsData(
             mode = ManageLabels.Mode.HIDELABELS,
@@ -510,16 +547,16 @@ class AutoAssignPreference(val workspaceSettings: WorkspaceEntities.WorkspaceSet
 }
 
 class MarginSizePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.MARGINSIZE) {
-    private val leftVal get() = (value as WorkspaceEntities.MarginSize).marginLeft!!
-    private val rightVal get() = (value  as WorkspaceEntities.MarginSize).marginRight!!
-    // I added this field later (migration 15..16) so to prevent crashes because of null values, need to have this.
-    private val maxWidth get() = (value  as WorkspaceEntities.MarginSize).maxWidth ?: defaultVal.maxWidth!!
     private val defaultVal = TextDisplaySettings.default.marginSize!!
+    private val marginSize get() = value as? WorkspaceEntities.MarginSize ?: defaultVal
+    private val leftVal get() = marginSize.marginLeft ?: defaultVal.marginLeft!!
+    private val rightVal get() = marginSize.marginRight ?: defaultVal.marginRight!!
+    private val maxWidth get() = marginSize.maxWidth ?: defaultVal.maxWidth!!
     override val title: String get() = application.getString(R.string.prefs_margin_size_mm_title, leftVal, rightVal, maxWidth)
     override val summary: String? get() = application.getString(R.string.prefs_margin_size_summary) + " " + application.getString(R.string.prefs_margin_size_summary_2)
     override val visible = true
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
-        MarginSizeWidget.dialog(activity, value as WorkspaceEntities.MarginSize,
+        MarginSizeWidget.dialog(activity, marginSize,
             {
                 setNonSpecific()
                 onReset?.invoke()

@@ -76,10 +76,6 @@ class AgentSessionStatusChangedEvent(
 
 /** One active session per workspace, maintaining log entries and execution state. */
 class AgentSession(val workspaceId: IdType) {
-    companion object {
-        private const val TAG = "AgentSession"
-    }
-
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
     val logEntries: List<AgentLogEntry> get() = _logEntries.toList()
 
@@ -97,7 +93,6 @@ class AgentSession(val workspaceId: IdType) {
         this.isRunning = true
         _logEntries.clear()
         addLogEntry(AgentLogEntry.info("Agent started"))
-        Log.i(TAG, "Session started: workspaceId=$workspaceId, posting AgentSessionStatusChangedEvent(isRunning=true)")
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
     }
 
@@ -108,7 +103,6 @@ class AgentSession(val workspaceId: IdType) {
         this.isRunning = false
         this.job?.cancel()
         this.job = null
-        Log.i(TAG, "Session stopped: workspaceId=$workspaceId, posting AgentSessionStatusChangedEvent(isRunning=false)")
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, false))
     }
 
@@ -201,7 +195,6 @@ object AgentSessionManager : AgentSessionManagerBase() {
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
-        Log.i(TAG, "executePrompt: workspaceId=$workspaceId, prompt=${prompt.name}, thread=${Thread.currentThread().name}")
 
         // Build AgentContext and CacheableContext
         val context = buildAgentContext(prompt, selection)

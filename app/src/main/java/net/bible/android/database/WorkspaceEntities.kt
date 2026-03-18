@@ -319,34 +319,78 @@ class WorkspaceEntities {
                 showTitleScrollButton = false
             )
 
-            fun actual(pageManagerEntity: PageManager?, workspaceEntity: Workspace?): TextDisplaySettings {
-                val pg = pageManagerEntity?.textDisplaySettings
-                val ws = workspaceEntity?.textDisplaySettings
-                val def = default
-                return actual(pg?: ws?: def, ws?: def)
-            }
-
-            fun actual(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings): TextDisplaySettings {
-                val pg = pageManagerSettings
-                val ws = workspaceSettings
+            fun actual(
+                pageManagerSettings: TextDisplaySettings?,
+                workspaceSettings: TextDisplaySettings,
+                globalSettings: TextDisplaySettings = TextDisplaySettings()
+            ): TextDisplaySettings {
                 val def = default
                 val result = TextDisplaySettings()
                 for(t in Types.values()) {
-                    result.setValue(t, pg?.getValue(t) ?: ws.getValue(t)?: def.getValue(t)!!)
+                    result.setValue(t,
+                        pageManagerSettings?.getValue(t)
+                            ?: workspaceSettings.getValue(t)
+                            ?: globalSettings.getValue(t)
+                            ?: def.getValue(t)!!
+                    )
                 }
                 return result
             }
 
-            fun markNonSpecific(pageManagerSettings: TextDisplaySettings?, workspaceSettings: TextDisplaySettings) {
+            fun markNonSpecific(
+                pageManagerSettings: TextDisplaySettings?,
+                workspaceSettings: TextDisplaySettings,
+                globalSettings: TextDisplaySettings = TextDisplaySettings()
+            ) {
                 val pg = pageManagerSettings
-                val ws = workspaceSettings
 
                 if(pg == null) return
+                val def = default
                 for(t in Types.values()) {
-                    if(pg.getValue(t) == ws.getValue(t)) {
+                    val parentValue = workspaceSettings.getValue(t)
+                        ?: globalSettings.getValue(t)
+                        ?: def.getValue(t)
+                    if(pg.getValue(t) == parentValue) {
                         pg.setNonSpecific(t)
                     }
                 }
+            }
+
+            /**
+             * Propagate a global settings change to workspaces and their windows.
+             * Nulls values that match their effective parent so they inherit instead.
+             *
+             * @param dirtyTypes which setting types changed
+             * @param globalSettings the new global settings
+             * @param workspacesWithWindows list of (workspaceTds, list of windowTds) pairs
+             * @return true if any settings were modified
+             */
+            fun propagateGlobalChange(
+                dirtyTypes: Set<Types>,
+                globalSettings: TextDisplaySettings,
+                workspacesWithWindows: List<Pair<TextDisplaySettings, List<TextDisplaySettings>>>
+            ): Boolean {
+                var anyChanged = false
+                for ((wsTds, windowTdsList) in workspacesWithWindows) {
+                    for (t in dirtyTypes) {
+                        if (wsTds.getValue(t) == globalSettings.getValue(t)) {
+                            wsTds.setNonSpecific(t)
+                            anyChanged = true
+                        }
+                    }
+                    for (winTds in windowTdsList) {
+                        for (t in dirtyTypes) {
+                            val parentValue = wsTds.getValue(t)
+                                ?: globalSettings.getValue(t)
+                                ?: default.getValue(t)
+                            if (winTds.getValue(t) == parentValue) {
+                                winTds.setNonSpecific(t)
+                                anyChanged = true
+                            }
+                        }
+                    }
+                }
+                return anyChanged
             }
         }
     }
@@ -514,19 +558,35 @@ class WorkspaceEntities {
     }
 }
 
+@Entity
+data class GlobalTextDisplaySettings(
+    @PrimaryKey val id: IdType = SINGLETON_ID,
+    @Embedded(prefix = "text_display_settings_")
+    var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
+) {
+    companion object {
+        /** Fixed ID shared across all devices so sync recognizes it as the same row. */
+        val SINGLETON_ID = IdType.fromString("00000000-0000-0000-0000-000000000001")
+    }
+}
+
+@Serializable
+enum class SettingsLevel { GLOBAL, WORKSPACE, WINDOW }
+
+enum class InheritedFrom { NONE, WORKSPACE, GLOBAL }
+
 @Serializable
 data class SettingsBundle (
-    val workspaceId: IdType,
-    val workspaceName: String,
-    val workspaceSettings: WorkspaceEntities.TextDisplaySettings,
+    val level: SettingsLevel = SettingsLevel.WORKSPACE,
+    val workspaceId: IdType = IdType.empty(),
+    val workspaceName: String = "",
+    val globalSettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
+    val workspaceSettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
     val pageManagerSettings: WorkspaceEntities.TextDisplaySettings? = null,
     val windowId: IdType? = null,
 ) {
     val actualSettings: WorkspaceEntities.TextDisplaySettings get() =
-        if(windowId == null)
-            WorkspaceEntities.TextDisplaySettings.actual(null, workspaceSettings)
-        else
-            WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings!!, workspaceSettings)
+        WorkspaceEntities.TextDisplaySettings.actual(pageManagerSettings, workspaceSettings, globalSettings)
 
     fun toJson(): String {
         return json.encodeToString(serializer(), this)

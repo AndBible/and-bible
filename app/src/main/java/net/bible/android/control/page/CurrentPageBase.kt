@@ -36,6 +36,9 @@ import net.bible.service.sword.DocumentNotFound
 import net.bible.service.sword.OsisError
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.mydocument.isMyDocument
+import net.bible.service.sword.mydocument.myDocumentId
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -152,11 +155,22 @@ abstract class CurrentPageBase protected constructor(
         annotateKey = frag.annotateRef
         ABEventBus.post(CurrentVerseChangedEvent(pageManager.window))
 
+        // For MyDocument pages, pass page metadata so Vue.js can render the AI footer
+        val myDocumentPage = if (currentDocument.isMyDocument) {
+            val documentId = currentDocument.myDocumentId
+            val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
+            if (documentId != null) {
+                DatabaseContainer.instance.myDocumentDb.myDocumentDao().pageByKey(documentId, pageKey)
+            } else null
+        } else null
+
         OsisDocument(
             book = currentDocument,
             key = key,
             osisFragment = frag,
             genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
+            myDocumentPageId = myDocumentPage?.id?.toString(),
+            sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

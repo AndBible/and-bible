@@ -16,22 +16,20 @@
   -->
 
 <template>
-  <div class="whole-page-bookmarks">
-    <div
-        v-for="bookmark in visibleBookmarks"
-        :key="bookmark.id"
-        class="whole-page-bookmark-item"
-        :style="{ color: getColor(bookmark) }"
-        @click.stop="openBookmark(bookmark)"
-    >
-      <FontAwesomeIcon :icon="getIcon(bookmark)" />
-      <span v-if="bookmark.hasNote" class="note-indicator">
-        <FontAwesomeIcon :icon="faEdit" size="xs" />
-      </span>
-    </div>
-    <div class="add-bookmark-button" @click.stop="createBookmark">
-      <FontAwesomeIcon :icon="faPlus" />
-    </div>
+  <div
+      v-for="bookmark in visibleBookmarks"
+      :key="bookmark.id"
+      class="journal-button bookmark-item"
+      :style="{ color: getColor(bookmark) }"
+      @click.stop="openBookmark(bookmark)"
+  >
+    <FontAwesomeIcon :icon="getIcon(bookmark)" />
+    <span v-if="bookmark.hasNote" class="note-indicator">
+      <FontAwesomeIcon :icon="faEdit" size="xs" />
+    </span>
+  </div>
+  <div class="journal-button add-bookmark-button" @click.stop="createBookmark">
+    <FontAwesomeIcon :icon="faPlus" />
   </div>
 </template>
 
@@ -100,52 +98,19 @@ function openBookmark(bookmark: BaseBookmark) {
 function createBookmark() {
   android.createWholePageBookmark(props.bookInitials, props.bookKey);
 }
+
+defineExpose({visibleBookmarks});
 </script>
 
 <style lang="scss" scoped>
-.whole-page-bookmarks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75em;
-  padding: 0.75em;
-  margin-top: 1em;
-  border-top: 1px solid rgba(128, 128, 128, 0.3);
-}
-
-.whole-page-bookmark-item {
-  display: flex;
-  align-items: center;
-  gap: 0.25em;
-  padding: 0.25em 0.5em;
-  border-radius: 4px;
-  background: rgba(128, 128, 128, 0.1);
-  cursor: pointer;
-  font-size: 1.2em;
-
-  &:hover {
-    background: rgba(128, 128, 128, 0.2);
-  }
-
+.bookmark-item {
   .note-indicator {
-    margin-left: 0.25em;
+    margin-left: 0.15em;
     opacity: 0.7;
   }
 }
 
 .add-bookmark-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.25em 0.5em;
-  border-radius: 4px;
-  background: rgba(128, 128, 128, 0.1);
-  cursor: pointer;
-  font-size: 1.2em;
   color: rgba(128, 128, 128, 0.7);
-
-  &:hover {
-    background: rgba(128, 128, 128, 0.2);
-    color: rgba(128, 128, 128, 1);
-  }
 }
 </style>

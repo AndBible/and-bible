@@ -146,7 +146,7 @@ fi
 # Try to auto-generate release notes summary from git history
 GENERATED_SUMMARY=""
 if [[ -n "$PREVIOUS_TAG" ]] && git rev-parse "$PREVIOUS_TAG" >/dev/null 2>&1; then
-    GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --oneline --first-parent)
+    GIT_LOG=$(git log "$PREVIOUS_TAG"..HEAD --first-parent --format="%h %s%w(0,4,4)%+b")
     if [[ -n "$GIT_LOG" ]]; then
         echo "Generating release notes from git history (${PREVIOUS_TAG}..HEAD)..."
         if command -v claude >/dev/null 2>&1; then

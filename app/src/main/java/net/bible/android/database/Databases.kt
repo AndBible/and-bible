@@ -90,6 +90,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
         WorkspaceEntities.WorkspaceLabelOverride::class,
+        GlobalTextDisplaySettings::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -99,6 +100,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
 @TypeConverters(Converters::class)
 abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
+    abstract fun globalTextDisplaySettingsDao(): GlobalTextDisplaySettingsDao
     companion object {
         const val dbFileName = "workspaces.sqlite3"
     }

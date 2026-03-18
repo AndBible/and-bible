@@ -145,3 +145,12 @@ interface WorkspaceDao {
     fun _deleteLabelOverride(oldId: IdType)
     fun remapLabelOverrideId(oldId: IdType, newId: IdType) { _copyLabelOverride(oldId, newId); _deleteLabelOverride(oldId) }
 }
+
+@Dao
+interface GlobalTextDisplaySettingsDao {
+    @Query("SELECT * FROM GlobalTextDisplaySettings LIMIT 1")
+    fun get(): GlobalTextDisplaySettings?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun set(settings: GlobalTextDisplaySettings)
+}

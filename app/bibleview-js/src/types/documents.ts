@@ -63,7 +63,10 @@ interface BaseOsisDocument extends BaseDocument {
     genericBookmarks: GenericBookmark[]
     ordinalRange: OrdinalRange
     isNativeHtml: boolean
+    isMyDocument: boolean
     isAiDocument: boolean
+    myDocumentPageId: string | null
+    sourcePromptId: string | null
 }
 
 export interface OsisDocument extends BaseOsisDocument {
@@ -154,4 +157,12 @@ export interface MemorizeDocument extends BaseDocument{
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {
     return t.type === "osis";
+}
+
+export interface MyDocumentPageEditInfo {
+    pageId: string
+    contentType: "MARKDOWN" | "HTML"
+    content: string
+    title: string
+    sourcePromptId: string | null
 }

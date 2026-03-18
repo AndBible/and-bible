@@ -84,6 +84,15 @@ Only run Android builds when testing Android-specific integration.
 
 **When implementing new features or fixing bugs, always consider adding tests.** Tests should be added whenever reasonably possible — which is almost always. This applies to both Vue.js and Android changes.
 
+**Test quality guidelines:**
+- Write tests that genuinely verify logic — not trivial getter/setter tests or tests that just confirm the code compiles
+- Use good judgment: think about what could actually break and write tests that catch those cases
+- Cover edge cases, boundary conditions, and error paths — not just the happy path
+- Unit tests for isolated logic, integration tests when testing component interaction or data flow
+- Tests should be meaningful enough that a failing test signals a real problem
+- Prefer testing behavior and outcomes over implementation details — tests should survive refactoring
+- For bug fixes: write a test that reproduces the bug first (red), then fix it (green)
+
 **IMPORTANT: Only run tests relevant to the changes made.** If only Kotlin/Java files changed, run Android tests. If only Vue.js/TypeScript files changed, run Vue.js tests. Do not run Vue.js tests for Kotlin-only changes or vice versa.
 
 **Vue.js Tests (for Vue.js/TypeScript changes)**
@@ -167,6 +176,15 @@ const globalBookmarks = useGlobalBookmarks(config)
 // Provide/inject for global state sharing
 provide(androidKey, android)
 const android = inject(androidKey)!
+```
+
+### FontAwesome Icons in Vue.js
+When using `FontAwesomeIcon` in Vue.js components, always import the specific icon object from `@fortawesome/free-solid-svg-icons` and pass it as a bound prop:
+```typescript
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+// Use: <FontAwesomeIcon :icon="faEdit" />
+// NOT: <FontAwesomeIcon icon="edit" />  (string form is unreliable)
 ```
 
 ### Android ↔ Vue.js Communication

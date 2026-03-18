@@ -102,6 +102,7 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "Window"),
             Table(tableName = "PageManager", idField1 = "windowId"),
             Table(tableName = "WorkspaceLabelOverride", idField1 = "workspaceId", idField2 = "labelId"),
+            Table(tableName = "GlobalTextDisplaySettings"),
         )
         READINGPLANS -> listOf(
             Table(tableName = "ReadingPlan"),
