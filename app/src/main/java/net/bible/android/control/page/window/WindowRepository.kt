@@ -436,6 +436,14 @@ open class WindowRepository(val scope: CoroutineScope) {
             }
         }
 
+        // Update in-memory active workspace TDS
+        val activeWsTds = textDisplaySettings
+        for (t in dirtyTypes) {
+            if (activeWsTds.getValue(t) == globalSettings.getValue(t)) {
+                activeWsTds.setNonSpecific(t)
+            }
+        }
+
         // Update in-memory windows of the active workspace
         updateWindowTextDisplaySettingsValues(dirtyTypes, textDisplaySettings)
     }

@@ -847,4 +847,146 @@ class TextDisplaySettingsTest {
         assertNull("window redLetters nulled (false == ws false = parent)", window.showRedLetters)
         assertNull("window lineSpacing nulled (20 == global 20)", window.lineSpacing)
     }
+
+    // --- In-memory workspace→window propagation tests ---
+    // Tests the algorithm used in WindowRepository.updateWindowTextDisplaySettingsValues():
+    // compares window values directly against workspace values (not the full parent chain).
+
+    /**
+     * Helper simulating WindowRepository.updateWindowTextDisplaySettingsValues():
+     * for each dirty type, if window value == workspace value → null it.
+     */
+    private fun simulateWorkspaceToWindowPropagation(
+        dirtyTypes: Set<Types>,
+        workspaceSettings: TextDisplaySettings,
+        windowSettingsList: List<TextDisplaySettings>
+    ) {
+        for (win in windowSettingsList) {
+            for (t in dirtyTypes) {
+                if (win.getValue(t) == workspaceSettings.getValue(t)) {
+                    win.setNonSpecific(t)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `ws-to-window propagation nulls matching window values`() {
+        val ws = TextDisplaySettings(fontSize = 18)
+        val win1 = TextDisplaySettings(fontSize = 18)
+        val win2 = TextDisplaySettings(fontSize = 22)
+
+        simulateWorkspaceToWindowPropagation(setOf(Types.FONTSIZE), ws, listOf(win1, win2))
+
+        assertNull("win1 fontSize nulled (matches ws)", win1.fontSize)
+        assertEquals("win2 fontSize kept (differs)", 22, win2.fontSize)
+    }
+
+    @Test
+    fun `ws-to-window propagation leaves null window values untouched`() {
+        val ws = TextDisplaySettings(fontSize = 18)
+        val win = TextDisplaySettings() // already null
+
+        simulateWorkspaceToWindowPropagation(setOf(Types.FONTSIZE), ws, listOf(win))
+
+        assertNull("win fontSize stays null", win.fontSize)
+    }
+
+    @Test
+    fun `ws-to-window propagation only processes dirty types`() {
+        val ws = TextDisplaySettings(fontSize = 18, showRedLetters = true)
+        val win = TextDisplaySettings(fontSize = 18, showRedLetters = true)
+
+        simulateWorkspaceToWindowPropagation(setOf(Types.FONTSIZE), ws, listOf(win))
+
+        assertNull("fontSize nulled (dirty)", win.fontSize)
+        assertEquals("redLetters untouched (not dirty)", true, win.showRedLetters)
+    }
+
+    @Test
+    fun `ws-to-window propagation with null workspace value nulls matching null windows`() {
+        // Both ws and window have null fontSize → they match (null == null) → window gets nulled (no-op)
+        val ws = TextDisplaySettings()
+        val win = TextDisplaySettings()
+
+        simulateWorkspaceToWindowPropagation(setOf(Types.FONTSIZE), ws, listOf(win))
+
+        assertNull("win fontSize stays null", win.fontSize)
+    }
+
+    // --- Full in-memory global propagation simulation ---
+    // Simulates the complete in-memory path:
+    // 1. Null active workspace TDS values matching global
+    // 2. Then propagate to windows using already-nulled workspace as parent
+
+    /**
+     * Helper simulating the full in-memory propagation from
+     * WindowRepository.propagateGlobalTextDisplaySettingsChange():
+     * first nulls workspace, then propagates to windows.
+     */
+    private fun simulateInMemoryGlobalPropagation(
+        dirtyTypes: Set<Types>,
+        globalSettings: TextDisplaySettings,
+        activeWorkspaceTds: TextDisplaySettings,
+        windowSettingsList: List<TextDisplaySettings>
+    ) {
+        // Step 1: null active workspace values matching global
+        for (t in dirtyTypes) {
+            if (activeWorkspaceTds.getValue(t) == globalSettings.getValue(t)) {
+                activeWorkspaceTds.setNonSpecific(t)
+            }
+        }
+        // Step 2: propagate to windows using (now updated) workspace
+        simulateWorkspaceToWindowPropagation(dirtyTypes, activeWorkspaceTds, windowSettingsList)
+    }
+
+    @Test
+    fun `in-memory global propagation nulls workspace and cascades to windows`() {
+        val ws = TextDisplaySettings(fontSize = 15)
+        val win = TextDisplaySettings(fontSize = 15)
+        val global = TextDisplaySettings(fontSize = 15)
+
+        simulateInMemoryGlobalPropagation(setOf(Types.FONTSIZE), global, ws, listOf(win))
+
+        assertNull("ws fontSize nulled (matches global)", ws.fontSize)
+        // After ws is nulled, ws.fontSize is null. win.fontSize=15 != null → NOT nulled by ws-to-window.
+        // This is correct: ws-to-window compares against ws value (now null), not global.
+        // The window keeps 15, but actual() will still resolve correctly since the DB path handles it.
+        assertEquals("win fontSize kept (15 != null ws value)", 15, win.fontSize)
+    }
+
+    @Test
+    fun `in-memory global propagation keeps workspace override and nulls matching windows`() {
+        val ws = TextDisplaySettings(fontSize = 18) // differs from global
+        val win = TextDisplaySettings(fontSize = 18) // matches ws
+        val global = TextDisplaySettings(fontSize = 15)
+
+        simulateInMemoryGlobalPropagation(setOf(Types.FONTSIZE), global, ws, listOf(win))
+
+        assertEquals("ws fontSize kept (18 != 15)", 18, ws.fontSize)
+        assertNull("win fontSize nulled (matches ws 18)", win.fontSize)
+    }
+
+    @Test
+    fun `in-memory global propagation with mixed types`() {
+        val ws = TextDisplaySettings(fontSize = 15, showRedLetters = false, lineSpacing = 20)
+        val win = TextDisplaySettings(fontSize = 15, showRedLetters = false, lineSpacing = 24)
+        val global = TextDisplaySettings(fontSize = 15, showRedLetters = true, lineSpacing = 20)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.REDLETTERS, Types.LINE_SPACING)
+
+        simulateInMemoryGlobalPropagation(dirtyTypes, global, ws, listOf(win))
+
+        // ws: fontSize=15==15 → null, redLetters=false!=true → kept, lineSpacing=20==20 → null
+        assertNull("ws fontSize nulled", ws.fontSize)
+        assertEquals("ws redLetters kept", false, ws.showRedLetters)
+        assertNull("ws lineSpacing nulled", ws.lineSpacing)
+
+        // win: compared against now-updated ws
+        // fontSize: win=15 vs ws=null → not equal → kept
+        assertEquals("win fontSize kept (ws is now null)", 15, win.fontSize)
+        // redLetters: win=false vs ws=false → equal → nulled
+        assertNull("win redLetters nulled (matches ws)", win.showRedLetters)
+        // lineSpacing: win=24 vs ws=null → not equal → kept
+        assertEquals("win lineSpacing kept (24 != null)", 24, win.lineSpacing)
+    }
 }
