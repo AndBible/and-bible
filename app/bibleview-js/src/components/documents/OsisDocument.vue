@@ -116,8 +116,10 @@ function handleEditClosed() {
 }
 
 if (isMyDocument) {
-    setupEventBusListener("start_mydocument_edit", () => {
-        startEditing();
+    setupEventBusListener("start_mydocument_edit", (targetPageId: string) => {
+        if (targetPageId === props.document.myDocumentPageId) {
+            startEditing();
+        }
     });
 }
 </script>

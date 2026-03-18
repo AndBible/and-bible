@@ -19,7 +19,7 @@
   <div class="mydoc-footer">
     <hr />
     <div class="mydoc-footer-actions">
-      <button class="mydoc-action-button" @click.stop="emit('start_mydocument_edit')">
+      <button class="mydoc-action-button" @click.stop="emit('start_mydocument_edit', pageId)">
         <FontAwesomeIcon :icon="faEdit" class="mydoc-action-icon"/>
         {{ strings.myDocumentEdit }}
       </button>
