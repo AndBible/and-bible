@@ -470,7 +470,7 @@ class MyDocumentsActivity : ActivityBase() {
                     val sanitizedTitle = page.title
                         .replace(Regex("[^a-zA-Z0-9._\\- ]"), "")
                         .take(50)
-                        .ifEmpty { "page" }
+                        .ifEmpty { getString(R.string.my_document_export_fallback_name) }
                     val entryName = "$orderPrefix-$sanitizedTitle.$ext"
 
                     val file = treeDoc.createFile(mimeType, entryName) ?: continue
@@ -557,7 +557,7 @@ class MyDocumentsActivity : ActivityBase() {
                         else -> MyDocumentContentType.MARKDOWN
                     }
                     val rawName = entry.fileName.substringBeforeLast(".")
-                    val title = rawName.replace(Regex("^\\d+-"), "").trim().ifEmpty { "Page ${index + 1}" }
+                    val title = rawName.replace(Regex("^\\d+-"), "").trim().ifEmpty { getString(R.string.my_document_new_page_name, index + 1) }
 
                     val pageId = IdType()
                     val page = MyDocumentPage(

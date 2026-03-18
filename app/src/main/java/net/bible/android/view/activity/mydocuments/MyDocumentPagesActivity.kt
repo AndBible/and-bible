@@ -326,7 +326,7 @@ class MyDocumentPagesActivity : ActivityBase() {
 
     private fun importFile(uri: Uri) {
         try {
-            val fileName = getFileName(uri) ?: "Imported"
+            val fileName = getFileName(uri) ?: getString(R.string.my_document_imported_page_name)
             val content = contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() } ?: return
 
             val contentType = when {
@@ -438,7 +438,7 @@ class MyDocumentPagesActivity : ActivityBase() {
         lifecycleScope.launch(Dispatchers.IO) {
             val pageWithContent = dao.pageByIdWithContent(page.id) ?: return@launch
             val ext = if (page.contentType == MyDocumentContentType.HTML) "html" else "md"
-            val sanitizedTitle = page.title.replace(Regex("[^a-zA-Z0-9._\\- ]"), "").take(50).ifEmpty { "page" }
+            val sanitizedTitle = page.title.replace(Regex("[^a-zA-Z0-9._\\- ]"), "").take(50).ifEmpty { getString(R.string.my_document_export_fallback_name) }
             val fileName = "$sanitizedTitle.$ext"
             val targetDir = File(SharedConstants.internalFilesDir, "export/")
             targetDir.mkdirs()
