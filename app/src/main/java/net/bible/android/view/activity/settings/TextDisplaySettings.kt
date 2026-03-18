@@ -393,6 +393,9 @@ class TextDisplaySettingsActivity: ActivityBase() {
     override fun onBackPressed() {
         if (settingsBundle.level == SettingsLevel.GLOBAL && dirtyTypes.isNotEmpty()) {
             CommonUtils.globalTextDisplaySettings = settingsBundle.globalSettings
+            CommonUtils.windowControl.windowRepository.propagateGlobalTextDisplaySettingsChange(
+                dirtyTypes, settingsBundle.globalSettings
+            )
             CommonUtils.windowControl.windowRepository.updateAllWindowsTextDisplaySettings()
         }
         if (bundleStack.isNotEmpty()) {

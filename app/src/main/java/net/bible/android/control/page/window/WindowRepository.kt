@@ -392,6 +392,38 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     }
 
+    /**
+     * When global settings change, propagate non-specificity to all workspaces and their windows.
+     * If a workspace value matches the new global value, it is nulled (inherits from global).
+     * If a window value matches its effective parent (workspace ?? global ?? default), it is nulled.
+     * Updates both the database (all workspaces) and in-memory state (active workspace windows).
+     */
+    fun propagateGlobalTextDisplaySettingsChange(
+        dirtyTypes: Set<WorkspaceEntities.TextDisplaySettings.Types>,
+        globalSettings: WorkspaceEntities.TextDisplaySettings
+    ) {
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+
+        for (ws in dao.allWorkspaces()) {
+            val wsTds = ws.textDisplaySettings ?: continue
+            val windows = dao.windows(ws.id)
+            val pmList = windows.mapNotNull { dao.pageManager(it.id) }
+            val windowTdsList = pmList.mapNotNull { it.textDisplaySettings }
+
+            val changed = WorkspaceEntities.TextDisplaySettings.propagateGlobalChange(
+                dirtyTypes, globalSettings, listOf(wsTds to windowTdsList)
+            )
+
+            if (changed) {
+                dao.updateWorkspace(ws)
+                dao.updatePageManagers(pmList)
+            }
+        }
+
+        // Update in-memory windows of the active workspace
+        updateWindowTextDisplaySettingsValues(dirtyTypes, textDisplaySettings)
+    }
+
     fun updateAllWindowsTextDisplaySettings() {
         for (it in sortedWindows) {
             it.bibleView?.updateTextDisplaySettings()

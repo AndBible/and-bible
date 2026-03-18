@@ -20,8 +20,10 @@ package net.bible.android.database
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class TextDisplaySettingsTest {
@@ -219,5 +221,495 @@ class TextDisplaySettingsTest {
         assertEquals(14, actual.fontSize)
         // Other values should come from defaults
         assertEquals(TextDisplaySettings.default.showRedLetters, actual.showRedLetters)
+    }
+
+    // --- Global change propagation tests ---
+    // These test the algorithm used in WindowRepository.propagateGlobalTextDisplaySettingsChange()
+
+    @Test
+    fun `global propagation nulls workspace value that matches new global value`() {
+        val workspace = TextDisplaySettings(fontSize = 15)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Workspace fontSize should be nulled when it matches global", workspace.fontSize)
+    }
+
+    @Test
+    fun `global propagation keeps workspace value that differs from new global value`() {
+        val workspace = TextDisplaySettings(fontSize = 20)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        assertEquals("Workspace fontSize should be kept when different from global", 20, workspace.fontSize)
+    }
+
+    @Test
+    fun `global propagation does not touch workspace null values`() {
+        val workspace = TextDisplaySettings() // fontSize null = inherits
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Workspace fontSize should remain null", workspace.fontSize)
+    }
+
+    @Test
+    fun `global propagation nulls window value that matches effective parent`() {
+        val workspace = TextDisplaySettings(fontSize = 18) // workspace overrides
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 18) // matches workspace
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        // Simulate window propagation: parent = workspace ?? global ?? default
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Window fontSize should be nulled when it matches workspace parent", window.fontSize)
+    }
+
+    @Test
+    fun `global propagation nulls window value that matches global when workspace is null`() {
+        val workspace = TextDisplaySettings() // fontSize null
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 15) // matches global (effective parent)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Window fontSize should be nulled when it matches global parent", window.fontSize)
+    }
+
+    @Test
+    fun `global propagation keeps window value that differs from effective parent`() {
+        val workspace = TextDisplaySettings() // fontSize null
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 22) // differs from global
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertEquals("Window fontSize should be kept when different from parent", 22, window.fontSize)
+    }
+
+    @Test
+    fun `global propagation handles multiple dirty types independently`() {
+        val workspace = TextDisplaySettings(fontSize = 15, showRedLetters = false)
+        val newGlobal = TextDisplaySettings(fontSize = 15, showRedLetters = true)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.REDLETTERS)
+
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        assertNull("fontSize should be nulled (matches global)", workspace.fontSize)
+        assertEquals("showRedLetters should be kept (differs from global)", false, workspace.showRedLetters)
+    }
+
+    @Test
+    fun `global propagation nulls window value that matches default when workspace and global are null`() {
+        val workspace = TextDisplaySettings()
+        val newGlobal = TextDisplaySettings() // fontSize not set
+        val window = TextDisplaySettings(fontSize = TextDisplaySettings.default.fontSize)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Window fontSize should be nulled when it matches default", window.fontSize)
+    }
+
+    // --- Workspace → Window propagation tests ---
+    // These test the algorithm used in WindowRepository.updateWindowTextDisplaySettingsValues()
+
+    @Test
+    fun `workspace propagation nulls window value that matches new workspace value`() {
+        val workspace = TextDisplaySettings(fontSize = 18)
+        val window = TextDisplaySettings(fontSize = 18)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (window.getValue(t) == workspace.getValue(t)) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Window fontSize should be nulled when it matches workspace", window.fontSize)
+    }
+
+    @Test
+    fun `workspace propagation keeps window value that differs from workspace`() {
+        val workspace = TextDisplaySettings(fontSize = 18)
+        val window = TextDisplaySettings(fontSize = 22)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (window.getValue(t) == workspace.getValue(t)) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertEquals("Window fontSize should be kept when different from workspace", 22, window.fontSize)
+    }
+
+    @Test
+    fun `workspace propagation does not touch null window values`() {
+        val workspace = TextDisplaySettings(fontSize = 18)
+        val window = TextDisplaySettings() // fontSize null = inherits
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        for (t in dirtyTypes) {
+            if (window.getValue(t) == workspace.getValue(t)) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Window fontSize should remain null", window.fontSize)
+    }
+
+    @Test
+    fun `workspace propagation handles multiple dirty types independently`() {
+        val workspace = TextDisplaySettings(fontSize = 18, showRedLetters = true)
+        val window = TextDisplaySettings(fontSize = 18, showRedLetters = false)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.REDLETTERS)
+
+        for (t in dirtyTypes) {
+            if (window.getValue(t) == workspace.getValue(t)) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("fontSize should be nulled (matches workspace)", window.fontSize)
+        assertEquals("showRedLetters should be kept (differs from workspace)", false, window.showRedLetters)
+    }
+
+    @Test
+    fun `workspace propagation only processes dirty types`() {
+        val workspace = TextDisplaySettings(fontSize = 18, showRedLetters = true)
+        val window = TextDisplaySettings(fontSize = 18, showRedLetters = true) // both match
+        val dirtyTypes = setOf(Types.FONTSIZE) // only fontSize is dirty
+
+        for (t in dirtyTypes) {
+            if (window.getValue(t) == workspace.getValue(t)) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("fontSize should be nulled (dirty and matches)", window.fontSize)
+        assertEquals("showRedLetters should be kept (not in dirtyTypes)", true, window.showRedLetters)
+    }
+
+    // --- Full cascade tests ---
+
+    // --- Integration tests using propagateGlobalChange() ---
+
+    @Test
+    fun `propagateGlobalChange nulls matching workspace and window values across multiple workspaces`() {
+        // 2 workspaces, each with 2 windows
+        val ws1 = TextDisplaySettings(fontSize = 15, showRedLetters = false)
+        val ws1win1 = TextDisplaySettings(fontSize = 15)  // matches ws → should be nulled
+        val ws1win2 = TextDisplaySettings(fontSize = 22)  // differs → kept
+
+        val ws2 = TextDisplaySettings(fontSize = 18)      // differs from global → kept
+        val ws2win1 = TextDisplaySettings(fontSize = 18)  // matches ws → should be nulled
+        val ws2win2 = TextDisplaySettings()               // already null → stays null
+
+        val newGlobal = TextDisplaySettings(fontSize = 15, showRedLetters = true)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.REDLETTERS)
+
+        val workspaces = listOf(
+            ws1 to listOf(ws1win1, ws1win2),
+            ws2 to listOf(ws2win1, ws2win2),
+        )
+
+        val changed = TextDisplaySettings.propagateGlobalChange(dirtyTypes, newGlobal, workspaces)
+
+        assertTrue("Something should have changed", changed)
+
+        // ws1: fontSize=15 matches global=15 → nulled; redLetters=false != true → kept
+        assertNull("ws1 fontSize nulled", ws1.fontSize)
+        assertEquals("ws1 redLetters kept", false, ws1.showRedLetters)
+
+        // ws1win1: fontSize=15, parent is now global=15 → nulled
+        assertNull("ws1win1 fontSize nulled (matches global after ws nulled)", ws1win1.fontSize)
+        // ws1win2: fontSize=22, parent=global=15 → kept
+        assertEquals("ws1win2 fontSize kept", 22, ws1win2.fontSize)
+
+        // ws2: fontSize=18 != 15 → kept
+        assertEquals("ws2 fontSize kept", 18, ws2.fontSize)
+        // ws2win1: fontSize=18, parent=ws2=18 → nulled
+        assertNull("ws2win1 fontSize nulled (matches workspace)", ws2win1.fontSize)
+        // ws2win2: already null → still null
+        assertNull("ws2win2 fontSize still null", ws2win2.fontSize)
+    }
+
+    @Test
+    fun `propagateGlobalChange returns false when nothing changes`() {
+        val ws = TextDisplaySettings(fontSize = 20)
+        val win = TextDisplaySettings(fontSize = 22)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        val changed = TextDisplaySettings.propagateGlobalChange(
+            dirtyTypes, newGlobal, listOf(ws to listOf(win))
+        )
+
+        assertFalse("Nothing should change when no values match", changed)
+        assertEquals(20, ws.fontSize)
+        assertEquals(22, win.fontSize)
+    }
+
+    @Test
+    fun `propagateGlobalChange handles empty workspace list`() {
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val changed = TextDisplaySettings.propagateGlobalChange(
+            setOf(Types.FONTSIZE), newGlobal, emptyList()
+        )
+        assertFalse(changed)
+    }
+
+    @Test
+    fun `propagateGlobalChange handles workspace with no windows`() {
+        val ws = TextDisplaySettings(fontSize = 15)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+
+        val changed = TextDisplaySettings.propagateGlobalChange(
+            setOf(Types.FONTSIZE), newGlobal, listOf(ws to emptyList())
+        )
+
+        assertTrue(changed)
+        assertNull("ws fontSize nulled", ws.fontSize)
+    }
+
+    @Test
+    fun `propagateGlobalChange full scenario with three levels and all setting types`() {
+        // Workspace has some overrides, some null; window has some overrides
+        val ws = TextDisplaySettings(
+            fontSize = 15,
+            lineSpacing = 20,
+            showRedLetters = true,  // differs from global
+        )
+        val win = TextDisplaySettings(
+            fontSize = 15,     // matches ws (which will be nulled) → matches global → nulled
+            lineSpacing = 20,  // matches ws → nulled
+            topMargin = 5,     // not in dirtyTypes → untouched
+        )
+        val newGlobal = TextDisplaySettings(fontSize = 15, lineSpacing = 20, showRedLetters = false)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.LINE_SPACING, Types.REDLETTERS)
+
+        TextDisplaySettings.propagateGlobalChange(
+            dirtyTypes, newGlobal, listOf(ws to listOf(win))
+        )
+
+        // Workspace
+        assertNull("ws fontSize nulled (15==15)", ws.fontSize)
+        assertNull("ws lineSpacing nulled (20==20)", ws.lineSpacing)
+        assertEquals("ws redLetters kept (true!=false)", true, ws.showRedLetters)
+
+        // Window: after ws nulling, effective parents are global values
+        assertNull("win fontSize nulled (15==global 15)", win.fontSize)
+        assertNull("win lineSpacing nulled (20==global 20)", win.lineSpacing)
+        assertEquals("win topMargin untouched (not dirty)", 5, win.topMargin)
+    }
+
+    @Test
+    fun `propagateGlobalChange workspace already null stays null, window matches global`() {
+        // Workspace fontSize is null (inherits). Window has fontSize=15 matching global.
+        val ws = TextDisplaySettings() // fontSize null
+        val win = TextDisplaySettings(fontSize = 15)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+
+        TextDisplaySettings.propagateGlobalChange(
+            setOf(Types.FONTSIZE), newGlobal, listOf(ws to listOf(win))
+        )
+
+        assertNull("ws fontSize should stay null", ws.fontSize)
+        assertNull("win fontSize nulled (matches global, ws is null)", win.fontSize)
+    }
+
+    @Test
+    fun `propagateGlobalChange window matches default when workspace and global are both null`() {
+        val ws = TextDisplaySettings()
+        val win = TextDisplaySettings(fontSize = TextDisplaySettings.default.fontSize)
+        val newGlobal = TextDisplaySettings() // fontSize not set
+
+        TextDisplaySettings.propagateGlobalChange(
+            setOf(Types.FONTSIZE), newGlobal, listOf(ws to listOf(win))
+        )
+
+        assertNull("ws fontSize stays null", ws.fontSize)
+        assertNull("win fontSize nulled (matches default fallback)", win.fontSize)
+    }
+
+    // --- Full cascade tests (inline logic, kept for completeness) ---
+
+    @Test
+    fun `global propagation cascades correctly through workspace nulling to window`() {
+        // Scenario: global fontSize changes to 15, workspace had 15 (gets nulled),
+        // window had 15 (should still be nulled because effective parent is now global=15)
+        val workspace = TextDisplaySettings(fontSize = 15)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 15)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        // Step 1: propagate to workspace
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        // Step 2: propagate to window (using already-updated workspace)
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Workspace fontSize should be nulled", workspace.fontSize)
+        assertNull("Window fontSize should also be nulled", window.fontSize)
+    }
+
+    @Test
+    fun `global cascade keeps window value when it differs from new effective parent`() {
+        // Global changes to 15, workspace had 15 (gets nulled),
+        // but window has 22 (differs from new effective parent=global=15)
+        val workspace = TextDisplaySettings(fontSize = 15)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 22)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        // Step 1: workspace
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        // Step 2: window
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("Workspace fontSize should be nulled", workspace.fontSize)
+        assertEquals("Window fontSize should be kept (22 != 15)", 22, window.fontSize)
+    }
+
+    @Test
+    fun `global cascade with workspace override intact`() {
+        // Global changes to 15, workspace has 18 (kept), window has 18 (matches workspace → nulled)
+        val workspace = TextDisplaySettings(fontSize = 18)
+        val newGlobal = TextDisplaySettings(fontSize = 15)
+        val window = TextDisplaySettings(fontSize = 18)
+        val dirtyTypes = setOf(Types.FONTSIZE)
+
+        // Step 1: workspace (18 != 15, kept)
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        // Step 2: window (18 == workspace's 18 → nulled)
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertEquals("Workspace fontSize should be kept (18 != 15)", 18, workspace.fontSize)
+        assertNull("Window fontSize should be nulled (matches workspace)", window.fontSize)
+    }
+
+    @Test
+    fun `global cascade with multiple types and mixed outcomes`() {
+        // fontSize: global=15, ws=15 → ws nulled; window=15 → nulled (matches global)
+        // redLetters: global=true, ws=false → ws kept; window=false → kept (matches ws)
+        // lineSpacing: global=20, ws=null, window=20 → window nulled (matches global)
+        val workspace = TextDisplaySettings(fontSize = 15, showRedLetters = false)
+        val newGlobal = TextDisplaySettings(fontSize = 15, showRedLetters = true, lineSpacing = 20)
+        val window = TextDisplaySettings(fontSize = 15, showRedLetters = false, lineSpacing = 20)
+        val dirtyTypes = setOf(Types.FONTSIZE, Types.REDLETTERS, Types.LINE_SPACING)
+
+        // Step 1: workspace
+        for (t in dirtyTypes) {
+            if (workspace.getValue(t) == newGlobal.getValue(t)) {
+                workspace.setNonSpecific(t)
+            }
+        }
+
+        // Step 2: window
+        for (t in dirtyTypes) {
+            val parentValue = workspace.getValue(t)
+                ?: newGlobal.getValue(t)
+                ?: TextDisplaySettings.default.getValue(t)
+            if (window.getValue(t) == parentValue) {
+                window.setNonSpecific(t)
+            }
+        }
+
+        assertNull("ws fontSize nulled (matched global)", workspace.fontSize)
+        assertEquals("ws redLetters kept (false != true)", false, workspace.showRedLetters)
+        assertNull("ws lineSpacing was already null", workspace.lineSpacing)
+
+        assertNull("window fontSize nulled (15 == global 15)", window.fontSize)
+        assertNull("window redLetters nulled (false == ws false = parent)", window.showRedLetters)
+        assertNull("window lineSpacing nulled (20 == global 20)", window.lineSpacing)
     }
 }
