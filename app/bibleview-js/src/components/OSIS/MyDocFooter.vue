@@ -19,42 +19,39 @@
   <div class="mydoc-footer">
     <hr />
     <div class="mydoc-footer-actions">
-      <a :href="editLink" class="mydoc-action-link">
+      <button class="mydoc-action-button" @click="emit('start_mydocument_edit')">
         <FontAwesomeIcon :icon="faEdit" class="mydoc-action-icon"/>
         {{ strings.myDocumentEdit }}
-      </a>
+      </button>
       <template v-if="isAiPage">
-        <span class="mydoc-action-separator">|</span>
-        <a :href="regenerateLink" class="mydoc-action-link">
+        <button class="mydoc-action-button" @click="android.regenerateMyDocumentPage(pageId)">
           <FontAwesomeIcon :icon="faSync" class="mydoc-action-icon"/>
           {{ strings.aiDocumentRegenerate }}
-        </a>
-        <span class="mydoc-action-separator">|</span>
-        <a :href="deleteLink" class="mydoc-action-link">
+        </button>
+        <button class="mydoc-action-button" @click="android.deleteMyDocumentPage(pageId)">
           <FontAwesomeIcon :icon="faTrash" class="mydoc-action-icon"/>
           {{ strings.aiDocumentDelete }}
-        </a>
+        </button>
       </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed} from "vue";
+import {inject} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useCommon} from "@/composables";
+import {androidKey} from "@/types/constants";
+import {emit} from "@/eventbus";
 
-const props = defineProps<{
+defineProps<{
     pageId: string
     isAiPage?: boolean
 }>();
 
 const {strings} = useCommon();
-
-const editLink = computed(() => `ab-action://edit?pageId=${encodeURIComponent(props.pageId)}`);
-const regenerateLink = computed(() => `ab-action://regenerate?pageId=${encodeURIComponent(props.pageId)}`);
-const deleteLink = computed(() => `ab-action://delete?pageId=${encodeURIComponent(props.pageId)}`);
+const android = inject(androidKey)!;
 </script>
 
 <style scoped lang="scss">
@@ -74,23 +71,23 @@ const deleteLink = computed(() => `ab-action://delete?pageId=${encodeURIComponen
     font-size: 0.9em;
 }
 
-.mydoc-action-link {
-    color: var(--link-color);
-    text-decoration: none;
-    padding: 0.25em 0.5em;
+.mydoc-action-button {
+    background: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    color: var(--text-color);
+    padding: 0.3em 0.7em;
+    margin: 0 0.2em;
+    cursor: pointer;
+    font-size: 0.85em;
 
-    &:hover {
-        text-decoration: underline;
+    &:active {
+        background: rgba(0, 0, 0, 0.08);
     }
 }
 
 .mydoc-action-icon {
-    margin-right: 0.25em;
-}
-
-.mydoc-action-separator {
-    margin: 0 0.5em;
-    color: #999;
+    margin-right: 0.3em;
 }
 
 .night .mydoc-footer {
@@ -98,8 +95,8 @@ const deleteLink = computed(() => `ab-action://delete?pageId=${encodeURIComponen
         border-top-color: #444;
     }
 
-    .mydoc-action-separator {
-        color: #666;
+    .mydoc-action-button {
+        border-color: #555;
     }
 }
 </style>

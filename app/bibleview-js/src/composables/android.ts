@@ -106,6 +106,8 @@ export type BibleJavascriptInterface = {
     getMyDocumentPageRawContent: (callId: number, bookInitials: string, pageKey: string) => void,
     saveMyDocumentPageContent: (bookInitials: string, pageId: string, content: string, title: string | null) => void,
     reloadMyDocumentPage: (bookInitials: string) => void,
+    regenerateMyDocumentPage: (pageId: string) => void,
+    deleteMyDocumentPage: (pageId: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -583,6 +585,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.reloadMyDocumentPage(bookInitials);
     }
 
+    function regenerateMyDocumentPage(pageId: string) {
+        window.android.regenerateMyDocumentPage(pageId);
+    }
+
+    function deleteMyDocumentPage(pageId: string) {
+        window.android.deleteMyDocumentPage(pageId);
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -641,6 +651,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         getMyDocumentPageRawContent,
         saveMyDocumentPageContent,
         reloadMyDocumentPage,
+        regenerateMyDocumentPage,
+        deleteMyDocumentPage,
     }
 
     if (config.developmentMode) return {
