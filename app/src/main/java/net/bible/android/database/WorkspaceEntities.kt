@@ -560,10 +560,15 @@ class WorkspaceEntities {
 
 @Entity
 data class GlobalTextDisplaySettings(
-    @PrimaryKey val id: Int = 0,
+    @PrimaryKey val id: IdType = SINGLETON_ID,
     @Embedded(prefix = "text_display_settings_")
     var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
-)
+) {
+    companion object {
+        /** Fixed ID shared across all devices so sync recognizes it as the same row. */
+        val SINGLETON_ID = IdType.fromString("00000000-0000-0000-0000-000000000001")
+    }
+}
 
 @Serializable
 enum class SettingsLevel { GLOBAL, WORKSPACE, WINDOW }
