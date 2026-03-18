@@ -21,8 +21,15 @@ import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.Verse
@@ -273,6 +280,83 @@ class BookmarkControlTest {
         // 1 has the same start as 10 but is not the same
         val verseWithSameStart = Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1)
         Assert.assertThat(bookmarkControl!!.hasBookmarksForVerse(verseWithSameStart), IsEqual.equalTo(false))
+    }
+
+    @Test
+    fun testSpecialLabelsCreatedWithCanonicalIds() {
+        val speak = bookmarkControl!!.speakLabel
+        Assert.assertEquals(SPEAK_LABEL_ID, speak.id)
+
+        val unlabeled = bookmarkControl!!.labelUnlabelled
+        Assert.assertEquals(UNLABELED_LABEL_ID, unlabeled.id)
+
+        val paragraphBreak = bookmarkControl!!.paragraphBreakLabel
+        Assert.assertEquals(PARAGRAPH_BREAK_LABEL_ID, paragraphBreak.id)
+    }
+
+    @Test
+    fun testSpecialLabelDeduplication() {
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+        // Insert an old-style speak label with a random ID
+        val oldId = IdType()
+        val oldLabel = Label(id = oldId, name = SPEAK_LABEL_NAME, color = 0xFF0000)
+        dao.insert(oldLabel)
+
+        // Create a bookmark and associate it with the old label
+        val bookmark = addTestVerse()!!
+        dao.insert(BibleBookmarkToLabel(bookmark.id, oldId))
+
+        // Verify the old label exists
+        Assert.assertNotNull(dao.labelById(oldId))
+
+        // Trigger deduplication
+        bookmarkControl!!.deduplicateSpecialLabels()
+
+        // Old label should be gone, canonical should exist
+        Assert.assertNull("Old label should be deleted", dao.labelById(oldId))
+        Assert.assertNotNull("Canonical label should exist", dao.labelById(SPEAK_LABEL_ID))
+
+        // Bookmark should now reference the canonical label
+        val labels = bookmarkControl!!.labelsForBookmark(bookmark)
+        Assert.assertTrue("Bookmark should reference canonical speak label",
+            labels.any { it.id == SPEAK_LABEL_ID })
+    }
+
+    @Test
+    fun testSpecialLabelMergeWithMultipleDuplicates() {
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+        // Insert multiple old-style speak labels with different random IDs
+        val oldId1 = IdType()
+        val oldId2 = IdType()
+        dao.insert(Label(id = oldId1, name = SPEAK_LABEL_NAME, color = 0xFF0000))
+        dao.insert(Label(id = oldId2, name = SPEAK_LABEL_NAME, color = 0x00FF00))
+
+        // Create bookmarks associated with different old labels
+        val bookmark1 = addTestVerse()!!
+        val bookmark2 = addTestVerse()!!
+        dao.insert(BibleBookmarkToLabel(bookmark1.id, oldId1))
+        dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2))
+
+        // Trigger deduplication
+        bookmarkControl!!.deduplicateSpecialLabels()
+
+        // Both old labels should be gone
+        Assert.assertNull("Old label 1 should be deleted", dao.labelById(oldId1))
+        Assert.assertNull("Old label 2 should be deleted", dao.labelById(oldId2))
+
+        // Canonical label should exist
+        val canonical = dao.labelById(SPEAK_LABEL_ID)
+        Assert.assertNotNull("Canonical label should exist", canonical)
+
+        // Both bookmarks should reference the canonical label
+        val labels1 = bookmarkControl!!.labelsForBookmark(bookmark1)
+        Assert.assertTrue("Bookmark1 should reference canonical label",
+            labels1.any { it.id == SPEAK_LABEL_ID })
+        val labels2 = bookmarkControl!!.labelsForBookmark(bookmark2)
+        Assert.assertTrue("Bookmark2 should reference canonical label",
+            labels2.any { it.id == SPEAK_LABEL_ID })
     }
 
     private fun addTestVerse(): BibleBookmarkWithNotes? {

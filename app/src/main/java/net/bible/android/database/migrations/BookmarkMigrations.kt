@@ -133,8 +133,8 @@ private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
     // Special labels (__SPEAK_LABEL__, __UNLABELED__, __PARAGRAPH_BREAK_LABEL__) were created
     // with random UUIDs on each device, causing duplicates during device sync.
     // This migration assigns fixed canonical UUIDs and merges any duplicates.
-
-    db.execSQL("PRAGMA foreign_keys=OFF")
+    // Note: Room runs migrations inside a transaction, so foreign key constraints
+    // are not enforced here (PRAGMA foreign_keys cannot be changed mid-transaction).
 
     data class SpecialLabel(val name: String, val hexId: String)
     val specialLabels = listOf(
@@ -204,7 +204,6 @@ private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
         db.execSQL("DELETE FROM Label WHERE name = '$name' AND id != X'$hex'")
     }
 
-    db.execSQL("PRAGMA foreign_keys=ON")
 }
 
 val bookmarkMigrations: Array<Migration> = arrayOf(
