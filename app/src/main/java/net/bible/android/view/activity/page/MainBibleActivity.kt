@@ -2039,7 +2039,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             SettingsLevel.GLOBAL -> {
                 // Global settings are saved in TextDisplaySettingsActivity.onBackPressed()
-                // Just update all windows to reflect the changes
+                if(dirtyTypes != null) {
+                    windowRepository.propagateGlobalTextDisplaySettingsChange(
+                        dirtyTypes, CommonUtils.globalTextDisplaySettings
+                    )
+                }
                 if(needsReload) {
                     ABEventBus.post(SynchronizeWindowsEvent(true))
                 } else {
