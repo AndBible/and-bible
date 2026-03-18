@@ -306,6 +306,7 @@
     <string name="copy_settings">Copy settings to</string>
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
+    <string name="copy_settings_to_global">Global defaults</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
 

@@ -338,6 +338,22 @@ open class WindowControl @Inject constructor() {
         windowRepository.updateAllWindowsTextDisplaySettings()
     }
 
+    fun copySettingsToGlobal(window: Window) = scope.launch(Dispatchers.Main) {
+        val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+        val checkedTypes = chooseSettingsToCopy(window) ?: return@launch
+        val target = CommonUtils.globalTextDisplaySettings
+        val source = window.pageManager.textDisplaySettings
+
+        for ((tIdx, type) in types.withIndex()) {
+            if (checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
+            }
+        }
+
+        CommonUtils.globalTextDisplaySettings = target
+        windowRepository.updateAllWindowsTextDisplaySettings()
+    }
+
     fun copySettingsToWindow(window: Window, order: Int) {
         val secondWindow = windowRepository.visibleWindows[order]
 

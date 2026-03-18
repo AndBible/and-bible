@@ -107,6 +107,11 @@
 						android:title="@string/copy_settings_to_workspace"
 						android:orderInCategory="1001"
 						/>
+					<item
+						android:id="@+id/copySettingsToGlobal"
+						android:title="@string/copy_settings_to_global"
+						android:orderInCategory="1002"
+						/>
 				</menu>
 			</item>
 		</menu>

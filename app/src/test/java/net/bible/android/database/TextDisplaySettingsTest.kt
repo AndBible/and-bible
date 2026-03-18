@@ -677,6 +677,141 @@ class TextDisplaySettingsTest {
         assertNull("Window fontSize should be nulled (matches workspace)", window.fontSize)
     }
 
+    // --- Copy to target tests (algorithm used in copy-to-global) ---
+
+    @Test
+    fun `copy selected settings copies only checked types`() {
+        val source = TextDisplaySettings(fontSize = 20, showRedLetters = false, lineSpacing = 24)
+        val target = TextDisplaySettings(fontSize = 14, showRedLetters = true, lineSpacing = 16)
+        val types = Types.values()
+        val checkedTypes = BooleanArray(types.size) { false }
+        checkedTypes[types.indexOf(Types.FONTSIZE)] = true
+
+        for ((tIdx, type) in types.withIndex()) {
+            if (checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
+            }
+        }
+
+        assertEquals(20, target.fontSize)
+        assertEquals(true, target.showRedLetters)
+        assertEquals(16, target.lineSpacing)
+    }
+
+    @Test
+    fun `copy all settings copies every type`() {
+        val source = TextDisplaySettings(fontSize = 20, showRedLetters = false, lineSpacing = 24)
+        val target = TextDisplaySettings(fontSize = 14, showRedLetters = true, lineSpacing = 16)
+        val types = Types.values()
+        val checkedTypes = BooleanArray(types.size) { true }
+
+        for ((tIdx, type) in types.withIndex()) {
+            if (checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
+            }
+        }
+
+        assertEquals(20, target.fontSize)
+        assertEquals(false, target.showRedLetters)
+        assertEquals(24, target.lineSpacing)
+    }
+
+    @Test
+    fun `copy null source value overwrites target with null`() {
+        val source = TextDisplaySettings()
+        val target = TextDisplaySettings(fontSize = 14)
+        val types = Types.values()
+        val checkedTypes = BooleanArray(types.size) { true }
+
+        for ((tIdx, type) in types.withIndex()) {
+            if (checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
+            }
+        }
+
+        assertNull(target.fontSize)
+    }
+
+    @Test
+    fun `copy no settings changes nothing`() {
+        val source = TextDisplaySettings(fontSize = 20)
+        val target = TextDisplaySettings(fontSize = 14)
+        val types = Types.values()
+        val checkedTypes = BooleanArray(types.size) { false }
+
+        for ((tIdx, type) in types.withIndex()) {
+            if (checkedTypes[tIdx]) {
+                target.setValue(type, source.getValue(type))
+            }
+        }
+
+        assertEquals(14, target.fontSize)
+    }
+
+    @Test
+    fun `after copy to global, actual reflects new global values for inheriting levels`() {
+        val source = TextDisplaySettings(fontSize = 22, showRedLetters = false)
+        val global = TextDisplaySettings(fontSize = 14, showRedLetters = true)
+
+        val types = Types.values()
+        for (type in types) {
+            global.setValue(type, source.getValue(type))
+        }
+
+        val workspace = TextDisplaySettings()
+        val window = TextDisplaySettings()
+
+        val actual = TextDisplaySettings.actual(window, workspace, global)
+        assertEquals(22, actual.fontSize)
+        assertEquals(false, actual.showRedLetters)
+    }
+
+    @Test
+    fun `after copy to global, workspace override still takes precedence`() {
+        val source = TextDisplaySettings(fontSize = 22)
+        val global = TextDisplaySettings(fontSize = 14)
+
+        global.setValue(Types.FONTSIZE, source.getValue(Types.FONTSIZE))
+
+        val workspace = TextDisplaySettings(fontSize = 30)
+        val window = TextDisplaySettings()
+
+        val actual = TextDisplaySettings.actual(window, workspace, global)
+        assertEquals(30, actual.fontSize)
+    }
+
+    @Test
+    fun `after copy to global, window override still takes precedence`() {
+        val source = TextDisplaySettings(fontSize = 22)
+        val global = TextDisplaySettings(fontSize = 14)
+
+        global.setValue(Types.FONTSIZE, source.getValue(Types.FONTSIZE))
+
+        val workspace = TextDisplaySettings()
+        val window = TextDisplaySettings(fontSize = 40)
+
+        val actual = TextDisplaySettings.actual(window, workspace, global)
+        assertEquals(40, actual.fontSize)
+    }
+
+    @Test
+    fun `partial copy to global only affects checked types in hierarchy`() {
+        val global = TextDisplaySettings(fontSize = 14, showRedLetters = true, lineSpacing = 16)
+        val source = TextDisplaySettings(fontSize = 22, showRedLetters = false, lineSpacing = 28)
+
+        global.setValue(Types.FONTSIZE, source.getValue(Types.FONTSIZE))
+
+        val workspace = TextDisplaySettings()
+        val window = TextDisplaySettings()
+        val actual = TextDisplaySettings.actual(window, workspace, global)
+
+        assertEquals(22, actual.fontSize)
+        assertEquals(true, actual.showRedLetters)
+        assertEquals(16, actual.lineSpacing)
+    }
+
+    // --- Full cascade tests (inline logic, kept for completeness) ---
+
     @Test
     fun `global cascade with multiple types and mixed outcomes`() {
         // fontSize: global=15, ws=15 → ws nulled; window=15 → nulled (matches global)

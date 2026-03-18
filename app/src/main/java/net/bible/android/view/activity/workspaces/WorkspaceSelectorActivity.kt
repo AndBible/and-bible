@@ -375,6 +375,9 @@ class WorkspaceSelectorActivity: ActivityBase() {
             R.id.copySettings -> {
                 copySettingsStage1(workspace)
             }
+            R.id.copySettingsToGlobal -> {
+                copySettingsToGlobalStage(workspace)
+            }
         }
         return false
     }
@@ -445,6 +448,48 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 val newValue = !allSelected
                 val v = dialog.listView
                 for(i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
+    }
+
+    private fun copySettingsToGlobalStage(workspace: WorkspaceEntities.Workspace) {
+        val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
+            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = workspace.id, workspaceName = workspace.name,
+                workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+                globalSettings = CommonUtils.globalTextDisplaySettings), it).title
+        }.toTypedArray()
+        val checkedItems = items.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+                val target = CommonUtils.globalTextDisplaySettings
+                for ((tIdx, type) in types.withIndex()) {
+                    if (checkedItems[tIdx]) {
+                        target.setValue(type, workspace.textDisplaySettings?.getValue(type))
+                    }
+                }
+                CommonUtils.globalTextDisplaySettings = target
+            }
+            .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all, null)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.copy_settings_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for (i in 0 until v.count) {
                     v.setItemChecked(i, newValue)
                     checkedItems[i] = newValue
                 }

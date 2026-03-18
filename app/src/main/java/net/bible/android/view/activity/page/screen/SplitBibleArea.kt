@@ -1024,6 +1024,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWindow(window, order)
             })
+            R.id.copySettingsToGlobal -> CommandPreference({_, _, _ ->
+                windowControl.copySettingsToGlobal(window)
+            })
             R.id.exportHtml -> CommandPreference({ _, _, _ ->
                 window.bibleView?.exportHtml()
             },
