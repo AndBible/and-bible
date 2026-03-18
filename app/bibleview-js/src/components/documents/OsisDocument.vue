@@ -33,22 +33,20 @@
     </div>
 
     <template v-else>
+      <DocumentActionMenu :document="document"/>
       <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
-      <MyDocFooter v-if="document.isMyDocument && document.myDocumentPageId" :page-id="document.myDocumentPageId" :is-ai-page="!!document.sourcePromptId"/>
       <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
       <FeaturesLink :fragment="osisFragment"/>
-      <WholePageBookmarks :book-initials="bookInitials" :book-key="annotateRef"/>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import OsisFragment from "@/components/documents/OsisFragment.vue";
-import MyDocFooter from "@/components/OSIS/MyDocFooter.vue";
+import DocumentActionMenu from "@/components/documents/DocumentActionMenu.vue";
 import EditableText from "@/components/EditableText.vue";
 import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
-import WholePageBookmarks from "@/components/WholePageBookmarks.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {androidKey, customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
 import {inject, provide, ref} from "vue";
@@ -125,6 +123,10 @@ if (isMyDocument) {
 </script>
 
 <style lang="scss" scoped>
+.document {
+  overflow: hidden; // Creates BFC so floated DocumentActionMenu stays within this document
+}
+
 .mydoc-edit-container {
   border: 2px solid rgba(0, 0, 255, 0.5);
   border-radius: 5px;
