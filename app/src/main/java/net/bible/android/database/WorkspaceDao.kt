@@ -140,7 +140,7 @@ interface WorkspaceDao {
 
 @Dao
 interface GlobalTextDisplaySettingsDao {
-    @Query("SELECT * FROM GlobalTextDisplaySettings WHERE id = 0")
+    @Query("SELECT * FROM GlobalTextDisplaySettings LIMIT 1")
     fun get(): GlobalTextDisplaySettings?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -163,6 +163,85 @@ private val addGlobalTextDisplaySettings = makeMigration(14..15) { _db ->
     _db.execSQL("UPDATE Workspace SET text_display_settings_margin_size_maxWidth = NULL WHERE text_display_settings_margin_size_maxWidth = 170")
 }
 
+private val migrateGlobalTdsIdToBlob = makeMigration(15..16) { _db ->
+    // Recreate GlobalTextDisplaySettings with BLOB primary key (IdType) instead of INTEGER.
+    // This is needed for device sync compatibility (sync system expects BLOB PKs).
+    _db.execSQL("ALTER TABLE GlobalTextDisplaySettings RENAME TO GlobalTextDisplaySettings_old")
+    _db.execSQL("""CREATE TABLE IF NOT EXISTS GlobalTextDisplaySettings (
+            `id` BLOB NOT NULL,
+            `text_display_settings_strongsMode` INTEGER DEFAULT NULL,
+            `text_display_settings_showMorphology` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL,
+            `text_display_settings_expandXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showRedLetters` INTEGER DEFAULT NULL,
+            `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL,
+            `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL,
+            `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL,
+            `text_display_settings_showBookmarks` INTEGER DEFAULT NULL,
+            `text_display_settings_showMyNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_justifyText` INTEGER DEFAULT NULL,
+            `text_display_settings_hyphenation` INTEGER DEFAULT NULL,
+            `text_display_settings_topMargin` INTEGER DEFAULT NULL,
+            `text_display_settings_fontSize` INTEGER DEFAULT NULL,
+            `text_display_settings_fontFamily` TEXT DEFAULT NULL,
+            `text_display_settings_lineSpacing` INTEGER DEFAULT NULL,
+            `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL,
+            `text_display_settings_showPageNumber` INTEGER DEFAULT NULL,
+            `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL,
+            `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL,
+            `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL,
+            PRIMARY KEY(`id`)
+        )""")
+    // Copy data with fixed BLOB id (00000000-0000-0000-0000-000000000001)
+    _db.execSQL("""INSERT INTO GlobalTextDisplaySettings
+        SELECT X'00000000000000000000000000000001',
+            text_display_settings_strongsMode,
+            text_display_settings_showMorphology,
+            text_display_settings_showFootNotes,
+            text_display_settings_showFootNotesInline,
+            text_display_settings_expandXrefs,
+            text_display_settings_showXrefs,
+            text_display_settings_showRedLetters,
+            text_display_settings_showSectionTitles,
+            text_display_settings_showVerseNumbers,
+            text_display_settings_showVersePerLine,
+            text_display_settings_showBookmarks,
+            text_display_settings_showMyNotes,
+            text_display_settings_justifyText,
+            text_display_settings_hyphenation,
+            text_display_settings_topMargin,
+            text_display_settings_fontSize,
+            text_display_settings_fontFamily,
+            text_display_settings_lineSpacing,
+            text_display_settings_bookmarksHideLabels,
+            text_display_settings_showPageNumber,
+            text_display_settings_infiniteScroll,
+            text_display_settings_nonStrongsWordItalic,
+            text_display_settings_showTitleScrollButton,
+            text_display_settings_margin_size_marginLeft,
+            text_display_settings_margin_size_marginRight,
+            text_display_settings_margin_size_maxWidth,
+            text_display_settings_colors_dayTextColor,
+            text_display_settings_colors_dayBackground,
+            text_display_settings_colors_dayNoise,
+            text_display_settings_colors_nightTextColor,
+            text_display_settings_colors_nightBackground,
+            text_display_settings_colors_nightNoise
+        FROM GlobalTextDisplaySettings_old LIMIT 1""")
+    _db.execSQL("DROP TABLE GlobalTextDisplaySettings_old")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -178,6 +257,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addLabelOverridesTable,
     addInfiniteScroll,
     addGlobalTextDisplaySettings,
+    migrateGlobalTdsIdToBlob,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 15
+const val WORKSPACE_DATABASE_VERSION = 16
