@@ -43,7 +43,7 @@ Format: [Display Text](sword:///OSIS.Reference) - note three slashes (empty modu
 Examples of CORRECT formatting:
   - "As [John 3:16](sword:///John.3.16) teaches..." (inline)
   - "See also [Rom. 8:28](sword:///Rom.8.28)" (reference)
-  - "([Matt. 5:3-12](sword:///Matt.5.3-12))" (parenthetical)
+  - "([Matt. 5:3-12](sword:///Matt.5.3-Matt.5.12))" (parenthetical)
   - "# [Genesis 1:1](sword:///Gen.1.1) - Creation" (heading)
 
 WRONG (never do this):

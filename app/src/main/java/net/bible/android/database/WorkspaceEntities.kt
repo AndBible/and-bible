@@ -355,6 +355,43 @@ class WorkspaceEntities {
                     }
                 }
             }
+
+            /**
+             * Propagate a global settings change to workspaces and their windows.
+             * Nulls values that match their effective parent so they inherit instead.
+             *
+             * @param dirtyTypes which setting types changed
+             * @param globalSettings the new global settings
+             * @param workspacesWithWindows list of (workspaceTds, list of windowTds) pairs
+             * @return true if any settings were modified
+             */
+            fun propagateGlobalChange(
+                dirtyTypes: Set<Types>,
+                globalSettings: TextDisplaySettings,
+                workspacesWithWindows: List<Pair<TextDisplaySettings, List<TextDisplaySettings>>>
+            ): Boolean {
+                var anyChanged = false
+                for ((wsTds, windowTdsList) in workspacesWithWindows) {
+                    for (t in dirtyTypes) {
+                        if (wsTds.getValue(t) == globalSettings.getValue(t)) {
+                            wsTds.setNonSpecific(t)
+                            anyChanged = true
+                        }
+                    }
+                    for (winTds in windowTdsList) {
+                        for (t in dirtyTypes) {
+                            val parentValue = wsTds.getValue(t)
+                                ?: globalSettings.getValue(t)
+                                ?: default.getValue(t)
+                            if (winTds.getValue(t) == parentValue) {
+                                winTds.setNonSpecific(t)
+                                anyChanged = true
+                            }
+                        }
+                    }
+                }
+                return anyChanged
+            }
         }
     }
 
@@ -523,10 +560,15 @@ class WorkspaceEntities {
 
 @Entity
 data class GlobalTextDisplaySettings(
-    @PrimaryKey val id: Int = 0,
+    @PrimaryKey val id: IdType = SINGLETON_ID,
     @Embedded(prefix = "text_display_settings_")
     var textDisplaySettings: WorkspaceEntities.TextDisplaySettings = WorkspaceEntities.TextDisplaySettings(),
-)
+) {
+    companion object {
+        /** Fixed ID shared across all devices so sync recognizes it as the same row. */
+        val SINGLETON_ID = IdType.fromString("00000000-0000-0000-0000-000000000001")
+    }
+}
 
 @Serializable
 enum class SettingsLevel { GLOBAL, WORKSPACE, WINDOW }

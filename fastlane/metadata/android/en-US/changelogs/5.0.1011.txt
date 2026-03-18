@@ -1,0 +1,25 @@
+I only see one commit provided:
+
+```
+dab5dce44 Migrate GlobalTextDisplaySettings PK from Int to IdType
+```
+
+This is an internal database schema migration, not a user-facing change, so it would be skipped per your guidelines.
+
+Did you want me to:
+1. **Fetch commits from git history** to generate the changelog? If so, which range? (e.g., last N commits, since a tag, between two commits)
+2. **Process additional commits** you meant to include?
+
+Let me know and I'll generate the changelog!
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

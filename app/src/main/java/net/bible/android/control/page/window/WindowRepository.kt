@@ -392,6 +392,62 @@ open class WindowRepository(val scope: CoroutineScope) {
         }
     }
 
+    /**
+     * When global settings change, propagate non-specificity to all workspaces and their windows.
+     * If a workspace value matches the new global value, it is nulled (inherits from global).
+     * If a window value matches its effective parent (workspace ?? global ?? default), it is nulled.
+     * Updates both the database (all workspaces) and in-memory state (active workspace windows).
+     */
+    fun propagateGlobalTextDisplaySettingsChange(
+        dirtyTypes: Set<WorkspaceEntities.TextDisplaySettings.Types>,
+        globalSettings: WorkspaceEntities.TextDisplaySettings
+    ) {
+        val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()
+
+        for (ws in dao.allWorkspaces()) {
+            val wsTds = ws.textDisplaySettings ?: continue
+            var wsChanged = false
+            for (t in dirtyTypes) {
+                if (wsTds.getValue(t) == globalSettings.getValue(t)) {
+                    wsTds.setNonSpecific(t)
+                    wsChanged = true
+                }
+            }
+            if (wsChanged) {
+                dao.updateWorkspace(ws)
+            }
+
+            for (win in dao.windows(ws.id)) {
+                val pm = dao.pageManager(win.id) ?: continue
+                val pmTds = pm.textDisplaySettings ?: continue
+                var pmChanged = false
+                for (t in dirtyTypes) {
+                    val parentValue = wsTds.getValue(t)
+                        ?: globalSettings.getValue(t)
+                        ?: WorkspaceEntities.TextDisplaySettings.default.getValue(t)
+                    if (pmTds.getValue(t) == parentValue) {
+                        pmTds.setNonSpecific(t)
+                        pmChanged = true
+                    }
+                }
+                if (pmChanged) {
+                    dao.updatePageManagers(listOf(pm))
+                }
+            }
+        }
+
+        // Update in-memory active workspace TDS
+        val activeWsTds = textDisplaySettings
+        for (t in dirtyTypes) {
+            if (activeWsTds.getValue(t) == globalSettings.getValue(t)) {
+                activeWsTds.setNonSpecific(t)
+            }
+        }
+
+        // Update in-memory windows of the active workspace
+        updateWindowTextDisplaySettingsValues(dirtyTypes, textDisplaySettings)
+    }
+
     fun updateAllWindowsTextDisplaySettings() {
         for (it in sortedWindows) {
             it.bibleView?.updateTextDisplaySettings()
