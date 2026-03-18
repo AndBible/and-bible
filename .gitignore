@@ -44,3 +44,4 @@ config
 hooks
 objects
 refs
+/.kotlin/
