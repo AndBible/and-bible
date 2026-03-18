@@ -20,18 +20,18 @@
     <hr />
     <div class="mydoc-footer-actions">
       <a :href="editLink" class="mydoc-action-link">
-        <FontAwesomeIcon icon="edit" class="mydoc-action-icon"/>
+        <FontAwesomeIcon :icon="faEdit" class="mydoc-action-icon"/>
         {{ strings.myDocumentEdit }}
       </a>
-      <template v-if="isAiPage === 'true'">
+      <template v-if="isAiPage">
         <span class="mydoc-action-separator">|</span>
         <a :href="regenerateLink" class="mydoc-action-link">
-          <span class="mydoc-action-icon">&#x1F504;</span>
+          <FontAwesomeIcon :icon="faSync" class="mydoc-action-icon"/>
           {{ strings.aiDocumentRegenerate }}
         </a>
         <span class="mydoc-action-separator">|</span>
         <a :href="deleteLink" class="mydoc-action-link">
-          <span class="mydoc-action-icon">&#x1F5D1;</span>
+          <FontAwesomeIcon :icon="faTrash" class="mydoc-action-icon"/>
           {{ strings.aiDocumentDelete }}
         </a>
       </template>
@@ -42,11 +42,12 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEdit, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {useCommon} from "@/composables";
 
 const props = defineProps<{
     pageId: string
-    isAiPage: string
+    isAiPage?: boolean
 }>();
 
 const {strings} = useCommon();

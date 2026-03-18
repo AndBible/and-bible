@@ -178,6 +178,15 @@ provide(androidKey, android)
 const android = inject(androidKey)!
 ```
 
+### FontAwesome Icons in Vue.js
+When using `FontAwesomeIcon` in Vue.js components, always import the specific icon object from `@fortawesome/free-solid-svg-icons` and pass it as a bound prop:
+```typescript
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
+// Use: <FontAwesomeIcon :icon="faEdit" />
+// NOT: <FontAwesomeIcon icon="edit" />  (string form is unreliable)
+```
+
 ### Android ↔ Vue.js Communication
 ```typescript
 // Vue.js → Android calls
