@@ -147,6 +147,8 @@ data class IdType(
         return this.myUUID == other.myUUID
     }
     fun toByteArray(): ByteArray? = myUUID?.toByteArray()
+    /** Hex string suitable for SQL X'...' literals. */
+    fun toHex(): String = toByteArray()!!.joinToString("") { "%02x".format(it) }
     companion object {
         fun empty() = IdType(null as String?)
         fun fromString(value: String) = if(value.isEmpty()) empty() else IdType(MyUUID.fromString(value))
