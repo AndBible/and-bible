@@ -136,6 +136,8 @@ private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
     // Note: Room runs migrations inside a transaction, so foreign key constraints
     // are not enforced here (PRAGMA foreign_keys cannot be changed mid-transaction).
 
+    // Hex equivalents of UUID constants in BookmarkEntities.kt (hyphens removed).
+    // See SPEAK_LABEL_ID, UNLABELED_LABEL_ID, PARAGRAPH_BREAK_LABEL_ID.
     data class SpecialLabel(val name: String, val hexId: String)
     val specialLabels = listOf(
         SpecialLabel(SPEAK_LABEL_NAME, "000000000000ab1e00005bea400001a1"),

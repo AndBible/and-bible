@@ -454,30 +454,33 @@ open class BookmarkControl @Inject constructor(
      * If the label exists with an old (non-canonical) ID, merge duplicates first.
      */
     private fun getOrCreateSpecialLabel(
+        labelName: String,
         canonicalId: IdType,
         findByName: () -> Label?,
         create: () -> Label
     ): Label {
         dao.labelById(canonicalId)?.let { return it }
         if (findByName() != null) {
-            val name = SPECIAL_LABEL_DEFINITIONS.entries.first { it.value == canonicalId }.key
-            mergeSpecialLabels(name, canonicalId)
+            mergeSpecialLabels(labelName, canonicalId)
             return dao.labelById(canonicalId)!!
         }
         return create().also { dao.insert(it) }
     }
 
     val speakLabel: Label get() = getOrCreateSpecialLabel(
+        SPEAK_LABEL_NAME,
         SPEAK_LABEL_ID,
         dao::speakLabelByName,
     ) { Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor) }
 
     val labelUnlabelled: Label get() = getOrCreateSpecialLabel(
+        UNLABELED_NAME,
         UNLABELED_LABEL_ID,
         dao::unlabeledLabelByName,
     ) { Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor) }
 
     val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(
+        PARAGRAH_BREAK_LABEL_NAME,
         PARAGRAPH_BREAK_LABEL_ID,
         dao::paragraphBreakLabelByName,
     ) {
@@ -517,10 +520,13 @@ open class BookmarkControl @Inject constructor(
             }
         }
 
-        // Workspace DB remap (separate database, can't be in the same transaction)
-        val workspaceDao = DatabaseContainer.instance.workspaceDb.workspaceDao()
-        for (oldId in oldIds) {
-            workspaceDao.remapLabelOverrideId(oldId, canonicalId)
+        // Workspace DB remap (separate database, separate transaction)
+        val workspaceDb = DatabaseContainer.instance.workspaceDb
+        val workspaceDao = workspaceDb.workspaceDao()
+        workspaceDb.runInTransaction {
+            for (oldId in oldIds) {
+                workspaceDao.remapLabelOverrideId(oldId, canonicalId)
+            }
         }
     }
 

@@ -53,6 +53,8 @@ const val UNLABELED_NAME = "__UNLABELED__"
 
 // Fixed UUIDs for special labels to prevent duplicates during device sync.
 // All devices must use the same ID for each special label.
+// NOTE: Hex equivalents of these UUIDs are hardcoded in BookmarkMigrations.kt
+// (fixedSpecialLabelIds migration). Update both locations if these values change.
 val SPEAK_LABEL_ID = IdType("00000000-0000-ab1e-0000-5bea400001a1")
 val UNLABELED_LABEL_ID = IdType("00000000-0000-ab1e-0000-001abe1ed001")
 val PARAGRAPH_BREAK_LABEL_ID = IdType("00000000-0000-ab1e-0000-ba4a64a30001")
