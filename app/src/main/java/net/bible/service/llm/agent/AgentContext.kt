@@ -45,7 +45,11 @@ data class AgentContext(
     val promptPermissionMode: PermissionMode? = null,
     /** Per-prompt tool permission overrides (null = no override, use global defaults) */
     val promptAllowedTools: Set<AgentTool>? = null,
-    val promptDeniedTools: Set<AgentTool>? = null
+    val promptDeniedTools: Set<AgentTool>? = null,
+    /** Previous LLM response shown during regeneration, so the LLM can refine its output. */
+    val previousResponse: String? = null,
+    /** User-provided additional instructions for regeneration (e.g., "make it shorter"). */
+    val additionalInstructions: String? = null
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef

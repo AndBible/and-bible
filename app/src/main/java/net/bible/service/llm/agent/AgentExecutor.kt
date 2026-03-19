@@ -37,7 +37,6 @@ import net.bible.service.llm.ChatMessage
 import net.bible.service.llm.LlmApiAdapter
 import net.bible.service.llm.LlmModelConfig
 import net.bible.service.llm.LlmUsage
-import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.ParsedResponse
 import net.bible.service.llm.ToolCall
@@ -91,16 +90,10 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    fun execute(promptId: IdType, context: AgentContext): Flow<AgentEvent> = flow {
+    fun execute(prompt: AgentPrompt, context: AgentContext): Flow<AgentEvent> = flow {
         emit(AgentEvent.Started)
 
         try {
-            val prompt = PromptRepository.promptById(promptId)
-            if (prompt == null) {
-                emit(AgentEvent.Error(application.getString(R.string.llm_error_prompt_not_found, promptId)))
-                return@flow
-            }
-
             val llmConfig = LlmModelConfig.fromPrompt(prompt)
             val adapter = LlmProcessingService.resolveAdapter(llmConfig)
             val messages = buildInitialMessages(prompt, context)
@@ -375,6 +368,16 @@ class AgentExecutor(
             } else if (context.selectedText != null) {
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
+            }
+
+            // For regeneration: include previous response and additional instructions
+            if (context.previousResponse != null) {
+                append("\n\n--- Previous Response (for reference — improve upon this) ---\n")
+                append(context.previousResponse.take(10000))
+            }
+            if (context.additionalInstructions != null) {
+                append("\n\n--- Additional Instructions ---\n")
+                append(context.additionalInstructions)
             }
         }
     }
