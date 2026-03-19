@@ -80,6 +80,17 @@
             android:alpha="0.6"
             android:visibility="gone" />
 
+        <!-- View raw LLM log button (only visible when ai_debug_tools is enabled) -->
+        <ImageButton
+            android:id="@+id/rawLogButton"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/agent_log_view_raw"
+            android:visibility="gone"
+            app:srcCompat="@drawable/ic_baseline_description_24"
+            app:tint="?attr/colorControlNormal" />
+
         <!-- Close button -->
         <ImageButton
             android:id="@+id/closeButton"

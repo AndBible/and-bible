@@ -201,6 +201,12 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.RawLlmLogActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/raw_llm_log_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

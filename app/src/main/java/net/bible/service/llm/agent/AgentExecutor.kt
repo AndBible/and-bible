@@ -90,7 +90,7 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    fun execute(prompt: AgentPrompt, context: AgentContext): Flow<AgentEvent> = flow {
+    fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null): Flow<AgentEvent> = flow {
         emit(AgentEvent.Started)
 
         try {
@@ -99,7 +99,12 @@ class AgentExecutor(
             val messages = buildInitialMessages(prompt, context)
             val toolDefs = ToolRegistry.getToolDefinitions(includeWriteTools = true)
 
-            runAgentLoop(messages, toolDefs, adapter, context, llmConfig)
+            // Capture initial messages in raw log
+            for (msg in messages) {
+                rawLlmLog?.addMessage(msg.role.name, msg.content)
+            }
+
+            runAgentLoop(messages, toolDefs, adapter, context, llmConfig, rawLlmLog)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -115,7 +120,8 @@ class AgentExecutor(
         tools: List<ToolDefinition>,
         adapter: LlmApiAdapter,
         context: AgentContext,
-        llmConfig: LlmModelConfig? = null
+        llmConfig: LlmModelConfig? = null,
+        rawLlmLog: RawLlmLog? = null
     ) {
         var iteration = 0
         var currentContext = context  // Mutable context for session permission tracking
@@ -128,7 +134,7 @@ class AgentExecutor(
             emit(AgentEvent.Iteration(iteration))
             currentCoroutineContext().ensureActive()
 
-            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders)
+            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
             totalUsage += callUsage
 
             // Emit per-operation usage
@@ -138,7 +144,7 @@ class AgentExecutor(
 
             when (parsed) {
                 is ParsedResponse.ToolCalls -> {
-                    when (val result = processToolCalls(adapter, parsed, messages, currentContext)) {
+                    when (val result = processToolCalls(adapter, parsed, messages, currentContext, rawLlmLog)) {
                         is ProcessToolsResult.Continue -> {
                             currentContext = result.context
                         }
@@ -208,10 +214,12 @@ class AgentExecutor(
         tools: List<ToolDefinition>,
         iteration: Int,
         llmConfig: LlmModelConfig? = null,
-        extraHeaders: Map<String, String> = emptyMap()
+        extraHeaders: Map<String, String> = emptyMap(),
+        rawLlmLog: RawLlmLog? = null
     ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
         val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders)
+        rawLlmLog?.addRawApiResponse(iteration, apiResponse.responseBody)
         val parsed = adapter.parseResponse(apiResponse.responseBody)
         return Pair(parsed, apiResponse.usage)
     }
@@ -224,7 +232,8 @@ class AgentExecutor(
         adapter: LlmApiAdapter,
         parsed: ParsedResponse.ToolCalls,
         messages: MutableList<ChatMessage>,
-        context: AgentContext
+        context: AgentContext,
+        rawLlmLog: RawLlmLog? = null
     ): ProcessToolsResult {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
         var currentContext = context
@@ -247,9 +256,11 @@ class AgentExecutor(
                 tool = toolCall.tool,
                 arguments = toolCall.arguments
             ))
+            rawLlmLog?.addToolCall(toolCall.tool.camelCaseName, toolCall.id, toolCall.arguments)
 
             val execResult = executeTool(toolCall, currentContext)
             val result = execResult.result
+            rawLlmLog?.addToolResult(toolCall.id, result.toJson())
 
             // Update session permissions based on user's dialog choice
             if (execResult.grantAllToolsPermission) {

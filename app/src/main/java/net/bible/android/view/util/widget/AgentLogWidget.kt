@@ -37,6 +37,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
+import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
@@ -85,6 +86,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
             headerLayout.setOnClickListener { toggleExpanded() }
+            rawLogButton.setOnClickListener { openRawLog() }
         }
 
         updateExpandIcon()
@@ -114,6 +116,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         // Update close/stop button state
         updateCloseStopButton(isRunning)
+        updateRawLogButton()
     }
 
     /**
@@ -299,11 +302,35 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             // Update close/stop button based on running state
             updateCloseStopButton(event.isRunning)
 
+            // Update raw log button visibility
+            updateRawLogButton()
+
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
             }
         }
+    }
+
+    /**
+     * Open the raw LLM log activity.
+     */
+    private fun openRawLog() {
+        val intent = android.content.Intent(context, RawLlmLogActivity::class.java).apply {
+            putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, workspaceId.toString())
+        }
+        context.startActivity(intent)
+    }
+
+    /**
+     * Update the raw log button visibility.
+     * Shown only when ai_debug_tools is enabled and session has a non-empty raw log.
+     */
+    private fun updateRawLogButton() {
+        val session = AgentSessionManager.getSession(workspaceId)
+        val hasRawLog = session?.rawLlmLog?.isEmpty() == false
+        val enabled = CommonUtils.settings.aiDebugToolsEnabled && hasRawLog
+        binding.rawLogButton.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
     /**
