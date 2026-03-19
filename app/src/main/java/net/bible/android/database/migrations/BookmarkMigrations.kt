@@ -160,7 +160,7 @@ fun deduplicateSpecialLabels(db: SupportSQLiteDatabase) {
             SELECT X'$hex', name, color, markerStyle, markerStyleWholeVerse,
                 underlineStyle, underlineStyleWholeVerse, hideStyle, hideStyleWholeVerse,
                 favourite, type, customIcon
-            FROM Label WHERE name = '$name' LIMIT 1
+            FROM Label WHERE name = '$name' ORDER BY id LIMIT 1
         """)
 
         // Remap BibleBookmarkToLabel (composite PK: INSERT OR IGNORE + DELETE old)

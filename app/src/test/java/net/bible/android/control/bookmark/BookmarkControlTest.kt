@@ -355,9 +355,10 @@ class BookmarkControlTest {
         // Run migration dedup logic
         deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
 
-        // Old label gone, canonical exists
+        // Old label gone, canonical exists with inherited properties
         Assert.assertNull("Old label should be deleted", dao.labelById(oldId))
-        Assert.assertNotNull("Canonical label should exist", dao.labelById(SPEAK_LABEL_ID))
+        val canonicalLabel = dao.labelById(SPEAK_LABEL_ID)!!
+        Assert.assertEquals("Canonical label should inherit color", 0xFF0000, canonicalLabel.color)
 
         // 1. BibleBookmarkToLabel remapped
         val bibleLabels = bookmarkControl!!.labelsForBookmark(bibleBookmark)
@@ -409,8 +410,10 @@ class BookmarkControlTest {
         Assert.assertNull("Old label 1 should be deleted", dao.labelById(oldId1))
         Assert.assertNull("Old label 2 should be deleted", dao.labelById(oldId2))
 
-        // Canonical label should exist
-        Assert.assertNotNull("Canonical label should exist", dao.labelById(SPEAK_LABEL_ID))
+        // Canonical label should exist with properties from one of the duplicates
+        val canonicalLabel = dao.labelById(SPEAK_LABEL_ID)!!
+        Assert.assertTrue("Canonical label should inherit color from a duplicate",
+            canonicalLabel.color == 0xFF0000 || canonicalLabel.color == 0x00FF00)
 
         // Both bookmarks should reference the canonical label
         val labels1 = bookmarkControl!!.labelsForBookmark(bookmark1)
