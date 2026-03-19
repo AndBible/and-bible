@@ -19,7 +19,10 @@ package net.bible.android.database.migrations
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
+import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 
 private val separateText = makeMigration(1..2) { _db ->
@@ -139,12 +142,10 @@ private val aiFieldsMigration = makeMigration(10..11) { _db ->
  */
 fun deduplicateSpecialLabels(db: SupportSQLiteDatabase) {
     data class SpecialLabel(val name: String, val hexId: String)
-    // Hex equivalents of UUID constants in BookmarkEntities.kt (hyphens removed).
-    // See SPEAK_LABEL_ID, UNLABELED_LABEL_ID, PARAGRAPH_BREAK_LABEL_ID.
     val specialLabels = listOf(
-        SpecialLabel(SPEAK_LABEL_NAME, "000000000000ab1e00005bea400001a1"),
-        SpecialLabel(UNLABELED_NAME, "000000000000ab1e0000001abe1ed001"),
-        SpecialLabel(PARAGRAH_BREAK_LABEL_NAME, "000000000000ab1e0000ba4a64a30001"),
+        SpecialLabel(SPEAK_LABEL_NAME, SPEAK_LABEL_ID.toHex()),
+        SpecialLabel(UNLABELED_NAME, UNLABELED_LABEL_ID.toHex()),
+        SpecialLabel(PARAGRAH_BREAK_LABEL_NAME, PARAGRAPH_BREAK_LABEL_ID.toHex()),
     )
 
     for (label in specialLabels) {

@@ -301,6 +301,18 @@ class BookmarkControlTest {
     }
 
     @Test
+    fun testSpecialLabelIdHexRoundtrip() {
+        // Migration uses IdType.toHex() for SQL X'...' literals.
+        // Verify that toHex() roundtrips back to the same IdType.
+        for (id in listOf(SPEAK_LABEL_ID, UNLABELED_LABEL_ID, PARAGRAPH_BREAK_LABEL_ID)) {
+            val hex = id.toHex()
+            Assert.assertEquals("Hex roundtrip failed for $id", 32, hex.length)
+            val bytes = hex.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+            Assert.assertEquals("Roundtrip failed for $id", id, IdType.fromByteArray(bytes))
+        }
+    }
+
+    @Test
     fun testDeduplicateRemapsAllEntities() {
         val bookmarkDb = DatabaseContainer.instance.bookmarkDb
         val dao = bookmarkDb.bookmarkDao()
