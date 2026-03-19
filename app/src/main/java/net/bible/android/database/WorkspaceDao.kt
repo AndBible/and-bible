@@ -136,14 +136,6 @@ interface WorkspaceDao {
 
     @Query("DELETE FROM WorkspaceLabelOverride WHERE labelId = :labelId")
     fun deleteOverridesByLabelId(labelId: IdType)
-
-    // Remap label IDs in WorkspaceLabelOverride when merging special labels.
-    // Composite PK (workspaceId, labelId), so use INSERT OR IGNORE + DELETE.
-    @Query("INSERT OR IGNORE INTO WorkspaceLabelOverride (workspaceId, labelId, overrideMode) SELECT workspaceId, :newId, overrideMode FROM WorkspaceLabelOverride WHERE labelId = :oldId")
-    fun _copyLabelOverride(oldId: IdType, newId: IdType)
-    @Query("DELETE FROM WorkspaceLabelOverride WHERE labelId = :oldId")
-    fun _deleteLabelOverride(oldId: IdType)
-    fun remapLabelOverrideId(oldId: IdType, newId: IdType) { _copyLabelOverride(oldId, newId); _deleteLabelOverride(oldId) }
 }
 
 @Dao

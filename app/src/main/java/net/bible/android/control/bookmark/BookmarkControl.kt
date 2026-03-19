@@ -55,7 +55,6 @@ import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
-import net.bible.android.database.bookmarks.SPECIAL_LABEL_DEFINITIONS
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
@@ -449,95 +448,21 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    /**
-     * Get or create a special label with canonical ID.
-     * If the label exists with an old (non-canonical) ID, merge duplicates first.
-     */
     private fun getOrCreateSpecialLabel(
-        labelName: String,
         canonicalId: IdType,
-        findByName: () -> Label?,
         create: () -> Label
-    ): Label {
-        dao.labelById(canonicalId)?.let { return it }
-        if (findByName() != null) {
-            mergeSpecialLabels(labelName, canonicalId)
-            return dao.labelById(canonicalId)!!
-        }
-        return create().also { dao.insert(it) }
+    ): Label = dao.labelById(canonicalId) ?: create().also { dao.insert(it) }
+
+    val speakLabel: Label get() = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
+        Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
     }
 
-    val speakLabel: Label get() = getOrCreateSpecialLabel(
-        SPEAK_LABEL_NAME,
-        SPEAK_LABEL_ID,
-        dao::speakLabelByName,
-    ) { Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor) }
-
-    val labelUnlabelled: Label get() = getOrCreateSpecialLabel(
-        UNLABELED_NAME,
-        UNLABELED_LABEL_ID,
-        dao::unlabeledLabelByName,
-    ) { Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor) }
-
-    val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(
-        PARAGRAH_BREAK_LABEL_NAME,
-        PARAGRAPH_BREAK_LABEL_ID,
-        dao::paragraphBreakLabelByName,
-    ) {
-        Label(
-            id = PARAGRAPH_BREAK_LABEL_ID,
-            name = PARAGRAH_BREAK_LABEL_NAME,
-            hideStyle = true,
-            hideStyleWholeVerse = true,
-        )
+    val labelUnlabelled: Label get() = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) {
+        Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
     }
 
-    /**
-     * Merge all labels with the given special label name into a single label with the canonical ID.
-     * Remaps all bookmark-to-label references and deletes duplicates.
-     */
-    private fun mergeSpecialLabels(labelName: String, canonicalId: IdType) {
-        val allWithName = dao.allLabelsByName(labelName)
-        if (allWithName.isEmpty()) return
-
-        val template = allWithName.first()
-        val oldIds = allWithName.map { it.id }.filter { it != canonicalId }
-
-        if (oldIds.isEmpty() && allWithName.any { it.id == canonicalId }) return
-
-        // Remap all bookmark DB references atomically
-        bookmarkDb.runInTransaction {
-            if (dao.labelById(canonicalId) == null) {
-                dao.insert(template.copy(id = canonicalId))
-            }
-            for (oldId in oldIds) {
-                dao.remapBibleBookmarkToLabel(oldId, canonicalId)
-                dao.remapGenericBookmarkToLabel(oldId, canonicalId)
-                dao.remapBibleBookmarkPrimaryLabel(oldId, canonicalId)
-                dao.remapGenericBookmarkPrimaryLabel(oldId, canonicalId)
-                dao.remapStudyPadTextEntryLabel(oldId, canonicalId)
-                dao.delete(template.copy(id = oldId))
-            }
-        }
-
-        // Workspace DB remap (separate database, separate transaction)
-        val workspaceDb = DatabaseContainer.instance.workspaceDb
-        val workspaceDao = workspaceDb.workspaceDao()
-        workspaceDb.runInTransaction {
-            for (oldId in oldIds) {
-                workspaceDao.remapLabelOverrideId(oldId, canonicalId)
-            }
-        }
-    }
-
-    /** Deduplicate any non-canonical special labels (e.g. synced from old devices). */
-    fun deduplicateSpecialLabels() {
-        val canonicalIds = SPECIAL_LABEL_DEFINITIONS.values.toList()
-        if (dao.countNonCanonicalSpecialLabels(canonicalIds) > 0) {
-            for ((name, canonicalId) in SPECIAL_LABEL_DEFINITIONS) {
-                mergeSpecialLabels(name, canonicalId)
-            }
-        }
+    val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
+        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, hideStyle = true, hideStyleWholeVerse = true)
     }
 
     fun reset() {}
@@ -577,12 +502,7 @@ open class BookmarkControl @Inject constructor(
     }
 
     fun onEvent(e: BookmarksUpdatedViaSyncEvent) {
-        // Check if synced labels include non-canonical special labels and merge them
         val labelUpserts = e.updated.filter { it.type == LogEntryTypes.UPSERT && it.tableName == "Label" }.map { it.entityId1 }
-        if (labelUpserts.isNotEmpty()) {
-            deduplicateSpecialLabels()
-        }
-
         val labels = dao.labelsById(labelUpserts)
         for(l in labels) {
             ABEventBus.post(LabelAddedOrUpdatedEvent(l))

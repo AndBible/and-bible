@@ -22,13 +22,19 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmark
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmark
+import net.bible.android.database.bookmarks.BookmarkEntities.GenericBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
+import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntry
+import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryText
 import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import net.bible.android.database.migrations.deduplicateSpecialLabels
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.NoSuchVerseException
@@ -295,37 +301,82 @@ class BookmarkControlTest {
     }
 
     @Test
-    fun testSpecialLabelDeduplication() {
-        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+    fun testDeduplicateRemapsAllEntities() {
+        val bookmarkDb = DatabaseContainer.instance.bookmarkDb
+        val dao = bookmarkDb.bookmarkDao()
 
         // Insert an old-style speak label with a random ID
         val oldId = IdType()
-        val oldLabel = Label(id = oldId, name = SPEAK_LABEL_NAME, color = 0xFF0000)
-        dao.insert(oldLabel)
+        dao.insert(Label(id = oldId, name = SPEAK_LABEL_NAME, color = 0xFF0000))
 
-        // Create a bookmark and associate it with the old label
-        val bookmark = addTestVerse()!!
-        dao.insert(BibleBookmarkToLabel(bookmark.id, oldId))
+        // 1. BibleBookmarkToLabel
+        val bibleBookmark = addTestVerse()!!
+        dao.insert(BibleBookmarkToLabel(bibleBookmark.id, oldId))
 
-        // Verify the old label exists
-        Assert.assertNotNull(dao.labelById(oldId))
+        // 2. BibleBookmark.primaryLabelId (set via raw SQL since there's no DAO method for this)
+        val bibleBookmark2 = addTestVerse()!!
+        bookmarkDb.openHelper.writableDatabase.execSQL(
+            "UPDATE BibleBookmark SET primaryLabelId = ? WHERE id = ?",
+            arrayOf(oldId.toByteArray(), bibleBookmark2.id.toByteArray())
+        )
 
-        // Trigger deduplication
-        bookmarkControl!!.deduplicateSpecialLabels()
+        // 3. GenericBookmarkToLabel
+        val genericBookmark = GenericBookmark(
+            key = "test-key", bookInitials = "KJV",
+            ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null, customIcon = null
+        )
+        dao.insert(genericBookmark)
+        dao.insertGenericBookmarkToLabels(listOf(GenericBookmarkToLabel(genericBookmark.id, oldId)))
 
-        // Old label should be gone, canonical should exist
+        // 4. GenericBookmark.primaryLabelId
+        val genericBookmark2 = GenericBookmark(
+            key = "test-key-2", bookInitials = "KJV", primaryLabelId = oldId,
+            ordinalStart = null, ordinalEnd = null, startOffset = null, endOffset = null, customIcon = null
+        )
+        dao.insert(genericBookmark2)
+
+        // 5. StudyPadTextEntry.labelId
+        val studyPadEntry = StudyPadTextEntry(labelId = oldId, orderNumber = 0)
+        dao.insert(studyPadEntry)
+        dao.insert(StudyPadTextEntryText(studyPadTextEntryId = studyPadEntry.id, text = "test"))
+
+        // Run migration dedup logic
+        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
+
+        // Old label gone, canonical exists
         Assert.assertNull("Old label should be deleted", dao.labelById(oldId))
         Assert.assertNotNull("Canonical label should exist", dao.labelById(SPEAK_LABEL_ID))
 
-        // Bookmark should now reference the canonical label
-        val labels = bookmarkControl!!.labelsForBookmark(bookmark)
-        Assert.assertTrue("Bookmark should reference canonical speak label",
-            labels.any { it.id == SPEAK_LABEL_ID })
+        // 1. BibleBookmarkToLabel remapped
+        val bibleLabels = bookmarkControl!!.labelsForBookmark(bibleBookmark)
+        Assert.assertTrue("BibleBookmarkToLabel should reference canonical label",
+            bibleLabels.any { it.id == SPEAK_LABEL_ID })
+
+        // 2. BibleBookmark.primaryLabelId remapped
+        val updatedBibleBookmark2 = dao.bibleBookmarkById(bibleBookmark2.id)!!
+        Assert.assertEquals("BibleBookmark.primaryLabelId should be remapped",
+            SPEAK_LABEL_ID, updatedBibleBookmark2.primaryLabelId)
+
+        // 3. GenericBookmarkToLabel remapped
+        val genericLabels = bookmarkControl!!.labelsForBookmark(dao.genericBookmarkById(genericBookmark.id)!!)
+        Assert.assertTrue("GenericBookmarkToLabel should reference canonical label",
+            genericLabels.any { it.id == SPEAK_LABEL_ID })
+
+        // 4. GenericBookmark.primaryLabelId remapped
+        val updatedGeneric2 = dao.genericBookmarkById(genericBookmark2.id)!!
+        Assert.assertEquals("GenericBookmark.primaryLabelId should be remapped",
+            SPEAK_LABEL_ID, updatedGeneric2.primaryLabelId)
+
+        // 5. StudyPadTextEntry.labelId remapped
+        val updatedEntry = dao.studyPadTextEntryById(studyPadEntry.id)!!
+        Assert.assertEquals("StudyPadTextEntry.labelId should be remapped",
+            SPEAK_LABEL_ID, updatedEntry.labelId)
     }
 
     @Test
-    fun testSpecialLabelMergeWithMultipleDuplicates() {
-        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+    fun testDeduplicateMergesMultipleDuplicates() {
+        val bookmarkDb = DatabaseContainer.instance.bookmarkDb
+        val dao = bookmarkDb.bookmarkDao()
 
         // Insert multiple old-style speak labels with different random IDs
         val oldId1 = IdType()
@@ -339,16 +390,15 @@ class BookmarkControlTest {
         dao.insert(BibleBookmarkToLabel(bookmark1.id, oldId1))
         dao.insert(BibleBookmarkToLabel(bookmark2.id, oldId2))
 
-        // Trigger deduplication
-        bookmarkControl!!.deduplicateSpecialLabels()
+        // Run migration dedup logic
+        deduplicateSpecialLabels(bookmarkDb.openHelper.writableDatabase)
 
         // Both old labels should be gone
         Assert.assertNull("Old label 1 should be deleted", dao.labelById(oldId1))
         Assert.assertNull("Old label 2 should be deleted", dao.labelById(oldId2))
 
         // Canonical label should exist
-        val canonical = dao.labelById(SPEAK_LABEL_ID)
-        Assert.assertNotNull("Canonical label should exist", canonical)
+        Assert.assertNotNull("Canonical label should exist", dao.labelById(SPEAK_LABEL_ID))
 
         // Both bookmarks should reference the canonical label
         val labels1 = bookmarkControl!!.labelsForBookmark(bookmark1)

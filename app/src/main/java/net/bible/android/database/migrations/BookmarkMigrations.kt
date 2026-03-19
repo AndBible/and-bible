@@ -17,6 +17,7 @@
 
 package net.bible.android.database.migrations
 
+import androidx.sqlite.db.SupportSQLiteDatabase
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_NAME
@@ -129,16 +130,17 @@ private val aiFieldsMigration = makeMigration(10..11) { _db ->
     _db.execSQL("CREATE VIEW `StudyPadTextEntryWithText` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId")
 }
 
-private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
-    // Special labels (__SPEAK_LABEL__, __UNLABELED__, __PARAGRAPH_BREAK_LABEL__) were created
-    // with random UUIDs on each device, causing duplicates during device sync.
-    // This migration assigns fixed canonical UUIDs and merges any duplicates.
-    // Note: Room runs migrations inside a transaction, so foreign key constraints
-    // are not enforced here (PRAGMA foreign_keys cannot be changed mid-transaction).
-
+/**
+ * Merge all special labels with the same name into a single label with a fixed canonical UUID.
+ * Remaps all bookmark-to-label references and deletes duplicates.
+ *
+ * Used by the 11→12 migration and also run on incoming sync patches (which go through
+ * Room migrations before being applied to the local database).
+ */
+fun deduplicateSpecialLabels(db: SupportSQLiteDatabase) {
+    data class SpecialLabel(val name: String, val hexId: String)
     // Hex equivalents of UUID constants in BookmarkEntities.kt (hyphens removed).
     // See SPEAK_LABEL_ID, UNLABELED_LABEL_ID, PARAGRAPH_BREAK_LABEL_ID.
-    data class SpecialLabel(val name: String, val hexId: String)
     val specialLabels = listOf(
         SpecialLabel(SPEAK_LABEL_NAME, "000000000000ab1e00005bea400001a1"),
         SpecialLabel(UNLABELED_NAME, "000000000000ab1e0000001abe1ed001"),
@@ -205,7 +207,10 @@ private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
         // Delete duplicate labels (keep only canonical)
         db.execSQL("DELETE FROM Label WHERE name = '$name' AND id != X'$hex'")
     }
+}
 
+private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
+    deduplicateSpecialLabels(db)
 }
 
 val bookmarkMigrations: Array<Migration> = arrayOf(
