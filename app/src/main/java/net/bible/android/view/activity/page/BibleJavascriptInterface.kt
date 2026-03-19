@@ -19,13 +19,9 @@ package net.bible.android.view.activity.page
 
 import android.app.AlertDialog
 import android.content.Intent
-import android.text.InputType
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
-import android.widget.CheckBox
-import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -54,7 +50,6 @@ import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
-import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
@@ -70,7 +65,6 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
-import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
@@ -761,51 +755,7 @@ class BibleJavascriptInterface(
     fun regenerateMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
         scope.launch(Dispatchers.Main) {
-            val layout = LinearLayout(mainBibleActivity).apply {
-                orientation = LinearLayout.VERTICAL
-                setPadding(48, 32, 48, 16)
-            }
-            val editText = EditText(mainBibleActivity).apply {
-                setHint(R.string.ai_regenerate_instructions_hint)
-                inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-                minLines = 3
-            }
-            val keepPreviousCheckBox = CheckBox(mainBibleActivity).apply {
-                setText(R.string.ai_regenerate_keep_previous)
-            }
-            layout.addView(editText)
-            layout.addView(keepPreviousCheckBox)
-
-            AlertDialog.Builder(mainBibleActivity)
-                .setTitle(R.string.ai_regenerate_title)
-                .setView(layout)
-                .setPositiveButton(R.string.ai_document_regenerate) { _, _ ->
-                    val instructions = editText.text.toString().trim().ifEmpty { null }
-                    val keepPrevious = keepPreviousCheckBox.isChecked
-
-                    scope.launch {
-                        val errorDoc = ErrorDocument(
-                            mainBibleActivity.getString(R.string.ai_document_regenerating),
-                            ErrorSeverity.NORMAL
-                        )
-                        bibleView.loadDocument(errorDoc)
-                    }
-                    scope.launch(Dispatchers.IO) {
-                        val success = AgentSessionManager.regenerateAIDocument(
-                            id,
-                            targetWindowId = bibleView.window.id,
-                            additionalInstructions = instructions,
-                            keepPrevious = keepPrevious
-                        )
-                        if (!success) {
-                            withContext(Dispatchers.Main) {
-                                Toast.makeText(mainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                            }
-                        }
-                    }
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
+            mainBibleActivity.llmDialogHelper.showRegenerateDialog(id, bibleView)
         }
     }
 

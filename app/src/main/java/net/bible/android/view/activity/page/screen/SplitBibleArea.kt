@@ -1087,7 +1087,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                 val key = currentPage.key
                 if (book != null && key != null) {
                     val selection = Selection(book.initials, key.osisRef, -1, -1)
-                    mainBibleActivity.showCustomPromptDialog(selection, PromptContext.WINDOW_MENU)
+                    mainBibleActivity.llmDialogHelper.showCustomPromptDialog(selection, PromptContext.WINDOW_MENU)
                 }
             })
             else -> throw RuntimeException("Illegal menu item")
