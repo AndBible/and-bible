@@ -79,14 +79,14 @@ const { strings } = useCommon();
   display: flex;
   justify-content: center;
   gap: 16px;
-  padding: 16px 8px;
+  padding: 4px 8px;
 
   &.top {
-    padding-top: 8px;
+    padding-top: 2px;
   }
 
   &.bottom {
-    padding-bottom: 8px;
+    padding-bottom: 2px;
   }
 }
 
@@ -94,23 +94,37 @@ const { strings } = useCommon();
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--text-color);
+  border: none;
   background: transparent;
   color: var(--text-color);
+  opacity: 0.5;
   cursor: pointer;
-  font-size: 18px;
-  transition: background-color 0.2s ease;
+  font-size: 16px;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+
+  .monochrome & {
+    opacity: 1;
+  }
 
   &:disabled {
-    opacity: 0.5;
+    opacity: 0.25;
     cursor: not-allowed;
+
+    .monochrome & {
+      opacity: 0.5;
+    }
   }
 
   &:not(:disabled):active {
     background: rgba(128, 128, 128, 0.2);
+    opacity: 0.8;
+
+    .monochrome & {
+      opacity: 1;
+    }
   }
 }
 </style>

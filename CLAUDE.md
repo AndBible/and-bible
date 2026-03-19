@@ -143,6 +143,16 @@ However, **all user-facing strings must go through the translation system**:
 
 Never hardcode user-visible text directly in code.
 
+## Theme and Display Modes
+
+**Always consider all theme/display variants when making UI changes.** AndBible supports multiple visual modes that must all work correctly:
+
+- **Color themes**: Both **dark** and **light** themes must be supported. Test that colors, contrast, and readability work in both.
+- **Monochrome mode**: Designed for **black-and-white e-ink devices**. In this mode, virtually everything should be grayscale — no color hues. This applies especially to `MainBibleActivity` (Android side) and the BibleView-JS (Vue.js side). Avoid introducing colored elements that would look broken on e-ink.
+- **No animations setting**: Users can disable animations. Ensure new animations respect this setting and degrade gracefully when disabled.
+
+When adding or modifying UI elements (buttons, highlights, backgrounds, icons, etc.), verify they look correct across all four combinations: dark, light, monochrome, and no-animations.
+
 ## Code Patterns
 
 ### View Bindings
