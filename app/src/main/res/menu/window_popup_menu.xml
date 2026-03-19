@@ -124,6 +124,10 @@
 			<item android:id="@+id/llmActionItem"
 				android:title=""
 				/>
+			<item android:id="@+id/llmCustomPromptItem"
+				android:title="@string/custom_prompt"
+				android:orderInCategory="1000"
+				/>
 		</menu>
 	</item>
 	<item android:id="@+id/copyReference"

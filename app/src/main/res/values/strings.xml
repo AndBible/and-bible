@@ -1506,7 +1506,13 @@
     <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_document_regenerate">Regenerate</string>
+    <string name="ai_regenerate_title">Regenerate</string>
+    <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
+    <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_document_delete">Delete</string>
+    <string name="custom_prompt">Custom prompt…</string>
+    <string name="custom_prompt_hint">Enter your prompt</string>
+    <string name="save_as_new_prompt">Save as new prompt</string>
 
     <!-- Default prompts -->
     <string name="default_prompt_translate_to_language">Translate to %s</string>
