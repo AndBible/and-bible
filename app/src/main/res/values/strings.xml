@@ -1506,6 +1506,9 @@
     <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_document_regenerate">Regenerate</string>
+    <string name="ai_regenerate_title">Regenerate</string>
+    <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
+    <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_document_delete">Delete</string>
 
     <!-- Default prompts -->

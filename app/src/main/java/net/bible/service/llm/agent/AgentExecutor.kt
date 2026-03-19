@@ -376,6 +376,16 @@ class AgentExecutor(
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
             }
+
+            // For regeneration: include previous response and additional instructions
+            if (context.previousResponse != null) {
+                append("\n\n--- Previous Response (for reference — improve upon this) ---\n")
+                append(context.previousResponse.take(10000))
+            }
+            if (context.additionalInstructions != null) {
+                append("\n\n--- Additional Instructions ---\n")
+                append(context.additionalInstructions)
+            }
         }
     }
 

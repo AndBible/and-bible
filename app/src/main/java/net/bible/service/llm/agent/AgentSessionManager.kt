@@ -191,22 +191,30 @@ object AgentSessionManager : AgentSessionManagerBase() {
     suspend fun executePrompt(
         prompt: AgentPrompt,
         selection: Selection,
-        targetWindowId: IdType? = null
+        targetWindowId: IdType? = null,
+        additionalInstructions: String? = null,
+        previousResponse: String? = null,
+        skipCache: Boolean = false
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
         // Build AgentContext and CacheableContext
-        val context = buildAgentContext(prompt, selection)
+        val context = buildAgentContext(prompt, selection,
+            additionalInstructions = additionalInstructions,
+            previousResponse = previousResponse
+        )
         val cacheableContext = CacheableContext.fromAgentContext(context)
 
-        // Check cache
-        val cached = findCachedPage(prompt, cacheableContext)
-        if (cached != null) {
-            Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
-            // Open cached document directly
-            openAIDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
-            return
+        // Check cache (skipped during regeneration)
+        if (!skipCache) {
+            val cached = findCachedPage(prompt, cacheableContext)
+            if (cached != null) {
+                Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
+                // Open cached document directly
+                openAIDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
+                return
+            }
         }
 
         // Start session (prevent concurrent runs)
@@ -273,7 +281,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
-        selection: Selection
+        selection: Selection,
+        additionalInstructions: String? = null,
+        previousResponse: String? = null
     ): AgentContext {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
@@ -370,7 +380,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             highlightedText = highlightedText,
             promptPermissionMode = prompt.permissionMode,
             promptAllowedTools = prompt.allowedTools,
-            promptDeniedTools = prompt.deniedTools
+            promptDeniedTools = prompt.deniedTools,
+            previousResponse = previousResponse,
+            additionalInstructions = additionalInstructions
         )
     }
 
@@ -558,7 +570,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
         linkControl.openAIDocument(documentInitials, pageKey)
     }
 
-    suspend fun regenerateAIDocument(pageId: IdType, targetWindowId: IdType? = null): Boolean {
+    suspend fun regenerateAIDocument(
+        pageId: IdType,
+        targetWindowId: IdType? = null,
+        additionalInstructions: String? = null,
+        keepPrevious: Boolean = false
+    ): Boolean {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
         val session = activeSessions[workspaceId]
@@ -598,6 +615,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             Log.w(TAG, "Cannot regenerate: no cache entry for page: $pageId")
             return false
         }
+
+        // Read previous response before potentially deleting the page
+        val previousContent = dao.getContent(pageId)
 
         val kjvOrdinalStart = cacheEntry.kjvOrdinalStart
         val kjvOrdinalEnd = cacheEntry.kjvOrdinalEnd
@@ -642,9 +662,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        // Delete old page first to avoid cache hit, then execute the prompt
-        MyDocumentBookManager.deleteAIDocumentPage(pageId)
-        executePrompt(prompt, selection, targetWindowId = targetWindowId)
+        if (!keepPrevious) {
+            MyDocumentBookManager.deleteAIDocumentPage(pageId)
+        }
+        executePrompt(
+            prompt, selection,
+            targetWindowId = targetWindowId,
+            additionalInstructions = additionalInstructions,
+            previousResponse = previousContent,
+            skipCache = true
+        )
         return true
     }
 
