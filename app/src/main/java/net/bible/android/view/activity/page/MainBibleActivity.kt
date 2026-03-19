@@ -157,6 +157,7 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.AgentTool
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
@@ -2313,7 +2314,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     val transientPrompt = AgentPrompt(
                         name = template.take(50),
                         promptTemplate = template,
-                        showIn = setOf(context)
+                        showIn = setOf(context),
+                        deniedTools = setOf(AgentTool.FINISH_WITHOUT_DOCUMENT)
                     )
                     executeLlmPrompt(transientPrompt, selection)
                 }

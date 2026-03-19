@@ -237,7 +237,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         // Execute via AgentExecutor
         val executor = AgentExecutor()
         try {
-            executor.execute(prompt.id, context).collect { event ->
+            executor.execute(prompt, context).collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
             }
         } catch (e: CancellationException) {
