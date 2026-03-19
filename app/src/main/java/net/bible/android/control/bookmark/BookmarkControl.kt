@@ -50,9 +50,12 @@ import net.bible.android.database.bookmarks.BookmarkEntities.StudyPadTextEntryWi
 import net.bible.android.database.bookmarks.BookmarkSortOrder
 import net.bible.android.database.bookmarks.BookmarkStyle
 import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
+import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.android.database.bookmarks.PlaybackSettings
+import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
@@ -113,7 +116,8 @@ open class BookmarkControl @Inject constructor(
     // Dummy labels for all / unlabelled
     private val labelAll = Label(LABEL_ALL_ID, resourceProvider.getString(R.string.all)?: "all", color = BookmarkStyle.GREEN_HIGHLIGHT.backgroundColor)
 
-    private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+    private val bookmarkDb get() = DatabaseContainer.instance.bookmarkDb
+    private val dao get() = bookmarkDb.bookmarkDao()
 
 	fun updateBookmarkPlaybackSettings(settings: PlaybackSettings) {
         val pageManager = windowControl.activeWindowPageManager
@@ -444,29 +448,21 @@ open class BookmarkControl @Inject constructor(
 
     val assignableLabels: List<Label> get() = dao.allLabelsSortedByName()
 
-    val speakLabel: Label get() {
-        return dao.speakLabelByName()
-            ?: Label(name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor).apply {
-                dao.insert(this)
-            }
+    private fun getOrCreateSpecialLabel(
+        canonicalId: IdType,
+        create: () -> Label
+    ): Label = dao.labelById(canonicalId) ?: create().also { dao.insert(it) }
+
+    val speakLabel: Label get() = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
+        Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
     }
 
-    val labelUnlabelled: Label get() {
-        return dao.unlabeledLabelByName()
-            ?: Label(name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor).apply {
-                dao.insert(this)
-            }
+    val labelUnlabelled: Label get() = getOrCreateSpecialLabel(UNLABELED_LABEL_ID) {
+        Label(id = UNLABELED_LABEL_ID, name = UNLABELED_NAME, color = BookmarkStyle.BLUE_HIGHLIGHT.backgroundColor)
     }
 
-    val paragraphBreakLabel: Label get() {
-        return dao.paragraphBreakLabelByName()
-            ?: Label(
-                name = PARAGRAH_BREAK_LABEL_NAME,
-                hideStyle = true,
-                hideStyleWholeVerse = true,
-            ).apply {
-                dao.insert(this)
-            }
+    val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
+        Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, hideStyle = true, hideStyleWholeVerse = true)
     }
 
     fun reset() {}
