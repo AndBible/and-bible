@@ -56,9 +56,14 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
+import android.text.InputType
+import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
@@ -117,6 +122,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
@@ -209,6 +215,27 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
+
+    /** Pending selection for custom prompt save+execute flow (stored while PromptEditActivity is open). */
+    private var pendingCustomPromptSelection: Selection? = null
+
+    private val promptEditLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val selection = pendingCustomPromptSelection
+        pendingCustomPromptSelection = null
+        if (result.resultCode == Activity.RESULT_OK && selection != null) {
+            val promptIdStr = result.data?.getStringExtra(PromptEditActivity.RESULT_PROMPT_ID)
+            if (promptIdStr != null) {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    val prompt = PromptRepository.promptById(IdType(promptIdStr))
+                    if (prompt != null) {
+                        AgentSessionManager.executePrompt(prompt, selection)
+                    }
+                }
+            }
+        }
+    }
     
     private val navigationView: NavigationView by lazy {
         binding.drawerLayout.findViewById(R.id.navigationView)!!
@@ -2228,51 +2255,81 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     /**
      * Show LLM prompt selector dialog for the given selection.
-     * Filters prompts by VERSE_SELECTION context and shows them in a dialog.
+     * Filters prompts by the given context and shows them in a dialog,
+     * with a "Custom prompt…" option at the end.
      */
-    fun showLlmPromptSelector(selection: Selection) {
+    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val prompts = PromptRepository.promptsForContext(
-                PromptContext.VERSE_SELECTION
-            )
+            val prompts = PromptRepository.promptsForContext(context)
+            val promptNames = prompts.map { it.name }.toMutableList()
+            promptNames.add(getString(R.string.custom_prompt))
 
-            if (prompts.isEmpty()) {
-                launch(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@MainBibleActivity,
-                        R.string.no_llm_prompts_configured,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                return@launch
-            }
-
-            val promptNames = prompts.map { it.name }.toTypedArray()
             launch(Dispatchers.Main) {
                 AlertDialog.Builder(this@MainBibleActivity)
                     .setTitle(R.string.select_llm_prompt)
-                    .setItems(promptNames) { _, which ->
-                        val selectedPrompt = prompts[which]
-                        // Execute via AgentSessionManager
-                        val wsId = windowControl.windowRepository.id
-                        val job = lifecycleScope.launch(Dispatchers.IO) {
-                            try {
-                                AgentSessionManager.executePrompt(selectedPrompt, selection)
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                Log.e(TAG, "LLM prompt execution failed", e)
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                                }
-                            }
+                    .setItems(promptNames.toTypedArray()) { _, which ->
+                        if (which < prompts.size) {
+                            val selectedPrompt = prompts[which]
+                            executeLlmPrompt(selectedPrompt, selection)
+                        } else {
+                            showCustomPromptDialog(selection, context)
                         }
-                        AgentSessionManager.getOrCreateSession(wsId).job = job
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
             }
         }
+    }
+
+    /**
+     * Show dialog for entering a custom prompt, with option to save it.
+     */
+    internal fun showCustomPromptDialog(selection: Selection, context: PromptContext) {
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(48, 32, 48, 16)
+        }
+        val editText = EditText(this).apply {
+            setHint(R.string.custom_prompt_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 4
+        }
+        val saveCheckBox = CheckBox(this).apply {
+            setText(R.string.save_as_new_prompt)
+        }
+        layout.addView(editText)
+        layout.addView(saveCheckBox)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.custom_prompt)
+            .setView(layout)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val template = editText.text.toString().trim()
+                if (template.isEmpty()) return@setPositiveButton
+
+                if (saveCheckBox.isChecked) {
+                    launchPromptEditForExecution(template, selection, context)
+                } else {
+                    val transientPrompt = AgentPrompt(
+                        name = template.take(50),
+                        promptTemplate = template,
+                        showIn = setOf(context)
+                    )
+                    executeLlmPrompt(transientPrompt, selection)
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun launchPromptEditForExecution(template: String, selection: Selection, context: PromptContext) {
+        pendingCustomPromptSelection = selection
+        val intent = Intent(this, PromptEditActivity::class.java).apply {
+            putExtra(PromptEditActivity.EXTRA_PROMPT_TEMPLATE, template)
+            putExtra(PromptEditActivity.EXTRA_EXECUTE_AFTER_SAVE, true)
+            putExtra(PromptEditActivity.EXTRA_DEFAULT_CONTEXT, context.name)
+        }
+        promptEditLauncher.launch(intent)
     }
 
     companion object {
