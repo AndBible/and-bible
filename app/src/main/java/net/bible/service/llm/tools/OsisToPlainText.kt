@@ -48,6 +48,7 @@ object OsisToPlainText {
         val sb = StringBuilder()
         walkElement(element, sb)
         return sb.toString()
+            .replace(Regex(" +\\n"), "\n")
             .replace(Regex("\\n{3,}"), "\n\n")
             .trim()
     }
@@ -79,7 +80,9 @@ object OsisToPlainText {
                 if (marker != null) sb.append(marker)
             }
             "l", "lb" -> sb.append("\n")
-            "p" -> sb.append("\n")
+            "p", "div", "list", "lg" -> sb.append("\n")
+            "item" -> sb.append("\n- ")
+            "row" -> sb.append("\n")
         }
 
         // Process children
@@ -99,7 +102,9 @@ object OsisToPlainText {
                 val type = element.getAttributeValue("type")
                 sb.append(if (type == "bold") "**" else "*")
             }
-            "p" -> sb.append("\n")
+            "p", "div", "list", "lg" -> sb.append("\n")
+            "row" -> sb.append("\n")
+            "cell" -> sb.append(" ")
         }
     }
 }

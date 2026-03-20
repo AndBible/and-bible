@@ -137,4 +137,35 @@ class OsisToPlainTextTest {
         val xml = """<div><title>Psalm 1</title><verse osisID="Ps.1.1">Blessed is the man</verse></div>"""
         assertEquals("## Psalm 1\n1. Blessed is the man", OsisToPlainText.convert(parse(xml)))
     }
+
+    @Test
+    fun nestedDivsParagraphBreaks() {
+        val xml = """<root><div>First section.</div><div>Second section.</div></root>"""
+        assertEquals("First section.\n\nSecond section.", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun listAndItems() {
+        val xml = """<div><list><item>Apple</item><item>Banana</item><item>Cherry</item></list></div>"""
+        assertEquals("- Apple\n- Banana\n- Cherry", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun tableRowsAndCells() {
+        val xml = """<div><table><row><cell>Name</cell><cell>Value</cell></row><row><cell>A</cell><cell>1</cell></row></table></div>"""
+        // Rows are separated by newlines; cells within a row are space-separated
+        assertEquals("Name Value\n\nA 1", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun lineGroupPreservesStructure() {
+        val xml = """<div><lg><l>Line one</l><l>Line two</l></lg></div>"""
+        assertEquals("Line one\nLine two", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun commentaryWithDivParagraphs() {
+        val xml = """<div><div><p>Commentary intro paragraph.</p><p>Detailed analysis here.</p></div><div><p>Another section with conclusions.</p></div></div>"""
+        assertEquals("Commentary intro paragraph.\n\nDetailed analysis here.\n\nAnother section with conclusions.", OsisToPlainText.convert(parse(xml)))
+    }
 }
