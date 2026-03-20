@@ -385,6 +385,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
             windowId = windowControl.activeWindow.id,
             selectedText = selectedText,
             highlightedText = highlightedText,
+            selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
+            selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
             promptAllowedTools = prompt.allowedTools,
             promptDeniedTools = prompt.deniedTools,

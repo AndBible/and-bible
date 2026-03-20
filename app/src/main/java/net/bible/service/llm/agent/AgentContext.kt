@@ -37,6 +37,10 @@ data class AgentContext(
     val windowId: IdType? = null,
     val selectedText: String? = null,
     val highlightedText: String? = null,
+    /** Character offset within start verse for sub-verse selection (null = whole verse) */
+    val selectionStartOffset: Int? = null,
+    /** Character offset within end verse for sub-verse selection (null = whole verse) */
+    val selectionEndOffset: Int? = null,
     /** Session-level write permission for a single tool (for ASK_ONCE_PER_RUN mode) */
     val grantedWritePermission: Boolean = false,
     /** Session-level write permission for ALL tools */
@@ -69,7 +73,9 @@ data class CacheableContext(
     val activeDocumentInitials: String?,
     val selectedContent: String?,
     val selectedText: String?,
-    val highlightedText: String?
+    val highlightedText: String?,
+    val selectionStartOffset: Int?,
+    val selectionEndOffset: Int?
 ) {
     companion object {
         private val json = Json { prettyPrint = false }
@@ -89,7 +95,9 @@ data class CacheableContext(
                 activeDocumentInitials = ctx.activeDocumentInitials,
                 selectedContent = ctx.selectedContent,
                 selectedText = ctx.selectedText,
-                highlightedText = ctx.highlightedText
+                highlightedText = ctx.highlightedText,
+                selectionStartOffset = ctx.selectionStartOffset,
+                selectionEndOffset = ctx.selectionEndOffset
             )
         }
     }

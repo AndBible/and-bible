@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.TextRange
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
@@ -49,7 +50,9 @@ object CreateBookmarkTool : Tool {
         val verseRef: String = "",
         val note: String? = null,
         val noteContentType: TextContentType = TextContentType.MARKDOWN,
-        val labelIds: List<IdType>? = null
+        val labelIds: List<IdType>? = null,
+        val startOffset: Int? = null,
+        val endOffset: Int? = null
     )
 
     override val agentTool = AgentTool.CREATE_BOOKMARK
@@ -77,6 +80,12 @@ object CreateBookmarkTool : Tool {
             items:
               type: string
             description: Optional list of label IDs to assign to the bookmark. Get IDs from getAllLabels.
+          startOffset:
+            type: integer
+            description: "Character offset within start verse for sub-verse bookmark. Use with highlighted text offsets from context."
+          endOffset:
+            type: integer
+            description: "Character offset within end verse for sub-verse bookmark. Use with highlighted text offsets from context."
         required: [verseRef]
     """)
 
@@ -141,11 +150,12 @@ object CreateBookmarkTool : Tool {
             val verseRange = key.getRangeAt(0, RestrictionType.NONE)
                 ?: return ToolResult.error("Invalid verse reference: $verseRef", "INVALID_REFERENCE")
 
-            // Create bookmark (always whole verse for LLM-created bookmarks)
+            // Create bookmark, with optional sub-verse offsets
+            val hasOffsets = args.startOffset != null && args.endOffset != null
             val bookmark = BibleBookmarkWithNotes(
                 verseRange = verseRange,
-                textRange = null,
-                wholeVerse = true,
+                textRange = if (hasOffsets) TextRange(args.startOffset!!, args.endOffset!!) else null,
+                wholeVerse = !hasOffsets,
                 book = null
             )
 

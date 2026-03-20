@@ -394,6 +394,10 @@ class AgentExecutor(
             if (context.verseRefString != null) {
                 append("Selected verse reference: ${context.verseRefString}\n")
             }
+            if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
+                append("Selection text offsets are provided for the highlighted text. " +
+                    "Use these with createBookmark's startOffset/endOffset to create sub-verse bookmarks.\n")
+            }
             if (context.activeLabelId != null) {
                 append("Active label/StudyPad ID: ${context.activeLabelId}\n")
             }
@@ -419,6 +423,9 @@ class AgentExecutor(
             if (context.highlightedText != null) {
                 append("\n\n--- User's Highlighted Text (FOCUS ON THIS) ---\n")
                 append(context.highlightedText)
+                if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
+                    append("\n(Text offsets within verse: startOffset=${context.selectionStartOffset}, endOffset=${context.selectionEndOffset})")
+                }
             }
 
             // Add selected content if available (converted from OSIS XML to plain text)
