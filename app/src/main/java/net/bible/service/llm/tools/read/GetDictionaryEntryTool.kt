@@ -61,14 +61,14 @@ object GetDictionaryEntryTool : Tool {
         For Strong's numbers, use H prefix for Hebrew (e.g., 'H430' for Elohim) or G prefix for Greek (e.g., 'G2316' for Theos).
 
         IMPORTANT: The result includes a 'linkUrl' field. When referencing dictionary entries in your response,
-        ALWAYS create clickable links using this URL. Example: [G2316](sword://StrongsGreek/G2316)
+        ALWAYS create clickable links using this URL. Example: [G2316](strongs://G2316)
 
         CRITICAL: Convert ALL Strong's number references to clickable links in your response:
-        - With prefix: G1234 → [G1234](sword://StrongsGreek/G1234), H5678 → [H5678](sword://StrongsHebrew/H5678)
-        - Without prefix (in dictionary content): If you're working with Greek dictionary (StrongsGreek),
-          bare numbers like "575" or "4724" refer to Greek entries → [G575](sword://StrongsGreek/G575)
-          Similarly for Hebrew dictionary (StrongsHebrew) → [H575](sword://StrongsHebrew/H575)
-        - Example: "Derived from 575 and 4724" → "Derived from [G575](sword://StrongsGreek/G575) and [G4724](sword://StrongsGreek/G4724)"
+        - With prefix: G1234 → [G1234](strongs://G1234), H5678 → [H5678](strongs://H5678)
+        - Without prefix (in dictionary content): If you're working with a Greek dictionary,
+          bare numbers like "575" or "4724" refer to Greek entries → [G575](strongs://G575)
+          Similarly for Hebrew dictionary → [H575](strongs://H575)
+        - Example: "Derived from 575 and 4724" → "Derived from [G575](strongs://G575) and [G4724](strongs://G4724)"
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -134,7 +134,10 @@ object GetDictionaryEntryTool : Tool {
             }
 
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey)
-            val linkUrl = "sword://$dictionaryInitials/$key"
+            val linkUrl = when {
+                dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
+                else -> "sword://$dictionaryInitials/$key"
+            }
 
             ToolResult.success {
                 put("dictionary", dictionaryInitials)
