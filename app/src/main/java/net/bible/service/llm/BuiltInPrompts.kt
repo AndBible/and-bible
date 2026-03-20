@@ -146,7 +146,7 @@ object BuiltInPrompts {
                 promptTemplate = """
                     Analyze the original Hebrew/Greek words in the selected text.
                     If Strongs numbers are available, use getDictionaryEntry to look up definitions.
-                    Include links to dictionary entries: [Strong's G2316](sword://StrongsGreek/G2316)
+                    Include links to dictionary entries: [Strong's G2316](strongs://G2316)
                     Cite each dictionary source by name when referencing definitions.
                     Explain the etymology, usage, and theological significance of key terms.
                 """.trimIndent(),

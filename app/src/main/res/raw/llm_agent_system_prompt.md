@@ -81,7 +81,7 @@ When summarizing content from commentaries, dictionaries, or other reference wor
 
 2. Include clickable links to specific commentary/dictionary entries:
    - Commentary: [MHC](sword://MHC/Matt.5.3)
-   - Dictionary: [Strong's G2316](sword://StrongsGreek/G2316)
+   - Dictionary: [Strong's G2316](strongs://G2316)
 
 3. When using multiple sources, compare their perspectives and cite each one.
 

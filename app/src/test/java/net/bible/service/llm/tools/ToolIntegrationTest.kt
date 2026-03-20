@@ -737,7 +737,7 @@ class ToolIntegrationTest {
         assertTrue(result is ToolResult.Success)
 
         val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals(1, data.getInt("labelCount"))
+        assertEquals(2, data.getInt("labelCount")) // user label + AI label
 
         // Verify bookmark appears under the label
         val queryResult = GetBookmarksWithLabelTool.execute(

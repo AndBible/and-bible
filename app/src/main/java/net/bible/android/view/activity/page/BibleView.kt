@@ -955,6 +955,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
         const val SCHEME_SWORD = "sword"
+        const val SCHEME_STRONGS = "strongs"
+        const val SCHEME_MORPHOLOGY = "morphology"
     }
 
     class ModuleAssetHandler: PathHandler {
@@ -1206,6 +1208,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             // URI like sword://KJV/Matt.5.3 or sword://MHC/Matt.5.3
             val url = uri.toString()
             linkControl.loadApplicationUrl(BibleLink("sword", url), null)
+            true
+        }
+        UriConstants.SCHEME_STRONGS -> {
+            // Document-independent Strong's links: strongs://G2316, strongs://H430
+            // Resolves to user's configured default Strong's dictionary via UriAnalyzer
+            val ref = uri.authority ?: uri.schemeSpecificPart
+            linkControl.loadApplicationUrl(BibleLink("strong", ref), null)
+            true
+        }
+        UriConstants.SCHEME_MORPHOLOGY -> {
+            // Document-independent morphology links: morphology://robinson/V-PAI-3S
+            // Resolves to user's configured default morphology dictionary via UriAnalyzer
+            val morphType = uri.authority ?: ""
+            val code = uri.path?.trimStart('/') ?: ""
+            linkControl.loadApplicationUrl(BibleLink(morphType, code), null)
             true
         }
         "http", "https" -> {
