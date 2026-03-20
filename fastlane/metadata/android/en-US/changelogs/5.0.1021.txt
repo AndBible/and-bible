@@ -1,0 +1,15 @@
+No user-facing changes in the provided commits.
+
+(The commit `4d6a1bd82` is a test infrastructure fix, not a user-facing change.)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
