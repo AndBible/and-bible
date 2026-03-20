@@ -30,6 +30,7 @@ import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -113,6 +114,10 @@ object GetDictionaryEntryTool : Tool {
 
         val dictionary = SwordDocumentFacade.getDocumentByInitials(dictionaryInitials)
             ?: return ToolResult.error("Dictionary not found: $dictionaryInitials", "DICT_NOT_FOUND")
+
+        if (!AiDocumentFilter.isAllowed(dictionaryInitials)) {
+            return ToolResult.error("Document excluded by user settings: $dictionaryInitials", "DOCUMENT_EXCLUDED")
+        }
 
         if (dictionary.bookCategory != BookCategory.DICTIONARY) {
             return ToolResult.error("Book is not a dictionary: $dictionaryInitials", "INVALID_BOOK_TYPE")

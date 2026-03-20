@@ -86,8 +86,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
             headerLayout.setOnClickListener { toggleExpanded() }
-            rawLogButton.setOnClickListener { openRawLog() }
         }
+
+        adapter.onRawLogClick = { openRawLog() }
 
         updateExpandIcon()
     }
@@ -116,7 +117,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         // Update close/stop button state
         updateCloseStopButton(isRunning)
-        updateRawLogButton()
     }
 
     /**
@@ -302,9 +302,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             // Update close/stop button based on running state
             updateCloseStopButton(event.isRunning)
 
-            // Update raw log button visibility
-            updateRawLogButton()
-
             // Auto-show when agent starts
             if (event.isRunning && visibility != View.VISIBLE) {
                 show()
@@ -320,17 +317,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, workspaceId.toString())
         }
         context.startActivity(intent)
-    }
-
-    /**
-     * Update the raw log button visibility.
-     * Shown only when ai_debug_tools is enabled and session has a non-empty raw log.
-     */
-    private fun updateRawLogButton() {
-        val session = AgentSessionManager.getSession(workspaceId)
-        val hasRawLog = session?.rawLlmLog?.isEmpty() == false
-        val enabled = CommonUtils.settings.aiDebugToolsEnabled && hasRawLog
-        binding.rawLogButton.visibility = if (enabled) View.VISIBLE else View.GONE
     }
 
     /**

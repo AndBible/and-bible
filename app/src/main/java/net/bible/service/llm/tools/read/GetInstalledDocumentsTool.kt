@@ -25,6 +25,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
@@ -85,7 +86,7 @@ object GetInstalledDocumentsTool : Tool {
         val categoryStr = args.category
 
         return try {
-            val books = if (categoryStr.isNotBlank()) {
+            val books = AiDocumentFilter.filterAllowed(if (categoryStr.isNotBlank()) {
                 val category = try {
                     BookCategory.valueOf(categoryStr)
                 } catch (e: IllegalArgumentException) {
@@ -94,7 +95,7 @@ object GetInstalledDocumentsTool : Tool {
                 SwordDocumentFacade.getBooks(category)
             } else {
                 Books.installed().books
-            }
+            })
 
             val results = JSONArray()
             for (book in books) {

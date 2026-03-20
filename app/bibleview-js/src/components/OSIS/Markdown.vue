@@ -25,7 +25,7 @@
 import {computed} from "vue";
 import {Marked} from "marked";
 import DOMPurify from "dompurify";
-import {useSlotHtmlContent, unescapeXmlEntities} from "@/composables/slot-html-content";
+import {useSlotHtmlContent, unescapeXmlEntities, PURIFY_CONFIG} from "@/composables/slot-html-content";
 
 const markdownParser = new Marked({breaks: true, gfm: true});
 
@@ -34,7 +34,7 @@ const {slotContent, rawContent, handleClick} = useSlotHtmlContent();
 const renderedHtml = computed(() => {
     if (!rawContent.value) return "";
     const unescaped = unescapeXmlEntities(rawContent.value);
-    return DOMPurify.sanitize(markdownParser.parse(unescaped) as string);
+    return DOMPurify.sanitize(markdownParser.parse(unescaped) as string, PURIFY_CONFIG);
 });
 </script>
 

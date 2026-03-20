@@ -18,16 +18,27 @@
 package net.bible.service.llm.agent
 
 import com.google.gson.GsonBuilder
+import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
 import org.json.JSONArray
 import org.json.JSONObject
 
 /**
+ * Per-iteration usage and model data, stored alongside raw API responses.
+ */
+data class IterationUsageData(
+    val usage: LlmUsage,
+    val model: String
+)
+
+/**
  * Captures the raw LLM conversation for debug inspection.
- * Only populated when the "ai_debug_tools" experimental feature is enabled.
  */
 class RawLlmLog {
     private val entries = mutableListOf<RawLogEntry>()
+    private val _usageByIteration = mutableMapOf<Int, IterationUsageData>()
+
+    val usageByIteration: Map<Int, IterationUsageData> get() = _usageByIteration
 
     fun addMessage(role: String, content: String?) {
         entries.add(RawLogEntry.Message(role, content))
@@ -48,6 +59,12 @@ class RawLlmLog {
     fun addRawApiResponse(iteration: Int, responseBody: String) {
         entries.add(RawLogEntry.RawApiResponse(iteration, responseBody))
     }
+
+    fun addUsageForIteration(iteration: Int, usage: LlmUsage, model: String) {
+        _usageByIteration[iteration] = IterationUsageData(usage, model)
+    }
+
+    fun getEntries(): List<RawLogEntry> = entries.toList()
 
     fun isEmpty(): Boolean = entries.isEmpty()
 
@@ -123,9 +140,24 @@ class RawLlmLog {
 }
 
 sealed class RawLogEntry {
-    data class Message(val role: String, val content: String?) : RawLogEntry()
-    data class ToolCallEntry(val toolName: String, val id: String, val arguments: String) : RawLogEntry()
-    data class ToolResultEntry(val id: String, val result: String) : RawLogEntry()
-    data class ToolDefinitionsEntry(val toolDefs: List<ToolDefinition>) : RawLogEntry()
-    data class RawApiResponse(val iteration: Int, val body: String) : RawLogEntry()
+    /** Heuristic token estimate: ~4 chars per token. */
+    fun estimateTokens(): Int = (charCount() / 4).coerceAtLeast(1)
+
+    protected abstract fun charCount(): Int
+
+    data class Message(val role: String, val content: String?) : RawLogEntry() {
+        override fun charCount() = (content?.length ?: 0)
+    }
+    data class ToolCallEntry(val toolName: String, val id: String, val arguments: String) : RawLogEntry() {
+        override fun charCount() = arguments.length
+    }
+    data class ToolResultEntry(val id: String, val result: String) : RawLogEntry() {
+        override fun charCount() = result.length
+    }
+    data class ToolDefinitionsEntry(val toolDefs: List<ToolDefinition>) : RawLogEntry() {
+        override fun charCount() = toolDefs.sumOf { it.name.length + it.description.length + 100 }
+    }
+    data class RawApiResponse(val iteration: Int, val body: String) : RawLogEntry() {
+        override fun charCount() = body.length
+    }
 }

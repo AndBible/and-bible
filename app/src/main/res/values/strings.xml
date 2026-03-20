@@ -973,10 +973,22 @@
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="experimental_feature_ai_features">AI features &amp; My Documents</string>
-    <string name="experimental_feature_ai_debug_tools">AI debug tools</string>
-    <string name="raw_llm_log_title">Raw LLM Log</string>
+<string name="raw_llm_log_title">Raw LLM Log</string>
     <string name="raw_llm_log_empty">No raw log data available</string>
     <string name="raw_llm_log_copied">Log copied to clipboard</string>
+    <string name="raw_llm_log_total">Total: in %1$s / out %2$s%3$s</string>
+    <string name="raw_llm_log_entry_system">System prompt</string>
+    <string name="raw_llm_log_entry_user">User message</string>
+    <string name="raw_llm_log_entry_assistant">Assistant response</string>
+    <string name="raw_llm_log_entry_tool_call">Tool call: %s</string>
+    <string name="raw_llm_log_entry_tool_result">Tool result [%s]</string>
+    <string name="raw_llm_log_entry_tool_definitions">Tool definitions (%d tools)</string>
+    <string name="raw_llm_log_entry_api_response">API response (iteration %d)</string>
+    <string name="raw_llm_log_entry_tokens">~%s tokens</string>
+    <string name="raw_llm_log_entry_usage">in: %1$s / out: %2$s%3$s</string>
+    <string name="raw_llm_log_entry_empty">(empty)</string>
+    <string name="raw_llm_log_entry_tool_desc">Description: %s</string>
+    <string name="raw_llm_log_entry_tool_params">Parameters: %s</string>
     <string name="agent_log_view_raw">View raw LLM log</string>
     <string name="share">Share</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
@@ -1515,6 +1527,7 @@
     <string name="ai_document_deleted">This AI document has been deleted.</string>
     <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
+    <string name="ai_regenerate_prompt_not_found">Cannot regenerate: the original prompt was not found. It may have been deleted.</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_regenerate_title">Regenerate</string>
     <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
@@ -1592,6 +1605,11 @@
     <!-- Agent Tool Permission Settings -->
     <string name="manage_tool_permissions_title">Tool permissions</string>
     <string name="manage_tool_permissions_summary">Manage per-tool permission overrides</string>
+    <string name="ai_document_filter_title">Document access</string>
+    <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
+    <string name="ai_document_filter_summary_count">%d documents excluded</string>
+    <string name="ai_document_filter_activity_title">AI document access</string>
+    <string name="ai_document_excluded_error">Document excluded by user settings: %s</string>
     <string name="permission_status_default">Ask (default)</string>
     <string name="permission_status_allowed">Always allowed</string>
     <string name="permission_status_denied">Always denied</string>
