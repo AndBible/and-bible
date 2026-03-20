@@ -1,0 +1,18 @@
+- Add noDocumentCreation toggle for action-only LLM prompts (ef7cc09d2)
+- Pass selection text offsets to LLM context for sub-verse bookmarks (259d72bc5)
+- Add document-independent strongs:// and morphology:// URI schemes for Strong's and morphology dictionary links (7f1eb9a4a)
+- Add AI label to bookmarks when adding or updating notes via LLM (075ab3a2f)
+- Fix toolbar checkmark icon visibility against dark background (b5471e150)
+- Fix inconsistent share icon tint in raw LLM log activity (508695885)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
