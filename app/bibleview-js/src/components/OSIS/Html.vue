@@ -24,13 +24,13 @@
 <script setup lang="ts">
 import {computed} from "vue";
 import DOMPurify from "dompurify";
-import {useSlotHtmlContent, unescapeXmlEntities} from "@/composables/slot-html-content";
+import {useSlotHtmlContent, unescapeXmlEntities, PURIFY_CONFIG} from "@/composables/slot-html-content";
 
 const {slotContent, rawContent, handleClick} = useSlotHtmlContent();
 
 const renderedHtml = computed(() => {
     if (!rawContent.value) return "";
-    return DOMPurify.sanitize(unescapeXmlEntities(rawContent.value));
+    return DOMPurify.sanitize(unescapeXmlEntities(rawContent.value), PURIFY_CONFIG);
 });
 </script>
 

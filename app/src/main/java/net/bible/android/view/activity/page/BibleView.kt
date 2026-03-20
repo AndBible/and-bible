@@ -1207,6 +1207,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             linkControl.loadApplicationUrl(BibleLink("sword", url), null)
             true
         }
+        "http", "https" -> {
+            CommonUtils.openLink(uri.toString())
+            true
+        }
         else -> {
             Log.e(TAG, "Unsupported scheme ${uri.scheme}")
             true
