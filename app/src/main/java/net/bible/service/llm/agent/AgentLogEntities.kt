@@ -45,11 +45,13 @@ data class AgentLogEntry(
     @Volatile var status: EntryStatus = EntryStatus.PENDING,
     val relatedPermission: AgentPermission? = null,
     @Volatile var costInfo: String? = null,
-    @Volatile var isTotalCost: Boolean = false
+    @Volatile var isTotalCost: Boolean = false,
+    val showRawLogLink: Boolean = false
 ) {
     companion object {
-        fun info(message: String, details: String? = null) = AgentLogEntry(
-            type = LogEntryType.INFO, message = message, details = details, status = EntryStatus.COMPLETED
+        fun info(message: String, details: String? = null, showRawLogLink: Boolean = false) = AgentLogEntry(
+            type = LogEntryType.INFO, message = message, details = details, status = EntryStatus.COMPLETED,
+            showRawLogLink = showRawLogLink
         )
 
         fun action(message: String, details: String? = null) = AgentLogEntry(

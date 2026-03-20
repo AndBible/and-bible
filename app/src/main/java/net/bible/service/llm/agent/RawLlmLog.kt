@@ -24,7 +24,6 @@ import org.json.JSONObject
 
 /**
  * Captures the raw LLM conversation for debug inspection.
- * Only populated when the "ai_debug_tools" experimental feature is enabled.
  */
 class RawLlmLog {
     private val entries = mutableListOf<RawLogEntry>()

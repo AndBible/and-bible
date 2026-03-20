@@ -973,8 +973,7 @@
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="experimental_feature_ai_features">AI features &amp; My Documents</string>
-    <string name="experimental_feature_ai_debug_tools">AI debug tools</string>
-    <string name="raw_llm_log_title">Raw LLM Log</string>
+<string name="raw_llm_log_title">Raw LLM Log</string>
     <string name="raw_llm_log_empty">No raw log data available</string>
     <string name="raw_llm_log_copied">Log copied to clipboard</string>
     <string name="agent_log_view_raw">View raw LLM log</string>

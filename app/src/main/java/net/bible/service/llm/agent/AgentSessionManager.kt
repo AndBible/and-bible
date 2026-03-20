@@ -79,7 +79,7 @@ class AgentSession(val workspaceId: IdType) {
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
     val logEntries: List<AgentLogEntry> get() = _logEntries.toList()
 
-    /** Raw LLM conversation log for debug inspection. Only populated when ai_debug_tools is enabled. */
+    /** Raw LLM conversation log for debug inspection. */
     var rawLlmLog: RawLlmLog? = null
         private set
 
@@ -96,14 +96,15 @@ class AgentSession(val workspaceId: IdType) {
         this.context = context
         this.isRunning = true
         _logEntries.clear()
-        rawLlmLog = if (CommonUtils.settings.aiDebugToolsEnabled) RawLlmLog() else null
+        rawLlmLog = RawLlmLog()
         addLogEntry(AgentLogEntry.info("Agent started"))
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
     }
 
     fun stop(message: String? = null) {
         if (message != null) {
-            addLogEntry(AgentLogEntry.info(message))
+            val hasRawLog = rawLlmLog?.isEmpty() == false
+            addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
         }
         this.isRunning = false
         this.job?.cancel()

@@ -33,7 +33,6 @@ import net.bible.service.llm.agent.AgentSessionManager
 
 /**
  * Displays the raw LLM conversation log for debugging purposes.
- * Only accessible when the "ai_debug_tools" experimental feature is enabled.
  */
 class RawLlmLogActivity : ActivityBase() {
 

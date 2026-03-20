@@ -462,7 +462,6 @@ object CommonUtils : CommonUtilsBase() {
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
         val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
-        val aiDebugToolsEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_debug_tools")
         val myDocumentsEnabled: Boolean get() = aiTextProcessingEnabled
 
 
