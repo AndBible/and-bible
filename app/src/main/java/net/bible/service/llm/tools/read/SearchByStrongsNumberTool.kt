@@ -27,6 +27,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.Books
@@ -117,9 +118,9 @@ object SearchByStrongsNumberTool : Tool {
             return Books.installed().getBook(bookInitials) as? SwordBook
         }
         // Prefer indexed Strong's Bibles; fall back to unindexed if none indexed
-        return Books.installed().books
-            .filterIsInstance<SwordBook>()
-            .filter { it.hasFeature(FeatureType.STRONGS_NUMBERS) }
+        return AiDocumentFilter.filterAllowed(
+            Books.installed().books.filterIsInstance<SwordBook>()
+        ).filter { it.hasFeature(FeatureType.STRONGS_NUMBERS) }
             .sortedByDescending { it.indexStatus == IndexStatus.DONE }
             .firstOrNull()
     }

@@ -1591,6 +1591,11 @@
     <!-- Agent Tool Permission Settings -->
     <string name="manage_tool_permissions_title">Tool permissions</string>
     <string name="manage_tool_permissions_summary">Manage per-tool permission overrides</string>
+    <string name="ai_document_filter_title">Document access</string>
+    <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
+    <string name="ai_document_filter_summary_count">%d documents excluded</string>
+    <string name="ai_document_filter_activity_title">AI document access</string>
+    <string name="ai_document_excluded_error">Document excluded by user settings: %s</string>
     <string name="permission_status_default">Ask (default)</string>
     <string name="permission_status_allowed">Always allowed</string>
     <string name="permission_status_denied">Always denied</string>

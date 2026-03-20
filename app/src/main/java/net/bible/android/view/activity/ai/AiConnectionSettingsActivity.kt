@@ -97,6 +97,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
+    private lateinit var manageAiDocumentsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -110,6 +111,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
+        manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -117,6 +119,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupGettingStarted()
         setupAddProvider()
         setupToolPermissions()
+        setupDocumentFilter()
         setupUsage()
         refreshProviderList()
         updateVisibility()
@@ -126,6 +129,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         super.onResume()
         refreshProviderList()
         updateToolPermissionsSummary()
+        updateDocumentFilterSummary()
     }
 
     private fun hasAnyProvider(): Boolean = dao.getCount() > 0
@@ -657,6 +661,22 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    private fun setupDocumentFilter() {
+        updateDocumentFilterSummary()
+        manageAiDocumentsPref.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), AiDocumentFilterActivity::class.java))
+            true
+        }
+    }
+
+    private fun updateDocumentFilterSummary() {
+        val excludedCount = settings.aiExcludedDocuments.size
+        manageAiDocumentsPref.summary = if (excludedCount > 0) {
+            getString(R.string.ai_document_filter_summary_count, excludedCount)
+        } else {
+            getString(R.string.ai_document_filter_summary)
+        }
+    }
 
     private fun setupUsage() {
         updateUsageSummary()

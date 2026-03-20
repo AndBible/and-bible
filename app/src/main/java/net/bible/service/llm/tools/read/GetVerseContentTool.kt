@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -102,6 +103,10 @@ object GetVerseContentTool : Tool {
             "Book not found: $bookInitials",
             "BOOK_NOT_FOUND"
         )
+
+        if (!AiDocumentFilter.isAllowed(bookInitials)) {
+            return ToolResult.error("Document excluded by user settings: $bookInitials", "DOCUMENT_EXCLUDED")
+        }
 
         if (book !is SwordBook) {
             return ToolResult.error("Book is not a Bible: $bookInitials", "INVALID_BOOK_TYPE")

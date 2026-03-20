@@ -489,6 +489,10 @@ object CommonUtils : CommonUtilsBase() {
         var permanentlyDeniedTools: Set<AgentTool>
             get() = getEnumSet("agent_permanently_denied_tools")
             set(value) = setEnumSet("agent_permanently_denied_tools", value)
+
+        var aiExcludedDocuments: Set<String>
+            get() = getStringSet("ai_excluded_documents")
+            set(value) = setStringSet("ai_excluded_documents", value)
     }
 
     private var _settings: AndBibleSettings? = null

@@ -201,6 +201,12 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.AiDocumentFilterActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_document_filter_activity_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.ToolInfoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_available_tools"

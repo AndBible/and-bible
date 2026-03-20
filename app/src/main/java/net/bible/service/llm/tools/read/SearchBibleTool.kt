@@ -27,6 +27,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
@@ -123,9 +124,9 @@ object SearchBibleTool : Tool {
         // Get books to search
         val bookInitials = args.books.ifEmpty {
             // Find first indexed Bible
-            val indexedBible = Books.installed().books
-                .filterIsInstance<SwordBook>()
-                .firstOrNull { it.indexStatus == IndexStatus.DONE }
+            val indexedBible = AiDocumentFilter.filterAllowed(
+                Books.installed().books.filterIsInstance<SwordBook>()
+            ).firstOrNull { it.indexStatus == IndexStatus.DONE }
 
             if (indexedBible == null) {
                 return ToolResult.error("No indexed Bible found. Please index a Bible first.", "NO_INDEX")

@@ -30,6 +30,7 @@ import net.bible.service.llm.tools.yamlToJson
 import java.io.StringReader
 import kotlinx.serialization.Serializable
 import net.bible.service.common.useSaxBuilder
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -119,13 +120,13 @@ object GetCommentariesTool : Tool {
             return ToolResult.error("Missing required parameter: verseRef")
         }
 
-        val commentaries = if (!args.commentaries.isNullOrEmpty()) {
+        val commentaries = AiDocumentFilter.filterAllowed(if (!args.commentaries.isNullOrEmpty()) {
             args.commentaries.mapNotNull { initials ->
                 SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook
             }
         } else {
             SwordDocumentFacade.getBooks(BookCategory.COMMENTARY).filterIsInstance<SwordBook>()
-        }
+        })
 
         if (commentaries.isEmpty()) {
             return ToolResult.error("No commentaries available", "NO_COMMENTARIES")

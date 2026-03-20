@@ -33,6 +33,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
+import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.ChatMessage
@@ -382,6 +383,16 @@ class AgentExecutor(
             }
             if (context.activeLabelId != null) {
                 append("Active label/StudyPad ID: ${context.activeLabelId}\n")
+            }
+
+            val prefGreek = AiDocumentFilter.preferredStrongsGreek()
+            val prefHebrew = AiDocumentFilter.preferredStrongsHebrew()
+            val prefMorph = AiDocumentFilter.preferredRobinsonMorphology()
+            if (prefGreek != null || prefHebrew != null || prefMorph != null) {
+                append("\nPreferred reference dictionaries:\n")
+                prefHebrew?.let { append("- Strong's Hebrew: $it\n") }
+                prefGreek?.let { append("- Strong's Greek: $it\n") }
+                prefMorph?.let { append("- Greek morphology: $it\n") }
             }
         }
     }
