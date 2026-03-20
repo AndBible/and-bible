@@ -404,8 +404,11 @@ class AgentExecutor(
                 append("Selected verse reference: ${context.verseRefString}\n")
             }
             if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
-                append("Selection text offsets are provided for the highlighted text. " +
-                    "Use these with createBookmark's startOffset/endOffset to create sub-verse bookmarks.\n")
+                append("The user has highlighted specific text within a verse. " +
+                    "Character offsets (startOffset/endOffset) are provided — these are character positions " +
+                    "from the start of the verse text in the current translation (${context.activeDocumentInitials}). " +
+                    "Use createBookmark with startOffset, endOffset, and bookInitials to create a sub-verse bookmark " +
+                    "covering exactly the highlighted text, or adjust the offsets as needed.\n")
             }
             if (context.activeLabelId != null) {
                 append("Active label/StudyPad ID: ${context.activeLabelId}\n")

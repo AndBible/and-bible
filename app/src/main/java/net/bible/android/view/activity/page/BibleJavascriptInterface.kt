@@ -311,6 +311,25 @@ class BibleJavascriptInterface(
                     linkControl.loadApplicationUrl(bibleLink)
                 }
             }
+            link.startsWith("strongs://") -> {
+                // Document-independent Strong's links (e.g. strongs://G2316, strongs://H430)
+                val ref = link.removePrefix("strongs://")
+                val bibleLink = BibleView.BibleLink("strong", target=ref)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            link.startsWith("morphology://") -> {
+                // Document-independent morphology links (e.g. morphology://robinson/V-PAI-3S)
+                val rest = link.removePrefix("morphology://")
+                val slashIdx = rest.indexOf('/')
+                val morphType = if (slashIdx >= 0) rest.substring(0, slashIdx) else rest
+                val code = if (slashIdx >= 0) rest.substring(slashIdx + 1) else ""
+                val bibleLink = BibleView.BibleLink(morphType, target=code)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
             else -> {
                 CommonUtils.openLink(link, forceAsk=true)
             }

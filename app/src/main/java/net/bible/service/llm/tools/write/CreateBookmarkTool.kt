@@ -33,6 +33,8 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
@@ -51,6 +53,7 @@ object CreateBookmarkTool : Tool {
         val note: String? = null,
         val noteContentType: TextContentType = TextContentType.MARKDOWN,
         val labelIds: List<IdType>? = null,
+        val bookInitials: String? = null,
         val startOffset: Int? = null,
         val endOffset: Int? = null
     )
@@ -80,12 +83,15 @@ object CreateBookmarkTool : Tool {
             items:
               type: string
             description: Optional list of label IDs to assign to the bookmark. Get IDs from getAllLabels.
+          bookInitials:
+            type: string
+            description: "Bible module initials (e.g., 'KJV', 'ESV'). Required for sub-verse bookmarks. Defaults to the active document if omitted."
           startOffset:
             type: integer
-            description: "Character offset within start verse for sub-verse bookmark. Use with highlighted text offsets from context."
+            description: "Character offset from the start of the verse text where the bookmark begins. 0 = start of verse. Offsets are specific to the bookInitials translation. Both startOffset and endOffset must be provided together for a sub-verse bookmark."
           endOffset:
             type: integer
-            description: "Character offset within end verse for sub-verse bookmark. Use with highlighted text offsets from context."
+            description: "Character offset from the start of the verse text where the bookmark ends. Offsets are specific to the bookInitials translation. Both startOffset and endOffset must be provided together for a sub-verse bookmark."
         required: [verseRef]
     """)
 
@@ -150,13 +156,19 @@ object CreateBookmarkTool : Tool {
             val verseRange = key.getRangeAt(0, RestrictionType.NONE)
                 ?: return ToolResult.error("Invalid verse reference: $verseRef", "INVALID_REFERENCE")
 
+            // Resolve the Bible document (needed for sub-verse bookmarks with offsets)
+            val bookInitials = args.bookInitials ?: context.activeDocumentInitials
+            val swordBook = bookInitials?.let {
+                Books.installed().getBook(it) as? SwordBook
+            }
+
             // Create bookmark, with optional sub-verse offsets
             val hasOffsets = args.startOffset != null && args.endOffset != null
             val bookmark = BibleBookmarkWithNotes(
                 verseRange = verseRange,
                 textRange = if (hasOffsets) TextRange(args.startOffset!!, args.endOffset!!) else null,
                 wholeVerse = !hasOffsets,
-                book = null
+                book = swordBook
             )
 
             // Set AI source
