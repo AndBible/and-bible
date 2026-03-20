@@ -461,6 +461,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     session.addLogEntry(
                         AgentLogEntry.info(app.getString(R.string.agent_log_response_received), details = event.text.take(200))
                     )
+                } else {
+                    val text = event.text.trim()
+                    if (text.isNotBlank()) {
+                        session.addLogEntry(AgentLogEntry.comment(text.take(300)))
+                    }
                 }
             }
             is AgentEvent.Completed -> {

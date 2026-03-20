@@ -23,7 +23,8 @@ enum class LogEntryType {
     INFO,
     ACTION,
     PERMISSION_REQUEST,
-    ERROR
+    ERROR,
+    LLM_COMMENT
 }
 
 enum class EntryStatus {
@@ -61,6 +62,10 @@ data class AgentLogEntry(
 
         fun error(message: String, details: String? = null) = AgentLogEntry(
             type = LogEntryType.ERROR, message = message, details = details, status = EntryStatus.FAILED
+        )
+
+        fun comment(message: String) = AgentLogEntry(
+            type = LogEntryType.LLM_COMMENT, message = message, status = EntryStatus.COMPLETED
         )
     }
 }
