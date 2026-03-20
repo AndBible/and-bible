@@ -38,6 +38,7 @@ enum class AgentTool {
     // Read tools
     GET_VERSE_CONTENT,
     SEARCH_BIBLE,
+    SEARCH_BY_STRONGS,
     GET_COMMENTARIES,
     GET_DICTIONARY_ENTRY,
     GET_BOOKMARKS_FOR_VERSE,

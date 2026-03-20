@@ -28,6 +28,7 @@ import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.FeatureType
 import org.crosswire.jsword.index.IndexStatus
 import org.json.JSONArray
 import org.json.JSONObject
@@ -48,6 +49,8 @@ object GetInstalledDocumentsTool : Tool {
         Get a list of installed documents (Bibles, commentaries, dictionaries, etc.).
         Use this to find available documents before reading content.
         Can filter by category: BIBLE, COMMENTARY, DICTIONARY, GENERAL_BOOK, MAPS.
+        Bible documents include a hasStrongsNumbers field indicating whether the module
+        contains Strong's concordance number annotations (useful for original language word studies).
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -101,6 +104,9 @@ object GetInstalledDocumentsTool : Tool {
                     put("isLocked", book.isLocked)
                     put("isIndexed", book.indexStatus == IndexStatus.DONE)
                     put("abbreviation", book.abbreviation)
+                    if (book.bookCategory == BookCategory.BIBLE) {
+                        put("hasStrongsNumbers", book.hasFeature(FeatureType.STRONGS_NUMBERS))
+                    }
                 })
             }
 

@@ -29,6 +29,7 @@ import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
 import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.read.GetVerseContentTool
 import net.bible.service.llm.tools.read.SearchBibleTool
+import net.bible.service.llm.tools.read.SearchByStrongsNumberTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
@@ -70,6 +71,7 @@ object ToolRegistry {
         // Register read tools
         register(GetVerseContentTool)
         register(SearchBibleTool)
+        register(SearchByStrongsNumberTool)
         register(GetCommentariesTool)
         register(GetDictionaryEntryTool)
         register(GetBookmarksForVerseTool)
