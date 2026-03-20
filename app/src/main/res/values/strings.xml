@@ -1549,6 +1549,7 @@
     <string name="tool_get_commentaries">Read commentaries</string>
     <string name="tool_get_dictionary_entry">Look up dictionary entry</string>
     <string name="tool_search_bible">Search Bible</string>
+    <string name="tool_search_by_strongs">Search by Strong\'s number</string>
     <string name="tool_get_installed_documents">List installed documents</string>
     <string name="tool_get_all_labels">List all labels</string>
     <string name="tool_get_bookmarks_for_verse">Get bookmarks for verse</string>
