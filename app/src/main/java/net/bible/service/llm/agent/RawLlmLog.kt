@@ -17,6 +17,9 @@
 
 package net.bible.service.llm.agent
 
+import com.google.gson.GsonBuilder
+import net.bible.service.llm.tools.ToolDefinition
+
 /**
  * Captures the raw LLM conversation for debug inspection.
  * Only populated when the "ai_debug_tools" experimental feature is enabled.
@@ -34,6 +37,10 @@ class RawLlmLog {
 
     fun addToolResult(toolCallId: String, result: String) {
         entries.add(RawLogEntry.ToolResultEntry(toolCallId, result))
+    }
+
+    fun addToolDefinitions(toolDefs: List<ToolDefinition>) {
+        entries.add(RawLogEntry.ToolDefinitionsEntry(toolDefs))
     }
 
     fun addRawApiResponse(iteration: Int, responseBody: String) {
@@ -60,6 +67,16 @@ class RawLlmLog {
                     appendLine(entry.result)
                     appendLine()
                 }
+                is RawLogEntry.ToolDefinitionsEntry -> {
+                    appendLine("=== TOOL DEFINITIONS (${entry.toolDefs.size} tools) ===")
+                    val gson = GsonBuilder().setPrettyPrinting().create()
+                    for (def in entry.toolDefs) {
+                        appendLine("--- ${def.name} ---")
+                        appendLine("Description: ${def.description}")
+                        appendLine("Parameters: ${gson.toJson(def.parametersSchema)}")
+                        appendLine()
+                    }
+                }
                 is RawLogEntry.RawApiResponse -> {
                     appendLine("=== RAW API RESPONSE (iteration ${entry.iteration}) ===")
                     appendLine(entry.body)
@@ -74,5 +91,6 @@ sealed class RawLogEntry {
     data class Message(val role: String, val content: String?) : RawLogEntry()
     data class ToolCallEntry(val toolName: String, val id: String, val arguments: String) : RawLogEntry()
     data class ToolResultEntry(val id: String, val result: String) : RawLogEntry()
+    data class ToolDefinitionsEntry(val toolDefs: List<ToolDefinition>) : RawLogEntry()
     data class RawApiResponse(val iteration: Int, val body: String) : RawLogEntry()
 }
