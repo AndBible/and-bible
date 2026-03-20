@@ -119,18 +119,19 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 
     fun moveItem(from: Int, to: Int) {
+        val dataSet = activity.dataSet
         Log.i("MoveItem", "Moving $from $to")
         if(from == to) return
 
-        val item = items[from]
+        val item = dataSet[from]
         if(from < to)
-            items.removeAt(from)
+            dataSet.removeAt(from)
 
-        items.add(to, item)
+        dataSet.add(to, item)
         if(from > to)
-            items.removeAt(from + 1)
+            dataSet.removeAt(from + 1)
 
-        for((idx, ws) in items.withIndex()) {
+        for((idx, ws) in dataSet.withIndex()) {
             if(ws.orderNumber != idx) {
                 activity.changedWorkspaces.add(ws.id)
                 ws.orderNumber = idx
