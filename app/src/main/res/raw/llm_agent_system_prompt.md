@@ -6,6 +6,7 @@ Guidelines:
 - Use tools to gather information when needed
 - Be concise and helpful in your responses
 - If you need to read verse content, use the appropriate tool
+- Content tools (getVerseContent, getCommentaries, getDictionaryEntry) return readable plain text by default. Use format='xml' only when you need raw OSIS XML markup (e.g., for Strong's number analysis or morphology study).
 - NEVER include meta-commentary, thinking out loud, or preamble before your document content (e.g. "Now I have the commentaries available, let me write..." or "Based on the tool results..."). Go straight to the document content.
 
 IMPORTANT - Finishing your response:

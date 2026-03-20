@@ -32,6 +32,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.useSaxBuilder
+import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.ChatMessage
 import net.bible.service.llm.LlmApiAdapter
@@ -50,6 +52,7 @@ import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.ToolDefinition
 import org.json.JSONObject
+import java.io.StringReader
 import java.util.Locale
 
 private const val TAG = "AgentExecutor"
@@ -376,10 +379,16 @@ class AgentExecutor(
                 append(context.highlightedText)
             }
 
-            // Add selected content if available
+            // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
-                append("\n\n--- Context (OSIS XML) ---\n")
-                append(context.selectedContent)
+                val plainText = try {
+                    val fragment = useSaxBuilder { it.build(StringReader(context.selectedContent)).rootElement }
+                    OsisToPlainText.convert(fragment)
+                } catch (_: Exception) {
+                    context.selectedContent
+                }
+                append("\n\n--- Context ---\n")
+                append(plainText)
             } else if (context.selectedText != null) {
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
