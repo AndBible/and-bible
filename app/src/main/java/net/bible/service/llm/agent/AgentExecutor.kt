@@ -58,6 +58,24 @@ import java.util.Locale
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
+/**
+ * Computes the set of tools to exclude from LLM tool definitions.
+ *
+ * Priority: globally denied + per-prompt denied, minus per-prompt allowed (override).
+ * This allows per-prompt settings to re-enable globally disabled tools.
+ */
+fun computeExcludedTools(
+    permanentlyDeniedTools: Set<AgentTool>,
+    promptDeniedTools: Set<AgentTool>?,
+    promptAllowedTools: Set<AgentTool>?,
+): Set<AgentTool> {
+    val excluded = mutableSetOf<AgentTool>()
+    excluded.addAll(permanentlyDeniedTools)
+    promptDeniedTools?.let { excluded.addAll(it) }
+    promptAllowedTools?.let { excluded.removeAll(it) }
+    return excluded
+}
+
 private sealed class ProcessToolsResult {
     data class Continue(
         val context: AgentContext
@@ -497,15 +515,16 @@ class AgentExecutor(
 
     /**
      * Computes the set of tools to exclude from LLM tool definitions.
-     * Combines globally permanently denied tools and per-prompt denied tools.
+     * Combines globally permanently denied tools and per-prompt denied tools,
+     * then removes any tools that the per-prompt allows (override).
      * Structural tools are never excluded (handled by [ToolRegistry.getToolDefinitions]).
      */
-    private fun computeExcludedTools(context: AgentContext): Set<AgentTool> {
-        val excluded = mutableSetOf<AgentTool>()
-        excluded.addAll(CommonUtils.settings.permanentlyDeniedTools)
-        context.promptDeniedTools?.let { excluded.addAll(it) }
-        return excluded
-    }
+    private fun computeExcludedTools(context: AgentContext): Set<AgentTool> =
+        computeExcludedTools(
+            permanentlyDeniedTools = CommonUtils.settings.permanentlyDeniedTools,
+            promptDeniedTools = context.promptDeniedTools,
+            promptAllowedTools = context.promptAllowedTools,
+        )
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject): DialogResult {

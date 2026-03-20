@@ -17,13 +17,12 @@
 
 package net.bible.android.view.activity.ai
 
-import android.app.Activity
 import android.app.AlertDialog
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.RadioGroup
 import android.widget.TextView
 import net.bible.android.activity.R
@@ -36,27 +35,21 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 
 /**
- * Activity for managing per-prompt tool permission overrides.
+ * Activity for managing global default tool permissions.
  *
  * Displays all configurable tools in two sections:
  * - Read tools: Enabled (default) / Disabled
  * - Write tools: Ask (default) / Always allow / Always deny
  *
- * Disabled read tools and denied write tools are excluded from the LLM's tool
- * definitions, saving context tokens.
+ * Disabled/denied tools are excluded from LLM tool definitions globally,
+ * but can be overridden per-prompt.
  */
-class PromptToolPermissionsActivity : ActivityBase() {
-
-    companion object {
-        const val EXTRA_ALLOWED_TOOLS = "allowed_tools"
-        const val EXTRA_DENIED_TOOLS = "denied_tools"
-    }
+class GlobalToolPermissionsActivity : ActivityBase() {
 
     private data class ToolRow(val tool: Tool, val radioGroup: RadioGroup)
 
     private val toolRows = mutableListOf<ToolRow>()
-    private var initialAllowed = emptySet<AgentTool>()
-    private var initialDenied = emptySet<AgentTool>()
+    private val settings get() = CommonUtils.settings
 
     private lateinit var binding: ActivityPromptToolPermissionsBinding
 
@@ -65,16 +58,10 @@ class PromptToolPermissionsActivity : ActivityBase() {
         binding = ActivityPromptToolPermissionsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        title = getString(R.string.prompt_tool_permissions)
+        title = getString(R.string.global_tool_permissions_title)
 
-        val allowedTools = intent.getStringArrayListExtra(EXTRA_ALLOWED_TOOLS)
-            ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
-            ?.toSet() ?: emptySet()
-        val deniedTools = intent.getStringArrayListExtra(EXTRA_DENIED_TOOLS)
-            ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
-            ?.toSet() ?: emptySet()
-        initialAllowed = allowedTools
-        initialDenied = deniedTools
+        val allowed = settings.permanentlyAllowedTools
+        val denied = settings.permanentlyDeniedTools
 
         val tools = ToolRegistry.getConfigurableTools()
         val readTools = tools.filter { !it.requiresPermission }
@@ -83,14 +70,14 @@ class PromptToolPermissionsActivity : ActivityBase() {
         if (readTools.isNotEmpty()) {
             addSectionHeader(getString(R.string.tool_section_read_tools))
             for (tool in readTools) {
-                addReadToolRow(tool, allowedTools, deniedTools)
+                addReadToolRow(tool, denied)
             }
         }
 
         if (writeTools.isNotEmpty()) {
             addSectionHeader(getString(R.string.tool_section_write_tools))
             for (tool in writeTools) {
-                addWriteToolRow(tool, allowedTools, deniedTools)
+                addWriteToolRow(tool, allowed, denied)
             }
         }
     }
@@ -110,25 +97,20 @@ class PromptToolPermissionsActivity : ActivityBase() {
         binding.toolListContainer.addView(header)
     }
 
-    private fun addReadToolRow(tool: Tool, allowedTools: Set<AgentTool>, deniedTools: Set<AgentTool>) {
+    private fun addReadToolRow(tool: Tool, deniedTools: Set<AgentTool>) {
         val itemBinding = ItemToolPermissionBinding.inflate(LayoutInflater.from(this), binding.toolListContainer, false)
 
         itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
-        // Read tools: 3 options — Default (follows global) / Enabled (override) / Disabled (override)
-        val globallyDisabled = tool.agentTool in CommonUtils.settings.permanentlyDeniedTools
-        val defaultLabel = if (globallyDisabled)
-            getString(R.string.tool_option_default_disabled)
-        else
-            getString(R.string.tool_option_default_enabled)
-        itemBinding.radioAsk.text = defaultLabel
-        itemBinding.radioAllow.text = getString(R.string.tool_option_enabled)
+        // Read tools: 2 options — reuse radioAsk as "Enabled", hide radioAllow, radioDeny as "Disabled"
+        itemBinding.radioAsk.text = getString(R.string.tool_option_enabled)
+        itemBinding.radioAllow.visibility = View.GONE
         itemBinding.radioDeny.text = getString(R.string.tool_option_disabled)
 
-        when (tool.agentTool) {
-            in allowedTools -> itemBinding.permissionRadioGroup.check(R.id.radioAllow)
-            in deniedTools -> itemBinding.permissionRadioGroup.check(R.id.radioDeny)
-            else -> itemBinding.permissionRadioGroup.check(R.id.radioAsk)
+        if (tool.agentTool in deniedTools) {
+            itemBinding.permissionRadioGroup.check(R.id.radioDeny)
+        } else {
+            itemBinding.permissionRadioGroup.check(R.id.radioAsk)
         }
 
         binding.toolListContainer.addView(itemBinding.root)
@@ -139,15 +121,6 @@ class PromptToolPermissionsActivity : ActivityBase() {
         val itemBinding = ItemToolPermissionBinding.inflate(LayoutInflater.from(this), binding.toolListContainer, false)
 
         itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
-
-        // Show global default hint in the "Ask" label
-        val globallyAllowed = tool.agentTool in CommonUtils.settings.permanentlyAllowedTools
-        val globallyDenied = tool.agentTool in CommonUtils.settings.permanentlyDeniedTools
-        if (globallyAllowed) {
-            itemBinding.radioAsk.text = getString(R.string.tool_option_default_allowed)
-        } else if (globallyDenied) {
-            itemBinding.radioAsk.text = getString(R.string.tool_option_default_denied)
-        }
 
         when (tool.agentTool) {
             in allowedTools -> itemBinding.permissionRadioGroup.check(R.id.radioAllow)
@@ -161,7 +134,7 @@ class PromptToolPermissionsActivity : ActivityBase() {
 
     private fun collectAllowed(): Set<AgentTool> =
         toolRows
-            .filter { it.radioGroup.checkedRadioButtonId == R.id.radioAllow }
+            .filter { it.tool.requiresPermission && it.radioGroup.checkedRadioButtonId == R.id.radioAllow }
             .map { it.tool.agentTool }.toSet()
 
     private fun collectDenied(): Set<AgentTool> =
@@ -169,14 +142,12 @@ class PromptToolPermissionsActivity : ActivityBase() {
             .map { it.tool.agentTool }.toSet()
 
     private fun isDirty(): Boolean =
-        collectAllowed() != initialAllowed || collectDenied() != initialDenied
+        collectAllowed() != settings.permanentlyAllowedTools ||
+            collectDenied() != settings.permanentlyDeniedTools
 
     private fun saveAndFinish() {
-        val result = Intent().apply {
-            putStringArrayListExtra(EXTRA_ALLOWED_TOOLS, ArrayList(collectAllowed().map { it.name }))
-            putStringArrayListExtra(EXTRA_DENIED_TOOLS, ArrayList(collectDenied().map { it.name }))
-        }
-        setResult(Activity.RESULT_OK, result)
+        settings.permanentlyAllowedTools = collectAllowed()
+        settings.permanentlyDeniedTools = collectDenied()
         finish()
     }
 
