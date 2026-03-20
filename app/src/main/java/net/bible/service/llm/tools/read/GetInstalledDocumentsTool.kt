@@ -49,8 +49,10 @@ object GetInstalledDocumentsTool : Tool {
         Get a list of installed documents (Bibles, commentaries, dictionaries, etc.).
         Use this to find available documents before reading content.
         Can filter by category: BIBLE, COMMENTARY, DICTIONARY, GENERAL_BOOK, MAPS.
-        Bible documents include a hasStrongsNumbers field indicating whether the module
+        Each document includes an isIndexed field — only indexed documents can be searched.
+        Bible documents also include a hasStrongsNumbers field indicating whether the module
         contains Strong's concordance number annotations (useful for original language word studies).
+        A Bible must be both indexed and have Strong's numbers to support Strong's number search.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

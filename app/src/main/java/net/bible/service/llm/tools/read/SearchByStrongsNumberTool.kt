@@ -116,7 +116,12 @@ object SearchByStrongsNumberTool : Tool {
         if (!bookInitials.isNullOrBlank()) {
             return Books.installed().getBook(bookInitials) as? SwordBook
         }
-        return SwordDocumentFacade.defaultBibleWithStrongs as? SwordBook
+        // Prefer indexed Strong's Bibles; fall back to unindexed if none indexed
+        return Books.installed().books
+            .filterIsInstance<SwordBook>()
+            .filter { it.hasFeature(FeatureType.STRONGS_NUMBERS) }
+            .sortedByDescending { it.indexStatus == IndexStatus.DONE }
+            .firstOrNull()
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
