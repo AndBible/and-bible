@@ -21,7 +21,7 @@
 
     <item
         android:id="@+id/save_prompt"
-        android:icon="@drawable/ic_check_green_24dp"
+        android:icon="@drawable/ic_check_24dp"
         android:title="@string/okay"
         app:showAsAction="ifRoom" />
 
