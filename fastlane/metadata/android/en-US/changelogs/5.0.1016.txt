@@ -1,0 +1,15 @@
+- Per-prompt tool enable/disable for AI tools, excluding denied tools from LLM context to save tokens (d99f90f5b)
+- Commentary tool now supports verse ranges with automatic deduplication across verses (451f6bcb0)
+- Tool definitions now displayed in raw LLM log view for debugging (3f770184a)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
