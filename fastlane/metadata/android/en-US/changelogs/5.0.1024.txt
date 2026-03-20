@@ -1,0 +1,14 @@
+- Add built-in AI label automatically tagging all LLM-created bookmarks with a robot marker icon (db204fc25)
+- Improve LLM agent efficiency by allowing taskComplete flag on tool calls to signal completion without extra iterations (069fc0010)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
