@@ -37,7 +37,8 @@ class ToolRegistryTest {
 
     @Test
     fun allToolsRegistered() {
-        assertEquals(19, ToolRegistry.count)
+        // Every AgentTool enum value must have a registered implementation
+        assertEquals(AgentTool.entries.size, ToolRegistry.count)
     }
 
     @Test
@@ -81,7 +82,7 @@ class ToolRegistryTest {
     @Test
     fun getToolDefinitions_all() {
         val defs = ToolRegistry.getToolDefinitions()
-        assertEquals(19, defs.size)
+        assertEquals(ToolRegistry.count, defs.size)
         val def = defs.first { it.name == "getVerseContent" }
         assertTrue(def.description.isNotBlank())
         assertTrue(def.parametersSchema.containsKey("type"))
@@ -91,7 +92,7 @@ class ToolRegistryTest {
     fun getToolDefinitions_excludesSpecifiedTools() {
         val excluded = setOf(AgentTool.SEARCH_BIBLE, AgentTool.GET_COMMENTARIES)
         val defs = ToolRegistry.getToolDefinitions(excludedTools = excluded)
-        assertEquals(17, defs.size)
+        assertEquals(ToolRegistry.count - excluded.size, defs.size)
         assertFalse("SEARCH_BIBLE should be excluded", defs.any { it.tool == AgentTool.SEARCH_BIBLE })
         assertFalse("GET_COMMENTARIES should be excluded", defs.any { it.tool == AgentTool.GET_COMMENTARIES })
         assertTrue("GET_VERSE_CONTENT should still be included", defs.any { it.tool == AgentTool.GET_VERSE_CONTENT })
@@ -106,8 +107,8 @@ class ToolRegistryTest {
             AgentTool.SEARCH_BIBLE
         )
         val defs = ToolRegistry.getToolDefinitions(excludedTools = excluded)
-        // Only SEARCH_BIBLE is actually excluded; 3 structural tools are kept
-        assertEquals(18, defs.size)
+        // Only SEARCH_BIBLE is actually excluded; structural tools are kept
+        assertEquals(ToolRegistry.count - 1, defs.size)
         assertTrue("SET_DOCUMENT_TITLE must be kept", defs.any { it.tool == AgentTool.SET_DOCUMENT_TITLE })
         assertTrue("FINISH_WITH_STUDY_PAD must be kept", defs.any { it.tool == AgentTool.FINISH_WITH_STUDY_PAD })
         assertTrue("FINISH_WITHOUT_DOCUMENT must be kept", defs.any { it.tool == AgentTool.FINISH_WITHOUT_DOCUMENT })
@@ -123,8 +124,7 @@ class ToolRegistryTest {
                 configurable.any { it.agentTool == structural }
             )
         }
-        // 19 total - 3 structural = 16 configurable
-        assertEquals(16, configurable.size)
+        assertEquals(ToolRegistry.count - ToolRegistry.STRUCTURAL_TOOLS.size, configurable.size)
     }
 
     @Test
