@@ -24,20 +24,25 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityRawLlmLogBinding
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.RawLlmLog
 
 /**
- * Displays the raw LLM conversation log for debugging purposes.
+ * Displays the raw LLM conversation log as an expandable list for debugging.
  */
 class RawLlmLogActivity : ActivityBase() {
 
     private lateinit var binding: ActivityRawLlmLogBinding
-    private var logText: String = ""
+    private var rawLog: RawLlmLog? = null
 
     @Suppress("DEPRECATION")
     override fun onBackPressed() {
@@ -53,14 +58,51 @@ class RawLlmLogActivity : ActivityBase() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val workspaceIdStr = intent.getStringExtra(EXTRA_WORKSPACE_ID)
-        logText = if (workspaceIdStr != null) {
-            val workspaceId = IdType(workspaceIdStr)
-            AgentSessionManager.getSession(workspaceId)?.rawLlmLog?.format() ?: ""
-        } else {
-            ""
+        rawLog = if (workspaceIdStr != null) {
+            AgentSessionManager.getSession(IdType(workspaceIdStr))?.rawLlmLog
+        } else null
+
+        val log = rawLog
+        if (log == null || log.isEmpty()) {
+            binding.emptyText.visibility = View.VISIBLE
+            binding.emptyText.text = getString(R.string.raw_llm_log_empty)
+            binding.recyclerView.visibility = View.GONE
+            return
         }
 
-        binding.logContent.text = logText.ifEmpty { getString(R.string.raw_llm_log_empty) }
+        val entries = log.getEntries()
+        val usageByIteration = log.usageByIteration
+
+        // Show total cost header
+        if (usageByIteration.isNotEmpty()) {
+            var totalCost = 0.0
+            var hasCost = false
+            var totalInput = 0L
+            var totalOutput = 0L
+            for ((_, data) in usageByIteration) {
+                totalInput += data.usage.inputTokens
+                totalOutput += data.usage.outputTokens
+                val cost = LlmPricing.estimateCost(data.usage, data.model)
+                if (cost != null) {
+                    totalCost += cost
+                    hasCost = true
+                }
+            }
+            val costStr = if (hasCost) " · ${LlmCostTracker.formatCost(totalCost)}" else ""
+            binding.totalCostHeader.text = getString(
+                R.string.raw_llm_log_total,
+                RawLlmLogAdapter.formatTokenCount(totalInput),
+                RawLlmLogAdapter.formatTokenCount(totalOutput),
+                costStr
+            )
+            binding.totalCostHeader.visibility = View.VISIBLE
+            binding.headerDivider.visibility = View.VISIBLE
+        }
+
+        binding.recyclerView.apply {
+            layoutManager = LinearLayoutManager(this@RawLlmLogActivity)
+            adapter = RawLlmLogAdapter(entries, usageByIteration)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -76,12 +118,14 @@ class RawLlmLogActivity : ActivityBase() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             MENU_COPY -> {
+                val logText = rawLog?.format() ?: ""
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("Raw LLM Log", logText))
                 Toast.makeText(this, R.string.raw_llm_log_copied, Toast.LENGTH_SHORT).show()
                 true
             }
             MENU_SHARE -> {
+                val logText = rawLog?.format() ?: ""
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_TEXT, logText)
                     type = "text/plain"

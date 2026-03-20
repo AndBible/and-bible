@@ -162,6 +162,7 @@ class AgentExecutor(
 
             val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
             totalUsage += callUsage
+            rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model)
 
             // Emit per-operation usage
             if (callUsage.totalTokens > 0) {
