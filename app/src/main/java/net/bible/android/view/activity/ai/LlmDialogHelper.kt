@@ -20,6 +20,7 @@ package net.bible.android.view.activity.ai
 import android.content.Intent
 import android.text.InputType
 import android.util.Log
+import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -41,6 +42,7 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
@@ -87,7 +89,12 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     .setTitle(R.string.select_llm_prompt)
                     .setItems(promptNames.toTypedArray()) { _, which ->
                         if (which < prompts.size) {
-                            executePrompt(prompts[which], selection)
+                            val selectedPrompt = prompts[which]
+                            if (selectedPrompt.editBeforeRun) {
+                                showEditBeforeRunDialog(selectedPrompt, selection)
+                            } else {
+                                executePrompt(selectedPrompt, selection)
+                            }
                         } else {
                             showCustomPromptDialog(selection, context)
                         }
@@ -133,6 +140,51 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                         showIn = setOf(context),
                         deniedTools = setOf(AgentTool.FINISH_WITHOUT_DOCUMENT)
                     )
+                    executePrompt(transientPrompt, selection)
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /**
+     * Show dialog to edit prompt text before execution.
+     * Pre-fills with the prompt's template and offers a "Save changes" checkbox.
+     */
+    private fun showEditBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
+        val layout = LinearLayout(activity).apply {
+            orientation = LinearLayout.VERTICAL
+        }
+        val editText = EditText(activity).apply {
+            setText(prompt.promptTemplate)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 4
+        }
+        val saveCheckBox = CheckBox(activity).apply {
+            setText(R.string.save_prompt_changes)
+            isChecked = false
+            if (BuiltInPrompts.isBuiltIn(prompt.id)) {
+                visibility = View.GONE
+            }
+        }
+        layout.addView(editText)
+        layout.addView(saveCheckBox)
+
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.edit_prompt_before_run_title)
+            .setView(layout)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val editedTemplate = editText.text.toString().trim()
+                if (editedTemplate.isEmpty()) return@setPositiveButton
+
+                if (saveCheckBox.isChecked && !BuiltInPrompts.isBuiltIn(prompt.id)) {
+                    activity.lifecycleScope.launch(Dispatchers.IO) {
+                        prompt.promptTemplate = editedTemplate
+                        PromptRepository.updatePrompt(prompt)
+                    }
+                    executePrompt(prompt, selection)
+                } else {
+                    val transientPrompt = prompt.copy(promptTemplate = editedTemplate)
                     executePrompt(transientPrompt, selection)
                 }
             }

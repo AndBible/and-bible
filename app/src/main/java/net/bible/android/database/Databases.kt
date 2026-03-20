@@ -161,7 +161,7 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val AI_SETTINGS_DATABASE_VERSION = 1
+const val AI_SETTINGS_DATABASE_VERSION = 2
 
 @Database(
     entities = [

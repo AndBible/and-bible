@@ -19,4 +19,8 @@ package net.bible.android.database.migrations
 
 import androidx.room.migration.Migration
 
-val aiSettingsMigrations: Array<Migration> = arrayOf()
+private val addEditBeforeRun = makeMigration(1..2) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `editBeforeRun` INTEGER NOT NULL DEFAULT 0")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun)

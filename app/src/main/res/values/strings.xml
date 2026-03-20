@@ -1504,6 +1504,10 @@
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>
+    <string name="prompt_edit_before_run">Edit before run</string>
+    <string name="prompt_edit_before_run_description">Show the prompt text for editing before sending it to the AI</string>
+    <string name="edit_prompt_before_run_title">Edit prompt</string>
+    <string name="save_prompt_changes">Save changes to prompt</string>
     <string name="prompt_cache_settings">Cache settings</string>
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
