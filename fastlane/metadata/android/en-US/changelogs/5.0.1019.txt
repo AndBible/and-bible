@@ -1,0 +1,15 @@
+- Add Strong's number search tool and Strong's info to document listing (7f9a29ba3)
+- Default LLM content tools to plain text output instead of OSIS XML, with optional format parameter for raw OSIS XML (96df43022)
+- Prefer indexed Bibles in Strong's search and clarify document listing (9bb778eb4)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
