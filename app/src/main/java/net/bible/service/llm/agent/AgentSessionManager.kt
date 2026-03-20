@@ -385,9 +385,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
             windowId = windowControl.activeWindow.id,
             selectedText = selectedText,
             highlightedText = highlightedText,
+            selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
+            selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
             promptAllowedTools = prompt.allowedTools,
             promptDeniedTools = prompt.deniedTools,
+            noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,
             additionalInstructions = additionalInstructions
         )
@@ -470,26 +473,36 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 }
             }
             is AgentEvent.Completed -> {
-                // Extract title from response (first markdown H1 heading)
-                val (title, content) = extractTitleFromResponse(event.response, prompt.name, context.verseRefString)
+                if (context.noDocumentCreation) {
+                    // No document creation — just log the response
+                    session.addLogEntry(AgentLogEntry.info(
+                        app.getString(R.string.llm_no_document_creation_intercepted),
+                        details = event.response.take(500)
+                    ))
+                    session.stop(app.getString(R.string.agent_log_completed))
+                    attachTotalCost(session, event.usage, event.model)
+                } else {
+                    // Extract title from response (first markdown H1 heading)
+                    val (title, content) = extractTitleFromResponse(event.response, prompt.name, context.verseRefString)
 
-                // Save to AI Documents
-                val pageInfo = MyDocumentBookManager.saveAIResponse(
-                    response = content,
-                    title = title,
-                    sourcePromptId = context.promptId,
-                    cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get(),
-                    sourceModelName = event.model.takeIf { it.isNotBlank() }
-                )
+                    // Save to AI Documents
+                    val pageInfo = MyDocumentBookManager.saveAIResponse(
+                        response = content,
+                        title = title,
+                        sourcePromptId = context.promptId,
+                        cacheableContext = cacheableContext,
+                        usedWriteTools = usedWriteToolsTracker.get(),
+                        sourceModelName = event.model.takeIf { it.isNotBlank() }
+                    )
 
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
+                    session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
-                // Open the page in target window or linked window
-                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                    // Open the page in target window or linked window
+                    openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model)
+                    session.stop(app.getString(R.string.agent_log_completed))
+                    attachTotalCost(session, event.usage, event.model)
+                }
             }
             is AgentEvent.CompletedWithDocument -> {
                 // LLM explicitly provided title and content via setDocumentTitle tool

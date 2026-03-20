@@ -103,6 +103,22 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="?android:attr/textColorSecondary" />
 
+        <!-- No document creation -->
+        <CheckBox
+            android:id="@+id/checkNoDocumentCreation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/prompt_no_document_creation" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="32dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/prompt_no_document_creation_description"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary" />
+
         <!-- Show in contexts -->
         <TextView
             android:layout_width="wrap_content"

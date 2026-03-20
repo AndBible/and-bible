@@ -306,25 +306,34 @@ class AgentExecutor(
             if (finishResult == null && result is ToolResult.Success) {
                 when (toolCall.tool) {
                     AgentTool.SET_DOCUMENT_TITLE -> {
-                        val data = result.data as? SetDocumentTitleTool.Result
-                        val title = data?.title ?: application.getString(R.string.llm_default_document_title)
-                        val content = parsed.content?.takeIf { it.isNotBlank() }
-
-                        if (content == null) {
-                            Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
-                            toolResults[toolResults.lastIndex] = ToolResultBlock(
-                                toolCallId = toolCall.id, content = ToolResult.error(
-                                    "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
-                                    "MISSING_CONTENT"
-                                ).toJson()
-                            )
-                        } else {
-                            Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
-                            finishResult = ProcessToolsResult.FinishWithDocument(
-                                title = title,
-                                content = normalizeLlmText(content),
+                        if (currentContext.noDocumentCreation) {
+                            // Enforce: block document creation, finish immediately without new iteration
+                            Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
+                            finishResult = ProcessToolsResult.FinishWithoutDocument(
+                                message = application.getString(R.string.llm_no_document_creation_intercepted),
                                 context = currentContext
                             )
+                        } else {
+                            val data = result.data as? SetDocumentTitleTool.Result
+                            val title = data?.title ?: application.getString(R.string.llm_default_document_title)
+                            val content = parsed.content?.takeIf { it.isNotBlank() }
+
+                            if (content == null) {
+                                Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
+                                toolResults[toolResults.lastIndex] = ToolResultBlock(
+                                    toolCallId = toolCall.id, content = ToolResult.error(
+                                        "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
+                                        "MISSING_CONTENT"
+                                    ).toJson()
+                                )
+                            } else {
+                                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+                                finishResult = ProcessToolsResult.FinishWithDocument(
+                                    title = title,
+                                    content = normalizeLlmText(content),
+                                    context = currentContext
+                                )
+                            }
                         }
                     }
                     AgentTool.FINISH_WITHOUT_DOCUMENT -> {
@@ -394,8 +403,18 @@ class AgentExecutor(
             if (context.verseRefString != null) {
                 append("Selected verse reference: ${context.verseRefString}\n")
             }
+            if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
+                append("Selection text offsets are provided for the highlighted text. " +
+                    "Use these with createBookmark's startOffset/endOffset to create sub-verse bookmarks.\n")
+            }
             if (context.activeLabelId != null) {
                 append("Active label/StudyPad ID: ${context.activeLabelId}\n")
+            }
+
+            if (context.noDocumentCreation) {
+                append("\nIMPORTANT: This prompt is configured for action-only mode (no document creation). ")
+                append("Do NOT call setDocumentTitle. When you are done, call finishWithoutDocument ")
+                append("with a brief summary of what you did. Any text output will appear only in the activity log.\n")
             }
 
             val prefGreek = AiDocumentFilter.preferredStrongsGreek()
@@ -419,6 +438,9 @@ class AgentExecutor(
             if (context.highlightedText != null) {
                 append("\n\n--- User's Highlighted Text (FOCUS ON THIS) ---\n")
                 append(context.highlightedText)
+                if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
+                    append("\n(Text offsets within verse: startOffset=${context.selectionStartOffset}, endOffset=${context.selectionEndOffset})")
+                }
             }
 
             // Add selected content if available (converted from OSIS XML to plain text)

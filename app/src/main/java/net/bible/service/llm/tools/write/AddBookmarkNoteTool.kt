@@ -118,8 +118,13 @@ object AddBookmarkNoteTool : Tool {
             bookmark.notesContentType = args.contentType
             bookmark.notesSourcePromptId = context.promptId
 
+            // Ensure AI label is present on the bookmark
+            val existingLabelIds = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toSet()
+            val aiLabelId = bookmarkControl.aiLabel.id
+            val labels = if (aiLabelId !in existingLabelIds) existingLabelIds + aiLabelId else null
+
             // Save using BookmarkControl (sends UI events)
-            bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
+            bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
 
             ToolResult.success {
                 put("bookmarkId", args.bookmarkId.toString())
