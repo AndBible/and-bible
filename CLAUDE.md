@@ -53,9 +53,9 @@ npm run build-debug      # Debug build with source maps
 npm run build-production # Production build
 ```
 
-**Android Gradle Build (requires internet)**
+**Android Gradle Build**
 ```bash
-# IMPORTANT: All Android builds require internet connectivity for dependencies
+# IMPORTANT: Test commands (testStandard*, check) require dangerouslyDisableSandbox: true due to Robolectric
 ./gradlew assembleStandardGithubDebug     # Debug build
 ./gradlew assembleStandardGithubRelease   # Release build
 ./gradlew testStandardGoogleplayDebug     # Unit tests

@@ -67,6 +67,8 @@ interface BaseOsisDocument extends BaseDocument {
     isAiDocument: boolean
     myDocumentPageId: string | null
     sourcePromptId: string | null
+    sourcePromptName: string | null
+    sourceModelName: string | null
 }
 
 export interface OsisDocument extends BaseOsisDocument {

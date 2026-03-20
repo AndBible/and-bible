@@ -357,7 +357,8 @@ object MyDocumentBookManager {
         title: String,
         sourcePromptId: IdType,
         cacheableContext: CacheableContext,
-        usedWriteTools: Boolean = false
+        usedWriteTools: Boolean = false,
+        sourceModelName: String? = null
     ): SavedPageInfo {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val aiDocument = getOrCreateAIDocument()
@@ -381,7 +382,8 @@ object MyDocumentBookManager {
             kjvOrdinalStart = cacheableContext.kjvOrdinalStart,
             kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
             contextHash = cacheableContext.computeHash(),
-            usedWriteTools = usedWriteTools
+            usedWriteTools = usedWriteTools,
+            sourceModelName = sourceModelName
         )
 
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId

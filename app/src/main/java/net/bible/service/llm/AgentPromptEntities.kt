@@ -225,6 +225,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
     /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */
     @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
+    /** When true, show an edit dialog for the prompt text before sending it to the LLM. */
+    @ColumnInfo(defaultValue = "0") var editBeforeRun: Boolean = false,
 )
 
 @Dao

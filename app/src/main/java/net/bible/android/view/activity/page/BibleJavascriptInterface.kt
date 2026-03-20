@@ -56,6 +56,7 @@ import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -777,6 +778,15 @@ class BibleJavascriptInterface(
                 }
                 .setNegativeButton(R.string.no, null)
                 .show()
+        }
+    }
+
+    @JavascriptInterface
+    fun openPromptEditor(promptId: String) {
+        scope.launch(Dispatchers.Main) {
+            val intent = Intent(mainBibleActivity, PromptEditActivity::class.java)
+            intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId)
+            mainBibleActivity.startActivity(intent)
         }
     }
 

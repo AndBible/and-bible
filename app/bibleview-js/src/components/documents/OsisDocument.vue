@@ -35,6 +35,11 @@
     <template v-else>
       <DocumentActionMenu :document="document"/>
       <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
+      <div v-if="document.isAiDocument && document.sourcePromptName" class="ai-footer">
+        <a v-if="document.sourcePromptId" class="prompt-link" @click.prevent="android.openPromptEditor(document.sourcePromptId!)">{{ document.sourcePromptName }}</a>
+        <span v-else>{{ document.sourcePromptName }}</span>
+        <span v-if="document.sourceModelName" class="model-name"> ({{ document.sourceModelName }})</span>
+      </div>
       <OpenAllLink v-if="document.bookCategory != 'GENERAL_BOOK'" :v11n="document.v11n"/>
       <FeaturesLink :fragment="osisFragment"/>
     </template>
@@ -137,6 +142,19 @@ if (isMyDocument) {
   }
   .monochrome.night & {
     border-color: white;
+  }
+}
+
+.ai-footer {
+  margin-top: 1em;
+  padding-top: 0.5em;
+  font-size: 0.8em;
+  opacity: 0.6;
+  text-align: right;
+
+  .prompt-link {
+    cursor: pointer;
+    text-decoration: underline;
   }
 }
 </style>
