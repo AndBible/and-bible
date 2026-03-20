@@ -112,6 +112,7 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "MyDocument"),
             Table(tableName = "MyDocumentPage"),
             Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
+            Table(tableName = "AiPageCacheEntry", idField1 = "pageId"),
         )
         AI_SETTINGS -> listOf(
             Table(tableName = "AgentPrompt"),

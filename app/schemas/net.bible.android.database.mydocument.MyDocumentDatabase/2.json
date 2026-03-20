@@ -1,0 +1,465 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 2,
+    "identityHash": "5aba1393ed0f8a19a9751feb8ed3451b",
+    "entities": [
+      {
+        "tableName": "MyDocument",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `initials` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `sourcePromptId` BLOB, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "initials",
+            "columnName": "initials",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePromptId",
+            "columnName": "sourcePromptId",
+            "affinity": "BLOB"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_MyDocument_initials",
+            "unique": true,
+            "columnNames": [
+              "initials"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyDocument_initials` ON `${TABLE_NAME}` (`initials`)"
+          }
+        ]
+      },
+      {
+        "tableName": "MyDocumentPage",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `documentId` BLOB NOT NULL, `title` TEXT NOT NULL, `pageKey` TEXT NOT NULL, `contentType` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `updatedAt` INTEGER NOT NULL, `sourcePromptId` BLOB, `languageCode` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`documentId`) REFERENCES `MyDocument`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "documentId",
+            "columnName": "documentId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pageKey",
+            "columnName": "pageKey",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "contentType",
+            "columnName": "contentType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updatedAt",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePromptId",
+            "columnName": "sourcePromptId",
+            "affinity": "BLOB"
+          },
+          {
+            "fieldPath": "languageCode",
+            "columnName": "languageCode",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_MyDocumentPage_documentId",
+            "unique": false,
+            "columnNames": [
+              "documentId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_MyDocumentPage_documentId` ON `${TABLE_NAME}` (`documentId`)"
+          },
+          {
+            "name": "index_MyDocumentPage_documentId_pageKey",
+            "unique": true,
+            "columnNames": [
+              "documentId",
+              "pageKey"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_MyDocumentPage_documentId_pageKey` ON `${TABLE_NAME}` (`documentId`, `pageKey`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "MyDocument",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "documentId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "MyDocumentPageContent",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pageId` BLOB NOT NULL, `content` TEXT NOT NULL, PRIMARY KEY(`pageId`), FOREIGN KEY(`pageId`) REFERENCES `MyDocumentPage`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "pageId",
+            "columnName": "pageId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "content",
+            "columnName": "content",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pageId"
+          ]
+        },
+        "foreignKeys": [
+          {
+            "table": "MyDocumentPage",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pageId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "AiPageCacheEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`pageId` BLOB NOT NULL, `sourcePromptId` BLOB NOT NULL, `sourceContext` TEXT, `kjvOrdinalStart` INTEGER, `kjvOrdinalEnd` INTEGER, `contextHash` TEXT, `usedWriteTools` INTEGER NOT NULL, `sourceModelName` TEXT, PRIMARY KEY(`pageId`), FOREIGN KEY(`pageId`) REFERENCES `MyDocumentPage`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "pageId",
+            "columnName": "pageId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourcePromptId",
+            "columnName": "sourcePromptId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceContext",
+            "columnName": "sourceContext",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "kjvOrdinalStart",
+            "columnName": "kjvOrdinalStart",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "kjvOrdinalEnd",
+            "columnName": "kjvOrdinalEnd",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "contextHash",
+            "columnName": "contextHash",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "usedWriteTools",
+            "columnName": "usedWriteTools",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sourceModelName",
+            "columnName": "sourceModelName",
+            "affinity": "TEXT"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "pageId"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AiPageCacheEntry_sourcePromptId_contextHash",
+            "unique": false,
+            "columnNames": [
+              "sourcePromptId",
+              "contextHash"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_sourcePromptId_contextHash` ON `${TABLE_NAME}` (`sourcePromptId`, `contextHash`)"
+          },
+          {
+            "name": "index_AiPageCacheEntry_sourcePromptId_kjvOrdinalStart_kjvOrdinalEnd",
+            "unique": false,
+            "columnNames": [
+              "sourcePromptId",
+              "kjvOrdinalStart",
+              "kjvOrdinalEnd"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_sourcePromptId_kjvOrdinalStart_kjvOrdinalEnd` ON `${TABLE_NAME}` (`sourcePromptId`, `kjvOrdinalStart`, `kjvOrdinalEnd`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "MyDocumentPage",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "pageId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LogEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
+        "fields": [
+          {
+            "fieldPath": "tableName",
+            "columnName": "tableName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId1",
+            "columnName": "entityId1",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId2",
+            "columnName": "entityId2",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tableName",
+            "entityId1",
+            "entityId2"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LogEntry_lastUpdated",
+            "unique": false,
+            "columnNames": [
+              "lastUpdated"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
+          },
+          {
+            "name": "index_LogEntry_sourceDevice",
+            "unique": false,
+            "columnNames": [
+              "sourceDevice"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `${TABLE_NAME}` (`sourceDevice`)"
+          }
+        ]
+      },
+      {
+        "tableName": "SyncConfiguration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))",
+        "fields": [
+          {
+            "fieldPath": "keyName",
+            "columnName": "keyName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringValue",
+            "columnName": "stringValue",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "longValue",
+            "columnName": "longValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "booleanValue",
+            "columnName": "booleanValue",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "keyName"
+          ]
+        }
+      },
+      {
+        "tableName": "SyncStatus",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))",
+        "fields": [
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patchNumber",
+            "columnName": "patchNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appliedDate",
+            "columnName": "appliedDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sourceDevice",
+            "patchNumber"
+          ]
+        }
+      }
+    ],
+    "views": [
+      {
+        "viewName": "MyDocumentPageWithContent",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT p.*, c.content\n    FROM MyDocumentPage p\n    LEFT OUTER JOIN MyDocumentPageContent c ON p.id = c.pageId"
+      },
+      {
+        "viewName": "AiCachedPageWithContent",
+        "createSql": "CREATE VIEW `${VIEW_NAME}` AS SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,\n           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,\n           p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId"
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5aba1393ed0f8a19a9751feb8ed3451b')"
+    ]
+  }
+}

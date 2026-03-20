@@ -108,6 +108,8 @@ open class OsisDocument(
     val highlightRange: IntRange? = null,
     val myDocumentPageId: String? = null,
     val sourcePromptId: String? = null,
+    val sourcePromptName: String? = null,
+    val sourceModelName: String? = null,
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -141,6 +143,8 @@ open class OsisDocument(
             "isAiDocument" to json.encodeToString(serializer(), book.initials == MyDocumentBookManager.AI_DOCUMENTS_INITIALS),
             "myDocumentPageId" to wrapString(myDocumentPageId),
             "sourcePromptId" to wrapString(sourcePromptId),
+            "sourcePromptName" to wrapString(sourcePromptName),
+            "sourceModelName" to wrapString(sourceModelName),
         )
     }
 }

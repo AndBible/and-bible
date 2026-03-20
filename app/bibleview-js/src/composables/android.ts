@@ -108,6 +108,7 @@ export type BibleJavascriptInterface = {
     reloadMyDocumentPage: (bookInitials: string) => void,
     regenerateMyDocumentPage: (pageId: string) => void,
     deleteMyDocumentPage: (pageId: string) => void,
+    openPromptEditor: (promptId: string) => void,
 }
 
 export type UseAndroid = ReturnType<typeof useAndroid>
@@ -593,6 +594,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.deleteMyDocumentPage(pageId);
     }
 
+    function openPromptEditor(promptId: string) {
+        window.android.openPromptEditor(promptId);
+    }
+
     const exposed = {
         shareHtml,
         helpBookmarks,
@@ -653,6 +658,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         reloadMyDocumentPage,
         regenerateMyDocumentPage,
         deleteMyDocumentPage,
+        openPromptEditor,
     }
 
     if (config.developmentMode) return {

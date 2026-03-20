@@ -39,6 +39,7 @@ import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mydocument.myDocumentId
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.PromptRepository
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -164,6 +165,15 @@ abstract class CurrentPageBase protected constructor(
             } else null
         } else null
 
+        // Fetch AI generation metadata (prompt name + model) for footer display
+        val promptId = myDocumentPage?.sourcePromptId
+        val cacheEntry = if (promptId != null) {
+            DatabaseContainer.instance.myDocumentDb.myDocumentDao().getCacheEntry(myDocumentPage.id)
+        } else null
+        val promptName = if (promptId != null) {
+            PromptRepository.promptById(promptId)?.name ?: application.getString(R.string.ai_unknown_prompt)
+        } else null
+
         OsisDocument(
             book = currentDocument,
             key = key,
@@ -171,6 +181,8 @@ abstract class CurrentPageBase protected constructor(
             genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
             myDocumentPageId = myDocumentPage?.id?.toString(),
             sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
+            sourcePromptName = promptName,
+            sourceModelName = cacheEntry?.sourceModelName,
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

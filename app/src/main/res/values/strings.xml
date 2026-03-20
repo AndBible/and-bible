@@ -1521,6 +1521,7 @@
     <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_document_delete">Delete</string>
     <string name="custom_prompt">Custom prompt…</string>
+    <string name="ai_unknown_prompt">AI</string>
     <string name="custom_prompt_hint">Enter your prompt</string>
     <string name="save_as_new_prompt">Save as new prompt</string>
 

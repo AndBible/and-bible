@@ -19,4 +19,11 @@ package net.bible.android.database.migrations
 
 import androidx.room.migration.Migration
 
-val myDocumentMigrations: Array<Migration> = arrayOf()
+private val addSourceModelName = makeMigration(1..2) { db ->
+    db.execSQL("ALTER TABLE `AiPageCacheEntry` ADD COLUMN `sourceModelName` TEXT DEFAULT NULL")
+    // Recreate view to include the new column (SQL must match Room's expected output exactly)
+    db.execSQL("DROP VIEW IF EXISTS `AiCachedPageWithContent`")
+    db.execSQL("CREATE VIEW `AiCachedPageWithContent` AS SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,\n           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,\n           p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId")
+}
+
+val myDocumentMigrations: Array<Migration> = arrayOf(addSourceModelName)

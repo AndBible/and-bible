@@ -478,7 +478,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     title = title,
                     sourcePromptId = context.promptId,
                     cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get()
+                    usedWriteTools = usedWriteToolsTracker.get(),
+                    sourceModelName = event.model.takeIf { it.isNotBlank() }
                 )
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
@@ -496,7 +497,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     title = event.title,
                     sourcePromptId = context.promptId,
                     cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get()
+                    usedWriteTools = usedWriteToolsTracker.get(),
+                    sourceModelName = event.model.takeIf { it.isNotBlank() }
                 )
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
