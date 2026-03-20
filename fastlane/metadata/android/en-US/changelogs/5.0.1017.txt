@@ -1,0 +1,16 @@
+- Add Strong's number search tool for LLM agent with automatic Bible selection; expose Strong's number availability in document listing (7f9a29ba3)
+- Per-prompt tool enable/disable for all tools, with denied tools excluded from LLM context (d99f90f5b)
+- Show tool definitions in LLM raw log view for debugging (3f770184a)
+- Add verse range support and deduplication to commentaries tool (451f6bcb0)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
