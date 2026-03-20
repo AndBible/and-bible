@@ -1527,6 +1527,7 @@
     <string name="ai_document_deleted">This AI document has been deleted.</string>
     <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
+    <string name="ai_regenerate_prompt_not_found">Cannot regenerate: the original prompt was not found. It may have been deleted.</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_regenerate_title">Regenerate</string>
     <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>

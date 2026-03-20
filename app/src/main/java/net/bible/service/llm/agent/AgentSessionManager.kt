@@ -621,6 +621,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val prompt = PromptRepository.promptById(promptId)
         if (prompt == null) {
             Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    BibleApplication.application,
+                    R.string.ai_regenerate_prompt_not_found,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             return false
         }
 
