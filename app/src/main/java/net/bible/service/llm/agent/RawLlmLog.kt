@@ -19,6 +19,8 @@ package net.bible.service.llm.agent
 
 import com.google.gson.GsonBuilder
 import net.bible.service.llm.tools.ToolDefinition
+import org.json.JSONArray
+import org.json.JSONObject
 
 /**
  * Captures the raw LLM conversation for debug inspection.
@@ -59,12 +61,12 @@ class RawLlmLog {
                 }
                 is RawLogEntry.ToolCallEntry -> {
                     appendLine("=== TOOL_CALL: ${entry.toolName} [${entry.id}] ===")
-                    appendLine(entry.arguments)
+                    appendLine(prettyFormatJson(entry.arguments))
                     appendLine()
                 }
                 is RawLogEntry.ToolResultEntry -> {
                     appendLine("=== TOOL_RESULT [${entry.id}] ===")
-                    appendLine(entry.result)
+                    appendLine(prettyFormatJson(entry.result))
                     appendLine()
                 }
                 is RawLogEntry.ToolDefinitionsEntry -> {
@@ -79,11 +81,44 @@ class RawLlmLog {
                 }
                 is RawLogEntry.RawApiResponse -> {
                     appendLine("=== RAW API RESPONSE (iteration ${entry.iteration}) ===")
-                    appendLine(entry.body)
+                    appendLine(prettyFormatJson(entry.body))
                     appendLine()
                 }
             }
         }
+    }
+
+    companion object {
+        /** Regex matching a JSON string value that is at least 80 chars long. */
+        private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")
+
+        /**
+         * Pretty-print a JSON string with indentation and unescape long string values
+         * so that markdown content with \n becomes readable with actual line breaks.
+         */
+        private fun prettyFormatJson(json: String): String = try {
+            val trimmed = json.trim()
+            val formatted = when {
+                trimmed.startsWith("{") -> JSONObject(trimmed).toString(2)
+                trimmed.startsWith("[") -> JSONArray(trimmed).toString(2)
+                else -> json
+            }
+            unescapeJsonStringContents(formatted)
+        } catch (_: Exception) {
+            json
+        }
+
+        /**
+         * In pretty-printed JSON, replace escaped newlines/tabs inside long string values
+         * with actual whitespace characters so markdown content is readable.
+         */
+        private fun unescapeJsonStringContents(prettyJson: String): String =
+            longStringValueRegex.replace(prettyJson) { match ->
+                val unescaped = match.value
+                    .replace("\\n", "\n")
+                    .replace("\\t", "\t")
+                unescaped
+            }
     }
 }
 
