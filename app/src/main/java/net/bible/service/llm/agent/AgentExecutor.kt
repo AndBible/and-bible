@@ -347,7 +347,19 @@ class AgentExecutor(
                             context = currentContext
                         )
                     }
-                    else -> { /* Not a finish tool — no special handling */ }
+                    else -> {
+                        // Check for taskComplete flag on non-structural tools
+                        val rawArgs = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+                        if (rawArgs?.optBoolean("taskComplete", false) == true) {
+                            val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
+                                application.getString(R.string.llm_default_task_completed)
+                            }
+                            finishResult = ProcessToolsResult.FinishWithoutDocument(
+                                message = message,
+                                context = currentContext
+                            )
+                        }
+                    }
                 }
             }
         }
