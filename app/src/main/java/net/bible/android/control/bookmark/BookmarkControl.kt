@@ -57,6 +57,9 @@ import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
 import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
 import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
 import net.bible.android.database.bookmarks.UNLABELED_NAME
+import net.bible.android.database.bookmarks.AI_LABEL_ID
+import net.bible.android.database.bookmarks.AI_LABEL_NAME
+import android.graphics.Color
 import net.bible.android.misc.OsisFragment
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
@@ -451,7 +454,10 @@ open class BookmarkControl @Inject constructor(
     private fun getOrCreateSpecialLabel(
         canonicalId: IdType,
         create: () -> Label
-    ): Label = dao.labelById(canonicalId) ?: create().also { dao.insert(it) }
+    ): Label = dao.labelById(canonicalId) ?: create().also {
+        dao.insert(it)
+        ABEventBus.post(LabelAddedOrUpdatedEvent(it))
+    }
 
     val speakLabel: Label get() = getOrCreateSpecialLabel(SPEAK_LABEL_ID) {
         Label(id = SPEAK_LABEL_ID, name = SPEAK_LABEL_NAME, color = BookmarkStyle.SPEAK.backgroundColor)
@@ -463,6 +469,17 @@ open class BookmarkControl @Inject constructor(
 
     val paragraphBreakLabel: Label get() = getOrCreateSpecialLabel(PARAGRAPH_BREAK_LABEL_ID) {
         Label(id = PARAGRAPH_BREAK_LABEL_ID, name = PARAGRAH_BREAK_LABEL_NAME, hideStyle = true, hideStyleWholeVerse = true)
+    }
+
+    val aiLabel: Label get() = getOrCreateSpecialLabel(AI_LABEL_ID) {
+        Label(
+            id = AI_LABEL_ID,
+            name = AI_LABEL_NAME,
+            color = Color.argb(255, 100, 100, 255),
+            markerStyle = true,
+            markerStyleWholeVerse = true,
+            customIcon = "robot"
+        )
     }
 
     fun reset() {}

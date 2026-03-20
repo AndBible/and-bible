@@ -159,11 +159,12 @@ object CreateBookmarkTool : Tool {
                 bookmark.notesSourcePromptId = context.promptId
             }
 
-            // Parse label IDs
+            // Parse label IDs and always include AI label
+            val aiLabelId = bookmarkControl.aiLabel.id
             val labelIds = if (!labelIdsList.isNullOrEmpty()) {
-                labelIdsList.toSet()
+                labelIdsList.toSet() + aiLabelId
             } else {
-                null
+                setOf(aiLabelId)
             }
 
             // Save bookmark using BookmarkControl (sends UI events)
