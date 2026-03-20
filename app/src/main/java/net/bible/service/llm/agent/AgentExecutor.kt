@@ -99,6 +99,9 @@ class AgentExecutor(
             val messages = buildInitialMessages(prompt, context)
             val toolDefs = ToolRegistry.getToolDefinitions(includeWriteTools = true)
 
+            // Capture tool definitions in raw log
+            rawLlmLog?.addToolDefinitions(toolDefs)
+
             // Capture initial messages in raw log
             for (msg in messages) {
                 rawLlmLog?.addMessage(msg.role.name, msg.content)
