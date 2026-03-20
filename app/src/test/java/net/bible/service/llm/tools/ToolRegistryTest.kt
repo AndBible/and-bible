@@ -20,6 +20,7 @@ package net.bible.service.llm.tools
 import kotlinx.serialization.json.jsonPrimitive
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
+import net.bible.service.llm.AgentTool
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -79,23 +80,60 @@ class ToolRegistryTest {
 
     @Test
     fun getToolDefinitions_all() {
-        val defs = ToolRegistry.getToolDefinitions(includeWriteTools = true)
+        val defs = ToolRegistry.getToolDefinitions()
         assertEquals(19, defs.size)
-        // Check definition structure
         val def = defs.first { it.name == "getVerseContent" }
         assertTrue(def.description.isNotBlank())
         assertTrue(def.parametersSchema.containsKey("type"))
     }
 
     @Test
-    fun getToolDefinitions_readOnly() {
-        val defs = ToolRegistry.getToolDefinitions(includeWriteTools = false)
-        // 10 read tools + 3 write tools that don't require permission (setDocumentTitle, finishWithStudyPad, finishWithoutDocument)
-        assertEquals(13, defs.size)
-        // Verify none require permission
-        for (def in defs) {
-            val tool = ToolRegistry.get(def.name)!!
-            assertFalse("${def.name} should not require permission", tool.requiresPermission)
+    fun getToolDefinitions_excludesSpecifiedTools() {
+        val excluded = setOf(AgentTool.SEARCH_BIBLE, AgentTool.GET_COMMENTARIES)
+        val defs = ToolRegistry.getToolDefinitions(excludedTools = excluded)
+        assertEquals(17, defs.size)
+        assertFalse("SEARCH_BIBLE should be excluded", defs.any { it.tool == AgentTool.SEARCH_BIBLE })
+        assertFalse("GET_COMMENTARIES should be excluded", defs.any { it.tool == AgentTool.GET_COMMENTARIES })
+        assertTrue("GET_VERSE_CONTENT should still be included", defs.any { it.tool == AgentTool.GET_VERSE_CONTENT })
+    }
+
+    @Test
+    fun getToolDefinitions_structuralToolsNeverExcluded() {
+        val excluded = setOf(
+            AgentTool.SET_DOCUMENT_TITLE,
+            AgentTool.FINISH_WITH_STUDY_PAD,
+            AgentTool.FINISH_WITHOUT_DOCUMENT,
+            AgentTool.SEARCH_BIBLE
+        )
+        val defs = ToolRegistry.getToolDefinitions(excludedTools = excluded)
+        // Only SEARCH_BIBLE is actually excluded; 3 structural tools are kept
+        assertEquals(18, defs.size)
+        assertTrue("SET_DOCUMENT_TITLE must be kept", defs.any { it.tool == AgentTool.SET_DOCUMENT_TITLE })
+        assertTrue("FINISH_WITH_STUDY_PAD must be kept", defs.any { it.tool == AgentTool.FINISH_WITH_STUDY_PAD })
+        assertTrue("FINISH_WITHOUT_DOCUMENT must be kept", defs.any { it.tool == AgentTool.FINISH_WITHOUT_DOCUMENT })
+        assertFalse("SEARCH_BIBLE should be excluded", defs.any { it.tool == AgentTool.SEARCH_BIBLE })
+    }
+
+    @Test
+    fun getConfigurableTools_excludesStructuralTools() {
+        val configurable = ToolRegistry.getConfigurableTools()
+        for (structural in ToolRegistry.STRUCTURAL_TOOLS) {
+            assertFalse(
+                "${structural.camelCaseName} should not be configurable",
+                configurable.any { it.agentTool == structural }
+            )
+        }
+        // 19 total - 3 structural = 16 configurable
+        assertEquals(16, configurable.size)
+    }
+
+    @Test
+    fun getConfigurableTools_readToolsBeforeWriteTools() {
+        val configurable = ToolRegistry.getConfigurableTools()
+        val firstWriteIndex = configurable.indexOfFirst { it.requiresPermission }
+        val lastReadIndex = configurable.indexOfLast { !it.requiresPermission }
+        if (firstWriteIndex >= 0 && lastReadIndex >= 0) {
+            assertTrue("Read tools should come before write tools", lastReadIndex < firstWriteIndex)
         }
     }
 
@@ -106,9 +144,6 @@ class ToolRegistryTest {
         for (tool in permTools) {
             assertTrue("${tool.agentTool.camelCaseName} should require permission", tool.requiresPermission)
         }
-        // setDocumentTitle and finishWithoutDocument are write tools but not in permissionTools
-        // Actually all write tools have requiresPermission = false for finish tools?
-        // Let's just verify the count: write tools that have requiresPermission = true
         val writeToolsWithPermission = listOf(
             "createBookmark", "addBookmarkNote", "updateBookmarkNote",
             "createLabel", "addLabelToBookmark", "addStudyPadEntry"

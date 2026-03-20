@@ -127,14 +127,22 @@ object ToolRegistry {
      */
     val count: Int get() = tools.size
 
+    /** Tools that control agent flow and must never be excluded from tool definitions. */
+    val STRUCTURAL_TOOLS: Set<AgentTool> = setOf(
+        AgentTool.SET_DOCUMENT_TITLE,
+        AgentTool.FINISH_WITH_STUDY_PAD,
+        AgentTool.FINISH_WITHOUT_DOCUMENT
+    )
+
     /**
      * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].
      *
-     * @param includeWriteTools Whether to include write tools that require permission
+     * @param excludedTools Tools to omit from the definitions (saves context tokens).
+     *   Structural tools ([STRUCTURAL_TOOLS]) are never excluded regardless of this set.
      */
-    fun getToolDefinitions(includeWriteTools: Boolean = true): List<ToolDefinition> {
+    fun getToolDefinitions(excludedTools: Set<AgentTool> = emptySet()): List<ToolDefinition> {
         return tools.values
-            .filter { includeWriteTools || !it.requiresPermission }
+            .filter { it.agentTool !in excludedTools || it.agentTool in STRUCTURAL_TOOLS }
             .map { ToolDefinition(it.agentTool, it.description, it.parametersSchema) }
     }
 
@@ -151,6 +159,15 @@ object ToolRegistry {
      */
     fun getPermissionTools(): List<Tool> =
         tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
+
+    /**
+     * Get all tools that can be configured in per-prompt permissions.
+     * Excludes structural tools. Sorted: read tools first, then write tools, alphabetically.
+     */
+    fun getConfigurableTools(): List<Tool> =
+        tools.values
+            .filter { it.agentTool !in STRUCTURAL_TOOLS }
+            .sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
 
     /**
      * Get all tools sorted by category (read first, then write) and display name within each category.

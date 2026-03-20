@@ -97,7 +97,8 @@ class AgentExecutor(
             val llmConfig = LlmModelConfig.fromPrompt(prompt)
             val adapter = LlmProcessingService.resolveAdapter(llmConfig)
             val messages = buildInitialMessages(prompt, context)
-            val toolDefs = ToolRegistry.getToolDefinitions(includeWriteTools = true)
+            val excludedTools = computeExcludedTools(context)
+            val toolDefs = ToolRegistry.getToolDefinitions(excludedTools = excludedTools)
 
             // Capture tool definitions in raw log
             rawLlmLog?.addToolDefinitions(toolDefs)
@@ -483,6 +484,18 @@ class AgentExecutor(
             PermissionCheckResult.Denied -> DialogResult.Denied
             PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool, arguments)
         }
+    }
+
+    /**
+     * Computes the set of tools to exclude from LLM tool definitions.
+     * Combines globally permanently denied tools and per-prompt denied tools.
+     * Structural tools are never excluded (handled by [ToolRegistry.getToolDefinitions]).
+     */
+    private fun computeExcludedTools(context: AgentContext): Set<AgentTool> {
+        val excluded = mutableSetOf<AgentTool>()
+        excluded.addAll(CommonUtils.settings.permanentlyDeniedTools)
+        context.promptDeniedTools?.let { excluded.addAll(it) }
+        return excluded
     }
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
