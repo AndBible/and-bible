@@ -53,7 +53,9 @@ data class AgentContext(
     /** Previous LLM response shown during regeneration, so the LLM can refine its output. */
     val previousResponse: String? = null,
     /** User-provided additional instructions for regeneration (e.g., "make it shorter"). */
-    val additionalInstructions: String? = null
+    val additionalInstructions: String? = null,
+    /** When true, setDocumentTitle is blocked and content is only shown in the log. */
+    val noDocumentCreation: Boolean = false
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef

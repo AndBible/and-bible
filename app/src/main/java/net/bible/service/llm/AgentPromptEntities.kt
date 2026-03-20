@@ -227,6 +227,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
     /** When true, show an edit dialog for the prompt text before sending it to the LLM. */
     @ColumnInfo(defaultValue = "0") var editBeforeRun: Boolean = false,
+    /** When true, the prompt does not create a document — results appear only in the agent log. */
+    @ColumnInfo(defaultValue = "0") var noDocumentCreation: Boolean = false,
 )
 
 @Dao
