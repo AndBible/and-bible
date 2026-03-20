@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import android.content.Intent
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -59,8 +60,6 @@ import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
-import net.bible.service.llm.tools.Tool
-import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
     private lateinit var binding: SettingsActivityBinding
@@ -126,6 +125,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         refreshProviderList()
+        updateToolPermissionsSummary()
     }
 
     private fun hasAnyProvider(): Boolean = dao.getCount() > 0
@@ -641,7 +641,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private fun setupToolPermissions() {
         updateToolPermissionsSummary()
         manageToolPermissionsPref.setOnPreferenceClickListener {
-            showToolPermissionsDialog()
+            startActivity(Intent(requireContext(), GlobalToolPermissionsActivity::class.java))
             true
         }
     }
@@ -657,74 +657,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun showToolPermissionsDialog() {
-        val tools = ToolRegistry.getPermissionTools()
-        if (tools.isEmpty()) return
-
-        val allowed = settings.permanentlyAllowedTools
-        val denied = settings.permanentlyDeniedTools
-
-        val items = tools.map { tool ->
-            val displayName = ToolRegistry.getDisplayName(tool)
-            val status = when (tool.agentTool) {
-                in allowed -> getString(R.string.permission_status_allowed)
-                in denied -> getString(R.string.permission_status_denied)
-                else -> getString(R.string.permission_status_default)
-            }
-            "$displayName — $status"
-        }.toTypedArray()
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.manage_tool_permissions_title)
-            .setItems(items) { _, which ->
-                showToolPermissionOptionDialog(tools[which])
-            }
-            .setNeutralButton(R.string.reset_all_permissions) { _, _ ->
-                settings.permanentlyAllowedTools = emptySet()
-                settings.permanentlyDeniedTools = emptySet()
-                updateToolPermissionsSummary()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun showToolPermissionOptionDialog(tool: Tool) {
-        val displayName = ToolRegistry.getDisplayName(tool)
-        val options = arrayOf(
-            getString(R.string.permission_option_default),
-            getString(R.string.permission_option_always_allow),
-            getString(R.string.permission_option_always_deny)
-        )
-
-        val currentIndex = when (tool.agentTool) {
-            in settings.permanentlyAllowedTools -> 1
-            in settings.permanentlyDeniedTools -> 2
-            else -> 0
-        }
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(displayName)
-            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        settings.permanentlyAllowedTools -= tool.agentTool
-                        settings.permanentlyDeniedTools -= tool.agentTool
-                    }
-                    1 -> {
-                        settings.permanentlyAllowedTools += tool.agentTool
-                        settings.permanentlyDeniedTools -= tool.agentTool
-                    }
-                    2 -> {
-                        settings.permanentlyDeniedTools += tool.agentTool
-                        settings.permanentlyAllowedTools -= tool.agentTool
-                    }
-                }
-                updateToolPermissionsSummary()
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
 
     private fun setupUsage() {
         updateUsageSummary()

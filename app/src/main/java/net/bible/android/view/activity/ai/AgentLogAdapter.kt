@@ -51,6 +51,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.ACTION -> R.drawable.ic_baseline_build_24
             LogEntryType.PERMISSION_REQUEST -> R.drawable.ic_baseline_security_24
             LogEntryType.ERROR -> R.drawable.ic_baseline_error_24
+            LogEntryType.LLM_COMMENT -> R.drawable.ic_baseline_chat_bubble_outline_24
         }
         typeIcon.setImageResource(typeIconRes)
 
@@ -60,6 +61,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.ACTION -> R.color.log_action
             LogEntryType.PERMISSION_REQUEST -> R.color.log_permission
             LogEntryType.ERROR -> R.color.log_error
+            LogEntryType.LLM_COMMENT -> R.color.log_comment
         }
         typeIcon.setColorFilter(context.getColor(typeColor))
 

@@ -228,7 +228,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     private fun getLatestMeaningfulMessage(entries: List<AgentLogEntry>): String? {
         // Prefer the latest ACTION entry (tool calls are more informative)
-        val latestAction = entries.lastOrNull { it.type == LogEntryType.ACTION }
+        val latestAction = entries.lastOrNull { it.type == LogEntryType.ACTION || it.type == LogEntryType.LLM_COMMENT }
         if (latestAction != null) {
             return latestAction.message
         }

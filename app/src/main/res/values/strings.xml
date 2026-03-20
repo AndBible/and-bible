@@ -1600,6 +1600,9 @@
     <string name="ai_read_tools">Read Tools</string>
     <string name="ai_write_tools">Write Tools</string>
 
+    <!-- Global Tool Permissions Activity -->
+    <string name="global_tool_permissions_title">Default tool settings</string>
+
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
@@ -1607,6 +1610,10 @@
     <string name="tool_section_write_tools">Write tools</string>
     <string name="tool_option_enabled">Enabled</string>
     <string name="tool_option_disabled">Disabled</string>
+    <string name="tool_option_default_enabled">Default (enabled)</string>
+    <string name="tool_option_default_disabled">Default (disabled)</string>
+    <string name="tool_option_default_allowed">Default (allowed)</string>
+    <string name="tool_option_default_denied">Default (denied)</string>
 
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
