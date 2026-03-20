@@ -53,7 +53,7 @@ class DocumentViewManager (val mainBibleActivity: MainBibleActivity) {
         splitBibleArea?.destroy()
     }
 
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
+    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
         buildView()
     }
 

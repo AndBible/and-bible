@@ -2086,12 +2086,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEvent(event: CurrentWindowChangedEvent) {
+    fun onEventMainThread(event: CurrentWindowChangedEvent) {
         if(paused) return
         updateActions()
     }
 
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
+    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
         if(paused) return
         setSoftKeyboardMode()
     }

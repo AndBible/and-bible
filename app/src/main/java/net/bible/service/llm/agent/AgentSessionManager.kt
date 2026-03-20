@@ -573,7 +573,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 }
             }
         }
-        linkControl.openAIDocument(documentInitials, pageKey)
+        withContext(Dispatchers.Main) {
+            linkControl.openAIDocument(documentInitials, pageKey)
+        }
     }
 
     suspend fun regenerateAIDocument(
