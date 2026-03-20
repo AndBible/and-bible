@@ -24,8 +24,12 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
+import net.bible.service.llm.tools.ContentFormat
+import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.tools.yamlToJson
+import java.io.StringReader
 import kotlinx.serialization.Serializable
+import net.bible.service.common.useSaxBuilder
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
@@ -49,7 +53,8 @@ object GetCommentariesTool : Tool {
     @Serializable
     data class Args(
         val verseRef: String = "",
-        val commentaries: List<String>? = null
+        val commentaries: List<String>? = null,
+        val format: ContentFormat = ContentFormat.TEXT
     )
 
     override val agentTool = AgentTool.GET_COMMENTARIES
@@ -57,7 +62,7 @@ object GetCommentariesTool : Tool {
 
     override val description = """
         Get commentary entries for a verse or verse range from installed commentaries.
-        Returns OSIS XML content from each commentary that has content for the specified verses.
+        Returns readable text by default. Use format='xml' for raw OSIS XML (rarely needed for commentaries).
         Supports verse ranges (e.g. 'Matt.5.1-10') — iterates through each verse and deduplicates
         identical content that commentaries repeat across consecutive verses.
 
@@ -76,6 +81,11 @@ object GetCommentariesTool : Tool {
             items:
               type: string
             description: Optional list of commentary initials to query. If not specified, queries all installed commentaries.
+          format:
+            type: string
+            enum: [text, xml]
+            description: "Output format: 'text' (default) returns readable text. 'xml' returns raw OSIS XML."
+            default: text
         required: [verseRef]
     """)
 
@@ -179,6 +189,7 @@ object GetCommentariesTool : Tool {
 
                 if (blocks.isEmpty()) continue
 
+                val useXml = args.format == ContentFormat.XML
                 val entries = JSONArray()
                 for (block in blocks) {
                     val rangeRef = if (block.startVerseRef == block.endVerseRef) {
@@ -189,7 +200,12 @@ object GetCommentariesTool : Tool {
                     entries.put(JSONObject().apply {
                         put("verseRange", rangeRef)
                         put("linkUrl", "sword://${commentary.initials}/${block.startVerseRef}")
-                        put("osisXml", block.osisXml)
+                        if (useXml) {
+                            put("osisXml", block.osisXml)
+                        } else {
+                            val fragment = useSaxBuilder { it.build(StringReader(block.osisXml)).rootElement }
+                            put("text", OsisToPlainText.convert(fragment))
+                        }
                     })
                 }
 

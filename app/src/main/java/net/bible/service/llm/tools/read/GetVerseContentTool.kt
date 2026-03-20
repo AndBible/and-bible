@@ -24,6 +24,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
+import net.bible.service.llm.tools.ContentFormat
+import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordContentFacade
@@ -43,15 +45,16 @@ object GetVerseContentTool : Tool {
     @Serializable
     data class Args(
         val book: String = "",
-        val verseRef: String = ""
+        val verseRef: String = "",
+        val format: ContentFormat = ContentFormat.TEXT
     )
 
     override val agentTool = AgentTool.GET_VERSE_CONTENT
     override val displayNameResId = R.string.tool_get_verse_content
 
     override val description = """
-        Get the OSIS XML content for a verse, verse range, or chapters from a Bible translation.
-        The content includes Strong's numbers and other markup if available in the document.
+        Get verse content from a Bible translation. Returns readable text by default.
+        Use format='xml' for raw OSIS XML with Strong's numbers and morphology (for word studies).
         Use OSIS format references like 'Matt.5.3', 'Gen.1.1-3', 'Gen.1' for entire chapter, or 'Gen.1-Gen.3' for multiple chapters.
     """.trimIndent()
 
@@ -64,6 +67,11 @@ object GetVerseContentTool : Tool {
           verseRef:
             type: string
             description: "OSIS verse reference, e.g., 'Matt.5.3', 'Gen.1.1-3', 'Rom.8.28-30'."
+          format:
+            type: string
+            enum: [text, xml]
+            description: "Output format: 'text' (default) returns readable text with light annotations (headings, footnotes). 'xml' returns raw OSIS XML with Strong's numbers, morphology, etc. Use 'xml' only for word studies or Strong's analysis."
+            default: text
         required: [book, verseRef]
     """)
 
@@ -104,13 +112,15 @@ object GetVerseContentTool : Tool {
             val key = PassageKeyFactory.instance().getKey(v11n, verseRef)
             val fragment = SwordContentFacade.readOsisFragment(book, key)
 
-            val outputter = XMLOutputter(Format.getRawFormat())
-            val osisXml = outputter.outputString(fragment)
-
             ToolResult.success {
                 put("book", bookInitials)
                 put("verseRef", verseRef)
-                put("osisXml", osisXml)
+                if (args.format == ContentFormat.XML) {
+                    val outputter = XMLOutputter(Format.getRawFormat())
+                    put("osisXml", outputter.outputString(fragment))
+                } else {
+                    put("text", OsisToPlainText.convert(fragment))
+                }
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to read verse content: ${e.message}", "READ_ERROR")

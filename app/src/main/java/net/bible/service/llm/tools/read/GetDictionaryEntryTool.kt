@@ -26,6 +26,8 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.ContentFormat
+import net.bible.service.llm.tools.OsisToPlainText
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import net.bible.service.sword.SwordContentFacade
@@ -44,15 +46,16 @@ object GetDictionaryEntryTool : Tool {
     @Serializable
     data class Args(
         val dictionary: String = "",
-        val key: String = ""
+        val key: String = "",
+        val format: ContentFormat = ContentFormat.TEXT
     )
 
     override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
     override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """
-        Look up an entry in a Bible dictionary, including Strong's dictionaries.
-        Returns the OSIS XML content for the dictionary entry.
+        Look up an entry in a Bible dictionary, including Strong's dictionaries. Returns readable text by default.
+        Use format='xml' for raw OSIS XML (useful for Strong's to see original language markup).
         Useful for looking up definitions of biblical terms, places, people, and Strong's numbers.
         For Strong's numbers, use H prefix for Hebrew (e.g., 'H430' for Elohim) or G prefix for Greek (e.g., 'G2316' for Theos).
 
@@ -76,6 +79,11 @@ object GetDictionaryEntryTool : Tool {
           key:
             type: string
             description: "The dictionary key/term to look up. For Strong's dictionaries use format like 'H430', 'G2316'. For regular dictionaries use terms like 'Moses', 'Jerusalem'."
+          format:
+            type: string
+            enum: [text, xml]
+            description: "Output format: 'text' (default) returns readable text. 'xml' returns raw OSIS XML with original language markup."
+            default: text
         required: [dictionary, key]
     """)
 
@@ -121,9 +129,6 @@ object GetDictionaryEntryTool : Tool {
             }
 
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey)
-            val outputter = XMLOutputter(Format.getRawFormat())
-            val osisXml = outputter.outputString(fragment)
-
             val linkUrl = "sword://$dictionaryInitials/$key"
 
             ToolResult.success {
@@ -131,7 +136,12 @@ object GetDictionaryEntryTool : Tool {
                 put("dictionaryName", dictionary.name)
                 put("key", key)
                 put("linkUrl", linkUrl)
-                put("osisXml", osisXml)
+                if (args.format == ContentFormat.XML) {
+                    val outputter = XMLOutputter(Format.getRawFormat())
+                    put("osisXml", outputter.outputString(fragment))
+                } else {
+                    put("text", OsisToPlainText.convert(fragment))
+                }
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to read dictionary entry: ${e.message}", "READ_ERROR")

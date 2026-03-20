@@ -25,6 +25,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
+import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetDictionaryEntryTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
@@ -103,6 +104,18 @@ class ReadToolsTest {
     @Test
     fun getVerseContent_formatArgsForLog_empty() {
         assertNull(GetVerseContentTool.formatArgsForLog(JSONObject()))
+    }
+
+    @Test
+    fun getVerseContent_defaultFormatIsText() {
+        val args = GetVerseContentTool.Args(book = "KJV", verseRef = "Gen.1.1")
+        assertEquals(ContentFormat.TEXT, args.format)
+    }
+
+    @Test
+    fun getVerseContent_formatXml() {
+        val args = GetVerseContentTool.Args(book = "KJV", verseRef = "Gen.1.1", format = ContentFormat.XML)
+        assertEquals(ContentFormat.XML, args.format)
     }
 
     @Test
@@ -217,6 +230,12 @@ class ReadToolsTest {
     }
 
     @Test
+    fun getCommentaries_defaultFormatIsText() {
+        val args = GetCommentariesTool.Args(verseRef = "Matt.5.3")
+        assertEquals(ContentFormat.TEXT, args.format)
+    }
+
+    @Test
     fun getCommentaries_formatResultForLog() {
         val data = JSONObject().apply { put("commentaryCount", 3) }
         assertEquals("3 commentaries", GetCommentariesTool.formatResultForLog(ToolResult.Success(data)))
@@ -247,6 +266,12 @@ class ReadToolsTest {
             put("key", "H430")
         }
         assertEquals("StrongsHebrew: H430", GetDictionaryEntryTool.formatArgsForLog(args))
+    }
+
+    @Test
+    fun getDictionaryEntry_defaultFormatIsText() {
+        val args = GetDictionaryEntryTool.Args(dictionary = "StrongsHebrew", key = "H430")
+        assertEquals(ContentFormat.TEXT, args.format)
     }
 
     @Test
