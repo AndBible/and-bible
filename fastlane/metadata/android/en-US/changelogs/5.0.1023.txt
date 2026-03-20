@@ -1,0 +1,16 @@
+- Add AI document access filter settings: users can now exclude specific documents from AI tool access (b63353b56)
+- Replace Raw LLM Log viewer with expandable RecyclerView showing token counts and costs per entry; move to inline link on completion status (a671bd53f, 5e74a8359)
+- Show specific error message when AI document regeneration fails due to deleted prompt instead of generic toast (483fc5056)
+- Fix markdown links with custom URI schemes (sword://, osis://, etc.) not working in bookmark notes; add support for external links in BibleView (337b98c31)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
