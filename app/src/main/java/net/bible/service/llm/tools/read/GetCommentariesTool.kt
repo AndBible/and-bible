@@ -30,16 +30,20 @@ import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.SwordDocumentFacade
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.PassageKeyFactory
+import org.crosswire.jsword.passage.Verse
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import org.json.JSONArray
 import org.json.JSONObject
 
 /**
- * Tool for getting commentary entries for a verse.
+ * Tool for getting commentary entries for a verse or verse range.
  *
- * Returns commentary content from all installed commentaries.
+ * Iterates through each verse in the range, fetches commentary content per verse,
+ * and deduplicates identical content across consecutive verses (common when a
+ * commentary covers a block of verses with a single entry).
  */
 object GetCommentariesTool : Tool {
     @Serializable
@@ -52,9 +56,10 @@ object GetCommentariesTool : Tool {
     override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """
-        Get commentary entries for a verse reference from installed commentaries.
-        Returns OSIS XML content from each commentary that has content for the specified verse.
-        Useful for gathering scholarly insights and interpretations.
+        Get commentary entries for a verse or verse range from installed commentaries.
+        Returns OSIS XML content from each commentary that has content for the specified verses.
+        Supports verse ranges (e.g. 'Matt.5.1-10') — iterates through each verse and deduplicates
+        identical content that commentaries repeat across consecutive verses.
 
         IMPORTANT: Each entry includes 'linkUrl'. When citing commentaries in your response,
         ALWAYS create clickable links. Example: [MHC](sword://MHC/Matt.5.3)
@@ -65,7 +70,7 @@ object GetCommentariesTool : Tool {
         properties:
           verseRef:
             type: string
-            description: "OSIS verse reference, e.g., 'Matt.5.3', 'Gen.1.1', 'Rom.8.28'"
+            description: "OSIS verse reference or range, e.g., 'Matt.5.3', 'Matt.5.1-10', 'Gen.1.1-3', 'Rom.8.28'"
           commentaries:
             type: array
             items:
@@ -86,6 +91,12 @@ object GetCommentariesTool : Tool {
         return if (count >= 0) "$count commentaries" else null
     }
 
+    private data class ContentBlock(
+        val startVerseRef: String,
+        var endVerseRef: String,
+        val osisXml: String
+    )
+
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         val args = try {
             arguments.decodeArgs<Args>()
@@ -98,7 +109,6 @@ object GetCommentariesTool : Tool {
             return ToolResult.error("Missing required parameter: verseRef")
         }
 
-        // Get commentaries to query
         val commentaries = if (!args.commentaries.isNullOrEmpty()) {
             args.commentaries.mapNotNull { initials ->
                 SwordDocumentFacade.getDocumentByInitials(initials) as? SwordBook
@@ -111,40 +121,103 @@ object GetCommentariesTool : Tool {
             return ToolResult.error("No commentaries available", "NO_COMMENTARIES")
         }
 
-        val results = JSONArray()
         val outputter = XMLOutputter(Format.getRawFormat())
+        val commentaryResults = JSONArray()
 
         for (commentary in commentaries) {
             try {
                 val v11n = commentary.versification
                 val key = PassageKeyFactory.instance().getKey(v11n, verseRef)
 
-                // Try to read content - will throw if not available
-                val fragment = SwordContentFacade.readOsisFragment(commentary, key)
-                val osisXml = outputter.outputString(fragment)
+                // Collect individual verses from the key
+                val verses = collectVerses(key)
+                if (verses.isEmpty()) continue
 
-                // Skip empty fragments
-                if (osisXml.isBlank() || osisXml == "<div/>") {
-                    continue
+                // Fetch content for each verse and deduplicate consecutive identical entries
+                val blocks = mutableListOf<ContentBlock>()
+                var currentBlock: ContentBlock? = null
+
+                for (verse in verses) {
+                    val osisXml = try {
+                        val fragment = SwordContentFacade.readOsisFragment(commentary, verse)
+                        val xml = outputter.outputString(fragment)
+                        if (xml.isBlank() || xml == "<div/>") null else xml
+                    } catch (_: Exception) {
+                        null
+                    }
+
+                    if (osisXml == null) {
+                        // No content for this verse — flush current block
+                        if (currentBlock != null) {
+                            blocks.add(currentBlock)
+                            currentBlock = null
+                        }
+                        continue
+                    }
+
+                    val verseOsisId = verse.osisID
+
+                    if (currentBlock != null && currentBlock.osisXml == osisXml) {
+                        // Same content as previous verse — extend the range
+                        currentBlock = currentBlock.copy(endVerseRef = verseOsisId)
+                    } else {
+                        // Different content — flush previous block and start new one
+                        if (currentBlock != null) {
+                            blocks.add(currentBlock)
+                        }
+                        currentBlock = ContentBlock(
+                            startVerseRef = verseOsisId,
+                            endVerseRef = verseOsisId,
+                            osisXml = osisXml
+                        )
+                    }
+                }
+                // Flush last block
+                if (currentBlock != null) {
+                    blocks.add(currentBlock)
                 }
 
-                val linkUrl = "sword://${commentary.initials}/$verseRef"
-                results.put(JSONObject().apply {
-                    put("commentary", commentary.initials)
+                if (blocks.isEmpty()) continue
+
+                val entries = JSONArray()
+                for (block in blocks) {
+                    val rangeRef = if (block.startVerseRef == block.endVerseRef) {
+                        block.startVerseRef
+                    } else {
+                        "${block.startVerseRef}-${block.endVerseRef}"
+                    }
+                    entries.put(JSONObject().apply {
+                        put("verseRange", rangeRef)
+                        put("linkUrl", "sword://${commentary.initials}/${block.startVerseRef}")
+                        put("osisXml", block.osisXml)
+                    })
+                }
+
+                commentaryResults.put(JSONObject().apply {
+                    put("initials", commentary.initials)
                     put("name", commentary.name)
-                    put("linkUrl", linkUrl)
-                    put("osisXml", osisXml)
+                    put("entries", entries)
                 })
-            } catch (e: Exception) {
-                // Skip this commentary if there's an error
+            } catch (_: Exception) {
                 continue
             }
         }
 
         return ToolResult.success {
             put("verseRef", verseRef)
-            put("commentaryCount", results.length())
-            put("entries", results)
+            put("commentaryCount", commentaryResults.length())
+            put("commentaries", commentaryResults)
         }
+    }
+
+    /** Collects individual [Verse] objects from a [Key], which may be a single verse or a range. */
+    private fun collectVerses(key: Key): List<Verse> {
+        val verses = mutableListOf<Verse>()
+        for (subKey in key) {
+            if (subKey is Verse) {
+                verses.add(subKey)
+            }
+        }
+        return verses
     }
 }
