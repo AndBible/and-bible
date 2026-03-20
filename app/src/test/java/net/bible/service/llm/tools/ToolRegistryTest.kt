@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
@@ -166,6 +167,29 @@ class ToolRegistryTest {
         val defs = ToolRegistry.getToolDefinitions()
         for (def in defs) {
             assertTrue("${def.name} should have a non-empty description", def.description.isNotBlank())
+        }
+    }
+
+    @Test
+    fun nonStructuralToolsHaveTaskCompleteProperties() {
+        val defs = ToolRegistry.getToolDefinitions()
+        for (def in defs) {
+            val properties = def.parametersSchema["properties"] as? JsonObject ?: continue
+            if (def.tool in ToolRegistry.STRUCTURAL_TOOLS) {
+                assertFalse(
+                    "${def.name} (structural) should NOT have taskComplete",
+                    properties.containsKey("taskComplete")
+                )
+            } else {
+                assertTrue(
+                    "${def.name} should have taskComplete property",
+                    properties.containsKey("taskComplete")
+                )
+                assertTrue(
+                    "${def.name} should have taskCompleteMessage property",
+                    properties.containsKey("taskCompleteMessage")
+                )
+            }
         }
     }
 

@@ -41,6 +41,7 @@ import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ToolRegistry"
@@ -139,13 +140,47 @@ object ToolRegistry {
     /**
      * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].
      *
+     * Non-structural tools get `taskComplete` and `taskCompleteMessage` optional parameters
+     * injected into their schema, allowing the LLM to signal task completion on any tool call.
+     *
      * @param excludedTools Tools to omit from the definitions (saves context tokens).
      *   Structural tools ([STRUCTURAL_TOOLS]) are never excluded regardless of this set.
      */
     fun getToolDefinitions(excludedTools: Set<AgentTool> = emptySet()): List<ToolDefinition> {
         return tools.values
             .filter { it.agentTool !in excludedTools || it.agentTool in STRUCTURAL_TOOLS }
-            .map { ToolDefinition(it.agentTool, it.description, it.parametersSchema) }
+            .map { tool ->
+                val schema = if (tool.agentTool in STRUCTURAL_TOOLS) {
+                    tool.parametersSchema
+                } else {
+                    injectTaskCompleteProperties(tool.parametersSchema)
+                }
+                ToolDefinition(tool.agentTool, tool.description, schema)
+            }
+    }
+
+    /**
+     * Inject `taskComplete` and `taskCompleteMessage` optional properties into a tool's
+     * parameter schema. These allow the LLM to signal task completion alongside any tool call,
+     * eliminating the need for a separate `finishWithoutDocument` call.
+     */
+    private fun injectTaskCompleteProperties(schema: JsonObject): JsonObject {
+        val properties = schema["properties"] as? JsonObject ?: return schema
+        val augmented = JsonObject(properties + mapOf(
+            "taskComplete" to JsonObject(mapOf(
+                "type" to JsonPrimitive("boolean"),
+                "description" to JsonPrimitive(
+                    "Set to true if this tool call completes the entire task and no further actions or document output are needed."
+                )
+            )),
+            "taskCompleteMessage" to JsonObject(mapOf(
+                "type" to JsonPrimitive("string"),
+                "description" to JsonPrimitive(
+                    "Brief message confirming what was done (shown to user). Required when taskComplete is true."
+                )
+            ))
+        ))
+        return JsonObject(schema + mapOf("properties" to augmented))
     }
 
     /**

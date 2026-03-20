@@ -102,7 +102,8 @@ val customIconMap = mapOf(
     "key" to R.drawable.icon_key,
     "crown" to R.drawable.icon_crown,
     "heart" to R.drawable.icon_heart,
-    "heart-crack" to R.drawable.icon_heart_crack
+    "heart-crack" to R.drawable.icon_heart_crack,
+    "robot" to R.drawable.icon_robot
 )
 
 @ActivityScope
