@@ -32,6 +32,7 @@ import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.read.GetVerseContentTool
 import net.bible.service.llm.tools.read.SearchBibleTool
 import net.bible.service.llm.tools.read.SearchByStrongsNumberTool
+import net.bible.service.llm.tools.read.GetWindowsTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
@@ -47,8 +48,11 @@ import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
+import net.bible.service.llm.tools.write.CreateWindowTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
+import net.bible.service.llm.tools.write.ManageWindowTool
 import net.bible.service.llm.tools.write.RemoveLabelFromBookmarkTool
+import net.bible.service.llm.tools.write.SetWindowDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -93,6 +97,7 @@ object ToolRegistry {
         register(GetInstalledDocumentsTool)
         register(GetMyDocumentsTool)
         register(GetMyDocumentPagesTool)
+        register(GetWindowsTool)
 
         // Register write tools
         register(CreateBookmarkTool)
@@ -108,6 +113,9 @@ object ToolRegistry {
         register(AddMyDocumentPageTool)
         register(EditMyDocumentPageTool)
         register(DeleteMyDocumentPageTool)
+        register(CreateWindowTool)
+        register(ManageWindowTool)
+        register(SetWindowDocumentTool)
         register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
         register(FinishWithMyDocumentPageTool)

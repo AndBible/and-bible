@@ -1588,6 +1588,10 @@
     <string name="tool_add_my_document_page">Add My Document page</string>
     <string name="tool_edit_my_document_page">Edit My Document page</string>
     <string name="tool_delete_my_document_page">Delete My Document page</string>
+    <string name="tool_get_windows">List windows</string>
+    <string name="tool_create_window">Create window</string>
+    <string name="tool_manage_window">Manage window</string>
+    <string name="tool_set_window_document">Set window document</string>
 
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
@@ -1614,6 +1618,15 @@
     <string name="action_set_document_title">Set document title: \"%1$s\"</string>
     <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
     <string name="action_open_my_document_page">Open My Document page \"%1$s\"</string>
+    <string name="action_create_window">Create new window</string>
+    <string name="action_create_window_with_doc">Create window with %1$s</string>
+    <string name="action_create_window_with_doc_and_key">Create window with %1$s at %2$s</string>
+    <string name="action_close_window">Close window (%1$s)</string>
+    <string name="action_minimize_window">Minimize window (%1$s)</string>
+    <string name="action_restore_window">Restore window (%1$s)</string>
+    <string name="action_set_window_document">Set %1$s to %2$s</string>
+    <string name="action_set_window_document_with_key">Set %1$s to %2$s at %3$s</string>
+    <string name="action_active_window">active window</string>
     <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
@@ -1644,6 +1657,10 @@
     <string name="tool_log_bookmark_count">%d bookmarks</string>
     <string name="tool_log_my_document_count">%d documents</string>
     <string name="tool_log_my_document_page_count">%d pages</string>
+    <string name="tool_log_window_count">%d windows</string>
+    <string name="tool_log_window_copy">copy</string>
+    <string name="tool_log_window_minimized">minimized</string>
+    <string name="tool_log_window_removed">removed</string>
     <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
     <string name="ai_document_filter_title">Document access</string>
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
