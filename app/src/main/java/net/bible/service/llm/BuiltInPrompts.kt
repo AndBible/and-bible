@@ -409,20 +409,25 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_enhance_note),
                 description = context.getString(R.string.default_prompt_enhance_note_desc),
                 promptTemplate = """
-                    Enhance the user's bookmark note with additional context and cross-references.
+                    Enhance the user's note with additional context and cross-references.
+                    The note's entity type and ID are provided in the system prompt.
 
                     APPROACH:
                     1. Read the existing note content provided in the context.
-                    2. Use getCommentaries and getVerseContent to gather relevant information.
+                    2. Use getCommentaries and getVerseContent to gather relevant information about the passage.
                     3. Expand the note by:
                        - Adding relevant cross-references as clickable links
                        - Including brief commentary insights
                        - Correcting any factual errors about the passage
-                    4. Use updateBookmarkNote to replace the note with the enhanced version.
+                    4. Save the enhanced note using the appropriate tool:
+                       - For BOOKMARK_NOTE: use updateBookmarkNote with the bookmark ID
+                       - For STUDYPAD_TEXT: use updateStudyPadTextEntry with the entry ID
+                       - For MY_DOCUMENT_PAGE: use editMyDocumentPage with the page ID
                     5. Call finishWithoutDocument confirming the note was updated.
 
                     IMPORTANT: Preserve the user's original thoughts and voice.
                     Add to them, do not replace them. Use a separator ("---") before AI additions.
+                    Output in the same format as the content type (Markdown or HTML).
                 """.trimIndent(),
                 showIn = setOf(PromptContext.NOTE_EDITOR),
                 orderNumber = order++,
@@ -436,6 +441,8 @@ object BuiltInPrompts {
                     AgentTool.SEARCH_BIBLE,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                     AgentTool.UPDATE_BOOKMARK_NOTE,
+                    AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
+                    AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 ),
             ),
 

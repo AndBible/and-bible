@@ -109,6 +109,7 @@ export type BibleJavascriptInterface = {
     goToPreviousChapter: () => void,
     llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    noteEditorLlmAction: (contextJson: string) => void,
     getMyDocumentPageRawContent: (callId: number, bookInitials: string, pageKey: string) => void,
     saveMyDocumentPageContent: (bookInitials: string, pageId: string, content: string, title: string | null) => void,
     reloadMyDocumentPage: (bookInitials: string) => void,
@@ -604,6 +605,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function noteEditorLlmAction(entityType: string, entityId: string, currentText: string, contentType: string) {
+        window.android.noteEditorLlmAction(JSON.stringify({entityType, entityId, currentText, contentType}));
+    }
+
     async function getMyDocumentPageRawContent(bookInitials: string, pageKey: string): Promise<any> {
         return deferredCall((callId) => window.android.getMyDocumentPageRawContent(callId, bookInitials, pageKey));
     }
@@ -689,6 +694,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         goToPreviousChapter,
         llmAction,
         llmActionGeneric,
+        noteEditorLlmAction,
         getMyDocumentPageRawContent,
         saveMyDocumentPageContent,
         reloadMyDocumentPage,

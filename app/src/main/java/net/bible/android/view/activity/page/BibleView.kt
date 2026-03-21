@@ -192,6 +192,14 @@ class Selection(
     val notes: String? = null,
     val text: String = "",
     val osisRef: String? = null,
+    /** Note editor entity type: "BOOKMARK_NOTE", "STUDYPAD_TEXT", or "MY_DOCUMENT_PAGE" */
+    val noteEditorEntityType: String? = null,
+    /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
+    val noteEditorEntityId: String? = null,
+    /** Current text content in the note editor */
+    val noteEditorContent: String? = null,
+    /** Content type of the editor: "MARKDOWN" or "HTML" */
+    val noteEditorContentType: String? = null,
 )
 {
     constructor(bookmark: BookmarkEntities.BibleBookmarkWithNotes):

@@ -59,7 +59,15 @@ data class AgentContext(
     /** When true, setDocumentTitle is blocked and content is only shown in the log. */
     val noDocumentCreation: Boolean = false,
     /** Page IDs created during this agent session (for permission-free editing of own pages). */
-    val createdPageIds: MutableSet<IdType> = mutableSetOf()
+    val createdPageIds: MutableSet<IdType> = mutableSetOf(),
+    /** Note editor entity type: "BOOKMARK_NOTE", "STUDYPAD_TEXT", or "MY_DOCUMENT_PAGE" */
+    val noteEditorEntityType: String? = null,
+    /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
+    val noteEditorEntityId: String? = null,
+    /** Current text content in the note editor */
+    val noteEditorContent: String? = null,
+    /** Content type of the editor: "MARKDOWN" or "HTML" */
+    val noteEditorContentType: String? = null
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef

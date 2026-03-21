@@ -459,6 +459,18 @@ class AgentExecutor(
                 append("with a brief summary of what you did. Any text output will appear only in the activity log.\n")
             }
 
+            if (context.noteEditorEntityType != null) {
+                append("\n--- Note Editor Context ---\n")
+                append("Entity type: ${context.noteEditorEntityType}\n")
+                append("Entity ID: ${context.noteEditorEntityId}\n")
+                append("Content type: ${context.noteEditorContentType}\n")
+                when (context.noteEditorEntityType) {
+                    "BOOKMARK_NOTE" -> append("Use updateBookmarkNote with this bookmark ID to save changes.\n")
+                    "STUDYPAD_TEXT" -> append("Use updateStudyPadTextEntry with this entry ID to save changes.\n")
+                    "MY_DOCUMENT_PAGE" -> append("Use editMyDocumentPage with this page ID to save changes.\n")
+                }
+            }
+
             val prefGreek = AiDocumentFilter.preferredStrongsGreek()
             val prefHebrew = AiDocumentFilter.preferredStrongsHebrew()
             val prefMorph = AiDocumentFilter.preferredRobinsonMorphology()
@@ -504,6 +516,12 @@ class AgentExecutor(
             } else if (context.selectedText != null) {
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
+            }
+
+            // Add note editor content if editing a note
+            if (context.noteEditorContent != null) {
+                append("\n\n--- Current Note Content ---\n")
+                append(context.noteEditorContent)
             }
 
             // For regeneration: include previous response and additional instructions

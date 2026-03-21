@@ -396,7 +396,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
             noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,
             additionalInstructions = additionalInstructions,
-            userSpecification = userSpecification
+            userSpecification = userSpecification,
+            noteEditorEntityType = selection.noteEditorEntityType,
+            noteEditorEntityId = selection.noteEditorEntityId,
+            noteEditorContent = selection.noteEditorContent,
+            noteEditorContentType = selection.noteEditorContentType
         )
     }
 

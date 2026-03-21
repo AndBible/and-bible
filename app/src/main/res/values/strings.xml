@@ -1630,6 +1630,8 @@
     <string name="tool_delete_label">Delete label</string>
     <string name="tool_remove_label_from_bookmark">Remove label from bookmark</string>
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
+    <string name="tool_update_studypad_text_entry">Update study pad text entry</string>
+    <string name="action_update_studypad_text_entry">Update study pad text entry %1$s</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
     <string name="tool_finish_with_my_document_page">Open My Document page</string>

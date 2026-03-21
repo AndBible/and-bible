@@ -55,6 +55,7 @@ import net.bible.service.llm.tools.write.ManageWindowTool
 import net.bible.service.llm.tools.write.RemoveLabelFromBookmarkTool
 import net.bible.service.llm.tools.write.SetWindowDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
+import net.bible.service.llm.tools.write.UpdateStudyPadTextEntryTool
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.ConcurrentHashMap
@@ -110,6 +111,7 @@ object ToolRegistry {
         register(DeleteLabelTool)
         register(RemoveLabelFromBookmarkTool)
         register(AddStudyPadEntryTool)
+        register(UpdateStudyPadTextEntryTool)
         register(CreateMyDocumentTool)
         register(AddMyDocumentPageTool)
         register(EditMyDocumentPageTool)
