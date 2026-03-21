@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.android.activity.R
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
@@ -32,6 +33,16 @@ import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
+
+/** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
+enum class ToolCategory(val displayNameResId: Int) {
+    BIBLE_SEARCH(R.string.tool_category_bible_search),
+    BOOKMARKS(R.string.tool_category_bookmarks),
+    LABELS(R.string.tool_category_labels),
+    STUDY_PADS(R.string.tool_category_study_pads),
+    MY_DOCUMENTS(R.string.tool_category_my_documents),
+    WINDOWS(R.string.tool_category_windows),
+}
 
 /** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
 @Serializable
@@ -50,6 +61,7 @@ enum class AgentTool {
     GET_INSTALLED_DOCUMENTS,
     GET_MY_DOCUMENTS,
     GET_MY_DOCUMENT_PAGES,
+    GET_WINDOWS,
 
     // Write tools
     CREATE_BOOKMARK,
@@ -57,11 +69,17 @@ enum class AgentTool {
     UPDATE_BOOKMARK_NOTE,
     CREATE_LABEL,
     ADD_LABEL_TO_BOOKMARK,
+    DELETE_BOOKMARK,
+    DELETE_LABEL,
+    REMOVE_LABEL_FROM_BOOKMARK,
     ADD_STUDY_PAD_ENTRY,
     CREATE_MY_DOCUMENT,
     ADD_MY_DOCUMENT_PAGE,
     EDIT_MY_DOCUMENT_PAGE,
     DELETE_MY_DOCUMENT_PAGE,
+    CREATE_WINDOW,
+    MANAGE_WINDOW,
+    SET_WINDOW_DOCUMENT,
     SET_DOCUMENT_TITLE,
     FINISH_WITH_STUDY_PAD,
     FINISH_WITH_MY_DOCUMENT_PAGE,

@@ -1601,6 +1601,9 @@
     <string name="tool_update_bookmark_note">Update bookmark note</string>
     <string name="tool_create_label">Create label</string>
     <string name="tool_add_label_to_bookmark">Add label to bookmark</string>
+    <string name="tool_delete_bookmark">Delete bookmark</string>
+    <string name="tool_delete_label">Delete label</string>
+    <string name="tool_remove_label_from_bookmark">Remove label from bookmark</string>
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
@@ -1623,6 +1626,10 @@
     <string name="tool_add_my_document_page">Add My Document page</string>
     <string name="tool_edit_my_document_page">Edit My Document page</string>
     <string name="tool_delete_my_document_page">Delete My Document page</string>
+    <string name="tool_get_windows">List windows</string>
+    <string name="tool_create_window">Create window</string>
+    <string name="tool_manage_window">Manage window</string>
+    <string name="tool_set_window_document">Set window document</string>
 
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
@@ -1638,6 +1645,9 @@
     <string name="action_update_note_on_bookmark_at">Update note on bookmark at %1$s</string>
     <string name="action_create_label">Create label \"%1$s\"</string>
     <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
+    <string name="action_delete_bookmark">Delete bookmark at %1$s</string>
+    <string name="action_delete_label">Delete label \"%1$s\"</string>
+    <string name="action_remove_label_from_bookmark">Remove label \"%1$s\" from bookmark at %2$s</string>
     <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
     <string name="action_create_my_document">Create My Document: \"%1$s\"</string>
     <string name="action_add_my_document_page">Add page \"%1$s\" to My Document %2$s</string>
@@ -1646,6 +1656,15 @@
     <string name="action_set_document_title">Set document title: \"%1$s\"</string>
     <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
     <string name="action_open_my_document_page">Open My Document page \"%1$s\"</string>
+    <string name="action_create_window">Create new window</string>
+    <string name="action_create_window_with_doc">Create window with %1$s</string>
+    <string name="action_create_window_with_doc_and_key">Create window with %1$s at %2$s</string>
+    <string name="action_close_window">Close window (%1$s)</string>
+    <string name="action_minimize_window">Minimize window (%1$s)</string>
+    <string name="action_restore_window">Restore window (%1$s)</string>
+    <string name="action_set_window_document">Set %1$s to %2$s</string>
+    <string name="action_set_window_document_with_key">Set %1$s to %2$s at %3$s</string>
+    <string name="action_active_window">active window</string>
     <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
@@ -1676,6 +1695,10 @@
     <string name="tool_log_bookmark_count">%d bookmarks</string>
     <string name="tool_log_my_document_count">%d documents</string>
     <string name="tool_log_my_document_page_count">%d pages</string>
+    <string name="tool_log_window_count">%d windows</string>
+    <string name="tool_log_window_copy">copy</string>
+    <string name="tool_log_window_minimized">minimized</string>
+    <string name="tool_log_window_removed">removed</string>
     <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
     <string name="ai_document_filter_title">Document access</string>
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
@@ -1703,6 +1726,17 @@
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
     <string name="tool_section_read_tools">Read tools</string>
     <string name="tool_section_write_tools">Write tools</string>
+
+    <!-- Tool categories -->
+    <string name="tool_category_bible_search">Bible &amp; Search</string>
+    <string name="tool_category_bookmarks">Bookmarks</string>
+    <string name="tool_category_labels">Labels</string>
+    <string name="tool_category_study_pads">Study Pads</string>
+    <string name="tool_category_my_documents">My Documents</string>
+    <string name="tool_category_windows">Windows</string>
+    <string name="tool_category_read">Read</string>
+    <string name="tool_category_write">Write</string>
+    <string name="expand_collapse">Expand/collapse</string>
     <string name="tool_option_enabled">Enabled</string>
     <string name="tool_option_disabled">Disabled</string>
     <string name="tool_option_default_enabled">Default (enabled)</string>

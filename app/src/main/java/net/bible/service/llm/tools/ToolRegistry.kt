@@ -20,6 +20,7 @@ package net.bible.service.llm.tools
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
@@ -32,6 +33,7 @@ import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.read.GetVerseContentTool
 import net.bible.service.llm.tools.read.SearchBibleTool
 import net.bible.service.llm.tools.read.SearchByStrongsNumberTool
+import net.bible.service.llm.tools.read.GetWindowsTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
@@ -40,12 +42,18 @@ import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
 import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteBookmarkTool
+import net.bible.service.llm.tools.write.DeleteLabelTool
 import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
 import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
+import net.bible.service.llm.tools.write.CreateWindowTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
+import net.bible.service.llm.tools.write.ManageWindowTool
+import net.bible.service.llm.tools.write.RemoveLabelFromBookmarkTool
+import net.bible.service.llm.tools.write.SetWindowDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -90,6 +98,7 @@ object ToolRegistry {
         register(GetInstalledDocumentsTool)
         register(GetMyDocumentsTool)
         register(GetMyDocumentPagesTool)
+        register(GetWindowsTool)
 
         // Register write tools
         register(CreateBookmarkTool)
@@ -97,11 +106,17 @@ object ToolRegistry {
         register(UpdateBookmarkNoteTool)
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
+        register(DeleteBookmarkTool)
+        register(DeleteLabelTool)
+        register(RemoveLabelFromBookmarkTool)
         register(AddStudyPadEntryTool)
         register(CreateMyDocumentTool)
         register(AddMyDocumentPageTool)
         register(EditMyDocumentPageTool)
         register(DeleteMyDocumentPageTool)
+        register(CreateWindowTool)
+        register(ManageWindowTool)
+        register(SetWindowDocumentTool)
         register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
         register(FinishWithMyDocumentPageTool)
@@ -226,6 +241,19 @@ object ToolRegistry {
      */
     fun getAllTools(): List<Tool> =
         tools.values.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
+
+    /**
+     * Get configurable tools grouped by [ToolCategory], ordered by category ordinal.
+     * Within each category, read tools come first, then write tools, alphabetically.
+     */
+    fun getConfigurableToolsByCategory(): Map<ToolCategory, List<Tool>> =
+        getConfigurableTools()
+            .groupBy { it.category }
+            .toSortedMap(compareBy { it.ordinal })
+
+    /** Get the localized display name for a [ToolCategory]. */
+    fun getCategoryDisplayName(category: ToolCategory): String =
+        BibleApplication.application.getString(category.displayNameResId)
 
     /**
      * Clear all registered tools (mainly for testing).

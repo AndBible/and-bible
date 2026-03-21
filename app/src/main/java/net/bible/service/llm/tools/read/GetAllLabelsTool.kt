@@ -23,6 +23,7 @@ import net.bible.android.database.IdType
 import net.bible.android.activity.R
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -48,6 +49,7 @@ object GetAllLabelsTool : Tool {
     data class Result(val labelCount: Int, val labels: List<LabelInfo>)
 
     override val agentTool = AgentTool.GET_ALL_LABELS
+    override val category = ToolCategory.LABELS
     override val displayNameResId = R.string.tool_get_all_labels
 
     override val description = """

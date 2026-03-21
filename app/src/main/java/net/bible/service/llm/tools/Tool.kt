@@ -19,6 +19,7 @@ package net.bible.service.llm.tools
 
 import kotlinx.serialization.json.JsonObject
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import org.json.JSONObject
 
@@ -87,6 +88,9 @@ interface Tool {
      */
     val displayNameResId: Int
         get() = 0
+
+    /** UI category for grouping tools in permission screens. */
+    val category: ToolCategory
 
     /**
      * Execute the tool with the given arguments.

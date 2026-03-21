@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.read
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -56,6 +57,7 @@ object GetInstalledDocumentsTool : Tool {
     data class Result(val documentCount: Int, val documents: List<DocumentInfo>)
 
     override val agentTool = AgentTool.GET_INSTALLED_DOCUMENTS
+    override val category = ToolCategory.BIBLE_SEARCH
     override val displayNameResId = R.string.tool_get_installed_documents
 
     override val description = """
