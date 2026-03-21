@@ -35,6 +35,7 @@ import net.bible.service.llm.tools.read.SearchBibleTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import org.json.JSONArray
 import org.json.JSONObject
+import net.bible.service.llm.tools.typedSuccess
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -193,11 +194,11 @@ class ReadToolsTest {
 
     @Test
     fun searchBible_formatResultForLog_success() {
-        val data = JSONObject().apply {
-            put("returnedResults", 10)
-            put("totalResults", 42)
-        }
-        val result = SearchBibleTool.formatResultForLog(ToolResult.Success(data))
+        val data = SearchBibleTool.Result(
+            query = "love", totalResults = 42, returnedResults = 10,
+            offset = 0, hasMore = true, results = emptyList()
+        )
+        val result = SearchBibleTool.formatResultForLog(typedSuccess(data))
         assertEquals("10/42 results", result)
     }
 
@@ -237,8 +238,10 @@ class ReadToolsTest {
 
     @Test
     fun getCommentaries_formatResultForLog() {
-        val data = JSONObject().apply { put("commentaryCount", 3) }
-        assertEquals("3 commentaries", GetCommentariesTool.formatResultForLog(ToolResult.Success(data)))
+        val data = GetCommentariesTool.Result(
+            verseRef = "Matt.5.3", commentaryCount = 3, commentaries = emptyList()
+        )
+        assertEquals("3 commentaries", GetCommentariesTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === GetDictionaryEntryTool ===
@@ -297,8 +300,10 @@ class ReadToolsTest {
 
     @Test
     fun getBookmarksForVerse_formatResultForLog() {
-        val data = JSONObject().apply { put("bookmarkCount", 5) }
-        assertEquals("5 bookmarks", GetBookmarksForVerseTool.formatResultForLog(ToolResult.Success(data)))
+        val data = GetBookmarksForVerseTool.Result(
+            verseRef = "Rom.8.28", bookmarkCount = 5, bookmarks = emptyList()
+        )
+        assertEquals("5 bookmarks", GetBookmarksForVerseTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === GetBookmarksWithLabelTool ===
@@ -329,16 +334,18 @@ class ReadToolsTest {
 
     @Test
     fun getBookmarksWithLabel_formatResultForLog() {
-        val data = JSONObject().apply { put("bookmarkCount", 7) }
-        assertEquals("7 bookmarks", GetBookmarksWithLabelTool.formatResultForLog(ToolResult.Success(data)))
+        val data = GetBookmarksWithLabelTool.Result(
+            labelId = IdType(), labelName = "Test", bookmarkCount = 7, bookmarks = emptyList()
+        )
+        assertEquals("7 bookmarks", GetBookmarksWithLabelTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === GetAllLabelsTool ===
 
     @Test
     fun getAllLabels_formatResultForLog() {
-        val data = JSONObject().apply { put("labelCount", 12) }
-        assertEquals("12 labels", GetAllLabelsTool.formatResultForLog(ToolResult.Success(data)))
+        val data = GetAllLabelsTool.Result(labelCount = 12, labels = emptyList())
+        assertEquals("12 labels", GetAllLabelsTool.formatResultForLog(typedSuccess(data)))
     }
 
     @Test
@@ -414,8 +421,8 @@ class ReadToolsTest {
 
     @Test
     fun searchStudyPads_formatResultForLog() {
-        val data = JSONObject().apply { put("studyPadCount", 2) }
-        assertEquals("2 study pads", SearchStudyPadsTool.formatResultForLog(ToolResult.Success(data)))
+        val data = SearchStudyPadsTool.Result(query = "faith", studyPadCount = 2, results = emptyList())
+        assertEquals("2 study pads", SearchStudyPadsTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === GetInstalledDocumentsTool ===
@@ -441,7 +448,7 @@ class ReadToolsTest {
 
     @Test
     fun getInstalledDocuments_formatResultForLog() {
-        val data = JSONObject().apply { put("documentCount", 15) }
-        assertEquals("15 documents", GetInstalledDocumentsTool.formatResultForLog(ToolResult.Success(data)))
+        val data = GetInstalledDocumentsTool.Result(documentCount = 15, documents = emptyList())
+        assertEquals("15 documents", GetInstalledDocumentsTool.formatResultForLog(typedSuccess(data)))
     }
 }
