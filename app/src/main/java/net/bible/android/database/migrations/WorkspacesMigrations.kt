@@ -254,6 +254,12 @@ private val addMemorizationIndicators = makeMigration(17..18) { _db ->
     _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showMemorizationIndicators` INTEGER DEFAULT NULL")
 }
 
+private val addAutoTrackReading = makeMigration(18..19) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_autoTrackReading` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_autoTrackReading` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_autoTrackReading` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -272,6 +278,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     migrateGlobalTdsIdToBlob,
     addMarkAsReadButton,
     addMemorizationIndicators,
+    addAutoTrackReading,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 18
+const val WORKSPACE_DATABASE_VERSION = 19

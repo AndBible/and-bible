@@ -33,10 +33,6 @@ object ReadingProgressSettings {
         dao.set(getOrDefault().transform())
     }
 
-    var autoTrackReading: Boolean
-        get() = getOrDefault().autoTrackReading
-        set(value) = update { copy(autoTrackReading = value) }
-
     var autoMarkMemorized: Boolean
         get() = getOrDefault().autoMarkMemorized
         set(value) = update { copy(autoMarkMemorized = value) }

@@ -20,6 +20,7 @@ package net.bible.service.llm
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.service.llm.agent.PermissionMode
 import java.util.Locale
 import java.util.UUID
 
@@ -48,6 +49,15 @@ object BuiltInPrompts {
     val EXPLAIN_VERSES_ID = stableId("explain-verses")
     val STRONGS_ANNOTATION_ID = stableId("strongs-annotation")
     val WORD_STUDY_ID = stableId("word-study")
+    val CROSS_REFERENCES_ID = stableId("cross-references")
+    val COMPARE_TRANSLATIONS_ID = stableId("compare-translations")
+    val THEMATIC_STUDY_ID = stableId("thematic-study")
+    val DEVOTIONAL_ID = stableId("devotional")
+    val BOOKMARK_ANNOTATE_ID = stableId("bookmark-annotate")
+    val STUDY_LAYOUT_ID = stableId("study-layout")
+    val ENHANCE_NOTE_ID = stableId("enhance-note")
+    val ASK_QUESTION_ID = stableId("ask-question")
+    val CUSTOM_PROMPT_ID = stableId("custom-prompt")
 
     // Test prompt IDs
     val TEST_TOOL_CALLING_ID = stableId("test-tool-calling")
@@ -88,75 +98,379 @@ object BuiltInPrompts {
      */
     fun productionPrompts(): List<AgentPrompt> = _productionPrompts
 
+    /** Bible content read tools — the core set for most read-only prompts. */
+    private val BIBLE_READ_TOOLS = setOf(
+        AgentTool.GET_VERSE_CONTENT,
+        AgentTool.SEARCH_BIBLE,
+        AgentTool.GET_COMMENTARIES,
+        AgentTool.GET_INSTALLED_DOCUMENTS,
+    )
+
+    /** Extended Bible tools including Strong's and dictionaries. */
+    private val BIBLE_STUDY_TOOLS = BIBLE_READ_TOOLS + setOf(
+        AgentTool.SEARCH_BY_STRONGS,
+        AgentTool.GET_DICTIONARY_ENTRY,
+    )
+
     private fun buildProductionPrompts(): List<AgentPrompt> {
         val context = BibleApplication.application
         var order = 0
 
         return listOf(
+            // 1. Translate
             AgentPrompt(
                 id = TRANSLATE_UI_LANGUAGE_ID,
                 name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
-                    Translate the following text to ${getUiLanguageName()}.
-
-                    You MAY use getInstalledDocuments to check if a ${getUiLanguageName()} Bible translation is installed.
-                    If one exists, use getVerseContent to get the text from that translation.
-                    If NO ${getUiLanguageName()} translation is installed, translate the text yourself directly.
-
-                    Do not add any explanations or commentary.
+                    Translate the selected Bible text to ${getUiLanguageName()}.
+                    Aim for accuracy over literary style.
+                    Do not add explanations or commentary.
+                    Output only the translated text with verse references.
                 """.trimIndent(),
-                showIn = setOf(
-                    PromptContext.VERSE_SELECTION,
-                    PromptContext.WINDOW_MENU
-                ),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
+                allowedTools = emptySet(),
             ),
 
+            // 2. Summary
             AgentPrompt(
                 id = SUMMARY_ID,
                 name = context.getString(R.string.default_prompt_summary),
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
-                    Create a concise summary of the selected text.
+                    Create a concise summary of the selected Bible passage.
+
+                    Structure your summary as:
+                    1. **Context** — Brief historical/literary context (1-2 sentences)
+                    2. **Main Points** — Key themes and teachings (bullet points)
+                    3. **Significance** — Why this passage matters (1-2 sentences)
+
+                    Keep the total length to 150-300 words.
+                    If commentaries are available, you may use getCommentaries to enrich your summary.
                 """.trimIndent(),
-                showIn = setOf(
-                    PromptContext.VERSE_SELECTION,
-                    PromptContext.WINDOW_MENU
-                ),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
+                allowedTools = BIBLE_READ_TOOLS,
             ),
 
+            // 3. Explain Verses
             AgentPrompt(
                 id = EXPLAIN_VERSES_ID,
                 name = context.getString(R.string.default_prompt_explain_verses),
                 description = context.getString(R.string.default_prompt_explain_verses_desc),
                 promptTemplate = """
                     Explain the meaning and context of the selected verses.
-                    Do not make up your own ideas and interpretations but use available 
-                    commentaries as a reference. 
+
+                    APPROACH:
+                    1. Use getInstalledDocuments to find available commentaries and dictionaries.
+                    2. Use getCommentaries to retrieve commentary from ALL available commentaries.
+                    3. Synthesize the commentary perspectives into a clear explanation.
+                    4. If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
+
+                    STRUCTURE your explanation:
+                    - **Historical Context** — Who wrote this, to whom, and when
+                    - **Verse-by-Verse Explanation** — Walk through the passage
+                    - **Key Themes** — Major theological themes
+                    - **Application** — How this applies today
+
+                    Base your explanation on the commentaries you retrieve. Cite each source by name.
+                    Do not invent interpretations — ground everything in the available reference works.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                allowedTools = BIBLE_STUDY_TOOLS,
             ),
 
+            // 4. Word Study
             AgentPrompt(
                 id = WORD_STUDY_ID,
                 name = context.getString(R.string.default_prompt_word_study),
                 description = context.getString(R.string.default_prompt_word_study_desc),
                 promptTemplate = """
-                    Analyze the original Hebrew/Greek words in the selected text.
-                    If Strongs numbers are available, use getDictionaryEntry to look up definitions.
-                    Include links to dictionary entries: [Strong's G2316](strongs://G2316)
-                    Cite each dictionary source by name when referencing definitions.
-                    Explain the etymology, usage, and theological significance of key terms.
+                    Perform a word study on the original Hebrew/Greek words in the selected text.
+
+                    APPROACH:
+                    1. Use getInstalledDocuments to find Strong's dictionaries and Bible translations with Strong's numbers.
+                    2. Use getVerseContent with osis=true to retrieve text with Strong's markup.
+                    3. For each key word, use getDictionaryEntry to look up its Strong's number.
+                    4. Use searchByStrongs to find other passages where the same word appears.
+
+                    STRUCTURE your study per key word (3-5 words max):
+                    - **Original word** — Hebrew/Greek form, transliteration, Strong's number with link [Strong's GXXXX](strongs://GXXXX)
+                    - **Definition** — Full dictionary definition (cite the source by name)
+                    - **Usage in this passage** — How the word functions here
+                    - **Other occurrences** — 3-5 notable passages using this word (with links)
+                    - **Theological significance** — Key insights
+
+                    Focus on the most theologically significant words.
                 """.trimIndent(),
-                showIn = setOf(
-                    PromptContext.VERSE_SELECTION,
-                    PromptContext.TEXT_SELECTION
-                ),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION),
                 orderNumber = order++,
                 strictContextMatching = false,
+                allowedTools = BIBLE_STUDY_TOOLS,
+            ),
+
+            // 5. Cross-References
+            AgentPrompt(
+                id = CROSS_REFERENCES_ID,
+                name = context.getString(R.string.default_prompt_cross_references),
+                description = context.getString(R.string.default_prompt_cross_references_desc),
+                promptTemplate = """
+                    Find and explain cross-references for the selected verses.
+
+                    APPROACH:
+                    1. Use searchBible to find passages with shared keywords and themes.
+                    2. Use getCommentaries to check what commentators mention as related passages.
+
+                    GROUP cross-references by connection type:
+                    - **Direct Quotes/Allusions** — Where this passage quotes or echoes another
+                    - **Parallel Passages** — Similar accounts or teachings elsewhere
+                    - **Thematic Connections** — Passages sharing the same theme
+                    - **Fulfillment/Prophecy** — Prophetic connections
+
+                    For each cross-reference, provide a clickable link and a brief explanation (1-2 sentences).
+                    Aim for 8-15 cross-references, prioritizing the most significant connections.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                strictContextMatching = false,
+                allowedTools = BIBLE_READ_TOOLS,
+            ),
+
+            // 6. Compare Translations
+            AgentPrompt(
+                id = COMPARE_TRANSLATIONS_ID,
+                name = context.getString(R.string.default_prompt_compare_translations),
+                description = context.getString(R.string.default_prompt_compare_translations_desc),
+                promptTemplate = """
+                    Compare how different Bible translations render the selected verses.
+
+                    APPROACH:
+                    1. Use getInstalledDocuments with type="bible" to find all installed Bible translations.
+                    2. Use getVerseContent to retrieve the selected passage from each installed translation.
+                    3. Compare the translations side by side.
+
+                    STRUCTURE:
+                    - List each translation's rendering with the translation name as a heading.
+                    - After listing all translations, provide a **Key Differences** section highlighting:
+                      - Significant wording differences and what they mean
+                      - Where translations disagree on meaning (not just style)
+                      - Which textual traditions or manuscripts may explain differences
+
+                    If Strong's dictionaries are available, reference the original language
+                    where it helps explain why translations differ.
+                    Do not editorialize about which translation is "better."
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                strictContextMatching = false,
+                allowedTools = setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_DICTIONARY_ENTRY,
+                    AgentTool.SEARCH_BIBLE,
+                ),
+            ),
+
+            // 7. Thematic Study → StudyPad
+            AgentPrompt(
+                id = THEMATIC_STUDY_ID,
+                name = context.getString(R.string.default_prompt_thematic_study),
+                description = context.getString(R.string.default_prompt_thematic_study_desc),
+                promptTemplate = """
+                    Build a thematic study based on the selected passage.
+
+                    APPROACH:
+                    1. Identify the primary theme (e.g., "God's faithfulness", "prayer", "forgiveness").
+                    2. Use searchBible to find 8-12 other passages related to this theme across the Bible.
+                    3. Use getVerseContent to retrieve each passage.
+                    4. Use getCommentaries if available to add depth to key passages.
+                    5. Create a StudyPad:
+                       a. Use createLabel with a descriptive name (e.g., "Thematic Study: God's Faithfulness")
+                       b. For each key passage, use createBookmark + addLabelToBookmark
+                       c. Use addBookmarkNote to add a brief note explaining each passage's relevance
+                       d. Use addStudyPadEntry to add introductory text and section headers
+                    6. Call finishWithStudyPad with the label ID.
+
+                    Organize passages in a logical progression (e.g., Old Testament → New Testament).
+                    Include 8-12 passages total.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                strictContextMatching = false,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = BIBLE_READ_TOOLS + setOf(
+                    AgentTool.CREATE_BOOKMARK,
+                    AgentTool.ADD_BOOKMARK_NOTE,
+                    AgentTool.CREATE_LABEL,
+                    AgentTool.ADD_LABEL_TO_BOOKMARK,
+                    AgentTool.ADD_STUDY_PAD_ENTRY,
+                    AgentTool.GET_ALL_LABELS,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                ),
+            ),
+
+            // 8. Devotional Reflection
+            AgentPrompt(
+                id = DEVOTIONAL_ID,
+                name = context.getString(R.string.default_prompt_devotional),
+                description = context.getString(R.string.default_prompt_devotional_desc),
+                promptTemplate = """
+                    Write a short devotional reflection on the selected passage.
+
+                    STRUCTURE:
+                    - **Opening** — A thought-provoking observation (2-3 sentences)
+                    - **The Text** — What the passage says and means in context (1 paragraph)
+                    - **Reflection** — Spiritual insight and application for today (1-2 paragraphs)
+                    - **Prayer Prompt** — A brief prayer suggestion inspired by the passage (2-3 sentences)
+
+                    Tone: Warm, reflective, accessible. Avoid academic jargon.
+                    Length: 200-400 words total.
+                    Ground your reflection in what the text actually says.
+                    You may use getCommentaries to add depth if commentaries are available.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                allowedTools = BIBLE_READ_TOOLS,
+            ),
+
+            // 9. Bookmark & Annotate
+            AgentPrompt(
+                id = BOOKMARK_ANNOTATE_ID,
+                name = context.getString(R.string.default_prompt_bookmark_annotate),
+                description = context.getString(R.string.default_prompt_bookmark_annotate_desc),
+                promptTemplate = """
+                    Create a bookmark for the selected verses and add a study note.
+
+                    APPROACH:
+                    1. Use getCommentaries to get brief commentary context (if available).
+                    2. Create a bookmark using createBookmark for the selected verses.
+                    3. Write a concise study note (3-5 sentences) covering:
+                       - What this passage is about
+                       - Key insight or takeaway
+                       - A related cross-reference
+                    4. Use addBookmarkNote to attach the note to the bookmark.
+                    5. Call finishWithoutDocument with a confirmation message.
+
+                    Keep the note concise and useful for future reference.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                noDocumentCreation = true,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_COMMENTARIES,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.CREATE_BOOKMARK,
+                    AgentTool.ADD_BOOKMARK_NOTE,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                ),
+            ),
+
+            // 10. Open Study Layout
+            AgentPrompt(
+                id = STUDY_LAYOUT_ID,
+                name = context.getString(R.string.default_prompt_study_layout),
+                description = context.getString(R.string.default_prompt_study_layout_desc),
+                promptTemplate = """
+                    Set up a multi-window study layout for the selected passage.
+
+                    APPROACH:
+                    1. Use getInstalledDocuments to find available Bibles, commentaries, and dictionaries.
+                    2. Use getWindows to see the current window layout.
+                    3. Set up an optimal study layout:
+                       a. Ensure the current window shows the selected passage.
+                       b. If a commentary is installed, use createWindow to open a commentary window on the same passage.
+                       c. If another Bible translation is installed, use createWindow to open a parallel translation window.
+                    4. Call finishWithoutDocument confirming what layout was created.
+
+                    Create at most 3 windows total (including existing ones) to avoid cluttering the screen.
+                    Prefer: 1 Bible + 1 Commentary, or 2 Bibles + 1 Commentary.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+                noDocumentCreation = true,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = setOf(
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_WINDOWS,
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.CREATE_WINDOW,
+                    AgentTool.MANAGE_WINDOW,
+                    AgentTool.SET_WINDOW_DOCUMENT,
+                ),
+            ),
+
+            // 11. Enhance Note
+            AgentPrompt(
+                id = ENHANCE_NOTE_ID,
+                name = context.getString(R.string.default_prompt_enhance_note),
+                description = context.getString(R.string.default_prompt_enhance_note_desc),
+                promptTemplate = """
+                    Enhance the user's note with additional context and cross-references.
+                    The note's entity type and ID are provided in the system prompt.
+
+                    APPROACH:
+                    1. Read the existing note content provided in the context.
+                    2. Use getCommentaries and getVerseContent to gather relevant information about the passage.
+                    3. Expand the note by:
+                       - Adding relevant cross-references as clickable links
+                       - Including brief commentary insights
+                       - Correcting any factual errors about the passage
+                    4. Save the enhanced note using the appropriate tool:
+                       - For BOOKMARK_NOTE: use updateBookmarkNote with the bookmark ID
+                       - For STUDYPAD_TEXT: use updateStudyPadTextEntry with the entry ID
+                       - For MY_DOCUMENT_PAGE: use editMyDocumentPage with the page ID
+                    5. Call finishWithoutDocument confirming the note was updated.
+
+                    IMPORTANT: Preserve the user's original thoughts and voice.
+                    Add to them, do not replace them. Use a separator ("---") before AI additions.
+                    Output in the same format as the content type (Markdown or HTML).
+                """.trimIndent(),
+                showIn = setOf(PromptContext.NOTE_EDITOR),
+                orderNumber = order++,
+                noDocumentCreation = true,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_COMMENTARIES,
+                    AgentTool.GET_DICTIONARY_ENTRY,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.SEARCH_BIBLE,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                    AgentTool.UPDATE_BOOKMARK_NOTE,
+                    AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
+                    AgentTool.EDIT_MY_DOCUMENT_PAGE,
+                ),
+            ),
+
+            // 12. Ask a Question
+            AgentPrompt(
+                id = ASK_QUESTION_ID,
+                name = context.getString(R.string.default_prompt_ask_question),
+                description = context.getString(R.string.default_prompt_ask_question_desc),
+                promptTemplate = """
+                    Answer the user's question about the selected Bible passage.
+                    Use available commentaries and dictionaries to provide a well-sourced answer.
+                    Cite your sources and include clickable Bible reference links.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+                specifyBeforeRun = true,
+                allowedTools = BIBLE_STUDY_TOOLS,
+            ),
+
+            // 13. Custom Prompt
+            AgentPrompt(
+                id = CUSTOM_PROMPT_ID,
+                name = context.getString(R.string.default_prompt_custom),
+                description = context.getString(R.string.default_prompt_custom_desc),
+                promptTemplate = context.getString(R.string.default_prompt_custom_template),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+                specifyBeforeRun = true,
             ),
         )
     }

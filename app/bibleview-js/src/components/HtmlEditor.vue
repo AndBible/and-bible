@@ -43,20 +43,28 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, shallowRef, watch} from "vue";
+import {computed, inject, onBeforeUnmount, onMounted, onUnmounted, ref, shallowRef, watch, withDefaults} from "vue";
 import {useCommon} from "@/composables";
 import {exec, init, queryCommandState} from "@/lib/pell/pell";
 import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBible, faIndent, faListOl, faListUl, faOutdent, faTimes,} from "@fortawesome/free-solid-svg-icons";
+import {faBible, faIndent, faListOl, faListUl, faOutdent, faRobot, faTimes,} from "@fortawesome/free-solid-svg-icons";
+import type {NoteEditorContext} from "@/components/EditableText.vue";
 import {icon} from "@fortawesome/fontawesome-svg-core";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {setupElementEventListener} from "@/utils";
 import {androidKey, appSettingsKey, customFeaturesKey, keyboardKey} from "@/types/constants";
 
-const props = defineProps<{ text: string }>();
+const props = withDefaults(defineProps<{
+    text: string,
+    noteEditorContext?: NoteEditorContext | null,
+    contentTypeName?: string
+}>(), {
+    noteEditorContext: null,
+    contentTypeName: "HTML"
+});
 const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
@@ -166,6 +174,21 @@ function save() {
 
 watch(editText, debounce(save, 2000))
 
+const aiAction = {
+    icon: icon(faRobot).html,
+    title: 'AI',
+    result: () => {
+        if (!props.noteEditorContext) return;
+        save();
+        android.noteEditorLlmAction(
+            props.noteEditorContext.entityType,
+            props.noteEditorContext.entityId,
+            editText.value,
+            props.contentTypeName
+        );
+    }
+}
+
 const divider = {divider: true};
 
 function openDownloads() {
@@ -203,7 +226,9 @@ onMounted(() => {
             dirty.value = true;
         },
         actions: [
-            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider, close
+            'bold', 'italic', 'underline', divider, oList, uList, divider, outdent, indent, divider, bibleLink, divider,
+            ...(props.noteEditorContext && appSettings.llmConfigured ? [aiAction] : []),
+            close
         ],
     });
     editor.value!.content.innerHTML = editText.value;

@@ -18,8 +18,8 @@
 <template>
   <div :style="parentStyle" class="editable-text">
     <div class="editor-container" :class="{constraintDisplayHeight}" v-if="editMode">
-      <MarkdownEditor v-if="isMarkdown" :text="editText || ''" @save="textChanged" @close="editMode = false"/>
-      <HtmlEditor v-else :text="editText || ''" @save="textChanged" @close="editMode = false"/>
+      <MarkdownEditor v-if="isMarkdown" :text="editText || ''" :note-editor-context="noteEditorContext" :content-type-name="isMarkdown ? 'MARKDOWN' : 'HTML'" @save="textChanged" @close="editMode = false"/>
+      <HtmlEditor v-else :text="editText || ''" :note-editor-context="noteEditorContext" :content-type-name="isMarkdown ? 'MARKDOWN' : 'HTML'" @save="textChanged" @close="editMode = false"/>
     </div>
     <template v-else>
       <div v-if="editText" class="notes-display" :class="[{constraintDisplayHeight}, isMarkdown ? 'markdown-notes' : '']" @click="handleClicks">
@@ -35,6 +35,11 @@
 </template>
 
 <script lang="ts">
+export interface NoteEditorContext {
+    entityType: string
+    entityId: string
+}
+
 let cancelOpen = () => {}
 </script>
 
@@ -61,6 +66,7 @@ const props = withDefaults(defineProps<{
     maxEditorHeight?: string
     constraintDisplayHeight?: boolean
     disableClickToEdit?: boolean
+    noteEditorContext?: NoteEditorContext | null
 }>(), {
     editDirectly: false,
     showPlaceholder: false,
@@ -68,7 +74,8 @@ const props = withDefaults(defineProps<{
     contentType: null,
     maxEditorHeight: "inherit",
     constraintDisplayHeight: false,
-    disableClickToEdit: false
+    disableClickToEdit: false,
+    noteEditorContext: null
 })
 
 const appSettings = inject(appSettingsKey)!;

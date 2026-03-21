@@ -198,5 +198,10 @@
             android:title="@string/prefs_show_memorization_indicators_title"
             android:summary="@string/prefs_show_memorization_indicators_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="AUTO_TRACK_READING"
+            android:title="@string/prefs_auto_track_reading_title"
+            android:summary="@string/prefs_auto_track_reading_summary"
+            />
     </PreferenceCategory>
 </PreferenceScreen>

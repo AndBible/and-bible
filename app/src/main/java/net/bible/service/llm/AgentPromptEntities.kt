@@ -73,6 +73,7 @@ enum class AgentTool {
     DELETE_LABEL,
     REMOVE_LABEL_FROM_BOOKMARK,
     ADD_STUDY_PAD_ENTRY,
+    UPDATE_STUDYPAD_TEXT_ENTRY,
     CREATE_MY_DOCUMENT,
     ADD_MY_DOCUMENT_PAGE,
     EDIT_MY_DOCUMENT_PAGE,
@@ -255,8 +256,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
     /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */
     @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
-    /** When true, show an edit dialog for the prompt text before sending it to the LLM. */
-    @ColumnInfo(defaultValue = "0") var editBeforeRun: Boolean = false,
+    /** When true, show a text field for the user to specify the task before running the prompt. */
+    @ColumnInfo(name = "editBeforeRun", defaultValue = "0") var specifyBeforeRun: Boolean = false,
     /** When true, the prompt does not create a document — results appear only in the agent log. */
     @ColumnInfo(defaultValue = "0") var noDocumentCreation: Boolean = false,
 )
@@ -299,7 +300,8 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val permanentlyAllowedTools: Set<AgentTool>? = null,
     @ColumnInfo(defaultValue = "NULL") val permanentlyDeniedTools: Set<AgentTool>? = null,
     val aiExcludedDocuments: Set<String> = emptySet(),
-    @ColumnInfo(defaultValue = "0") val commentaryMaxResponseTokens: Int = 0,
+    @ColumnInfo(defaultValue = "4000") val commentaryMaxResponseTokens: Int = 4000,
+    val hiddenBuiltInPrompts: Set<IdType> = emptySet(),
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */

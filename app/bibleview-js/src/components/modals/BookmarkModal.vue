@@ -49,6 +49,7 @@
         constraint-display-height
         :text="bookmarkNotes || ''"
         :content-type="bookmark?.notesContentType"
+        :note-editor-context="bookmark ? { entityType: 'BOOKMARK_NOTE', entityId: bookmark.id } : null"
         @save="changeNote"
         show-placeholder
         :edit-directly="editDirectly"

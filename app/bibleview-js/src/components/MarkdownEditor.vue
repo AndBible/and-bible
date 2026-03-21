@@ -73,6 +73,7 @@
       <button class="pell-button" :disabled="redoStack.length === 0" @click="redo"><FontAwesomeIcon :icon="faRedo"/></button>
       <button class="pell-button" @click="insertBibleLink"><FontAwesomeIcon :icon="faBible"/></button>
       <span class="pell-divider"/>
+      <button v-if="noteEditorContext && appSettings.llmConfigured" class="pell-button" @click="triggerAi"><FontAwesomeIcon :icon="faRobot"/></button>
       <button class="pell-button end" @click="closeEditor"><FontAwesomeIcon :icon="faTimes"/></button>
     </div>
     <div class="saved-notice" v-if="!dirty">
@@ -82,17 +83,25 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, reactive, ref, watch} from "vue";
+import {computed, inject, nextTick, onBeforeUnmount, onMounted, onUnmounted, reactive, ref, watch, withDefaults} from "vue";
 import {useCommon} from "@/composables";
 import InputText from "@/components/modals/InputText.vue";
 import {useStrings} from "@/composables/strings";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBold, faItalic, faUnderline, faListOl, faListUl, faIndent, faOutdent, faBible, faTimes, faHeading, faUndo, faRedo, faFont} from "@fortawesome/free-solid-svg-icons";
+import {faBold, faItalic, faUnderline, faListOl, faListUl, faIndent, faOutdent, faBible, faTimes, faHeading, faUndo, faRedo, faFont, faRobot} from "@fortawesome/free-solid-svg-icons";
+import type {NoteEditorContext} from "@/components/EditableText.vue";
 import {debounce} from "lodash";
 import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {androidKey, appSettingsKey, customFeaturesKey, keyboardKey} from "@/types/constants";
 
-const props = defineProps<{ text: string }>();
+const props = withDefaults(defineProps<{
+    text: string,
+    noteEditorContext?: NoteEditorContext | null,
+    contentTypeName?: string
+}>(), {
+    noteEditorContext: null,
+    contentTypeName: "MARKDOWN"
+});
 const emit = defineEmits(["save", "close"]);
 
 const android = inject(androidKey)!;
@@ -429,6 +438,17 @@ async function insertBibleLink() {
 function closeEditor() {
     save();
     emit("close");
+}
+
+function triggerAi() {
+    if (!props.noteEditorContext) return;
+    save();
+    android.noteEditorLlmAction(
+        props.noteEditorContext.entityType,
+        props.noteEditorContext.entityId,
+        editText.value,
+        props.contentTypeName
+    );
 }
 
 function handleKeyDown(e: KeyboardEvent) {

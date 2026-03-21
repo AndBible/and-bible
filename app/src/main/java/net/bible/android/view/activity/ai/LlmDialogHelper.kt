@@ -17,16 +17,12 @@
 
 package net.bible.android.view.activity.ai
 
-import android.content.Intent
 import android.text.InputType
 import android.util.Log
-import android.view.View
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CancellationException
@@ -41,8 +37,6 @@ import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.llm.AgentTool
-import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentSessionManager
@@ -50,53 +44,28 @@ import net.bible.service.llm.agent.AgentSessionManager
 private const val TAG = "LlmDialogHelper"
 
 /**
- * Handles LLM-related dialogs: prompt selection, custom prompt entry, and regeneration.
+ * Handles LLM-related dialogs: prompt selection, specify-before-run, and regeneration.
  * Extracted from MainBibleActivity and BibleJavascriptInterface to avoid bloating those classes.
  */
 class LlmDialogHelper(private val activity: MainBibleActivity) {
 
-    private var pendingCustomPromptSelection: Selection? = null
-
-    val promptEditLauncher: ActivityResultLauncher<Intent> = activity.registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        val selection = pendingCustomPromptSelection
-        pendingCustomPromptSelection = null
-        if (result.resultCode == android.app.Activity.RESULT_OK && selection != null) {
-            val promptIdStr = result.data?.getStringExtra(PromptEditActivity.RESULT_PROMPT_ID)
-            if (promptIdStr != null) {
-                activity.lifecycleScope.launch(Dispatchers.IO) {
-                    val prompt = PromptRepository.promptById(IdType(promptIdStr))
-                    if (prompt != null) {
-                        AgentSessionManager.executePrompt(prompt, selection)
-                    }
-                }
-            }
-        }
-    }
-
     /**
-     * Show LLM prompt selector dialog with a "Custom prompt…" option at the end.
+     * Show LLM prompt selector dialog.
      */
     fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val prompts = PromptRepository.promptsForContext(context)
-            val promptNames = prompts.map { it.name }.toMutableList()
-            promptNames.add(activity.getString(R.string.custom_prompt))
+            val promptNames = prompts.map { it.name }
 
             launch(Dispatchers.Main) {
                 AlertDialog.Builder(activity)
                     .setTitle(R.string.select_llm_prompt)
                     .setItems(promptNames.toTypedArray()) { _, which ->
-                        if (which < prompts.size) {
-                            val selectedPrompt = prompts[which]
-                            if (selectedPrompt.editBeforeRun) {
-                                showEditBeforeRunDialog(selectedPrompt, selection)
-                            } else {
-                                executePrompt(selectedPrompt, selection)
-                            }
+                        val selectedPrompt = prompts[which]
+                        if (selectedPrompt.specifyBeforeRun) {
+                            showSpecifyBeforeRunDialog(selectedPrompt, selection)
                         } else {
-                            showCustomPromptDialog(selection, context)
+                            executePrompt(selectedPrompt, selection)
                         }
                     }
                     .setNegativeButton(R.string.cancel, null)
@@ -106,87 +75,28 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     }
 
     /**
-     * Show dialog for entering a custom prompt, with option to save it.
+     * Show dialog for the user to specify a task before running the prompt.
+     * The prompt template is not shown — only an empty text field for the specification.
      */
-    fun showCustomPromptDialog(selection: Selection, context: PromptContext) {
+    private fun showSpecifyBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
+        val editText = EditText(activity).apply {
+            setHint(R.string.specify_before_run_hint)
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 3
+        }
         val layout = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 32, 48, 16)
+            addView(editText)
         }
-        val editText = EditText(activity).apply {
-            setHint(R.string.custom_prompt_hint)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            minLines = 4
-        }
-        val saveCheckBox = CheckBox(activity).apply {
-            setText(R.string.save_as_new_prompt)
-        }
-        layout.addView(editText)
-        layout.addView(saveCheckBox)
 
         AlertDialog.Builder(activity)
-            .setTitle(R.string.custom_prompt)
+            .setTitle(R.string.specify_before_run_title)
             .setView(layout)
             .setPositiveButton(R.string.okay) { _, _ ->
-                val template = editText.text.toString().trim()
-                if (template.isEmpty()) return@setPositiveButton
-
-                if (saveCheckBox.isChecked) {
-                    launchPromptEditForExecution(template, selection, context)
-                } else {
-                    val transientPrompt = AgentPrompt(
-                        name = template.take(50),
-                        promptTemplate = template,
-                        showIn = setOf(context),
-                        deniedTools = setOf(AgentTool.FINISH_WITHOUT_DOCUMENT)
-                    )
-                    executePrompt(transientPrompt, selection)
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    /**
-     * Show dialog to edit prompt text before execution.
-     * Pre-fills with the prompt's template and offers a "Save changes" checkbox.
-     */
-    private fun showEditBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
-        val layout = LinearLayout(activity).apply {
-            orientation = LinearLayout.VERTICAL
-        }
-        val editText = EditText(activity).apply {
-            setText(prompt.promptTemplate)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-            minLines = 4
-        }
-        val saveCheckBox = CheckBox(activity).apply {
-            setText(R.string.save_prompt_changes)
-            isChecked = false
-            if (BuiltInPrompts.isBuiltIn(prompt.id)) {
-                visibility = View.GONE
-            }
-        }
-        layout.addView(editText)
-        layout.addView(saveCheckBox)
-
-        AlertDialog.Builder(activity)
-            .setTitle(R.string.edit_prompt_before_run_title)
-            .setView(layout)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val editedTemplate = editText.text.toString().trim()
-                if (editedTemplate.isEmpty()) return@setPositiveButton
-
-                if (saveCheckBox.isChecked && !BuiltInPrompts.isBuiltIn(prompt.id)) {
-                    activity.lifecycleScope.launch(Dispatchers.IO) {
-                        prompt.promptTemplate = editedTemplate
-                        PromptRepository.updatePrompt(prompt)
-                    }
-                    executePrompt(prompt, selection)
-                } else {
-                    val transientPrompt = prompt.copy(promptTemplate = editedTemplate)
-                    executePrompt(transientPrompt, selection)
-                }
+                val specification = editText.text.toString().trim()
+                if (specification.isEmpty()) return@setPositiveButton
+                executePrompt(prompt, selection, userSpecification = specification)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -246,11 +156,11 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     /**
      * Execute a prompt with proper error handling and session tracking.
      */
-    fun executePrompt(prompt: AgentPrompt, selection: Selection) {
+    fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null) {
         val workspaceId = activity.windowControl.windowRepository.id
         val job = activity.lifecycleScope.launch(Dispatchers.IO) {
             try {
-                AgentSessionManager.executePrompt(prompt, selection)
+                AgentSessionManager.executePrompt(prompt, selection, userSpecification = userSpecification)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
@@ -261,15 +171,5 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             }
         }
         AgentSessionManager.getOrCreateSession(workspaceId).job = job
-    }
-
-    private fun launchPromptEditForExecution(template: String, selection: Selection, context: PromptContext) {
-        pendingCustomPromptSelection = selection
-        val intent = Intent(activity, PromptEditActivity::class.java).apply {
-            putExtra(PromptEditActivity.EXTRA_PROMPT_TEMPLATE, template)
-            putExtra(PromptEditActivity.EXTRA_EXECUTE_AFTER_SAVE, true)
-            putExtra(PromptEditActivity.EXTRA_DEFAULT_CONTEXT, context.name)
-        }
-        promptEditLauncher.launch(intent)
     }
 }

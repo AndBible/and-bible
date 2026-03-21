@@ -26,6 +26,7 @@
       <EditableText
         :text="editContent"
         :content-type="editContentType"
+        :note-editor-context="editPageId ? { entityType: 'MY_DOCUMENT_PAGE', entityId: editPageId } : null"
         :edit-directly="true"
         @save="handleSave"
         @closed="handleEditClosed"

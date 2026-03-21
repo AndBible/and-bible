@@ -17,6 +17,7 @@
 
 package net.bible.service.common
 
+import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
@@ -54,4 +55,8 @@ object AiSettings {
     var commentaryMaxResponseTokens: Int
         get() = getOrDefault().commentaryMaxResponseTokens
         set(value) = update { copy(commentaryMaxResponseTokens = value) }
+
+    var hiddenBuiltInPrompts: Set<IdType>
+        get() = getOrDefault().hiddenBuiltInPrompts
+        set(value) = update { copy(hiddenBuiltInPrompts = value) }
 }

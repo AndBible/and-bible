@@ -71,6 +71,7 @@
           :edit-directly="textEntry.new ?? false"
           :text="journalText"
           :content-type="journalContentType"
+          :note-editor-context="studyPadNoteEditorContext"
           :disable-click-to-edit="props.disableClickToEdit"
           @opened="$emit('edit-opened')"
           @save="journalTextChanged"
@@ -140,6 +141,15 @@ function journalTextChanged(newText: string) {
         android.updateStudyPadEntry(props.journalEntry, {text: newText});
     }
 }
+
+const studyPadNoteEditorContext = computed(() => {
+    if (isBookmark(props.journalEntry)) {
+        return {entityType: 'BOOKMARK_NOTE', entityId: props.journalEntry.id};
+    } else if (props.journalEntry.type === "journal") {
+        return {entityType: 'STUDYPAD_TEXT', entityId: props.journalEntry.id};
+    }
+    return null;
+});
 
 const journalText = computed(() => {
     if (isBookmark(props.journalEntry))

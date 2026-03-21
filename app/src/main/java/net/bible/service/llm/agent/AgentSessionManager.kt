@@ -201,7 +201,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         targetWindowId: IdType? = null,
         additionalInstructions: String? = null,
         previousResponse: String? = null,
-        skipCache: Boolean = false
+        skipCache: Boolean = false,
+        userSpecification: String? = null
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
@@ -209,7 +210,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         // Build AgentContext and CacheableContext
         val context = buildAgentContext(prompt, selection,
             additionalInstructions = additionalInstructions,
-            previousResponse = previousResponse
+            previousResponse = previousResponse,
+            userSpecification = userSpecification
         )
         val cacheableContext = CacheableContext.fromAgentContext(context)
 
@@ -290,7 +292,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         prompt: AgentPrompt,
         selection: Selection,
         additionalInstructions: String? = null,
-        previousResponse: String? = null
+        previousResponse: String? = null,
+        userSpecification: String? = null
     ): AgentContext {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
@@ -392,7 +395,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
             promptDeniedTools = prompt.deniedTools,
             noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,
-            additionalInstructions = additionalInstructions
+            additionalInstructions = additionalInstructions,
+            userSpecification = userSpecification,
+            noteEditorEntityType = selection.noteEditorEntityType,
+            noteEditorEntityId = selection.noteEditorEntityId,
+            noteEditorContent = selection.noteEditorContent,
+            noteEditorContentType = selection.noteEditorContentType
         )
     }
 

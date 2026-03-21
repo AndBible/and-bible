@@ -28,6 +28,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
@@ -81,6 +82,7 @@ import org.crosswire.jsword.passage.VerseFactory
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
+import net.bible.service.llm.PromptContext
 import java.io.File
 import java.lang.ClassCastException
 
@@ -790,6 +792,52 @@ class BibleJavascriptInterface(
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    @Serializable
+    data class NoteEditorLlmContext(
+        val entityType: String,
+        val entityId: String,
+        val currentText: String,
+        val contentType: String
+    )
+
+    /**
+     * Trigger LLM prompt selector for the note editor context.
+     * Called from Vue.js MarkdownEditor/HtmlEditor AI button.
+     */
+    @JavascriptInterface
+    fun noteEditorLlmAction(contextJson: String) {
+        scope.launch(Dispatchers.Main) {
+            val ctx = json.decodeFromString<NoteEditorLlmContext>(serializer(), contextJson)
+
+            // Try to get verse context from the bookmark for better AI context
+            var bookInitials: String? = null
+            var startOrdinal = 0
+            var endOrdinal = 0
+            if (ctx.entityType == "BOOKMARK_NOTE") {
+                val bookmark = bookmarkControl.bibleBookmarkById(IdType(ctx.entityId))
+                if (bookmark != null) {
+                    bookInitials = bookmark.book?.initials
+                    startOrdinal = bookmark.ordinalStart
+                    endOrdinal = bookmark.ordinalEnd
+                }
+            }
+
+            val selection = Selection(
+                bookInitials = bookInitials,
+                startOrdinal = startOrdinal,
+                startOffset = null,
+                endOrdinal = endOrdinal,
+                endOffset = null,
+                bookmarks = emptyList(),
+                noteEditorEntityType = ctx.entityType,
+                noteEditorEntityId = ctx.entityId,
+                noteEditorContent = ctx.currentText,
+                noteEditorContentType = ctx.contentType,
+            )
+            mainBibleActivity.showLlmPromptSelector(selection, PromptContext.NOTE_EDITOR)
         }
     }
 

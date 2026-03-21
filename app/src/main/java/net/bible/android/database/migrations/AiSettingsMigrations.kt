@@ -53,4 +53,25 @@ private val addGlobalAiSettingsAndUsage = makeMigration(3..4) { db ->
     db.execSQL("ALTER TABLE `LlmProviderConfig` ADD COLUMN `customOutputPrice` REAL NOT NULL DEFAULT 0.0")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage)
+private val setCommentaryTokenDefault = makeMigration(4..5) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `GlobalAiSettings_new` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `agentPermissionMode` TEXT DEFAULT NULL,
+        `permanentlyAllowedTools` TEXT DEFAULT NULL,
+        `permanentlyDeniedTools` TEXT DEFAULT NULL,
+        `aiExcludedDocuments` TEXT NOT NULL,
+        `commentaryMaxResponseTokens` INTEGER NOT NULL DEFAULT 4000
+    )""")
+    db.execSQL("""INSERT INTO `GlobalAiSettings_new` (`id`, `agentPermissionMode`, `permanentlyAllowedTools`, `permanentlyDeniedTools`, `aiExcludedDocuments`, `commentaryMaxResponseTokens`)
+        SELECT `id`, `agentPermissionMode`, `permanentlyAllowedTools`, `permanentlyDeniedTools`, `aiExcludedDocuments`,
+            CASE WHEN `commentaryMaxResponseTokens` = 0 THEN 4000 ELSE `commentaryMaxResponseTokens` END
+        FROM `GlobalAiSettings`""")
+    db.execSQL("DROP TABLE `GlobalAiSettings`")
+    db.execSQL("ALTER TABLE `GlobalAiSettings_new` RENAME TO `GlobalAiSettings`")
+}
+
+private val addHiddenBuiltInPrompts = makeMigration(5..6) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `hiddenBuiltInPrompts` TEXT NOT NULL DEFAULT ''")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts)

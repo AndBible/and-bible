@@ -42,6 +42,11 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/restore_hidden_prompts"
+        android:title="@string/ai_restore_hidden_prompts"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/reset_prompts"
         android:icon="@drawable/baseline_settings_backup_restore_24"
         android:title="@string/reset_prompts_to_defaults"
