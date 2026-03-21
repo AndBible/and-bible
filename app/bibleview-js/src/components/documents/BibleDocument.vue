@@ -27,7 +27,7 @@
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton && isExperimentalFeatureEnabled('reading_and_memorization')" class="mark-as-read-container">
       <button class="mark-as-read-button" :class="{read: chapterRead, monochrome: appSettings.monochromeMode}" @click="onMarkAsRead">
-        ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
+        <FontAwesomeIcon :icon="faCheck"/> {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
       </button>
     </div>
   </div>
@@ -42,6 +42,8 @@ import Chapter from "@/components/OSIS/Chapter.vue";
 import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 import {setupEventBusListener} from "@/eventbus";
 
 const props = defineProps<{ document: BibleDocumentType }>();
