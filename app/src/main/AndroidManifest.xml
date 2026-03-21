@@ -256,6 +256,11 @@
             android:label="@string/reading_progress_title"
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity" />
         <activity
+            android:name="net.bible.android.view.activity.progress.ReadingProgressSettingsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/reading_progress_settings"
+            android:parentActivityName="net.bible.android.view.activity.progress.ReadingProgressActivity" />
+        <activity
             android:name="net.bible.android.view.activity.settings.SettingsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/settings"

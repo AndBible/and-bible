@@ -23,6 +23,8 @@ import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.GridLayout
 import android.widget.LinearLayout
@@ -60,7 +62,6 @@ class ReadingProgressActivity : ActivityBase() {
 
         setupTabs()
         setupReadingTab()
-        setupMemorizeTab()
 
         refreshAll()
     }
@@ -107,12 +108,18 @@ class ReadingProgressActivity : ActivityBase() {
         }
     }
 
-    private fun setupMemorizeTab() {
-        binding.autoMarkSwitch.apply {
-            isChecked = ProgressControl.autoMarkMemorized
-            setOnCheckedChangeListener { _, isChecked ->
-                ProgressControl.autoMarkMemorized = isChecked
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.reading_progress_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.settings -> {
+                startActivity(Intent(this, ReadingProgressSettingsActivity::class.java))
+                true
             }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 

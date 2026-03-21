@@ -104,12 +104,6 @@
 			android:defaultValue="true"
 			android:icon="@drawable/ic_baseline_volume_up_24"
 			/>
-		<SwitchPreferenceCompat android:key="auto_track_reading"
-			android:title="@string/prefs_auto_track_reading_title"
-			android:summary="@string/prefs_auto_track_reading_summary"
-			android:defaultValue="false"
-			android:icon="@drawable/ic_baseline_check_circle_24"
-			/>
 		<ListPreference android:key="night_mode_pref3"
 			android:title="@string/prefs_night_mode_title"
 			android:summary="@string/prefs_night_mode_summary"
@@ -244,6 +238,11 @@
 			android:title="@string/ai_settings"
 			android:summary="@string/ai_settings_shortcut_summary"
 			android:icon="@drawable/ic_baseline_smart_toy_24"
+			/>
+		<Preference android:key="reading_progress_settings_shortcut"
+			android:title="@string/reading_progress_settings"
+			android:summary="@string/reading_progress_settings_summary"
+			android:icon="@drawable/ic_baseline_check_circle_24"
 			/>
 		<MultiSelectListPreference android:key="experimental_features"
 			android:title="@string/prefs_experimental_features_title"

@@ -1424,6 +1424,9 @@
     <string name="memorize_targets">Memorization goals</string>
     <string name="memorize_no_targets">No memorization goals set</string>
     <string name="memorize_auto_mark">Auto-mark as memorized after shuffle</string>
+    <string name="memorize_auto_mark_summary">Automatically mark verses as memorized when word scramble is completed successfully</string>
+    <string name="reading_progress_settings">Reading progress settings</string>
+    <string name="reading_progress_settings_summary">Auto-tracking and memorization settings</string>
     <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>
     <string name="memorize_confirm_remove_target">Remove memorization goal %s?</string>
     <string name="memorize_tab_reading">Reading</string>
