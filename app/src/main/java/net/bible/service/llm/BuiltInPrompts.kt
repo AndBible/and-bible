@@ -57,6 +57,7 @@ object BuiltInPrompts {
     val STUDY_LAYOUT_ID = stableId("study-layout")
     val ENHANCE_NOTE_ID = stableId("enhance-note")
     val ASK_QUESTION_ID = stableId("ask-question")
+    val CUSTOM_PROMPT_ID = stableId("custom-prompt")
 
     // Test prompt IDs
     val TEST_TOOL_CALLING_ID = stableId("test-tool-calling")
@@ -444,14 +445,25 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_ask_question),
                 description = context.getString(R.string.default_prompt_ask_question_desc),
                 promptTemplate = """
+                    Answer the user's question about the selected Bible passage.
                     Use available commentaries and dictionaries to provide a well-sourced answer.
                     Cite your sources and include clickable Bible reference links.
-                    Answer the following question about the selected Bible passage.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
-                editBeforeRun = true,
+                specifyBeforeRun = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
+            ),
+
+            // 13. Custom Prompt
+            AgentPrompt(
+                id = CUSTOM_PROMPT_ID,
+                name = context.getString(R.string.default_prompt_custom),
+                description = context.getString(R.string.default_prompt_custom_desc),
+                promptTemplate = context.getString(R.string.default_prompt_custom_template),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                orderNumber = order++,
+                specifyBeforeRun = true,
             ),
         )
     }

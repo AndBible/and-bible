@@ -255,8 +255,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
     /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */
     @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
-    /** When true, show an edit dialog for the prompt text before sending it to the LLM. */
-    @ColumnInfo(defaultValue = "0") var editBeforeRun: Boolean = false,
+    /** When true, show a text field for the user to specify the task before running the prompt. */
+    @ColumnInfo(name = "editBeforeRun", defaultValue = "0") var specifyBeforeRun: Boolean = false,
     /** When true, the prompt does not create a document — results appear only in the agent log. */
     @ColumnInfo(defaultValue = "0") var noDocumentCreation: Boolean = false,
 )

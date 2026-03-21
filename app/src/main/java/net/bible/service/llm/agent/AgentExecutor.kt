@@ -476,6 +476,12 @@ class AgentExecutor(
             // The prompt template
             append(prompt.promptTemplate)
 
+            // Add user's task specification from "Specify before run" dialog
+            if (context.userSpecification != null) {
+                append("\n\n--- User's Task Specification ---\n")
+                append(context.userSpecification)
+            }
+
             // Add highlighted text if user selected specific words/phrases
             if (context.highlightedText != null) {
                 append("\n\n--- User's Highlighted Text (FOCUS ON THIS) ---\n")

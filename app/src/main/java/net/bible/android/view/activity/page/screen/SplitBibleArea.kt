@@ -833,7 +833,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             prompts.forEachIndexed { idx, prompt ->
                 llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
             }
-            // "Custom prompt…" is already defined in the menu XML as llmCustomPromptItem
+            // Prompts list includes the built-in "Custom prompt" at the end
         } else {
             llmActionsSubMenu.isVisible = false
         }
@@ -1079,15 +1079,6 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         val selection = Selection(book.initials, key.osisRef, -1, -1)
                         mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
                     }
-                }
-            })
-            R.id.llmCustomPromptItem -> CommandPreference({ _, _, _ ->
-                val currentPage = window.pageManager.currentPage
-                val book = currentPage.currentDocument
-                val key = currentPage.key
-                if (book != null && key != null) {
-                    val selection = Selection(book.initials, key.osisRef, -1, -1)
-                    mainBibleActivity.llmDialogHelper.showCustomPromptDialog(selection, PromptContext.WINDOW_MENU)
                 }
             })
             else -> throw RuntimeException("Illegal menu item")

@@ -1558,13 +1558,13 @@
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>
-    <string name="prompt_edit_before_run">Edit before run</string>
-    <string name="prompt_edit_before_run_description">Show the prompt text for editing before sending it to the AI</string>
+    <string name="prompt_edit_before_run">Specify before run</string>
+    <string name="prompt_edit_before_run_description">Show a text field for specifying the task before running the prompt</string>
     <string name="prompt_no_document_creation">No document creation</string>
     <string name="prompt_no_document_creation_description">When enabled, the AI will not create a document. Results are only shown in the activity log. Useful for action-only prompts (bookmarks, labels, StudyPad operations).</string>
     <string name="llm_no_document_creation_intercepted">Task completed (document creation disabled)</string>
-    <string name="edit_prompt_before_run_title">Edit prompt</string>
-    <string name="save_prompt_changes">Save changes to prompt</string>
+    <string name="specify_before_run_title">Specify task</string>
+    <string name="specify_before_run_hint">Describe the specific task…</string>
     <string name="prompt_cache_settings">Cache settings</string>
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
@@ -1578,10 +1578,7 @@
     <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
     <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_document_delete">Delete</string>
-    <string name="custom_prompt">Custom prompt…</string>
     <string name="ai_unknown_prompt">AI</string>
-    <string name="custom_prompt_hint">Enter your prompt</string>
-    <string name="save_as_new_prompt">Save as new prompt</string>
 
     <!-- Default prompts -->
     <string name="default_prompt_translate_to_language">Translate to %s</string>
@@ -1613,6 +1610,9 @@
     <string name="default_prompt_enhance_note_desc">Enriches your bookmark note with cross-references and commentary</string>
     <string name="default_prompt_ask_question">Ask a question</string>
     <string name="default_prompt_ask_question_desc">Ask any question about the selected passage</string>
+    <string name="default_prompt_custom">Custom prompt</string>
+    <string name="default_prompt_custom_desc">Run a custom task on the selected passage</string>
+    <string name="default_prompt_custom_template">Follow the user\'s task specification for the selected Bible passage.</string>
     <string name="copy">Copy</string>
     <string name="delete_prompt_confirm_message">Are you sure you want to delete this prompt?</string>
     <string name="ai_hide_prompt">Hide</string>
