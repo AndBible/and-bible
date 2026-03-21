@@ -34,6 +34,40 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 
+data class RangeDifferenceResult(
+    val remaining: List<Pair<Int, Int>>,
+    val removed: List<Int>,
+)
+
+/**
+ * Computes the set difference of target ranges minus a removal range.
+ * Returns remaining sub-ranges and the actually removed ordinals.
+ */
+fun computeRangeDifference(
+    targets: List<Pair<Int, Int>>,
+    removeStart: Int,
+    removeEnd: Int,
+): RangeDifferenceResult {
+    val remaining = mutableListOf<Pair<Int, Int>>()
+    val removed = mutableListOf<Int>()
+
+    for ((tStart, tEnd) in targets) {
+        val intStart = maxOf(tStart, removeStart)
+        val intEnd = minOf(tEnd, removeEnd)
+        if (intStart > intEnd) continue // no overlap
+
+        removed.addAll(intStart..intEnd)
+
+        if (tStart < removeStart) {
+            remaining.add(tStart to removeStart - 1)
+        }
+        if (tEnd > removeEnd) {
+            remaining.add(removeEnd + 1 to tEnd)
+        }
+    }
+    return RangeDifferenceResult(remaining, removed)
+}
+
 /** Posted when memorized verses or memorization targets change. All BibleViews should update their indicators. */
 class MemorizationDataChangedEvent(
     val addedMemorized: List<Int> = emptyList(),
@@ -190,6 +224,32 @@ object ProgressControl {
         if (target != null) {
             val removed = (target.kjvOrdinalStart..target.kjvOrdinalEnd).toList()
             ABEventBus.post(MemorizationDataChangedEvent(removedTargets = removed))
+        }
+    }
+
+    /**
+     * Removes the intersection of the given range from overlapping targets (set difference).
+     * Targets fully covered are deleted. Partially covered targets are split into remaining parts.
+     */
+    fun removeMemorizationTargetByRange(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val overlapping = dao.memorizationTargetsOverlapping(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        if (overlapping.isEmpty()) return
+
+        val result = computeRangeDifference(
+            overlapping.map { it.kjvOrdinalStart to it.kjvOrdinalEnd },
+            kjvRange.start.ordinal,
+            kjvRange.end.ordinal,
+        )
+
+        for (target in overlapping) {
+            dao.deleteMemorizationTarget(target.id)
+        }
+        for ((start, end) in result.remaining) {
+            dao.insertMemorizationTarget(MemorizationTarget(kjvOrdinalStart = start, kjvOrdinalEnd = end))
+        }
+        if (result.removed.isNotEmpty()) {
+            ABEventBus.post(MemorizationDataChangedEvent(removedTargets = result.removed))
         }
     }
 

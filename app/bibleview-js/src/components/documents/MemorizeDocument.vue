@@ -56,6 +56,12 @@
     <button v-else class="memorize-action-btn memorized" @click="unmarkMemorized">
       <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
     </button>
+    <button v-if="isTarget && !isMemorized" class="memorize-action-btn target" @click="removeFromTargets">
+      <FontAwesomeIcon :icon="faTimes"/> {{ strings.removeFromTargets }}
+    </button>
+    <button v-if="!isTarget" class="memorize-action-btn" @click="addToTargets">
+      <FontAwesomeIcon :icon="faBullseye"/> {{ strings.addMemorizationTarget }}
+    </button>
   </div>
 </template>
 
@@ -76,7 +82,9 @@ import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faCheck, faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
+import {faBullseye, faCheck, faEyeSlash, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {inject} from "vue";
+import {memorizationKey} from "@/types/constants";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -98,6 +106,15 @@ const memorizeState = computed<MemorizeState>(() => {
 })
 
 const {strings, android} = useCommon();
+const memorization = inject(memorizationKey);
+
+// Populate memorization data so isMemorized/isTarget are reactive
+if (memorization) {
+    memorization.mergeData(
+        document.value.memorizedOrdinals ?? [],
+        document.value.targetOrdinals ?? []
+    );
+}
 
 function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void) {
     const {bookInitials, startOrdinal, endOrdinal} = document.value;
@@ -106,20 +123,38 @@ function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdi
     }
 }
 
-const isMemorized = ref(false);
+const isMemorized = computed(() => {
+    const {startOrdinal, endOrdinal} = document.value;
+    if (!memorization || startOrdinal == null || endOrdinal == null) return false;
+    for (let i = startOrdinal; i <= endOrdinal; i++) {
+        if (!memorization.memorized.has(i)) return false;
+    }
+    return true;
+});
+
+const isTarget = computed(() => {
+    const {startOrdinal, endOrdinal} = document.value;
+    if (!memorization || startOrdinal == null || endOrdinal == null) return false;
+    for (let i = startOrdinal; i <= endOrdinal; i++) {
+        if (memorization.targets.has(i)) return true;
+    }
+    return false;
+});
 
 function markAsMemorized() {
-    withVerseRange((b, s, e) => {
-        android.memorizeCompleted(b, s, e);
-        isMemorized.value = true;
-    });
+    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
 }
 
 function unmarkMemorized() {
-    withVerseRange((b, s, e) => {
-        android.unmarkMemorized(b, s, e);
-        isMemorized.value = false;
-    });
+    withVerseRange((b, s, e) => android.unmarkMemorized(b, s, e));
+}
+
+function removeFromTargets() {
+    withVerseRange((b, s, e) => android.removeMemorizationTarget(b, s, e));
+}
+
+function addToTargets() {
+    withVerseRange((b, s, e) => android.addMemorizationTarget(b, s, e));
 }
 
 // Tab configuration for the TabContainer
@@ -185,6 +220,7 @@ h2 {
 .memorize-actions {
   display: flex;
   justify-content: center;
+  gap: 8px;
   margin-top: 1em;
 }
 
@@ -200,6 +236,11 @@ h2 {
   &.memorized {
     border-color: #4CAF50;
     color: #4CAF50;
+  }
+
+  &.target {
+    border-color: #9C27B0;
+    color: #9C27B0;
   }
 
   .night & {

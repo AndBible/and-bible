@@ -1418,16 +1418,18 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
-    <string name="add_memorization_target">Add to memorization targets</string>
+    <string name="add_memorization_target">Set as memorization goal</string>
     <string name="memorize_memorized_passages">Memorized passages</string>
     <string name="memorize_no_memorized_passages">No memorized passages yet</string>
-    <string name="memorize_targets">Memorization targets</string>
-    <string name="memorize_no_targets">No memorization targets set</string>
+    <string name="memorize_targets">Memorization goals</string>
+    <string name="memorize_no_targets">No memorization goals set</string>
     <string name="memorize_auto_mark">Auto-mark as memorized after shuffle</string>
+    <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>
+    <string name="memorize_confirm_remove_target">Remove memorization goal %s?</string>
     <string name="memorize_tab_reading">Reading</string>
     <string name="memorize_tab_memorization">Memorization</string>
     <string name="memorize_verses_memorized">Memorized</string>
-    <string name="memorize_verses_target">Target</string>
+    <string name="memorize_verses_target">Goal</string>
 
     <!-- LLM Translation Settings -->
     <string name="llm_settings_title">LLM Translation</string>

@@ -19,7 +19,9 @@ package net.bible.android.control.page
 import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.misc.OsisFragment
@@ -84,16 +86,24 @@ open class CurrentCommentaryPage internal constructor(
                 val doc = bookAndKey.document
                 val verseRange = bookAndKey.key as? VerseRange
                     ?: return ErrorDocument("Memorize: sourceBookAndKey.key should be of type VerseRange", ErrorSeverity.ERROR)
-                var texts = ArrayList<Pair<String, String>>()
+                val texts = ArrayList<Pair<String, String>>()
                 for (verse in verseRange) {
                     val text = SwordContentFacade.getCanonicalText(doc, verse)
                     texts.add(Pair(verse.shortName, text))
                 }
+                val kjvRange = verseRange.toV11n(KJVA)
+                val v11n = verseRange.versification
+                val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                    .map { Verse(KJVA, it).toV11n(v11n).ordinal }
+                val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+                    .map { Verse(KJVA, it).toV11n(v11n).ordinal }
                 MemorizeDocument(
                     verseRange.name, texts, pageManager.jsState,
                     bookInitials = doc?.initials,
                     startOrdinal = verseRange.start.ordinal,
                     endOrdinal = verseRange.end.ordinal,
+                    memorizedOrdinals = memorizedOrdinals,
+                    targetOrdinals = targetOrdinals,
                 )
             } else super.currentPageContent
         }

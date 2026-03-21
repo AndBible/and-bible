@@ -62,6 +62,9 @@ interface ProgressDao {
     @Query("DELETE FROM MemorizationTarget WHERE id = :id")
     fun deleteMemorizationTarget(id: IdType)
 
+    @Query("SELECT * FROM MemorizationTarget WHERE kjvOrdinalStart = :startOrdinal AND kjvOrdinalEnd = :endOrdinal")
+    fun findMemorizationTarget(startOrdinal: Int, endOrdinal: Int): MemorizationTarget?
+
     @Query("SELECT * FROM MemorizationTarget ORDER BY createdAt DESC")
     fun allMemorizationTargets(): List<MemorizationTarget>
 

@@ -51,7 +51,7 @@
 import {computed, inject, nextTick, onMounted, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
-import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
+import {androidKey, keyboardKey, locateTopKey, memorizationKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
 import {ModalButtonId} from "@/composables/config";
 import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
@@ -73,6 +73,7 @@ const {strings, appSettings, isExperimentalFeatureEnabled} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
+const memorization = inject(memorizationKey);
 
 const verseInfo = computed(() => selectionInfo.value?.verseInfo || null);
 const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
@@ -99,6 +100,16 @@ const modalButtons = computed<ModalButtonId[]>(() => {
     }
     if (!isExperimentalFeatureEnabled("reading_and_memorization")) {
         allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "ADD_MEMORIZATION_TARGET");
+    } else if (memorization && startOrdinal.value != null) {
+        // Replace ADD_MEMORIZATION_TARGET with REMOVE if all selected ordinals are already targeted
+        const effectiveEnd = endOrdinal.value ?? startOrdinal.value;
+        let allTargeted = true;
+        for (let i = startOrdinal.value; i <= effectiveEnd; i++) {
+            if (!memorization.targets.has(i)) { allTargeted = false; break; }
+        }
+        if (allTargeted) {
+            allButtons = allButtons.map(b => b === "ADD_MEMORIZATION_TARGET" ? "REMOVE_MEMORIZATION_TARGET" : b);
+        }
     }
     if (!appSettings.llmConfigured) {
         allButtons = allButtons.filter(b => b !== "LLM_ACTION");
@@ -205,6 +216,9 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'ADD_MEMORIZATION_TARGET':
             addMemorizationTarget();
             break;
+        case 'REMOVE_MEMORIZATION_TARGET':
+            removeMemorizationTarget();
+            break;
         case 'SPEAK':
             speak();
             break;
@@ -247,6 +261,13 @@ function memorize() {
 function addMemorizationTarget() {
     if(verseInfo.value) {
         android.addMemorizationTarget(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
+    emit("close");
+}
+
+function removeMemorizationTarget() {
+    if(verseInfo.value) {
+        android.removeMemorizationTarget(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
     emit("close");
 }

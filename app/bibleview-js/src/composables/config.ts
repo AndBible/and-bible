@@ -95,7 +95,7 @@ export type Config = {
     showMemorizationIndicators: boolean,
 }
 
-export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_MEMORIZATION_TARGET"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
+export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_MEMORIZATION_TARGET"|"REMOVE_MEMORIZATION_TARGET"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
 export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
 export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 

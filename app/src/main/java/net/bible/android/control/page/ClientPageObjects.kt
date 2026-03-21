@@ -44,6 +44,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
@@ -165,9 +166,12 @@ class BibleDocument(
             val originalVerseRange = originalKey.toVerseRange.toV11n(swordBook.versification)
             json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
         } else "null"
+        val v11n = swordBook.versification
         val kjvRange = verseRange.toV11n(KJVA)
         val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            .map { Verse(KJVA, it).toV11n(v11n).ordinal }
         val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            .map { Verse(KJVA, it).toV11n(v11n).ordinal }
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
@@ -214,6 +218,8 @@ class MemorizeDocument(
     private val bookInitials: String? = null,
     private val startOrdinal: Int = 0,
     private val endOrdinal: Int = 0,
+    private val memorizedOrdinals: List<Int> = emptyList(),
+    private val targetOrdinals: List<Int> = emptyList(),
 ): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
@@ -225,6 +231,8 @@ class MemorizeDocument(
             "bookInitials" to (if (bookInitials != null) wrapString(bookInitials) else "undefined"),
             "startOrdinal" to startOrdinal,
             "endOrdinal" to endOrdinal,
+            "memorizedOrdinals" to json.encodeToString(serializer(), memorizedOrdinals),
+            "targetOrdinals" to json.encodeToString(serializer(), targetOrdinals),
         )
 }
 

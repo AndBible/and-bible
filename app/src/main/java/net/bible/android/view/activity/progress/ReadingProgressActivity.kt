@@ -340,9 +340,15 @@ class ReadingProgressActivity : ActivityBase() {
                 textSize = 18f
                 setPadding(dp8, 0, dp8, 0)
                 setOnClickListener {
-                    ProgressControl.unmarkVerseMemorized(range)
-                    refreshMemorizeTab()
-                    refreshSummary()
+                    AlertDialog.Builder(this@ReadingProgressActivity)
+                        .setMessage(getString(R.string.memorize_confirm_unmark, text))
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            ProgressControl.unmarkVerseMemorized(range)
+                            refreshMemorizeTab()
+                            refreshSummary()
+                        }
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show()
                 }
             })
         }
@@ -370,8 +376,14 @@ class ReadingProgressActivity : ActivityBase() {
                     textSize = 18f
                     setPadding(dp8, 0, dp8, 0)
                     setOnClickListener {
-                        ProgressControl.removeMemorizationTarget(targetId)
-                        refreshMemorizeTab()
+                        AlertDialog.Builder(this@ReadingProgressActivity)
+                            .setMessage(getString(R.string.memorize_confirm_remove_target, text))
+                            .setPositiveButton(android.R.string.ok) { _, _ ->
+                                ProgressControl.removeMemorizationTarget(targetId)
+                                refreshMemorizeTab()
+                            }
+                            .setNegativeButton(android.R.string.cancel, null)
+                            .show()
                     }
                 })
             })

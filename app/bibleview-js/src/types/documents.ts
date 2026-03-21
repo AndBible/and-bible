@@ -160,6 +160,8 @@ export interface MemorizeDocument extends BaseDocument{
     bookInitials?: string
     startOrdinal?: number
     endOrdinal?: number
+    memorizedOrdinals?: number[]
+    targetOrdinals?: number[]
 }
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {

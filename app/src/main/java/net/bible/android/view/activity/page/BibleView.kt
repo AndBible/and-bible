@@ -88,6 +88,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.MemorizeDocument
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.ClientGenericBookmark
@@ -1751,11 +1752,24 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: MemorizationDataChangedEvent) {
-        if (firstDocument !is BibleDocument) return
-        val addedMemorized = json.encodeToString(serializer(), event.addedMemorized)
-        val removedMemorized = json.encodeToString(serializer(), event.removedMemorized)
-        val addedTargets = json.encodeToString(serializer(), event.addedTargets)
-        val removedTargets = json.encodeToString(serializer(), event.removedTargets)
+        val doc = firstDocument
+        if (doc !is BibleDocument && doc !is MemorizeDocument) return
+
+        // Convert KJV ordinals to document versification for BibleDocument
+        val v11n = if (doc is BibleDocument) doc.swordBook.versification else null
+        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+            val converted = if (v11n != null) {
+                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
+            } else {
+                kjvOrdinals
+            }
+            return json.encodeToString(serializer(), converted)
+        }
+
+        val addedMemorized = convertOrdinals(event.addedMemorized)
+        val removedMemorized = convertOrdinals(event.removedMemorized)
+        val addedTargets = convertOrdinals(event.addedTargets)
+        val removedTargets = convertOrdinals(event.removedTargets)
         executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
             addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
             addedTargets: $addedTargets, removedTargets: $removedTargets

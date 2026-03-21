@@ -113,8 +113,11 @@ type TranslatedStrings = {
     verseMemorizeLong: string
     addMemorizationTarget: string
     addMemorizationTargetLong: string
+    removeMemorizationTarget: string
+    removeMemorizationTargetLong: string
     markAsMemorized: string
     markedAsMemorized: string
+    removeFromTargets: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string

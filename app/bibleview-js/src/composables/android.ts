@@ -81,6 +81,7 @@ export type BibleJavascriptInterface = {
     memorizeCompleted: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     unmarkMemorized: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
@@ -434,6 +435,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.unmarkMemorized(bookInitials, startOrdinal, endOrdinal);
     }
 
+    function removeMemorizationTarget(bookInitials: string, startOrdinal: number, endOrdinal: number) {
+        window.android.removeMemorizationTarget(bookInitials, startOrdinal, endOrdinal);
+    }
+
     function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string = "MANUAL") {
         window.android.markChapterRead(bookInitials, startOrdinal, chapter, source);
     }
@@ -666,6 +671,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         memorizeCompleted,
         addMemorizationTarget,
         unmarkMemorized,
+        removeMemorizationTarget,
         markChapterRead,
         speak,
         speakGeneric,
