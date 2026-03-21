@@ -1,0 +1,18 @@
+- Added LLM tools for window management (2981043)
+- Added LLM tools for bookmark and label management (b008533)
+- Added category-based grouping to LLM tool permission screens (45ca45e)
+- Fixed category toggle checkbox styling (ea24ba1)
+- Fixed OsisToPlainText URI encoding for reference links (a2978a2)
+- Reading & Memorization tracking
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
