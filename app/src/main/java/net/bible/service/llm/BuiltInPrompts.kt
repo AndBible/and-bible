@@ -64,6 +64,7 @@ object BuiltInPrompts {
     val TEST_STUDYPAD_READ_MODES_ID = stableId("test-studypad-read-modes")
     val TEST_REGENERATE_ID = stableId("test-regenerate")
     val TEST_CAPITALIZE_ID = stableId("test-capitalize")
+    val TEST_MY_DOCUMENTS_ID = stableId("test-my-documents")
 
     private fun getUiLanguageName(): String {
         val locale = Locale.getDefault()
@@ -403,6 +404,24 @@ object BuiltInPrompts {
                     Example: "In the beginning God created" → "IN the beginning God created"
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            AgentPrompt(
+                id = TEST_MY_DOCUMENTS_ID,
+                name = "\uD83E\uDDEA Test: MyDocuments",
+                description = "Test MyDocument CRUD operations",
+                promptTemplate = """
+                    This is a test prompt for MyDocuments tools. Please:
+                    1. Use getMyDocuments to list all document books (note the AI Documents book details)
+                    2. Add a new page to the AI Documents book using addMyDocumentPage with a brief note about the selected verses
+                    3. Use getMyDocumentPages with initials='AIDocuments' to verify the page was created
+                    4. Edit the page title using editMyDocumentPage
+                    5. Call finishWithoutDocument with a summary of what you did
+
+                    This is an action-only task — use finishWithoutDocument to end.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
             ),
         )

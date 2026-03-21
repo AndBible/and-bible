@@ -501,10 +501,10 @@ class AgentExecutor(
             ))
         }
 
-        // Permission check for write tools
+        // Permission check for write tools (dynamic per-invocation check)
         var grantSession = false
         var grantAllTools = false
-        if (tool.requiresPermission) {
+        if (tool.requiresPermissionForCall(arguments, context)) {
             when (checkWritePermission(tool, arguments, context)) {
                 DialogResult.Allowed -> { /* proceed */ }
                 DialogResult.AllowedForSession -> { grantSession = true }

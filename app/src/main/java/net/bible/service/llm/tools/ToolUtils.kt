@@ -17,7 +17,10 @@
 
 package net.bible.service.llm.tools
 
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.mydocument.MyDocument
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.llmJson
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.json.JSONArray
@@ -107,3 +110,20 @@ fun localizeVerseRef(osisRef: String): String = try {
  * Shorten a UUID string for display (first 8 chars).
  */
 fun shortId(id: String): String = if (id.length > 8) id.take(8) + "..." else id
+
+/**
+ * Resolve a MyDocument by ID or initials.
+ * Tries documentId first, then falls back to initials lookup.
+ *
+ * @return The resolved MyDocument, or null if neither identifier matches
+ */
+fun resolveMyDocument(documentId: IdType?, initials: String?): MyDocument? {
+    val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+    if (documentId != null && !documentId.isEmpty) {
+        return dao.documentById(documentId)
+    }
+    if (!initials.isNullOrBlank()) {
+        return dao.documentByInitials(initials)
+    }
+    return null
+}

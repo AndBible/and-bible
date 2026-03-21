@@ -30,10 +30,17 @@ import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
+import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
+import net.bible.service.llm.tools.read.GetMyDocumentsTool
+import net.bible.service.llm.tools.read.GetMyDocumentPagesTool
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.json.JSONObject
 import org.junit.After
@@ -722,5 +729,456 @@ class ToolIntegrationTest {
         )
         val queryData = (queryResult as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
         assertEquals(1, queryData.bookmarkCount)
+    }
+
+    // === MyDocuments: GetMyDocuments ===
+
+    @Test
+    fun getMyDocuments_emptyInitially() = runBlocking {
+        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
+        // May have 0 or more documents depending on initial state
+        assertNotNull(data.documents)
+        assertEquals(data.documents.size, data.documentCount)
+    }
+
+    @Test
+    fun getMyDocuments_showsAiDocument() = runBlocking {
+        // Ensure AI Documents book exists
+        MyDocumentBookManager.getOrCreateAIDocument()
+
+        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
+
+        assertTrue(data.documentCount >= 1)
+        assertNotNull(data.aiDocumentId)
+        assertEquals("AIDocuments", data.aiDocumentInitials)
+
+        val aiDoc = data.documents.find { it.isAIDocument }
+        assertNotNull("AI Documents should be in the list", aiDoc)
+        assertEquals("AIDocuments", aiDoc!!.initials)
+    }
+
+    // === MyDocuments: CreateMyDocument ===
+
+    @Test
+    fun createMyDocument_success() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Test Study Notes")
+            put("description", "Notes on Romans")
+        }
+        val result = CreateMyDocumentTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateMyDocumentTool.Result
+        assertEquals("Test Study Notes", data.name)
+        assertEquals("Notes on Romans", data.description)
+        assertTrue(data.initials.startsWith("MyDoc_"))
+
+        // Verify it appears in document list
+        val listResult = GetMyDocumentsTool.execute(JSONObject(), context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentsTool.Result
+        assertTrue(listData.documents.any { it.id == data.id })
+    }
+
+    @Test
+    fun createMyDocument_missingName() = runBlocking {
+        val result = CreateMyDocumentTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    // === MyDocuments: AddMyDocumentPage ===
+
+    @Test
+    fun addMyDocumentPage_toAiDocuments() = runBlocking {
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Test Page")
+            put("content", "# Hello World\n\nThis is a test page.")
+        }
+        val result = AddMyDocumentPageTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as AddMyDocumentPageTool.Result
+        assertEquals("Test Page", data.title)
+        assertEquals("AIDocuments", data.initials)
+        assertEquals("MARKDOWN", data.contentType)
+        assertTrue(data.pageKey.startsWith("page_"))
+    }
+
+    @Test
+    fun addMyDocumentPage_toCustomDocument() = runBlocking {
+        // Create document first
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Custom Doc")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        // Add page
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("documentId", docData.id.toString())
+            put("title", "Chapter 1")
+            put("content", "Content here")
+        }, context)
+        assertTrue(pageResult is ToolResult.Success)
+
+        val pageData = (pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result
+        assertEquals(docData.id, pageData.documentId)
+        assertEquals("Chapter 1", pageData.title)
+    }
+
+    @Test
+    fun addMyDocumentPage_normalizesLlmText() = runBlocking {
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Normalize Test")
+            put("content", "Line1\\nLine2\\tTabbed")
+        }
+        val result = AddMyDocumentPageTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val pageId = ((result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val content = dao.getContent(pageId)
+        assertEquals("Line1\nLine2\tTabbed", content)
+    }
+
+    @Test
+    fun addMyDocumentPage_missingTitle() = runBlocking {
+        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("content", "Some content")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun addMyDocumentPage_documentNotFound() = runBlocking {
+        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("documentId", IdType().toString())
+            put("title", "Title")
+            put("content", "Content")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("DOCUMENT_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: GetMyDocumentPages ===
+
+    @Test
+    fun getMyDocumentPages_withoutContent() = runBlocking {
+        // Create doc with pages
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Pages Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page A")
+            put("content", "Content A")
+        }, context)
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page B")
+            put("content", "Content B")
+        }, context)
+
+        // List without content
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+        }, context)
+        assertTrue(listResult is ToolResult.Success)
+
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(2, listData.pageCount)
+        assertEquals(docData.initials, listData.initials)
+        assertNull("Content should be null without includeContent", listData.pages[0].content)
+        assertEquals("Page A", listData.pages[0].title)
+        assertEquals("Page B", listData.pages[1].title)
+    }
+
+    @Test
+    fun getMyDocumentPages_withContent() = runBlocking {
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Content Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page 1")
+            put("content", "Hello World")
+        }, context)
+
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(1, listData.pageCount)
+        assertEquals("Hello World", listData.pages[0].content)
+    }
+
+    @Test
+    fun getMyDocumentPages_documentNotFound() = runBlocking {
+        val result = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", "NonExistent")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("DOCUMENT_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun getMyDocumentPages_missingIdentifier() = runBlocking {
+        val result = GetMyDocumentPagesTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("MISSING_IDENTIFIER", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: EditMyDocumentPage ===
+
+    @Test
+    fun editMyDocumentPage_updateTitle() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Original Title")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("title", "Updated Title")
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        val editData = (editResult as ToolResult.Success).data as EditMyDocumentPageTool.Result
+        assertEquals("Updated Title", editData.title)
+    }
+
+    @Test
+    fun editMyDocumentPage_updateContent() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Edit Content Test")
+            put("content", "Old content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("content", "New content")
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        // Verify via DB
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        assertEquals("New content", dao.getContent(pageId))
+    }
+
+    @Test
+    fun editMyDocumentPage_updateOrderNumber() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Order Test")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("orderNumber", 5)
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        val editData = (editResult as ToolResult.Success).data as EditMyDocumentPageTool.Result
+        assertEquals(5, editData.orderNumber)
+    }
+
+    @Test
+    fun editMyDocumentPage_pageNotFound() = runBlocking {
+        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", IdType().toString())
+            put("title", "New title")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("PAGE_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun editMyDocumentPage_nothingToUpdate() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "No Update Test")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+        }, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    // === MyDocuments: DeleteMyDocumentPage ===
+
+    @Test
+    fun deleteMyDocumentPage_success() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Delete Me")
+            put("content", "To be deleted")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val deleteResult = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+        }, context)
+        assertTrue(deleteResult is ToolResult.Success)
+
+        val deleteData = (deleteResult as ToolResult.Success).data as DeleteMyDocumentPageTool.Result
+        assertTrue(deleteData.deleted)
+        assertEquals("Delete Me", deleteData.pageTitle)
+
+        // Verify page is gone
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        assertNull(dao.pageById(pageId))
+    }
+
+    @Test
+    fun deleteMyDocumentPage_pageNotFound() = runBlocking {
+        val result = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", IdType().toString())
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("PAGE_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: Permission behavior ===
+
+    @Test
+    fun addMyDocumentPage_noPermissionForAiDocuments() {
+        // Adding to AI Documents should not require permission
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Test")
+            put("content", "Content")
+        }
+        assertFalse(
+            "AI Documents should not require permission",
+            AddMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    @Test
+    fun addMyDocumentPage_requiresPermissionForOtherDocuments() {
+        val args = JSONObject().apply {
+            put("initials", "SomeOtherDoc")
+            put("title", "Test")
+            put("content", "Content")
+        }
+        assertTrue(
+            "Non-AI Documents should require permission",
+            AddMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    @Test
+    fun editMyDocumentPage_noPermissionForSessionPages() = runBlocking {
+        // Add a page (this adds its ID to context.createdPageIds)
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Session Page")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // Edit should not require permission for pages created in this session
+        val editArgs = JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("title", "New Title")
+        }
+        assertFalse(
+            "Session-created pages should not require permission",
+            EditMyDocumentPageTool.requiresPermissionForCall(editArgs, context)
+        )
+    }
+
+    @Test
+    fun editMyDocumentPage_requiresPermissionForOtherPages() {
+        val args = JSONObject().apply {
+            put("pageId", IdType().toString())
+            put("title", "New Title")
+        }
+        assertTrue(
+            "Non-session pages should require permission",
+            EditMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    // === MyDocuments: Full workflow (create doc → add pages → list → edit → delete) ===
+
+    @Test
+    fun myDocuments_fullWorkflow() = runBlocking {
+        // 1. Create document
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Workflow Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        // 2. Add two pages
+        val page1Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Introduction")
+            put("content", "This is the introduction.")
+        }, context)
+        val page1Id = ((page1Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val page2Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Chapter 1")
+            put("content", "This is chapter 1.")
+        }, context)
+        val page2Id = ((page2Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // 3. List pages
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(2, listData.pageCount)
+
+        // 4. Edit first page
+        EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", page1Id.toString())
+            put("title", "Preface")
+            put("content", "Updated introduction content.")
+        }, context)
+
+        // 5. Verify edit
+        val verifyResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val verifyData = (verifyResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        val editedPage = verifyData.pages.find { it.id == page1Id }
+        assertEquals("Preface", editedPage?.title)
+        assertEquals("Updated introduction content.", editedPage?.content)
+
+        // 6. Delete second page
+        DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", page2Id.toString())
+        }, context)
+
+        // 7. Verify deletion
+        val finalResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+        }, context)
+        val finalData = (finalResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(1, finalData.pageCount)
+        assertFalse(finalData.pages.any { it.id == page2Id })
     }
 }
