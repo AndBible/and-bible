@@ -1528,7 +1528,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
-                        autoTrackReading: ${ReadingProgressSettings.autoTrackReading},
                     },
                     initial: $initial,
                     });

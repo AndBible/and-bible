@@ -17,7 +17,7 @@
 
 import {inject, onMounted, onUnmounted, ref, Ref, watch} from "vue";
 import {OrdinalRange} from "@/types/client-objects";
-import {androidKey, appSettingsKey} from "@/types/constants";
+import {androidKey, configKey} from "@/types/constants";
 import {setupEventBusListener} from "@/eventbus";
 
 const COVERAGE_THRESHOLD = 0.9;
@@ -29,7 +29,7 @@ export function useReadingTracker(
     chapterNumber: number,
     initiallyRead: boolean,
 ) {
-    const appSettings = inject(appSettingsKey)!;
+    const config = inject(configKey)!;
     const android = inject(androidKey)!;
 
     const chapterRead = ref(initiallyRead);
@@ -97,7 +97,7 @@ export function useReadingTracker(
         }
     });
 
-    watch(() => appSettings.autoTrackReading, (enabled) => {
+    watch(() => config.autoTrackReading, (enabled) => {
         if (enabled && !autoTrackDone) {
             setupObserver();
         } else {
@@ -106,7 +106,7 @@ export function useReadingTracker(
     });
 
     onMounted(() => {
-        if (appSettings.autoTrackReading && !autoTrackDone) {
+        if (config.autoTrackReading && !autoTrackDone) {
             setupObserver();
         }
     });

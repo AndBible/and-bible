@@ -139,6 +139,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.MARK_AS_READ_BUTTON -> ItemPreference(settings, Types.MARK_AS_READ_BUTTON)
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)
         Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
+        Types.AUTO_TRACK_READING -> ItemPreference(settings, Types.AUTO_TRACK_READING)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -156,6 +157,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         if (!CommonUtils.settings.readingAndMemorizationEnabled) {
             findPreference<Preference>(Types.MARK_AS_READ_BUTTON.name)?.isVisible = false
             findPreference<Preference>(Types.MEMORIZATION_INDICATORS.name)?.isVisible = false
+            findPreference<Preference>(Types.AUTO_TRACK_READING.name)?.isVisible = false
         }
     }
 

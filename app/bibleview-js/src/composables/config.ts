@@ -93,6 +93,7 @@ export type Config = {
     showMarkAsReadButton: boolean,
     showTitleScrollButton: boolean,
     showMemorizationIndicators: boolean,
+    autoTrackReading: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_MEMORIZATION_TARGET"|"REMOVE_MEMORIZATION_TARGET"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
@@ -130,7 +131,6 @@ export type AppSettings = {
     enabledExperimentalFeatures: Feature[],
     llmConfigured: boolean,
     notesContentType: TextContentType,
-    autoTrackReading: boolean,
 }
 
 export type CalculatedConfig = Ref<{
@@ -195,6 +195,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showMarkAsReadButton: true,
         showTitleScrollButton: false,
         showMemorizationIndicators: false,
+        autoTrackReading: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
@@ -227,7 +228,6 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         enabledExperimentalFeatures: [],
         llmConfigured: false,
         notesContentType: "HTML",
-        autoTrackReading: false,
     });
 
     function calcMmInPx() {
