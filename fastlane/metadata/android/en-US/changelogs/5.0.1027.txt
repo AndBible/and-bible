@@ -1,0 +1,14 @@
+- Commentary response size limit with selection dialog when fetching AI commentaries (e5b9d67cb)
+- Fix touchstart event listener leak that caused scrolling handlers to accumulate (f0c4d301d)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
