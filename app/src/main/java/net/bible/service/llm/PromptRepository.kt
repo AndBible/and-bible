@@ -42,11 +42,28 @@ object PromptRepository {
     }
 
     /**
-     * Returns all prompts: built-in first (filtered by debug mode), then user prompts from DB.
+     * Returns all prompts: built-in first (filtered by debug mode and hidden state),
+     * then user prompts from DB.
      *
      * Test prompts (debugOnly) are excluded when not in debug mode.
+     * Hidden built-in prompts are excluded from all contexts.
      */
     fun allPrompts(): List<AgentPrompt> {
+        val builtIn = if (CommonUtils.isDebugMode) {
+            BuiltInPrompts.allBuiltInPrompts()
+        } else {
+            BuiltInPrompts.productionPrompts()
+        }
+        val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
+        val visibleBuiltIn = builtIn.filter { it.id !in hidden }
+        val userPrompts = dao.allPrompts()
+        return visibleBuiltIn + userPrompts
+    }
+
+    /**
+     * Returns all prompts including hidden ones, for use in settings UI.
+     */
+    fun allPromptsIncludingHidden(): List<AgentPrompt> {
         val builtIn = if (CommonUtils.isDebugMode) {
             BuiltInPrompts.allBuiltInPrompts()
         } else {
@@ -114,4 +131,14 @@ object PromptRepository {
     fun deleteAllUserPrompts() {
         dao.allPrompts().forEach { dao.delete(it) }
     }
+
+    /** Hide a built-in prompt so it doesn't appear in any context. */
+    fun setBuiltInPromptHidden(promptId: IdType, hidden: Boolean) {
+        val current = CommonUtils.aiSettings.hiddenBuiltInPrompts
+        CommonUtils.aiSettings.hiddenBuiltInPrompts = if (hidden) current + promptId else current - promptId
+    }
+
+    /** Check if a built-in prompt is hidden. */
+    fun isBuiltInPromptHidden(promptId: IdType): Boolean =
+        promptId in CommonUtils.aiSettings.hiddenBuiltInPrompts
 }

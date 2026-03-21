@@ -18,6 +18,7 @@
 package net.bible.service.llm.agent
 
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.tools.ToolRegistry
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -54,6 +55,7 @@ class ComputeExcludedToolsTest {
             promptDeniedTools = null,
             promptAllowedTools = setOf(readTool),
         )
+        // Prompt allowlist overrides global deny for tools in the allowlist
         assertFalse(readTool in result)
     }
 
@@ -64,6 +66,7 @@ class ComputeExcludedToolsTest {
             promptDeniedTools = setOf(readTool),
             promptAllowedTools = setOf(readTool),
         )
+        // Prompt allowlist overrides prompt deny
         assertFalse(readTool in result)
     }
 
@@ -74,7 +77,9 @@ class ComputeExcludedToolsTest {
             promptDeniedTools = null,
             promptAllowedTools = setOf(readTool),
         )
+        // readTool is in allowlist so it overrides global deny
         assertFalse(readTool in result)
+        // writeTool is globally denied AND not in allowlist, so it stays excluded
         assertTrue(writeTool in result)
     }
 
@@ -91,12 +96,49 @@ class ComputeExcludedToolsTest {
     }
 
     @Test
-    fun promptAllowed_doesNotAddNewTools() {
-        // promptAllowedTools should only remove from excluded, not add anything
+    fun allowlist_excludesEverythingNotInList() {
+        // When allowedTools is set, all tools NOT in the list are excluded
+        // (except structural tools which are never excluded)
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = null,
             promptAllowedTools = setOf(readTool),
+        )
+        // readTool should NOT be excluded (it's in the allowlist)
+        assertFalse(readTool in result)
+        // Other non-structural tools SHOULD be excluded
+        assertTrue(writeTool in result)
+        assertTrue(anotherReadTool in result)
+        // Structural tools should NOT be excluded
+        for (structural in ToolRegistry.STRUCTURAL_TOOLS) {
+            assertFalse("Structural tool $structural should not be excluded", structural in result)
+        }
+    }
+
+    @Test
+    fun allowlist_empty_excludesAllNonStructural() {
+        // Empty allowlist = no tools allowed (except structural)
+        val result = computeExcludedTools(
+            permanentlyDeniedTools = emptySet(),
+            promptDeniedTools = null,
+            promptAllowedTools = emptySet(),
+        )
+        val nonStructural = AgentTool.entries.toSet() - ToolRegistry.STRUCTURAL_TOOLS
+        for (tool in nonStructural) {
+            assertTrue("Non-structural tool $tool should be excluded", tool in result)
+        }
+        for (structural in ToolRegistry.STRUCTURAL_TOOLS) {
+            assertFalse("Structural tool $structural should not be excluded", structural in result)
+        }
+    }
+
+    @Test
+    fun nullAllowedTools_allToolsAvailable() {
+        // null allowedTools = no allowlist filtering (backwards compatible)
+        val result = computeExcludedTools(
+            permanentlyDeniedTools = emptySet(),
+            promptDeniedTools = null,
+            promptAllowedTools = null,
         )
         assertTrue(result.isEmpty())
     }

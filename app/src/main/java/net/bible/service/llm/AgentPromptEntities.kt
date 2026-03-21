@@ -300,6 +300,7 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val permanentlyDeniedTools: Set<AgentTool>? = null,
     val aiExcludedDocuments: Set<String> = emptySet(),
     @ColumnInfo(defaultValue = "4000") val commentaryMaxResponseTokens: Int = 4000,
+    val hiddenBuiltInPrompts: Set<IdType> = emptySet(),
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */

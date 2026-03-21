@@ -63,8 +63,14 @@ private const val DEFAULT_MAX_ITERATIONS = 10
 /**
  * Computes the set of tools to exclude from LLM tool definitions.
  *
- * Priority: globally denied + per-prompt denied, minus per-prompt allowed (override).
- * This allows per-prompt settings to re-enable globally disabled tools.
+ * When [promptAllowedTools] is set (non-null), only those tools are available to the prompt —
+ * all others are excluded. This prevents new tools from automatically becoming available to
+ * existing prompts. When [promptAllowedTools] is null, all tools are available (minus denied).
+ *
+ * [promptAllowedTools] also overrides [permanentlyDeniedTools] for the tools it contains,
+ * allowing built-in prompts to use tools that the user has globally disabled.
+ *
+ * Structural tools (setDocumentTitle, finishWithStudyPad, etc.) are never excluded.
  */
 fun computeExcludedTools(
     permanentlyDeniedTools: Set<AgentTool>,
@@ -73,8 +79,13 @@ fun computeExcludedTools(
 ): Set<AgentTool> {
     val excluded = mutableSetOf<AgentTool>()
     excluded.addAll(permanentlyDeniedTools)
+    if (promptAllowedTools != null) {
+        excluded.addAll(AgentTool.entries.toSet() - promptAllowedTools)
+    }
     promptDeniedTools?.let { excluded.addAll(it) }
+    // Prompt-level allow overrides global deny for tools in the allowlist
     promptAllowedTools?.let { excluded.removeAll(it) }
+    excluded.removeAll(ToolRegistry.STRUCTURAL_TOOLS)
     return excluded
 }
 

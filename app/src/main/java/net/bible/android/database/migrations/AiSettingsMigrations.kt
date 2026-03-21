@@ -70,4 +70,8 @@ private val setCommentaryTokenDefault = makeMigration(4..5) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings_new` RENAME TO `GlobalAiSettings`")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault)
+private val addHiddenBuiltInPrompts = makeMigration(5..6) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `hiddenBuiltInPrompts` TEXT NOT NULL DEFAULT ''")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts)

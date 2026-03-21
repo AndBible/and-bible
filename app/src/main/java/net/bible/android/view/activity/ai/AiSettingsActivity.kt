@@ -77,6 +77,10 @@ class AiSettingsActivity : ActivityBase() {
         binding.list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
             editPrompt(prompts[position])
         }
+        binding.list.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
+            showPromptContextMenu(prompts[position])
+            true
+        }
     }
 
     override fun onResume() {
@@ -131,6 +135,8 @@ class AiSettingsActivity : ActivityBase() {
         menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
         menu.findItem(R.id.import_prompts_csv)?.isVisible = configured
+        menu.findItem(R.id.restore_hidden_prompts)?.isVisible =
+            configured && CommonUtils.aiSettings.hiddenBuiltInPrompts.isNotEmpty()
         return super.onPrepareOptionsMenu(menu)
     }
 
@@ -150,6 +156,10 @@ class AiSettingsActivity : ActivityBase() {
             }
             R.id.ai_connection_settings -> {
                 startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
+                true
+            }
+            R.id.restore_hidden_prompts -> {
+                restoreHiddenPrompts()
                 true
             }
             R.id.reset_all_ai_settings -> {
@@ -303,6 +313,66 @@ class AiSettingsActivity : ActivityBase() {
                 getString(R.string.prompts_csv_import_failed, e.message),
                 exception = e
             )
+        }
+    }
+
+    private fun showPromptContextMenu(prompt: AgentPrompt) {
+        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+        val items = mutableListOf<Pair<String, () -> Unit>>()
+
+        if (isBuiltIn) {
+            items.add(getString(R.string.ai_hide_prompt) to {
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) {
+                        PromptRepository.setBuiltInPromptHidden(prompt.id, true)
+                    }
+                    Toast.makeText(this@AiSettingsActivity, R.string.ai_prompt_hidden, Toast.LENGTH_SHORT).show()
+                    loadPrompts()
+                }
+            })
+        }
+
+        items.add(getString(R.string.copy) to {
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    PromptRepository.copyPrompt(prompt.id)
+                }
+                loadPrompts()
+            }
+        })
+
+        if (!isBuiltIn) {
+            items.add(getString(R.string.delete) to {
+                AlertDialog.Builder(this)
+                    .setTitle(prompt.name)
+                    .setMessage(R.string.delete_prompt_confirm_message)
+                    .setPositiveButton(R.string.okay) { _, _ ->
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                PromptRepository.deletePrompt(prompt)
+                            }
+                            loadPrompts()
+                        }
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            })
+        }
+
+        val names = items.map { it.first }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle(prompt.name)
+            .setItems(names) { _, which -> items[which].second() }
+            .show()
+    }
+
+    private fun restoreHiddenPrompts() {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                CommonUtils.aiSettings.hiddenBuiltInPrompts = emptySet()
+            }
+            Toast.makeText(this@AiSettingsActivity, R.string.ai_prompts_restored, Toast.LENGTH_SHORT).show()
+            loadPrompts()
         }
     }
 

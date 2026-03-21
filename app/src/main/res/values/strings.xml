@@ -1597,6 +1597,28 @@
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
     <string name="default_prompt_strongs_annotation">Strong\'s number annotation</string>
     <string name="default_prompt_strongs_annotation_desc">Adds Strong\'s concordance numbers to any Bible translation using KJV as reference</string>
+    <string name="default_prompt_cross_references">Cross-references</string>
+    <string name="default_prompt_cross_references_desc">Finds and explains related Bible passages</string>
+    <string name="default_prompt_compare_translations">Compare translations</string>
+    <string name="default_prompt_compare_translations_desc">Shows how different installed translations render the text</string>
+    <string name="default_prompt_thematic_study">Thematic study</string>
+    <string name="default_prompt_thematic_study_desc">Builds a StudyPad with passages and notes on the central theme</string>
+    <string name="default_prompt_devotional">Devotional reflection</string>
+    <string name="default_prompt_devotional_desc">Writes a short devotional with application and prayer</string>
+    <string name="default_prompt_bookmark_annotate">Bookmark &amp; annotate</string>
+    <string name="default_prompt_bookmark_annotate_desc">Creates a bookmark with an AI-generated study note</string>
+    <string name="default_prompt_study_layout">Open study layout</string>
+    <string name="default_prompt_study_layout_desc">Opens commentary and parallel translation windows for study</string>
+    <string name="default_prompt_enhance_note">Enhance note</string>
+    <string name="default_prompt_enhance_note_desc">Enriches your bookmark note with cross-references and commentary</string>
+    <string name="default_prompt_ask_question">Ask a question</string>
+    <string name="default_prompt_ask_question_desc">Ask any question about the selected passage</string>
+    <string name="copy">Copy</string>
+    <string name="delete_prompt_confirm_message">Are you sure you want to delete this prompt?</string>
+    <string name="ai_hide_prompt">Hide</string>
+    <string name="ai_restore_hidden_prompts">Restore hidden prompts</string>
+    <string name="ai_prompt_hidden">Prompt hidden</string>
+    <string name="ai_prompts_restored">Hidden prompts restored</string>
 
     <!-- Agent Tool Display Names -->
     <string name="tool_create_bookmark">Create bookmark</string>
