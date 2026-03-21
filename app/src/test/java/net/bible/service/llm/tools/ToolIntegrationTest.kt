@@ -36,6 +36,7 @@ import net.bible.service.llm.tools.write.CreateLabelTool
 import net.bible.service.llm.tools.write.CreateMyDocumentTool
 import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
 import net.bible.service.llm.tools.write.EditMyDocumentPageTool
+import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import net.bible.service.llm.tools.read.GetMyDocumentsTool
@@ -1180,5 +1181,49 @@ class ToolIntegrationTest {
         val finalData = (finalResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
         assertEquals(1, finalData.pageCount)
         assertFalse(finalData.pages.any { it.id == page2Id })
+    }
+
+    // === FinishWithMyDocumentPage ===
+
+    @Test
+    fun finishWithMyDocumentPage_success() = runBlocking {
+        // Create a page first
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Finish Test Page")
+            put("content", "Some content to show")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // Finish with that page
+        val finishResult = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("message", "Created and opening page")
+        }, context)
+        assertTrue(finishResult is ToolResult.Success)
+
+        val data = (finishResult as ToolResult.Success).data as FinishWithMyDocumentPageTool.Result
+        assertTrue(data.finished)
+        assertEquals("AIDocuments", data.documentInitials)
+        assertTrue(data.pageKey.isNotBlank())
+        assertEquals("Created and opening page", data.message)
+    }
+
+    @Test
+    fun finishWithMyDocumentPage_pageNotFound() = runBlocking {
+        val result = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", IdType().toString())
+            put("message", "Test")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("PAGE_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun finishWithMyDocumentPage_missingPageId() = runBlocking {
+        val result = FinishWithMyDocumentPageTool.execute(JSONObject().apply {
+            put("message", "Test")
+        }, context)
+        assertTrue(result is ToolResult.Error)
     }
 }

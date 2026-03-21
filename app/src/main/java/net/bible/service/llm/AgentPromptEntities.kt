@@ -64,6 +64,7 @@ enum class AgentTool {
     DELETE_MY_DOCUMENT_PAGE,
     SET_DOCUMENT_TITLE,
     FINISH_WITH_STUDY_PAD,
+    FINISH_WITH_MY_DOCUMENT_PAGE,
     FINISH_WITHOUT_DOCUMENT;
 
     /** camelCase name used in LLM function calling (e.g. GET_VERSE_CONTENT -> "getVerseContent") */

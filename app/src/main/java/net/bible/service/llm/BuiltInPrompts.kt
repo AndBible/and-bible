@@ -409,17 +409,15 @@ object BuiltInPrompts {
 
             AgentPrompt(
                 id = TEST_MY_DOCUMENTS_ID,
-                name = "\uD83E\uDDEA Test: MyDocuments",
-                description = "Test MyDocument CRUD operations",
+                name = "\uD83E\uDDEA Test: My Documents",
+                description = "Test My Documents CRUD operations",
                 promptTemplate = """
-                    This is a test prompt for MyDocuments tools. Please:
+                    This is a test prompt for My Documents tools. Please:
                     1. Use getMyDocuments to list all document books (note the AI Documents book details)
                     2. Add a new page to the AI Documents book using addMyDocumentPage with a brief note about the selected verses
                     3. Use getMyDocumentPages with initials='AIDocuments' to verify the page was created
                     4. Edit the page title using editMyDocumentPage
-                    5. Call finishWithoutDocument with a summary of what you did
-
-                    This is an action-only task — use finishWithoutDocument to end.
+                    5. Call finishWithMyDocumentPage with the page ID to open the created page
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,

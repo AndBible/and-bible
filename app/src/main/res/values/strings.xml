@@ -1566,6 +1566,7 @@
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
+    <string name="tool_finish_with_my_document_page">Open My Document page</string>
     <string name="tool_finish_without_document">Finish without document</string>
     <string name="tool_get_verse_content">Read verse content</string>
     <string name="tool_get_commentaries">Read commentaries</string>
@@ -1606,6 +1607,7 @@
     <string name="action_delete_my_document_page">Delete My Document page: \"%1$s\"</string>
     <string name="action_set_document_title">Set document title: \"%1$s\"</string>
     <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
+    <string name="action_open_my_document_page">Open My Document page \"%1$s\"</string>
     <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
