@@ -17,6 +17,7 @@
 
 package net.bible.android.database.progress
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.Index
@@ -74,3 +75,14 @@ data class ChapterReadingRecord(
     val readAt: Long = System.currentTimeMillis(),
     val source: ReadingSource = ReadingSource.MANUAL,
 )
+
+@Entity
+data class GlobalReadingProgressSettings(
+    @PrimaryKey val id: IdType = SINGLETON_ID,
+    @ColumnInfo(defaultValue = "0") val autoTrackReading: Boolean = false,
+    @ColumnInfo(defaultValue = "1") val autoMarkMemorized: Boolean = true,
+) {
+    companion object {
+        val SINGLETON_ID = IdType.fromString("b2000000-0000-0000-0000-000000000001")
+    }
+}

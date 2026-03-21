@@ -127,6 +127,7 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "MemorizedVerse"),
             Table(tableName = "ChapterReadingRecord"),
             Table(tableName = "MemorizationTarget"),
+            Table(tableName = "GlobalReadingProgressSettings"),
         )
     }
 

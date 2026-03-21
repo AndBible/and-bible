@@ -25,13 +25,14 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.database.SyncStatus
 import net.bible.android.database.SyncableRoomDatabase
 
-const val PROGRESS_DATABASE_VERSION = 2
+const val PROGRESS_DATABASE_VERSION = 3
 
 @Database(
     entities = [
         MemorizedVerse::class,
         ChapterReadingRecord::class,
         MemorizationTarget::class,
+        GlobalReadingProgressSettings::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -41,6 +42,7 @@ const val PROGRESS_DATABASE_VERSION = 2
 @TypeConverters(Converters::class)
 abstract class ProgressDatabase : SyncableRoomDatabase() {
     abstract fun progressDao(): ProgressDao
+    abstract fun globalReadingProgressSettingsDao(): GlobalReadingProgressSettingsDao
 
     companion object {
         const val dbFileName = "progress.sqlite3"

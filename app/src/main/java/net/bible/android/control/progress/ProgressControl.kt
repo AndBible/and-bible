@@ -22,7 +22,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.database.progress.ChapterReadingRecord
 import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizationTarget
@@ -80,8 +80,8 @@ object ProgressControl {
     private val dao get() = DatabaseContainer.instance.progressDb.progressDao()
 
     var autoMarkMemorized: Boolean
-        get() = CommonUtils.settings.getBoolean("auto_mark_memorized", true)
-        set(value) = CommonUtils.settings.setBoolean("auto_mark_memorized", value)
+        get() = ReadingProgressSettings.autoMarkMemorized
+        set(value) { ReadingProgressSettings.autoMarkMemorized = value }
 
     fun markVerseMemorized(verseRange: VerseRange) {
         val kjvRange = verseRange.toV11n(KJVA)

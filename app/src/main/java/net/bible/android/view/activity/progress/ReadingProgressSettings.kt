@@ -24,22 +24,20 @@ import androidx.preference.PreferenceFragmentCompat
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsDialogBinding
 import net.bible.android.view.activity.base.ActivityBase
-import net.bible.service.common.CommonUtils
+import net.bible.service.common.ReadingProgressSettings
 
 class ReadingProgressSettingsDataStore : PreferenceDataStore() {
-    private val prefs = CommonUtils.settings
-
     override fun putBoolean(key: String?, value: Boolean) {
         when (key) {
-            "auto_track_reading" -> prefs.setBoolean("auto_track_reading", value)
-            "auto_mark_memorized" -> prefs.setBoolean("auto_mark_memorized", value)
+            "auto_track_reading" -> ReadingProgressSettings.autoTrackReading = value
+            "auto_mark_memorized" -> ReadingProgressSettings.autoMarkMemorized = value
         }
     }
 
     override fun getBoolean(key: String?, defValue: Boolean): Boolean {
         return when (key) {
-            "auto_track_reading" -> prefs.getBoolean("auto_track_reading", false)
-            "auto_mark_memorized" -> prefs.getBoolean("auto_mark_memorized", true)
+            "auto_track_reading" -> ReadingProgressSettings.autoTrackReading
+            "auto_mark_memorized" -> ReadingProgressSettings.autoMarkMemorized
             else -> defValue
         }
     }

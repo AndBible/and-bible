@@ -30,4 +30,14 @@ private val addMemorizationTarget = makeMigration(1..2) { db ->
     """)
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget)
+private val addGlobalReadingProgressSettings = makeMigration(2..3) { db ->
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS GlobalReadingProgressSettings (
+            id BLOB NOT NULL PRIMARY KEY,
+            autoTrackReading INTEGER NOT NULL DEFAULT 0,
+            autoMarkMemorized INTEGER NOT NULL DEFAULT 1
+        )
+    """)
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings)

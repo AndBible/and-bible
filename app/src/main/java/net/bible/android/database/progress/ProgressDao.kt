@@ -108,3 +108,12 @@ interface ProgressDao {
     @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count FROM ChapterReadingRecord WHERE readAt >= :startMs AND readAt <= :endMs GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
     fun getReadingCalendar(startMs: Long, endMs: Long): List<DailyReadingCount>
 }
+
+@Dao
+interface GlobalReadingProgressSettingsDao {
+    @Query("SELECT * FROM GlobalReadingProgressSettings LIMIT 1")
+    fun get(): GlobalReadingProgressSettings?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun set(settings: GlobalReadingProgressSettings)
+}

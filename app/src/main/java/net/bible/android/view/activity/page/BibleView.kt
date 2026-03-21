@@ -135,6 +135,7 @@ import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -1518,7 +1519,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
-                        autoTrackReading: ${CommonUtils.settings.getBoolean("auto_track_reading", false)},
+                        autoTrackReading: ${ReadingProgressSettings.autoTrackReading},
                     },
                     initial: $initial,
                     });
