@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.OsisToPlainText
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.tools.AiDocumentFilter
@@ -50,6 +51,9 @@ object GetDictionaryEntryTool : Tool {
         val key: String = "",
         val format: ContentFormat = ContentFormat.TEXT
     )
+
+    @Serializable
+    data class Result(val dictionary: String, val dictionaryName: String, val key: String, val linkUrl: String, val text: String? = null, val osisXml: String? = null)
 
     override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
     override val displayNameResId = R.string.tool_get_dictionary_entry
@@ -139,17 +143,23 @@ object GetDictionaryEntryTool : Tool {
                 else -> "sword://$dictionaryInitials/$key"
             }
 
-            ToolResult.success {
-                put("dictionary", dictionaryInitials)
-                put("dictionaryName", dictionary.name)
-                put("key", key)
-                put("linkUrl", linkUrl)
-                if (args.format == ContentFormat.XML) {
-                    val outputter = XMLOutputter(Format.getRawFormat())
-                    put("osisXml", outputter.outputString(fragment))
-                } else {
-                    put("text", OsisToPlainText.convert(fragment))
-                }
+            if (args.format == ContentFormat.XML) {
+                val outputter = XMLOutputter(Format.getRawFormat())
+                typedSuccess(Result(
+                    dictionary = dictionaryInitials,
+                    dictionaryName = dictionary.name,
+                    key = key,
+                    linkUrl = linkUrl,
+                    osisXml = outputter.outputString(fragment)
+                ))
+            } else {
+                typedSuccess(Result(
+                    dictionary = dictionaryInitials,
+                    dictionaryName = dictionary.name,
+                    key = key,
+                    linkUrl = linkUrl,
+                    text = OsisToPlainText.convert(fragment)
+                ))
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to read dictionary entry: ${e.message}", "READ_ERROR")

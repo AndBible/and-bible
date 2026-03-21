@@ -1619,6 +1619,9 @@
     <string name="commentary_filter_dialog_message">Token limit (~%s) exceeded. Deselect commentaries you don\'t want to send to the AI.</string>
     <string name="commentary_filter_total_tokens">Selected: ~%1$s / %2$s tokens</string>
     <string name="tool_log_commentary_count">%d commentaries</string>
+    <string name="tool_log_label_count">%d labels</string>
+    <string name="tool_log_document_count">%d documents</string>
+    <string name="tool_log_study_pad_count">%d study pads</string>
     <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
     <string name="ai_document_filter_title">Document access</string>
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>

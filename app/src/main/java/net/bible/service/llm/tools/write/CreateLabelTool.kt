@@ -26,6 +26,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -41,6 +42,9 @@ object CreateLabelTool : Tool {
         val name: String = "",
         val color: Int = 0
     )
+
+    @Serializable
+    data class Result(val id: String, val name: String, val color: Int)
 
     override val agentTool = AgentTool.CREATE_LABEL
 
@@ -78,9 +82,8 @@ object CreateLabelTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        return data.optString("name", "").takeIf { it.isNotBlank() }?.let { "\"$it\"" }
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return (result.data as Result).name.takeIf { it.isNotBlank() }?.let { "\"$it\"" }
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -111,11 +114,11 @@ object CreateLabelTool : Tool {
             )
             val savedLabel = bookmarkControl.insertOrUpdateLabel(label)
 
-            ToolResult.success {
-                put("id", savedLabel.id.toString())
-                put("name", savedLabel.name)
-                put("color", savedLabel.color)
-            }
+            typedSuccess(Result(
+                id = savedLabel.id.toString(),
+                name = savedLabel.name,
+                color = savedLabel.color
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to create label: ${e.message}", "CREATE_ERROR")
         }

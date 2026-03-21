@@ -17,14 +17,16 @@
 
 package net.bible.service.llm.tools.read
 
+import kotlinx.serialization.Serializable
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
-import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -33,6 +35,12 @@ import org.json.JSONObject
  * Labels are used to organize bookmarks and create StudyPads.
  */
 object GetAllLabelsTool : Tool {
+    @Serializable
+    data class LabelInfo(val id: String, val name: String, val color: Int, val isFavourite: Boolean)
+
+    @Serializable
+    data class Result(val labelCount: Int, val labels: List<LabelInfo>)
+
     override val agentTool = AgentTool.GET_ALL_LABELS
     override val displayNameResId = R.string.tool_get_all_labels
 
@@ -50,33 +58,19 @@ object GetAllLabelsTool : Tool {
     private val dao get() = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val count = data.optInt("labelCount", -1)
-        return if (count >= 0) "$count labels" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return application.getString(R.string.tool_log_label_count, (result.data as Result).labelCount)
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
         return try {
             val labels = dao.allLabelsSortedByName()
 
-            val results = JSONArray()
-            for (label in labels) {
-                // Skip special system labels
-                if (label.isSpecialLabel) continue
+            val results = labels
+                .filter { !it.isSpecialLabel }
+                .map { LabelInfo(it.id.toString(), it.name, it.color, it.favourite) }
 
-                results.put(JSONObject().apply {
-                    put("id", label.id.toString())
-                    put("name", label.name)
-                    put("color", label.color)
-                    put("isFavourite", label.favourite)
-                })
-            }
-
-            ToolResult.success {
-                put("labelCount", results.length())
-                put("labels", results)
-            }
+            typedSuccess(Result(labelCount = results.size, labels = results))
         } catch (e: Exception) {
             ToolResult.error("Failed to get labels: ${e.message}", "READ_ERROR")
         }

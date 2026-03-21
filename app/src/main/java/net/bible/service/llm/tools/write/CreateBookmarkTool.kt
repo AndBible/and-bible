@@ -31,6 +31,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.crosswire.jsword.book.Books
@@ -57,6 +58,9 @@ object CreateBookmarkTool : Tool {
         val startOffset: Int? = null,
         val endOffset: Int? = null
     )
+
+    @Serializable
+    data class Result(val id: String, val verseRef: String, val verseName: String, val hasNote: Boolean, val labelCount: Int)
 
     override val agentTool = AgentTool.CREATE_BOOKMARK
 
@@ -131,9 +135,8 @@ object CreateBookmarkTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        return data.optString("verseName", "").takeIf { it.isNotBlank() }
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return (result.data as Result).verseName.takeIf { it.isNotBlank() }
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -196,13 +199,13 @@ object CreateBookmarkTool : Tool {
                 updateNotes = true
             )
 
-            ToolResult.success {
-                put("id", savedBookmark.id.toString())
-                put("verseRef", verseRange.osisRef)
-                put("verseName", verseRange.name)
-                put("hasNote", note != null)
-                put("labelCount", labelIds?.size ?: 0)
-            }
+            typedSuccess(Result(
+                id = savedBookmark.id.toString(),
+                verseRef = verseRange.osisRef,
+                verseName = verseRange.name,
+                hasNote = note != null,
+                labelCount = labelIds.size
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to create bookmark: ${e.message}", "CREATE_ERROR")
         }

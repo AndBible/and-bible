@@ -26,6 +26,7 @@ import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.OsisToPlainText
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.tools.AiDocumentFilter
@@ -49,6 +50,9 @@ object GetVerseContentTool : Tool {
         val verseRef: String = "",
         val format: ContentFormat = ContentFormat.TEXT
     )
+
+    @Serializable
+    data class Result(val book: String, val verseRef: String, val text: String? = null, val osisXml: String? = null)
 
     override val agentTool = AgentTool.GET_VERSE_CONTENT
     override val displayNameResId = R.string.tool_get_verse_content
@@ -117,15 +121,19 @@ object GetVerseContentTool : Tool {
             val key = PassageKeyFactory.instance().getKey(v11n, verseRef)
             val fragment = SwordContentFacade.readOsisFragment(book, key)
 
-            ToolResult.success {
-                put("book", bookInitials)
-                put("verseRef", verseRef)
-                if (args.format == ContentFormat.XML) {
-                    val outputter = XMLOutputter(Format.getRawFormat())
-                    put("osisXml", outputter.outputString(fragment))
-                } else {
-                    put("text", OsisToPlainText.convert(fragment))
-                }
+            if (args.format == ContentFormat.XML) {
+                val outputter = XMLOutputter(Format.getRawFormat())
+                typedSuccess(Result(
+                    book = bookInitials,
+                    verseRef = verseRef,
+                    osisXml = outputter.outputString(fragment)
+                ))
+            } else {
+                typedSuccess(Result(
+                    book = bookInitials,
+                    verseRef = verseRef,
+                    text = OsisToPlainText.convert(fragment)
+                ))
             }
         } catch (e: Exception) {
             ToolResult.error("Failed to read verse content: ${e.message}", "READ_ERROR")

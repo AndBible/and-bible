@@ -18,15 +18,16 @@
 package net.bible.service.llm.tools.read
 
 import net.bible.android.BibleApplication
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -37,6 +38,15 @@ import org.json.JSONObject
 object SearchStudyPadsTool : Tool {
     @Serializable
     data class Args(val query: String = "")
+
+    @Serializable
+    data class MatchInfo(val entryId: String, val entryType: String, val textSnippet: String)
+
+    @Serializable
+    data class StudyPadMatch(val labelId: String, val labelName: String, val matchCount: Int, val matches: List<MatchInfo>)
+
+    @Serializable
+    data class Result(val query: String, val studyPadCount: Int, val results: List<StudyPadMatch>)
 
     override val agentTool = AgentTool.SEARCH_STUDY_PADS
     override val displayNameResId = R.string.tool_search_study_pads
@@ -64,10 +74,8 @@ object SearchStudyPadsTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val count = data.optInt("studyPadCount", -1)
-        return if (count >= 0) "$count study pads" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return application.getString(R.string.tool_log_study_pad_count, (result.data as Result).studyPadCount)
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -85,30 +93,16 @@ object SearchStudyPadsTool : Tool {
         return try {
             val searchResults = bookmarkControl.searchStudyPadsByContent(query)
 
-            val results = JSONArray()
-            for (result in searchResults) {
-                val matchesArray = JSONArray()
-                for (match in result.matches) {
-                    matchesArray.put(JSONObject().apply {
-                        put("entryId", match.entryId.toString())
-                        put("entryType", match.entryType.name)
-                        put("textSnippet", match.textSnippet)
-                    })
-                }
-
-                results.put(JSONObject().apply {
-                    put("labelId", result.label.id.toString())
-                    put("labelName", result.label.name)
-                    put("matchCount", result.matchCount)
-                    put("matches", matchesArray)
-                })
+            val results = searchResults.map { sr ->
+                StudyPadMatch(
+                    labelId = sr.label.id.toString(),
+                    labelName = sr.label.name,
+                    matchCount = sr.matchCount,
+                    matches = sr.matches.map { m -> MatchInfo(m.entryId.toString(), m.entryType.name, m.textSnippet) }
+                )
             }
 
-            ToolResult.success {
-                put("query", query)
-                put("studyPadCount", results.length())
-                put("results", results)
-            }
+            typedSuccess(Result(query = query, studyPadCount = results.size, results = results))
         } catch (e: Exception) {
             ToolResult.error("Search failed: ${e.message}", "SEARCH_ERROR")
         }

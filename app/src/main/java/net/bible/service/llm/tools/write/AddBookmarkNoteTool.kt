@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -43,6 +44,9 @@ object AddBookmarkNoteTool : Tool {
         val bookmarkId: IdType = IdType.empty(),
         val note: String = "",
         val contentType: TextContentType = TextContentType.MARKDOWN)
+
+    @Serializable
+    data class Result(val bookmarkId: String, val noteLength: Int, val contentType: String)
 
     override val agentTool = AgentTool.ADD_BOOKMARK_NOTE
 
@@ -126,11 +130,11 @@ object AddBookmarkNoteTool : Tool {
             // Save using BookmarkControl (sends UI events)
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
 
-            ToolResult.success {
-                put("bookmarkId", args.bookmarkId.toString())
-                put("noteLength", note.length)
-                put("contentType", args.contentType.name)
-            }
+            typedSuccess(Result(
+                bookmarkId = args.bookmarkId.toString(),
+                noteLength = note.length,
+                contentType = args.contentType.name
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to add note: ${e.message}", "ADD_ERROR")
         }
