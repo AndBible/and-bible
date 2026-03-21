@@ -1,0 +1,16 @@
+- Make AI agent max iterations configurable with continue dialog when limit is reached; set 0 for unlimited (75763662f)
+- Document Lucene query syntax in SearchBibleTool description to help LLM agent use advanced search features (94a2a184c)
+- Show raw LLM log link when AI execution encounters errors or is cancelled (a8cbc4aa7)
+- Close note editor when AI button is pressed to display updated note content (b1f4511c8)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
