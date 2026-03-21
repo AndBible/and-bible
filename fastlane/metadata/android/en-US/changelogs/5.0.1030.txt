@@ -1,0 +1,23 @@
+# Changelog
+
+## New Features
+- AI button in note editors for LLM-assisted note enhancement (5a054b029)
+- 8 new built-in prompts with hide/restore and management UI (1d9c3b196)
+
+## Improvements
+- "Specify before run" interface for custom prompts and Custom Prompt builtin (447b23be3)
+- Per-window and workspace-level auto-reading-tracking settings (96d2ad5ce)
+- Improved existing prompts with better templates (1d9c3b196)
+- Prevent unexpectedly large commentary responses to LLM (cec9ccd95)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
