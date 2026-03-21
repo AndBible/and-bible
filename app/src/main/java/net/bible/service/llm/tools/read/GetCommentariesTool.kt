@@ -17,7 +17,17 @@
 
 package net.bible.service.llm.tools.read
 
+import android.app.AlertDialog
+import android.content.Context
+import android.view.LayoutInflater
+import net.bible.android.activity.databinding.DialogCommentaryFilterBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
+import net.bible.android.view.activity.base.CurrentActivityHolder
+import net.bible.service.common.CommonUtils
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
@@ -220,11 +230,168 @@ object GetCommentariesTool : Tool {
             }
         }
 
+        val filterResult = filterByResponseSizeLimit(commentaryResults)
+            ?: return ToolResult.error("User cancelled commentary selection", "USER_CANCELLED")
+
         return ToolResult.success {
             put("verseRef", verseRef)
-            put("commentaryCount", commentaryResults.length())
-            put("commentaries", commentaryResults)
+            put("commentaryCount", filterResult.results.length())
+            put("commentaries", filterResult.results)
+            if (filterResult.excludedCommentaries.isNotEmpty()) {
+                put("note", "The user chose to exclude the following commentaries from this response " +
+                    "to save context space. Do NOT re-fetch them individually: " +
+                    filterResult.excludedCommentaries.joinToString(", "))
+            }
         }
+    }
+
+    /**
+     * If commentaryMaxResponseChars is set and the total response exceeds it,
+     * shows a selection dialog so the user can choose which commentaries to include.
+     * Returns the original array if no limit is set, limit is not exceeded, or user cancels.
+     */
+    private data class CommentaryInfo(
+        val index: Int,
+        val initials: String,
+        val name: String,
+        val verseRanges: String,
+        val sizeChars: Int
+    )
+
+    private data class FilterResult(
+        val results: JSONArray,
+        val excludedCommentaries: List<String>
+    )
+
+    /** Approximate token count from character count (rough average: 1 token ≈ 4 chars). */
+    private fun estimateTokens(chars: Int): Int = (chars / 4).coerceAtLeast(1)
+
+    /** Extract verse ranges covered by a commentary result object. */
+    private fun extractVerseRanges(commentaryObj: JSONObject): String {
+        val entries = commentaryObj.optJSONArray("entries") ?: return ""
+        val ranges = (0 until entries.length()).mapNotNull { i ->
+            entries.getJSONObject(i).optString("verseRange", "").takeIf { it.isNotBlank() }
+        }
+        return when {
+            ranges.isEmpty() -> ""
+            ranges.size == 1 -> ranges[0]
+            else -> "${ranges.first()}–${ranges.last()}"
+        }
+    }
+
+    /**
+     * If commentaryMaxResponseChars is set and the total response exceeds it,
+     * shows a selection dialog so the user can choose which commentaries to include.
+     * Returns null if the user cancels (meaning: abort the tool call entirely).
+     */
+    private suspend fun filterByResponseSizeLimit(commentaryResults: JSONArray): FilterResult? {
+        val thresholdTokens = CommonUtils.settings.commentaryMaxResponseTokens
+        if (thresholdTokens <= 0 || commentaryResults.length() == 0) {
+            return FilterResult(commentaryResults, emptyList())
+        }
+
+        val infos = (0 until commentaryResults.length()).map { i ->
+            val obj = commentaryResults.getJSONObject(i)
+            CommentaryInfo(
+                index = i,
+                initials = obj.getString("initials"),
+                name = obj.getString("name"),
+                verseRanges = extractVerseRanges(obj),
+                sizeChars = obj.toString().length
+            )
+        }
+        val totalTokens = estimateTokens(infos.sumOf { it.sizeChars })
+        if (totalTokens <= thresholdTokens) return FilterResult(commentaryResults, emptyList())
+
+        val activity = CurrentActivityHolder.currentActivity
+            ?: return FilterResult(commentaryResults, emptyList())
+
+        // Sort by size descending for display
+        val sorted = infos.sortedByDescending { it.sizeChars }
+
+        // Show selection dialog — returns null if user cancels
+        val selected = withContext(Dispatchers.Main) {
+            showFilterDialog(activity, sorted, thresholdTokens)
+        } ?: return null  // User cancelled
+
+        // Build filtered JSONArray preserving original order
+        val selectedInitials = selected.map { it.initials }.toSet()
+        val excluded = infos.filter { it.initials !in selectedInitials }.map { it.initials }
+        val filtered = JSONArray()
+        for (i in 0 until commentaryResults.length()) {
+            val obj = commentaryResults.getJSONObject(i)
+            if (obj.getString("initials") in selectedInitials) {
+                filtered.put(obj)
+            }
+        }
+        return FilterResult(filtered, excluded)
+    }
+
+    /**
+     * Shows a custom dialog for selecting commentaries with a live token total.
+     * Returns the selected items, or null if the user cancelled.
+     */
+    private suspend fun showFilterDialog(
+        context: Context,
+        items: List<CommentaryInfo>,
+        thresholdTokens: Int
+    ): List<CommentaryInfo>? = suspendCoroutine { continuation ->
+        val binding = DialogCommentaryFilterBinding.inflate(LayoutInflater.from(context))
+        val checkedItems = BooleanArray(items.size) { true }
+        val itemTokens = items.map { estimateTokens(it.sizeChars) }
+
+        fun updateTotal() {
+            val selectedTokens = itemTokens.filterIndexed { i, _ -> checkedItems[i] }.sum()
+            binding.totalTokens.text = context.getString(
+                R.string.commentary_filter_total_tokens,
+                "%,d".format(selectedTokens),
+                "%,d".format(thresholdTokens)
+            )
+        }
+
+        binding.description.text = context.getString(
+            R.string.commentary_filter_dialog_message,
+            "%,d".format(thresholdTokens)
+        )
+        updateTotal()
+
+        val itemNames = items.map { info ->
+            val tokens = estimateTokens(info.sizeChars)
+            val rangeStr = if (info.verseRanges.isNotEmpty()) " [${info.verseRanges}]" else ""
+            "${info.name}$rangeStr (~%,d tokens)".format(tokens)
+        }.toTypedArray()
+
+        val adapter = android.widget.ArrayAdapter(
+            context, android.R.layout.simple_list_item_multiple_choice, itemNames
+        )
+        binding.commentaryList.adapter = adapter
+        binding.commentaryList.choiceMode = android.widget.AbsListView.CHOICE_MODE_MULTIPLE
+        for (i in items.indices) {
+            binding.commentaryList.setItemChecked(i, true)
+        }
+        binding.commentaryList.setOnItemClickListener { _, _, position, _ ->
+            checkedItems[position] = binding.commentaryList.isItemChecked(position)
+            updateTotal()
+        }
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(R.string.commentary_filter_dialog_title)
+            .setView(binding.root)
+            .setCancelable(true)
+            .setOnCancelListener { continuation.resume(null) }
+            .create()
+
+        binding.btnOk.setOnClickListener {
+            dialog.dismiss()
+            val selected = items.filterIndexed { index, _ -> checkedItems[index] }
+            continuation.resume(selected)
+        }
+        binding.btnCancel.setOnClickListener {
+            dialog.dismiss()
+            continuation.resume(null)
+        }
+
+        dialog.show()
     }
 
     /** Collects individual [Verse] objects from a [Key], which may be a single verse or a range. */
