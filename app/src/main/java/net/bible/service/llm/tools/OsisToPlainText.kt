@@ -53,6 +53,23 @@ object OsisToPlainText {
             .trim()
     }
 
+    /**
+     * Converts an OSIS osisRef attribute value to a sword:// URL.
+     * Module-qualified refs like "MHC:Matt.5.3" become "sword://MHC/Matt.5.3".
+     * Plain refs like "Matt.5.3" become "sword:///Matt.5.3".
+     */
+    internal fun osisRefToUrl(osisRef: String): String {
+        val colonIndex = osisRef.indexOf(':')
+        if (colonIndex > 0) {
+            val prefix = osisRef.substring(0, colonIndex)
+            if (prefix[0].isUpperCase()) {
+                val key = osisRef.substring(colonIndex + 1)
+                return "sword://$prefix/$key"
+            }
+        }
+        return "sword:///$osisRef"
+    }
+
     private fun walkElement(element: Element, sb: StringBuilder) {
         val name = element.name
 
@@ -60,6 +77,22 @@ object OsisToPlainText {
         if (name in SKIP_ELEMENTS) return
         // Skip BibleView-specific elements (x- prefixed custom elements)
         if (name.startsWith("x-")) return
+
+        // Reference elements need special handling: collect child text first for markdown link
+        if (name == "reference") {
+            val osisRef = element.getAttributeValue("osisRef")
+            if (osisRef != null) {
+                val innerSb = StringBuilder()
+                for (child: Content in element.content) {
+                    when (child) {
+                        is Text -> innerSb.append(child.text)
+                        is Element -> walkElement(child, innerSb)
+                    }
+                }
+                sb.append("[${innerSb}](${osisRefToUrl(osisRef)})")
+                return
+            }
+        }
 
         // Element opening
         when (name) {
