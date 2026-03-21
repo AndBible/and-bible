@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import {inject, nextTick, onMounted, provide, ref} from "vue";
+import {inject, provide, ref} from "vue";
 import {useBookmarks} from "@/composables/bookmarks";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
@@ -44,7 +44,6 @@ import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faCheck} from "@fortawesome/free-solid-svg-icons";
-import {setupEventBusListener} from "@/eventbus";
 
 const props = defineProps<{ document: BibleDocumentType }>();
 
@@ -53,14 +52,16 @@ const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinal
 
 provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
 
+const containerRef = ref<HTMLElement | null>(null);
+
 const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
-// Initialize memorization data from document
 const memorization = inject(memorizationKey)!;
 if (props.document.memorizedOrdinals) {
     memorization.mergeData(props.document.memorizedOrdinals, props.document.targetOrdinals ?? []);
 }
+memorization.setupIndicatorRendering(containerRef, id);
 
 const {config, appSettings, strings, sprintf, android, isExperimentalFeatureEnabled, ...common} = useCommon();
 
@@ -73,8 +74,6 @@ function getFootNoteCount() {
 }
 
 provide(footnoteCountKey, {getFootNoteCount});
-
-const containerRef = ref<HTMLElement | null>(null);
 const displayChapter = Math.max(1, props.document.chapterNumber);
 useReadingTracker(containerRef, bookInitials, ordinalRange, displayChapter);
 
@@ -86,20 +85,6 @@ function onMarkAsRead() {
     chapterRead.value = true;
 }
 
-// Render memorization indicator overlays
-const renderOverlays = () => {
-    if (!containerRef.value) return;
-    if (config.showMemorizationIndicators && isExperimentalFeatureEnabled('reading_and_memorization')) {
-        memorization.renderIndicators(containerRef.value, id);
-    } else {
-        memorization.clearIndicators(containerRef.value);
-    }
-};
-onMounted(() => nextTick(renderOverlays));
-
-// Re-render on any config change (font size, margins, line spacing, etc.) and memorization data updates
-setupEventBusListener("set_config", () => nextTick(renderOverlays));
-setupEventBusListener("update_memorization_data", () => nextTick(renderOverlays));
 </script>
 
 <style scoped>

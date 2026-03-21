@@ -76,8 +76,7 @@ describe("MemorizeDocument.vue", () => {
             memorized: new Set(),
             targets: new Set(),
             mergeData: vi.fn(),
-            renderIndicators: vi.fn(),
-            clearIndicators: vi.fn(),
+            setupIndicatorRendering: vi.fn(),
           }
         },
         stubs: {

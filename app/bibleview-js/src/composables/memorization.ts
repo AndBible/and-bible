@@ -15,8 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {reactive} from "vue";
+import {inject, nextTick, onMounted, reactive, Ref} from "vue";
 import {setupEventBusListener} from "@/eventbus";
+import {appSettingsKey, configKey} from "@/types/constants";
 
 type MemorizationDelta = {
     addedMemorized: number[],
@@ -50,13 +51,6 @@ export function groupConsecutive(ordinals: number[]): [number, number][] {
     return ranges;
 }
 
-/**
- * Creates a vertical line overlay element positioned in the left margin of the container,
- * spanning from the top of the first verse to the bottom of the last verse in a range.
- */
-/**
- * Gets the top of an inline element's first rendered line using getClientRects().
- */
 function getFirstLineTop(elem: Element): number {
     const rects = elem.getClientRects();
     return rects.length > 0 ? rects[0].top : elem.getBoundingClientRect().top;
@@ -122,6 +116,8 @@ function createIndicatorElement(
 export function useMemorization() {
     const memorized = reactive(new Set<number>());
     const targets = reactive(new Set<number>());
+    const config = inject(configKey)!;
+    const appSettings = inject(appSettingsKey)!;
 
     /** Merge data from a newly loaded document (infinite scroll adds chapters incrementally). */
     function mergeData(newMemorized: number[], newTargets: number[]) {
@@ -141,13 +137,15 @@ export function useMemorization() {
         (delta: MemorizationDelta) => applyDelta(delta)
     );
 
-    /**
-     * Renders vertical line indicators in the left margin of the container.
-     * Call after document is mounted/updated and DOM is ready.
-     */
+    // --- Indicator overlay rendering ---
+
     function renderIndicators(container: HTMLElement, documentId: string) {
-        // Remove existing indicators for this document
         container.querySelectorAll(`.${INDICATOR_CLASS}`).forEach(el => el.remove());
+
+        if (!config.showMemorizationIndicators
+            || !appSettings.enabledExperimentalFeatures.includes("reading_and_memorization")) {
+            return;
+        }
 
         // Target indicators (render first so memorized overlaps on top)
         const targetOnlyOrdinals = [...targets].filter(o => !memorized.has(o));
@@ -163,9 +161,20 @@ export function useMemorization() {
         }
     }
 
-    function clearIndicators(container: HTMLElement) {
-        container.querySelectorAll(`.${INDICATOR_CLASS}`).forEach(el => el.remove());
+    /**
+     * Sets up indicator rendering for a document container.
+     * Renders on mount and re-renders on config/data changes.
+     */
+    function setupIndicatorRendering(containerRef: Ref<HTMLElement | null>, documentId: string) {
+        const render = () => {
+            if (containerRef.value) {
+                renderIndicators(containerRef.value, documentId);
+            }
+        };
+        onMounted(() => nextTick(render));
+        setupEventBusListener("set_config", () => nextTick(render));
+        setupEventBusListener("update_memorization_data", () => nextTick(render));
     }
 
-    return {memorized, targets, mergeData, renderIndicators, clearIndicators};
+    return {memorized, targets, mergeData, setupIndicatorRendering};
 }
