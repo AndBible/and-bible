@@ -17,6 +17,7 @@
 
 <template>
   <div
+      ref="containerRef"
       :id="`doc-${document.id}`"
        class="document bible-document"
        :data-book-initials="bookInitials"
@@ -24,6 +25,11 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
+    <div v-if="config.showMarkAsReadButton && isExperimentalFeatureEnabled('reading_and_memorization')" class="mark-as-read-container">
+      <div class="button" :class="{read: chapterRead}" @click="onMarkAsRead">
+        <FontAwesomeIcon :icon="faCheck"/> {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
+      </div>
+    </div>
   </div>
 </template>
 
@@ -33,8 +39,11 @@ import {useBookmarks} from "@/composables/bookmarks";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter.vue";
-import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey} from "@/types/constants";
+import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
+import {useReadingTracker} from "@/composables/reading-tracker";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faCheck} from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ document: BibleDocumentType }>();
 
@@ -43,10 +52,18 @@ const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinal
 
 provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
 
+const containerRef = ref<HTMLElement | null>(null);
+
 const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
-const {config, appSettings, ...common} = useCommon();
+const memorization = inject(memorizationKey)!;
+if (props.document.memorizedOrdinals) {
+    memorization.mergeData(props.document.memorizedOrdinals, props.document.targetOrdinals ?? []);
+}
+memorization.setupIndicatorRendering(containerRef, id);
+
+const {config, appSettings, strings, sprintf, isExperimentalFeatureEnabled, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
 
@@ -57,8 +74,26 @@ function getFootNoteCount() {
 }
 
 provide(footnoteCountKey, {getFootNoteCount});
+const displayChapter = Math.max(1, props.document.chapterNumber);
+
+const {chapterRead, toggleChapterRead: onMarkAsRead} = useReadingTracker(
+    containerRef, bookInitials, ordinalRange, displayChapter, props.document.chapterRead ?? false
+);
+
 </script>
 
 <style scoped>
+.bible-document {
+    position: relative;
+}
 
+.mark-as-read-container {
+    text-align: center;
+    padding: 12px 0;
+
+    .button.read {
+        background-color: #4CAF50;
+        cursor: default;
+    }
+}
 </style>

@@ -43,6 +43,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.database.SettingsBundle
 import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.ai.AiSettingsActivity
+import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.activity.R
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.ActivityBase
@@ -293,6 +294,11 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 startActivity(Intent(context, AiSettingsActivity::class.java))
                 true
             }
+        }
+
+        preferenceScreen.findPreference<Preference>("reading_progress_settings_shortcut")?.setOnPreferenceClickListener {
+            startActivity(Intent(context, ReadingProgressSettingsActivity::class.java))
+            true
         }
 
         preferenceScreen.findPreference<Preference>("global_text_display_settings")?.setOnPreferenceClickListener {

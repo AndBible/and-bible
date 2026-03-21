@@ -111,6 +111,13 @@ type TranslatedStrings = {
     verseShareLong: string
     verseCompareLong: string
     verseMemorizeLong: string
+    addMemorizationTarget: string
+    addMemorizationTargetLong: string
+    removeMemorizationTarget: string
+    removeMemorizationTargetLong: string
+    markAsMemorized: string
+    markedAsMemorized: string
+    removeFromTargets: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string
@@ -151,6 +158,8 @@ type TranslatedStrings = {
     aiDocumentDelete: string
     aiGeneratedBy: string
     aiGeneratedByWithModel: string
+    markChapterRead: string
+    chapterMarkedRead: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings

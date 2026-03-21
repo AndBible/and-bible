@@ -28,6 +28,7 @@ import android.view.View
 
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener
@@ -119,6 +120,17 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
                 buttonInfo.tintColor = bookColorAndGroup.Color
                 buttonInfo.textColor = Color.DKGRAY
             }
+            val v11n = navigationControl.versification
+            if (ProgressControl.isChapterRead(v11n, book, i)) {
+                buttonInfo.progressFraction = 1f
+                buttonInfo.progressColor = READING_PROGRESS_COLOR
+            } else {
+                val memProgress = ProgressControl.getMemorizationProgress(v11n, book, i)
+                if (memProgress > 0f) {
+                    buttonInfo.progressFraction = memProgress
+                    buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
+                }
+            }
             keys.add(buttonInfo)
         }
         return keys
@@ -167,7 +179,8 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
     }
 
     companion object {
-
+        private val READING_PROGRESS_COLOR = Color.argb(0xCC, 0x4C, 0xAF, 0x50)
+        private val MEMORIZATION_PROGRESS_COLOR = Color.argb(0xCC, 0xFF, 0xD7, 0x00)
         private const val TAG = "GridChoosePassageChaptr"
     }
 }

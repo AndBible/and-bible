@@ -33,6 +33,8 @@ import net.bible.android.SharedConstants
 import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
+import net.bible.android.control.progress.ProgressControl
+import net.bible.android.database.progress.ReadingSource
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -68,6 +70,7 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordGenBook
 import org.crosswire.jsword.passage.KeyUtil
@@ -75,6 +78,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import java.io.File
@@ -486,6 +490,55 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             bibleView.memorizeSelection(Selection(bookInitials, verseOrdinal, positiveOrNull(endOrdinal)))
         }
+    }
+
+    private fun verseRangeFromOrdinals(bookInitials: String, startOrdinal: Int, endOrdinal: Int): VerseRange? {
+        val book = Books.installed().getBook(bookInitials) ?: return null
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return null
+        val effectiveEnd = if (endOrdinal > 0) endOrdinal else startOrdinal
+        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, effectiveEnd))
+    }
+
+    @JavascriptInterface
+    fun memorizeCompleted(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        if (!ProgressControl.autoMarkMemorized) return
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.markVerseMemorized(verseRange)
+    }
+
+    @JavascriptInterface
+    fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.addMemorizationTarget(verseRange)
+    }
+
+    @JavascriptInterface
+    fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.unmarkVerseMemorized(verseRange)
+    }
+
+    @JavascriptInterface
+    fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.removeMemorizationTargetByRange(verseRange)
+    }
+
+    @JavascriptInterface
+    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
+        val book = Books.installed().getBook(bookInitials) ?: return
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return
+        val verse = Verse(v11n, startOrdinal)
+        val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
+        ProgressControl.markChapterRead(v11n, verse.book, chapter, readingSource)
+    }
+
+    @JavascriptInterface
+    fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
+        val book = Books.installed().getBook(bookInitials) ?: return
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return
+        val verse = Verse(v11n, startOrdinal)
+        ProgressControl.unmarkChapterRead(v11n, verse.book, chapter)
     }
 
     @JavascriptInterface

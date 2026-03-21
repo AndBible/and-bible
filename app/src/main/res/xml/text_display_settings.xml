@@ -185,4 +185,18 @@
             android:summary="@string/bookmark_settings_hide_labels_summary"
             />
     </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_reading_and_memorization_title"
+        >
+        <SwitchPreferenceCompat
+            android:key="MARK_AS_READ_BUTTON"
+            android:title="@string/prefs_mark_as_read_button_title"
+            android:summary="@string/prefs_mark_as_read_button_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="MEMORIZATION_INDICATORS"
+            android:title="@string/prefs_show_memorization_indicators_title"
+            android:summary="@string/prefs_show_memorization_indicators_summary"
+            />
+    </PreferenceCategory>
 </PreferenceScreen>

@@ -134,6 +134,7 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
                 setupDrivePref(this)
             }
         }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_progress")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false

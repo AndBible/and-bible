@@ -22,6 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -43,6 +44,7 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.book.sword.SwordBookMetaData.KEY_SOURCE_TYPE
 import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.RangedPassage
+import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.Versification
@@ -164,6 +166,12 @@ class BibleDocument(
             val originalVerseRange = originalKey.toVerseRange.toV11n(swordBook.versification)
             json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
         } else "null"
+        val v11n = swordBook.versification
+        val kjvRange = verseRange.toV11n(KJVA)
+        val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            .map { Verse(KJVA, it).toV11n(v11n).ordinal }
+        val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+            .map { Verse(KJVA, it).toV11n(v11n).ordinal }
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
@@ -174,6 +182,10 @@ class BibleDocument(
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
             put("v11n", wrapString(swordBook.versification.name))
+            put("memorizedOrdinals", json.encodeToString(serializer(), memorizedOrdinals))
+            put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
+            put("chapterRead", json.encodeToString(serializer(),
+                ProgressControl.isChapterRead(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
         }
     }
 }
@@ -201,7 +213,16 @@ class MultiFragmentDocument(
         )
 }
 
-class MemorizeDocument(private val title: String, private val texts: List<Pair<String, String>>, private val state: String?): Document {
+class MemorizeDocument(
+    private val title: String,
+    private val texts: List<Pair<String, String>>,
+    private val state: String?,
+    private val bookInitials: String? = null,
+    private val startOrdinal: Int = 0,
+    private val endOrdinal: Int = 0,
+    private val memorizedOrdinals: List<Int> = emptyList(),
+    private val targetOrdinals: List<Int> = emptyList(),
+): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
             "id" to wrapString(randomUUID().toString()),
@@ -209,6 +230,11 @@ class MemorizeDocument(private val title: String, private val texts: List<Pair<S
             "title" to wrapString(title),
             "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" }),
             "state" to (state ?: "undefined"),
+            "bookInitials" to (if (bookInitials != null) wrapString(bookInitials) else "undefined"),
+            "startOrdinal" to startOrdinal,
+            "endOrdinal" to endOrdinal,
+            "memorizedOrdinals" to json.encodeToString(serializer(), memorizedOrdinals),
+            "targetOrdinals" to json.encodeToString(serializer(), targetOrdinals),
         )
 }
 

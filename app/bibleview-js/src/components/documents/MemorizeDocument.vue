@@ -43,9 +43,26 @@
           :text-items="document.texts"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
+          @memorize-completed="onMemorizeCompleted"
       />
     </template>
   </TabContainer>
+
+  <!-- Mark as memorized / unmark button -->
+  <div class="memorize-actions">
+    <div v-if="!isMemorized" class="button" @click="markAsMemorized">
+      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markAsMemorized }}
+    </div>
+    <div v-else class="button memorized" @click="unmarkMemorized">
+      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
+    </div>
+    <div v-if="isTarget && !isMemorized" class="button target" @click="removeFromTargets">
+      <FontAwesomeIcon :icon="faBrain"/> {{ strings.removeFromTargets }}
+    </div>
+    <div v-if="!isTarget" class="button" @click="addToTargets">
+      <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
+    </div>
+  </div>
 </template>
 
 <script lang="ts">
@@ -55,7 +72,7 @@ let lastSelectedMode: MemorizeStateMode | null = null;
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {ref, computed, watch, toRefs} from "vue";
+import {computed, ref, toRefs, watch} from "vue";
 import {
     MemorizeDocument,
     MemorizeModeConfig,
@@ -64,7 +81,10 @@ import {
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
-import {faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faBrain, faCheck, faEyeSlash, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {inject} from "vue";
+import {memorizationKey} from "@/types/constants";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -86,6 +106,59 @@ const memorizeState = computed<MemorizeState>(() => {
 })
 
 const {strings, android} = useCommon();
+const memorization = inject(memorizationKey)!;
+
+// Populate memorization data so isMemorized/isTarget are reactive
+memorization.mergeData(
+    document.value.memorizedOrdinals ?? [],
+    document.value.targetOrdinals ?? []
+);
+
+function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void) {
+    const {bookInitials, startOrdinal, endOrdinal} = document.value;
+    if (bookInitials && startOrdinal != null && endOrdinal != null) {
+        fn(bookInitials, startOrdinal, endOrdinal);
+    }
+}
+
+const isMemorized = computed(() => {
+    const {startOrdinal, endOrdinal} = document.value;
+    if (startOrdinal == null || endOrdinal == null) return false;
+    for (let i = startOrdinal; i <= endOrdinal; i++) {
+        if (!memorization.memorized.has(i)) return false;
+    }
+    return true;
+});
+
+const isTarget = computed(() => {
+    const {startOrdinal, endOrdinal} = document.value;
+    if (startOrdinal == null || endOrdinal == null) return false;
+    for (let i = startOrdinal; i <= endOrdinal; i++) {
+        if (memorization.targets.has(i)) return true;
+    }
+    return false;
+});
+
+function markAsMemorized() {
+    withVerseRange((b, s, e) => {
+        android.memorizeCompleted(b, s, e);
+        if (!isTarget.value) {
+            android.addMemorizationTarget(b, s, e);
+        }
+    });
+}
+
+function unmarkMemorized() {
+    withVerseRange((b, s, e) => android.unmarkMemorized(b, s, e));
+}
+
+function removeFromTargets() {
+    withVerseRange((b, s, e) => android.removeMemorizationTarget(b, s, e));
+}
+
+function addToTargets() {
+    withVerseRange((b, s, e) => android.addMemorizationTarget(b, s, e));
+}
 
 // Tab configuration for the TabContainer
 const tabsConfig = computed(() => [
@@ -117,6 +190,10 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
     saveState()
 }
 
+function onMemorizeCompleted() {
+    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
+}
+
 watch(selectedMode, saveState);
 
 function saveState() {
@@ -141,5 +218,20 @@ function saveState() {
 h2 {
   font-size: 1.2em;
   text-align: center;
+}
+
+.memorize-actions {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  margin-top: 1em;
+
+  .button.memorized {
+    background-color: #4CAF50;
+  }
+
+  .button.target {
+    background-color: #9C27B0;
+  }
 }
 </style>

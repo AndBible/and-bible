@@ -117,13 +117,16 @@ import {
     customCssKey,
     customFeaturesKey,
     footnoteCountKey,
-    globalBookmarksKey, keyboardKey,
+    globalBookmarksKey,
+    keyboardKey,
+    memorizationKey,
     modalKey,
     scrollKey,
     stringsKey,
     ordinalHighlightKey
 } from "@/types/constants";
 import {useKeyboard} from "@/composables/keyboard";
+import {useMemorization} from "@/composables/memorization";
 import {useVerseNotifier} from "@/composables/verse-notifier";
 import {useAddonFonts} from "@/composables/addon-fonts";
 import {useFontAwesome} from "@/composables/fontawesome";
@@ -290,6 +293,9 @@ provide(calculatedConfigKey, calculatedConfig);
 
 provide(stringsKey, strings);
 provide(androidKey, android);
+
+const memorization = useMemorization(config, appSettings);
+provide(memorizationKey, memorization);
 
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
 

@@ -239,6 +239,11 @@
 			android:summary="@string/ai_settings_shortcut_summary"
 			android:icon="@drawable/ic_baseline_smart_toy_24"
 			/>
+		<Preference android:key="reading_progress_settings_shortcut"
+			android:title="@string/reading_progress_settings"
+			android:summary="@string/reading_progress_settings_summary"
+			android:icon="@drawable/ic_baseline_check_circle_24"
+			/>
 		<MultiSelectListPreference android:key="experimental_features"
 			android:title="@string/prefs_experimental_features_title"
 			android:summary="@string/prefs_experimental_features_summary"

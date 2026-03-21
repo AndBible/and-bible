@@ -47,6 +47,7 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.readingplan.DailyReading
+import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.ai.AiSettingsActivity
 import net.bible.android.view.activity.settings.SettingsActivity
 import net.bible.android.view.activity.settings.SyncSettingsActivity
@@ -198,6 +199,10 @@ class MenuCommandHandler(val mainBibleActivity: MainBibleActivity) {
                 }
                 R.id.dailyReadingPlanButton -> {
                     handlerIntent = Intent(mainBibleActivity, DailyReading::class.java)
+                    isHandled = true
+                }
+                R.id.readingProgressButton -> {
+                    handlerIntent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
                     isHandled = true
                 }
                 R.id.downloadButton -> if (downloadControl.checkDownloadOkay()) {
