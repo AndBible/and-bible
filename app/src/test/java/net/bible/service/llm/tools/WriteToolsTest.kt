@@ -27,6 +27,9 @@ import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.DeleteBookmarkTool
+import net.bible.service.llm.tools.write.DeleteLabelTool
+import net.bible.service.llm.tools.write.RemoveLabelFromBookmarkTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import net.bible.service.llm.tools.typedSuccess
@@ -395,5 +398,141 @@ class WriteToolsTest {
     @Test
     fun finishWithStudyPad_formatArgsForLog_empty() {
         assertNull(FinishWithStudyPadTool.formatArgsForLog(JSONObject()))
+    }
+
+    // === DeleteBookmarkTool ===
+
+    @Test
+    fun deleteBookmark_missingBookmarkId() = runBlocking {
+        val args = JSONObject()
+        val result = DeleteBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
+    }
+
+    @Test
+    fun deleteBookmark_emptyBookmarkId() = runBlocking {
+        val args = JSONObject().apply { put("bookmarkId", "") }
+        val result = DeleteBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun deleteBookmark_nonExistentBookmark() = runBlocking {
+        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val result = DeleteBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("BOOKMARK_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun deleteBookmark_requiresPermission() {
+        assertTrue(DeleteBookmarkTool.requiresPermission)
+    }
+
+    @Test
+    fun deleteBookmark_formatArgsForLog() {
+        val id = IdType().toString()
+        val args = JSONObject().apply { put("bookmarkId", id) }
+        assertEquals(shortId(id), DeleteBookmarkTool.formatArgsForLog(args))
+    }
+
+    @Test
+    fun deleteBookmark_formatArgsForLog_empty() {
+        assertNull(DeleteBookmarkTool.formatArgsForLog(JSONObject()))
+    }
+
+    // === DeleteLabelTool ===
+
+    @Test
+    fun deleteLabel_missingLabelId() = runBlocking {
+        val args = JSONObject()
+        val result = DeleteLabelTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertTrue((result as ToolResult.Error).message.contains("labelId"))
+    }
+
+    @Test
+    fun deleteLabel_emptyLabelId() = runBlocking {
+        val args = JSONObject().apply { put("labelId", "") }
+        val result = DeleteLabelTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun deleteLabel_nonExistentLabel() = runBlocking {
+        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val result = DeleteLabelTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("LABEL_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun deleteLabel_requiresPermission() {
+        assertTrue(DeleteLabelTool.requiresPermission)
+    }
+
+    @Test
+    fun deleteLabel_formatArgsForLog() {
+        val id = IdType().toString()
+        val args = JSONObject().apply { put("labelId", id) }
+        assertEquals(shortId(id), DeleteLabelTool.formatArgsForLog(args))
+    }
+
+    @Test
+    fun deleteLabel_formatArgsForLog_empty() {
+        assertNull(DeleteLabelTool.formatArgsForLog(JSONObject()))
+    }
+
+    // === RemoveLabelFromBookmarkTool ===
+
+    @Test
+    fun removeLabelFromBookmark_missingBookmarkId() = runBlocking {
+        val args = JSONObject().apply { put("labelId", IdType().toString()) }
+        val result = RemoveLabelFromBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertTrue((result as ToolResult.Error).message.contains("bookmarkId"))
+    }
+
+    @Test
+    fun removeLabelFromBookmark_missingLabelId() = runBlocking {
+        val args = JSONObject().apply { put("bookmarkId", IdType().toString()) }
+        val result = RemoveLabelFromBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertTrue((result as ToolResult.Error).message.contains("labelId"))
+    }
+
+    @Test
+    fun removeLabelFromBookmark_bothEmpty() = runBlocking {
+        val args = JSONObject().apply {
+            put("bookmarkId", "")
+            put("labelId", "")
+        }
+        val result = RemoveLabelFromBookmarkTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun removeLabelFromBookmark_requiresPermission() {
+        assertTrue(RemoveLabelFromBookmarkTool.requiresPermission)
+    }
+
+    @Test
+    fun removeLabelFromBookmark_formatArgsForLog() {
+        val bId = IdType().toString()
+        val lId = IdType().toString()
+        val args = JSONObject().apply {
+            put("bookmarkId", bId)
+            put("labelId", lId)
+        }
+        val result = RemoveLabelFromBookmarkTool.formatArgsForLog(args)!!
+        assertTrue(result.contains(shortId(bId)))
+        assertTrue(result.contains(shortId(lId)))
+        assertTrue(result.contains("\u2190")) // left arrow
+    }
+
+    @Test
+    fun removeLabelFromBookmark_formatArgsForLog_missingField() {
+        assertNull(RemoveLabelFromBookmarkTool.formatArgsForLog(JSONObject().apply { put("bookmarkId", IdType().toString()) }))
     }
 }

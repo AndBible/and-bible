@@ -40,12 +40,15 @@ import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
 import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteBookmarkTool
+import net.bible.service.llm.tools.write.DeleteLabelTool
 import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
 import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
+import net.bible.service.llm.tools.write.RemoveLabelFromBookmarkTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -97,6 +100,9 @@ object ToolRegistry {
         register(UpdateBookmarkNoteTool)
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
+        register(DeleteBookmarkTool)
+        register(DeleteLabelTool)
+        register(RemoveLabelFromBookmarkTool)
         register(AddStudyPadEntryTool)
         register(CreateMyDocumentTool)
         register(AddMyDocumentPageTool)

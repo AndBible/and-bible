@@ -1563,6 +1563,9 @@
     <string name="tool_update_bookmark_note">Update bookmark note</string>
     <string name="tool_create_label">Create label</string>
     <string name="tool_add_label_to_bookmark">Add label to bookmark</string>
+    <string name="tool_delete_bookmark">Delete bookmark</string>
+    <string name="tool_delete_label">Delete label</string>
+    <string name="tool_remove_label_from_bookmark">Remove label from bookmark</string>
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
@@ -1600,6 +1603,9 @@
     <string name="action_update_note_on_bookmark_at">Update note on bookmark at %1$s</string>
     <string name="action_create_label">Create label \"%1$s\"</string>
     <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
+    <string name="action_delete_bookmark">Delete bookmark at %1$s</string>
+    <string name="action_delete_label">Delete label \"%1$s\"</string>
+    <string name="action_remove_label_from_bookmark">Remove label \"%1$s\" from bookmark at %2$s</string>
     <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
     <string name="action_create_my_document">Create My Document: \"%1$s\"</string>
     <string name="action_add_my_document_page">Add page \"%1$s\" to My Document %2$s</string>
