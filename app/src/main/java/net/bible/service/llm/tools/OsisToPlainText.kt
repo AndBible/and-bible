@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools
 
+import android.net.Uri
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jdom2.Content
@@ -64,10 +65,10 @@ object OsisToPlainText {
             val prefix = osisRef.substring(0, colonIndex)
             if (prefix[0].isUpperCase()) {
                 val key = osisRef.substring(colonIndex + 1)
-                return "sword://$prefix/$key"
+                return "sword://$prefix/${Uri.encode(key)}"
             }
         }
-        return "sword:///$osisRef"
+        return "sword:///${Uri.encode(osisRef)}"
     }
 
     private fun walkElement(element: Element, sb: StringBuilder) {

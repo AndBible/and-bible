@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.read
 
 import android.app.AlertDialog
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import net.bible.android.activity.databinding.DialogCommentaryFilterBinding
 import kotlinx.coroutines.Dispatchers
@@ -228,14 +229,14 @@ object GetCommentariesTool : Tool {
                     if (useXml) {
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${block.startVerseRef}",
+                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
                             osisXml = block.osisXml
                         )
                     } else {
                         val fragment = useSaxBuilder { it.build(StringReader(block.osisXml)).rootElement }
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${block.startVerseRef}",
+                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
                             text = OsisToPlainText.convert(fragment)
                         )
                     }
