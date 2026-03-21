@@ -78,6 +78,12 @@ export type BibleJavascriptInterface = {
     createWholePageBookmark: (bookInitials: string, bookKey: string) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
+    memorizeCompleted: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    addMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    unmarkMemorized: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
+    unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -418,6 +424,30 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.memorize(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function memorizeCompleted(bookInitials: string, startOrdinal: number, endOrdinal: number) {
+        window.android.memorizeCompleted(bookInitials, startOrdinal, endOrdinal);
+    }
+
+    function addMemorizationTarget(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
+        window.android.addMemorizationTarget(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    }
+
+    function unmarkMemorized(bookInitials: string, startOrdinal: number, endOrdinal: number) {
+        window.android.unmarkMemorized(bookInitials, startOrdinal, endOrdinal);
+    }
+
+    function removeMemorizationTarget(bookInitials: string, startOrdinal: number, endOrdinal: number) {
+        window.android.removeMemorizationTarget(bookInitials, startOrdinal, endOrdinal);
+    }
+
+    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string = "MANUAL") {
+        window.android.markChapterRead(bookInitials, startOrdinal, chapter, source);
+    }
+
+    function unmarkChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
+        window.android.unmarkChapterRead(bookInitials, startOrdinal, chapter);
+    }
+
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
         if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
             // Exceptionally here bookmark type does not matter
@@ -643,6 +673,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         createWholePageBookmark,
         compare,
         memorize,
+        memorizeCompleted,
+        addMemorizationTarget,
+        unmarkMemorized,
+        removeMemorizationTarget,
+        markChapterRead,
+        unmarkChapterRead,
         speak,
         speakGeneric,
         helpDialog,

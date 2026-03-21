@@ -61,7 +61,9 @@ class ButtonInfo (
     var left: Int = 0,
     var right: Int = 0,
     var rowNo: Int = 0,
-    var colNo: Int = 0
+    var colNo: Int = 0,
+    var progressFraction: Float = 0f,
+    var progressColor: Int = Color.GREEN,
 ) {
     enum class GridButtonTypes {BOOK, CHAPTER, VERSE}
     lateinit var button: Button
@@ -283,6 +285,10 @@ class ButtonGrid constructor(context: Context, attrs: AttributeSet? = null, defS
                 isPressed = true
             } else {
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize)
+            }
+
+            if (buttonInfo.progressFraction > 0f) {
+                foreground = BottomBarProgressDrawable(buttonInfo.progressFraction, buttonInfo.progressColor)
             }
         }
     }

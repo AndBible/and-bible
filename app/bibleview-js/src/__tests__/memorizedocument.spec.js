@@ -32,6 +32,7 @@ import WordBlur from "@/components/memorize/WordBlur.vue";
 import WordScramble from "@/components/memorize/WordScramble.vue";
 import { describe, it, expect, vi } from 'vitest';
 import { MemorizeStateModeEnum } from "@/types/documents";
+import { memorizationKey } from "@/types/constants";
 
 // Mock composables
 vi.mock("@/composables", () => ({
@@ -70,6 +71,14 @@ describe("MemorizeDocument.vue", () => {
         document: createMockDocument(docOverrides)
       },
       global: {
+        provide: {
+          [memorizationKey]: {
+            memorized: new Set(),
+            targets: new Set(),
+            mergeData: vi.fn(),
+            setupIndicatorRendering: vi.fn(),
+          }
+        },
         stubs: {
           WordBlur: true,
           WordScramble: true

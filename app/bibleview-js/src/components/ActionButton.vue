@@ -29,6 +29,14 @@
     <FontAwesomeIcon v-else-if="button === 'MY_NOTES'" icon="file-alt"/>
     <FontAwesomeIcon v-else-if="button === 'COMPARE'" icon="custom-compare"/>
     <FontAwesomeIcon v-else-if="button === 'MEMORIZE'" :icon="faBrain"/>
+    <FontAwesomeLayers v-else-if="button === 'ADD_MEMORIZATION_TARGET'">
+      <FontAwesomeIcon :icon="faBrain"/>
+      <FontAwesomeIcon icon="plus" transform="shrink-5 down-6 right-12"/>
+    </FontAwesomeLayers>
+    <FontAwesomeLayers v-else-if="button === 'REMOVE_MEMORIZATION_TARGET'">
+      <FontAwesomeIcon :icon="faBrain"/>
+      <FontAwesomeIcon icon="minus" transform="shrink-5 down-6 right-12"/>
+    </FontAwesomeLayers>
     <FontAwesomeIcon v-else-if="button === 'SPEAK'" icon="headphones"/>
     <FontAwesomeIcon v-else-if="button === 'ADD_PARAGRAPH_BREAK'" :icon="faParagraph"/>
     <FontAwesomeIcon v-else-if="button === 'LLM_ACTION'" :icon="faRobot"/>
@@ -39,6 +47,8 @@
       <template v-else-if="button === 'MY_NOTES'">{{ strings.verseMyNotes }}</template>
       <template v-else-if="button === 'COMPARE'">{{ vertical ? strings.verseCompareLong : strings.verseCompare }}</template>
       <template v-else-if="button === 'MEMORIZE'">{{ vertical ? strings.verseMemorizeLong : strings.verseMemorize }}</template>
+      <template v-else-if="button === 'ADD_MEMORIZATION_TARGET'">{{ vertical ? strings.addMemorizationTargetLong : strings.addMemorizationTarget }}</template>
+      <template v-else-if="button === 'REMOVE_MEMORIZATION_TARGET'">{{ vertical ? strings.removeMemorizationTargetLong : strings.removeMemorizationTarget }}</template>
       <template v-else-if="button === 'SPEAK'">{{ strings.verseSpeak }}</template>
       <template v-else-if="button === 'ADD_PARAGRAPH_BREAK'">{{ vertical ? strings.verseParagraphBreakLong : strings.verseParagraphBreak }}</template>
       <template v-else-if="button === 'LLM_ACTION'">{{ vertical ? strings.llmActionLong : strings.llmAction }}</template>

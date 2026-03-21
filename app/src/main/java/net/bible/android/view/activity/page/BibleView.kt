@@ -73,6 +73,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
+import net.bible.android.control.progress.ChapterReadStatusChangedEvent
+import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelsDeletedEvent
@@ -87,6 +89,7 @@ import net.bible.android.control.event.window.WindowSizeChangedEvent
 import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
+import net.bible.android.control.page.MemorizeDocument
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.ClientGenericBookmark
@@ -133,6 +136,7 @@ import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -1516,6 +1520,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableClickToEdit:  $disableClickToEdit,
                         llmConfigured: ${CommonUtils.settings.llmConfigured},
                         notesContentType: "${CommonUtils.settings.notesContentType}",
+                        autoTrackReading: ${ReadingProgressSettings.autoTrackReading},
                     },
                     initial: $initial,
                     });
@@ -1746,6 +1751,39 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
         executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+    }
+
+    fun onEvent(event: MemorizationDataChangedEvent) {
+        val doc = firstDocument
+        if (doc !is BibleDocument && doc !is MemorizeDocument) return
+
+        // Convert KJV ordinals to document versification for BibleDocument
+        val v11n = if (doc is BibleDocument) doc.swordBook.versification else null
+        fun convertOrdinals(kjvOrdinals: List<Int>): String {
+            val converted = if (v11n != null) {
+                kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }
+            } else {
+                kjvOrdinals
+            }
+            return json.encodeToString(serializer(), converted)
+        }
+
+        val addedMemorized = convertOrdinals(event.addedMemorized)
+        val removedMemorized = convertOrdinals(event.removedMemorized)
+        val addedTargets = convertOrdinals(event.addedTargets)
+        val removedTargets = convertOrdinals(event.removedTargets)
+        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
+            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
+            addedTargets: $addedTargets, removedTargets: $removedTargets
+        });""")
+    }
+
+    fun onEvent(event: ChapterReadStatusChangedEvent) {
+        val doc = firstDocument
+        if (doc !is BibleDocument) return
+        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+            kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
+        });""")
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {

@@ -124,6 +124,7 @@ import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord
 import net.bible.android.view.activity.navigation.ChooseDocument
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.navigation.History
 import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey
@@ -401,6 +402,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
         navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
+        navigationView.menu.findItem(R.id.readingProgressButton).isVisible = CommonUtils.settings.readingAndMemorizationEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -445,6 +447,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             override fun onDrawerOpened(drawerView: View) {
                 navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
                 navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
+                navigationView.menu.findItem(R.id.readingProgressButton).isVisible = CommonUtils.settings.readingAndMemorizationEnabled
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -1863,7 +1866,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     CurrentActivityHolder.activate(this) // needed because startKeyChooser is using this
                     val classes = arrayOf(
                         GridChoosePassageBook::class.java.name,
-                        Bookmarks::class.java.name
+                        Bookmarks::class.java.name,
+                        ReadingProgressActivity::class.java.name,
                     )
                     val genBookClasses = arrayOf(
                         ChooseGeneralBookKey::class.java.name,

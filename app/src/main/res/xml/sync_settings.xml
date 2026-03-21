@@ -99,5 +99,11 @@
 			android:defaultValue="false"
 			android:icon="@drawable/ic_baseline_smart_toy_24"
 			/>
+		<SwitchPreferenceCompat android:key="sync_enable_progress"
+			android:title="@string/progress_sync_title"
+			android:summary="@string/progress_sync_contents"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_baseline_check_circle_24"
+			/>
 	</PreferenceCategory>
 </PreferenceScreen>

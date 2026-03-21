@@ -37,6 +37,8 @@ import net.bible.android.database.TemporaryDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.AI_SETTINGS_DATABASE_VERSION
 import net.bible.android.database.WorkspaceDatabase
+import net.bible.android.database.progress.ProgressDatabase
+import net.bible.android.database.progress.PROGRESS_DATABASE_VERSION
 import net.bible.android.database.mydocument.MyDocumentDatabase
 import net.bible.android.database.mydocument.MY_DOCUMENT_DATABASE_VERSION
 import net.bible.android.database.migrations.BOOKMARK_DATABASE_VERSION
@@ -47,6 +49,7 @@ import net.bible.android.database.migrations.WORKSPACE_DATABASE_VERSION
 import net.bible.android.database.migrations.bookmarkMigrations
 import net.bible.android.database.migrations.aiSettingsMigrations
 import net.bible.android.database.migrations.myDocumentMigrations
+import net.bible.android.database.migrations.progressMigrations
 import net.bible.android.database.migrations.oldMonolithicAppDatabaseMigrations
 import net.bible.android.database.migrations.readingPlanMigrations
 import net.bible.android.database.migrations.workspacesMigrations
@@ -71,7 +74,8 @@ val ALL_DB_FILENAMES = arrayOf(
     RepoDatabase.dbFileName,
     SettingsDatabase.dbFileName,
     AiSettingsDatabase.dbFileName,
-    MyDocumentDatabase.dbFileName
+    MyDocumentDatabase.dbFileName,
+    ProgressDatabase.dbFileName
 )
 
 class DataBaseNotReady: Exception()
@@ -197,6 +201,24 @@ class DatabaseContainer {
         return aiSettingsDb
     }
 
+    fun getProgressDb(filename: String = ProgressDatabase.dbFileName) =
+        Room.databaseBuilder(
+            application, ProgressDatabase::class.java, filename
+        )
+            .allowMainThreadQueries()
+            .addMigrations(*progressMigrations)
+            .openHelperFactory(dbFactory)
+            .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .build()
+
+    var progressDb: ProgressDatabase = getProgressDb()
+
+    fun resetProgressDb(): ProgressDatabase {
+        progressDb.close()
+        progressDb = getProgressDb()
+        return progressDb
+    }
+
     init {
         if(!application.isRunningTests) {
             for (dbDef in getDatabaseAccessorFactories(this).map { it.invoke() }) {
@@ -295,7 +317,7 @@ class DatabaseContainer {
         }
     }
 
-    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb)
+    private val backedUpDatabases = arrayOf(bookmarkDb, readingPlanDb, workspaceDb, repoDb, settingsDb, myDocumentDb, aiSettingsDb, progressDb)
     private val allDatabases = arrayOf(*backedUpDatabases, downloadDocumentsDb, chooseDocumentsDb)
 
     val dbByFilename = allDatabases.associateBy { it.openHelper.databaseName }
@@ -353,6 +375,7 @@ class DatabaseContainer {
             SettingsDatabase.dbFileName -> SETTINGS_DATABASE_VERSION
             AiSettingsDatabase.dbFileName -> AI_SETTINGS_DATABASE_VERSION
             MyDocumentDatabase.dbFileName -> MY_DOCUMENT_DATABASE_VERSION
+            ProgressDatabase.dbFileName -> PROGRESS_DATABASE_VERSION
             else -> throw IllegalStateException("Unknown database file: $filename")
         }
 
@@ -411,6 +434,16 @@ class DatabaseContainer {
                         ABEventBus.post(AiSettingsUpdatedViaSyncEvent(it))
                     },
                 ) },
+                { SyncableDatabaseAccessor(
+                    localDb = progressDb,
+                    dbFactory = { n -> getProgressDb(n) },
+                    _resetLocalDb = { resetProgressDb() },
+                    localDbFile = application.getDatabasePath(ProgressDatabase.dbFileName),
+                    category = SyncableDatabaseDefinition.PROGRESS,
+                    _reactToUpdates = {
+                        ABEventBus.post(ProgressUpdatedViaSyncEvent(it))
+                    },
+                ) },
             )
         }
 
@@ -422,3 +455,4 @@ class WorkspacesUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class BookmarksUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class MyDocumentsUpdatedViaSyncEvent(val updated: List<LogEntry>)
 class AiSettingsUpdatedViaSyncEvent(val updated: List<LogEntry>)
+class ProgressUpdatedViaSyncEvent(val updated: List<LogEntry>)

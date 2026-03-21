@@ -297,6 +297,30 @@ body {
   padding-bottom: 0.5em;
 }
 
+.memorization-indicator {
+  border-radius: 1px;
+
+  &--memorized {
+    background-color: #4CAF50;
+  }
+  &--target {
+    background-color: #9C27B0;
+  }
+}
+
+.monochrome .memorization-indicator {
+  &--memorized {
+    background-color: black;
+  }
+  &--target {
+    background: repeating-linear-gradient(
+      to bottom,
+      black 0px, black 3px,
+      transparent 3px, transparent 6px
+    );
+  }
+}
+
 img {
   max-width: 100%;
 }

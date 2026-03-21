@@ -146,7 +146,6 @@ import ModalDialog from "@/components/modals/ModalDialog.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {Deferred} from "@/utils";
 import {useCommon} from "@/composables";
-import {isExperimentalFeatureEnabled} from "@/composables/config";
 import TabContainer from "@/components/tabs/TabContainer.vue";
 import {
     faArrowDown,
@@ -165,7 +164,7 @@ import {validateBookmarkEditActionContent} from "@/utils/xml-validation";
 import {EditAction, EditActionMode} from "@/types/client-objects";
 import {Tab} from "@/components/tabs/TabContainer.vue";
 
-const { strings, appSettings, android } = useCommon();
+const { strings, appSettings, android, isExperimentalFeatureEnabled } = useCommon();
 
 interface BookmarkSettings {
     customIcon: string | null;
@@ -195,7 +194,7 @@ const tabsConfig = computed<Tab[]>(() => {
     ];
     
     // Only show edit action tab if bookmark edit actions experimental feature is enabled
-    if (isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
+    if (isExperimentalFeatureEnabled('bookmark_edit_actions')) {
         tabs.push({ 
             id: 'editAction', 
             label: strings.editActionLabel, 
@@ -302,7 +301,7 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     if (currentIcon !== null) {
         activeTab.value = 'icons';
     }
-    else if (currentEditAction.mode !== null && isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
+    else if (currentEditAction.mode !== null && isExperimentalFeatureEnabled('bookmark_edit_actions')) {
         activeTab.value = 'editAction';
     } else {
         activeTab.value = 'icons'; // Default to icons tab if nothing is set or experimental features disabled
@@ -310,7 +309,7 @@ async function askBookmarkSettings(currentIcon: null | string, currentEditAction
     selectedIcon.value = currentIcon ?? null;
     
     // Reset edit action to null if experimental features are disabled
-    if (!isExperimentalFeatureEnabled(appSettings, 'bookmark_edit_actions')) {
+    if (!isExperimentalFeatureEnabled('bookmark_edit_actions')) {
         selectedEditAction.mode = null;
         selectedEditAction.content = null;
     } else {

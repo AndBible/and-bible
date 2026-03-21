@@ -27,6 +27,7 @@ import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.AiSettingsDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
+import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.database.migrations.getColumnNames
 import net.bible.android.database.migrations.getColumnNamesJoined
 import net.bible.service.common.CommonUtils
@@ -38,7 +39,7 @@ import java.lang.Exception
 const val TRIGGERS_DISABLED_KEY = "triggersDisabled"
 
 enum class SyncableDatabaseDefinition {
-    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS;
+    BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS;
     class Table(
         val tableName: String,
         val idField1: String = "id",
@@ -50,6 +51,7 @@ enum class SyncableDatabaseDefinition {
         WORKSPACES -> R.string.workspaces_contents
         MYDOCUMENTS -> R.string.my_documents_contents
         AI_SETTINGS -> R.string.ai_settings_sync_contents
+        PROGRESS -> R.string.progress_sync_contents
     }
 
     val filename get() = when(this) {
@@ -58,6 +60,7 @@ enum class SyncableDatabaseDefinition {
         WORKSPACES -> WorkspaceDatabase.dbFileName
         MYDOCUMENTS -> MyDocumentDatabase.dbFileName
         AI_SETTINGS -> AiSettingsDatabase.dbFileName
+        PROGRESS -> ProgressDatabase.dbFileName
     }
 
     val tables get() = when(this) {
@@ -120,6 +123,12 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "GlobalAiSettings"),
             Table(tableName = "LlmUsageRecord"),
         )
+        PROGRESS -> listOf(
+            Table(tableName = "MemorizedVerse"),
+            Table(tableName = "ChapterReadingRecord"),
+            Table(tableName = "MemorizationTarget"),
+            Table(tableName = "GlobalReadingProgressSettings"),
+        )
     }
 
     var syncEnabled
@@ -130,7 +139,7 @@ enum class SyncableDatabaseDefinition {
     val lastSynchronized get() = if(!syncEnabled) null else accessor.dao.getLong(LAST_SYNCHRONIZED_KEY)
 
     companion object {
-        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS)
+        val ALL = arrayOf(BOOKMARKS, WORKSPACES, READINGPLANS, MYDOCUMENTS, AI_SETTINGS, PROGRESS)
         val nameToCategory = ALL.associateBy { it.name }
         val filenameToCategory = ALL.associateBy { it.filename }
     }
