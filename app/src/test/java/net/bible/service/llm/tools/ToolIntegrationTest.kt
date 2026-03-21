@@ -30,15 +30,24 @@ import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
+import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
+import net.bible.service.llm.tools.read.GetMyDocumentsTool
+import net.bible.service.llm.tools.read.GetMyDocumentPagesTool
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.json.JSONObject
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -75,28 +84,19 @@ class ToolIntegrationTest {
         val createResult = CreateBookmarkTool.execute(createArgs, context)
         assertTrue("Create should succeed", createResult is ToolResult.Success)
 
-        val createData = (createResult as ToolResult.Success).data as JSONObject
-        assertTrue(createData.has("id"))
-        assertEquals("Gen.1.1", createData.getString("verseRef"))
-        assertTrue(createData.getBoolean("hasNote"))
+        val createData = (createResult as ToolResult.Success).data as CreateBookmarkTool.Result
+        assertEquals("Gen.1.1", createData.verseRef)
+        assertTrue(createData.hasNote)
 
         // Get bookmarks for that verse
         val getArgs = JSONObject().apply { put("verseRef", "Gen.1.1") }
         val getResult = GetBookmarksForVerseTool.execute(getArgs, context)
         assertTrue("Get should succeed", getResult is ToolResult.Success)
 
-        val getData = (getResult as ToolResult.Success).data as JSONObject
-        assertTrue(getData.getInt("bookmarkCount") >= 1)
+        val getData = (getResult as ToolResult.Success).data as GetBookmarksForVerseTool.Result
+        assertTrue(getData.bookmarkCount >= 1)
 
-        val bookmarks = getData.getJSONArray("bookmarks")
-        var found = false
-        for (i in 0 until bookmarks.length()) {
-            val bm = bookmarks.getJSONObject(i)
-            if (bm.getString("id") == createData.getString("id")) {
-                found = true
-                assertEquals("In the beginning", bm.getString("notes"))
-            }
-        }
+        val found = getData.bookmarks.any { it.id == createData.id }
         assertTrue("Created bookmark should be found", found)
     }
 
@@ -106,12 +106,11 @@ class ToolIntegrationTest {
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
 
-        val data = (result as ToolResult.Success).data as JSONObject
-        val bookmarkId = IdType.fromString(data.getString("id"))
+        val data = (result as ToolResult.Success).data as CreateBookmarkTool.Result
 
         // Verify sourcePromptId via direct DB access
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val bookmark = dao.bibleBookmarkById(bookmarkId)
+        val bookmark = dao.bibleBookmarkById(data.id)
         assertEquals(promptId, bookmark?.sourcePromptId)
     }
 
@@ -122,19 +121,19 @@ class ToolIntegrationTest {
         // Create bookmark without note
         val createArgs = JSONObject().apply { put("verseRef", "Rom.8.28") }
         val createResult = CreateBookmarkTool.execute(createArgs, context)
-        val bookmarkId = ((createResult as ToolResult.Success).data as JSONObject).getString("id")
+        val createData = (createResult as ToolResult.Success).data as CreateBookmarkTool.Result
 
         // Add note
         val noteArgs = JSONObject().apply {
-            put("bookmarkId", bookmarkId)
+            put("bookmarkId", createData.id.toString())
             put("note", "God works all things for good")
         }
         val noteResult = AddBookmarkNoteTool.execute(noteArgs, context)
         assertTrue(noteResult is ToolResult.Success)
 
-        val noteData = (noteResult as ToolResult.Success).data as JSONObject
-        assertEquals(bookmarkId, noteData.getString("bookmarkId"))
-        assertTrue(noteData.getInt("noteLength") > 0)
+        val noteData = (noteResult as ToolResult.Success).data as AddBookmarkNoteTool.Result
+        assertEquals(createData.id, noteData.bookmarkId)
+        assertTrue(noteData.noteLength > 0)
     }
 
     @Test
@@ -145,7 +144,7 @@ class ToolIntegrationTest {
             put("note", "Existing note")
         }
         val createResult = CreateBookmarkTool.execute(createArgs, context)
-        val bookmarkId = ((createResult as ToolResult.Success).data as JSONObject).getString("id")
+        val bookmarkId = ((createResult as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         // Try to add another note
         val noteArgs = JSONObject().apply {
@@ -178,24 +177,24 @@ class ToolIntegrationTest {
             put("note", "Original note")
         }
         val createResult = CreateBookmarkTool.execute(createArgs, context)
-        val bookmarkId = ((createResult as ToolResult.Success).data as JSONObject).getString("id")
+        val bookmarkId = ((createResult as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         // Update the note
         val updateArgs = JSONObject().apply {
-            put("bookmarkId", bookmarkId)
+            put("bookmarkId", bookmarkId.toString())
             put("note", "Updated note text")
         }
         val updateResult = UpdateBookmarkNoteTool.execute(updateArgs, context)
         assertTrue("Update should succeed", updateResult is ToolResult.Success)
 
-        val updateData = (updateResult as ToolResult.Success).data as JSONObject
-        assertEquals(bookmarkId, updateData.getString("bookmarkId"))
-        assertEquals("Original note".length, updateData.getInt("previousNoteLength"))
-        assertEquals("Updated note text".length, updateData.getInt("noteLength"))
+        val updateData = (updateResult as ToolResult.Success).data as UpdateBookmarkNoteTool.Result
+        assertEquals(bookmarkId, updateData.bookmarkId)
+        assertEquals("Original note".length, updateData.previousNoteLength)
+        assertEquals("Updated note text".length, updateData.noteLength)
 
         // Verify via DB that note was actually updated
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val bookmark = dao.bibleBookmarkById(IdType.fromString(bookmarkId))
+        val bookmark = dao.bibleBookmarkById(bookmarkId)
         assertEquals("Updated note text", bookmark?.notes)
     }
 
@@ -216,31 +215,22 @@ class ToolIntegrationTest {
     fun createLabel_thenGetAll() = runBlocking {
         // Count labels before
         val beforeResult = GetAllLabelsTool.execute(JSONObject(), context)
-        val beforeCount = ((beforeResult as ToolResult.Success).data as JSONObject).getInt("labelCount")
+        val beforeCount = ((beforeResult as ToolResult.Success).data as GetAllLabelsTool.Result).labelCount
 
         // Create label
         val createArgs = JSONObject().apply { put("name", "Test Study Label") }
         val createResult = CreateLabelTool.execute(createArgs, context)
         assertTrue("Create should succeed", createResult is ToolResult.Success)
 
-        val createData = (createResult as ToolResult.Success).data as JSONObject
-        assertTrue(createData.has("id"))
-        assertEquals("Test Study Label", createData.getString("name"))
+        val createData = (createResult as ToolResult.Success).data as CreateLabelTool.Result
+        assertEquals("Test Study Label", createData.name)
 
         // Get all labels and verify it exists
         val afterResult = GetAllLabelsTool.execute(JSONObject(), context)
-        val afterData = (afterResult as ToolResult.Success).data as JSONObject
-        assertEquals(beforeCount + 1, afterData.getInt("labelCount"))
+        val afterData = (afterResult as ToolResult.Success).data as GetAllLabelsTool.Result
+        assertEquals(beforeCount + 1, afterData.labelCount)
 
-        val labels = afterData.getJSONArray("labels")
-        var found = false
-        for (i in 0 until labels.length()) {
-            val label = labels.getJSONObject(i)
-            if (label.getString("id") == createData.getString("id")) {
-                found = true
-                assertEquals("Test Study Label", label.getString("name"))
-            }
-        }
+        val found = afterData.labels.any { it.id == createData.id }
         assertTrue("Created label should be found in getAllLabels", found)
     }
 
@@ -262,35 +252,34 @@ class ToolIntegrationTest {
         // Create bookmark
         val bookmarkArgs = JSONObject().apply { put("verseRef", "Eph.2.8") }
         val bookmarkResult = CreateBookmarkTool.execute(bookmarkArgs, context)
-        val bookmarkId = ((bookmarkResult as ToolResult.Success).data as JSONObject).getString("id")
+        val bookmarkId = ((bookmarkResult as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         // Create label
         val labelArgs = JSONObject().apply { put("name", "Grace") }
         val labelResult = CreateLabelTool.execute(labelArgs, context)
-        val labelId = ((labelResult as ToolResult.Success).data as JSONObject).getString("id")
+        val labelId = ((labelResult as ToolResult.Success).data as CreateLabelTool.Result).id
 
         // Link them
         val linkArgs = JSONObject().apply {
-            put("bookmarkId", bookmarkId)
-            put("labelId", labelId)
+            put("bookmarkId", bookmarkId.toString())
+            put("labelId", labelId.toString())
         }
         val linkResult = AddLabelToBookmarkTool.execute(linkArgs, context)
         assertTrue("Link should succeed", linkResult is ToolResult.Success)
 
-        val linkData = (linkResult as ToolResult.Success).data as JSONObject
-        assertEquals("Grace", linkData.getString("labelName"))
+        val linkData = (linkResult as ToolResult.Success).data as AddLabelToBookmarkTool.Result
+        assertEquals("Grace", linkData.labelName)
 
         // Verify via GetBookmarksWithLabel
-        val queryArgs = JSONObject().apply { put("labelId", labelId) }
+        val queryArgs = JSONObject().apply { put("labelId", labelId.toString()) }
         val queryResult = GetBookmarksWithLabelTool.execute(queryArgs, context)
         assertTrue(queryResult is ToolResult.Success)
 
-        val queryData = (queryResult as ToolResult.Success).data as JSONObject
-        assertEquals(1, queryData.getInt("bookmarkCount"))
-        assertEquals("Grace", queryData.getString("labelName"))
+        val queryData = (queryResult as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
+        assertEquals(1, queryData.bookmarkCount)
+        assertEquals("Grace", queryData.labelName)
 
-        val bookmarks = queryData.getJSONArray("bookmarks")
-        assertEquals(bookmarkId, bookmarks.getJSONObject(0).getString("id"))
+        assertEquals(bookmarkId, queryData.bookmarks[0].id)
     }
 
     @Test
@@ -298,11 +287,11 @@ class ToolIntegrationTest {
         // Create bookmark and label
         val bookmarkId = ((CreateBookmarkTool.execute(
             JSONObject().apply { put("verseRef", "Phil.4.13") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Strength") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Link once
         val linkArgs = JSONObject().apply {
@@ -324,7 +313,7 @@ class ToolIntegrationTest {
         // Create label (which acts as StudyPad)
         val labelArgs = JSONObject().apply { put("name", "Romans Study") }
         val labelResult = CreateLabelTool.execute(labelArgs, context)
-        val labelId = ((labelResult as ToolResult.Success).data as JSONObject).getString("id")
+        val labelId = ((labelResult as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add text entry
         val entryArgs = JSONObject().apply {
@@ -335,12 +324,11 @@ class ToolIntegrationTest {
         val entryResult = AddStudyPadEntryTool.execute(entryArgs, context)
         assertTrue("Entry creation should succeed", entryResult is ToolResult.Success)
 
-        val entryData = (entryResult as ToolResult.Success).data as JSONObject
-        assertTrue(entryData.has("entryId"))
-        assertEquals(labelId, entryData.getString("labelId"))
-        assertEquals("Romans Study", entryData.getString("labelName"))
-        assertTrue(entryData.getInt("textLength") > 0)
-        assertEquals("MARKDOWN", entryData.getString("contentType"))
+        val entryData = (entryResult as ToolResult.Success).data as AddStudyPadEntryTool.Result
+        assertEquals(IdType.fromString(labelId), entryData.labelId)
+        assertEquals("Romans Study", entryData.labelName)
+        assertTrue(entryData.textLength > 0)
+        assertEquals("MARKDOWN", entryData.contentType)
 
         // Verify via GetStudyPadContent (full mode)
         val contentArgs = JSONObject().apply {
@@ -350,14 +338,13 @@ class ToolIntegrationTest {
         val contentResult = GetStudyPadContentTool.execute(contentArgs, context)
         assertTrue(contentResult is ToolResult.Success)
 
-        val contentData = (contentResult as ToolResult.Success).data as JSONObject
-        assertEquals("Romans Study", contentData.getString("labelName"))
-        assertEquals(1, contentData.getInt("entryCount"))
+        val contentData = (contentResult as ToolResult.Success).data as GetStudyPadContentTool.EntriesResult
+        assertEquals("Romans Study", contentData.labelName)
+        assertEquals(1, contentData.entryCount)
 
-        val entries = contentData.getJSONArray("entries")
-        val entry = entries.getJSONObject(0)
-        assertEquals("text", entry.getString("type"))
-        assertTrue(entry.getString("text").contains("justification by faith"))
+        val entry = contentData.entries[0]
+        assertEquals("text", entry.type)
+        assertTrue(entry.text!!.contains("justification by faith"))
     }
 
     @Test
@@ -365,7 +352,7 @@ class ToolIntegrationTest {
         // Create label + add entry
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Info Test") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         AddStudyPadEntryTool.execute(JSONObject().apply {
             put("labelId", labelId)
@@ -380,11 +367,11 @@ class ToolIntegrationTest {
         val infoResult = GetStudyPadContentTool.execute(infoArgs, context)
         assertTrue(infoResult is ToolResult.Success)
 
-        val infoData = (infoResult as ToolResult.Success).data as JSONObject
-        assertEquals(1, infoData.getInt("totalEntries"))
-        assertEquals(1, infoData.getInt("textEntryCount"))
-        assertEquals(0, infoData.getInt("bibleBookmarkCount"))
-        assertTrue(infoData.getInt("estimatedTextLength") > 0)
+        val infoData = (infoResult as ToolResult.Success).data as GetStudyPadContentTool.InfoResult
+        assertEquals(1, infoData.totalEntries)
+        assertEquals(1, infoData.textEntryCount)
+        assertEquals(0, infoData.bibleBookmarkCount)
+        assertTrue(infoData.estimatedTextLength > 0)
     }
 
     @Test
@@ -405,7 +392,7 @@ class ToolIntegrationTest {
         // Create label
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Finish Test Pad") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Finish with it
         val finishArgs = JSONObject().apply {
@@ -427,12 +414,12 @@ class ToolIntegrationTest {
         // Create label + add entry
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Scroll Test") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         val entryId = ((AddStudyPadEntryTool.execute(JSONObject().apply {
             put("labelId", labelId)
             put("text", "Scroll target")
-        }, context) as ToolResult.Success).data as JSONObject).getString("entryId")
+        }, context) as ToolResult.Success).data as AddStudyPadEntryTool.Result).entryId.toString()
 
         // Finish with scrollTo
         val finishArgs = JSONObject().apply {
@@ -453,7 +440,7 @@ class ToolIntegrationTest {
     fun studyPad_multipleEntries_indexMode() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Multi Entry Pad") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add 3 entries
         for (i in 1..3) {
@@ -470,17 +457,15 @@ class ToolIntegrationTest {
         }, context)
         assertTrue(indexResult is ToolResult.Success)
 
-        val indexData = (indexResult as ToolResult.Success).data as JSONObject
-        assertEquals(3, indexData.getInt("totalEntries"))
-        val entries = indexData.getJSONArray("entries")
-        assertEquals(3, entries.length())
+        val indexData = (indexResult as ToolResult.Success).data as GetStudyPadContentTool.IndexResult
+        assertEquals(3, indexData.totalEntries)
+        assertEquals(3, indexData.entries.size)
 
         // Verify each entry has position and preview
-        for (i in 0 until entries.length()) {
-            val entry = entries.getJSONObject(i)
-            assertEquals(i, entry.getInt("position"))
-            assertEquals("text", entry.getString("type"))
-            assertTrue(entry.has("preview"))
+        indexData.entries.forEachIndexed { i, entry ->
+            assertEquals(i, entry.position)
+            assertEquals("text", entry.type)
+            assertTrue(entry.preview != null)
         }
     }
 
@@ -488,7 +473,7 @@ class ToolIntegrationTest {
     fun studyPad_pageMode() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Page Mode Pad") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Add 5 entries
         for (i in 1..5) {
@@ -507,19 +492,19 @@ class ToolIntegrationTest {
         }, context)
         assertTrue(pageResult is ToolResult.Success)
 
-        val pageData = (pageResult as ToolResult.Success).data as JSONObject
-        assertEquals(5, pageData.getInt("totalEntries"))
-        assertEquals(1, pageData.getInt("offset"))
-        assertEquals(2, pageData.getInt("limit"))
-        assertTrue(pageData.getBoolean("hasMore"))
-        assertEquals(2, pageData.getJSONArray("entries").length())
+        val pageData = (pageResult as ToolResult.Success).data as GetStudyPadContentTool.PageResult
+        assertEquals(5, pageData.totalEntries)
+        assertEquals(1, pageData.offset)
+        assertEquals(2, pageData.limit)
+        assertTrue(pageData.hasMore)
+        assertEquals(2, pageData.entries.size)
     }
 
     @Test
     fun studyPad_pageMode_lastPage() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Last Page Pad") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         for (i in 1..3) {
             AddStudyPadEntryTool.execute(JSONObject().apply {
@@ -535,9 +520,9 @@ class ToolIntegrationTest {
             put("offset", 2)
             put("limit", 20)
         }, context)
-        val pageData = ((pageResult as ToolResult.Success).data as JSONObject)
-        assertFalse(pageData.getBoolean("hasMore"))
-        assertEquals(1, pageData.getJSONArray("entries").length())
+        val pageData = (pageResult as ToolResult.Success).data as GetStudyPadContentTool.PageResult
+        assertFalse(pageData.hasMore)
+        assertEquals(1, pageData.entries.size)
     }
 
     // === GetBookmarksWithLabel fields parameter ===
@@ -547,13 +532,13 @@ class ToolIntegrationTest {
         // Create label and bookmark with note
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Fields Test") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         val bookmarkId = ((CreateBookmarkTool.execute(JSONObject().apply {
             put("verseRef", "Isa.40.31")
             put("note", "They shall mount up with wings")
             put("labelIds", org.json.JSONArray().apply { put(labelId) })
-        }, context) as ToolResult.Success).data as JSONObject).getString("id")
+        }, context) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         // Query with notes field
         val withNotes = GetBookmarksWithLabelTool.execute(JSONObject().apply {
@@ -564,10 +549,9 @@ class ToolIntegrationTest {
                 put("notes")
             })
         }, context)
-        val withNotesData = ((withNotes as ToolResult.Success).data as JSONObject)
-        val bm = withNotesData.getJSONArray("bookmarks").getJSONObject(0)
-        assertTrue(bm.has("notes"))
-        assertEquals("They shall mount up with wings", bm.getString("notes"))
+        val withNotesData = (withNotes as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
+        val bm = withNotesData.bookmarks[0]
+        assertEquals("They shall mount up with wings", bm.notes)
 
         // Query without notes field
         val withoutNotes = GetBookmarksWithLabelTool.execute(JSONObject().apply {
@@ -577,9 +561,9 @@ class ToolIntegrationTest {
                 put("verseName")
             })
         }, context)
-        val withoutNotesData = ((withoutNotes as ToolResult.Success).data as JSONObject)
-        val bm2 = withoutNotesData.getJSONArray("bookmarks").getJSONObject(0)
-        assertFalse("Notes should not be included when not in fields", bm2.has("notes"))
+        val withoutNotesData = (withoutNotes as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
+        val bm2 = withoutNotesData.bookmarks[0]
+        assertNull("Notes should not be included when not in fields", bm2.notes)
     }
 
     @Test
@@ -602,7 +586,7 @@ class ToolIntegrationTest {
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
 
-        val bookmarkId = IdType.fromString(((result as ToolResult.Success).data as JSONObject).getString("id"))
+        val bookmarkId = ((result as ToolResult.Success).data as CreateBookmarkTool.Result).id
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val bookmark = dao.bibleBookmarkById(bookmarkId)
         // normalizeLlmText should have converted \\n to \n
@@ -619,7 +603,7 @@ class ToolIntegrationTest {
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
 
-        val bookmarkId = IdType.fromString(((result as ToolResult.Success).data as JSONObject).getString("id"))
+        val bookmarkId = ((result as ToolResult.Success).data as CreateBookmarkTool.Result).id
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
         val bookmark = dao.bibleBookmarkById(bookmarkId)
         assertEquals("<p>Let there be light</p>", bookmark?.notes)
@@ -631,7 +615,7 @@ class ToolIntegrationTest {
     fun addBookmarkNote_htmlContentType() = runBlocking {
         val bookmarkId = ((CreateBookmarkTool.execute(
             JSONObject().apply { put("verseRef", "Gen.1.4") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateBookmarkTool.Result).id.toString()
 
         val noteResult = AddBookmarkNoteTool.execute(JSONObject().apply {
             put("bookmarkId", bookmarkId)
@@ -640,23 +624,23 @@ class ToolIntegrationTest {
         }, context)
         assertTrue(noteResult is ToolResult.Success)
 
-        val noteData = (noteResult as ToolResult.Success).data as JSONObject
-        assertEquals("HTML", noteData.getString("contentType"))
+        val noteData = (noteResult as ToolResult.Success).data as AddBookmarkNoteTool.Result
+        assertEquals("HTML", noteData.contentType)
     }
 
     @Test
     fun addBookmarkNote_notesSourcePromptIdSet() = runBlocking {
         val bookmarkId = ((CreateBookmarkTool.execute(
             JSONObject().apply { put("verseRef", "Gen.1.5") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         AddBookmarkNoteTool.execute(JSONObject().apply {
-            put("bookmarkId", bookmarkId)
+            put("bookmarkId", bookmarkId.toString())
             put("note", "AI-generated note")
         }, context)
 
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val bookmark = dao.bibleBookmarkById(IdType.fromString(bookmarkId))
+        val bookmark = dao.bibleBookmarkById(bookmarkId)
         assertEquals(promptId, bookmark?.notesSourcePromptId)
     }
 
@@ -669,15 +653,15 @@ class ToolIntegrationTest {
                 put("verseRef", "Gen.1.6")
                 put("note", "old")
             }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateBookmarkTool.Result).id
 
         UpdateBookmarkNoteTool.execute(JSONObject().apply {
-            put("bookmarkId", bookmarkId)
+            put("bookmarkId", bookmarkId.toString())
             put("note", "Line1\\nLine2")
         }, context)
 
         val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
-        val bookmark = dao.bibleBookmarkById(IdType.fromString(bookmarkId))
+        val bookmark = dao.bibleBookmarkById(bookmarkId)
         assertEquals("Line1\nLine2", bookmark?.notes)
     }
 
@@ -687,7 +671,7 @@ class ToolIntegrationTest {
     fun addStudyPadEntry_htmlContentType() = runBlocking {
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "HTML Pad") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         val entryResult = AddStudyPadEntryTool.execute(JSONObject().apply {
             put("labelId", labelId)
@@ -695,16 +679,16 @@ class ToolIntegrationTest {
             put("contentType", "HTML")
         }, context)
         assertTrue(entryResult is ToolResult.Success)
-        assertEquals("HTML", ((entryResult as ToolResult.Success).data as JSONObject).getString("contentType"))
+        assertEquals("HTML", ((entryResult as ToolResult.Success).data as AddStudyPadEntryTool.Result).contentType)
 
         // Verify via full content
         val contentResult = GetStudyPadContentTool.execute(JSONObject().apply {
             put("labelId", labelId)
         }, context)
-        val entry = ((contentResult as ToolResult.Success).data as JSONObject)
-            .getJSONArray("entries").getJSONObject(0)
-        assertEquals("HTML", entry.getString("contentType"))
-        assertTrue(entry.getString("text").contains("<h1>Title</h1>"))
+        val contentData = (contentResult as ToolResult.Success).data as GetStudyPadContentTool.EntriesResult
+        val entry = contentData.entries[0]
+        assertEquals("HTML", entry.contentType)
+        assertTrue(entry.text!!.contains("<h1>Title</h1>"))
     }
 
     // === GetAllLabels ===
@@ -713,9 +697,9 @@ class ToolIntegrationTest {
     fun getAllLabels_returnsLabels() = runBlocking {
         val result = GetAllLabelsTool.execute(JSONObject(), context)
         assertTrue(result is ToolResult.Success)
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertTrue(data.has("labelCount"))
-        assertTrue(data.has("labels"))
+        val data = (result as ToolResult.Success).data as GetAllLabelsTool.Result
+        assertTrue(data.labelCount >= 0)
+        assertNotNull(data.labels)
     }
 
     // === CreateBookmark with labels ===
@@ -725,7 +709,7 @@ class ToolIntegrationTest {
         // Create label first
         val labelId = ((CreateLabelTool.execute(
             JSONObject().apply { put("name", "Favorites") }, context
-        ) as ToolResult.Success).data as JSONObject).getString("id")
+        ) as ToolResult.Success).data as CreateLabelTool.Result).id.toString()
 
         // Create bookmark with label
         val args = JSONObject().apply {
@@ -736,14 +720,465 @@ class ToolIntegrationTest {
         val result = CreateBookmarkTool.execute(args, context)
         assertTrue(result is ToolResult.Success)
 
-        val data = (result as ToolResult.Success).data as JSONObject
-        assertEquals(2, data.getInt("labelCount")) // user label + AI label
+        val data = (result as ToolResult.Success).data as CreateBookmarkTool.Result
+        assertEquals(2, data.labelCount) // user label + AI label
 
         // Verify bookmark appears under the label
         val queryResult = GetBookmarksWithLabelTool.execute(
             JSONObject().apply { put("labelId", labelId) }, context
         )
-        val queryData = ((queryResult as ToolResult.Success).data as JSONObject)
-        assertEquals(1, queryData.getInt("bookmarkCount"))
+        val queryData = (queryResult as ToolResult.Success).data as GetBookmarksWithLabelTool.Result
+        assertEquals(1, queryData.bookmarkCount)
+    }
+
+    // === MyDocuments: GetMyDocuments ===
+
+    @Test
+    fun getMyDocuments_emptyInitially() = runBlocking {
+        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
+        // May have 0 or more documents depending on initial state
+        assertNotNull(data.documents)
+        assertEquals(data.documents.size, data.documentCount)
+    }
+
+    @Test
+    fun getMyDocuments_showsAiDocument() = runBlocking {
+        // Ensure AI Documents book exists
+        MyDocumentBookManager.getOrCreateAIDocument()
+
+        val result = GetMyDocumentsTool.execute(JSONObject(), context)
+        val data = (result as ToolResult.Success).data as GetMyDocumentsTool.Result
+
+        assertTrue(data.documentCount >= 1)
+        assertNotNull(data.aiDocumentId)
+        assertEquals("AIDocuments", data.aiDocumentInitials)
+
+        val aiDoc = data.documents.find { it.isAIDocument }
+        assertNotNull("AI Documents should be in the list", aiDoc)
+        assertEquals("AIDocuments", aiDoc!!.initials)
+    }
+
+    // === MyDocuments: CreateMyDocument ===
+
+    @Test
+    fun createMyDocument_success() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Test Study Notes")
+            put("description", "Notes on Romans")
+        }
+        val result = CreateMyDocumentTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateMyDocumentTool.Result
+        assertEquals("Test Study Notes", data.name)
+        assertEquals("Notes on Romans", data.description)
+        assertTrue(data.initials.startsWith("MyDoc_"))
+
+        // Verify it appears in document list
+        val listResult = GetMyDocumentsTool.execute(JSONObject(), context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentsTool.Result
+        assertTrue(listData.documents.any { it.id == data.id })
+    }
+
+    @Test
+    fun createMyDocument_missingName() = runBlocking {
+        val result = CreateMyDocumentTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    // === MyDocuments: AddMyDocumentPage ===
+
+    @Test
+    fun addMyDocumentPage_toAiDocuments() = runBlocking {
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Test Page")
+            put("content", "# Hello World\n\nThis is a test page.")
+        }
+        val result = AddMyDocumentPageTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as AddMyDocumentPageTool.Result
+        assertEquals("Test Page", data.title)
+        assertEquals("AIDocuments", data.initials)
+        assertEquals("MARKDOWN", data.contentType)
+        assertTrue(data.pageKey.startsWith("page_"))
+    }
+
+    @Test
+    fun addMyDocumentPage_toCustomDocument() = runBlocking {
+        // Create document first
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Custom Doc")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        // Add page
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("documentId", docData.id.toString())
+            put("title", "Chapter 1")
+            put("content", "Content here")
+        }, context)
+        assertTrue(pageResult is ToolResult.Success)
+
+        val pageData = (pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result
+        assertEquals(docData.id, pageData.documentId)
+        assertEquals("Chapter 1", pageData.title)
+    }
+
+    @Test
+    fun addMyDocumentPage_normalizesLlmText() = runBlocking {
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Normalize Test")
+            put("content", "Line1\\nLine2\\tTabbed")
+        }
+        val result = AddMyDocumentPageTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val pageId = ((result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val content = dao.getContent(pageId)
+        assertEquals("Line1\nLine2\tTabbed", content)
+    }
+
+    @Test
+    fun addMyDocumentPage_missingTitle() = runBlocking {
+        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("content", "Some content")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun addMyDocumentPage_documentNotFound() = runBlocking {
+        val result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("documentId", IdType().toString())
+            put("title", "Title")
+            put("content", "Content")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("DOCUMENT_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: GetMyDocumentPages ===
+
+    @Test
+    fun getMyDocumentPages_withoutContent() = runBlocking {
+        // Create doc with pages
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Pages Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page A")
+            put("content", "Content A")
+        }, context)
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page B")
+            put("content", "Content B")
+        }, context)
+
+        // List without content
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+        }, context)
+        assertTrue(listResult is ToolResult.Success)
+
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(2, listData.pageCount)
+        assertEquals(docData.initials, listData.initials)
+        assertNull("Content should be null without includeContent", listData.pages[0].content)
+        assertEquals("Page A", listData.pages[0].title)
+        assertEquals("Page B", listData.pages[1].title)
+    }
+
+    @Test
+    fun getMyDocumentPages_withContent() = runBlocking {
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Content Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Page 1")
+            put("content", "Hello World")
+        }, context)
+
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(1, listData.pageCount)
+        assertEquals("Hello World", listData.pages[0].content)
+    }
+
+    @Test
+    fun getMyDocumentPages_documentNotFound() = runBlocking {
+        val result = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", "NonExistent")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("DOCUMENT_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun getMyDocumentPages_missingIdentifier() = runBlocking {
+        val result = GetMyDocumentPagesTool.execute(JSONObject(), context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("MISSING_IDENTIFIER", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: EditMyDocumentPage ===
+
+    @Test
+    fun editMyDocumentPage_updateTitle() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Original Title")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("title", "Updated Title")
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        val editData = (editResult as ToolResult.Success).data as EditMyDocumentPageTool.Result
+        assertEquals("Updated Title", editData.title)
+    }
+
+    @Test
+    fun editMyDocumentPage_updateContent() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Edit Content Test")
+            put("content", "Old content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("content", "New content")
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        // Verify via DB
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        assertEquals("New content", dao.getContent(pageId))
+    }
+
+    @Test
+    fun editMyDocumentPage_updateOrderNumber() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Order Test")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val editResult = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("orderNumber", 5)
+        }, context)
+        assertTrue(editResult is ToolResult.Success)
+
+        val editData = (editResult as ToolResult.Success).data as EditMyDocumentPageTool.Result
+        assertEquals(5, editData.orderNumber)
+    }
+
+    @Test
+    fun editMyDocumentPage_pageNotFound() = runBlocking {
+        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", IdType().toString())
+            put("title", "New title")
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("PAGE_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun editMyDocumentPage_nothingToUpdate() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "No Update Test")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val result = EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+        }, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    // === MyDocuments: DeleteMyDocumentPage ===
+
+    @Test
+    fun deleteMyDocumentPage_success() = runBlocking {
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Delete Me")
+            put("content", "To be deleted")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val deleteResult = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", pageId.toString())
+        }, context)
+        assertTrue(deleteResult is ToolResult.Success)
+
+        val deleteData = (deleteResult as ToolResult.Success).data as DeleteMyDocumentPageTool.Result
+        assertTrue(deleteData.deleted)
+        assertEquals("Delete Me", deleteData.pageTitle)
+
+        // Verify page is gone
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        assertNull(dao.pageById(pageId))
+    }
+
+    @Test
+    fun deleteMyDocumentPage_pageNotFound() = runBlocking {
+        val result = DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", IdType().toString())
+        }, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("PAGE_NOT_FOUND", (result as ToolResult.Error).code)
+    }
+
+    // === MyDocuments: Permission behavior ===
+
+    @Test
+    fun addMyDocumentPage_noPermissionForAiDocuments() {
+        // Adding to AI Documents should not require permission
+        val args = JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Test")
+            put("content", "Content")
+        }
+        assertFalse(
+            "AI Documents should not require permission",
+            AddMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    @Test
+    fun addMyDocumentPage_requiresPermissionForOtherDocuments() {
+        val args = JSONObject().apply {
+            put("initials", "SomeOtherDoc")
+            put("title", "Test")
+            put("content", "Content")
+        }
+        assertTrue(
+            "Non-AI Documents should require permission",
+            AddMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    @Test
+    fun editMyDocumentPage_noPermissionForSessionPages() = runBlocking {
+        // Add a page (this adds its ID to context.createdPageIds)
+        val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", "AIDocuments")
+            put("title", "Session Page")
+            put("content", "Content")
+        }, context)
+        val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // Edit should not require permission for pages created in this session
+        val editArgs = JSONObject().apply {
+            put("pageId", pageId.toString())
+            put("title", "New Title")
+        }
+        assertFalse(
+            "Session-created pages should not require permission",
+            EditMyDocumentPageTool.requiresPermissionForCall(editArgs, context)
+        )
+    }
+
+    @Test
+    fun editMyDocumentPage_requiresPermissionForOtherPages() {
+        val args = JSONObject().apply {
+            put("pageId", IdType().toString())
+            put("title", "New Title")
+        }
+        assertTrue(
+            "Non-session pages should require permission",
+            EditMyDocumentPageTool.requiresPermissionForCall(args, context)
+        )
+    }
+
+    // === MyDocuments: Full workflow (create doc → add pages → list → edit → delete) ===
+
+    @Test
+    fun myDocuments_fullWorkflow() = runBlocking {
+        // 1. Create document
+        val docResult = CreateMyDocumentTool.execute(JSONObject().apply {
+            put("name", "Workflow Test")
+        }, context)
+        val docData = (docResult as ToolResult.Success).data as CreateMyDocumentTool.Result
+
+        // 2. Add two pages
+        val page1Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Introduction")
+            put("content", "This is the introduction.")
+        }, context)
+        val page1Id = ((page1Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        val page2Result = AddMyDocumentPageTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("title", "Chapter 1")
+            put("content", "This is chapter 1.")
+        }, context)
+        val page2Id = ((page2Result as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // 3. List pages
+        val listResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val listData = (listResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(2, listData.pageCount)
+
+        // 4. Edit first page
+        EditMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", page1Id.toString())
+            put("title", "Preface")
+            put("content", "Updated introduction content.")
+        }, context)
+
+        // 5. Verify edit
+        val verifyResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+            put("includeContent", true)
+        }, context)
+        val verifyData = (verifyResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        val editedPage = verifyData.pages.find { it.id == page1Id }
+        assertEquals("Preface", editedPage?.title)
+        assertEquals("Updated introduction content.", editedPage?.content)
+
+        // 6. Delete second page
+        DeleteMyDocumentPageTool.execute(JSONObject().apply {
+            put("pageId", page2Id.toString())
+        }, context)
+
+        // 7. Verify deletion
+        val finalResult = GetMyDocumentPagesTool.execute(JSONObject().apply {
+            put("initials", docData.initials)
+        }, context)
+        val finalData = (finalResult as ToolResult.Success).data as GetMyDocumentPagesTool.Result
+        assertEquals(1, finalData.pageCount)
+        assertFalse(finalData.pages.any { it.id == page2Id })
     }
 }

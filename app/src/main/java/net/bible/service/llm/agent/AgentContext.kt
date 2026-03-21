@@ -55,7 +55,9 @@ data class AgentContext(
     /** User-provided additional instructions for regeneration (e.g., "make it shorter"). */
     val additionalInstructions: String? = null,
     /** When true, setDocumentTitle is blocked and content is only shown in the log. */
-    val noDocumentCreation: Boolean = false
+    val noDocumentCreation: Boolean = false,
+    /** Page IDs created during this agent session (for permission-free editing of own pages). */
+    val createdPageIds: MutableSet<IdType> = mutableSetOf()
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef

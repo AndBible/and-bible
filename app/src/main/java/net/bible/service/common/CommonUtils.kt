@@ -127,8 +127,6 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
-import net.bible.service.llm.AgentTool
-import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
@@ -472,33 +470,6 @@ object CommonUtils : CommonUtilsBase() {
                 DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
             } catch (_: Exception) { false }
 
-        // Agent Permission Settings
-        var agentPermissionMode: PermissionMode
-            get() = try {
-                PermissionMode.valueOf(
-                    getString("agent_permission_mode", "ALWAYS_ASK") ?: "ALWAYS_ASK"
-                )
-            } catch (e: IllegalArgumentException) {
-                PermissionMode.ALWAYS_ASK
-            }
-            set(value) = setString("agent_permission_mode", value.name)
-
-        var permanentlyAllowedTools: Set<AgentTool>
-            get() = getEnumSet("agent_permanently_allowed_tools")
-            set(value) = setEnumSet("agent_permanently_allowed_tools", value)
-
-        var permanentlyDeniedTools: Set<AgentTool>
-            get() = getEnumSet("agent_permanently_denied_tools")
-            set(value) = setEnumSet("agent_permanently_denied_tools", value)
-
-        var aiExcludedDocuments: Set<String>
-            get() = getStringSet("ai_excluded_documents")
-            set(value) = setStringSet("ai_excluded_documents", value)
-
-        /** Max tokens (approx) for getCommentaries response before showing selection dialog. 0 = no limit. */
-        var commentaryMaxResponseTokens: Int
-            get() = getInt("commentary_max_response_tokens", 0)
-            set(value) = setInt("commentary_max_response_tokens", value)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -507,6 +478,12 @@ object CommonUtils : CommonUtilsBase() {
         if(s != null) return s
         return AndBibleSettings().apply { _settings = this }
     }
+
+    /**
+     * Global AI settings stored in the syncable AiSettingsDatabase.
+     * Use this for agent permissions, excluded documents, commentary token limit, etc.
+     */
+    val aiSettings: AiSettings get() = AiSettings
 
     var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
         get() = DatabaseContainer.instance.workspaceDb

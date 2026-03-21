@@ -60,9 +60,25 @@ interface Tool {
      * Whether this tool requires user permission before execution.
      * Read-only tools typically don't require permission (false).
      * Write tools (creating bookmarks, documents) should require permission (true).
+     *
+     * This is the static default. Override [requiresPermissionForCall] for dynamic
+     * per-invocation permission decisions (e.g., allowing writes to AI Documents without permission).
      */
     val requiresPermission: Boolean
         get() = false
+
+    /**
+     * Dynamic permission check for a specific tool invocation.
+     * Called by [AgentExecutor] instead of the static [requiresPermission].
+     *
+     * Override this to allow certain invocations without permission (e.g., adding pages
+     * to the AI Documents book, or editing pages created in the same session).
+     *
+     * @param arguments Parsed tool arguments
+     * @param context Current agent execution context
+     * @return true if this specific invocation requires user permission
+     */
+    fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean = requiresPermission
 
     /**
      * String resource ID for the user-facing display name of this tool.

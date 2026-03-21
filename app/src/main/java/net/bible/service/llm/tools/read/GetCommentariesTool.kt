@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.read
 
 import android.app.AlertDialog
 import android.content.Context
+import android.net.Uri
 import android.view.LayoutInflater
 import net.bible.android.activity.databinding.DialogCommentaryFilterBinding
 import kotlinx.coroutines.Dispatchers
@@ -228,14 +229,14 @@ object GetCommentariesTool : Tool {
                     if (useXml) {
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${block.startVerseRef}",
+                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
                             osisXml = block.osisXml
                         )
                     } else {
                         val fragment = useSaxBuilder { it.build(StringReader(block.osisXml)).rootElement }
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${block.startVerseRef}",
+                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
                             text = OsisToPlainText.convert(fragment)
                         )
                     }
@@ -309,7 +310,7 @@ object GetCommentariesTool : Tool {
      * Returns null if the user cancels (meaning: abort the tool call entirely).
      */
     private suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>): FilterResult? {
-        val thresholdTokens = CommonUtils.settings.commentaryMaxResponseTokens
+        val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
         }

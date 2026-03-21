@@ -52,7 +52,7 @@ class AiDocumentFilterActivity : ActivityBase() {
 
         title = getString(R.string.ai_document_filter_activity_title)
 
-        initialExcluded = CommonUtils.settings.aiExcludedDocuments
+        initialExcluded = CommonUtils.aiSettings.aiExcludedDocuments
 
         val allBooks = Books.installed().books
         val categories = listOf(
@@ -120,7 +120,7 @@ class AiDocumentFilterActivity : ActivityBase() {
     private fun isDirty(): Boolean = collectExcluded() != initialExcluded
 
     private fun saveAndFinish() {
-        CommonUtils.settings.aiExcludedDocuments = collectExcluded()
+        CommonUtils.aiSettings.aiExcludedDocuments = collectExcluded()
         finish()
     }
 

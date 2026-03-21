@@ -24,15 +24,15 @@ import org.crosswire.jsword.book.Book
 /**
  * Centralized filter for AI document access.
  *
- * Uses a blacklist approach: documents in [CommonUtils.settings.aiExcludedDocuments]
+ * Uses a blacklist approach: documents in [CommonUtils.aiSettings.aiExcludedDocuments]
  * are excluded from AI tool access. New documents are allowed by default.
  */
 object AiDocumentFilter {
     fun isAllowed(initials: String): Boolean =
-        initials !in CommonUtils.settings.aiExcludedDocuments
+        initials !in CommonUtils.aiSettings.aiExcludedDocuments
 
     fun <T : Book> filterAllowed(books: List<T>): List<T> {
-        val excluded = CommonUtils.settings.aiExcludedDocuments
+        val excluded = CommonUtils.aiSettings.aiExcludedDocuments
         return if (excluded.isEmpty()) books
         else books.filter { it.initials !in excluded }
     }

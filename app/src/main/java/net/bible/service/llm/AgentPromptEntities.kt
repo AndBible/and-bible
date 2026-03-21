@@ -24,6 +24,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Update
@@ -47,6 +48,8 @@ enum class AgentTool {
     GET_STUDY_PAD_CONTENT,
     SEARCH_STUDY_PADS,
     GET_INSTALLED_DOCUMENTS,
+    GET_MY_DOCUMENTS,
+    GET_MY_DOCUMENT_PAGES,
 
     // Write tools
     CREATE_BOOKMARK,
@@ -55,6 +58,10 @@ enum class AgentTool {
     CREATE_LABEL,
     ADD_LABEL_TO_BOOKMARK,
     ADD_STUDY_PAD_ENTRY,
+    CREATE_MY_DOCUMENT,
+    ADD_MY_DOCUMENT_PAGE,
+    EDIT_MY_DOCUMENT_PAGE,
+    DELETE_MY_DOCUMENT_PAGE,
     SET_DOCUMENT_TITLE,
     FINISH_WITH_STUDY_PAD,
     FINISH_WITHOUT_DOCUMENT;
@@ -110,6 +117,10 @@ data class LlmProviderConfig(
     @ColumnInfo(defaultValue = "0") val isDefault: Boolean = false,
     /** Display ordering */
     @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
+    /** Custom pricing: input cost per million tokens (0.0 = use built-in pricing) */
+    @ColumnInfo(defaultValue = "0.0") val customInputPrice: Double = 0.0,
+    /** Custom pricing: output cost per million tokens (0.0 = use built-in pricing) */
+    @ColumnInfo(defaultValue = "0.0") val customOutputPrice: Double = 0.0,
 ) {
     fun resolveProvider(): LlmProvider = try {
         LlmProvider.valueOf(providerType)
@@ -256,4 +267,78 @@ interface AgentPromptDao {
 
     @Query("DELETE FROM AgentPrompt WHERE id = :id")
     fun deleteById(id: IdType)
+}
+
+/**
+ * Singleton entity for global AI settings that are synced across devices.
+ * Uses a fixed ID so sync recognizes it as the same row on all devices.
+ */
+@Entity
+data class GlobalAiSettings(
+    @PrimaryKey val id: IdType = SINGLETON_ID,
+    @ColumnInfo(defaultValue = "NULL") val agentPermissionMode: PermissionMode? = null,
+    @ColumnInfo(defaultValue = "NULL") val permanentlyAllowedTools: Set<AgentTool>? = null,
+    @ColumnInfo(defaultValue = "NULL") val permanentlyDeniedTools: Set<AgentTool>? = null,
+    val aiExcludedDocuments: Set<String> = emptySet(),
+    @ColumnInfo(defaultValue = "0") val commentaryMaxResponseTokens: Int = 0,
+) {
+    companion object {
+        /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
+        val SINGLETON_ID = IdType.fromString("a1000000-0000-0000-0000-000000000001")
+    }
+}
+
+@Dao
+interface GlobalAiSettingsDao {
+    @Query("SELECT * FROM GlobalAiSettings LIMIT 1")
+    fun get(): GlobalAiSettings?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun set(settings: GlobalAiSettings)
+}
+
+/**
+ * Per-device cumulative LLM usage record. Each device writes only its own row
+ * (keyed by providerConfigId + deviceId), and the UI sums across all devices for totals.
+ * This avoids data loss with last-writer-wins sync for cumulative counters.
+ *
+ * Uses a standard IdType PK for sync compatibility (LogEntry expects IdType entity IDs).
+ * The unique index on (providerConfigId, deviceId) ensures one row per device per provider.
+ */
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = LlmProviderConfig::class,
+        parentColumns = ["id"],
+        childColumns = ["providerConfigId"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [
+        Index("providerConfigId"),
+        Index(value = ["providerConfigId", "deviceId"], unique = true),
+    ]
+)
+data class LlmUsageRecord(
+    @PrimaryKey val id: IdType = IdType(),
+    val providerConfigId: IdType,
+    val deviceId: String,
+    @ColumnInfo(defaultValue = "0") val inputTokens: Long = 0,
+    @ColumnInfo(defaultValue = "0") val outputTokens: Long = 0,
+    @ColumnInfo(defaultValue = "0") val cacheCreationTokens: Long = 0,
+    @ColumnInfo(defaultValue = "0") val cacheReadTokens: Long = 0,
+    @ColumnInfo(defaultValue = "0.0") val estimatedCostUsd: Double = 0.0,
+)
+
+@Dao
+interface LlmUsageRecordDao {
+    @Query("SELECT * FROM LlmUsageRecord WHERE providerConfigId = :configId")
+    fun getByConfig(configId: IdType): List<LlmUsageRecord>
+
+    @Query("SELECT * FROM LlmUsageRecord WHERE providerConfigId = :configId AND deviceId = :deviceId")
+    fun get(configId: IdType, deviceId: String): LlmUsageRecord?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsert(record: LlmUsageRecord)
+
+    @Query("DELETE FROM LlmUsageRecord WHERE providerConfigId = :configId")
+    fun deleteByConfig(configId: IdType)
 }

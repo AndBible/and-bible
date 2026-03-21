@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import android.net.Uri
 import net.bible.android.BibleApplication
 import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
@@ -140,7 +141,7 @@ object GetDictionaryEntryTool : Tool {
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey)
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
-                else -> "sword://$dictionaryInitials/$key"
+                else -> "sword://$dictionaryInitials/${Uri.encode(key)}"
             }
 
             if (args.format == ContentFormat.XML) {

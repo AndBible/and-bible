@@ -89,7 +89,7 @@ class AiConnectionSettingsActivity : ActivityBase() {
 
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
-    private val settings get() = CommonUtils.settings
+    private val settings get() = CommonUtils.aiSettings
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference

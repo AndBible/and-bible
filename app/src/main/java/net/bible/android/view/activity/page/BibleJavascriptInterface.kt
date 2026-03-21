@@ -39,8 +39,6 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.CurrentGeneralBookPage
 import net.bible.android.control.page.CurrentPageManager
-import net.bible.android.control.page.ErrorDocument
-import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.control.page.MultiFragmentDocument
 import net.bible.android.control.page.MyNotesDocument
 import net.bible.android.control.page.OrdinalRange
@@ -782,17 +780,16 @@ class BibleJavascriptInterface(
     @JavascriptInterface
     fun deleteMyDocumentPage(pageId: String) {
         val id = IdType(pageId)
-        scope.launch {
+        scope.launch(Dispatchers.Main) {
             AlertDialog.Builder(mainBibleActivity)
                 .setMessage(R.string.ai_document_delete_confirmation)
                 .setPositiveButton(R.string.yes) { _, _ ->
                     MyDocumentBookManager.deleteAIDocumentPage(id)
-                    val errorDoc = ErrorDocument(
-                        mainBibleActivity.getString(R.string.ai_document_deleted),
-                        ErrorSeverity.NORMAL
-                    )
-                    scope.launch {
-                        bibleView.loadDocument(errorDoc)
+                    val window = bibleView.window
+                    if (windowControl.isWindowRemovable(window)) {
+                        windowControl.closeWindow(window)
+                    } else {
+                        window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
                     }
                 }
                 .setNegativeButton(R.string.no, null)

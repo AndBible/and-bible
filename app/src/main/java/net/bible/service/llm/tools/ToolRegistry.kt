@@ -26,6 +26,8 @@ import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetDictionaryEntryTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
+import net.bible.service.llm.tools.read.GetMyDocumentPagesTool
+import net.bible.service.llm.tools.read.GetMyDocumentsTool
 import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.read.GetVerseContentTool
 import net.bible.service.llm.tools.read.SearchBibleTool
@@ -33,9 +35,13 @@ import net.bible.service.llm.tools.read.SearchByStrongsNumberTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
+import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
@@ -81,6 +87,8 @@ object ToolRegistry {
         register(GetStudyPadContentTool)
         register(SearchStudyPadsTool)
         register(GetInstalledDocumentsTool)
+        register(GetMyDocumentsTool)
+        register(GetMyDocumentPagesTool)
 
         // Register write tools
         register(CreateBookmarkTool)
@@ -89,6 +97,10 @@ object ToolRegistry {
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
         register(AddStudyPadEntryTool)
+        register(CreateMyDocumentTool)
+        register(AddMyDocumentPageTool)
+        register(EditMyDocumentPageTool)
+        register(DeleteMyDocumentPageTool)
         register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
         register(FinishWithoutDocumentTool)

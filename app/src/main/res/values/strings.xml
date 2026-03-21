@@ -1578,6 +1578,12 @@
     <string name="tool_get_bookmarks_with_label">Get bookmarks with label</string>
     <string name="tool_get_study_pad_content">Read study pad content</string>
     <string name="tool_search_study_pads">Search study pads</string>
+    <string name="tool_get_my_documents">List My Documents</string>
+    <string name="tool_get_my_document_pages">List My Document pages</string>
+    <string name="tool_create_my_document">Create My Document</string>
+    <string name="tool_add_my_document_page">Add My Document page</string>
+    <string name="tool_edit_my_document_page">Edit My Document page</string>
+    <string name="tool_delete_my_document_page">Delete My Document page</string>
 
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
@@ -1594,6 +1600,10 @@
     <string name="action_create_label">Create label \"%1$s\"</string>
     <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
     <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
+    <string name="action_create_my_document">Create My Document: \"%1$s\"</string>
+    <string name="action_add_my_document_page">Add page \"%1$s\" to My Document %2$s</string>
+    <string name="action_edit_my_document_page">Edit My Document page: \"%1$s\"</string>
+    <string name="action_delete_my_document_page">Delete My Document page: \"%1$s\"</string>
     <string name="action_set_document_title">Set document title: \"%1$s\"</string>
     <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
     <string name="action_finish">Finish: \"%1$s\"</string>
@@ -1624,6 +1634,8 @@
     <string name="tool_log_study_pad_count">%d study pads</string>
     <string name="tool_log_search_results">%1$d/%2$d results</string>
     <string name="tool_log_bookmark_count">%d bookmarks</string>
+    <string name="tool_log_my_document_count">%d documents</string>
+    <string name="tool_log_my_document_page_count">%d pages</string>
     <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
     <string name="ai_document_filter_title">Document access</string>
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
