@@ -244,7 +244,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val usedWriteToolsTracker = AtomicBoolean(false)
 
         // Execute via AgentExecutor
-        val executor = AgentExecutor()
+        val effectiveMaxIterations = prompt.maxIterations ?: CommonUtils.aiSettings.maxIterations
+        val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
             executor.execute(prompt, context, session.rawLlmLog).collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
@@ -550,11 +551,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 attachTotalCost(session, event.usage, event.model)
             }
             is AgentEvent.Error -> {
-                session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
+                val hasRawLog = session.rawLlmLog?.isEmpty() == false
+                session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message, showRawLogLink = hasRawLog))
                 session.stop()
             }
             is AgentEvent.Cancelled -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
+                val hasRawLog = session.rawLlmLog?.isEmpty() == false
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled), showRawLogLink = hasRawLog))
                 session.stop()
             }
         }

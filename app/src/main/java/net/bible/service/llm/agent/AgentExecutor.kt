@@ -168,101 +168,110 @@ class AgentExecutor(
         rawLlmLog: RawLlmLog? = null
     ) {
         var iteration = 0
+        var iterationLimit = if (maxIterations > 0) maxIterations else Int.MAX_VALUE
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
         val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
-        while (iteration < maxIterations) {
-            iteration++
-            emit(AgentEvent.Iteration(iteration))
-            currentCoroutineContext().ensureActive()
+        loop@ while (true) {
+            while (iteration < iterationLimit) {
+                iteration++
+                emit(AgentEvent.Iteration(iteration))
+                currentCoroutineContext().ensureActive()
 
-            val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
-            totalUsage += callUsage
-            rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model)
+                val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
+                totalUsage += callUsage
+                rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model)
 
-            // Emit per-operation usage
-            if (callUsage.totalTokens > 0) {
-                emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model))
-            }
+                // Emit per-operation usage
+                if (callUsage.totalTokens > 0) {
+                    emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model))
+                }
 
-            when (parsed) {
-                is ParsedResponse.ToolCalls -> {
-                    when (val result = processToolCalls(adapter, parsed, messages, currentContext, rawLlmLog)) {
-                        is ProcessToolsResult.Continue -> {
-                            currentContext = result.context
-                        }
-                        is ProcessToolsResult.FinishWithDocument -> {
-                            Log.d(TAG, "Agent finished with document: ${result.title}")
-                            emit(AgentEvent.CompletedWithDocument(
-                                title = result.title,
-                                content = result.content,
-                                totalIterations = iteration,
-                                usage = totalUsage,
-                                model = resolved.model
-                            ))
-                            return
-                        }
-                        is ProcessToolsResult.FinishWithoutDocument -> {
-                            Log.d(TAG, "Agent finished without document: ${result.message}")
-                            emit(AgentEvent.CompletedWithoutDocument(
-                                message = result.message,
-                                totalIterations = iteration,
-                                usage = totalUsage,
-                                model = resolved.model
-                            ))
-                            return
-                        }
-                        is ProcessToolsResult.FinishWithStudyPad -> {
-                            Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
-                            emit(AgentEvent.CompletedWithStudyPad(
-                                labelId = result.labelId,
-                                scrollToEntryId = result.scrollToEntryId,
-                                message = result.message,
-                                totalIterations = iteration,
-                                usage = totalUsage,
-                                model = resolved.model
-                            ))
-                            return
-                        }
-                        is ProcessToolsResult.FinishWithMyDocumentPage -> {
-                            Log.d(TAG, "Agent finished with My Document page: ${result.documentInitials}/${result.pageKey}")
-                            emit(AgentEvent.CompletedWithMyDocumentPage(
-                                documentInitials = result.documentInitials,
-                                pageKey = result.pageKey,
-                                message = result.message,
-                                totalIterations = iteration,
-                                usage = totalUsage,
-                                model = resolved.model
-                            ))
-                            return
+                when (parsed) {
+                    is ParsedResponse.ToolCalls -> {
+                        when (val result = processToolCalls(adapter, parsed, messages, currentContext, rawLlmLog)) {
+                            is ProcessToolsResult.Continue -> {
+                                currentContext = result.context
+                            }
+                            is ProcessToolsResult.FinishWithDocument -> {
+                                Log.d(TAG, "Agent finished with document: ${result.title}")
+                                emit(AgentEvent.CompletedWithDocument(
+                                    title = result.title,
+                                    content = result.content,
+                                    totalIterations = iteration,
+                                    usage = totalUsage,
+                                    model = resolved.model
+                                ))
+                                return
+                            }
+                            is ProcessToolsResult.FinishWithoutDocument -> {
+                                Log.d(TAG, "Agent finished without document: ${result.message}")
+                                emit(AgentEvent.CompletedWithoutDocument(
+                                    message = result.message,
+                                    totalIterations = iteration,
+                                    usage = totalUsage,
+                                    model = resolved.model
+                                ))
+                                return
+                            }
+                            is ProcessToolsResult.FinishWithStudyPad -> {
+                                Log.d(TAG, "Agent finished with StudyPad: ${result.labelId}")
+                                emit(AgentEvent.CompletedWithStudyPad(
+                                    labelId = result.labelId,
+                                    scrollToEntryId = result.scrollToEntryId,
+                                    message = result.message,
+                                    totalIterations = iteration,
+                                    usage = totalUsage,
+                                    model = resolved.model
+                                ))
+                                return
+                            }
+                            is ProcessToolsResult.FinishWithMyDocumentPage -> {
+                                Log.d(TAG, "Agent finished with My Document page: ${result.documentInitials}/${result.pageKey}")
+                                emit(AgentEvent.CompletedWithMyDocumentPage(
+                                    documentInitials = result.documentInitials,
+                                    pageKey = result.pageKey,
+                                    message = result.message,
+                                    totalIterations = iteration,
+                                    usage = totalUsage,
+                                    model = resolved.model
+                                ))
+                                return
+                            }
                         }
                     }
-                }
-                is ParsedResponse.TextResponse -> {
-                    Log.d(TAG, "LLM returned final text response without tool call")
-                    val normalizedContent = normalizeLlmText(parsed.content)
-                    emit(AgentEvent.TextResponse(
-                        text = normalizedContent,
-                        isFinal = true
-                    ))
-                    emit(AgentEvent.Completed(
-                        response = normalizedContent,
-                        totalIterations = iteration,
-                        usage = totalUsage,
-                        model = resolved.model
-                    ))
-                    return
-                }
-                is ParsedResponse.ParseError -> {
-                    emit(AgentEvent.Error(application.getString(R.string.llm_parse_error, parsed.error)))
-                    return
+                    is ParsedResponse.TextResponse -> {
+                        Log.d(TAG, "LLM returned final text response without tool call")
+                        val normalizedContent = normalizeLlmText(parsed.content)
+                        emit(AgentEvent.TextResponse(
+                            text = normalizedContent,
+                            isFinal = true
+                        ))
+                        emit(AgentEvent.Completed(
+                            response = normalizedContent,
+                            totalIterations = iteration,
+                            usage = totalUsage,
+                            model = resolved.model
+                        ))
+                        return
+                    }
+                    is ParsedResponse.ParseError -> {
+                        emit(AgentEvent.Error(application.getString(R.string.llm_parse_error, parsed.error)))
+                        return
+                    }
                 }
             }
-        }
 
-        emit(AgentEvent.Error(application.getString(R.string.llm_error_max_iterations, maxIterations)))
+            // Max iterations reached — ask user if they want to continue
+            if (maxIterations > 0 && showContinueDialog(iteration, maxIterations)) {
+                iterationLimit += maxIterations
+                continue@loop
+            }
+            break
+        }
+        emit(AgentEvent.Error(application.getString(R.string.llm_error_max_iterations, iterationLimit)))
     }
 
     private suspend fun callLlmAndParse(
@@ -679,5 +688,25 @@ class AgentExecutor(
             }
             Dialogs.AgentPermissionResult.DENY -> DialogResult.Denied
         }
+    }
+
+    /**
+     * Shows a dialog asking the user whether to continue execution after reaching the iteration limit.
+     * Follows the same activity-lookup pattern as [showPermissionDialog].
+     */
+    private suspend fun showContinueDialog(currentIteration: Int, increment: Int): Boolean {
+        var activity = CurrentActivityHolder.currentActivity
+        if (activity == null) {
+            Log.d(TAG, "No current activity for continue dialog, waiting...")
+            while (activity == null) {
+                delay(500)
+                activity = CurrentActivityHolder.currentActivity
+            }
+        }
+        return Dialogs.simpleQuestion(
+            activity,
+            message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
+            title = application.getString(R.string.llm_continue_iterations_title)
+        )
     }
 }

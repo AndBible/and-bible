@@ -79,11 +79,16 @@ object SearchBibleTool : Tool {
     private var cachedSearch: CachedSearch? = null
 
     override val description = """
-        Search for words or phrases in Bible translations.
-        Returns a list of verses that match the search query.
-        The search uses a full-text index and supports basic search operations.
-        Note: Only indexed books can be searched.
+        Search for words or phrases in Bible translations using a Lucene full-text index.
+        Returns a list of verses matching the query. Only indexed books can be searched.
         Supports pagination via offset parameter.
+
+        Query syntax:
+        - Single word: love
+        - Exact phrase: "the Lord is my shepherd"
+        - Boolean: love AND truth, mercy OR grace, love NOT hate
+        - Prefix wildcard: redeem* (matches redeem, redeemed, redeemer, etc.)
+        - Required/excluded: +faith -works
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -91,7 +96,7 @@ object SearchBibleTool : Tool {
         properties:
           query:
             type: string
-            description: Search query - a word or phrase to search for
+            description: "Search query. Supports Lucene syntax: single words, \"exact phrases\" in quotes, boolean operators (AND, OR, NOT), prefix wildcards (redeem*), and required/excluded terms (+word, -word)."
           books:
             type: array
             items:

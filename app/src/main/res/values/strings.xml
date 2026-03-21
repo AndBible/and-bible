@@ -1478,6 +1478,13 @@
     <string name="llm_error_prompt_not_found">Prompt not found: %1$s</string>
     <string name="llm_error_unknown">Unknown error</string>
     <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
+    <string name="llm_continue_iterations_title">Continue?</string>
+    <string name="llm_continue_iterations_message">The AI agent has reached its limit of %1$d iterations without completing. Continue for %2$d more iterations?</string>
+    <string name="agent_max_iterations_title">Max agent iterations</string>
+    <string name="agent_max_iterations_summary">Maximum iterations before asking to continue (0 = unlimited)</string>
+    <string name="prompt_max_iterations">Max iterations override</string>
+    <string name="prompt_max_iterations_hint">Leave empty for global default</string>
+    <string name="prompt_max_iterations_description">Override the global max iterations for this prompt. Empty = global default, 0 = unlimited.</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
