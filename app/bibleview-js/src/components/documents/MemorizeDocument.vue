@@ -106,15 +106,13 @@ const memorizeState = computed<MemorizeState>(() => {
 })
 
 const {strings, android} = useCommon();
-const memorization = inject(memorizationKey);
+const memorization = inject(memorizationKey)!;
 
 // Populate memorization data so isMemorized/isTarget are reactive
-if (memorization) {
-    memorization.mergeData(
-        document.value.memorizedOrdinals ?? [],
-        document.value.targetOrdinals ?? []
-    );
-}
+memorization.mergeData(
+    document.value.memorizedOrdinals ?? [],
+    document.value.targetOrdinals ?? []
+);
 
 function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void) {
     const {bookInitials, startOrdinal, endOrdinal} = document.value;
@@ -125,7 +123,7 @@ function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdi
 
 const isMemorized = computed(() => {
     const {startOrdinal, endOrdinal} = document.value;
-    if (!memorization || startOrdinal == null || endOrdinal == null) return false;
+    if (startOrdinal == null || endOrdinal == null) return false;
     for (let i = startOrdinal; i <= endOrdinal; i++) {
         if (!memorization.memorized.has(i)) return false;
     }
@@ -134,7 +132,7 @@ const isMemorized = computed(() => {
 
 const isTarget = computed(() => {
     const {startOrdinal, endOrdinal} = document.value;
-    if (!memorization || startOrdinal == null || endOrdinal == null) return false;
+    if (startOrdinal == null || endOrdinal == null) return false;
     for (let i = startOrdinal; i <= endOrdinal; i++) {
         if (memorization.targets.has(i)) return true;
     }

@@ -55,8 +55,8 @@ const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
 // Initialize memorization data from document
-const memorization = inject(memorizationKey);
-if (memorization && props.document.memorizedOrdinals) {
+const memorization = inject(memorizationKey)!;
+if (props.document.memorizedOrdinals) {
     memorization.mergeData(props.document.memorizedOrdinals, props.document.targetOrdinals ?? []);
 }
 
@@ -85,21 +85,19 @@ function onMarkAsRead() {
 }
 
 // Render memorization indicator overlays
-if (memorization) {
-    const renderOverlays = () => {
-        if (!containerRef.value) return;
-        if (config.showMemorizationIndicators && isExperimentalFeatureEnabled('reading_and_memorization')) {
-            memorization.renderIndicators(containerRef.value, id);
-        } else {
-            memorization.clearIndicators(containerRef.value);
-        }
-    };
-    onMounted(() => nextTick(renderOverlays));
+const renderOverlays = () => {
+    if (!containerRef.value) return;
+    if (config.showMemorizationIndicators && isExperimentalFeatureEnabled('reading_and_memorization')) {
+        memorization.renderIndicators(containerRef.value, id);
+    } else {
+        memorization.clearIndicators(containerRef.value);
+    }
+};
+onMounted(() => nextTick(renderOverlays));
 
-    // Re-render on any config change (font size, margins, line spacing, etc.) and memorization data updates
-    setupEventBusListener("set_config", () => nextTick(renderOverlays));
-    setupEventBusListener("update_memorization_data", () => nextTick(renderOverlays));
-}
+// Re-render on any config change (font size, margins, line spacing, etc.) and memorization data updates
+setupEventBusListener("set_config", () => nextTick(renderOverlays));
+setupEventBusListener("update_memorization_data", () => nextTick(renderOverlays));
 </script>
 
 <style scoped>

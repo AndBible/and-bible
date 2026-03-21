@@ -73,7 +73,7 @@ const {strings, appSettings, isExperimentalFeatureEnabled} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
-const memorization = inject(memorizationKey);
+const memorization = inject(memorizationKey)!;
 
 const verseInfo = computed(() => selectionInfo.value?.verseInfo || null);
 const ordinalInfo = computed(() => selectionInfo.value?.ordinalInfo || null);
@@ -100,7 +100,7 @@ const modalButtons = computed<ModalButtonId[]>(() => {
     }
     if (!isExperimentalFeatureEnabled("reading_and_memorization")) {
         allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "ADD_MEMORIZATION_TARGET");
-    } else if (memorization && startOrdinal.value != null) {
+    } else if (startOrdinal.value != null) {
         // Replace ADD_MEMORIZATION_TARGET with REMOVE if all selected ordinals are already targeted
         const effectiveEnd = endOrdinal.value ?? startOrdinal.value;
         let allTargeted = true;
