@@ -57,10 +57,10 @@
       <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
     </button>
     <button v-if="isTarget && !isMemorized" class="memorize-action-btn target" @click="removeFromTargets">
-      <FontAwesomeIcon :icon="faTimes"/> {{ strings.removeFromTargets }}
+      <FontAwesomeIcon :icon="faBrain"/> {{ strings.removeFromTargets }}
     </button>
     <button v-if="!isTarget" class="memorize-action-btn" @click="addToTargets">
-      <FontAwesomeIcon :icon="faBullseye"/> {{ strings.addMemorizationTarget }}
+      <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
     </button>
   </div>
 </template>
@@ -82,7 +82,7 @@ import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBullseye, faCheck, faEyeSlash, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faBrain, faCheck, faEyeSlash, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
 import {memorizationKey} from "@/types/constants";
 

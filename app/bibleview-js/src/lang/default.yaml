@@ -73,7 +73,7 @@ removeMemorizationTarget: Goal -
 removeMemorizationTargetLong: Remove memorization goal
 markAsMemorized: Mark as memorized
 markedAsMemorized: Memorized
-removeFromTargets: Remove goal
+removeFromTargets: Goal -
 verseNoteLong: Write a note
 verseParagraphBreakLong: Paragraph break
 addBookmark: Bookmark
