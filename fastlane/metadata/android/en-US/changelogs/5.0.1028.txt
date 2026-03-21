@@ -1,0 +1,16 @@
+- Add 7 My Documents tools for LLM agents (7e22b6a, 7f97278)
+- AI settings now sync across devices (a568a92)
+- URI-encode OSIS references in sword:// links for LLM tools (2260c6c)
+- Close window when AI document page is deleted (45a8617)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
