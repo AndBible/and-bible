@@ -20,13 +20,12 @@ package net.bible.android.view.activity.ai
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.CheckBox
 import android.widget.LinearLayout
 import android.widget.RadioGroup
-import com.google.android.material.checkbox.MaterialCheckBox
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ItemToolCategoryHeaderBinding
 import net.bible.android.activity.databinding.ItemToolPermissionBinding
-import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.tools.Tool
@@ -60,6 +59,9 @@ class ToolPermissionListBuilder(
     )
 
     private val categories = mutableListOf<CategoryState>()
+
+    /** Guard flag to prevent toggle ↔ row listener recursion. */
+    private var updatingFromToggle = false
 
     /**
      * Build the categorized tool list.
@@ -216,32 +218,42 @@ class ToolPermissionListBuilder(
         }
 
         // Read toggle controls all read tool rows
-        header.readToggle.addOnCheckedStateChangedListener { _, checkedState ->
-            if (checkedState == MaterialCheckBox.STATE_INDETERMINATE) return@addOnCheckedStateChangedListener
-            val checked = checkedState == MaterialCheckBox.STATE_CHECKED
-            setAllRows(state.readRows, checked)
+        header.readToggle.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingFromToggle) return@setOnCheckedChangeListener
+            updatingFromToggle = true
+            setAllRows(state.readRows, isChecked)
             updateExpansionForToggles(state)
+            updatingFromToggle = false
         }
 
         // Write toggle controls all write tool rows
-        header.writeToggle.addOnCheckedStateChangedListener { _, checkedState ->
-            if (checkedState == MaterialCheckBox.STATE_INDETERMINATE) return@addOnCheckedStateChangedListener
-            val checked = checkedState == MaterialCheckBox.STATE_CHECKED
-            setAllRows(state.writeRows, checked)
+        header.writeToggle.setOnCheckedChangeListener { _, isChecked ->
+            if (updatingFromToggle) return@setOnCheckedChangeListener
+            updatingFromToggle = true
+            setAllRows(state.writeRows, isChecked)
             updateExpansionForToggles(state)
+            updatingFromToggle = false
         }
 
         // Individual row changes update the toggles
         for (row in state.readRows) {
             row.radioGroup.setOnCheckedChangeListener { _, _ ->
-                updateToggleState(header.readToggle, state.readRows)
-                updateExpansionForToggles(state)
+                if (!updatingFromToggle) {
+                    updatingFromToggle = true
+                    updateToggleState(header.readToggle, state.readRows)
+                    updateExpansionForToggles(state)
+                    updatingFromToggle = false
+                }
             }
         }
         for (row in state.writeRows) {
             row.radioGroup.setOnCheckedChangeListener { _, _ ->
-                updateToggleState(header.writeToggle, state.writeRows)
-                updateExpansionForToggles(state)
+                if (!updatingFromToggle) {
+                    updatingFromToggle = true
+                    updateToggleState(header.writeToggle, state.writeRows)
+                    updateExpansionForToggles(state)
+                    updatingFromToggle = false
+                }
             }
         }
 
@@ -251,11 +263,9 @@ class ToolPermissionListBuilder(
         applyExpansion(state)
     }
 
-    /** Check if a tool row is in "disabled" / "denied" state. */
     private fun isRowDisabled(row: ToolRow): Boolean =
         row.radioGroup.checkedRadioButtonId == R.id.radioDeny
 
-    /** Check if a tool row is in "enabled" / "default" / "allowed" state (i.e. not denied). */
     private fun isRowEnabled(row: ToolRow): Boolean =
         row.radioGroup.checkedRadioButtonId != R.id.radioDeny
 
@@ -266,18 +276,12 @@ class ToolPermissionListBuilder(
         rows.isNotEmpty() && rows.all { isRowEnabled(it) }
 
     /**
-     * Update a MaterialCheckBox toggle state based on the current state of its tool rows.
-     * Uses checked/unchecked/indeterminate to reflect all-on/all-off/mixed.
+     * Update a CheckBox toggle to reflect the current state of its tool rows.
+     * Checked = all enabled, unchecked = any disabled.
      */
-    private fun updateToggleState(toggle: MaterialCheckBox, rows: List<ToolRow>) {
+    private fun updateToggleState(toggle: CheckBox, rows: List<ToolRow>) {
         if (rows.isEmpty()) return
-        val allEnabled = isAllEnabled(rows)
-        val allDisabled = isAllDisabled(rows)
-        toggle.checkedState = when {
-            allEnabled -> MaterialCheckBox.STATE_CHECKED
-            allDisabled -> MaterialCheckBox.STATE_UNCHECKED
-            else -> MaterialCheckBox.STATE_INDETERMINATE
-        }
+        toggle.isChecked = isAllEnabled(rows)
     }
 
     /** Set all rows to enabled (default/ask) or disabled (deny). */
@@ -324,6 +328,7 @@ class ToolPermissionListBuilder(
 
     /** Reset all tools to default state (radioAsk). */
     fun resetAll() {
+        updatingFromToggle = true
         for (state in categories) {
             for (row in state.readRows + state.writeRows) {
                 row.radioGroup.check(R.id.radioAsk)
@@ -333,5 +338,6 @@ class ToolPermissionListBuilder(
             state.expanded = true
             applyExpansion(state)
         }
+        updatingFromToggle = false
     }
 }
