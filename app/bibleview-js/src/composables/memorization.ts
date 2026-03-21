@@ -163,5 +163,9 @@ export function useMemorization() {
         }
     }
 
-    return {memorized, targets, mergeData, renderIndicators};
+    function clearIndicators(container: HTMLElement) {
+        container.querySelectorAll(`.${INDICATOR_CLASS}`).forEach(el => el.remove());
+    }
+
+    return {memorized, targets, mergeData, renderIndicators, clearIndicators};
 }

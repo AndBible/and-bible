@@ -84,19 +84,21 @@ function onMarkAsRead() {
     chapterRead.value = true;
 }
 
-// Render memorization indicator overlays after mount
-if (memorization && isExperimentalFeatureEnabled('reading_and_memorization') && config.showMemorizationIndicators) {
+// Render memorization indicator overlays
+if (memorization) {
     const renderOverlays = () => {
-        if (containerRef.value) {
+        if (!containerRef.value) return;
+        if (config.showMemorizationIndicators && isExperimentalFeatureEnabled('reading_and_memorization')) {
             memorization.renderIndicators(containerRef.value, id);
+        } else {
+            memorization.clearIndicators(containerRef.value);
         }
     };
     onMounted(() => nextTick(renderOverlays));
 
-    setupEventBusListener("update_memorization_data", async () => {
-        await nextTick();
-        renderOverlays();
-    });
+    // Re-render on any config change (font size, margins, line spacing, etc.) and memorization data updates
+    setupEventBusListener("set_config", () => nextTick(renderOverlays));
+    setupEventBusListener("update_memorization_data", () => nextTick(renderOverlays));
 }
 </script>
 
