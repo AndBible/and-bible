@@ -15,9 +15,10 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {inject, onMounted, onUnmounted, Ref, watch} from "vue";
+import {inject, onMounted, onUnmounted, ref, Ref, watch} from "vue";
 import {OrdinalRange} from "@/types/client-objects";
 import {androidKey, appSettingsKey} from "@/types/constants";
+import {setupEventBusListener} from "@/eventbus";
 
 const COVERAGE_THRESHOLD = 0.9;
 
@@ -26,28 +27,31 @@ export function useReadingTracker(
     bookInitials: string,
     ordinalRange: OrdinalRange,
     chapterNumber: number,
+    initiallyRead: boolean,
 ) {
     const appSettings = inject(appSettingsKey)!;
     const android = inject(androidKey)!;
 
+    const chapterRead = ref(initiallyRead);
     const seenOrdinals = new Set<number>();
     let observer: IntersectionObserver | null = null;
-    let markedAsRead = false;
+    let autoTrackDone = initiallyRead;
 
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
 
     function checkCoverage() {
-        if (markedAsRead || totalVerses <= 0) return;
+        if (autoTrackDone || totalVerses <= 0) return;
         const coverage = seenOrdinals.size / totalVerses;
         if (coverage >= COVERAGE_THRESHOLD) {
-            markedAsRead = true;
+            autoTrackDone = true;
+            chapterRead.value = true;
             android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
             cleanup();
         }
     }
 
     function setupObserver() {
-        if (!containerRef.value || markedAsRead) return;
+        if (!containerRef.value || autoTrackDone) return;
 
         observer = new IntersectionObserver(
             (entries) => {
@@ -77,8 +81,24 @@ export function useReadingTracker(
         }
     }
 
+    function toggleChapterRead() {
+        if (chapterRead.value) {
+            android.unmarkChapterRead(bookInitials, ordinalRange[0], chapterNumber);
+            chapterRead.value = false;
+        } else {
+            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber);
+            chapterRead.value = true;
+        }
+    }
+
+    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean}) => {
+        if (data.chapter === chapterNumber) {
+            chapterRead.value = data.isRead;
+        }
+    });
+
     watch(() => appSettings.autoTrackReading, (enabled) => {
-        if (enabled && !markedAsRead) {
+        if (enabled && !autoTrackDone) {
             setupObserver();
         } else {
             cleanup();
@@ -86,7 +106,7 @@ export function useReadingTracker(
     });
 
     onMounted(() => {
-        if (appSettings.autoTrackReading) {
+        if (appSettings.autoTrackReading && !autoTrackDone) {
             setupObserver();
         }
     });
@@ -94,4 +114,6 @@ export function useReadingTracker(
     onUnmounted(() => {
         cleanup();
     });
+
+    return {chapterRead, toggleChapterRead};
 }

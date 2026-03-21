@@ -534,6 +534,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
+        val book = Books.installed().getBook(bookInitials) ?: return
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return
+        val verse = Verse(v11n, startOrdinal)
+        ProgressControl.unmarkChapterRead(v11n, verse.book, chapter)
+    }
+
+    @JavascriptInterface
     fun saveState(newState: String) {
         bibleView.window.pageManager.jsState = newState
     }

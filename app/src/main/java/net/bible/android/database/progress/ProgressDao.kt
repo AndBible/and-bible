@@ -81,6 +81,9 @@ interface ProgressDao {
     @Query("SELECT EXISTS(SELECT 1 FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle)")
     fun isChapterRead(kjvBookOrdinal: Int, chapter: Int, cycle: Int): Boolean
 
+    @Query("DELETE FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
+    fun deleteChapterReadingRecord(kjvBookOrdinal: Int, chapter: Int, cycle: Int)
+
     @Query("SELECT COUNT(*) FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle")
     fun countReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): Int
 

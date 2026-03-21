@@ -63,7 +63,7 @@ if (props.document.memorizedOrdinals) {
 }
 memorization.setupIndicatorRendering(containerRef, id);
 
-const {config, appSettings, strings, sprintf, android, isExperimentalFeatureEnabled, ...common} = useCommon();
+const {config, appSettings, strings, sprintf, isExperimentalFeatureEnabled, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
 
@@ -75,15 +75,10 @@ function getFootNoteCount() {
 
 provide(footnoteCountKey, {getFootNoteCount});
 const displayChapter = Math.max(1, props.document.chapterNumber);
-useReadingTracker(containerRef, bookInitials, ordinalRange, displayChapter);
 
-const chapterRead = ref(false);
-
-function onMarkAsRead() {
-    if (chapterRead.value) return;
-    android.markChapterRead(bookInitials, ordinalRange[0], displayChapter);
-    chapterRead.value = true;
-}
+const {chapterRead, toggleChapterRead: onMarkAsRead} = useReadingTracker(
+    containerRef, bookInitials, ordinalRange, displayChapter, props.document.chapterRead ?? false
+);
 
 </script>
 

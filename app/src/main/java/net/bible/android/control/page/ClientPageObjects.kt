@@ -184,6 +184,8 @@ class BibleDocument(
             put("v11n", wrapString(swordBook.versification.name))
             put("memorizedOrdinals", json.encodeToString(serializer(), memorizedOrdinals))
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
+            put("chapterRead", json.encodeToString(serializer(),
+                ProgressControl.isChapterRead(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
         }
     }
 }

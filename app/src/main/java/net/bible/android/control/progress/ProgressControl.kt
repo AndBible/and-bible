@@ -68,6 +68,13 @@ fun computeRangeDifference(
     return RangeDifferenceResult(remaining, removed)
 }
 
+/** Posted when a chapter's read status changes. All BibleViews should update their mark-as-read button. */
+class ChapterReadStatusChangedEvent(
+    val kjvBookOrdinal: Int,
+    val chapter: Int,
+    val isRead: Boolean,
+)
+
 /** Posted when memorized verses or memorization targets change. All BibleViews should update their indicators. */
 class MemorizationDataChangedEvent(
     val addedMemorized: List<Int> = emptyList(),
@@ -142,6 +149,16 @@ object ProgressControl {
                     source = source,
                 )
             )
+            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
+        }
+    }
+
+    fun unmarkChapterRead(v11n: Versification, book: BibleBook, chapter: Int) {
+        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val cycle = getCurrentCycle()
+        if (dao.isChapterRead(kjvBook.ordinal, chapter, cycle)) {
+            dao.deleteChapterReadingRecord(kjvBook.ordinal, chapter, cycle)
+            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, false))
         }
     }
 

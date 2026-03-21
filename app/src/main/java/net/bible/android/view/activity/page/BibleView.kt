@@ -73,6 +73,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
+import net.bible.android.control.progress.ChapterReadStatusChangedEvent
 import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
@@ -1774,6 +1775,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
             addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
             addedTargets: $addedTargets, removedTargets: $removedTargets
+        });""")
+    }
+
+    fun onEvent(event: ChapterReadStatusChangedEvent) {
+        val doc = firstDocument
+        if (doc !is BibleDocument) return
+        executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
+            kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
         });""")
     }
 
