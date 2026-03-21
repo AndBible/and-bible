@@ -23,6 +23,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.defaultLabelColor
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -48,6 +49,7 @@ object CreateLabelTool : Tool {
     data class Result(val id: IdType, val name: String, val color: Int)
 
     override val agentTool = AgentTool.CREATE_LABEL
+    override val category = ToolCategory.LABELS
 
     override val description = """
         Create a new label (category/StudyPad).

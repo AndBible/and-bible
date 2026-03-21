@@ -24,6 +24,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -60,6 +61,7 @@ object EditMyDocumentPageTool : Tool {
     )
 
     override val agentTool = AgentTool.EDIT_MY_DOCUMENT_PAGE
+    override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_edit_my_document_page
 

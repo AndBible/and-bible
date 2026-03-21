@@ -31,6 +31,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.llm.tools.ContentFormat
@@ -94,6 +95,7 @@ object GetCommentariesTool : Tool {
     )
 
     override val agentTool = AgentTool.GET_COMMENTARIES
+    override val category = ToolCategory.BIBLE_SEARCH
     override val displayNameResId = R.string.tool_get_commentaries
 
     override val description = """

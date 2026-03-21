@@ -22,6 +22,7 @@ import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -55,6 +56,7 @@ object SearchStudyPadsTool : Tool {
     data class Result(val query: String, val studyPadCount: Int, val results: List<StudyPadMatch>)
 
     override val agentTool = AgentTool.SEARCH_STUDY_PADS
+    override val category = ToolCategory.STUDY_PADS
     override val displayNameResId = R.string.tool_search_study_pads
 
     override val description = """

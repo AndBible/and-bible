@@ -24,6 +24,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -53,6 +54,7 @@ object CreateMyDocumentTool : Tool {
     )
 
     override val agentTool = AgentTool.CREATE_MY_DOCUMENT
+    override val category = ToolCategory.MY_DOCUMENTS
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_create_my_document
 

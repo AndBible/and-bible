@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
@@ -33,27 +34,26 @@ import kotlinx.serialization.Serializable
 import org.json.JSONObject
 
 /**
- * Tool for adding a label to a bookmark.
+ * Tool for deleting a bookmark by ID.
  *
- * Associates a bookmark with a label (category/StudyPad).
+ * Supports both Bible bookmarks and generic bookmarks.
  */
-object AddLabelToBookmarkTool : Tool {
+object DeleteBookmarkTool : Tool {
     @Serializable
     data class Args(
-        val bookmarkId: IdType = IdType.empty(),
-        val labelId: IdType = IdType.empty()
+        val bookmarkId: IdType = IdType.empty()
     )
 
     @Serializable
-    data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
+    data class Result(val bookmarkId: IdType, val verseName: String)
 
-    override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
-    override val category = ToolCategory.LABELS
+    override val agentTool = AgentTool.DELETE_BOOKMARK
+    override val category = ToolCategory.BOOKMARKS
 
     override val description = """
-        Add a label to an existing bookmark.
-        This associates the bookmark with the label/StudyPad.
-        A bookmark can have multiple labels.
+        Delete a bookmark by its ID.
+        This permanently removes the bookmark and its associated notes.
+        Works for both Bible bookmarks and generic bookmarks.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -61,32 +61,28 @@ object AddLabelToBookmarkTool : Tool {
         properties:
           bookmarkId:
             type: string
-            description: The ID of the bookmark
-          labelId:
-            type: string
-            description: The ID of the label to add
-        required: [bookmarkId, labelId]
+            description: The ID of the bookmark to delete
+        required: [bookmarkId]
     """)
 
     override val requiresPermission = true
-    override val displayNameResId = R.string.tool_add_label_to_bookmark
+    override val displayNameResId = R.string.tool_delete_bookmark
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
     override suspend fun formatActionDescription(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
-        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
-        val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
-        val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
-        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
-        val labelName = label?.name ?: shortId(labelId)
-        return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
+        val bookmark = try {
+            bookmarkControl.bibleBookmarkById(IdType(bookmarkId))
+                ?: bookmarkControl.genericBookmarkById(IdType(bookmarkId))
+        } catch (_: Exception) { null }
+        val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.name ?: shortId(bookmarkId)
+        return BibleApplication.application.getString(R.string.action_delete_bookmark, verseName)
     }
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
-        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
-        return "${shortId(bookmarkId)} \u2192 ${shortId(labelId)}"
+        return shortId(bookmarkId)
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -99,37 +95,23 @@ object AddLabelToBookmarkTool : Tool {
         if (args.bookmarkId.isEmpty) {
             return ToolResult.error("Missing required parameter: bookmarkId")
         }
-        if (args.labelId.isEmpty) {
-            return ToolResult.error("Missing required parameter: labelId")
-        }
 
         return try {
-            // Check if bookmark exists
+            // Try Bible bookmark first, then generic
             val bookmark = bookmarkControl.bibleBookmarkById(args.bookmarkId)
+                ?: bookmarkControl.genericBookmarkById(args.bookmarkId)
                 ?: return ToolResult.error("Bookmark not found: ${args.bookmarkId}", "BOOKMARK_NOT_FOUND")
 
-            // Check if label exists
-            val label = bookmarkControl.labelById(args.labelId)
-                ?: return ToolResult.error("Label not found: ${args.labelId}", "LABEL_NOT_FOUND")
+            val verseName = (bookmark as? BibleBookmarkWithNotes)?.verseRange?.name ?: args.bookmarkId.toString()
 
-            // Check if already linked
-            val existingLabels = bookmarkControl.labelsForBookmark(bookmark)
-            if (existingLabels.any { it.id == args.labelId }) {
-                return ToolResult.error("Bookmark already has this label", "ALREADY_LINKED")
-            }
-
-            // Add the label using BookmarkControl (sends UI events)
-            val currentLabelIds = existingLabels.map { it.id }.toMutableSet()
-            currentLabelIds.add(args.labelId)
-            bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = currentLabelIds)
+            bookmarkControl.deleteBookmark(bookmark)
 
             typedSuccess(Result(
                 bookmarkId = args.bookmarkId,
-                labelId = args.labelId,
-                labelName = label.name
+                verseName = verseName
             ))
         } catch (e: Exception) {
-            ToolResult.error("Failed to add label: ${e.message}", "ADD_ERROR")
+            ToolResult.error("Failed to delete bookmark: ${e.message}", "DELETE_ERROR")
         }
     }
 }
