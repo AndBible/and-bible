@@ -67,6 +67,10 @@ verseParagraphBreak: Paragraph
 verseShareLong: Share this verse
 verseCompareLong: Compare verse
 verseMemorizeLong: Memorize Bible verses
+addMemorizationTarget: Target
+addMemorizationTargetLong: Add to memorization targets
+markAsMemorized: Mark as memorized
+markedAsMemorized: Memorized
 verseNoteLong: Write a note
 verseParagraphBreakLong: Paragraph break
 addBookmark: Bookmark

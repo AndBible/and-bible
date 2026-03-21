@@ -25,7 +25,7 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
-    <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
+    <div v-if="config.showMarkAsReadButton && isExperimentalFeatureEnabled('reading_and_memorization')" class="mark-as-read-container">
       <button class="mark-as-read-button" :class="{read: chapterRead, monochrome: appSettings.monochromeMode}" @click="onMarkAsRead">
         ✓ {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
       </button>
@@ -39,7 +39,7 @@ import {useBookmarks} from "@/composables/bookmarks";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
 import Chapter from "@/components/OSIS/Chapter.vue";
-import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey} from "@/types/constants";
+import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
 
@@ -53,7 +53,13 @@ provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, origin
 const globalBookmarks = inject(globalBookmarksKey)!;
 globalBookmarks.updateBookmarks(bookmarks);
 
-const {config, appSettings, strings, sprintf, android, ...common} = useCommon();
+// Initialize memorization data from document
+const memorization = inject(memorizationKey);
+if (memorization && props.document.memorizedOrdinals) {
+    memorization.mergeData(props.document.memorizedOrdinals, props.document.targetOrdinals ?? []);
+}
+
+const {config, appSettings, strings, sprintf, android, isExperimentalFeatureEnabled, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
 

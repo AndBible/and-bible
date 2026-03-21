@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -24,36 +24,77 @@ import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
-import android.widget.Button
 import android.widget.GridLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.tabs.TabLayout
 import net.bible.android.activity.R
+import net.bible.android.activity.databinding.ReadingProgressBinding
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.Scripture
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
 
 class ReadingProgressActivity : ActivityBase() {
 
+    private lateinit var binding: ReadingProgressBinding
     private val kjva get() = Versifications.instance().getVersification("KJVA")
     private var currentCycle = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.reading_progress)
+        binding = ReadingProgressBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = getString(R.string.reading_progress_title)
 
         currentCycle = ProgressControl.getCurrentCycle()
 
-        findViewById<Button>(R.id.newCycleButton).setOnClickListener {
+        setupTabs()
+        setupReadingTab()
+        setupMemorizeTab()
+
+        refreshAll()
+    }
+
+    private fun setupTabs() {
+        binding.tabLayout.apply {
+            addTab(newTab().setText(R.string.memorize_tab_reading))
+            addTab(newTab().setText(R.string.memorize_tab_memorization))
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    when (tab.position) {
+                        0 -> showReadingTab()
+                        1 -> showMemorizeTab()
+                    }
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
+        }
+    }
+
+    private fun showReadingTab() {
+        binding.readingContent.visibility = View.VISIBLE
+        binding.memorizeContent.visibility = View.GONE
+    }
+
+    private fun showMemorizeTab() {
+        binding.readingContent.visibility = View.GONE
+        binding.memorizeContent.visibility = View.VISIBLE
+        refreshMemorizeTab()
+    }
+
+    private fun setupReadingTab() {
+        binding.newCycleButton.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle(R.string.reading_progress_new_cycle)
                 .setMessage(R.string.reading_progress_new_cycle_confirm)
@@ -64,8 +105,15 @@ class ReadingProgressActivity : ActivityBase() {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show()
         }
+    }
 
-        refreshAll()
+    private fun setupMemorizeTab() {
+        binding.autoMarkSwitch.apply {
+            isChecked = ProgressControl.autoMarkMemorized
+            setOnCheckedChangeListener { _, isChecked ->
+                ProgressControl.autoMarkMemorized = isChecked
+            }
+        }
     }
 
     private fun refreshAll() {
@@ -81,32 +129,30 @@ class ReadingProgressActivity : ActivityBase() {
         val memorizedVerses = ProgressControl.getTotalMemorizedVerses()
         val activeDays = ProgressControl.getDistinctReadDays(currentCycle)
 
-        findViewById<TextView>(R.id.chaptersReadCount).text = "$totalRead"
-        findViewById<TextView>(R.id.chaptersReadLabel).text = getString(R.string.reading_progress_chapters_read)
-        findViewById<TextView>(R.id.memorizedVersesCount).text = "$memorizedVerses"
-        findViewById<TextView>(R.id.memorizedVersesLabel).text = getString(R.string.reading_progress_verses_memorized)
-        findViewById<TextView>(R.id.activeDaysCount).text = "$activeDays"
-        findViewById<TextView>(R.id.activeDaysLabel).text = getString(R.string.reading_progress_active_days)
+        binding.apply {
+            chaptersReadCount.text = "$totalRead"
+            chaptersReadLabel.text = getString(R.string.reading_progress_chapters_read)
+            memorizedVersesCount.text = "$memorizedVerses"
+            memorizedVersesLabel.text = getString(R.string.reading_progress_verses_memorized)
+            activeDaysCount.text = "$activeDays"
+            activeDaysLabel.text = getString(R.string.reading_progress_active_days)
 
-        val progressBar = findViewById<ProgressBar>(R.id.overallProgressBar)
-        progressBar.progress = if (totalChapters > 0) (totalRead * 1000 / totalChapters) else 0
-        val pct = if (totalChapters > 0) totalRead * 100f / totalChapters else 0f
-        findViewById<TextView>(R.id.overallProgressLabel).text =
-            getString(R.string.reading_progress_overall, String.format("%.1f", pct))
+            overallProgressBar.progress = if (totalChapters > 0) (totalRead * 1000 / totalChapters) else 0
+            val pct = if (totalChapters > 0) totalRead * 100f / totalChapters else 0f
+            overallProgressLabel.text = getString(R.string.reading_progress_overall, String.format("%.1f", pct))
+        }
     }
 
     private fun refreshBibleHeatmap() {
         val bookProgress = ProgressControl.getBookReadingProgress(currentCycle)
 
-        val otGrid = findViewById<GridLayout>(R.id.otBooksGrid)
-        val ntGrid = findViewById<GridLayout>(R.id.ntBooksGrid)
-        otGrid.removeAllViews()
-        ntGrid.removeAllViews()
+        binding.otBooksGrid.removeAllViews()
+        binding.ntBooksGrid.removeAllViews()
 
         for (book in kjva.bookIterator) {
             if (!Scripture.isScripture(book)) continue
             val isNT = book.ordinal >= BibleBook.MATT.ordinal
-            val grid = if (isNT) ntGrid else otGrid
+            val grid = if (isNT) binding.ntBooksGrid else binding.otBooksGrid
 
             val progress = bookProgress[book] ?: 0f
             val btn = createBookButton(book, progress)
@@ -141,14 +187,9 @@ class ReadingProgressActivity : ActivityBase() {
     }
 
     private fun showChapterDetail(book: BibleBook) {
-        val section = findViewById<LinearLayout>(R.id.chapterDetailSection)
-        section.visibility = View.VISIBLE
-
-        val titleView = findViewById<TextView>(R.id.chapterDetailTitle)
-        titleView.text = kjva.getLongName(book)
-
-        val grid = findViewById<GridLayout>(R.id.chaptersGrid)
-        grid.removeAllViews()
+        binding.chapterDetailSection.visibility = View.VISIBLE
+        binding.chapterDetailTitle.text = kjva.getLongName(book)
+        binding.chaptersGrid.removeAllViews()
 
         val totalChapters = kjva.getLastChapter(book)
         val readChapters = ProgressControl.getReadChaptersForBook(book, currentCycle).toSet()
@@ -174,7 +215,7 @@ class ReadingProgressActivity : ActivityBase() {
             val params = GridLayout.LayoutParams().apply {
                 setMargins(2.dp, 2.dp, 2.dp, 2.dp)
             }
-            grid.addView(btn, params)
+            binding.chaptersGrid.addView(btn, params)
         }
     }
 
@@ -198,12 +239,152 @@ class ReadingProgressActivity : ActivityBase() {
             dailyCounts[record.dayTimestamp] = record.count
         }
 
-        findViewById<CalendarHeatmapView>(R.id.calendarHeatmap).setData(dailyCounts)
+        binding.calendarHeatmap.setData(dailyCounts)
     }
 
     private fun refreshCycleLabel() {
-        findViewById<TextView>(R.id.cycleLabel).text =
-            getString(R.string.reading_progress_cycle, currentCycle)
+        binding.cycleLabel.text = getString(R.string.reading_progress_cycle, currentCycle)
+    }
+
+    // --- Memorize tab ---
+
+    private fun refreshMemorizeTab() {
+        refreshMemorizeSummary()
+        refreshMemorizedPassages()
+        refreshMemorizeTargets()
+    }
+
+    private fun refreshMemorizeSummary() {
+        val totalMemorized = ProgressControl.getTotalMemorizedVerses()
+        val (memorizedInTargets, totalTarget) = ProgressControl.getMemorizationTargetProgress()
+
+        binding.apply {
+            memSummaryMemorizedCount.text = "$totalMemorized"
+            memSummaryMemorizedLabel.text = getString(R.string.memorize_verses_memorized)
+
+            if (totalTarget > 0) {
+                memSummaryTargetCount.text = "$totalTarget"
+                memSummaryTargetLabel.text = getString(R.string.memorize_verses_target)
+
+                memTargetProgressBar.apply {
+                    visibility = View.VISIBLE
+                    progress = memorizedInTargets * 1000 / totalTarget
+                }
+                val pct = memorizedInTargets * 100f / totalTarget
+                memTargetProgressLabel.apply {
+                    visibility = View.VISIBLE
+                    text = String.format("%.0f%% (%d/%d)", pct, memorizedInTargets, totalTarget)
+                }
+            } else {
+                memSummaryTargetCount.text = "-"
+                memSummaryTargetLabel.text = getString(R.string.memorize_verses_target)
+                memTargetProgressBar.visibility = View.GONE
+                memTargetProgressLabel.visibility = View.GONE
+            }
+        }
+    }
+
+    private fun refreshMemorizedPassages() {
+        binding.memorizedPassagesList.removeAllViews()
+
+        val ranges = ProgressControl.getMemorizedVerseRanges()
+
+        if (ranges.isEmpty()) {
+            binding.noMemorizedPassages.visibility = View.VISIBLE
+            return
+        }
+        binding.noMemorizedPassages.visibility = View.GONE
+
+        for (range in ranges) {
+            val item = createPassageItem(range.name, range)
+            binding.memorizedPassagesList.addView(item)
+        }
+    }
+
+    private fun refreshMemorizeTargets() {
+        binding.memorizeTargetsList.removeAllViews()
+
+        val targets = ProgressControl.getAllMemorizationTargets()
+
+        if (targets.isEmpty()) {
+            binding.noMemorizeTargets.visibility = View.VISIBLE
+            return
+        }
+        binding.noMemorizeTargets.visibility = View.GONE
+
+        for (target in targets) {
+            val range = target.verseRange
+            val memorizedCount = ProgressControl.getMemorizedOrdinalsInRange(
+                target.kjvOrdinalStart, target.kjvOrdinalEnd
+            ).size
+            val item = createTargetItem(range.name, memorizedCount, target.verseCount, target.id)
+            binding.memorizeTargetsList.addView(item)
+        }
+    }
+
+    private fun createPassageItem(text: String, range: VerseRange): LinearLayout {
+        val dp8 = 8.dp
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp8, dp8, dp8, dp8)
+
+            addView(TextView(context).apply {
+                this.text = text
+                textSize = 14f
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+            })
+
+            addView(TextView(context).apply {
+                this.text = "\u00D7"
+                textSize = 18f
+                setPadding(dp8, 0, dp8, 0)
+                setOnClickListener {
+                    ProgressControl.unmarkVerseMemorized(range)
+                    refreshMemorizeTab()
+                    refreshSummary()
+                }
+            })
+        }
+    }
+
+    private fun createTargetItem(text: String, memorized: Int, total: Int, targetId: IdType): LinearLayout {
+        val dp4 = 4.dp
+        val dp8 = 8.dp
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(dp8, dp8, dp8, dp8)
+
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+
+                addView(TextView(context).apply {
+                    this.text = "$text ($memorized/$total)"
+                    textSize = 14f
+                    layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                })
+
+                addView(TextView(context).apply {
+                    this.text = "\u00D7"
+                    textSize = 18f
+                    setPadding(dp8, 0, dp8, 0)
+                    setOnClickListener {
+                        ProgressControl.removeMemorizationTarget(targetId)
+                        refreshMemorizeTab()
+                    }
+                })
+            })
+
+            addView(ProgressBar(context, null, android.R.attr.progressBarStyleHorizontal).apply {
+                max = 1000
+                progress = if (total > 0) (memorized * 1000 / total) else 0
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply { topMargin = dp4 }
+            })
+        }
     }
 
     private fun progressToColor(progress: Float): Int {

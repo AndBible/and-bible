@@ -159,6 +159,8 @@
     <string name="prefs_infinite_scroll_summary">Automatically load more content when scrolling</string>
     <string name="prefs_mark_as_read_button_title">Mark as read button</string>
     <string name="prefs_mark_as_read_button_summary">Show a button at the end of each chapter to mark it as read</string>
+    <string name="prefs_show_memorization_indicators_title">Memorization indicators</string>
+    <string name="prefs_show_memorization_indicators_summary">Show colored margin indicators for memorized and target verses</string>
     <string name="mark_chapter_read">Mark chapter %d as read</string>
     <string name="chapter_marked_read">Chapter %d marked as read</string>
     <string name="prefs_auto_track_reading_title">Auto-track reading</string>
@@ -276,6 +278,7 @@
     <string name="prefs_font_family_summary">Change font family. Tip: more fonts can be installed via Download Documents / Add-ons.</string>
 
     <string name="prefs_text_bookmarks_title">Bookmark &amp; My Notes settings</string>
+    <string name="prefs_reading_and_memorization_title">Reading &amp; Memorization</string>
 
     <string name="prefs_enable_bluetooth_title">Enable Bluetooth media buttons</string>
     <string name="prefs_enable_bluetooth_summary">Handle Bluetooth media buttons to start/stop speaking.</string>
@@ -980,6 +983,7 @@
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
     <string name="experimental_feature_ai_features">AI features &amp; My Documents</string>
+    <string name="experimental_feature_reading_and_memorization">Reading tracking &amp; Memorization</string>
 <string name="raw_llm_log_title">Raw LLM Log</string>
     <string name="raw_llm_log_empty">No raw log data available</string>
     <string name="raw_llm_log_copied">Log copied to clipboard</string>
@@ -1414,6 +1418,16 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
+    <string name="add_memorization_target">Add to memorization targets</string>
+    <string name="memorize_memorized_passages">Memorized passages</string>
+    <string name="memorize_no_memorized_passages">No memorized passages yet</string>
+    <string name="memorize_targets">Memorization targets</string>
+    <string name="memorize_no_targets">No memorization targets set</string>
+    <string name="memorize_auto_mark">Auto-mark as memorized after shuffle</string>
+    <string name="memorize_tab_reading">Reading</string>
+    <string name="memorize_tab_memorization">Memorization</string>
+    <string name="memorize_verses_memorized">Memorized</string>
+    <string name="memorize_verses_target">Target</string>
 
     <!-- LLM Translation Settings -->
     <string name="llm_settings_title">LLM Translation</string>

@@ -138,6 +138,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
         Types.MARK_AS_READ_BUTTON -> ItemPreference(settings, Types.MARK_AS_READ_BUTTON)
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)
+        Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -147,7 +148,15 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, settingsBundle)
         setPreferencesFromResource(R.xml.text_display_settings, rootKey)
         setupParentSettingsLinks()
+        setupExperimentalFeatureVisibility()
         updateItems()
+    }
+
+    private fun setupExperimentalFeatureVisibility() {
+        if (!CommonUtils.settings.readingAndMemorizationEnabled) {
+            findPreference<Preference>(Types.MARK_AS_READ_BUTTON.name)?.isVisible = false
+            findPreference<Preference>(Types.MEMORIZATION_INDICATORS.name)?.isVisible = false
+        }
     }
 
     private fun setupParentSettingsLinks() {

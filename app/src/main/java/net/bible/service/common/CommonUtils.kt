@@ -462,6 +462,7 @@ object CommonUtils : CommonUtilsBase() {
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
         val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
         val myDocumentsEnabled: Boolean get() = aiTextProcessingEnabled
+        val readingAndMemorizationEnabled: Boolean get() = isExperimentalFeatureEnabled("reading_and_memorization")
 
 
         /** Check if any LlmProviderConfig exists in the database. */

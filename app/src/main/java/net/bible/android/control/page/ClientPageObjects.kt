@@ -22,6 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.serializer
 import net.bible.android.common.toV11n
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
@@ -164,6 +165,9 @@ class BibleDocument(
             val originalVerseRange = originalKey.toVerseRange.toV11n(swordBook.versification)
             json.encodeToString(serializer(), listOf(originalVerseRange.start.ordinal, originalVerseRange.end.ordinal))
         } else "null"
+        val kjvRange = verseRange.toV11n(KJVA)
+        val memorizedOrdinals = ProgressControl.getMemorizedOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
             put("type", wrapString("bible"))
@@ -174,6 +178,8 @@ class BibleDocument(
             put("chapterNumber", json.encodeToString(serializer(), verseRange.start.chapter))
             put("originalOrdinalRange", originalOrdinalRange)
             put("v11n", wrapString(swordBook.versification.name))
+            put("memorizedOrdinals", json.encodeToString(serializer(), memorizedOrdinals))
+            put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
         }
     }
 }

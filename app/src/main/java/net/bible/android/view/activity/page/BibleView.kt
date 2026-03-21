@@ -73,6 +73,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.bookmark.BookmarkNoteModifiedEvent
 import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
+import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelsDeletedEvent
@@ -1747,6 +1748,18 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
 
         val bookmarkStr = clientBookmarks.joinToString(",", "[", "]")
         executeJavascriptOnUiThread("""bibleView.emit("add_or_update_bookmarks",  $bookmarkStr);""")
+    }
+
+    fun onEvent(event: MemorizationDataChangedEvent) {
+        if (firstDocument !is BibleDocument) return
+        val addedMemorized = json.encodeToString(serializer(), event.addedMemorized)
+        val removedMemorized = json.encodeToString(serializer(), event.removedMemorized)
+        val addedTargets = json.encodeToString(serializer(), event.addedTargets)
+        val removedTargets = json.encodeToString(serializer(), event.removedTargets)
+        executeJavascriptOnUiThread("""bibleView.emit("update_memorization_data", {
+            addedMemorized: $addedMemorized, removedMemorized: $removedMemorized,
+            addedTargets: $addedTargets, removedTargets: $removedTargets
+        });""")
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {

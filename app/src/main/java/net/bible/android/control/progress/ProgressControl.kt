@@ -18,10 +18,14 @@
 package net.bible.android.control.progress
 
 import net.bible.android.common.toV11n
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.versification.Scripture
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.common.CommonUtils
 import net.bible.android.database.progress.ChapterReadingRecord
 import net.bible.android.database.progress.DailyReadingCount
+import net.bible.android.database.progress.MemorizationTarget
 import net.bible.android.database.progress.MemorizedVerse
 import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
@@ -30,16 +34,40 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.Versification
 
+/** Posted when memorized verses or memorization targets change. All BibleViews should update their indicators. */
+class MemorizationDataChangedEvent(
+    val addedMemorized: List<Int> = emptyList(),
+    val removedMemorized: List<Int> = emptyList(),
+    val addedTargets: List<Int> = emptyList(),
+    val removedTargets: List<Int> = emptyList(),
+)
+
 object ProgressControl {
     private val dao get() = DatabaseContainer.instance.progressDb.progressDao()
 
+    var autoMarkMemorized: Boolean
+        get() = CommonUtils.settings.getBoolean("auto_mark_memorized", true)
+        set(value) = CommonUtils.settings.setBoolean("auto_mark_memorized", value)
+
     fun markVerseMemorized(verseRange: VerseRange) {
         val kjvRange = verseRange.toV11n(KJVA)
+        val added = mutableListOf<Int>()
         for (ordinal in kjvRange.start.ordinal..kjvRange.end.ordinal) {
             if (!dao.isVerseMemorized(ordinal)) {
                 dao.insertMemorizedVerse(MemorizedVerse(kjvOrdinal = ordinal))
+                added.add(ordinal)
             }
         }
+        if (added.isNotEmpty()) {
+            ABEventBus.post(MemorizationDataChangedEvent(addedMemorized = added))
+        }
+    }
+
+    fun unmarkVerseMemorized(verseRange: VerseRange) {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val removed = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
+        dao.deleteMemorizedVersesInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
+        ABEventBus.post(MemorizationDataChangedEvent(removedMemorized = removed))
     }
 
     fun isVerseMemorized(v11n: Versification, book: BibleBook, chapter: Int, verse: Int): Boolean {
@@ -140,5 +168,90 @@ object ProgressControl {
             }
         }
         return result
+    }
+
+    // Memorization target methods
+
+    fun addMemorizationTarget(verseRange: VerseRange): MemorizationTarget {
+        val kjvRange = verseRange.toV11n(KJVA)
+        val target = MemorizationTarget(
+            kjvOrdinalStart = kjvRange.start.ordinal,
+            kjvOrdinalEnd = kjvRange.end.ordinal,
+        )
+        dao.insertMemorizationTarget(target)
+        val added = (kjvRange.start.ordinal..kjvRange.end.ordinal).toList()
+        ABEventBus.post(MemorizationDataChangedEvent(addedTargets = added))
+        return target
+    }
+
+    fun removeMemorizationTarget(id: IdType) {
+        val target = dao.allMemorizationTargets().find { it.id == id }
+        dao.deleteMemorizationTarget(id)
+        if (target != null) {
+            val removed = (target.kjvOrdinalStart..target.kjvOrdinalEnd).toList()
+            ABEventBus.post(MemorizationDataChangedEvent(removedTargets = removed))
+        }
+    }
+
+    fun getAllMemorizationTargets(): List<MemorizationTarget> = dao.allMemorizationTargets()
+
+    /** Total number of verses across all memorization targets. */
+    fun getTargetTotalVerses(): Int =
+        dao.allMemorizationTargets().sumOf { it.verseCount }
+
+    /**
+     * Returns memorization target progress: (memorized verses in targets, total target verses).
+     */
+    fun getMemorizationTargetProgress(): Pair<Int, Int> {
+        val targets = dao.allMemorizationTargets()
+        if (targets.isEmpty()) return 0 to 0
+        val totalTarget = targets.sumOf { it.verseCount }
+        val memorizedInTargets = targets.sumOf { target ->
+            dao.countMemorizedVersesInRange(target.kjvOrdinalStart, target.kjvOrdinalEnd)
+        }
+        return memorizedInTargets to totalTarget
+    }
+
+    /**
+     * Groups consecutive memorized verses into VerseRange objects for display.
+     */
+    fun getMemorizedVerseRanges(): List<VerseRange> {
+        val allVerses = dao.allMemorizedVerses().sortedBy { it.kjvOrdinal }
+        if (allVerses.isEmpty()) return emptyList()
+
+        val ranges = mutableListOf<VerseRange>()
+        var rangeStart = allVerses.first().kjvOrdinal
+        var rangeEnd = rangeStart
+
+        for (i in 1 until allVerses.size) {
+            val ordinal = allVerses[i].kjvOrdinal
+            if (ordinal == rangeEnd + 1) {
+                rangeEnd = ordinal
+            } else {
+                ranges.add(VerseRange(KJVA, Verse(KJVA, rangeStart), Verse(KJVA, rangeEnd)))
+                rangeStart = ordinal
+                rangeEnd = ordinal
+            }
+        }
+        ranges.add(VerseRange(KJVA, Verse(KJVA, rangeStart), Verse(KJVA, rangeEnd)))
+        return ranges
+    }
+
+    /** Returns memorized KJV ordinals within the given range (for BibleView indicators). */
+    fun getMemorizedOrdinalsInRange(startOrdinal: Int, endOrdinal: Int): List<Int> =
+        dao.memorizedOrdinalsInRange(startOrdinal, endOrdinal)
+
+    /** Returns target KJV ordinals within the given range (for BibleView indicators). */
+    fun getTargetOrdinalsInRange(startOrdinal: Int, endOrdinal: Int): List<Int> {
+        val targets = dao.memorizationTargetsOverlapping(startOrdinal, endOrdinal)
+        val ordinals = mutableListOf<Int>()
+        for (target in targets) {
+            val start = maxOf(target.kjvOrdinalStart, startOrdinal)
+            val end = minOf(target.kjvOrdinalEnd, endOrdinal)
+            for (ordinal in start..end) {
+                ordinals.add(ordinal)
+            }
+        }
+        return ordinals
     }
 }

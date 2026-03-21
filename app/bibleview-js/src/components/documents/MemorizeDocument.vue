@@ -47,6 +47,16 @@
       />
     </template>
   </TabContainer>
+
+  <!-- Mark as memorized / unmark button -->
+  <div class="memorize-actions">
+    <button v-if="!isMemorized" class="memorize-action-btn" @click="markAsMemorized">
+      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markAsMemorized }}
+    </button>
+    <button v-else class="memorize-action-btn memorized" @click="unmarkMemorized">
+      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
+    </button>
+  </div>
 </template>
 
 <script lang="ts">
@@ -56,7 +66,7 @@ let lastSelectedMode: MemorizeStateMode | null = null;
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {ref, computed, watch, toRefs} from "vue";
+import {computed, ref, toRefs, watch} from "vue";
 import {
     MemorizeDocument,
     MemorizeModeConfig,
@@ -65,7 +75,8 @@ import {
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
-import {faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faCheck, faEyeSlash, faRandom} from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -87,6 +98,29 @@ const memorizeState = computed<MemorizeState>(() => {
 })
 
 const {strings, android} = useCommon();
+
+function withVerseRange(fn: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void) {
+    const {bookInitials, startOrdinal, endOrdinal} = document.value;
+    if (bookInitials && startOrdinal != null && endOrdinal != null) {
+        fn(bookInitials, startOrdinal, endOrdinal);
+    }
+}
+
+const isMemorized = ref(false);
+
+function markAsMemorized() {
+    withVerseRange((b, s, e) => {
+        android.memorizeCompleted(b, s, e);
+        isMemorized.value = true;
+    });
+}
+
+function unmarkMemorized() {
+    withVerseRange((b, s, e) => {
+        android.unmarkMemorized(b, s, e);
+        isMemorized.value = false;
+    });
+}
 
 // Tab configuration for the TabContainer
 const tabsConfig = computed(() => [
@@ -119,9 +153,7 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
 }
 
 function onMemorizeCompleted() {
-    if (document.value.bookInitials && document.value.startOrdinal != null && document.value.endOrdinal != null) {
-        android.memorizeCompleted(document.value.bookInitials, document.value.startOrdinal, document.value.endOrdinal);
-    }
+    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
 }
 
 watch(selectedMode, saveState);
@@ -148,5 +180,34 @@ function saveState() {
 h2 {
   font-size: 1.2em;
   text-align: center;
+}
+
+.memorize-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 1em;
+}
+
+.memorize-action-btn {
+  padding: 8px 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.95em;
+  color: inherit;
+
+  &.memorized {
+    border-color: #4CAF50;
+    color: #4CAF50;
+  }
+
+  .night & {
+    border-color: #555;
+    &.memorized {
+      border-color: #4CAF50;
+      color: #4CAF50;
+    }
+  }
 }
 </style>

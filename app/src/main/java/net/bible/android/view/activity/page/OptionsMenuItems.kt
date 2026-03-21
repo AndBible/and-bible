@@ -252,6 +252,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.string.prefs_non_strongs_word_italic_title
                 TextDisplaySettings.Types.MARK_AS_READ_BUTTON -> R.string.prefs_mark_as_read_button_title
                 TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.string.prefs_title_scroll_button_title
+                TextDisplaySettings.Types.MEMORIZATION_INDICATORS -> R.string.prefs_show_memorization_indicators_title
             }
             return application.getString(id)
         }
@@ -283,6 +284,7 @@ open class Preference(val settings: SettingsBundle,
             TextDisplaySettings.Types.NON_STRONGS_WORD_ITALIC -> R.drawable.ic_format_italic_24dp
             TextDisplaySettings.Types.MARK_AS_READ_BUTTON -> R.drawable.ic_baseline_check_circle_24
             TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.drawable.ic_section_titles_24dp
+            TextDisplaySettings.Types.MEMORIZATION_INDICATORS -> R.drawable.ic_baseline_check_circle_24
             else -> R.drawable.ic_baseline_star_24
         }
 }

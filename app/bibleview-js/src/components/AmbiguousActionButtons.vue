@@ -53,7 +53,7 @@ import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {useCommon} from "@/composables";
 import {androidKey, keyboardKey, locateTopKey, modalKey} from "@/types/constants";
 import {SelectionInfo} from "@/types/common";
-import {isExperimentalFeatureEnabled, ModalButtonId} from "@/composables/config";
+import {ModalButtonId} from "@/composables/config";
 import {faEllipsisV} from "@fortawesome/free-solid-svg-icons";
 import ActionButton from "@/components/ActionButton.vue";
 
@@ -69,7 +69,7 @@ const {closeModals} = inject(modalKey)!
 const {setupKeyboardListener} = inject(keyboardKey)!
 const locateTop = inject(locateTopKey);
 
-const {strings, appSettings} = useCommon()
+const {strings, appSettings, isExperimentalFeatureEnabled} = useCommon()
 
 const selectionInfo = computed(() => props.selectionInfo);
 const android = inject(androidKey)!;
@@ -90,12 +90,15 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     } else {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     }
-    if (!isExperimentalFeatureEnabled(appSettings, "add_paragraph_break")) {
+    if (!isExperimentalFeatureEnabled("add_paragraph_break")) {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
+    }
+    if (!isExperimentalFeatureEnabled("reading_and_memorization")) {
+        allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "ADD_MEMORIZATION_TARGET");
     }
     if (!appSettings.llmConfigured) {
         allButtons = allButtons.filter(b => b !== "LLM_ACTION");
@@ -199,6 +202,9 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'MEMORIZE':
             memorize();
             break;
+        case 'ADD_MEMORIZATION_TARGET':
+            addMemorizationTarget();
+            break;
         case 'SPEAK':
             speak();
             break;
@@ -236,6 +242,13 @@ function memorize() {
     if(verseInfo.value) {
         android.memorize(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
+}
+
+function addMemorizationTarget() {
+    if(verseInfo.value) {
+        android.addMemorizationTarget(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+    }
+    emit("close");
 }
 
 function addNote() {

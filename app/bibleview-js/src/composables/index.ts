@@ -19,6 +19,7 @@ import {getCurrentInstance, inject, reactive, Ref,} from "vue";
 import {abbreviated, adjustedColor, sprintf} from "@/utils";
 import {emit} from "@/eventbus";
 import {androidKey, appSettingsKey, calculatedConfigKey, configKey, stringsKey, verseInfoKey} from "@/types/constants";
+import {Feature} from "@/composables/config";
 
 export function useCommon() {
     const currentInstance = getCurrentInstance()!;
@@ -51,9 +52,14 @@ export function useCommon() {
         return new Date(timestamp).toLocaleString([], options)
     }
 
+    function isExperimentalFeatureEnabled(feature: Feature): boolean {
+        return appSettings.enabledExperimentalFeatures.includes(feature);
+    }
+
     return {
         config, appSettings, calculatedConfig, strings, sprintf, split,
         adjustedColor, formatTimestamp, abbreviated, emit, android,
+        isExperimentalFeatureEnabled,
     }
 }
 

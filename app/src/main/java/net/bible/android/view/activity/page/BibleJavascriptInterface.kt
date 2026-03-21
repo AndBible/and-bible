@@ -492,14 +492,30 @@ class BibleJavascriptInterface(
         }
     }
 
+    private fun verseRangeFromOrdinals(bookInitials: String, startOrdinal: Int, endOrdinal: Int): VerseRange? {
+        val book = Books.installed().getBook(bookInitials) ?: return null
+        val v11n = (book as? AbstractPassageBook)?.versification ?: return null
+        val effectiveEnd = if (endOrdinal > 0) endOrdinal else startOrdinal
+        return VerseRange(v11n, Verse(v11n, startOrdinal), Verse(v11n, effectiveEnd))
+    }
+
     @JavascriptInterface
     fun memorizeCompleted(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val startVerse = Verse(v11n, startOrdinal)
-        val endVerse = Verse(v11n, endOrdinal)
-        val verseRange = VerseRange(v11n, startVerse, endVerse)
+        if (!ProgressControl.autoMarkMemorized) return
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         ProgressControl.markVerseMemorized(verseRange)
+    }
+
+    @JavascriptInterface
+    fun addMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.addMemorizationTarget(verseRange)
+    }
+
+    @JavascriptInterface
+    fun unmarkMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+        val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
+        ProgressControl.unmarkVerseMemorized(verseRange)
     }
 
     @JavascriptInterface

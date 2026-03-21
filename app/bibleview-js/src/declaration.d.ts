@@ -111,6 +111,10 @@ type TranslatedStrings = {
     verseShareLong: string
     verseCompareLong: string
     verseMemorizeLong: string
+    addMemorizationTarget: string
+    addMemorizationTargetLong: string
+    markAsMemorized: string
+    markedAsMemorized: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string

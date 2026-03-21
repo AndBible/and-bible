@@ -48,6 +48,7 @@ type EventTypeNames =
     | "reset_loading_count"
     | "export_html"
     | "start_mydocument_edit"
+    | "update_memorization_data"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 

@@ -21,6 +21,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import net.bible.android.database.IdType
 
 data class DailyReadingCount(
     val dayTimestamp: Long,
@@ -47,6 +48,28 @@ interface ProgressDao {
 
     @Query("SELECT COUNT(*) FROM MemorizedVerse")
     fun countTotalMemorizedVerses(): Int
+
+    @Query("SELECT kjvOrdinal FROM MemorizedVerse WHERE kjvOrdinal >= :startOrdinal AND kjvOrdinal <= :endOrdinal ORDER BY kjvOrdinal")
+    fun memorizedOrdinalsInRange(startOrdinal: Int, endOrdinal: Int): List<Int>
+
+    @Query("DELETE FROM MemorizedVerse WHERE kjvOrdinal >= :startOrdinal AND kjvOrdinal <= :endOrdinal")
+    fun deleteMemorizedVersesInRange(startOrdinal: Int, endOrdinal: Int)
+
+    // Memorization target queries
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertMemorizationTarget(target: MemorizationTarget)
+
+    @Query("DELETE FROM MemorizationTarget WHERE id = :id")
+    fun deleteMemorizationTarget(id: IdType)
+
+    @Query("SELECT * FROM MemorizationTarget ORDER BY createdAt DESC")
+    fun allMemorizationTargets(): List<MemorizationTarget>
+
+    @Query("SELECT COUNT(*) FROM MemorizationTarget")
+    fun countMemorizationTargets(): Int
+
+    @Query("SELECT * FROM MemorizationTarget WHERE kjvOrdinalStart <= :endOrdinal AND kjvOrdinalEnd >= :startOrdinal")
+    fun memorizationTargetsOverlapping(startOrdinal: Int, endOrdinal: Int): List<MemorizationTarget>
 
     // Reading queries
     @Insert(onConflict = OnConflictStrategy.REPLACE)

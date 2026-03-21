@@ -19,4 +19,15 @@ package net.bible.android.database.migrations
 
 import androidx.room.migration.Migration
 
-val progressMigrations: Array<Migration> = arrayOf()
+private val addMemorizationTarget = makeMigration(1..2) { db ->
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS MemorizationTarget (
+            id BLOB NOT NULL PRIMARY KEY,
+            kjvOrdinalStart INTEGER NOT NULL,
+            kjvOrdinalEnd INTEGER NOT NULL,
+            createdAt INTEGER NOT NULL
+        )
+    """)
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget)

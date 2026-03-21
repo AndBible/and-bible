@@ -18,9 +18,13 @@
 package net.bible.android.database.progress
 
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import net.bible.android.database.IdType
+import net.bible.android.database.bookmarks.KJVA
+import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 enum class ReadingSource {
     MANUAL, AUTO_SCROLL, AUTO_TTS
@@ -35,7 +39,27 @@ data class MemorizedVerse(
     @PrimaryKey var id: IdType = IdType(),
     val kjvOrdinal: Int,
     val memorizedAt: Long = System.currentTimeMillis(),
-)
+) {
+    @get:Ignore
+    val verse: Verse
+        get() = Verse(KJVA, kjvOrdinal)
+}
+
+@Entity
+data class MemorizationTarget(
+    @PrimaryKey var id: IdType = IdType(),
+    val kjvOrdinalStart: Int,
+    val kjvOrdinalEnd: Int,
+    val createdAt: Long = System.currentTimeMillis(),
+) {
+    @get:Ignore
+    val verseRange: VerseRange
+        get() = VerseRange(KJVA, Verse(KJVA, kjvOrdinalStart), Verse(KJVA, kjvOrdinalEnd))
+
+    @get:Ignore
+    val verseCount: Int
+        get() = kjvOrdinalEnd - kjvOrdinalStart + 1
+}
 
 @Entity(
     indices = [
