@@ -20,11 +20,7 @@
     <span
       :id="fromBibleDocument ? `o-${ordinal}` : undefined"
       class="verse"
-      :class="{
-        ordinal: fromBibleDocument,
-        memorized: showIndicators && isMemorizedVerse,
-        'memorize-target': showIndicators && isTargetVerse
-      }"
+      :class="{ordinal: fromBibleDocument}"
       :data-ordinal="ordinal"
     >
       <span class="highlight-transition" :class="{isHighlighted: highlighted}">
@@ -40,7 +36,7 @@ import {computed, inject, provide, reactive, ref} from "vue";
 import VerseNumber from "@/components/VerseNumber.vue";
 import {useCommon} from "@/composables";
 import {addEventVerseInfo, getVerseInfo} from "@/utils";
-import {androidKey, bibleDocumentInfoKey, memorizationKey, ordinalHighlightKey, verseInfoKey} from "@/types/constants";
+import {androidKey, bibleDocumentInfoKey, ordinalHighlightKey, verseInfoKey} from "@/types/constants";
 import {VerseInfo} from "@/types/common";
 
 const props = defineProps<{ osisID: string, verseOrdinal: string }>();
@@ -81,16 +77,6 @@ function verseClicked(event: Event) {
 }
 
 const {config} = useCommon();
-
-const memorization = inject(memorizationKey);
-const {isExperimentalFeatureEnabled} = useCommon();
-const showIndicators = computed(() =>
-    config.showMemorizationIndicators
-    && !!memorization
-    && isExperimentalFeatureEnabled('reading_and_memorization')
-);
-const isMemorizedVerse = computed(() => memorization?.isMemorized(ordinal.value) ?? false);
-const isTargetVerse = computed(() => memorization?.isTarget(ordinal.value) ?? false);
 </script>
 
 <style lang="scss">

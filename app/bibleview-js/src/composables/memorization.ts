@@ -25,42 +25,143 @@ type MemorizationDelta = {
     removedTargets: number[],
 }
 
-type MemorizationData = {
-    memorized: Set<number>,
-    targets: Set<number>,
+type IndicatorType = "memorized" | "target";
+
+const INDICATOR_CLASS = "memorization-indicator";
+
+/**
+ * Groups consecutive ordinals into [start, end] ranges.
+ */
+export function groupConsecutive(ordinals: number[]): [number, number][] {
+    if (ordinals.length === 0) return [];
+    const sorted = [...new Set(ordinals)].sort((a, b) => a - b);
+    const ranges: [number, number][] = [];
+    let start = sorted[0], end = sorted[0];
+    for (let i = 1; i < sorted.length; i++) {
+        if (sorted[i] === end + 1) {
+            end = sorted[i];
+        } else {
+            ranges.push([start, end]);
+            start = sorted[i];
+            end = sorted[i];
+        }
+    }
+    ranges.push([start, end]);
+    return ranges;
+}
+
+/**
+ * Creates a vertical line overlay element positioned in the left margin of the container,
+ * spanning from the top of the first verse to the bottom of the last verse in a range.
+ */
+/**
+ * Gets the top of an inline element's first rendered line using getClientRects().
+ */
+function getFirstLineTop(elem: Element): number {
+    const rects = elem.getClientRects();
+    return rects.length > 0 ? rects[0].top : elem.getBoundingClientRect().top;
+}
+
+/**
+ * Gets the effective bottom for the indicator line of the last verse in a range.
+ * If the last verse's final line is shared with the next (non-range) verse,
+ * stops at the previous line — unless the verse fits on a single line.
+ */
+function getEffectiveBottom(lastElem: Element, nextOrdinal: number, container: HTMLElement, documentId: string): number {
+    const rects = lastElem.getClientRects();
+    if (rects.length === 0) return lastElem.getBoundingClientRect().bottom;
+    if (rects.length === 1) return rects[0].bottom;
+
+    const nextElem = container.querySelector(`#doc-${documentId} #o-${nextOrdinal}`);
+    if (nextElem) {
+        const nextRects = nextElem.getClientRects();
+        if (nextRects.length > 0) {
+            const lastLineTop = rects[rects.length - 1].top;
+            const nextFirstTop = nextRects[0].top;
+            if (Math.abs(lastLineTop - nextFirstTop) < 3) {
+                return rects[rects.length - 2].bottom;
+            }
+        }
+    }
+    return rects[rects.length - 1].bottom;
+}
+
+function createIndicatorElement(
+    container: HTMLElement,
+    firstOrdinal: number,
+    lastOrdinal: number,
+    type: IndicatorType,
+    documentId: string,
+): HTMLElement | null {
+    const firstElem = container.querySelector(`#doc-${documentId} #o-${firstOrdinal}`) as HTMLElement | null;
+    const lastElem = container.querySelector(`#doc-${documentId} #o-${lastOrdinal}`) as HTMLElement | null;
+    if (!firstElem || !lastElem) return null;
+
+    const containerRect = container.getBoundingClientRect();
+    const firstTop = getFirstLineTop(firstElem);
+    const lastBottom = getEffectiveBottom(lastElem, lastOrdinal + 1, container, documentId);
+
+    const top = firstTop - containerRect.top;
+    const height = lastBottom - firstTop;
+    if (height <= 0) return null;
+
+    const line = document.createElement("div");
+    line.className = `${INDICATOR_CLASS} ${INDICATOR_CLASS}--${type}`;
+    line.style.position = "absolute";
+    line.style.left = "-6px";
+    line.style.width = "3px";
+    line.style.top = `${top}px`;
+    line.style.height = `${height}px`;
+    line.style.pointerEvents = "none";
+    line.dataset.startOrdinal = String(firstOrdinal);
+    line.dataset.endOrdinal = String(lastOrdinal);
+    line.dataset.type = type;
+    return line;
 }
 
 export function useMemorization() {
-    const data: MemorizationData = reactive({
-        memorized: new Set<number>(),
-        targets: new Set<number>(),
-    });
+    const memorized = reactive(new Set<number>());
+    const targets = reactive(new Set<number>());
 
     /** Merge data from a newly loaded document (infinite scroll adds chapters incrementally). */
-    function mergeData(memorized: number[], targets: number[]) {
-        for (const o of memorized) data.memorized.add(o);
-        for (const o of targets) data.targets.add(o);
+    function mergeData(newMemorized: number[], newTargets: number[]) {
+        for (const o of newMemorized) memorized.add(o);
+        for (const o of newTargets) targets.add(o);
     }
 
     /** Apply incremental delta from MemorizationDataChangedEvent. */
     function applyDelta(delta: MemorizationDelta) {
-        for (const o of delta.addedMemorized) data.memorized.add(o);
-        for (const o of delta.removedMemorized) data.memorized.delete(o);
-        for (const o of delta.addedTargets) data.targets.add(o);
-        for (const o of delta.removedTargets) data.targets.delete(o);
+        for (const o of delta.addedMemorized) memorized.add(o);
+        for (const o of delta.removedMemorized) memorized.delete(o);
+        for (const o of delta.addedTargets) targets.add(o);
+        for (const o of delta.removedTargets) targets.delete(o);
     }
 
     setupEventBusListener("update_memorization_data",
         (delta: MemorizationDelta) => applyDelta(delta)
     );
 
-    function isMemorized(ordinal: number): boolean {
-        return data.memorized.has(ordinal);
+    /**
+     * Renders vertical line indicators in the left margin of the container.
+     * Call after document is mounted/updated and DOM is ready.
+     */
+    function renderIndicators(container: HTMLElement, documentId: string) {
+        // Remove existing indicators for this document
+        container.querySelectorAll(`.${INDICATOR_CLASS}`).forEach(el => el.remove());
+
+        // Target indicators (render first so memorized overlaps on top)
+        const targetOnlyOrdinals = [...targets].filter(o => !memorized.has(o));
+        for (const [start, end] of groupConsecutive(targetOnlyOrdinals)) {
+            const el = createIndicatorElement(container, start, end, "target", documentId);
+            if (el) container.appendChild(el);
+        }
+
+        // Memorized indicators
+        for (const [start, end] of groupConsecutive([...memorized])) {
+            const el = createIndicatorElement(container, start, end, "memorized", documentId);
+            if (el) container.appendChild(el);
+        }
     }
 
-    function isTarget(ordinal: number): boolean {
-        return data.targets.has(ordinal);
-    }
-
-    return {isMemorized, isTarget, mergeData};
+    return {memorized, targets, mergeData, renderIndicators};
 }

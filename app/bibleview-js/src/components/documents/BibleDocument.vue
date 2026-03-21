@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import {inject, provide, ref} from "vue";
+import {inject, nextTick, onMounted, provide, ref} from "vue";
 import {useBookmarks} from "@/composables/bookmarks";
 import OsisFragment from "@/components/documents/OsisFragment.vue";
 import {useCommon} from "@/composables";
@@ -42,6 +42,7 @@ import Chapter from "@/components/OSIS/Chapter.vue";
 import {bibleDocumentInfoKey, footnoteCountKey, globalBookmarksKey, memorizationKey} from "@/types/constants";
 import {BibleDocumentType} from "@/types/documents";
 import {useReadingTracker} from "@/composables/reading-tracker";
+import {setupEventBusListener} from "@/eventbus";
 
 const props = defineProps<{ document: BibleDocumentType }>();
 
@@ -82,9 +83,28 @@ function onMarkAsRead() {
     android.markChapterRead(bookInitials, ordinalRange[0], displayChapter);
     chapterRead.value = true;
 }
+
+// Render memorization indicator overlays after mount
+if (memorization && isExperimentalFeatureEnabled('reading_and_memorization') && config.showMemorizationIndicators) {
+    const renderOverlays = () => {
+        if (containerRef.value) {
+            memorization.renderIndicators(containerRef.value, id);
+        }
+    };
+    onMounted(() => nextTick(renderOverlays));
+
+    setupEventBusListener("update_memorization_data", async () => {
+        await nextTick();
+        renderOverlays();
+    });
+}
 </script>
 
 <style scoped>
+.bible-document {
+    position: relative;
+}
+
 .mark-as-read-container {
     text-align: center;
     padding: 12px 0;

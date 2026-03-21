@@ -297,22 +297,28 @@ body {
   padding-bottom: 0.5em;
 }
 
-.verse.memorized {
-  border-left: 3px solid #4CAF50;
-  padding-left: 4px;
+.memorization-indicator {
+  border-radius: 1px;
+
+  &--memorized {
+    background-color: #4CAF50;
+  }
+  &--target {
+    background-color: #9C27B0;
+  }
 }
 
-.verse.memorize-target:not(.memorized) {
-  border-left: 3px solid #9C27B0;
-  padding-left: 4px;
-}
-
-.monochrome .verse.memorized {
-  border-left: 3px solid black;
-}
-
-.monochrome .verse.memorize-target:not(.memorized) {
-  border-left: 3px dashed black;
+.monochrome .memorization-indicator {
+  &--memorized {
+    background-color: black;
+  }
+  &--target {
+    background: repeating-linear-gradient(
+      to bottom,
+      black 0px, black 3px,
+      transparent 3px, transparent 6px
+    );
+  }
 }
 
 img {
