@@ -35,11 +35,13 @@ export function useScroll(
     const currentScrollAnimation = ref<number | null>(null);
     const isScrolling = computed(() => currentScrollAnimation.value != null)
 
+    const touchStartHandler = () => stopScrolling();
+
     watch(isScrolling, v => {
         if (v) {
-            document.addEventListener("touchstart", () => stopScrolling())
+            document.addEventListener("touchstart", touchStartHandler)
         } else {
-            document.removeEventListener("touchstart", () => stopScrolling())
+            document.removeEventListener("touchstart", touchStartHandler)
         }
     }, {flush: 'sync'});
 
