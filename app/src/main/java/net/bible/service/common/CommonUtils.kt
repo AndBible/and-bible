@@ -494,6 +494,11 @@ object CommonUtils : CommonUtilsBase() {
         var aiExcludedDocuments: Set<String>
             get() = getStringSet("ai_excluded_documents")
             set(value) = setStringSet("ai_excluded_documents", value)
+
+        /** Max tokens (approx) for getCommentaries response before showing selection dialog. 0 = no limit. */
+        var commentaryMaxResponseTokens: Int
+            get() = getInt("commentary_max_response_tokens", 0)
+            set(value) = setInt("commentary_max_response_tokens", value)
     }
 
     private var _settings: AndBibleSettings? = null

@@ -55,7 +55,7 @@ npm run build-production # Production build
 
 **Android Gradle Build**
 ```bash
-# IMPORTANT: Test commands (testStandard*, check) require dangerouslyDisableSandbox: true due to Robolectric
+# IMPORTANT: All Gradle commands require dangerouslyDisableSandbox: true (Gradle daemon does not work in sandbox)
 ./gradlew assembleStandardGithubDebug     # Debug build
 ./gradlew assembleStandardGithubRelease   # Release build
 ./gradlew testStandardGoogleplayDebug     # Unit tests

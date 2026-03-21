@@ -60,6 +60,11 @@
             android:summary="@string/ai_document_filter_summary"
             android:icon="@drawable/ic_baseline_description_gray_24"
             />
+        <Preference android:key="commentary_max_response_chars"
+            android:title="@string/commentary_max_response_title"
+            android:summary="@string/commentary_max_response_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory

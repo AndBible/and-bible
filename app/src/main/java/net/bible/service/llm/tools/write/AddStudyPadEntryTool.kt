@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -44,6 +45,16 @@ object AddStudyPadEntryTool : Tool {
         val text: String = "",
         val contentType: TextContentType = TextContentType.MARKDOWN,
         val orderNumber: Int = 0
+    )
+
+    @Serializable
+    data class Result(
+        val entryId: IdType,
+        val labelId: IdType,
+        val labelName: String,
+        val textLength: Int,
+        val contentType: String,
+        val orderNumber: Int
     )
 
     override val agentTool = AgentTool.ADD_STUDY_PAD_ENTRY
@@ -123,14 +134,14 @@ object AddStudyPadEntryTool : Tool {
                 sourcePromptId = context.promptId
             )
 
-            ToolResult.success {
-                put("entryId", entry.id.toString())
-                put("labelId", args.labelId.toString())
-                put("labelName", label.name)
-                put("textLength", text.length)
-                put("contentType", args.contentType.name)
-                put("orderNumber", entry.orderNumber)
-            }
+            typedSuccess(Result(
+                entryId = entry.id,
+                labelId = args.labelId,
+                labelName = label.name,
+                textLength = text.length,
+                contentType = args.contentType.name,
+                orderNumber = entry.orderNumber
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to add StudyPad entry: ${e.message}", "ADD_ERROR")
         }

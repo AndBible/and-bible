@@ -98,6 +98,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var manageAiDocumentsPref: Preference
+    private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -112,6 +113,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
+        commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -120,6 +122,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupAddProvider()
         setupToolPermissions()
         setupDocumentFilter()
+        setupCommentaryMaxResponse()
         setupUsage()
         refreshProviderList()
         updateVisibility()
@@ -675,6 +678,48 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.ai_document_filter_summary_count, excludedCount)
         } else {
             getString(R.string.ai_document_filter_summary)
+        }
+    }
+
+    private fun setupCommentaryMaxResponse() {
+        updateCommentaryMaxResponseSummary()
+        commentaryMaxResponsePref.setOnPreferenceClickListener {
+            val ctx = requireContext()
+            val input = EditText(ctx).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                setText(settings.commentaryMaxResponseTokens.toString())
+                selectAll()
+            }
+            val container = LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                val pad = (16 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad / 2, pad, 0)
+                addView(TextView(ctx).apply {
+                    text = getString(R.string.commentary_max_response_dialog_message)
+                    setPadding(0, 0, 0, pad / 2)
+                })
+                addView(input)
+            }
+            AlertDialog.Builder(ctx)
+                .setTitle(R.string.commentary_max_response_dialog_title)
+                .setView(container)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    val value = input.text.toString().toIntOrNull() ?: 0
+                    settings.commentaryMaxResponseTokens = maxOf(0, value)
+                    updateCommentaryMaxResponseSummary()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun updateCommentaryMaxResponseSummary() {
+        val value = settings.commentaryMaxResponseTokens
+        commentaryMaxResponsePref.summary = if (value <= 0) {
+            getString(R.string.commentary_max_response_no_limit)
+        } else {
+            getString(R.string.commentary_max_response_value, "%,d".format(value))
         }
     }
 

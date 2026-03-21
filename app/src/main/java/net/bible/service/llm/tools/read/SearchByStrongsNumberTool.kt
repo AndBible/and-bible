@@ -20,12 +20,14 @@ package net.bible.service.llm.tools.read
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.sword.SwordContentFacade
@@ -49,6 +51,20 @@ object SearchByStrongsNumberTool : Tool {
         val book: String = "",
         val maxResults: Int = 50,
         val offset: Int = 0,
+    )
+
+    @Serializable
+    data class StrongsResultEntry(val verseRef: String, val verseName: String)
+
+    @Serializable
+    data class Result(
+        val strongsNumber: String,
+        val searchedBook: String,
+        val totalResults: Int,
+        val returnedResults: Int,
+        val offset: Int,
+        val hasMore: Boolean,
+        val results: List<StrongsResultEntry>
     )
 
     override val agentTool = AgentTool.SEARCH_BY_STRONGS
@@ -93,11 +109,9 @@ object SearchByStrongsNumberTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val returned = data.optInt("returnedResults", -1)
-        val total = data.optInt("totalResults", -1)
-        return if (returned >= 0 && total >= 0) "$returned/$total results" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        val data = result.data as Result
+        return application.getString(R.string.tool_log_search_results, data.returnedResults, data.totalResults)
     }
 
     private val STRONGS_PATTERN = Regex("^([HhGg])0*(\\d+)$")
@@ -177,24 +191,16 @@ object SearchByStrongsNumberTool : Tool {
                     }
 
                 val page = allResults.drop(offset).take(maxResults)
-                val results = JSONArray().apply {
-                    for (r in page) {
-                        put(JSONObject().apply {
-                            put("verseRef", r.osisRef)
-                            put("verseName", r.verseName)
-                        })
-                    }
-                }
 
-                ToolResult.success {
-                    put("strongsNumber", args.strongsNumber.uppercase())
-                    put("searchedBook", bible.initials)
-                    put("totalResults", allResults.size)
-                    put("returnedResults", page.size)
-                    put("offset", offset)
-                    put("hasMore", offset + page.size < allResults.size)
-                    put("results", results)
-                }
+                typedSuccess(Result(
+                    strongsNumber = args.strongsNumber.uppercase(),
+                    searchedBook = bible.initials,
+                    totalResults = allResults.size,
+                    returnedResults = page.size,
+                    offset = offset,
+                    hasMore = offset + page.size < allResults.size,
+                    results = page.map { StrongsResultEntry(it.osisRef, it.verseName) }
+                ))
             }
         } catch (e: Exception) {
             ToolResult.error("Strong's search failed: ${e.message}", "SEARCH_ERROR")

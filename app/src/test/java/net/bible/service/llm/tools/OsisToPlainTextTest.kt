@@ -101,9 +101,27 @@ class OsisToPlainTextTest {
     }
 
     @Test
-    fun referenceTextPreserved() {
+    fun referenceWithOsisRef() {
         val xml = """<div>see <reference osisRef="Matt.5.3">Matt 5:3</reference></div>"""
+        assertEquals("see [Matt 5:3](sword:///Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun referenceWithoutOsisRef() {
+        val xml = """<div>see <reference>Matt 5:3</reference></div>"""
         assertEquals("see Matt 5:3", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun referenceModuleQualified() {
+        val xml = """<div><reference osisRef="MHC:Matt.5.3">Matt 5:3</reference></div>"""
+        assertEquals("[Matt 5:3](sword://MHC/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun referenceVerseRange() {
+        val xml = """<div><reference osisRef="Matt.5.3-Matt.5.12">Matt 5:3-12</reference></div>"""
+        assertEquals("[Matt 5:3-12](sword:///Matt.5.3-Matt.5.12)", OsisToPlainText.convert(parse(xml)))
     }
 
     @Test

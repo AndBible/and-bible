@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
@@ -26,9 +27,9 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
-import org.json.JSONArray
 import org.json.JSONObject
 
 /**
@@ -42,6 +43,26 @@ object GetBookmarksWithLabelTool : Tool {
         val labelId: IdType = IdType.empty(),
         val maxResults: Int = 100,
         val fields: List<String>? = null,
+    )
+
+    @Serializable
+    data class BookmarkEntry(
+        val id: IdType,
+        val type: String,
+        val verseRange: String? = null,
+        val verseName: String? = null,
+        val notes: String? = null,
+        val createdAt: Long? = null,
+        val book: String? = null,
+        val key: String? = null
+    )
+
+    @Serializable
+    data class Result(
+        val labelId: IdType,
+        val labelName: String,
+        val bookmarkCount: Int,
+        val bookmarks: List<BookmarkEntry>
     )
 
     override val agentTool = AgentTool.GET_BOOKMARKS_WITH_LABEL
@@ -79,10 +100,8 @@ object GetBookmarksWithLabelTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val count = data.optInt("bookmarkCount", -1)
-        return if (count >= 0) "$count bookmarks" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return application.getString(R.string.tool_log_bookmark_count, (result.data as Result).bookmarkCount)
     }
 
     private val defaultFields = setOf("verseRange", "verseName", "createdAt")
@@ -113,41 +132,38 @@ object GetBookmarksWithLabelTool : Tool {
             // Get generic bookmarks with this label
             val genericBookmarks = dao.genericBookmarksWithLabel(label)
 
-            val results = JSONArray()
-            var count = 0
+            val results = mutableListOf<BookmarkEntry>()
 
             for (bookmark in bibleBookmarks) {
-                if (count >= maxResults) break
-                results.put(JSONObject().apply {
-                    put("id", bookmark.id.toString())
-                    put("type", "bible")
-                    if ("verseRange" in fields) put("verseRange", bookmark.verseRange.osisRef)
-                    if ("verseName" in fields) put("verseName", bookmark.verseRange.name)
-                    if ("notes" in fields) put("notes", bookmark.notes ?: JSONObject.NULL)
-                    if ("createdAt" in fields) put("createdAt", bookmark.createdAt.time)
-                })
-                count++
+                if (results.size >= maxResults) break
+                results.add(BookmarkEntry(
+                    id = bookmark.id,
+                    type = "bible",
+                    verseRange = if ("verseRange" in fields) bookmark.verseRange.osisRef else null,
+                    verseName = if ("verseName" in fields) bookmark.verseRange.name else null,
+                    notes = if ("notes" in fields) bookmark.notes else null,
+                    createdAt = if ("createdAt" in fields) bookmark.createdAt.time else null
+                ))
             }
 
             for (bookmark in genericBookmarks) {
-                if (count >= maxResults) break
-                results.put(JSONObject().apply {
-                    put("id", bookmark.id.toString())
-                    put("type", "generic")
-                    put("book", bookmark.book?.initials ?: "unknown")
-                    put("key", bookmark.key)
-                    if ("notes" in fields) put("notes", bookmark.notes ?: JSONObject.NULL)
-                    if ("createdAt" in fields) put("createdAt", bookmark.createdAt.time)
-                })
-                count++
+                if (results.size >= maxResults) break
+                results.add(BookmarkEntry(
+                    id = bookmark.id,
+                    type = "generic",
+                    book = bookmark.book?.initials ?: "unknown",
+                    key = bookmark.key,
+                    notes = if ("notes" in fields) bookmark.notes else null,
+                    createdAt = if ("createdAt" in fields) bookmark.createdAt.time else null
+                ))
             }
 
-            ToolResult.success {
-                put("labelId", args.labelId.toString())
-                put("labelName", label.name)
-                put("bookmarkCount", results.length())
-                put("bookmarks", results)
-            }
+            typedSuccess(Result(
+                labelId = args.labelId,
+                labelName = label.name,
+                bookmarkCount = results.size,
+                bookmarks = results
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to get bookmarks: ${e.message}", "READ_ERROR")
         }

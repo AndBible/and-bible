@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -41,6 +42,9 @@ object UpdateBookmarkNoteTool : Tool {
         val bookmarkId: IdType = IdType.empty(),
         val note: String = ""
     )
+
+    @Serializable
+    data class Result(val bookmarkId: IdType, val noteLength: Int, val previousNoteLength: Int)
 
     override val agentTool = AgentTool.UPDATE_BOOKMARK_NOTE
 
@@ -112,11 +116,11 @@ object UpdateBookmarkNoteTool : Tool {
 
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
 
-            ToolResult.success {
-                put("bookmarkId", args.bookmarkId.toString())
-                put("noteLength", note.length)
-                put("previousNoteLength", previousNoteLength)
-            }
+            typedSuccess(Result(
+                bookmarkId = args.bookmarkId,
+                noteLength = note.length,
+                previousNoteLength = previousNoteLength
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to update note: ${e.message}", "UPDATE_ERROR")
         }

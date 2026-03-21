@@ -26,6 +26,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -41,6 +42,9 @@ object AddLabelToBookmarkTool : Tool {
         val bookmarkId: IdType = IdType.empty(),
         val labelId: IdType = IdType.empty()
     )
+
+    @Serializable
+    data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
 
     override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
 
@@ -117,11 +121,11 @@ object AddLabelToBookmarkTool : Tool {
             currentLabelIds.add(args.labelId)
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = currentLabelIds)
 
-            ToolResult.success {
-                put("bookmarkId", args.bookmarkId.toString())
-                put("labelId", args.labelId.toString())
-                put("labelName", label.name)
-            }
+            typedSuccess(Result(
+                bookmarkId = args.bookmarkId,
+                labelId = args.labelId,
+                labelName = label.name
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to add label: ${e.message}", "ADD_ERROR")
         }

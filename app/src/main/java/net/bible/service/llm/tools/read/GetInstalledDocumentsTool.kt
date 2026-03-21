@@ -17,12 +17,14 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import net.bible.service.llm.tools.AiDocumentFilter
@@ -42,6 +44,16 @@ import org.json.JSONObject
 object GetInstalledDocumentsTool : Tool {
     @Serializable
     data class Args(val category: String = "")
+
+    @Serializable
+    data class DocumentInfo(
+        val initials: String, val name: String, val category: String, val language: String,
+        val isLocked: Boolean, val isIndexed: Boolean, val abbreviation: String,
+        val hasStrongsNumbers: Boolean? = null
+    )
+
+    @Serializable
+    data class Result(val documentCount: Int, val documents: List<DocumentInfo>)
 
     override val agentTool = AgentTool.GET_INSTALLED_DOCUMENTS
     override val displayNameResId = R.string.tool_get_installed_documents
@@ -71,10 +83,8 @@ object GetInstalledDocumentsTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val count = data.optInt("documentCount", -1)
-        return if (count >= 0) "$count documents" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return application.getString(R.string.tool_log_document_count, (result.data as Result).documentCount)
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -97,26 +107,17 @@ object GetInstalledDocumentsTool : Tool {
                 Books.installed().books
             })
 
-            val results = JSONArray()
-            for (book in books) {
-                results.put(JSONObject().apply {
-                    put("initials", book.initials)
-                    put("name", book.name)
-                    put("category", book.bookCategory.name)
-                    put("language", book.language?.code ?: "unknown")
-                    put("isLocked", book.isLocked)
-                    put("isIndexed", book.indexStatus == IndexStatus.DONE)
-                    put("abbreviation", book.abbreviation)
-                    if (book.bookCategory == BookCategory.BIBLE) {
-                        put("hasStrongsNumbers", book.hasFeature(FeatureType.STRONGS_NUMBERS))
-                    }
-                })
+            val results = books.map { book ->
+                DocumentInfo(
+                    initials = book.initials, name = book.name, category = book.bookCategory.name,
+                    language = book.language?.code ?: "unknown", isLocked = book.isLocked,
+                    isIndexed = book.indexStatus == IndexStatus.DONE, abbreviation = book.abbreviation,
+                    hasStrongsNumbers = if (book.bookCategory == BookCategory.BIBLE)
+                        book.hasFeature(FeatureType.STRONGS_NUMBERS) else null
+                )
             }
 
-            ToolResult.success {
-                put("documentCount", results.length())
-                put("documents", results)
-            }
+            typedSuccess(Result(documentCount = results.size, documents = results))
         } catch (e: Exception) {
             ToolResult.error("Failed to get documents: ${e.message}", "READ_ERROR")
         }
