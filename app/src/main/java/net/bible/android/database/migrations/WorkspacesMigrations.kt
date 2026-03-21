@@ -245,6 +245,7 @@ private val migrateGlobalTdsIdToBlob = makeMigration(15..16) { _db ->
 private val addMarkAsReadButton = makeMigration(16..17) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
 }
 
 val workspacesMigrations: Array<Migration> = arrayOf(
