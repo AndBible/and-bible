@@ -1,0 +1,15 @@
+- Show LLM comments in agent log widget with chat bubbles to display LLM reasoning during execution (afa3b8cf5)
+- Add global default tool permissions for all configurable tools (including read tools) with per-prompt override options (59744c45d)
+- Pretty-print JSON and unescape markdown content in raw LLM logs for improved readability (cf84a393d)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

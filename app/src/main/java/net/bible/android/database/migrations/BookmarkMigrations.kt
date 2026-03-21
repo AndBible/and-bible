@@ -17,6 +17,14 @@
 
 package net.bible.android.database.migrations
 
+import androidx.sqlite.db.SupportSQLiteDatabase
+import net.bible.android.database.bookmarks.PARAGRAH_BREAK_LABEL_NAME
+import net.bible.android.database.bookmarks.PARAGRAPH_BREAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_ID
+import net.bible.android.database.bookmarks.SPEAK_LABEL_NAME
+import net.bible.android.database.bookmarks.UNLABELED_LABEL_ID
+import net.bible.android.database.bookmarks.UNLABELED_NAME
+
 private val separateText = makeMigration(1..2) { _db ->
     _db.execSQL("CREATE TABLE IF NOT EXISTS `BookmarkNotes` (`bookmarkId` BLOB NOT NULL, `notes` TEXT NOT NULL, PRIMARY KEY(`bookmarkId`), FOREIGN KEY(`bookmarkId`) REFERENCES `Bookmark`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
     _db.execSQL("CREATE TABLE IF NOT EXISTS `StudyPadTextEntryText` (`studyPadTextEntryId` BLOB NOT NULL, `text` TEXT NOT NULL, PRIMARY KEY(`studyPadTextEntryId`), FOREIGN KEY(`studyPadTextEntryId`) REFERENCES `StudyPadTextEntry`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )");
@@ -125,6 +133,87 @@ private val aiFieldsMigration = makeMigration(10..11) { _db ->
     _db.execSQL("CREATE VIEW `StudyPadTextEntryWithText` AS SELECT e.*, t.text FROM StudyPadTextEntry e INNER JOIN StudyPadTextEntryText t ON e.id = t.studyPadTextEntryId")
 }
 
+/**
+ * Merge all special labels with the same name into a single label with a fixed canonical UUID.
+ * Remaps all bookmark-to-label references and deletes duplicates.
+ *
+ * Used by the 11→12 migration and also run on incoming sync patches (which go through
+ * Room migrations before being applied to the local database).
+ */
+fun deduplicateSpecialLabels(db: SupportSQLiteDatabase) {
+    data class SpecialLabel(val name: String, val hexId: String)
+    val specialLabels = listOf(
+        SpecialLabel(SPEAK_LABEL_NAME, SPEAK_LABEL_ID.toHex()),
+        SpecialLabel(UNLABELED_NAME, UNLABELED_LABEL_ID.toHex()),
+        SpecialLabel(PARAGRAH_BREAK_LABEL_NAME, PARAGRAPH_BREAK_LABEL_ID.toHex()),
+    )
+
+    for (label in specialLabels) {
+        val name = label.name
+        val hex = label.hexId
+
+        // Insert canonical label with fixed ID, copying data from existing label
+        db.execSQL("""
+            INSERT OR IGNORE INTO Label (id, name, color, markerStyle, markerStyleWholeVerse,
+                underlineStyle, underlineStyleWholeVerse, hideStyle, hideStyleWholeVerse,
+                favourite, type, customIcon)
+            SELECT X'$hex', name, color, markerStyle, markerStyleWholeVerse,
+                underlineStyle, underlineStyleWholeVerse, hideStyle, hideStyleWholeVerse,
+                favourite, type, customIcon
+            FROM Label WHERE name = '$name' ORDER BY id LIMIT 1
+        """)
+
+        // Remap BibleBookmarkToLabel (composite PK: INSERT OR IGNORE + DELETE old)
+        db.execSQL("""
+            INSERT OR IGNORE INTO BibleBookmarkToLabel (bookmarkId, labelId, orderNumber, indentLevel, expandContent)
+            SELECT bookmarkId, X'$hex', orderNumber, indentLevel, expandContent
+            FROM BibleBookmarkToLabel
+            WHERE labelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+        db.execSQL("""
+            DELETE FROM BibleBookmarkToLabel
+            WHERE labelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+
+        // Remap GenericBookmarkToLabel (same composite PK handling)
+        db.execSQL("""
+            INSERT OR IGNORE INTO GenericBookmarkToLabel (bookmarkId, labelId, orderNumber, indentLevel, expandContent)
+            SELECT bookmarkId, X'$hex', orderNumber, indentLevel, expandContent
+            FROM GenericBookmarkToLabel
+            WHERE labelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+        db.execSQL("""
+            DELETE FROM GenericBookmarkToLabel
+            WHERE labelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+
+        // Remap BibleBookmark.primaryLabelId
+        db.execSQL("""
+            UPDATE BibleBookmark SET primaryLabelId = X'$hex'
+            WHERE primaryLabelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+
+        // Remap GenericBookmark.primaryLabelId
+        db.execSQL("""
+            UPDATE GenericBookmark SET primaryLabelId = X'$hex'
+            WHERE primaryLabelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+
+        // Remap StudyPadTextEntry.labelId
+        db.execSQL("""
+            UPDATE StudyPadTextEntry SET labelId = X'$hex'
+            WHERE labelId IN (SELECT id FROM Label WHERE name = '$name' AND id != X'$hex')
+        """)
+
+        // Delete duplicate labels (keep only canonical)
+        db.execSQL("DELETE FROM Label WHERE name = '$name' AND id != X'$hex'")
+    }
+}
+
+private val fixedSpecialLabelIds = makeMigration(11..12) { db ->
+    deduplicateSpecialLabels(db)
+}
+
 val bookmarkMigrations: Array<Migration> = arrayOf(
     separateText,
     genericTables,
@@ -136,6 +225,7 @@ val bookmarkMigrations: Array<Migration> = arrayOf(
     customIconMigration,
     editActionMigration,
     aiFieldsMigration,
+    fixedSpecialLabelIds,
 )
 
-const val BOOKMARK_DATABASE_VERSION = 11
+const val BOOKMARK_DATABASE_VERSION = 12

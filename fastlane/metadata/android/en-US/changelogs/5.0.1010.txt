@@ -1,0 +1,15 @@
+- Add copy-to-global for text display settings with propagation to workspaces and windows (66fe8dfd6, 4dcb93793)
+- Add in-memory TDS propagation with workspace→window tests (02d42bc9b)
+- Avoid unnecessary database updates in global TDS propagation (a721a23fb)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

@@ -55,6 +55,16 @@
             android:summary="@string/manage_tool_permissions_summary"
             android:icon="@drawable/ic_baseline_security_24"
             />
+        <Preference android:key="manage_ai_documents"
+            android:title="@string/ai_document_filter_title"
+            android:summary="@string/ai_document_filter_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+        <Preference android:key="commentary_max_response_chars"
+            android:title="@string/commentary_max_response_title"
+            android:summary="@string/commentary_max_response_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory

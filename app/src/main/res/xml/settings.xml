@@ -121,6 +121,12 @@
 	<PreferenceCategory
 		android:title="@string/prefs_display_customization_cat">
 
+		<Preference android:key="global_text_display_settings"
+			android:title="@string/global_text_display_settings_title"
+			android:summary="@string/global_text_display_settings_summary"
+			android:icon="@drawable/ic_text_format_white_24dp"
+			/>
+
 		<ListPreference android:key="locale_pref"
 			android:title="@string/prefs_interface_locale_title"
 			android:summary="@string/prefs_interface_locale_summary"

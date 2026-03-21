@@ -64,6 +64,7 @@ import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.BibleViewFactory
 import net.bible.android.view.activity.page.BibleViewInputFocusChanged
@@ -829,13 +830,10 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             val llmSubMenu = llmActionsSubMenu.subMenu!!
             llmSubMenu.removeItem(R.id.llmActionItem)
             val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
-            if (prompts.isEmpty()) {
-                llmActionsSubMenu.isVisible = false
-            } else {
-                prompts.forEachIndexed { idx, prompt ->
-                    llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
-                }
+            prompts.forEachIndexed { idx, prompt ->
+                llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
             }
+            // "Custom prompt…" is already defined in the menu XML as llmCustomPromptItem
         } else {
             llmActionsSubMenu.isVisible = false
         }
@@ -883,11 +881,13 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
 
     private fun getItemOptions(window: Window, itemId: Int, order: Int): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
+            level = SettingsLevel.WINDOW,
             windowId = window.id,
             pageManagerSettings = window.pageManager.textDisplaySettings,
             workspaceId = windowControl.windowRepository.id,
             workspaceName = windowControl.windowRepository.name,
             workspaceSettings = windowControl.windowRepository.textDisplaySettings,
+            globalSettings = CommonUtils.globalTextDisplaySettings,
         )
 
         val isMaximised = windowRepository.isMaximized
@@ -1021,6 +1021,9 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             R.id.copySettingsToWindow -> CommandPreference({_, _, _ ->
                 windowControl.copySettingsToWindow(window, order)
             })
+            R.id.copySettingsToGlobal -> CommandPreference({_, _, _ ->
+                windowControl.copySettingsToGlobal(window)
+            })
             R.id.exportHtml -> CommandPreference({ _, _, _ ->
                 window.bibleView?.exportHtml()
             },
@@ -1076,6 +1079,15 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         val selection = Selection(book.initials, key.osisRef, -1, -1)
                         mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
                     }
+                }
+            })
+            R.id.llmCustomPromptItem -> CommandPreference({ _, _, _ ->
+                val currentPage = window.pageManager.currentPage
+                val book = currentPage.currentDocument
+                val key = currentPage.key
+                if (book != null && key != null) {
+                    val selection = Selection(book.initials, key.osisRef, -1, -1)
+                    mainBibleActivity.llmDialogHelper.showCustomPromptDialog(selection, PromptContext.WINDOW_MENU)
                 }
             })
             else -> throw RuntimeException("Illegal menu item")

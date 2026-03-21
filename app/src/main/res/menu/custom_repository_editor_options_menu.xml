@@ -20,7 +20,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/save"
         android:title="@string/okay"
-        android:icon="@drawable/ic_check_green_24dp"
+        android:icon="@drawable/ic_check_24dp"
         app:showAsAction="ifRoom"
         />
     <item android:id="@+id/delete"

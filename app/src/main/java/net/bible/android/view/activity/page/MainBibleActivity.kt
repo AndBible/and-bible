@@ -107,6 +107,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.SwordDocumentInfo
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.bookmarks.KJVA
@@ -116,6 +117,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.base.SharedActivityState
 import net.bible.android.view.activity.base.firstTime
+import net.bible.android.view.activity.ai.LlmDialogHelper
 import net.bible.android.view.activity.bookmark.Bookmarks
 import net.bible.android.view.activity.mydocuments.MyDocumentPagesActivity
 import net.bible.android.view.activity.mydocuments.MyDocumentsActivity
@@ -151,10 +153,8 @@ import net.bible.service.cloudsync.CloudSync
 import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.AgentPrompt
-import net.bible.service.download.FakeBookFactory
 import net.bible.service.llm.PromptContext
-import net.bible.service.llm.PromptRepository
-import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
 import net.bible.service.sword.SwordDocumentFacade
@@ -209,7 +209,9 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     lateinit var documentViewManager: DocumentViewManager
     lateinit var bibleViewFactory: BibleViewFactory
     private lateinit var mainMenuCommandHandler: MenuCommandHandler
-    
+
+    val llmDialogHelper = LlmDialogHelper(this)
+
     private val navigationView: NavigationView by lazy {
         binding.drawerLayout.findViewById(R.id.navigationView)!!
     }
@@ -399,6 +401,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             navigationView.menu.findItem(R.id.googleDriveSync).isVisible = false
         }
         navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+        navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
 
         navigationView.setNavigationItemSelectedListener { menuItem ->
             binding.drawerLayout.closeDrawers()
@@ -442,6 +445,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
             override fun onDrawerOpened(drawerView: View) {
                 navigationView.menu.findItem(R.id.managePrompts).isVisible = CommonUtils.settings.aiTextProcessingEnabled
+                navigationView.menu.findItem(R.id.myDocumentsButton).isVisible = CommonUtils.settings.myDocumentsEnabled
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -844,10 +848,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private val dummyStrongsPrefOption
         get() = StrongsPreference(
             SettingsBundle(
+                level = SettingsLevel.WINDOW,
                 pageManagerSettings = windowControl.activeWindow.pageManager.textDisplaySettings,
                 workspaceId = windowRepository.id,
                 workspaceName = windowRepository.name,
                 workspaceSettings = windowRepository.textDisplaySettings,
+                globalSettings = CommonUtils.globalTextDisplaySettings,
                 windowId = windowControl.activeWindow.id
             ))
 
@@ -894,11 +900,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun getItemOptions(itemId: Int, order: Int = 0): OptionsMenuItemInterface {
         val settingsBundle = SettingsBundle(
+            level = SettingsLevel.WORKSPACE,
             workspaceId = windowRepository.id,
             workspaceName = windowRepository.name,
             workspaceSettings = windowRepository.textDisplaySettings.apply {
                 colors?.workspaceColor = windowRepository.workspaceSettings.workspaceColor
             },
+            globalSettings = CommonUtils.globalTextDisplaySettings,
         )
         return when(itemId) {
             R.id.allTextOptions -> CommandPreference(launch = { _, _, _ ->
@@ -1412,7 +1420,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if(windowRepository.visibleWindows.isNotEmpty()) {
-                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings).colors!!
+                val colors = TextDisplaySettings.actual(null, windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings).colors!!
 
                 binding.run {
                     toolbarLayout.setBackgroundColor(toolbarColor)
@@ -2001,34 +2009,49 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
         val needsReload = requiresReload
-        val windowId = settingsBundle.windowId
-        if(windowId != null) {
-            val window = windowRepository.getWindow(windowId)!!
-            window.pageManager.textDisplaySettings = if(reset)
-                TextDisplaySettings()
-            else
-                settingsBundle.pageManagerSettings!!
+        when (settingsBundle.level) {
+            SettingsLevel.WINDOW -> {
+                val window = windowRepository.getWindow(settingsBundle.windowId!!)!!
+                window.pageManager.textDisplaySettings = if(reset)
+                    TextDisplaySettings()
+                else
+                    settingsBundle.pageManagerSettings!!
 
-            if(needsReload)
-                window.loadText()
-            else {
-                window.bibleView?.updateTextDisplaySettings()
+                if(needsReload)
+                    window.loadText()
+                else {
+                    window.bibleView?.updateTextDisplaySettings()
+                }
             }
-        } else {
-            if(reset) {
-                windowRepository.textDisplaySettings = TextDisplaySettings.default
-                windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
-            } else {
-                windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
-                windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+            SettingsLevel.WORKSPACE -> {
+                if(reset) {
+                    windowRepository.textDisplaySettings = TextDisplaySettings()
+                    windowRepository.workspaceSettings.workspaceColor = defaultWorkspaceColor
+                } else {
+                    windowRepository.textDisplaySettings = settingsBundle.workspaceSettings
+                    windowRepository.workspaceSettings.workspaceColor = settingsBundle.workspaceSettings.colors?.workspaceColor?: defaultWorkspaceColor
+                }
+                if(dirtyTypes != null) {
+                    windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
+                }
+                if(needsReload) {
+                    ABEventBus.post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateAllWindowsTextDisplaySettings()
+                }
             }
-            if(dirtyTypes != null) {
-                windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
-            }
-            if(needsReload) {
-                ABEventBus.post(SynchronizeWindowsEvent(true))
-            } else {
-                windowRepository.updateAllWindowsTextDisplaySettings()
+            SettingsLevel.GLOBAL -> {
+                // Global settings are saved in TextDisplaySettingsActivity.onBackPressed()
+                if(dirtyTypes != null) {
+                    windowRepository.propagateGlobalTextDisplaySettingsChange(
+                        dirtyTypes, CommonUtils.globalTextDisplaySettings
+                    )
+                }
+                if(needsReload) {
+                    ABEventBus.post(SynchronizeWindowsEvent(true))
+                } else {
+                    windowRepository.updateAllWindowsTextDisplaySettings()
+                }
             }
         }
         resetSystemUi()
@@ -2065,12 +2088,12 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
     }
 
-    fun onEvent(event: CurrentWindowChangedEvent) {
+    fun onEventMainThread(event: CurrentWindowChangedEvent) {
         if(paused) return
         updateActions()
     }
 
-    fun onEvent(event: NumberOfWindowsChangedEvent) {
+    fun onEventMainThread(event: NumberOfWindowsChangedEvent) {
         if(paused) return
         setSoftKeyboardMode()
     }
@@ -2185,75 +2208,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         CommonUtils.onyxSupport?.setupOnyxNormal()
     }
 
-    /**
-     * Execute a specific LLM prompt with the given selection.
-     * Called directly when prompt is already selected (e.g., from window button menu).
-     */
-    fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) {
-        val workspaceId = windowControl.windowRepository.id
-        val job = lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                AgentSessionManager.executePrompt(prompt, selection)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "LLM prompt execution failed", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        AgentSessionManager.getOrCreateSession(workspaceId).job = job
-    }
+    fun executeLlmPrompt(prompt: AgentPrompt, selection: Selection) =
+        llmDialogHelper.executePrompt(prompt, selection)
 
-    /**
-     * Show LLM prompt selector dialog for the given selection.
-     * Filters prompts by VERSE_SELECTION context and shows them in a dialog.
-     */
-    fun showLlmPromptSelector(selection: Selection) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            val prompts = PromptRepository.promptsForContext(
-                PromptContext.VERSE_SELECTION
-            )
-
-            if (prompts.isEmpty()) {
-                launch(Dispatchers.Main) {
-                    Toast.makeText(
-                        this@MainBibleActivity,
-                        R.string.no_llm_prompts_configured,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                return@launch
-            }
-
-            val promptNames = prompts.map { it.name }.toTypedArray()
-            launch(Dispatchers.Main) {
-                AlertDialog.Builder(this@MainBibleActivity)
-                    .setTitle(R.string.select_llm_prompt)
-                    .setItems(promptNames) { _, which ->
-                        val selectedPrompt = prompts[which]
-                        // Execute via AgentSessionManager
-                        val wsId = windowControl.windowRepository.id
-                        val job = lifecycleScope.launch(Dispatchers.IO) {
-                            try {
-                                AgentSessionManager.executePrompt(selectedPrompt, selection)
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                Log.e(TAG, "LLM prompt execution failed", e)
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(this@MainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                        AgentSessionManager.getOrCreateSession(wsId).job = job
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-            }
-        }
-    }
+    fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) =
+        llmDialogHelper.showPromptSelector(selection, context)
 
     companion object {
         var initialized = false

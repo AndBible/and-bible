@@ -160,6 +160,7 @@
     <color name="log_action">#FF9800</color>
     <color name="log_permission">#9C27B0</color>
     <color name="log_error">#F44336</color>
+    <color name="log_comment">#78909C</color>
     <color name="status_pending">#FFC107</color>
     <color name="status_success">#4CAF50</color>
     <color name="status_error">#F44336</color>

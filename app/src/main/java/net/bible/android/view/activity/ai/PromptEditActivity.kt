@@ -64,6 +64,8 @@ class PromptEditActivity : ActivityBase() {
     private var initialDeniedTools: Set<AgentTool>? = null
     private var initialProviderSpinnerIndex = 0
     private var initialModelOverrideSpinnerIndex = 0
+    private var initialEditBeforeRun = false
+    private var initialNoDocumentCreation = false
     private var initialModelOverrideCustomText = ""
 
     private var currentAllowedTools: MutableSet<AgentTool> = mutableSetOf()
@@ -81,6 +83,10 @@ class PromptEditActivity : ActivityBase() {
 
     companion object {
         const val EXTRA_PROMPT_ID = "prompt_id"
+        const val EXTRA_PROMPT_TEMPLATE = "prompt_template"
+        const val EXTRA_EXECUTE_AFTER_SAVE = "execute_after_save"
+        const val EXTRA_DEFAULT_CONTEXT = "default_context"
+        const val RESULT_PROMPT_ID = "result_prompt_id"
         private const val CUSTOM_SENTINEL = "\u0000custom"
     }
 
@@ -140,6 +146,25 @@ class PromptEditActivity : ActivityBase() {
             title = getString(R.string.new_prompt)
             // Set default value for strictContextMatching on new prompts
             binding.checkStrictContextMatching.isChecked = true
+
+            // Pre-fill template from custom prompt dialog
+            intent.getStringExtra(EXTRA_PROMPT_TEMPLATE)?.let { template ->
+                binding.promptTemplate.setText(template)
+            }
+
+            // Pre-check the context checkbox matching where the prompt was initiated
+            intent.getStringExtra(EXTRA_DEFAULT_CONTEXT)?.let { contextName ->
+                try {
+                    when (PromptContext.valueOf(contextName)) {
+                        PromptContext.VERSE_SELECTION -> binding.checkVerseSelection.isChecked = true
+                        PromptContext.TEXT_SELECTION -> binding.checkTextSelection.isChecked = true
+                        PromptContext.WINDOW_MENU -> binding.checkWindowMenu.isChecked = true
+                        PromptContext.WORKSPACE_MENU -> binding.checkWorkspaceMenu.isChecked = true
+                        PromptContext.NOTE_EDITOR -> binding.checkNoteEditor.isChecked = true
+                    }
+                } catch (_: IllegalArgumentException) { }
+            }
+
             captureInitialState()
         }
     }
@@ -182,6 +207,8 @@ class PromptEditActivity : ActivityBase() {
         checkWindowMenu.isEnabled = false
         checkWorkspaceMenu.isEnabled = false
         checkNoteEditor.isEnabled = false
+        checkEditBeforeRun.isEnabled = false
+        checkNoDocumentCreation.isEnabled = false
         checkStrictContextMatching.isEnabled = false
         permissionModeSpinner.isEnabled = false
         providerOverrideSpinner.isEnabled = false
@@ -203,6 +230,8 @@ class PromptEditActivity : ActivityBase() {
             checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
             checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
+            checkEditBeforeRun.isChecked = prompt.editBeforeRun
+            checkNoDocumentCreation.isChecked = prompt.noDocumentCreation
             checkStrictContextMatching.isChecked = prompt.strictContextMatching
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
@@ -231,6 +260,8 @@ class PromptEditActivity : ActivityBase() {
         initialDescription = promptDescription.text.toString()
         initialTemplate = promptTemplate.text.toString()
         initialShowIn = collectShowIn()
+        initialEditBeforeRun = checkEditBeforeRun.isChecked
+        initialNoDocumentCreation = checkNoDocumentCreation.isChecked
         initialStrictContextMatching = checkStrictContextMatching.isChecked
         initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
         initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
@@ -247,6 +278,8 @@ class PromptEditActivity : ActivityBase() {
                 promptDescription.text.toString() != initialDescription ||
                 promptTemplate.text.toString() != initialTemplate ||
                 collectShowIn() != initialShowIn ||
+                checkEditBeforeRun.isChecked != initialEditBeforeRun ||
+                checkNoDocumentCreation.isChecked != initialNoDocumentCreation ||
                 checkStrictContextMatching.isChecked != initialStrictContextMatching ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
@@ -299,10 +332,13 @@ class PromptEditActivity : ActivityBase() {
         val selectedPermissionMode = permissionModeValues[binding.permissionModeSpinner.selectedItemPosition]
         val allowedTools = currentToolAllowed
         val deniedTools = currentToolDenied
+        val editBeforeRun = binding.checkEditBeforeRun.isChecked
+        val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
         val selectedProviderConfigId = getSelectedProviderConfigId()
         val selectedModelOverride = getSelectedModelOverride()
 
         lifecycleScope.launch {
+            var savedPromptId: IdType? = null
             withContext(Dispatchers.IO) {
                 if (isNewPrompt) {
                     val newPrompt = AgentPrompt(
@@ -316,8 +352,11 @@ class PromptEditActivity : ActivityBase() {
                         deniedTools = deniedTools,
                         modelOverride = selectedModelOverride,
                         providerConfigId = selectedProviderConfigId,
+                        editBeforeRun = editBeforeRun,
+                        noDocumentCreation = noDocumentCreation,
                     )
                     PromptRepository.insertPrompt(newPrompt)
+                    savedPromptId = newPrompt.id
                 } else {
                     prompt?.let {
                         it.name = name
@@ -330,11 +369,17 @@ class PromptEditActivity : ActivityBase() {
                         it.deniedTools = deniedTools
                         it.modelOverride = selectedModelOverride
                         it.providerConfigId = selectedProviderConfigId
+                        it.editBeforeRun = editBeforeRun
+                        it.noDocumentCreation = noDocumentCreation
                         PromptRepository.updatePrompt(it)
+                        savedPromptId = it.id
                     }
                 }
             }
 
+            if (intent.getBooleanExtra(EXTRA_EXECUTE_AFTER_SAVE, false) && savedPromptId != null) {
+                setResult(RESULT_OK, Intent().putExtra(RESULT_PROMPT_ID, savedPromptId.toString()))
+            }
             finish()
         }
     }

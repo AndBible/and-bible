@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import android.content.Intent
 import android.app.AlertDialog
 import android.graphics.Typeface
 import android.util.TypedValue
@@ -59,8 +60,6 @@ import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
 import net.bible.service.llm.setApiKey
-import net.bible.service.llm.tools.Tool
-import net.bible.service.llm.tools.ToolRegistry
 
 class AiConnectionSettingsActivity : ActivityBase() {
     private lateinit var binding: SettingsActivityBinding
@@ -90,7 +89,7 @@ class AiConnectionSettingsActivity : ActivityBase() {
 
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
-    private val settings get() = CommonUtils.settings
+    private val settings get() = CommonUtils.aiSettings
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference
@@ -98,6 +97,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var addProviderPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
+    private lateinit var manageAiDocumentsPref: Preference
+    private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -111,6 +112,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
+        manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
+        commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -118,6 +121,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupGettingStarted()
         setupAddProvider()
         setupToolPermissions()
+        setupDocumentFilter()
+        setupCommentaryMaxResponse()
         setupUsage()
         refreshProviderList()
         updateVisibility()
@@ -126,6 +131,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     override fun onResume() {
         super.onResume()
         refreshProviderList()
+        updateToolPermissionsSummary()
+        updateDocumentFilterSummary()
     }
 
     private fun hasAnyProvider(): Boolean = dao.getCount() > 0
@@ -641,7 +648,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private fun setupToolPermissions() {
         updateToolPermissionsSummary()
         manageToolPermissionsPref.setOnPreferenceClickListener {
-            showToolPermissionsDialog()
+            startActivity(Intent(requireContext(), GlobalToolPermissionsActivity::class.java))
             true
         }
     }
@@ -657,73 +664,63 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun showToolPermissionsDialog() {
-        val tools = ToolRegistry.getPermissionTools()
-        if (tools.isEmpty()) return
-
-        val allowed = settings.permanentlyAllowedTools
-        val denied = settings.permanentlyDeniedTools
-
-        val items = tools.map { tool ->
-            val displayName = ToolRegistry.getDisplayName(tool)
-            val status = when (tool.agentTool) {
-                in allowed -> getString(R.string.permission_status_allowed)
-                in denied -> getString(R.string.permission_status_denied)
-                else -> getString(R.string.permission_status_default)
-            }
-            "$displayName — $status"
-        }.toTypedArray()
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.manage_tool_permissions_title)
-            .setItems(items) { _, which ->
-                showToolPermissionOptionDialog(tools[which])
-            }
-            .setNeutralButton(R.string.reset_all_permissions) { _, _ ->
-                settings.permanentlyAllowedTools = emptySet()
-                settings.permanentlyDeniedTools = emptySet()
-                updateToolPermissionsSummary()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+    private fun setupDocumentFilter() {
+        updateDocumentFilterSummary()
+        manageAiDocumentsPref.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), AiDocumentFilterActivity::class.java))
+            true
+        }
     }
 
-    private fun showToolPermissionOptionDialog(tool: Tool) {
-        val displayName = ToolRegistry.getDisplayName(tool)
-        val options = arrayOf(
-            getString(R.string.permission_option_default),
-            getString(R.string.permission_option_always_allow),
-            getString(R.string.permission_option_always_deny)
-        )
-
-        val currentIndex = when (tool.agentTool) {
-            in settings.permanentlyAllowedTools -> 1
-            in settings.permanentlyDeniedTools -> 2
-            else -> 0
+    private fun updateDocumentFilterSummary() {
+        val excludedCount = settings.aiExcludedDocuments.size
+        manageAiDocumentsPref.summary = if (excludedCount > 0) {
+            getString(R.string.ai_document_filter_summary_count, excludedCount)
+        } else {
+            getString(R.string.ai_document_filter_summary)
         }
+    }
 
-        AlertDialog.Builder(requireContext())
-            .setTitle(displayName)
-            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                when (which) {
-                    0 -> {
-                        settings.permanentlyAllowedTools -= tool.agentTool
-                        settings.permanentlyDeniedTools -= tool.agentTool
-                    }
-                    1 -> {
-                        settings.permanentlyAllowedTools += tool.agentTool
-                        settings.permanentlyDeniedTools -= tool.agentTool
-                    }
-                    2 -> {
-                        settings.permanentlyDeniedTools += tool.agentTool
-                        settings.permanentlyAllowedTools -= tool.agentTool
-                    }
-                }
-                updateToolPermissionsSummary()
-                dialog.dismiss()
+    private fun setupCommentaryMaxResponse() {
+        updateCommentaryMaxResponseSummary()
+        commentaryMaxResponsePref.setOnPreferenceClickListener {
+            val ctx = requireContext()
+            val input = EditText(ctx).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                setText(settings.commentaryMaxResponseTokens.toString())
+                selectAll()
             }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            val container = LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                val pad = (16 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad / 2, pad, 0)
+                addView(TextView(ctx).apply {
+                    text = getString(R.string.commentary_max_response_dialog_message)
+                    setPadding(0, 0, 0, pad / 2)
+                })
+                addView(input)
+            }
+            AlertDialog.Builder(ctx)
+                .setTitle(R.string.commentary_max_response_dialog_title)
+                .setView(container)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    val value = input.text.toString().toIntOrNull() ?: 0
+                    settings.commentaryMaxResponseTokens = maxOf(0, value)
+                    updateCommentaryMaxResponseSummary()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun updateCommentaryMaxResponseSummary() {
+        val value = settings.commentaryMaxResponseTokens
+        commentaryMaxResponsePref.summary = if (value <= 0) {
+            getString(R.string.commentary_max_response_no_limit)
+        } else {
+            getString(R.string.commentary_max_response_value, "%,d".format(value))
+        }
     }
 
     private fun setupUsage() {

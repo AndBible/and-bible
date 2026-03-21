@@ -104,6 +104,9 @@ import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.database.GlobalTextDisplaySettings
+import net.bible.android.database.InheritedFrom
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkSortOrder
@@ -124,8 +127,6 @@ import net.bible.service.cloudsync.SyncableDatabaseDefinition
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.speak.TextToSpeechNotificationManager
 import net.bible.service.download.DownloadManager
-import net.bible.service.llm.AgentTool
-import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
@@ -256,6 +257,7 @@ val BookmarkEntities.Label.displayName get() =
         isSpeakLabel -> application.getString(R.string.speak)
         isUnlabeledLabel -> application.getString(R.string.label_unlabelled)
         isParagraphBreakLabel -> application.getString(R.string.add_paragraph_break)
+        isAiLabel -> application.getString(R.string.ai_label)
         else -> name
     }
 
@@ -459,6 +461,7 @@ object CommonUtils : CommonUtilsBase() {
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
         val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
+        val myDocumentsEnabled: Boolean get() = aiTextProcessingEnabled
 
 
         /** Check if any LlmProviderConfig exists in the database. */
@@ -467,24 +470,6 @@ object CommonUtils : CommonUtilsBase() {
                 DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getCount() > 0
             } catch (_: Exception) { false }
 
-        // Agent Permission Settings
-        var agentPermissionMode: PermissionMode
-            get() = try {
-                PermissionMode.valueOf(
-                    getString("agent_permission_mode", "ALWAYS_ASK") ?: "ALWAYS_ASK"
-                )
-            } catch (e: IllegalArgumentException) {
-                PermissionMode.ALWAYS_ASK
-            }
-            set(value) = setString("agent_permission_mode", value.name)
-
-        var permanentlyAllowedTools: Set<AgentTool>
-            get() = getEnumSet("agent_permanently_allowed_tools")
-            set(value) = setEnumSet("agent_permanently_allowed_tools", value)
-
-        var permanentlyDeniedTools: Set<AgentTool>
-            get() = getEnumSet("agent_permanently_denied_tools")
-            set(value) = setEnumSet("agent_permanently_denied_tools", value)
     }
 
     private var _settings: AndBibleSettings? = null
@@ -493,6 +478,20 @@ object CommonUtils : CommonUtilsBase() {
         if(s != null) return s
         return AndBibleSettings().apply { _settings = this }
     }
+
+    /**
+     * Global AI settings stored in the syncable AiSettingsDatabase.
+     * Use this for agent permissions, excluded documents, commentary token limit, etc.
+     */
+    val aiSettings: AiSettings get() = AiSettings
+
+    var globalTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
+        get() = DatabaseContainer.instance.workspaceDb
+            .globalTextDisplaySettingsDao().get()?.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
+        set(value) {
+            DatabaseContainer.instance.workspaceDb
+                .globalTextDisplaySettingsDao().set(GlobalTextDisplaySettings(textDisplaySettings = value))
+        }
 
     val localePref: String?
         get() = realSharedPreferences.getString("locale_pref", null)
@@ -1447,6 +1446,21 @@ object CommonUtils : CommonUtilsBase() {
             d1
     }
 
+    fun iconWithInheritance(icon: Int, inheritedFrom: InheritedFrom, level: SettingsLevel, sizeMultiplier: Float? = null): Drawable {
+        return when {
+            level == SettingsLevel.GLOBAL ->
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
+            inheritedFrom == InheritedFrom.WORKSPACE ->
+                iconWithSync(icon, true, sizeMultiplier)
+            inheritedFrom == InheritedFrom.GLOBAL ->
+                combineIcons(icon, R.drawable.ic_settings_black_24dp, sizeMultiplier)
+            level == SettingsLevel.WORKSPACE ->
+                combineIcons(icon, R.drawable.ic_workspace_overlay_24dp, sizeMultiplier)
+            else ->
+                getTintedDrawable(icon).let { if (sizeMultiplier != null) makeLarger(it, sizeMultiplier) else it }
+        }
+    }
+
     fun fixAlertDialogButtons(dialog: AlertDialog) {
         val positiveButton = dialog.findViewById<Button>(android.R.id.button1)
         val negativeButton = dialog.findViewById<Button>(android.R.id.button2)
@@ -1633,6 +1647,11 @@ object CommonUtils : CommonUtilsBase() {
     fun migrateOldSettingsKeys() {
         val sharedPrefs = realSharedPreferences
         val settingsDb = settings
+        // Use DAOs directly to bypass the `initialized` guard in AndBibleSettings.getBoolean.
+        // This function runs during DatabaseContainer.init(), before `initialized` is set to true,
+        // so AndBibleSettings.getBoolean would always return the default value, losing the old data.
+        val boolDao = booleanSettings
+        val longDao = longSettings
 
         val secretMigrations = mapOf(
             "gdrive_password" to "cloud_sync_password",
@@ -1665,22 +1684,22 @@ object CommonUtils : CommonUtilsBase() {
             "gdrive_workspaces" to "sync_enable_workspaces",
             "gdrive_readingplans" to "sync_enable_readingplans",
             "gdrive_mydocuments" to "sync_enable_mydocuments",
-            "gdrive_llmprocessing" to "sync_enable_llmprocessing",
+            "gdrive_llmprocessing" to "sync_enable_ai_settings",
         )
         for ((oldKey, newKey) in boolRenames) {
-            val value = settingsDb.getBoolean(oldKey, false)
+            val value = boolDao.get(oldKey, false)
             if (value) {
                 Log.i(TAG, "Renaming boolean setting '$oldKey' → '$newKey'")
-                settingsDb.setBoolean(newKey, true)
+                boolDao.set(newKey, true)
             }
-            settingsDb.removeBoolean(oldKey)
+            boolDao.set(oldKey, null)
         }
 
-        val oldInterval = settingsDb.getLong("gdrive_sync_interval", Long.MIN_VALUE)
+        val oldInterval = longDao.get("gdrive_sync_interval", Long.MIN_VALUE)
         if (oldInterval != Long.MIN_VALUE) {
             Log.i(TAG, "Renaming long setting 'gdrive_sync_interval' → 'cloud_sync_interval'")
-            settingsDb.setLong("cloud_sync_interval", oldInterval)
-            settingsDb.removeLong("gdrive_sync_interval")
+            longDao.set("cloud_sync_interval", oldInterval)
+            longDao.set("gdrive_sync_interval", null)
         }
     }
 

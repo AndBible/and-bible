@@ -31,8 +31,12 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
+import net.bible.service.llm.GlobalAiSettings
+import net.bible.service.llm.GlobalAiSettingsDao
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.LlmProviderConfigDao
+import net.bible.service.llm.LlmUsageRecord
+import net.bible.service.llm.LlmUsageRecordDao
 
 
 @Database(
@@ -90,6 +94,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
         WorkspaceEntities.HistoryItem::class,
         WorkspaceEntities.PageManager::class,
         WorkspaceEntities.WorkspaceLabelOverride::class,
+        GlobalTextDisplaySettings::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -99,6 +104,7 @@ abstract class ReadingPlanDatabase: SyncableRoomDatabase() {
 @TypeConverters(Converters::class)
 abstract class WorkspaceDatabase: SyncableRoomDatabase() {
     abstract fun workspaceDao(): WorkspaceDao
+    abstract fun globalTextDisplaySettingsDao(): GlobalTextDisplaySettingsDao
     companion object {
         const val dbFileName = "workspaces.sqlite3"
     }
@@ -159,12 +165,14 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val AI_SETTINGS_DATABASE_VERSION = 1
+const val AI_SETTINGS_DATABASE_VERSION = 4
 
 @Database(
     entities = [
         AgentPrompt::class,
         LlmProviderConfig::class,
+        GlobalAiSettings::class,
+        LlmUsageRecord::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -175,6 +183,8 @@ const val AI_SETTINGS_DATABASE_VERSION = 1
 abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
+    abstract fun globalAiSettingsDao(): GlobalAiSettingsDao
+    abstract fun llmUsageRecordDao(): LlmUsageRecordDao
     companion object {
         const val dbFileName = "ai_settings.sqlite3"
     }

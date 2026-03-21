@@ -215,13 +215,6 @@ function findAllLink(frag: OsisFragmentType): string | null {
   margin-bottom: 0.15em;
 }
 
-.strongs-number {
-  color: coral;
-  .monochrome & {
-    color: inherit;
-  }
-}
-
 .dict-label {
   font-size: 0.8em;
   opacity: 0.6;
@@ -243,13 +236,6 @@ function findAllLink(frag: OsisFragmentType): string | null {
 .morph-header {
   font-weight: bold;
   margin-bottom: 0.15em;
-}
-
-.morph-code {
-  color: coral;
-  .monochrome & {
-    color: inherit;
-  }
 }
 
 .morph-entry {

@@ -60,9 +60,25 @@ interface Tool {
      * Whether this tool requires user permission before execution.
      * Read-only tools typically don't require permission (false).
      * Write tools (creating bookmarks, documents) should require permission (true).
+     *
+     * This is the static default. Override [requiresPermissionForCall] for dynamic
+     * per-invocation permission decisions (e.g., allowing writes to AI Documents without permission).
      */
     val requiresPermission: Boolean
         get() = false
+
+    /**
+     * Dynamic permission check for a specific tool invocation.
+     * Called by [AgentExecutor] instead of the static [requiresPermission].
+     *
+     * Override this to allow certain invocations without permission (e.g., adding pages
+     * to the AI Documents book, or editing pages created in the same session).
+     *
+     * @param arguments Parsed tool arguments
+     * @param context Current agent execution context
+     * @return true if this specific invocation requires user permission
+     */
+    fun requiresPermissionForCall(arguments: JSONObject, context: AgentContext): Boolean = requiresPermission
 
     /**
      * String resource ID for the user-facing display name of this tool.
@@ -80,6 +96,18 @@ interface Tool {
      * @return Result of the tool execution
      */
     suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult
+
+    /**
+     * Format a human-readable description of the specific action this tool will perform
+     * with the given arguments. Used in the permission dialog to show the user exactly
+     * what will happen (e.g. "Create bookmark at Matthew 5:3" instead of the generic description).
+     *
+     * Unlike [formatArgsForLog], this method resolves IDs to human-readable names
+     * (e.g. bookmark ID → verse reference, label ID → label name) via database lookups.
+     *
+     * @return A human-readable action description, or null to fall back to [description]
+     */
+    suspend fun formatActionDescription(arguments: JSONObject): String? = null
 
     /**
      * Format tool arguments for human-readable display in the agent log.

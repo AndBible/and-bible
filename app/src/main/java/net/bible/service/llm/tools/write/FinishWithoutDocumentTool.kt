@@ -73,6 +73,12 @@ object FinishWithoutDocumentTool : Tool {
     /** Marker to indicate this tool was called - checked by AgentExecutor */
     const val FINISH_WITHOUT_DOCUMENT_MARKER = "__FINISH_WITHOUT_DOCUMENT__"
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
+        val truncated = if (message.length > 60) "${message.take(60)}..." else message
+        return BibleApplication.application.getString(R.string.action_finish, truncated)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val message = arguments.optString("message", "").takeIf { it.isNotBlank() } ?: return null
         return if (message.length > 60) "\"${message.take(60)}...\"" else "\"$message\""

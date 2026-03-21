@@ -17,6 +17,14 @@
 
 package net.bible.android.view.activity.ai
 
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
+import android.text.style.StyleSpan
+import android.text.style.UnderlineSpan
+import android.graphics.Typeface
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -33,6 +41,8 @@ import net.bible.service.llm.agent.LogEntryType
  * RecyclerView adapter for displaying agent log entries.
  */
 class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(DiffCallback()) {
+
+    var onRawLogClick: (() -> Unit)? = null
 
     class ViewHolder(val binding: AgentLogItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -51,6 +61,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.ACTION -> R.drawable.ic_baseline_build_24
             LogEntryType.PERMISSION_REQUEST -> R.drawable.ic_baseline_security_24
             LogEntryType.ERROR -> R.drawable.ic_baseline_error_24
+            LogEntryType.LLM_COMMENT -> R.drawable.ic_baseline_chat_bubble_outline_24
         }
         typeIcon.setImageResource(typeIconRes)
 
@@ -60,11 +71,26 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             LogEntryType.ACTION -> R.color.log_action
             LogEntryType.PERMISSION_REQUEST -> R.color.log_permission
             LogEntryType.ERROR -> R.color.log_error
+            LogEntryType.LLM_COMMENT -> R.color.log_comment
         }
         typeIcon.setColorFilter(context.getColor(typeColor))
 
-        // Set message
-        messageText.text = entry.message
+        // Set message, appending a clickable raw log link on the same line if applicable
+        if (entry.showRawLogLink) {
+            val linkText = context.getString(R.string.agent_log_view_raw)
+            val fullText = "${entry.message}  ·  $linkText"
+            val spannable = SpannableString(fullText)
+            val linkStart = fullText.length - linkText.length
+            spannable.setSpan(object : ClickableSpan() {
+                override fun onClick(widget: View) { onRawLogClick?.invoke() }
+            }, linkStart, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannable.setSpan(StyleSpan(Typeface.ITALIC), linkStart, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            messageText.text = spannable
+            messageText.movementMethod = LinkMovementMethod.getInstance()
+        } else {
+            messageText.text = entry.message
+            messageText.movementMethod = null
+        }
 
         // Set details if available
         if (entry.details != null) {

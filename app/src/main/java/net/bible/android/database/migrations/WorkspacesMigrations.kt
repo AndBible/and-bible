@@ -86,7 +86,163 @@ private val addInfiniteScroll = makeMigration(13..14) { _db ->
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL")
 }
 
-private val addMarkAsReadButton = makeMigration(14..15) { _db ->
+private val addGlobalTextDisplaySettings = makeMigration(14..15) { _db ->
+    // Create GlobalTextDisplaySettings table with all TDS columns (same @Embedded prefix as Workspace)
+    _db.execSQL("""
+        CREATE TABLE IF NOT EXISTS `GlobalTextDisplaySettings` (
+            `id` INTEGER NOT NULL PRIMARY KEY,
+            `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL,
+            `text_display_settings_strongsMode` INTEGER DEFAULT NULL,
+            `text_display_settings_showMorphology` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL,
+            `text_display_settings_expandXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showRedLetters` INTEGER DEFAULT NULL,
+            `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL,
+            `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL,
+            `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL,
+            `text_display_settings_showBookmarks` INTEGER DEFAULT NULL,
+            `text_display_settings_showMyNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_justifyText` INTEGER DEFAULT NULL,
+            `text_display_settings_hyphenation` INTEGER DEFAULT NULL,
+            `text_display_settings_topMargin` INTEGER DEFAULT NULL,
+            `text_display_settings_fontSize` INTEGER DEFAULT NULL,
+            `text_display_settings_fontFamily` TEXT DEFAULT NULL,
+            `text_display_settings_lineSpacing` INTEGER DEFAULT NULL,
+            `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL,
+            `text_display_settings_showPageNumber` INTEGER DEFAULT NULL,
+            `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL,
+            `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL,
+            `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL
+        )
+    """)
+
+    // Null out workspace TDS fields that match hardcoded defaults so they inherit from global
+    // Boolean defaults: true=1, false=0
+    _db.execSQL("UPDATE Workspace SET text_display_settings_fontSize = NULL WHERE text_display_settings_fontSize = 16")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_fontFamily = NULL WHERE text_display_settings_fontFamily = 'sans-serif'")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_strongsMode = NULL WHERE text_display_settings_strongsMode = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showMorphology = NULL WHERE text_display_settings_showMorphology = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_expandXrefs = NULL WHERE text_display_settings_expandXrefs = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showFootNotes = NULL WHERE text_display_settings_showFootNotes = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showFootNotesInline = NULL WHERE text_display_settings_showFootNotesInline = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showXrefs = NULL WHERE text_display_settings_showXrefs = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showRedLetters = NULL WHERE text_display_settings_showRedLetters = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showSectionTitles = NULL WHERE text_display_settings_showSectionTitles = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showVerseNumbers = NULL WHERE text_display_settings_showVerseNumbers = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showVersePerLine = NULL WHERE text_display_settings_showVersePerLine = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showMyNotes = NULL WHERE text_display_settings_showMyNotes = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_justifyText = NULL WHERE text_display_settings_justifyText = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_hyphenation = NULL WHERE text_display_settings_hyphenation = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_topMargin = NULL WHERE text_display_settings_topMargin = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_lineSpacing = NULL WHERE text_display_settings_lineSpacing = 16")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showBookmarks = NULL WHERE text_display_settings_showBookmarks = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showPageNumber = NULL WHERE text_display_settings_showPageNumber = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_infiniteScroll = NULL WHERE text_display_settings_infiniteScroll = 1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_nonStrongsWordItalic = NULL WHERE text_display_settings_nonStrongsWordItalic = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_showTitleScrollButton = NULL WHERE text_display_settings_showTitleScrollButton = 0")
+    // Colors: null out if they match default (white=-1, black=-16777216)
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_dayBackground = NULL WHERE text_display_settings_colors_dayBackground = -1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_dayTextColor = NULL WHERE text_display_settings_colors_dayTextColor = -16777216")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_nightBackground = NULL WHERE text_display_settings_colors_nightBackground = -16777216")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_nightTextColor = NULL WHERE text_display_settings_colors_nightTextColor = -1")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_dayNoise = NULL WHERE text_display_settings_colors_dayNoise = 0")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_colors_nightNoise = NULL WHERE text_display_settings_colors_nightNoise = 0")
+    // MarginSize: null out if matches default (3, 3, 170)
+    _db.execSQL("UPDATE Workspace SET text_display_settings_margin_size_marginLeft = NULL WHERE text_display_settings_margin_size_marginLeft = 3")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_margin_size_marginRight = NULL WHERE text_display_settings_margin_size_marginRight = 3")
+    _db.execSQL("UPDATE Workspace SET text_display_settings_margin_size_maxWidth = NULL WHERE text_display_settings_margin_size_maxWidth = 170")
+}
+
+private val migrateGlobalTdsIdToBlob = makeMigration(15..16) { _db ->
+    // Recreate GlobalTextDisplaySettings with BLOB primary key (IdType) instead of INTEGER.
+    // This is needed for device sync compatibility (sync system expects BLOB PKs).
+    _db.execSQL("ALTER TABLE GlobalTextDisplaySettings RENAME TO GlobalTextDisplaySettings_old")
+    _db.execSQL("""CREATE TABLE IF NOT EXISTS GlobalTextDisplaySettings (
+            `id` BLOB NOT NULL,
+            `text_display_settings_strongsMode` INTEGER DEFAULT NULL,
+            `text_display_settings_showMorphology` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_showFootNotesInline` INTEGER DEFAULT NULL,
+            `text_display_settings_expandXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showXrefs` INTEGER DEFAULT NULL,
+            `text_display_settings_showRedLetters` INTEGER DEFAULT NULL,
+            `text_display_settings_showSectionTitles` INTEGER DEFAULT NULL,
+            `text_display_settings_showVerseNumbers` INTEGER DEFAULT NULL,
+            `text_display_settings_showVersePerLine` INTEGER DEFAULT NULL,
+            `text_display_settings_showBookmarks` INTEGER DEFAULT NULL,
+            `text_display_settings_showMyNotes` INTEGER DEFAULT NULL,
+            `text_display_settings_justifyText` INTEGER DEFAULT NULL,
+            `text_display_settings_hyphenation` INTEGER DEFAULT NULL,
+            `text_display_settings_topMargin` INTEGER DEFAULT NULL,
+            `text_display_settings_fontSize` INTEGER DEFAULT NULL,
+            `text_display_settings_fontFamily` TEXT DEFAULT NULL,
+            `text_display_settings_lineSpacing` INTEGER DEFAULT NULL,
+            `text_display_settings_bookmarksHideLabels` TEXT DEFAULT NULL,
+            `text_display_settings_showPageNumber` INTEGER DEFAULT NULL,
+            `text_display_settings_infiniteScroll` INTEGER DEFAULT NULL,
+            `text_display_settings_nonStrongsWordItalic` INTEGER DEFAULT NULL,
+            `text_display_settings_showTitleScrollButton` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_marginLeft` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_marginRight` INTEGER DEFAULT NULL,
+            `text_display_settings_margin_size_maxWidth` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_dayNoise` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightTextColor` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightBackground` INTEGER DEFAULT NULL,
+            `text_display_settings_colors_nightNoise` INTEGER DEFAULT NULL,
+            PRIMARY KEY(`id`)
+        )""")
+    // Copy data with fixed BLOB id (00000000-0000-0000-0000-000000000001)
+    _db.execSQL("""INSERT INTO GlobalTextDisplaySettings
+        SELECT X'00000000000000000000000000000001',
+            text_display_settings_strongsMode,
+            text_display_settings_showMorphology,
+            text_display_settings_showFootNotes,
+            text_display_settings_showFootNotesInline,
+            text_display_settings_expandXrefs,
+            text_display_settings_showXrefs,
+            text_display_settings_showRedLetters,
+            text_display_settings_showSectionTitles,
+            text_display_settings_showVerseNumbers,
+            text_display_settings_showVersePerLine,
+            text_display_settings_showBookmarks,
+            text_display_settings_showMyNotes,
+            text_display_settings_justifyText,
+            text_display_settings_hyphenation,
+            text_display_settings_topMargin,
+            text_display_settings_fontSize,
+            text_display_settings_fontFamily,
+            text_display_settings_lineSpacing,
+            text_display_settings_bookmarksHideLabels,
+            text_display_settings_showPageNumber,
+            text_display_settings_infiniteScroll,
+            text_display_settings_nonStrongsWordItalic,
+            text_display_settings_showTitleScrollButton,
+            text_display_settings_margin_size_marginLeft,
+            text_display_settings_margin_size_marginRight,
+            text_display_settings_margin_size_maxWidth,
+            text_display_settings_colors_dayTextColor,
+            text_display_settings_colors_dayBackground,
+            text_display_settings_colors_dayNoise,
+            text_display_settings_colors_nightTextColor,
+            text_display_settings_colors_nightBackground,
+            text_display_settings_colors_nightNoise
+        FROM GlobalTextDisplaySettings_old LIMIT 1""")
+    _db.execSQL("DROP TABLE GlobalTextDisplaySettings_old")
+}
+
+private val addMarkAsReadButton = makeMigration(16..17) { _db ->
     _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
     _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showMarkAsReadButton` INTEGER DEFAULT NULL")
 }
@@ -105,7 +261,9 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addTitleScrollButton,
     addLabelOverridesTable,
     addInfiniteScroll,
+    addGlobalTextDisplaySettings,
+    migrateGlobalTdsIdToBlob,
     addMarkAsReadButton,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 15
+const val WORKSPACE_DATABASE_VERSION = 17

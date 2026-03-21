@@ -66,6 +66,7 @@ type TranslatedStrings = {
     footnoteTypeTranslation: string
     clearLog: string
     editTextPlaceholder: string
+    myDocumentEdit: string
     inputPlaceholder: string
     inputReference: string
     invalidReference: string
@@ -148,6 +149,8 @@ type TranslatedStrings = {
     llmActionLong: string
     aiDocumentRegenerate: string
     aiDocumentDelete: string
+    aiGeneratedBy: string
+    aiGeneratedByWithModel: string
     markChapterRead: string
     chapterMarkedRead: string
 }

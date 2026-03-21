@@ -143,7 +143,8 @@ data class AiPageCacheEntry(
     var kjvOrdinalStart: Int?,
     var kjvOrdinalEnd: Int?,
     var contextHash: String?,
-    var usedWriteTools: Boolean = false
+    var usedWriteTools: Boolean = false,
+    var sourceModelName: String? = null
 )
 
 /**
@@ -172,7 +173,9 @@ data class MyDocumentPageWithContent(
  * DatabaseView for cache lookups: combines AiPageCacheEntry with page metadata and content.
  */
 @DatabaseView("""
-    SELECT c.*, p.title, p.pageKey, p.contentType, p.documentId,
+    SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,
+           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,
+           p.title, p.pageKey, p.contentType, p.documentId,
            p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content
     FROM AiPageCacheEntry c
     INNER JOIN MyDocumentPage p ON c.pageId = p.id
@@ -186,6 +189,7 @@ data class AiCachedPageWithContent(
     val kjvOrdinalEnd: Int?,
     val contextHash: String?,
     val usedWriteTools: Boolean,
+    val sourceModelName: String?,
     override val title: String,
     override val pageKey: String,
     override val contentType: MyDocumentContentType,
@@ -204,6 +208,7 @@ data class AiCachedPageWithContent(
         kjvOrdinalStart = kjvOrdinalStart,
         kjvOrdinalEnd = kjvOrdinalEnd,
         contextHash = contextHash,
-        usedWriteTools = usedWriteTools
+        usedWriteTools = usedWriteTools,
+        sourceModelName = sourceModelName
     )
 }

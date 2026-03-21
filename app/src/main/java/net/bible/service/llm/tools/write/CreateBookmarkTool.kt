@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
+import net.bible.android.database.bookmarks.BookmarkEntities.TextRange
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
@@ -30,8 +31,11 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.localizeVerseRef
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.crosswire.jsword.passage.VerseRange
@@ -49,7 +53,19 @@ object CreateBookmarkTool : Tool {
         val verseRef: String = "",
         val note: String? = null,
         val noteContentType: TextContentType = TextContentType.MARKDOWN,
-        val labelIds: List<IdType>? = null
+        val labelIds: List<IdType>? = null,
+        val bookInitials: String? = null,
+        val startOffset: Int? = null,
+        val endOffset: Int? = null
+    )
+
+    @Serializable
+    data class Result(
+        val id: IdType,
+        val verseRef: String,
+        val verseName: String,
+        val hasNote: Boolean,
+        val labelCount: Int
     )
 
     override val agentTool = AgentTool.CREATE_BOOKMARK
@@ -77,6 +93,15 @@ object CreateBookmarkTool : Tool {
             items:
               type: string
             description: Optional list of label IDs to assign to the bookmark. Get IDs from getAllLabels.
+          bookInitials:
+            type: string
+            description: "Bible module initials (e.g., 'KJV', 'ESV'). Required for sub-verse bookmarks. Defaults to the active document if omitted."
+          startOffset:
+            type: integer
+            description: "Character offset from the start of the verse text where the bookmark begins. 0 = start of verse. Offsets are specific to the bookInitials translation. Both startOffset and endOffset must be provided together for a sub-verse bookmark."
+          endOffset:
+            type: integer
+            description: "Character offset from the start of the verse text where the bookmark ends. Offsets are specific to the bookInitials translation. Both startOffset and endOffset must be provided together for a sub-verse bookmark."
         required: [verseRef]
     """)
 
@@ -84,6 +109,26 @@ object CreateBookmarkTool : Tool {
     override val displayNameResId = R.string.tool_create_bookmark
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val app = BibleApplication.application
+        val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
+        val verseName = localizeVerseRef(verseRef)
+        val extras = mutableListOf<String>()
+        if (arguments.has("note") && !arguments.isNull("note")) extras.add(app.getString(R.string.action_with_note))
+        val labelIds = arguments.optJSONArray("labelIds")
+        if (labelIds != null && labelIds.length() > 0) {
+            val names = (0 until labelIds.length()).mapNotNull { i ->
+                try { bookmarkControl.labelById(IdType(labelIds.getString(i)))?.name } catch (_: Exception) { null }
+            }
+            if (names.isNotEmpty()) extras.add(app.getString(R.string.action_labels, names.joinToString(", ")))
+        }
+        return if (extras.isEmpty()) {
+            app.getString(R.string.action_create_bookmark_at, verseName)
+        } else {
+            app.getString(R.string.action_create_bookmark_at_with_extras, verseName, extras.joinToString(", "))
+        }
+    }
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val verseRef = arguments.optString("verseRef", "").takeIf { it.isNotBlank() } ?: return null
@@ -96,9 +141,8 @@ object CreateBookmarkTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        return data.optString("verseName", "").takeIf { it.isNotBlank() }
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return (result.data as Result).verseName.takeIf { it.isNotBlank() }
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -121,12 +165,19 @@ object CreateBookmarkTool : Tool {
             val verseRange = key.getRangeAt(0, RestrictionType.NONE)
                 ?: return ToolResult.error("Invalid verse reference: $verseRef", "INVALID_REFERENCE")
 
-            // Create bookmark (always whole verse for LLM-created bookmarks)
+            // Resolve the Bible document (needed for sub-verse bookmarks with offsets)
+            val bookInitials = args.bookInitials ?: context.activeDocumentInitials
+            val swordBook = bookInitials?.let {
+                Books.installed().getBook(it) as? SwordBook
+            }
+
+            // Create bookmark, with optional sub-verse offsets
+            val hasOffsets = args.startOffset != null && args.endOffset != null
             val bookmark = BibleBookmarkWithNotes(
                 verseRange = verseRange,
-                textRange = null,
-                wholeVerse = true,
-                book = null
+                textRange = if (hasOffsets) TextRange(args.startOffset!!, args.endOffset!!) else null,
+                wholeVerse = !hasOffsets,
+                book = swordBook
             )
 
             // Set AI source
@@ -139,11 +190,12 @@ object CreateBookmarkTool : Tool {
                 bookmark.notesSourcePromptId = context.promptId
             }
 
-            // Parse label IDs
+            // Parse label IDs and always include AI label
+            val aiLabelId = bookmarkControl.aiLabel.id
             val labelIds = if (!labelIdsList.isNullOrEmpty()) {
-                labelIdsList.toSet()
+                labelIdsList.toSet() + aiLabelId
             } else {
-                null
+                setOf(aiLabelId)
             }
 
             // Save bookmark using BookmarkControl (sends UI events)
@@ -153,13 +205,13 @@ object CreateBookmarkTool : Tool {
                 updateNotes = true
             )
 
-            ToolResult.success {
-                put("id", savedBookmark.id.toString())
-                put("verseRef", verseRange.osisRef)
-                put("verseName", verseRange.name)
-                put("hasNote", note != null)
-                put("labelCount", labelIds?.size ?: 0)
-            }
+            typedSuccess(Result(
+                id = savedBookmark.id,
+                verseRef = verseRange.osisRef,
+                verseName = verseRange.name,
+                hasNote = note != null,
+                labelCount = labelIds.size
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to create bookmark: ${e.message}", "CREATE_ERROR")
         }

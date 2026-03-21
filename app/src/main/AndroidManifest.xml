@@ -19,8 +19,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly"
-    android:versionCode="1001"
-    android:versionName="5.0.1001">
+    android:versionCode="1028"
+    android:versionName="5.0.1028">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" android:minSdkVersion="24"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
@@ -195,10 +195,28 @@
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/global_tool_permissions_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.AiDocumentFilterActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/ai_document_filter_activity_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.ai.ToolInfoActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/ai_available_tools"
             android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
+            />
+        <activity
+            android:name="net.bible.android.view.activity.ai.RawLlmLogActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/raw_llm_log_title"
+            android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"

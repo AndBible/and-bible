@@ -28,6 +28,7 @@ import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.control.versification.Scripture
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.database.WorkspaceEntities
+import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.defaultBible
 import net.bible.service.common.CommonUtils.defaultVerse
 import net.bible.service.common.tinyName
@@ -111,7 +112,7 @@ open class CurrentPageManager @Inject constructor(
     }
 
     val actualTextDisplaySettings: WorkspaceEntities.TextDisplaySettings
-        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings)
+        get() = WorkspaceEntities.TextDisplaySettings.actual(textDisplaySettings, windowControl.windowRepository.textDisplaySettings, CommonUtils.globalTextDisplaySettings)
 
     lateinit var window: Window
 
@@ -293,7 +294,7 @@ open class CurrentPageManager @Inject constructor(
         }
         val settings = pageManagerEntity.textDisplaySettings
         if(workspaceDisplaySettings != null) {
-            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings)
+            WorkspaceEntities.TextDisplaySettings.markNonSpecific(settings, workspaceDisplaySettings, CommonUtils.globalTextDisplaySettings)
             textDisplaySettings = settings ?: WorkspaceEntities.TextDisplaySettings()
             savedEntity?.textDisplaySettings = textDisplaySettings.copy()
         }

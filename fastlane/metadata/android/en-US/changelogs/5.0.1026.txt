@@ -1,0 +1,16 @@
+- Add bookInitials parameter to CreateBookmarkTool and improve offset descriptions (5b0c2cf6f)
+- Add noDocumentCreation toggle for action-only LLM prompts (ef7cc09d2)
+- Pass selection text offsets to LLM context for sub-verse bookmarks (259d72bc5)
+- Fix handling of strongs:// and morphology:// links (e2d55517e)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

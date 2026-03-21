@@ -48,6 +48,7 @@ import {Nullable} from "@/types/common";
 import {TextContentType} from "@/types/client-objects";
 import {Marked} from "marked";
 import DOMPurify from "dompurify";
+import {PURIFY_CONFIG} from "@/composables/slot-html-content";
 
 const markdownParser = new Marked({breaks: true, gfm: true});
 
@@ -79,7 +80,7 @@ const isMarkdown = computed(() =>
 const displayHtml = computed(() => {
     if (!editText.value) return "";
     if (isMarkdown.value) {
-        return DOMPurify.sanitize(markdownParser.parse(editText.value) as string);
+        return DOMPurify.sanitize(markdownParser.parse(editText.value) as string, PURIFY_CONFIG);
     }
     return editText.value;
 });
@@ -121,7 +122,16 @@ function textChanged(newText: string) {
 }
 
 function handleClicks(event: MouseEvent) {
-    if (!props.disableClickToEdit && (event.target! as HTMLElement).nodeName !== "A") {
+    const link = (event.target as HTMLElement).closest("a") as HTMLAnchorElement | null;
+    if (link) {
+        event.preventDefault();
+        const href = link.getAttribute("href");
+        if (href) {
+            window.android.openExternalLink(href);
+        }
+        return;
+    }
+    if (!props.disableClickToEdit) {
         editMode.value = true;
     }
 }

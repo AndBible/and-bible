@@ -227,12 +227,22 @@ class PermissionCheckerTest {
     }
 
     @Test
-    fun alwaysAsk_needsDialog_evenWithSessionWritePermission() {
+    fun alwaysAsk_allowsWithSessionWritePermission() {
         val result = check(
             globalMode = PermissionMode.ALWAYS_ASK,
             grantedWritePermission = true,
         )
-        assertEquals(PermissionCheckResult.NeedsDialog, result)
+        assertEquals(PermissionCheckResult.Allowed, result)
+    }
+
+    @Test
+    fun promptAlwaysAsk_allowsWithSessionWritePermission() {
+        val result = check(
+            globalMode = PermissionMode.ASK_ONCE_PER_RUN,
+            promptPermissionMode = PermissionMode.ALWAYS_ASK,
+            grantedWritePermission = true,
+        )
+        assertEquals(PermissionCheckResult.Allowed, result)
     }
 
     @Test

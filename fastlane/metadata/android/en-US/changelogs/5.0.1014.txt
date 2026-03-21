@@ -1,0 +1,15 @@
+- Add raw LLM log view for debugging AI sessions (d9ace4aba)
+- Fix workspace override style resetting when global highlight style changes (11292a97f)
+- Remove coral color from Strong's number and morph code headers (26d80756d)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

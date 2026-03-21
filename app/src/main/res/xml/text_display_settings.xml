@@ -20,6 +20,21 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory
+        android:key="parent_settings_category"
+        android:title="@string/parent_settings_category_title"
+        >
+        <Preference
+            android:key="open_workspace_settings"
+            android:title="@string/workspace_text_options_link"
+            android:summary="@string/workspace_text_options_link_summary"
+            />
+        <Preference
+            android:key="open_global_settings"
+            android:title="@string/global_text_options_link"
+            android:summary="@string/global_text_options_link_summary"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
         android:title="@string/prefs_text_display_settings_title"
         >
         <Preference

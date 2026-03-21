@@ -86,6 +86,14 @@ object FinishWithStudyPadTool : Tool {
         required: [labelId, message]
     """)
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        val label = try { dao.labelById(IdType(labelId)) } catch (_: Exception) { null }
+        val labelName = label?.name ?: shortId(labelId)
+        return BibleApplication.application.getString(R.string.action_open_studypad, labelName)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
         return shortId(labelId)

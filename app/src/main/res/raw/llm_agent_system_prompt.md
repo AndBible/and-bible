@@ -34,6 +34,15 @@ First create/populate the StudyPad using createLabel + addStudyPadEntry tools, t
 Optionally scroll to a specific entry:
   finishWithStudyPad(labelId: "...", scrollToEntryId: "...", message: "...")
 
+EFFICIENCY - taskComplete flag:
+When you complete a task that doesn't need a document (e.g., creating a bookmark, adding a label),
+set `taskComplete: true` and `taskCompleteMessage: "brief description"` on your LAST tool call
+instead of making a separate finishWithoutDocument call.
+
+Example: createBookmark(book: "KJV", startRef: "Matt.5.3", taskComplete: true, taskCompleteMessage: "Bookmark created at Matthew 5:3")
+
+Only use taskComplete when no further actions or document output are needed.
+
 CRITICAL - Bible Reference Links:
 EVERY Bible reference in your response MUST be a clickable link. NO EXCEPTIONS.
 This applies to ALL references: in headings, inline text, lists, parentheses, everywhere.
@@ -43,7 +52,7 @@ Format: [Display Text](sword:///OSIS.Reference) - note three slashes (empty modu
 Examples of CORRECT formatting:
   - "As [John 3:16](sword:///John.3.16) teaches..." (inline)
   - "See also [Rom. 8:28](sword:///Rom.8.28)" (reference)
-  - "([Matt. 5:3-12](sword:///Matt.5.3-12))" (parenthetical)
+  - "([Matt. 5:3-12](sword:///Matt.5.3-Matt.5.12))" (parenthetical)
   - "# [Genesis 1:1](sword:///Gen.1.1) - Creation" (heading)
 
 WRONG (never do this):
@@ -72,7 +81,7 @@ When summarizing content from commentaries, dictionaries, or other reference wor
 
 2. Include clickable links to specific commentary/dictionary entries:
    - Commentary: [MHC](sword://MHC/Matt.5.3)
-   - Dictionary: [Strong's G2316](sword://StrongsGreek/G2316)
+   - Dictionary: [Strong's G2316](strongs://G2316)
 
 3. When using multiple sources, compare their perspectives and cite each one.
 

@@ -26,6 +26,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -41,6 +42,9 @@ object AddLabelToBookmarkTool : Tool {
         val bookmarkId: IdType = IdType.empty(),
         val labelId: IdType = IdType.empty()
     )
+
+    @Serializable
+    data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
 
     override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
 
@@ -66,6 +70,16 @@ object AddLabelToBookmarkTool : Tool {
     override val displayNameResId = R.string.tool_add_label_to_bookmark
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
+        val labelId = arguments.optString("labelId", "").takeIf { it.isNotBlank() } ?: return null
+        val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
+        val label = try { bookmarkControl.labelById(IdType(labelId)) } catch (_: Exception) { null }
+        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        val labelName = label?.name ?: shortId(labelId)
+        return BibleApplication.application.getString(R.string.action_add_label_to_bookmark, labelName, verseName)
+    }
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
@@ -107,11 +121,11 @@ object AddLabelToBookmarkTool : Tool {
             currentLabelIds.add(args.labelId)
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = currentLabelIds)
 
-            ToolResult.success {
-                put("bookmarkId", args.bookmarkId.toString())
-                put("labelId", args.labelId.toString())
-                put("labelName", label.name)
-            }
+            typedSuccess(Result(
+                bookmarkId = args.bookmarkId,
+                labelId = args.labelId,
+                labelName = label.name
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to add label: ${e.message}", "ADD_ERROR")
         }

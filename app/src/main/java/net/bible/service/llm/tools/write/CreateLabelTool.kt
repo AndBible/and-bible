@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.write
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.defaultLabelColor
 import net.bible.service.llm.AgentTool
@@ -26,6 +27,7 @@ import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -41,6 +43,9 @@ object CreateLabelTool : Tool {
         val name: String = "",
         val color: Int = 0
     )
+
+    @Serializable
+    data class Result(val id: IdType, val name: String, val color: Int)
 
     override val agentTool = AgentTool.CREATE_LABEL
 
@@ -67,15 +72,19 @@ object CreateLabelTool : Tool {
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
 
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
+        return BibleApplication.application.getString(R.string.action_create_label, name)
+    }
+
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val name = arguments.optString("name", "").takeIf { it.isNotBlank() } ?: return null
         return "\"$name\""
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        return data.optString("name", "").takeIf { it.isNotBlank() }?.let { "\"$it\"" }
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return (result.data as Result).name.takeIf { it.isNotBlank() }?.let { "\"$it\"" }
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -106,11 +115,11 @@ object CreateLabelTool : Tool {
             )
             val savedLabel = bookmarkControl.insertOrUpdateLabel(label)
 
-            ToolResult.success {
-                put("id", savedLabel.id.toString())
-                put("name", savedLabel.name)
-                put("color", savedLabel.color)
-            }
+            typedSuccess(Result(
+                id = savedLabel.id,
+                name = savedLabel.name,
+                color = savedLabel.color
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to create label: ${e.message}", "CREATE_ERROR")
         }

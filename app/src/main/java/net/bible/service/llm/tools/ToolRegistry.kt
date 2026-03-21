@@ -26,20 +26,29 @@ import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetDictionaryEntryTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
+import net.bible.service.llm.tools.read.GetMyDocumentPagesTool
+import net.bible.service.llm.tools.read.GetMyDocumentsTool
 import net.bible.service.llm.tools.read.GetStudyPadContentTool
 import net.bible.service.llm.tools.read.GetVerseContentTool
 import net.bible.service.llm.tools.read.SearchBibleTool
+import net.bible.service.llm.tools.read.SearchByStrongsNumberTool
 import net.bible.service.llm.tools.read.SearchStudyPadsTool
 import net.bible.service.llm.tools.write.AddBookmarkNoteTool
 import net.bible.service.llm.tools.write.AddLabelToBookmarkTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.CreateMyDocumentTool
+import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
+import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
+import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import java.util.concurrent.ConcurrentHashMap
 
 private const val TAG = "ToolRegistry"
@@ -70,6 +79,7 @@ object ToolRegistry {
         // Register read tools
         register(GetVerseContentTool)
         register(SearchBibleTool)
+        register(SearchByStrongsNumberTool)
         register(GetCommentariesTool)
         register(GetDictionaryEntryTool)
         register(GetBookmarksForVerseTool)
@@ -78,6 +88,8 @@ object ToolRegistry {
         register(GetStudyPadContentTool)
         register(SearchStudyPadsTool)
         register(GetInstalledDocumentsTool)
+        register(GetMyDocumentsTool)
+        register(GetMyDocumentPagesTool)
 
         // Register write tools
         register(CreateBookmarkTool)
@@ -86,8 +98,13 @@ object ToolRegistry {
         register(CreateLabelTool)
         register(AddLabelToBookmarkTool)
         register(AddStudyPadEntryTool)
+        register(CreateMyDocumentTool)
+        register(AddMyDocumentPageTool)
+        register(EditMyDocumentPageTool)
+        register(DeleteMyDocumentPageTool)
         register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
+        register(FinishWithMyDocumentPageTool)
         register(FinishWithoutDocumentTool)
 
         Log.i(TAG, "ToolRegistry initialized with ${tools.size} tools")
@@ -127,15 +144,58 @@ object ToolRegistry {
      */
     val count: Int get() = tools.size
 
+    /** Tools that control agent flow and must never be excluded from tool definitions. */
+    val STRUCTURAL_TOOLS: Set<AgentTool> = setOf(
+        AgentTool.SET_DOCUMENT_TITLE,
+        AgentTool.FINISH_WITH_STUDY_PAD,
+        AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE,
+        AgentTool.FINISH_WITHOUT_DOCUMENT
+    )
+
     /**
      * Get provider-neutral tool definitions for use with [LlmApiAdapter.buildToolsArray].
      *
-     * @param includeWriteTools Whether to include write tools that require permission
+     * Non-structural tools get `taskComplete` and `taskCompleteMessage` optional parameters
+     * injected into their schema, allowing the LLM to signal task completion on any tool call.
+     *
+     * @param excludedTools Tools to omit from the definitions (saves context tokens).
+     *   Structural tools ([STRUCTURAL_TOOLS]) are never excluded regardless of this set.
      */
-    fun getToolDefinitions(includeWriteTools: Boolean = true): List<ToolDefinition> {
+    fun getToolDefinitions(excludedTools: Set<AgentTool> = emptySet()): List<ToolDefinition> {
         return tools.values
-            .filter { includeWriteTools || !it.requiresPermission }
-            .map { ToolDefinition(it.agentTool, it.description, it.parametersSchema) }
+            .filter { it.agentTool !in excludedTools || it.agentTool in STRUCTURAL_TOOLS }
+            .map { tool ->
+                val schema = if (tool.agentTool in STRUCTURAL_TOOLS) {
+                    tool.parametersSchema
+                } else {
+                    injectTaskCompleteProperties(tool.parametersSchema)
+                }
+                ToolDefinition(tool.agentTool, tool.description, schema)
+            }
+    }
+
+    /**
+     * Inject `taskComplete` and `taskCompleteMessage` optional properties into a tool's
+     * parameter schema. These allow the LLM to signal task completion alongside any tool call,
+     * eliminating the need for a separate `finishWithoutDocument` call.
+     */
+    private fun injectTaskCompleteProperties(schema: JsonObject): JsonObject {
+        val properties = schema["properties"] as? JsonObject ?: return schema
+        val augmented = JsonObject(properties + mapOf(
+            "taskComplete" to JsonObject(mapOf(
+                "type" to JsonPrimitive("boolean"),
+                "description" to JsonPrimitive(
+                    "Set to true if this tool call completes the entire task and no further actions or document output are needed."
+                )
+            )),
+            "taskCompleteMessage" to JsonObject(mapOf(
+                "type" to JsonPrimitive("string"),
+                "description" to JsonPrimitive(
+                    "Brief message confirming what was done (shown to user). Required when taskComplete is true."
+                )
+            ))
+        ))
+        return JsonObject(schema + mapOf("properties" to augmented))
     }
 
     /**
@@ -151,6 +211,15 @@ object ToolRegistry {
      */
     fun getPermissionTools(): List<Tool> =
         tools.values.filter { it.requiresPermission }.sortedBy { getDisplayName(it) }
+
+    /**
+     * Get all tools that can be configured in per-prompt permissions.
+     * Excludes structural tools. Sorted: read tools first, then write tools, alphabetically.
+     */
+    fun getConfigurableTools(): List<Tool> =
+        tools.values
+            .filter { it.agentTool !in STRUCTURAL_TOOLS }
+            .sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
 
     /**
      * Get all tools sorted by category (read first, then write) and display name within each category.

@@ -23,9 +23,11 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.serializer
 import net.bible.android.SharedConstants
 import net.bible.android.activity.R
@@ -48,13 +50,13 @@ import net.bible.android.control.versification.toVerseRange
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
-import net.bible.android.database.bookmarks.BookmarkEntities.EditActionMode
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
+import net.bible.android.view.activity.ai.PromptEditActivity
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -64,6 +66,7 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 import net.bible.service.sword.mybible.myBibleIntToBibleBook
 import net.bible.service.sword.mysword.mySwordIntToBibleBook
 import org.crosswire.jsword.book.Books
@@ -299,6 +302,32 @@ class BibleJavascriptInterface(
                 // MySword strongs links
                 val rest = link.substring(2)
                 val bibleLink = BibleView.BibleLink("strong", target=rest)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            link.startsWith("sword://") || link.startsWith("osis:") -> {
+                // Internal app links (e.g. sword://CalvinCommentaries/Eph.1.11)
+                val bibleLink = BibleView.BibleLink("sword", target=link)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            link.startsWith("strongs://") -> {
+                // Document-independent Strong's links (e.g. strongs://G2316, strongs://H430)
+                val ref = link.removePrefix("strongs://")
+                val bibleLink = BibleView.BibleLink("strong", target=ref)
+                scope.launch(Dispatchers.Main) {
+                    linkControl.loadApplicationUrl(bibleLink)
+                }
+            }
+            link.startsWith("morphology://") -> {
+                // Document-independent morphology links (e.g. morphology://robinson/V-PAI-3S)
+                val rest = link.removePrefix("morphology://")
+                val slashIdx = rest.indexOf('/')
+                val morphType = if (slashIdx >= 0) rest.substring(0, slashIdx) else rest
+                val code = if (slashIdx >= 0) rest.substring(slashIdx + 1) else ""
+                val bibleLink = BibleView.BibleLink(morphType, target=code)
                 scope.launch(Dispatchers.Main) {
                     linkControl.loadApplicationUrl(bibleLink)
                 }
@@ -731,6 +760,72 @@ class BibleJavascriptInterface(
     fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+        }
+    }
+
+    private val windowControl get() = bibleView.windowControl
+
+    @JavascriptInterface
+    fun getMyDocumentPageRawContent(callId: Long, bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey)
+            val jsonResult = if (result != null) {
+                json.encodeToString(serializer(), result)
+            } else {
+                "null"
+            }
+            bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+        }
+    }
+
+    @JavascriptInterface
+    fun saveMyDocumentPageContent(bookInitials: String, pageId: String, content: String, title: String?) {
+        scope.launch {
+            MyDocumentBookManager.savePageContent(IdType(pageId), content, title)
+        }
+    }
+
+    @JavascriptInterface
+    fun reloadMyDocumentPage(bookInitials: String) {
+        scope.launch {
+            MyDocumentBookManager.refreshDocument(bookInitials)
+        }
+    }
+
+    @JavascriptInterface
+    fun regenerateMyDocumentPage(pageId: String) {
+        val id = IdType(pageId)
+        scope.launch(Dispatchers.Main) {
+            mainBibleActivity.llmDialogHelper.showRegenerateDialog(id, bibleView)
+        }
+    }
+
+    @JavascriptInterface
+    fun deleteMyDocumentPage(pageId: String) {
+        val id = IdType(pageId)
+        scope.launch(Dispatchers.Main) {
+            AlertDialog.Builder(mainBibleActivity)
+                .setMessage(R.string.ai_document_delete_confirmation)
+                .setPositiveButton(R.string.yes) { _, _ ->
+                    MyDocumentBookManager.deleteAIDocumentPage(id)
+                    val window = bibleView.window
+                    if (windowControl.isWindowRemovable(window)) {
+                        windowControl.closeWindow(window)
+                    } else {
+                        window.pageManager.setCurrentDocument(window.pageManager.currentBible.currentDocument)
+                    }
+                }
+                .setNegativeButton(R.string.no, null)
+                .show()
+        }
+    }
+
+    @JavascriptInterface
+    fun openPromptEditor(promptId: String) {
+        scope.launch(Dispatchers.Main) {
+            val intent = Intent(mainBibleActivity, PromptEditActivity::class.java)
+            intent.putExtra(PromptEditActivity.EXTRA_PROMPT_ID, promptId)
+            mainBibleActivity.startActivity(intent)
         }
     }
 

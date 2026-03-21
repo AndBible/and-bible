@@ -22,7 +22,6 @@ import android.graphics.Color
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.LinearInterpolator
@@ -38,6 +37,7 @@ import net.bible.service.device.ScreenSettings
 import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
+import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
@@ -71,8 +71,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
     private val adapter = AgentLogAdapter()
     private var isExpanded = false
-    private var workspaceId: IdType? = null
     private var spinAnimator: ObjectAnimator? = null
+
+    /** Always reads the current workspace ID so it stays correct after workspace switches. */
+    private val workspaceId: IdType get() = windowControl.windowRepository.id
 
     init {
         buildActivityComponent().inject(this)
@@ -85,6 +87,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             closeButton.setOnClickListener { hide() }
             headerLayout.setOnClickListener { toggleExpanded() }
         }
+
+        adapter.onRawLogClick = { openRawLog() }
 
         updateExpandIcon()
     }
@@ -99,15 +103,12 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         ABEventBus.safelyRegister(this)
         super.onAttachedToWindow()
 
-        // Get current workspace ID and load entries
-        workspaceId = windowControl.windowRepository.id
         refreshLogEntries()
         updateBackgroundColor()
 
         // Check if agent is already running (handles race condition where
         // AgentSessionStatusChangedEvent was posted before widget was attached)
-        val wsId = workspaceId
-        val isRunning = wsId != null && AgentSessionManager.isRunning(wsId)
+        val isRunning = AgentSessionManager.isRunning(workspaceId)
         if (isRunning) {
             startSpinAnimation()
             if (visibility != View.VISIBLE) {
@@ -189,7 +190,6 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         } else {
             0
         }
-        Log.i(TAG, "notifyVisibilityChanged: visible=${visibility == View.VISIBLE}, height=$totalHeight, expanded=$isExpanded")
         ABEventBus.post(AgentLogVisibilityChanged(visibility == View.VISIBLE, totalHeight))
     }
 
@@ -197,8 +197,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Refresh the log entries from the session manager.
      */
     private fun refreshLogEntries() {
-        val wsId = workspaceId ?: return
-        val entries = AgentSessionManager.getLogEntries(wsId)
+        val entries = AgentSessionManager.getLogEntries(workspaceId)
         adapter.submitList(entries.toList())
 
         // Update status text with latest meaningful entry
@@ -229,7 +228,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     private fun getLatestMeaningfulMessage(entries: List<AgentLogEntry>): String? {
         // Prefer the latest ACTION entry (tool calls are more informative)
-        val latestAction = entries.lastOrNull { it.type == LogEntryType.ACTION }
+        val latestAction = entries.lastOrNull { it.type == LogEntryType.ACTION || it.type == LogEntryType.LLM_COMMENT }
         if (latestAction != null) {
             return latestAction.message
         }
@@ -311,6 +310,16 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
+     * Open the raw LLM log activity.
+     */
+    private fun openRawLog() {
+        val intent = android.content.Intent(context, RawLlmLogActivity::class.java).apply {
+            putExtra(RawLlmLogActivity.EXTRA_WORKSPACE_ID, workspaceId.toString())
+        }
+        context.startActivity(intent)
+    }
+
+    /**
      * Update close/stop button based on running state.
      * When running: shows stop icon, clicking cancels the agent.
      * When idle: shows close icon, clicking hides the widget.
@@ -321,7 +330,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             binding.closeButton.setColorFilter(CommonUtils.getResourceColor(R.color.grey_500))
             binding.closeButton.contentDescription = context.getString(R.string.agent_log_stop)
             binding.closeButton.setOnClickListener {
-                workspaceId?.let { AgentSessionManager.stopAgent(it) }
+                AgentSessionManager.stopAgent(workspaceId)
             }
         } else {
             binding.closeButton.setImageResource(R.drawable.ic_baseline_close_24)
@@ -331,9 +340,5 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         binding.closeButton.isEnabled = true
         binding.closeButton.alpha = 1.0f
-    }
-
-    companion object {
-        const val TAG = "AgentLogWidget"
     }
 }

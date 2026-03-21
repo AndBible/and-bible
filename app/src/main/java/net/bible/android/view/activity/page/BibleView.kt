@@ -955,17 +955,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         const val SCHEME_STUDYPAD = "journal"
         const val SCHEME_FIND_ALL_OCCURRENCES = "ab-find-all"
         const val SCHEME_SWORD = "sword"
-        const val SCHEME_ACTION = "ab-action"
-    }
-
-    enum class AiDocumentAction(val value: String) {
-        DELETE("delete"),
-        REGENERATE("regenerate");
-
-        companion object {
-            fun fromString(action: String?): AiDocumentAction? =
-                entries.find { it.value == action }
-        }
+        const val SCHEME_STRONGS = "strongs"
+        const val SCHEME_MORPHOLOGY = "morphology"
     }
 
     class ModuleAssetHandler: PathHandler {
@@ -1218,61 +1209,28 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             linkControl.loadApplicationUrl(BibleLink("sword", url), null)
             true
         }
-        UriConstants.SCHEME_ACTION -> {
-            val action = AiDocumentAction.fromString(uri.host)
-            val pageIdStr = uri.getQueryParameter("pageId")
-            if (pageIdStr != null) {
-                handleAIDocumentAction(action, IdType(pageIdStr))
-            }
+        UriConstants.SCHEME_STRONGS -> {
+            // Document-independent Strong's links: strongs://G2316, strongs://H430
+            // Resolves to user's configured default Strong's dictionary via UriAnalyzer
+            val ref = uri.authority ?: uri.schemeSpecificPart
+            linkControl.loadApplicationUrl(BibleLink("strong", ref), null)
+            true
+        }
+        UriConstants.SCHEME_MORPHOLOGY -> {
+            // Document-independent morphology links: morphology://robinson/V-PAI-3S
+            // Resolves to user's configured default morphology dictionary via UriAnalyzer
+            val morphType = uri.authority ?: ""
+            val code = uri.path?.trimStart('/') ?: ""
+            linkControl.loadApplicationUrl(BibleLink(morphType, code), null)
+            true
+        }
+        "http", "https" -> {
+            CommonUtils.openLink(uri.toString())
             true
         }
         else -> {
             Log.e(TAG, "Unsupported scheme ${uri.scheme}")
             true
-        }
-    }
-
-    /**
-     * Handle AI document actions (regenerate, delete).
-     */
-    private fun handleAIDocumentAction(action: AiDocumentAction?, pageId: IdType) {
-        when (action) {
-            AiDocumentAction.DELETE -> {
-                AlertDialog.Builder(mainBibleActivity)
-                    .setMessage(R.string.ai_document_delete_confirmation)
-                    .setPositiveButton(R.string.yes) { _, _ ->
-                        MyDocumentBookManager.deleteAIDocumentPage(pageId)
-                        val errorDoc = ErrorDocument(
-                            mainBibleActivity.getString(R.string.ai_document_deleted),
-                            ErrorSeverity.NORMAL
-                        )
-                        mainBibleActivity.lifecycleScope.launch {
-                            loadDocument(errorDoc)
-                        }
-                    }
-                    .setNegativeButton(R.string.no, null)
-                    .show()
-            }
-            AiDocumentAction.REGENERATE -> {
-                val errorDoc = ErrorDocument(
-                    mainBibleActivity.getString(R.string.ai_document_regenerating),
-                    ErrorSeverity.NORMAL
-                )
-                mainBibleActivity.lifecycleScope.launch {
-                    loadDocument(errorDoc)
-                }
-                mainBibleActivity.lifecycleScope.launch(Dispatchers.IO) {
-                    val success = AgentSessionManager.regenerateAIDocument(pageId, targetWindowId = window.id)
-                    if (!success) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(mainBibleActivity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
-            }
-            null -> {
-                Log.w(TAG, "Unknown AI document action")
-            }
         }
     }
 

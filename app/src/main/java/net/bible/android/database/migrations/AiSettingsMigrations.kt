@@ -19,4 +19,38 @@ package net.bible.android.database.migrations
 
 import androidx.room.migration.Migration
 
-val aiSettingsMigrations: Array<Migration> = arrayOf()
+private val addEditBeforeRun = makeMigration(1..2) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `editBeforeRun` INTEGER NOT NULL DEFAULT 0")
+}
+
+private val addNoDocumentCreation = makeMigration(2..3) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `noDocumentCreation` INTEGER NOT NULL DEFAULT 0")
+}
+
+private val addGlobalAiSettingsAndUsage = makeMigration(3..4) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `GlobalAiSettings` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `agentPermissionMode` TEXT DEFAULT NULL,
+        `permanentlyAllowedTools` TEXT DEFAULT NULL,
+        `permanentlyDeniedTools` TEXT DEFAULT NULL,
+        `aiExcludedDocuments` TEXT NOT NULL,
+        `commentaryMaxResponseTokens` INTEGER NOT NULL DEFAULT 0
+    )""")
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmUsageRecord` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `providerConfigId` BLOB NOT NULL,
+        `deviceId` TEXT NOT NULL,
+        `inputTokens` INTEGER NOT NULL DEFAULT 0,
+        `outputTokens` INTEGER NOT NULL DEFAULT 0,
+        `cacheCreationTokens` INTEGER NOT NULL DEFAULT 0,
+        `cacheReadTokens` INTEGER NOT NULL DEFAULT 0,
+        `estimatedCostUsd` REAL NOT NULL DEFAULT 0.0,
+        FOREIGN KEY(`providerConfigId`) REFERENCES `LlmProviderConfig`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmUsageRecord_providerConfigId` ON `LlmUsageRecord` (`providerConfigId`)")
+    db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_LlmUsageRecord_providerConfigId_deviceId` ON `LlmUsageRecord` (`providerConfigId`, `deviceId`)")
+    db.execSQL("ALTER TABLE `LlmProviderConfig` ADD COLUMN `customInputPrice` REAL NOT NULL DEFAULT 0.0")
+    db.execSQL("ALTER TABLE `LlmProviderConfig` ADD COLUMN `customOutputPrice` REAL NOT NULL DEFAULT 0.0")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage)

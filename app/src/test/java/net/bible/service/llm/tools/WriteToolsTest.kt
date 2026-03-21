@@ -29,6 +29,7 @@ import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
+import net.bible.service.llm.tools.typedSuccess
 import org.json.JSONArray
 import org.json.JSONObject
 import org.junit.Assert.assertEquals
@@ -106,8 +107,11 @@ class WriteToolsTest {
 
     @Test
     fun createBookmark_formatResultForLog() {
-        val data = JSONObject().apply { put("verseName", "Genesis 1:1") }
-        assertEquals("Genesis 1:1", CreateBookmarkTool.formatResultForLog(ToolResult.Success(data)))
+        val data = CreateBookmarkTool.Result(
+            id = IdType(), verseRef = "Gen.1.1", verseName = "Genesis 1:1",
+            hasNote = false, labelCount = 0
+        )
+        assertEquals("Genesis 1:1", CreateBookmarkTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === AddBookmarkNoteTool ===
@@ -237,8 +241,8 @@ class WriteToolsTest {
 
     @Test
     fun createLabel_formatResultForLog() {
-        val data = JSONObject().apply { put("name", "Study Notes") }
-        assertEquals("\"Study Notes\"", CreateLabelTool.formatResultForLog(ToolResult.Success(data)))
+        val data = CreateLabelTool.Result(id = IdType(), name = "Study Notes", color = 0)
+        assertEquals("\"Study Notes\"", CreateLabelTool.formatResultForLog(typedSuccess(data)))
     }
 
     // === AddLabelToBookmarkTool ===

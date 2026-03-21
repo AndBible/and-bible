@@ -51,6 +51,7 @@ import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
 import net.bible.android.database.SettingsBundle
+import net.bible.android.database.SettingsLevel
 import net.bible.android.database.WorkspaceEntities
 import net.bible.android.database.defaultWorkspaceColor
 import net.bible.android.view.activity.ActivityScope
@@ -58,13 +59,15 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.TextDisplaySettingsActivity
 import net.bible.android.view.activity.settings.getPrefItem
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.RecyclerViewSearchHelper
+import net.bible.service.common.setupRecyclerViewSearch
 import net.bible.service.db.DatabaseContainer
 import javax.inject.Inject
 
 class WorkspaceViewHolder(val layout: ViewGroup): RecyclerView.ViewHolder(layout)
 
 class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Adapter<WorkspaceViewHolder>() {
-    val items get() = activity.dataSet
+    val items get() = activity.searchHelper.filteredItems
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): WorkspaceViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.workspace_list_item, parent, false) as ViewGroup
@@ -98,6 +101,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 
         val workspaceColor = workspaceEntity.workspaceSettings?.workspaceColor?: defaultWorkspaceColor
         dragHolder.setColorFilter(workspaceColor)
+        dragHolder.visibility = if (activity.searchHelper.isFiltering) View.INVISIBLE else View.VISIBLE
 
         layout.setOnClickListener {
             activity.goToWorkspace(workspaceEntity.id)
@@ -115,18 +119,19 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
     }
 
     fun moveItem(from: Int, to: Int) {
+        val dataSet = activity.dataSet
         Log.i("MoveItem", "Moving $from $to")
         if(from == to) return
 
-        val item = items[from]
+        val item = dataSet[from]
         if(from < to)
-            items.removeAt(from)
+            dataSet.removeAt(from)
 
-        items.add(to, item)
+        dataSet.add(to, item)
         if(from > to)
-            items.removeAt(from + 1)
+            dataSet.removeAt(from + 1)
 
-        for((idx, ws) in items.withIndex()) {
+        for((idx, ws) in dataSet.withIndex()) {
             if(ws.orderNumber != idx) {
                 activity.changedWorkspaces.add(ws.id)
                 ws.orderNumber = idx
@@ -140,6 +145,7 @@ class WorkspaceAdapter(val activity: WorkspaceSelectorActivity): RecyclerView.Ad
 class WorkspaceSelectorActivity: ActivityBase() {
     private var finished = false
     private var isDirty: Boolean = false
+    private var suppressDirty = false
     private val workspacesToBeDeleted = HashSet<IdType>()
     private val workspacesCreated = HashSet<IdType>()
     private lateinit var resultIntent: Intent
@@ -147,8 +153,25 @@ class WorkspaceSelectorActivity: ActivityBase() {
     internal lateinit var dataSet: MutableList<WorkspaceEntities.Workspace>
     private lateinit var workspaceAdapter: WorkspaceAdapter
 
+    internal val searchHelper = RecyclerViewSearchHelper<WorkspaceEntities.Workspace>(
+        allItems = { dataSet },
+        searchableText = { "${it.name} ${it.contentsText.orEmpty()}" },
+        onFilterChanged = { filtering ->
+            if (filtering) {
+                itemTouchHelper.attachToRecyclerView(null)
+            } else {
+                itemTouchHelper.attachToRecyclerView(binding.recyclerView)
+            }
+        }
+    )
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.workspace_options_menu, menu)
+        setupRecyclerViewSearch(menu!!, searchHelper, workspaceAdapter) {
+            suppressDirty = true
+            workspaceAdapter.notifyDataSetChanged()
+            suppressDirty = false
+        }
         return true
     }
 
@@ -203,7 +226,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             setHasStableIds(true)
             registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
                 override fun onChanged() {
-                    setDirty()
+                    if (!suppressDirty) setDirty()
                 }
 
                 override fun onItemRangeChanged(positionStart: Int, itemCount: Int, payload: Any?) {
@@ -319,11 +342,13 @@ class WorkspaceSelectorActivity: ActivityBase() {
             R.id.settings -> {
                 val intent = Intent(this@WorkspaceSelectorActivity, TextDisplaySettingsActivity::class.java)
                 val settings = SettingsBundle(
+                    level = SettingsLevel.WORKSPACE,
                     workspaceId = workspaceId,
                     workspaceName = workspace.name,
-                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings.default).apply {
+                    workspaceSettings = (workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()).apply {
                         colors?.workspaceColor = workspace.workspaceSettings?.workspaceColor
                     },
+                    globalSettings = CommonUtils.globalTextDisplaySettings,
                 )
                 intent.putExtra("settingsBundle", settings.toJson())
                 startActivityForResult(intent, WORKSPACE_SETTINGS_CHANGED)
@@ -331,7 +356,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
             R.id.deleteWorkspace -> {
                 workspacesToBeDeleted.add(workspaceId)
                 dataSet.removeAt(position)
-                workspaceAdapter.notifyItemRemoved(position)
+                if (searchHelper.isFiltering) {
+                    searchHelper.refresh()
+                    workspaceAdapter.notifyDataSetChanged()
+                } else {
+                    workspaceAdapter.notifyItemRemoved(position)
+                }
             }
             R.id.renameWorkspace -> {
                 val name = EditText(this@WorkspaceSelectorActivity)
@@ -342,7 +372,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
                     .setPositiveButton(R.string.okay) { d, _ ->
                         workspace.name = name.text.toString()
                         changedWorkspaces.add(workspace.id)
-                        workspaceAdapter.notifyItemChanged(position)
+                        if (searchHelper.isFiltering) {
+                            searchHelper.refresh()
+                            workspaceAdapter.notifyDataSetChanged()
+                        } else {
+                            workspaceAdapter.notifyItemChanged(position)
+                        }
                     }
                     .setView(name)
                     .setNegativeButton(R.string.cancel, null)
@@ -360,7 +395,12 @@ class WorkspaceSelectorActivity: ActivityBase() {
                         val newWorkspaceEntity = dao.cloneWorkspace(workspaceId, name.text.toString())
                         workspacesCreated.add(newWorkspaceEntity.id)
                         dataSet.add(position + 1, newWorkspaceEntity)
-                        workspaceAdapter.notifyItemInserted(position + 1)
+                        if (searchHelper.isFiltering) {
+                            searchHelper.refresh()
+                            workspaceAdapter.notifyDataSetChanged()
+                        } else {
+                            workspaceAdapter.notifyItemInserted(position + 1)
+                        }
                     }
                     .setView(name)
                     .setNegativeButton(R.string.cancel, null)
@@ -372,14 +412,18 @@ class WorkspaceSelectorActivity: ActivityBase() {
             R.id.copySettings -> {
                 copySettingsStage1(workspace)
             }
+            R.id.copySettingsToGlobal -> {
+                copySettingsToGlobalStage(workspace)
+            }
         }
         return false
     }
 
     private fun copySettingsStage1(workspace: WorkspaceEntities.Workspace) {
         val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
-            getPrefItem(SettingsBundle(workspace.id, workspace.name, workspace.textDisplaySettings
-                ?: WorkspaceEntities.TextDisplaySettings.default), it).title
+            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = workspace.id, workspaceName = workspace.name,
+                workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+                globalSettings = CommonUtils.globalTextDisplaySettings), it).title
         }.toTypedArray()
         val checkedItems = items.map { false }.toBooleanArray()
         val dialog = AlertDialog.Builder(this)
@@ -420,7 +464,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 for ((wsIdx, ws) in dataSet.withIndex())
                     for ((tIdx, type) in types.withIndex()) {
                         if(checkedTypes[tIdx] && checkedItems[wsIdx] && workspace.id != ws.id) {
-                            val s = ws.textDisplaySettings?: WorkspaceEntities.TextDisplaySettings.default
+                            val s = ws.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings()
                             s.setValue(type, workspace.textDisplaySettings?.getValue(type))
                             ws.textDisplaySettings = s
                         }
@@ -441,6 +485,48 @@ class WorkspaceSelectorActivity: ActivityBase() {
                 val newValue = !allSelected
                 val v = dialog.listView
                 for(i in 0 until v.count) {
+                    v.setItemChecked(i, newValue)
+                    checkedItems[i] = newValue
+                }
+                (it as Button).text = getString(if (allSelected) R.string.select_all else R.string.select_none)
+            }
+        }
+        dialog.show()
+        CommonUtils.fixAlertDialogButtons(dialog)
+    }
+
+    private fun copySettingsToGlobalStage(workspace: WorkspaceEntities.Workspace) {
+        val items = WorkspaceEntities.TextDisplaySettings.Types.values().map {
+            getPrefItem(SettingsBundle(level = SettingsLevel.WORKSPACE, workspaceId = workspace.id, workspaceName = workspace.name,
+                workspaceSettings = workspace.textDisplaySettings ?: WorkspaceEntities.TextDisplaySettings(),
+                globalSettings = CommonUtils.globalTextDisplaySettings), it).title
+        }.toTypedArray()
+        val checkedItems = items.map { false }.toBooleanArray()
+        val dialog = AlertDialog.Builder(this)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val types = WorkspaceEntities.TextDisplaySettings.Types.values()
+                val target = CommonUtils.globalTextDisplaySettings
+                for ((tIdx, type) in types.withIndex()) {
+                    if (checkedItems[tIdx]) {
+                        target.setValue(type, workspace.textDisplaySettings?.getValue(type))
+                    }
+                }
+                CommonUtils.globalTextDisplaySettings = target
+            }
+            .setMultiChoiceItems(items, checkedItems) { _, pos, value ->
+                checkedItems[pos] = value
+            }
+            .setNeutralButton(R.string.select_all, null)
+            .setNegativeButton(R.string.cancel, null)
+            .setTitle(getString(R.string.copy_settings_title))
+            .create()
+
+        dialog.setOnShowListener {
+            dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
+                val allSelected = checkedItems.find { !it } == null
+                val newValue = !allSelected
+                val v = dialog.listView
+                for (i in 0 until v.count) {
                     v.setItemChecked(i, newValue)
                     checkedItems[i] = newValue
                 }
@@ -475,7 +561,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
             val settings = SettingsBundle.fromJson(extras.getString("settingsBundle")!!)
             val workspaceItem = dataSet.find {it.id == settings.workspaceId}!!
             workspaceItem.textDisplaySettings =
-                if(reset) WorkspaceEntities.TextDisplaySettings.default
+                if(reset) WorkspaceEntities.TextDisplaySettings()
                 else settings.workspaceSettings
             if(reset) {
                 workspaceItem.workspaceSettings?.workspaceColor = defaultWorkspaceColor

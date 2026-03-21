@@ -220,6 +220,13 @@
     <string name="text_display_settings_activity_title">Text display settings</string>
     <string name="workspace_text_display_settings_title">Text options - %s</string>
     <string name="window_text_display_settings_title">Text options - Window %d</string>
+    <string name="global_text_display_settings_title">Global text options</string>
+    <string name="global_text_display_settings_summary">Default text display settings for all workspaces</string>
+    <string name="parent_settings_category_title">Parent settings</string>
+    <string name="workspace_text_options_link">Workspace text options — %s</string>
+    <string name="workspace_text_options_link_summary">Edit text display settings for this workspace</string>
+    <string name="global_text_options_link">Global text options</string>
+    <string name="global_text_options_link_summary">Edit default text display settings for all workspaces</string>
     <string name="prefs_text_display_settings_title">Formatting</string>
     <string name="prefs_text_appearance_title">Appearance</string>
 
@@ -305,6 +312,7 @@
     <string name="copy_settings">Copy settings to</string>
     <string name="copy_settings_to_workspace">Workspace</string>
     <string name="copy_settings_to_window">Window %1$d (%2$s: %3$s)</string>
+    <string name="copy_settings_to_global">Global defaults</string>
     <string name="change_to_normal">Change to normal window</string>
     <string name="window_pin_mode">Pin</string>
 
@@ -471,6 +479,7 @@
     <string name="add_bookmark_whole_verse2">Full verses</string>
     <string name="add_whole_page_bookmark">Add bookmark for whole page</string>
     <string name="add_paragraph_break">Paragraph break</string>
+    <string name="ai_label">AI</string>
     <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
@@ -587,8 +596,11 @@
     <!-- param is refresh icon -->
     <string name="assing_labels_help5">Tap %s to re-order the list based on your selections.</string>
 
+    <string name="global_text_options_help_title">Global text options</string>
+    <string name="global_text_options_help1">These are the global default settings for all workspaces. Each workspace can override these with its own settings.</string>
+
     <string name="workspace_text_options_help_title">Workspace text options</string>
-    <string name="workspace_text_options_help1">These settings determine the default for all workspace windows.</string>
+    <string name="workspace_text_options_help1">These settings determine the default for all workspace windows. Settings inherited from global defaults are indicated accordingly.</string>
     <string name="workspace_text_options_help2">You can override these by changing the individual window settings.</string>
 
     <string name="window_text_options_help_title">Window text options</string>
@@ -967,7 +979,25 @@
     <string name="prefs_experimental_features_summary">Select which experimental features to enable. These features are still in development and may change or be removed</string>
     <string name="experimental_feature_bookmark_edit_actions">Bookmark edit actions</string>
     <string name="experimental_feature_add_paragraph_break">Add paragraph break bookmark</string>
-    <string name="experimental_feature_ai_features">AI features</string>
+    <string name="experimental_feature_ai_features">AI features &amp; My Documents</string>
+<string name="raw_llm_log_title">Raw LLM Log</string>
+    <string name="raw_llm_log_empty">No raw log data available</string>
+    <string name="raw_llm_log_copied">Log copied to clipboard</string>
+    <string name="raw_llm_log_total">Total: in %1$s / out %2$s%3$s</string>
+    <string name="raw_llm_log_entry_system">System prompt</string>
+    <string name="raw_llm_log_entry_user">User message</string>
+    <string name="raw_llm_log_entry_assistant">Assistant response</string>
+    <string name="raw_llm_log_entry_tool_call">Tool call: %s</string>
+    <string name="raw_llm_log_entry_tool_result">Tool result [%s]</string>
+    <string name="raw_llm_log_entry_tool_definitions">Tool definitions (%d tools)</string>
+    <string name="raw_llm_log_entry_api_response">API response (iteration %d)</string>
+    <string name="raw_llm_log_entry_tokens">~%s tokens</string>
+    <string name="raw_llm_log_entry_usage">in: %1$s / out: %2$s%3$s</string>
+    <string name="raw_llm_log_entry_empty">(empty)</string>
+    <string name="raw_llm_log_entry_tool_desc">Description: %s</string>
+    <string name="raw_llm_log_entry_tool_params">Parameters: %s</string>
+    <string name="agent_log_view_raw">View raw LLM log</string>
+    <string name="share">Share</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>
     <string name="active_window_indicator_title">Show active window indicator</string>
@@ -1509,6 +1539,13 @@
     <string name="delete_prompt_confirmation">Delete prompt \"%s\"?</string>
     <string name="prompt_name_required">Prompt name is required</string>
     <string name="prompt_template_required">Prompt template is required</string>
+    <string name="prompt_edit_before_run">Edit before run</string>
+    <string name="prompt_edit_before_run_description">Show the prompt text for editing before sending it to the AI</string>
+    <string name="prompt_no_document_creation">No document creation</string>
+    <string name="prompt_no_document_creation_description">When enabled, the AI will not create a document. Results are only shown in the activity log. Useful for action-only prompts (bookmarks, labels, StudyPad operations).</string>
+    <string name="llm_no_document_creation_intercepted">Task completed (document creation disabled)</string>
+    <string name="edit_prompt_before_run_title">Edit prompt</string>
+    <string name="save_prompt_changes">Save changes to prompt</string>
     <string name="prompt_cache_settings">Cache settings</string>
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
@@ -1516,8 +1553,16 @@
     <string name="ai_document_deleted">This AI document has been deleted.</string>
     <string name="ai_document_regenerating">Regenerating AI document…</string>
     <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
+    <string name="ai_regenerate_prompt_not_found">Cannot regenerate: the original prompt was not found. It may have been deleted.</string>
     <string name="ai_document_regenerate">Regenerate</string>
+    <string name="ai_regenerate_title">Regenerate</string>
+    <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
+    <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_document_delete">Delete</string>
+    <string name="custom_prompt">Custom prompt…</string>
+    <string name="ai_unknown_prompt">AI</string>
+    <string name="custom_prompt_hint">Enter your prompt</string>
+    <string name="save_as_new_prompt">Save as new prompt</string>
 
     <!-- Default prompts -->
     <string name="default_prompt_translate_to_language">Translate to %s</string>
@@ -1543,21 +1588,49 @@
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
+    <string name="tool_finish_with_my_document_page">Open My Document page</string>
     <string name="tool_finish_without_document">Finish without document</string>
     <string name="tool_get_verse_content">Read verse content</string>
     <string name="tool_get_commentaries">Read commentaries</string>
     <string name="tool_get_dictionary_entry">Look up dictionary entry</string>
     <string name="tool_search_bible">Search Bible</string>
+    <string name="tool_search_by_strongs">Search by Strong\'s number</string>
     <string name="tool_get_installed_documents">List installed documents</string>
     <string name="tool_get_all_labels">List all labels</string>
     <string name="tool_get_bookmarks_for_verse">Get bookmarks for verse</string>
     <string name="tool_get_bookmarks_with_label">Get bookmarks with label</string>
     <string name="tool_get_study_pad_content">Read study pad content</string>
     <string name="tool_search_study_pads">Search study pads</string>
+    <string name="tool_get_my_documents">List My Documents</string>
+    <string name="tool_get_my_document_pages">List My Document pages</string>
+    <string name="tool_create_my_document">Create My Document</string>
+    <string name="tool_add_my_document_page">Add My Document page</string>
+    <string name="tool_edit_my_document_page">Edit My Document page</string>
+    <string name="tool_delete_my_document_page">Delete My Document page</string>
 
     <!-- Agent Permission Dialog -->
     <string name="agent_permission_title">Agent Permission</string>
     <string name="agent_permission_message">The AI assistant wants to use \"%1$s\":\n\n%2$s</string>
+    <string name="agent_permission_message_with_action">The AI assistant wants to:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+    <string name="action_create_bookmark_at">Create bookmark at %1$s</string>
+    <string name="action_create_bookmark_at_with_extras">Create bookmark at %1$s (%2$s)</string>
+    <string name="action_with_note">with note</string>
+    <string name="action_labels">labels: %1$s</string>
+    <string name="action_add_note_to_bookmark_at">Add note to bookmark at %1$s</string>
+    <string name="action_update_note_on_bookmark_at">Update note on bookmark at %1$s</string>
+    <string name="action_create_label">Create label \"%1$s\"</string>
+    <string name="action_add_label_to_bookmark">Add label \"%1$s\" to bookmark at %2$s</string>
+    <string name="action_add_entry_to_studypad">Add entry to StudyPad \"%1$s\"</string>
+    <string name="action_create_my_document">Create My Document: \"%1$s\"</string>
+    <string name="action_add_my_document_page">Add page \"%1$s\" to My Document %2$s</string>
+    <string name="action_edit_my_document_page">Edit My Document page: \"%1$s\"</string>
+    <string name="action_delete_my_document_page">Delete My Document page: \"%1$s\"</string>
+    <string name="action_set_document_title">Set document title: \"%1$s\"</string>
+    <string name="action_open_studypad">Open StudyPad \"%1$s\"</string>
+    <string name="action_open_my_document_page">Open My Document page \"%1$s\"</string>
+    <string name="action_finish">Finish: \"%1$s\"</string>
     <string name="permission_allow_once">Allow once</string>
     <string name="permission_allow_for_session">Allow for this session</string>
     <string name="permission_allow_all_session">Allow all tools this session</string>
@@ -1570,6 +1643,29 @@
     <!-- Agent Tool Permission Settings -->
     <string name="manage_tool_permissions_title">Tool permissions</string>
     <string name="manage_tool_permissions_summary">Manage per-tool permission overrides</string>
+    <string name="commentary_max_response_title">Commentary response size limit</string>
+    <string name="commentary_max_response_summary">Show selection dialog when response exceeds limit</string>
+    <string name="commentary_max_response_no_limit">No limit</string>
+    <string name="commentary_max_response_value">~%s tokens</string>
+    <string name="commentary_max_response_dialog_title">Set maximum response size (tokens)</string>
+    <string name="commentary_max_response_dialog_message">When the AI fetches commentaries and the total response exceeds this token limit, a selection dialog lets you choose which commentaries to send to the AI.\n\n0 = no limit (all commentaries are sent automatically).</string>
+    <string name="commentary_filter_dialog_title">Commentary response too large</string>
+    <string name="commentary_filter_dialog_message">Token limit (~%s) exceeded. Deselect commentaries you don\'t want to send to the AI.</string>
+    <string name="commentary_filter_total_tokens">Selected: ~%1$s / %2$s tokens</string>
+    <string name="tool_log_commentary_count">%d commentaries</string>
+    <string name="tool_log_label_count">%d labels</string>
+    <string name="tool_log_document_count">%d documents</string>
+    <string name="tool_log_study_pad_count">%d study pads</string>
+    <string name="tool_log_search_results">%1$d/%2$d results</string>
+    <string name="tool_log_bookmark_count">%d bookmarks</string>
+    <string name="tool_log_my_document_count">%d documents</string>
+    <string name="tool_log_my_document_page_count">%d pages</string>
+    <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
+    <string name="ai_document_filter_title">Document access</string>
+    <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
+    <string name="ai_document_filter_summary_count">%d documents excluded</string>
+    <string name="ai_document_filter_activity_title">AI document access</string>
+    <string name="ai_document_excluded_error">Document excluded by user settings: %s</string>
     <string name="permission_status_default">Ask (default)</string>
     <string name="permission_status_allowed">Always allowed</string>
     <string name="permission_status_denied">Always denied</string>
@@ -1583,9 +1679,20 @@
     <string name="ai_read_tools">Read Tools</string>
     <string name="ai_write_tools">Write Tools</string>
 
+    <!-- Global Tool Permissions Activity -->
+    <string name="global_tool_permissions_title">Default tool settings</string>
+
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
+    <string name="tool_section_read_tools">Read tools</string>
+    <string name="tool_section_write_tools">Write tools</string>
+    <string name="tool_option_enabled">Enabled</string>
+    <string name="tool_option_disabled">Disabled</string>
+    <string name="tool_option_default_enabled">Default (enabled)</string>
+    <string name="tool_option_default_disabled">Default (disabled)</string>
+    <string name="tool_option_default_allowed">Default (allowed)</string>
+    <string name="tool_option_default_denied">Default (denied)</string>
 
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
@@ -1640,4 +1747,16 @@
     <string name="my_document_page_delete_confirmation">Delete page \"%s\"?</string>
     <string name="my_document_page_rename">Rename</string>
     <string name="my_document_page_delete">Delete</string>
+    <string name="my_document_page_export">Export</string>
+    <string name="my_document_new_page_name">Page %1$d</string>
+    <string name="my_document_create_page_title">New page</string>
+    <string name="my_document_content_type_label">Content type</string>
+    <string name="my_document_import_page">Import Markdown/HTML</string>
+    <string name="my_document_export_page">Export page</string>
+    <string name="my_document_imported_page_name">Imported</string>
+    <string name="my_document_export_fallback_name">page</string>
+    <string name="my_document_export_document">Export all pages</string>
+    <string name="my_document_import_document">Import files as document</string>
+    <string name="my_document_import_empty_selection">No importable files selected</string>
+    <string name="my_document_export_success">Pages exported successfully</string>
 </resources>

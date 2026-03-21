@@ -17,6 +17,14 @@
 
 import {onMounted, ref, watch} from "vue";
 
+/**
+ * DOMPurify config that allows AndBible's custom URI schemes (sword://, osis://, etc.)
+ * in addition to the standard ones (http, https, mailto, etc.).
+ */
+export const PURIFY_CONFIG = {
+    ALLOWED_URI_REGEXP: /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|sword|strongs|morphology|osis|my-notes|journal|ab-w|ab-find-all|ab-error|epub-ref|multi|download):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i
+};
+
 export function unescapeXmlEntities(text: string): string {
     return text
         .replace(/&lt;/g, "<")

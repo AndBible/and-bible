@@ -102,7 +102,8 @@ val customIconMap = mapOf(
     "key" to R.drawable.icon_key,
     "crown" to R.drawable.icon_crown,
     "heart" to R.drawable.icon_heart,
-    "heart-crack" to R.drawable.icon_heart_crack
+    "heart-crack" to R.drawable.icon_heart_crack,
+    "robot" to R.drawable.icon_robot
 )
 
 @ActivityScope
@@ -112,6 +113,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
     lateinit var binding: BookmarkLabelEditBinding
     private lateinit var initialDataJson: String
+    private var suppressOverrideSpinnerUpdate = false
 
 
     override fun onColorSelected(dialogId: Int, color: Int) {
@@ -213,6 +215,7 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
     }
 
     private fun updateWorkspaceOverrideData() {
+        if (suppressOverrideSpinnerUpdate) return
         val override = data.workspaceOverride ?: return
         val selectedPosition = binding.displayModeSpinner.selectedItemPosition
         val overrideMode = if (selectedPosition == getGlobalDisplayModeIndex()) null else selectedPosition
@@ -319,7 +322,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
 
         val override = data.workspaceOverride
         val selectedPosition = override?.overrideMode ?: globalModeIndex
+        suppressOverrideSpinnerUpdate = true
         binding.displayModeSpinner.setSelection(selectedPosition)
+        binding.displayModeSpinner.post { suppressOverrideSpinnerUpdate = false }
 
         binding.displayModeSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -327,6 +332,34 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
+    }
+
+    /** Rebuilds the override spinner adapter and selection when the global style changes. */
+    private fun refreshWorkspaceOverrideSpinner() {
+        if (!data.hasWorkspaceContext || data.label.isSpecialLabel) return
+
+        suppressOverrideSpinnerUpdate = true
+
+        val globalModeIndex = getGlobalDisplayModeIndex()
+        val noOverrideSuffix = " " + getString(R.string.no_override_suffix)
+        val modeNames = arrayOf(
+            getString(R.string.display_mode_highlight),
+            getString(R.string.display_mode_underline),
+            getString(R.string.display_mode_marker),
+            getString(R.string.display_mode_hidden),
+        )
+        val options = modeNames.mapIndexed { index, name ->
+            if (index == globalModeIndex) name + noOverrideSuffix else name
+        }.toTypedArray()
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.displayModeSpinner.adapter = adapter
+
+        val selectedPosition = data.workspaceOverride?.overrideMode ?: globalModeIndex
+        binding.displayModeSpinner.setSelection(selectedPosition)
+
+        binding.displayModeSpinner.post { suppressOverrideSpinnerUpdate = false }
     }
 
     private fun saveAndExit() {
@@ -452,7 +485,9 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
             setupWorkspaceOverrideUI()
 
             updateUI()
+            suppressOverrideSpinnerUpdate = true
             updateData()
+            suppressOverrideSpinnerUpdate = false
             updateUI()
 
             initialDataJson = data.toJSON()
@@ -469,7 +504,10 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
                 hideStyleWholeVerse,
             )) {
                 v.setOnCheckedChangeListener { _, _ ->
+                    suppressOverrideSpinnerUpdate = true
                     updateData()
+                    suppressOverrideSpinnerUpdate = false
+                    refreshWorkspaceOverrideSpinner()
                     updateUI()
                 }
             }

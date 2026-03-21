@@ -73,7 +73,9 @@ import {
     faMicrophone,
     faLandmark,
     faExclamationCircle,
-    faClock, faCross
+    faClock,
+    faCross,
+    faRobot
 } from "@fortawesome/free-solid-svg-icons";
 
 import {
@@ -125,7 +127,8 @@ export const customIconMap = new Map<string, Icon>(
         ["key", icon(faKey)],
         ["crown", icon(faCrown)],
         ["heart", icon(faHeart)],
-        ["heart-crack", icon(faHeartCrack)]
+        ["heart-crack", icon(faHeartCrack)],
+        ["robot", icon(faRobot)]
     ]
 );
 

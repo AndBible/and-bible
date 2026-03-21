@@ -79,6 +79,10 @@ class AgentSession(val workspaceId: IdType) {
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
     val logEntries: List<AgentLogEntry> get() = _logEntries.toList()
 
+    /** Raw LLM conversation log for debug inspection. */
+    var rawLlmLog: RawLlmLog? = null
+        private set
+
     @Volatile
     var isRunning: Boolean = false
         private set
@@ -92,13 +96,15 @@ class AgentSession(val workspaceId: IdType) {
         this.context = context
         this.isRunning = true
         _logEntries.clear()
+        rawLlmLog = RawLlmLog()
         addLogEntry(AgentLogEntry.info("Agent started"))
         ABEventBus.post(AgentSessionStatusChangedEvent(workspaceId, true))
     }
 
     fun stop(message: String? = null) {
         if (message != null) {
-            addLogEntry(AgentLogEntry.info(message))
+            val hasRawLog = rawLlmLog?.isEmpty() == false
+            addLogEntry(AgentLogEntry.info(message, showRawLogLink = hasRawLog))
         }
         this.isRunning = false
         this.job?.cancel()
@@ -128,6 +134,7 @@ class AgentSession(val workspaceId: IdType) {
 
     fun clearLog() {
         _logEntries.clear()
+        rawLlmLog = null
     }
 }
 
@@ -191,22 +198,30 @@ object AgentSessionManager : AgentSessionManagerBase() {
     suspend fun executePrompt(
         prompt: AgentPrompt,
         selection: Selection,
-        targetWindowId: IdType? = null
+        targetWindowId: IdType? = null,
+        additionalInstructions: String? = null,
+        previousResponse: String? = null,
+        skipCache: Boolean = false
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
 
         // Build AgentContext and CacheableContext
-        val context = buildAgentContext(prompt, selection)
+        val context = buildAgentContext(prompt, selection,
+            additionalInstructions = additionalInstructions,
+            previousResponse = previousResponse
+        )
         val cacheableContext = CacheableContext.fromAgentContext(context)
 
-        // Check cache
-        val cached = findCachedPage(prompt, cacheableContext)
-        if (cached != null) {
-            Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
-            // Open cached document directly
-            openAIDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
-            return
+        // Check cache (skipped during regeneration)
+        if (!skipCache) {
+            val cached = findCachedPage(prompt, cacheableContext)
+            if (cached != null) {
+                Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
+                // Open cached document directly
+                openMyDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
+                return
+            }
         }
 
         // Start session (prevent concurrent runs)
@@ -229,7 +244,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         // Execute via AgentExecutor
         val executor = AgentExecutor()
         try {
-            executor.execute(prompt.id, context).collect { event ->
+            executor.execute(prompt, context, session.rawLlmLog).collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
             }
         } catch (e: CancellationException) {
@@ -273,7 +288,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
-        selection: Selection
+        selection: Selection,
+        additionalInstructions: String? = null,
+        previousResponse: String? = null
     ): AgentContext {
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
@@ -368,9 +385,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
             windowId = windowControl.activeWindow.id,
             selectedText = selectedText,
             highlightedText = highlightedText,
+            selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
+            selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
             promptAllowedTools = prompt.allowedTools,
-            promptDeniedTools = prompt.deniedTools
+            promptDeniedTools = prompt.deniedTools,
+            noDocumentCreation = prompt.noDocumentCreation,
+            previousResponse = previousResponse,
+            additionalInstructions = additionalInstructions
         )
     }
 
@@ -443,28 +465,44 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     session.addLogEntry(
                         AgentLogEntry.info(app.getString(R.string.agent_log_response_received), details = event.text.take(200))
                     )
+                } else {
+                    val text = event.text.trim()
+                    if (text.isNotBlank()) {
+                        session.addLogEntry(AgentLogEntry.comment(text.take(300)))
+                    }
                 }
             }
             is AgentEvent.Completed -> {
-                // Extract title from response (first markdown H1 heading)
-                val (title, content) = extractTitleFromResponse(event.response, prompt.name, context.verseRefString)
+                if (context.noDocumentCreation) {
+                    // No document creation — just log the response
+                    session.addLogEntry(AgentLogEntry.info(
+                        app.getString(R.string.llm_no_document_creation_intercepted),
+                        details = event.response.take(500)
+                    ))
+                    session.stop(app.getString(R.string.agent_log_completed))
+                    attachTotalCost(session, event.usage, event.model)
+                } else {
+                    // Extract title from response (first markdown H1 heading)
+                    val (title, content) = extractTitleFromResponse(event.response, prompt.name, context.verseRefString)
 
-                // Save to AI Documents
-                val pageInfo = MyDocumentBookManager.saveAIResponse(
-                    response = content,
-                    title = title,
-                    sourcePromptId = context.promptId,
-                    cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get()
-                )
+                    // Save to AI Documents
+                    val pageInfo = MyDocumentBookManager.saveAIResponse(
+                        response = content,
+                        title = title,
+                        sourcePromptId = context.promptId,
+                        cacheableContext = cacheableContext,
+                        usedWriteTools = usedWriteToolsTracker.get(),
+                        sourceModelName = event.model.takeIf { it.isNotBlank() }
+                    )
 
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
+                    session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
-                // Open the page in target window or linked window
-                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                    // Open the page in target window or linked window
+                    openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model)
+                    session.stop(app.getString(R.string.agent_log_completed))
+                    attachTotalCost(session, event.usage, event.model)
+                }
             }
             is AgentEvent.CompletedWithDocument -> {
                 // LLM explicitly provided title and content via setDocumentTitle tool
@@ -473,13 +511,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     title = event.title,
                     sourcePromptId = context.promptId,
                     cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get()
+                    usedWriteTools = usedWriteToolsTracker.get(),
+                    sourceModelName = event.model.takeIf { it.isNotBlank() }
                 )
 
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
 
                 // Open the page in target window or linked window
-                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
@@ -493,6 +532,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 linkControl.openStudyPad(event.labelId, event.scrollToEntryId)
+                session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage, event.model)
+            }
+            is AgentEvent.CompletedWithMyDocumentPage -> {
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId)
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
             }
@@ -541,7 +586,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    private suspend fun openAIDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
+    private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
         if (targetWindowId != null) {
             val window = windowControl.windowRepository.getWindow(targetWindowId)
             if (window != null) {
@@ -555,10 +600,17 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 }
             }
         }
-        linkControl.openAIDocument(documentInitials, pageKey)
+        withContext(Dispatchers.Main) {
+            linkControl.openAIDocument(documentInitials, pageKey)
+        }
     }
 
-    suspend fun regenerateAIDocument(pageId: IdType, targetWindowId: IdType? = null): Boolean {
+    suspend fun regenerateAIDocument(
+        pageId: IdType,
+        targetWindowId: IdType? = null,
+        additionalInstructions: String? = null,
+        keepPrevious: Boolean = false
+    ): Boolean {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
         val session = activeSessions[workspaceId]
@@ -588,6 +640,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val prompt = PromptRepository.promptById(promptId)
         if (prompt == null) {
             Log.w(TAG, "Cannot regenerate: prompt not found: $promptId")
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    BibleApplication.application,
+                    R.string.ai_regenerate_prompt_not_found,
+                    Toast.LENGTH_LONG
+                ).show()
+            }
             return false
         }
 
@@ -598,6 +657,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             Log.w(TAG, "Cannot regenerate: no cache entry for page: $pageId")
             return false
         }
+
+        // Read previous response before potentially deleting the page
+        val previousContent = dao.getContent(pageId)
 
         val kjvOrdinalStart = cacheEntry.kjvOrdinalStart
         val kjvOrdinalEnd = cacheEntry.kjvOrdinalEnd
@@ -642,9 +704,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
             return false
         }
 
-        // Delete old page first to avoid cache hit, then execute the prompt
-        MyDocumentBookManager.deleteAIDocumentPage(pageId)
-        executePrompt(prompt, selection, targetWindowId = targetWindowId)
+        if (!keepPrevious) {
+            MyDocumentBookManager.deleteAIDocumentPage(pageId)
+        }
+        executePrompt(
+            prompt, selection,
+            targetWindowId = targetWindowId,
+            additionalInstructions = additionalInstructions,
+            previousResponse = previousContent,
+            skipCache = true
+        )
         return true
     }
 

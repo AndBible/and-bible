@@ -1,0 +1,57 @@
+/*
+ * Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+ *
+ * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+ *
+ * AndBible is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with AndBible.
+ * If not, see http://www.gnu.org/licenses/.
+ */
+
+package net.bible.service.common
+
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.AgentTool
+import net.bible.service.llm.GlobalAiSettings
+import net.bible.service.llm.agent.PermissionMode
+
+/**
+ * Accessor for global AI settings stored in the syncable AiSettingsDatabase.
+ * Each property reads/writes the [GlobalAiSettings] singleton row.
+ */
+object AiSettings {
+    private val dao get() = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
+
+    private fun getOrDefault(): GlobalAiSettings = dao.get() ?: GlobalAiSettings()
+
+    private fun update(transform: GlobalAiSettings.() -> GlobalAiSettings) {
+        dao.set(getOrDefault().transform())
+    }
+
+    var agentPermissionMode: PermissionMode
+        get() = getOrDefault().agentPermissionMode ?: PermissionMode.ALWAYS_ASK
+        set(value) = update { copy(agentPermissionMode = value) }
+
+    var permanentlyAllowedTools: Set<AgentTool>
+        get() = getOrDefault().permanentlyAllowedTools ?: emptySet()
+        set(value) = update { copy(permanentlyAllowedTools = value) }
+
+    var permanentlyDeniedTools: Set<AgentTool>
+        get() = getOrDefault().permanentlyDeniedTools ?: emptySet()
+        set(value) = update { copy(permanentlyDeniedTools = value) }
+
+    var aiExcludedDocuments: Set<String>
+        get() = getOrDefault().aiExcludedDocuments
+        set(value) = update { copy(aiExcludedDocuments = value) }
+
+    var commentaryMaxResponseTokens: Int
+        get() = getOrDefault().commentaryMaxResponseTokens
+        set(value) = update { copy(commentaryMaxResponseTokens = value) }
+}

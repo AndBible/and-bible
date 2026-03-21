@@ -524,15 +524,6 @@ interface BookmarkDao {
     @Insert fun insertBookmarkToLabels(entities: List<BibleBookmarkToLabel>)
     @Insert fun insertGenericBookmarkToLabels(entities: List<GenericBookmarkToLabel>)
 
-    @Query("SELECT * from Label WHERE name = '${SPEAK_LABEL_NAME}' LIMIT 1")
-    fun speakLabelByName(): Label?
-
-    @Query("SELECT * from Label WHERE name = '${PARAGRAH_BREAK_LABEL_NAME}' LIMIT 1")
-    fun paragraphBreakLabelByName(): Label?
-
-    @Query("SELECT * from Label WHERE name = '${UNLABELED_NAME}' LIMIT 1")
-    fun unlabeledLabelByName(): Label?
-
     @Query("DELETE FROM BibleBookmarkToLabel WHERE bookmarkId=:bookmarkId")
     fun deleteLabels(bookmarkId: IdType)
     fun deleteLabels(bookmark: BibleBookmarkWithNotes) = deleteLabels(bookmark.id)

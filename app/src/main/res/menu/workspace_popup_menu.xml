@@ -34,4 +34,7 @@
     <item android:id="@+id/copySettings"
         android:title="@string/copy_workspace_settings"
         />
+    <item android:id="@+id/copySettingsToGlobal"
+        android:title="@string/copy_settings_to_global"
+        />
 </menu>

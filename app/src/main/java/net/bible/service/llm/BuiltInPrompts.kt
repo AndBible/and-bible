@@ -64,6 +64,7 @@ object BuiltInPrompts {
     val TEST_STUDYPAD_READ_MODES_ID = stableId("test-studypad-read-modes")
     val TEST_REGENERATE_ID = stableId("test-regenerate")
     val TEST_CAPITALIZE_ID = stableId("test-capitalize")
+    val TEST_MY_DOCUMENTS_ID = stableId("test-my-documents")
 
     private fun getUiLanguageName(): String {
         val locale = Locale.getDefault()
@@ -146,7 +147,7 @@ object BuiltInPrompts {
                 promptTemplate = """
                     Analyze the original Hebrew/Greek words in the selected text.
                     If Strongs numbers are available, use getDictionaryEntry to look up definitions.
-                    Include links to dictionary entries: [Strong's G2316](sword://StrongsGreek/G2316)
+                    Include links to dictionary entries: [Strong's G2316](strongs://G2316)
                     Cite each dictionary source by name when referencing definitions.
                     Explain the etymology, usage, and theological significance of key terms.
                 """.trimIndent(),
@@ -403,6 +404,22 @@ object BuiltInPrompts {
                     Example: "In the beginning God created" → "IN the beginning God created"
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+            ),
+
+            AgentPrompt(
+                id = TEST_MY_DOCUMENTS_ID,
+                name = "\uD83E\uDDEA Test: My Documents",
+                description = "Test My Documents CRUD operations",
+                promptTemplate = """
+                    This is a test prompt for My Documents tools. Please:
+                    1. Use getMyDocuments to list all document books (note the AI Documents book details)
+                    2. Add a new page to the AI Documents book using addMyDocumentPage with a brief note about the selected verses
+                    3. Use getMyDocumentPages with initials='AIDocuments' to verify the page was created
+                    4. Edit the page title using editMyDocumentPage
+                    5. Call finishWithMyDocumentPage with the page ID to open the created page
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
             ),
         )

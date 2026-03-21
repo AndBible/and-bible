@@ -28,6 +28,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.shortId
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -43,6 +44,9 @@ object AddBookmarkNoteTool : Tool {
         val bookmarkId: IdType = IdType.empty(),
         val note: String = "",
         val contentType: TextContentType = TextContentType.MARKDOWN)
+
+    @Serializable
+    data class Result(val bookmarkId: IdType, val noteLength: Int, val contentType: String)
 
     override val agentTool = AgentTool.ADD_BOOKMARK_NOTE
 
@@ -72,6 +76,13 @@ object AddBookmarkNoteTool : Tool {
     override val displayNameResId = R.string.tool_add_bookmark_note
 
     private val bookmarkControl get() = BibleApplication.application.applicationComponent.bookmarkControl()
+
+    override suspend fun formatActionDescription(arguments: JSONObject): String? {
+        val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
+        val bookmark = try { bookmarkControl.bibleBookmarkById(IdType(bookmarkId)) } catch (_: Exception) { null }
+        val verseName = bookmark?.verseRange?.name ?: shortId(bookmarkId)
+        return BibleApplication.application.getString(R.string.action_add_note_to_bookmark_at, verseName)
+    }
 
     override fun formatArgsForLog(arguments: JSONObject): String? {
         val bookmarkId = arguments.optString("bookmarkId", "").takeIf { it.isNotBlank() } ?: return null
@@ -111,14 +122,19 @@ object AddBookmarkNoteTool : Tool {
             bookmark.notesContentType = args.contentType
             bookmark.notesSourcePromptId = context.promptId
 
-            // Save using BookmarkControl (sends UI events)
-            bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
+            // Ensure AI label is present on the bookmark
+            val existingLabelIds = bookmarkControl.labelsForBookmark(bookmark).map { it.id }.toSet()
+            val aiLabelId = bookmarkControl.aiLabel.id
+            val labels = if (aiLabelId !in existingLabelIds) existingLabelIds + aiLabelId else null
 
-            ToolResult.success {
-                put("bookmarkId", args.bookmarkId.toString())
-                put("noteLength", note.length)
-                put("contentType", args.contentType.name)
-            }
+            // Save using BookmarkControl (sends UI events)
+            bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
+
+            typedSuccess(Result(
+                bookmarkId = args.bookmarkId,
+                noteLength = note.length,
+                contentType = args.contentType.name
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to add note: ${e.message}", "ADD_ERROR")
         }

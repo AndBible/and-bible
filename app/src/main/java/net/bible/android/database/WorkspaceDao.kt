@@ -137,3 +137,12 @@ interface WorkspaceDao {
     @Query("DELETE FROM WorkspaceLabelOverride WHERE labelId = :labelId")
     fun deleteOverridesByLabelId(labelId: IdType)
 }
+
+@Dao
+interface GlobalTextDisplaySettingsDao {
+    @Query("SELECT * FROM GlobalTextDisplaySettings LIMIT 1")
+    fun get(): GlobalTextDisplaySettings?
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun set(settings: GlobalTextDisplaySettings)
+}

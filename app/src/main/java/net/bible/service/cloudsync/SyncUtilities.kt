@@ -105,6 +105,7 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "Window"),
             Table(tableName = "PageManager", idField1 = "windowId"),
             Table(tableName = "WorkspaceLabelOverride", idField1 = "workspaceId", idField2 = "labelId"),
+            Table(tableName = "GlobalTextDisplaySettings"),
         )
         READINGPLANS -> listOf(
             Table(tableName = "ReadingPlan"),
@@ -114,10 +115,13 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "MyDocument"),
             Table(tableName = "MyDocumentPage"),
             Table(tableName = "MyDocumentPageContent", idField1 = "pageId"),
+            Table(tableName = "AiPageCacheEntry", idField1 = "pageId"),
         )
         AI_SETTINGS -> listOf(
             Table(tableName = "AgentPrompt"),
             Table(tableName = "LlmProviderConfig"),
+            Table(tableName = "GlobalAiSettings"),
+            Table(tableName = "LlmUsageRecord"),
         )
         PROGRESS -> listOf(
             Table(tableName = "MemorizedVerse"),
