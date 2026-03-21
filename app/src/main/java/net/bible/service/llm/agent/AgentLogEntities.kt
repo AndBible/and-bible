@@ -62,8 +62,9 @@ data class AgentLogEntry(
             type = LogEntryType.PERMISSION_REQUEST, message = message, status = EntryStatus.PENDING, relatedPermission = permission
         )
 
-        fun error(message: String, details: String? = null) = AgentLogEntry(
-            type = LogEntryType.ERROR, message = message, details = details, status = EntryStatus.FAILED
+        fun error(message: String, details: String? = null, showRawLogLink: Boolean = false) = AgentLogEntry(
+            type = LogEntryType.ERROR, message = message, details = details, status = EntryStatus.FAILED,
+            showRawLogLink = showRawLogLink
         )
 
         fun comment(message: String) = AgentLogEntry(

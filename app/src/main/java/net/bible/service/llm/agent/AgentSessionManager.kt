@@ -550,11 +550,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 attachTotalCost(session, event.usage, event.model)
             }
             is AgentEvent.Error -> {
-                session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message))
+                val hasRawLog = session.rawLlmLog?.isEmpty() == false
+                session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message, showRawLogLink = hasRawLog))
                 session.stop()
             }
             is AgentEvent.Cancelled -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled)))
+                val hasRawLog = session.rawLlmLog?.isEmpty() == false
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled), showRawLogLink = hasRawLog))
                 session.stop()
             }
         }
