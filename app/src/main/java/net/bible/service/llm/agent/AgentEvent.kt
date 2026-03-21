@@ -77,6 +77,16 @@ sealed class AgentEvent {
         val model: String = ""
     ) : AgentEvent()
 
+    /** Agent called finishWithMyDocumentPage — opens an existing My Documents page. */
+    data class CompletedWithMyDocumentPage(
+        val documentInitials: String,
+        val pageKey: String,
+        val message: String,
+        val totalIterations: Int,
+        val usage: LlmUsage = LlmUsage(),
+        val model: String = ""
+    ) : AgentEvent()
+
     data class Error(val message: String, val cause: Throwable? = null) : AgentEvent()
     data object Cancelled : AgentEvent()
 }

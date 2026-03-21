@@ -43,6 +43,7 @@ import net.bible.service.llm.tools.write.CreateMyDocumentTool
 import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
 import net.bible.service.llm.tools.write.EditMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
+import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.write.UpdateBookmarkNoteTool
@@ -103,6 +104,7 @@ object ToolRegistry {
         register(DeleteMyDocumentPageTool)
         register(SetDocumentTitleTool)
         register(FinishWithStudyPadTool)
+        register(FinishWithMyDocumentPageTool)
         register(FinishWithoutDocumentTool)
 
         Log.i(TAG, "ToolRegistry initialized with ${tools.size} tools")
@@ -146,6 +148,7 @@ object ToolRegistry {
     val STRUCTURAL_TOOLS: Set<AgentTool> = setOf(
         AgentTool.SET_DOCUMENT_TITLE,
         AgentTool.FINISH_WITH_STUDY_PAD,
+        AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE,
         AgentTool.FINISH_WITHOUT_DOCUMENT
     )
 

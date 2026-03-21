@@ -219,7 +219,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             if (cached != null) {
                 Log.i(TAG, "Cache hit for prompt ${prompt.id}: opening ${cached.pageKey}")
                 // Open cached document directly
-                openAIDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
+                openMyDocumentResult(MyDocumentBookManager.AI_DOCUMENTS_INITIALS, cached.pageKey, targetWindowId)
                 return
             }
         }
@@ -498,7 +498,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
                     // Open the page in target window or linked window
-                    openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                    openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
                     session.stop(app.getString(R.string.agent_log_completed))
                     attachTotalCost(session, event.usage, event.model)
@@ -518,7 +518,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
 
                 // Open the page in target window or linked window
-                openAIDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
 
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
@@ -532,6 +532,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 linkControl.openStudyPad(event.labelId, event.scrollToEntryId)
+                session.stop(app.getString(R.string.agent_log_completed))
+                attachTotalCost(session, event.usage, event.model)
+            }
+            is AgentEvent.CompletedWithMyDocumentPage -> {
+                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
+                openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId)
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
             }
@@ -580,7 +586,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    private suspend fun openAIDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
+    private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
         if (targetWindowId != null) {
             val window = windowControl.windowRepository.getWindow(targetWindowId)
             if (window != null) {

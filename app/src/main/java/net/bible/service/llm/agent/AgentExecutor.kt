@@ -49,6 +49,7 @@ import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
+import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.ToolDefinition
@@ -93,6 +94,12 @@ private sealed class ProcessToolsResult {
     data class FinishWithStudyPad(
         val labelId: IdType,
         val scrollToEntryId: IdType?,
+        val message: String,
+        val context: AgentContext
+    ) : ProcessToolsResult()
+    data class FinishWithMyDocumentPage(
+        val documentInitials: String,
+        val pageKey: String,
         val message: String,
         val context: AgentContext
     ) : ProcessToolsResult()
@@ -201,6 +208,18 @@ class AgentExecutor(
                             emit(AgentEvent.CompletedWithStudyPad(
                                 labelId = result.labelId,
                                 scrollToEntryId = result.scrollToEntryId,
+                                message = result.message,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model
+                            ))
+                            return
+                        }
+                        is ProcessToolsResult.FinishWithMyDocumentPage -> {
+                            Log.d(TAG, "Agent finished with My Document page: ${result.documentInitials}/${result.pageKey}")
+                            emit(AgentEvent.CompletedWithMyDocumentPage(
+                                documentInitials = result.documentInitials,
+                                pageKey = result.pageKey,
                                 message = result.message,
                                 totalIterations = iteration,
                                 usage = totalUsage,
@@ -353,6 +372,15 @@ class AgentExecutor(
                             labelId = labelId,
                             scrollToEntryId = scrollToEntryId,
                             message = message,
+                            context = currentContext
+                        )
+                    }
+                    AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE -> {
+                        val data = result.data as? FinishWithMyDocumentPageTool.Result
+                        finishResult = ProcessToolsResult.FinishWithMyDocumentPage(
+                            documentInitials = data?.documentInitials ?: "",
+                            pageKey = data?.pageKey ?: "",
+                            message = data?.message ?: application.getString(R.string.llm_default_task_completed),
                             context = currentContext
                         )
                     }
