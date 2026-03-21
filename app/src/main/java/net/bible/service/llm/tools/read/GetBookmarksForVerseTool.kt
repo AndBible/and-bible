@@ -17,7 +17,9 @@
 
 package net.bible.service.llm.tools.read
 
+import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -26,6 +28,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.localizeVerseRef
+import net.bible.service.llm.tools.typedSuccess
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.crosswire.jsword.passage.PassageKeyFactory
@@ -42,6 +45,27 @@ import org.json.JSONObject
 object GetBookmarksForVerseTool : Tool {
     @Serializable
     data class Args(val verseRef: String = "")
+
+    @Serializable
+    data class LabelRef(val id: IdType, val name: String)
+
+    @Serializable
+    data class BookmarkInfo(
+        val id: IdType,
+        val verseRange: String,
+        val verseName: String,
+        val notes: String?,
+        val createdAt: Long,
+        val lastUpdatedOn: Long,
+        val labels: List<LabelRef>
+    )
+
+    @Serializable
+    data class Result(
+        val verseRef: String,
+        val bookmarkCount: Int,
+        val bookmarks: List<BookmarkInfo>
+    )
 
     override val agentTool = AgentTool.GET_BOOKMARKS_FOR_VERSE
     override val displayNameResId = R.string.tool_get_bookmarks_for_verse
@@ -69,10 +93,8 @@ object GetBookmarksForVerseTool : Tool {
     }
 
     override fun formatResultForLog(result: ToolResult): String? {
-        if (result !is ToolResult.Success || result.data !is JSONObject) return null
-        val data = result.data as JSONObject
-        val count = data.optInt("bookmarkCount", -1)
-        return if (count >= 0) "$count bookmarks" else null
+        if (result !is ToolResult.Success || result.data !is Result) return null
+        return application.getString(R.string.tool_log_bookmark_count, (result.data as Result).bookmarkCount)
     }
 
     override suspend fun execute(arguments: JSONObject, context: AgentContext): ToolResult {
@@ -104,33 +126,24 @@ object GetBookmarksForVerseTool : Tool {
             val labelsMap = btlList.groupBy({ it.bookmarkId }, { labelsById[it.labelId] })
                 .mapValues { it.value.filterNotNull() }
 
-            val results = JSONArray()
-            for (bookmark in bookmarks) {
+            val results = bookmarks.map { bookmark ->
                 val labels = labelsMap[bookmark.id] ?: emptyList()
-
-                results.put(JSONObject().apply {
-                    put("id", bookmark.id.toString())
-                    put("verseRange", bookmark.verseRange.osisRef)
-                    put("verseName", bookmark.verseRange.name)
-                    put("notes", bookmark.notes ?: JSONObject.NULL)
-                    put("createdAt", bookmark.createdAt.time)
-                    put("lastUpdatedOn", bookmark.lastUpdatedOn.time)
-                    put("labels", JSONArray().apply {
-                        for (label in labels) {
-                            put(JSONObject().apply {
-                                put("id", label.id.toString())
-                                put("name", label.name)
-                            })
-                        }
-                    })
-                })
+                BookmarkInfo(
+                    id = bookmark.id,
+                    verseRange = bookmark.verseRange.osisRef,
+                    verseName = bookmark.verseRange.name,
+                    notes = bookmark.notes,
+                    createdAt = bookmark.createdAt.time,
+                    lastUpdatedOn = bookmark.lastUpdatedOn.time,
+                    labels = labels.map { LabelRef(it.id, it.name) }
+                )
             }
 
-            ToolResult.success {
-                put("verseRef", verseRef)
-                put("bookmarkCount", results.length())
-                put("bookmarks", results)
-            }
+            typedSuccess(Result(
+                verseRef = verseRef,
+                bookmarkCount = results.size,
+                bookmarks = results
+            ))
         } catch (e: Exception) {
             ToolResult.error("Failed to get bookmarks: ${e.message}", "READ_ERROR")
         }

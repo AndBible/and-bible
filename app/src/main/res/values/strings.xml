@@ -1622,6 +1622,8 @@
     <string name="tool_log_label_count">%d labels</string>
     <string name="tool_log_document_count">%d documents</string>
     <string name="tool_log_study_pad_count">%d study pads</string>
+    <string name="tool_log_search_results">%1$d/%2$d results</string>
+    <string name="tool_log_bookmark_count">%d bookmarks</string>
     <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
     <string name="ai_document_filter_title">Document access</string>
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>

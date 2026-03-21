@@ -46,7 +46,7 @@ object AddBookmarkNoteTool : Tool {
         val contentType: TextContentType = TextContentType.MARKDOWN)
 
     @Serializable
-    data class Result(val bookmarkId: String, val noteLength: Int, val contentType: String)
+    data class Result(val bookmarkId: IdType, val noteLength: Int, val contentType: String)
 
     override val agentTool = AgentTool.ADD_BOOKMARK_NOTE
 
@@ -131,7 +131,7 @@ object AddBookmarkNoteTool : Tool {
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
 
             typedSuccess(Result(
-                bookmarkId = args.bookmarkId.toString(),
+                bookmarkId = args.bookmarkId,
                 noteLength = note.length,
                 contentType = args.contentType.name
             ))

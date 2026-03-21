@@ -60,7 +60,13 @@ object CreateBookmarkTool : Tool {
     )
 
     @Serializable
-    data class Result(val id: String, val verseRef: String, val verseName: String, val hasNote: Boolean, val labelCount: Int)
+    data class Result(
+        val id: IdType,
+        val verseRef: String,
+        val verseName: String,
+        val hasNote: Boolean,
+        val labelCount: Int
+    )
 
     override val agentTool = AgentTool.CREATE_BOOKMARK
 
@@ -200,7 +206,7 @@ object CreateBookmarkTool : Tool {
             )
 
             typedSuccess(Result(
-                id = savedBookmark.id.toString(),
+                id = savedBookmark.id,
                 verseRef = verseRange.osisRef,
                 verseName = verseRange.name,
                 hasNote = note != null,

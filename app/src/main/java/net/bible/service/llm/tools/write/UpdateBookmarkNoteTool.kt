@@ -44,7 +44,7 @@ object UpdateBookmarkNoteTool : Tool {
     )
 
     @Serializable
-    data class Result(val bookmarkId: String, val noteLength: Int, val previousNoteLength: Int)
+    data class Result(val bookmarkId: IdType, val noteLength: Int, val previousNoteLength: Int)
 
     override val agentTool = AgentTool.UPDATE_BOOKMARK_NOTE
 
@@ -117,7 +117,7 @@ object UpdateBookmarkNoteTool : Tool {
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = labels, updateNotes = true)
 
             typedSuccess(Result(
-                bookmarkId = args.bookmarkId.toString(),
+                bookmarkId = args.bookmarkId,
                 noteLength = note.length,
                 previousNoteLength = previousNoteLength
             ))

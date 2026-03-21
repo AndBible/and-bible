@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.write
 
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
 import net.bible.android.database.bookmarks.defaultLabelColor
 import net.bible.service.llm.AgentTool
@@ -44,7 +45,7 @@ object CreateLabelTool : Tool {
     )
 
     @Serializable
-    data class Result(val id: String, val name: String, val color: Int)
+    data class Result(val id: IdType, val name: String, val color: Int)
 
     override val agentTool = AgentTool.CREATE_LABEL
 
@@ -115,7 +116,7 @@ object CreateLabelTool : Tool {
             val savedLabel = bookmarkControl.insertOrUpdateLabel(label)
 
             typedSuccess(Result(
-                id = savedLabel.id.toString(),
+                id = savedLabel.id,
                 name = savedLabel.name,
                 color = savedLabel.color
             ))

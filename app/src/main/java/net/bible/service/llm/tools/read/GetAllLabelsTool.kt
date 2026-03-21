@@ -19,6 +19,7 @@ package net.bible.service.llm.tools.read
 
 import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
+import net.bible.android.database.IdType
 import net.bible.android.activity.R
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
@@ -36,7 +37,12 @@ import org.json.JSONObject
  */
 object GetAllLabelsTool : Tool {
     @Serializable
-    data class LabelInfo(val id: String, val name: String, val color: Int, val isFavourite: Boolean)
+    data class LabelInfo(
+        val id: IdType,
+        val name: String,
+        val color: Int,
+        val isFavourite: Boolean
+    )
 
     @Serializable
     data class Result(val labelCount: Int, val labels: List<LabelInfo>)
@@ -68,7 +74,12 @@ object GetAllLabelsTool : Tool {
 
             val results = labels
                 .filter { !it.isSpecialLabel }
-                .map { LabelInfo(it.id.toString(), it.name, it.color, it.favourite) }
+                .map { LabelInfo(
+                    id = it.id,
+                    name = it.name,
+                    color = it.color,
+                    isFavourite = it.favourite
+                ) }
 
             typedSuccess(Result(labelCount = results.size, labels = results))
         } catch (e: Exception) {

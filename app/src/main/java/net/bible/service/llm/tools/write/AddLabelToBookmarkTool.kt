@@ -44,7 +44,7 @@ object AddLabelToBookmarkTool : Tool {
     )
 
     @Serializable
-    data class Result(val bookmarkId: String, val labelId: String, val labelName: String)
+    data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
 
     override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
 
@@ -122,8 +122,8 @@ object AddLabelToBookmarkTool : Tool {
             bookmarkControl.addOrUpdateBibleBookmark(bookmark, labels = currentLabelIds)
 
             typedSuccess(Result(
-                bookmarkId = args.bookmarkId.toString(),
-                labelId = args.labelId.toString(),
+                bookmarkId = args.bookmarkId,
+                labelId = args.labelId,
                 labelName = label.name
             ))
         } catch (e: Exception) {

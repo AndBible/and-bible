@@ -48,7 +48,14 @@ object AddStudyPadEntryTool : Tool {
     )
 
     @Serializable
-    data class Result(val entryId: String, val labelId: String, val labelName: String, val textLength: Int, val contentType: String, val orderNumber: Int)
+    data class Result(
+        val entryId: IdType,
+        val labelId: IdType,
+        val labelName: String,
+        val textLength: Int,
+        val contentType: String,
+        val orderNumber: Int
+    )
 
     override val agentTool = AgentTool.ADD_STUDY_PAD_ENTRY
 
@@ -128,8 +135,8 @@ object AddStudyPadEntryTool : Tool {
             )
 
             typedSuccess(Result(
-                entryId = entry.id.toString(),
-                labelId = args.labelId.toString(),
+                entryId = entry.id,
+                labelId = args.labelId,
                 labelName = label.name,
                 textLength = text.length,
                 contentType = args.contentType.name,

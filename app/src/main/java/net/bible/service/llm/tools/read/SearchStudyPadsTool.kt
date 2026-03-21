@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.read
 import net.bible.android.BibleApplication
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
@@ -40,10 +41,15 @@ object SearchStudyPadsTool : Tool {
     data class Args(val query: String = "")
 
     @Serializable
-    data class MatchInfo(val entryId: String, val entryType: String, val textSnippet: String)
+    data class MatchInfo(val entryId: IdType, val entryType: String, val textSnippet: String)
 
     @Serializable
-    data class StudyPadMatch(val labelId: String, val labelName: String, val matchCount: Int, val matches: List<MatchInfo>)
+    data class StudyPadMatch(
+        val labelId: IdType,
+        val labelName: String,
+        val matchCount: Int,
+        val matches: List<MatchInfo>
+    )
 
     @Serializable
     data class Result(val query: String, val studyPadCount: Int, val results: List<StudyPadMatch>)
@@ -95,10 +101,10 @@ object SearchStudyPadsTool : Tool {
 
             val results = searchResults.map { sr ->
                 StudyPadMatch(
-                    labelId = sr.label.id.toString(),
+                    labelId = sr.label.id,
                     labelName = sr.label.name,
                     matchCount = sr.matchCount,
-                    matches = sr.matches.map { m -> MatchInfo(m.entryId.toString(), m.entryType.name, m.textSnippet) }
+                    matches = sr.matches.map { m -> MatchInfo(m.entryId, m.entryType.name, m.textSnippet) }
                 )
             }
 
