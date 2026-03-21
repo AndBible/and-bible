@@ -15,9 +15,9 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {inject, nextTick, onMounted, reactive, Ref} from "vue";
+import {nextTick, onMounted, reactive, Ref} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {appSettingsKey, configKey} from "@/types/constants";
+import {AppSettings, Config} from "@/composables/config";
 
 type MemorizationDelta = {
     addedMemorized: number[],
@@ -113,11 +113,9 @@ function createIndicatorElement(
     return line;
 }
 
-export function useMemorization() {
+export function useMemorization(config: Config, appSettings: AppSettings) {
     const memorized = reactive(new Set<number>());
     const targets = reactive(new Set<number>());
-    const config = inject(configKey)!;
-    const appSettings = inject(appSettingsKey)!;
 
     /** Merge data from a newly loaded document (infinite scroll adds chapters incrementally). */
     function mergeData(newMemorized: number[], newTargets: number[]) {

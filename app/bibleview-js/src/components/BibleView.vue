@@ -294,7 +294,7 @@ provide(calculatedConfigKey, calculatedConfig);
 provide(stringsKey, strings);
 provide(androidKey, android);
 
-const memorization = useMemorization();
+const memorization = useMemorization(config, appSettings);
 provide(memorizationKey, memorization);
 
 const ambiguousSelection = ref<InstanceType<typeof AmbiguousSelection> | null>(null);
