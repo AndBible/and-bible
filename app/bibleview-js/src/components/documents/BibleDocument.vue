@@ -26,9 +26,9 @@
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton && isExperimentalFeatureEnabled('reading_and_memorization')" class="mark-as-read-container">
-      <button class="mark-as-read-button" :class="{read: chapterRead, monochrome: appSettings.monochromeMode}" @click="onMarkAsRead">
+      <div class="button" :class="{read: chapterRead}" @click="onMarkAsRead">
         <FontAwesomeIcon :icon="faCheck"/> {{ chapterRead ? sprintf(strings.chapterMarkedRead, displayChapter) : sprintf(strings.markChapterRead, displayChapter) }}
-      </button>
+      </div>
     </div>
   </div>
 </template>
@@ -110,35 +110,10 @@ setupEventBusListener("update_memorization_data", () => nextTick(renderOverlays)
 .mark-as-read-container {
     text-align: center;
     padding: 12px 0;
-}
 
-.mark-as-read-button {
-    display: inline-block;
-    padding: 8px 20px;
-    border: 1px solid rgba(128, 128, 128, 0.4);
-    border-radius: 20px;
-    background: transparent;
-    color: inherit;
-    font-size: 0.85em;
-    cursor: pointer;
-    opacity: 0.7;
-    transition: opacity 0.2s, background-color 0.2s;
-}
-
-.mark-as-read-button:hover {
-    opacity: 1;
-}
-
-.mark-as-read-button.read {
-    opacity: 0.8;
-    border-color: rgba(46, 125, 50, 0.8);
-    color: rgb(46, 125, 50);
-    cursor: default;
-}
-
-.mark-as-read-button.read.monochrome {
-    border-color: currentColor;
-    color: inherit;
-    opacity: 0.6;
+    .button.read {
+        background-color: #4CAF50;
+        cursor: default;
+    }
 }
 </style>

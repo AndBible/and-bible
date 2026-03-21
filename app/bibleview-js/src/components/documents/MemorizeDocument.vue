@@ -50,18 +50,18 @@
 
   <!-- Mark as memorized / unmark button -->
   <div class="memorize-actions">
-    <button v-if="!isMemorized" class="memorize-action-btn" @click="markAsMemorized">
+    <div v-if="!isMemorized" class="button" @click="markAsMemorized">
       <FontAwesomeIcon :icon="faCheck"/> {{ strings.markAsMemorized }}
-    </button>
-    <button v-else class="memorize-action-btn memorized" @click="unmarkMemorized">
+    </div>
+    <div v-else class="button memorized" @click="unmarkMemorized">
       <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
-    </button>
-    <button v-if="isTarget && !isMemorized" class="memorize-action-btn target" @click="removeFromTargets">
+    </div>
+    <div v-if="isTarget && !isMemorized" class="button target" @click="removeFromTargets">
       <FontAwesomeIcon :icon="faBrain"/> {{ strings.removeFromTargets }}
-    </button>
-    <button v-if="!isTarget" class="memorize-action-btn" @click="addToTargets">
+    </div>
+    <div v-if="!isTarget" class="button" @click="addToTargets">
       <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
-    </button>
+    </div>
   </div>
 </template>
 
@@ -140,7 +140,12 @@ const isTarget = computed(() => {
 });
 
 function markAsMemorized() {
-    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
+    withVerseRange((b, s, e) => {
+        android.memorizeCompleted(b, s, e);
+        if (!isTarget.value) {
+            android.addMemorizationTarget(b, s, e);
+        }
+    });
 }
 
 function unmarkMemorized() {
@@ -218,35 +223,15 @@ h2 {
 .memorize-actions {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
   margin-top: 1em;
-}
 
-.memorize-action-btn {
-  padding: 8px 16px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background: transparent;
-  cursor: pointer;
-  font-size: 0.95em;
-  color: inherit;
-
-  &.memorized {
-    border-color: #4CAF50;
-    color: #4CAF50;
+  .button.memorized {
+    background-color: #4CAF50;
   }
 
-  &.target {
-    border-color: #9C27B0;
-    color: #9C27B0;
-  }
-
-  .night & {
-    border-color: #555;
-    &.memorized {
-      border-color: #4CAF50;
-      color: #4CAF50;
-    }
+  .button.target {
+    background-color: #9C27B0;
   }
 }
 </style>
