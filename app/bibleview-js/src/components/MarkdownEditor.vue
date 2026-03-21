@@ -449,6 +449,7 @@ function triggerAi() {
         editText.value,
         props.contentTypeName
     );
+    emit("close");
 }
 
 function handleKeyDown(e: KeyboardEvent) {
