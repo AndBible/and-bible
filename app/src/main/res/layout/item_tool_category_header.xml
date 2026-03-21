@@ -43,14 +43,14 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textStyle="bold" />
 
-    <com.google.android.material.checkbox.MaterialCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/readToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/tool_category_read"
         android:textSize="12sp" />
 
-    <com.google.android.material.checkbox.MaterialCheckBox
+    <androidx.appcompat.widget.AppCompatCheckBox
         android:id="@+id/writeToggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
