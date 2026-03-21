@@ -76,7 +76,7 @@ provide(footnoteCountKey, {getFootNoteCount});
 
 const containerRef = ref<HTMLElement | null>(null);
 const displayChapter = Math.max(1, props.document.chapterNumber);
-useReadingTracker(containerRef, appSettings, android, bookInitials, ordinalRange, displayChapter);
+useReadingTracker(containerRef, bookInitials, ordinalRange, displayChapter);
 
 const chapterRead = ref(false);
 

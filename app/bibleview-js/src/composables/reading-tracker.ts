@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -15,21 +15,21 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
-import {onMounted, onUnmounted, Ref, watch} from "vue";
-import {UseAndroid} from "@/composables/android";
-import {AppSettings} from "@/composables/config";
+import {inject, onMounted, onUnmounted, Ref, watch} from "vue";
 import {OrdinalRange} from "@/types/client-objects";
+import {androidKey, appSettingsKey} from "@/types/constants";
 
 const COVERAGE_THRESHOLD = 0.9;
 
 export function useReadingTracker(
     containerRef: Ref<HTMLElement | null>,
-    appSettings: AppSettings,
-    android: UseAndroid,
     bookInitials: string,
     ordinalRange: OrdinalRange,
     chapterNumber: number,
 ) {
+    const appSettings = inject(appSettingsKey)!;
+    const android = inject(androidKey)!;
+
     const seenOrdinals = new Set<number>();
     let observer: IntersectionObserver | null = null;
     let markedAsRead = false;
