@@ -126,6 +126,7 @@ enum class SyncableDatabaseDefinition {
         PROGRESS -> listOf(
             Table(tableName = "MemorizedVerse"),
             Table(tableName = "ChapterReadingRecord"),
+            Table(tableName = "MemorizationTarget"),
         )
     }
 
