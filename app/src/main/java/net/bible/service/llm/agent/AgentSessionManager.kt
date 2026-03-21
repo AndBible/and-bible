@@ -244,7 +244,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val usedWriteToolsTracker = AtomicBoolean(false)
 
         // Execute via AgentExecutor
-        val executor = AgentExecutor()
+        val effectiveMaxIterations = prompt.maxIterations ?: CommonUtils.aiSettings.maxIterations
+        val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
             executor.execute(prompt, context, session.rawLlmLog).collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)

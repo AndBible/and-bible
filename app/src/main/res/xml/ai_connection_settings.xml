@@ -65,6 +65,11 @@
             android:summary="@string/commentary_max_response_summary"
             android:icon="@drawable/ic_baseline_description_gray_24"
             />
+        <Preference android:key="agent_max_iterations"
+            android:title="@string/agent_max_iterations_title"
+            android:summary="@string/agent_max_iterations_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory

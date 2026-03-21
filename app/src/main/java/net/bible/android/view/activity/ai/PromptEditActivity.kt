@@ -66,6 +66,7 @@ class PromptEditActivity : ActivityBase() {
     private var initialModelOverrideSpinnerIndex = 0
     private var initialSpecifyBeforeRun = false
     private var initialNoDocumentCreation = false
+    private var initialMaxIterations = ""
     private var initialModelOverrideCustomText = ""
 
     private var currentAllowedTools: MutableSet<AgentTool> = mutableSetOf()
@@ -215,6 +216,7 @@ class PromptEditActivity : ActivityBase() {
         modelOverrideSpinner.isEnabled = false
         modelOverrideCustomInput.isEnabled = false
         btnPromptToolPermissions.isEnabled = false
+        maxIterationsInput.isEnabled = false
 
         builtInNotice.visibility = View.VISIBLE
     }
@@ -233,6 +235,7 @@ class PromptEditActivity : ActivityBase() {
             checkEditBeforeRun.isChecked = prompt.specifyBeforeRun
             checkNoDocumentCreation.isChecked = prompt.noDocumentCreation
             checkStrictContextMatching.isChecked = prompt.strictContextMatching
+            maxIterationsInput.setText(prompt.maxIterations?.toString() ?: "")
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
@@ -262,6 +265,7 @@ class PromptEditActivity : ActivityBase() {
         initialShowIn = collectShowIn()
         initialSpecifyBeforeRun = checkEditBeforeRun.isChecked
         initialNoDocumentCreation = checkNoDocumentCreation.isChecked
+        initialMaxIterations = maxIterationsInput.text.toString()
         initialStrictContextMatching = checkStrictContextMatching.isChecked
         initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
         initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
@@ -280,6 +284,7 @@ class PromptEditActivity : ActivityBase() {
                 collectShowIn() != initialShowIn ||
                 checkEditBeforeRun.isChecked != initialSpecifyBeforeRun ||
                 checkNoDocumentCreation.isChecked != initialNoDocumentCreation ||
+                maxIterationsInput.text.toString() != initialMaxIterations ||
                 checkStrictContextMatching.isChecked != initialStrictContextMatching ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
@@ -334,6 +339,7 @@ class PromptEditActivity : ActivityBase() {
         val deniedTools = currentToolDenied
         val specifyBeforeRun = binding.checkEditBeforeRun.isChecked
         val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
+        val maxIterations = binding.maxIterationsInput.text.toString().trim().toIntOrNull()
         val selectedProviderConfigId = getSelectedProviderConfigId()
         val selectedModelOverride = getSelectedModelOverride()
 
@@ -354,6 +360,7 @@ class PromptEditActivity : ActivityBase() {
                         providerConfigId = selectedProviderConfigId,
                         specifyBeforeRun = specifyBeforeRun,
                         noDocumentCreation = noDocumentCreation,
+                        maxIterations = maxIterations,
                     )
                     PromptRepository.insertPrompt(newPrompt)
                     savedPromptId = newPrompt.id
@@ -371,6 +378,7 @@ class PromptEditActivity : ActivityBase() {
                         it.providerConfigId = selectedProviderConfigId
                         it.specifyBeforeRun = specifyBeforeRun
                         it.noDocumentCreation = noDocumentCreation
+                        it.maxIterations = maxIterations
                         PromptRepository.updatePrompt(it)
                         savedPromptId = it.id
                     }

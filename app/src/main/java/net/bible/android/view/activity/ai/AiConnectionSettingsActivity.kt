@@ -99,6 +99,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var manageAiDocumentsPref: Preference
     private lateinit var commentaryMaxResponsePref: Preference
+    private lateinit var maxIterationsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -114,6 +115,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
+        maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -123,6 +125,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupToolPermissions()
         setupDocumentFilter()
         setupCommentaryMaxResponse()
+        setupMaxIterations()
         setupUsage()
         refreshProviderList()
         updateVisibility()
@@ -720,6 +723,48 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.commentary_max_response_no_limit)
         } else {
             getString(R.string.commentary_max_response_value, "%,d".format(value))
+        }
+    }
+
+    private fun setupMaxIterations() {
+        updateMaxIterationsSummary()
+        maxIterationsPref.setOnPreferenceClickListener {
+            val ctx = requireContext()
+            val input = EditText(ctx).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                setText(settings.maxIterations.toString())
+                selectAll()
+            }
+            val container = LinearLayout(ctx).apply {
+                orientation = LinearLayout.VERTICAL
+                val pad = (16 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad / 2, pad, 0)
+                addView(TextView(ctx).apply {
+                    text = getString(R.string.agent_max_iterations_summary)
+                    setPadding(0, 0, 0, pad / 2)
+                })
+                addView(input)
+            }
+            AlertDialog.Builder(ctx)
+                .setTitle(R.string.agent_max_iterations_title)
+                .setView(container)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    val value = input.text.toString().toIntOrNull() ?: 10
+                    settings.maxIterations = maxOf(0, value)
+                    updateMaxIterationsSummary()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun updateMaxIterationsSummary() {
+        val value = settings.maxIterations
+        maxIterationsPref.summary = if (value <= 0) {
+            getString(R.string.agent_max_iterations_summary) + " (unlimited)"
+        } else {
+            getString(R.string.agent_max_iterations_summary) + " ($value)"
         }
     }
 

@@ -59,4 +59,8 @@ object AiSettings {
     var hiddenBuiltInPrompts: Set<IdType>
         get() = getOrDefault().hiddenBuiltInPrompts
         set(value) = update { copy(hiddenBuiltInPrompts = value) }
+
+    var maxIterations: Int
+        get() = getOrDefault().maxIterations
+        set(value) = update { copy(maxIterations = value) }
 }
