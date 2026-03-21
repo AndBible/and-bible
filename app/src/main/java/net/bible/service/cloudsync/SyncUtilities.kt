@@ -117,6 +117,8 @@ enum class SyncableDatabaseDefinition {
         AI_SETTINGS -> listOf(
             Table(tableName = "AgentPrompt"),
             Table(tableName = "LlmProviderConfig"),
+            Table(tableName = "GlobalAiSettings"),
+            Table(tableName = "LlmUsageRecord"),
         )
     }
 

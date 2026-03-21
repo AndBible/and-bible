@@ -309,7 +309,7 @@ object GetCommentariesTool : Tool {
      * Returns null if the user cancels (meaning: abort the tool call entirely).
      */
     private suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>): FilterResult? {
-        val thresholdTokens = CommonUtils.settings.commentaryMaxResponseTokens
+        val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
         }

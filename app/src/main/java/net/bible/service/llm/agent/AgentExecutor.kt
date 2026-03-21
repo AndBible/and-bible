@@ -293,7 +293,7 @@ class AgentExecutor(
             if (execResult.grantAllToolsPermission) {
                 currentContext = currentContext.withAllToolsPermissionGranted()
             } else if (execResult.grantSessionPermission ||
-                ((currentContext.promptPermissionMode ?: CommonUtils.settings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
+                ((currentContext.promptPermissionMode ?: CommonUtils.aiSettings.agentPermissionMode) != PermissionMode.ALWAYS_ASK &&
                  result is ToolResult.Success && ToolRegistry.get(toolCall.tool)?.requiresPermission == true)) {
                 currentContext = currentContext.withWritePermissionGranted()
             }
@@ -546,9 +546,9 @@ class AgentExecutor(
         return when (checkPermission(
             tool = tool.agentTool,
             settings = PermissionSettings(
-                globalMode = CommonUtils.settings.agentPermissionMode,
-                permanentlyAllowedTools = CommonUtils.settings.permanentlyAllowedTools,
-                permanentlyDeniedTools = CommonUtils.settings.permanentlyDeniedTools,
+                globalMode = CommonUtils.aiSettings.agentPermissionMode,
+                permanentlyAllowedTools = CommonUtils.aiSettings.permanentlyAllowedTools,
+                permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
             ),
             promptAllowedTools = context.promptAllowedTools,
             promptDeniedTools = context.promptDeniedTools,
@@ -570,7 +570,7 @@ class AgentExecutor(
      */
     private fun computeExcludedTools(context: AgentContext): Set<AgentTool> =
         computeExcludedTools(
-            permanentlyDeniedTools = CommonUtils.settings.permanentlyDeniedTools,
+            permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
             promptAllowedTools = context.promptAllowedTools,
         )
@@ -606,10 +606,10 @@ class AgentExecutor(
                     title = activity.getString(R.string.permission_always_allow_confirm_title)
                 )
                 if (confirmed) {
-                    val settings = CommonUtils.settings
-                    settings.permanentlyAllowedTools += tool.agentTool
+                    val aiSettings = CommonUtils.aiSettings
+                    aiSettings.permanentlyAllowedTools += tool.agentTool
                     // Also remove from denied set if present
-                    settings.permanentlyDeniedTools -= tool.agentTool
+                    aiSettings.permanentlyDeniedTools -= tool.agentTool
                 }
                 // Allow this operation regardless of confirmation
                 DialogResult.Allowed

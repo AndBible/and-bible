@@ -116,7 +116,7 @@ class PromptToolPermissionsActivity : ActivityBase() {
         itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
         // Read tools: 3 options — Default (follows global) / Enabled (override) / Disabled (override)
-        val globallyDisabled = tool.agentTool in CommonUtils.settings.permanentlyDeniedTools
+        val globallyDisabled = tool.agentTool in CommonUtils.aiSettings.permanentlyDeniedTools
         val defaultLabel = if (globallyDisabled)
             getString(R.string.tool_option_default_disabled)
         else
@@ -141,8 +141,8 @@ class PromptToolPermissionsActivity : ActivityBase() {
         itemBinding.toolName.text = ToolRegistry.getDisplayName(tool)
 
         // Show global default hint in the "Ask" label
-        val globallyAllowed = tool.agentTool in CommonUtils.settings.permanentlyAllowedTools
-        val globallyDenied = tool.agentTool in CommonUtils.settings.permanentlyDeniedTools
+        val globallyAllowed = tool.agentTool in CommonUtils.aiSettings.permanentlyAllowedTools
+        val globallyDenied = tool.agentTool in CommonUtils.aiSettings.permanentlyDeniedTools
         if (globallyAllowed) {
             itemBinding.radioAsk.text = getString(R.string.tool_option_default_allowed)
         } else if (globallyDenied) {

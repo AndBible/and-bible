@@ -49,7 +49,7 @@ class GlobalToolPermissionsActivity : ActivityBase() {
     private data class ToolRow(val tool: Tool, val radioGroup: RadioGroup)
 
     private val toolRows = mutableListOf<ToolRow>()
-    private val settings get() = CommonUtils.settings
+    private val settings get() = CommonUtils.aiSettings
 
     private lateinit var binding: ActivityPromptToolPermissionsBinding
 
