@@ -17,7 +17,6 @@
 
 package net.bible.service.llm.tools
 
-import android.net.Uri
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jdom2.Content
@@ -59,16 +58,34 @@ object OsisToPlainText {
      * Module-qualified refs like "MHC:Matt.5.3" become "sword://MHC/Matt.5.3".
      * Plain refs like "Matt.5.3" become "sword:///Matt.5.3".
      */
+    /**
+     * URI-encodes an OSIS reference, preserving unreserved characters (RFC 3986)
+     * and OSIS-specific delimiters (dots, hyphens, colons).
+     */
+    private fun encodeOsisRef(ref: String): String {
+        val sb = StringBuilder(ref.length)
+        for (c in ref) {
+            if (c.isLetterOrDigit() || c in "-._~") {
+                sb.append(c)
+            } else {
+                for (byte in c.toString().toByteArray(Charsets.UTF_8)) {
+                    sb.append("%%%02X".format(byte.toInt() and 0xFF))
+                }
+            }
+        }
+        return sb.toString()
+    }
+
     internal fun osisRefToUrl(osisRef: String): String {
         val colonIndex = osisRef.indexOf(':')
         if (colonIndex > 0) {
             val prefix = osisRef.substring(0, colonIndex)
             if (prefix[0].isUpperCase()) {
                 val key = osisRef.substring(colonIndex + 1)
-                return "sword://$prefix/${Uri.encode(key)}"
+                return "sword://$prefix/${encodeOsisRef(key)}"
             }
         }
-        return "sword:///${Uri.encode(osisRef)}"
+        return "sword:///${encodeOsisRef(osisRef)}"
     }
 
     private fun walkElement(element: Element, sb: StringBuilder) {
