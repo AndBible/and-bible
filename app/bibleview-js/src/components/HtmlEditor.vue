@@ -186,6 +186,7 @@ const aiAction = {
             editText.value,
             props.contentTypeName
         );
+        emit('close');
     }
 }
 
