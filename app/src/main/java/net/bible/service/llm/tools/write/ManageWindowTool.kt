@@ -24,6 +24,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -61,6 +62,7 @@ object ManageWindowTool : Tool {
     )
 
     override val agentTool = AgentTool.MANAGE_WINDOW
+    override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_manage_window
 

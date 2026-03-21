@@ -23,6 +23,7 @@ import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.llm.tools.Tool
@@ -60,6 +61,7 @@ object CreateWindowTool : Tool {
     )
 
     override val agentTool = AgentTool.CREATE_WINDOW
+    override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_create_window
 

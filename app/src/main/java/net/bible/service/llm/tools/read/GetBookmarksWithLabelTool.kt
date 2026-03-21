@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -66,6 +67,7 @@ object GetBookmarksWithLabelTool : Tool {
     )
 
     override val agentTool = AgentTool.GET_BOOKMARKS_WITH_LABEL
+    override val category = ToolCategory.BOOKMARKS
     override val displayNameResId = R.string.tool_get_bookmarks_with_label
 
     override val description = """

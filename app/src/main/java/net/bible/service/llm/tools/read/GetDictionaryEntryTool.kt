@@ -23,6 +23,7 @@ import net.bible.android.control.link.isGreekDef
 import net.bible.android.control.link.isHebrewDef
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -57,6 +58,7 @@ object GetDictionaryEntryTool : Tool {
     data class Result(val dictionary: String, val dictionaryName: String, val key: String, val linkUrl: String, val text: String? = null, val osisXml: String? = null)
 
     override val agentTool = AgentTool.GET_DICTIONARY_ENTRY
+    override val category = ToolCategory.BIBLE_SEARCH
     override val displayNameResId = R.string.tool_get_dictionary_entry
 
     override val description = """

@@ -20,6 +20,7 @@ package net.bible.service.llm.tools
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.tools.read.GetAllLabelsTool
 import net.bible.service.llm.tools.read.GetBookmarksForVerseTool
 import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
@@ -240,6 +241,19 @@ object ToolRegistry {
      */
     fun getAllTools(): List<Tool> =
         tools.values.sortedWith(compareBy({ it.requiresPermission }, { getDisplayName(it) }))
+
+    /**
+     * Get configurable tools grouped by [ToolCategory], ordered by category ordinal.
+     * Within each category, read tools come first, then write tools, alphabetically.
+     */
+    fun getConfigurableToolsByCategory(): Map<ToolCategory, List<Tool>> =
+        getConfigurableTools()
+            .groupBy { it.category }
+            .toSortedMap(compareBy { it.ordinal })
+
+    /** Get the localized display name for a [ToolCategory]. */
+    fun getCategoryDisplayName(category: ToolCategory): String =
+        BibleApplication.application.getString(category.displayNameResId)
 
     /**
      * Clear all registered tools (mainly for testing).

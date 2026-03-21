@@ -24,6 +24,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.llm.tools.Tool
@@ -62,6 +63,7 @@ object SetWindowDocumentTool : Tool {
     )
 
     override val agentTool = AgentTool.SET_WINDOW_DOCUMENT
+    override val category = ToolCategory.WINDOWS
     override val requiresPermission = true
     override val displayNameResId = R.string.tool_set_window_document
 

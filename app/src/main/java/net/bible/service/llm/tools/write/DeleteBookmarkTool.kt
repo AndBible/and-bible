@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -47,6 +48,7 @@ object DeleteBookmarkTool : Tool {
     data class Result(val bookmarkId: IdType, val verseName: String)
 
     override val agentTool = AgentTool.DELETE_BOOKMARK
+    override val category = ToolCategory.BOOKMARKS
 
     override val description = """
         Delete a bookmark by its ID.

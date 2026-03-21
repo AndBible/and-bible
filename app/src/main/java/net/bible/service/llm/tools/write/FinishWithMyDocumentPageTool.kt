@@ -23,6 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -55,6 +56,7 @@ object FinishWithMyDocumentPageTool : Tool {
     )
 
     override val agentTool = AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE
+    override val category = ToolCategory.MY_DOCUMENTS
     override val displayNameResId = R.string.tool_finish_with_my_document_page
 
     override val description = """

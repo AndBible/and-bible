@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.android.activity.R
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Delete
@@ -32,6 +33,16 @@ import kotlinx.serialization.Serializable
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.PermissionMode
+
+/** UI-only grouping for tool permission screens. Does not affect database storage or agent logic. */
+enum class ToolCategory(val displayNameResId: Int) {
+    BIBLE_SEARCH(R.string.tool_category_bible_search),
+    BOOKMARKS(R.string.tool_category_bookmarks),
+    LABELS(R.string.tool_category_labels),
+    STUDY_PADS(R.string.tool_category_study_pads),
+    MY_DOCUMENTS(R.string.tool_category_my_documents),
+    WINDOWS(R.string.tool_category_windows),
+}
 
 /** All agent tools. Enum names are converted to camelCase for ToolRegistry / LLM function calling. */
 @Serializable

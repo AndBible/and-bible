@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -47,6 +48,7 @@ object AddLabelToBookmarkTool : Tool {
     data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
 
     override val agentTool = AgentTool.ADD_LABEL_TO_BOOKMARK
+    override val category = ToolCategory.LABELS
 
     override val description = """
         Add a label to an existing bookmark.

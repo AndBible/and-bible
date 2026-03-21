@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -58,6 +59,7 @@ object AddStudyPadEntryTool : Tool {
     )
 
     override val agentTool = AgentTool.ADD_STUDY_PAD_ENTRY
+    override val category = ToolCategory.STUDY_PADS
 
     override val description = """
         Add a text entry to a StudyPad (label).

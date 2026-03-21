@@ -23,6 +23,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities.BaseBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -49,6 +50,7 @@ object RemoveLabelFromBookmarkTool : Tool {
     data class Result(val bookmarkId: IdType, val labelId: IdType, val labelName: String)
 
     override val agentTool = AgentTool.REMOVE_LABEL_FROM_BOOKMARK
+    override val category = ToolCategory.LABELS
 
     override val description = """
         Remove a label from a bookmark without deleting either.

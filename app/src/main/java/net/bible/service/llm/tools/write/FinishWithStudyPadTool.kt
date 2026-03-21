@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -56,6 +57,7 @@ object FinishWithStudyPadTool : Tool {
     )
 
     override val agentTool = AgentTool.FINISH_WITH_STUDY_PAD
+    override val category = ToolCategory.STUDY_PADS
     override val displayNameResId = R.string.tool_finish_with_study_pad
 
     override val description = """

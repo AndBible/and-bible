@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -48,6 +49,7 @@ object DeleteLabelTool : Tool {
     data class Result(val labelId: IdType, val labelName: String, val deletedOrphanedBookmarks: Boolean)
 
     override val agentTool = AgentTool.DELETE_LABEL
+    override val category = ToolCategory.LABELS
 
     override val description = """
         Delete a label by its ID.

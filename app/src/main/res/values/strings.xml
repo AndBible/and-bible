@@ -1688,6 +1688,17 @@
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
     <string name="tool_section_read_tools">Read tools</string>
     <string name="tool_section_write_tools">Write tools</string>
+
+    <!-- Tool categories -->
+    <string name="tool_category_bible_search">Bible &amp; Search</string>
+    <string name="tool_category_bookmarks">Bookmarks</string>
+    <string name="tool_category_labels">Labels</string>
+    <string name="tool_category_study_pads">Study Pads</string>
+    <string name="tool_category_my_documents">My Documents</string>
+    <string name="tool_category_windows">Windows</string>
+    <string name="tool_category_read">Read</string>
+    <string name="tool_category_write">Write</string>
+    <string name="expand_collapse">Expand/collapse</string>
     <string name="tool_option_enabled">Enabled</string>
     <string name="tool_option_disabled">Disabled</string>
     <string name="tool_option_default_enabled">Default (enabled)</string>

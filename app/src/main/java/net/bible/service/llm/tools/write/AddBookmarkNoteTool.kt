@@ -22,6 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.TextContentType
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -49,6 +50,7 @@ object AddBookmarkNoteTool : Tool {
     data class Result(val bookmarkId: IdType, val noteLength: Int, val contentType: String)
 
     override val agentTool = AgentTool.ADD_BOOKMARK_NOTE
+    override val category = ToolCategory.BOOKMARKS
 
     override val description = """
         Add a note to an existing bookmark that doesn't have a note yet.

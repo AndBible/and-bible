@@ -20,6 +20,7 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -48,6 +49,7 @@ object FinishWithoutDocumentTool : Tool {
     )
 
     override val agentTool = AgentTool.FINISH_WITHOUT_DOCUMENT
+    override val category = ToolCategory.WINDOWS
     override val displayNameResId = R.string.tool_finish_without_document
 
     override val description = """

@@ -23,6 +23,7 @@ import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
 import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
@@ -68,6 +69,7 @@ object SearchByStrongsNumberTool : Tool {
     )
 
     override val agentTool = AgentTool.SEARCH_BY_STRONGS
+    override val category = ToolCategory.BIBLE_SEARCH
     override val displayNameResId = R.string.tool_search_by_strongs
 
     private data class VerseResult(val book: String, val osisRef: String, val verseName: String)
