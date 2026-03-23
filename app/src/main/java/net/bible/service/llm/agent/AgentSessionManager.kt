@@ -417,7 +417,10 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val app = BibleApplication.application
         when (event) {
             is AgentEvent.Started -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_executing, prompt.name)))
+                session.addLogEntry(AgentLogEntry.info(
+                    app.getString(R.string.agent_log_executing, prompt.name),
+                    details = event.model
+                ))
             }
             is AgentEvent.Iteration -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))

@@ -131,11 +131,10 @@ class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null): Flow<AgentEvent> = flow {
-        emit(AgentEvent.Started)
-
         try {
             val llmConfig = LlmModelConfig.fromPrompt(prompt)
-            val adapter = LlmProcessingService.resolveAdapter(llmConfig)
+            val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
+            emit(AgentEvent.Started(resolved.model))
             val messages = buildInitialMessages(prompt, context)
             val excludedTools = computeExcludedTools(context)
             val toolDefs = ToolRegistry.getToolDefinitions(excludedTools = excludedTools)
@@ -148,7 +147,7 @@ class AgentExecutor(
                 rawLlmLog?.addMessage(msg.role.name, msg.content)
             }
 
-            runAgentLoop(messages, toolDefs, adapter, context, llmConfig, rawLlmLog)
+            runAgentLoop(messages, toolDefs, resolved.adapter, context, llmConfig, rawLlmLog, resolved)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -165,13 +164,14 @@ class AgentExecutor(
         adapter: LlmApiAdapter,
         context: AgentContext,
         llmConfig: LlmModelConfig? = null,
-        rawLlmLog: RawLlmLog? = null
+        rawLlmLog: RawLlmLog? = null,
+        preResolved: LlmProcessingService.ResolvedProvider? = null
     ) {
         var iteration = 0
         var iterationLimit = if (maxIterations > 0) maxIterations else Int.MAX_VALUE
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
-        val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
+        val resolved = preResolved ?: LlmProcessingService.resolveFromConfig(llmConfig)
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
         loop@ while (true) {
