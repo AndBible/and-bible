@@ -21,6 +21,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
+import net.bible.service.llm.tools.ToolRegistry
 import java.util.Locale
 import java.util.UUID
 
@@ -98,6 +99,13 @@ object BuiltInPrompts {
      */
     fun productionPrompts(): List<AgentPrompt> = _productionPrompts
 
+    /**
+     * Computes the deny set for a given allow set: all non-structural tools NOT in [allowed].
+     * Used by built-in prompts to restrict tool visibility via [AgentPrompt.deniedTools].
+     */
+    private fun denyExcept(allowed: Set<AgentTool>): Set<AgentTool> =
+        AgentTool.entries.toSet() - allowed - ToolRegistry.STRUCTURAL_TOOLS
+
     /** Bible content read tools — the core set for most read-only prompts. */
     private val BIBLE_READ_TOOLS = setOf(
         AgentTool.GET_VERSE_CONTENT,
@@ -131,6 +139,7 @@ object BuiltInPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 allowedTools = emptySet(),
+                deniedTools = denyExcept(emptySet()),
             ),
 
             // 2. Summary
@@ -152,6 +161,7 @@ object BuiltInPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 allowedTools = BIBLE_READ_TOOLS,
+                deniedTools = denyExcept(BIBLE_READ_TOOLS),
             ),
 
             // 3. Explain Verses
@@ -180,6 +190,7 @@ object BuiltInPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
                 allowedTools = BIBLE_STUDY_TOOLS,
+                deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
             ),
 
             // 4. Word Study
@@ -209,6 +220,7 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 strictContextMatching = false,
                 allowedTools = BIBLE_STUDY_TOOLS,
+                deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
             ),
 
             // 5. Cross-References
@@ -236,6 +248,7 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 strictContextMatching = false,
                 allowedTools = BIBLE_READ_TOOLS,
+                deniedTools = denyExcept(BIBLE_READ_TOOLS),
             ),
 
             // 6. Compare Translations
@@ -271,6 +284,12 @@ object BuiltInPrompts {
                     AgentTool.GET_DICTIONARY_ENTRY,
                     AgentTool.SEARCH_BIBLE,
                 ),
+                deniedTools = denyExcept(setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_DICTIONARY_ENTRY,
+                    AgentTool.SEARCH_BIBLE,
+                )),
             ),
 
             // 7. Thematic Study → StudyPad
@@ -309,6 +328,15 @@ object BuiltInPrompts {
                     AgentTool.GET_ALL_LABELS,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 ),
+                deniedTools = denyExcept(BIBLE_READ_TOOLS + setOf(
+                    AgentTool.CREATE_BOOKMARK,
+                    AgentTool.ADD_BOOKMARK_NOTE,
+                    AgentTool.CREATE_LABEL,
+                    AgentTool.ADD_LABEL_TO_BOOKMARK,
+                    AgentTool.ADD_STUDY_PAD_ENTRY,
+                    AgentTool.GET_ALL_LABELS,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                )),
             ),
 
             // 8. Devotional Reflection
@@ -333,6 +361,7 @@ object BuiltInPrompts {
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
                 allowedTools = BIBLE_READ_TOOLS,
+                deniedTools = denyExcept(BIBLE_READ_TOOLS),
             ),
 
             // 9. Bookmark & Annotate
@@ -367,6 +396,14 @@ object BuiltInPrompts {
                     AgentTool.ADD_BOOKMARK_NOTE,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 ),
+                deniedTools = denyExcept(setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_COMMENTARIES,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.CREATE_BOOKMARK,
+                    AgentTool.ADD_BOOKMARK_NOTE,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                )),
             ),
 
             // 10. Open Study Layout
@@ -401,6 +438,14 @@ object BuiltInPrompts {
                     AgentTool.MANAGE_WINDOW,
                     AgentTool.SET_WINDOW_DOCUMENT,
                 ),
+                deniedTools = denyExcept(setOf(
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_WINDOWS,
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.CREATE_WINDOW,
+                    AgentTool.MANAGE_WINDOW,
+                    AgentTool.SET_WINDOW_DOCUMENT,
+                )),
             ),
 
             // 11. Enhance Note
@@ -444,6 +489,17 @@ object BuiltInPrompts {
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 ),
+                deniedTools = denyExcept(setOf(
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.GET_COMMENTARIES,
+                    AgentTool.GET_DICTIONARY_ENTRY,
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.SEARCH_BIBLE,
+                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
+                    AgentTool.UPDATE_BOOKMARK_NOTE,
+                    AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
+                    AgentTool.EDIT_MY_DOCUMENT_PAGE,
+                )),
             ),
 
             // 12. Ask a Question
@@ -460,6 +516,7 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 specifyBeforeRun = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
+                deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
             ),
 
             // 13. Custom Prompt

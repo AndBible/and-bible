@@ -1757,6 +1757,7 @@
 
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
+    <string name="prompt_tool_permissions_read_only">Tool permissions (read-only)</string>
     <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
     <string name="tool_section_read_tools">Read tools</string>
     <string name="tool_section_write_tools">Write tools</string>

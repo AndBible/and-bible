@@ -63,28 +63,26 @@ private const val DEFAULT_MAX_ITERATIONS = 10
 /**
  * Computes the set of tools to exclude from LLM tool definitions.
  *
- * When [promptAllowedTools] is set (non-null), only those tools are available to the prompt —
- * all others are excluded. This prevents new tools from automatically becoming available to
- * existing prompts. When [promptAllowedTools] is null, all tools are available (minus denied).
+ * Exclusion is deny-based: tools are excluded only if they appear in [permanentlyDeniedTools]
+ * or [promptDeniedTools]. [promptAvailableTools] overrides both deny sets, allowing built-in
+ * prompts to re-enable tools that the user has globally disabled.
  *
- * [promptAllowedTools] also overrides [permanentlyDeniedTools] for the tools it contains,
- * allowing built-in prompts to use tools that the user has globally disabled.
+ * Tool visibility (which tools the LLM can see) is controlled by [promptDeniedTools].
+ * Permission auto-allow (which tools bypass the permission dialog) is controlled by
+ * [AgentContext.promptAllowedTools] in [checkPermission], not here.
  *
  * Structural tools (setDocumentTitle, finishWithStudyPad, etc.) are never excluded.
  */
 fun computeExcludedTools(
     permanentlyDeniedTools: Set<AgentTool>,
     promptDeniedTools: Set<AgentTool>?,
-    promptAllowedTools: Set<AgentTool>?,
+    promptAvailableTools: Set<AgentTool>?,
 ): Set<AgentTool> {
     val excluded = mutableSetOf<AgentTool>()
     excluded.addAll(permanentlyDeniedTools)
-    if (promptAllowedTools != null) {
-        excluded.addAll(AgentTool.entries.toSet() - promptAllowedTools)
-    }
     promptDeniedTools?.let { excluded.addAll(it) }
-    // Prompt-level allow overrides global deny for tools in the allowlist
-    promptAllowedTools?.let { excluded.removeAll(it) }
+    // Prompt-level available overrides both global and prompt deny
+    promptAvailableTools?.let { excluded.removeAll(it) }
     excluded.removeAll(ToolRegistry.STRUCTURAL_TOOLS)
     return excluded
 }
@@ -131,11 +129,10 @@ class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
     fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null): Flow<AgentEvent> = flow {
-        emit(AgentEvent.Started)
-
         try {
             val llmConfig = LlmModelConfig.fromPrompt(prompt)
-            val adapter = LlmProcessingService.resolveAdapter(llmConfig)
+            val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
+            emit(AgentEvent.Started(resolved.model))
             val messages = buildInitialMessages(prompt, context)
             val excludedTools = computeExcludedTools(context)
             val toolDefs = ToolRegistry.getToolDefinitions(excludedTools = excludedTools)
@@ -148,7 +145,7 @@ class AgentExecutor(
                 rawLlmLog?.addMessage(msg.role.name, msg.content)
             }
 
-            runAgentLoop(messages, toolDefs, adapter, context, llmConfig, rawLlmLog)
+            runAgentLoop(messages, toolDefs, resolved.adapter, context, llmConfig, rawLlmLog, resolved)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -165,13 +162,14 @@ class AgentExecutor(
         adapter: LlmApiAdapter,
         context: AgentContext,
         llmConfig: LlmModelConfig? = null,
-        rawLlmLog: RawLlmLog? = null
+        rawLlmLog: RawLlmLog? = null,
+        preResolved: LlmProcessingService.ResolvedProvider? = null
     ) {
         var iteration = 0
         var iterationLimit = if (maxIterations > 0) maxIterations else Int.MAX_VALUE
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
-        val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
+        val resolved = preResolved ?: LlmProcessingService.resolveFromConfig(llmConfig)
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
         loop@ while (true) {
@@ -644,7 +642,7 @@ class AgentExecutor(
         computeExcludedTools(
             permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
-            promptAllowedTools = context.promptAllowedTools,
+            promptAvailableTools = context.promptAvailableTools,
         )
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */

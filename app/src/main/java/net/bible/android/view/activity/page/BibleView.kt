@@ -1183,8 +1183,8 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             val v11n = uri.getQueryParameter("v11n")
             val forceDoc = uri.getBooleanQueryParameter("force-doc", false)
             val book = Books.installed().getBook(doc)
-            if(ordinal != null) {
-                val bookKey = book!!.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
+            if(ordinal != null && ordinal.toIntOrNull() != null && book != null) {
+                val bookKey = book.getKey(osisRef).let {if(it is RangedPassage) it.first() else it }
                 linkControl.showLink(book, BookAndKey(bookKey, book, OrdinalRange(ordinal.toInt())))
             } else if (osisRef != null) {
                 linkControl.loadApplicationUrl(BibleLink("osis", osisRef.trim(), v11n, forceDoc = forceDoc), book)

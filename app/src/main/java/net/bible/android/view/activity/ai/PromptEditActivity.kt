@@ -215,7 +215,7 @@ class PromptEditActivity : ActivityBase() {
         providerOverrideSpinner.isEnabled = false
         modelOverrideSpinner.isEnabled = false
         modelOverrideCustomInput.isEnabled = false
-        btnPromptToolPermissions.isEnabled = false
+        // btnPromptToolPermissions stays enabled — opens in read-only mode for built-in prompts
         maxIterationsInput.isEnabled = false
 
         builtInNotice.visibility = View.VISIBLE
@@ -507,6 +507,9 @@ class PromptEditActivity : ActivityBase() {
                 PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS,
                 ArrayList(currentDeniedTools.map { it.name })
             )
+            if (isBuiltIn) {
+                putExtra(PromptToolPermissionsActivity.EXTRA_READ_ONLY, true)
+            }
         }
         toolPermissionsLauncher.launch(intent)
     }

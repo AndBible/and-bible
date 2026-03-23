@@ -56,6 +56,22 @@
             android:visibility="gone"
             android:maxLines="3"
             android:ellipsize="end" />
+
+        <!-- Raw LLM log link (separate tappable area) -->
+        <TextView
+            android:id="@+id/rawLogLink"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:textStyle="italic"
+            android:textColor="@color/log_info"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true"
+            android:text="@string/agent_log_view_raw"
+            android:background="?attr/selectableItemBackground" />
     </LinearLayout>
 
     <!-- Cost info (right-aligned, small) -->

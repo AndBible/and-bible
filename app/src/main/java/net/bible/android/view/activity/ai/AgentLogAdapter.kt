@@ -17,14 +17,6 @@
 
 package net.bible.android.view.activity.ai
 
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
-import android.text.style.StyleSpan
-import android.text.style.UnderlineSpan
-import android.graphics.Typeface
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -75,21 +67,16 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
         typeIcon.setColorFilter(context.getColor(typeColor))
 
-        // Set message, appending a clickable raw log link on the same line if applicable
+        // Set message text
+        messageText.text = entry.message
+
+        // Show raw log link as a separate tappable element
         if (entry.showRawLogLink) {
-            val linkText = context.getString(R.string.agent_log_view_raw)
-            val fullText = "${entry.message}  ·  $linkText"
-            val spannable = SpannableString(fullText)
-            val linkStart = fullText.length - linkText.length
-            spannable.setSpan(object : ClickableSpan() {
-                override fun onClick(widget: View) { onRawLogClick?.invoke() }
-            }, linkStart, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannable.setSpan(StyleSpan(Typeface.ITALIC), linkStart, fullText.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            messageText.text = spannable
-            messageText.movementMethod = LinkMovementMethod.getInstance()
+            rawLogLink.visibility = View.VISIBLE
+            rawLogLink.setOnClickListener { onRawLogClick?.invoke() }
         } else {
-            messageText.text = entry.message
-            messageText.movementMethod = null
+            rawLogLink.visibility = View.GONE
+            rawLogLink.setOnClickListener(null)
         }
 
         // Set details if available

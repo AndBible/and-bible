@@ -24,7 +24,7 @@ import net.bible.service.llm.tools.ToolResult
 
 /** Events emitted during agent execution for UI progress tracking. */
 sealed class AgentEvent {
-    data object Started : AgentEvent()
+    data class Started(val model: String) : AgentEvent()
     data class Iteration(val number: Int) : AgentEvent()
 
     data class ToolCalling(

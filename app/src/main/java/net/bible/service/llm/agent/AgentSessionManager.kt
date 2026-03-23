@@ -31,6 +31,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmUsage
@@ -381,6 +382,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         // Get highlighted text (specific words selected by user) if available
         val highlightedText = selection.text.takeIf { it.isNotBlank() }
 
+        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+
         return AgentContext(
             promptId = prompt.id,
             selectedVerseRange = verseRange,
@@ -392,7 +395,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
             selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
-            promptAllowedTools = prompt.allowedTools,
+            promptAvailableTools = prompt.allowedTools,
+            // Built-in prompts: no permission auto-allow — rely on permissionMode instead
+            promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
             promptDeniedTools = prompt.deniedTools,
             noDocumentCreation = prompt.noDocumentCreation,
             previousResponse = previousResponse,
@@ -417,7 +422,10 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val app = BibleApplication.application
         when (event) {
             is AgentEvent.Started -> {
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_executing, prompt.name)))
+                session.addLogEntry(AgentLogEntry.info(
+                    app.getString(R.string.agent_log_executing, prompt.name),
+                    details = event.model
+                ))
             }
             is AgentEvent.Iteration -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_iteration, event.number)))

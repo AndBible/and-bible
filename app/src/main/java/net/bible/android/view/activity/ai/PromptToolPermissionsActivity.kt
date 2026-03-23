@@ -41,10 +41,12 @@ class PromptToolPermissionsActivity : ActivityBase() {
     companion object {
         const val EXTRA_ALLOWED_TOOLS = "allowed_tools"
         const val EXTRA_DENIED_TOOLS = "denied_tools"
+        const val EXTRA_READ_ONLY = "read_only"
     }
 
     private var initialAllowed = emptySet<AgentTool>()
     private var initialDenied = emptySet<AgentTool>()
+    private var readOnly = false
 
     private lateinit var binding: ActivityPromptToolPermissionsBinding
     private lateinit var listBuilder: ToolPermissionListBuilder
@@ -65,6 +67,8 @@ class PromptToolPermissionsActivity : ActivityBase() {
         initialAllowed = allowedTools
         initialDenied = deniedTools
 
+        readOnly = intent.getBooleanExtra(EXTRA_READ_ONLY, false)
+
         listBuilder = ToolPermissionListBuilder(this, binding.toolListContainer, ToolPermissionListBuilder.Mode.PROMPT)
         listBuilder.build(
             allowedTools = allowedTools,
@@ -72,6 +76,11 @@ class PromptToolPermissionsActivity : ActivityBase() {
             globalAllowed = CommonUtils.aiSettings.permanentlyAllowedTools,
             globalDenied = CommonUtils.aiSettings.permanentlyDeniedTools,
         )
+
+        if (readOnly) {
+            title = getString(R.string.prompt_tool_permissions_read_only)
+            listBuilder.setReadOnly()
+        }
     }
 
     private fun isDirty(): Boolean =
@@ -101,6 +110,14 @@ class PromptToolPermissionsActivity : ActivityBase() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.prompt_tool_permissions_menu, menu)
         return true
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        if (readOnly) {
+            menu.findItem(R.id.save_permissions)?.isVisible = false
+            menu.findItem(R.id.reset_all)?.isVisible = false
+        }
+        return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

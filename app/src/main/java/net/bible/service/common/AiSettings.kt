@@ -63,4 +63,8 @@ object AiSettings {
     var maxIterations: Int
         get() = getOrDefault().maxIterations
         set(value) = update { copy(maxIterations = value) }
+
+    var commentaryDeselected: Set<String>
+        get() = getOrDefault().commentaryDeselected
+        set(value) = update { copy(commentaryDeselected = value) }
 }
