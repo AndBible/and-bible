@@ -26,4 +26,8 @@ private val addSourceModelName = makeMigration(1..2) { db ->
     db.execSQL("CREATE VIEW `AiCachedPageWithContent` AS SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,\n           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,\n           p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId")
 }
 
-val myDocumentMigrations: Array<Migration> = arrayOf(addSourceModelName)
+private val addOrdinalRangeIndex = makeMigration(2..3) { db ->
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_kjvOrdinalStart_kjvOrdinalEnd` ON `AiPageCacheEntry` (`kjvOrdinalStart`, `kjvOrdinalEnd`)")
+}
+
+val myDocumentMigrations: Array<Migration> = arrayOf(addSourceModelName, addOrdinalRangeIndex)

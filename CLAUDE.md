@@ -170,6 +170,8 @@ CommonUtils.settings.setBoolean("key", value)
 val actualSetting = TextDisplaySettings.actual(windowSettings, workspaceSettings)
 ```
 
+**Adding a new TextDisplaySetting:** See [docs/adding-text-display-setting.md](docs/adding-text-display-setting.md) for the full checklist (database, migration, XML, strings, Kotlin, Vue.js).
+
 ### Database Access
 ```kotlin
 val dao = DatabaseContainer.instance.workspaceDb.workspaceDao()

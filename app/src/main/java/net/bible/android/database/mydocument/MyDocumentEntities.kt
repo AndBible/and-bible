@@ -133,7 +133,8 @@ interface BaseMyDocumentPage {
     ],
     indices = [
         Index(value = ["sourcePromptId", "contextHash"]),
-        Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"])
+        Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"]),
+        Index(value = ["kjvOrdinalStart", "kjvOrdinalEnd"])
     ]
 )
 data class AiPageCacheEntry(
@@ -145,6 +146,21 @@ data class AiPageCacheEntry(
     var contextHash: String?,
     var usedWriteTools: Boolean = false,
     var sourceModelName: String? = null
+)
+
+/**
+ * Lightweight projection for AI document markers shown in Bible view.
+ * Returned by [MyDocumentDao.aiDocMarkersForRange].
+ */
+data class AiDocMarkerInfo(
+    val pageId: IdType,
+    val documentId: IdType,
+    val documentInitials: String,
+    val pageTitle: String,
+    val pageKey: String,
+    val kjvOrdinalStart: Int,
+    val kjvOrdinalEnd: Int,
+    val sourcePromptId: IdType?,
 )
 
 /**

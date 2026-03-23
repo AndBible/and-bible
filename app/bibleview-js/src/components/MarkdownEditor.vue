@@ -471,6 +471,24 @@ function handleKeyDown(e: KeyboardEvent) {
         return;
     }
 
+    if ((e.ctrlKey || e.metaKey) && e.key === "b") {
+        e.preventDefault();
+        wrapSelection("**", "**");
+        return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === "i") {
+        e.preventDefault();
+        wrapSelection("*", "*");
+        return;
+    }
+
+    if ((e.ctrlKey || e.metaKey) && e.key === "u") {
+        e.preventDefault();
+        wrapSelection("<u>", "</u>");
+        return;
+    }
+
     if (e.key === "Enter") {
         const ta = textareaEl.value;
         if (!ta) return;

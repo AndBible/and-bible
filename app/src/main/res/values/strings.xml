@@ -1844,4 +1844,7 @@
     <string name="my_document_import_document">Import files as document</string>
     <string name="my_document_import_empty_selection">No importable files selected</string>
     <string name="my_document_export_success">Pages exported successfully</string>
+    <string name="ai_doc_choose_page">Choose AI document page</string>
+    <string name="prefs_show_ai_doc_markers_title">Show AI document markers</string>
+    <string name="prefs_show_ai_doc_markers_summary">Show marker icons for AI-generated document pages linked to verses</string>
 </resources>

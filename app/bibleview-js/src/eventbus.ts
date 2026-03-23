@@ -50,6 +50,8 @@ type EventTypeNames =
     | "start_mydocument_edit"
     | "update_memorization_data"
     | "update_chapter_read_status"
+    | "add_or_update_ai_doc_markers"
+    | "delete_ai_doc_markers"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 

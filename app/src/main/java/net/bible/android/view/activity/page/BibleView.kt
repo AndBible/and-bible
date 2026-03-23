@@ -90,6 +90,7 @@ import net.bible.android.control.link.LinkControl
 import net.bible.android.control.link.WindowMode
 import net.bible.android.control.page.BibleDocument
 import net.bible.android.control.page.MemorizeDocument
+import net.bible.android.control.page.ClientAiDocMarker
 import net.bible.android.control.page.ClientBibleBookmark
 import net.bible.android.control.page.ClientBookmarkLabel
 import net.bible.android.control.page.ClientGenericBookmark
@@ -140,9 +141,8 @@ import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
-import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.sword.BookAndKey
-import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.epub.EpubBackend
 import net.bible.service.sword.epub.isEpub
@@ -1792,6 +1792,21 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
             kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
         });""")
+    }
+
+    fun onEvent(event: AiDocPagesChangedEvent) {
+        val doc = firstDocument
+        if (doc !is BibleDocument) return
+        val v11n = doc.swordBook.versification
+
+        if (event.markers.isNotEmpty()) {
+            val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")
+            executeJavascriptOnUiThread("""bibleView.emit("add_or_update_ai_doc_markers", $markerStr);""")
+        }
+        if (event.deletedPageIds.isNotEmpty()) {
+            val idsStr = json.encodeToString(serializer(), event.deletedPageIds.map { it.toString() })
+            executeJavascriptOnUiThread("""bibleView.emit("delete_ai_doc_markers", $idsStr);""")
+        }
     }
 
     fun onEvent(event: BookmarkNoteModifiedEvent) {

@@ -62,6 +62,10 @@ val UNLABELED_LABEL_ID = IdType("00000000-0000-ab1e-0000-001abe1ed001")
 val PARAGRAPH_BREAK_LABEL_ID = IdType("00000000-0000-ab1e-0000-ba4a64a30001")
 val AI_LABEL_ID = IdType("00000000-0000-ab1e-0000-a100000001a1")
 
+/** Fixed ID for the AI doc marker pseudo-label. Not a real database label —
+ *  the style is hardcoded on the Vue.js side in bookmarks.ts. */
+const val AI_DOC_LABEL_ID = "00000000-0000-ab1e-0000-a1d0c00001a1"
+
 /**
  * How to represent bookmarks
  *

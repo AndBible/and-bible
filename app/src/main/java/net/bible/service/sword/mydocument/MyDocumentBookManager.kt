@@ -21,6 +21,7 @@ import android.util.Log
 import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
+import net.bible.android.database.mydocument.AiDocMarkerInfo
 import net.bible.android.database.mydocument.AiPageCacheEntry
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
@@ -40,6 +41,18 @@ private const val TAG = "MyDocumentBookManager"
  * Used to invalidate caches that depend on the document's key list.
  */
 class MyDocumentUpdatedEvent(val initials: String)
+
+/**
+ * Event posted when AI document pages are created, updated, or deleted.
+ * BibleView listens for this to refresh AI doc marker icons in the Bible text.
+ *
+ * For adds/updates: [markers] contains the current markers for the affected range.
+ * For deletes: [deletedPageIds] contains the IDs of removed pages.
+ */
+class AiDocPagesChangedEvent(
+    val markers: List<AiDocMarkerInfo> = emptyList(),
+    val deletedPageIds: List<IdType> = emptyList(),
+)
 
 /**
  * Extension property to check if a book is a MyDocument.
@@ -389,6 +402,13 @@ object MyDocumentBookManager {
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId
         dao.insertPageWithCacheEntry(page, response, cacheEntry)
         refreshDocument(aiDocument.initials)
+        val start = cacheableContext.kjvOrdinalStart
+        val end = cacheableContext.kjvOrdinalEnd
+        if (start != null && end != null) {
+            val markers = dao.aiDocMarkersForRange(start, end)
+            ABEventBus.post(AiDocPagesChangedEvent(markers))
+        }
+        // No event needed when ordinals are null — no marker exists without them
 
         Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")
         return SavedPageInfo(aiDocument.initials, page.pageKey)

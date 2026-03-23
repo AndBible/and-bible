@@ -55,7 +55,7 @@ provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, origin
 const containerRef = ref<HTMLElement | null>(null);
 
 const globalBookmarks = inject(globalBookmarksKey)!;
-globalBookmarks.updateBookmarks(bookmarks);
+globalBookmarks.updateBookmarks([...bookmarks, ...(props.document.aiDocMarkers ?? [])]);
 
 const memorization = inject(memorizationKey)!;
 if (props.document.memorizedOrdinals) {

@@ -58,6 +58,7 @@ import net.bible.android.view.activity.page.MarginSizePreference
 import net.bible.android.view.activity.page.FootnotesInlinePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.NonStrongsWordItalicPreference
+import net.bible.android.view.activity.page.AiDocMarkersPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
@@ -140,6 +141,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)
         Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
         Types.AUTO_TRACK_READING -> ItemPreference(settings, Types.AUTO_TRACK_READING)
+        Types.AI_DOC_MARKERS -> AiDocMarkersPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {

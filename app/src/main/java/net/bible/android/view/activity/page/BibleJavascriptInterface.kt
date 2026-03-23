@@ -87,6 +87,13 @@ import java.io.File
 import java.lang.ClassCastException
 
 
+@Serializable
+private data class AiDocPageRef(
+    val title: String,
+    val documentInitials: String,
+    val pageKey: String,
+)
+
 class BibleJavascriptInterface(
 	private val bibleView: BibleView
 ) {
@@ -559,6 +566,34 @@ class BibleJavascriptInterface(
     fun openMyNotes(v11n: String, ordinal: Int) {
         scope.launch(Dispatchers.Main) {
             linkControl.openMyNotes(v11n, ordinal)
+        }
+    }
+
+    @JavascriptInterface
+    fun openAiDocPage(documentInitials: String, pageKey: String) {
+        scope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(documentInitials) ?: return@launch
+            val key = book.getKey(pageKey) ?: return@launch
+            linkControl.showLink(book, key)
+        }
+    }
+
+    @JavascriptInterface
+    fun openAiDocPageChooser(markersJson: String) {
+        scope.launch(Dispatchers.Main) {
+            val markers: List<AiDocPageRef> = json.decodeFromString(serializer(), markersJson)
+            if (markers.isEmpty()) return@launch
+            if (markers.size == 1) {
+                openAiDocPage(markers[0].documentInitials, markers[0].pageKey)
+                return@launch
+            }
+            val titles = markers.map { it.title }.toTypedArray()
+            AlertDialog.Builder(mainBibleActivity)
+                .setTitle(R.string.ai_doc_choose_page)
+                .setItems(titles) { _, which ->
+                    openAiDocPage(markers[which].documentInitials, markers[which].pageKey)
+                }
+                .show()
         }
     }
 

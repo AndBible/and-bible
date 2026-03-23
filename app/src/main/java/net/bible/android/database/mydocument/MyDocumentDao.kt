@@ -147,6 +147,24 @@ interface MyDocumentDao {
         kjvOrdinalEnd: Int
     ): AiCachedPageWithContent?
 
+    // ==================== AI doc markers (verse-range lookup) ====================
+
+    /**
+     * Find AI document pages whose KJV ordinal range overlaps the given range.
+     * Used to show AI doc marker icons in Bible view.
+     */
+    @Query("""
+        SELECT c.pageId, p.documentId, d.initials AS documentInitials,
+               p.title AS pageTitle, p.pageKey, c.kjvOrdinalStart, c.kjvOrdinalEnd,
+               c.sourcePromptId
+        FROM AiPageCacheEntry c
+        INNER JOIN MyDocumentPage p ON c.pageId = p.id
+        INNER JOIN MyDocument d ON p.documentId = d.id
+        WHERE c.kjvOrdinalStart IS NOT NULL AND c.kjvOrdinalEnd IS NOT NULL
+          AND c.kjvOrdinalStart <= :rangeEnd AND c.kjvOrdinalEnd >= :rangeStart
+    """)
+    fun aiDocMarkersForRange(rangeStart: Int, rangeEnd: Int): List<AiDocMarkerInfo>
+
     // ==================== Transaction helpers ====================
 
     @Transaction

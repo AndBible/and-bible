@@ -66,6 +66,7 @@ export type Config = {
 
     showBookmarks: boolean,
     showMyNotes: boolean,
+    showAiDocMarkers: boolean,
     bookmarksHideLabels: IdType[],
     bookmarksAssignLabels: IdType[],
 
@@ -168,6 +169,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
 
         showBookmarks: true,
         showMyNotes: true,
+        showAiDocMarkers: true,
         bookmarksHideLabels: [],
         bookmarksAssignLabels: [],
 
@@ -298,7 +300,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "makeNonCanonicalItalic", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "bookmarksHideLabels",
+            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers", "bookmarksHideLabels",
             "nonStrongsWordItalic",
             "showTitleScrollButton"
         ];
@@ -310,7 +312,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes",
+            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers",
             "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin",
             "showTitleScrollButton"
         ];
