@@ -57,6 +57,8 @@ import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
+import net.bible.android.control.event.ABEventBus
+import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 import java.io.File
 
@@ -386,6 +388,9 @@ class MyDocumentPagesActivity : ActivityBase() {
 
         if (anyChanges) {
             MyDocumentBookManager.refreshDocument(documentInitials)
+            if (pagesToBeDeleted.isNotEmpty()) {
+                ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = pagesToBeDeleted.toList()))
+            }
         }
     }
 

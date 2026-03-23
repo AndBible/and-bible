@@ -580,6 +580,10 @@ a {
   }
 }
 
+.ai-doc-marker {
+  padding-left: 2px;
+}
+
 .divider {
   height: 1em;
 }

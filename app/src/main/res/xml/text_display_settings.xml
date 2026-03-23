@@ -179,6 +179,11 @@
             android:title="@string/prefs_show_mynotes_title"
             android:summary="@string/prefs_show_mynotes_summary"
             />
+        <SwitchPreferenceCompat
+            android:key="AI_DOC_MARKERS"
+            android:title="@string/prefs_show_ai_doc_markers_title"
+            android:summary="@string/prefs_show_ai_doc_markers_summary"
+            />
         <Preference
             android:key="BOOKMARKS_HIDELABELS"
             android:title="@string/bookmark_settings_hide_labels_title"

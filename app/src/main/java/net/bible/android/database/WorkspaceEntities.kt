@@ -175,6 +175,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showTitleScrollButton: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showMemorizationIndicators: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var autoTrackReading: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showAiDocMarkers: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -205,6 +206,7 @@ class WorkspaceEntities {
             TITLE_SCROLL_BUTTON,
             MEMORIZATION_INDICATORS,
             AUTO_TRACK_READING,
+            AI_DOC_MARKERS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -236,6 +238,7 @@ class WorkspaceEntities {
             Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton
             Types.MEMORIZATION_INDICATORS -> showMemorizationIndicators
             Types.AUTO_TRACK_READING -> autoTrackReading
+            Types.AI_DOC_MARKERS -> showAiDocMarkers
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -268,6 +271,7 @@ class WorkspaceEntities {
                 Types.TITLE_SCROLL_BUTTON -> showTitleScrollButton = value as Boolean?
                 Types.MEMORIZATION_INDICATORS -> showMemorizationIndicators = value as Boolean?
                 Types.AUTO_TRACK_READING -> autoTrackReading = value as Boolean?
+                Types.AI_DOC_MARKERS -> showAiDocMarkers = value as Boolean?
             }
         }
 
@@ -331,7 +335,8 @@ class WorkspaceEntities {
                 showMarkAsReadButton = true,
                 showTitleScrollButton = false,
                 showMemorizationIndicators = true,
-                autoTrackReading = false
+                autoTrackReading = false,
+                showAiDocMarkers = true,
             )
 
             fun actual(

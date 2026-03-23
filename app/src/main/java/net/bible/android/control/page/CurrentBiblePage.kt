@@ -22,6 +22,8 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.page.window.Window
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.WorkspaceEntities
+import net.bible.android.database.bookmarks.KJVA
+import net.bible.service.db.DatabaseContainer
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -74,9 +76,13 @@ class CurrentBiblePage(
         val doc = super.getPageContent(verseRange)
         return if(doc is OsisDocument) {
             val bookmarksForChapter = pageManager.bookmarkControl.bookmarksForVerseRange(verseRange, withLabels = true)
+            val kjvRange = verseRange.toV11n(KJVA)
+            val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+                .aiDocMarkersForRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
             BibleDocument(
                 osisFragment = doc.osisFragment, swordBook = doc.book as SwordBook,
                 bookmarks = bookmarksForChapter, verseRange = verseRange, originalKey = originalKey,
+                aiDocMarkers = aiDocMarkers,
             )
         } else doc
     }

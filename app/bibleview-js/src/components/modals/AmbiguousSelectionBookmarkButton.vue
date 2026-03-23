@@ -17,31 +17,40 @@
 
 <template>
   <div class="ambiguous-button" :style="buttonStyle" @click.stop="openBookmark(false)">
-    <div class="verse-range one-liner">
-      <template v-if="customIcon">
-        <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
-      </template>
-      <template v-if="isBibleBookmark(bookmark)">
-        {{ bookmark.verseRangeAbbreviated }}&nbsp;
-      </template>
-      <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
-    </div>
-    <div v-if="bookmark.hasNote" class="note one-liner small">
-      <FontAwesomeIcon icon="edit" size="xs"/>
-      {{ htmlToString(bookmarkNotes) }}
-    </div>
+    <template v-if="isAiDocMarker(bookmark)">
+      <div class="verse-range one-liner">
+        <FontAwesomeIcon :icon="faRobot" size="xs" style="padding-inline-end: 5px"/>
+        {{ (bookmark as AiDocMarker).verseRangeAbbreviated }}&nbsp;
+        <q><em>{{ (bookmark as AiDocMarker).title }}</em></q>
+      </div>
+    </template>
+    <template v-else>
+      <div class="verse-range one-liner">
+        <template v-if="customIcon">
+          <FontAwesomeIcon :icon="customIcon" size="xs" style="padding-inline-end: 5px"/>
+        </template>
+        <template v-if="isBibleBookmark(bookmark)">
+          {{ bookmark.verseRangeAbbreviated }}&nbsp;
+        </template>
+        <q v-if="bookmark.text"><em>{{ bookmark.text }}</em></q>
+      </div>
+      <div v-if="bookmark.hasNote" class="note one-liner small">
+        <FontAwesomeIcon icon="edit" size="xs"/>
+        {{ htmlToString(bookmarkNotes) }}
+      </div>
 
-    <div style="overflow-x: auto" class="label-list">
-      <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
-    </div>
+      <div style="overflow-x: auto" class="label-list">
+        <LabelList in-bookmark single-line :bookmark-id="bookmark.id"/>
+      </div>
 
-    <div style="height: 7px"/>
-    <BookmarkButtons
-        :bookmark="bookmark"
-        show-study-pad-buttons
-        @edit-clicked="editNotes"
-        @info-clicked="openBookmark(true)"
-    />
+      <div style="height: 7px"/>
+      <BookmarkButtons
+          :bookmark="bookmark"
+          show-study-pad-buttons
+          @edit-clicked="editNotes"
+          @info-clicked="openBookmark(true)"
+      />
+    </template>
   </div>
 </template>
 
@@ -54,8 +63,9 @@ import Color from "color";
 import BookmarkButtons from "@/components/BookmarkButtons.vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {globalBookmarksKey, locateTopKey} from "@/types/constants";
-import {BaseBookmark} from "@/types/client-objects";
-import {isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
+import {AiDocMarker, BaseBookmark} from "@/types/client-objects";
+import {isAiDocMarker, isBibleBookmark, resolveIcon} from "@/composables/bookmarks";
+import {faRobot} from "@fortawesome/free-solid-svg-icons";
 
 const $emit = defineEmits(["selected"]);
 const props = defineProps<{ bookmarkId: IdType }>();
@@ -89,6 +99,11 @@ function editNotes() {
 }
 
 function openBookmark(openInfo = false) {
+    if (isAiDocMarker(bookmark.value)) {
+        const m = bookmark.value as AiDocMarker;
+        window.android.openAiDocPage(m.documentInitials, m.pageKey);
+        return;
+    }
     $emit("selected");
     emit("bookmark_clicked", bookmark.value.id, {openInfo, locateTop: locateTop.value});
 }

@@ -115,7 +115,7 @@ import {clickWaiter} from "@/utils";
 import {sortBy} from "lodash";
 import {androidKey, globalBookmarksKey, locateTopKey} from "@/types/constants";
 import {BaseBookmark} from "@/types/client-objects";
-import {isBibleBookmark, isGenericBookmark, resolveIcon} from "@/composables/bookmarks";
+import {isAiDocMarker, isBibleBookmark, isGenericBookmark, resolveIcon} from "@/composables/bookmarks";
 
 const showBookmark = ref(false);
 const android = inject(androidKey)!;
@@ -160,6 +160,12 @@ setupEventBusListener("bookmark_clicked",
             openInfo = false,
             openNotes = false
         } = {}) => {
+        // AI doc markers open the document directly instead of showing bookmark modal
+        const bm = bookmarkMap.get(bookmarkId_);
+        if (bm && isAiDocMarker(bm)) {
+            window.android.openAiDocPage(bm.documentInitials, bm.pageKey);
+            return;
+        }
         bookmarkId.value = bookmarkId_;
         originalNotes = bookmarkNotes.value;
         infoShown.value = !openNotes && (openInfo || !bookmarkNotes.value);

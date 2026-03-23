@@ -85,7 +85,7 @@ export type GenericBookmarkToLabel = BaseBookmarkToLabel & {
 
 export type BaseBookmark = {
     readonly id: IdType
-    readonly type: "bookmark" | "generic-bookmark"
+    readonly type: "bookmark" | "generic-bookmark" | "ai-doc-marker"
     readonly hashCode: number
     readonly ordinalRange: Nullable<OrdinalRange>
     readonly offsetRange: Nullable<OffsetRange>
@@ -129,6 +129,21 @@ export type GenericBookmark = BaseBookmark & {
     readonly bookmarkToLabels: GenericBookmarkToLabel[]
     readonly highlightedText: string
     readonly osisFragment: OsisFragment | null
+}
+
+/**
+ * AI document page reference shown as a marker icon in Bible view.
+ * Extends BaseBookmark so it flows through the same rendering pipeline.
+ * Sent from Android via "add_or_update_ai_doc_markers" event and also
+ * included in BibleDocument's initial data as `aiDocMarkers`.
+ */
+export type AiDocMarker = BaseBookmark & {
+    readonly type: "ai-doc-marker"
+    readonly ordinalRange: OrdinalRange
+    readonly verseRangeAbbreviated: string
+    readonly title: string
+    readonly documentInitials: string
+    readonly pageKey: string
 }
 
 export type StudyPadTextItem = {

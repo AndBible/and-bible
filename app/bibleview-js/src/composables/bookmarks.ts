@@ -30,6 +30,7 @@ import {highlightRange} from "@/lib/highlight-range";
 import {Icon} from "@fortawesome/fontawesome-svg-core";
 import {AppSettings, Config, testMode} from "@/composables/config";
 import {
+    AiDocMarker,
     BaseBookmark,
     BibleBookmark,
     BookmarkOrdinalKey,
@@ -98,6 +99,10 @@ export function isBibleBookmark(bookmark: BaseBookmark): bookmark is BibleBookma
 
 export function isGenericBookmark(bookmark: BaseBookmark): bookmark is GenericBookmark {
     return bookmark.type === "generic-bookmark"
+}
+
+export function isAiDocMarker(bookmark: BaseBookmark): bookmark is AiDocMarker {
+    return bookmark.type === "ai-doc-marker"
 }
 
 export function verseHighlighting(
@@ -177,10 +182,45 @@ export function verseHighlighting(
     return `linear-gradient(to bottom, ${gradientCSS})`;
 }
 
+// Fixed pseudo-label ID for AI doc markers (matches AI_DOC_LABEL_ID in BookmarkEntities.kt)
+const AI_DOC_LABEL_ID = "00000000-0000-ab1e-0000-a1d0c00001a1";
+
+const AI_DOC_LABEL_STYLE: LabelAndStyle = {
+    id: AI_DOC_LABEL_ID,
+    name: "AI Documents",
+    isRealLabel: false,
+    style: {
+        color: 0xFF6464FF,  // blue-ish, same as __AI_LABEL__
+        isSpeak: false,
+        isParagraphBreak: false,
+        underline: false,
+        underlineWholeVerse: false,
+        markerStyle: true,
+        markerStyleWholeVerse: true,
+        hideStyle: false,
+        hideStyleWholeVerse: false,
+        customIcon: "robot",
+    },
+    // Flatten style fields into LabelAndStyle (Label & BookmarkStyle)
+    color: 0xFF6464FF,
+    isSpeak: false,
+    isParagraphBreak: false,
+    underline: false,
+    underlineWholeVerse: false,
+    markerStyle: true,
+    markerStyleWholeVerse: true,
+    hideStyle: false,
+    hideStyleWholeVerse: false,
+    customIcon: "robot",
+};
+
 export function useGlobalBookmarks(config: Config) {
     const bookmarkLabels = reactive<Map<IdType, LabelAndStyle>>(new Map());
     const bookmarks = reactive<Map<IdType, BaseBookmark>>(new Map());
     const bookmarkIdsByOrdinal: Map<BookmarkOrdinalKey, Set<IdType>> = reactive(new Map());
+
+    // Ensure AI doc pseudo-label is always available for marker rendering
+    bookmarkLabels.set(AI_DOC_LABEL_ID, AI_DOC_LABEL_STYLE);
 
     function addBookmarkToOrdinalMap(b: BaseBookmark) {
         if (!b.ordinalRange) return;
@@ -272,6 +312,20 @@ export function useGlobalBookmarks(config: Config) {
         return deleteBookmarkLabels(labelIds);
     })
 
+    setupEventBusListener("add_or_update_ai_doc_markers", function onAiDocMarkers(markers: AiDocMarker[]) {
+        updateBookmarks(markers);
+    })
+
+    setupEventBusListener("delete_ai_doc_markers", function onDeleteAiDocMarkers(ids: IdType[]) {
+        for (const id of ids) {
+            const bookmark = bookmarks.get(id);
+            if (bookmark) {
+                removeBookmarkFromOrdinalMap(bookmark);
+                bookmarks.delete(id);
+            }
+        }
+    })
+
     window.bibleViewDebug.bookmarks = bookmarks;
     window.bibleViewDebug.allStyleRanges = allStyleRanges;
     window.bibleViewDebug.bookmarkLabels = bookmarkLabels;
@@ -299,7 +353,7 @@ export function useBookmarks(
         bookmarks: Ref<BaseBookmark[]>,
         bookmarkMap: Map<IdType, BaseBookmark>,
         bookmarkLabels: Map<IdType, LabelAndStyle>,
-        labelsUpdated: Ref<number>
+        labelsUpdated: Ref<number>,
     },
     bookInitials: string,
     key: string|null,
@@ -337,7 +391,9 @@ export function useBookmarks(
     const documentBookmarks = computed(() => {
         if (!documentReady.value) return [];
         return bookmarks.value.filter(b => {
-            if(isBibleDocument) {
+            if (isAiDocMarker(b)) {
+                return isBibleDocument && checkOrdinal(b);
+            } else if(isBibleDocument) {
                 return isBibleBookmark(b) && (noOrdinalNeeded(b) || checkOrdinal(b));
             } else {
                 return isGenericBookmark(b) && bookInitials === b.bookInitials && key == b.key;
@@ -452,17 +508,18 @@ export function useBookmarks(
         return b.offsetRange == null || b.bookInitials === bookInitials;
     }
 
-    const highlightBookmarks = computed<BaseBookmark[]>(() => documentBookmarks.value.filter(b => showHighlight(b)))
+    const highlightBookmarks = computed<BaseBookmark[]>(() => documentBookmarks.value.filter(b => !isAiDocMarker(b) && showHighlight(b)))
 
     const markerBookmarks = computed(
         () => {
             isMounted.value;
             return documentBookmarks.value
-                .filter(b =>
-                    !showHighlight(b) &&
-                    checkOrdinalEnd(b) &&
-                    ((b.hasNote && config.showMyNotes) || config.showBookmarks)
-                )
+                .filter(b => {
+                    if (!checkOrdinalEnd(b)) return false;
+                    if (isAiDocMarker(b)) return config.showAiDocMarkers;
+                    return !showHighlight(b) &&
+                        ((b.hasNote && config.showMyNotes) || config.showBookmarks);
+                })
         }
     )
 

@@ -16,6 +16,7 @@
  */
 
 import {
+    AiDocMarker,
     BookCategory,
     BibleBookmark,
     Label,
@@ -85,6 +86,7 @@ export interface ErrorDocument extends BaseDocument {
 export interface BibleDocumentType extends BaseOsisDocument {
     type: "bible"
     bookmarks: BibleBookmark[]
+    aiDocMarkers?: AiDocMarker[]
     bibleBookName: string
     addChapter: boolean
     chapterNumber: number

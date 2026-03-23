@@ -25,7 +25,7 @@ import net.bible.android.database.SyncConfiguration
 import net.bible.android.database.SyncStatus
 import net.bible.android.database.SyncableRoomDatabase
 
-const val MY_DOCUMENT_DATABASE_VERSION = 2
+const val MY_DOCUMENT_DATABASE_VERSION = 3
 
 @Database(
     entities = [

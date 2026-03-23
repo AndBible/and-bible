@@ -55,6 +55,8 @@ import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
+import net.bible.android.control.event.ABEventBus
+import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
 import net.bible.service.sword.mydocument.MyDocumentBookManager
 
 private const val TAG = "MyDocumentsActivity"
@@ -281,6 +283,11 @@ class MyDocumentsActivity : ActivityBase() {
     }
 
     private fun applyChanges() {
+        // Collect page IDs before deletion (CASCADE will remove them)
+        val deletedPageIds = documentsToBeDeleted.flatMap { id ->
+            dao.pagesForDocument(id).map { it.id }
+        }
+
         // Delete documents
         documentsToBeDeleted.forEach { id ->
             val doc = dao.documentById(id)
@@ -292,6 +299,10 @@ class MyDocumentsActivity : ActivityBase() {
 
         // Update changed documents
         dao.updateDocuments(dataSet.filter { changedDocuments.contains(it.id) })
+
+        if (deletedPageIds.isNotEmpty()) {
+            ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = deletedPageIds))
+        }
     }
 
     private fun handleMenuItem(item: MenuItem?, document: MyDocument): Boolean {

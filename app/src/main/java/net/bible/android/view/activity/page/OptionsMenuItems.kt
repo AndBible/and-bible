@@ -245,6 +245,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.FONTFAMILY -> R.string.pref_font_family_label
                 TextDisplaySettings.Types.MARGINSIZE -> R.string.prefs_margin_size_title
                 TextDisplaySettings.Types.LINE_SPACING -> R.string.line_spacing_title
+                TextDisplaySettings.Types.AI_DOC_MARKERS -> R.string.prefs_show_ai_doc_markers_title
                 TextDisplaySettings.Types.BOOKMARKS_SHOW -> R.string.prefs_show_bookmarks_title
                 TextDisplaySettings.Types.BOOKMARKS_HIDELABELS -> R.string.bookmark_settings_hide_labels_title
                 TextDisplaySettings.Types.PAGENUMBER -> R.string.page_number_title
@@ -348,6 +349,8 @@ class NightModePreference(val mainBibleActivity: MainBibleActivity) : RealShared
 class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.MYNOTES) {
     override val visible: Boolean get() = !pageManager.isMyNotesShown
 }
+
+class AiDocMarkersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.AI_DOC_MARKERS)
 
 class RedLettersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.REDLETTERS) {
     override val enabled: Boolean get() = pageManager.isBibleShown && pageManager.currentPage.currentDocument?.hasFeature(FeatureType.WORDS_OF_CHRIST) == true
