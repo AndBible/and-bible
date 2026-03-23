@@ -1,0 +1,16 @@
+- Show AI document page markers in Bible view with robot icons; click to open AI-generated documents (e4384a718)
+- Add Ctrl+B/I/U keyboard shortcuts to markdown editor (1abfa383a)
+- Optimize LLM prompts for thematic Bible study by clarifying keyword vs. semantic search and including search language context (7b83ee8ba)
+- Fix dim toolbar icons in raw LLM log view (ab90d0b9a)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
