@@ -53,6 +53,9 @@ import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.ToolDefinition
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.index.IndexStatus
 import org.json.JSONObject
 import java.io.StringReader
 import java.util.Locale
@@ -448,6 +451,14 @@ class AgentExecutor(
             }
             if (context.verseRefString != null) {
                 append("Selected verse reference: ${context.verseRefString}\n")
+            }
+            if (prompt.allowedTools == null || AgentTool.SEARCH_BIBLE in prompt.allowedTools!!) {
+                val defaultSearchBible = AiDocumentFilter.filterAllowed(
+                    Books.installed().books.filterIsInstance<SwordBook>()
+                ).firstOrNull { it.indexStatus == IndexStatus.DONE }
+                if (defaultSearchBible != null) {
+                    append("Default search Bible (for searchBible tool): ${defaultSearchBible.initials} (${defaultSearchBible.language?.name ?: "unknown language"})\n")
+                }
             }
             if (context.selectionStartOffset != null && context.selectionEndOffset != null) {
                 append("The user has highlighted specific text within a verse. " +

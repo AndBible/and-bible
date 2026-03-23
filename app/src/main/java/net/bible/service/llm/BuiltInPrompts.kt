@@ -302,9 +302,12 @@ object BuiltInPrompts {
 
                     APPROACH:
                     1. Identify the primary theme (e.g., "God's faithfulness", "prayer", "forgiveness").
-                    2. Use searchBible to find 8-12 other passages related to this theme across the Bible.
-                    3. Use getVerseContent to retrieve each passage.
-                    4. Use getCommentaries if available to add depth to key passages.
+                    2. Identify 8-12 passages related to this theme using your Bible knowledge.
+                       You may use searchBible to supplement, but for thematic connections your own
+                       knowledge of Scripture is usually more effective than keyword search.
+                       If you do search, use the indexed Bible's language (see system context).
+                    3. Use getVerseContent to retrieve each passage from the active document.
+                    4. Use getCommentaries if available to add depth to 2-3 key passages.
                     5. Create a StudyPad:
                        a. Use createLabel with a descriptive name (e.g., "Thematic Study: God's Faithfulness")
                        b. For each key passage, use createBookmark + addLabelToBookmark
