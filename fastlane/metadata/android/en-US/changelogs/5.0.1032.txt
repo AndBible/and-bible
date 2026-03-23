@@ -1,0 +1,16 @@
+- Commentary deselections now sync across devices with new Select All/None buttons in filter dialog (0dc0a44ff, ccbb1d493)
+- AI model name displayed in activity logs with improved raw log link accessibility (e11ffe550)
+- Fixed AI tool permission and visibility issues (70abc005e, 20101b0fd)
+- Fixed crash when clicking AI document links in StudyPad (b5fc4875b)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
