@@ -79,4 +79,8 @@ private val addMaxIterations = makeMigration(6..7) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `maxIterations` INTEGER DEFAULT NULL")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations)
+private val addCommentaryDeselected = makeMigration(7..8) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `commentaryDeselected` TEXT NOT NULL DEFAULT ''")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected)

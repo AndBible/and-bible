@@ -348,17 +348,13 @@ object GetCommentariesTool : Tool {
      * Shows a custom dialog for selecting commentaries with a live token total.
      * Returns the selected items, or null if the user cancelled.
      */
-    companion object {
-        private const val PREF_DESELECTED_COMMENTARIES = "ai_commentary_filter_deselected"
-    }
-
     private suspend fun showFilterDialog(
         context: Context,
         items: List<CommentaryInfoForFilter>,
         thresholdTokens: Int
     ): List<CommentaryInfoForFilter>? = suspendCoroutine { continuation ->
         val binding = DialogCommentaryFilterBinding.inflate(LayoutInflater.from(context))
-        val previouslyDeselected = CommonUtils.settings.getStringSet(PREF_DESELECTED_COMMENTARIES, emptySet()) ?: emptySet()
+        val previouslyDeselected = CommonUtils.aiSettings.commentaryDeselected
         val checkedItems = BooleanArray(items.size) { items[it].initials !in previouslyDeselected }
         val itemTokens = items.map { estimateTokens(it.estimatedChars) }
 
@@ -419,8 +415,11 @@ object GetCommentariesTool : Tool {
 
         binding.btnOk.setOnClickListener {
             dialog.dismiss()
-            val deselected = items.filterIndexed { i, _ -> !checkedItems[i] }.map { it.initials }.toSet()
-            CommonUtils.settings.edit().putStringSet(PREF_DESELECTED_COMMENTARIES, deselected).apply()
+            val dialogInitials = items.map { it.initials }.toSet()
+            val newDeselected = items.filterIndexed { i, _ -> !checkedItems[i] }.map { it.initials }.toSet()
+            // Preserve deselections for commentaries not present on this device
+            val preserved = previouslyDeselected - dialogInitials
+            CommonUtils.aiSettings.commentaryDeselected = preserved + newDeselected
             val selected = items.filterIndexed { index, _ -> checkedItems[index] }
             continuation.resume(selected)
         }

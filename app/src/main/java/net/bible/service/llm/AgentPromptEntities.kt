@@ -305,6 +305,7 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "4000") val commentaryMaxResponseTokens: Int = 4000,
     val hiddenBuiltInPrompts: Set<IdType> = emptySet(),
     @ColumnInfo(defaultValue = "10") val maxIterations: Int = 10,
+    val commentaryDeselected: Set<String> = emptySet(),
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
