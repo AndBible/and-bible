@@ -348,13 +348,18 @@ object GetCommentariesTool : Tool {
      * Shows a custom dialog for selecting commentaries with a live token total.
      * Returns the selected items, or null if the user cancelled.
      */
+    companion object {
+        private const val PREF_DESELECTED_COMMENTARIES = "ai_commentary_filter_deselected"
+    }
+
     private suspend fun showFilterDialog(
         context: Context,
         items: List<CommentaryInfoForFilter>,
         thresholdTokens: Int
     ): List<CommentaryInfoForFilter>? = suspendCoroutine { continuation ->
         val binding = DialogCommentaryFilterBinding.inflate(LayoutInflater.from(context))
-        val checkedItems = BooleanArray(items.size) { true }
+        val previouslyDeselected = CommonUtils.settings.getStringSet(PREF_DESELECTED_COMMENTARIES, emptySet()) ?: emptySet()
+        val checkedItems = BooleanArray(items.size) { items[it].initials !in previouslyDeselected }
         val itemTokens = items.map { estimateTokens(it.estimatedChars) }
 
         fun updateTotal() {
@@ -366,11 +371,17 @@ object GetCommentariesTool : Tool {
             )
         }
 
+        fun syncListView() {
+            for (i in items.indices) {
+                binding.commentaryList.setItemChecked(i, checkedItems[i])
+            }
+            updateTotal()
+        }
+
         binding.description.text = context.getString(
             R.string.commentary_filter_dialog_message,
             "%,d".format(thresholdTokens)
         )
-        updateTotal()
 
         val itemNames = items.map { info ->
             val tokens = estimateTokens(info.estimatedChars)
@@ -383,12 +394,20 @@ object GetCommentariesTool : Tool {
         )
         binding.commentaryList.adapter = adapter
         binding.commentaryList.choiceMode = android.widget.AbsListView.CHOICE_MODE_MULTIPLE
-        for (i in items.indices) {
-            binding.commentaryList.setItemChecked(i, true)
-        }
+        syncListView()
+
         binding.commentaryList.setOnItemClickListener { _, _, position, _ ->
             checkedItems[position] = binding.commentaryList.isItemChecked(position)
             updateTotal()
+        }
+
+        binding.btnSelectAll.setOnClickListener {
+            checkedItems.fill(true)
+            syncListView()
+        }
+        binding.btnSelectNone.setOnClickListener {
+            checkedItems.fill(false)
+            syncListView()
         }
 
         val dialog = AlertDialog.Builder(context)
@@ -400,6 +419,8 @@ object GetCommentariesTool : Tool {
 
         binding.btnOk.setOnClickListener {
             dialog.dismiss()
+            val deselected = items.filterIndexed { i, _ -> !checkedItems[i] }.map { it.initials }.toSet()
+            CommonUtils.settings.edit().putStringSet(PREF_DESELECTED_COMMENTARIES, deselected).apply()
             val selected = items.filterIndexed { index, _ -> checkedItems[index] }
             continuation.resume(selected)
         }
