@@ -83,6 +83,15 @@ object SearchBibleTool : Tool {
         Returns a list of verses matching the query. Only indexed books can be searched.
         Supports pagination via offset parameter.
 
+        IMPORTANT: This is a keyword index, NOT a semantic/thematic search. Queries must use
+        words that literally appear in the text. Multi-word queries use OR logic by default
+        (matching ANY word), which returns many irrelevant results. Use exact phrases ("...")
+        or AND/+operators for precision. The search language must match the indexed Bible's language.
+
+        For thematic studies, prefer using your Bible knowledge to identify relevant passages
+        by reference, then retrieve them with getVerseContent. Use searchBible only when you
+        need to find specific words or phrases in the text.
+
         Query syntax:
         - Single word: love
         - Exact phrase: "the Lord is my shepherd"
