@@ -64,25 +64,25 @@ private const val DEFAULT_MAX_ITERATIONS = 10
  * Computes the set of tools to exclude from LLM tool definitions.
  *
  * Exclusion is deny-based: tools are excluded only if they appear in [permanentlyDeniedTools]
- * or [promptDeniedTools]. [promptAllowedTools] overrides both deny sets, allowing built-in
+ * or [promptDeniedTools]. [promptAvailableTools] overrides both deny sets, allowing built-in
  * prompts to re-enable tools that the user has globally disabled.
  *
  * Tool visibility (which tools the LLM can see) is controlled by [promptDeniedTools].
  * Permission auto-allow (which tools bypass the permission dialog) is controlled by
- * [promptAllowedTools] in [checkPermission], not here.
+ * [AgentContext.promptAllowedTools] in [checkPermission], not here.
  *
  * Structural tools (setDocumentTitle, finishWithStudyPad, etc.) are never excluded.
  */
 fun computeExcludedTools(
     permanentlyDeniedTools: Set<AgentTool>,
     promptDeniedTools: Set<AgentTool>?,
-    promptAllowedTools: Set<AgentTool>?,
+    promptAvailableTools: Set<AgentTool>?,
 ): Set<AgentTool> {
     val excluded = mutableSetOf<AgentTool>()
     excluded.addAll(permanentlyDeniedTools)
     promptDeniedTools?.let { excluded.addAll(it) }
-    // Prompt-level allow overrides both global and prompt deny
-    promptAllowedTools?.let { excluded.removeAll(it) }
+    // Prompt-level available overrides both global and prompt deny
+    promptAvailableTools?.let { excluded.removeAll(it) }
     excluded.removeAll(ToolRegistry.STRUCTURAL_TOOLS)
     return excluded
 }
@@ -642,7 +642,7 @@ class AgentExecutor(
         computeExcludedTools(
             permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
-            promptAllowedTools = context.promptAllowedTools,
+            promptAvailableTools = context.promptAvailableTools,
         )
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */

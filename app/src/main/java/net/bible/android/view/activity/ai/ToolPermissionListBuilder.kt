@@ -326,6 +326,19 @@ class ToolPermissionListBuilder(
             .map { it.tool.agentTool }
             .toSet()
 
+    /** Disable all interactive elements for read-only display. */
+    fun setReadOnly() {
+        for (state in categories) {
+            state.headerBinding.readToggle.isEnabled = false
+            state.headerBinding.writeToggle.isEnabled = false
+            for (row in state.readRows + state.writeRows) {
+                for (i in 0 until row.radioGroup.childCount) {
+                    row.radioGroup.getChildAt(i).isEnabled = false
+                }
+            }
+        }
+    }
+
     /** Reset all tools to default state (radioAsk). */
     fun resetAll() {
         updatingFromToggle = true

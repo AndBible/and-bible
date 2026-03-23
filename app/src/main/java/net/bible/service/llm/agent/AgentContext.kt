@@ -47,6 +47,9 @@ data class AgentContext(
     val grantedAllToolsPermission: Boolean = false,
     /** Per-prompt permission mode override (null = use global default) */
     val promptPermissionMode: PermissionMode? = null,
+    /** Overrides global/prompt deny in computeExcludedTools — re-enables tools the prompt needs.
+     *  Separate from promptAllowedTools which controls permission auto-allow in checkPermission. */
+    val promptAvailableTools: Set<AgentTool>? = null,
     /** Per-prompt tool permission overrides (null = no override, use global defaults) */
     val promptAllowedTools: Set<AgentTool>? = null,
     val promptDeniedTools: Set<AgentTool>? = null,

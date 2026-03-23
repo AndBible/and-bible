@@ -328,6 +328,31 @@ class PermissionCheckerTest {
     }
 
     @Test
+    fun builtInPrompt_nullAllowedTools_fallsThroughToPermissionMode() {
+        // Built-in prompts set promptAllowedTools=null so write tools are NOT auto-allowed.
+        // Permission mode (ASK_ONCE_PER_RUN) should control the dialog.
+        val result = check(
+            globalMode = PermissionMode.ALWAYS_ASK,
+            promptAllowedTools = null,
+            promptPermissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+            grantedWritePermission = false,
+        )
+        assertEquals(PermissionCheckResult.NeedsDialog, result)
+    }
+
+    @Test
+    fun builtInPrompt_nullAllowedTools_sessionGrantStillWorks() {
+        // After user grants permission once, subsequent calls should be allowed
+        val result = check(
+            globalMode = PermissionMode.ALWAYS_ASK,
+            promptAllowedTools = null,
+            promptPermissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+            grantedWritePermission = true,
+        )
+        assertEquals(PermissionCheckResult.Allowed, result)
+    }
+
+    @Test
     fun differentTool_notAffectedByOtherToolPermissions() {
         val result = check(
             tool = AgentTool.ADD_BOOKMARK_NOTE,

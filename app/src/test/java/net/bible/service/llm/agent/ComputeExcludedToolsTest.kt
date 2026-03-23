@@ -53,7 +53,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = setOf(readTool),
             promptDeniedTools = null,
-            promptAllowedTools = setOf(readTool),
+            promptAvailableTools = setOf(readTool),
         )
         // Prompt allow overrides global deny
         assertFalse(readTool in result)
@@ -64,7 +64,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = setOf(readTool),
-            promptAllowedTools = setOf(readTool),
+            promptAvailableTools = setOf(readTool),
         )
         // Prompt allow overrides prompt deny
         assertFalse(readTool in result)
@@ -75,7 +75,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = setOf(readTool, writeTool),
             promptDeniedTools = null,
-            promptAllowedTools = setOf(readTool),
+            promptAvailableTools = setOf(readTool),
         )
         // readTool is in allowlist so it overrides global deny
         assertFalse(readTool in result)
@@ -88,7 +88,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = setOf(readTool),
             promptDeniedTools = setOf(anotherReadTool),
-            promptAllowedTools = null,
+            promptAvailableTools = null,
         )
         assertTrue(readTool in result)
         assertTrue(anotherReadTool in result)
@@ -96,36 +96,36 @@ class ComputeExcludedToolsTest {
     }
 
     @Test
-    fun allowedTools_noLongerActsAsWhitelist() {
-        // allowedTools should NOT exclude tools that aren't in the list.
-        // Only deniedTools controls visibility; allowedTools controls permission auto-allow.
+    fun availableTools_noLongerActsAsWhitelist() {
+        // availableTools should NOT exclude tools that aren't in the list.
+        // Only deniedTools controls visibility; availableTools controls permission auto-allow.
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = null,
-            promptAllowedTools = setOf(readTool),
+            promptAvailableTools = setOf(readTool),
         )
-        // No tools should be excluded — allowedTools doesn't act as a whitelist
+        // No tools should be excluded — availableTools doesn't act as a whitelist
         assertTrue(result.isEmpty())
     }
 
     @Test
     fun emptyAllowedTools_doesNotExcludeAnything() {
-        // Empty allowedTools should not exclude anything (was the bug: treated as whitelist)
+        // Empty availableTools should not exclude anything (was the bug: treated as whitelist)
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = null,
-            promptAllowedTools = emptySet(),
+            promptAvailableTools = emptySet(),
         )
         assertTrue(result.isEmpty())
     }
 
     @Test
     fun nullAllowedTools_allToolsAvailable() {
-        // null allowedTools = no filtering (backwards compatible)
+        // null availableTools = no filtering (backwards compatible)
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = null,
-            promptAllowedTools = null,
+            promptAvailableTools = null,
         )
         assertTrue(result.isEmpty())
     }
@@ -135,7 +135,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = setOf(readTool, writeTool),
-            promptAllowedTools = null,
+            promptAvailableTools = null,
         )
         assertTrue(readTool in result)
         assertTrue(writeTool in result)
@@ -148,7 +148,7 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = ToolRegistry.STRUCTURAL_TOOLS,
             promptDeniedTools = ToolRegistry.STRUCTURAL_TOOLS,
-            promptAllowedTools = null,
+            promptAvailableTools = null,
         )
         for (structural in ToolRegistry.STRUCTURAL_TOOLS) {
             assertFalse("Structural tool $structural should not be excluded", structural in result)
@@ -161,9 +161,9 @@ class ComputeExcludedToolsTest {
         val result = computeExcludedTools(
             permanentlyDeniedTools = emptySet(),
             promptDeniedTools = setOf(readTool, writeTool),
-            promptAllowedTools = setOf(readTool),
+            promptAvailableTools = setOf(readTool),
         )
-        assertFalse(readTool in result)  // overridden by allowedTools
+        assertFalse(readTool in result)  // overridden by availableTools
         assertTrue(writeTool in result)  // still denied
     }
 }
