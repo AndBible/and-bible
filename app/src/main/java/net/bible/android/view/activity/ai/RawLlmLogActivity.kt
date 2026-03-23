@@ -17,10 +17,12 @@
 
 package net.bible.android.view.activity.ai
 
+import android.content.res.ColorStateList
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -106,11 +108,14 @@ class RawLlmLogActivity : ActivityBase() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val white = ColorStateList.valueOf(Color.WHITE)
         menu.add(Menu.NONE, MENU_COPY, Menu.NONE, android.R.string.copy)
             .setIcon(R.drawable.ic_content_copy_black_24dp)
+            .setIconTintList(white)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         menu.add(Menu.NONE, MENU_SHARE, Menu.NONE, R.string.share)
             .setIcon(R.drawable.ic_baseline_share_24)
+            .setIconTintList(white)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
         return true
     }
