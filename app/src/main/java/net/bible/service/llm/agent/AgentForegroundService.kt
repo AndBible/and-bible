@@ -404,11 +404,14 @@ class AgentForegroundService : Service() {
 
     private fun stopSelfSafe() {
         releaseWakeLock()
+        // When app is active, remove notification entirely. When backgrounded, detach it
+        // so the completion notification (posted by showCompletionNotification) stays visible.
+        val removeNotification = CurrentActivityHolder.currentActivity != null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(STOP_FOREGROUND_DETACH)
+            stopForeground(if (removeNotification) STOP_FOREGROUND_REMOVE else STOP_FOREGROUND_DETACH)
         } else {
             @Suppress("DEPRECATION")
-            stopForeground(false)
+            stopForeground(removeNotification)
         }
         stopSelf()
     }
