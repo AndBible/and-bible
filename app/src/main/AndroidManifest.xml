@@ -367,6 +367,10 @@
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"
             android:foregroundServiceType="mediaPlayback" />
 
+        <service
+            android:name="net.bible.service.llm.agent.AgentForegroundService"
+            android:foregroundServiceType="dataSync" />
+
         <receiver
             android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
             android:exported="true" />

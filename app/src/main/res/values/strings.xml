@@ -1811,6 +1811,16 @@
     <string name="agent_execution_completed">Agent execution completed</string>
     <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
 
+    <!-- AI Agent Notifications -->
+    <string name="ai_agent_notification_channel_name">AI Agent</string>
+    <string name="ai_agent_notification_running">AI agent working…</string>
+    <string name="ai_agent_notification_permission_needed">AI agent needs your approval</string>
+    <string name="ai_agent_notification_permission_tap">Tap to return to AndBible</string>
+    <string name="ai_agent_notification_completed">AI task completed</string>
+    <string name="ai_agent_notification_completed_tap">Tap to view results</string>
+    <string name="ai_agent_notification_error">AI task failed</string>
+    <string name="ai_agent_notification_cancel">Cancel</string>
+
     <!-- My Documents -->
     <string name="my_documents_title">My Documents</string>
     <string name="my_documents_empty">No documents yet. Tap + to create one.</string>

@@ -154,6 +154,8 @@ import net.bible.service.cloudsync.CloudSyncEvent
 import net.bible.service.cloudsync.WorkspaceRefreshRequired
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.AgentSessionManager
+import net.bible.service.llm.agent.PendingAgentResult
 import net.bible.service.download.FakeBookFactory
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.BookAndKeySerialized
@@ -2154,6 +2156,23 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         }
         // allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
         documentViewManager.documentView.asView().requestFocus()
+
+        // Check for pending AI agent results that completed while app was backgrounded
+        handlePendingAgentResult()
+    }
+
+    private fun handlePendingAgentResult() {
+        val session = AgentSessionManager.getCurrentSession() ?: return
+        val result = session.pendingResult ?: return
+        session.pendingResult = null
+        when (result) {
+            is PendingAgentResult.OpenDocument -> {
+                linkControl.openAIDocument(result.documentInitials, result.pageKey)
+            }
+            is PendingAgentResult.OpenStudyPad -> {
+                linkControl.openStudyPad(result.labelId, result.scrollToEntryId)
+            }
+        }
     }
 
     private var frozen = false

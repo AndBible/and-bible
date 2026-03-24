@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.flow
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import net.bible.service.llm.AgentTool
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.android.view.activity.base.Dialogs
@@ -266,7 +267,7 @@ class AgentExecutor(
             }
 
             // Max iterations reached — ask user if they want to continue
-            if (maxIterations > 0 && showContinueDialog(iteration, maxIterations)) {
+            if (maxIterations > 0 && showContinueDialog(iteration, maxIterations, context.workspaceId)) {
                 iterationLimit += maxIterations
                 continue@loop
             }
@@ -639,7 +640,7 @@ class AgentExecutor(
         )) {
             PermissionCheckResult.Allowed -> DialogResult.Allowed
             PermissionCheckResult.Denied -> DialogResult.Denied
-            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool, arguments)
+            PermissionCheckResult.NeedsDialog -> showPermissionDialog(tool, arguments, context.workspaceId)
         }
     }
 
@@ -657,13 +658,20 @@ class AgentExecutor(
         )
 
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
-    private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject): DialogResult {
+    private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject, workspaceId: IdType? = null): DialogResult {
         var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.d(TAG, "No current activity, waiting for activity to resume...")
+            val toolDisplayName = ToolRegistry.getDisplayName(tool)
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolDisplayName))
+            }
             while (activity == null) {
                 delay(500)
                 activity = CurrentActivityHolder.currentActivity
+            }
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
             }
             Log.d(TAG, "Activity resumed, showing permission dialog")
         }
@@ -703,13 +711,19 @@ class AgentExecutor(
      * Shows a dialog asking the user whether to continue execution after reaching the iteration limit.
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
-    private suspend fun showContinueDialog(currentIteration: Int, increment: Int): Boolean {
+    private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
         var activity = CurrentActivityHolder.currentActivity
         if (activity == null) {
             Log.d(TAG, "No current activity for continue dialog, waiting...")
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
+            }
             while (activity == null) {
                 delay(500)
                 activity = CurrentActivityHolder.currentActivity
+            }
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
             }
         }
         return Dialogs.simpleQuestion(

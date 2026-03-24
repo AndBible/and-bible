@@ -20,19 +20,23 @@ package net.bible.service.llm.tools.read
 import android.app.AlertDialog
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import net.bible.android.activity.databinding.DialogCommentaryFilterBinding
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.useSaxBuilder
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.ToolCategory
 import net.bible.service.llm.agent.AgentContext
+import net.bible.service.llm.agent.AgentPermissionWaitingEvent
 import net.bible.service.llm.tools.AiDocumentFilter
 import net.bible.service.llm.tools.ContentFormat
 import net.bible.service.llm.tools.OsisToPlainText
@@ -254,7 +258,7 @@ object GetCommentariesTool : Tool {
             }
         }
 
-        val filterResult = filterByResponseSizeLimit(commentaryResults)
+        val filterResult = filterByResponseSizeLimit(commentaryResults, context)
             ?: return ToolResult.error("User cancelled commentary selection", "USER_CANCELLED")
 
         return typedSuccess(Result(
@@ -311,7 +315,7 @@ object GetCommentariesTool : Tool {
      * shows a selection dialog so the user can choose which commentaries to include.
      * Returns null if the user cancels (meaning: abort the tool call entirely).
      */
-    private suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>): FilterResult? {
+    private suspend fun filterByResponseSizeLimit(commentaryResults: List<CommentaryResult>, context: AgentContext): FilterResult? {
         val thresholdTokens = CommonUtils.aiSettings.commentaryMaxResponseTokens
         if (thresholdTokens <= 0 || commentaryResults.isEmpty()) {
             return FilterResult(commentaryResults, emptyList())
@@ -328,8 +332,21 @@ object GetCommentariesTool : Tool {
         val totalTokens = estimateTokens(infos.sumOf { it.estimatedChars })
         if (totalTokens <= thresholdTokens) return FilterResult(commentaryResults, emptyList())
 
-        val activity = CurrentActivityHolder.currentActivity
-            ?: return FilterResult(commentaryResults, emptyList())
+        var activity = CurrentActivityHolder.currentActivity
+        if (activity == null) {
+            Log.d("GetCommentariesTool", "No current activity for commentary filter dialog, waiting...")
+            val workspaceId = context.workspaceId
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
+            }
+            while (activity == null) {
+                delay(500)
+                activity = CurrentActivityHolder.currentActivity
+            }
+            if (workspaceId != null) {
+                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+            }
+        }
 
         // Sort by size descending for display
         val sorted = infos.sortedByDescending { it.estimatedChars }

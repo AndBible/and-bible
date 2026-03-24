@@ -51,6 +51,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import android.widget.Toast
+import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -75,6 +76,19 @@ class AgentSessionStatusChangedEvent(
     val isRunning: Boolean
 )
 
+/** Posted when the agent is waiting for user to return to grant permission. */
+class AgentPermissionWaitingEvent(
+    val workspaceId: IdType,
+    val waiting: Boolean,
+    val toolName: String? = null
+)
+
+/** Result to open when user returns to the app after background completion. */
+sealed class PendingAgentResult {
+    data class OpenDocument(val documentInitials: String, val pageKey: String, val targetWindowId: IdType?) : PendingAgentResult()
+    data class OpenStudyPad(val labelId: IdType, val scrollToEntryId: IdType?) : PendingAgentResult()
+}
+
 /** One active session per workspace, maintaining log entries and execution state. */
 class AgentSession(val workspaceId: IdType) {
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
@@ -92,6 +106,10 @@ class AgentSession(val workspaceId: IdType) {
         private set
 
     var job: Job? = null
+
+    /** Result to open when user returns to the app after background completion. */
+    @Volatile
+    var pendingResult: PendingAgentResult? = null
 
     fun start(context: AgentContext) {
         this.context = context
@@ -386,6 +404,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
 
         return AgentContext(
             promptId = prompt.id,
+            workspaceId = windowControl.windowRepository.id,
             selectedVerseRange = verseRange,
             selectedContent = osisContent,
             activeDocumentInitials = selection.bookInitials,
@@ -515,7 +534,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
 
                     // Open the page in target window or linked window
-                    openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                    openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
 
                     session.stop(app.getString(R.string.agent_log_completed))
                     attachTotalCost(session, event.usage, event.model)
@@ -535,7 +554,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
 
                 // Open the page in target window or linked window
-                openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId)
+                openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
 
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
@@ -548,13 +567,13 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
-                linkControl.openStudyPad(event.labelId, event.scrollToEntryId)
+                openStudyPadResult(event.labelId, event.scrollToEntryId, session)
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
-                openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId)
+                openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
                 session.stop(app.getString(R.string.agent_log_completed))
                 attachTotalCost(session, event.usage, event.model)
             }
@@ -605,7 +624,12 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
-    private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?) {
+    private suspend fun openMyDocumentResult(documentInitials: String, pageKey: String, targetWindowId: IdType?, session: AgentSession? = null) {
+        if (CurrentActivityHolder.currentActivity == null) {
+            // App is backgrounded — defer opening until user returns
+            session?.pendingResult = PendingAgentResult.OpenDocument(documentInitials, pageKey, targetWindowId)
+            return
+        }
         if (targetWindowId != null) {
             val window = windowControl.windowRepository.getWindow(targetWindowId)
             if (window != null) {
@@ -621,6 +645,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
         withContext(Dispatchers.Main) {
             linkControl.openAIDocument(documentInitials, pageKey)
+        }
+    }
+
+    private suspend fun openStudyPadResult(labelId: IdType, scrollToEntryId: IdType?, session: AgentSession? = null) {
+        if (CurrentActivityHolder.currentActivity == null) {
+            session?.pendingResult = PendingAgentResult.OpenStudyPad(labelId, scrollToEntryId)
+            return
+        }
+        withContext(Dispatchers.Main) {
+            linkControl.openStudyPad(labelId, scrollToEntryId)
         }
     }
 

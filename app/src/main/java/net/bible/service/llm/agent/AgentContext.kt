@@ -30,6 +30,7 @@ import java.security.MessageDigest
 /** Context available during agent prompt execution (selected verses, active document, etc.). */
 data class AgentContext(
     val promptId: IdType,
+    val workspaceId: IdType? = null,
     val selectedVerseRange: VerseRange? = null,
     val selectedContent: String? = null,
     val activeDocumentInitials: String? = null,
