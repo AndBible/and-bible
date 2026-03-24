@@ -46,6 +46,16 @@
           @memorize-completed="onMemorizeCompleted"
       />
     </template>
+
+    <!-- Word Type Tab -->
+    <template #type>
+      <WordType
+          :text-items="document.texts"
+          :mode-config="document.state?.memorize?.modeConfig"
+          @save-mode-config="saveModeConfig"
+          @memorize-completed="onMemorizeCompleted"
+      />
+    </template>
   </TabContainer>
 
   <!-- Mark as memorized / unmark button -->
@@ -61,6 +71,9 @@
     </div>
     <div v-if="!isTarget" class="button" @click="addToTargets">
       <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
+    </div>
+    <div class="button" @click="openProgress">
+      <FontAwesomeIcon :icon="faChartLine"/> {{ strings.viewReadingProgress }}
     </div>
   </div>
 </template>
@@ -80,9 +93,10 @@ import {
 } from "@/types/documents";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
+import WordType from '@/components/memorize/WordType.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBrain, faCheck, faEyeSlash, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faBrain, faChartLine, faCheck, faEyeSlash, faKeyboard, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
 import {memorizationKey} from "@/types/constants";
 
@@ -95,7 +109,12 @@ const modeConfig = ref<MemorizeModeConfig|undefined>(document.value.state?.memor
 
 // Computed for mapping selected mode to tab ID
 const selectedTabId = computed(() => {
-    return selectedMode.value === MemorizeStateModeEnum.BLUR ? 'blur' : 'scramble';
+    switch (selectedMode.value) {
+        case MemorizeStateModeEnum.BLUR: return 'blur';
+        case MemorizeStateModeEnum.SCRAMBLE: return 'scramble';
+        case MemorizeStateModeEnum.TYPE: return 'type';
+        default: return 'blur';
+    }
 });
 
 const memorizeState = computed<MemorizeState>(() => {
@@ -160,6 +179,10 @@ function addToTargets() {
     withVerseRange((b, s, e) => android.addMemorizationTarget(b, s, e));
 }
 
+function openProgress() {
+    android.openReadingProgress(1);
+}
+
 // Tab configuration for the TabContainer
 const tabsConfig = computed(() => [
     { 
@@ -168,11 +191,17 @@ const tabsConfig = computed(() => [
         value: MemorizeStateModeEnum.BLUR,
         icon: faEyeSlash,
     },
-    { 
-        id: 'scramble', 
+    {
+        id: 'scramble',
         label: strings.wordScramble,
         value: MemorizeStateModeEnum.SCRAMBLE,
         icon: faRandom,
+    },
+    {
+        id: 'type',
+        label: strings.wordType,
+        value: MemorizeStateModeEnum.TYPE,
+        icon: faKeyboard,
     }
 ]);
 

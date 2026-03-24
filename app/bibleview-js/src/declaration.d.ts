@@ -118,6 +118,7 @@ type TranslatedStrings = {
     markAsMemorized: string
     markedAsMemorized: string
     removeFromTargets: string
+    viewReadingProgress: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string
@@ -148,6 +149,9 @@ type TranslatedStrings = {
     peek: string
     wordBlur: string
     wordScramble: string
+    wordType: string
+    typeEverything: string
+    tapToStartTyping: string
     more: string
     loadMore: string
     previousChapter: string

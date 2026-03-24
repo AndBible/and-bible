@@ -55,9 +55,11 @@ import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
+import net.bible.android.view.activity.progress.ReadingProgressActivity
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
+import net.bible.android.view.activity.base.ActivityBase.Companion.STD_REQUEST_CODE
 import net.bible.android.view.util.widget.ShareWidget
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.json
@@ -531,6 +533,15 @@ class BibleJavascriptInterface(
     fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         ProgressControl.removeMemorizationTargetByRange(verseRange)
+    }
+
+    @JavascriptInterface
+    fun openReadingProgress(tab: Int) {
+        scope.launch(Dispatchers.Main) {
+            val intent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
+            intent.putExtra(ReadingProgressActivity.EXTRA_TAB, tab)
+            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+        }
     }
 
     @JavascriptInterface
