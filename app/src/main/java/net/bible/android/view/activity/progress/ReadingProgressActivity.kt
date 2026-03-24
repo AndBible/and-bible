@@ -235,7 +235,16 @@ class ReadingProgressActivity : ActivityBase() {
         val verse = Verse(kjva, book, chapter, 1)
         val resultIntent = Intent(this, GridChoosePassageBook::class.java)
         resultIntent.putExtra("verse", verse.osisID)
-        setResult(Activity.RESULT_OK, resultIntent)
+        setResult(RESULT_OK, resultIntent)
+        finish()
+    }
+
+    private fun navigateToMemorize(range: VerseRange) {
+        val resultIntent = Intent()
+        resultIntent.putExtra("action", "memorize")
+        resultIntent.putExtra("startOrdinal", range.start.ordinal)
+        resultIntent.putExtra("endOrdinal", range.end.ordinal)
+        setResult(RESULT_OK, resultIntent)
         finish()
     }
 
@@ -329,7 +338,7 @@ class ReadingProgressActivity : ActivityBase() {
             val memorizedCount = ProgressControl.getMemorizedOrdinalsInRange(
                 target.kjvOrdinalStart, target.kjvOrdinalEnd
             ).size
-            val item = createTargetItem(range.name, memorizedCount, target.verseCount, target.id)
+            val item = createTargetItem(range.name, memorizedCount, target.verseCount, target.id, range)
             binding.memorizeTargetsList.addView(item)
         }
     }
@@ -340,6 +349,16 @@ class ReadingProgressActivity : ActivityBase() {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(dp8, dp8, dp8, dp8)
+            isClickable = true
+            isFocusable = true
+            setBackgroundResource(android.R.attr.selectableItemBackground.let {
+                val attrs = intArrayOf(it)
+                val ta = context.obtainStyledAttributes(attrs)
+                val resId = ta.getResourceId(0, 0)
+                ta.recycle()
+                resId
+            })
+            setOnClickListener { navigateToMemorize(range) }
 
             addView(TextView(context).apply {
                 this.text = text
@@ -366,12 +385,22 @@ class ReadingProgressActivity : ActivityBase() {
         }
     }
 
-    private fun createTargetItem(text: String, memorized: Int, total: Int, targetId: IdType): LinearLayout {
+    private fun createTargetItem(text: String, memorized: Int, total: Int, targetId: IdType, range: VerseRange): LinearLayout {
         val dp4 = 4.dp
         val dp8 = 8.dp
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp8, dp8, dp8, dp8)
+            isClickable = true
+            isFocusable = true
+            setBackgroundResource(android.R.attr.selectableItemBackground.let {
+                val attrs = intArrayOf(it)
+                val ta = context.obtainStyledAttributes(attrs)
+                val resId = ta.getResourceId(0, 0)
+                ta.recycle()
+                resId
+            })
+            setOnClickListener { navigateToMemorize(range) }
 
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL

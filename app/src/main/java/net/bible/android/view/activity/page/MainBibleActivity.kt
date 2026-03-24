@@ -169,6 +169,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
@@ -1916,6 +1917,15 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             return
                         }
                         in classes -> {
+                            if (className == ReadingProgressActivity::class.java.name
+                                && extras.getString("action") == "memorize") {
+                                val startOrd = extras.getInt("startOrdinal")
+                                val endOrd = extras.getInt("endOrdinal")
+                                val verseRange = VerseRange(KJVA, Verse(KJVA, startOrd), Verse(KJVA, endOrd))
+                                val defaultBible = windowControl.defaultBibleDoc(false)
+                                linkControl.openMemorize(BookAndKey(verseRange, defaultBible))
+                                return
+                            }
                             val isFromBookmark = className == Bookmarks::class.java.name
                             val verseStr = extras.getString("verse")
                             val keyStr = extras.getString("key")
