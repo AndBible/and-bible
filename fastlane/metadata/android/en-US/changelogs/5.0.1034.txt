@@ -1,0 +1,22 @@
+### New Features
+- Add "Type It" memorization mode with letter-by-letter typing and visual feedback (#3698)
+- Enable AI tasks to run in background with notifications (0ad381119)
+
+### Improvements
+- Move memorize action buttons to dropdown menu (49fd06e22)
+- Add link from Memorize view to Reading Progress stats (#3698)
+
+### Bug Fixes
+- Fix WordType hint text overlapping verse display (49fd06e22)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
