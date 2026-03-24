@@ -34,7 +34,7 @@ export type LogEntry = {
 
 export type JSONString = string
 export type AsyncFunc = (callId: number) => void
-export type StudyPadEntryType = "bookmark" | "generic-bookmark" | "journal" | "none"
+export type StudyPadEntryType = "bookmark" | "generic-bookmark" | "journal" | "ai-doc-marker" | "none"
 
 export type ColorInt = number
 export type ColorString = string
