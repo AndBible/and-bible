@@ -18,17 +18,13 @@
 package net.bible.android.view.activity.ai
 
 import android.text.InputType
-import android.util.Log
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
@@ -39,9 +35,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
-import net.bible.service.llm.agent.AgentSessionManager
-
-private const val TAG = "LlmDialogHelper"
+import net.bible.service.llm.agent.AgentForegroundService
 
 /**
  * Handles LLM-related dialogs: prompt selection, specify-before-run, and regeneration.
@@ -135,41 +129,31 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                         )
                     )
                 }
-                activity.lifecycleScope.launch(Dispatchers.IO) {
-                    val success = AgentSessionManager.regenerateAIDocument(
-                        pageId,
-                        targetWindowId = bibleView.window.id,
-                        additionalInstructions = instructions,
-                        keepPrevious = keepPrevious
-                    )
-                    if (!success) {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(activity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                }
+                val workspaceId = activity.windowControl.windowRepository.id
+                AgentForegroundService.startRegenerate(
+                    context = activity,
+                    pageId = pageId,
+                    workspaceId = workspaceId,
+                    targetWindowId = bibleView.window.id,
+                    additionalInstructions = instructions,
+                    keepPrevious = keepPrevious
+                )
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
     /**
-     * Execute a prompt with proper error handling and session tracking.
+     * Execute a prompt via the foreground service so it continues in the background.
      */
     fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null) {
         val workspaceId = activity.windowControl.windowRepository.id
-        val job = activity.lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                AgentSessionManager.executePrompt(prompt, selection, userSpecification = userSpecification)
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                Log.e(TAG, "LLM prompt execution failed", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(activity, R.string.error_occurred, Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-        AgentSessionManager.getOrCreateSession(workspaceId).job = job
+        AgentForegroundService.startAgent(
+            context = activity,
+            promptId = prompt.id,
+            selection = selection,
+            workspaceId = workspaceId,
+            userSpecification = userSpecification
+        )
     }
 }

@@ -74,6 +74,7 @@ removeMemorizationTargetLong: Remove memorization goal
 markAsMemorized: Mark as memorized
 markedAsMemorized: Memorized
 removeFromTargets: Goal -
+viewReadingProgress: Reading progress
 verseNoteLong: Write a note
 verseParagraphBreakLong: Paragraph break
 addBookmark: Bookmark
@@ -104,6 +105,9 @@ reset: Reset
 peek: Peek
 wordBlur: Word Blur
 wordScramble: Word Scramble
+wordType: Type
+typeEverything: Type full words
+tapToStartTyping: Tap here to start typing
 more: More
 llmAction: AI
 llmActionLong: AI Action

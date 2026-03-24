@@ -63,6 +63,11 @@ class ReadingProgressActivity : ActivityBase() {
         setupTabs()
         setupReadingTab()
 
+        val initialTab = intent.getIntExtra(EXTRA_TAB, 0)
+        if (initialTab == 1) {
+            binding.tabLayout.getTabAt(1)?.select()
+        }
+
         refreshAll()
     }
 
@@ -427,5 +432,6 @@ class ReadingProgressActivity : ActivityBase() {
         private val COLOR_HIGH = Color.parseColor("#239A3B")
         private val COLOR_ALMOST = Color.parseColor("#196127")
         private val COLOR_READ = Color.parseColor("#196127")
+        const val EXTRA_TAB = "tab"
     }
 }

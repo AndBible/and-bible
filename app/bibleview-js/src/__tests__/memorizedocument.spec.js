@@ -4,7 +4,8 @@ vi.mock("@/composables", () => ({
   useCommon: () => ({
     strings: {
       wordBlur: "Word Blur",
-      wordScramble: "Word Scramble"
+      wordScramble: "Word Scramble",
+      wordType: "Type"
     },
     android: {
       saveState: vi.fn()
@@ -39,7 +40,8 @@ vi.mock("@/composables", () => ({
   useCommon: () => ({
     strings: {
       wordBlur: "Word Blur",
-      wordScramble: "Word Scramble"
+      wordScramble: "Word Scramble",
+      wordType: "Type"
     },
     android: {
       saveState: vi.fn()
@@ -81,7 +83,8 @@ describe("MemorizeDocument.vue", () => {
         },
         stubs: {
           WordBlur: true,
-          WordScramble: true
+          WordScramble: true,
+          WordType: true
         }
       }
     });
@@ -96,9 +99,10 @@ describe("MemorizeDocument.vue", () => {
     const wrapper = createWrapper();
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     
-    expect(buttons.length).toBe(2);
+    expect(buttons.length).toBe(3);
     expect(buttons[0].text()).toBe("Word Blur");
     expect(buttons[1].text()).toBe("Word Scramble");
+    expect(buttons[2].text()).toBe("Type");
   });
 
   it("shows the blur mode component by default", () => {
@@ -207,6 +211,40 @@ describe("MemorizeDocument.vue", () => {
     const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
     if (buttons.length > 1) {
       expect(buttons[1].classes()).toContain("active");
+    }
+  });
+
+  it("switches to type mode when button is clicked", async () => {
+    const wrapper = createWrapper();
+
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
+    if (buttons.length > 2) {
+      await buttons[2].trigger("click");
+
+      const typePanel = wrapper.find('[id="tabpanel-type"]');
+      expect(typePanel.isVisible()).toBe(true);
+
+      const blurPanel = wrapper.find('[id="tabpanel-blur"]');
+      if (blurPanel.exists()) expect(blurPanel.isVisible()).toBe(false);
+    }
+  });
+
+  it("restores type mode from document state", () => {
+    const wrapper = createWrapper({
+      state: {
+        memorize: {
+          mode: MemorizeStateModeEnum.TYPE,
+          modeConfig: {}
+        }
+      }
+    });
+
+    const typePanel = wrapper.find('[id="tabpanel-type"]');
+    expect(typePanel.isVisible()).toBe(true);
+
+    const buttons = wrapper.findAll(".memorize-mode-selector .tab-button");
+    if (buttons.length > 2) {
+      expect(buttons[2].classes()).toContain("active");
     }
   });
 });

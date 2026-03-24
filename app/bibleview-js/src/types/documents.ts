@@ -140,7 +140,8 @@ export type MemorizeTextItem = {
 
 export enum MemorizeStateModeEnum {
     BLUR = 'blur',
-    SCRAMBLE = 'scramble'
+    SCRAMBLE = 'scramble',
+    TYPE = 'type'
 }
 
 export type MemorizeStateMode = MemorizeStateModeEnum[keyof MemorizeStateModeEnum];

@@ -89,6 +89,7 @@ object MyLocaleProvider: LocaleProvider {
 
 private const val ERROR_NOTIFICATION_CHANNEL = "generic-notifications"
 private const val GENERIC_NOTIFICATION_ID=3
+const val AI_AGENT_NOTIFICATION_CHANNEL = "ai-agent-notifications"
 
 /** Main AndBible application singleton object
  *
@@ -367,6 +368,14 @@ open class BibleApplication : Application() {
                     lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 }
                 notificationManager.createNotificationChannel(progressChannel)
+
+                val aiAgentChannel = NotificationChannel(
+                    AI_AGENT_NOTIFICATION_CHANNEL,
+                    getString(R.string.ai_agent_notification_channel_name), NotificationManager.IMPORTANCE_LOW
+                ).apply {
+                    lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+                }
+                notificationManager.createNotificationChannel(aiAgentChannel)
             }
         }
     }
