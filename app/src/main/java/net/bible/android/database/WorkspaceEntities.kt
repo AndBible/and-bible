@@ -176,6 +176,10 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var showMemorizationIndicators: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var autoTrackReading: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var showAiDocMarkers: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var pageScrollAmount: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var scrollHelperLines: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var scrollHelperLineStyle: Int? = null,
+        @ColumnInfo(defaultValue = "NULL") var showPageButtons: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -207,6 +211,10 @@ class WorkspaceEntities {
             MEMORIZATION_INDICATORS,
             AUTO_TRACK_READING,
             AI_DOC_MARKERS,
+            PAGE_SCROLL_AMOUNT,
+            SCROLL_HELPER_LINES,
+            SCROLL_HELPER_LINE_STYLE,
+            PAGE_BUTTONS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -239,6 +247,10 @@ class WorkspaceEntities {
             Types.MEMORIZATION_INDICATORS -> showMemorizationIndicators
             Types.AUTO_TRACK_READING -> autoTrackReading
             Types.AI_DOC_MARKERS -> showAiDocMarkers
+            Types.PAGE_SCROLL_AMOUNT -> pageScrollAmount
+            Types.SCROLL_HELPER_LINES -> scrollHelperLines
+            Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle
+            Types.PAGE_BUTTONS -> showPageButtons
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -272,6 +284,10 @@ class WorkspaceEntities {
                 Types.MEMORIZATION_INDICATORS -> showMemorizationIndicators = value as Boolean?
                 Types.AUTO_TRACK_READING -> autoTrackReading = value as Boolean?
                 Types.AI_DOC_MARKERS -> showAiDocMarkers = value as Boolean?
+                Types.PAGE_SCROLL_AMOUNT -> pageScrollAmount = value as Int?
+                Types.SCROLL_HELPER_LINES -> scrollHelperLines = value as Boolean?
+                Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle = value as Int?
+                Types.PAGE_BUTTONS -> showPageButtons = value as Boolean?
             }
         }
 
@@ -337,6 +353,10 @@ class WorkspaceEntities {
                 showMemorizationIndicators = true,
                 autoTrackReading = false,
                 showAiDocMarkers = true,
+                pageScrollAmount = 100,
+                scrollHelperLines = false,
+                scrollHelperLineStyle = 0,
+                showPageButtons = false,
             )
 
             fun actual(

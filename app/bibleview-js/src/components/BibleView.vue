@@ -71,6 +71,23 @@
         {{ pageNumber }}
       </div>
     </div>
+    <template v-if="config.scrollHelperLines && config.pageScrollAmount < 100">
+      <div
+          v-for="pos in helperLinePositions"
+          :key="pos"
+          class="scroll-helper-line"
+          :class="helperLineClass"
+          :style="{top: `${pos}px`}"
+      />
+    </template>
+    <div v-if="config.showPageButtons" class="page-buttons" :style="{bottom: `${(appSettings.isBottomWindow ? appSettings.bottomOffset : 0) + 12}px`}">
+      <button class="page-button" @click.stop="scrollUpDown(true)">
+        <FontAwesomeIcon :icon="faChevronUp"/>
+      </button>
+      <button class="page-button" @click.stop="scrollUpDown()">
+        <FontAwesomeIcon :icon="faChevronDown"/>
+      </button>
+    </div>
     <div
         v-if="appSettings.isBottomWindow"
         @touchmove.stop.prevent
@@ -96,6 +113,8 @@
 </template>
 <script lang="ts" setup>
 import DocumentBroker from "@/components/documents/DocumentBroker.vue";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faChevronUp, faChevronDown} from "@fortawesome/free-solid-svg-icons";
 import {computed, nextTick, onMounted, onUnmounted, provide, reactive, ref, Ref, shallowRef, watch} from "vue";
 import {testBookmarkLabels, testData} from "@/testdata";
 import {useInfiniteScroll} from "@/composables/infinite-scroll";
@@ -397,8 +416,8 @@ setupEventBusListener("reset_loading_count", () => {
 
 const isLoading = computed(() => documents.length === 0 || loadingCount.value > 0);
 const scrollAmount = computed(() => {
-    let amount = calculatedConfig.value.pageHeight;
-    if (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin)) {
+    let amount = calculatedConfig.value.pageHeight * (config.pageScrollAmount / 100);
+    if (config.pageScrollAmount === 100 && (documentType.value !== "bible" || (documentType.value === "bible" && !config.topMargin))) {
         amount -= 1.5*lineHeight.value; // 1.5 times because last line might be otherwise displayed partially
     }
     return amount;
@@ -407,6 +426,29 @@ const scrollAmount = computed(() => {
 function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
+
+const helperLineStep: Record<number, number> = {25: 25, 33: 33, 50: 50, 66: 33, 75: 25};
+
+const helperLinePositions = computed(() => {
+    const pct = config.pageScrollAmount;
+    const step = helperLineStep[pct];
+    if (!step) return [];
+    const positions: number[] = [];
+    const topOff = calculatedConfig.value.topOffset;
+    const pageH = calculatedConfig.value.pageHeight;
+    for (let p = step; p < 100; p += step) {
+        positions.push(topOff + pageH * (p / 100));
+    }
+    return positions;
+});
+
+const helperLineClass = computed(() => {
+    switch (config.scrollHelperLineStyle) {
+        case 1: return 'helper-line-thin-solid';
+        case 2: return 'helper-line-thick-solid';
+        default: return 'helper-line-thin-dotted';
+    }
+});
 
 const pageNumberBottom = computed(() =>
     appSettings.isBottomWindow && !appSettings.bottomOffset ? '1cm' : `${appSettings.bottomOffset}px`
@@ -696,6 +738,73 @@ a {
     border-width: 1px;
   }
   z-index: 10;
+}
+
+.scroll-helper-line {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: 0;
+  z-index: 4;
+  pointer-events: none;
+
+  &.helper-line-thin-dotted {
+    border-top: 1px dotted var(--text-color);
+    opacity: 0.3;
+  }
+
+  &.helper-line-thin-solid {
+    border-top: 1px solid var(--text-color);
+    opacity: 0.3;
+  }
+
+  &.helper-line-thick-solid {
+    border-top: 2px solid var(--text-color);
+    opacity: 0.3;
+  }
+}
+
+.page-buttons {
+  position: fixed;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  [dir=ltr] & {
+    left: 8px;
+  }
+
+  [dir=rtl] & {
+    right: 8px;
+  }
+
+  .page-button {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    border: 1px solid var(--text-color);
+    background: var(--background-color);
+    color: var(--text-color);
+    opacity: 0.6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 21px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      opacity: 0.9;
+    }
+
+    .monochrome & {
+      background: white;
+      border-color: black;
+      color: black;
+      opacity: 1;
+    }
+  }
 }
 
 </style>

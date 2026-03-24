@@ -1857,4 +1857,18 @@
     <string name="ai_doc_choose_page">Choose AI document page</string>
     <string name="prefs_show_ai_doc_markers_title">Show AI document markers</string>
     <string name="prefs_show_ai_doc_markers_summary">Show marker icons for AI-generated document pages linked to verses</string>
+
+    <string name="prefs_page_scroll_amount_title">Page scroll amount</string>
+    <string name="prefs_page_scroll_amount_summary">How much of the page to scroll with page up/down</string>
+    <string name="page_scroll_amount_dialog_title">Page scroll amount</string>
+    <string name="prefs_scroll_helper_lines_title">Scroll helper lines</string>
+    <string name="prefs_scroll_helper_lines_summary">Show horizontal guide lines at page scroll boundaries</string>
+    <string name="prefs_scroll_helper_line_style_title">Helper line style</string>
+    <string name="prefs_scroll_helper_line_style_summary">Choose the visual style of scroll helper lines</string>
+    <string name="scroll_helper_line_style_dialog_title">Helper line style</string>
+    <string name="scroll_helper_line_style_thin_dotted">Thin dotted line</string>
+    <string name="scroll_helper_line_style_thin_solid">Thin solid line</string>
+    <string name="scroll_helper_line_style_thick_solid">Thick solid line</string>
+    <string name="prefs_page_buttons_title">Page scroll buttons</string>
+    <string name="prefs_page_buttons_summary">Show visible page up/down buttons on screen</string>
 </resources>

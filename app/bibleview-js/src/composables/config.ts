@@ -95,6 +95,10 @@ export type Config = {
     showTitleScrollButton: boolean,
     showMemorizationIndicators: boolean,
     autoTrackReading: boolean,
+    pageScrollAmount: number,
+    scrollHelperLines: boolean,
+    scrollHelperLineStyle: number,
+    showPageButtons: boolean,
 }
 
 export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|"COMPARE"|"SPEAK"|"MEMORIZE"|"ADD_MEMORIZATION_TARGET"|"REMOVE_MEMORIZATION_TARGET"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
@@ -198,6 +202,10 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showTitleScrollButton: false,
         showMemorizationIndicators: false,
         autoTrackReading: false,
+        pageScrollAmount: 100,
+        scrollHelperLines: false,
+        scrollHelperLineStyle: 0,
+        showPageButtons: false,
     });
     const rtl = new URLSearchParams(window.location.search).get("rtl") === "true";
     const nightMode = new URLSearchParams(window.location.search).get("night") === "true";
