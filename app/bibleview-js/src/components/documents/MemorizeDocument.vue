@@ -17,8 +17,7 @@
 
 <template>
   <h2>{{document.title}}</h2>
-  
-  <!-- Mode selection using TabContainer -->
+
   <TabContainer
       :tabs="tabsConfig"
       :default-tab="selectedTabId"
@@ -28,6 +27,31 @@
       :show-navigation="true"
       @tab-change="handleModeChange"
   >
+    <template #trailing>
+      <div class="menu-wrapper" ref="menuWrapper">
+        <div class="menu-trigger" @click="toggleMenu">
+          <FontAwesomeIcon :icon="faEllipsisV"/>
+        </div>
+        <div v-if="menuOpen" class="dropdown-menu">
+          <div v-if="!isMemorized" class="menu-item" @click="menuAction(markAsMemorized)">
+            <FontAwesomeIcon :icon="faCheck"/> {{ strings.markAsMemorized }}
+          </div>
+          <div v-else class="menu-item memorized" @click="menuAction(unmarkMemorized)">
+            <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
+          </div>
+          <div v-if="isTarget && !isMemorized" class="menu-item" @click="menuAction(removeFromTargets)">
+            <FontAwesomeIcon :icon="faBrain"/> {{ strings.removeFromTargets }}
+          </div>
+          <div v-if="!isTarget" class="menu-item" @click="menuAction(addToTargets)">
+            <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
+          </div>
+          <div class="menu-item" @click="menuAction(openProgress)">
+            <FontAwesomeIcon :icon="faChartLine"/> {{ strings.viewReadingProgress }}
+          </div>
+        </div>
+      </div>
+    </template>
+
     <!-- Word Blur Tab -->
     <template #blur>
       <WordBlur
@@ -57,25 +81,6 @@
       />
     </template>
   </TabContainer>
-
-  <!-- Mark as memorized / unmark button -->
-  <div class="memorize-actions">
-    <div v-if="!isMemorized" class="button" @click="markAsMemorized">
-      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markAsMemorized }}
-    </div>
-    <div v-else class="button memorized" @click="unmarkMemorized">
-      <FontAwesomeIcon :icon="faCheck"/> {{ strings.markedAsMemorized }}
-    </div>
-    <div v-if="isTarget && !isMemorized" class="button target" @click="removeFromTargets">
-      <FontAwesomeIcon :icon="faBrain"/> {{ strings.removeFromTargets }}
-    </div>
-    <div v-if="!isTarget" class="button" @click="addToTargets">
-      <FontAwesomeIcon :icon="faBrain"/> {{ strings.addMemorizationTarget }}
-    </div>
-    <div class="button" @click="openProgress">
-      <FontAwesomeIcon :icon="faChartLine"/> {{ strings.viewReadingProgress }}
-    </div>
-  </div>
 </template>
 
 <script lang="ts">
@@ -85,7 +90,7 @@ let lastSelectedMode: MemorizeStateMode | null = null;
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {computed, ref, toRefs, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, ref, toRefs, watch} from "vue";
 import {
     MemorizeDocument,
     MemorizeModeConfig,
@@ -96,7 +101,7 @@ import WordScramble from '@/components/memorize/WordScramble.vue';
 import WordType from '@/components/memorize/WordType.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBrain, faChartLine, faCheck, faEyeSlash, faKeyboard, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faBrain, faChartLine, faCheck, faEllipsisV, faEyeSlash, faKeyboard, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
 import {memorizationKey} from "@/types/constants";
 
@@ -183,6 +188,27 @@ function openProgress() {
     android.openReadingProgress(1);
 }
 
+const menuOpen = ref(false);
+const menuWrapper = ref<HTMLElement | null>(null);
+
+function toggleMenu() {
+    menuOpen.value = !menuOpen.value;
+}
+
+function menuAction(fn: () => void) {
+    menuOpen.value = false;
+    fn();
+}
+
+function onClickOutside(e: Event) {
+    if (menuWrapper.value && !menuWrapper.value.contains(e.target as Node)) {
+        menuOpen.value = false;
+    }
+}
+
+onMounted(() => document.value && window.addEventListener('click', onClickOutside));
+onBeforeUnmount(() => window.removeEventListener('click', onClickOutside));
+
 // Tab configuration for the TabContainer
 const tabsConfig = computed(() => [
     { 
@@ -249,18 +275,88 @@ h2 {
   text-align: center;
 }
 
-.memorize-actions {
+.menu-wrapper {
+  position: relative;
+  flex-shrink: 0;
   display: flex;
-  justify-content: center;
-  gap: 4px;
-  margin-top: 1em;
+  align-items: center;
+}
 
-  .button.memorized {
-    background-color: #4CAF50;
+.menu-trigger {
+  cursor: pointer;
+  padding: 8px 12px;
+  color: #666;
+  font-size: 18px;
+
+  .night & {
+    color: #999;
+  }
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--background-color);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 200px;
+  padding: 4px 0;
+  animation: dropdown-fade 0.15s ease;
+
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+  .monochrome & {
+    border-color: black;
+    box-shadow: none;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
+  .noAnimation & {
+    animation: none;
+  }
+}
+
+@keyframes dropdown-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  .night &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  .monochrome &:hover {
+    background: rgba(0, 0, 0, 0.1);
+  }
+  .monochrome.night &:hover {
+    background: rgba(255, 255, 255, 0.15);
   }
 
-  .button.target {
-    background-color: #9C27B0;
+  &.memorized {
+    color: #4CAF50;
   }
 }
 </style>

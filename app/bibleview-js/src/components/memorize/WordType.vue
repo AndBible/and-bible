@@ -28,10 +28,10 @@
          :class="{ completed: isCompleted }"
          @click="focusInput"
     >
-      <div v-if="!isFocused && !isCompleted" class="tap-hint">
+      <div v-if="!isFocused && !isCompleted && currentWordIndex === 0" class="tap-hint">
         {{ strings.tapToStartTyping }}
       </div>
-      <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
+      <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block" :class="{ hidden: !isFocused && !isCompleted && currentWordIndex === 0 }">
         <template v-for="(token, tokenIndex) in getWordsFromText(item.text)" :key="`${item.key}-${tokenIndex}`">
           <span
               :ref="el => setWordRef(getGlobalWordIndex(itemIndex, tokenIndex), el)"
@@ -433,6 +433,10 @@ onMounted(() => {
 
 .text-block {
   margin-bottom: 1rem;
+
+  &.hidden {
+    visibility: hidden;
+  }
 }
 
 .memorize-controls {

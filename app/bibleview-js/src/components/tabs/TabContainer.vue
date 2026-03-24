@@ -17,13 +17,15 @@
 
 <template>
   <div class="tab-container" :class="containerClass">
-    <TabNavigation
-        v-if="showNavigation"
-        :tabs="tabs"
-        :active-tab="activeTab"
-        :navigation-class="navigationClass"
-        @tab-change="handleTabChange"
-    />
+    <div v-if="showNavigation" class="tab-navigation-row">
+      <TabNavigation
+          :tabs="tabs"
+          :active-tab="activeTab"
+          :navigation-class="navigationClass"
+          @tab-change="handleTabChange"
+      />
+      <slot name="trailing"></slot>
+    </div>
     
     <div class="tab-content" :class="contentClass">
       <TabPanel
@@ -131,6 +133,16 @@ defineExpose({
 .tab-container {
   display: flex;
   flex-direction: column;
+}
+
+.tab-navigation-row {
+  display: flex;
+  align-items: stretch;
+
+  :deep(.tab-navigation) {
+    flex: 1;
+    min-width: 0;
+  }
 }
 
 .tab-content {
