@@ -23,6 +23,28 @@
 <resources
   xmlns:tools="http://schemas.android.com/tools"
   tools:ignore="MissingTranslation">
+    <string-array name="pageScrollAmountEntries">
+        <item>25%</item>
+        <item>33%</item>
+        <item>50%</item>
+        <item>66%</item>
+        <item>75%</item>
+        <item>100%</item>
+    </string-array>
+    <integer-array name="pageScrollAmountValues">
+        <item>25</item>
+        <item>33</item>
+        <item>50</item>
+        <item>66</item>
+        <item>75</item>
+        <item>100</item>
+    </integer-array>
+    <string-array name="scrollHelperLineStyleEntries">
+        <item>@string/scroll_helper_line_style_thin_dotted</item>
+        <item>@string/scroll_helper_line_style_thin_solid</item>
+        <item>@string/scroll_helper_line_style_thick_solid</item>
+    </string-array>
+
     <string-array name="strongsModeEntries">
 		<item>@string/strongs_hidden_links</item>
 		<item>@string/strongs_links</item>

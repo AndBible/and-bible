@@ -165,6 +165,26 @@
             android:title="@string/page_number_title"
             android:summary="@string/page_number_summary"
             />
+        <Preference
+            android:key="PAGE_SCROLL_AMOUNT"
+            android:title="@string/prefs_page_scroll_amount_title"
+            android:summary="@string/prefs_page_scroll_amount_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="SCROLL_HELPER_LINES"
+            android:title="@string/prefs_scroll_helper_lines_title"
+            android:summary="@string/prefs_scroll_helper_lines_summary"
+            />
+        <Preference
+            android:key="SCROLL_HELPER_LINE_STYLE"
+            android:title="@string/prefs_scroll_helper_line_style_title"
+            android:summary="@string/prefs_scroll_helper_line_style_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="PAGE_BUTTONS"
+            android:title="@string/prefs_page_buttons_title"
+            android:summary="@string/prefs_page_buttons_summary"
+            />
     </PreferenceCategory>
     <PreferenceCategory
         android:title="@string/prefs_text_bookmarks_title"

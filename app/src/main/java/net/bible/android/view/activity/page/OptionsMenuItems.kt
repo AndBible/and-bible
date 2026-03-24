@@ -255,6 +255,10 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.TITLE_SCROLL_BUTTON -> R.string.prefs_title_scroll_button_title
                 TextDisplaySettings.Types.MEMORIZATION_INDICATORS -> R.string.prefs_show_memorization_indicators_title
                 TextDisplaySettings.Types.AUTO_TRACK_READING -> R.string.prefs_auto_track_reading_title
+                TextDisplaySettings.Types.PAGE_SCROLL_AMOUNT -> R.string.prefs_page_scroll_amount_title
+                TextDisplaySettings.Types.SCROLL_HELPER_LINES -> R.string.prefs_scroll_helper_lines_title
+                TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE -> R.string.prefs_scroll_helper_line_style_title
+                TextDisplaySettings.Types.PAGE_BUTTONS -> R.string.prefs_page_buttons_title
             }
             return application.getString(id)
         }
@@ -413,6 +417,45 @@ class NonStrongsWordItalicPreference(settings: SettingsBundle): Preference(setti
         set(value) {
             super.value = value
         }
+}
+
+class PageScrollAmountPreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.PAGE_SCROLL_AMOUNT) {
+    private val scrollValues = intArrayOf(25, 33, 50, 66, 75, 100)
+
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val items = activity.resources.getStringArray(R.array.pageScrollAmountEntries)
+        val currentIndex = scrollValues.indexOf(valueInt).let { if (it < 0) scrollValues.size - 1 else it }
+        var newChoice = currentIndex
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.page_scroll_amount_dialog_title)
+            .setSingleChoiceItems(items, currentIndex) { _, v -> newChoice = v }
+            .setPositiveButton(R.string.okay) { _, _ ->
+                value = scrollValues[newChoice]
+                onChanged?.invoke(scrollValues[newChoice])
+            }
+            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+        return true
+    }
+}
+
+class ScrollHelperLineStylePreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE) {
+    override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
+        val items = activity.resources.getStringArray(R.array.scrollHelperLineStyleEntries)
+        var newChoice = valueInt
+        AlertDialog.Builder(activity)
+            .setTitle(R.string.scroll_helper_line_style_dialog_title)
+            .setSingleChoiceItems(items, valueInt) { _, v -> newChoice = v }
+            .setPositiveButton(R.string.okay) { _, _ ->
+                value = newChoice
+                onChanged?.invoke(newChoice)
+            }
+            .setNeutralButton(R.string.reset_generic) { _, _ -> setNonSpecific(); onReset?.invoke() }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+        return true
+    }
 }
 
 class FootnotesInlinePreference(settings: SettingsBundle): Preference(settings, TextDisplaySettings.Types.FOOTNOTES_INLINE) {

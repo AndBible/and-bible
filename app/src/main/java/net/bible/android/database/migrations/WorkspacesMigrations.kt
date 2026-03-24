@@ -266,6 +266,21 @@ private val addAiDocMarkers = makeMigration(19..20) { _db ->
     _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showAiDocMarkers` INTEGER DEFAULT NULL")
 }
 
+private val addPageScrollSettings = makeMigration(20..21) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_pageScrollAmount` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_pageScrollAmount` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_pageScrollAmount` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_scrollHelperLines` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_scrollHelperLines` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_scrollHelperLines` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_scrollHelperLineStyle` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_scrollHelperLineStyle` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_scrollHelperLineStyle` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showPageButtons` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showPageButtons` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showPageButtons` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -286,6 +301,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addMemorizationIndicators,
     addAutoTrackReading,
     addAiDocMarkers,
+    addPageScrollSettings,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 20
+const val WORKSPACE_DATABASE_VERSION = 21

@@ -62,6 +62,8 @@ import net.bible.android.view.activity.page.AiDocMarkersPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
+import net.bible.android.view.activity.page.ScrollHelperLineStylePreference
+import net.bible.android.view.activity.page.PageScrollAmountPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.android.view.activity.page.InfiniteScrollPreference
@@ -142,6 +144,10 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
         Types.AUTO_TRACK_READING -> ItemPreference(settings, Types.AUTO_TRACK_READING)
         Types.AI_DOC_MARKERS -> AiDocMarkersPreference(settings)
+        Types.PAGE_SCROLL_AMOUNT -> PageScrollAmountPreference(settings)
+        Types.SCROLL_HELPER_LINES -> ItemPreference(settings, Types.SCROLL_HELPER_LINES)
+        Types.SCROLL_HELPER_LINE_STYLE -> ScrollHelperLineStylePreference(settings)
+        Types.PAGE_BUTTONS -> ItemPreference(settings, Types.PAGE_BUTTONS)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
