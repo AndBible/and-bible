@@ -42,4 +42,8 @@
         android:id="@+id/show_long_book_name"
         android:title="@string/book_menu_show_long_book_name"
         android:checkable="true"/>
+    <item
+        android:id="@+id/show_progress_bars"
+        android:title="@string/book_menu_show_progress_bars"
+        android:checkable="true"/>
 </menu>

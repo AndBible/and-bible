@@ -92,13 +92,15 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                         buttonInfo.textColor = BookColorAndGroup.Color
                         buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     }
-                    val readingProgress = ProgressControl.getReadingProgress(versification, book)
-                    val memorizationProgress = ProgressControl.getMemorizationProgress(versification, book)
-                    buttonInfo.progressFraction = maxOf(readingProgress, memorizationProgress)
-                    if (memorizationProgress > readingProgress) {
-                        buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
-                    } else {
-                        buttonInfo.progressColor = READING_PROGRESS_COLOR
+                    if (CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_PROGRESS, true)) {
+                        val readingProgress = ProgressControl.getReadingProgress(versification, book)
+                        val memorizationProgress = ProgressControl.getMemorizationProgress(versification, book)
+                        buttonInfo.progressFraction = maxOf(readingProgress, memorizationProgress)
+                        if (memorizationProgress > readingProgress) {
+                            buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
+                        } else {
+                            buttonInfo.progressColor = READING_PROGRESS_COLOR
+                        }
                     }
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"
@@ -170,6 +172,8 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         buttonGrid.isShowLongBookName = CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_LONG_NAME, false)
         menu.findItem(R.id.show_long_book_name).isChecked  = buttonGrid.isShowLongBookName
 
+        menu.findItem(R.id.show_progress_bars).isChecked = CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_PROGRESS, true)
+
         val deutToggle = menu.findItem(R.id.deut_toggle)
         deutToggle.setTitle(if(isCurrentlyShowingScripture) R.string.bible else R.string.deuterocanonical)
         deutToggle.isVisible = navigationControl.getBibleBooks(false).isNotEmpty()
@@ -219,6 +223,14 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
             buttonGrid.addBookButtons(bibleBookButtonInfo)
             saveOptions()
             invalidateOptionsMenu()
+            true
+        }
+        R.id.show_progress_bars -> {
+            val newValue = !item.isChecked
+            CommonUtils.settings.setBoolean(BOOK_GRID_SHOW_PROGRESS, newValue)
+            item.isChecked = newValue
+            buttonGrid.clear()
+            buttonGrid.addBookButtons(bibleBookButtonInfo)
             true
         }
         R.id.deut_toggle -> {
@@ -341,6 +353,7 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
         public const val BOOK_GRID_FLOW_PREFS = "book_grid_ltr"
         public const val BOOK_GRID_FLOW_PREFS_GROUP_BY_CATEGORY = "book_grid_group_by_category"
         public const val BOOK_GRID_SHOW_LONG_NAME = "book_grid_show_long_name"
+        public const val BOOK_GRID_SHOW_PROGRESS = "book_grid_show_progress"
         private const val TAG = "GridChoosePassageBook"
 
         fun getBookColorAndGroup(bookNo: Int):  ExtraBookInfo {
