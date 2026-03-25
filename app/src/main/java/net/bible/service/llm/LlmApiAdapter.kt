@@ -76,7 +76,7 @@ private fun ChatMessage.Role.toWireRole(): WireRole = when (this) {
 interface LlmApiAdapter {
     fun buildEndpointUrl(baseEndpoint: String): String
     fun buildHeaders(apiKey: String, extraHeaders: Map<String, String>): Map<String, String>
-    fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String
+    fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double?): String
     fun parseResponse(responseBody: String): ParsedResponse
     fun extractUsage(responseBody: String): LlmUsage
     fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage
@@ -100,7 +100,7 @@ class OpenAiApiAdapter : LlmApiAdapter {
         return headers
     }
 
-    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String {
+    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double?): String {
         val wireMessages = messages.map { it.toOpenAiWire() }
         val wireTools = toolDefs.map { def ->
             OpenAiWireTool(function = OpenAiWireToolDef(
@@ -234,7 +234,7 @@ class AnthropicApiAdapter : LlmApiAdapter {
         return headers
     }
 
-    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double): String {
+    override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double?): String {
         var systemBlocks: List<AnthropicSystemBlock>? = null
         val wireMessages = mutableListOf<AnthropicWireMessage>()
 

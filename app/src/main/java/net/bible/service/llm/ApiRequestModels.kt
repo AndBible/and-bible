@@ -39,7 +39,7 @@ data class OpenAiRequest(
     val model: String,
     val messages: List<OpenAiWireMessage>,
     val tools: List<OpenAiWireTool>? = null,
-    val temperature: Double
+    val temperature: Double? = null
 )
 
 @Serializable
@@ -85,7 +85,7 @@ data class AnthropicRequest(
     val messages: List<AnthropicWireMessage>,
     @SerialName("max_tokens") val maxTokens: Int,
     val tools: List<AnthropicWireTool>? = null,
-    val temperature: Double
+    val temperature: Double? = null
 )
 
 @Serializable
