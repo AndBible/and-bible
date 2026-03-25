@@ -1,0 +1,16 @@
+- Use dynamic model lists in prompt editor with pricing display and automatic API key detection (cda24a6b1)
+- Generalize dynamic model fetching to all OpenAI-compatible providers (95d5a5e79)
+- Show small LLM costs with 3 decimal places instead of "< $0.01" (426c5fc4a)
+- Handle models that reject temperature parameter gracefully (d8d398287)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
