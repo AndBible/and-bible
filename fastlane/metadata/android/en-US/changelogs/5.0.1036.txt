@@ -1,0 +1,18 @@
+- Add option to hide reading progress bars in book chooser (#3710)
+- Display model pricing and dynamically fetch models for OpenAI-compatible providers (ad839cde0, 95d5a5e79)
+- Reorganize text display settings into smaller, more focused categories (20ac0939c)
+- Show AI agent processing status in notifications (98ec42f2e)
+- Make memorization goals and passages tappable (#3701)
+- Handle LLM models that reject temperature parameter gracefully (d8d398287)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
