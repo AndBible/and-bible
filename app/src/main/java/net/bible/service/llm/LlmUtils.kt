@@ -43,6 +43,10 @@ enum class LlmProvider(
     val apiFormat: ApiFormat = ApiFormat.OPENAI,
     val tier: ProviderTier = ProviderTier.RECOMMENDED,
     val apiKeyUrl: String? = null,
+    /** Whether this provider supports dynamic model list fetching via GET /v1/models. */
+    val supportsDynamicModels: Boolean = true,
+    /** Whether the /models endpoint works without an API key. */
+    val modelsEndpointPublic: Boolean = false,
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
         "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
@@ -59,7 +63,7 @@ enum class LlmProvider(
         "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08),
         "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30),
         "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50),
-    ), apiFormat = ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys"),
+    ), apiFormat = ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys", supportsDynamicModels = false),
     XAI("xAI (Grok)", "https://api.x.ai/v1", listOf(
         "grok-4-0709" to p(3.00, 15.00),
         "grok-4-1-fast-reasoning" to p(3.00, 15.00),
@@ -87,8 +91,8 @@ enum class LlmProvider(
         "anthropic/claude-sonnet-4" to null,
         "google/gemini-2.5-flash" to null,
         "openai/gpt-5-mini" to null,
-    ), apiKeyUrl = "https://openrouter.ai/keys"),
-    CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED);
+    ), apiKeyUrl = "https://openrouter.ai/keys", modelsEndpointPublic = true),
+    CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED, supportsDynamicModels = false);
 
     val models: List<String> get() = modelPricing.map { it.first }
 

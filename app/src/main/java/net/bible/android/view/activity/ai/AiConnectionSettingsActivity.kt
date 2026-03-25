@@ -57,7 +57,7 @@ import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.ModelPricing
-import net.bible.service.llm.OpenRouterModelService
+import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
@@ -311,19 +311,19 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val customOutputPriceInput: EditText,
         val defaultCheckBox: CheckBox?,
         val models: MutableList<String>,
-        // OpenRouter-specific fields
-        val isOpenRouter: Boolean = false,
-        val openRouterCategorySpinner: Spinner? = null,
-        val openRouterModelSpinner: Spinner? = null,
-        val openRouterModelIds: MutableList<String> = mutableListOf(),
-        val openRouterModels: MutableList<OpenRouterModelService.OpenRouterModel> = mutableListOf(),
+        // Dynamic model list fields (for providers with supportsDynamicModels)
+        val hasDynamicModels: Boolean = false,
+        val dynamicCategorySpinner: Spinner? = null,
+        val dynamicModelSpinner: Spinner? = null,
+        val dynamicModelIds: MutableList<String> = mutableListOf(),
+        val dynamicModels: MutableList<DynamicModelService.DynamicModel> = mutableListOf(),
     ) {
-        /** Get the selected model name, handling both normal and OpenRouter modes. */
+        /** Get the selected model name, handling both static and dynamic model modes. */
         fun getSelectedModel(): String? {
-            if (isOpenRouter && openRouterModelSpinner != null) {
-                val pos = openRouterModelSpinner.selectedItemPosition
-                return if (pos >= 0 && pos < openRouterModelIds.size) {
-                    openRouterModelIds[pos]
+            if (hasDynamicModels && dynamicModelSpinner != null) {
+                val pos = dynamicModelSpinner.selectedItemPosition
+                return if (pos >= 0 && pos < dynamicModelIds.size) {
+                    dynamicModelIds[pos]
                 } else null
             }
             val pos = modelSpinner.selectedItemPosition
@@ -356,11 +356,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val fields = buildProviderDialogLayout(layout, config, provider, isCustom)
         setupModelPricingListeners(fields)
 
-        // For OpenRouter, check if model list needs refreshing
-        if (provider == LlmProvider.OPENROUTER) {
-            maybeRefreshOpenRouterModels(fields)
-        }
-
         val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
 
         val dialog = AlertDialog.Builder(context)
@@ -389,6 +384,12 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
             }
         })
+
+        // Check dynamic model refresh after provider dialog is shown, so the
+        // confirmation dialog appears on top of it (not behind it).
+        if (provider.supportsDynamicModels) {
+            maybeRefreshDynamicModels(fields, provider)
+        }
     }
 
     private fun buildProviderDialogLayout(
@@ -435,24 +436,24 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
         } else null
 
-        val isOpenRouter = provider == LlmProvider.OPENROUTER
+        val hasDynamicModels = provider.supportsDynamicModels
         val models = provider.models.toMutableList()
         val currentModel = config?.defaultModel ?: ""
         if (currentModel.isNotBlank() && currentModel !in models) {
             models.add(0, currentModel)
         }
-        if (!isOpenRouter) {
+        if (!hasDynamicModels) {
             models.add(getString(R.string.llm_custom_model))
         }
 
-        // OpenRouter-specific UI: category spinner + model spinner + fetch button
-        var openRouterCategorySpinner: Spinner? = null
-        var openRouterModelSpinner: Spinner? = null
-        val openRouterModelIds = mutableListOf<String>()
-        val openRouterModels = mutableListOf<OpenRouterModelService.OpenRouterModel>()
+        // Dynamic model list: category spinner + model spinner
+        var dynamicCategorySpinner: Spinner? = null
+        var dynamicModelSpinner: Spinner? = null
+        val dynamicModelIds = mutableListOf<String>()
+        val dynamicModels = mutableListOf<DynamicModelService.DynamicModel>()
 
         // Sort models by price (input+output), keep "Custom…" last
-        val customLabel = if (!isOpenRouter) getString(R.string.llm_custom_model) else null
+        val customLabel = if (!hasDynamicModels) getString(R.string.llm_custom_model) else null
         val sortedModels = models.filter { it != customLabel }.sortedBy { modelId ->
             val pricing = LlmProvider.findPricing(modelId)
             pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
@@ -476,29 +477,37 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val customModelInput: EditText
 
-        if (isOpenRouter) {
-            // Hide normal model spinner for OpenRouter
+        if (hasDynamicModels) {
+            // Hide normal model spinner for dynamic providers
             modelSpinner.visibility = View.GONE
 
-            // Load cached models if available
-            val cached = OpenRouterModelService.getCachedModels()
+            // Load cached models, falling back to hardcoded models from enum
+            val cached = DynamicModelService.getCachedModels(provider.name)
             if (cached != null) {
-                openRouterModels.addAll(cached)
+                dynamicModels.addAll(cached)
+            } else {
+                // Use hardcoded models as fallback (e.g. before first fetch)
+                dynamicModels.addAll(provider.modelPricing.map { (id, pricing) ->
+                    DynamicModelService.DynamicModel(id, id, pricing)
+                })
             }
 
-            // Category spinner
-            openRouterCategorySpinner = Spinner(context)
-            updateOpenRouterCategorySpinner(openRouterCategorySpinner, openRouterModels)
-            addLabeledField(layout, getString(R.string.llm_openrouter_category), openRouterCategorySpinner)
+            // Category spinner — only shown if models have "/" prefixes (e.g. OpenRouter, Groq)
+            val hasCategories = dynamicModels.any { it.id.contains('/') }
+            if (hasCategories) {
+                dynamicCategorySpinner = Spinner(context)
+                updateDynamicCategorySpinner(dynamicCategorySpinner, dynamicModels)
+                addLabeledField(layout, getString(R.string.llm_openrouter_category), dynamicCategorySpinner)
+            }
 
-            // Model spinner (filtered by category)
-            val orModelSpinner = Spinner(context)
-            val orModelIds = mutableListOf<String>()
-            updateOpenRouterModelSpinner(orModelSpinner, orModelIds, openRouterModels, null, currentModel)
-            addLabeledField(layout, getString(R.string.llm_openrouter_model), orModelSpinner)
-            openRouterModelSpinner = orModelSpinner
+            // Model spinner (filtered by category if applicable)
+            val dynModelSpinner = Spinner(context)
+            val dynModelIds = mutableListOf<String>()
+            updateDynamicModelSpinner(dynModelSpinner, dynModelIds, dynamicModels, null, currentModel)
+            addLabeledField(layout, getString(R.string.llm_openrouter_model), dynModelSpinner)
+            dynamicModelSpinner = dynModelSpinner
 
-            // Hidden customModelInput (unused for OpenRouter but needed by ProviderDialogFields)
+            // Hidden customModelInput (unused for dynamic providers)
             customModelInput = EditText(context).apply { visibility = View.GONE }
         } else {
             addLabeledField(layout, getString(R.string.ai_provider_default_model), modelSpinner)
@@ -564,20 +573,20 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             customOutputPriceInput = customOutputPriceInput,
             defaultCheckBox = defaultCheckBox,
             models = models,
-            isOpenRouter = isOpenRouter,
-            openRouterCategorySpinner = openRouterCategorySpinner,
-            openRouterModelSpinner = openRouterModelSpinner,
-            openRouterModelIds = openRouterModelIds,
-            openRouterModels = openRouterModels,
+            hasDynamicModels = hasDynamicModels,
+            dynamicCategorySpinner = dynamicCategorySpinner,
+            dynamicModelSpinner = dynamicModelSpinner,
+            dynamicModelIds = dynamicModelIds,
+            dynamicModels = dynamicModels,
         )
     }
 
     private fun setupModelPricingListeners(fields: ProviderDialogFields) {
         fun updateCustomPricingVisibility() {
-            val modelName = if (fields.isOpenRouter) {
-                val orSpinner = fields.openRouterModelSpinner
+            val modelName = if (fields.hasDynamicModels) {
+                val orSpinner = fields.dynamicModelSpinner
                 val pos = orSpinner?.selectedItemPosition ?: -1
-                if (pos >= 0 && pos < fields.openRouterModelIds.size) fields.openRouterModelIds[pos] else ""
+                if (pos >= 0 && pos < fields.dynamicModelIds.size) fields.dynamicModelIds[pos] else ""
             } else {
                 val pos = fields.modelSpinner.selectedItemPosition
                 if (pos == fields.models.size - 1) {
@@ -598,8 +607,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        if (fields.isOpenRouter) {
-            setupOpenRouterListeners(fields, ::updateCustomPricingVisibility)
+        if (fields.hasDynamicModels) {
+            setupDynamicModelListeners(fields, ::updateCustomPricingVisibility)
         } else {
             fields.modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -619,23 +628,24 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         updateCustomPricingVisibility()
     }
 
-    private fun setupOpenRouterListeners(fields: ProviderDialogFields, updatePricing: () -> Unit) {
-        val categorySpinner = fields.openRouterCategorySpinner ?: return
-        val orModelSpinner = fields.openRouterModelSpinner ?: return
+    private fun setupDynamicModelListeners(fields: ProviderDialogFields, updatePricing: () -> Unit) {
+        val dynModelSpinner = fields.dynamicModelSpinner ?: return
 
-        // Category spinner filters the model spinner
-        categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedCategory = if (position == 0) null else categorySpinner.selectedItem?.toString()?.lowercase()
-                val currentModel = fields.getSelectedModel() ?: ""
-                updateOpenRouterModelSpinner(orModelSpinner, fields.openRouterModelIds, fields.openRouterModels, selectedCategory, currentModel)
-                updatePricing()
+        // Category spinner filters the model spinner (only present if models have "/" prefixes)
+        fields.dynamicCategorySpinner?.let { categorySpinner ->
+            categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val selectedCategory = if (position == 0) null else categorySpinner.selectedItem?.toString()?.lowercase()
+                    val currentModel = fields.getSelectedModel() ?: ""
+                    updateDynamicModelSpinner(dynModelSpinner, fields.dynamicModelIds, fields.dynamicModels, selectedCategory, currentModel)
+                    updatePricing()
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
         // Model spinner selection changes update pricing visibility
-        orModelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        dynModelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 updatePricing()
             }
@@ -644,50 +654,54 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private companion object {
-        private const val PREF_OPENROUTER_AUTO_FETCH = "openrouter_auto_fetch_models"
+        private const val PREF_AUTO_FETCH_MODELS = "auto_fetch_dynamic_models"
     }
 
     /**
-     * Check if OpenRouter model list needs fetching (no cache or >7 days old)
+     * Check if a provider's dynamic model list needs fetching (no cache or >7 days old)
      * and prompt the user or fetch automatically based on preferences.
      */
-    private fun maybeRefreshOpenRouterModels(fields: ProviderDialogFields) {
-        val cacheAge = System.currentTimeMillis() - OpenRouterModelService.cacheTimestamp
-        val needsRefresh = OpenRouterModelService.cacheTimestamp == 0L || cacheAge > 7 * 24 * 60 * 60 * 1000L
+    private fun maybeRefreshDynamicModels(fields: ProviderDialogFields, provider: LlmProvider) {
+        if (!DynamicModelService.needsRefresh(provider.name)) return
 
-        if (!needsRefresh) return
+        // Don't attempt fetch without an API key unless the provider's endpoint is public
+        val apiKey = fields.apiKeyInput.text.toString().trim()
+        if (apiKey.isBlank() && !provider.modelsEndpointPublic) return
 
-        val autoFetch = CommonUtils.settings.getBoolean(PREF_OPENROUTER_AUTO_FETCH, false)
+        val autoFetch = CommonUtils.settings.getBoolean(PREF_AUTO_FETCH_MODELS, false)
         if (autoFetch) {
-            doFetchOpenRouterModels(fields)
+            doFetchDynamicModels(fields, provider)
         } else {
             AlertDialog.Builder(requireContext())
                 .setTitle(R.string.llm_fetch_models_title)
-                .setMessage(R.string.llm_fetch_models_message)
+                .setMessage(getString(R.string.llm_fetch_models_message, provider.displayName))
                 .setPositiveButton(R.string.okay) { _, _ ->
-                    doFetchOpenRouterModels(fields)
+                    doFetchDynamicModels(fields, provider)
                 }
                 .setNeutralButton(R.string.llm_fetch_models_dont_ask) { _, _ ->
-                    CommonUtils.settings.setBoolean(PREF_OPENROUTER_AUTO_FETCH, true)
-                    doFetchOpenRouterModels(fields)
+                    CommonUtils.settings.setBoolean(PREF_AUTO_FETCH_MODELS, true)
+                    doFetchDynamicModels(fields, provider)
                 }
                 .setNegativeButton(R.string.cancel, null)
                 .show()
         }
     }
 
-    private fun doFetchOpenRouterModels(fields: ProviderDialogFields) {
+    private fun doFetchDynamicModels(fields: ProviderDialogFields, provider: LlmProvider) {
         val currentModel = fields.getSelectedModel() ?: ""
+        val apiKey = fields.apiKeyInput.text.toString().trim()
 
         lifecycleScope.launch {
-            val models = OpenRouterModelService.fetchModels()
+            val models = DynamicModelService.fetchModels(provider.endpoint, apiKey, provider.name)
             if (models != null) {
-                fields.openRouterModels.clear()
-                fields.openRouterModels.addAll(models)
+                fields.dynamicModels.clear()
+                fields.dynamicModels.addAll(models)
 
-                updateOpenRouterCategorySpinner(fields.openRouterCategorySpinner!!, models)
-                updateOpenRouterModelSpinner(
-                    fields.openRouterModelSpinner!!, fields.openRouterModelIds,
+                // Update category spinner if present
+                fields.dynamicCategorySpinner?.let { updateDynamicCategorySpinner(it, models) }
+
+                updateDynamicModelSpinner(
+                    fields.dynamicModelSpinner!!, fields.dynamicModelIds,
                     models, null, currentModel
                 )
 
@@ -700,7 +714,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun updateOpenRouterCategorySpinner(spinner: Spinner, models: List<OpenRouterModelService.OpenRouterModel>) {
+    private fun updateDynamicCategorySpinner(spinner: Spinner, models: List<DynamicModelService.DynamicModel>) {
         val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
         categories.addAll(
             models.map { it.category }.filter { it.isNotBlank() }.distinct().sorted()
@@ -711,10 +725,10 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
-    private fun updateOpenRouterModelSpinner(
+    private fun updateDynamicModelSpinner(
         spinner: Spinner,
         modelIds: MutableList<String>,
-        models: List<OpenRouterModelService.OpenRouterModel>,
+        models: List<DynamicModelService.DynamicModel>,
         category: String?,
         currentModel: String
     ) {
@@ -732,7 +746,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         // Display labels with pricing info
         val displayLabels = modelIds.map { id ->
             val pricing = filtered.find { it.id == id }?.pricing
-                ?: OpenRouterModelService.getPricingForModel(id)
+                ?: LlmProvider.findPricing(id)
+                ?: DynamicModelService.getPricingForModel(id)
             formatModelWithPricing(id, pricing)
         }
         spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayLabels).apply {

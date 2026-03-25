@@ -1537,7 +1537,7 @@
 
     <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
     <string name="llm_fetch_models_title">Download model list</string>
-    <string name="llm_fetch_models_message">Download the list of available models and their pricing from OpenRouter?</string>
+    <string name="llm_fetch_models_message">Download the list of available models from %1$s?</string>
     <string name="llm_fetch_models_dont_ask">Don\'t ask again</string>
     <string name="llm_fetch_models_success">Loaded %1$d models</string>
     <string name="llm_fetch_models_failed">Failed to fetch models</string>

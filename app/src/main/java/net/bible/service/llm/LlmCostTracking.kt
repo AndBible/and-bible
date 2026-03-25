@@ -49,7 +49,7 @@ object LlmPricing {
 
     fun getPricing(model: String, providerConfigId: IdType? = null): ModelPricing? =
         LlmProvider.findPricing(model)
-            ?: OpenRouterModelService.getPricingForModel(model)
+            ?: DynamicModelService.getPricingForModel(model)
             ?: getCustomPricing(providerConfigId)
 
     fun estimateCost(usage: LlmUsage, model: String, providerConfigId: IdType? = null): Double? {
@@ -75,7 +75,7 @@ object LlmPricing {
     }
 
     fun isKnownModel(model: String): Boolean =
-        LlmProvider.hasKnownPricing(model) || OpenRouterModelService.getPricingForModel(model) != null
+        LlmProvider.hasKnownPricing(model) || DynamicModelService.getPricingForModel(model) != null
 }
 
 /**
