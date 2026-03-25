@@ -132,7 +132,7 @@ object LlmCostTracker {
     }
 
     fun formatCost(cost: Double): String =
-        if (cost < 0.01 && cost > 0) "< \$0.01" else "\$%.2f".format(cost)
+        if (cost < 0.01 && cost > 0) "\$%.3f".format(cost) else "\$%.2f".format(cost)
 
     fun formatUsageSummary(usage: LlmUsage, model: String): String {
         val cost = LlmPricing.estimateCost(usage, model)
