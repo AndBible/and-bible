@@ -23,6 +23,7 @@ import android.graphics.Typeface
 import android.util.TypedValue
 import android.os.Bundle
 import android.text.InputType
+import android.text.Editable
 import android.text.TextWatcher
 import android.text.method.LinkMovementMethod
 import android.view.MenuItem
@@ -380,7 +381,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         fields.apiKeyInput.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) {
+            override fun afterTextChanged(s: Editable?) {
                 okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
             }
         })
@@ -389,6 +390,22 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         // confirmation dialog appears on top of it (not behind it).
         if (provider.supportsDynamicModels) {
             maybeRefreshDynamicModels(fields, provider)
+
+            // When user enters an API key and models haven't been fetched yet, try fetching
+            if (!provider.modelsEndpointPublic) {
+                fields.apiKeyInput.addTextChangedListener(object : TextWatcher {
+                    private var hadKey = fields.apiKeyInput.text.toString().trim().isNotBlank()
+                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                    override fun afterTextChanged(s: Editable?) {
+                        val hasKey = s?.toString()?.trim()?.isNotBlank() == true
+                        if (hasKey && !hadKey && DynamicModelService.needsRefresh(provider.name)) {
+                            hadKey = true
+                            maybeRefreshDynamicModels(fields, provider)
+                        }
+                    }
+                })
+            }
         }
     }
 
@@ -502,8 +519,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
             // Model spinner (filtered by category if applicable)
             val dynModelSpinner = Spinner(context)
-            val dynModelIds = mutableListOf<String>()
-            updateDynamicModelSpinner(dynModelSpinner, dynModelIds, dynamicModels, null, currentModel)
+            updateDynamicModelSpinner(dynModelSpinner, dynamicModelIds, dynamicModels, null, currentModel)
             addLabeledField(layout, getString(R.string.llm_openrouter_model), dynModelSpinner)
             dynamicModelSpinner = dynModelSpinner
 
@@ -621,7 +637,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             fields.customModelInput.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
+                override fun afterTextChanged(s: Editable?) { updateCustomPricingVisibility() }
             })
         }
 

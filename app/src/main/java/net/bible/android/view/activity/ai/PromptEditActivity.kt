@@ -40,6 +40,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
+import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
@@ -566,29 +567,80 @@ class PromptEditActivity : ActivityBase() {
         updateModelOverrideSpinnerForProvider()
     }
 
+    /** All models for the current provider (before category filtering). */
+    private var allModelsForProvider: List<String> = emptyList()
+
     private fun updateModelOverrideSpinnerForProvider() {
         val selectedProviderConfigId = getSelectedProviderConfigId()
         val providerConfig = selectedProviderConfigId?.let { id -> providerConfigs.find { it.id == id } }
             ?: providerConfigs.find { it.isDefault }
 
         val provider = providerConfig?.resolveProvider()
+        allModelsForProvider = providerConfig?.resolveModels() ?: provider?.models ?: emptyList()
 
+        // Show category spinner if models have "/" prefixes (e.g. OpenRouter)
+        val hasCategories = allModelsForProvider.any { it.contains('/') }
+        if (hasCategories) {
+            val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
+            categories.addAll(
+                allModelsForProvider.map { it.substringBefore('/') }
+                    .filter { it.isNotBlank() }.distinct().sorted()
+                    .map { it.replaceFirstChar { c -> c.uppercaseChar() } }
+            )
+            binding.modelCategorySpinner.visibility = View.VISIBLE
+            binding.modelCategorySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories).apply {
+                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            }
+            binding.modelCategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    val category = if (position == 0) null else categories[position].lowercase()
+                    populateModelSpinner(category)
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+        } else {
+            binding.modelCategorySpinner.visibility = View.GONE
+        }
+
+        populateModelSpinner(null)
+    }
+
+    private fun populateModelSpinner(category: String?) {
+        val models = if (category == null) allModelsForProvider
+            else allModelsForProvider.filter { it.substringBefore('/') == category }
+
+        val selectedProviderConfigId = getSelectedProviderConfigId()
+        val providerConfig = selectedProviderConfigId?.let { id -> providerConfigs.find { it.id == id } }
+            ?: providerConfigs.find { it.isDefault }
         val globalModel = providerConfig?.resolveDefaultModel() ?: ""
         val defaultSuffix = " (${getString(R.string.prompt_model_default)})"
         val customLabel = getString(R.string.prompt_model_custom)
 
         val displayEntries = mutableListOf<String>()
         val values = mutableListOf<String?>()
-        for (model in provider?.models ?: emptyList()) {
+
+        // Sort by pricing (cheapest first)
+        val sorted = models.sortedBy { modelId ->
+            val pricing = LlmPricing.getPricing(modelId)
+            pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
+        }
+
+        for (model in sorted) {
+            val pricing = LlmPricing.getPricing(model)
+            val label = if (pricing != null) {
+                val inp = formatPriceCompact(pricing.inputPerMillion)
+                val out = formatPriceCompact(pricing.outputPerMillion)
+                "$model ($inp/$out)"
+            } else model
+
             if (model == globalModel) {
-                displayEntries.add(model + defaultSuffix)
-                values.add(null)  // null = use global/provider default
+                displayEntries.add(label + defaultSuffix)
+                values.add(null)
             } else {
-                displayEntries.add(model)
+                displayEntries.add(label)
                 values.add(model)
             }
         }
-        // If global model wasn't in the provider list, add it at the top
         if (null !in values) {
             displayEntries.add(0, (globalModel.ifEmpty { "default" }) + defaultSuffix)
             values.add(0, null)
@@ -606,7 +658,6 @@ class PromptEditActivity : ActivityBase() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        // Restore selection
         if (currentSelection != null) {
             val idx = values.indexOf(currentSelection)
             if (idx >= 0) binding.modelOverrideSpinner.setSelection(idx)
@@ -620,6 +671,10 @@ class PromptEditActivity : ActivityBase() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
+
+    private fun formatPriceCompact(pricePerMillion: Double): String =
+        if (pricePerMillion < 0.01 && pricePerMillion > 0) "< \$0.01"
+        else "\$%.2f".format(pricePerMillion)
 
     private fun setModelOverride(modelOverride: String?) {
         val idx = if (modelOverride == null) {

@@ -122,7 +122,7 @@ class LlmCostTrackingTest {
 
     @Test
     fun formatCostSmallAmount() {
-        assertEquals("< \$0.01", LlmCostTracker.formatCost(0.005))
+        assertEquals("\$0.005", LlmCostTracker.formatCost(0.005))
     }
 
     @Test

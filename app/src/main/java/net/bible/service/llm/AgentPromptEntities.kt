@@ -165,7 +165,11 @@ data class LlmProviderConfig(
         ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
     }
 
-    fun resolveModels(): List<String> = resolveProvider().models
+    fun resolveModels(): List<String> {
+        val provider = resolveProvider()
+        val dynamic = DynamicModelService.getCachedModels(provider.name)
+        return dynamic?.map { it.id } ?: provider.models
+    }
 
     /** Explicit choice, or first from provider's list. */
     fun resolveDefaultModel(): String =
