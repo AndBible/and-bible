@@ -229,8 +229,12 @@
     <string name="workspace_text_options_link_summary">Edit text display settings for this workspace</string>
     <string name="global_text_options_link">Global text options</string>
     <string name="global_text_options_link_summary">Edit default text display settings for all workspaces</string>
-    <string name="prefs_text_display_settings_title">Formatting</string>
-    <string name="prefs_text_appearance_title">Appearance</string>
+    <string name="prefs_font_and_colors_title">Font &amp; Colors</string>
+    <string name="prefs_text_layout_title">Text Layout</string>
+    <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morphology</string>
+    <string name="prefs_footnotes_and_xrefs_title">Footnotes &amp; Cross-references</string>
+    <string name="prefs_verses_and_headings_title">Verses &amp; Headings</string>
+    <string name="prefs_page_scrolling_title">Page Scrolling</string>
 
     <string name="prefs_justify_title">Justify-align text</string>
     <string name="prefs_justify_summary">Align text in \'justify\' style, meaning left and right margins of the text are in line</string>
@@ -1112,6 +1116,7 @@
     <string name="book_menu_sort_row_opt">Order books horizontally</string>
     <string name="book_menu_group_by_category">Group books by category</string>
     <string name="book_menu_show_long_book_name">Show long book name</string>
+    <string name="book_menu_show_progress_bars">Show progress bars</string>
     <string name="reset_workspace_labels">Do you want to reset auto-assign and favorite settings for this workspace?</string>
     <string name="reset_hide_labels">Do you want to reset setting for hiding specified labels settings?</string>
     <string name="reorder">Re-order</string>
@@ -1531,6 +1536,14 @@
     <string name="ai_provider_migrate_message">Your existing LLM configuration will be migrated to the new provider system.</string>
 
     <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
+    <string name="llm_fetch_models_title">Download model list</string>
+    <string name="llm_fetch_models_message">Download the list of available models from %1$s?</string>
+    <string name="llm_fetch_models_dont_ask">Don\'t ask again</string>
+    <string name="llm_fetch_models_success">Loaded %1$d models</string>
+    <string name="llm_fetch_models_failed">Failed to fetch models</string>
+    <string name="llm_openrouter_category">Category</string>
+    <string name="llm_openrouter_category_all">All</string>
+    <string name="llm_openrouter_model">Model</string>
     <string name="prompt_provider_override">Provider</string>
     <string name="prompt_provider_default">Default</string>
 

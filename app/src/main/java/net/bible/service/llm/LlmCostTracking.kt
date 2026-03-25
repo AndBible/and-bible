@@ -48,7 +48,9 @@ data class LlmUsage(
 object LlmPricing {
 
     fun getPricing(model: String, providerConfigId: IdType? = null): ModelPricing? =
-        LlmProvider.findPricing(model) ?: getCustomPricing(providerConfigId)
+        LlmProvider.findPricing(model)
+            ?: DynamicModelService.getPricingForModel(model)
+            ?: getCustomPricing(providerConfigId)
 
     fun estimateCost(usage: LlmUsage, model: String, providerConfigId: IdType? = null): Double? {
         val p = getPricing(model, providerConfigId) ?: return null
@@ -72,7 +74,8 @@ object LlmPricing {
         dao.update(config.copy(customInputPrice = inputPerMillion, customOutputPrice = outputPerMillion))
     }
 
-    fun isKnownModel(model: String): Boolean = LlmProvider.hasKnownPricing(model)
+    fun isKnownModel(model: String): Boolean =
+        LlmProvider.hasKnownPricing(model) || DynamicModelService.getPricingForModel(model) != null
 }
 
 /**

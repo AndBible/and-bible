@@ -50,6 +50,7 @@ private const val CONNECT_TIMEOUT_SECONDS = 120L
 private const val READ_TIMEOUT_SECONDS = 90L  // 90s per API call; generous for reasoning models
 private const val WRITE_TIMEOUT_SECONDS = 120L
 private const val LLM_TEMPERATURE = 0.3
+private const val PREF_NO_TEMPERATURE_MODELS = "llm_no_temperature_models"
 
 /** Wrapper for LLM API response with usage information */
 data class LlmApiResponse(
@@ -222,30 +223,36 @@ object LlmProcessingService {
         val adapter = resolved.adapter
         val effectiveModel = resolved.model
         val endpoint = adapter.buildEndpointUrl(resolved.endpoint)
-
-        val bodyString = adapter.buildRequestBody(effectiveModel, messages, toolDefs, LLM_TEMPERATURE)
-        val systemLen = messages.firstOrNull { it.role == ChatMessage.Role.SYSTEM }?.content?.length ?: 0
-        val userLen = messages.firstOrNull { it.role == ChatMessage.Role.USER }?.content?.length ?: 0
-        val safeEndpoint = endpoint.substringBefore('?')
-        Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${toolDefs.size}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars")
-
         val headers = adapter.buildHeaders(resolved.apiKey, extraHeaders)
-        val request = Request.Builder()
-            .url(endpoint)
-            .apply { for ((key, value) in headers) addHeader(key, value) }
-            .post(bodyString.toRequestBody("application/json".toMediaType()))
-            .build()
+        val noTempModels = CommonUtils.settings.getStringSet(PREF_NO_TEMPERATURE_MODELS)
+        val temperature: Double? = if (effectiveModel in noTempModels) null else LLM_TEMPERATURE
+
+        fun buildRequest(temp: Double?): Request {
+            val bodyString = adapter.buildRequestBody(effectiveModel, messages, toolDefs, temp)
+            val systemLen = messages.firstOrNull { it.role == ChatMessage.Role.SYSTEM }?.content?.length ?: 0
+            val userLen = messages.firstOrNull { it.role == ChatMessage.Role.USER }?.content?.length ?: 0
+            val safeEndpoint = endpoint.substringBefore('?')
+            Log.d(TAG, "LLM API with tools: $safeEndpoint, model: $effectiveModel, tools: ${toolDefs.size}, body: ${bodyString.length} bytes, system: $systemLen chars, user: $userLen chars, temperature: $temp")
+            return Request.Builder()
+                .url(endpoint)
+                .apply { for ((key, value) in headers) addHeader(key, value) }
+                .post(bodyString.toRequestBody("application/json".toMediaType()))
+                .build()
+        }
+
+        var request = buildRequest(temperature)
 
         activeRequests.incrementAndGet()
 
         return try {
             val session = AgentSessionManager.getCurrentSession()
             var lastError: HttpCallResult.Error? = null
+            var temperatureRetried = false
 
             for (attempt in 0..LlmRetryPolicy.MAX_RETRIES) {
                 currentCoroutineContext().ensureActive()
 
-                if (attempt > 0) {
+                if (attempt > 0 && lastError != null) {
                     val prev = lastError!!
                     val delayMs = LlmRetryPolicy.calculateDelayMs(attempt - 1, prev.retryAfterSeconds)
                     val delaySec = "%.1f".format(delayMs / 1000.0)
@@ -265,6 +272,17 @@ object LlmProcessingService {
                         return LlmApiResponse(result.body, usage)
                     }
                     is HttpCallResult.Error -> {
+                        // If 400 error mentions "temperature", retry without it and remember
+                        if (result.code == 400 && !temperatureRetried && temperature != null
+                            && result.bodyText.contains("temperature", ignoreCase = true)) {
+                            Log.w(TAG, "Temperature not supported by model $effectiveModel, retrying without it")
+                            val updated = noTempModels.toMutableSet().apply { add(effectiveModel) }
+                            CommonUtils.settings.setStringSet(PREF_NO_TEMPERATURE_MODELS, updated)
+                            temperatureRetried = true
+                            request = buildRequest(null)
+                            lastError = null
+                            continue
+                        }
                         if (LlmRetryPolicy.isRetryable(result.code) && attempt < LlmRetryPolicy.MAX_RETRIES) {
                             Log.w(TAG, "LLM API retryable error: ${result.code} - ${result.bodyText.take(200)}")
                             lastError = result

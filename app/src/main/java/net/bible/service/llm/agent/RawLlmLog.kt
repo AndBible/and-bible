@@ -18,6 +18,7 @@
 package net.bible.service.llm.agent
 
 import com.google.gson.GsonBuilder
+import net.bible.android.database.IdType
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
 import org.json.JSONArray
@@ -28,7 +29,8 @@ import org.json.JSONObject
  */
 data class IterationUsageData(
     val usage: LlmUsage,
-    val model: String
+    val model: String,
+    val providerConfigId: IdType? = null
 )
 
 /**
@@ -60,8 +62,8 @@ class RawLlmLog {
         entries.add(RawLogEntry.RawApiResponse(iteration, responseBody))
     }
 
-    fun addUsageForIteration(iteration: Int, usage: LlmUsage, model: String) {
-        _usageByIteration[iteration] = IterationUsageData(usage, model)
+    fun addUsageForIteration(iteration: Int, usage: LlmUsage, model: String, providerConfigId: IdType? = null) {
+        _usageByIteration[iteration] = IterationUsageData(usage, model, providerConfigId)
     }
 
     fun getEntries(): List<RawLogEntry> = entries.toList()
