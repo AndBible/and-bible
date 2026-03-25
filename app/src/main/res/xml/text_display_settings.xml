@@ -35,7 +35,65 @@
             />
     </PreferenceCategory>
     <PreferenceCategory
-        android:title="@string/prefs_text_display_settings_title"
+        android:title="@string/prefs_font_and_colors_title"
+        >
+        <Preference
+            android:key="COLORS"
+            android:title="@string/prefs_text_colors_menutitle"
+            android:summary="@string/prefs_text_colors_summary"
+            />
+        <Preference
+            android:key="FONTSIZE"
+            android:title="@string/font_size_title"
+            android:summary="@string/prefs_font_text_size_summary"
+            />
+        <Preference
+            android:key="FONTFAMILY"
+            android:title="@string/pref_font_family_label"
+            android:summary="@string/prefs_font_family_summary"
+            />
+        <Preference
+            android:key="LINE_SPACING"
+            android:title="@string/line_spacing_title"
+            android:summary="@string/line_spacing_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="REDLETTERS"
+            android:title="@string/prefs_red_letter_title"
+            android:summary="@string/prefs_red_letter_summary"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_text_layout_title"
+        >
+        <Preference
+            android:key="MARGINSIZE"
+            android:title="@string/prefs_margin_size_title"
+            android:summary="@string/prefs_margin_size_summary"
+            />
+        <Preference
+            android:key="TOPMARGIN"
+            android:title="@string/prefs_top_margin_title"
+            android:summary="@string/prefs_top_margin_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="JUSTIFY"
+            android:title="@string/prefs_justify_title"
+            android:summary="@string/prefs_justify_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="HYPHENATION"
+            android:title="@string/prefs_hyphenation_title"
+            android:summary="@string/prefs_hyphenation_summary"
+            />
+        <SwitchPreferenceCompat
+            android:key="VERSEPERLINE"
+            android:title="@string/prefs_verse_per_line_title"
+            android:summary="@string/prefs_verse_per_line_summary"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_strongs_and_morphology_title"
         >
         <Preference
             android:key="STRONGS"
@@ -52,118 +110,62 @@
             android:title="@string/prefs_non_strongs_word_italic_title"
             android:summary="@string/prefs_non_strongs_word_italic_summary"
             />
-
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_footnotes_and_xrefs_title"
+        >
         <SwitchPreferenceCompat
             android:key="FOOTNOTES"
             android:title="@string/prefs_show_footnotes_title"
             android:summary="@string/prefs_show_footnotes_summary"
             />
-
         <SwitchPreferenceCompat
             android:key="FOOTNOTES_INLINE"
             android:title="@string/prefs_show_footnotes_inline_title"
             android:summary="@string/prefs_show_footnotes_inline_summary"
             />
-
         <SwitchPreferenceCompat
             android:key="XREFS"
             android:title="@string/prefs_show_xrefs_title"
             android:summary="@string/prefs_show_xrefs_summary"
             />
-
         <SwitchPreferenceCompat
             android:key="EXPAND_XREFS"
             android:title="@string/prefs_expand_footnotes_title"
             android:summary="@string/prefs_expand_footnotes_summary"
             />
-
-        <SwitchPreferenceCompat
-            android:key="SECTIONTITLES"
-            android:title="@string/prefs_section_title_title"
-            android:summary="@string/prefs_section_title_summary"
-            />
-
-        <SwitchPreferenceCompat
-            android:key="TITLE_SCROLL_BUTTON"
-            android:title="@string/prefs_title_scroll_button_title"
-            android:summary="@string/prefs_title_scroll_button_summary"
-            />
-
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_verses_and_headings_title"
+        >
         <SwitchPreferenceCompat
             android:key="VERSENUMBERS"
             android:title="@string/prefs_show_verseno_title"
             android:summary="@string/prefs_show_verseno_summary"
             />
         <SwitchPreferenceCompat
-            android:key="INFINITE_SCROLL"
-            android:title="@string/prefs_infinite_scroll_title"
-            android:summary="@string/prefs_infinite_scroll_summary"
-            />
-    </PreferenceCategory>
-    <PreferenceCategory
-        android:title="@string/prefs_text_appearance_title"
-        >
-        <Preference
-            android:key="COLORS"
-            android:title="@string/prefs_text_colors_menutitle"
-            android:summary="@string/prefs_text_colors_summary"
-            />
-
-        <Preference
-            android:key="FONTSIZE"
-            android:title="@string/font_size_title"
-            android:summary="@string/prefs_font_text_size_summary"
-            />
-
-        <Preference
-            android:key="FONTFAMILY"
-            android:title="@string/pref_font_family_label"
-            android:summary="@string/prefs_font_family_summary"
-            />
-
-        <Preference
-            android:key="MARGINSIZE"
-            android:title="@string/prefs_margin_size_title"
-            android:summary="@string/prefs_margin_size_summary"
-            />
-
-        <Preference
-            android:key="TOPMARGIN"
-            android:title="@string/prefs_top_margin_title"
-            android:summary="@string/prefs_top_margin_summary"
-            />
-
-        <Preference
-            android:key="LINE_SPACING"
-            android:title="@string/line_spacing_title"
-            android:summary="@string/line_spacing_summary"
-            />
-
-        <SwitchPreferenceCompat
-            android:key="REDLETTERS"
-            android:title="@string/prefs_red_letter_title"
-            android:summary="@string/prefs_red_letter_summary"
-            />
-
-        <SwitchPreferenceCompat
-            android:key="VERSEPERLINE"
-            android:title="@string/prefs_verse_per_line_title"
-            android:summary="@string/prefs_verse_per_line_summary"
+            android:key="SECTIONTITLES"
+            android:title="@string/prefs_section_title_title"
+            android:summary="@string/prefs_section_title_summary"
             />
         <SwitchPreferenceCompat
-            android:key="JUSTIFY"
-            android:title="@string/prefs_justify_title"
-            android:summary="@string/prefs_justify_summary"
-            />
-        <SwitchPreferenceCompat
-            android:key="HYPHENATION"
-            android:title="@string/prefs_hyphenation_title"
-            android:summary="@string/prefs_hyphenation_summary"
+            android:key="TITLE_SCROLL_BUTTON"
+            android:title="@string/prefs_title_scroll_button_title"
+            android:summary="@string/prefs_title_scroll_button_summary"
             />
         <SwitchPreferenceCompat
             android:key="PAGENUMBER"
             android:title="@string/page_number_title"
             android:summary="@string/page_number_summary"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory
+        android:title="@string/prefs_page_scrolling_title"
+        >
+        <SwitchPreferenceCompat
+            android:key="INFINITE_SCROLL"
+            android:title="@string/prefs_infinite_scroll_title"
+            android:summary="@string/prefs_infinite_scroll_summary"
             />
         <Preference
             android:key="PAGE_SCROLL_AMOUNT"
