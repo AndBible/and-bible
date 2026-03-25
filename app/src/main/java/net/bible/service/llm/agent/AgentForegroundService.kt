@@ -369,10 +369,7 @@ class AgentForegroundService : Service() {
 
     fun onEvent(event: AgentLogUpdatedEvent) {
         if (event.workspaceId != currentWorkspaceId) return
-        // Only update notification when app is backgrounded — user sees agent log directly when active
-        if (CurrentActivityHolder.currentActivity == null) {
-            updateProgressNotification(event.entry.message)
-        }
+        updateProgressNotification(event.entry.message)
         // Renew WakeLock on activity (progress means active processing)
         wakeLock?.let {
             if (it.isHeld) {
