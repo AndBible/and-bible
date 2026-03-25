@@ -1536,6 +1536,14 @@
     <string name="ai_provider_migrate_message">Your existing LLM configuration will be migrated to the new provider system.</string>
 
     <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
+    <string name="llm_fetch_models_title">Download model list</string>
+    <string name="llm_fetch_models_message">Download the list of available models and their pricing from OpenRouter?</string>
+    <string name="llm_fetch_models_dont_ask">Don\'t ask again</string>
+    <string name="llm_fetch_models_success">Loaded %1$d models</string>
+    <string name="llm_fetch_models_failed">Failed to fetch models</string>
+    <string name="llm_openrouter_category">Category</string>
+    <string name="llm_openrouter_category_all">All</string>
+    <string name="llm_openrouter_model">Model</string>
     <string name="prompt_provider_override">Provider</string>
     <string name="prompt_provider_default">Default</string>
 

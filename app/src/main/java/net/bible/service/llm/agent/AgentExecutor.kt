@@ -184,11 +184,11 @@ class AgentExecutor(
 
                 val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
                 totalUsage += callUsage
-                rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model)
+                rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model, resolved.providerConfig.id)
 
                 // Emit per-operation usage
                 if (callUsage.totalTokens > 0) {
-                    emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model))
+                    emit(AgentEvent.ApiCallCompleted(callUsage, resolved.model, resolved.providerConfig.id))
                 }
 
                 when (parsed) {
@@ -204,7 +204,8 @@ class AgentExecutor(
                                     content = result.content,
                                     totalIterations = iteration,
                                     usage = totalUsage,
-                                    model = resolved.model
+                                    model = resolved.model,
+                                    providerConfigId = resolved.providerConfig.id
                                 ))
                                 return
                             }
@@ -214,7 +215,8 @@ class AgentExecutor(
                                     message = result.message,
                                     totalIterations = iteration,
                                     usage = totalUsage,
-                                    model = resolved.model
+                                    model = resolved.model,
+                                    providerConfigId = resolved.providerConfig.id
                                 ))
                                 return
                             }
@@ -226,7 +228,8 @@ class AgentExecutor(
                                     message = result.message,
                                     totalIterations = iteration,
                                     usage = totalUsage,
-                                    model = resolved.model
+                                    model = resolved.model,
+                                    providerConfigId = resolved.providerConfig.id
                                 ))
                                 return
                             }
@@ -238,7 +241,8 @@ class AgentExecutor(
                                     message = result.message,
                                     totalIterations = iteration,
                                     usage = totalUsage,
-                                    model = resolved.model
+                                    model = resolved.model,
+                                    providerConfigId = resolved.providerConfig.id
                                 ))
                                 return
                             }
@@ -255,7 +259,8 @@ class AgentExecutor(
                             response = normalizedContent,
                             totalIterations = iteration,
                             usage = totalUsage,
-                            model = resolved.model
+                            model = resolved.model,
+                            providerConfigId = resolved.providerConfig.id
                         ))
                         return
                     }

@@ -56,6 +56,8 @@ import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.ModelPricing
+import net.bible.service.llm.OpenRouterModelService
 import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
@@ -309,7 +311,29 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val customOutputPriceInput: EditText,
         val defaultCheckBox: CheckBox?,
         val models: MutableList<String>,
-    )
+        // OpenRouter-specific fields
+        val isOpenRouter: Boolean = false,
+        val openRouterCategorySpinner: Spinner? = null,
+        val openRouterModelSpinner: Spinner? = null,
+        val openRouterModelIds: MutableList<String> = mutableListOf(),
+        val openRouterModels: MutableList<OpenRouterModelService.OpenRouterModel> = mutableListOf(),
+    ) {
+        /** Get the selected model name, handling both normal and OpenRouter modes. */
+        fun getSelectedModel(): String? {
+            if (isOpenRouter && openRouterModelSpinner != null) {
+                val pos = openRouterModelSpinner.selectedItemPosition
+                return if (pos >= 0 && pos < openRouterModelIds.size) {
+                    openRouterModelIds[pos]
+                } else null
+            }
+            val pos = modelSpinner.selectedItemPosition
+            return if (pos == models.size - 1) {
+                customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
+            } else if (pos >= 0 && pos < models.size - 1) {
+                models[pos]
+            } else null
+        }
+    }
 
     /**
      * Show a dialog to create or edit a provider config.
@@ -331,6 +355,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         val fields = buildProviderDialogLayout(layout, config, provider, isCustom)
         setupModelPricingListeners(fields)
+
+        // For OpenRouter, check if model list needs refreshing
+        if (provider == LlmProvider.OPENROUTER) {
+            maybeRefreshOpenRouterModels(fields)
+        }
 
         val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
 
@@ -406,28 +435,81 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
         } else null
 
+        val isOpenRouter = provider == LlmProvider.OPENROUTER
         val models = provider.models.toMutableList()
         val currentModel = config?.defaultModel ?: ""
         if (currentModel.isNotBlank() && currentModel !in models) {
             models.add(0, currentModel)
         }
-        models.add(getString(R.string.llm_custom_model))
+        if (!isOpenRouter) {
+            models.add(getString(R.string.llm_custom_model))
+        }
 
+        // OpenRouter-specific UI: category spinner + model spinner + fetch button
+        var openRouterCategorySpinner: Spinner? = null
+        var openRouterModelSpinner: Spinner? = null
+        val openRouterModelIds = mutableListOf<String>()
+        val openRouterModels = mutableListOf<OpenRouterModelService.OpenRouterModel>()
+
+        // Sort models by price (input+output), keep "Custom…" last
+        val customLabel = if (!isOpenRouter) getString(R.string.llm_custom_model) else null
+        val sortedModels = models.filter { it != customLabel }.sortedBy { modelId ->
+            val pricing = LlmProvider.findPricing(modelId)
+            pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
+        }.toMutableList()
+        if (customLabel != null) sortedModels.add(customLabel)
+        models.clear()
+        models.addAll(sortedModels)
+
+        // Display labels with pricing for standard providers
+        val modelDisplayLabels = models.map { modelId ->
+            val pricing = LlmProvider.findPricing(modelId)
+            if (pricing != null) formatModelWithPricing(modelId, pricing) else modelId
+        }
         val modelSpinner = Spinner(context).apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, models).apply {
+            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, modelDisplayLabels).apply {
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
             val idx = if (currentModel.isNotBlank()) models.indexOf(currentModel).coerceAtLeast(0) else 0
             setSelection(idx)
         }
-        addLabeledField(layout, getString(R.string.ai_provider_default_model), modelSpinner)
 
-        val customModelInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_model_dialog_message)
-            inputType = InputType.TYPE_CLASS_TEXT
-            visibility = View.GONE
+        val customModelInput: EditText
+
+        if (isOpenRouter) {
+            // Hide normal model spinner for OpenRouter
+            modelSpinner.visibility = View.GONE
+
+            // Load cached models if available
+            val cached = OpenRouterModelService.getCachedModels()
+            if (cached != null) {
+                openRouterModels.addAll(cached)
+            }
+
+            // Category spinner
+            openRouterCategorySpinner = Spinner(context)
+            updateOpenRouterCategorySpinner(openRouterCategorySpinner, openRouterModels)
+            addLabeledField(layout, getString(R.string.llm_openrouter_category), openRouterCategorySpinner)
+
+            // Model spinner (filtered by category)
+            val orModelSpinner = Spinner(context)
+            val orModelIds = mutableListOf<String>()
+            updateOpenRouterModelSpinner(orModelSpinner, orModelIds, openRouterModels, null, currentModel)
+            addLabeledField(layout, getString(R.string.llm_openrouter_model), orModelSpinner)
+            openRouterModelSpinner = orModelSpinner
+
+            // Hidden customModelInput (unused for OpenRouter but needed by ProviderDialogFields)
+            customModelInput = EditText(context).apply { visibility = View.GONE }
+        } else {
+            addLabeledField(layout, getString(R.string.ai_provider_default_model), modelSpinner)
+
+            customModelInput = EditText(context).apply {
+                hint = getString(R.string.llm_custom_model_dialog_message)
+                inputType = InputType.TYPE_CLASS_TEXT
+                visibility = View.GONE
+            }
+            layout.addView(customModelInput)
         }
-        layout.addView(customModelInput)
 
         val customPricingLabel = TextView(context).apply {
             text = getString(R.string.llm_custom_pricing_label)
@@ -482,17 +564,28 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             customOutputPriceInput = customOutputPriceInput,
             defaultCheckBox = defaultCheckBox,
             models = models,
+            isOpenRouter = isOpenRouter,
+            openRouterCategorySpinner = openRouterCategorySpinner,
+            openRouterModelSpinner = openRouterModelSpinner,
+            openRouterModelIds = openRouterModelIds,
+            openRouterModels = openRouterModels,
         )
     }
 
     private fun setupModelPricingListeners(fields: ProviderDialogFields) {
         fun updateCustomPricingVisibility() {
-            val pos = fields.modelSpinner.selectedItemPosition
-            val modelName = if (pos == fields.models.size - 1) {
-                fields.customModelInput.text.toString().trim()
-            } else if (pos >= 0 && pos < fields.models.size - 1) {
-                fields.models[pos]
-            } else ""
+            val modelName = if (fields.isOpenRouter) {
+                val orSpinner = fields.openRouterModelSpinner
+                val pos = orSpinner?.selectedItemPosition ?: -1
+                if (pos >= 0 && pos < fields.openRouterModelIds.size) fields.openRouterModelIds[pos] else ""
+            } else {
+                val pos = fields.modelSpinner.selectedItemPosition
+                if (pos == fields.models.size - 1) {
+                    fields.customModelInput.text.toString().trim()
+                } else if (pos >= 0 && pos < fields.models.size - 1) {
+                    fields.models[pos]
+                } else ""
+            }
             val needsCustomPricing = modelName.isNotBlank() && !LlmPricing.isKnownModel(modelName)
             val vis = if (needsCustomPricing) View.VISIBLE else View.GONE
             // Update all pricing-related views (label is the sibling before customInputPriceInput)
@@ -505,21 +598,166 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        fields.modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        if (fields.isOpenRouter) {
+            setupOpenRouterListeners(fields, ::updateCustomPricingVisibility)
+        } else {
+            fields.modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    fields.customModelInput.visibility = if (position == fields.models.size - 1) View.VISIBLE else View.GONE
+                    updateCustomPricingVisibility()
+                }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+
+            fields.customModelInput.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
+            })
+        }
+
+        updateCustomPricingVisibility()
+    }
+
+    private fun setupOpenRouterListeners(fields: ProviderDialogFields, updatePricing: () -> Unit) {
+        val categorySpinner = fields.openRouterCategorySpinner ?: return
+        val orModelSpinner = fields.openRouterModelSpinner ?: return
+
+        // Category spinner filters the model spinner
+        categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                fields.customModelInput.visibility = if (position == fields.models.size - 1) View.VISIBLE else View.GONE
-                updateCustomPricingVisibility()
+                val selectedCategory = if (position == 0) null else categorySpinner.selectedItem?.toString()?.lowercase()
+                val currentModel = fields.getSelectedModel() ?: ""
+                updateOpenRouterModelSpinner(orModelSpinner, fields.openRouterModelIds, fields.openRouterModels, selectedCategory, currentModel)
+                updatePricing()
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        fields.customModelInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: android.text.Editable?) { updateCustomPricingVisibility() }
-        })
+        // Model spinner selection changes update pricing visibility
+        orModelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updatePricing()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
 
-        updateCustomPricingVisibility()
+    private companion object {
+        private const val PREF_OPENROUTER_AUTO_FETCH = "openrouter_auto_fetch_models"
+    }
+
+    /**
+     * Check if OpenRouter model list needs fetching (no cache or >7 days old)
+     * and prompt the user or fetch automatically based on preferences.
+     */
+    private fun maybeRefreshOpenRouterModels(fields: ProviderDialogFields) {
+        val cacheAge = System.currentTimeMillis() - OpenRouterModelService.cacheTimestamp
+        val needsRefresh = OpenRouterModelService.cacheTimestamp == 0L || cacheAge > 7 * 24 * 60 * 60 * 1000L
+
+        if (!needsRefresh) return
+
+        val autoFetch = CommonUtils.settings.getBoolean(PREF_OPENROUTER_AUTO_FETCH, false)
+        if (autoFetch) {
+            doFetchOpenRouterModels(fields)
+        } else {
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.llm_fetch_models_title)
+                .setMessage(R.string.llm_fetch_models_message)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    doFetchOpenRouterModels(fields)
+                }
+                .setNeutralButton(R.string.llm_fetch_models_dont_ask) { _, _ ->
+                    CommonUtils.settings.setBoolean(PREF_OPENROUTER_AUTO_FETCH, true)
+                    doFetchOpenRouterModels(fields)
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun doFetchOpenRouterModels(fields: ProviderDialogFields) {
+        val currentModel = fields.getSelectedModel() ?: ""
+
+        lifecycleScope.launch {
+            val models = OpenRouterModelService.fetchModels()
+            if (models != null) {
+                fields.openRouterModels.clear()
+                fields.openRouterModels.addAll(models)
+
+                updateOpenRouterCategorySpinner(fields.openRouterCategorySpinner!!, models)
+                updateOpenRouterModelSpinner(
+                    fields.openRouterModelSpinner!!, fields.openRouterModelIds,
+                    models, null, currentModel
+                )
+
+                Toast.makeText(requireContext(),
+                    getString(R.string.llm_fetch_models_success, models.size),
+                    Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(requireContext(), R.string.llm_fetch_models_failed, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    private fun updateOpenRouterCategorySpinner(spinner: Spinner, models: List<OpenRouterModelService.OpenRouterModel>) {
+        val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
+        categories.addAll(
+            models.map { it.category }.filter { it.isNotBlank() }.distinct().sorted()
+                .map { it.replaceFirstChar { c -> c.uppercaseChar() } }
+        )
+        spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+    }
+
+    private fun updateOpenRouterModelSpinner(
+        spinner: Spinner,
+        modelIds: MutableList<String>,
+        models: List<OpenRouterModelService.OpenRouterModel>,
+        category: String?,
+        currentModel: String
+    ) {
+        val filtered = if (category == null) models else models.filter { it.category == category }
+        // Sort by price (input+output), cheapest first
+        val sorted = filtered.sortedBy { model ->
+            model.pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
+        }
+        modelIds.clear()
+        modelIds.addAll(sorted.map { it.id })
+        // If no models fetched yet, ensure current model is in the list
+        if (modelIds.isEmpty() && currentModel.isNotBlank()) {
+            modelIds.add(currentModel)
+        }
+        // Display labels with pricing info
+        val displayLabels = modelIds.map { id ->
+            val pricing = filtered.find { it.id == id }?.pricing
+                ?: OpenRouterModelService.getPricingForModel(id)
+            formatModelWithPricing(id, pricing)
+        }
+        spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayLabels).apply {
+            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+        // Restore selection
+        val idx = if (currentModel.isNotBlank()) modelIds.indexOf(currentModel).coerceAtLeast(0) else 0
+        if (modelIds.isNotEmpty()) spinner.setSelection(idx)
+    }
+
+    /** Format a model name with pricing info for display in spinner, e.g. "claude-sonnet-4 ($3.00/$15.00)". */
+    private fun formatModelWithPricing(modelId: String, pricing: ModelPricing?): String {
+        if (pricing == null) return modelId
+        val input = formatPriceCompact(pricing.inputPerMillion)
+        val output = formatPriceCompact(pricing.outputPerMillion)
+        return "$modelId ($input/$output)"
+    }
+
+    /** Format a per-million-token price compactly, e.g. "$3.00", "$0.15". */
+    private fun formatPriceCompact(pricePerMillion: Double): String {
+        return if (pricePerMillion < 0.01 && pricePerMillion > 0) {
+            "< \$0.01"
+        } else {
+            "\$%.2f".format(pricePerMillion)
+        }
     }
 
     private fun saveProviderConfig(
@@ -537,12 +775,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         val makeDefault = fields.defaultCheckBox?.isChecked == true
 
-        val selectedModelPosition = fields.modelSpinner.selectedItemPosition
-        val selectedModel = if (selectedModelPosition == fields.models.size - 1) {
-            fields.customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
-        } else if (selectedModelPosition >= 0 && selectedModelPosition < fields.models.size - 1) {
-            fields.models[selectedModelPosition]
-        } else null
+        val selectedModel = fields.getSelectedModel()
 
         val customInputPrice = fields.customInputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
         val customOutputPrice = fields.customOutputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
@@ -558,10 +791,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                         defaultModel = selectedModel,
                         isDefault = dao.getCount() == 0,
                         orderNumber = dao.getCount(),
+                        customInputPrice = customInputPrice,
+                        customOutputPrice = customOutputPrice,
                     )
                     dao.insert(newConfig)
                     newConfig.setApiKey(apiKey)
-                    LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, newConfig.id)
                 } else {
                     if (makeDefault) {
                         dao.clearDefault()

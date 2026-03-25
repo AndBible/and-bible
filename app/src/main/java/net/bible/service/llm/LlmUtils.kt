@@ -87,7 +87,7 @@ enum class LlmProvider(
         "anthropic/claude-sonnet-4" to null,
         "google/gemini-2.5-flash" to null,
         "openai/gpt-5-mini" to null,
-    ), tier = ProviderTier.UNCATEGORIZED, apiKeyUrl = "https://openrouter.ai/keys"),
+    ), apiKeyUrl = "https://openrouter.ai/keys"),
     CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED);
 
     val models: List<String> get() = modelPricing.map { it.first }
