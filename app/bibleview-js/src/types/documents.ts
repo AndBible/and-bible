@@ -162,6 +162,8 @@ export interface MemorizeDocument extends BaseDocument{
     texts: MemorizeTextItem[]
     state?: DocumentState
     bookInitials?: string
+    v11n?: string
+    osisRef?: string
     startOrdinal?: number
     endOrdinal?: number
     memorizedOrdinals?: number[]
