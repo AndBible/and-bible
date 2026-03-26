@@ -94,8 +94,8 @@ class AiConnectionSettingsActivity : ActivityBase() {
 
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
-    private val settings get() = CommonUtils.aiSettings
-    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+    internal val settings get() = CommonUtils.aiSettings
+    internal val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference
     private lateinit var providersCategory: PreferenceCategory
@@ -147,7 +147,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         updateDocumentFilterSummary()
     }
 
-    private fun refreshAll() {
+    internal fun refreshAll() {
         refreshProviderList()
         refreshModelList()
         updateVisibility()
@@ -527,291 +527,12 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     // ---- Model management dialogs ----
 
-    private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+    internal val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
 
-    /**
-     * Show dialog to add a new model to a provider.
-     * For dynamic providers (OpenRouter), shows category→model two-step selection.
-     */
-    private fun showAddModelDialog(providerConfig: LlmProviderConfig, onDone: () -> Unit) {
-        val context = requireContext()
-        val provider = providerConfig.resolveProvider()
-        val (scrollView, layout) = createDialogLayout()
-
-        // Model selection: load available models (dynamic cache → enum fallback)
-        val enumModels = provider.modelPricing.map { (id, pricing) ->
-            DynamicModelService.DynamicModel(id, id, pricing)
-        }
-        val availableModels = if (provider.supportsDynamicModels) {
-            DynamicModelService.getCachedModels(provider.name) ?: enumModels
-        } else enumModels
-
-        // Category spinner (if models have "/" prefixes like OpenRouter)
-        var categorySpinner: Spinner? = null
-        val hasCategories = availableModels.any { it.id.contains('/') }
-        if (hasCategories) {
-            categorySpinner = Spinner(context)
-            val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
-            categories.addAll(
-                availableModels.asSequence().map { it.category }.filter { it.isNotBlank() }.distinct().sorted()
-                    .map { it.replaceFirstChar { c -> c.uppercaseChar() } }.toList()
-            )
-            categorySpinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, categories).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-            addLabeledField(layout, getString(R.string.llm_openrouter_category), categorySpinner)
-        }
-
-        // Model spinner
-        val modelSpinner = Spinner(context)
-        val modelIds = mutableListOf<String>()
-
-        fun updateModelSpinner(category: String?) {
-            val filtered = if (category == null) availableModels
-                else availableModels.filter { it.category.equals(category, ignoreCase = true) }
-            val sorted = filtered.sortedBy { m ->
-                m.pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
-            }
-            modelIds.clear()
-            modelIds.addAll(sorted.map { it.id })
-            // Add "Custom…" option at end
-            val customLabel = getString(R.string.llm_custom_model)
-            val displayLabels = sorted.map { m ->
-                formatModelWithPricing(m.id, m.pricing)
-            } + customLabel
-            modelSpinner.adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, displayLabels).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-        }
-        updateModelSpinner(null)
-        addLabeledField(layout, getString(R.string.llm_openrouter_model), modelSpinner)
-
-        // Custom model ID input
-        val customModelInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_model_dialog_message)
-            inputType = InputType.TYPE_CLASS_TEXT
-            visibility = View.GONE
-        }
-        layout.addView(customModelInput)
-
-        // Pricing: read-only summary for known models, editable for custom
-        val pricingSummary = TextView(context).apply { visibility = View.GONE }
-        addLabeledField(layout, getString(R.string.llm_custom_input_price_title), pricingSummary)
-
-        val inputPriceInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_input_price_title)
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            visibility = View.GONE
-        }
-        layout.addView(inputPriceInput)
-        val outputPriceInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_output_price_title)
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            visibility = View.GONE
-        }
-        layout.addView(outputPriceInput)
-
-        // Update pricing display when model selection changes
-        fun onModelSelected() {
-            val pos = modelSpinner.selectedItemPosition
-            val isCustom = pos >= modelIds.size
-            customModelInput.visibility = if (isCustom) View.VISIBLE else View.GONE
-
-            val selectedId = if (!isCustom && pos >= 0 && pos < modelIds.size) modelIds[pos] else null
-            val knownPricing = selectedId?.let { id ->
-                availableModels.find { it.id == id }?.pricing ?: LlmProvider.findPricing(id)
-            }
-            if (knownPricing != null) {
-                // Known model — show read-only pricing summary
-                pricingSummary.text = getString(R.string.model_pricing_summary, LlmCostTracker.formatPriceCompact(knownPricing.inputPerMillion), LlmCostTracker.formatPriceCompact(knownPricing.outputPerMillion))
-                pricingSummary.visibility = View.VISIBLE
-                inputPriceInput.visibility = View.GONE
-                outputPriceInput.visibility = View.GONE
-            } else {
-                // Unknown model — show editable price fields
-                pricingSummary.visibility = View.GONE
-                inputPriceInput.visibility = View.VISIBLE
-                outputPriceInput.visibility = View.VISIBLE
-            }
-        }
-
-        modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                onModelSelected()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        categorySpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedCategory = if (position == 0) null
-                    else categorySpinner.selectedItem?.toString()?.lowercase()
-                updateModelSpinner(selectedCategory)
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        // Trigger initial auto-fill
-        onModelSelected()
-
-        AlertDialog.Builder(context)
-            .setTitle(R.string.add_model_title)
-            .setView(scrollView)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val pos = modelSpinner.selectedItemPosition
-                val isCustom = pos >= modelIds.size
-                val modelId = if (isCustom) {
-                    customModelInput.text.toString().trim()
-                } else if (pos >= 0) {
-                    modelIds[pos]
-                } else return@setPositiveButton
-                if (modelId.isBlank()) return@setPositiveButton
-
-                val orderNumber = modelDao.getByProvider(providerConfig.id).size
-                val knownPricing = LlmPricing.isKnownModel(modelId)
-                val newModel = if (knownPricing) {
-                    LlmConfiguredModel.create(providerConfig.id, modelId, orderNumber)
-                } else {
-                    LlmConfiguredModel(
-                        providerConfigId = providerConfig.id,
-                        modelId = modelId,
-                        orderNumber = orderNumber,
-                        inputPricePerMillion = inputPriceInput.text.toString().toDoubleOrNull() ?: 0.0,
-                        outputPricePerMillion = outputPriceInput.text.toString().toDoubleOrNull() ?: 0.0,
-                    )
-                }
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        modelDao.insert(newModel)
-                        // If this is the first configured model globally, set it as default
-                        if (settings.defaultModelId == null) {
-                            settings.defaultModelId = newModel.id
-                        }
-                    }
-                    Toast.makeText(requireContext(), R.string.model_saved, Toast.LENGTH_SHORT).show()
-                    refreshAll()
-                    onDone()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    /**
-     * Show dialog to edit an existing configured model.
-     */
-    private fun showEditModelDialog(model: LlmConfiguredModel, onDone: () -> Unit) {
-        val context = requireContext()
-        val (scrollView, layout) = createDialogLayout()
-
-        // Model ID (read-only)
-        val modelIdView = TextView(context).apply {
-            text = model.modelId
-            setTextAppearance(android.R.style.TextAppearance_Small)
-        }
-        addLabeledField(layout, getString(R.string.llm_openrouter_model), modelIdView)
-
-        // Pricing: read-only for known models, editable for custom
-        val hasKnownPricing = LlmPricing.isKnownModel(model.modelId)
-        var inputPriceInput: EditText? = null
-        var outputPriceInput: EditText? = null
-        if (hasKnownPricing) {
-            val pricingSummary = TextView(context).apply {
-                text = getString(R.string.model_pricing_summary, LlmCostTracker.formatPriceCompact(model.inputPricePerMillion), LlmCostTracker.formatPriceCompact(model.outputPricePerMillion))
-            }
-            addLabeledField(layout, getString(R.string.llm_custom_input_price_title), pricingSummary)
-        } else {
-            inputPriceInput = EditText(context).apply {
-                setText(model.inputPricePerMillion.toString())
-                inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            }
-            addLabeledField(layout, getString(R.string.llm_custom_input_price_title), inputPriceInput)
-            outputPriceInput = EditText(context).apply {
-                setText(model.outputPricePerMillion.toString())
-                inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            }
-            addLabeledField(layout, getString(R.string.llm_custom_output_price_title), outputPriceInput)
-        }
-
-        // Default model checkbox
-        val isCurrentDefault = model.id == settings.defaultModelId
-        val defaultCheckBox = CheckBox(context).apply {
-            text = getString(R.string.model_set_default)
-            isChecked = isCurrentDefault
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.topMargin = (12 * resources.displayMetrics.density).toInt()
-            layoutParams = params
-        }
-        layout.addView(defaultCheckBox)
-
-        AlertDialog.Builder(context)
-            .setTitle(R.string.edit_model_title)
-            .setView(scrollView)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val updated = if (hasKnownPricing) model else model.copy(
-                    inputPricePerMillion = inputPriceInput?.text.toString().toDoubleOrNull() ?: 0.0,
-                    outputPricePerMillion = outputPriceInput?.text.toString().toDoubleOrNull() ?: 0.0,
-                )
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        modelDao.update(updated)
-                        if (defaultCheckBox.isChecked) {
-                            settings.defaultModelId = model.id
-                        } else if (isCurrentDefault) {
-                            // Unchecked default — clear it
-                            settings.defaultModelId = null
-                        }
-                    }
-                    Toast.makeText(requireContext(), R.string.model_saved, Toast.LENGTH_SHORT).show()
-                    refreshAll()
-                    onDone()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .setNeutralButton(R.string.ai_provider_delete) { _, _ ->
-                confirmDeleteModel(model) {
-                    refreshAll()
-                    onDone()
-                }
-            }
-            .show()
-    }
-
-    private fun confirmDeleteModel(model: LlmConfiguredModel, onDone: () -> Unit) {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.ai_provider_delete)
-            .setMessage(getString(R.string.model_delete_confirm, model.displayName))
-            .setPositiveButton(R.string.yes) { _, _ ->
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO) {
-                        modelDao.delete(model)
-                        // If this was the default model, clear or reassign
-                        if (settings.defaultModelId == model.id) {
-                            val remaining = modelDao.all()
-                            settings.defaultModelId = remaining.firstOrNull()?.id
-                        }
-                    }
-                    Toast.makeText(requireContext(), R.string.model_deleted, Toast.LENGTH_SHORT).show()
-                    refreshAll()
-                    onDone()
-                }
-            }
-            .setNegativeButton(R.string.no, null)
-            .show()
-    }
-
-    /** Format a model name with pricing info for display, e.g. "claude-sonnet-4 ($3.00/$15.00)". */
-    private fun formatModelWithPricing(modelId: String, pricing: ModelPricing?): String {
-        if (pricing == null) return modelId
-        val input = LlmCostTracker.formatPriceCompact(pricing.inputPerMillion)
-        val output = LlmCostTracker.formatPriceCompact(pricing.outputPerMillion)
-        return "$modelId ($input/$output)"
-    }
+    // Model dialogs: showAddModelDialog, showEditModelDialog, confirmDeleteModel → ModelDialogs.kt
 
     /** Create a ScrollView containing a padded vertical LinearLayout for dialog content. */
-    private fun createDialogLayout(): Pair<ScrollView, LinearLayout> {
+    internal fun createDialogLayout(): Pair<ScrollView, LinearLayout> {
         val context = requireContext()
         val scrollView = ScrollView(context)
         val layout = LinearLayout(context).apply {
@@ -823,7 +544,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         return scrollView to layout
     }
 
-    private fun addLabeledField(layout: LinearLayout, label: String, field: View) {
+    internal fun addLabeledField(layout: LinearLayout, label: String, field: View) {
         val density = resources.displayMetrics.density
         val labelView = TextView(requireContext()).apply {
             text = label
@@ -846,165 +567,13 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         layout.addView(field)
     }
 
-    // ---- Easy Setup wizard ----
-
-    private data class RecommendedSetup(
-        val provider: LlmProvider,
-        val modelId: String,
-        val description: String,
-        val badge: String? = null,
-    )
-
-    private fun getRecommendedSetups() = listOf(
-        RecommendedSetup(LlmProvider.GEMINI, "gemini-2.5-flash",
-            getString(R.string.easy_setup_gemini_desc), getString(R.string.easy_setup_free_tier)),
-        RecommendedSetup(LlmProvider.ANTHROPIC, "claude-haiku-4-5",
-            getString(R.string.easy_setup_anthropic_desc)),
-        RecommendedSetup(LlmProvider.OPENAI, "gpt-4o-mini",
-            getString(R.string.easy_setup_openai_desc)),
-    )
+    // Easy Setup wizard: showEasySetupStep1/2/3, performEasySetup → EasySetupDialogs.kt
 
     private fun setupGettingStarted() {
         gettingStartedPref.setOnPreferenceClickListener {
             showEasySetupStep1()
             true
         }
-    }
-
-    /** Step 1: Choose a recommended provider+model */
-    private fun showEasySetupStep1() {
-        val setups = getRecommendedSetups()
-        val items = setups.map { setup ->
-            "${setup.provider.displayName} — ${setup.description}"
-        }.toTypedArray()
-
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.easy_setup_title)
-            .setItems(items) { _, which ->
-                showEasySetupStep2(setups[which])
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    /** Step 2: Enter API key and test connection */
-    private fun showEasySetupStep2(setup: RecommendedSetup) {
-        val context = requireContext()
-        val (scrollView, layout) = createDialogLayout()
-
-        // Instructions with link
-        val instructionHtml = getString(R.string.easy_setup_api_key_instructions) +
-            "<br><a href=\"${setup.provider.apiKeyUrl}\">${setup.provider.displayName}</a>"
-        val instructionView = TextView(context).apply {
-            text = htmlToSpan(instructionHtml)
-            movementMethod = LinkMovementMethod.getInstance()
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.bottomMargin = (8 * resources.displayMetrics.density).toInt()
-            layoutParams = params
-        }
-        layout.addView(instructionView)
-
-        val apiKeyInput = EditText(context).apply {
-            hint = getString(R.string.ai_provider_api_key)
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
-        }
-        layout.addView(apiKeyInput)
-
-        // Status text for test results
-        val statusText = TextView(context).apply {
-            visibility = View.GONE
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.topMargin = (8 * resources.displayMetrics.density).toInt()
-            layoutParams = params
-        }
-        layout.addView(statusText)
-
-        val dialog = AlertDialog.Builder(context)
-            .setTitle(getString(R.string.easy_setup_enter_api_key) + " — " + setup.provider.displayName)
-            .setView(scrollView)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                val apiKey = apiKeyInput.text.toString().trim()
-                if (apiKey.isNotBlank()) {
-                    performEasySetup(setup, apiKey)
-                }
-            }
-            .setNeutralButton(R.string.easy_setup_test_connection, null) // Override below to prevent dismiss
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-
-        // Override neutral button to test without dismissing
-        dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-            val apiKey = apiKeyInput.text.toString().trim()
-            if (apiKey.isBlank()) return@setOnClickListener
-            statusText.text = getString(R.string.easy_setup_testing)
-            statusText.visibility = View.VISIBLE
-            lifecycleScope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        LlmProcessingService.testApiConnection(setup.provider, setup.modelId, apiKey)
-                    }
-                    statusText.text = getString(R.string.easy_setup_success)
-                } catch (e: Exception) {
-                    statusText.text = getString(R.string.easy_setup_failed, e.message ?: getString(R.string.unknown_error))
-                }
-            }
-        }
-
-        // Enable OK only when API key is entered
-        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = false
-        apiKeyInput.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
-            }
-        })
-    }
-
-    /** Create provider + model + set default from easy setup selection. */
-    private fun performEasySetup(setup: RecommendedSetup, apiKey: String) {
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                // Create provider config
-                val providerConfig = LlmProviderConfig(
-                    providerType = setup.provider.name,
-                    displayName = setup.provider.displayName,
-                    orderNumber = dao.getCount(),
-                )
-                dao.insert(providerConfig)
-                providerConfig.setApiKey(apiKey)
-
-                // Create configured model
-                val configuredModel = LlmConfiguredModel.create(
-                    providerConfigId = providerConfig.id,
-                    modelId = setup.modelId,
-                )
-                modelDao.insert(configuredModel)
-                settings.defaultModelId = configuredModel.id
-
-                // Fetch dynamic model list in background (implicit, no user prompt)
-                if (setup.provider.supportsDynamicModels) {
-                    val fetchKey = if (setup.provider.modelsEndpointPublic) "" else apiKey
-                    DynamicModelService.fetchModels(setup.provider.endpoint, fetchKey, setup.provider.name)
-                }
-            }
-            refreshAll()
-            showEasySetupStep3()
-        }
-    }
-
-    /** Step 3: Done! */
-    private fun showEasySetupStep3() {
-        AlertDialog.Builder(requireContext())
-            .setTitle(R.string.easy_setup_done_title)
-            .setMessage(R.string.easy_setup_done_message)
-            .setPositiveButton(R.string.okay, null)
-            .show()
     }
 
     private fun setupToolPermissions() {
