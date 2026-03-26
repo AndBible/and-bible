@@ -44,34 +44,36 @@ data class LlmUsage(
 
 /**
  * Pricing information for LLM models (dollars per million tokens).
+ *
+ * Resolution order:
+ * 1. Configured model pricing (from [LlmConfiguredModel] in database)
+ * 2. Built-in enum pricing ([LlmProvider.findPricing])
+ * 3. Dynamic model service pricing ([DynamicModelService.getPricingForModel])
  */
 object LlmPricing {
 
-    fun getPricing(model: String, providerConfigId: IdType? = null): ModelPricing? =
-        LlmProvider.findPricing(model)
+    fun getPricing(model: String, configuredModelId: IdType? = null): ModelPricing? {
+        if (configuredModelId != null) {
+            getConfiguredModelPricing(configuredModelId)?.let { return it }
+        }
+        return LlmProvider.findPricing(model)
             ?: DynamicModelService.getPricingForModel(model)
-            ?: getCustomPricing(providerConfigId)
+    }
 
-    fun estimateCost(usage: LlmUsage, model: String, providerConfigId: IdType? = null): Double? {
-        val p = getPricing(model, providerConfigId) ?: return null
+    fun estimateCost(usage: LlmUsage, model: String, configuredModelId: IdType? = null): Double? {
+        val p = getPricing(model, configuredModelId) ?: return null
         return (usage.inputTokens * p.inputPerMillion +
             usage.outputTokens * p.outputPerMillion +
             usage.cacheCreationTokens * p.cacheCreationPerMillion +
             usage.cacheReadTokens * p.cacheReadPerMillion) / 1_000_000.0
     }
 
-    fun getCustomPricing(providerConfigId: IdType? = null): ModelPricing? {
-        if (providerConfigId == null) return null
-        val config = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getById(providerConfigId) ?: return null
-        val input = config.customInputPrice
-        val output = config.customOutputPrice
-        return if (input > 0 || output > 0) ModelPricing(input, output) else null
-    }
-
-    fun setCustomPricing(inputPerMillion: Double, outputPerMillion: Double, providerConfigId: IdType) {
-        val dao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-        val config = dao.getById(providerConfigId) ?: return
-        dao.update(config.copy(customInputPrice = inputPerMillion, customOutputPrice = outputPerMillion))
+    private fun getConfiguredModelPricing(configuredModelId: IdType): ModelPricing? {
+        val m = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao().getById(configuredModelId)
+            ?: return null
+        return if (m.inputPricePerMillion > 0 || m.outputPricePerMillion > 0) {
+            ModelPricing(m.inputPricePerMillion, m.outputPricePerMillion, m.cacheCreationPricePerMillion, m.cacheReadPricePerMillion)
+        } else null
     }
 
     fun isKnownModel(model: String): Boolean =
@@ -88,9 +90,9 @@ object LlmCostTracker {
 
     private val usageMutex = Mutex()
 
-    suspend fun addUsage(usage: LlmUsage, model: String, providerConfigId: IdType) = usageMutex.withLock {
-        val existing = dao.get(providerConfigId, deviceId)
-        val cost = LlmPricing.estimateCost(usage, model, providerConfigId) ?: 0.0
+    suspend fun addUsage(usage: LlmUsage, model: String, configuredModelId: IdType) = usageMutex.withLock {
+        val existing = dao.get(configuredModelId, deviceId)
+        val cost = LlmPricing.estimateCost(usage, model, configuredModelId) ?: 0.0
         if (existing != null) {
             dao.upsert(existing.copy(
                 inputTokens = existing.inputTokens + usage.inputTokens,
@@ -101,7 +103,7 @@ object LlmCostTracker {
             ))
         } else {
             dao.upsert(LlmUsageRecord(
-                providerConfigId = providerConfigId,
+                configuredModelId = configuredModelId,
                 deviceId = deviceId,
                 inputTokens = usage.inputTokens,
                 outputTokens = usage.outputTokens,
@@ -112,8 +114,8 @@ object LlmCostTracker {
         }
     }
 
-    fun getCumulativeUsage(providerConfigId: IdType): LlmUsage {
-        val records = dao.getByConfig(providerConfigId)
+    fun getCumulativeUsage(configuredModelId: IdType): LlmUsage {
+        val records = dao.getByModel(configuredModelId)
         return records.fold(LlmUsage()) { acc, r ->
             LlmUsage(
                 inputTokens = acc.inputTokens + r.inputTokens,
@@ -124,18 +126,37 @@ object LlmCostTracker {
         }
     }
 
-    fun getCumulativeCost(providerConfigId: IdType): Double =
-        dao.getByConfig(providerConfigId).sumOf { it.estimatedCostUsd }
+    fun getCumulativeCost(configuredModelId: IdType): Double =
+        dao.getByModel(configuredModelId).sumOf { it.estimatedCostUsd }
 
-    fun reset(providerConfigId: IdType) {
-        dao.deleteByConfig(providerConfigId)
+    fun getTotalUsage(): LlmUsage {
+        return dao.all().fold(LlmUsage()) { acc, r ->
+            LlmUsage(
+                inputTokens = acc.inputTokens + r.inputTokens,
+                outputTokens = acc.outputTokens + r.outputTokens,
+                cacheCreationTokens = acc.cacheCreationTokens + r.cacheCreationTokens,
+                cacheReadTokens = acc.cacheReadTokens + r.cacheReadTokens,
+            )
+        }
+    }
+
+    fun getTotalCost(): Double =
+        dao.all().sumOf { it.estimatedCostUsd }
+
+    fun reset(configuredModelId: IdType) {
+        dao.deleteByModel(configuredModelId)
     }
 
     fun formatCost(cost: Double): String =
         if (cost < 0.01 && cost > 0) "\$%.3f".format(cost) else "\$%.2f".format(cost)
 
-    fun formatUsageSummary(usage: LlmUsage, model: String): String {
-        val cost = LlmPricing.estimateCost(usage, model)
+    /** Format a per-million-token price compactly, e.g. "$3.00", "< $0.01". */
+    fun formatPriceCompact(pricePerMillion: Double): String =
+        if (pricePerMillion < 0.01 && pricePerMillion > 0) "< \$0.01"
+        else "\$%.2f".format(pricePerMillion)
+
+    fun formatUsageSummary(usage: LlmUsage, model: String, configuredModelId: IdType? = null): String {
+        val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
         val base = "${usage.inputTokens} in / ${usage.outputTokens} out"
         return if (cost != null) "$base (~${formatCost(cost)})" else base
     }

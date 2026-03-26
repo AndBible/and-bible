@@ -85,7 +85,7 @@ class RawLlmLogActivity : ActivityBase() {
             for ((_, data) in usageByIteration) {
                 totalInput += data.usage.inputTokens
                 totalOutput += data.usage.outputTokens
-                val cost = LlmPricing.estimateCost(data.usage, data.model, data.providerConfigId)
+                val cost = LlmPricing.estimateCost(data.usage, data.model, data.configuredModelId)
                 if (cost != null) {
                     totalCost += cost
                     hasCost = true

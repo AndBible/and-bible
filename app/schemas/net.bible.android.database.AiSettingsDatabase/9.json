@@ -1,0 +1,620 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 9,
+    "identityHash": "c72ce2565d4b73f61bfe567e97dfc07f",
+    "entities": [
+      {
+        "tableName": "AgentPrompt",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `name` TEXT NOT NULL, `description` TEXT DEFAULT NULL, `promptTemplate` TEXT NOT NULL, `showIn` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `createdAt` INTEGER NOT NULL DEFAULT 0, `strictContextMatching` INTEGER NOT NULL DEFAULT 1, `permissionMode` TEXT DEFAULT NULL, `allowedTools` TEXT DEFAULT NULL, `deniedTools` TEXT DEFAULT NULL, `configuredModelId` BLOB DEFAULT NULL, `editBeforeRun` INTEGER NOT NULL DEFAULT 0, `noDocumentCreation` INTEGER NOT NULL DEFAULT 0, `maxIterations` INTEGER DEFAULT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`configuredModelId`) REFERENCES `LlmConfiguredModel`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "promptTemplate",
+            "columnName": "promptTemplate",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "showIn",
+            "columnName": "showIn",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "createdAt",
+            "columnName": "createdAt",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "strictContextMatching",
+            "columnName": "strictContextMatching",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "1"
+          },
+          {
+            "fieldPath": "permissionMode",
+            "columnName": "permissionMode",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "allowedTools",
+            "columnName": "allowedTools",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "deniedTools",
+            "columnName": "deniedTools",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "configuredModelId",
+            "columnName": "configuredModelId",
+            "affinity": "BLOB",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "specifyBeforeRun",
+            "columnName": "editBeforeRun",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "noDocumentCreation",
+            "columnName": "noDocumentCreation",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "maxIterations",
+            "columnName": "maxIterations",
+            "affinity": "INTEGER",
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_AgentPrompt_orderNumber",
+            "unique": false,
+            "columnNames": [
+              "orderNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AgentPrompt_orderNumber` ON `${TABLE_NAME}` (`orderNumber`)"
+          },
+          {
+            "name": "index_AgentPrompt_createdAt",
+            "unique": false,
+            "columnNames": [
+              "createdAt"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AgentPrompt_createdAt` ON `${TABLE_NAME}` (`createdAt`)"
+          },
+          {
+            "name": "index_AgentPrompt_configuredModelId",
+            "unique": false,
+            "columnNames": [
+              "configuredModelId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_AgentPrompt_configuredModelId` ON `${TABLE_NAME}` (`configuredModelId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "LlmConfiguredModel",
+            "onDelete": "SET NULL",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "configuredModelId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "LlmProviderConfig",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `providerType` TEXT NOT NULL, `displayName` TEXT NOT NULL, `endpoint` TEXT, `apiFormat` TEXT, `orderNumber` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "providerType",
+            "columnName": "providerType",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "displayName",
+            "columnName": "displayName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "endpoint",
+            "columnName": "endpoint",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "apiFormat",
+            "columnName": "apiFormat",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LlmProviderConfig_orderNumber",
+            "unique": false,
+            "columnNames": [
+              "orderNumber"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmProviderConfig_orderNumber` ON `${TABLE_NAME}` (`orderNumber`)"
+          }
+        ]
+      },
+      {
+        "tableName": "LlmConfiguredModel",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `providerConfigId` BLOB NOT NULL, `modelId` TEXT NOT NULL, `orderNumber` INTEGER NOT NULL DEFAULT 0, `inputPricePerMillion` REAL NOT NULL DEFAULT 0.0, `outputPricePerMillion` REAL NOT NULL DEFAULT 0.0, `cacheCreationPricePerMillion` REAL NOT NULL DEFAULT 0.0, `cacheReadPricePerMillion` REAL NOT NULL DEFAULT 0.0, PRIMARY KEY(`id`), FOREIGN KEY(`providerConfigId`) REFERENCES `LlmProviderConfig`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "providerConfigId",
+            "columnName": "providerConfigId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "modelId",
+            "columnName": "modelId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "orderNumber",
+            "columnName": "orderNumber",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "inputPricePerMillion",
+            "columnName": "inputPricePerMillion",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "outputPricePerMillion",
+            "columnName": "outputPricePerMillion",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "cacheCreationPricePerMillion",
+            "columnName": "cacheCreationPricePerMillion",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          },
+          {
+            "fieldPath": "cacheReadPricePerMillion",
+            "columnName": "cacheReadPricePerMillion",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LlmConfiguredModel_providerConfigId",
+            "unique": false,
+            "columnNames": [
+              "providerConfigId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmConfiguredModel_providerConfigId` ON `${TABLE_NAME}` (`providerConfigId`)"
+          },
+          {
+            "name": "index_LlmConfiguredModel_providerConfigId_modelId",
+            "unique": true,
+            "columnNames": [
+              "providerConfigId",
+              "modelId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LlmConfiguredModel_providerConfigId_modelId` ON `${TABLE_NAME}` (`providerConfigId`, `modelId`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "LlmProviderConfig",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "providerConfigId"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "GlobalAiSettings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `agentPermissionMode` TEXT DEFAULT NULL, `permanentlyAllowedTools` TEXT DEFAULT NULL, `permanentlyDeniedTools` TEXT DEFAULT NULL, `aiExcludedDocuments` TEXT NOT NULL, `commentaryMaxResponseTokens` INTEGER NOT NULL DEFAULT 4000, `hiddenBuiltInPrompts` TEXT NOT NULL, `maxIterations` INTEGER NOT NULL DEFAULT 10, `commentaryDeselected` TEXT NOT NULL, `defaultModelId` BLOB DEFAULT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "agentPermissionMode",
+            "columnName": "agentPermissionMode",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "permanentlyAllowedTools",
+            "columnName": "permanentlyAllowedTools",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "permanentlyDeniedTools",
+            "columnName": "permanentlyDeniedTools",
+            "affinity": "TEXT",
+            "defaultValue": "NULL"
+          },
+          {
+            "fieldPath": "aiExcludedDocuments",
+            "columnName": "aiExcludedDocuments",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "commentaryMaxResponseTokens",
+            "columnName": "commentaryMaxResponseTokens",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "4000"
+          },
+          {
+            "fieldPath": "hiddenBuiltInPrompts",
+            "columnName": "hiddenBuiltInPrompts",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "maxIterations",
+            "columnName": "maxIterations",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "10"
+          },
+          {
+            "fieldPath": "commentaryDeselected",
+            "columnName": "commentaryDeselected",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "defaultModelId",
+            "columnName": "defaultModelId",
+            "affinity": "BLOB",
+            "defaultValue": "NULL"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      },
+      {
+        "tableName": "LlmUsageRecord",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `configuredModelId` BLOB NOT NULL, `deviceId` TEXT NOT NULL, `inputTokens` INTEGER NOT NULL DEFAULT 0, `outputTokens` INTEGER NOT NULL DEFAULT 0, `cacheCreationTokens` INTEGER NOT NULL DEFAULT 0, `cacheReadTokens` INTEGER NOT NULL DEFAULT 0, `estimatedCostUsd` REAL NOT NULL DEFAULT 0.0, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "configuredModelId",
+            "columnName": "configuredModelId",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "deviceId",
+            "columnName": "deviceId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "inputTokens",
+            "columnName": "inputTokens",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "outputTokens",
+            "columnName": "outputTokens",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "cacheCreationTokens",
+            "columnName": "cacheCreationTokens",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "cacheReadTokens",
+            "columnName": "cacheReadTokens",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "estimatedCostUsd",
+            "columnName": "estimatedCostUsd",
+            "affinity": "REAL",
+            "notNull": true,
+            "defaultValue": "0.0"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LlmUsageRecord_configuredModelId",
+            "unique": false,
+            "columnNames": [
+              "configuredModelId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LlmUsageRecord_configuredModelId` ON `${TABLE_NAME}` (`configuredModelId`)"
+          },
+          {
+            "name": "index_LlmUsageRecord_configuredModelId_deviceId",
+            "unique": true,
+            "columnNames": [
+              "configuredModelId",
+              "deviceId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_LlmUsageRecord_configuredModelId_deviceId` ON `${TABLE_NAME}` (`configuredModelId`, `deviceId`)"
+          }
+        ]
+      },
+      {
+        "tableName": "LogEntry",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`tableName` TEXT NOT NULL, `entityId1` BLOB NOT NULL, `entityId2` BLOB NOT NULL, `type` TEXT NOT NULL, `lastUpdated` INTEGER NOT NULL DEFAULT 0, `sourceDevice` TEXT NOT NULL, PRIMARY KEY(`tableName`, `entityId1`, `entityId2`))",
+        "fields": [
+          {
+            "fieldPath": "tableName",
+            "columnName": "tableName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId1",
+            "columnName": "entityId1",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "entityId2",
+            "columnName": "entityId2",
+            "affinity": "BLOB",
+            "notNull": true
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastUpdated",
+            "columnName": "lastUpdated",
+            "affinity": "INTEGER",
+            "notNull": true,
+            "defaultValue": "0"
+          },
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "tableName",
+            "entityId1",
+            "entityId2"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_LogEntry_lastUpdated",
+            "unique": false,
+            "columnNames": [
+              "lastUpdated"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_lastUpdated` ON `${TABLE_NAME}` (`lastUpdated`)"
+          },
+          {
+            "name": "index_LogEntry_sourceDevice",
+            "unique": false,
+            "columnNames": [
+              "sourceDevice"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_LogEntry_sourceDevice` ON `${TABLE_NAME}` (`sourceDevice`)"
+          }
+        ]
+      },
+      {
+        "tableName": "SyncConfiguration",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`keyName` TEXT NOT NULL, `stringValue` TEXT, `longValue` INTEGER, `booleanValue` INTEGER, PRIMARY KEY(`keyName`))",
+        "fields": [
+          {
+            "fieldPath": "keyName",
+            "columnName": "keyName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "stringValue",
+            "columnName": "stringValue",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "longValue",
+            "columnName": "longValue",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "booleanValue",
+            "columnName": "booleanValue",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "keyName"
+          ]
+        }
+      },
+      {
+        "tableName": "SyncStatus",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`sourceDevice` TEXT NOT NULL, `patchNumber` INTEGER NOT NULL, `sizeBytes` INTEGER NOT NULL, `appliedDate` INTEGER NOT NULL, PRIMARY KEY(`sourceDevice`, `patchNumber`))",
+        "fields": [
+          {
+            "fieldPath": "sourceDevice",
+            "columnName": "sourceDevice",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patchNumber",
+            "columnName": "patchNumber",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "sizeBytes",
+            "columnName": "sizeBytes",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "appliedDate",
+            "columnName": "appliedDate",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "sourceDevice",
+            "patchNumber"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c72ce2565d4b73f61bfe567e97dfc07f')"
+    ]
+  }
+}

@@ -33,6 +33,8 @@ import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.GlobalAiSettingsDao
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmConfiguredModelDao
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.LlmProviderConfigDao
 import net.bible.service.llm.LlmUsageRecord
@@ -165,12 +167,13 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val AI_SETTINGS_DATABASE_VERSION = 8
+const val AI_SETTINGS_DATABASE_VERSION = 9
 
 @Database(
     entities = [
         AgentPrompt::class,
         LlmProviderConfig::class,
+        LlmConfiguredModel::class,
         GlobalAiSettings::class,
         LlmUsageRecord::class,
         LogEntry::class,
@@ -183,6 +186,7 @@ const val AI_SETTINGS_DATABASE_VERSION = 8
 abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun agentPromptDao(): AgentPromptDao
     abstract fun llmProviderConfigDao(): LlmProviderConfigDao
+    abstract fun llmConfiguredModelDao(): LlmConfiguredModelDao
     abstract fun globalAiSettingsDao(): GlobalAiSettingsDao
     abstract fun llmUsageRecordDao(): LlmUsageRecordDao
     companion object {

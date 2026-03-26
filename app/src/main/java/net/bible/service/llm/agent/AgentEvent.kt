@@ -39,7 +39,7 @@ sealed class AgentEvent {
         val result: ToolResult
     ) : AgentEvent()
 
-    data class ApiCallCompleted(val usage: LlmUsage, val model: String, val providerConfigId: IdType? = null) : AgentEvent()
+    data class ApiCallCompleted(val usage: LlmUsage, val model: String, val configuredModelId: IdType? = null) : AgentEvent()
 
     data class TextResponse(val text: String, val isFinal: Boolean) : AgentEvent()
 
@@ -48,7 +48,7 @@ sealed class AgentEvent {
         val totalIterations: Int,
         val usage: LlmUsage = LlmUsage(),
         val model: String = "",
-        val providerConfigId: IdType? = null
+        val configuredModelId: IdType? = null
     ) : AgentEvent()
 
     /** Agent called finishWithoutDocument — task done, no AI document created. */
@@ -57,7 +57,7 @@ sealed class AgentEvent {
         val totalIterations: Int,
         val usage: LlmUsage = LlmUsage(),
         val model: String = "",
-        val providerConfigId: IdType? = null
+        val configuredModelId: IdType? = null
     ) : AgentEvent()
 
     /** Agent called setDocumentTitle — title from tool, content from text response. */
@@ -67,7 +67,7 @@ sealed class AgentEvent {
         val totalIterations: Int,
         val usage: LlmUsage = LlmUsage(),
         val model: String = "",
-        val providerConfigId: IdType? = null
+        val configuredModelId: IdType? = null
     ) : AgentEvent()
 
     /** Agent called finishWithStudyPad — opens an existing StudyPad. */
@@ -78,7 +78,7 @@ sealed class AgentEvent {
         val totalIterations: Int,
         val usage: LlmUsage = LlmUsage(),
         val model: String = "",
-        val providerConfigId: IdType? = null
+        val configuredModelId: IdType? = null
     ) : AgentEvent()
 
     /** Agent called finishWithMyDocumentPage — opens an existing My Documents page. */
@@ -89,7 +89,7 @@ sealed class AgentEvent {
         val totalIterations: Int,
         val usage: LlmUsage = LlmUsage(),
         val model: String = "",
-        val providerConfigId: IdType? = null
+        val configuredModelId: IdType? = null
     ) : AgentEvent()
 
     data class Error(val message: String, val cause: Throwable? = null) : AgentEvent()

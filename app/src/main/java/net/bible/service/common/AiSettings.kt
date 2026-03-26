@@ -67,4 +67,8 @@ object AiSettings {
     var commentaryDeselected: Set<String>
         get() = getOrDefault().commentaryDeselected
         set(value) = update { copy(commentaryDeselected = value) }
+
+    var defaultModelId: IdType?
+        get() = getOrDefault().defaultModelId
+        set(value) = update { copy(defaultModelId = value) }
 }

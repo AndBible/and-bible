@@ -131,16 +131,8 @@ data class LlmProviderConfig(
     val endpoint: String? = null,
     /** API wire format (only used for CUSTOM providerType) */
     val apiFormat: ApiFormat? = null,
-    /** User's preferred model for this provider (null = provider's first model) */
-    val defaultModel: String? = null,
-    /** Whether this is the default provider for new prompts / global usage */
-    @ColumnInfo(defaultValue = "0") val isDefault: Boolean = false,
     /** Display ordering */
     @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
-    /** Custom pricing: input cost per million tokens (0.0 = use built-in pricing) */
-    @ColumnInfo(defaultValue = "0.0") val customInputPrice: Double = 0.0,
-    /** Custom pricing: output cost per million tokens (0.0 = use built-in pricing) */
-    @ColumnInfo(defaultValue = "0.0") val customOutputPrice: Double = 0.0,
 ) {
     fun resolveProvider(): LlmProvider = try {
         LlmProvider.valueOf(providerType)
@@ -165,15 +157,65 @@ data class LlmProviderConfig(
         ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
     }
 
-    fun resolveModels(): List<String> {
+    /** All available models for this provider (enum + dynamic). Used for "add model" picker. */
+    fun resolveAvailableModels(): List<String> {
         val provider = resolveProvider()
         val dynamic = DynamicModelService.getCachedModels(provider.name)
         return dynamic?.map { it.id } ?: provider.models
     }
+}
 
-    /** Explicit choice, or first from provider's list. */
-    fun resolveDefaultModel(): String =
-        defaultModel?.takeIf { it.isNotBlank() } ?: resolveModels().firstOrNull() ?: ""
+/**
+ * A pre-configured LLM model linked to a provider.
+ *
+ * Users select from these pre-configured models when customizing prompts.
+ * The global default model is stored in [GlobalAiSettings.defaultModelId].
+ */
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = LlmProviderConfig::class,
+        parentColumns = ["id"],
+        childColumns = ["providerConfigId"],
+        onDelete = ForeignKey.CASCADE
+    )],
+    indices = [
+        Index("providerConfigId"),
+        Index(value = ["providerConfigId", "modelId"], unique = true),
+    ]
+)
+data class LlmConfiguredModel(
+    @PrimaryKey val id: IdType = IdType(),
+    val providerConfigId: IdType,
+    /** Model identifier as sent to the API (e.g. "gemini-2.5-flash", "anthropic/claude-sonnet-4") */
+    val modelId: String,
+    @ColumnInfo(defaultValue = "0") val orderNumber: Int = 0,
+    @ColumnInfo(defaultValue = "0.0") val inputPricePerMillion: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0") val outputPricePerMillion: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0") val cacheCreationPricePerMillion: Double = 0.0,
+    @ColumnInfo(defaultValue = "0.0") val cacheReadPricePerMillion: Double = 0.0,
+) {
+    /** Display name for UI. Currently just modelId; override later if custom names are needed. */
+    val displayName: String get() = modelId
+
+    companion object {
+        /** Create a configured model with pricing auto-filled from [LlmProvider.findPricing]. */
+        fun create(
+            providerConfigId: IdType,
+            modelId: String,
+            orderNumber: Int = 0,
+        ): LlmConfiguredModel {
+            val pricing = LlmProvider.findPricing(modelId)
+            return LlmConfiguredModel(
+                providerConfigId = providerConfigId,
+                modelId = modelId,
+                orderNumber = orderNumber,
+                inputPricePerMillion = pricing?.inputPerMillion ?: 0.0,
+                outputPricePerMillion = pricing?.outputPerMillion ?: 0.0,
+                cacheCreationPricePerMillion = pricing?.cacheCreationPerMillion ?: 0.0,
+                cacheReadPricePerMillion = pricing?.cacheReadPerMillion ?: 0.0,
+            )
+        }
+    }
 }
 
 private val prefs get() = CommonUtils.realSharedPreferences
@@ -192,9 +234,6 @@ interface LlmProviderConfigDao {
     @Query("SELECT * FROM LlmProviderConfig ORDER BY orderNumber")
     fun all(): List<LlmProviderConfig>
 
-    @Query("SELECT * FROM LlmProviderConfig WHERE isDefault = 1 LIMIT 1")
-    fun getDefault(): LlmProviderConfig?
-
     @Query("SELECT * FROM LlmProviderConfig WHERE id = :id")
     fun getById(id: IdType): LlmProviderConfig?
 
@@ -207,9 +246,6 @@ interface LlmProviderConfigDao {
     @Delete
     fun delete(config: LlmProviderConfig)
 
-    @Query("UPDATE LlmProviderConfig SET isDefault = 0")
-    fun clearDefault()
-
     @Query("SELECT COUNT(*) FROM LlmProviderConfig")
     fun getCount(): Int
 
@@ -217,18 +253,42 @@ interface LlmProviderConfigDao {
     fun deleteAll()
 }
 
+@Dao
+interface LlmConfiguredModelDao {
+    @Query("SELECT * FROM LlmConfiguredModel WHERE providerConfigId = :providerConfigId ORDER BY orderNumber")
+    fun getByProvider(providerConfigId: IdType): List<LlmConfiguredModel>
+
+    @Query("SELECT * FROM LlmConfiguredModel WHERE id = :id")
+    fun getById(id: IdType): LlmConfiguredModel?
+
+    @Query("SELECT * FROM LlmConfiguredModel ORDER BY orderNumber")
+    fun all(): List<LlmConfiguredModel>
+
+    @Insert
+    fun insert(model: LlmConfiguredModel)
+
+    @Update
+    fun update(model: LlmConfiguredModel)
+
+    @Delete
+    fun delete(model: LlmConfiguredModel)
+
+    @Query("DELETE FROM LlmConfiguredModel WHERE providerConfigId = :providerConfigId")
+    fun deleteByProvider(providerConfigId: IdType)
+}
+
 /** User-defined or default prompt for LLM operations. */
 @Entity(
     foreignKeys = [ForeignKey(
-        entity = LlmProviderConfig::class,
+        entity = LlmConfiguredModel::class,
         parentColumns = ["id"],
-        childColumns = ["providerConfigId"],
+        childColumns = ["configuredModelId"],
         onDelete = ForeignKey.SET_NULL
     )],
     indices = [
         Index("orderNumber"),
         Index("createdAt"),
-        Index("providerConfigId"),
+        Index("configuredModelId"),
     ]
 )
 @Serializable
@@ -256,10 +316,8 @@ data class AgentPrompt(
     /** Per-prompt tool permission overrides. null = no override (use global defaults). */
     @ColumnInfo(defaultValue = "NULL") var allowedTools: Set<AgentTool>? = null,
     @ColumnInfo(defaultValue = "NULL") var deniedTools: Set<AgentTool>? = null,
-    /** Per-prompt model override. null = use global default from settings. */
-    @ColumnInfo(defaultValue = "NULL") var modelOverride: String? = null,
-    /** FK → LlmProviderConfig. null = use default provider. ON DELETE SET_NULL. */
-    @ColumnInfo(defaultValue = "NULL") var providerConfigId: IdType? = null,
+    /** FK → LlmConfiguredModel. null = use global default model. ON DELETE SET_NULL. */
+    @ColumnInfo(defaultValue = "NULL") var configuredModelId: IdType? = null,
     /** When true, show a text field for the user to specify the task before running the prompt. */
     @ColumnInfo(name = "editBeforeRun", defaultValue = "0") var specifyBeforeRun: Boolean = false,
     /** When true, the prompt does not create a document — results appear only in the agent log. */
@@ -310,6 +368,8 @@ data class GlobalAiSettings(
     val hiddenBuiltInPrompts: Set<IdType> = emptySet(),
     @ColumnInfo(defaultValue = "10") val maxIterations: Int = 10,
     val commentaryDeselected: Set<String> = emptySet(),
+    /** Global default model. FK to LlmConfiguredModel (managed in code, not DB constraint). */
+    @ColumnInfo(defaultValue = "NULL") val defaultModelId: IdType? = null,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
@@ -328,27 +388,21 @@ interface GlobalAiSettingsDao {
 
 /**
  * Per-device cumulative LLM usage record. Each device writes only its own row
- * (keyed by providerConfigId + deviceId), and the UI sums across all devices for totals.
+ * (keyed by configuredModelId + deviceId), and the UI sums across all devices for totals.
  * This avoids data loss with last-writer-wins sync for cumulative counters.
  *
  * Uses a standard IdType PK for sync compatibility (LogEntry expects IdType entity IDs).
- * The unique index on (providerConfigId, deviceId) ensures one row per device per provider.
+ * The unique index on (configuredModelId, deviceId) ensures one row per device per model.
  */
 @Entity(
-    foreignKeys = [ForeignKey(
-        entity = LlmProviderConfig::class,
-        parentColumns = ["id"],
-        childColumns = ["providerConfigId"],
-        onDelete = ForeignKey.CASCADE
-    )],
     indices = [
-        Index("providerConfigId"),
-        Index(value = ["providerConfigId", "deviceId"], unique = true),
+        Index("configuredModelId"),
+        Index(value = ["configuredModelId", "deviceId"], unique = true),
     ]
 )
 data class LlmUsageRecord(
     @PrimaryKey val id: IdType = IdType(),
-    val providerConfigId: IdType,
+    val configuredModelId: IdType,
     val deviceId: String,
     @ColumnInfo(defaultValue = "0") val inputTokens: Long = 0,
     @ColumnInfo(defaultValue = "0") val outputTokens: Long = 0,
@@ -359,15 +413,18 @@ data class LlmUsageRecord(
 
 @Dao
 interface LlmUsageRecordDao {
-    @Query("SELECT * FROM LlmUsageRecord WHERE providerConfigId = :configId")
-    fun getByConfig(configId: IdType): List<LlmUsageRecord>
+    @Query("SELECT * FROM LlmUsageRecord WHERE configuredModelId = :modelId")
+    fun getByModel(modelId: IdType): List<LlmUsageRecord>
 
-    @Query("SELECT * FROM LlmUsageRecord WHERE providerConfigId = :configId AND deviceId = :deviceId")
-    fun get(configId: IdType, deviceId: String): LlmUsageRecord?
+    @Query("SELECT * FROM LlmUsageRecord WHERE configuredModelId = :modelId AND deviceId = :deviceId")
+    fun get(modelId: IdType, deviceId: String): LlmUsageRecord?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun upsert(record: LlmUsageRecord)
 
-    @Query("DELETE FROM LlmUsageRecord WHERE providerConfigId = :configId")
-    fun deleteByConfig(configId: IdType)
+    @Query("DELETE FROM LlmUsageRecord WHERE configuredModelId = :modelId")
+    fun deleteByModel(modelId: IdType)
+
+    @Query("SELECT * FROM LlmUsageRecord")
+    fun all(): List<LlmUsageRecord>
 }

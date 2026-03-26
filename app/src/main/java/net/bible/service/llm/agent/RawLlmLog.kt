@@ -30,7 +30,7 @@ import org.json.JSONObject
 data class IterationUsageData(
     val usage: LlmUsage,
     val model: String,
-    val providerConfigId: IdType? = null
+    val configuredModelId: IdType? = null
 )
 
 /**
@@ -62,8 +62,8 @@ class RawLlmLog {
         entries.add(RawLogEntry.RawApiResponse(iteration, responseBody))
     }
 
-    fun addUsageForIteration(iteration: Int, usage: LlmUsage, model: String, providerConfigId: IdType? = null) {
-        _usageByIteration[iteration] = IterationUsageData(usage, model, providerConfigId)
+    fun addUsageForIteration(iteration: Int, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
+        _usageByIteration[iteration] = IterationUsageData(usage, model, configuredModelId)
     }
 
     fun getEntries(): List<RawLogEntry> = entries.toList()

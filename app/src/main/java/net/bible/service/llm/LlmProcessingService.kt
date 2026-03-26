@@ -24,6 +24,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.AgentLogEntry
@@ -89,6 +90,7 @@ object LlmProcessingService {
         val model: String,
         val apiKey: String,
         val endpoint: String,
+        val configuredModelId: IdType? = null,
     )
 
     /**
@@ -112,17 +114,20 @@ object LlmProcessingService {
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
      */
     internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
-        val providerConfig = llmConfig?.resolveProviderConfig()
-            ?: DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao().getDefault()
-            ?: throw IllegalStateException("No LLM provider configured")
+        val configuredModel = (llmConfig ?: LlmModelConfig()).resolveConfiguredModel()
+            ?: throw IllegalStateException("No LLM model configured")
 
-        val model = llmConfig?.resolveModel(providerConfig) ?: providerConfig.resolveDefaultModel()
+        val providerConfig = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+            .getById(configuredModel.providerConfigId)
+            ?: throw IllegalStateException("LLM provider not found for model ${configuredModel.modelId}")
+
         return ResolvedProvider(
             providerConfig = providerConfig,
             adapter = providerConfig.resolveAdapter(),
-            model = model,
+            model = configuredModel.modelId,
             apiKey = providerConfig.getApiKey(),
             endpoint = providerConfig.resolveEndpoint(),
+            configuredModelId = configuredModel.id,
         )
     }
 
@@ -131,6 +136,39 @@ object LlmProcessingService {
      */
     internal fun resolveAdapter(llmConfig: LlmModelConfig? = null): LlmApiAdapter {
         return resolveFromConfig(llmConfig).adapter
+    }
+
+    /**
+     * Test API connection by sending a minimal request. Throws on failure.
+     * Used by Easy Setup to validate API keys before saving.
+     */
+    fun testApiConnection(provider: LlmProvider, modelId: String, apiKey: String) {
+        val providerConfig = LlmProviderConfig(
+            providerType = provider.name,
+            displayName = provider.displayName,
+        )
+        val adapter = providerConfig.resolveAdapter()
+        val endpoint = providerConfig.resolveEndpoint()
+        val messages = listOf(ChatMessage(ChatMessage.Role.USER, "Hi"))
+        val body = adapter.buildRequestBody(modelId, messages, emptyList(), temperature = null)
+        val url = adapter.buildEndpointUrl(endpoint)
+        val headers = adapter.buildHeaders(apiKey, emptyMap())
+        val request = Request.Builder().url(url).apply {
+            headers.forEach { (k, v) -> addHeader(k, v) }
+            addHeader("Content-Type", "application/json")
+            post(body.toRequestBody("application/json".toMediaType()))
+        }.build()
+        val testClient = OkHttpClient.Builder()
+            .connectTimeout(10, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .build()
+        val response = testClient.newCall(request).execute()
+        response.use {
+            if (!it.isSuccessful) {
+                val errorBody = it.body.string().take(200)
+                throw LlmProcessingError("HTTP ${it.code}: $errorBody")
+            }
+        }
     }
 
     /**
@@ -267,7 +305,9 @@ object LlmProcessingService {
                     is HttpCallResult.Success -> {
                         val usage = adapter.extractUsage(result.body)
                         if (usage.totalTokens > 0) {
-                            LlmCostTracker.addUsage(usage, effectiveModel, resolved.providerConfig.id)
+                            if (resolved.configuredModelId != null) {
+                                LlmCostTracker.addUsage(usage, effectiveModel, resolved.configuredModelId)
+                            }
                         }
                         return LlmApiResponse(result.body, usage)
                     }

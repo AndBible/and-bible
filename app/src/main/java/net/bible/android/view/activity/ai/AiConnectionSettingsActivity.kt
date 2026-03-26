@@ -53,12 +53,14 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
+import net.bible.service.llm.DynamicModelService
+import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
+import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.ModelPricing
-import net.bible.service.llm.DynamicModelService
 import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
@@ -92,12 +94,14 @@ class AiConnectionSettingsActivity : ActivityBase() {
 
 class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
-    private val settings get() = CommonUtils.aiSettings
-    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+    internal val settings get() = CommonUtils.aiSettings
+    internal val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private lateinit var gettingStartedPref: Preference
     private lateinit var providersCategory: PreferenceCategory
     private lateinit var addProviderPref: Preference
+    private lateinit var modelsCategory: PreferenceCategory
+    private lateinit var addModelPref: Preference
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var manageAiDocumentsPref: Preference
@@ -114,6 +118,8 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         gettingStartedPref = preferenceScreen.findPreference("ai_getting_started")!!
         providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
+        modelsCategory = preferenceScreen.findPreference("ai_models_category")!!
+        addModelPref = preferenceScreen.findPreference("ai_add_model")!!
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
@@ -125,20 +131,26 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
         setupGettingStarted()
         setupAddProvider()
+        setupAddModel()
         setupToolPermissions()
         setupDocumentFilter()
         setupCommentaryMaxResponse()
         setupMaxIterations()
         setupUsage()
-        refreshProviderList()
-        updateVisibility()
+        refreshAll()
     }
 
     override fun onResume() {
         super.onResume()
-        refreshProviderList()
+        refreshAll()
         updateToolPermissionsSummary()
         updateDocumentFilterSummary()
+    }
+
+    internal fun refreshAll() {
+        refreshProviderList()
+        refreshModelList()
+        updateVisibility()
     }
 
     private fun hasAnyProvider(): Boolean = dao.getCount() > 0
@@ -152,10 +164,81 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private fun updateVisibility() {
         val hasProviders = hasAnyProvider()
         gettingStartedPref.isVisible = !hasProviders
+        modelsCategory.isVisible = hasProviders
         behaviorCategory.isVisible = hasProviders
         usageCategory.isVisible = hasProviders
 
         if (hasProviders) updateUsageSummary()
+    }
+
+    private fun setupAddModel() {
+        addModelPref.setOnPreferenceClickListener {
+            showAddModelDialogWithProviderSelection()
+            true
+        }
+    }
+
+    /** Add model dialog that first asks the user to select a provider. */
+    private fun showAddModelDialogWithProviderSelection() {
+        val providers = dao.all()
+        if (providers.isEmpty()) return
+        if (providers.size == 1) {
+            // Only one provider — skip selection
+            showAddModelDialog(providers.first()) { refreshModelList() }
+        } else {
+            val items = providers.map { it.displayName }.toTypedArray()
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.model_select_provider)
+                .setItems(items) { _, which ->
+                    showAddModelDialog(providers[which]) { refreshModelList() }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+
+    private fun refreshModelList() {
+        // Remove all dynamic model prefs (keep "ai_add_model")
+        val toRemove = mutableListOf<Preference>()
+        for (i in 0 until modelsCategory.preferenceCount) {
+            val pref = modelsCategory.getPreference(i)
+            if (pref.key != "ai_add_model") {
+                toRemove.add(pref)
+            }
+        }
+        toRemove.forEach { modelsCategory.removePreference(it) }
+
+        val allModels = modelDao.all()
+        val providerConfigs = dao.all().associateBy { it.id }
+        val defaultModelId = settings.defaultModelId
+
+        for (model in allModels) {
+            val provider = providerConfigs[model.providerConfigId]
+            val pref = Preference(requireContext()).apply {
+                key = "model_${model.id}"
+                title = if (model.id == defaultModelId) "★ ${model.modelId}" else model.modelId
+                summary = buildString {
+                    append(provider?.displayName ?: "?")
+                    append(" — ")
+                    append(model.modelId)
+                    if (model.inputPricePerMillion > 0 || model.outputPricePerMillion > 0) {
+                        append(" (${LlmCostTracker.formatPriceCompact(model.inputPricePerMillion)}/${LlmCostTracker.formatPriceCompact(model.outputPricePerMillion)})")
+                    }
+                    val cost = LlmCostTracker.getCumulativeCost(model.id)
+                    if (cost > 0) {
+                        append("\n")
+                        append(LlmCostTracker.formatCost(cost))
+                    }
+                }
+                setOnPreferenceClickListener {
+                    showEditModelDialog(model) { refreshModelList() }
+                    true
+                }
+            }
+            // Insert before "Add model" button
+            modelsCategory.addPreference(pref)
+            pref.order = addModelPref.order - 1
+        }
     }
 
     private fun refreshProviderList() {
@@ -175,28 +258,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 key = "provider_${config.id}"
                 title = config.displayName
                 val apiKey = config.getApiKey()
-                val model = config.resolveDefaultModel()
-                summary = buildString {
-                    if (config.isDefault) {
-                        append(getString(R.string.ai_provider_default_indicator))
-                        append("\n")
-                    }
-                    if (apiKey.isNotBlank()) {
-                        val suffix = apiKey.takeLast(4)
-                        append(getString(R.string.ai_provider_api_key_masked, getString(R.string.ai_provider_api_key), suffix))
-                    } else {
-                        append(getString(R.string.ai_provider_api_key_not_set))
-                    }
-                    if (model.isNotBlank()) {
-                        append("\n")
-                        append(getString(R.string.ai_provider_model, model))
-                    }
-                    // Show per-provider cost
-                    val cost = LlmCostTracker.getCumulativeCost(config.id)
-                    if (cost > 0) {
-                        append("\n")
-                        append(LlmCostTracker.formatCost(cost))
-                    }
+                summary = if (apiKey.isNotBlank()) {
+                    val suffix = apiKey.takeLast(4)
+                    getString(R.string.ai_provider_api_key_masked, getString(R.string.ai_provider_api_key), suffix)
+                } else {
+                    getString(R.string.ai_provider_api_key_not_set)
                 }
                 setOnPreferenceClickListener {
                     showEditProviderDialog(config)
@@ -223,18 +289,20 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO) {
                         config.removeApiKey()
-                        LlmCostTracker.reset(config.id)
+                        // CASCADE will delete LlmConfiguredModel rows, which may clear defaultModelId
+                        val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+                        val deletedModelIds = modelDao.getByProvider(config.id).map { it.id }.toSet()
                         dao.delete(config)
-                        // If we deleted the default, promote the first remaining config
-                        if (config.isDefault) {
-                            val remaining = dao.all()
-                            if (remaining.isNotEmpty()) {
-                                dao.update(remaining.first().copy(isDefault = true))
-                            }
+                        // If the global default model was one of the deleted models, clear it
+                        val currentDefault = settings.defaultModelId
+                        if (currentDefault != null && currentDefault in deletedModelIds) {
+                            // Pick first remaining configured model as new default
+                            val remaining = modelDao.all()
+                            settings.defaultModelId = remaining.firstOrNull()?.id
                         }
                     }
                     Toast.makeText(requireContext(), R.string.ai_provider_deleted, Toast.LENGTH_SHORT).show()
-                    refreshProviderList()
+                    refreshAll()
                 }
             }
             .setNegativeButton(R.string.no, null)
@@ -306,35 +374,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val apiKeyInput: EditText,
         val endpointInput: EditText?,
         val apiFormatSpinner: Spinner?,
-        val modelSpinner: Spinner,
-        val customModelInput: EditText,
-        val customInputPriceInput: EditText,
-        val customOutputPriceInput: EditText,
-        val defaultCheckBox: CheckBox?,
-        val models: MutableList<String>,
-        // Dynamic model list fields (for providers with supportsDynamicModels)
-        val hasDynamicModels: Boolean = false,
-        val dynamicCategorySpinner: Spinner? = null,
-        val dynamicModelSpinner: Spinner? = null,
-        val dynamicModelIds: MutableList<String> = mutableListOf(),
-        val dynamicModels: MutableList<DynamicModelService.DynamicModel> = mutableListOf(),
-    ) {
-        /** Get the selected model name, handling both static and dynamic model modes. */
-        fun getSelectedModel(): String? {
-            if (hasDynamicModels && dynamicModelSpinner != null) {
-                val pos = dynamicModelSpinner.selectedItemPosition
-                return if (pos >= 0 && pos < dynamicModelIds.size) {
-                    dynamicModelIds[pos]
-                } else null
-            }
-            val pos = modelSpinner.selectedItemPosition
-            return if (pos == models.size - 1) {
-                customModelInput.text.toString().trim().takeIf { it.isNotEmpty() }
-            } else if (pos >= 0 && pos < models.size - 1) {
-                models[pos]
-            } else null
-        }
-    }
+    )
 
     /**
      * Show a dialog to create or edit a provider config.
@@ -345,17 +385,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val provider = providerType ?: config!!.resolveProvider()
         val isCustom = provider == LlmProvider.CUSTOM
 
-        val context = requireContext()
-        val scrollView = ScrollView(context)
-        val layout = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            val padding = (16 * resources.displayMetrics.density).toInt()
-            setPadding(padding, padding, padding, padding)
-        }
-        scrollView.addView(layout)
+        val (scrollView, layout) = createDialogLayout()
 
         val fields = buildProviderDialogLayout(layout, config, provider, isCustom)
-        setupModelPricingListeners(fields)
 
         val dialogTitle = if (isNew) getString(R.string.ai_add_provider) else getString(R.string.ai_provider_edit)
 
@@ -385,28 +417,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 okButton.isEnabled = s?.toString()?.trim()?.isNotBlank() == true
             }
         })
-
-        // Check dynamic model refresh after provider dialog is shown, so the
-        // confirmation dialog appears on top of it (not behind it).
-        if (provider.supportsDynamicModels) {
-            maybeRefreshDynamicModels(fields, provider)
-
-            // When user enters an API key and models haven't been fetched yet, try fetching
-            if (!provider.modelsEndpointPublic) {
-                fields.apiKeyInput.addTextChangedListener(object : TextWatcher {
-                    private var hadKey = fields.apiKeyInput.text.toString().trim().isNotBlank()
-                    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                    override fun afterTextChanged(s: Editable?) {
-                        val hasKey = s?.toString()?.trim()?.isNotBlank() == true
-                        if (hasKey && !hadKey && DynamicModelService.needsRefresh(provider.name)) {
-                            hadKey = true
-                            maybeRefreshDynamicModels(fields, provider)
-                        }
-                    }
-                })
-            }
-        }
     }
 
     private fun buildProviderDialogLayout(
@@ -415,7 +425,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         provider: LlmProvider,
         isCustom: Boolean,
     ): ProviderDialogFields {
-        val isNew = config == null
         val context = requireContext()
 
         val nameInput = EditText(context).apply {
@@ -432,6 +441,14 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
         }
         addLabeledField(layout, getString(R.string.ai_provider_api_key), apiKeyInput)
+
+        if (provider.apiKeyUrl != null) {
+            val linkView = TextView(context).apply {
+                text = htmlToSpan("<a href=\"${provider.apiKeyUrl}\">${getString(R.string.easy_setup_api_key_instructions)} ${provider.displayName}</a>")
+                movementMethod = LinkMovementMethod.getInstance()
+            }
+            layout.addView(linkView)
+        }
 
         val endpointInput = if (isCustom) {
             EditText(context).apply {
@@ -453,342 +470,12 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             }.also { addLabeledField(layout, getString(R.string.ai_provider_api_format), it) }
         } else null
 
-        val hasDynamicModels = provider.supportsDynamicModels
-        val models = provider.models.toMutableList()
-        val currentModel = config?.defaultModel ?: ""
-        if (currentModel.isNotBlank() && currentModel !in models) {
-            models.add(0, currentModel)
-        }
-        if (!hasDynamicModels) {
-            models.add(getString(R.string.llm_custom_model))
-        }
-
-        // Dynamic model list: category spinner + model spinner
-        var dynamicCategorySpinner: Spinner? = null
-        var dynamicModelSpinner: Spinner? = null
-        val dynamicModelIds = mutableListOf<String>()
-        val dynamicModels = mutableListOf<DynamicModelService.DynamicModel>()
-
-        // Sort models by price (input+output), keep "Custom…" last
-        val customLabel = if (!hasDynamicModels) getString(R.string.llm_custom_model) else null
-        val sortedModels = models.filter { it != customLabel }.sortedBy { modelId ->
-            val pricing = LlmProvider.findPricing(modelId)
-            pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
-        }.toMutableList()
-        if (customLabel != null) sortedModels.add(customLabel)
-        models.clear()
-        models.addAll(sortedModels)
-
-        // Display labels with pricing for standard providers
-        val modelDisplayLabels = models.map { modelId ->
-            val pricing = LlmProvider.findPricing(modelId)
-            if (pricing != null) formatModelWithPricing(modelId, pricing) else modelId
-        }
-        val modelSpinner = Spinner(context).apply {
-            adapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, modelDisplayLabels).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-            val idx = if (currentModel.isNotBlank()) models.indexOf(currentModel).coerceAtLeast(0) else 0
-            setSelection(idx)
-        }
-
-        val customModelInput: EditText
-
-        if (hasDynamicModels) {
-            // Hide normal model spinner for dynamic providers
-            modelSpinner.visibility = View.GONE
-
-            // Load cached models, falling back to hardcoded models from enum
-            val cached = DynamicModelService.getCachedModels(provider.name)
-            if (cached != null) {
-                dynamicModels.addAll(cached)
-            } else {
-                // Use hardcoded models as fallback (e.g. before first fetch)
-                dynamicModels.addAll(provider.modelPricing.map { (id, pricing) ->
-                    DynamicModelService.DynamicModel(id, id, pricing)
-                })
-            }
-
-            // Category spinner — only shown if models have "/" prefixes (e.g. OpenRouter, Groq)
-            val hasCategories = dynamicModels.any { it.id.contains('/') }
-            if (hasCategories) {
-                dynamicCategorySpinner = Spinner(context)
-                updateDynamicCategorySpinner(dynamicCategorySpinner, dynamicModels)
-                addLabeledField(layout, getString(R.string.llm_openrouter_category), dynamicCategorySpinner)
-            }
-
-            // Model spinner (filtered by category if applicable)
-            val dynModelSpinner = Spinner(context)
-            updateDynamicModelSpinner(dynModelSpinner, dynamicModelIds, dynamicModels, null, currentModel)
-            addLabeledField(layout, getString(R.string.llm_openrouter_model), dynModelSpinner)
-            dynamicModelSpinner = dynModelSpinner
-
-            // Hidden customModelInput (unused for dynamic providers)
-            customModelInput = EditText(context).apply { visibility = View.GONE }
-        } else {
-            addLabeledField(layout, getString(R.string.ai_provider_default_model), modelSpinner)
-
-            customModelInput = EditText(context).apply {
-                hint = getString(R.string.llm_custom_model_dialog_message)
-                inputType = InputType.TYPE_CLASS_TEXT
-                visibility = View.GONE
-            }
-            layout.addView(customModelInput)
-        }
-
-        val customPricingLabel = TextView(context).apply {
-            text = getString(R.string.llm_custom_pricing_label)
-            setTextAppearance(android.R.style.TextAppearance_Small)
-            setTypeface(typeface, Typeface.BOLD)
-            val params = LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
-            )
-            params.topMargin = (12 * resources.displayMetrics.density).toInt()
-            layoutParams = params
-            visibility = View.GONE
-        }
-        layout.addView(customPricingLabel)
-
-        val existingCustomPricing = config?.let { LlmPricing.getCustomPricing(it.id) }
-        val customInputPriceInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_input_price_title)
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            existingCustomPricing?.let { setText(it.inputPerMillion.toString()) }
-            visibility = View.GONE
-        }
-        layout.addView(customInputPriceInput)
-
-        val customOutputPriceInput = EditText(context).apply {
-            hint = getString(R.string.llm_custom_output_price_title)
-            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
-            existingCustomPricing?.let { setText(it.outputPerMillion.toString()) }
-            visibility = View.GONE
-        }
-        layout.addView(customOutputPriceInput)
-
-        val defaultCheckBox = if (!isNew && !config.isDefault) {
-            CheckBox(context).apply {
-                text = getString(R.string.ai_provider_set_default)
-                val params = LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                )
-                params.topMargin = (12 * resources.displayMetrics.density).toInt()
-                layoutParams = params
-            }.also { layout.addView(it) }
-        } else null
-
         return ProviderDialogFields(
             nameInput = nameInput,
             apiKeyInput = apiKeyInput,
             endpointInput = endpointInput,
             apiFormatSpinner = apiFormatSpinner,
-            modelSpinner = modelSpinner,
-            customModelInput = customModelInput,
-            customInputPriceInput = customInputPriceInput,
-            customOutputPriceInput = customOutputPriceInput,
-            defaultCheckBox = defaultCheckBox,
-            models = models,
-            hasDynamicModels = hasDynamicModels,
-            dynamicCategorySpinner = dynamicCategorySpinner,
-            dynamicModelSpinner = dynamicModelSpinner,
-            dynamicModelIds = dynamicModelIds,
-            dynamicModels = dynamicModels,
         )
-    }
-
-    private fun setupModelPricingListeners(fields: ProviderDialogFields) {
-        fun updateCustomPricingVisibility() {
-            val modelName = if (fields.hasDynamicModels) {
-                val orSpinner = fields.dynamicModelSpinner
-                val pos = orSpinner?.selectedItemPosition ?: -1
-                if (pos >= 0 && pos < fields.dynamicModelIds.size) fields.dynamicModelIds[pos] else ""
-            } else {
-                val pos = fields.modelSpinner.selectedItemPosition
-                if (pos == fields.models.size - 1) {
-                    fields.customModelInput.text.toString().trim()
-                } else if (pos >= 0 && pos < fields.models.size - 1) {
-                    fields.models[pos]
-                } else ""
-            }
-            val needsCustomPricing = modelName.isNotBlank() && !LlmPricing.isKnownModel(modelName)
-            val vis = if (needsCustomPricing) View.VISIBLE else View.GONE
-            // Update all pricing-related views (label is the sibling before customInputPriceInput)
-            fields.customInputPriceInput.visibility = vis
-            fields.customOutputPriceInput.visibility = vis
-            val parent = fields.customInputPriceInput.parent as? LinearLayout
-            if (parent != null) {
-                val idx = parent.indexOfChild(fields.customInputPriceInput)
-                if (idx > 0) parent.getChildAt(idx - 1).visibility = vis
-            }
-        }
-
-        if (fields.hasDynamicModels) {
-            setupDynamicModelListeners(fields, ::updateCustomPricingVisibility)
-        } else {
-            fields.modelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    fields.customModelInput.visibility = if (position == fields.models.size - 1) View.VISIBLE else View.GONE
-                    updateCustomPricingVisibility()
-                }
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-
-            fields.customModelInput.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-                override fun afterTextChanged(s: Editable?) { updateCustomPricingVisibility() }
-            })
-        }
-
-        updateCustomPricingVisibility()
-    }
-
-    private fun setupDynamicModelListeners(fields: ProviderDialogFields, updatePricing: () -> Unit) {
-        val dynModelSpinner = fields.dynamicModelSpinner ?: return
-
-        // Category spinner filters the model spinner (only present if models have "/" prefixes)
-        fields.dynamicCategorySpinner?.let { categorySpinner ->
-            categorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val selectedCategory = if (position == 0) null else categorySpinner.selectedItem?.toString()?.lowercase()
-                    val currentModel = fields.getSelectedModel() ?: ""
-                    updateDynamicModelSpinner(dynModelSpinner, fields.dynamicModelIds, fields.dynamicModels, selectedCategory, currentModel)
-                    updatePricing()
-                }
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-        }
-
-        // Model spinner selection changes update pricing visibility
-        dynModelSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updatePricing()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private companion object {
-        private const val PREF_AUTO_FETCH_MODELS = "auto_fetch_dynamic_models"
-    }
-
-    /**
-     * Check if a provider's dynamic model list needs fetching (no cache or >7 days old)
-     * and prompt the user or fetch automatically based on preferences.
-     */
-    private fun maybeRefreshDynamicModels(fields: ProviderDialogFields, provider: LlmProvider) {
-        if (!DynamicModelService.needsRefresh(provider.name)) return
-
-        // Don't attempt fetch without an API key unless the provider's endpoint is public
-        val apiKey = fields.apiKeyInput.text.toString().trim()
-        if (apiKey.isBlank() && !provider.modelsEndpointPublic) return
-
-        val autoFetch = CommonUtils.settings.getBoolean(PREF_AUTO_FETCH_MODELS, false)
-        if (autoFetch) {
-            doFetchDynamicModels(fields, provider)
-        } else {
-            AlertDialog.Builder(requireContext())
-                .setTitle(R.string.llm_fetch_models_title)
-                .setMessage(getString(R.string.llm_fetch_models_message, provider.displayName))
-                .setPositiveButton(R.string.okay) { _, _ ->
-                    doFetchDynamicModels(fields, provider)
-                }
-                .setNeutralButton(R.string.llm_fetch_models_dont_ask) { _, _ ->
-                    CommonUtils.settings.setBoolean(PREF_AUTO_FETCH_MODELS, true)
-                    doFetchDynamicModels(fields, provider)
-                }
-                .setNegativeButton(R.string.cancel, null)
-                .show()
-        }
-    }
-
-    private fun doFetchDynamicModels(fields: ProviderDialogFields, provider: LlmProvider) {
-        val currentModel = fields.getSelectedModel() ?: ""
-        val apiKey = fields.apiKeyInput.text.toString().trim()
-
-        lifecycleScope.launch {
-            val models = DynamicModelService.fetchModels(provider.endpoint, apiKey, provider.name)
-            if (models != null) {
-                fields.dynamicModels.clear()
-                fields.dynamicModels.addAll(models)
-
-                // Update category spinner if present
-                fields.dynamicCategorySpinner?.let { updateDynamicCategorySpinner(it, models) }
-
-                updateDynamicModelSpinner(
-                    fields.dynamicModelSpinner!!, fields.dynamicModelIds,
-                    models, null, currentModel
-                )
-
-                Toast.makeText(requireContext(),
-                    getString(R.string.llm_fetch_models_success, models.size),
-                    Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), R.string.llm_fetch_models_failed, Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
-
-    private fun updateDynamicCategorySpinner(spinner: Spinner, models: List<DynamicModelService.DynamicModel>) {
-        val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
-        categories.addAll(
-            models.map { it.category }.filter { it.isNotBlank() }.distinct().sorted()
-                .map { it.replaceFirstChar { c -> c.uppercaseChar() } }
-        )
-        spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, categories).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-    }
-
-    private fun updateDynamicModelSpinner(
-        spinner: Spinner,
-        modelIds: MutableList<String>,
-        models: List<DynamicModelService.DynamicModel>,
-        category: String?,
-        currentModel: String
-    ) {
-        val filtered = if (category == null) models else models.filter { it.category == category }
-        // Sort by price (input+output), cheapest first
-        val sorted = filtered.sortedBy { model ->
-            model.pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
-        }
-        modelIds.clear()
-        modelIds.addAll(sorted.map { it.id })
-        // If no models fetched yet, ensure current model is in the list
-        if (modelIds.isEmpty() && currentModel.isNotBlank()) {
-            modelIds.add(currentModel)
-        }
-        // Display labels with pricing info
-        val displayLabels = modelIds.map { id ->
-            val pricing = filtered.find { it.id == id }?.pricing
-                ?: LlmProvider.findPricing(id)
-                ?: DynamicModelService.getPricingForModel(id)
-            formatModelWithPricing(id, pricing)
-        }
-        spinner.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, displayLabels).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-        // Restore selection
-        val idx = if (currentModel.isNotBlank()) modelIds.indexOf(currentModel).coerceAtLeast(0) else 0
-        if (modelIds.isNotEmpty()) spinner.setSelection(idx)
-    }
-
-    /** Format a model name with pricing info for display in spinner, e.g. "claude-sonnet-4 ($3.00/$15.00)". */
-    private fun formatModelWithPricing(modelId: String, pricing: ModelPricing?): String {
-        if (pricing == null) return modelId
-        val input = formatPriceCompact(pricing.inputPerMillion)
-        val output = formatPriceCompact(pricing.outputPerMillion)
-        return "$modelId ($input/$output)"
-    }
-
-    /** Format a per-million-token price compactly, e.g. "$3.00", "$0.15". */
-    private fun formatPriceCompact(pricePerMillion: Double): String {
-        return if (pricePerMillion < 0.01 && pricePerMillion > 0) {
-            "< \$0.01"
-        } else {
-            "\$%.2f".format(pricePerMillion)
-        }
     }
 
     private fun saveProviderConfig(
@@ -804,12 +491,6 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val apiFormat = fields.apiFormatSpinner?.selectedItem?.toString()?.let {
             try { ApiFormat.valueOf(it) } catch (_: IllegalArgumentException) { null }
         }
-        val makeDefault = fields.defaultCheckBox?.isChecked == true
-
-        val selectedModel = fields.getSelectedModel()
-
-        val customInputPrice = fields.customInputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
-        val customOutputPrice = fields.customOutputPriceInput.text.toString().toDoubleOrNull() ?: 0.0
 
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -819,44 +500,51 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                         displayName = displayName,
                         endpoint = if (isCustom) endpoint else null,
                         apiFormat = if (isCustom) apiFormat else null,
-                        defaultModel = selectedModel,
-                        isDefault = dao.getCount() == 0,
                         orderNumber = dao.getCount(),
-                        customInputPrice = customInputPrice,
-                        customOutputPrice = customOutputPrice,
                     )
                     dao.insert(newConfig)
                     newConfig.setApiKey(apiKey)
-                } else {
-                    if (makeDefault) {
-                        dao.clearDefault()
-                        val all = dao.all()
-                        var order = 1
-                        for (c in all) {
-                            if (c.id == config.id) continue
-                            if (c.orderNumber != order) dao.update(c.copy(orderNumber = order))
-                            order++
-                        }
+
+                    // Fetch dynamic models in the background
+                    if (provider.supportsDynamicModels) {
+                        val fetchKey = if (provider.modelsEndpointPublic) "" else apiKey
+                        DynamicModelService.fetchModels(provider.endpoint, fetchKey, provider.name)
                     }
+                } else {
                     val updated = config.copy(
                         displayName = displayName,
                         endpoint = if (isCustom) endpoint else config.endpoint,
                         apiFormat = if (isCustom) apiFormat else config.apiFormat,
-                        defaultModel = selectedModel,
-                        isDefault = config.isDefault || makeDefault,
-                        orderNumber = if (makeDefault) 0 else config.orderNumber,
                     )
                     dao.update(updated)
                     updated.setApiKey(apiKey)
-                    LlmPricing.setCustomPricing(customInputPrice, customOutputPrice, config.id)
                 }
             }
             Toast.makeText(requireContext(), R.string.ai_provider_saved, Toast.LENGTH_SHORT).show()
-            refreshProviderList()
+            refreshAll()
         }
     }
 
-    private fun addLabeledField(layout: LinearLayout, label: String, field: View) {
+    // ---- Model management dialogs ----
+
+    internal val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+
+    // Model dialogs: showAddModelDialog, showEditModelDialog, confirmDeleteModel → ModelDialogs.kt
+
+    /** Create a ScrollView containing a padded vertical LinearLayout for dialog content. */
+    internal fun createDialogLayout(): Pair<ScrollView, LinearLayout> {
+        val context = requireContext()
+        val scrollView = ScrollView(context)
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val padding = (16 * resources.displayMetrics.density).toInt()
+            setPadding(padding, padding, padding, padding)
+        }
+        scrollView.addView(layout)
+        return scrollView to layout
+    }
+
+    internal fun addLabeledField(layout: LinearLayout, label: String, field: View) {
         val density = resources.displayMetrics.density
         val labelView = TextView(requireContext()).apply {
             text = label
@@ -879,36 +567,11 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         layout.addView(field)
     }
 
+    // Easy Setup wizard: showEasySetupStep1/2/3, performEasySetup → EasySetupDialogs.kt
+
     private fun setupGettingStarted() {
         gettingStartedPref.setOnPreferenceClickListener {
-            val getKey = getString(R.string.ai_getting_started_get_api_key)
-            val html = buildString {
-                append(getString(R.string.ai_getting_started_intro))
-
-                val tierHeaders = mapOf(
-                    ProviderTier.RECOMMENDED to getString(R.string.ai_getting_started_recommended_providers),
-                    ProviderTier.COMMUNITY to getString(R.string.ai_getting_started_community_providers),
-                )
-                for (tier in listOf(ProviderTier.RECOMMENDED, ProviderTier.COMMUNITY, ProviderTier.UNCATEGORIZED)) {
-                    val providers = LlmProvider.entries.filter { it.tier == tier && it.apiKeyUrl != null }
-                    if (providers.isEmpty()) continue
-                    tierHeaders[tier]?.let { append("<br><br><b>$it</b><br><br>") } ?: append("<br>")
-                    for (p in providers) {
-                        append("<b>${p.displayName}</b><br>")
-                        append("<a href=\"${p.apiKeyUrl}\">$getKey</a><br><br>")
-                    }
-                }
-                append(getString(R.string.ai_getting_started_other))
-            }
-            val spanned = htmlToSpan(html)
-            val d = AlertDialog.Builder(requireContext()).apply {
-                setTitle(R.string.ai_getting_started_title)
-                setMessage(spanned)
-                setPositiveButton(R.string.okay, null)
-                setCancelable(true)
-            }.create()
-            d.show()
-            d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+            showEasySetupStep1()
             true
         }
     }
@@ -1040,15 +703,15 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                 .setTitle(R.string.llm_reset_usage_confirm_title)
                 .setMessage(R.string.llm_reset_usage_confirm_message)
                 .setPositiveButton(R.string.okay) { _, _ ->
-                    // Reset all provider configs' usage
+                    // Reset all configured models' usage
                     lifecycleScope.launch {
                         withContext(Dispatchers.IO) {
-                            for (config in dao.all()) {
-                                LlmCostTracker.reset(config.id)
+                            val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+                            for (model in modelDao.all()) {
+                                LlmCostTracker.reset(model.id)
                             }
                         }
-                        updateUsageSummary()
-                        refreshProviderList()
+                        refreshAll()
                     }
                 }
                 .setNegativeButton(R.string.cancel, null)
@@ -1058,23 +721,13 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun updateUsageSummary() {
-        // Sum across all provider configs
-        var totalInput = 0L
-        var totalOutput = 0L
-        var totalCost = 0.0
-
-        for (config in dao.all()) {
-            val usage = LlmCostTracker.getCumulativeUsage(config.id)
-            totalInput += usage.inputTokens
-            totalOutput += usage.outputTokens
-            totalCost += LlmCostTracker.getCumulativeCost(config.id)
-        }
-
-        if (totalInput == 0L && totalOutput == 0L) {
+        val totalUsage = LlmCostTracker.getTotalUsage()
+        if (totalUsage.totalTokens == 0L) {
             usageSummaryPref.summary = getString(R.string.llm_usage_summary_default)
         } else {
-            val costStr = LlmCostTracker.formatCost(totalCost)
-            usageSummaryPref.summary = getString(R.string.llm_usage_summary_format, totalInput, totalOutput, costStr)
+            val costStr = LlmCostTracker.formatCost(LlmCostTracker.getTotalCost())
+            usageSummaryPref.summary = getString(R.string.llm_usage_summary_format,
+                totalUsage.inputTokens, totalUsage.outputTokens, costStr)
         }
     }
 

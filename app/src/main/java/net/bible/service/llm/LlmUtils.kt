@@ -18,6 +18,7 @@
 package net.bible.service.llm
 
 import net.bible.android.database.IdType
+import net.bible.service.common.AiSettings
 import net.bible.service.db.DatabaseContainer
 
 enum class ApiFormat { OPENAI, ANTHROPIC }
@@ -124,30 +125,40 @@ enum class LlmProvider(
 /**
  * Transport object that travels through the LLM call chain.
  *
- * Built from an AgentPrompt's DB columns:
- *   `LlmModelConfig(prompt.providerConfigId, prompt.modelOverride)`
- *
- * When both fields are null, the global default provider is used.
+ * Built from an AgentPrompt's `configuredModelId`. When null, the global default
+ * model from [GlobalAiSettings.defaultModelId] is used.
  */
 data class LlmModelConfig(
-    val providerConfigId: IdType? = null,
-    val model: String? = null,
+    val configuredModelId: IdType? = null,
 ) {
+    private val modelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+    private val providerDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
+    /**
+     * Resolve the configured model. Falls back to the global default.
+     * Returns null if the model was deleted or no default is configured.
+     */
+    fun resolveConfiguredModel(): LlmConfiguredModel? {
+        if (configuredModelId != null) {
+            modelDao.getById(configuredModelId)?.let { return it }
+            // Model was deleted → fall back to global default
+        }
+        val defaultId = AiSettings.defaultModelId ?: return null
+        return modelDao.getById(defaultId)
+    }
 
-    private val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-
-    /** Resolve the LlmProviderConfig from the database. */
-    fun resolveProviderConfig(): LlmProviderConfig? =
-        providerConfigId?.let { dao.getById(it) } ?: dao.getDefault()
+    /** Resolve the provider config via the configured model. */
+    fun resolveProviderConfig(): LlmProviderConfig? {
+        val model = resolveConfiguredModel() ?: return null
+        return providerDao.getById(model.providerConfigId)
+    }
 
     /** Resolve the effective model name. */
-    fun resolveModel(providerConfig: LlmProviderConfig): String =
-        model?.takeIf { it.isNotBlank() } ?: providerConfig.resolveDefaultModel()
+    fun resolveModel(): String? = resolveConfiguredModel()?.modelId
 
     companion object {
-        /** Build from an AgentPrompt's per-prompt overrides. */
+        /** Build from an AgentPrompt's per-prompt model override. */
         fun fromPrompt(prompt: AgentPrompt): LlmModelConfig =
-            LlmModelConfig(prompt.providerConfigId, prompt.modelOverride)
+            LlmModelConfig(prompt.configuredModelId)
     }
 }
