@@ -1,0 +1,18 @@
+- Add default model selector to agent log widget (5689c6896)
+- Persist agent log widget visibility across app restarts (d0c130440)
+- Filter non-chat models from dynamic model lists (a727fd488)
+- Fix plain links in AI documents opening ambiguous selection modal (0f063ef4a)
+- Fix markdown link click opening ambiguous selection modal in My Documents (05e5f2055)
+- Fix AI agent notification lingering when app is in foreground (ecfd91ffd)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
