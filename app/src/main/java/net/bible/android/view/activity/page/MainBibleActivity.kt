@@ -73,12 +73,11 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.launch
+import net.bible.android.common.toV11n
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.EmptyBinding
 import net.bible.android.activity.databinding.FrozenBinding
@@ -169,6 +168,7 @@ import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseFactory
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
@@ -1916,6 +1916,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                             return
                         }
                         in classes -> {
+                            if (className == ReadingProgressActivity::class.java.name
+                                && extras.getString("action") == "memorize") {
+                                val startOrd = extras.getInt("startOrdinal")
+                                val endOrd = extras.getInt("endOrdinal")
+                                val defaultBible = windowControl.defaultBibleDoc(false)
+                                val v11n = (defaultBible as SwordBook).versification
+                                val verseRange = VerseRange(KJVA, Verse(KJVA, startOrd), Verse(KJVA, endOrd)).toV11n(v11n)
+                                linkControl.openMemorize(BookAndKey(verseRange, defaultBible))
+                                return
+                            }
                             val isFromBookmark = className == Bookmarks::class.java.name
                             val verseStr = extras.getString("verse")
                             val keyStr = extras.getString("key")

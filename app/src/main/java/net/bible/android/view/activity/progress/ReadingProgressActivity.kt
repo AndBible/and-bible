@@ -239,9 +239,11 @@ class ReadingProgressActivity : ActivityBase() {
         finish()
     }
 
-    private fun navigateToVerse(range: VerseRange) {
-        val resultIntent = Intent(this, GridChoosePassageBook::class.java)
-        resultIntent.putExtra("verse", range.start.osisID)
+    private fun navigateToMemorize(range: VerseRange) {
+        val resultIntent = Intent(this, ReadingProgressActivity::class.java)
+        resultIntent.putExtra("action", "memorize")
+        resultIntent.putExtra("startOrdinal", range.start.ordinal)
+        resultIntent.putExtra("endOrdinal", range.end.ordinal)
         setResult(RESULT_OK, resultIntent)
         finish()
     }
@@ -356,7 +358,7 @@ class ReadingProgressActivity : ActivityBase() {
                 ta.recycle()
                 resId
             })
-            setOnClickListener { navigateToVerse(range) }
+            setOnClickListener { navigateToMemorize(range) }
 
             addView(TextView(context).apply {
                 this.text = text
@@ -398,7 +400,7 @@ class ReadingProgressActivity : ActivityBase() {
                 ta.recycle()
                 resId
             })
-            setOnClickListener { navigateToVerse(range) }
+            setOnClickListener { navigateToMemorize(range) }
 
             addView(LinearLayout(context).apply {
                 orientation = LinearLayout.HORIZONTAL
