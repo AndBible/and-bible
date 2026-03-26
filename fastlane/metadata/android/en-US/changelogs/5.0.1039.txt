@@ -1,0 +1,15 @@
+- Tapping passages in Reading Progress now opens the memorize view (1501999)
+- Added Bible passage links to memorize document titles (43a6453)
+- Separated LLM model and provider configuration with simplified Easy Setup wizard (d28e678)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
