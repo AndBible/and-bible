@@ -1,0 +1,14 @@
+- Memorization improvements: Tapping memorized passages in Reading Progress now opens the memorize feature, and passage titles in the memorize view are clickable links to the Bible passage (1501999, 43a6465)
+- Fixed memorization state update bugs and versification mismatches (146c838)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
