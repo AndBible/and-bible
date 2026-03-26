@@ -38,6 +38,9 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.service.common.AiSettings
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
@@ -73,6 +76,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private var isExpanded = false
     private var spinAnimator: ObjectAnimator? = null
 
+    private var isUserVisible: Boolean
+        get() = CommonUtils.settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
+        set(value) = CommonUtils.settings.setBoolean(PREF_AGENT_LOG_VISIBLE, value)
+
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private val workspaceId: IdType get() = windowControl.windowRepository.id
 
@@ -90,6 +97,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
         adapter.onRawLogClick = { openRawLog() }
 
+        adapter.onModelSelectorClick = { showModelSelector() }
+        updateModelSelectorText()
         updateExpandIcon()
     }
 
@@ -106,16 +115,18 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         refreshLogEntries()
         updateBackgroundColor()
 
-        // Check if agent is already running (handles race condition where
-        // AgentSessionStatusChangedEvent was posted before widget was attached)
         val isRunning = AgentSessionManager.isRunning(workspaceId)
         if (isRunning) {
             startSpinAnimation()
             if (visibility != View.VISIBLE) {
                 show()
             }
+        } else if (isUserVisible) {
+            // Restore visibility from previous session
+            visibility = View.VISIBLE
+            updateBackgroundColor()
+            notifyVisibilityChanged()
         }
-        // Update close/stop button state
         updateCloseStopButton(isRunning)
     }
 
@@ -164,6 +175,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun show() {
         visibility = View.VISIBLE
+        isUserVisible = true
         updateBackgroundColor()
         notifyVisibilityChanged()
     }
@@ -173,6 +185,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun hide() {
         visibility = View.GONE
+        isUserVisible = false
         notifyVisibilityChanged()
     }
 
@@ -242,7 +255,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Always shows the latest log entry message, or empty if none.
      */
     private fun updateStatusText(latestMessage: String?) {
-        binding.statusText.text = latestMessage ?: ""
+        binding.statusText.text = latestMessage ?: context.getString(R.string.agent_log_idle)
     }
 
     /**
@@ -310,6 +323,49 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
+     * Update the model selector text to show the current default model.
+     */
+    private fun updateModelSelectorText() {
+        val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+        val defaultId = AiSettings.defaultModelId
+        val model = defaultId?.let { modelDao.getById(it) }
+        adapter.modelSelectorText = context.getString(
+            R.string.agent_log_model_selector,
+            model?.modelId ?: context.getString(R.string.agent_log_model_not_configured)
+        )
+    }
+
+    /**
+     * Show a dialog to quickly switch the default model.
+     */
+    private fun showModelSelector() {
+        val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+        val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+        val allModels = modelDao.all()
+        if (allModels.isEmpty()) return
+
+        val providers = providerDao.all().associateBy { it.id }
+        val currentDefault = AiSettings.defaultModelId
+        val items = allModels.map { model ->
+            val providerName = providers[model.providerConfigId]?.displayName ?: "?"
+            val prefix = if (model.id == currentDefault) "★ " else ""
+            val pricing = if (model.inputPricePerMillion > 0 || model.outputPricePerMillion > 0) {
+                " (${LlmCostTracker.formatPriceCompact(model.inputPricePerMillion)}/${LlmCostTracker.formatPriceCompact(model.outputPricePerMillion)})"
+            } else ""
+            "$prefix${model.modelId} — $providerName$pricing"
+        }.toTypedArray()
+
+        android.app.AlertDialog.Builder(context)
+            .setTitle(R.string.agent_log_select_model)
+            .setItems(items) { _, which ->
+                AiSettings.defaultModelId = allModels[which].id
+                updateModelSelectorText()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    /**
      * Open the raw LLM log activity.
      */
     private fun openRawLog() {
@@ -340,5 +396,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         binding.closeButton.isEnabled = true
         binding.closeButton.alpha = 1.0f
+    }
+
+    companion object {
+        private const val PREF_AGENT_LOG_VISIBLE = "agent_log_widget_visible"
     }
 }

@@ -306,6 +306,9 @@ async function handle(event: MouseEvent) {
     const allEventFunctions = getAllEventFunctions(event).filter(e => config.showBookmarks || !e.options.bookmarkId);
     const hasParticularClicks = eventFunctions.filter(f => !f.options.hidden).length > 0; // let's not show only "hidden" items
     if (appSettings.actionMode) return;
+    // If a plain <a> link was clicked (e.g. from rendered markdown) with no registered
+    // event functions, let the browser handle it instead of showing the modal.
+    if (!hasParticularClicks && (event.target as HTMLElement)?.closest("a")) return;
     const hadHighlights = hasHighlights.value;
     resetHighlights();
     if (hadHighlights && !showModal.value && !hasParticularClicks) {

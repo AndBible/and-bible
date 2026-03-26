@@ -132,6 +132,7 @@ function handleClicks(event: MouseEvent) {
     const link = (event.target as HTMLElement).closest("a") as HTMLAnchorElement | null;
     if (link) {
         event.preventDefault();
+        event.stopPropagation();
         const href = link.getAttribute("href");
         if (href) {
             window.android.openExternalLink(href);
