@@ -1765,8 +1765,14 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val doc = firstDocument
         if (doc !is BibleDocument && doc !is MemorizeDocument) return
 
-        // Convert KJV ordinals to document versification for BibleDocument
-        val v11n = if (doc is BibleDocument) doc.swordBook.versification else null
+        // Convert KJV ordinals to document versification
+        val v11n = when (doc) {
+            is BibleDocument -> doc.swordBook.versification
+            is MemorizeDocument -> doc.bookInitials?.let {
+                (SwordDocumentFacade.getDocumentByInitials(it) as? SwordBook)?.versification
+            }
+            else -> null
+        }
         fun convertOrdinals(kjvOrdinals: List<Int>): String {
             val converted = if (v11n != null) {
                 kjvOrdinals.map { Verse(KJVA, it).toV11n(v11n).ordinal }

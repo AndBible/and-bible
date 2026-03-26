@@ -100,10 +100,13 @@ open class CurrentCommentaryPage internal constructor(
                 MemorizeDocument(
                     verseRange.name, texts, pageManager.jsState,
                     bookInitials = doc?.initials,
+                    v11nName = v11n.name,
+                    osisRef = verseRange.osisRef,
                     startOrdinal = verseRange.start.ordinal,
                     endOrdinal = verseRange.end.ordinal,
                     memorizedOrdinals = memorizedOrdinals,
                     targetOrdinals = targetOrdinals,
+                    autoMarkMemorized = ProgressControl.autoMarkMemorized,
                 )
             } else super.currentPageContent
         }

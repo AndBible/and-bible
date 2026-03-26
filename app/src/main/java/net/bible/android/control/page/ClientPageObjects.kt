@@ -222,11 +222,14 @@ class MemorizeDocument(
     private val title: String,
     private val texts: List<Pair<String, String>>,
     private val state: String?,
-    private val bookInitials: String? = null,
+    val bookInitials: String? = null,
+    private val v11nName: String? = null,
+    private val osisRef: String? = null,
     private val startOrdinal: Int = 0,
     private val endOrdinal: Int = 0,
     private val memorizedOrdinals: List<Int> = emptyList(),
     private val targetOrdinals: List<Int> = emptyList(),
+    private val autoMarkMemorized: Boolean = true,
 ): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
@@ -236,10 +239,13 @@ class MemorizeDocument(
             "texts" to listToJson(texts.map { "{ 'key': " + wrapString(it.first) + ", 'text':" + wrapString(it.second) + "}" }),
             "state" to (state ?: "undefined"),
             "bookInitials" to (if (bookInitials != null) wrapString(bookInitials) else "undefined"),
+            "v11n" to (if (v11nName != null) wrapString(v11nName) else "undefined"),
+            "osisRef" to (if (osisRef != null) wrapString(osisRef) else "undefined"),
             "startOrdinal" to startOrdinal,
             "endOrdinal" to endOrdinal,
             "memorizedOrdinals" to json.encodeToString(serializer(), memorizedOrdinals),
             "targetOrdinals" to json.encodeToString(serializer(), targetOrdinals),
+            "autoMarkMemorized" to autoMarkMemorized,
         )
 }
 

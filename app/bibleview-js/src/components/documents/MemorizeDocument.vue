@@ -16,7 +16,7 @@
   -->
 
 <template>
-  <h2>{{document.title}}</h2>
+  <h2><a class="title-link" :href="bibleUrl">{{document.title}}</a></h2>
 
   <TabContainer
       :tabs="tabsConfig"
@@ -165,7 +165,7 @@ const isTarget = computed(() => {
 
 function markAsMemorized() {
     withVerseRange((b, s, e) => {
-        android.memorizeCompleted(b, s, e);
+        android.markAsMemorized(b, s, e);
         if (!isTarget.value) {
             android.addMemorizationTarget(b, s, e);
         }
@@ -187,6 +187,14 @@ function addToTargets() {
 function openProgress() {
     android.openReadingProgress(1);
 }
+
+const bibleUrl = computed(() => {
+    const {osisRef, v11n} = document.value;
+    if (osisRef && v11n) {
+        return `osis://?osis=${encodeURI(osisRef)}&v11n=${encodeURI(v11n)}`;
+    }
+    return "#";
+});
 
 const menuOpen = ref(false);
 const menuWrapper = ref<HTMLElement | null>(null);
@@ -246,7 +254,8 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
 }
 
 function onMemorizeCompleted() {
-    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
+    if (!document.value.autoMarkMemorized) return;
+    withVerseRange((b, s, e) => android.markAsMemorized(b, s, e));
 }
 
 watch(selectedMode, saveState);
@@ -273,6 +282,10 @@ function saveState() {
 h2 {
   font-size: 1.2em;
   text-align: center;
+
+  .title-link {
+    text-decoration: underline;
+  }
 }
 
 .menu-wrapper {

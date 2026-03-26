@@ -240,7 +240,7 @@ class ReadingProgressActivity : ActivityBase() {
     }
 
     private fun navigateToMemorize(range: VerseRange) {
-        val resultIntent = Intent()
+        val resultIntent = Intent(this, ReadingProgressActivity::class.java)
         resultIntent.putExtra("action", "memorize")
         resultIntent.putExtra("startOrdinal", range.start.ordinal)
         resultIntent.putExtra("endOrdinal", range.end.ordinal)
