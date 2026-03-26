@@ -83,4 +83,83 @@ private val addCommentaryDeselected = makeMigration(7..8) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `commentaryDeselected` TEXT NOT NULL DEFAULT ''")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected)
+private val addConfiguredModels = makeMigration(8..9) { db ->
+    // 1. Create LlmConfiguredModel table
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmConfiguredModel` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `providerConfigId` BLOB NOT NULL,
+        `modelId` TEXT NOT NULL,
+        `orderNumber` INTEGER NOT NULL DEFAULT 0,
+        `inputPricePerMillion` REAL NOT NULL DEFAULT 0.0,
+        `outputPricePerMillion` REAL NOT NULL DEFAULT 0.0,
+        `cacheCreationPricePerMillion` REAL NOT NULL DEFAULT 0.0,
+        `cacheReadPricePerMillion` REAL NOT NULL DEFAULT 0.0,
+        FOREIGN KEY(`providerConfigId`) REFERENCES `LlmProviderConfig`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmConfiguredModel_providerConfigId` ON `LlmConfiguredModel` (`providerConfigId`)")
+    db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_LlmConfiguredModel_providerConfigId_modelId` ON `LlmConfiguredModel` (`providerConfigId`, `modelId`)")
+
+    // 2. Rebuild LlmProviderConfig without removed columns (defaultModel, isDefault, customInputPrice, customOutputPrice)
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmProviderConfig_new` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `providerType` TEXT NOT NULL,
+        `displayName` TEXT NOT NULL,
+        `endpoint` TEXT DEFAULT NULL,
+        `apiFormat` TEXT DEFAULT NULL,
+        `orderNumber` INTEGER NOT NULL DEFAULT 0
+    )""")
+    db.execSQL("""INSERT INTO `LlmProviderConfig_new` (`id`, `providerType`, `displayName`, `endpoint`, `apiFormat`, `orderNumber`)
+        SELECT `id`, `providerType`, `displayName`, `endpoint`, `apiFormat`, `orderNumber` FROM `LlmProviderConfig`""")
+    db.execSQL("DROP TABLE `LlmProviderConfig`")
+    db.execSQL("ALTER TABLE `LlmProviderConfig_new` RENAME TO `LlmProviderConfig`")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmProviderConfig_orderNumber` ON `LlmProviderConfig` (`orderNumber`)")
+
+    // 3. Rebuild AgentPrompt: replace providerConfigId + modelOverride with configuredModelId
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `AgentPrompt_new` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `name` TEXT NOT NULL,
+        `description` TEXT DEFAULT NULL,
+        `promptTemplate` TEXT NOT NULL,
+        `showIn` TEXT NOT NULL,
+        `orderNumber` INTEGER NOT NULL DEFAULT 0,
+        `createdAt` INTEGER NOT NULL DEFAULT 0,
+        `strictContextMatching` INTEGER NOT NULL DEFAULT 1,
+        `permissionMode` TEXT DEFAULT NULL,
+        `allowedTools` TEXT DEFAULT NULL,
+        `deniedTools` TEXT DEFAULT NULL,
+        `configuredModelId` BLOB DEFAULT NULL,
+        `editBeforeRun` INTEGER NOT NULL DEFAULT 0,
+        `noDocumentCreation` INTEGER NOT NULL DEFAULT 0,
+        `maxIterations` INTEGER DEFAULT NULL,
+        FOREIGN KEY(`configuredModelId`) REFERENCES `LlmConfiguredModel`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+    )""")
+    db.execSQL("""INSERT INTO `AgentPrompt_new` (`id`, `name`, `description`, `promptTemplate`, `showIn`, `orderNumber`, `createdAt`, `strictContextMatching`, `permissionMode`, `allowedTools`, `deniedTools`, `configuredModelId`, `editBeforeRun`, `noDocumentCreation`, `maxIterations`)
+        SELECT `id`, `name`, `description`, `promptTemplate`, `showIn`, `orderNumber`, `createdAt`, `strictContextMatching`, `permissionMode`, `allowedTools`, `deniedTools`, NULL, `editBeforeRun`, `noDocumentCreation`, `maxIterations` FROM `AgentPrompt`""")
+    db.execSQL("DROP TABLE `AgentPrompt`")
+    db.execSQL("ALTER TABLE `AgentPrompt_new` RENAME TO `AgentPrompt`")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_orderNumber` ON `AgentPrompt` (`orderNumber`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_createdAt` ON `AgentPrompt` (`createdAt`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_configuredModelId` ON `AgentPrompt` (`configuredModelId`)")
+
+    // 4. Rebuild LlmUsageRecord: replace providerConfigId with configuredModelId
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmUsageRecord_new` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `configuredModelId` BLOB NOT NULL,
+        `deviceId` TEXT NOT NULL,
+        `inputTokens` INTEGER NOT NULL DEFAULT 0,
+        `outputTokens` INTEGER NOT NULL DEFAULT 0,
+        `cacheCreationTokens` INTEGER NOT NULL DEFAULT 0,
+        `cacheReadTokens` INTEGER NOT NULL DEFAULT 0,
+        `estimatedCostUsd` REAL NOT NULL DEFAULT 0.0
+    )""")
+    // Old usage records are dropped (no way to map providerConfigId → configuredModelId)
+    db.execSQL("DROP TABLE `LlmUsageRecord`")
+    db.execSQL("ALTER TABLE `LlmUsageRecord_new` RENAME TO `LlmUsageRecord`")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmUsageRecord_configuredModelId` ON `LlmUsageRecord` (`configuredModelId`)")
+    db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_LlmUsageRecord_configuredModelId_deviceId` ON `LlmUsageRecord` (`configuredModelId`, `deviceId`)")
+
+    // 5. Add defaultModelId to GlobalAiSettings
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `defaultModelId` BLOB DEFAULT NULL")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels)

@@ -24,9 +24,9 @@
         android:title="@string/ai_providers_category">
 
         <Preference android:key="ai_getting_started"
-            android:title="@string/ai_getting_started_title"
-            android:summary="@string/ai_getting_started_summary"
-            android:icon="@drawable/ic_info_grey_24dp"
+            android:title="@string/easy_setup_title"
+            android:summary="@string/easy_setup_pref_summary"
+            android:icon="@drawable/ic_baseline_cloud_24"
             />
 
         <!-- Dynamic provider items are inserted here programmatically -->
@@ -34,6 +34,19 @@
         <Preference android:key="ai_add_provider"
             android:title="@string/ai_add_provider"
             android:summary="@string/ai_add_provider_summary"
+            android:icon="@drawable/ic_baseline_cloud_24"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="ai_models_category"
+        android:title="@string/ai_models_category">
+
+        <!-- Dynamic model items are inserted here programmatically -->
+
+        <Preference android:key="ai_add_model"
+            android:title="@string/add_model"
+            android:summary="@string/ai_add_model_summary"
             android:icon="@drawable/ic_baseline_cloud_24"
             />
     </PreferenceCategory>

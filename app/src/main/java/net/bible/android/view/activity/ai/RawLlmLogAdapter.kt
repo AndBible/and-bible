@@ -105,7 +105,7 @@ class RawLlmLogAdapter(
             val data = usageByIteration[entry.iteration]
             if (data != null) {
                 val usage = data.usage
-                val cost = LlmPricing.estimateCost(usage, data.model, data.providerConfigId)
+                val cost = LlmPricing.estimateCost(usage, data.model, data.configuredModelId)
                 val costStr = if (cost != null) " · ${LlmCostTracker.formatCost(cost)}" else ""
                 context.getString(R.string.raw_llm_log_entry_usage,
                     formatTokenCount(usage.inputTokens),

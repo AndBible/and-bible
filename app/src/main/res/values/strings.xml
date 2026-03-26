@@ -1500,13 +1500,6 @@
     <string name="ai_setup_description">AndBible can use AI to translate Bible text, explain verses, create summaries, and more. To get started, configure a connection to an OpenAI-compatible API provider.</string>
     <string name="ai_configure_button">Configure Connection</string>
     <string name="ai_settings_shortcut_summary">AI connection and prompt settings</string>
-    <string name="ai_getting_started_title">Getting started</string>
-    <string name="ai_getting_started_summary">How to get an API key</string>
-    <string name="ai_getting_started_intro">AndBible connects to AI services via their APIs. You need an API key from a provider.</string>
-    <string name="ai_getting_started_recommended_providers">Recommended providers:</string>
-    <string name="ai_getting_started_community_providers">Other providers (community, not officially tested):</string>
-    <string name="ai_getting_started_get_api_key">Get API key</string>
-    <string name="ai_getting_started_other">Any other OpenAI-compatible provider also works. Select a provider, then enter your API key — the endpoint and model will be configured automatically.</string>
     <string name="ai_provider_tier_recommended">Recommended</string>
     <string name="ai_provider_tier_community">Other providers (not tested)</string>
 
@@ -1515,27 +1508,19 @@
     <string name="ai_add_provider">Add provider</string>
     <string name="ai_add_provider_summary">Configure a new AI service provider</string>
     <string name="ai_no_providers">No providers configured. Tap \"Add provider\" to get started.</string>
-    <string name="ai_provider_default_indicator">Default provider</string>
-    <string name="ai_provider_set_default">Set as default</string>
     <string name="ai_provider_edit">Edit</string>
     <string name="ai_provider_delete">Delete</string>
     <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
     <string name="ai_provider_api_key_not_set">API key not set</string>
-    <string name="ai_provider_model">Model: %1$s</string>
     <string name="ai_provider_select_type">Select provider type</string>
     <string name="ai_provider_name">Provider name</string>
     <string name="ai_provider_name_hint">Display name for this provider</string>
     <string name="ai_provider_api_key">API key</string>
     <string name="ai_provider_endpoint">API endpoint</string>
     <string name="ai_provider_api_format">API format</string>
-    <string name="ai_provider_default_model">Default model</string>
-    <string name="ai_provider_already_exists">This provider is already configured</string>
     <string name="ai_provider_saved">Provider saved</string>
     <string name="ai_provider_deleted">Provider deleted</string>
-    <string name="ai_provider_migrate_title">Migrate existing settings?</string>
-    <string name="ai_provider_migrate_message">Your existing LLM configuration will be migrated to the new provider system.</string>
 
-    <string name="llm_custom_pricing_label">Custom pricing ($/M tokens)</string>
     <string name="llm_fetch_models_title">Download model list</string>
     <string name="llm_fetch_models_message">Download the list of available models from %1$s?</string>
     <string name="llm_fetch_models_dont_ask">Don\'t ask again</string>
@@ -1544,8 +1529,39 @@
     <string name="llm_openrouter_category">Category</string>
     <string name="llm_openrouter_category_all">All</string>
     <string name="llm_openrouter_model">Model</string>
-    <string name="prompt_provider_override">Provider</string>
-    <string name="prompt_provider_default">Default</string>
+    <!-- Configured models management -->
+    <string name="ai_models_category">Models</string>
+    <string name="ai_add_model_summary">Add a pre-configured model from a provider</string>
+    <string name="add_model">Add model</string>
+    <string name="add_model_title">Add model</string>
+    <string name="edit_model_title">Edit model</string>
+    <string name="model_saved">Model saved</string>
+    <string name="model_deleted">Model deleted</string>
+    <string name="model_delete_confirm">Delete model \"%1$s\"?</string>
+    <string name="model_set_default">Set as default model</string>
+    <string name="model_select_provider">Provider</string>
+    <string name="no_models_configured">No models configured</string>
+    <string name="model_cache_creation_price">Cache creation price ($/Mtoken)</string>
+    <string name="model_cache_read_price">Cache read price ($/Mtoken)</string>
+
+    <!-- Easy Setup -->
+    <string name="model_pricing_summary">%1$s in / %2$s out per Mtoken</string>
+    <string name="easy_setup_free_tier">Free tier</string>
+    <string name="unknown_error">Unknown error</string>
+    <string name="easy_setup_title">Quick Setup</string>
+    <string name="easy_setup_pref_summary">Set up AI with a recommended provider in a few steps</string>
+    <string name="easy_setup_choose_provider">Choose a provider to get started:</string>
+    <string name="easy_setup_enter_api_key">Enter your API key</string>
+    <string name="easy_setup_api_key_instructions">Get your API key from:</string>
+    <string name="easy_setup_test_connection">Test connection</string>
+    <string name="easy_setup_testing">Testing…</string>
+    <string name="easy_setup_success">Connection successful!</string>
+    <string name="easy_setup_failed">Connection failed: %1$s</string>
+    <string name="easy_setup_done_title">AI is ready!</string>
+    <string name="easy_setup_done_message">Select text in the Bible and try the AI features. You can add more models and providers in the settings.</string>
+    <string name="easy_setup_gemini_desc">Free tier available, good quality</string>
+    <string name="easy_setup_anthropic_desc">Affordable, excellent quality</string>
+    <string name="easy_setup_openai_desc">Well-known, reliable</string>
 
     <string name="prompt_permission_mode">Permission mode</string>
     <string name="agent_permission_mode_summary">Controls when user confirmation is required before AI write operations</string>

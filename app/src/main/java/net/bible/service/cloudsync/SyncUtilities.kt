@@ -118,8 +118,9 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "AiPageCacheEntry", idField1 = "pageId"),
         )
         AI_SETTINGS -> listOf(
-            Table(tableName = "AgentPrompt"),
             Table(tableName = "LlmProviderConfig"),
+            Table(tableName = "LlmConfiguredModel"),
+            Table(tableName = "AgentPrompt"),
             Table(tableName = "GlobalAiSettings"),
             Table(tableName = "LlmUsageRecord"),
         )

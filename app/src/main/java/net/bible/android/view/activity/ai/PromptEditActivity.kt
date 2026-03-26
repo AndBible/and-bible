@@ -24,7 +24,6 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -37,11 +36,13 @@ import net.bible.android.activity.databinding.PromptEditBinding
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.common.AiSettings
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
-import net.bible.service.llm.LlmPricing
-import net.bible.service.llm.LlmProviderConfig
+import net.bible.service.llm.LlmConfiguredModel
+import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.ModelPricing
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.PermissionMode
@@ -63,12 +64,10 @@ class PromptEditActivity : ActivityBase() {
     private var initialPermissionModeIndex = 0
     private var initialAllowedTools: Set<AgentTool>? = null
     private var initialDeniedTools: Set<AgentTool>? = null
-    private var initialProviderSpinnerIndex = 0
-    private var initialModelOverrideSpinnerIndex = 0
+    private var initialModelSpinnerIndex = 0
     private var initialSpecifyBeforeRun = false
     private var initialNoDocumentCreation = false
     private var initialMaxIterations = ""
-    private var initialModelOverrideCustomText = ""
 
     private var currentAllowedTools: MutableSet<AgentTool> = mutableSetOf()
     private var currentDeniedTools: MutableSet<AgentTool> = mutableSetOf()
@@ -76,12 +75,9 @@ class PromptEditActivity : ActivityBase() {
 
     private lateinit var binding: PromptEditBinding
 
-    /** Provider config IDs corresponding to spinner positions: null = default */
-    private var providerOverrideValues: List<IdType?> = listOf(null)
-    private var providerConfigs: List<LlmProviderConfig> = emptyList()
-
-    /** Model values corresponding to spinner positions: null = default, string = model name, CUSTOM_SENTINEL = custom */
-    private var modelOverrideValues: List<String?> = listOf(null)
+    /** Configured model IDs corresponding to spinner positions: null = default */
+    private var configuredModelValues: List<IdType?> = listOf(null)
+    private var configuredModels: List<LlmConfiguredModel> = emptyList()
 
     companion object {
         const val EXTRA_PROMPT_ID = "prompt_id"
@@ -89,7 +85,6 @@ class PromptEditActivity : ActivityBase() {
         const val EXTRA_EXECUTE_AFTER_SAVE = "execute_after_save"
         const val EXTRA_DEFAULT_CONTEXT = "default_context"
         const val RESULT_PROMPT_ID = "result_prompt_id"
-        private const val CUSTOM_SENTINEL = "\u0000custom"
     }
 
     private val toolPermissionsLauncher = registerForActivityResult(
@@ -119,8 +114,6 @@ class PromptEditActivity : ActivityBase() {
         PermissionMode.DENY_ALL,
     )
 
-    private val providerConfigDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = PromptEditBinding.inflate(layoutInflater)
@@ -136,8 +129,7 @@ class PromptEditActivity : ActivityBase() {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        setupProviderOverrideSpinner()
-        setupModelOverrideSpinner()
+        setupModelSpinner()
 
         val promptIdStr = intent.getStringExtra(EXTRA_PROMPT_ID)
         if (promptIdStr != null) {
@@ -213,9 +205,7 @@ class PromptEditActivity : ActivityBase() {
         checkNoDocumentCreation.isEnabled = false
         checkStrictContextMatching.isEnabled = false
         permissionModeSpinner.isEnabled = false
-        providerOverrideSpinner.isEnabled = false
         modelOverrideSpinner.isEnabled = false
-        modelOverrideCustomInput.isEnabled = false
         // btnPromptToolPermissions stays enabled — opens in read-only mode for built-in prompts
         maxIterationsInput.isEnabled = false
 
@@ -245,8 +235,7 @@ class PromptEditActivity : ActivityBase() {
         currentDeniedTools = prompt.deniedTools?.toMutableSet() ?: mutableSetOf()
         updateToolPermissionsButtonText()
 
-        setProviderOverride(prompt.providerConfigId)
-        setModelOverride(prompt.modelOverride)
+        setConfiguredModel(prompt.configuredModelId)
     }
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
@@ -271,9 +260,7 @@ class PromptEditActivity : ActivityBase() {
         initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
         initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
         initialDeniedTools = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
-        initialProviderSpinnerIndex = providerOverrideSpinner.selectedItemPosition
-        initialModelOverrideSpinnerIndex = modelOverrideSpinner.selectedItemPosition
-        initialModelOverrideCustomText = modelOverrideCustomInput.text.toString()
+        initialModelSpinnerIndex = modelOverrideSpinner.selectedItemPosition
     }
 
     private fun isDirty(): Boolean {
@@ -290,9 +277,7 @@ class PromptEditActivity : ActivityBase() {
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
                 currentToolDenied != initialDeniedTools ||
-                providerOverrideSpinner.selectedItemPosition != initialProviderSpinnerIndex ||
-                modelOverrideSpinner.selectedItemPosition != initialModelOverrideSpinnerIndex ||
-                modelOverrideCustomInput.text.toString() != initialModelOverrideCustomText
+                modelOverrideSpinner.selectedItemPosition != initialModelSpinnerIndex
         }
     }
 
@@ -341,8 +326,7 @@ class PromptEditActivity : ActivityBase() {
         val specifyBeforeRun = binding.checkEditBeforeRun.isChecked
         val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
         val maxIterations = binding.maxIterationsInput.text.toString().trim().toIntOrNull()
-        val selectedProviderConfigId = getSelectedProviderConfigId()
-        val selectedModelOverride = getSelectedModelOverride()
+        val selectedConfiguredModelId = getSelectedConfiguredModelId()
 
         lifecycleScope.launch {
             var savedPromptId: IdType? = null
@@ -357,8 +341,7 @@ class PromptEditActivity : ActivityBase() {
                         permissionMode = selectedPermissionMode,
                         allowedTools = allowedTools,
                         deniedTools = deniedTools,
-                        modelOverride = selectedModelOverride,
-                        providerConfigId = selectedProviderConfigId,
+                        configuredModelId = selectedConfiguredModelId,
                         specifyBeforeRun = specifyBeforeRun,
                         noDocumentCreation = noDocumentCreation,
                         maxIterations = maxIterations,
@@ -375,8 +358,7 @@ class PromptEditActivity : ActivityBase() {
                         it.permissionMode = selectedPermissionMode
                         it.allowedTools = allowedTools
                         it.deniedTools = deniedTools
-                        it.modelOverride = selectedModelOverride
-                        it.providerConfigId = selectedProviderConfigId
+                        it.configuredModelId = selectedConfiguredModelId
                         it.specifyBeforeRun = specifyBeforeRun
                         it.noDocumentCreation = noDocumentCreation
                         it.maxIterations = maxIterations
@@ -515,188 +497,58 @@ class PromptEditActivity : ActivityBase() {
         toolPermissionsLauncher.launch(intent)
     }
 
-    // ---- Provider override spinner ----
+    // ---- Model spinner (configured models only) ----
 
-    private fun setupProviderOverrideSpinner() {
-        providerConfigs = providerConfigDao.all()
+    private val configuredModelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+    private val providerConfigDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+
+    private fun setupModelSpinner() {
+        configuredModels = configuredModelDao.all()
+        val providerConfigs = providerConfigDao.all().associateBy { it.id }
+        val defaultModelId = AiSettings.defaultModelId
 
         val displayEntries = mutableListOf<String>()
         val values = mutableListOf<IdType?>()
 
         // First entry: "Default"
-        val defaultConfig = providerConfigs.find { it.isDefault }
-        val defaultSuffix = if (defaultConfig != null) " (${defaultConfig.displayName})" else ""
-        displayEntries.add(getString(R.string.prompt_provider_default) + defaultSuffix)
+        val defaultModel = defaultModelId?.let { id -> configuredModelDao.getById(id) }
+        val defaultProvider = defaultModel?.let { m -> providerConfigs[m.providerConfigId] }
+        val defaultSuffix = if (defaultModel != null && defaultProvider != null) {
+            " (${defaultModel.modelId} — ${defaultProvider.displayName})"
+        } else ""
+        displayEntries.add(getString(R.string.prompt_model_default) + defaultSuffix)
         values.add(null)
 
-        // Then all configured providers
-        for (config in providerConfigs) {
-            displayEntries.add(config.displayName)
-            values.add(config.id)
+        // Then all configured models with provider name and pricing
+        for (model in configuredModels) {
+            val provider = providerConfigs[model.providerConfigId]
+            val providerName = provider?.displayName ?: "?"
+            val pricing = ModelPricing(model.inputPricePerMillion, model.outputPricePerMillion,
+                model.cacheCreationPricePerMillion, model.cacheReadPricePerMillion)
+            val priceStr = if (pricing.inputPerMillion > 0 || pricing.outputPerMillion > 0) {
+                " (${LlmCostTracker.formatPriceCompact(pricing.inputPerMillion)}/${LlmCostTracker.formatPriceCompact(pricing.outputPerMillion)})"
+            } else ""
+            displayEntries.add("${model.modelId} — $providerName$priceStr")
+            values.add(model.id)
         }
 
-        providerOverrideValues = values
-        binding.providerOverrideSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayEntries).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
-
-        binding.providerOverrideSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                // When provider changes, update model spinner to show that provider's models
-                updateModelOverrideSpinnerForProvider()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private fun setProviderOverride(providerConfigId: IdType?) {
-        val idx = if (providerConfigId == null) {
-            0
-        } else {
-            providerOverrideValues.indexOf(providerConfigId).coerceAtLeast(0)
-        }
-        binding.providerOverrideSpinner.setSelection(idx)
-    }
-
-    private fun getSelectedProviderConfigId(): IdType? =
-        providerOverrideValues.getOrNull(binding.providerOverrideSpinner.selectedItemPosition)
-
-    // ---- Model override spinner ----
-
-    private fun setupModelOverrideSpinner() {
-        updateModelOverrideSpinnerForProvider()
-    }
-
-    /** All models for the current provider (before category filtering). */
-    private var allModelsForProvider: List<String> = emptyList()
-
-    private fun updateModelOverrideSpinnerForProvider() {
-        val selectedProviderConfigId = getSelectedProviderConfigId()
-        val providerConfig = selectedProviderConfigId?.let { id -> providerConfigs.find { it.id == id } }
-            ?: providerConfigs.find { it.isDefault }
-
-        val provider = providerConfig?.resolveProvider()
-        allModelsForProvider = providerConfig?.resolveModels() ?: provider?.models ?: emptyList()
-
-        // Show category spinner if models have "/" prefixes (e.g. OpenRouter)
-        val hasCategories = allModelsForProvider.any { it.contains('/') }
-        if (hasCategories) {
-            val categories = mutableListOf(getString(R.string.llm_openrouter_category_all))
-            categories.addAll(
-                allModelsForProvider.map { it.substringBefore('/') }
-                    .filter { it.isNotBlank() }.distinct().sorted()
-                    .map { it.replaceFirstChar { c -> c.uppercaseChar() } }
-            )
-            binding.modelCategorySpinner.visibility = View.VISIBLE
-            binding.modelCategorySpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categories).apply {
-                setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            }
-            binding.modelCategorySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    val category = if (position == 0) null else categories[position].lowercase()
-                    populateModelSpinner(category)
-                }
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
-        } else {
-            binding.modelCategorySpinner.visibility = View.GONE
-        }
-
-        populateModelSpinner(null)
-    }
-
-    private fun populateModelSpinner(category: String?) {
-        val models = if (category == null) allModelsForProvider
-            else allModelsForProvider.filter { it.substringBefore('/') == category }
-
-        val selectedProviderConfigId = getSelectedProviderConfigId()
-        val providerConfig = selectedProviderConfigId?.let { id -> providerConfigs.find { it.id == id } }
-            ?: providerConfigs.find { it.isDefault }
-        val globalModel = providerConfig?.resolveDefaultModel() ?: ""
-        val defaultSuffix = " (${getString(R.string.prompt_model_default)})"
-        val customLabel = getString(R.string.prompt_model_custom)
-
-        val displayEntries = mutableListOf<String>()
-        val values = mutableListOf<String?>()
-
-        // Sort by pricing (cheapest first)
-        val sorted = models.sortedBy { modelId ->
-            val pricing = LlmPricing.getPricing(modelId)
-            pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
-        }
-
-        for (model in sorted) {
-            val pricing = LlmPricing.getPricing(model)
-            val label = if (pricing != null) {
-                val inp = formatPriceCompact(pricing.inputPerMillion)
-                val out = formatPriceCompact(pricing.outputPerMillion)
-                "$model ($inp/$out)"
-            } else model
-
-            if (model == globalModel) {
-                displayEntries.add(label + defaultSuffix)
-                values.add(null)
-            } else {
-                displayEntries.add(label)
-                values.add(model)
-            }
-        }
-        if (null !in values) {
-            displayEntries.add(0, (globalModel.ifEmpty { "default" }) + defaultSuffix)
-            values.add(0, null)
-        }
-        displayEntries.add(customLabel)
-        values.add(CUSTOM_SENTINEL)
-
-        // Preserve current selection if possible
-        val currentSelection = if (::binding.isInitialized && modelOverrideValues.isNotEmpty()) {
-            modelOverrideValues.getOrNull(binding.modelOverrideSpinner.selectedItemPosition)
-        } else null
-
-        modelOverrideValues = values
+        configuredModelValues = values
         binding.modelOverrideSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayEntries).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        if (currentSelection != null) {
-            val idx = values.indexOf(currentSelection)
-            if (idx >= 0) binding.modelOverrideSpinner.setSelection(idx)
-        }
-
-        binding.modelOverrideSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                binding.modelOverrideCustomInput.visibility =
-                    if (modelOverrideValues[position] == CUSTOM_SENTINEL) View.VISIBLE else View.GONE
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
     }
 
-    private fun formatPriceCompact(pricePerMillion: Double): String =
-        if (pricePerMillion < 0.01 && pricePerMillion > 0) "< \$0.01"
-        else "\$%.2f".format(pricePerMillion)
-
-    private fun setModelOverride(modelOverride: String?) {
-        val idx = if (modelOverride == null) {
-            0  // Default
+    private fun setConfiguredModel(configuredModelId: IdType?) {
+        val idx = if (configuredModelId == null) {
+            0
         } else {
-            val found = modelOverrideValues.indexOf(modelOverride)
-            if (found >= 0) {
-                found  // Known model
-            } else {
-                // Custom model not in the list
-                binding.modelOverrideCustomInput.setText(modelOverride)
-                modelOverrideValues.indexOf(CUSTOM_SENTINEL)
-            }
+            configuredModelValues.indexOf(configuredModelId).coerceAtLeast(0)
         }
-        binding.modelOverrideSpinner.setSelection(idx.coerceAtLeast(0))
+        binding.modelOverrideSpinner.setSelection(idx)
     }
 
-    private fun getSelectedModelOverride(): String? {
-        return when (val value = modelOverrideValues[binding.modelOverrideSpinner.selectedItemPosition]) {
-            null -> null  // Default
-            CUSTOM_SENTINEL -> binding.modelOverrideCustomInput.text.toString().trim().takeIf { it.isNotEmpty() }
-            else -> value
-        }
-    }
+    private fun getSelectedConfiguredModelId(): IdType? =
+        configuredModelValues.getOrNull(binding.modelOverrideSpinner.selectedItemPosition)
+
 }

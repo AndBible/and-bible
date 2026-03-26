@@ -111,7 +111,7 @@ class PromptCsvUtilsTest {
             permissionMode = null,
             allowedTools = null,
             deniedTools = null,
-            modelOverride = null,
+            configuredModelId = null,
             createdAt = 1640995200000L,
         )
 
@@ -135,7 +135,6 @@ class PromptCsvUtilsTest {
             permissionMode = PermissionMode.ALLOW_ALL,
             allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE),
             deniedTools = setOf(AgentTool.SET_DOCUMENT_TITLE),
-            modelOverride = "gpt-4",
             createdAt = 1640995200000L,
         )
 
@@ -148,7 +147,6 @@ class PromptCsvUtilsTest {
         assertTrue("permissionMode present", dataLine.contains("ALLOW_ALL"))
         assertTrue("allowedTools present", dataLine.contains("CREATE_BOOKMARK") && dataLine.contains("SEARCH_BIBLE"))
         assertTrue("deniedTools present", dataLine.contains("SET_DOCUMENT_TITLE"))
-        assertTrue("modelOverride present", dataLine.contains("gpt-4"))
     }
 
     @Test
@@ -208,7 +206,7 @@ class PromptCsvUtilsTest {
 
     @Test
     fun testImportBasicPrompt(): Unit = runBlocking {
-        val csv = "name;description;promptTemplate;showIn;orderNumber;strictContextMatching;permissionMode;allowedTools;deniedTools;modelOverride;id;createdAt\n" +
+        val csv = "name;description;promptTemplate;showIn;orderNumber;strictContextMatching;permissionMode;allowedTools;deniedTools;configuredModelId;id;createdAt\n" +
             "My Prompt;A description;Do something;VERSE_SELECTION,TEXT_SELECTION;3;false;;;;;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
@@ -348,8 +346,8 @@ class PromptCsvUtilsTest {
 
     @Test
     fun testImportWithPermissionModeAndTools(): Unit = runBlocking {
-        val csv = "name;promptTemplate;permissionMode;allowedTools;deniedTools;modelOverride\n" +
-            "Advanced;Do it;ALLOW_ALL;CREATE_BOOKMARK,SEARCH_BIBLE;SET_DOCUMENT_TITLE;gpt-4\n"
+        val csv = "name;promptTemplate;permissionMode;allowedTools;deniedTools;configuredModelId\n" +
+            "Advanced;Do it;ALLOW_ALL;CREATE_BOOKMARK,SEARCH_BIBLE;SET_DOCUMENT_TITLE;\n"
 
         val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
         val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
@@ -362,7 +360,7 @@ class PromptCsvUtilsTest {
         assertTrue(prompt.allowedTools!!.contains(AgentTool.CREATE_BOOKMARK))
         assertTrue(prompt.allowedTools!!.contains(AgentTool.SEARCH_BIBLE))
         assertTrue(prompt.deniedTools!!.contains(AgentTool.SET_DOCUMENT_TITLE))
-        assertThat(prompt.modelOverride, equalTo("gpt-4"))
+        assertNull(prompt.configuredModelId)
     }
 
     @Test
@@ -446,8 +444,6 @@ class PromptCsvUtilsTest {
             permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
             allowedTools = setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE),
             deniedTools = setOf(AgentTool.CREATE_LABEL),
-            modelOverride = "claude-3-opus",
-            providerConfigId = providerConfigId,
             createdAt = 1640995200000L,
         )
 
@@ -473,8 +469,7 @@ class PromptCsvUtilsTest {
         assertThat(imported.permissionMode, equalTo(PermissionMode.ASK_ONCE_PER_RUN))
         assertThat(imported.allowedTools, equalTo(setOf(AgentTool.CREATE_BOOKMARK, AgentTool.SEARCH_BIBLE)))
         assertThat(imported.deniedTools, equalTo(setOf(AgentTool.CREATE_LABEL)))
-        assertThat(imported.modelOverride, equalTo("claude-3-opus"))
-        assertThat(imported.providerConfigId, equalTo(providerConfigId))
+        // configuredModelId is not tested here as it requires a configured model in DB
         assertThat(imported.createdAt, equalTo(1640995200000L))
     }
 
@@ -555,7 +550,7 @@ class PromptCsvUtilsTest {
             permissionMode = null,
             allowedTools = null,
             deniedTools = null,
-            modelOverride = null,
+            configuredModelId = null,
             createdAt = 1640995200000L,
         )
 
@@ -574,7 +569,7 @@ class PromptCsvUtilsTest {
         // so after DB round-trip these are empty sets rather than null.
         assertTrue(imported.allowedTools.isNullOrEmpty())
         assertTrue(imported.deniedTools.isNullOrEmpty())
-        assertNull(imported.modelOverride)
+        assertNull(imported.configuredModelId)
     }
 
     @Test

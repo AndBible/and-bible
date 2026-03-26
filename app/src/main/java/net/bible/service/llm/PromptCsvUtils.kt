@@ -56,8 +56,7 @@ object PromptCsvUtils {
     private const val HEADER_PERMISSION_MODE = "permissionMode"
     private const val HEADER_ALLOWED_TOOLS = "allowedTools"
     private const val HEADER_DENIED_TOOLS = "deniedTools"
-    private const val HEADER_MODEL_OVERRIDE = "modelOverride"
-    private const val HEADER_PROVIDER_CONFIG_ID = "providerConfigId"
+    private const val HEADER_CONFIGURED_MODEL_ID = "configuredModelId"
     private const val HEADER_ID = "id"
     private const val MAX_IMPORT_ROWS = 1000
     private const val HEADER_CREATED_AT = "createdAt"
@@ -65,8 +64,8 @@ object PromptCsvUtils {
     private val ALL_HEADERS = listOf(
         HEADER_NAME, HEADER_DESCRIPTION, HEADER_PROMPT_TEMPLATE, HEADER_SHOW_IN,
         HEADER_ORDER_NUMBER, HEADER_STRICT_CONTEXT_MATCHING, HEADER_PERMISSION_MODE,
-        HEADER_ALLOWED_TOOLS, HEADER_DENIED_TOOLS, HEADER_MODEL_OVERRIDE,
-        HEADER_PROVIDER_CONFIG_ID, HEADER_ID, HEADER_CREATED_AT
+        HEADER_ALLOWED_TOOLS, HEADER_DENIED_TOOLS, HEADER_CONFIGURED_MODEL_ID,
+        HEADER_ID, HEADER_CREATED_AT
     )
 
     /**
@@ -92,8 +91,7 @@ object PromptCsvUtils {
                         prompt.permissionMode?.name ?: "",
                         prompt.allowedTools?.joinToString(",") { it.name } ?: "",
                         prompt.deniedTools?.joinToString(",") { it.name } ?: "",
-                        prompt.modelOverride ?: "",
-                        prompt.providerConfigId?.toString() ?: "",
+                        prompt.configuredModelId?.toString() ?: "",
                         prompt.id.toString(),
                         ISO_DATE_FORMAT.format(Date(prompt.createdAt)),
                     )
@@ -228,11 +226,7 @@ object PromptCsvUtils {
             else null
         }
 
-        val modelOverride = getValueOrNull(values, headerMap, HEADER_MODEL_OVERRIDE)?.let {
-            it.ifEmpty { null }
-        }
-
-        val providerConfigId = getValueOrNull(values, headerMap, HEADER_PROVIDER_CONFIG_ID)?.let {
+        val configuredModelId = getValueOrNull(values, headerMap, HEADER_CONFIGURED_MODEL_ID)?.let {
             if (it.isNotEmpty()) IdType(it) else null
         }
 
@@ -253,8 +247,7 @@ object PromptCsvUtils {
             permissionMode = permissionMode,
             allowedTools = allowedTools,
             deniedTools = deniedTools,
-            modelOverride = modelOverride,
-            providerConfigId = providerConfigId,
+            configuredModelId = configuredModelId,
             createdAt = createdAt,
         )
     }
