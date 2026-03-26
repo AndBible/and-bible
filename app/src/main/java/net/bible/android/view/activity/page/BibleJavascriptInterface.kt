@@ -511,8 +511,7 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun memorizeCompleted(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
-        if (!ProgressControl.autoMarkMemorized) return
+    fun markAsMemorized(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         ProgressControl.markVerseMemorized(verseRange)
     }

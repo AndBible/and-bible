@@ -166,6 +166,7 @@ export interface MemorizeDocument extends BaseDocument{
     endOrdinal?: number
     memorizedOrdinals?: number[]
     targetOrdinals?: number[]
+    autoMarkMemorized?: boolean
 }
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {

@@ -104,6 +104,7 @@ open class CurrentCommentaryPage internal constructor(
                     endOrdinal = verseRange.end.ordinal,
                     memorizedOrdinals = memorizedOrdinals,
                     targetOrdinals = targetOrdinals,
+                    autoMarkMemorized = ProgressControl.autoMarkMemorized,
                 )
             } else super.currentPageContent
         }

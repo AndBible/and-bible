@@ -165,7 +165,7 @@ const isTarget = computed(() => {
 
 function markAsMemorized() {
     withVerseRange((b, s, e) => {
-        android.memorizeCompleted(b, s, e);
+        android.markAsMemorized(b, s, e);
         if (!isTarget.value) {
             android.addMemorizationTarget(b, s, e);
         }
@@ -246,7 +246,8 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
 }
 
 function onMemorizeCompleted() {
-    withVerseRange((b, s, e) => android.memorizeCompleted(b, s, e));
+    if (!document.value.autoMarkMemorized) return;
+    withVerseRange((b, s, e) => android.markAsMemorized(b, s, e));
 }
 
 watch(selectedMode, saveState);

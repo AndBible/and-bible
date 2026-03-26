@@ -78,7 +78,7 @@ export type BibleJavascriptInterface = {
     createWholePageBookmark: (bookInitials: string, bookKey: string) => void,
     compare: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
     memorize: (bookInitials: string, verseOrdinal: number, endOrdinal: number) => void,
-    memorizeCompleted: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
+    markAsMemorized: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     addMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     unmarkMemorized: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
@@ -428,8 +428,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.memorize(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
-    function memorizeCompleted(bookInitials: string, startOrdinal: number, endOrdinal: number) {
-        window.android.memorizeCompleted(bookInitials, startOrdinal, endOrdinal);
+    function markAsMemorized(bookInitials: string, startOrdinal: number, endOrdinal: number) {
+        window.android.markAsMemorized(bookInitials, startOrdinal, endOrdinal);
     }
 
     function addMemorizationTarget(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
@@ -685,7 +685,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         createWholePageBookmark,
         compare,
         memorize,
-        memorizeCompleted,
+        markAsMemorized,
         addMemorizationTarget,
         unmarkMemorized,
         removeMemorizationTarget,
