@@ -158,10 +158,20 @@ object DynamicModelService {
         return "$base/models"
     }
 
+    /**
+     * Non-chat model patterns filtered out from dynamic model lists.
+     * OpenAI's /v1/models returns all model types (image, audio, embedding, etc.)
+     * but we only want chat/completion models.
+     */
+    private val NON_CHAT_PATTERN = Regex(
+        "audio|realtime|tts|image|transcribe|search|codex|embedding|moderation|whisper|dall-e|sora|babbage|davinci|instruct|robotics|computer-use|\\baqa\\b|\\blive\\b",
+        RegexOption.IGNORE_CASE
+    )
+
     private fun parseModels(json: String): List<DynamicModel> {
         return try {
             lenientJson.decodeFromString<ModelsResponse>(json).data
-                .filter { it.id.isNotBlank() }
+                .filter { it.id.isNotBlank() && !NON_CHAT_PATTERN.containsMatchIn(it.id) }
                 .map { api ->
                     val prompt = api.pricing?.prompt?.toDoubleOrNull() ?: 0.0
                     val completion = api.pricing?.completion?.toDoubleOrNull() ?: 0.0
