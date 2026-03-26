@@ -1005,6 +1005,9 @@
     <string name="raw_llm_log_entry_tool_desc">Description: %s</string>
     <string name="raw_llm_log_entry_tool_params">Parameters: %s</string>
     <string name="agent_log_view_raw">View raw LLM log</string>
+    <string name="agent_log_model_selector">Change default model (currently: %1$s)</string>
+    <string name="agent_log_model_not_configured">No model configured</string>
+    <string name="agent_log_select_model">Select default model</string>
     <string name="share">Share</string>
     <string name="prefs_show_error_box_title">Show Javascript error box</string>
     <string name="prefs_show_error_box_summary">Useful for developers when debugging BibleView javascript side errors. This will make the app slower.</string>

@@ -31,10 +31,35 @@ import net.bible.service.llm.agent.LogEntryType
 
 /**
  * RecyclerView adapter for displaying agent log entries.
+ * The first item is a synthetic "model selector" entry when [modelSelectorText] is set.
  */
 class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(DiffCallback()) {
 
     var onRawLogClick: (() -> Unit)? = null
+    var onModelSelectorClick: (() -> Unit)? = null
+
+    /** Text for the model selector entry shown at the top of the log. Null = hidden. */
+    var modelSelectorText: String? = null
+        set(value) {
+            val hadEntry = field != null
+            val hasEntry = value != null
+            field = value
+            when {
+                !hadEntry && hasEntry -> notifyItemInserted(0)
+                hadEntry && !hasEntry -> notifyItemRemoved(0)
+                hadEntry && hasEntry -> notifyItemChanged(0)
+            }
+        }
+
+    private val hasModelSelector get() = modelSelectorText != null
+
+    override fun getItemCount(): Int = super.getItemCount() + if (hasModelSelector) 1 else 0
+
+    override fun getItemViewType(position: Int): Int =
+        if (hasModelSelector && position == 0) VIEW_TYPE_MODEL_SELECTOR else VIEW_TYPE_LOG_ENTRY
+
+    private fun getLogEntry(position: Int): AgentLogEntry =
+        getItem(position - if (hasModelSelector) 1 else 0)
 
     class ViewHolder(val binding: AgentLogItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -44,10 +69,30 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.binding.run {
-        val entry = getItem(position)
+        if (getItemViewType(position) == VIEW_TYPE_MODEL_SELECTOR) {
+            bindModelSelector(this)
+        } else {
+            bindLogEntry(this, getLogEntry(position))
+        }
+    }
+
+    private fun bindModelSelector(binding: AgentLogItemBinding) = binding.run {
+        typeIcon.setImageResource(R.drawable.ic_baseline_smart_toy_24)
+        typeIcon.setColorFilter(root.context.getColor(R.color.log_info))
+        messageText.visibility = View.GONE
+        detailsText.visibility = View.GONE
+        costText.visibility = View.GONE
+        statusIcon.visibility = View.GONE
+        rawLogLink.visibility = View.VISIBLE
+        rawLogLink.text = modelSelectorText
+        rawLogLink.setOnClickListener { onModelSelectorClick?.invoke() }
+    }
+
+    private fun bindLogEntry(binding: AgentLogItemBinding, entry: AgentLogEntry) = binding.run {
         val context = root.context
 
-        // Set type icon based on entry type
+        messageText.visibility = View.VISIBLE
+
         val typeIconRes = when (entry.type) {
             LogEntryType.INFO -> R.drawable.ic_info_24dp
             LogEntryType.ACTION -> R.drawable.ic_baseline_build_24
@@ -57,7 +102,6 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
         typeIcon.setImageResource(typeIconRes)
 
-        // Set type icon color based on type
         val typeColor = when (entry.type) {
             LogEntryType.INFO -> R.color.log_info
             LogEntryType.ACTION -> R.color.log_action
@@ -67,19 +111,17 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
         typeIcon.setColorFilter(context.getColor(typeColor))
 
-        // Set message text
         messageText.text = entry.message
 
-        // Show raw log link as a separate tappable element
         if (entry.showRawLogLink) {
             rawLogLink.visibility = View.VISIBLE
+            rawLogLink.text = context.getString(R.string.agent_log_view_raw)
             rawLogLink.setOnClickListener { onRawLogClick?.invoke() }
         } else {
             rawLogLink.visibility = View.GONE
             rawLogLink.setOnClickListener(null)
         }
 
-        // Set details if available
         if (entry.details != null) {
             detailsText.text = entry.details
             detailsText.visibility = View.VISIBLE
@@ -87,7 +129,6 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             detailsText.visibility = View.GONE
         }
 
-        // Set cost info if available
         if (entry.costInfo != null) {
             costText.text = entry.costInfo
             costText.visibility = View.VISIBLE
@@ -95,7 +136,6 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             costText.visibility = View.GONE
         }
 
-        // Set status icon based on status
         val statusIconRes = when (entry.status) {
             EntryStatus.PENDING -> R.drawable.ic_baseline_hourglass_empty_24
             EntryStatus.APPROVED -> R.drawable.ic_baseline_check_circle_24
@@ -105,14 +145,12 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
         statusIcon.setImageResource(statusIconRes)
 
-        // Set status icon visibility - only show for non-completed info entries
         statusIcon.visibility = if (entry.type == LogEntryType.INFO && entry.status == EntryStatus.COMPLETED) {
             View.GONE
         } else {
             View.VISIBLE
         }
 
-        // Set status icon color
         val statusColor = when (entry.status) {
             EntryStatus.PENDING -> R.color.status_pending
             EntryStatus.APPROVED, EntryStatus.COMPLETED -> R.color.status_success
@@ -122,12 +160,12 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<AgentLogEntry>() {
-        override fun areItemsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry): Boolean {
-            return oldItem.id == newItem.id
-        }
+        override fun areItemsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem == newItem
+    }
 
-        override fun areContentsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry): Boolean {
-            return oldItem == newItem
-        }
+    companion object {
+        private const val VIEW_TYPE_MODEL_SELECTOR = 0
+        private const val VIEW_TYPE_LOG_ENTRY = 1
     }
 }

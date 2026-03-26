@@ -38,6 +38,9 @@ import net.bible.android.view.util.UiUtils
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.view.activity.ai.RawLlmLogActivity
+import net.bible.service.common.AiSettings
+import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.AgentLogUpdatedEvent
 import net.bible.service.llm.agent.AgentSessionManager
@@ -90,6 +93,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
         adapter.onRawLogClick = { openRawLog() }
 
+        adapter.onModelSelectorClick = { showModelSelector() }
+        updateModelSelectorText()
         updateExpandIcon()
     }
 
@@ -307,6 +312,49 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
                 show()
             }
         }
+    }
+
+    /**
+     * Update the model selector text to show the current default model.
+     */
+    private fun updateModelSelectorText() {
+        val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+        val defaultId = AiSettings.defaultModelId
+        val model = defaultId?.let { modelDao.getById(it) }
+        adapter.modelSelectorText = context.getString(
+            R.string.agent_log_model_selector,
+            model?.modelId ?: context.getString(R.string.agent_log_model_not_configured)
+        )
+    }
+
+    /**
+     * Show a dialog to quickly switch the default model.
+     */
+    private fun showModelSelector() {
+        val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+        val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+        val allModels = modelDao.all()
+        if (allModels.isEmpty()) return
+
+        val providers = providerDao.all().associateBy { it.id }
+        val currentDefault = AiSettings.defaultModelId
+        val items = allModels.map { model ->
+            val providerName = providers[model.providerConfigId]?.displayName ?: "?"
+            val prefix = if (model.id == currentDefault) "★ " else ""
+            val pricing = if (model.inputPricePerMillion > 0 || model.outputPricePerMillion > 0) {
+                " (${LlmCostTracker.formatPriceCompact(model.inputPricePerMillion)}/${LlmCostTracker.formatPriceCompact(model.outputPricePerMillion)})"
+            } else ""
+            "$prefix${model.modelId} — $providerName$pricing"
+        }.toTypedArray()
+
+        android.app.AlertDialog.Builder(context)
+            .setTitle(R.string.agent_log_select_model)
+            .setItems(items) { _, which ->
+                AiSettings.defaultModelId = allModels[which].id
+                updateModelSelectorText()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     /**
