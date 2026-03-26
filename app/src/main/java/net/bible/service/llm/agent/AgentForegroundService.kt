@@ -410,6 +410,12 @@ class AgentForegroundService : Service() {
             @Suppress("DEPRECATION")
             stopForeground(removeNotification)
         }
+        // Explicitly cancel via NotificationManager to handle the race where
+        // updateProgressNotification's notify() call is processed by the system
+        // after stopForeground(STOP_FOREGROUND_REMOVE).
+        if (removeNotification) {
+            notificationManager.cancel(NOTIFICATION_ID)
+        }
         stopSelf()
     }
 }
