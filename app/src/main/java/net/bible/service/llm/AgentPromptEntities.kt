@@ -198,13 +198,14 @@ data class LlmConfiguredModel(
     val displayName: String get() = modelId
 
     companion object {
-        /** Create a configured model with pricing auto-filled from [LlmProvider.findPricing]. */
+        /** Create a configured model with pricing auto-filled from known sources. */
         fun create(
             providerConfigId: IdType,
             modelId: String,
             orderNumber: Int = 0,
         ): LlmConfiguredModel {
             val pricing = LlmProvider.findPricing(modelId)
+                ?: DynamicModelService.getPricingForModel(modelId)
             return LlmConfiguredModel(
                 providerConfigId = providerConfigId,
                 modelId = modelId,
