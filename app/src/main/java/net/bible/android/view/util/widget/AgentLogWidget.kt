@@ -76,6 +76,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private var isExpanded = false
     private var spinAnimator: ObjectAnimator? = null
 
+    private var isUserVisible: Boolean
+        get() = CommonUtils.settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
+        set(value) = CommonUtils.settings.setBoolean(PREF_AGENT_LOG_VISIBLE, value)
+
     /** Always reads the current workspace ID so it stays correct after workspace switches. */
     private val workspaceId: IdType get() = windowControl.windowRepository.id
 
@@ -111,16 +115,18 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         refreshLogEntries()
         updateBackgroundColor()
 
-        // Check if agent is already running (handles race condition where
-        // AgentSessionStatusChangedEvent was posted before widget was attached)
         val isRunning = AgentSessionManager.isRunning(workspaceId)
         if (isRunning) {
             startSpinAnimation()
             if (visibility != View.VISIBLE) {
                 show()
             }
+        } else if (isUserVisible) {
+            // Restore visibility from previous session
+            visibility = View.VISIBLE
+            updateBackgroundColor()
+            notifyVisibilityChanged()
         }
-        // Update close/stop button state
         updateCloseStopButton(isRunning)
     }
 
@@ -169,6 +175,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun show() {
         visibility = View.VISIBLE
+        isUserVisible = true
         updateBackgroundColor()
         notifyVisibilityChanged()
     }
@@ -178,6 +185,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun hide() {
         visibility = View.GONE
+        isUserVisible = false
         notifyVisibilityChanged()
     }
 
@@ -247,7 +255,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Always shows the latest log entry message, or empty if none.
      */
     private fun updateStatusText(latestMessage: String?) {
-        binding.statusText.text = latestMessage ?: ""
+        binding.statusText.text = latestMessage ?: context.getString(R.string.agent_log_idle)
     }
 
     /**
@@ -388,5 +396,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         }
         binding.closeButton.isEnabled = true
         binding.closeButton.alpha = 1.0f
+    }
+
+    companion object {
+        private const val PREF_AGENT_LOG_VISIBLE = "agent_log_widget_visible"
     }
 }
