@@ -26,6 +26,7 @@ import android.view.MenuItem
 
 import net.bible.android.control.navigation.NavigationControl
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.progress.ProgressControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.util.buttongrid.ButtonGrid
 import net.bible.android.view.util.buttongrid.ButtonInfo
@@ -102,6 +103,10 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
         val bookColorAndGroup = GridChoosePassageBook.getBookColorAndGroup(book.ordinal)
         val currentVerse = windowControl.activeWindowPageManager.currentVersePage.singleKey as Verse
 
+        val showProgress = CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_SHOW_PROGRESS, true)
+        val v11n = navigationControl.versification
+        val chapterRead = showProgress && ProgressControl.isChapterRead(v11n, book, chapterNo)
+
         val keys = ArrayList<ButtonInfo>()
         for (i in 1..verses) {
             val buttonInfo = ButtonInfo()
@@ -112,6 +117,16 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
             if (i == currentVerse.verse && chapterNo == currentVerse.chapter && book == currentVerse.book) {
                 buttonInfo.tintColor = bookColorAndGroup.Color
                 buttonInfo.textColor = Color.DKGRAY
+            }
+            if (showProgress) {
+                if (chapterRead) {
+                    buttonInfo.readingProgressFraction = 1f
+                    buttonInfo.readingProgressColor = READING_PROGRESS_COLOR
+                }
+                if (ProgressControl.isVerseMemorized(v11n, book, chapterNo, i)) {
+                    buttonInfo.memorizationProgressFraction = 1f
+                    buttonInfo.memorizationProgressColor = MEMORIZATION_PROGRESS_COLOR
+                }
             }
 
             keys.add(buttonInfo)
@@ -129,7 +144,8 @@ class GridChoosePassageVerse : CustomTitlebarActivityBase(), OnButtonGridActionL
     }
 
     companion object {
-
+        private val READING_PROGRESS_COLOR = Color.argb(0xCC, 0x4C, 0xAF, 0x50)
+        private val MEMORIZATION_PROGRESS_COLOR = Color.argb(0xCC, 0xFF, 0xD7, 0x00)
         private const val TAG = "GridChoosePassageChaptr"
     }
 }
