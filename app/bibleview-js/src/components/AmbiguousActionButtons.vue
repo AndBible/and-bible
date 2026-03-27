@@ -91,7 +91,7 @@ const visibleButtonCount = ref(4);
 const modalButtons = computed<ModalButtonId[]>(() => {
     let allButtons: ModalButtonId[]
     if(verseInfo.value) {
-         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "ADD_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
+         allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "MY_NOTES", "SHARE", "COMPARE", "SPEAK", "MEMORIZE", "REMOVE_MEMORIZATION_TARGET", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     } else {
          allButtons = ["BOOKMARK", "BOOKMARK_NOTES", "SPEAK", "ADD_PARAGRAPH_BREAK", "LLM_ACTION"];
     }
@@ -99,16 +99,16 @@ const modalButtons = computed<ModalButtonId[]>(() => {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
     }
     if (!isExperimentalFeatureEnabled("reading_and_memorization")) {
-        allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "ADD_MEMORIZATION_TARGET");
+        allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "REMOVE_MEMORIZATION_TARGET");
     } else if (startOrdinal.value != null) {
-        // Replace ADD_MEMORIZATION_TARGET with REMOVE if all selected ordinals are already targeted
+        // Only show REMOVE_MEMORIZATION_TARGET when all selected ordinals are already targeted
         const effectiveEnd = endOrdinal.value ?? startOrdinal.value;
         let allTargeted = true;
         for (let i = startOrdinal.value; i <= effectiveEnd; i++) {
             if (!memorization.targets.has(i)) { allTargeted = false; break; }
         }
-        if (allTargeted) {
-            allButtons = allButtons.map(b => b === "ADD_MEMORIZATION_TARGET" ? "REMOVE_MEMORIZATION_TARGET" : b);
+        if (!allTargeted) {
+            allButtons = allButtons.filter(b => b !== "REMOVE_MEMORIZATION_TARGET");
         }
     }
     if (!appSettings.llmConfigured) {
@@ -213,9 +213,6 @@ function handleButtonClick(buttonId: ModalButtonId) {
         case 'MEMORIZE':
             memorize();
             break;
-        case 'ADD_MEMORIZATION_TARGET':
-            addMemorizationTarget();
-            break;
         case 'REMOVE_MEMORIZATION_TARGET':
             removeMemorizationTarget();
             break;
@@ -256,13 +253,6 @@ function memorize() {
     if(verseInfo.value) {
         android.memorize(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
     }
-}
-
-function addMemorizationTarget() {
-    if(verseInfo.value) {
-        android.addMemorizationTarget(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
-    }
-    emit("close");
 }
 
 function removeMemorizationTarget() {

@@ -26,4 +26,10 @@
         android:summary="@string/memorize_error_heatmap_summary"
         android:defaultValue="true"
         android:icon="@drawable/ic_baseline_error_24" />
+    <SwitchPreferenceCompat
+        android:key="memorize_scramble_hide_used"
+        android:title="@string/memorize_scramble_hide_used"
+        android:summary="@string/memorize_scramble_hide_used_summary"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_visibility_off_24" />
 </PreferenceScreen>

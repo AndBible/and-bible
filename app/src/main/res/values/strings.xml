@@ -1444,6 +1444,8 @@
     <string name="memorize_word_visibility_hidden">Hidden</string>
     <string name="memorize_error_heatmap">Error heatmap</string>
     <string name="memorize_error_heatmap_summary">Highlight words with more errors in progressively deeper red</string>
+    <string name="memorize_scramble_hide_used">Hide used word buttons</string>
+    <string name="memorize_scramble_hide_used_summary">Hide word buttons completely after they are correctly placed in word scramble mode</string>
     <string name="reading_progress_settings">Reading progress &amp; memorization settings</string>
     <string name="reading_progress_settings_summary">Auto-tracking, memorization, and typing practice settings</string>
     <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>

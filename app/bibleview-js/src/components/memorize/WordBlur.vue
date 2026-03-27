@@ -18,14 +18,21 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <div v-if="blurLevel > 0" class="icon-button" @pointerdown.prevent="revealWords(true, false)" @pointerup="revealWords(false, false)" @pointerleave="revealWords(false, false)">
+      <div class="icon-button" :class="{ disabled: blurLevel === 0 }"
+           @pointerdown.prevent="blurLevel > 0 && revealWords(true, false)"
+           @pointerup="revealWords(false, false)"
+           @pointerleave="revealWords(false, false)"
+      >
         <FontAwesomeIcon :icon="faEye"/>
       </div>
-      <div v-if="blurLevel > 1" class="icon-button" @pointerdown.prevent="revealWords(true, true)" @pointerup="revealWords(false, true)" @pointerleave="revealWords(false, true)">
-        <FontAwesomeIcon :icon="faEye"/><span class="icon-badge">{{ blurLevel }}</span>
+      <div class="icon-button" :class="{ disabled: blurLevel <= 1 }"
+           @pointerdown.prevent="blurLevel > 1 && revealWords(true, true)"
+           @pointerup="revealWords(false, true)"
+           @pointerleave="revealWords(false, true)">
+        <FontAwesomeIcon :icon="faBackwardStep"/>
       </div>
       <div class="icon-button" @click="increaseBlurLevel">
-        <FontAwesomeIcon :icon="faEyeSlash"/><span v-if="blurLevel > 0" class="icon-badge">{{ blurLevel + 1 }}</span>
+        <FontAwesomeIcon :icon="faPlus"/><span v-if="blurLevel > 0" class="icon-badge">{{ blurLevel }}</span>
       </div>
       <div class="icon-button" @click="resetBlur">
         <FontAwesomeIcon :icon="faUndo"/>
@@ -54,7 +61,7 @@
 import { ref, watch, onMounted } from "vue";
 import { MemorizeTextItem } from "@/types/documents";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faEye, faEyeSlash, faUndo} from "@fortawesome/free-solid-svg-icons";
+import {faBackwardStep, faEye, faPlus, faUndo} from "@fortawesome/free-solid-svg-icons";
 
 interface WordBlurConfig {
     blurConfig: {

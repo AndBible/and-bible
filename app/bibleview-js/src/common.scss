@@ -243,7 +243,15 @@ $button-grey: var(--modal-grey);
     color: white;
   }
 
-  &:active {
+  &.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    .monochrome & {
+      opacity: 0.4;
+    }
+  }
+
+  &:active:not(.disabled) {
     transform: translateY(1px);
     opacity: 0.7;
     .monochrome & {

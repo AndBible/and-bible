@@ -154,6 +154,7 @@ type TranslatedStrings = {
     wordVisibilityDim: string
     wordVisibilityHidden: string
     errorHeatmap: string
+    hideUsedButtons: string
     more: string
     loadMore: string
     previousChapter: string
