@@ -1772,7 +1772,7 @@
     <string name="commentary_max_response_dialog_title">Set maximum response size (tokens)</string>
     <string name="commentary_max_response_dialog_message">When the AI fetches commentaries and the total response exceeds this token limit, a selection dialog lets you choose which commentaries to send to the AI.\n\n0 = no limit (all commentaries are sent automatically).</string>
     <string name="commentary_filter_dialog_title">Commentary response too large</string>
-    <string name="commentary_filter_dialog_message">Token limit (~%s) exceeded. Deselect commentaries you don\'t want to send to the AI.</string>
+    <string name="commentary_filter_dialog_message">Token limit (~%s) exceeded. Deselect commentaries you don\'t want to send to the AI.\n\nYou can adjust this limit in AI Connection settings.</string>
     <string name="commentary_filter_total_tokens">Selected: ~%1$s / %2$s tokens</string>
     <string name="tool_log_commentary_count">%d commentaries</string>
     <string name="tool_log_label_count">%d labels</string>
