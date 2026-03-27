@@ -72,7 +72,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * Show dialog for the user to specify a task before running the prompt.
      * The prompt template is not shown — only an empty text field for the specification.
      */
-    private fun showSpecifyBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
+    internal fun showSpecifyBeforeRunDialog(prompt: AgentPrompt, selection: Selection) {
         val editText = EditText(activity).apply {
             setHint(R.string.specify_before_run_hint)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
