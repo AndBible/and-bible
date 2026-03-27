@@ -405,6 +405,7 @@ class ProgressControlTest {
         )
 
         val ranges = ProgressControl.getMemorizedVerseRanges()
+            .sortedBy { it.start.ordinal }
         assertEquals(2, ranges.size)
         assertEquals(3, ranges[0].cardinality)  // v1-v3
         assertEquals(2, ranges[1].cardinality)  // v5-v6
