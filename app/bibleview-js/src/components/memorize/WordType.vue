@@ -19,7 +19,9 @@
   <div>
     <div class="memorize-controls">
       <div class="controls-right">
-        <div class="button" @click="resetWords">{{ strings.reset }}</div>
+        <div class="icon-button" @click="resetWords">
+          <FontAwesomeIcon :icon="faUndo"/>
+        </div>
         <div class="settings-wrapper" ref="settingsWrapper">
         <div class="settings-trigger" @click="toggleSettings">
           <FontAwesomeIcon :icon="faGear"/>
@@ -89,7 +91,7 @@ import {useCommon} from "@/composables";
 import {MemorizeTextItem, WordVisibility} from "@/types/documents";
 import {readingProgressSettingsKey} from "@/types/constants";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faGear} from "@fortawesome/free-solid-svg-icons";
+import {faGear, faUndo} from "@fortawesome/free-solid-svg-icons";
 
 interface WordTypeConfig {
     typeConfig?: {
@@ -614,19 +616,6 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 8px;
   margin-bottom: 4px;
-
-  .button {
-    min-width: 100px;
-    font-weight: 500;
-
-    &:active {
-      transform: translateY(1px);
-      opacity: 0.9;
-      .monochrome & {
-        opacity: 1;
-      }
-    }
-  }
 }
 
 @keyframes shake {

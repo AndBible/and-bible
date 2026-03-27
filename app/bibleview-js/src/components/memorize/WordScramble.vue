@@ -17,15 +17,16 @@
 
 <template>
   <div class="memorize-controls">
-    <div class="button"
-         @touchstart="isPeeking = true"
-         @touchend="isPeeking = false"
-         @mousedown="isPeeking = true"
-         @mouseup="isPeeking = false"
+    <div class="icon-button"
+         @pointerdown.prevent="isPeeking = true"
+         @pointerup="isPeeking = false"
+         @pointerleave="isPeeking = false"
     >
-      {{ strings.peek }}
+      <FontAwesomeIcon :icon="faEye"/>
     </div>
-    <div @click="resetWords()" class="button">{{ strings.reset }}</div>
+    <div @click="resetWords()" class="icon-button">
+      <FontAwesomeIcon :icon="faUndo"/>
+    </div>
   </div>
       
   <!-- Text area with revealed words or full preview -->
@@ -71,8 +72,9 @@
 
 <script setup lang="ts">
 import {ref, onMounted, computed, watch} from "vue";
-import { useCommon } from "@/composables";
 import {MemorizeTextItem} from "@/types/documents";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEye, faUndo} from "@fortawesome/free-solid-svg-icons";
 
 interface WordObject {
     word: string;
@@ -98,8 +100,6 @@ const emit = defineEmits<{
     (e: 'save-mode-config', config: WordScrambleConfig): void;
     (e: 'memorize-completed'): void;
 }>();
-
-const { strings } = useCommon();
 
 const scrambledWords = ref<WordObject[]>([]);
 const currentWordIndex = ref<number>(0);
@@ -406,20 +406,6 @@ function resetWords() {
   }
 }
 
-.memorize-controls {
-  .button {
-    min-width: 100px;
-    font-weight: 500;
-
-    &:active {
-      transform: translateY(1px);
-      opacity: 0.9;
-      .monochrome & {
-        opacity: 1;
-      }
-    }
-  }
-}
 
 @keyframes shake {
   10%, 90% {

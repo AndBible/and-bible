@@ -144,9 +144,6 @@ type TranslatedStrings = {
     unknownError: string
     subtitlePlaceholder: string
     xmlParseError: string
-    blur: string
-    reset: string
-    peek: string
     wordBlur: string
     wordScramble: string
     wordType: string

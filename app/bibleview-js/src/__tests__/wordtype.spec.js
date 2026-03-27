@@ -161,7 +161,7 @@ describe("WordType.vue", () => {
         await input.trigger('input');
 
         // Click reset
-        const buttons = wrapper.findAll(".memorize-controls .button");
+        const buttons = wrapper.findAll(".memorize-controls .icon-button");
         await buttons[0].trigger("click");
 
         // First word should be current again
@@ -295,7 +295,7 @@ describe("WordType.vue", () => {
         await input.trigger('input');
 
         // Click reset
-        const buttons = wrapper.findAll(".memorize-controls .button");
+        const buttons = wrapper.findAll(".memorize-controls .icon-button");
         await buttons[0].trigger("click");
 
         // Current word should not have heatmap background

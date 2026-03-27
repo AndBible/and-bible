@@ -77,7 +77,7 @@ describe("WordScramble.vue", () => {
     
     // Check if control buttons are rendered
     expect(wrapper.find('.memorize-controls').exists()).toBe(true);
-    expect(wrapper.find('.button').text()).toContain('Peek');
+    expect(wrapper.findAll('.memorize-controls .icon-button').length).toBeGreaterThan(0);
     
     // Check if text area is rendered
     expect(wrapper.find('.memorize-text').exists()).toBe(true);
@@ -113,38 +113,19 @@ describe("WordScramble.vue", () => {
 
   it("toggles isPeeking when peek button is pressed and released", async () => {
     const wrapper = createWrapper();
-    
-    // Initially not peeking
-    expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
-    
-    // Simulate touchstart (press) on peek button
-    await wrapper.find('.memorize-controls .button').trigger('touchstart');
-    
-    // Should now be peeking
-    expect(wrapper.find('.memorize-text').classes()).toContain('preview');
-    
-    // Simulate touchend (release) on peek button
-    await wrapper.find('.memorize-controls .button').trigger('touchend');
-    
-    // Should no longer be peeking
-    expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
-  });
 
-  it("toggles isPeeking when peek button is pressed and released with mouse events", async () => {
-    const wrapper = createWrapper();
-    
     // Initially not peeking
     expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
-    
-    // Simulate mousedown (press) on peek button
-    await wrapper.find('.memorize-controls .button').trigger('mousedown');
-    
+
+    // Simulate pointerdown (press) on peek button
+    await wrapper.find('.memorize-controls .icon-button').trigger('pointerdown');
+
     // Should now be peeking
     expect(wrapper.find('.memorize-text').classes()).toContain('preview');
-    
-    // Simulate mouseup (release) on peek button
-    await wrapper.find('.memorize-controls .button').trigger('mouseup');
-    
+
+    // Simulate pointerup (release) on peek button
+    await wrapper.find('.memorize-controls .icon-button').trigger('pointerup');
+
     // Should no longer be peeking
     expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
   });
@@ -153,7 +134,7 @@ describe("WordScramble.vue", () => {
     const wrapper = createWrapper();
     
     // Click the reset button
-    await wrapper.findAll('.memorize-controls .button')[1].trigger('click');
+    await wrapper.findAll('.memorize-controls .icon-button')[1].trigger('click');
     
     // Should have called resetWords and re-scrambled the words
     expect(wrapper.vm.isPeeking).toBe(false);
@@ -223,7 +204,7 @@ describe("WordScramble.vue", () => {
     const wrapper = createWrapper();
     
     // Reset words to trigger a save
-    await wrapper.findAll('.memorize-controls .button')[1].trigger('click');
+    await wrapper.findAll('.memorize-controls .icon-button')[1].trigger('click');
     
     // Check for emitted events
     const emittedEvents = wrapper.emitted('save-mode-config');
@@ -378,11 +359,11 @@ describe("WordScramble.vue", () => {
     const wrapper = createWrapper();
     
     // First enable peek mode
-    await wrapper.find('.memorize-controls .button').trigger('touchstart');
+    await wrapper.find('.memorize-controls .icon-button').trigger('pointerdown');
     expect(wrapper.find('.memorize-text').classes()).toContain('preview');
     
     // Click reset button while in peek mode
-    await wrapper.findAll('.memorize-controls .button')[1].trigger('click');
+    await wrapper.findAll('.memorize-controls .icon-button')[1].trigger('click');
     
     // Peek mode should be cleared
     expect(wrapper.find('.memorize-text').classes()).not.toContain('preview');
