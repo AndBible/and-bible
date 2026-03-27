@@ -1433,8 +1433,8 @@
     <string name="memorize_no_memorized_passages">No memorized passages yet</string>
     <string name="memorize_targets">Memorization goals</string>
     <string name="memorize_no_targets">No memorization goals set</string>
-    <string name="memorize_auto_mark">Auto-mark as memorized after shuffle</string>
-    <string name="memorize_auto_mark_summary">Automatically mark verses as memorized when word scramble is completed successfully</string>
+    <string name="memorize_auto_mark">Auto-mark as memorized</string>
+    <string name="memorize_auto_mark_summary">Automatically mark verses as memorized when an exercise is completed</string>
     <string name="memorize_type_full_words">Type full words</string>
     <string name="memorize_type_full_words_summary">Require typing the complete word instead of just the first letter</string>
     <string name="memorize_word_visibility">Word visibility</string>
@@ -1446,7 +1446,7 @@
     <string name="memorize_error_heatmap_summary">Highlight words with more errors in progressively deeper red</string>
     <string name="memorize_scramble_hide_used">Hide used word buttons</string>
     <string name="memorize_scramble_hide_used_summary">Hide word buttons completely after they are correctly placed in word scramble mode</string>
-    <string name="reading_progress_settings">Reading progress &amp; memorization settings</string>
+    <string name="reading_progress_settings">Progress &amp; memorization</string>
     <string name="reading_progress_settings_summary">Auto-tracking, memorization, and typing practice settings</string>
     <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>
     <string name="memorize_confirm_remove_target">Remove memorization goal %s?</string>
