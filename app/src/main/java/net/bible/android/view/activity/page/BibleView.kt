@@ -1503,6 +1503,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             CommonUtils.settings.getStringSet("disable_gen_bookmark_modal_buttons", emptySet())
         )
         val monochromeMode = CommonUtils.settings.monochromeMode
+        val einkMode = CommonUtils.settings.einkMode
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
@@ -1525,6 +1526,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         disableBibleModalButtons: $disableBibleModalButtons, 
                         disableGenericModalButtons: $disableGenericModalButtons, 
                         monochromeMode: $monochromeMode,
+                        einkMode: $einkMode,
                         disableAnimations: $disableAnimations,
                         fontSizeMultiplier: ${CommonUtils.settings.fontSizeMultiplierFloat},
                         enabledExperimentalFeatures: $enabledExperimentalFeatures,

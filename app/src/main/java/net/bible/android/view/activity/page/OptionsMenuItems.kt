@@ -440,7 +440,20 @@ class PageScrollAmountPreference(settings: SettingsBundle) : Preference(settings
     }
 }
 
+class ScrollHelperLinesPreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINES) {
+    override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
+}
+
+class PageButtonsPreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.PAGE_BUTTONS) {
+    override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
+}
+
+class ReadingMemorizationPreference(settings: SettingsBundle, type: TextDisplaySettings.Types) : Preference(settings, type) {
+    override val visible: Boolean get() = super.visible && CommonUtils.settings.readingAndMemorizationEnabled
+}
+
 class ScrollHelperLineStylePreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE) {
+    override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {
         val items = activity.resources.getStringArray(R.array.scrollHelperLineStyleEntries)
         var newChoice = valueInt

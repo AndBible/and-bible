@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import android.app.AlertDialog
+import android.content.ClipData
 import android.content.Intent
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -57,6 +58,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -556,6 +558,14 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun openReadingProgressSettings() {
+        scope.launch(Dispatchers.Main) {
+            val intent = Intent(mainBibleActivity, ReadingProgressSettingsActivity::class.java)
+            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+        }
+    }
+
+    @JavascriptInterface
     fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
@@ -910,6 +920,31 @@ class BibleJavascriptInterface(
                 "null"
             }
             bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+        }
+    }
+
+    @JavascriptInterface
+    fun shareMyDocumentContent(bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
+            withContext(Dispatchers.Main) {
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_TEXT, result.content)
+                    putExtra(Intent.EXTRA_SUBJECT, result.title)
+                    type = "text/plain"
+                }
+                mainBibleActivity.startActivity(Intent.createChooser(sendIntent, mainBibleActivity.getString(R.string.share)))
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun copyMyDocumentContent(bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
+            withContext(Dispatchers.Main) {
+                CommonUtils.copyToClipboard(ClipData.newPlainText(result.title, result.content))
+            }
         }
     }
 

@@ -62,8 +62,11 @@ import net.bible.android.view.activity.page.AiDocMarkersPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
+import net.bible.android.view.activity.page.ScrollHelperLinesPreference
 import net.bible.android.view.activity.page.ScrollHelperLineStylePreference
+import net.bible.android.view.activity.page.PageButtonsPreference
 import net.bible.android.view.activity.page.PageScrollAmountPreference
+import net.bible.android.view.activity.page.ReadingMemorizationPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.android.view.activity.page.InfiniteScrollPreference
@@ -139,15 +142,15 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
         Types.INFINITE_SCROLL -> InfiniteScrollPreference(settings)
         Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
-        Types.MARK_AS_READ_BUTTON -> ItemPreference(settings, Types.MARK_AS_READ_BUTTON)
+        Types.MARK_AS_READ_BUTTON -> ReadingMemorizationPreference(settings, Types.MARK_AS_READ_BUTTON)
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)
-        Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
-        Types.AUTO_TRACK_READING -> ItemPreference(settings, Types.AUTO_TRACK_READING)
+        Types.MEMORIZATION_INDICATORS -> ReadingMemorizationPreference(settings, Types.MEMORIZATION_INDICATORS)
+        Types.AUTO_TRACK_READING -> ReadingMemorizationPreference(settings, Types.AUTO_TRACK_READING)
         Types.AI_DOC_MARKERS -> AiDocMarkersPreference(settings)
         Types.PAGE_SCROLL_AMOUNT -> PageScrollAmountPreference(settings)
-        Types.SCROLL_HELPER_LINES -> ItemPreference(settings, Types.SCROLL_HELPER_LINES)
+        Types.SCROLL_HELPER_LINES -> ScrollHelperLinesPreference(settings)
         Types.SCROLL_HELPER_LINE_STYLE -> ScrollHelperLineStylePreference(settings)
-        Types.PAGE_BUTTONS -> ItemPreference(settings, Types.PAGE_BUTTONS)
+        Types.PAGE_BUTTONS -> PageButtonsPreference(settings)
     }
 
 class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
@@ -157,16 +160,7 @@ class TextDisplaySettingsFragment: PreferenceFragmentCompat() {
         preferenceManager.preferenceDataStore = TextDisplaySettingsDataStore(activity, settingsBundle)
         setPreferencesFromResource(R.xml.text_display_settings, rootKey)
         setupParentSettingsLinks()
-        setupExperimentalFeatureVisibility()
         updateItems()
-    }
-
-    private fun setupExperimentalFeatureVisibility() {
-        if (!CommonUtils.settings.readingAndMemorizationEnabled) {
-            findPreference<Preference>(Types.MARK_AS_READ_BUTTON.name)?.isVisible = false
-            findPreference<Preference>(Types.MEMORIZATION_INDICATORS.name)?.isVisible = false
-            findPreference<Preference>(Types.AUTO_TRACK_READING.name)?.isVisible = false
-        }
     }
 
     private fun setupParentSettingsLinks() {

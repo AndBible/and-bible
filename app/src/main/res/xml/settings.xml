@@ -128,18 +128,6 @@
 			android:entryValues="@array/prefs_interface_locale_values"
 			android:icon="@drawable/ic_application_language_24dp"
 			android:defaultValue=""/>
-        <SwitchPreferenceCompat android:key="monochrome_mode"
-            android:title="@string/prefs_e_ink_mode_title"
-            android:summary="@string/prefs_eink_mode_summary"
-            android:defaultValue="false"
-            android:icon="@drawable/ic_eink_24dp"
-            />
-        <SwitchPreferenceCompat android:key="disable_animations"
-            android:title="@string/prefs_disable_animations_title"
-            android:summary="@string/prefs_disable_animations_summary"
-            android:defaultValue="false"
-            android:icon="@drawable/ic_animate_24dp"
-            />
         <SwitchPreferenceCompat
             android:key="disable_click_to_edit"
             android:title="@string/prefs_disable_click_to_edit_title"
@@ -201,6 +189,27 @@
             android:entries="@array/prefs_gen_bookmark_modal_action_names"
             android:entryValues="@array/prefs_gen_bookmark_modal_action_ids"
             />
+	</PreferenceCategory>
+
+	<PreferenceCategory android:title="@string/prefs_eink_settings_cat">
+		<SwitchPreferenceCompat android:key="monochrome_mode"
+			android:title="@string/prefs_e_ink_mode_title"
+			android:summary="@string/prefs_eink_mode_summary"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_eink_24dp"
+			/>
+		<SwitchPreferenceCompat android:key="eink_mode"
+			android:title="@string/prefs_eink_display_title"
+			android:summary="@string/prefs_eink_display_summary"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_eink_24dp"
+			/>
+		<SwitchPreferenceCompat android:key="disable_animations"
+			android:title="@string/prefs_disable_animations_title"
+			android:summary="@string/prefs_disable_animations_summary"
+			android:defaultValue="false"
+			android:icon="@drawable/ic_animate_24dp"
+			/>
 	</PreferenceCategory>
 
 	<PreferenceCategory android:title="@string/prefs_persecution_cat">

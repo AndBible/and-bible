@@ -83,6 +83,7 @@ export type BibleJavascriptInterface = {
     unmarkMemorized: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     openReadingProgress: (tab: number) => void,
+    openReadingProgressSettings: () => void,
     markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
     unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -117,6 +118,8 @@ export type BibleJavascriptInterface = {
     reloadMyDocumentPage: (bookInitials: string) => void,
     regenerateMyDocumentPage: (pageId: string) => void,
     deleteMyDocumentPage: (pageId: string) => void,
+    shareMyDocumentContent: (bookInitials: string, pageKey: string) => void,
+    copyMyDocumentContent: (bookInitials: string, pageKey: string) => void,
     openPromptEditor: (promptId: string) => void,
     openAiDocPage: (documentInitials: string, pageKey: string) => void,
     openAiDocPageChooser: (markersJson: string) => void,
@@ -449,6 +452,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openReadingProgress(tab);
     }
 
+    function openReadingProgressSettings() {
+        window.android.openReadingProgressSettings();
+    }
+
     function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string = "MANUAL") {
         window.android.markChapterRead(bookInitials, startOrdinal, chapter, source);
     }
@@ -641,6 +648,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.deleteMyDocumentPage(pageId);
     }
 
+    function shareMyDocumentContent(bookInitials: string, pageKey: string) {
+        window.android.shareMyDocumentContent(bookInitials, pageKey);
+    }
+
+    function copyMyDocumentContent(bookInitials: string, pageKey: string) {
+        window.android.copyMyDocumentContent(bookInitials, pageKey);
+    }
+
     function openPromptEditor(promptId: string) {
         window.android.openPromptEditor(promptId);
     }
@@ -695,6 +710,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         unmarkMemorized,
         removeMemorizationTarget,
         openReadingProgress,
+        openReadingProgressSettings,
         markChapterRead,
         unmarkChapterRead,
         speak,
@@ -714,6 +730,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         reloadMyDocumentPage,
         regenerateMyDocumentPage,
         deleteMyDocumentPage,
+        shareMyDocumentContent,
+        copyMyDocumentContent,
         openPromptEditor,
     }
 
