@@ -289,4 +289,14 @@
 		<item>ALLOW_ALL</item>
 		<item>DENY_ALL</item>
 	</string-array>
+    <string-array name="memorize_word_visibility_entries">
+        <item>@string/memorize_word_visibility_light</item>
+        <item>@string/memorize_word_visibility_dim</item>
+        <item>@string/memorize_word_visibility_hidden</item>
+    </string-array>
+    <string-array name="memorize_word_visibility_values">
+        <item>light</item>
+        <item>dim</item>
+        <item>hidden</item>
+    </string-array>
 </resources>

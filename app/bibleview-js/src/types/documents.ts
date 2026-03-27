@@ -132,6 +132,16 @@ export type DocumentOfType<T extends BibleViewDocumentType> =
                                 BaseDocument
 
 
+// types for ReadingProgressSettings
+export type WordVisibility = 'light' | 'dim' | 'hidden';
+
+export type ReadingProgressSettings = {
+    autoMarkMemorized: boolean;
+    memorizeTypeFullWords: boolean;
+    memorizeWordVisibility: WordVisibility;
+    memorizeErrorHeatmap: boolean;
+}
+
 // types for MemorizeDocument
 export type MemorizeTextItem = {
     key: string;
@@ -168,7 +178,7 @@ export interface MemorizeDocument extends BaseDocument{
     endOrdinal?: number
     memorizedOrdinals?: number[]
     targetOrdinals?: number[]
-    autoMarkMemorized?: boolean
+    readingProgressSettings?: ReadingProgressSettings
 }
 
 export function isOsisDocument(t: AnyDocument): t is OsisDocument {

@@ -503,9 +503,9 @@ class PromptEditActivity : ActivityBase() {
     private val providerConfigDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
     private fun setupModelSpinner() {
-        configuredModels = configuredModelDao.all()
-        val providerConfigs = providerConfigDao.all().associateBy { it.id }
         val defaultModelId = AiSettings.defaultModelId
+        configuredModels = configuredModelDao.all().sortedByDescending { it.id == defaultModelId }
+        val providerConfigs = providerConfigDao.all().associateBy { it.id }
 
         val displayEntries = mutableListOf<String>()
         val values = mutableListOf<IdType?>()

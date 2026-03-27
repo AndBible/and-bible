@@ -152,6 +152,11 @@ type TranslatedStrings = {
     wordType: string
     typeEverything: string
     tapToStartTyping: string
+    wordVisibility: string
+    wordVisibilityLight: string
+    wordVisibilityDim: string
+    wordVisibilityHidden: string
+    errorHeatmap: string
     more: string
     loadMore: string
     previousChapter: string

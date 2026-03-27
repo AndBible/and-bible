@@ -75,6 +75,9 @@ class ChapterReadStatusChangedEvent(
     val isRead: Boolean,
 )
 
+/** Posted when global reading progress settings change. All BibleViews should update their settings. */
+class ReadingProgressSettingsChangedEvent
+
 /** Posted when memorized verses or memorization targets change. All BibleViews should update their indicators. */
 class MemorizationDataChangedEvent(
     val addedMemorized: List<Int> = emptyList(),

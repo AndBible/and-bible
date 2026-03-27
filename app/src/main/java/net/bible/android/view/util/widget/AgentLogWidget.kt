@@ -341,11 +341,11 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private fun showModelSelector() {
         val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
         val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
-        val allModels = modelDao.all()
+        val currentDefault = AiSettings.defaultModelId
+        val allModels = modelDao.all().sortedByDescending { it.id == currentDefault }
         if (allModels.isEmpty()) return
 
         val providers = providerDao.all().associateBy { it.id }
-        val currentDefault = AiSettings.defaultModelId
         val items = allModels.map { model ->
             val providerName = providers[model.providerConfigId]?.displayName ?: "?"
             val prefix = if (model.id == currentDefault) "★ " else ""

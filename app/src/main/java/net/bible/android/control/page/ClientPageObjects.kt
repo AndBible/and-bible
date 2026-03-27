@@ -229,7 +229,7 @@ class MemorizeDocument(
     private val endOrdinal: Int = 0,
     private val memorizedOrdinals: List<Int> = emptyList(),
     private val targetOrdinals: List<Int> = emptyList(),
-    private val autoMarkMemorized: Boolean = true,
+    private val readingProgressSettingsJson: String = "{}",
 ): Document {
     override val asHashMap: Map<String, Any>
         get() = mapOf(
@@ -245,7 +245,7 @@ class MemorizeDocument(
             "endOrdinal" to endOrdinal,
             "memorizedOrdinals" to json.encodeToString(serializer(), memorizedOrdinals),
             "targetOrdinals" to json.encodeToString(serializer(), targetOrdinals),
-            "autoMarkMemorized" to autoMarkMemorized,
+            "readingProgressSettings" to readingProgressSettingsJson,
         )
 }
 

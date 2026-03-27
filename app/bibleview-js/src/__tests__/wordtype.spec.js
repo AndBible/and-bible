@@ -18,14 +18,20 @@
 import { mount } from "@vue/test-utils";
 import WordType from "@/components/memorize/WordType.vue";
 import { describe, it, expect, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { nextTick, reactive } from 'vue';
+import { readingProgressSettingsKey } from "@/types/constants";
 
 vi.mock("@/composables", () => ({
     useCommon: () => ({
         strings: {
             typeEverything: "Type full words",
             reset: "Reset",
-            tapToStartTyping: "Tap here to start typing"
+            tapToStartTyping: "Tap here to start typing",
+            wordVisibility: "Word visibility",
+            wordVisibilityLight: "Light",
+            wordVisibilityDim: "Dim",
+            wordVisibilityHidden: "Hidden",
+            errorHeatmap: "Error heatmap"
         }
     })
 }));
@@ -36,12 +42,27 @@ describe("WordType.vue", () => {
         { key: "verse2", text: "the world." }
     ];
 
+    const createProgressSettings = () => ({
+        settings: reactive({
+            autoMarkMemorized: true,
+            memorizeTypeFullWords: false,
+            memorizeWordVisibility: 'light',
+            memorizeErrorHeatmap: true,
+        }),
+        updateSettings: vi.fn(),
+    });
+
     const createWrapper = (props = {}) => {
         return mount(WordType, {
             props: {
                 textItems,
                 modeConfig: undefined,
                 ...props
+            },
+            global: {
+                provide: {
+                    [readingProgressSettingsKey]: createProgressSettings(),
+                }
             }
         });
     };
@@ -170,7 +191,8 @@ describe("WordType.vue", () => {
     it("supports type everything mode", async () => {
         const wrapper = createWrapper();
 
-        // Enable type everything
+        // Open settings popup and enable type everything
+        await wrapper.find('.settings-trigger').trigger('click');
         const checkbox = wrapper.find('input[type="checkbox"]');
         await checkbox.setValue(true);
 
@@ -192,5 +214,105 @@ describe("WordType.vue", () => {
     it("shows tap hint when input is not focused", () => {
         const wrapper = createWrapper();
         expect(wrapper.find(".tap-hint").exists()).toBe(true);
+    });
+
+    it("opens settings popup when gear icon is clicked", async () => {
+        const wrapper = createWrapper();
+        expect(wrapper.find(".settings-popup").exists()).toBe(false);
+        await wrapper.find(".settings-trigger").trigger("click");
+        expect(wrapper.find(".settings-popup").exists()).toBe(true);
+    });
+
+    it("applies visibility-light class by default", () => {
+        const wrapper = createWrapper();
+        const unreachedWords = wrapper.findAll(".type-unreached");
+        expect(unreachedWords.length).toBeGreaterThan(0);
+        for (const word of unreachedWords) {
+            expect(word.classes()).toContain("visibility-light");
+        }
+    });
+
+    it("applies visibility class from restored config", async () => {
+        const wrapper = createWrapper({
+            modeConfig: {
+                typeConfig: {
+                    currentWordIndex: 0,
+                    typeEverything: false,
+                    wordVisibility: 'hidden'
+                }
+            }
+        });
+        await nextTick();
+        const unreachedWords = wrapper.findAll(".type-unreached");
+        expect(unreachedWords.length).toBeGreaterThan(0);
+        for (const word of unreachedWords) {
+            expect(word.classes()).toContain("visibility-hidden");
+        }
+    });
+
+    it("applies heatmap background on incorrect input", async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find(".type-hidden-input");
+
+        // Type wrong letter twice for "For"
+        await input.setValue('X');
+        await input.trigger('input');
+        await input.setValue('Z');
+        await input.trigger('input');
+
+        // The current word should have a red background via inline style
+        const currentWord = wrapper.find(".type-current");
+        const bgStyle = currentWord.attributes('style');
+        expect(bgStyle).toContain('background-color');
+        expect(bgStyle).toContain('rgba(231, 76, 60');
+    });
+
+    it("does not apply heatmap when disabled", async () => {
+        const wrapper = createWrapper({
+            modeConfig: {
+                typeConfig: {
+                    currentWordIndex: 0,
+                    typeEverything: false,
+                    wordVisibility: 'light',
+                    errorHeatmap: false,
+                    errorCounts: {0: 3},
+                }
+            }
+        });
+        await nextTick();
+
+        const currentWord = wrapper.find(".type-current");
+        const bgStyle = currentWord.attributes('style');
+        expect(bgStyle || '').not.toContain('background-color');
+    });
+
+    it("clears error counts on reset", async () => {
+        const wrapper = createWrapper();
+        const input = wrapper.find(".type-hidden-input");
+
+        // Make an error
+        await input.setValue('X');
+        await input.trigger('input');
+
+        // Click reset
+        const buttons = wrapper.findAll(".memorize-controls .button");
+        await buttons[0].trigger("click");
+
+        // Current word should not have heatmap background
+        const currentWord = wrapper.find(".type-current");
+        const bgStyle = currentWord.attributes('style');
+        expect(bgStyle || '').not.toContain('background-color');
+    });
+
+    it("saves wordVisibility in config", async () => {
+        const wrapper = createWrapper();
+        // Open settings popup
+        await wrapper.find(".settings-trigger").trigger("click");
+        // Select 'dim' radio
+        const radios = wrapper.findAll('input[type="radio"]');
+        await radios[1].setValue(); // 'dim' is the second option
+        const configs = wrapper.emitted('save-mode-config');
+        const lastConfig = configs.at(-1)[0];
+        expect(lastConfig.typeConfig.wordVisibility).toBe('dim');
     });
 });

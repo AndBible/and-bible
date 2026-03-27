@@ -40,4 +40,10 @@ private val addGlobalReadingProgressSettings = makeMigration(2..3) { db ->
     """)
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings)
+private val addMemorizeTypeSettings = makeMigration(3..4) { db ->
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeTypeFullWords INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeWordVisibility TEXT NOT NULL DEFAULT 'light'")
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeErrorHeatmap INTEGER NOT NULL DEFAULT 1")
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings)

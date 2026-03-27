@@ -139,7 +139,7 @@ defineExpose({
   display: flex;
   align-items: stretch;
 
-  :deep(.tab-navigation) {
+  :deep(.tab-navigation-wrapper) {
     flex: 1;
     min-width: 0;
   }

@@ -52,6 +52,7 @@ type EventTypeNames =
     | "update_chapter_read_status"
     | "add_or_update_ai_doc_markers"
     | "delete_ai_doc_markers"
+    | "update_reading_progress_settings"
 
 export const eventBus: Emitter<Record<EventTypeNames, any[]>> = mitt()
 

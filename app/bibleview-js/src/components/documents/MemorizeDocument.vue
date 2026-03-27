@@ -90,12 +90,13 @@ let lastSelectedMode: MemorizeStateMode | null = null;
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
-import {computed, onBeforeUnmount, onMounted, ref, toRefs, watch} from "vue";
+import {computed, onBeforeUnmount, onMounted, provide, ref, toRefs, watch} from "vue";
 import {
     MemorizeDocument,
     MemorizeModeConfig,
     MemorizeStateModeEnum, MemorizeState
 } from "@/types/documents";
+import {useReadingProgressSettings} from "@/composables/reading-progress-settings";
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import WordType from '@/components/memorize/WordType.vue';
@@ -103,7 +104,7 @@ import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faBrain, faChartLine, faCheck, faEllipsisV, faEyeSlash, faKeyboard, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
-import {memorizationKey} from "@/types/constants";
+import {memorizationKey, readingProgressSettingsKey} from "@/types/constants";
 
 const props = defineProps<{ document: MemorizeDocument }>();
 
@@ -131,6 +132,8 @@ const memorizeState = computed<MemorizeState>(() => {
 
 const {strings, android} = useCommon();
 const memorization = inject(memorizationKey)!;
+const readingProgressSettings = useReadingProgressSettings(document.value.readingProgressSettings, android);
+provide(readingProgressSettingsKey, readingProgressSettings);
 
 // Populate memorization data so isMemorized/isTarget are reactive
 memorization.mergeData(
@@ -254,7 +257,7 @@ function saveModeConfig(_modeConfig: MemorizeModeConfig) {
 }
 
 function onMemorizeCompleted() {
-    if (!document.value.autoMarkMemorized) return;
+    if (!readingProgressSettings.settings.autoMarkMemorized) return;
     withVerseRange((b, s, e) => android.markAsMemorized(b, s, e));
 }
 

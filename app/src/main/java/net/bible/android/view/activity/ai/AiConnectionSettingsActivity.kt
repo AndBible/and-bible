@@ -208,9 +208,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         }
         toRemove.forEach { modelsCategory.removePreference(it) }
 
-        val allModels = modelDao.all()
-        val providerConfigs = dao.all().associateBy { it.id }
         val defaultModelId = settings.defaultModelId
+        val allModels = modelDao.all().sortedByDescending { it.id == defaultModelId }
+        val providerConfigs = dao.all().associateBy { it.id }
 
         for (model in allModels) {
             val provider = providerConfigs[model.providerConfigId]

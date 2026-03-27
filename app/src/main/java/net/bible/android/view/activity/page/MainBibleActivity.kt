@@ -164,6 +164,7 @@ import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
+import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.NoSuchVerseException
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.Verse
@@ -1905,8 +1906,13 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                                 val book = Books.installed().getBook(bookInitials)
                                 if (book != null) {
                                     if (pageKey != null) {
-                                        val key = book.getKey(pageKey)
-                                        windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                        try {
+                                            val key = book.getKey(pageKey)
+                                            windowControl.activeWindowPageManager.setCurrentDocumentAndKey(book, key)
+                                        } catch (e: NoSuchKeyException) {
+                                            Log.e(TAG, "Page key '$pageKey' not found in book $bookInitials, opening book without key", e)
+                                            documentControl.changeDocument(book)
+                                        }
                                     } else {
                                         documentControl.changeDocument(book)
                                     }
