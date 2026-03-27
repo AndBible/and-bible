@@ -1450,6 +1450,10 @@
     <string name="memorize_tab_memorization">Memorization</string>
     <string name="memorize_verses_memorized">Memorized</string>
     <string name="memorize_verses_target">Goal</string>
+    <string name="memorize_show_more">Show %d more</string>
+    <string name="memorize_calendar">Memorization Activity</string>
+    <string name="memorize_view_list">List</string>
+    <string name="memorize_view_overview">Overview</string>
 
     <!-- LLM Translation Settings -->
     <string name="llm_settings_title">LLM Translation</string>
