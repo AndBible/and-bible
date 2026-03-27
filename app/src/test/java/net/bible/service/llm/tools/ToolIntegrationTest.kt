@@ -33,6 +33,7 @@ import net.bible.service.llm.tools.write.AddStudyPadEntryTool
 import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.CreateBookmarkTool
 import net.bible.service.llm.tools.write.CreateLabelTool
+import net.bible.service.llm.tools.write.CreateStudyPadTool
 import net.bible.service.llm.tools.write.CreateMyDocumentTool
 import net.bible.service.llm.tools.write.DeleteMyDocumentPageTool
 import net.bible.service.llm.tools.write.EditMyDocumentPageTool
@@ -1225,5 +1226,274 @@ class ToolIntegrationTest {
             put("message", "Test")
         }, context)
         assertTrue(result is ToolResult.Error)
+    }
+
+    // === CreateStudyPad ===
+
+    @Test
+    fun createStudyPad_textAndBookmarks() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Romans Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "# Introduction\nPaul's letter to the Romans.")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "Rom.1.1")
+                    put("text", "Paul introduces himself")
+                })
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "## Key Theme: Justification")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "Rom.3.23-24")
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue("Should succeed", result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateStudyPadTool.Result
+        assertEquals("Romans Study", data.labelName)
+        assertEquals(4, data.itemsCreated)
+        assertEquals(2, data.textEntries)
+        assertEquals(2, data.bookmarkEntries)
+        assertTrue(data.errors.isEmpty())
+
+        // Verify StudyPad content via GetStudyPadContent
+        val contentResult = GetStudyPadContentTool.execute(JSONObject().apply {
+            put("labelId", data.labelId.toString())
+        }, context)
+        assertTrue(contentResult is ToolResult.Success)
+        val contentData = (contentResult as ToolResult.Success).data as GetStudyPadContentTool.EntriesResult
+        assertEquals(4, contentData.entries.size)
+
+        // Verify ordering: text, bibleBookmark, text, bibleBookmark
+        assertEquals("text", contentData.entries[0].type)
+        assertEquals("bibleBookmark", contentData.entries[1].type)
+        assertEquals("text", contentData.entries[2].type)
+        assertEquals("bibleBookmark", contentData.entries[3].type)
+
+        // Verify text content
+        assertTrue(contentData.entries[0].text!!.contains("Introduction"))
+        assertTrue(contentData.entries[2].text!!.contains("Justification"))
+
+        // Verify bookmark has note
+        assertEquals("Rom.1.1", contentData.entries[1].verseRange)
+        assertTrue(contentData.entries[1].notes!!.contains("Paul introduces himself"))
+
+        // Verify bookmark without note
+        assertEquals("Rom.3.23-Rom.3.24", contentData.entries[3].verseRange)
+        assertNull(contentData.entries[3].notes)
+    }
+
+    @Test
+    fun createStudyPad_withIndentLevels() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Indented Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Top level heading")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "Gen.1.1")
+                    put("indentLevel", 1)
+                })
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Indented note")
+                    put("indentLevel", 2)
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateStudyPadTool.Result
+        assertEquals(3, data.itemsCreated)
+
+        // Verify indent levels via DB
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+        val textEntries = dao.studyPadTextEntriesByLabelId(data.labelId)
+        val topLevel = textEntries.find { it.text.contains("Top level") }
+        val indented = textEntries.find { it.text.contains("Indented note") }
+        assertEquals(0, topLevel!!.indentLevel)
+        assertEquals(2, indented!!.indentLevel)
+
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(data.labelId)
+        assertEquals(1, bookmarkToLabels.size)
+        assertEquals(1, bookmarkToLabels[0].indentLevel)
+    }
+
+    @Test
+    fun createStudyPad_emptyName() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Content")
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+    }
+
+    @Test
+    fun createStudyPad_emptyItems() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Empty Study")
+            put("items", org.json.JSONArray())
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("EMPTY_ITEMS", (result as ToolResult.Error).code)
+    }
+
+    @Test
+    fun createStudyPad_duplicateName() = runBlocking {
+        // Create first
+        val args = JSONObject().apply {
+            put("name", "Duplicate Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Content")
+                })
+            })
+        }
+        val first = CreateStudyPadTool.execute(args, context)
+        assertTrue(first is ToolResult.Success)
+
+        // Try duplicate
+        val second = CreateStudyPadTool.execute(args, context)
+        assertTrue(second is ToolResult.Error)
+        assertEquals("LABEL_EXISTS", (second as ToolResult.Error).code)
+    }
+
+    @Test
+    fun createStudyPad_invalidVerseRef_partialSuccess() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Partial Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Valid text entry")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "NotABook.99.99")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "John.3.16")
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue("Should succeed partially", result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateStudyPadTool.Result
+        assertEquals(2, data.itemsCreated)
+        assertEquals(1, data.textEntries)
+        assertEquals(1, data.bookmarkEntries)
+        assertEquals(1, data.errors.size)
+        assertEquals(1, data.errors[0].index)
+    }
+
+    @Test
+    fun createStudyPad_bookmarkMissingVerseRef() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Missing Ref Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    // no verseRef
+                })
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Valid entry")
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateStudyPadTool.Result
+        assertEquals(1, data.itemsCreated)
+        assertEquals(1, data.textEntries)
+        assertEquals(0, data.bookmarkEntries)
+        assertEquals(1, data.errors.size)
+    }
+
+    @Test
+    fun createStudyPad_sourcePromptIdSet() = runBlocking {
+        val args = JSONObject().apply {
+            put("name", "Prompt Tracking Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "AI generated text")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "Ps.23.1")
+                    put("text", "AI note")
+                })
+            })
+        }
+        val result = CreateStudyPadTool.execute(args, context)
+        assertTrue(result is ToolResult.Success)
+
+        val data = (result as ToolResult.Success).data as CreateStudyPadTool.Result
+        val dao = DatabaseContainer.instance.bookmarkDb.bookmarkDao()
+
+        // Verify text entry has sourcePromptId
+        val textEntries = dao.studyPadTextEntriesByLabelId(data.labelId)
+        assertEquals(promptId, textEntries[0].sourcePromptId)
+
+        // Verify bookmark has sourcePromptId
+        val bookmarkToLabels = dao.getBookmarkToLabelsForLabel(data.labelId)
+        val bookmark = dao.bibleBookmarkById(bookmarkToLabels[0].bookmarkId)
+        assertEquals(promptId, bookmark?.sourcePromptId)
+    }
+
+    @Test
+    fun createStudyPad_thenFinishWithStudyPad() = runBlocking {
+        // Create StudyPad
+        val createArgs = JSONObject().apply {
+            put("name", "Finish Test Study")
+            put("items", org.json.JSONArray().apply {
+                put(JSONObject().apply {
+                    put("type", "text")
+                    put("text", "Study content")
+                })
+                put(JSONObject().apply {
+                    put("type", "bookmark")
+                    put("verseRef", "Matt.5.3")
+                })
+            })
+        }
+        val createResult = CreateStudyPadTool.execute(createArgs, context)
+        val labelId = ((createResult as ToolResult.Success).data as CreateStudyPadTool.Result).labelId
+
+        // Finish with StudyPad
+        val finishArgs = JSONObject().apply {
+            put("labelId", labelId.toString())
+            put("message", "Study created")
+        }
+        val finishResult = FinishWithStudyPadTool.execute(finishArgs, context)
+        assertTrue(finishResult is ToolResult.Success)
+
+        val finishData = (finishResult as ToolResult.Success).data as FinishWithStudyPadTool.Result
+        assertTrue(finishData.finished)
+        assertEquals(labelId.toString(), finishData.labelId)
     }
 }

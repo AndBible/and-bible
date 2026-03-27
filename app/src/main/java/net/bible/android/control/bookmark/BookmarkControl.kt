@@ -917,13 +917,15 @@ open class BookmarkControl @Inject constructor(
         orderNumber: Int? = null,
         text: String,
         contentType: TextContentType? = null,
-        sourcePromptId: IdType? = null
+        sourcePromptId: IdType? = null,
+        indentLevel: Int = 0
     ): StudyPadTextEntryWithText {
         val actualOrderNumber = orderNumber ?: dao.countStudyPadEntities(labelId)
 
         val entry = StudyPadTextEntryWithText(
             labelId = labelId,
             orderNumber = actualOrderNumber,
+            indentLevel = indentLevel,
             text = text,
             contentType = contentType,
             sourcePromptId = sourcePromptId
