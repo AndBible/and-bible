@@ -48,6 +48,7 @@ describe("WordType.vue", () => {
             memorizeTypeFullWords: false,
             memorizeWordVisibility: 'light',
             memorizeErrorHeatmap: true,
+            memorizeScrambleHideUsed: false,
         }),
         updateSettings: vi.fn(),
     });

@@ -110,6 +110,7 @@ wordVisibilityLight: Light
 wordVisibilityDim: Dim
 wordVisibilityHidden: Hidden
 errorHeatmap: Error heatmap
+hideUsedButtons: Hide used word buttons
 more: More
 llmAction: AI
 llmActionLong: AI Action

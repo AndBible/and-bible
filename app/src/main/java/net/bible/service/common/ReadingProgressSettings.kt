@@ -31,6 +31,7 @@ data class ReadingProgressSettingsBundle(
     val memorizeTypeFullWords: Boolean = false,
     val memorizeWordVisibility: String = "light",
     val memorizeErrorHeatmap: Boolean = true,
+    val memorizeScrambleHideUsed: Boolean = false,
 )
 
 /**
@@ -62,6 +63,10 @@ object ReadingProgressSettings {
         get() = getOrDefault().memorizeErrorHeatmap
         set(value) = update { copy(memorizeErrorHeatmap = value) }
 
+    var memorizeScrambleHideUsed: Boolean
+        get() = getOrDefault().memorizeScrambleHideUsed
+        set(value) = update { copy(memorizeScrambleHideUsed = value) }
+
     var activeCycle: Int
         get() = getOrDefault().activeCycle
         set(value) = update { copy(activeCycle = value) }
@@ -73,6 +78,7 @@ object ReadingProgressSettings {
             memorizeTypeFullWords = s.memorizeTypeFullWords,
             memorizeWordVisibility = s.memorizeWordVisibility,
             memorizeErrorHeatmap = s.memorizeErrorHeatmap,
+            memorizeScrambleHideUsed = s.memorizeScrambleHideUsed,
         )
     }
 
@@ -83,6 +89,7 @@ object ReadingProgressSettings {
                 memorizeTypeFullWords = bundle.memorizeTypeFullWords,
                 memorizeWordVisibility = bundle.memorizeWordVisibility,
                 memorizeErrorHeatmap = bundle.memorizeErrorHeatmap,
+                memorizeScrambleHideUsed = bundle.memorizeScrambleHideUsed,
             )
         }
     }

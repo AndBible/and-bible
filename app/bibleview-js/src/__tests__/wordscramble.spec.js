@@ -18,13 +18,16 @@
 import { mount } from "@vue/test-utils";
 import WordScramble from "@/components/memorize/WordScramble.vue";
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { reactive } from 'vue';
+import { readingProgressSettingsKey } from "@/types/constants";
 
 // Mock the useCommon composable
 vi.mock("@/composables", () => ({
   useCommon: () => ({
     strings: {
       peek: "Peek",
-      reset: "Reset"
+      reset: "Reset",
+      hideUsedButtons: "Hide used word buttons"
     }
   })
 }));
@@ -50,6 +53,17 @@ afterEach(() => {
 });
 
 describe("WordScramble.vue", () => {
+  const createProgressSettings = () => ({
+    settings: reactive({
+      autoMarkMemorized: true,
+      memorizeTypeFullWords: false,
+      memorizeWordVisibility: 'light',
+      memorizeErrorHeatmap: true,
+      memorizeScrambleHideUsed: false,
+    }),
+    updateSettings: vi.fn(),
+  });
+
   const createWrapper = (props = {}) => {
     return mount(WordScramble, {
       props: {
@@ -60,10 +74,9 @@ describe("WordScramble.vue", () => {
         modeConfig: undefined,
         ...props
       },
-      // Force resetWords() to run on mount for consistent test state
       global: {
-        stubs: {
-          // No stubs needed, we want the actual component behavior
+        provide: {
+          [readingProgressSettingsKey]: createProgressSettings(),
         }
       }
     });

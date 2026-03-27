@@ -34,6 +34,7 @@ class ReadingProgressSettingsDataStore : PreferenceDataStore() {
             "auto_mark_memorized" -> ReadingProgressSettings.autoMarkMemorized = value
             "memorize_type_full_words" -> ReadingProgressSettings.memorizeTypeFullWords = value
             "memorize_error_heatmap" -> ReadingProgressSettings.memorizeErrorHeatmap = value
+            "memorize_scramble_hide_used" -> ReadingProgressSettings.memorizeScrambleHideUsed = value
         }
         ABEventBus.post(ReadingProgressSettingsChangedEvent())
     }
@@ -43,6 +44,7 @@ class ReadingProgressSettingsDataStore : PreferenceDataStore() {
             "auto_mark_memorized" -> ReadingProgressSettings.autoMarkMemorized
             "memorize_type_full_words" -> ReadingProgressSettings.memorizeTypeFullWords
             "memorize_error_heatmap" -> ReadingProgressSettings.memorizeErrorHeatmap
+            "memorize_scramble_hide_used" -> ReadingProgressSettings.memorizeScrambleHideUsed
             else -> defValue
         }
     }

@@ -50,4 +50,8 @@ private val addActiveCycle = makeMigration(4..5) { db ->
     db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN activeCycle INTEGER NOT NULL DEFAULT 0")
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle)
+private val addScrambleHideUsed = makeMigration(5..6) { db ->
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeScrambleHideUsed INTEGER NOT NULL DEFAULT 0")
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle, addScrambleHideUsed)
