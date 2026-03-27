@@ -386,11 +386,12 @@ class MyDocumentPagesActivity : ActivityBase() {
             anyChanges = true
         }
 
-        if (anyChanges) {
-            MyDocumentBookManager.refreshDocument(documentInitials)
-            if (pagesToBeDeleted.isNotEmpty()) {
-                ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = pagesToBeDeleted.toList()))
-            }
+        // Always refresh SWORD book when dirty — new pages are inserted directly to DB
+        // in addPageToList() without going through changedPages tracking, so anyChanges
+        // would be false even though the SWORD book is stale.
+        MyDocumentBookManager.refreshDocument(documentInitials)
+        if (pagesToBeDeleted.isNotEmpty()) {
+            ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = pagesToBeDeleted.toList()))
         }
     }
 
