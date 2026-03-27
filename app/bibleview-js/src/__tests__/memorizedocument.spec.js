@@ -98,9 +98,16 @@ describe("MemorizeDocument.vue", () => {
     });
   };
 
-  it("renders the document title correctly", () => {
+  it("renders the document title by default (includeReference off)", () => {
     const wrapper = createWrapper();
     expect(wrapper.find("h2").text()).toBe("Memory Verse - John 3:16");
+  });
+
+  it("hides the document title when includeReference is on", () => {
+    const wrapper = createWrapper({
+      readingProgressSettings: { memorizeIncludeReference: true }
+    });
+    expect(wrapper.find("h2").exists()).toBe(false);
   });
 
   it("renders the mode selector buttons", () => {
@@ -149,18 +156,30 @@ describe("MemorizeDocument.vue", () => {
     }
   });
 
-  it("provides the correct props to the child component", () => {
+  it("provides only verse text items by default (includeReference off)", () => {
     const wrapper = createWrapper();
     const childComponent = wrapper.findComponent(WordBlur);
-    
-    // Should pass the text items
+
     expect(childComponent.props('textItems')).toEqual([
       { key: "verse1", text: "For God so loved the world, that he gave his only Son," },
       { key: "verse2", text: "that whoever believes in him should not perish but have eternal life." }
     ]);
-    
+
     // Should pass the mode config
     expect(childComponent.props('modeConfig')).toEqual({});
+  });
+
+  it("provides text items with reference prepended when includeReference is on", () => {
+    const wrapper = createWrapper({
+      readingProgressSettings: { memorizeIncludeReference: true }
+    });
+    const childComponent = wrapper.findComponent(WordBlur);
+
+    expect(childComponent.props('textItems')).toEqual([
+      { key: "verse1", text: "For God so loved the world, that he gave his only Son," },
+      { key: "verse2", text: "that whoever believes in him should not perish but have eternal life." },
+      { key: "__reference__", text: "Memory Verse - John 3:16" }
+    ]);
   });
 
   it("saves state when mode is changed", async () => {
