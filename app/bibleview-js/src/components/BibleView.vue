@@ -436,7 +436,7 @@ const helperLinePositions = computed(() => {
     const positions: number[] = [];
     const topOff = calculatedConfig.value.topOffset;
     const pageH = calculatedConfig.value.pageHeight;
-    for (let p = step; p < 100; p += step) {
+    for (let p = step; p <= 100 - step; p += step) {
         positions.push(topOff + pageH * (p / 100));
     }
     return positions;

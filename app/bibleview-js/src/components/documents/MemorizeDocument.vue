@@ -81,6 +81,16 @@
           @memorize-completed="onMemorizeCompleted"
       />
     </template>
+
+    <!-- Word Order Tab -->
+    <template #order>
+      <WordOrder
+          :text-items="document.texts"
+          :mode-config="document.state?.memorize?.modeConfig"
+          @save-mode-config="saveModeConfig"
+          @memorize-completed="onMemorizeCompleted"
+      />
+    </template>
   </TabContainer>
   </div>
 </template>
@@ -102,9 +112,10 @@ import {useReadingProgressSettings} from "@/composables/reading-progress-setting
 import WordBlur from '@/components/memorize/WordBlur.vue';
 import WordScramble from '@/components/memorize/WordScramble.vue';
 import WordType from '@/components/memorize/WordType.vue';
+import WordOrder from '@/components/memorize/WordOrder.vue';
 import TabContainer from '@/components/tabs/TabContainer.vue';
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBrain, faChartLine, faCheck, faEllipsisV, faEyeSlash, faKeyboard, faRandom, faTimes} from "@fortawesome/free-solid-svg-icons";
+import {faBrain, faChartLine, faCheck, faEllipsisV, faEyeSlash, faKeyboard, faRandom, faSort, faTimes} from "@fortawesome/free-solid-svg-icons";
 import {inject} from "vue";
 import {memorizationKey, readingProgressSettingsKey} from "@/types/constants";
 
@@ -121,6 +132,7 @@ const selectedTabId = computed(() => {
         case MemorizeStateModeEnum.BLUR: return 'blur';
         case MemorizeStateModeEnum.SCRAMBLE: return 'scramble';
         case MemorizeStateModeEnum.TYPE: return 'type';
+        case MemorizeStateModeEnum.ORDER: return 'order';
         default: return 'blur';
     }
 });
@@ -241,6 +253,12 @@ const tabsConfig = computed(() => [
         label: strings.wordType,
         value: MemorizeStateModeEnum.TYPE,
         icon: faKeyboard,
+    },
+    {
+        id: 'order',
+        label: strings.wordOrder,
+        value: MemorizeStateModeEnum.ORDER,
+        icon: faSort,
     }
 ]);
 
