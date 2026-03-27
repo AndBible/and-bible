@@ -149,42 +149,44 @@ describe("highlighting", () => {
             const node1 = e.childNodes[0];
             range.setStart(node1, 0);
             range.setEnd(node1, 5);
-            range2.setStart(node1, 5);
-            range2.setEnd(node1, 10);
             expect(e.childNodes.length).toBe(1);
             const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
             expect(document.documentElement.outerHTML).toBe(highLighted1);
             expect(e.childNodes.length).toBe(2);
+            // Set range2 after first highlight, targeting the now-separate "text2" text node
+            const textNode2 = e.childNodes[1];
+            range2.setStart(textNode2, 0);
+            range2.setEnd(textNode2, 5);
             const {undo: undo2} = highlightRange(range2, "span", {style: "width:2"});
             expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(highLighted);
             undo1();
             expect(document.documentElement.outerHTML).toBe(unHighLighted1);
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             undo2();
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(unHighLighted);
         }
         for(let i=0; i<5; i++) {
             const node1 = e.childNodes[0];
-            const node2 = e.childNodes[2];
+            const node2 = e.childNodes[1];
             range.setStart(node1, 0);
             range.setEnd(node1, 5);
             range2.setStart(node2, 0);
             range2.setEnd(node2, 5);
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
 
             const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
             expect(document.documentElement.outerHTML).toBe(highLighted1);
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             const {undo: undo2} = highlightRange(range2, "span", {style: "width:2"});
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(highLighted);
             undo1();
             expect(document.documentElement.outerHTML).toBe(unHighLighted1);
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             undo2();
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(unHighLighted);
         }
 
@@ -210,18 +212,20 @@ describe("highlighting", () => {
             const node1 = e.childNodes[0];
             range.setStart(node1, 0);
             range.setEnd(node1, 5);
-            range2.setStart(node1, 5);
-            range2.setEnd(node1, 10);
             expect(e.childNodes.length).toBe(1);
 
             const {undo: undo1} = highlightRange(range, "span", {style: "width:1"});
             expect(e.childNodes.length).toBe(2);
+            // Set range2 after first highlight, targeting the now-separate "text2" text node
+            const textNode2 = e.childNodes[1];
+            range2.setStart(textNode2, 0);
+            range2.setEnd(textNode2, 5);
             const {undo: undo2} = highlightRange(range2, "span", {style: "width:1"});
             expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(highLighted);
             undo2();
             undo1();
-            expect(e.childNodes.length).toBe(3);
+            expect(e.childNodes.length).toBe(2);
             expect(document.documentElement.outerHTML).toBe(unHighLighted);
         }
     });
