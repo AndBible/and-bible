@@ -108,12 +108,15 @@ object GetCommentariesTool : Tool {
         Supports verse ranges (e.g. 'Matt.5.1-10') — iterates through each verse and deduplicates
         identical content that commentaries repeat across consecutive verses.
 
-        IMPORTANT: Each entry includes 'linkUrl'. When citing commentaries in your response,
-        ALWAYS create clickable links. Example: [MHC](sword://MHC/Matt.5.3)
+        IMPORTANT: Each entry includes 'linkUrl' (already properly URL-encoded).
+        When citing commentaries in your response, ALWAYS use the linkUrl value directly
+        in clickable links. Example: [MHC](sword://MHC/Matt.5.3)
+        Note: Some module initials contain spaces. The linkUrl handles encoding for you,
+        so always use it as-is rather than constructing URLs manually.
 
         Commentary text includes anchor markers like [§5] at each sentence boundary.
         These mark scroll positions within the commentary. When citing a specific section,
-        append the anchor ordinal to the link: [MHC §5](sword://MHC/Matt.5.3#o5)
+        append #oN to the linkUrl: [MHC](sword://MHC/Matt.5.3#o5)
         This lets the user jump directly to the relevant passage in the commentary.
     """.trimIndent()
 
@@ -240,14 +243,14 @@ object GetCommentariesTool : Tool {
                     if (useXml) {
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
+                            linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}",
                             osisXml = block.osisXml
                         )
                     } else {
                         val fragment = useSaxBuilder { it.build(StringReader(block.osisXml)).rootElement }
                         CommentaryEntry(
                             verseRange = rangeRef,
-                            linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
+                            linkUrl = "sword://${Uri.encode(commentary.initials)}/${Uri.encode(block.startVerseRef)}",
                             text = OsisToPlainText.convert(fragment, injectAnchors = true)
                         )
                     }

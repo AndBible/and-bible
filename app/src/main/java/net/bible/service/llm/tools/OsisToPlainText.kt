@@ -85,7 +85,7 @@ object OsisToPlainText {
             val prefix = osisRef.substring(0, colonIndex)
             if (prefix[0].isUpperCase()) {
                 val key = osisRef.substring(colonIndex + 1)
-                return "sword://$prefix/${encodeOsisRef(key)}"
+                return "sword://${encodeOsisRef(prefix)}/${encodeOsisRef(key)}"
             }
         }
         return "sword:///${encodeOsisRef(osisRef)}"

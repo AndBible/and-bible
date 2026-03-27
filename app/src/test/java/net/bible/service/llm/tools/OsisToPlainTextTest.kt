@@ -119,6 +119,12 @@ class OsisToPlainTextTest {
     }
 
     @Test
+    fun referenceModuleWithSpacesEncoded() {
+        val xml = """<div><reference osisRef="My Commentary:Matt.5.3">Matt 5:3</reference></div>"""
+        assertEquals("[Matt 5:3](sword://My%20Commentary/Matt.5.3)", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
     fun referenceVerseRange() {
         val xml = """<div><reference osisRef="Matt.5.3-Matt.5.12">Matt 5:3-12</reference></div>"""
         assertEquals("[Matt 5:3-12](sword:///Matt.5.3-Matt.5.12)", OsisToPlainText.convert(parse(xml)))
