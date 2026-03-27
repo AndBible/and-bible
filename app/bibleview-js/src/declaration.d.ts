@@ -67,6 +67,7 @@ type TranslatedStrings = {
     clearLog: string
     editTextPlaceholder: string
     myDocumentEdit: string
+    myDocumentEmptyPlaceholder: string
     inputPlaceholder: string
     inputReference: string
     invalidReference: string
@@ -147,6 +148,7 @@ type TranslatedStrings = {
     wordBlur: string
     wordScramble: string
     wordType: string
+    wordOrder: string
     typeEverything: string
     tapToStartTyping: string
     wordVisibility: string
