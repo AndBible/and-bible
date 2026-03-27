@@ -120,6 +120,7 @@ type TranslatedStrings = {
     markedAsMemorized: string
     removeFromTargets: string
     viewReadingProgress: string
+    viewReadingProgressSettings: string
     verseNoteLong: string
     verseParagraphBreakLong: string
     addBookmark: string

@@ -76,6 +76,7 @@ markAsMemorized: Mark as memorized
 markedAsMemorized: Memorized
 removeFromTargets: Goal -
 viewReadingProgress: Read/Memory Progress
+viewReadingProgressSettings: Read/Memory Settings
 verseNoteLong: Write a note
 verseParagraphBreakLong: Paragraph break
 addBookmark: Bookmark

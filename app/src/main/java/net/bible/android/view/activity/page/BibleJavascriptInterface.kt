@@ -58,6 +58,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
@@ -552,6 +553,14 @@ class BibleJavascriptInterface(
         scope.launch(Dispatchers.Main) {
             val intent = Intent(mainBibleActivity, ReadingProgressActivity::class.java)
             intent.putExtra(ReadingProgressActivity.EXTRA_TAB, tab)
+            mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
+        }
+    }
+
+    @JavascriptInterface
+    fun openReadingProgressSettings() {
+        scope.launch(Dispatchers.Main) {
+            val intent = Intent(mainBibleActivity, ReadingProgressSettingsActivity::class.java)
             mainBibleActivity.startActivityForResult(intent, STD_REQUEST_CODE)
         }
     }
