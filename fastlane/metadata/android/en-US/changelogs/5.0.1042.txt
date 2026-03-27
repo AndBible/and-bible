@@ -1,0 +1,17 @@
+- Add reading progress settings and enhanced WordType component visibility options (a382609c0)
+- Add fade gradient indicators for overflowing tab navigation (5effc5500)
+- Sort default model first in all model lists (c6fc89751)
+- Fix crash when navigating to newly created MyDocument page (30fcf2838)
+- Disable swipe page navigation in Memorize game (685b6823a)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
