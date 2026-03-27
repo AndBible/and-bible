@@ -110,6 +110,11 @@ object GetCommentariesTool : Tool {
 
         IMPORTANT: Each entry includes 'linkUrl'. When citing commentaries in your response,
         ALWAYS create clickable links. Example: [MHC](sword://MHC/Matt.5.3)
+
+        Commentary text includes anchor markers like [§5] at paragraph/title boundaries.
+        These mark scroll positions within the commentary. When citing a specific section,
+        append the anchor ordinal to the link: [MHC §5](sword://MHC/Matt.5.3#o5)
+        This lets the user jump directly to the relevant passage in the commentary.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -243,7 +248,7 @@ object GetCommentariesTool : Tool {
                         CommentaryEntry(
                             verseRange = rangeRef,
                             linkUrl = "sword://${commentary.initials}/${Uri.encode(block.startVerseRef)}",
-                            text = OsisToPlainText.convert(fragment)
+                            text = OsisToPlainText.convert(fragment, injectAnchors = true)
                         )
                     }
                 }

@@ -135,7 +135,7 @@ class LinkControl @Inject constructor(
         Log.i(TAG, "Loading: $uriStr")
         val uriAnalyzer = UriAnalyzer()
         if (uriAnalyzer.analyze(uriStr)) {
-            return when (uriAnalyzer.docType) {
+            val key = when (uriAnalyzer.docType) {
                 UriAnalyzer.DocType.BIBLE -> getBibleKey(uriAnalyzer.key, versification, book)
                 UriAnalyzer.DocType.GREEK_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsGreekDictionary, uriAnalyzer.key, StrongsKeyType.GREEK)
                 UriAnalyzer.DocType.HEBREW_DIC -> getStrongsKey(SwordDocumentFacade.defaultStrongsHebrewDictionary, uriAnalyzer.key, StrongsKeyType.HEBREW)
@@ -143,6 +143,16 @@ class LinkControl @Inject constructor(
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, book)
                 else -> null
             }
+            // If a fragment was present (e.g. #o5 for commentary anchor), attach it as htmlId
+            // so the frontend scrolls to the corresponding BibleViewAnchor element (id="o-5")
+            val fragment = uriAnalyzer.fragment
+            if (key is BookAndKey && fragment != null) {
+                val ordinal = fragment.removePrefix("o").toIntOrNull()
+                if (ordinal != null) {
+                    return BookAndKey(key.key, key.document, htmlId = "o-$ordinal")
+                }
+            }
+            return key
         }
         return null
     }
@@ -162,7 +172,8 @@ class LinkControl @Inject constructor(
                     }
                     showLink(FakeBookFactory.multiDocument, keyList)
                 } else {
-                    showLink(bookAndKeys.document, bookAndKeys.key)
+                    // Pass the full BookAndKey (not just .key) to preserve htmlId for anchor navigation
+                    showLink(bookAndKeys.document, bookAndKeys)
                 }
             }
             is BookAndKeyList -> {

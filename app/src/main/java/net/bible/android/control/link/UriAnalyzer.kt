@@ -48,18 +48,32 @@ class UriAnalyzer {
         private set
     var key = ""
         private set
+    var fragment: String? = null
+        private set
 
 	var protocol = ""
 		private set
 
 	fun analyze(urlStr: String): Boolean {
+        // Extract fragment (e.g. #o5) before processing the rest of the URL.
+        // Used for anchor navigation within commentary documents.
+        val hashIndex = urlStr.indexOf('#')
+        val mainUrl: String
+        if (hashIndex >= 0) {
+            fragment = urlStr.substring(hashIndex + 1)
+            mainUrl = urlStr.substring(0, hashIndex)
+        } else {
+            fragment = null
+            mainUrl = urlStr
+        }
+
         // check for urls like gdef:01234
         // split the prefix from the book
-        var ref = if (!urlStr.contains(":")) {
+        var ref = if (!mainUrl.contains(":")) {
             protocol = BIBLE_PROTOCOL
-            urlStr
+            mainUrl
         } else {
-            val uriTokens = urlStr.split(":", limit=2)
+            val uriTokens = mainUrl.split(":", limit=2)
             protocol = uriTokens[0]
             uriTokens[1]
         }

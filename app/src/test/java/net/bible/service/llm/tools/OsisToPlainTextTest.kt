@@ -186,4 +186,56 @@ class OsisToPlainTextTest {
         val xml = """<div><div><p>Commentary intro paragraph.</p><p>Detailed analysis here.</p></div><div><p>Another section with conclusions.</p></div></div>"""
         assertEquals("Commentary intro paragraph.\n\nDetailed analysis here.\n\nAnother section with conclusions.", OsisToPlainText.convert(parse(xml)))
     }
+
+    // --- Anchor injection tests ---
+
+    @Test
+    fun anchorInjectionDisabledByDefault() {
+        val xml = """<div><p><BVA ordinal="0">First sentence.</BVA></p></div>"""
+        assertEquals("First sentence.", OsisToPlainText.convert(parse(xml)))
+    }
+
+    @Test
+    fun anchorInjectionAtParagraphBoundaries() {
+        val xml = """<div><p><BVA ordinal="0">First paragraph sentence one.</BVA><BVA ordinal="1">Sentence two.</BVA></p><p><BVA ordinal="2">Second paragraph.</BVA></p></div>"""
+        val result = OsisToPlainText.convert(parse(xml), injectAnchors = true)
+        assertEquals("[§0] First paragraph sentence one.Sentence two.\n\n[§2] Second paragraph.", result)
+    }
+
+    @Test
+    fun anchorInjectionAtTitle() {
+        val xml = """<div><title><BVA ordinal="0">Commentary Title</BVA></title><p><BVA ordinal="1">Text here.</BVA></p></div>"""
+        val result = OsisToPlainText.convert(parse(xml), injectAnchors = true)
+        assertEquals("## [§0] Commentary Title\n\n[§1] Text here.", result)
+    }
+
+    @Test
+    fun anchorInjectionOnlyFirstBvaPerStructuralElement() {
+        val xml = """<div><p><BVA ordinal="0">Sentence one.</BVA><BVA ordinal="1">Sentence two.</BVA><BVA ordinal="2">Sentence three.</BVA></p></div>"""
+        val result = OsisToPlainText.convert(parse(xml), injectAnchors = true)
+        // Only the first BVA (ordinal 0) in the <p> gets the anchor marker
+        assertEquals("[§0] Sentence one.Sentence two.Sentence three.", result)
+    }
+
+    @Test
+    fun anchorInjectionRootDivNotAnchored() {
+        // The root div should not trigger anchor injection
+        val xml = """<div><BVA ordinal="0">Text directly in root.</BVA></div>"""
+        val result = OsisToPlainText.convert(parse(xml), injectAnchors = true)
+        assertEquals("Text directly in root.", result)
+    }
+
+    @Test
+    fun anchorInjectionNestedDivs() {
+        val xml = """<div><div><BVA ordinal="0">Section one.</BVA></div><div><BVA ordinal="3">Section two.</BVA></div></div>"""
+        val result = OsisToPlainText.convert(parse(xml), injectAnchors = true)
+        assertEquals("[§0] Section one.\n\n[§3] Section two.", result)
+    }
+
+    @Test
+    fun anchorInjectionWithExistingTestsUnchanged() {
+        // Existing behavior must not change when injectAnchors=false
+        val xml = """<div><verse osisID="Gen.1.1"><w lemma="strong:H07225">In</w> the beginning</verse></div>"""
+        assertEquals("1. In the beginning", OsisToPlainText.convert(parse(xml), injectAnchors = false))
+    }
 }
