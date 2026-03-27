@@ -165,8 +165,6 @@ type TranslatedStrings = {
     aiDocumentDelete: string
     aiGeneratedBy: string
     aiGeneratedByWithModel: string
-    markChapterRead: string
-    chapterMarkedRead: string
 }
 
 type Strings = TranslatedStrings & UntranslatedStrings
