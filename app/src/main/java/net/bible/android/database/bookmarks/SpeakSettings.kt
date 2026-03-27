@@ -63,6 +63,9 @@ data class PlaybackSettings (
 
     // For bible bookmarks
     @Serializable(with=VerseRangeSerializer::class) var verseRange: VerseRange? = null,
+
+    // Memorization loop mode: suppresses chapter/title/footnote announcements and bookmark saving
+    @Transient val isMemorizationLoop: Boolean = false,
 ) {
     companion object {
 

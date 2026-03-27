@@ -44,6 +44,7 @@ import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.NoSuchKeyException
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 
 import java.util.*
 
@@ -76,6 +77,7 @@ class SpeakControl @Inject constructor(
     private var timerTask: TimerTask? = null
     private var _speakPageManager: CurrentPageManager? = null
 
+    private var originalSettingsBeforeMemLoop: SpeakSettings? = null
     private var ttsInitialized = false
     private val ttsServiceManager: TextToSpeechServiceManager get () {
         if(!ttsInitialized)
@@ -154,7 +156,8 @@ class SpeakControl @Inject constructor(
     fun onEventMainThread(event: SpeakProgressEvent) {
         speakKey = event.key
         speakBook = event.book
-        if (AdvancedSpeakSettings.synchronize || event.forceFollow) {
+        // Don't synchronize page during memorization loop — stay in memorize view
+        if (!isMemorizationLoop && (AdvancedSpeakSettings.synchronize || event.forceFollow)) {
             val book = speakPageManager.currentPage.currentDocument
             speakPageManager.setCurrentDocumentAndKey(book, event.key,false)
         }
@@ -295,6 +298,38 @@ class SpeakControl @Inject constructor(
             throw AndRuntimeException("Error preparing Speech", e)
         }
 
+    }
+
+    val isMemorizationLoop: Boolean get() = originalSettingsBeforeMemLoop != null
+
+    fun speakMemorizationLoop(book: SwordBook, startVerse: Verse, endVerse: Verse) {
+        if (isPaused) {
+            stop()
+        }
+
+        val originalSettings = SpeakSettings.load()
+        originalSettingsBeforeMemLoop = originalSettings.makeCopy()
+
+        val memSettings = originalSettings.makeCopy()
+        memSettings.playbackSettings = memSettings.playbackSettings.copy(
+            speakChapterChanges = false,
+            speakTitles = false,
+            speakFootnotes = false,
+            verseRange = VerseRange(book.versification, startVerse, endVerse),
+            isMemorizationLoop = true
+        )
+        memSettings.save()
+
+        prepareForSpeaking()
+        // Don't synchronize page — stay in memorize view
+        try {
+            ttsServiceManager.speakBible(book, startVerse)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error starting memorization loop speak", e)
+            originalSettingsBeforeMemLoop?.save()
+            originalSettingsBeforeMemLoop = null
+            throw AndRuntimeException("Error preparing memorization loop speech", e)
+        }
     }
 
     private fun speakBible() {
@@ -447,6 +482,10 @@ class SpeakControl @Inject constructor(
         ttsServiceManager.shutdown(willContinueAfter)
         saveCurrentPosition()
         stopTimer()
+        originalSettingsBeforeMemLoop?.let {
+            it.save()
+            originalSettingsBeforeMemLoop = null
+        }
         if(!force) {
             ABEventBus.post(ToastEvent(R.string.stop))
         }
