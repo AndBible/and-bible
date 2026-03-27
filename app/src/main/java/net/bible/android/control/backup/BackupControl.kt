@@ -54,6 +54,7 @@ import net.bible.android.database.SettingsDatabase
 import net.bible.android.database.SyncableRoomDatabase
 import net.bible.android.database.WorkspaceDatabase
 import net.bible.android.database.mydocument.MyDocumentDatabase
+import net.bible.android.database.progress.ProgressDatabase
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.installzip.InstallZip
@@ -912,6 +913,7 @@ class BackupActivity: ActivityBase() {
                 ResettableDb(R.string.settings, SettingsDatabase.dbFileName, null),
                 ResettableDb(R.string.my_documents_title, MyDocumentDatabase.dbFileName, SyncableDatabaseDefinition.MYDOCUMENTS),
                 ResettableDb(R.string.ai_settings_sync_title, AiSettingsDatabase.dbFileName, SyncableDatabaseDefinition.AI_SETTINGS),
+                ResettableDb(R.string.progress_sync_title, ProgressDatabase.dbFileName, SyncableDatabaseDefinition.PROGRESS),
             )
             for (db in resettableDbs) {
                 val btn = Button(this@BackupActivity)
