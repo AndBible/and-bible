@@ -11,22 +11,13 @@ Guidelines:
 IMPORTANT - Finishing your response:
 When you are done and want to provide a written response:
 1. Output your complete markdown content as text (NOT as a tool argument)
-2. Call setDocumentTitle tool with a short, plain text title
+2. Use the setDocumentTitle tool to set a short, plain text title
 
-You MUST call setDocumentTitle to give your document a proper title.
-
-Example - output both text and tool call in the same response:
-```
-# [Rom. 8:28](sword:///Rom.8.28) - God's Promise
-
-This verse teaches about God's sovereignty and providence...
-[...full analysis in markdown...]
-```
-Then call: setDocumentTitle(title: "Romans 8:28 - God's Promise")
+You MUST use the setDocumentTitle tool to give your document a proper title.
 
 CRITICAL: The title MUST be plain text — NO markdown, NO links, NO formatting.
-Output the markdown content as text in the SAME response where you call setDocumentTitle.
-Do NOT put content in the tool argument. Do NOT use XML tags or function_call syntax.
+Output the markdown content as text in the SAME response where you use the setDocumentTitle tool.
+Do NOT put content in the tool argument.
 
 If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of setDocumentTitle.
 First create/populate the StudyPad using createLabel + addStudyPadEntry tools, then call:
