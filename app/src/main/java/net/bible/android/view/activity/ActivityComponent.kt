@@ -39,6 +39,8 @@ import net.bible.android.view.activity.page.MenuCommandHandler
 import net.bible.android.view.activity.page.Selection
 import net.bible.android.view.activity.page.screen.BibleFrame
 import net.bible.android.view.activity.page.screen.DocumentViewManager
+import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.android.view.activity.progress.ReadingProgressSettingsActivity
 import net.bible.android.view.activity.readingplan.DailyReading
 import net.bible.android.view.activity.readingplan.DailyReadingList
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList
@@ -103,6 +105,8 @@ interface ActivityComponent {
     fun inject(speakSettings: SpeakSettingsActivity)
     fun inject(dailyReading: DailyReading)
     fun inject(dailyReadingList: DailyReadingList)
+    fun inject(readingProgress: ReadingProgressActivity)
+    fun inject(readingProgressSettings: ReadingProgressSettingsActivity)
     fun inject(readingPlanSelectorList: ReadingPlanSelectorList)
     fun inject(readingStatus: ReadingStatus)
     fun inject(sel: Selection)
