@@ -185,9 +185,14 @@ class BibleSpeakTextProvider(
             }
         }
         else if(verse.ordinal < prevVerse.ordinal) {
-            // TODO: we could say something special related to repeating
-            cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(SilenceCommand())
+            if (settings.playbackSettings.isMemorizationLoop) {
+                // Memorization loop mode: just a longer pause between repetitions
+                cmds.add(SilenceCommand())
+                cmds.add(SilenceCommand())
+            } else {
+                cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+                cmds.add(SilenceCommand())
+            }
         }
         cmds.addAll(getSpeakCommandsForVerse(verse))
         return cmds
@@ -372,6 +377,7 @@ class BibleSpeakTextProvider(
     }
 
     private fun saveBookmark(wasRemoved: Boolean) {
+        if (settings.playbackSettings.isMemorizationLoop) return
         val labelList = mutableSetOf<Label>()
         if(AdvancedSpeakSettings.autoBookmark || wasRemoved) {
             val playbackSettings = settings.playbackSettings.copy()

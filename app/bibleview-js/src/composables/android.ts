@@ -90,6 +90,7 @@ export type BibleJavascriptInterface = {
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
     speakGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    speakMemorizationLoop: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
     setAsPrimaryLabel: (bookmarkId: IdType, labelId: IdType) => void,
     setAsPrimaryLabelGeneric: (bookmarkId: IdType, labelId: IdType) => void,
     toggleBookmarkLabel: (bookmarkId: IdType, labelId: IdType) => void,
@@ -483,6 +484,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.speakGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
     }
 
+    function speakMemorizationLoop(bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) {
+        window.android.speakMemorizationLoop(bookInitials, v11n, startOrdinal, endOrdinal);
+    }
+
     function openDownloads() {
         window.android.openDownloads();
     }
@@ -715,6 +720,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         unmarkChapterRead,
         speak,
         speakGeneric,
+        speakMemorizationLoop,
         helpDialog,
         onKeyDown,
         parseRef,

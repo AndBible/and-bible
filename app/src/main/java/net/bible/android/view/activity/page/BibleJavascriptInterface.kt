@@ -643,6 +643,20 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
+    fun speakMemorizationLoop(bookInitials: String, v11nName: String, ordinal: Int, endOrdinal: Int) {
+        scope.launch(Dispatchers.Main) {
+            val book = Books.installed().getBook(bookInitials) as SwordBook
+            val v11n = Versifications.instance().getVersification(v11nName)
+            val startVerse = Verse(v11n, ordinal).toV11n(book.versification)
+            val endVerse = Verse(v11n, endOrdinal).toV11n(book.versification)
+            if (mainBibleActivity.speakControl.isSpeaking) {
+                mainBibleActivity.speakControl.pause(willContinueAfterThis = true, toast = false)
+            }
+            mainBibleActivity.speakControl.speakMemorizationLoop(book, startVerse, endVerse)
+        }
+    }
+
+    @JavascriptInterface
     fun speakGeneric(bookInitials: String, osisRef: String, ordinal: Int, endOrdinal: Int) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(bookInitials)
