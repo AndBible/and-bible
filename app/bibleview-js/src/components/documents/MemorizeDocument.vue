@@ -16,6 +16,7 @@
   -->
 
 <template>
+  <div class="memorize-wrapper" :class="{ 'memorized-border': isMemorized }">
   <h2><a class="title-link" :href="bibleUrl">{{document.title}}</a></h2>
 
   <TabContainer
@@ -81,6 +82,7 @@
       />
     </template>
   </TabContainer>
+  </div>
 </template>
 
 <script lang="ts">
@@ -281,6 +283,28 @@ function saveState() {
 
 <style scoped lang="scss">
 @use "@/common.scss" as *;
+
+.memorize-wrapper {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 4px;
+  transition: border-color 0.3s ease;
+
+  .noAnimation & {
+    transition: none;
+  }
+
+  &.memorized-border {
+    border-color: #4CAF50;
+
+    .monochrome & {
+      border-color: #666;
+    }
+    .monochrome.night & {
+      border-color: #999;
+    }
+  }
+}
 
 h2 {
   font-size: 1.2em;
