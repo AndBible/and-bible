@@ -29,6 +29,7 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.typedSuccess
+import net.bible.service.llm.tools.uniqueLabelName
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.Serializable
 import org.json.JSONObject
@@ -103,15 +104,12 @@ object CreateLabelTool : Tool {
         }
 
         return try {
-            // Check if label with same name exists
-            val existingLabels = bookmarkControl.assignableLabels
-            if (existingLabels.any { it.name.equals(name.trim(), ignoreCase = true) }) {
-                return ToolResult.error("Label with name '$name' already exists", "LABEL_EXISTS")
-            }
+            val existingNames = bookmarkControl.assignableLabels.map { it.name }
+            val uniqueName = uniqueLabelName(name.trim(), existingNames)
 
             // Create label using BookmarkControl (sends UI events)
             val label = Label(
-                name = name.trim(),
+                name = uniqueName,
                 color = color,
                 new = true
             )
