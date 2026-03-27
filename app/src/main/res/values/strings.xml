@@ -105,6 +105,9 @@
 
     <string name="prefs_e_ink_mode_title">Black &amp; white mode</string>
     <string name="prefs_eink_mode_summary">Use application in monochrome mode (no colors), making it more suitable for E-ink devices.</string>
+    <string name="prefs_eink_settings_cat">E-ink settings</string>
+    <string name="prefs_eink_display_title">E-ink features</string>
+    <string name="prefs_eink_display_summary">Enable e-ink specific features (page scroll buttons, scroll helper lines)</string>
 
     <string name="prefs_disable_animations_title">Disable animations</string>
     <string name="prefs_disable_animations_summary">Disable various animations such as smooth scrolling. </string>

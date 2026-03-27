@@ -448,6 +448,7 @@ object CommonUtils : CommonUtilsBase() {
         fun removeBoolean(key: String) = setBoolean(key, null)
 
         val monochromeMode: Boolean get() = getBoolean("monochrome_mode", onyxSupport?.isMonochrome == true)
+        val einkMode: Boolean get() = getBoolean("eink_mode", false)
         val disableAnimations: Boolean get() = getBoolean("disable_animations", onyxSupport?.isOnyxDevice == true)
         val disableClickToEdit: Boolean get() = getBoolean("disable_click_to_edit", false)
         val notesContentType: String get() = getString("notes_content_type", "HTML") ?: "HTML"

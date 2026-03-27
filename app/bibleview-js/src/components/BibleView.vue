@@ -71,7 +71,7 @@
         {{ pageNumber }}
       </div>
     </div>
-    <template v-if="config.scrollHelperLines && config.pageScrollAmount < 100">
+    <template v-if="appSettings.einkMode && config.scrollHelperLines && config.pageScrollAmount < 100">
       <div
           v-for="pos in helperLinePositions"
           :key="pos"
@@ -80,7 +80,7 @@
           :style="{top: `${pos}px`}"
       />
     </template>
-    <div v-if="config.showPageButtons" class="page-buttons" :style="{bottom: `${(appSettings.isBottomWindow ? appSettings.bottomOffset : 0) + 12}px`}">
+    <div v-if="appSettings.einkMode && config.showPageButtons" class="page-buttons" :style="{bottom: `${(appSettings.isBottomWindow ? appSettings.bottomOffset : 0) + 12}px`}">
       <button class="page-button" @click.stop="scrollUpDown(true)">
         <FontAwesomeIcon :icon="faChevronUp"/>
       </button>
