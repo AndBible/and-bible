@@ -55,6 +55,7 @@ object CreateBookmarkTool : Tool {
         val note: String? = null,
         val noteContentType: TextContentType = TextContentType.MARKDOWN,
         val labelIds: List<IdType>? = null,
+        val primaryLabelId: IdType? = null,
         val bookInitials: String? = null,
         val startOffset: Int? = null,
         val endOffset: Int? = null
@@ -95,6 +96,9 @@ object CreateBookmarkTool : Tool {
             items:
               type: string
             description: Optional list of label IDs to assign to the bookmark. Get IDs from getAllLabels.
+          primaryLabelId:
+            type: string
+            description: "Optional label ID to set as primary. Must be one of the labelIds. Defaults to the first label in labelIds."
           bookInitials:
             type: string
             description: "Bible module initials (e.g., 'KJV', 'ESV'). Required for sub-verse bookmarks. Defaults to the active document if omitted."
@@ -198,6 +202,12 @@ object CreateBookmarkTool : Tool {
                 labelIdsList.toSet() + aiLabelId
             } else {
                 setOf(aiLabelId)
+            }
+
+            // Set primary label: explicit param > first user label > default (AI label via addOrUpdateBookmark)
+            val desiredPrimary = args.primaryLabelId ?: labelIdsList?.firstOrNull()
+            if (desiredPrimary != null && desiredPrimary in labelIds) {
+                bookmark.primaryLabelId = desiredPrimary
             }
 
             // Save bookmark using BookmarkControl (sends UI events)
