@@ -1,0 +1,16 @@
+- Add CreateStudyPad batch LLM tool and "Explain Verses → Study Pad" prompt for automated verse explanation (6cee02ca5)
+- Add reading progress settings and WordType component visibility options (a382609c0)
+- Fix model sort order in AI connection settings (1f13904eb)
+- Fix crash when navigating to newly created MyDocument page (30fcf2838)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
