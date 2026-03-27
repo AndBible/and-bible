@@ -315,6 +315,29 @@ object AgentSessionManager : AgentSessionManagerBase() {
         previousResponse: String? = null,
         userSpecification: String? = null
     ): AgentContext {
+        // Workspace-level prompt: no specific verse/document selected
+        if (selection.bookInitials == null && selection.startOrdinal < 0
+            && selection.noteEditorEntityType == null) {
+            val workspaceSummary = withContext(Dispatchers.Main.immediate) {
+                buildWorkspaceWindowsSummary()
+            }
+            val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+            return AgentContext(
+                promptId = prompt.id,
+                workspaceId = windowControl.windowRepository.id,
+                windowId = windowControl.activeWindow.id,
+                promptPermissionMode = prompt.permissionMode,
+                promptAvailableTools = prompt.allowedTools,
+                promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
+                promptDeniedTools = prompt.deniedTools,
+                noDocumentCreation = prompt.noDocumentCreation,
+                previousResponse = previousResponse,
+                additionalInstructions = additionalInstructions,
+                userSpecification = userSpecification,
+                workspaceWindowsSummary = workspaceSummary,
+            )
+        }
+
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
         val currentPage = windowControl.activeWindowPageManager.currentPage
         val pageKey = currentPage.key
@@ -427,6 +450,41 @@ object AgentSessionManager : AgentSessionManagerBase() {
             noteEditorContent = selection.noteEditorContent,
             noteEditorContentType = selection.noteEditorContentType
         )
+    }
+
+    /** Build a text summary of all workspace windows for workspace-level prompt context. Must be called on Main thread. */
+    private fun buildWorkspaceWindowsSummary(): String {
+        val windowRepository = windowControl.windowRepository
+        val activeWindowId = windowRepository.activeWindow.id
+        val windows = windowRepository.windowList
+            .filter { it.windowState != net.bible.android.control.page.window.WindowLayout.WindowState.CLOSED }
+
+        val visible = windows.filter { it.windowState == net.bible.android.control.page.window.WindowLayout.WindowState.VISIBLE }
+        val minimised = windows.filter { it.windowState == net.bible.android.control.page.window.WindowLayout.WindowState.MINIMISED }
+
+        return buildString {
+            append("Workspace: ${windowRepository.name}\n")
+            append("Windows: ${windows.size} total (${visible.size} visible, ${minimised.size} minimised)\n\n")
+
+            fun appendWindow(w: net.bible.android.control.page.window.Window) {
+                val page = w.pageManager.currentPage
+                val doc = page.currentDocument
+                val key = page.key
+                append("- ${doc?.initials ?: "unknown"} (${doc?.name ?: "unknown"})")
+                if (key != null) append(" at ${key.name}")
+                if (w.id == activeWindowId) append(" [ACTIVE]")
+                append("\n")
+            }
+
+            if (visible.isNotEmpty()) {
+                append("Visible windows:\n")
+                visible.forEach { appendWindow(it) }
+            }
+            if (minimised.isNotEmpty()) {
+                append("\nMinimised windows:\n")
+                minimised.forEach { appendWindow(it) }
+            }
+        }
     }
 
     private suspend fun handleAgentEvent(

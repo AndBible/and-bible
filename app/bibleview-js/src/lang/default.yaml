@@ -19,6 +19,7 @@ footnoteTypeTranslation: Translation
 clearLog: Clear error log
 editTextPlaceholder: Tap to edit text
 myDocumentEdit: Edit page
+myDocumentEmptyPlaceholder: Tap to start editing this page
 inputPlaceholder: Write here
 inputReference: Enter Bible reference
 invalidReference: Verse not found

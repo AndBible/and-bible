@@ -71,7 +71,9 @@ data class AgentContext(
     /** Current text content in the note editor */
     val noteEditorContent: String? = null,
     /** Content type of the editor: "MARKDOWN" or "HTML" */
-    val noteEditorContentType: String? = null
+    val noteEditorContentType: String? = null,
+    /** Workspace context: summary of all windows for workspace-level prompts */
+    val workspaceWindowsSummary: String? = null
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef

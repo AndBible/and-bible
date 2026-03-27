@@ -1662,6 +1662,8 @@
     <string name="default_prompt_bookmark_annotate_desc">Creates a bookmark with an AI-generated study note</string>
     <string name="default_prompt_study_layout">Open study layout</string>
     <string name="default_prompt_study_layout_desc">Opens commentary and parallel translation windows for study</string>
+    <string name="default_prompt_workspace_assistant">Workspace assistant</string>
+    <string name="default_prompt_workspace_assistant_desc">Manage windows: create, close, rearrange, change documents</string>
     <string name="default_prompt_enhance_note">Enhance note</string>
     <string name="default_prompt_enhance_note_desc">Enriches your bookmark note with cross-references and commentary</string>
     <string name="default_prompt_ask_question">Ask a question</string>

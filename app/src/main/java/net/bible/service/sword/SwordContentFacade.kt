@@ -96,6 +96,16 @@ object SwordContentFacade {
         plainTextCache.evictAll()
     }
 
+    fun evictBook(initials: String) {
+        val prefix = "$initials-"
+        osisFragmentCache.snapshot().keys
+            .filter { it.startsWith(prefix) }
+            .forEach { osisFragmentCache.remove(it) }
+        plainTextCache.snapshot().keys
+            .filter { it.startsWith(prefix) }
+            .forEach { plainTextCache.remove(it) }
+    }
+
     private val dashesRe = Regex("""\p{Pd}""")
     fun resolveRef(searchRef_: String, lang: String, v11n: Versification): Key? {
         val searchRef = searchRef_.replace(dashesRe, "-")

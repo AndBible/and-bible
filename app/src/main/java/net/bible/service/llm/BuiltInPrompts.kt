@@ -57,6 +57,7 @@ object BuiltInPrompts {
     val DEVOTIONAL_ID = stableId("devotional")
     val BOOKMARK_ANNOTATE_ID = stableId("bookmark-annotate")
     val STUDY_LAYOUT_ID = stableId("study-layout")
+    val WORKSPACE_ASSISTANT_ID = stableId("workspace-assistant")
     val ENHANCE_NOTE_ID = stableId("enhance-note")
     val ASK_QUESTION_ID = stableId("ask-question")
     val CUSTOM_PROMPT_ID = stableId("custom-prompt")
@@ -458,7 +459,7 @@ object BuiltInPrompts {
                     Create at most 3 windows total (including existing ones) to avoid cluttering the screen.
                     Prefer: 1 Bible + 1 Commentary, or 2 Bibles + 1 Commentary.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU, PromptContext.WORKSPACE_MENU),
                 orderNumber = order++,
                 noDocumentCreation = true,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
@@ -480,7 +481,49 @@ object BuiltInPrompts {
                 )),
             ),
 
-            // 11. Enhance Note
+            // 11. Workspace Assistant
+            AgentPrompt(
+                id = WORKSPACE_ASSISTANT_ID,
+                name = context.getString(R.string.default_prompt_workspace_assistant),
+                description = context.getString(R.string.default_prompt_workspace_assistant_desc),
+                promptTemplate = """
+                    Help the user manage their workspace windows.
+                    The current workspace layout is provided in the system prompt.
+
+                    You can:
+                    - Rearrange, create, close, or minimize windows
+                    - Change documents shown in windows
+                    - Set up study layouts with multiple translations and commentaries
+
+                    User will tell you what they'd like to do.
+                    Use getWindows and getInstalledDocuments to understand the current state,
+                    then use createWindow, manageWindow, and setWindowDocument as needed.
+                    When done, call finishWithoutDocument with a summary of changes made.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.WORKSPACE_MENU),
+                orderNumber = order++,
+                noDocumentCreation = true,
+                specifyBeforeRun = true,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = setOf(
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_WINDOWS,
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.CREATE_WINDOW,
+                    AgentTool.MANAGE_WINDOW,
+                    AgentTool.SET_WINDOW_DOCUMENT,
+                ),
+                deniedTools = denyExcept(setOf(
+                    AgentTool.GET_INSTALLED_DOCUMENTS,
+                    AgentTool.GET_WINDOWS,
+                    AgentTool.GET_VERSE_CONTENT,
+                    AgentTool.CREATE_WINDOW,
+                    AgentTool.MANAGE_WINDOW,
+                    AgentTool.SET_WINDOW_DOCUMENT,
+                )),
+            ),
+
+            // 12. Enhance Note
             AgentPrompt(
                 id = ENHANCE_NOTE_ID,
                 name = context.getString(R.string.default_prompt_enhance_note),

@@ -495,6 +495,11 @@ class AgentExecutor(
                 }
             }
 
+            if (context.workspaceWindowsSummary != null) {
+                append("\n--- Current Workspace ---\n")
+                append(context.workspaceWindowsSummary)
+            }
+
             val prefGreek = AiDocumentFilter.preferredStrongsGreek()
             val prefHebrew = AiDocumentFilter.preferredStrongsHebrew()
             val prefMorph = AiDocumentFilter.preferredRobinsonMorphology()
