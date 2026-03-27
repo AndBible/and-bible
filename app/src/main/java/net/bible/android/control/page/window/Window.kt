@@ -43,6 +43,7 @@ import net.bible.android.view.activity.page.windowControl
 import net.bible.service.common.AdvancedSpeakSettings
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.BookAndKey
+import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.MyDocumentUpdatedEvent
 import net.bible.service.sword.mydocument.isMyDocument
@@ -265,6 +266,7 @@ class Window (
     fun onEvent(e: MyDocumentUpdatedEvent) {
         val doc = displayedBook ?: return
         if (doc.isMyDocument && doc.initials == e.initials) {
+            SwordContentFacade.evictBook(e.initials)
             loadText()
         }
     }
