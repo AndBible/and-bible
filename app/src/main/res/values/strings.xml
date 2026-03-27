@@ -1638,6 +1638,8 @@
     <string name="default_prompt_summary_desc">Creates a concise summary of the selected text</string>
     <string name="default_prompt_explain_verses">Explain verses</string>
     <string name="default_prompt_explain_verses_desc">Explains the meaning and context of selected verses</string>
+    <string name="default_prompt_explain_verses_studypad">Explain verses → Study Pad</string>
+    <string name="default_prompt_explain_verses_studypad_desc">Create a Study Pad with verse-by-verse explanation and bookmarks</string>
     <string name="default_prompt_word_study">Word study</string>
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
     <string name="default_prompt_strongs_annotation">Strong\'s number annotation</string>
@@ -1679,7 +1681,9 @@
     <string name="tool_remove_label_from_bookmark">Remove label from bookmark</string>
     <string name="tool_add_study_pad_entry">Add study pad entry</string>
     <string name="tool_update_studypad_text_entry">Update study pad text entry</string>
+    <string name="tool_create_study_pad">Create study pad</string>
     <string name="action_update_studypad_text_entry">Update study pad text entry %1$s</string>
+    <string name="action_create_studypad">Create StudyPad \"%1$s\" with %2$d items</string>
     <string name="tool_set_document_title">Set document title</string>
     <string name="tool_finish_with_study_pad">Open study pad</string>
     <string name="tool_finish_with_my_document_page">Open My Document page</string>

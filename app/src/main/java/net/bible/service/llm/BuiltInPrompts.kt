@@ -48,6 +48,7 @@ object BuiltInPrompts {
     val TRANSLATE_UI_LANGUAGE_ID = stableId("translate-ui-language")
     val SUMMARY_ID = stableId("summary")
     val EXPLAIN_VERSES_ID = stableId("explain-verses")
+    val EXPLAIN_VERSES_STUDYPAD_ID = stableId("explain-verses-studypad")
     val STRONGS_ANNOTATION_ID = stableId("strongs-annotation")
     val WORD_STUDY_ID = stableId("word-study")
     val CROSS_REFERENCES_ID = stableId("cross-references")
@@ -193,6 +194,42 @@ object BuiltInPrompts {
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
             ),
 
+            // 3b. Explain Verses → StudyPad
+            AgentPrompt(
+                id = EXPLAIN_VERSES_STUDYPAD_ID,
+                name = context.getString(R.string.default_prompt_explain_verses_studypad),
+                description = context.getString(R.string.default_prompt_explain_verses_studypad_desc),
+                promptTemplate = """
+                    Explain the selected verses and create a StudyPad with the explanation.
+
+                    APPROACH:
+                    1. Use getInstalledDocuments to find available commentaries and dictionaries.
+                    2. Use getCommentaries to retrieve commentary from ALL available commentaries.
+                    3. If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
+                    4. Build a StudyPad using createStudyPad with these items in order:
+                       - A text entry with historical context (who wrote this, to whom, when)
+                       - For each verse or small group of verses:
+                         a. A bookmark to the verse(s)
+                         b. A text entry explaining that verse, citing commentaries by name
+                       - A text entry summarizing key themes
+                       - A text entry with application for today
+                    5. Call finishWithStudyPad with the returned labelId to open it.
+
+                    Base your explanation on the commentaries you retrieve.
+                    Do not invent interpretations — ground everything in the available reference works.
+                """.trimIndent(),
+                showIn = setOf(PromptContext.VERSE_SELECTION),
+                orderNumber = order++,
+                strictContextMatching = false,
+                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
+                allowedTools = BIBLE_STUDY_TOOLS + setOf(
+                    AgentTool.CREATE_STUDY_PAD,
+                ),
+                deniedTools = denyExcept(BIBLE_STUDY_TOOLS + setOf(
+                    AgentTool.CREATE_STUDY_PAD,
+                )),
+            ),
+
             // 4. Word Study
             AgentPrompt(
                 id = WORD_STUDY_ID,
@@ -308,12 +345,12 @@ object BuiltInPrompts {
                        If you do search, use the indexed Bible's language (see system context).
                     3. Use getVerseContent to retrieve each passage from the active document.
                     4. Use getCommentaries if available to add depth to 2-3 key passages.
-                    5. Create a StudyPad:
-                       a. Use createLabel with a descriptive name (e.g., "Thematic Study: God's Faithfulness")
-                       b. For each key passage, use createBookmark + addLabelToBookmark
-                       c. Use addBookmarkNote to add a brief note explaining each passage's relevance
-                       d. Use addStudyPadEntry to add introductory text and section headers
-                    6. Call finishWithStudyPad with the label ID.
+                    5. Build a StudyPad using createStudyPad with a descriptive name
+                       (e.g., "Thematic Study: God's Faithfulness") and items:
+                       - A text entry with an introduction to the theme
+                       - For each key passage: a bookmark with a note explaining its relevance
+                       - A text entry with concluding thoughts
+                    6. Call finishWithStudyPad with the returned labelId to open it.
 
                     Organize passages in a logical progression (e.g., Old Testament → New Testament).
                     Include 8-12 passages total.
@@ -323,20 +360,12 @@ object BuiltInPrompts {
                 strictContextMatching = false,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = BIBLE_READ_TOOLS + setOf(
-                    AgentTool.CREATE_BOOKMARK,
-                    AgentTool.ADD_BOOKMARK_NOTE,
-                    AgentTool.CREATE_LABEL,
-                    AgentTool.ADD_LABEL_TO_BOOKMARK,
-                    AgentTool.ADD_STUDY_PAD_ENTRY,
+                    AgentTool.CREATE_STUDY_PAD,
                     AgentTool.GET_ALL_LABELS,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 ),
                 deniedTools = denyExcept(BIBLE_READ_TOOLS + setOf(
-                    AgentTool.CREATE_BOOKMARK,
-                    AgentTool.ADD_BOOKMARK_NOTE,
-                    AgentTool.CREATE_LABEL,
-                    AgentTool.ADD_LABEL_TO_BOOKMARK,
-                    AgentTool.ADD_STUDY_PAD_ENTRY,
+                    AgentTool.CREATE_STUDY_PAD,
                     AgentTool.GET_ALL_LABELS,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 )),
