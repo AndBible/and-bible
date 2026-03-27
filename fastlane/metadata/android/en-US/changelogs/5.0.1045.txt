@@ -1,0 +1,22 @@
+- Listen in Loop feature for continuous passage playback (4ddd6db5b)
+- Word Order memorization mode with drag & drop word arrangement (74dd17c95)
+- Optional verse reference in memorization modes (219810e28)
+- Share and copy to clipboard for My Document pages (f01011428)
+- Edit Prompt activity redesigned with tabbed interface (7ff84a01a)
+- Device-local e-ink features setting to gate e-ink-only UI options (68d217d93)
+- Read/Memory Settings shortcut in memorization menu (f582c3e66)
+- Settings hint added to commentary filter dialog (358e7737a)
+- Memorization UI refinements: lighter icon button for mark-as-read and shortened setting names (553ff7aaa, 4e333877b)
+- Fixed spurious scroll helper line appearing at page bottom (bdfa31bdb)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
