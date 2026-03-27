@@ -212,7 +212,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         val allModels = modelDao.all().sortedByDescending { it.id == defaultModelId }
         val providerConfigs = dao.all().associateBy { it.id }
 
-        for (model in allModels) {
+        for ((index, model) in allModels.withIndex()) {
             val provider = providerConfigs[model.providerConfigId]
             val pref = Preference(requireContext()).apply {
                 key = "model_${model.id}"
@@ -235,9 +235,9 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
                     true
                 }
             }
-            // Insert before "Add model" button
+            // Insert before "Add model" button, preserving sorted order
             modelsCategory.addPreference(pref)
-            pref.order = addModelPref.order - 1
+            pref.order = addModelPref.order - allModels.size + index
         }
     }
 
