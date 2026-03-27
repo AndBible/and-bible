@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.page
 
 import android.app.AlertDialog
+import android.content.ClipData
 import android.content.Intent
 import android.text.method.LinkMovementMethod
 import android.util.Log
@@ -910,6 +911,31 @@ class BibleJavascriptInterface(
                 "null"
             }
             bibleView.executeJavascriptOnUiThread("bibleView.response($callId, $jsonResult);")
+        }
+    }
+
+    @JavascriptInterface
+    fun shareMyDocumentContent(bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
+            withContext(Dispatchers.Main) {
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    putExtra(Intent.EXTRA_TEXT, result.content)
+                    putExtra(Intent.EXTRA_SUBJECT, result.title)
+                    type = "text/plain"
+                }
+                mainBibleActivity.startActivity(Intent.createChooser(sendIntent, mainBibleActivity.getString(R.string.share)))
+            }
+        }
+    }
+
+    @JavascriptInterface
+    fun copyMyDocumentContent(bookInitials: String, pageKey: String) {
+        scope.launch {
+            val result = MyDocumentBookManager.getPageRawContent(bookInitials, pageKey) ?: return@launch
+            withContext(Dispatchers.Main) {
+                CommonUtils.copyToClipboard(ClipData.newPlainText(result.title, result.content))
+            }
         }
     }
 

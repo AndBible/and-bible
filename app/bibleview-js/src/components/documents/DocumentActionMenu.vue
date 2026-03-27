@@ -22,6 +22,14 @@
       <div v-if="document.isMyDocument && document.myDocumentPageId" class="journal-button" @click.stop="emit('start_mydocument_edit', document.myDocumentPageId)">
         <FontAwesomeIcon :icon="faEdit"/>
       </div>
+      <template v-if="document.isMyDocument && document.myDocumentPageId">
+        <div class="journal-button" @click.stop="android.shareMyDocumentContent(document.bookInitials, document.osisRef)">
+          <FontAwesomeIcon :icon="faShareAlt"/>
+        </div>
+        <div class="journal-button" @click.stop="android.copyMyDocumentContent(document.bookInitials, document.osisRef)">
+          <FontAwesomeIcon :icon="faCopy"/>
+        </div>
+      </template>
       <template v-if="document.isMyDocument && document.sourcePromptId">
         <div class="journal-button" @click.stop="android.regenerateMyDocumentPage(document.myDocumentPageId!)">
           <FontAwesomeIcon :icon="faSync"/>
@@ -43,7 +51,7 @@
 <script setup lang="ts">
 import {computed, inject, ref} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faBookmark, faEdit, faEllipsisH, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faBookmark, faCopy, faEdit, faEllipsisH, faShareAlt, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
 import {androidKey} from "@/types/constants";
 import {emit} from "@/eventbus";
 import ButtonRow from "@/components/ButtonRow.vue";

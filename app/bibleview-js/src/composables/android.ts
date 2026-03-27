@@ -117,6 +117,8 @@ export type BibleJavascriptInterface = {
     reloadMyDocumentPage: (bookInitials: string) => void,
     regenerateMyDocumentPage: (pageId: string) => void,
     deleteMyDocumentPage: (pageId: string) => void,
+    shareMyDocumentContent: (bookInitials: string, pageKey: string) => void,
+    copyMyDocumentContent: (bookInitials: string, pageKey: string) => void,
     openPromptEditor: (promptId: string) => void,
     openAiDocPage: (documentInitials: string, pageKey: string) => void,
     openAiDocPageChooser: (markersJson: string) => void,
@@ -641,6 +643,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.deleteMyDocumentPage(pageId);
     }
 
+    function shareMyDocumentContent(bookInitials: string, pageKey: string) {
+        window.android.shareMyDocumentContent(bookInitials, pageKey);
+    }
+
+    function copyMyDocumentContent(bookInitials: string, pageKey: string) {
+        window.android.copyMyDocumentContent(bookInitials, pageKey);
+    }
+
     function openPromptEditor(promptId: string) {
         window.android.openPromptEditor(promptId);
     }
@@ -714,6 +724,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         reloadMyDocumentPage,
         regenerateMyDocumentPage,
         deleteMyDocumentPage,
+        shareMyDocumentContent,
+        copyMyDocumentContent,
         openPromptEditor,
     }
 
