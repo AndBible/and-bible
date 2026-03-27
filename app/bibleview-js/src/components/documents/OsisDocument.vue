@@ -36,6 +36,10 @@
     <template v-else>
       <DocumentActionMenu :document="document"/>
       <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
+      <div v-if="isMyDocument && isContentEmpty" class="mydoc-placeholder" @click="startEditing">
+        <FontAwesomeIcon :icon="faEdit" class="placeholder-icon"/>
+        <span>{{ strings.myDocumentEmptyPlaceholder }}</span>
+      </div>
       <div v-if="document.isAiDocument && document.sourcePromptName" class="ai-footer">
         <a v-if="document.sourcePromptId" class="prompt-link" @click.prevent="android.openPromptEditor(document.sourcePromptId!)">{{ document.sourcePromptName }}</a>
         <span v-else>{{ document.sourcePromptName }}</span>
@@ -55,7 +59,10 @@ import FeaturesLink from "@/components/FeaturesLink.vue";
 import OpenAllLink from "@/components/OpenAllLink.vue";
 import {useCommon, useReferenceCollector} from "@/composables";
 import {androidKey, customCssKey, globalBookmarksKey, osisDocumentInfoKey, referenceCollectorKey} from "@/types/constants";
-import {inject, provide, ref} from "vue";
+import {computed, inject, provide, ref} from "vue";
+import {useStrings} from "@/composables/strings";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faEdit} from "@fortawesome/free-solid-svg-icons";
 import {OsisDocument} from "@/types/documents";
 import {useBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
@@ -84,6 +91,12 @@ const android = inject(androidKey)!;
 globalBookmarks.updateBookmarks(genericBookmarks);
 
 const {config, appSettings, ...common} = useCommon();
+const strings = useStrings();
+
+const isContentEmpty = computed(() => {
+    const xml = osisFragment.xml || "";
+    return xml.replace(/<[^>]*>/g, "").trim().length === 0;
+});
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials, annotateRef, false, ref(true), common, config, appSettings);
 provide(osisDocumentInfoKey, {bookInitials, highlightedOrdinalRange, osisRef: annotateRef})
@@ -143,6 +156,20 @@ if (isMyDocument) {
   }
   .monochrome.night & {
     border-color: white;
+  }
+}
+
+.mydoc-placeholder {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 2em;
+  opacity: 0.5;
+  cursor: pointer;
+  font-style: italic;
+
+  .placeholder-icon {
+    font-size: 1.2em;
   }
 }
 
