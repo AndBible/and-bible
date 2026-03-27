@@ -6,4 +6,24 @@
         android:summary="@string/memorize_auto_mark_summary"
         android:defaultValue="true"
         android:icon="@drawable/ic_baseline_check_circle_24" />
+    <SwitchPreferenceCompat
+        android:key="memorize_type_full_words"
+        android:title="@string/memorize_type_full_words"
+        android:summary="@string/memorize_type_full_words_summary"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_keyboard_24" />
+    <ListPreference
+        android:key="memorize_word_visibility"
+        android:title="@string/memorize_word_visibility"
+        android:summary="@string/memorize_word_visibility_summary"
+        android:entries="@array/memorize_word_visibility_entries"
+        android:entryValues="@array/memorize_word_visibility_values"
+        android:defaultValue="light"
+        android:icon="@drawable/ic_baseline_visibility_24" />
+    <SwitchPreferenceCompat
+        android:key="memorize_error_heatmap"
+        android:title="@string/memorize_error_heatmap"
+        android:summary="@string/memorize_error_heatmap_summary"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_baseline_error_24" />
 </PreferenceScreen>

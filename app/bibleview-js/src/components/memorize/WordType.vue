@@ -18,10 +18,33 @@
 <template>
   <div>
     <div class="memorize-controls">
-      <label class="type-everything-toggle">
-        <input type="checkbox" v-model="typeEverything" /> {{ strings.typeEverything }}
-      </label>
-      <div class="button" @click="resetWords">{{ strings.reset }}</div>
+      <div class="controls-right">
+        <div class="button" @click="resetWords">{{ strings.reset }}</div>
+        <div class="settings-wrapper" ref="settingsWrapper">
+        <div class="settings-trigger" @click="toggleSettings">
+          <FontAwesomeIcon :icon="faGear"/>
+        </div>
+        <div v-if="settingsOpen" class="settings-popup">
+          <label class="settings-item">
+            <input type="checkbox" v-model="typeEverything" />
+            {{ strings.typeEverything }}
+          </label>
+          <label class="settings-item">
+            <input type="checkbox" v-model="errorHeatmap" />
+            {{ strings.errorHeatmap }}
+          </label>
+          <div class="settings-item settings-group">
+            <div class="settings-label">{{ strings.wordVisibility }}</div>
+            <div class="visibility-options">
+              <label v-for="opt in visibilityOptions" :key="opt.value" class="visibility-option">
+                <input type="radio" :value="opt.value" v-model="wordVisibility" />
+                {{ opt.label }}
+              </label>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
     </div>
 
     <div class="memorize-text type-text"
@@ -37,6 +60,7 @@
               :ref="el => setWordRef(getGlobalWordIndex(itemIndex, tokenIndex), el)"
               class="memorize-word type-word"
               :class="getWordClass(getGlobalWordIndex(itemIndex, tokenIndex), token)"
+              :style="getHeatmapStyle(getGlobalWordIndex(itemIndex, tokenIndex))"
           >{{ token }}</span>
           <span v-if="typeEverything && isCurrent(getGlobalWordIndex(itemIndex, tokenIndex)) && !isPunctuation(token)"
                 class="type-buffer">{{ typedBuffer }}</span>
@@ -60,14 +84,20 @@
 </template>
 
 <script setup lang="ts">
-import {ref, computed, onMounted, watch, nextTick} from "vue";
+import {ref, computed, onMounted, onBeforeUnmount, watch, nextTick, inject} from "vue";
 import {useCommon} from "@/composables";
-import {MemorizeTextItem} from "@/types/documents";
+import {MemorizeTextItem, WordVisibility} from "@/types/documents";
+import {readingProgressSettingsKey} from "@/types/constants";
+import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
+import {faGear} from "@fortawesome/free-solid-svg-icons";
 
 interface WordTypeConfig {
     typeConfig?: {
         currentWordIndex: number;
         typeEverything: boolean;
+        wordVisibility: WordVisibility;
+        errorHeatmap: boolean;
+        errorCounts: Record<number, number>;
     }
 }
 
@@ -81,15 +111,27 @@ const emit = defineEmits<{
     (e: 'memorize-completed'): void;
 }>();
 
+const {settings: globalSettings, updateSettings} = inject(readingProgressSettingsKey)!;
 const {strings} = useCommon();
 
 const currentWordIndex = ref(0);
 const typeEverything = ref(false);
+const wordVisibility = ref<WordVisibility>('light');
+const errorHeatmap = ref(true);
+const errorCounts = ref<Record<number, number>>({});
 const typedBuffer = ref('');
 const incorrectIndex = ref<number | null>(null);
 const isFocused = ref(false);
 const hiddenInput = ref<HTMLInputElement | null>(null);
 const wordRefs = ref<Record<number, Element | null>>({});
+const settingsOpen = ref(false);
+const settingsWrapper = ref<HTMLElement | null>(null);
+
+const visibilityOptions = computed(() => [
+    {value: 'light' as WordVisibility, label: strings.wordVisibilityLight},
+    {value: 'dim' as WordVisibility, label: strings.wordVisibilityDim},
+    {value: 'hidden' as WordVisibility, label: strings.wordVisibilityHidden},
+]);
 
 const totalWords = computed(() => {
     let count = 0;
@@ -107,10 +149,37 @@ watch(isCompleted, (completed) => {
     if (completed) emit('memorize-completed');
 });
 
-watch(typeEverything, () => {
+watch(typeEverything, (val) => {
     typedBuffer.value = '';
     saveState();
+    updateSettings({memorizeTypeFullWords: val});
 });
+
+watch(wordVisibility, (val) => {
+    saveState();
+    updateSettings({memorizeWordVisibility: val});
+});
+
+watch(errorHeatmap, (val) => {
+    saveState();
+    updateSettings({memorizeErrorHeatmap: val});
+});
+
+watch(globalSettings, (globals) => {
+    typeEverything.value = globals.memorizeTypeFullWords;
+    wordVisibility.value = globals.memorizeWordVisibility;
+    errorHeatmap.value = globals.memorizeErrorHeatmap;
+});
+
+function toggleSettings() {
+    settingsOpen.value = !settingsOpen.value;
+}
+
+function onClickOutsideSettings(e: Event) {
+    if (settingsWrapper.value && !settingsWrapper.value.contains(e.target as Node)) {
+        settingsOpen.value = false;
+    }
+}
 
 function setWordRef(globalIndex: number, el: any) {
     wordRefs.value[globalIndex] = el;
@@ -154,20 +223,30 @@ function isCurrent(globalIndex: number): boolean {
     return globalIndex === currentWordIndex.value;
 }
 
+function getHeatmapStyle(globalIndex: number): Record<string, string> | undefined {
+    if (!errorHeatmap.value) return undefined;
+    const count = errorCounts.value[globalIndex];
+    if (!count) return undefined;
+    const alpha = Math.min(count * 0.12, 0.6);
+    return {backgroundColor: `rgba(231, 76, 60, ${alpha})`};
+}
+
 function getWordClass(globalIndex: number, token: string) {
+    const vis = `visibility-${wordVisibility.value}`;
     if (isPunctuation(token)) {
-        return {'punctuation': true, 'type-correct': globalIndex < currentWordIndex.value};
+        const passed = globalIndex < currentWordIndex.value;
+        return {'punctuation': true, 'type-correct': passed, 'type-unreached': !passed, [vis]: !passed};
     }
     if (globalIndex < currentWordIndex.value) {
         return {'type-correct': true};
     }
     if (globalIndex === incorrectIndex.value) {
-        return {'type-incorrect': true, 'type-current': true};
+        return {'type-incorrect': true, 'type-current': true, [vis]: true};
     }
     if (globalIndex === currentWordIndex.value) {
-        return {'type-current': true};
+        return {'type-current': true, [vis]: true};
     }
-    return {'type-unreached': true};
+    return {'type-unreached': true, [vis]: true};
 }
 
 function skipPunctuationTokens() {
@@ -196,8 +275,11 @@ function advanceWord() {
 }
 
 function showIncorrect() {
-    incorrectIndex.value = currentWordIndex.value;
+    const idx = currentWordIndex.value;
+    incorrectIndex.value = idx;
+    errorCounts.value[idx] = (errorCounts.value[idx] ?? 0) + 1;
     typedBuffer.value = '';
+    saveState();
     setTimeout(() => {
         incorrectIndex.value = null;
     }, 500);
@@ -262,6 +344,7 @@ function resetWords() {
     currentWordIndex.value = 0;
     typedBuffer.value = '';
     incorrectIndex.value = null;
+    errorCounts.value = {};
     skipPunctuationTokens();
     saveState();
 }
@@ -271,17 +354,26 @@ function saveState() {
         typeConfig: {
             currentWordIndex: currentWordIndex.value,
             typeEverything: typeEverything.value,
+            wordVisibility: wordVisibility.value,
+            errorHeatmap: errorHeatmap.value,
+            errorCounts: errorCounts.value,
         }
     });
 }
 
 onMounted(() => {
     const config = props.modeConfig?.typeConfig;
-    if (config) {
-        currentWordIndex.value = config.currentWordIndex ?? 0;
-        typeEverything.value = config.typeEverything ?? false;
-    }
+    currentWordIndex.value = config?.currentWordIndex ?? 0;
+    typeEverything.value = config?.typeEverything ?? globalSettings.memorizeTypeFullWords;
+    wordVisibility.value = config?.wordVisibility ?? globalSettings.memorizeWordVisibility;
+    errorHeatmap.value = config?.errorHeatmap ?? globalSettings.memorizeErrorHeatmap;
+    errorCounts.value = config?.errorCounts ?? {};
     skipPunctuationTokens();
+    window.addEventListener('click', onClickOutsideSettings);
+});
+
+onBeforeUnmount(() => {
+    window.removeEventListener('click', onClickOutsideSettings);
 });
 </script>
 
@@ -349,21 +441,27 @@ onMounted(() => {
   margin-right: 4px;
   user-select: none;
   -webkit-user-select: none;
-  transition: color 0.2s ease;
+  border-radius: 3px;
+  transition: color 0.2s ease, background-color 0.2s ease;
   .noAnimation & {
     transition: none;
   }
 
-  &.type-unreached {
-    color: rgba(0, 0, 0, 0.2);
-    .night & {
-      color: rgba(255, 255, 255, 0.2);
+  &.type-unreached, &.type-current {
+    &.visibility-light {
+      color: rgba(0, 0, 0, 0.2);
+      .night & { color: rgba(255, 255, 255, 0.2); }
+      .monochrome & { color: rgba(0, 0, 0, 0.25); }
+      .monochrome.night & { color: rgba(255, 255, 255, 0.25); }
     }
-    .monochrome & {
-      color: rgba(0, 0, 0, 0.25);
+    &.visibility-dim {
+      color: rgba(0, 0, 0, 0.08);
+      .night & { color: rgba(255, 255, 255, 0.08); }
+      .monochrome & { color: rgba(0, 0, 0, 0.1); }
+      .monochrome.night & { color: rgba(255, 255, 255, 0.1); }
     }
-    .monochrome.night & {
-      color: rgba(255, 255, 255, 0.25);
+    &.visibility-hidden {
+      color: transparent;
     }
   }
 
@@ -371,16 +469,6 @@ onMounted(() => {
     text-decoration: underline;
     text-underline-offset: 3px;
     text-decoration-thickness: 2px;
-    color: rgba(0, 0, 0, 0.2);
-    .night & {
-      color: rgba(255, 255, 255, 0.2);
-    }
-    .monochrome & {
-      color: rgba(0, 0, 0, 0.25);
-    }
-    .monochrome.night & {
-      color: rgba(255, 255, 255, 0.25);
-    }
   }
 
   &.type-correct {
@@ -421,14 +509,96 @@ onMounted(() => {
   pointer-events: none;
 }
 
-.type-everything-toggle {
-  display: inline-flex;
+.controls-right {
+  display: flex;
   align-items: center;
   gap: 4px;
+  margin-left: auto;
+}
+
+.settings-wrapper {
+  position: relative;
+}
+
+.settings-trigger {
   cursor: pointer;
-  user-select: none;
+  padding: 6px 10px;
+  color: #666;
+  font-size: 16px;
+  .night & { color: #999; }
+  .monochrome & { color: black; }
+  .monochrome.night & { color: white; }
+}
+
+.settings-popup {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background: var(--background-color);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  min-width: 180px;
+  padding: 8px 0;
+  animation: settings-fade 0.15s ease;
+  .night & {
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+  .monochrome & {
+    border-color: black;
+    box-shadow: none;
+  }
+  .monochrome.night & {
+    border-color: white;
+  }
+  .noAnimation & {
+    animation: none;
+  }
+}
+
+@keyframes settings-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.settings-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
   font-size: 0.9em;
-  margin-right: 8px;
+  user-select: none;
+
+  &.settings-group {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    cursor: default;
+  }
+}
+
+.settings-label {
+  font-size: 0.85em;
+  color: #666;
+  .night & { color: #999; }
+  .monochrome & { color: black; }
+  .monochrome.night & { color: white; }
+}
+
+.visibility-options {
+  display: flex;
+  gap: 10px;
+}
+
+.visibility-option {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  font-size: 0.9em;
 }
 
 .text-block {

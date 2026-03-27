@@ -32,7 +32,7 @@ import {
     StudyPadItem,
     StudyPadTextItem
 } from "@/types/client-objects";
-import {AnyDocument} from "@/types/documents";
+import {AnyDocument, ReadingProgressSettings} from "@/types/documents";
 import {isBibleBookmark, isGenericBookmark, isWholePageBookmark} from "@/composables/bookmarks";
 
 export type BibleJavascriptInterface = {
@@ -106,6 +106,7 @@ export type BibleJavascriptInterface = {
     helpBookmarks: () => void,
     onKeyDown: (key: string) => void,
     saveState: (newState: string) => void,
+    setReadingProgressSettings: (json: string) => void,
     goToNextChapter: () => void,
     goToPreviousChapter: () => void,
     llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
@@ -596,6 +597,10 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.saveState(JSON.stringify(newState));
     }
 
+    function setReadingProgressSettings(settings: ReadingProgressSettings) {
+        window.android.setReadingProgressSettings(JSON.stringify(settings));
+    }
+
     function goToNextChapter() {
         window.android.goToNextChapter();
     }
@@ -698,6 +703,7 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         onKeyDown,
         parseRef,
         saveState,
+        setReadingProgressSettings,
         goToNextChapter,
         goToPreviousChapter,
         llmAction,

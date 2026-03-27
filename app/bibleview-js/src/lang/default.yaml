@@ -103,11 +103,16 @@ unknownError: Unknown error
 blur: Blur
 reset: Reset
 peek: Peek
-wordBlur: Word Blur
-wordScramble: Word Scramble
+wordBlur: Blur
+wordScramble: Scramble
 wordType: Type
 typeEverything: Type full words
 tapToStartTyping: Tap here to start typing
+wordVisibility: Word visibility
+wordVisibilityLight: Light
+wordVisibilityDim: Dim
+wordVisibilityHidden: Hidden
+errorHeatmap: Error heatmap
 more: More
 llmAction: AI
 llmActionLong: AI Action

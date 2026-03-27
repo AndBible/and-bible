@@ -20,6 +20,7 @@ import android.content.Intent
 import android.util.Log
 import net.bible.android.common.toV11n
 import net.bible.android.control.progress.ProgressControl
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
@@ -106,7 +107,7 @@ open class CurrentCommentaryPage internal constructor(
                     endOrdinal = verseRange.end.ordinal,
                     memorizedOrdinals = memorizedOrdinals,
                     targetOrdinals = targetOrdinals,
-                    autoMarkMemorized = ProgressControl.autoMarkMemorized,
+                    readingProgressSettingsJson = ReadingProgressSettings.getBundleAsJson(),
                 )
             } else super.currentPageContent
         }

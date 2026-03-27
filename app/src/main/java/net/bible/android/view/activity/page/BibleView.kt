@@ -75,6 +75,8 @@ import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.BookmarksAddedOrUpdatedEvent
 import net.bible.android.control.progress.ChapterReadStatusChangedEvent
 import net.bible.android.control.progress.MemorizationDataChangedEvent
+import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelsDeletedEvent
@@ -125,7 +127,6 @@ import net.bible.android.view.activity.page.screen.AfterRemoveWebViewEvent
 import net.bible.android.view.activity.page.screen.BibleFrame
 import net.bible.android.view.activity.page.screen.PageTiltScroller
 import net.bible.android.view.activity.page.screen.RestoreButtonsVisibilityChanged
-import net.bible.android.view.util.widget.AgentLogVisibilityChanged
 import net.bible.android.view.activity.page.screen.WebViewsBuiltEvent
 import net.bible.android.view.activity.page.screen.clipboardKey
 import net.bible.android.view.activity.search.SearchIndex
@@ -137,7 +138,6 @@ import net.bible.service.common.AndBibleAddons.fontsByModule
 import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.service.common.CommonUtils.parseAndBibleReference
-import net.bible.service.common.ReadingProgressSettings
 import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.device.ScreenSettings
@@ -1799,6 +1799,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
             kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
         });""")
+    }
+
+    fun onEvent(event: ReadingProgressSettingsChangedEvent) {
+        val settingsJson = ReadingProgressSettings.getBundleAsJson()
+        executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
     }
 
     fun onEvent(event: AiDocPagesChangedEvent) {

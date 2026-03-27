@@ -35,6 +35,7 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
+import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.android.database.progress.ReadingSource
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
@@ -56,6 +57,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
 import net.bible.android.view.activity.progress.ReadingProgressActivity
+import net.bible.service.common.ReadingProgressSettings
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.android.view.activity.workspaces.WorkspaceSelectorActivity
 import net.bible.android.view.activity.ai.PromptEditActivity
@@ -532,6 +534,12 @@ class BibleJavascriptInterface(
     fun removeMemorizationTarget(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
         val verseRange = verseRangeFromOrdinals(bookInitials, startOrdinal, endOrdinal) ?: return
         ProgressControl.removeMemorizationTargetByRange(verseRange)
+    }
+
+    @JavascriptInterface
+    fun setReadingProgressSettings(json: String) {
+        ReadingProgressSettings.setBundleFromJson(json)
+        ABEventBus.post(ReadingProgressSettingsChangedEvent())
     }
 
     @JavascriptInterface
