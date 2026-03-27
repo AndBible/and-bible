@@ -189,12 +189,6 @@
             android:parentActivityName="net.bible.android.view.activity.ai.AiSettingsActivity"
             />
         <activity
-            android:name="net.bible.android.view.activity.ai.PromptToolPermissionsActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize|locale"
-            android:label="@string/prompt_tool_permissions"
-            android:parentActivityName="net.bible.android.view.activity.ai.PromptEditActivity"
-            />
-        <activity
             android:name="net.bible.android.view.activity.ai.GlobalToolPermissionsActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/global_tool_permissions_title"

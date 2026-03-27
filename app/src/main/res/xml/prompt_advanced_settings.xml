@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2026 Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
+  ~
+  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
+  ~
+  ~ AndBible is free software: you can redistribute it and/or modify it under the
+  ~ terms of the GNU General Public License as published by the Free Software Foundation,
+  ~ either version 3 of the License, or (at your option) any later version.
+  ~
+  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along with AndBible.
+  ~ If not, see http://www.gnu.org/licenses/.
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:key="model_override"
+        android:title="@string/prompt_model_override"
+        android:summary="@string/prompt_model_default"
+        android:icon="@drawable/ic_baseline_cloud_24" />
+
+    <SwitchPreference
+        android:key="strict_context_matching"
+        android:title="@string/prompt_strict_context_matching"
+        android:summary="@string/prompt_strict_context_matching_description"
+        android:defaultValue="true"
+        android:icon="@drawable/ic_baseline_description_gray_24" />
+
+    <EditTextPreference
+        android:key="max_iterations"
+        android:title="@string/prompt_max_iterations"
+        android:summary="@string/prompt_max_iterations_description"
+        android:icon="@drawable/ic_baseline_refresh_gray_24" />
+
+</PreferenceScreen>

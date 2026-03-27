@@ -21,13 +21,19 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.EditTextPreference
+import androidx.preference.ListPreference
+import androidx.preference.PreferenceDataStore
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,10 +43,10 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.common.AiSettings
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
-import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.ModelPricing
 import net.bible.service.llm.PromptContext
@@ -50,6 +56,11 @@ import net.bible.service.llm.agent.PermissionMode
 /**
  * Activity for creating and editing AI prompts.
  * Opens in read-only mode for built-in prompts, with a "Copy to customize" option.
+ *
+ * Organized into three tabs:
+ * - Prompt: name, description, template, behavior options, context selection
+ * - Permissions: permission mode and per-tool permission overrides
+ * - Advanced: model override, cache settings, max iterations (PreferenceFragment)
  */
 class PromptEditActivity : ActivityBase() {
 
@@ -60,24 +71,19 @@ class PromptEditActivity : ActivityBase() {
     private var initialDescription = ""
     private var initialTemplate = ""
     private var initialShowIn = emptySet<PromptContext>()
-    private var initialStrictContextMatching = true
     private var initialPermissionModeIndex = 0
     private var initialAllowedTools: Set<AgentTool>? = null
     private var initialDeniedTools: Set<AgentTool>? = null
-    private var initialModelSpinnerIndex = 0
     private var initialSpecifyBeforeRun = false
     private var initialNoDocumentCreation = false
-    private var initialMaxIterations = ""
 
-    private var currentAllowedTools: MutableSet<AgentTool> = mutableSetOf()
-    private var currentDeniedTools: MutableSet<AgentTool> = mutableSetOf()
-    private var hasToolPermissionOverrides = false
+    /** Initial state snapshot for Advanced tab (from the in-memory DataStore) */
+    private var initialAdvancedSnapshot = AdvancedDataStore.Snapshot()
 
     private lateinit var binding: PromptEditBinding
-
-    /** Configured model IDs corresponding to spinner positions: null = default */
-    private var configuredModelValues: List<IdType?> = listOf(null)
-    private var configuredModels: List<LlmConfiguredModel> = emptyList()
+    private lateinit var listBuilder: ToolPermissionListBuilder
+    internal lateinit var advancedDataStore: AdvancedDataStore
+    private var advancedFragment: PromptAdvancedSettingsFragment? = null
 
     companion object {
         const val EXTRA_PROMPT_ID = "prompt_id"
@@ -85,24 +91,6 @@ class PromptEditActivity : ActivityBase() {
         const val EXTRA_EXECUTE_AFTER_SAVE = "execute_after_save"
         const val EXTRA_DEFAULT_CONTEXT = "default_context"
         const val RESULT_PROMPT_ID = "result_prompt_id"
-    }
-
-    private val toolPermissionsLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            val data = result.data
-            val allowed = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS)
-                ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
-            val denied = data?.getStringArrayListExtra(PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS)
-                ?.mapNotNull { try { AgentTool.valueOf(it) } catch (_: IllegalArgumentException) { null } }
-            if (allowed != null && denied != null) {
-                currentAllowedTools = allowed.toMutableSet()
-                currentDeniedTools = denied.toMutableSet()
-                hasToolPermissionOverrides = currentAllowedTools.isNotEmpty() || currentDeniedTools.isNotEmpty()
-                updateToolPermissionsButtonText()
-            }
-        }
     }
 
     /** Maps spinner position to PermissionMode? (null = use default) */
@@ -121,15 +109,24 @@ class PromptEditActivity : ActivityBase() {
 
         buildActivityComponent().inject(this)
 
-        binding.btnPromptToolPermissions.setOnClickListener { launchToolPermissions() }
-        updateToolPermissionsButtonText()
+        advancedDataStore = AdvancedDataStore()
+
+        setupTabs()
 
         val entries = resources.getStringArray(R.array.prompt_permission_mode_entries)
         binding.permissionModeSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, entries).apply {
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
 
-        setupModelSpinner()
+        listBuilder = ToolPermissionListBuilder(this, binding.toolListContainer, ToolPermissionListBuilder.Mode.PROMPT)
+        binding.btnResetToolPermissions.setOnClickListener { listBuilder.resetAll() }
+
+        // Add the Advanced preferences fragment
+        advancedFragment = PromptAdvancedSettingsFragment()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.advancedContent, advancedFragment!!)
+            .commit()
 
         val promptIdStr = intent.getStringExtra(EXTRA_PROMPT_ID)
         if (promptIdStr != null) {
@@ -138,8 +135,6 @@ class PromptEditActivity : ActivityBase() {
         } else {
             isNewPrompt = true
             title = getString(R.string.new_prompt)
-            // Set default value for strictContextMatching on new prompts
-            binding.checkStrictContextMatching.isChecked = true
 
             // Pre-fill template from custom prompt dialog
             intent.getStringExtra(EXTRA_PROMPT_TEMPLATE)?.let { template ->
@@ -159,8 +154,35 @@ class PromptEditActivity : ActivityBase() {
                 } catch (_: IllegalArgumentException) { }
             }
 
+            // Defaults for new prompt
+            advancedDataStore.strictContextMatching = true
+            advancedDataStore.modelOverrideId = null
+            advancedDataStore.maxIterations = null
+
+            buildToolPermissions(emptySet(), emptySet())
             captureInitialState()
         }
+    }
+
+    private fun setupTabs() {
+        binding.tabLayout.apply {
+            addTab(newTab().setText(R.string.prompt_tab_prompt))
+            addTab(newTab().setText(R.string.prompt_tab_permissions))
+            addTab(newTab().setText(R.string.prompt_tab_advanced))
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    showTab(tab.position)
+                }
+                override fun onTabUnselected(tab: TabLayout.Tab) {}
+                override fun onTabReselected(tab: TabLayout.Tab) {}
+            })
+        }
+    }
+
+    private fun showTab(position: Int) {
+        binding.promptContent.visibility = if (position == 0) View.VISIBLE else View.GONE
+        binding.permissionsContent.visibility = if (position == 1) View.VISIBLE else View.GONE
+        binding.advancedContent.visibility = if (position == 2) View.VISIBLE else View.GONE
     }
 
     private fun loadPrompt(id: IdType) {
@@ -175,12 +197,12 @@ class PromptEditActivity : ActivityBase() {
 
                 if (isBuiltIn) {
                     title = getString(R.string.built_in_prompt)
-                    setReadOnlyMode()
                 } else {
                     title = getString(R.string.edit_prompt)
                 }
 
                 populateFields(loadedPrompt)
+                if (isBuiltIn) setReadOnlyMode()
                 captureInitialState()
                 invalidateOptionsMenu()
             } else {
@@ -192,24 +214,33 @@ class PromptEditActivity : ActivityBase() {
     /**
      * Disable all input fields for built-in (read-only) prompts.
      */
-    private fun setReadOnlyMode() = binding.apply {
-        promptName.isEnabled = false
-        promptDescription.isEnabled = false
-        promptTemplate.isEnabled = false
-        checkVerseSelection.isEnabled = false
-        checkTextSelection.isEnabled = false
-        checkWindowMenu.isEnabled = false
-        checkWorkspaceMenu.isEnabled = false
-        checkNoteEditor.isEnabled = false
-        checkEditBeforeRun.isEnabled = false
-        checkNoDocumentCreation.isEnabled = false
-        checkStrictContextMatching.isEnabled = false
-        permissionModeSpinner.isEnabled = false
-        modelOverrideSpinner.isEnabled = false
-        // btnPromptToolPermissions stays enabled — opens in read-only mode for built-in prompts
-        maxIterationsInput.isEnabled = false
+    private fun setReadOnlyMode() {
+        binding.apply {
+            promptName.isEnabled = false
+            promptDescription.isEnabled = false
+            promptTemplate.isEnabled = false
+            checkVerseSelection.isEnabled = false
+            checkTextSelection.isEnabled = false
+            checkWindowMenu.isEnabled = false
+            checkWorkspaceMenu.isEnabled = false
+            checkNoteEditor.isEnabled = false
+            checkEditBeforeRun.isEnabled = false
+            checkNoDocumentCreation.isEnabled = false
+            permissionModeSpinner.isEnabled = false
+            btnResetToolPermissions.visibility = View.GONE
+            builtInNotice.visibility = View.VISIBLE
+        }
+        listBuilder.setReadOnly()
+        advancedFragment?.setReadOnly()
+    }
 
-        builtInNotice.visibility = View.VISIBLE
+    private fun buildToolPermissions(allowedTools: Set<AgentTool>, deniedTools: Set<AgentTool>) {
+        listBuilder.build(
+            allowedTools = allowedTools,
+            deniedTools = deniedTools,
+            globalAllowed = CommonUtils.aiSettings.permanentlyAllowedTools,
+            globalDenied = CommonUtils.aiSettings.permanentlyDeniedTools,
+        )
     }
 
     private fun populateFields(prompt: AgentPrompt) {
@@ -225,17 +256,18 @@ class PromptEditActivity : ActivityBase() {
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
             checkEditBeforeRun.isChecked = prompt.specifyBeforeRun
             checkNoDocumentCreation.isChecked = prompt.noDocumentCreation
-            checkStrictContextMatching.isChecked = prompt.strictContextMatching
-            maxIterationsInput.setText(prompt.maxIterations?.toString() ?: "")
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
-        hasToolPermissionOverrides = prompt.allowedTools != null || prompt.deniedTools != null
-        currentAllowedTools = prompt.allowedTools?.toMutableSet() ?: mutableSetOf()
-        currentDeniedTools = prompt.deniedTools?.toMutableSet() ?: mutableSetOf()
-        updateToolPermissionsButtonText()
+        buildToolPermissions(
+            prompt.allowedTools ?: emptySet(),
+            prompt.deniedTools ?: emptySet(),
+        )
 
-        setConfiguredModel(prompt.configuredModelId)
+        // Populate Advanced tab data store
+        advancedDataStore.modelOverrideId = prompt.configuredModelId
+        advancedDataStore.strictContextMatching = prompt.strictContextMatching
+        advancedDataStore.maxIterations = prompt.maxIterations
     }
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
@@ -248,44 +280,50 @@ class PromptEditActivity : ActivityBase() {
         contexts
     }
 
-    private fun captureInitialState() = binding.apply {
-        initialName = promptName.text.toString()
-        initialDescription = promptDescription.text.toString()
-        initialTemplate = promptTemplate.text.toString()
-        initialShowIn = collectShowIn()
-        initialSpecifyBeforeRun = checkEditBeforeRun.isChecked
-        initialNoDocumentCreation = checkNoDocumentCreation.isChecked
-        initialMaxIterations = maxIterationsInput.text.toString()
-        initialStrictContextMatching = checkStrictContextMatching.isChecked
-        initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
-        initialAllowedTools = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
-        initialDeniedTools = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
-        initialModelSpinnerIndex = modelOverrideSpinner.selectedItemPosition
+    private val currentToolAllowed: Set<AgentTool>?
+        get() {
+            val allowed = listBuilder.collectAllowed()
+            val denied = listBuilder.collectDenied()
+            return if (allowed.isNotEmpty() || denied.isNotEmpty()) allowed else null
+        }
+
+    private val currentToolDenied: Set<AgentTool>?
+        get() {
+            val allowed = listBuilder.collectAllowed()
+            val denied = listBuilder.collectDenied()
+            return if (allowed.isNotEmpty() || denied.isNotEmpty()) denied else null
+        }
+
+    private fun captureInitialState() {
+        binding.apply {
+            initialName = promptName.text.toString()
+            initialDescription = promptDescription.text.toString()
+            initialTemplate = promptTemplate.text.toString()
+            initialShowIn = collectShowIn()
+            initialSpecifyBeforeRun = checkEditBeforeRun.isChecked
+            initialNoDocumentCreation = checkNoDocumentCreation.isChecked
+            initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
+            initialAllowedTools = currentToolAllowed
+            initialDeniedTools = currentToolDenied
+        }
+        initialAdvancedSnapshot = advancedDataStore.snapshot()
     }
 
     private fun isDirty(): Boolean {
         if (isBuiltIn) return false
-        return binding.run {
+        val basicDirty = binding.run {
             promptName.text.toString() != initialName ||
                 promptDescription.text.toString() != initialDescription ||
                 promptTemplate.text.toString() != initialTemplate ||
                 collectShowIn() != initialShowIn ||
                 checkEditBeforeRun.isChecked != initialSpecifyBeforeRun ||
                 checkNoDocumentCreation.isChecked != initialNoDocumentCreation ||
-                maxIterationsInput.text.toString() != initialMaxIterations ||
-                checkStrictContextMatching.isChecked != initialStrictContextMatching ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
-                currentToolDenied != initialDeniedTools ||
-                modelOverrideSpinner.selectedItemPosition != initialModelSpinnerIndex
+                currentToolDenied != initialDeniedTools
         }
+        return basicDirty || advancedDataStore.snapshot() != initialAdvancedSnapshot
     }
-
-    private val currentToolAllowed: Set<AgentTool>?
-        get() = if (hasToolPermissionOverrides) currentAllowedTools.toSet() else null
-
-    private val currentToolDenied: Set<AgentTool>?
-        get() = if (hasToolPermissionOverrides) currentDeniedTools.toSet() else null
 
     private fun cancelOrConfirmDiscard() {
         if (isDirty()) {
@@ -307,26 +345,30 @@ class PromptEditActivity : ActivityBase() {
 
         if (name.isEmpty()) {
             Toast.makeText(this, R.string.prompt_name_required, Toast.LENGTH_SHORT).show()
+            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
             binding.promptName.requestFocus()
             return
         }
 
         if (template.isEmpty()) {
             Toast.makeText(this, R.string.prompt_template_required, Toast.LENGTH_SHORT).show()
+            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0))
             binding.promptTemplate.requestFocus()
             return
         }
 
         val description = binding.promptDescription.text.toString().trim().takeIf { it.isNotEmpty() }
         val showIn = collectShowIn()
-        val strictContextMatching = binding.checkStrictContextMatching.isChecked
         val selectedPermissionMode = permissionModeValues[binding.permissionModeSpinner.selectedItemPosition]
         val allowedTools = currentToolAllowed
         val deniedTools = currentToolDenied
         val specifyBeforeRun = binding.checkEditBeforeRun.isChecked
         val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
-        val maxIterations = binding.maxIterationsInput.text.toString().trim().toIntOrNull()
-        val selectedConfiguredModelId = getSelectedConfiguredModelId()
+
+        // Read Advanced settings from the data store
+        val strictContextMatching = advancedDataStore.strictContextMatching
+        val maxIterations = advancedDataStore.maxIterations
+        val selectedConfiguredModelId = advancedDataStore.modelOverrideId
 
         lifecycleScope.launch {
             var savedPromptId: IdType? = null
@@ -406,7 +448,6 @@ class PromptEditActivity : ActivityBase() {
 
             if (newId != null) {
                 Toast.makeText(this@PromptEditActivity, R.string.prompt_copied, Toast.LENGTH_SHORT).show()
-                // Open the new copy for editing
                 val intent = Intent(this@PromptEditActivity, PromptEditActivity::class.java)
                 intent.putExtra(EXTRA_PROMPT_ID, newId.toString())
                 startActivity(intent)
@@ -422,12 +463,10 @@ class PromptEditActivity : ActivityBase() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         if (isBuiltIn) {
-            // Built-in: hide save/delete, show copy
             menu.findItem(R.id.save_prompt)?.isVisible = false
             menu.findItem(R.id.delete_prompt)?.isVisible = false
             menu.findItem(R.id.copy_to_customize)?.isVisible = true
         } else {
-            // User prompt: show save, show delete for existing, hide copy
             menu.findItem(R.id.save_prompt)?.isVisible = true
             menu.findItem(R.id.delete_prompt)?.isVisible = !isNewPrompt
             menu.findItem(R.id.copy_to_customize)?.isVisible = !isNewPrompt
@@ -469,46 +508,91 @@ class PromptEditActivity : ActivityBase() {
     override fun onBackPressed() {
         cancelOrConfirmDiscard()
     }
+}
 
-    private fun updateToolPermissionsButtonText() {
-        val total = currentAllowedTools.size + currentDeniedTools.size
-        val base = getString(R.string.prompt_tool_permissions)
-        binding.btnPromptToolPermissions.text = if (hasToolPermissionOverrides && total > 0) {
-            "$base ($total)"
-        } else {
-            base
+/**
+ * In-memory data store for the Advanced tab preferences.
+ * Values are read/written here and collected by the Activity on save.
+ */
+class AdvancedDataStore : PreferenceDataStore() {
+
+    var modelOverrideId: IdType? = null
+    var strictContextMatching: Boolean = true
+    var maxIterations: Int? = null
+
+    /** Serialized model ID for the ListPreference ("" = default/null) */
+    private var modelOverrideValue: String
+        get() = modelOverrideId?.toString() ?: ""
+        set(value) { modelOverrideId = value.takeIf { it.isNotEmpty() }?.let { IdType.fromString(it) } }
+
+    /** Serialized max iterations for the EditTextPreference ("" = null/global default) */
+    private var maxIterationsValue: String
+        get() = maxIterations?.toString() ?: ""
+        set(value) { maxIterations = value.trim().toIntOrNull() }
+
+    override fun putString(key: String, value: String?) {
+        when (key) {
+            "model_override" -> modelOverrideValue = value ?: ""
+            "max_iterations" -> maxIterationsValue = value ?: ""
         }
     }
 
-    private fun launchToolPermissions() {
-        val intent = Intent(this, PromptToolPermissionsActivity::class.java).apply {
-            putStringArrayListExtra(
-                PromptToolPermissionsActivity.EXTRA_ALLOWED_TOOLS,
-                ArrayList(currentAllowedTools.map { it.name })
-            )
-            putStringArrayListExtra(
-                PromptToolPermissionsActivity.EXTRA_DENIED_TOOLS,
-                ArrayList(currentDeniedTools.map { it.name })
-            )
-            if (isBuiltIn) {
-                putExtra(PromptToolPermissionsActivity.EXTRA_READ_ONLY, true)
-            }
-        }
-        toolPermissionsLauncher.launch(intent)
+    override fun getString(key: String, defValue: String?): String? = when (key) {
+        "model_override" -> modelOverrideValue
+        "max_iterations" -> maxIterationsValue
+        else -> defValue
     }
 
-    // ---- Model spinner (configured models only) ----
+    override fun putBoolean(key: String, value: Boolean) {
+        when (key) {
+            "strict_context_matching" -> strictContextMatching = value
+        }
+    }
+
+    override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
+        "strict_context_matching" -> strictContextMatching
+        else -> defValue
+    }
+
+    data class Snapshot(
+        val modelOverrideId: IdType? = null,
+        val strictContextMatching: Boolean = true,
+        val maxIterations: Int? = null,
+    )
+
+    fun snapshot() = Snapshot(modelOverrideId, strictContextMatching, maxIterations)
+}
+
+/**
+ * PreferenceFragment for the Advanced tab of prompt editing.
+ * Uses [AdvancedDataStore] for in-memory storage instead of SharedPreferences.
+ */
+class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
+
+    private val activity get() = requireActivity() as PromptEditActivity
+    private val dataStore get() = activity.advancedDataStore
 
     private val configuredModelDao get() = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
     private val providerConfigDao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
-    private fun setupModelSpinner() {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        preferenceManager.preferenceDataStore = dataStore
+        setPreferencesFromResource(R.xml.prompt_advanced_settings, rootKey)
+
+        setupModelPreference()
+        setupMaxIterationsPreference()
+        updateModelSummary()
+    }
+
+    private fun setupModelPreference() {
+        val pref = findPreference<ListPreference>("model_override") ?: return
+
         val defaultModelId = AiSettings.defaultModelId
-        configuredModels = configuredModelDao.all().sortedByDescending { it.id == defaultModelId }
+        val models = configuredModelDao.all().sortedByDescending { it.id == defaultModelId }
         val providerConfigs = providerConfigDao.all().associateBy { it.id }
 
         val displayEntries = mutableListOf<String>()
-        val values = mutableListOf<IdType?>()
+        val entryValues = mutableListOf<String>()
 
         // First entry: "Default"
         val defaultModel = defaultModelId?.let { id -> configuredModelDao.getById(id) }
@@ -517,10 +601,9 @@ class PromptEditActivity : ActivityBase() {
             " (${defaultModel.modelId} — ${defaultProvider.displayName})"
         } else ""
         displayEntries.add(getString(R.string.prompt_model_default) + defaultSuffix)
-        values.add(null)
+        entryValues.add("")  // "" = null/default
 
-        // Then all configured models with provider name and pricing
-        for (model in configuredModels) {
+        for (model in models) {
             val provider = providerConfigs[model.providerConfigId]
             val providerName = provider?.displayName ?: "?"
             val pricing = ModelPricing(model.inputPricePerMillion, model.outputPricePerMillion,
@@ -529,26 +612,59 @@ class PromptEditActivity : ActivityBase() {
                 " (${LlmCostTracker.formatPriceCompact(pricing.inputPerMillion)}/${LlmCostTracker.formatPriceCompact(pricing.outputPerMillion)})"
             } else ""
             displayEntries.add("${model.modelId} — $providerName$priceStr")
-            values.add(model.id)
+            entryValues.add(model.id.toString())
         }
 
-        configuredModelValues = values
-        binding.modelOverrideSpinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, displayEntries).apply {
-            setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        }
+        pref.entries = displayEntries.toTypedArray()
+        pref.entryValues = entryValues.toTypedArray()
+        pref.value = dataStore.modelOverrideId?.toString() ?: ""
 
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val selectedValue = newValue as? String ?: ""
+            val idx = entryValues.indexOf(selectedValue).coerceAtLeast(0)
+            pref.summary = displayEntries[idx]
+            true
+        }
     }
 
-    private fun setConfiguredModel(configuredModelId: IdType?) {
-        val idx = if (configuredModelId == null) {
-            0
-        } else {
-            configuredModelValues.indexOf(configuredModelId).coerceAtLeast(0)
+    private fun setupMaxIterationsPreference() {
+        val pref = findPreference<EditTextPreference>("max_iterations") ?: return
+        pref.setOnBindEditTextListener { editText ->
+            editText.inputType = InputType.TYPE_CLASS_NUMBER
+            editText.hint = getString(R.string.prompt_max_iterations_hint)
         }
-        binding.modelOverrideSpinner.setSelection(idx)
+        updateMaxIterationsSummary()
+        pref.setOnPreferenceChangeListener { _, newValue ->
+            val intVal = (newValue as? String)?.trim()?.toIntOrNull()
+            pref.summary = getString(R.string.prompt_max_iterations_summary_with_value, formatMaxIterationsValue(intVal))
+            true
+        }
     }
 
-    private fun getSelectedConfiguredModelId(): IdType? =
-        configuredModelValues.getOrNull(binding.modelOverrideSpinner.selectedItemPosition)
+    private fun updateModelSummary() {
+        val pref = findPreference<ListPreference>("model_override") ?: return
+        val entry = pref.entry
+        pref.summary = entry ?: getString(R.string.prompt_model_default)
+    }
 
+    private fun formatMaxIterationsValue(value: Int?): String {
+        val globalDefault = CommonUtils.aiSettings.maxIterations
+        return when {
+            value == null -> getString(R.string.prompt_max_iterations_global_default, globalDefault)
+            value == 0 -> getString(R.string.prompt_max_iterations_unlimited)
+            else -> value.toString()
+        }
+    }
+
+    private fun updateMaxIterationsSummary() {
+        val pref = findPreference<EditTextPreference>("max_iterations") ?: return
+        val value = dataStore.maxIterations
+        pref.summary = getString(R.string.prompt_max_iterations_summary_with_value, formatMaxIterationsValue(value))
+    }
+
+    fun setReadOnly() {
+        findPreference<ListPreference>("model_override")?.isEnabled = false
+        findPreference<SwitchPreference>("strict_context_matching")?.isEnabled = false
+        findPreference<EditTextPreference>("max_iterations")?.isEnabled = false
+    }
 }

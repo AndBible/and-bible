@@ -36,13 +36,15 @@
         android:id="@+id/permissionRadioGroup"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:baselineAligned="false">
 
         <RadioButton
             android:id="@+id/radioAsk"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:singleLine="false"
             android:text="@string/permission_status_default" />
 
         <RadioButton
@@ -50,6 +52,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:singleLine="false"
             android:text="@string/permission_option_always_allow" />
 
         <RadioButton
@@ -57,6 +60,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:singleLine="false"
             android:text="@string/permission_option_always_deny" />
 
     </RadioGroup>
