@@ -84,6 +84,7 @@ data class GlobalReadingProgressSettings(
     @ColumnInfo(defaultValue = "0") val memorizeTypeFullWords: Boolean = false,
     @ColumnInfo(defaultValue = "light") val memorizeWordVisibility: String = "light",
     @ColumnInfo(defaultValue = "1") val memorizeErrorHeatmap: Boolean = true,
+    @ColumnInfo(defaultValue = "0") val activeCycle: Int = 0,
 ) {
     companion object {
         val SINGLETON_ID = IdType.fromString("b2000000-0000-0000-0000-000000000001")

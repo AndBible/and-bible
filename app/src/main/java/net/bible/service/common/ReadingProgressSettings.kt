@@ -62,6 +62,10 @@ object ReadingProgressSettings {
         get() = getOrDefault().memorizeErrorHeatmap
         set(value) = update { copy(memorizeErrorHeatmap = value) }
 
+    var activeCycle: Int
+        get() = getOrDefault().activeCycle
+        set(value) = update { copy(activeCycle = value) }
+
     fun getBundle(): ReadingProgressSettingsBundle {
         val s = getOrDefault()
         return ReadingProgressSettingsBundle(

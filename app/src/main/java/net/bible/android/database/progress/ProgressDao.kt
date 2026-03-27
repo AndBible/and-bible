@@ -115,8 +115,11 @@ interface ProgressDao {
     @Query("SELECT chapter FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY chapter")
     fun getReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
 
-    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count FROM ChapterReadingRecord WHERE readAt >= :startMs AND readAt <= :endMs GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
-    fun getReadingCalendar(startMs: Long, endMs: Long): List<DailyReadingCount>
+    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
+        "FROM ChapterReadingRecord " +
+        "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
+        "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
+    fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
 }
 
 @Dao

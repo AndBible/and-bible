@@ -1334,6 +1334,8 @@
     <string name="reading_progress_cycle">Cycle %d</string>
     <string name="reading_progress_new_cycle">New Cycle</string>
     <string name="reading_progress_new_cycle_confirm">Start a new reading cycle? This will begin tracking your progress from scratch, while preserving your previous cycle\'s data.</string>
+    <string name="reading_progress_previous_cycle">Previous cycle</string>
+    <string name="reading_progress_next_cycle">Next cycle</string>
 
     <string name="cloud_fetch_and_restore_initial">Copy from Cloud to this device</string>
     <string name="cloud_create_new">Copy from this device to Cloud</string>

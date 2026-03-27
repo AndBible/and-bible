@@ -78,6 +78,9 @@ class ChapterReadStatusChangedEvent(
 /** Posted when global reading progress settings change. All BibleViews should update their settings. */
 class ReadingProgressSettingsChangedEvent
 
+/** Posted when the active reading cycle changes. All BibleViews should re-check chapter read status. */
+class ActiveCycleChangedEvent(val cycle: Int)
+
 data class MemorizedVerseRangeWithTimestamp(
     val verseRange: VerseRange,
     val latestMemorizedAt: Long,
@@ -183,10 +186,21 @@ object ProgressControl {
         return readChapters.toFloat() / totalChapters
     }
 
-    fun getCurrentCycle(): Int = dao.getLatestCycle()
+    fun getCurrentCycle(): Int {
+        val stored = ReadingProgressSettings.activeCycle
+        return if (stored > 0) stored else dao.getLatestCycle()
+    }
+
+    fun getLatestCycle(): Int = dao.getLatestCycle()
+
+    fun setActiveCycle(cycle: Int) {
+        ReadingProgressSettings.activeCycle = cycle
+        ABEventBus.post(ActiveCycleChangedEvent(cycle))
+    }
 
     fun startNewCycle(): Int {
-        val newCycle = getCurrentCycle() + 1
+        val newCycle = getLatestCycle() + 1
+        setActiveCycle(newCycle)
         return newCycle
     }
 
@@ -211,8 +225,8 @@ object ProgressControl {
         return dao.getReadChaptersForBook(book.ordinal, cycle)
     }
 
-    fun getReadingCalendar(startMs: Long, endMs: Long): List<DailyReadingCount> {
-        return dao.getReadingCalendar(startMs, endMs)
+    fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int = getCurrentCycle()): List<DailyReadingCount> {
+        return dao.getReadingCalendar(startMs, endMs, cycle)
     }
 
     fun getBookReadingProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, Float> {
