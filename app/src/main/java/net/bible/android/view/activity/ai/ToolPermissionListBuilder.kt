@@ -34,7 +34,7 @@ import net.bible.service.llm.tools.ToolRegistry
 /**
  * Builds a categorized, expandable tool permission list into a [LinearLayout] container.
  *
- * Used by both [GlobalToolPermissionsActivity] and [PromptToolPermissionsActivity]
+ * Used by [GlobalToolPermissionsActivity] and inline in [PromptEditActivity]
  * to avoid duplicating the category/expand/collapse/toggle logic.
  */
 class ToolPermissionListBuilder(

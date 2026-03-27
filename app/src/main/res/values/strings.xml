@@ -1508,6 +1508,9 @@
     <string name="prompt_max_iterations">Max iterations override</string>
     <string name="prompt_max_iterations_hint">Leave empty for global default</string>
     <string name="prompt_max_iterations_description">Override the global max iterations for this prompt. Empty = global default, 0 = unlimited.</string>
+    <string name="prompt_max_iterations_unlimited">Unlimited</string>
+    <string name="prompt_max_iterations_global_default">Global default (%d)</string>
+    <string name="prompt_max_iterations_summary_with_value">Override the global max iterations for this prompt. 0 = unlimited.\nCurrent: %s</string>
 
     <!-- Prompt Manager -->
     <string name="manage_prompts">Manage AI Prompts</string>
@@ -1582,8 +1585,12 @@
     <string name="easy_setup_openai_desc">Well-known, reliable</string>
 
     <string name="prompt_permission_mode">Permission mode</string>
+    <string name="prompt_permission_mode_description">Controls when user confirmation is required before the AI performs write operations. The per-tool settings below can override this for individual tools.</string>
     <string name="agent_permission_mode_summary">Controls when user confirmation is required before AI write operations</string>
     <string name="prompt_permission_use_default">Use default</string>
+    <string name="prompt_tab_prompt">Prompt</string>
+    <string name="prompt_tab_permissions">Permissions</string>
+    <string name="prompt_tab_advanced">Advanced</string>
     <string name="prompt_name">Name</string>
     <string name="prompt_description">Description</string>
     <string name="prompt_template">Prompt template</string>
