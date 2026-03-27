@@ -111,7 +111,7 @@ object GetCommentariesTool : Tool {
         IMPORTANT: Each entry includes 'linkUrl'. When citing commentaries in your response,
         ALWAYS create clickable links. Example: [MHC](sword://MHC/Matt.5.3)
 
-        Commentary text includes anchor markers like [§5] at paragraph/title boundaries.
+        Commentary text includes anchor markers like [§5] at each sentence boundary.
         These mark scroll positions within the commentary. When citing a specific section,
         append the anchor ordinal to the link: [MHC §5](sword://MHC/Matt.5.3#o5)
         This lets the user jump directly to the relevant passage in the commentary.
