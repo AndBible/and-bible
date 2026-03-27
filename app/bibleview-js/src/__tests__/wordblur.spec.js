@@ -33,14 +33,13 @@ describe("WordBlur.vue", () => {
     });
   };
 
-  // Buttons are identified by position: icon-buttons appear in a fixed order
-  // when blur is active: [revealAll?, revealLast?, blur, reset]
-  // The blur button (faEyeSlash) and reset button (faUndo) are always the last two.
+  // Buttons always in fixed order: [revealAll, revealLast, blur, reset]
+  // revealAll and revealLast are disabled when not applicable
   const allButtons = (wrapper) => wrapper.findAll('.icon-button');
-  const blurButton = (wrapper) => { const btns = allButtons(wrapper); return btns[btns.length - 2]; };
-  const resetButton = (wrapper) => { const btns = allButtons(wrapper); return btns[btns.length - 1]; };
-  const revealAllButton = (wrapper) => allButtons(wrapper).length >= 3 ? allButtons(wrapper)[0] : undefined;
-  const revealLastButton = (wrapper) => allButtons(wrapper).length >= 4 ? allButtons(wrapper)[1] : undefined;
+  const revealAllButton = (wrapper) => allButtons(wrapper)[0];
+  const revealLastButton = (wrapper) => allButtons(wrapper)[1];
+  const blurButton = (wrapper) => allButtons(wrapper)[2];
+  const resetButton = (wrapper) => allButtons(wrapper)[3];
 
   it("renders correctly with default props", () => {
     const wrapper = createWrapper();
@@ -120,16 +119,14 @@ describe("WordBlur.vue", () => {
     expect(blurButton(wrapper).find('.icon-badge').exists()).toBe(false);
   });
 
-  it("shows reveal all button only when blur is active", async () => {
+  it("reveal all button is disabled initially and enabled after blur", async () => {
     const wrapper = createWrapper();
 
-    // Only 2 buttons initially (blur + reset)
-    expect(allButtons(wrapper).length).toBe(2);
+    expect(revealAllButton(wrapper).classes()).toContain('disabled');
 
     await blurButton(wrapper).trigger('click');
 
-    // Now 3 buttons (revealAll + blur + reset)
-    expect(allButtons(wrapper).length).toBe(3);
+    expect(revealAllButton(wrapper).classes()).not.toContain('disabled');
   });
 
   it("reveals all blurred words while 'Reveal All' is held down", async () => {
@@ -170,19 +167,18 @@ describe("WordBlur.vue", () => {
     expect(wrapper.findAll('.revealed').length).toBe(0);
   });
 
-  it("'Reveal Last' button only appears at blur level 2+", async () => {
+  it("'Reveal Last' button is disabled until blur level 2+", async () => {
     const wrapper = createWrapper();
 
-    // 2 buttons initially
-    expect(allButtons(wrapper).length).toBe(2);
+    expect(revealLastButton(wrapper).classes()).toContain('disabled');
 
-    // Level 1: 3 buttons (revealAll + blur + reset)
+    // Level 1: still disabled
     await blurButton(wrapper).trigger('click');
-    expect(allButtons(wrapper).length).toBe(3);
+    expect(revealLastButton(wrapper).classes()).toContain('disabled');
 
-    // Level 2: 4 buttons (revealAll + revealLast + blur + reset)
+    // Level 2: enabled
     await blurButton(wrapper).trigger('click');
-    expect(allButtons(wrapper).length).toBe(4);
+    expect(revealLastButton(wrapper).classes()).not.toContain('disabled');
   });
 
   it("loads existing configuration from props", () => {
