@@ -1,0 +1,16 @@
+- Add Listen in Loop feature to memorization menu (4ddd6db5b)
+- Add optional verse reference memorization to memorize modes (219810e28)
+- Add commentary anchor markers enabling LLM citations to specific commentary sections (385cfa082)
+- Add Reading Progress database to reset databases list (70f102b87)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
