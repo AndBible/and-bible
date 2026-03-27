@@ -1620,6 +1620,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var isOkay = true
         if(modalOpen) return false
         if(firstDocument is StudyPadDocument) return false
+        if(firstDocument is MemorizeDocument) return false
         if (window.pageManager.isMapShown) {
             // allow swipe right if at right side of map
             val isAtRightEdge = if(CommonUtils.isRtl) scrollX == 0 else scrollX >= maxHorizontalScroll
@@ -1637,6 +1638,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         var isOkay = true
         if(modalOpen) return false
         if(firstDocument is StudyPadDocument) return false
+        if(firstDocument is MemorizeDocument) return false
         if (window.pageManager.isMapShown) {
             // allow swipe left if at left edge of map
             val isAtLeftEdge = if(!CommonUtils.isRtl) scrollX == 0 else scrollX >= maxHorizontalScroll
