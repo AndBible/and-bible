@@ -46,4 +46,8 @@ private val addMemorizeTypeSettings = makeMigration(3..4) { db ->
     db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN memorizeErrorHeatmap INTEGER NOT NULL DEFAULT 1")
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings)
+private val addActiveCycle = makeMigration(4..5) { db ->
+    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN activeCycle INTEGER NOT NULL DEFAULT 0")
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle)

@@ -122,6 +122,23 @@ class ReadingProgressActivity : ActivityBase() {
     }
 
     private fun setupReadingTab() {
+        binding.cyclePrevButton.setOnClickListener {
+            if (currentCycle > 1) {
+                currentCycle--
+                ProgressControl.setActiveCycle(currentCycle)
+                refreshAll()
+            }
+        }
+
+        binding.cycleNextButton.setOnClickListener {
+            val latest = ProgressControl.getLatestCycle()
+            if (currentCycle < latest) {
+                currentCycle++
+                ProgressControl.setActiveCycle(currentCycle)
+                refreshAll()
+            }
+        }
+
         binding.newCycleButton.setOnClickListener {
             AlertDialog.Builder(this)
                 .setTitle(R.string.reading_progress_new_cycle)
@@ -361,7 +378,7 @@ class ReadingProgressActivity : ActivityBase() {
         cal.add(Calendar.WEEK_OF_YEAR, -52)
         val startMs = cal.timeInMillis
 
-        val records = ProgressControl.getReadingCalendar(startMs, endMs)
+        val records = ProgressControl.getReadingCalendar(startMs, endMs, currentCycle)
         val dailyCounts = mutableMapOf<Long, Int>()
         for (record in records) {
             dailyCounts[record.dayTimestamp] = record.count
@@ -374,7 +391,13 @@ class ReadingProgressActivity : ActivityBase() {
     }
 
     private fun refreshCycleLabel() {
+        val latest = ProgressControl.getLatestCycle()
         binding.cycleLabel.text = getString(R.string.reading_progress_cycle, currentCycle)
+        binding.cyclePrevButton.isEnabled = currentCycle > 1
+        binding.cyclePrevButton.alpha = if (currentCycle > 1) 1f else 0.3f
+        binding.cycleNextButton.isEnabled = currentCycle < latest
+        binding.cycleNextButton.alpha = if (currentCycle < latest) 1f else 0.3f
+        binding.newCycleButton.visibility = if (currentCycle >= latest) View.VISIBLE else View.GONE
     }
 
     // --- Memorize tab ---

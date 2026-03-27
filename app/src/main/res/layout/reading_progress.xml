@@ -185,12 +185,29 @@
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
+                <ImageButton
+                    android:id="@+id/cyclePrevButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
+                    android:contentDescription="@string/reading_progress_previous_cycle"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
+
                 <TextView
                     android:id="@+id/cycleLabel"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="14sp"/>
+                    android:textSize="14sp"
+                    android:gravity="center"/>
+
+                <ImageButton
+                    android:id="@+id/cycleNextButton"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                    android:contentDescription="@string/reading_progress_next_cycle"
+                    android:background="?attr/selectableItemBackgroundBorderless"/>
 
                 <Button
                     android:id="@+id/newCycleButton"
