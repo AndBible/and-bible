@@ -237,14 +237,15 @@ class ToolIntegrationTest {
     }
 
     @Test
-    fun createLabel_duplicateName() = runBlocking {
+    fun createLabel_duplicateName_getsUniqueSuffix() = runBlocking {
         val args = JSONObject().apply { put("name", "Duplicate Label") }
         val first = CreateLabelTool.execute(args, context)
         assertTrue("First create should succeed", first is ToolResult.Success)
+        assertEquals("Duplicate Label", ((first as ToolResult.Success).data as CreateLabelTool.Result).name)
 
         val second = CreateLabelTool.execute(args, context)
-        assertTrue("Duplicate should fail", second is ToolResult.Error)
-        assertEquals("LABEL_EXISTS", (second as ToolResult.Error).code)
+        assertTrue("Duplicate should get suffix", second is ToolResult.Success)
+        assertEquals("Duplicate Label (2)", ((second as ToolResult.Success).data as CreateLabelTool.Result).name)
     }
 
     // === AddLabelToBookmark ===
@@ -1358,8 +1359,7 @@ class ToolIntegrationTest {
     }
 
     @Test
-    fun createStudyPad_duplicateName() = runBlocking {
-        // Create first
+    fun createStudyPad_duplicateName_getsUniqueSuffix() = runBlocking {
         val args = JSONObject().apply {
             put("name", "Duplicate Study")
             put("items", org.json.JSONArray().apply {
@@ -1371,11 +1371,17 @@ class ToolIntegrationTest {
         }
         val first = CreateStudyPadTool.execute(args, context)
         assertTrue(first is ToolResult.Success)
+        assertEquals("Duplicate Study", ((first as ToolResult.Success).data as CreateStudyPadTool.Result).labelName)
 
-        // Try duplicate
+        // Second gets (2) suffix
         val second = CreateStudyPadTool.execute(args, context)
-        assertTrue(second is ToolResult.Error)
-        assertEquals("LABEL_EXISTS", (second as ToolResult.Error).code)
+        assertTrue(second is ToolResult.Success)
+        assertEquals("Duplicate Study (2)", ((second as ToolResult.Success).data as CreateStudyPadTool.Result).labelName)
+
+        // Third gets (3) suffix
+        val third = CreateStudyPadTool.execute(args, context)
+        assertTrue(third is ToolResult.Success)
+        assertEquals("Duplicate Study (3)", ((third as ToolResult.Success).data as CreateStudyPadTool.Result).labelName)
     }
 
     @Test

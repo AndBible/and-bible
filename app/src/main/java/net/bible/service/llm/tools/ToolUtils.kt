@@ -112,6 +112,18 @@ fun localizeVerseRef(osisRef: String): String = try {
 fun shortId(id: String): String = if (id.length > 8) id.take(8) + "..." else id
 
 /**
+ * Generate a unique label name by appending a numeric suffix if the name already exists.
+ * E.g. "Study" → "Study (2)" → "Study (3)" etc.
+ */
+fun uniqueLabelName(baseName: String, existingNames: List<String>): String {
+    val nameSet = existingNames.map { it.lowercase() }.toSet()
+    if (baseName.lowercase() !in nameSet) return baseName
+    var suffix = 2
+    while ("$baseName ($suffix)".lowercase() in nameSet) suffix++
+    return "$baseName ($suffix)"
+}
+
+/**
  * Resolve a MyDocument by ID or initials.
  * Tries documentId first, then falls back to initials lookup.
  *

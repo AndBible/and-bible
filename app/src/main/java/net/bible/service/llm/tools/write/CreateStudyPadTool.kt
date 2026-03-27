@@ -20,6 +20,8 @@ package net.bible.service.llm.tools.write
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.database.IdType
+import net.bible.android.control.bookmark.BookmarkToLabelAddedOrUpdatedEvent
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkToLabel
 import net.bible.android.database.bookmarks.BookmarkEntities.BibleBookmarkWithNotes
 import net.bible.android.database.bookmarks.BookmarkEntities.Label
@@ -35,6 +37,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.decodeArgs
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.typedSuccess
+import net.bible.service.llm.tools.uniqueLabelName
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -180,16 +183,14 @@ object CreateStudyPadTool : Tool {
             return ToolResult.error("Items array must not be empty", "EMPTY_ITEMS")
         }
 
-        // Check for duplicate label name
-        val existingLabels = bookmarkControl.assignableLabels
-        if (existingLabels.any { it.name.equals(name, ignoreCase = true) }) {
-            return ToolResult.error("Label with name '$name' already exists", "LABEL_EXISTS")
-        }
+        // Generate unique name if needed
+        val existingNames = bookmarkControl.assignableLabels.map { it.name }
+        val uniqueName = uniqueLabelName(name, existingNames)
 
-        // Create the label
+        // Create the label (insertOrUpdateLabel sends LabelAddedOrUpdatedEvent)
         val color = if (args.color != 0) args.color else defaultLabelColor
         val label = try {
-            bookmarkControl.insertOrUpdateLabel(Label(name = name, color = color, new = true))
+            bookmarkControl.insertOrUpdateLabel(Label(name = uniqueName, color = color, new = true))
         } catch (e: Exception) {
             return ToolResult.error("Failed to create label: ${e.message}", "LABEL_CREATE_ERROR")
         }
@@ -256,12 +257,14 @@ object CreateStudyPadTool : Tool {
                         )
 
                         // Link to StudyPad label with exact orderNumber and indentLevel
-                        dao.insert(BibleBookmarkToLabel(
+                        val btl = BibleBookmarkToLabel(
                             bookmarkId = savedBookmark.id,
                             labelId = label.id,
                             orderNumber = index,
                             indentLevel = item.indentLevel
-                        ))
+                        )
+                        dao.insert(btl)
+                        ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(btl))
 
                         bookmarkCount++
                     }
