@@ -16,35 +16,48 @@
   -->
 
 <template>
-  <div class="tab-navigation" :class="navigationClass">
-    <button
-        v-for="tab in tabs"
-        :key="tab.id"
-        type="button"
-        class="tab-button"
-        :class="{ 
-          active: activeTab === tab.id,
-          disabled: tab.disabled
-        }"
-        :disabled="tab.disabled"
-        @click="handleTabClick(tab.id)"
-        :aria-selected="activeTab === tab.id"
-        :aria-controls="`tabpanel-${tab.id}`"
-        role="tab"
-    >
-      <FontAwesomeIcon 
-          v-if="tab.icon" 
-          :icon="tab.icon" 
-          class="tab-icon"
-      />
-      <span class="tab-label">{{ tab.label }}</span>
-    </button>
+  <div
+      class="tab-navigation-wrapper"
+      :class="{
+        'can-scroll-left': canScrollLeft,
+        'can-scroll-right': canScrollRight
+      }"
+  >
+    <div ref="navRef" class="tab-navigation" :class="navigationClass">
+      <button
+          v-for="tab in tabs"
+          :key="tab.id"
+          type="button"
+          class="tab-button"
+          :class="{
+            active: activeTab === tab.id,
+            disabled: tab.disabled
+          }"
+          :disabled="tab.disabled"
+          @click="handleTabClick(tab.id)"
+          :aria-selected="activeTab === tab.id"
+          :aria-controls="`tabpanel-${tab.id}`"
+          role="tab"
+      >
+        <FontAwesomeIcon
+            v-if="tab.icon"
+            :icon="tab.icon"
+            class="tab-icon"
+        />
+        <span class="tab-label">{{ tab.label }}</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import {ref} from 'vue';
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
 import type {Tab} from './TabContainer.vue';
+import {useScrollOverflow} from '@/composables/scroll-overflow';
+
+const navRef = ref<HTMLElement | null>(null);
+const {canScrollLeft, canScrollRight} = useScrollOverflow(navRef);
 
 const props = defineProps<{
   tabs: Tab[];
@@ -68,6 +81,46 @@ function handleTabClick(tabId: string) {
 
 <style scoped lang="scss">
 @use "@/common.scss" as *;
+
+.tab-navigation-wrapper {
+  position: relative;
+  overflow: hidden;
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+
+    .noAnimation & {
+      transition: none;
+    }
+  }
+
+  &::before {
+    left: 0;
+    background: linear-gradient(to right, var(--background-color), transparent);
+  }
+
+  &::after {
+    right: 0;
+    background: linear-gradient(to left, var(--background-color), transparent);
+  }
+
+  &.can-scroll-left::before {
+    opacity: 1;
+  }
+
+  &.can-scroll-right::after {
+    opacity: 1;
+  }
+}
 
 .tab-navigation {
   display: flex;

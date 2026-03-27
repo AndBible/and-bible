@@ -4,6 +4,14 @@ import TabContainer from '@/components/tabs/TabContainer.vue'
 import TabNavigation from '@/components/tabs/TabNavigation.vue'
 import TabPanel from '@/components/tabs/TabPanel.vue'
 
+// Mock ResizeObserver (not available in jsdom)
+// eslint-disable-next-line no-undef
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}))
+
 // Mock FontAwesome components
 vi.mock('@fortawesome/vue-fontawesome', () => ({
   FontAwesomeIcon: {
@@ -198,6 +206,17 @@ describe('TabNavigation.vue', () => {
         activeTab: 'tab1'
       }
     })
+  })
+
+  it('renders wrapper element for overflow indicators', () => {
+    expect(wrapper.find('.tab-navigation-wrapper').exists()).toBe(true)
+    expect(wrapper.find('.tab-navigation').exists()).toBe(true)
+  })
+
+  it('does not show overflow indicators when no overflow', () => {
+    const wrapperEl = wrapper.find('.tab-navigation-wrapper')
+    expect(wrapperEl.classes()).not.toContain('can-scroll-left')
+    expect(wrapperEl.classes()).not.toContain('can-scroll-right')
   })
 
   it('renders all tabs', () => {

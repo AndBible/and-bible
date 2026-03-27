@@ -35,6 +35,14 @@ import { describe, it, expect, vi } from 'vitest';
 import { MemorizeStateModeEnum } from "@/types/documents";
 import { memorizationKey } from "@/types/constants";
 
+// Mock ResizeObserver (not available in jsdom)
+// eslint-disable-next-line no-undef
+globalThis.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
 // Mock composables
 vi.mock("@/composables", () => ({
   useCommon: () => ({
