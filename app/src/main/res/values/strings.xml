@@ -1322,7 +1322,7 @@
     <string name="progress_sync_contents">Memorized verses and chapter reading records</string>
 
     <!-- Reading Progress Activity -->
-    <string name="reading_progress_title">Reading Progress</string>
+    <string name="reading_progress_title">Read/Memory Progress</string>
     <string name="reading_progress_chapters_read">chapters read</string>
     <string name="reading_progress_verses_memorized">verses memorized</string>
     <string name="reading_progress_active_days">active days</string>
