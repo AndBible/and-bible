@@ -1,0 +1,14 @@
+- Commentary anchor markers are now per-sentence instead of per-paragraph for better reference granularity (343da40bf)
+- Fixed URL encoding for SWORD module initials with spaces in sword:// links used by LLM tools (cb362a88e)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
