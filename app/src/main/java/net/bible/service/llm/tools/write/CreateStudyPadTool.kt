@@ -266,6 +266,10 @@ object CreateStudyPadTool : Tool {
                         dao.insert(btl)
                         ABEventBus.post(BookmarkToLabelAddedOrUpdatedEvent(btl))
 
+                        // Set StudyPad label as primary (instead of AI label)
+                        savedBookmark.primaryLabelId = label.id
+                        dao.update(savedBookmark.bookmarkEntity)
+
                         bookmarkCount++
                     }
                 }
