@@ -55,21 +55,16 @@ object SetDocumentTitleTool : Tool {
     override val description = """
         Set the title for your AI document and finish the task.
 
-        You MUST call this tool to give your document a proper title.
+        You MUST use this tool to give your document a proper title.
         The document content comes from your text output in the SAME response.
 
         **How to use:**
         1. Output your complete markdown content as text
-        2. Call this tool with a short, plain text title (no markdown, no links)
-
-        **Example:**
-        Your text output: (full markdown analysis of Romans 8:28)
-        Your tool call: setDocumentTitle(title: "Romans 8:28 - God's Promise")
+        2. Use this tool to set a short, plain text title (no markdown, no links)
 
         **CRITICAL:**
         - The title must be plain text only — NO markdown, NO links, NO formatting
         - Output content as TEXT, not as a tool argument
-        - Do NOT use XML tags or function_call syntax
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
