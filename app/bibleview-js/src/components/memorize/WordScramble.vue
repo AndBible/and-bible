@@ -33,10 +33,10 @@
           <FontAwesomeIcon :icon="faGear"/>
         </div>
         <div v-if="settingsOpen" class="settings-popup">
-          <label class="settings-item">
-            <input type="checkbox" v-model="hideUsedButtons" />
+          <div class="settings-item" @click="hideUsedButtons = !hideUsedButtons">
+            <FontAwesomeIcon :icon="hideUsedButtons ? faSquareCheck : faSquare"/>
             {{ strings.hideUsedButtons }}
-          </label>
+          </div>
         </div>
       </div>
     </div>
@@ -88,7 +88,8 @@
 import {ref, onMounted, onBeforeUnmount, computed, watch, inject} from "vue";
 import {MemorizeTextItem} from "@/types/documents";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
-import {faEye, faGear, faUndo} from "@fortawesome/free-solid-svg-icons";
+import {faEye, faGear, faSquareCheck, faUndo} from "@fortawesome/free-solid-svg-icons";
+import {faSquare} from "@fortawesome/free-regular-svg-icons";
 import {readingProgressSettingsKey} from "@/types/constants";
 import {useCommon} from "@/composables";
 

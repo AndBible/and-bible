@@ -17,7 +17,7 @@
 
 <template>
   <div class="memorize-wrapper" :class="{ 'memorized-border': isMemorized }">
-  <h2><a class="title-link" :href="bibleUrl">{{document.title}}</a></h2>
+  <h2 v-if="!includeReference"><a class="title-link" :href="bibleUrl">{{document.title}}</a></h2>
 
   <TabContainer
       :tabs="tabsConfig"
@@ -59,7 +59,7 @@
     <!-- Word Blur Tab -->
     <template #blur>
       <WordBlur
-          :text-items="document.texts"
+          :text-items="effectiveTextItems"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
       />
@@ -68,7 +68,7 @@
     <!-- Word Scramble Tab -->
     <template #scramble>
       <WordScramble
-          :text-items="document.texts"
+          :text-items="effectiveTextItems"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
           @memorize-completed="onMemorizeCompleted"
@@ -78,7 +78,7 @@
     <!-- Word Type Tab -->
     <template #type>
       <WordType
-          :text-items="document.texts"
+          :text-items="effectiveTextItems"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
           @memorize-completed="onMemorizeCompleted"
@@ -88,7 +88,7 @@
     <!-- Word Order Tab -->
     <template #order>
       <WordOrder
-          :text-items="document.texts"
+          :text-items="effectiveTextItems"
           :mode-config="document.state?.memorize?.modeConfig"
           @save-mode-config="saveModeConfig"
           @memorize-completed="onMemorizeCompleted"
@@ -109,7 +109,8 @@ import {computed, onBeforeUnmount, onMounted, provide, ref, toRefs, watch} from 
 import {
     MemorizeDocument,
     MemorizeModeConfig,
-    MemorizeStateModeEnum, MemorizeState
+    MemorizeStateModeEnum, MemorizeState,
+    MemorizeTextItem
 } from "@/types/documents";
 import {useReadingProgressSettings} from "@/composables/reading-progress-settings";
 import WordBlur from '@/components/memorize/WordBlur.vue';
@@ -151,6 +152,20 @@ const {strings, android} = useCommon();
 const memorization = inject(memorizationKey)!;
 const readingProgressSettings = useReadingProgressSettings(document.value.readingProgressSettings, android);
 provide(readingProgressSettingsKey, readingProgressSettings);
+
+const includeReference = computed(() => readingProgressSettings.settings.memorizeIncludeReference);
+
+const effectiveTextItems = computed<MemorizeTextItem[]>(() => {
+    if (includeReference.value && document.value.title) {
+        return [...document.value.texts, {key: '__reference__', text: document.value.title}];
+    }
+    return document.value.texts;
+});
+
+watch(includeReference, () => {
+    modeConfig.value = undefined;
+    saveState();
+});
 
 // Populate memorization data so isMemorized/isTarget are reactive
 memorization.mergeData(

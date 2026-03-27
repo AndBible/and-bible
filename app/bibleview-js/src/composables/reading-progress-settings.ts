@@ -25,6 +25,7 @@ const defaultSettings: ReadingProgressSettings = {
     memorizeWordVisibility: 'light',
     memorizeErrorHeatmap: true,
     memorizeScrambleHideUsed: false,
+    memorizeIncludeReference: false,
 };
 
 export function useReadingProgressSettings(

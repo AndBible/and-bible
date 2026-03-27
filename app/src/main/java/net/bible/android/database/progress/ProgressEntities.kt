@@ -85,6 +85,7 @@ data class GlobalReadingProgressSettings(
     @ColumnInfo(defaultValue = "light") val memorizeWordVisibility: String = "light",
     @ColumnInfo(defaultValue = "1") val memorizeErrorHeatmap: Boolean = true,
     @ColumnInfo(defaultValue = "0") val memorizeScrambleHideUsed: Boolean = false,
+    @ColumnInfo(defaultValue = "0") val memorizeIncludeReference: Boolean = false,
     @ColumnInfo(defaultValue = "0") val activeCycle: Int = 0,
 ) {
     companion object {

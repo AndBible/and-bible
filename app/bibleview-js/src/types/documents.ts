@@ -141,6 +141,7 @@ export type ReadingProgressSettings = {
     memorizeWordVisibility: WordVisibility;
     memorizeErrorHeatmap: boolean;
     memorizeScrambleHideUsed: boolean;
+    memorizeIncludeReference: boolean;
 }
 
 // types for MemorizeDocument
