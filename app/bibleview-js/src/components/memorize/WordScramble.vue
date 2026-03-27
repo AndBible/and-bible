@@ -372,6 +372,9 @@ function resetWords() {
     padding: 8px 12px;
     border-radius: $button-border-radius;
     font-weight: 500;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
     transition: all 0.2s ease;
     .noAnimation & {
       transition: none;
