@@ -67,8 +67,9 @@ object GetDictionaryEntryTool : Tool {
         Useful for looking up definitions of biblical terms, places, people, and Strong's numbers.
         For Strong's numbers, use H prefix for Hebrew (e.g., 'H430' for Elohim) or G prefix for Greek (e.g., 'G2316' for Theos).
 
-        IMPORTANT: The result includes a 'linkUrl' field. When referencing dictionary entries in your response,
-        ALWAYS create clickable links using this URL. Example: [G2316](strongs://G2316)
+        IMPORTANT: The result includes a 'linkUrl' field (already properly URL-encoded).
+        When referencing dictionary entries in your response, ALWAYS use the linkUrl value
+        directly in clickable links. Example: [G2316](strongs://G2316)
 
         CRITICAL: Convert ALL Strong's number references to clickable links in your response:
         - With prefix: G1234 → [G1234](strongs://G1234), H5678 → [H5678](strongs://H5678)
@@ -143,7 +144,7 @@ object GetDictionaryEntryTool : Tool {
             val fragment = SwordContentFacade.readOsisFragment(dictionary, dictKey)
             val linkUrl = when {
                 dictionary.isGreekDef || dictionary.isHebrewDef -> "strongs://$key"
-                else -> "sword://$dictionaryInitials/${Uri.encode(key)}"
+                else -> "sword://${Uri.encode(dictionaryInitials)}/${Uri.encode(key)}"
             }
 
             if (args.format == ContentFormat.XML) {

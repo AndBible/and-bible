@@ -190,7 +190,7 @@ object BuiltInPrompts {
                     Do not invent interpretations — ground everything in the available reference works.
 
                     CITATION FORMAT:
-                    Commentary text includes anchor markers like [§5] at section boundaries.
+                    Commentary text includes anchor markers like [§5] at each sentence.
                     When citing a specific section, use the anchor in the link:
                     [Commentary Name §N](sword://INITIALS/Verse#oN)
                     This lets the user jump directly to the relevant passage in the commentary.
@@ -226,7 +226,7 @@ object BuiltInPrompts {
                     Do not invent interpretations — ground everything in the available reference works.
 
                     CITATION FORMAT:
-                    Commentary text includes anchor markers like [§5] at section boundaries.
+                    Commentary text includes anchor markers like [§5] at each sentence.
                     When citing a specific section, use the anchor in the link:
                     [Commentary Name §N](sword://INITIALS/Verse#oN)
                     This lets the user jump directly to the relevant passage in the commentary.

@@ -40,28 +40,16 @@ enum class ContentFormat {
 object OsisToPlainText {
 
     private val SKIP_ELEMENTS = setOf("milestone", "chapter")
-    private val STRUCTURAL_ELEMENTS = setOf("title", "p", "div", "list", "lg")
-
-    /**
-     * Tracks anchor injection state during element tree walking.
-     * When [annotateNextBva] is true, the next BVA element encountered will emit
-     * an anchor marker `[§ordinal]` in the output text.
-     */
-    private class AnchorState {
-        var annotateNextBva = false
-    }
-
     /**
      * Converts a JDOM2 Element (typically an OSIS fragment) to readable plain text.
      *
-     * @param injectAnchors When true, inserts `[§N]` markers at paragraph/title boundaries
+     * @param injectAnchors When true, inserts `[§N]` markers at every BVA (sentence) boundary
      *   using BVA ordinals. These markers allow LLMs to reference specific positions within
      *   commentary text via `sword://MODULE/KEY#oN` URLs.
      */
     fun convert(element: Element, injectAnchors: Boolean = false): String {
         val sb = StringBuilder()
-        val anchorState = if (injectAnchors) AnchorState() else null
-        walkElement(element, sb, anchorState, isRoot = true)
+        walkElement(element, sb, injectAnchors)
         return sb.toString()
             .replace(Regex(" +\\n"), "\n")
             .replace(Regex("\\n{3,}"), "\n\n")
@@ -97,7 +85,7 @@ object OsisToPlainText {
             val prefix = osisRef.substring(0, colonIndex)
             if (prefix[0].isUpperCase()) {
                 val key = osisRef.substring(colonIndex + 1)
-                return "sword://$prefix/${encodeOsisRef(key)}"
+                return "sword://${encodeOsisRef(prefix)}/${encodeOsisRef(key)}"
             }
         }
         return "sword:///${encodeOsisRef(osisRef)}"
@@ -106,8 +94,7 @@ object OsisToPlainText {
     private fun walkElement(
         element: Element,
         sb: StringBuilder,
-        anchorState: AnchorState? = null,
-        isRoot: Boolean = false
+        injectAnchors: Boolean = false
     ) {
         val name = element.name
 
@@ -116,20 +103,19 @@ object OsisToPlainText {
         // Skip BibleView-specific elements (x- prefixed custom elements)
         if (name.startsWith("x-")) return
 
-        // BVA (BibleViewAnchor) elements: emit anchor marker if flagged
+        // BVA (BibleViewAnchor) elements: emit anchor marker for every BVA when enabled
         if (name == "BVA") {
-            if (anchorState?.annotateNextBva == true) {
+            if (injectAnchors) {
                 val ordinal = element.getAttributeValue("ordinal")
                 if (ordinal != null) {
                     sb.append("[§$ordinal] ")
-                    anchorState.annotateNextBva = false
                 }
             }
             // Always process BVA children (the actual text content)
             for (content: Content in element.content) {
                 when (content) {
                     is Text -> sb.append(content.text)
-                    is Element -> walkElement(content, sb, anchorState)
+                    is Element -> walkElement(content, sb, injectAnchors)
                 }
             }
             return
@@ -143,17 +129,12 @@ object OsisToPlainText {
                 for (child: Content in element.content) {
                     when (child) {
                         is Text -> innerSb.append(child.text)
-                        is Element -> walkElement(child, innerSb, anchorState)
+                        is Element -> walkElement(child, innerSb, injectAnchors)
                     }
                 }
                 sb.append("[${innerSb}](${osisRefToUrl(osisRef)})")
                 return
             }
-        }
-
-        // Mark that the next BVA should get an anchor at structural boundaries
-        if (anchorState != null && !isRoot && name in STRUCTURAL_ELEMENTS) {
-            anchorState.annotateNextBva = true
         }
 
         // Element opening
@@ -184,7 +165,7 @@ object OsisToPlainText {
         for (content: Content in element.content) {
             when (content) {
                 is Text -> sb.append(content.text)
-                is Element -> walkElement(content, sb, anchorState)
+                is Element -> walkElement(content, sb, injectAnchors)
             }
         }
 
