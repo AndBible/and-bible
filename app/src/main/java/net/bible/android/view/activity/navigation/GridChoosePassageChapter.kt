@@ -123,14 +123,13 @@ class GridChoosePassageChapter : CustomTitlebarActivityBase(), OnButtonGridActio
             if (CommonUtils.settings.getBoolean(GridChoosePassageBook.BOOK_GRID_SHOW_PROGRESS, true)) {
                 val v11n = navigationControl.versification
                 if (ProgressControl.isChapterRead(v11n, book, i)) {
-                    buttonInfo.progressFraction = 1f
-                    buttonInfo.progressColor = READING_PROGRESS_COLOR
-                } else {
-                    val memProgress = ProgressControl.getMemorizationProgress(v11n, book, i)
-                    if (memProgress > 0f) {
-                        buttonInfo.progressFraction = memProgress
-                        buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
-                    }
+                    buttonInfo.readingProgressFraction = 1f
+                    buttonInfo.readingProgressColor = READING_PROGRESS_COLOR
+                }
+                val memProgress = ProgressControl.getMemorizationProgress(v11n, book, i)
+                if (memProgress > 0f) {
+                    buttonInfo.memorizationProgressFraction = memProgress
+                    buttonInfo.memorizationProgressColor = MEMORIZATION_PROGRESS_COLOR
                 }
             }
             keys.add(buttonInfo)

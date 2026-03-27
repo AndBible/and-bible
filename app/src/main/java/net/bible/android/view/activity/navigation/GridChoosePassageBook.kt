@@ -93,14 +93,10 @@ class GridChoosePassageBook : CustomTitlebarActivityBase(R.menu.choose_passage_b
                         buttonInfo.tintColor = if (book.ordinal < BibleBook.MATT.ordinal) Color.DKGRAY else NEW_TESTAMENT_TINT
                     }
                     if (CommonUtils.settings.getBoolean(BOOK_GRID_SHOW_PROGRESS, true)) {
-                        val readingProgress = ProgressControl.getReadingProgress(versification, book)
-                        val memorizationProgress = ProgressControl.getMemorizationProgress(versification, book)
-                        buttonInfo.progressFraction = maxOf(readingProgress, memorizationProgress)
-                        if (memorizationProgress > readingProgress) {
-                            buttonInfo.progressColor = MEMORIZATION_PROGRESS_COLOR
-                        } else {
-                            buttonInfo.progressColor = READING_PROGRESS_COLOR
-                        }
+                        buttonInfo.readingProgressFraction = ProgressControl.getReadingProgress(versification, book)
+                        buttonInfo.readingProgressColor = READING_PROGRESS_COLOR
+                        buttonInfo.memorizationProgressFraction = ProgressControl.getMemorizationProgress(versification, book)
+                        buttonInfo.memorizationProgressColor = MEMORIZATION_PROGRESS_COLOR
                     }
                 } catch (nsve: NoSuchVerseException) {
                     buttonInfo.name = "ERR"

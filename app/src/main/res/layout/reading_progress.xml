@@ -62,26 +62,6 @@
                     android:padding="12dp"
                     android:gravity="center">
                     <TextView
-                        android:id="@+id/memorizedVersesCount"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="28sp"
-                        android:textStyle="bold"/>
-                    <TextView
-                        android:id="@+id/memorizedVersesLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"/>
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:padding="12dp"
-                    android:gravity="center">
-                    <TextView
                         android:id="@+id/activeDaysCount"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

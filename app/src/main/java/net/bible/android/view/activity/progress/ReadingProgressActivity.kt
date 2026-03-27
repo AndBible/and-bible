@@ -144,8 +144,6 @@ class ReadingProgressActivity : ActivityBase() {
         binding.apply {
             chaptersReadCount.text = "$totalRead"
             chaptersReadLabel.text = getString(R.string.reading_progress_chapters_read)
-            memorizedVersesCount.text = "$memorizedVerses"
-            memorizedVersesLabel.text = getString(R.string.reading_progress_verses_memorized)
             activeDaysCount.text = "$activeDays"
             activeDaysLabel.text = getString(R.string.reading_progress_active_days)
 
@@ -333,13 +331,19 @@ class ReadingProgressActivity : ActivityBase() {
         }
         binding.noMemorizeTargets.visibility = View.GONE
 
+        var hasVisibleTargets = false
         for (target in targets) {
             val range = target.verseRange
             val memorizedCount = ProgressControl.getMemorizedOrdinalsInRange(
                 target.kjvOrdinalStart, target.kjvOrdinalEnd
             ).size
+            if (memorizedCount >= target.verseCount) continue
+            hasVisibleTargets = true
             val item = createTargetItem(range.name, memorizedCount, target.verseCount, target.id, range)
             binding.memorizeTargetsList.addView(item)
+        }
+        if (!hasVisibleTargets) {
+            binding.noMemorizeTargets.visibility = View.VISIBLE
         }
     }
 
