@@ -219,6 +219,48 @@ $button-grey: var(--modal-grey);
   }
 }
 
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-width: 40px;
+  height: 40px;
+  border-radius: $button-border-radius;
+  border: none;
+  color: #666;
+  font-size: 1.2em;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  .night & {
+    color: #999;
+  }
+  .monochrome & {
+    color: black;
+  }
+  .monochrome.night & {
+    color: white;
+  }
+
+  &:active {
+    transform: translateY(1px);
+    opacity: 0.7;
+    .monochrome & {
+      opacity: 1;
+    }
+  }
+
+  .icon-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    font-size: 0.5em;
+    font-weight: 700;
+    line-height: 1;
+  }
+}
+
 .separator {
   border-width: 1pt 0 0 0;
   border-style: dashed;

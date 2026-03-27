@@ -67,6 +67,7 @@ class ReadingProgressSettingsActivity : ActivityBase() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        buildActivityComponent().inject(this)
         binding = SettingsDialogBinding.inflate(layoutInflater)
         setContentView(binding.root)
 

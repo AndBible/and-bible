@@ -74,7 +74,7 @@ removeMemorizationTargetLong: Remove memorization goal
 markAsMemorized: Mark as memorized
 markedAsMemorized: Memorized
 removeFromTargets: Goal -
-viewReadingProgress: Reading progress
+viewReadingProgress: Read/Memory Progress
 verseNoteLong: Write a note
 verseParagraphBreakLong: Paragraph break
 addBookmark: Bookmark
@@ -100,9 +100,6 @@ invalidClosingTag: Invalid closing tag
 unmatchedClosingTag: Unmatched closing tag
 unclosedTag: Unclosed tag
 unknownError: Unknown error
-blur: Blur
-reset: Reset
-peek: Peek
 wordBlur: Blur
 wordScramble: Scramble
 wordType: Type

@@ -17,17 +17,7 @@
 
 import { mount } from "@vue/test-utils";
 import WordBlur from "@/components/memorize/WordBlur.vue";
-import { describe, it, expect, vi } from 'vitest';
-
-// Mock the useCommon composable
-vi.mock("@/composables", () => ({
-  useCommon: () => ({
-    strings: {
-      blur: "Blur",
-      reset: "Reset"
-    }
-  })
-}));
+import { describe, it, expect } from 'vitest';
 
 describe("WordBlur.vue", () => {
   const createWrapper = (props = {}) => {
@@ -43,105 +33,169 @@ describe("WordBlur.vue", () => {
     });
   };
 
+  // Buttons are identified by position: icon-buttons appear in a fixed order
+  // when blur is active: [revealAll?, revealLast?, blur, reset]
+  // The blur button (faEyeSlash) and reset button (faUndo) are always the last two.
+  const allButtons = (wrapper) => wrapper.findAll('.icon-button');
+  const blurButton = (wrapper) => { const btns = allButtons(wrapper); return btns[btns.length - 2]; };
+  const resetButton = (wrapper) => { const btns = allButtons(wrapper); return btns[btns.length - 1]; };
+  const revealAllButton = (wrapper) => allButtons(wrapper).length >= 3 ? allButtons(wrapper)[0] : undefined;
+  const revealLastButton = (wrapper) => allButtons(wrapper).length >= 4 ? allButtons(wrapper)[1] : undefined;
+
   it("renders correctly with default props", () => {
     const wrapper = createWrapper();
-    
-    // Check if control buttons are rendered
+
     expect(wrapper.find('.memorize-controls').exists()).toBe(true);
-    expect(wrapper.find('.button').text()).toContain('Blur');
-    
-    // Check if text is rendered correctly
     expect(wrapper.find('.memorize-text').exists()).toBe(true);
     expect(wrapper.findAll('.memorize-word').length).toBeGreaterThan(0);
-    
-    // No words should be blurred initially (blurLevel = 0)
     expect(wrapper.findAll('.blurred').length).toBe(0);
   });
 
   it("increases blur level when the blur button is clicked", async () => {
     const wrapper = createWrapper();
-    
-    // Initial state - no blurred words
+
     expect(wrapper.findAll('.blurred').length).toBe(0);
-    
-    // Click the blur button
-    await wrapper.findAll('.button')[0].trigger('click');
-    
-    // After clicking, some words should be blurred
-    expect(wrapper.findAll('.blurred').length).toBeGreaterThan(0);
-    
-    // Click again to increase blur level
-    await wrapper.findAll('.button')[0].trigger('click');
-    
-    // More words should be blurred now
-    expect(wrapper.findAll('.blurred').length).toBeGreaterThan(0);
+
+    await blurButton(wrapper).trigger('click');
+    const blurredAfterFirst = wrapper.findAll('.blurred').length;
+    expect(blurredAfterFirst).toBeGreaterThan(0);
+
+    await blurButton(wrapper).trigger('click');
+    expect(wrapper.findAll('.blurred').length).toBeGreaterThan(blurredAfterFirst);
   });
 
   it("resets blur when the reset button is clicked", async () => {
     const wrapper = createWrapper();
-    
-    // First increase blur level
-    await wrapper.findAll('.button')[0].trigger('click');
+
+    await blurButton(wrapper).trigger('click');
     expect(wrapper.findAll('.blurred').length).toBeGreaterThan(0);
-    
-    // Reset blur
-    await wrapper.findAll('.button')[1].trigger('click');
-    
-    // No words should be blurred after reset
+
+    await resetButton(wrapper).trigger('click');
     expect(wrapper.findAll('.blurred').length).toBe(0);
   });
 
   it("reveals a word temporarily when it's clicked", async () => {
     const wrapper = createWrapper();
-    
-    // First increase blur level
-    await wrapper.findAll('.button')[0].trigger('click');
-    
-    // Get a blurred word
+
+    await blurButton(wrapper).trigger('click');
+    expect(wrapper.findAll('.blurred').length).toBeGreaterThan(0);
+
     const blurredWord = wrapper.find('.blurred');
-    expect(blurredWord.exists()).toBe(true);
-    
-    // Click on the blurred word
     await blurredWord.trigger('click');
-    
-    // Word should be revealed (have 'revealed' class)
+
+    expect(blurredWord.classes()).toContain('blurred');
     expect(blurredWord.classes()).toContain('revealed');
-    
-    // In a real test we'd use fake timers, but in this case we'll just verify
-    // that the word is revealed after clicking
-    expect(wrapper.vm.revealedWords).toHaveProperty(`${wrapper.vm.textItems[0].key}-0`);
   });
 
   it("emits save-mode-config when configuration changes", async () => {
     const wrapper = createWrapper();
-    
-    // Clicking blur button should save the configuration
-    await wrapper.findAll('.button')[0].trigger('click');
-    
-    // Check for emitted events
+
+    await blurButton(wrapper).trigger('click');
+
     const emittedEvents = wrapper.emitted('save-mode-config');
     expect(emittedEvents).toBeTruthy();
     expect(emittedEvents[0][0]).toHaveProperty('blurConfig');
     expect(emittedEvents[0][0].blurConfig).toHaveProperty('blurLevel', 1);
   });
 
+  it("shows blur level badge after first blur click", async () => {
+    const wrapper = createWrapper();
+
+    // Initially no badge on blur button
+    expect(blurButton(wrapper).find('.icon-badge').exists()).toBe(false);
+
+    await blurButton(wrapper).trigger('click');
+
+    // Badge should appear showing next level
+    expect(blurButton(wrapper).find('.icon-badge').exists()).toBe(true);
+  });
+
+  it("hides blur level badge after reset", async () => {
+    const wrapper = createWrapper();
+
+    await blurButton(wrapper).trigger('click');
+    expect(blurButton(wrapper).find('.icon-badge').exists()).toBe(true);
+
+    await resetButton(wrapper).trigger('click');
+    expect(blurButton(wrapper).find('.icon-badge').exists()).toBe(false);
+  });
+
+  it("shows reveal all button only when blur is active", async () => {
+    const wrapper = createWrapper();
+
+    // Only 2 buttons initially (blur + reset)
+    expect(allButtons(wrapper).length).toBe(2);
+
+    await blurButton(wrapper).trigger('click');
+
+    // Now 3 buttons (revealAll + blur + reset)
+    expect(allButtons(wrapper).length).toBe(3);
+  });
+
+  it("reveals all blurred words while 'Reveal All' is held down", async () => {
+    const wrapper = createWrapper();
+
+    await blurButton(wrapper).trigger('click');
+
+    const blurredCount = wrapper.findAll('.blurred').length;
+    expect(blurredCount).toBeGreaterThan(0);
+
+    await revealAllButton(wrapper).trigger('pointerdown');
+    expect(wrapper.findAll('.blurred.revealed').length).toBe(blurredCount);
+
+    await revealAllButton(wrapper).trigger('pointerup');
+    expect(wrapper.findAll('.revealed').length).toBe(0);
+    expect(wrapper.findAll('.blurred').length).toBe(blurredCount);
+  });
+
+  it("'Reveal Last' only reveals words from the current blur level", async () => {
+    const wrapper = createWrapper();
+
+    // Blur to level 1
+    await blurButton(wrapper).trigger('click');
+    const blurredAtLevel1 = wrapper.findAll('.blurred').length;
+
+    // Blur to level 2
+    await blurButton(wrapper).trigger('click');
+    const blurredAtLevel2 = wrapper.findAll('.blurred').length;
+    const newlyBlurred = blurredAtLevel2 - blurredAtLevel1;
+    expect(newlyBlurred).toBeGreaterThan(0);
+
+    // Hold "Reveal Last" — should only reveal words new at level 2
+    await revealLastButton(wrapper).trigger('pointerdown');
+    expect(wrapper.findAll('.blurred.revealed').length).toBe(newlyBlurred);
+
+    // Release
+    await revealLastButton(wrapper).trigger('pointerup');
+    expect(wrapper.findAll('.revealed').length).toBe(0);
+  });
+
+  it("'Reveal Last' button only appears at blur level 2+", async () => {
+    const wrapper = createWrapper();
+
+    // 2 buttons initially
+    expect(allButtons(wrapper).length).toBe(2);
+
+    // Level 1: 3 buttons (revealAll + blur + reset)
+    await blurButton(wrapper).trigger('click');
+    expect(allButtons(wrapper).length).toBe(3);
+
+    // Level 2: 4 buttons (revealAll + revealLast + blur + reset)
+    await blurButton(wrapper).trigger('click');
+    expect(allButtons(wrapper).length).toBe(4);
+  });
+
   it("loads existing configuration from props", () => {
-    // Create wrapper with existing configuration
     const existingConfig = {
       blurConfig: {
         blurLevel: 3,
         revealedWords: {}
       }
     };
-    
+
     const wrapper = createWrapper({ modeConfig: existingConfig });
-    
-    // Should have loaded the blur level
+
     expect(wrapper.vm.blurLevel).toBe(3);
-    
-    // Cannot check for blurred words directly as they're not blurred until
-    // the DOM is actually rendered and the isWordBlurred function is called
-    // Instead, we'll verify the config was loaded correctly
     expect(wrapper.vm.blurLevel).toBe(existingConfig.blurConfig.blurLevel);
   });
 });
