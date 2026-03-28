@@ -184,13 +184,6 @@ object BuiltInPrompts {
 
                     Base your explanation on the commentaries you retrieve. Cite each source by name.
                     Do not invent interpretations — ground everything in the available reference works.
-
-                    CITATION FORMAT:
-                    Commentary text includes anchor markers like [§5] at each sentence.
-                    When citing a specific section, use anchor(s) in the link:
-                    - Single: [Commentary §N](sword://INITIALS/Verse#oN)
-                    - Range: [Commentary §N-M](sword://INITIALS/Verse#oN-M)
-                    Ranges are highlighted when the user clicks the link.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -221,13 +214,6 @@ object BuiltInPrompts {
 
                     Base your explanation on the commentaries you retrieve.
                     Do not invent interpretations — ground everything in the available reference works.
-
-                    CITATION FORMAT:
-                    Commentary text includes anchor markers like [§5] at each sentence.
-                    When citing a specific section, use anchor(s) in the link:
-                    - Single: [Commentary §N](sword://INITIALS/Verse#oN)
-                    - Range: [Commentary §N-M](sword://INITIALS/Verse#oN-M)
-                    Ranges are highlighted when the user clicks the link.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
