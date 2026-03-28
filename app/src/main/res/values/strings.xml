@@ -1473,6 +1473,12 @@
     <string name="ai_connection_category">Connection</string>
     <string name="ai_model_category">Model</string>
     <string name="ai_behavior_category">Behavior</string>
+    <string name="ai_language_title">AI response language</string>
+    <string name="ai_language_summary">Language AI uses for responses</string>
+    <string name="ai_language_app_default">App language (%1$s)</string>
+    <string name="ai_language_custom">Custom\u2026</string>
+    <string name="ai_language_custom_hint">Enter language name or code</string>
+    <string name="ai_language_custom_example">e.g. suomi, Tagalog, en</string>
     <string name="ai_usage_category">Usage</string>
     <string name="llm_usage_summary_title">Token usage</string>
     <string name="llm_usage_summary_default">No usage data</string>

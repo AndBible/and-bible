@@ -59,7 +59,6 @@ import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
 import org.json.JSONObject
 import java.io.StringReader
-import java.util.Locale
 
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
@@ -444,7 +443,7 @@ class AgentExecutor(
     }
 
     private fun buildSystemPrompt(prompt: AgentPrompt, context: AgentContext): String {
-        val appLanguage = Locale.getDefault().displayLanguage
+        val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
 
         return buildString {
             val template = application.resources.openRawResource(R.raw.llm_agent_system_prompt)

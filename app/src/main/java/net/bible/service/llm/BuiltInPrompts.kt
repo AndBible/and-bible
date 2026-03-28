@@ -22,7 +22,7 @@ import net.bible.android.activity.R
 import net.bible.android.database.IdType
 import net.bible.service.llm.agent.PermissionMode
 import net.bible.service.llm.tools.ToolRegistry
-import java.util.Locale
+import net.bible.service.common.CommonUtils
 import java.util.UUID
 
 /**
@@ -79,10 +79,8 @@ object BuiltInPrompts {
     val TEST_CAPITALIZE_ID = stableId("test-capitalize")
     val TEST_MY_DOCUMENTS_ID = stableId("test-my-documents")
 
-    private fun getUiLanguageName(): String {
-        val locale = Locale.getDefault()
-        return locale.getDisplayLanguage(locale)
-    }
+    private fun getUiLanguageName(): String =
+        CommonUtils.aiSettings.aiDisplayLanguage
 
     /**
      * Returns all built-in prompts as AgentPrompt objects.
@@ -93,13 +91,11 @@ object BuiltInPrompts {
      */
     fun allBuiltInPrompts(): List<AgentPrompt> = productionPrompts() + testPrompts()
 
-    private val _productionPrompts by lazy { buildProductionPrompts() }
-    private val _testPrompts by lazy { buildTestPrompts() }
-
     /**
      * Returns only production (non-test) built-in prompts.
+     * Not cached because prompt names depend on the configurable AI language.
      */
-    fun productionPrompts(): List<AgentPrompt> = _productionPrompts
+    fun productionPrompts(): List<AgentPrompt> = buildProductionPrompts()
 
     /**
      * Computes the deny set for a given allow set: all non-structural tools NOT in [allowed].
@@ -625,7 +621,7 @@ object BuiltInPrompts {
      * Returns test prompts (visible only in debug mode).
      * These have a 🧪 prefix in their names.
      */
-    fun testPrompts(): List<AgentPrompt> = _testPrompts
+    fun testPrompts(): List<AgentPrompt> = buildTestPrompts()
 
     private fun buildTestPrompts(): List<AgentPrompt> {
         var order = 100 // Start at 100 to keep them after production prompts

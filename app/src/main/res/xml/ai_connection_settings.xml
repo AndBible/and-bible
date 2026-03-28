@@ -55,6 +55,12 @@
         android:key="ai_behavior_category"
         android:title="@string/ai_behavior_category">
 
+        <Preference android:key="ai_language"
+            android:title="@string/ai_language_title"
+            android:summary="@string/ai_language_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+
         <ListPreference android:key="agent_permission_mode"
             android:title="@string/prompt_permission_mode"
             android:summary="@string/agent_permission_mode_summary"

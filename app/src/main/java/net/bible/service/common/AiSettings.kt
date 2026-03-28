@@ -23,6 +23,7 @@ import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.agent.PermissionMode
+import java.util.Locale
 
 /** Posted when the global default model changes. */
 class DefaultModelChangedEvent
@@ -77,5 +78,23 @@ object AiSettings {
         set(value) {
             update { copy(defaultModelId = value) }
             ABEventBus.post(DefaultModelChangedEvent())
+        }
+
+    var aiLanguage: String?
+        get() = getOrDefault().aiLanguage
+        set(value) = update { copy(aiLanguage = value) }
+
+    /**
+     * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
+     * If aiLanguage is null, returns the app's display language.
+     * If aiLanguage is a BCP 47 code (from the preset list), resolves it to a display name.
+     * If aiLanguage is a free-form name (from custom input), returns it as-is.
+     */
+    val aiDisplayLanguage: String
+        get() {
+            val tag = aiLanguage ?: return Locale.getDefault().let { it.getDisplayLanguage(it) }
+            val locale = Locale.forLanguageTag(tag)
+            val displayName = locale.getDisplayLanguage(locale)
+            return if (displayName.isNotEmpty() && displayName != tag) displayName else tag
         }
 }
