@@ -90,6 +90,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         binding.apply {
             logRecyclerView.layoutManager = LinearLayoutManager(context)
             logRecyclerView.adapter = adapter
+            if (CommonUtils.settings.disableAnimations) {
+                logRecyclerView.itemAnimator = null
+            }
 
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
@@ -223,7 +226,8 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     private fun refreshLogEntries(scrollToBottom: Boolean = false) {
         val entries = AgentSessionManager.getLogEntries(workspaceId)
-        adapter.submitList(entries.toList()) {
+        // Copy each entry so DiffUtil detects changes to mutable fields (status, costInfo).
+        adapter.submitList(entries.map { it.copy() }) {
             if (scrollToBottom && adapter.itemCount > 0 && isExpanded) {
                 binding.logRecyclerView.scrollToPosition(adapter.itemCount - 1)
             }
