@@ -135,10 +135,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      * Update background color to match the bottom window's background.
      */
     fun updateBackgroundColor() {
+        val monochromeMode = CommonUtils.settings.monochromeMode
         val lastWindow = windowControl.windowRepository.visibleWindows.lastOrNull()
         val backgroundColor = if (lastWindow != null) {
             val colors = lastWindow.pageManager.actualTextDisplaySettings.colors
-            val monochromeMode = CommonUtils.settings.monochromeMode
             val nightBackground = if (monochromeMode) Color.BLACK else colors?.nightBackground
             val dayBackground = if (monochromeMode) Color.WHITE else colors?.dayBackground
             (if (ScreenSettings.nightMode) nightBackground else dayBackground)
@@ -147,6 +147,17 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             UiUtils.bibleViewDefaultBackgroundColor
         }
         binding.rootLayout.setBackgroundColor(backgroundColor)
+
+        if (monochromeMode) {
+            val tint = if (ScreenSettings.nightMode) Color.WHITE else Color.BLACK
+            binding.statusIcon.setColorFilter(tint)
+            binding.expandButton.setColorFilter(tint)
+            binding.closeButton.setColorFilter(tint)
+            binding.statusText.setTextColor(tint)
+            binding.headerCostText.setTextColor(tint)
+            binding.headerCostText.alpha = 1.0f
+            binding.rootLayout.elevation = 0f
+        }
     }
 
     /**
@@ -389,7 +400,10 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     private fun updateCloseStopButton(isRunning: Boolean) {
         if (isRunning) {
             binding.closeButton.setImageResource(R.drawable.ic_stop_black_24dp)
-            binding.closeButton.setColorFilter(CommonUtils.getResourceColor(R.color.grey_500))
+            val stopColor = if (CommonUtils.settings.monochromeMode) {
+                if (ScreenSettings.nightMode) Color.WHITE else Color.BLACK
+            } else CommonUtils.getResourceColor(R.color.grey_500)
+            binding.closeButton.setColorFilter(stopColor)
             binding.closeButton.contentDescription = context.getString(R.string.agent_log_stop)
             binding.closeButton.setOnClickListener {
                 AgentSessionManager.stopAgent(workspaceId)

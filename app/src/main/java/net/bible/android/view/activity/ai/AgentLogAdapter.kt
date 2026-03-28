@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.AgentLogItemBinding
+import net.bible.service.common.CommonUtils
 import net.bible.service.llm.agent.AgentLogEntry
 import net.bible.service.llm.agent.EntryStatus
 import net.bible.service.llm.agent.LogEntryType
@@ -77,19 +79,22 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
     }
 
     private fun bindModelSelector(binding: AgentLogItemBinding) = binding.run {
+        val monochrome = CommonUtils.settings.monochromeMode
         typeIcon.setImageResource(R.drawable.ic_baseline_smart_toy_24)
-        typeIcon.setColorFilter(root.context.getColor(R.color.log_info))
+        typeIcon.setColorFilter(if (monochrome) Color.BLACK else root.context.getColor(R.color.log_info))
         messageText.visibility = View.GONE
         detailsText.visibility = View.GONE
         costText.visibility = View.GONE
         statusIcon.visibility = View.GONE
         rawLogLink.visibility = View.VISIBLE
+        rawLogLink.setTextColor(if (monochrome) Color.BLACK else root.context.getColor(R.color.log_info))
         rawLogLink.text = modelSelectorText
         rawLogLink.setOnClickListener { onModelSelectorClick?.invoke() }
     }
 
     private fun bindLogEntry(binding: AgentLogItemBinding, entry: AgentLogEntry) = binding.run {
         val context = root.context
+        val monochrome = CommonUtils.settings.monochromeMode
 
         messageText.visibility = View.VISIBLE
 
@@ -102,17 +107,21 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
         typeIcon.setImageResource(typeIconRes)
 
-        val typeColor = when (entry.type) {
-            LogEntryType.INFO -> R.color.log_info
-            LogEntryType.ACTION -> R.color.log_action
-            LogEntryType.PERMISSION_REQUEST -> R.color.log_permission
-            LogEntryType.ERROR -> R.color.log_error
-            LogEntryType.LLM_COMMENT -> R.color.log_comment
+        val typeColor = if (monochrome) Color.BLACK else when (entry.type) {
+            LogEntryType.INFO -> context.getColor(R.color.log_info)
+            LogEntryType.ACTION -> context.getColor(R.color.log_action)
+            LogEntryType.PERMISSION_REQUEST -> context.getColor(R.color.log_permission)
+            LogEntryType.ERROR -> context.getColor(R.color.log_error)
+            LogEntryType.LLM_COMMENT -> context.getColor(R.color.log_comment)
         }
-        typeIcon.setColorFilter(context.getColor(typeColor))
+        typeIcon.setColorFilter(typeColor)
 
         messageText.text = entry.message
+        if (monochrome) {
+            messageText.setTextColor(Color.BLACK)
+        }
 
+        rawLogLink.setTextColor(if (monochrome) Color.BLACK else context.getColor(R.color.log_info))
         if (entry.showRawLogLink) {
             rawLogLink.visibility = View.VISIBLE
             rawLogLink.text = context.getString(R.string.agent_log_view_raw)
@@ -125,6 +134,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         if (entry.details != null) {
             detailsText.text = entry.details
             detailsText.visibility = View.VISIBLE
+            if (monochrome) { detailsText.alpha = 1.0f; detailsText.setTextColor(Color.BLACK) }
         } else {
             detailsText.visibility = View.GONE
         }
@@ -132,6 +142,7 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         if (entry.costInfo != null) {
             costText.text = entry.costInfo
             costText.visibility = View.VISIBLE
+            if (monochrome) { costText.alpha = 1.0f; costText.setTextColor(Color.BLACK) }
         } else {
             costText.visibility = View.GONE
         }
@@ -151,12 +162,12 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
             View.VISIBLE
         }
 
-        val statusColor = when (entry.status) {
-            EntryStatus.PENDING -> R.color.status_pending
-            EntryStatus.APPROVED, EntryStatus.COMPLETED -> R.color.status_success
-            EntryStatus.DENIED, EntryStatus.FAILED -> R.color.status_error
+        val statusColor = if (monochrome) Color.BLACK else when (entry.status) {
+            EntryStatus.PENDING -> context.getColor(R.color.status_pending)
+            EntryStatus.APPROVED, EntryStatus.COMPLETED -> context.getColor(R.color.status_success)
+            EntryStatus.DENIED, EntryStatus.FAILED -> context.getColor(R.color.status_error)
         }
-        statusIcon.setColorFilter(context.getColor(statusColor))
+        statusIcon.setColorFilter(statusColor)
     }
 
     private class DiffCallback : DiffUtil.ItemCallback<AgentLogEntry>() {
