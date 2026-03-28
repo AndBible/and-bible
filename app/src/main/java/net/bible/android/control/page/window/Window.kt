@@ -336,7 +336,7 @@ class Window (
         val anchorOrdinal = pageManager.currentPage.anchorOrdinal
         val htmlId = pageManager.currentPage.htmlId
         if(prevKey == key && (anchorOrdinal != null || htmlId != null)) {
-            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, key?.osisRef)
+            bibleView?.scrollOrJumpToOrdinal(anchorOrdinal, htmlId, document?.initials, pageManager.currentPage.displayKey?.osisRef)
             return
         }
         loadText(notifyLocationChange = true)
@@ -382,7 +382,7 @@ class Window (
                 currentPage.anchorOrdinal,
                 currentPage.htmlId,
                 currentPage.currentDocument?.initials,
-                currentPage.singleKey?.osisRef,
+                currentPage.displayKey?.osisRef,
                 true
             )
         }
