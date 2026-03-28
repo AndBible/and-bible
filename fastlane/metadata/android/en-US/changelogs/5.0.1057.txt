@@ -1,0 +1,15 @@
+- Fixed AI output regression with document title handling in certain models (54aaa926a)
+- Fixed AI model not updating when changed during processing (0279b0786)
+- Removed incorrect reference to AndBible from AI system prompt (8a2b41c2b)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
