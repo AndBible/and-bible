@@ -21,8 +21,10 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.AsyncDifferConfig
+import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.ListUpdateCallback
 import androidx.recyclerview.widget.RecyclerView
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.AgentLogItemBinding
@@ -34,8 +36,11 @@ import net.bible.service.llm.agent.LogEntryType
 /**
  * RecyclerView adapter for displaying agent log entries.
  * The first item is a synthetic "model selector" entry when [modelSelectorText] is set.
+ *
+ * Uses a custom [AsyncListDiffer] with position-offset callback so that the synthetic
+ * header item doesn't cause DiffUtil notifications to target wrong positions.
  */
-class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(DiffCallback()) {
+class AgentLogAdapter : RecyclerView.Adapter<AgentLogAdapter.ViewHolder>() {
 
     var onRawLogClick: (() -> Unit)? = null
     var onModelSelectorClick: (() -> Unit)? = null
@@ -54,14 +59,36 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         }
 
     private val hasModelSelector get() = modelSelectorText != null
+    private val headerCount get() = if (hasModelSelector) 1 else 0
 
-    override fun getItemCount(): Int = super.getItemCount() + if (hasModelSelector) 1 else 0
+    /**
+     * Offset-aware callback so DiffUtil notifications target the correct adapter positions
+     * (shifted past the synthetic model selector header).
+     */
+    private val offsetCallback = object : ListUpdateCallback {
+        override fun onInserted(position: Int, count: Int) =
+            notifyItemRangeInserted(position + headerCount, count)
+        override fun onRemoved(position: Int, count: Int) =
+            notifyItemRangeRemoved(position + headerCount, count)
+        override fun onMoved(fromPosition: Int, toPosition: Int) =
+            notifyItemMoved(fromPosition + headerCount, toPosition + headerCount)
+        override fun onChanged(position: Int, count: Int, payload: Any?) =
+            notifyItemRangeChanged(position + headerCount, count, payload)
+    }
+
+    private val differ = AsyncListDiffer(offsetCallback, diffConfig)
+
+    fun submitList(list: List<AgentLogEntry>, commitCallback: Runnable? = null) {
+        differ.submitList(list, commitCallback)
+    }
+
+    override fun getItemCount(): Int = differ.currentList.size + headerCount
 
     override fun getItemViewType(position: Int): Int =
         if (hasModelSelector && position == 0) VIEW_TYPE_MODEL_SELECTOR else VIEW_TYPE_LOG_ENTRY
 
     private fun getLogEntry(position: Int): AgentLogEntry =
-        getItem(position - if (hasModelSelector) 1 else 0)
+        differ.currentList[position - headerCount]
 
     class ViewHolder(val binding: AgentLogItemBinding) : RecyclerView.ViewHolder(binding.root)
 
@@ -170,12 +197,13 @@ class AgentLogAdapter : ListAdapter<AgentLogEntry, AgentLogAdapter.ViewHolder>(D
         statusIcon.setColorFilter(statusColor)
     }
 
-    private class DiffCallback : DiffUtil.ItemCallback<AgentLogEntry>() {
-        override fun areItemsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem.id == newItem.id
-        override fun areContentsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem == newItem
-    }
-
     companion object {
+        private val diffConfig = AsyncDifferConfig.Builder(
+            object : DiffUtil.ItemCallback<AgentLogEntry>() {
+                override fun areItemsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem.id == newItem.id
+                override fun areContentsTheSame(oldItem: AgentLogEntry, newItem: AgentLogEntry) = oldItem == newItem
+            }
+        ).build()
         private const val VIEW_TYPE_MODEL_SELECTOR = 0
         private const val VIEW_TYPE_LOG_ENTRY = 1
     }

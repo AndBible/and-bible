@@ -90,6 +90,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         binding.apply {
             logRecyclerView.layoutManager = LinearLayoutManager(context)
             logRecyclerView.adapter = adapter
+            if (CommonUtils.settings.disableAnimations) {
+                logRecyclerView.itemAnimator = null
+            }
 
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
@@ -221,9 +224,14 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     /**
      * Refresh the log entries from the session manager.
      */
-    private fun refreshLogEntries() {
+    private fun refreshLogEntries(scrollToBottom: Boolean = false) {
         val entries = AgentSessionManager.getLogEntries(workspaceId)
-        adapter.submitList(entries.toList())
+        // Copy each entry so DiffUtil detects changes to mutable fields (status, costInfo).
+        adapter.submitList(entries.map { it.copy() }) {
+            if (scrollToBottom && adapter.itemCount > 0 && isExpanded) {
+                binding.logRecyclerView.scrollToPosition(adapter.itemCount - 1)
+            }
+        }
 
         // Update status text with latest meaningful entry
         val latestMessage = getLatestMeaningfulMessage(entries)
@@ -298,11 +306,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
      */
     fun onEventMainThread(event: AgentLogUpdatedEvent) {
         if (event.workspaceId == workspaceId) {
-            refreshLogEntries()
-            // Auto-scroll to bottom when new entries are added
-            if (adapter.itemCount > 0 && isExpanded) {
-                binding.logRecyclerView.smoothScrollToPosition(adapter.itemCount - 1)
-            }
+            refreshLogEntries(scrollToBottom = true)
         }
     }
 
