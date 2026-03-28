@@ -1,0 +1,15 @@
+- Support reasoning models (like GPT-5 Mini) that cannot output text alongside tool calls (8d135f348)
+- Fix agent log rendering issues (4491ce7f6)
+- Fix agent log auto-scroll timing (aa85b2b76)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
