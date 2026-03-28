@@ -1,0 +1,15 @@
+- Support reasoning models setting document titles without text output (49d0738)
+- Fix provider type dialog text colors in dark mode (95bfc6a)
+- Fix app crashes from uninitialized properties in back navigation and activity restoration (5bc3127)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
