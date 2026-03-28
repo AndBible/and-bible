@@ -101,16 +101,17 @@ class MultiSearchItemAdapter(
         // Get the HorizontalScrollView parent of translationPills
         val translationPillsContainer = binding.translationPills.parent as View
 
+        // Clicking the header row always navigates directly to the verse
+        binding.headerRow.setOnClickListener {
+            onTranslationClick(firstMatch.book, firstMatch.key)
+        }
+
         if (isSingleMatch) {
             // Single translation match - show directly without expand functionality
             binding.expandIcon.visibility = View.GONE
             translationPillsContainer.visibility = View.GONE
             binding.expandableContent.visibility = View.GONE
-
-            // Click navigates directly to the verse
-            binding.headerRow.setOnClickListener {
-                onTranslationClick(firstMatch.book, firstMatch.key)
-            }
+            binding.expandIcon.setOnClickListener(null)
         } else {
             // Multiple translation matches - show expandable view
             binding.expandIcon.visibility = View.VISIBLE
@@ -133,8 +134,8 @@ class MultiSearchItemAdapter(
                 populateExpandedContent(binding.expandableContent, item)
             }
 
-            // Handle click to expand/collapse
-            binding.headerRow.setOnClickListener {
+            // Only the expand icon toggles expansion
+            binding.expandIcon.setOnClickListener {
                 toggleExpansion(position, binding, item)
             }
         }
