@@ -183,7 +183,7 @@ class AgentExecutor(
                 emit(AgentEvent.Iteration(iteration))
                 currentCoroutineContext().ensureActive()
 
-                val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog)
+                val (parsed, callUsage) = callLlmAndParse(adapter, messages, tools, iteration, llmConfig, loopHeaders, rawLlmLog, resolved)
                 totalUsage += callUsage
                 rawLlmLog?.addUsageForIteration(iteration, callUsage, resolved.model, resolved.configuredModelId)
 
@@ -305,10 +305,11 @@ class AgentExecutor(
         iteration: Int,
         llmConfig: LlmModelConfig? = null,
         extraHeaders: Map<String, String> = emptyMap(),
-        rawLlmLog: RawLlmLog? = null
+        rawLlmLog: RawLlmLog? = null,
+        preResolved: LlmProcessingService.ResolvedProvider? = null
     ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders)
+        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders, preResolved)
         rawLlmLog?.addRawApiResponse(iteration, apiResponse.responseBody)
         val parsed = adapter.parseResponse(apiResponse.responseBody)
         return Pair(parsed, apiResponse.usage)
