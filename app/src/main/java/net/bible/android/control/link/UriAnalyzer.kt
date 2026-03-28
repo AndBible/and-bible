@@ -16,12 +16,12 @@
  */
 package net.bible.android.control.link
 
-import android.net.Uri
 import android.util.Log
 import org.apache.commons.lang3.StringUtils
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import java.net.URI
+import java.net.URLDecoder
 
 class UriAnalyzer {
     companion object {
@@ -107,27 +107,28 @@ class UriAnalyzer {
         if (!ref.contains("/")) {
             try {
                 val (bookCandidateStr, refCandidateStr) = ref.split(".", limit = 2)
-                val bookCandidate = try {Books.installed().getBook(bookCandidateStr)} catch (e: Exception) {null}
+                val decodedBook = URLDecoder.decode(bookCandidateStr)
+                val bookCandidate = try {Books.installed().getBook(decodedBook)} catch (e: Exception) {null}
                 if (bookCandidate?.bookCategory != null && bookCandidate.bookCategory != BookCategory.BIBLE) {
                     docType = DocType.SPECIFIC_DOC
-                    key = refCandidateStr
-                    book = bookCandidateStr
+                    key = URLDecoder.decode(refCandidateStr)
+                    book = decodedBook
                 } else {
-                    key = ref
+                    key = URLDecoder.decode(ref)
                 }
             } catch(e: Exception) {
                 Log.w("UriAnalyzer", "Error in parsing $urlStr", e)
-                key = ref
+                key = URLDecoder.decode(ref)
             }
         } else {
             val firstSlash = ref.indexOf("/")
-            book = ref.substring(0, firstSlash)
+            book = URLDecoder.decode(ref.substring(0, firstSlash))
             // handle uri like sword://Bible/John.17.11 found in Calvin's commentary avoiding any attempt to find a book named Bible that will fail
             if (BIBLE_PROTOCOL.equals(book, ignoreCase = true)) {
                 docType = DocType.BIBLE
             }
             // safe to grab after slash because slash can't be on end due to above strip("/")
-            key = ref.substring(firstSlash + 1)
+            key = URLDecoder.decode(ref.substring(firstSlash + 1))
         }
         // handled this url (or at least attempted to)
         return true
