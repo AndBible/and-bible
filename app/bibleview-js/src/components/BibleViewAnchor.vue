@@ -23,6 +23,7 @@
       @click="ordinalClicked"
   >
       <span class="highlight-transition" :class="{isHighlighted: highlighted}">
+        <span v-if="config.showOrdinals" class="ordinal-badge skip-offset">§{{ ordinal }}</span>
         <slot/>
       </span>
   </span>
@@ -31,12 +32,13 @@
 <script lang="ts" setup>
 import {addEventOrdinalInfo} from "@/utils";
 import {computed, inject} from "vue";
-import {androidKey, osisDocumentInfoKey, ordinalHighlightKey} from "@/types/constants";
+import {androidKey, configKey, osisDocumentInfoKey, ordinalHighlightKey} from "@/types/constants";
 
 const props = defineProps<{ ordinal: string }>();
 
 const ordinal = computed(() => parseInt(props.ordinal));
 
+const config = inject(configKey)!;
 const {querySelection} = inject(androidKey)!
 const {highlightOrdinal, isHighlighted} = inject(ordinalHighlightKey)!;
 
@@ -66,4 +68,11 @@ function ordinalClicked(event: Event) {
 </script>
 <style lang="scss">
 @use "@/common.scss" as *;
+
+.ordinal-badge {
+    font-size: 0.65em;
+    vertical-align: super;
+    opacity: 0.5;
+    user-select: none;
+}
 </style>

@@ -259,6 +259,7 @@ open class Preference(val settings: SettingsBundle,
                 TextDisplaySettings.Types.SCROLL_HELPER_LINES -> R.string.prefs_scroll_helper_lines_title
                 TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE -> R.string.prefs_scroll_helper_line_style_title
                 TextDisplaySettings.Types.PAGE_BUTTONS -> R.string.prefs_page_buttons_title
+                TextDisplaySettings.Types.ORDINALS -> R.string.prefs_show_ordinals_title
             }
             return application.getString(id)
         }
@@ -355,6 +356,8 @@ class MyNotesPreference (settings: SettingsBundle) : Preference(settings, TextDi
 }
 
 class AiDocMarkersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.AI_DOC_MARKERS)
+
+class OrdinalsPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.ORDINALS)
 
 class RedLettersPreference (settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.REDLETTERS) {
     override val enabled: Boolean get() = pageManager.isBibleShown && pageManager.currentPage.currentDocument?.hasFeature(FeatureType.WORDS_OF_CHRIST) == true

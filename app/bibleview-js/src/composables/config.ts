@@ -67,6 +67,7 @@ export type Config = {
     showBookmarks: boolean,
     showMyNotes: boolean,
     showAiDocMarkers: boolean,
+    showOrdinals: boolean,
     bookmarksHideLabels: IdType[],
     bookmarksAssignLabels: IdType[],
 
@@ -175,6 +176,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         showBookmarks: true,
         showMyNotes: true,
         showAiDocMarkers: true,
+        showOrdinals: false,
         bookmarksHideLabels: [],
         bookmarksAssignLabels: [],
 
@@ -322,7 +324,7 @@ export function useConfig(documentType: Ref<BibleViewDocumentType>) {
         const keys: (keyof Config)[] = [
             "showAnnotations", "showChapterNumbers", "showVerseNumbers", "strongsMode", "showMorphology",
             "showRedLetters", "showVersePerLine", "showNonCanonical", "showSectionTitles",
-            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers",
+            "showStrongsSeparately", "showFootNotes", "showFootNotesInline", "showXrefs", "showBookmarks", "showMyNotes", "showAiDocMarkers", "showOrdinals",
             "fontSize", "fontFamily", "hyphenation", "justifyText", "marginSize", "topMargin",
             "showTitleScrollButton"
         ];
