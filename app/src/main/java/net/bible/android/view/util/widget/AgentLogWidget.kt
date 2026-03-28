@@ -39,6 +39,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.common.CommonUtils.buildActivityComponent
 import net.bible.android.view.activity.ai.RawLlmLogActivity
 import net.bible.service.common.AiSettings
+import net.bible.service.common.DefaultModelChangedEvent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.agent.AgentLogEntry
@@ -320,6 +321,13 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
                 show()
             }
         }
+    }
+
+    /**
+     * Refresh the model selector text when the default model changes elsewhere.
+     */
+    fun onEventMainThread(@Suppress("UNUSED_PARAMETER") event: DefaultModelChangedEvent) {
+        updateModelSelectorText()
     }
 
     /**

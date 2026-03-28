@@ -61,6 +61,22 @@ class UriAnalyzerTest {
     }
 
     @Test
+    fun encodedInitialsDecoded() {
+        val analyzer = UriAnalyzer()
+        assertTrue(analyzer.analyze("sword://My%20Commentary/Matt.5.1"))
+        assertEquals("My Commentary", analyzer.book)
+        assertEquals("Matt.5.1", analyzer.key)
+    }
+
+    @Test
+    fun encodedKeyDecoded() {
+        val analyzer = UriAnalyzer()
+        assertTrue(analyzer.analyze("sword://MHC/My%20Key"))
+        assertEquals("MHC", analyzer.book)
+        assertEquals("My Key", analyzer.key)
+    }
+
+    @Test
     fun fragmentDoesNotAffectKeyParsing() {
         val analyzer = UriAnalyzer()
         assertTrue(analyzer.analyze("sword://MHC/Rom.8.28-30#o12"))
