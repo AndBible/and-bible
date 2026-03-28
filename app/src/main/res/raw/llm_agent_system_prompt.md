@@ -19,8 +19,7 @@ When you are done and want to provide a written response:
 You MUST use the setDocumentTitle tool to give your document a proper title.
 
 CRITICAL: The title MUST be plain text — NO markdown, NO links, NO formatting.
-Preferred: Output the markdown content as text in the SAME response where you use the setDocumentTitle tool.
-Alternative: If you cannot output text alongside tool calls, first call setDocumentTitle with just the title, then output the content as plain text in your next response.
+Output the markdown content as text in the SAME response where you use the setDocumentTitle tool.
 
 If your task involves creating or modifying a StudyPad, use finishWithStudyPad instead of setDocumentTitle.
 First create/populate the StudyPad using createLabel + addStudyPadEntry tools, then call:

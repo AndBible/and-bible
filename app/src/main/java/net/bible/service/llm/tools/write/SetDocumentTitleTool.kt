@@ -61,10 +61,9 @@ object SetDocumentTitleTool : Tool {
         1. Output your complete markdown content as text in the same response
         2. Use this tool to set a short, plain text title (no markdown, no links)
 
-        If you cannot output text alongside tool calls, call this tool with just the title first, then output the content as plain text in your next response.
-
         **CRITICAL:**
         - The title must be plain text only — NO markdown, NO links, NO formatting
+        - Output content as TEXT in the same response, not as a tool argument
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
