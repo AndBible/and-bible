@@ -116,8 +116,10 @@ object GetCommentariesTool : Tool {
 
         Commentary text includes anchor markers like [§5] at each sentence boundary.
         These mark scroll positions within the commentary. When citing a specific section,
-        append #oN to the linkUrl: [MHC](sword://MHC/Matt.5.3#o5)
-        This lets the user jump directly to the relevant passage in the commentary.
+        append anchor ordinal(s) to the linkUrl:
+        - Single sentence: [MHC §5](sword://MHC/Matt.5.3#o5)
+        - Range of sentences: [MHC §5-10](sword://MHC/Matt.5.3#o5-10)
+        The cited range will be highlighted when the user clicks the link.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

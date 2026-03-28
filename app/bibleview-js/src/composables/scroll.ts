@@ -202,13 +202,23 @@ export function useScroll(
             jumpToAnchor = null,
             jumpToId = null,
             topOffset,
-            bottomOffset
+            bottomOffset,
+            ordinalStart = null,
+            ordinalEnd = null,
+            highlight = false,
+            bookInitials = null,
+            osisRef = null,
         }: {
             jumpToOrdinal: Nullable<number>,
             jumpToAnchor: Nullable<number>,
             jumpToId: Nullable<string>,
             topOffset: number,
-            bottomOffset: number
+            bottomOffset: number,
+            ordinalStart?: Nullable<number>,
+            ordinalEnd?: Nullable<number>,
+            highlight?: boolean,
+            bookInitials?: Nullable<string>,
+            osisRef?: Nullable<string>,
         }) {
         await documentPromise.value;
         console.log(`setupContent`, jumpToOrdinal, jumpToAnchor, topOffset);
@@ -220,7 +230,7 @@ export function useScroll(
         if (jumpToOrdinal != null) {
             scrollToId(`o-${jumpToOrdinal}`, {now: true, force: true});
         } else if (jumpToAnchor !== null) {
-            scrollToId(`o-${jumpToAnchor}`, {now: true, force: true});
+            scrollToId(`o-${jumpToAnchor}`, {now: true, force: true, highlight, ordinalStart, ordinalEnd, bookInitials: bookInitials ?? undefined, osisRef: osisRef ?? undefined});
         } else if (jumpToId !== null) {
             scrollToId(jumpToId, {now: true, force: true});
         } else {

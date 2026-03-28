@@ -23,6 +23,7 @@ import net.bible.android.activity.R
 import net.bible.android.control.ApplicationScope
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.page.CurrentPageManager
+import net.bible.android.control.page.OrdinalRange
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.report.ErrorReportControl
 import net.bible.android.control.search.SearchControl
@@ -143,13 +144,18 @@ class LinkControl @Inject constructor(
                 UriAnalyzer.DocType.SPECIFIC_DOC -> getSpecificDocRefKey(uriAnalyzer.book, uriAnalyzer.key, versification, book)
                 else -> null
             }
-            // If a fragment was present (e.g. #o5 for commentary anchor), attach it as htmlId
-            // so the frontend scrolls to the corresponding BibleViewAnchor element (id="o-5")
+            // If a fragment was present (e.g. #o5 or #o5-10), parse ordinal range
+            // and attach it for scroll + highlight in the frontend
             val fragment = uriAnalyzer.fragment
             if (key is BookAndKey && fragment != null) {
-                val ordinal = fragment.removePrefix("o").toIntOrNull()
-                if (ordinal != null) {
-                    return BookAndKey(key.key, key.document, htmlId = "o-$ordinal")
+                val rangeParts = fragment.removePrefix("o").split("-", limit = 2)
+                val start = rangeParts[0].toIntOrNull()
+                if (start != null) {
+                    val end = rangeParts.getOrNull(1)?.toIntOrNull() ?: start
+                    return BookAndKey(key.key, key.document,
+                        ordinal = OrdinalRange(start, end),
+                        htmlId = "o-$start"
+                    )
                 }
             }
             return key
