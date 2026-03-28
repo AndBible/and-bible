@@ -40,13 +40,12 @@ import org.json.JSONObject
  */
 object SetDocumentTitleTool : Tool {
     @Serializable
-    data class Args(val title: String = "", val content: String = "")
+    data class Args(val title: String = "")
 
     @Serializable
     data class Result(
         val finished: Boolean,
-        val title: String,
-        val content: String? = null
+        val title: String
     )
 
     override val agentTool = AgentTool.SET_DOCUMENT_TITLE
@@ -62,7 +61,7 @@ object SetDocumentTitleTool : Tool {
         1. Output your complete markdown content as text in the same response
         2. Use this tool to set a short, plain text title (no markdown, no links)
 
-        If your model cannot output text alongside tool calls, pass the content parameter instead.
+        If you cannot output text alongside tool calls, call this tool with just the title first, then output the content as plain text in your next response.
 
         **CRITICAL:**
         - The title must be plain text only — NO markdown, NO links, NO formatting
@@ -74,9 +73,6 @@ object SetDocumentTitleTool : Tool {
           title:
             type: string
             description: "Plain text title for the document (shown in table of contents, max 60 chars, NO markdown)"
-          content:
-            type: string
-            description: "Document content in markdown. Only use this if you cannot output text alongside tool calls."
         required: [title]
     """)
 
@@ -102,7 +98,6 @@ object SetDocumentTitleTool : Tool {
             return ToolResult.error("Title is required", "MISSING_TITLE")
         }
 
-        val fallbackContent = args.content.takeIf { it.isNotBlank() }
-        return typedSuccess(Result(finished = true, title = title, content = fallbackContent))
+        return typedSuccess(Result(finished = true, title = title))
     }
 }

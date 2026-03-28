@@ -92,7 +92,8 @@ fun computeExcludedTools(
 
 private sealed class ProcessToolsResult {
     data class Continue(
-        val context: AgentContext
+        val context: AgentContext,
+        val pendingDocumentTitle: String? = null
     ) : ProcessToolsResult()
     data class FinishWithDocument(
         val title: String,
@@ -172,6 +173,7 @@ class AgentExecutor(
         var iterationLimit = if (maxIterations > 0) maxIterations else Int.MAX_VALUE
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
+        var pendingDocumentTitle: String? = null
         val resolved = preResolved ?: LlmProcessingService.resolveFromConfig(llmConfig)
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
@@ -195,6 +197,9 @@ class AgentExecutor(
                         when (val result = processToolCalls(adapter, parsed, messages, currentContext, rawLlmLog)) {
                             is ProcessToolsResult.Continue -> {
                                 currentContext = result.context
+                                if (result.pendingDocumentTitle != null) {
+                                    pendingDocumentTitle = result.pendingDocumentTitle
+                                }
                             }
                             is ProcessToolsResult.FinishWithDocument -> {
                                 Log.d(TAG, "Agent finished with document: ${result.title}")
@@ -248,19 +253,32 @@ class AgentExecutor(
                         }
                     }
                     is ParsedResponse.TextResponse -> {
-                        Log.d(TAG, "LLM returned final text response without tool call")
                         val normalizedContent = normalizeLlmText(parsed.content)
-                        emit(AgentEvent.TextResponse(
-                            text = normalizedContent,
-                            isFinal = true
-                        ))
-                        emit(AgentEvent.Completed(
-                            response = normalizedContent,
-                            totalIterations = iteration,
-                            usage = totalUsage,
-                            model = resolved.model,
-                            configuredModelId = resolved.configuredModelId
-                        ))
+                        val title = pendingDocumentTitle
+                        if (title != null) {
+                            Log.d(TAG, "LLM returned text response, combining with pending title: $title")
+                            emit(AgentEvent.CompletedWithDocument(
+                                title = title,
+                                content = normalizedContent,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model,
+                                configuredModelId = resolved.configuredModelId
+                            ))
+                        } else {
+                            Log.d(TAG, "LLM returned final text response without tool call")
+                            emit(AgentEvent.TextResponse(
+                                text = normalizedContent,
+                                isFinal = true
+                            ))
+                            emit(AgentEvent.Completed(
+                                response = normalizedContent,
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model,
+                                configuredModelId = resolved.configuredModelId
+                            ))
+                        }
                         return
                     }
                     is ParsedResponse.ParseError -> {
@@ -309,6 +327,7 @@ class AgentExecutor(
     ): ProcessToolsResult {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
         var currentContext = context
+        var pendingTitle: String? = null
 
         parsed.content?.takeIf { it.isNotBlank() }?.let {
             emit(AgentEvent.TextResponse(it, isFinal = false))
@@ -362,19 +381,19 @@ class AgentExecutor(
                             val data = result.data as? SetDocumentTitleTool.Result
                             val title = data?.title ?: application.getString(R.string.llm_default_document_title)
                             val content = parsed.content?.takeIf { it.isNotBlank() }
-                                ?: data?.content  // Fallback: content passed as tool argument
 
                             if (content == null) {
-                                Log.w(TAG, "setDocumentTitle called but no content provided (neither text response nor tool argument)")
+                                Log.i(TAG, "setDocumentTitle called without content, saving pending title: $title")
+                                pendingTitle = title
                                 toolResults[toolResults.lastIndex] = ToolResultBlock(
-                                    toolCallId = toolCall.id, content = ToolResult.error(
-                                        "Content is required. Either output your markdown content as text alongside this tool call, or pass it in the 'content' parameter.",
-                                        "MISSING_CONTENT"
-                                    ).toJson()
+                                    toolCallId = toolCall.id, content = ToolResult.success {
+                                        put("titleSaved", true)
+                                        put("title", title)
+                                        put("instruction", "Title accepted. Now output your document content as plain text in your next response.")
+                                    }.toJson()
                                 )
                             } else {
-                                val source = if (parsed.content?.isNotBlank() == true) "text response" else "tool argument"
-                                Log.d(TAG, "Agent finished with document: $title (content from $source, ${content.length} chars)")
+                                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
                                 finishResult = ProcessToolsResult.FinishWithDocument(
                                     title = title,
                                     content = normalizeLlmText(content),
@@ -432,7 +451,7 @@ class AgentExecutor(
         // Add all tool results to messages
         messages.addAll(adapter.createToolResultMessages(toolResults))
 
-        return finishResult ?: ProcessToolsResult.Continue(currentContext)
+        return finishResult ?: ProcessToolsResult.Continue(currentContext, pendingDocumentTitle = pendingTitle)
     }
 
     private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
