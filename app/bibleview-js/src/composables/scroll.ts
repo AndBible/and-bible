@@ -167,25 +167,26 @@ export function useScroll(
         }
 
         if (toElement != null) {
-            const diff = toElement.offsetTop - window.scrollY;
+            const elementTop = toElement.getBoundingClientRect().top + window.scrollY;
+            const diff = elementTop - window.scrollY;
             if (Math.abs(diff) > 800 / window.devicePixelRatio) {
                 now = true;
             }
-            console.log("Scrolling to", toElement, attributesToString(toElement), toElement.offsetTop - delta);
+            console.log("Scrolling to", toElement, attributesToString(toElement), elementTop - delta);
             const style = window.getComputedStyle(toElement);
             const lineHeight = parseFloat(style.getPropertyValue('line-height'));
             const fontSize = parseFloat(style.getPropertyValue('font-size'));
             delta += 0.5 * (lineHeight - fontSize);
             if (now) {
                 currentScrollAnimation.value = -1;
-                window.scrollTo(0, toElement.offsetTop - delta);
+                window.scrollTo(0, elementTop - delta);
                 setTimeout(() => {
                     if (currentScrollAnimation.value === -1) {
                         currentScrollAnimation.value = null;
                     }
                 }, 100);
             } else {
-                doScrolling(toElement.offsetTop - delta, duration);
+                doScrolling(elementTop - delta, duration);
             }
         }
     }
