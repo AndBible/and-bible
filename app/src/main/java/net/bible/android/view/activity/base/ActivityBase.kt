@@ -218,9 +218,10 @@ abstract class ActivityBase : AppCompatActivity(), AndBibleActivity {
     /**	This will be called automatically for you on 2.0 or later
      */
     override fun onBackPressed() {
-        if (!historyTraversal.goBack()) {
-            super.onBackPressed()
+        if (::historyTraversal.isInitialized && historyTraversal.goBack()) {
+            return
         }
+        super.onBackPressed()
     }
 
     /** called by Android 2.0 +
