@@ -1,0 +1,15 @@
+- Add ordinal range highlighting support for commentary anchor links (6563f7b29)
+- Fix verse scroll positioning broken by position:relative on bible-document (e7334c4b5)
+- Fix agent log widget header showing per-call cost instead of session total (ae69e96ad)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
