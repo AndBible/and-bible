@@ -191,9 +191,10 @@ object BuiltInPrompts {
 
                     CITATION FORMAT:
                     Commentary text includes anchor markers like [§5] at each sentence.
-                    When citing a specific section, use the anchor in the link:
-                    [Commentary Name §N](sword://INITIALS/Verse#oN)
-                    This lets the user jump directly to the relevant passage in the commentary.
+                    When citing a specific section, use anchor(s) in the link:
+                    - Single: [Commentary §N](sword://INITIALS/Verse#oN)
+                    - Range: [Commentary §N-M](sword://INITIALS/Verse#oN-M)
+                    Ranges are highlighted when the user clicks the link.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -227,9 +228,10 @@ object BuiltInPrompts {
 
                     CITATION FORMAT:
                     Commentary text includes anchor markers like [§5] at each sentence.
-                    When citing a specific section, use the anchor in the link:
-                    [Commentary Name §N](sword://INITIALS/Verse#oN)
-                    This lets the user jump directly to the relevant passage in the commentary.
+                    When citing a specific section, use anchor(s) in the link:
+                    - Single: [Commentary §N](sword://INITIALS/Verse#oN)
+                    - Range: [Commentary §N-M](sword://INITIALS/Verse#oN-M)
+                    Ranges are highlighted when the user clicks the link.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,

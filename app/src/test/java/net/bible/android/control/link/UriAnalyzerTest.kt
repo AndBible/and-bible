@@ -77,6 +77,15 @@ class UriAnalyzerTest {
     }
 
     @Test
+    fun rangeFragment() {
+        val analyzer = UriAnalyzer()
+        assertTrue(analyzer.analyze("sword://MHC/Matt.5.1#o5-10"))
+        assertEquals("MHC", analyzer.book)
+        assertEquals("Matt.5.1", analyzer.key)
+        assertEquals("o5-10", analyzer.fragment)
+    }
+
+    @Test
     fun fragmentDoesNotAffectKeyParsing() {
         val analyzer = UriAnalyzer()
         assertTrue(analyzer.analyze("sword://MHC/Rom.8.28-30#o12"))

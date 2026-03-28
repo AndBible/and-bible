@@ -1593,11 +1593,16 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             ${getUpdateConfigCommand(true)}
             bibleView.emit("add_documents", $documentStr);
             bibleView.emit("setup_content", {
-                jumpToOrdinal: ${verse?.ordinal}, 
+                jumpToOrdinal: ${verse?.ordinal},
                 jumpToAnchor: ${initialAnchorOrdinal?.start},
                 jumpToId: ${wrapString(jumpToId)},
                 topOffset: $topOffset,
                 bottomOffset: $bottomOffset,
+                ordinalStart: ${initialAnchorOrdinal?.start},
+                ordinalEnd: ${initialAnchorOrdinal?.end},
+                highlight: ${initialAnchorOrdinal?.end != null},
+                bookInitials: ${wrapString(window.pageManager.currentPage.currentDocument?.initials)},
+                osisRef: ${wrapString(window.pageManager.currentPage.key?.osisRef)},
             });            
             bibleView.emit("set_title", "BibleView-${window.displayId}");
             """
