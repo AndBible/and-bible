@@ -366,7 +366,7 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val permanentlyAllowedTools: Set<AgentTool>? = null,
     @ColumnInfo(defaultValue = "NULL") val permanentlyDeniedTools: Set<AgentTool>? = null,
     val aiExcludedDocuments: Set<String> = emptySet(),
-    @ColumnInfo(defaultValue = "4000") val commentaryMaxResponseTokens: Int = 4000,
+    @ColumnInfo(defaultValue = "15000") val commentaryMaxResponseTokens: Int = 15000,
     val hiddenBuiltInPrompts: Set<IdType> = emptySet(),
     @ColumnInfo(defaultValue = "10") val maxIterations: Int = 10,
     val commentaryDeselected: Set<String> = emptySet(),

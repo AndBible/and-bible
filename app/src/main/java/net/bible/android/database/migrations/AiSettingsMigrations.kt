@@ -162,4 +162,26 @@ private val addConfiguredModels = makeMigration(8..9) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `defaultModelId` BLOB DEFAULT NULL")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels)
+private val raiseCommentaryTokenDefault = makeMigration(9..10) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `GlobalAiSettings_new` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `agentPermissionMode` TEXT DEFAULT NULL,
+        `permanentlyAllowedTools` TEXT DEFAULT NULL,
+        `permanentlyDeniedTools` TEXT DEFAULT NULL,
+        `aiExcludedDocuments` TEXT NOT NULL,
+        `commentaryMaxResponseTokens` INTEGER NOT NULL DEFAULT 15000,
+        `hiddenBuiltInPrompts` TEXT NOT NULL,
+        `maxIterations` INTEGER NOT NULL DEFAULT 10,
+        `commentaryDeselected` TEXT NOT NULL,
+        `defaultModelId` BLOB DEFAULT NULL
+    )""")
+    db.execSQL("""INSERT INTO `GlobalAiSettings_new` (`id`, `agentPermissionMode`, `permanentlyAllowedTools`, `permanentlyDeniedTools`, `aiExcludedDocuments`, `commentaryMaxResponseTokens`, `hiddenBuiltInPrompts`, `maxIterations`, `commentaryDeselected`, `defaultModelId`)
+        SELECT `id`, `agentPermissionMode`, `permanentlyAllowedTools`, `permanentlyDeniedTools`, `aiExcludedDocuments`,
+            CASE WHEN `commentaryMaxResponseTokens` = 4000 THEN 15000 ELSE `commentaryMaxResponseTokens` END,
+            `hiddenBuiltInPrompts`, `maxIterations`, `commentaryDeselected`, `defaultModelId`
+        FROM `GlobalAiSettings`""")
+    db.execSQL("DROP TABLE `GlobalAiSettings`")
+    db.execSQL("ALTER TABLE `GlobalAiSettings_new` RENAME TO `GlobalAiSettings`")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault)
