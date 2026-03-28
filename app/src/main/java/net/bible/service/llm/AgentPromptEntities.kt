@@ -372,6 +372,8 @@ data class GlobalAiSettings(
     val commentaryDeselected: Set<String> = emptySet(),
     /** Global default model. FK to LlmConfiguredModel (managed in code, not DB constraint). */
     @ColumnInfo(defaultValue = "NULL") val defaultModelId: IdType? = null,
+    /** BCP 47 language tag for AI responses. null = use app language (Locale.getDefault()). */
+    @ColumnInfo(defaultValue = "NULL") val aiLanguage: String? = null,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */

@@ -45,6 +45,7 @@ import androidx.preference.PreferenceFragmentCompat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
@@ -105,6 +106,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var behaviorCategory: PreferenceCategory
     private lateinit var manageToolPermissionsPref: Preference
     private lateinit var manageAiDocumentsPref: Preference
+    private lateinit var aiLanguagePref: Preference
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
     private lateinit var usageCategory: PreferenceCategory
@@ -123,6 +125,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         behaviorCategory = preferenceScreen.findPreference("ai_behavior_category")!!
         manageToolPermissionsPref = preferenceScreen.findPreference("manage_tool_permissions")!!
         manageAiDocumentsPref = preferenceScreen.findPreference("manage_ai_documents")!!
+        aiLanguagePref = preferenceScreen.findPreference("ai_language")!!
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
@@ -134,6 +137,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupAddModel()
         setupToolPermissions()
         setupDocumentFilter()
+        setupAiLanguage()
         setupCommentaryMaxResponse()
         setupMaxIterations()
         setupUsage()
@@ -609,6 +613,90 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.ai_document_filter_summary_count, excludedCount)
         } else {
             getString(R.string.ai_document_filter_summary)
+        }
+    }
+
+    /** Sentinel value used to identify the "Custom…" entry in the language picker. */
+    private val CUSTOM_LANGUAGE_TAG = "\u0000custom"
+
+    private fun setupAiLanguage() {
+        updateAiLanguageSummary()
+        aiLanguagePref.setOnPreferenceClickListener {
+            val currentTag = settings.aiLanguage
+            val descriptions = resources.getStringArray(R.array.prefs_interface_locale_descriptions)
+            val codes = resources.getStringArray(R.array.prefs_interface_locale_values)
+            val languages = mutableListOf<Pair<String?, String>>()
+            languages.add(null to getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage))
+            for (i in codes.indices) {
+                val code = codes[i]
+                if (code.isNotEmpty()) {
+                    languages.add(code to descriptions[i])
+                }
+            }
+            languages.add(CUSTOM_LANGUAGE_TAG to getString(R.string.ai_language_custom))
+
+            val items = languages.map { it.second }.toTypedArray()
+            val checkedIndex = languages.indexOfFirst { it.first == currentTag }.let {
+                if (it >= 0) it
+                else if (currentTag != null) languages.size - 1  // custom value → highlight "Custom…"
+                else 0
+            }
+
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.ai_language_title)
+                .setSingleChoiceItems(items, checkedIndex) { dialog, which ->
+                    if (languages[which].first == CUSTOM_LANGUAGE_TAG) {
+                        dialog.dismiss()
+                        showCustomLanguageDialog()
+                    } else {
+                        settings.aiLanguage = languages[which].first
+                        updateAiLanguageSummary()
+                        dialog.dismiss()
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun showCustomLanguageDialog() {
+        val ctx = requireContext()
+        val input = EditText(ctx).apply {
+            inputType = InputType.TYPE_CLASS_TEXT
+            hint = getString(R.string.ai_language_custom_example)
+            settings.aiLanguage?.let { setText(it) }
+        }
+        val container = LinearLayout(ctx).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad / 2, pad, 0)
+            addView(TextView(ctx).apply {
+                text = getString(R.string.ai_language_custom_hint)
+                setPadding(0, 0, 0, pad / 2)
+            })
+            addView(input)
+        }
+        AlertDialog.Builder(ctx)
+            .setTitle(R.string.ai_language_title)
+            .setView(container)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val tag = input.text.toString().trim()
+                settings.aiLanguage = tag.ifEmpty { null }
+                updateAiLanguageSummary()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateAiLanguageSummary() {
+        val tag = settings.aiLanguage
+        aiLanguagePref.summary = if (tag == null) {
+            getString(R.string.ai_language_app_default, Locale.getDefault().displayLanguage)
+        } else {
+            val locale = Locale.forLanguageTag(tag)
+            val displayName = locale.getDisplayLanguage(locale)
+            if (displayName.isNotEmpty() && displayName != tag) "$displayName ($tag)" else tag
         }
     }
 
