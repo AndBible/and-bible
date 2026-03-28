@@ -102,6 +102,11 @@ class AgentSession(val workspaceId: IdType) {
     var isRunning: Boolean = false
         private set
 
+    /** Cumulative session cost in USD, updated on each API call. */
+    @Volatile
+    var sessionCostUsd: Double = 0.0
+        private set
+
     var context: AgentContext? = null
         private set
 
@@ -114,6 +119,7 @@ class AgentSession(val workspaceId: IdType) {
     fun start(context: AgentContext) {
         this.context = context
         this.isRunning = true
+        this.sessionCostUsd = 0.0
         _logEntries.clear()
         rawLlmLog = RawLlmLog()
         addLogEntry(AgentLogEntry.info("Agent started"))
@@ -142,6 +148,10 @@ class AgentSession(val workspaceId: IdType) {
             entry.status = newStatus
             ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
         }
+    }
+
+    fun addCost(cost: Double) {
+        sessionCostUsd += cost
     }
 
     fun setLastEntryCost(costInfo: String, isTotalCost: Boolean = false) {
@@ -551,6 +561,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 // Attach cost to the most recent log entry (typically the iteration entry)
                 val cost = LlmPricing.estimateCost(event.usage, event.model, event.configuredModelId)
                 if (cost != null) {
+                    session.addCost(cost)
                     session.setLastEntryCost(LlmCostTracker.formatCost(cost))
                 }
             }
