@@ -362,17 +362,19 @@ class AgentExecutor(
                             val data = result.data as? SetDocumentTitleTool.Result
                             val title = data?.title ?: application.getString(R.string.llm_default_document_title)
                             val content = parsed.content?.takeIf { it.isNotBlank() }
+                                ?: data?.content  // Fallback: content passed as tool argument
 
                             if (content == null) {
-                                Log.w(TAG, "setDocumentTitle called but no text content provided alongside the tool call")
+                                Log.w(TAG, "setDocumentTitle called but no content provided (neither text response nor tool argument)")
                                 toolResults[toolResults.lastIndex] = ToolResultBlock(
                                     toolCallId = toolCall.id, content = ToolResult.error(
-                                        "Content is required. Output your markdown content as text alongside the setDocumentTitle tool call.",
+                                        "Content is required. Either output your markdown content as text alongside this tool call, or pass it in the 'content' parameter.",
                                         "MISSING_CONTENT"
                                     ).toJson()
                                 )
                             } else {
-                                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+                                val source = if (parsed.content?.isNotBlank() == true) "text response" else "tool argument"
+                                Log.d(TAG, "Agent finished with document: $title (content from $source, ${content.length} chars)")
                                 finishResult = ProcessToolsResult.FinishWithDocument(
                                     title = title,
                                     content = normalizeLlmText(content),

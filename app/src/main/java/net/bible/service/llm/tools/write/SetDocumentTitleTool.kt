@@ -40,12 +40,13 @@ import org.json.JSONObject
  */
 object SetDocumentTitleTool : Tool {
     @Serializable
-    data class Args(val title: String = "")
+    data class Args(val title: String = "", val content: String = "")
 
     @Serializable
     data class Result(
         val finished: Boolean,
-        val title: String
+        val title: String,
+        val content: String? = null
     )
 
     override val agentTool = AgentTool.SET_DOCUMENT_TITLE
@@ -56,15 +57,15 @@ object SetDocumentTitleTool : Tool {
         Set the title for your AI document and finish the task.
 
         You MUST use this tool to give your document a proper title.
-        The document content comes from your text output in the SAME response.
 
         **How to use:**
-        1. Output your complete markdown content as text
+        1. Output your complete markdown content as text in the same response
         2. Use this tool to set a short, plain text title (no markdown, no links)
+
+        If your model cannot output text alongside tool calls, pass the content parameter instead.
 
         **CRITICAL:**
         - The title must be plain text only — NO markdown, NO links, NO formatting
-        - Output content as TEXT, not as a tool argument
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -73,6 +74,9 @@ object SetDocumentTitleTool : Tool {
           title:
             type: string
             description: "Plain text title for the document (shown in table of contents, max 60 chars, NO markdown)"
+          content:
+            type: string
+            description: "Document content in markdown. Only use this if you cannot output text alongside tool calls."
         required: [title]
     """)
 
@@ -98,6 +102,7 @@ object SetDocumentTitleTool : Tool {
             return ToolResult.error("Title is required", "MISSING_TITLE")
         }
 
-        return typedSuccess(Result(finished = true, title = title))
+        val fallbackContent = args.content.takeIf { it.isNotBlank() }
+        return typedSuccess(Result(finished = true, title = title, content = fallbackContent))
     }
 }

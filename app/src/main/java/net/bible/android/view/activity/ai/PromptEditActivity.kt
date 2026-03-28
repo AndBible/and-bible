@@ -103,13 +103,15 @@ class PromptEditActivity : ActivityBase() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Initialize before super.onCreate() because fragment restoration may trigger
+        // onCreatePreferences() which accesses advancedDataStore.
+        advancedDataStore = AdvancedDataStore()
+
         super.onCreate(savedInstanceState)
         binding = PromptEditBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         buildActivityComponent().inject(this)
-
-        advancedDataStore = AdvancedDataStore()
 
         setupTabs()
 

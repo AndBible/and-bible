@@ -349,13 +349,16 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = super.getView(position, convertView, parent)
                 val tv = view as TextView
+                val textColorAttr = TypedValue()
                 if (items[position].second == null) {
                     tv.setTypeface(null, Typeface.BOLD)
-                    tv.setTextColor(resources.getColor(android.R.color.darker_gray, null))
+                    context.theme.resolveAttribute(android.R.attr.textColorSecondary, textColorAttr, true)
+                    tv.setTextColor(context.getColor(textColorAttr.resourceId))
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
                 } else {
                     tv.setTypeface(null, Typeface.NORMAL)
-                    tv.setTextColor(resources.getColor(android.R.color.primary_text_light, null))
+                    context.theme.resolveAttribute(android.R.attr.textColorPrimary, textColorAttr, true)
+                    tv.setTextColor(context.getColor(textColorAttr.resourceId))
                     tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 }
                 return view
