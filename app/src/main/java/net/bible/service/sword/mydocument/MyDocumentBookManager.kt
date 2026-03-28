@@ -279,6 +279,7 @@ object MyDocumentBookManager {
         val page = dao.pageById(pageId) ?: return false
         dao.deletePageWithContent(page)
         refreshDocument(AI_DOCUMENTS_INITIALS)
+        ABEventBus.post(AiDocPagesChangedEvent(deletedPageIds = listOf(pageId)))
         Log.i(TAG, "Deleted AI document page: $pageId")
         return true
     }
