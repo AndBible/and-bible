@@ -1,0 +1,14 @@
+- Fixed stale AI document markers remaining in bookmark modal after page deletion (c271fa4c3)
+- Fixed commentary ordinal highlight not showing on scroll (8d42161bb)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
