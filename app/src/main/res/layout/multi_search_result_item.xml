@@ -32,11 +32,13 @@
 
         <ImageView
             android:id="@+id/expandIcon"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
+            android:padding="8dp"
             android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
-            android:contentDescription="@android:string/untitled"/>
+            android:contentDescription="@android:string/untitled"
+            android:background="?attr/selectableItemBackgroundBorderless"/>
 
         <LinearLayout
             android:layout_width="0dp"
