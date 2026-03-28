@@ -251,7 +251,7 @@ object LlmProcessingService {
      * @param extraHeaders Provider-specific extra headers (e.g. xAI conv-id)
      * @return LlmApiResponse containing the response body string and extracted token usage
      */
-    suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
+    internal suspend fun callLlmApiWithTools(messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, llmConfig: LlmModelConfig? = null, extraHeaders: Map<String, String> = emptyMap(), preResolved: ResolvedProvider? = null): LlmApiResponse {
         val resolved = preResolved ?: resolveFromConfig(llmConfig)
 
         if (resolved.apiKey.isBlank()) {
