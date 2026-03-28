@@ -281,6 +281,12 @@ private val addPageScrollSettings = makeMigration(20..21) { _db ->
     _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showPageButtons` INTEGER DEFAULT NULL")
 }
 
+private val addShowOrdinals = makeMigration(21..22) { _db ->
+    _db.execSQL("ALTER TABLE `Workspace` ADD COLUMN `text_display_settings_showOrdinals` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `PageManager` ADD COLUMN `text_display_settings_showOrdinals` INTEGER DEFAULT NULL")
+    _db.execSQL("ALTER TABLE `GlobalTextDisplaySettings` ADD COLUMN `text_display_settings_showOrdinals` INTEGER DEFAULT NULL")
+}
+
 val workspacesMigrations: Array<Migration> = arrayOf(
     resetMaximizedWindowId,
     removeFavouriteLabels,
@@ -302,6 +308,7 @@ val workspacesMigrations: Array<Migration> = arrayOf(
     addAutoTrackReading,
     addAiDocMarkers,
     addPageScrollSettings,
+    addShowOrdinals,
 )
 
-const val WORKSPACE_DATABASE_VERSION = 21
+const val WORKSPACE_DATABASE_VERSION = 22

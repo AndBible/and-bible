@@ -180,6 +180,7 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var scrollHelperLines: Boolean? = null,
         @ColumnInfo(defaultValue = "NULL") var scrollHelperLineStyle: Int? = null,
         @ColumnInfo(defaultValue = "NULL") var showPageButtons: Boolean? = null,
+        @ColumnInfo(defaultValue = "NULL") var showOrdinals: Boolean? = null,
     ) {
         enum class Types {
             FONTSIZE,
@@ -215,6 +216,7 @@ class WorkspaceEntities {
             SCROLL_HELPER_LINES,
             SCROLL_HELPER_LINE_STYLE,
             PAGE_BUTTONS,
+            ORDINALS,
         }
 
         fun getValue(type: Types): Any? = when(type) {
@@ -251,6 +253,7 @@ class WorkspaceEntities {
             Types.SCROLL_HELPER_LINES -> scrollHelperLines
             Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle
             Types.PAGE_BUTTONS -> showPageButtons
+            Types.ORDINALS -> showOrdinals
         }
 
         fun setValue(type: Types, value: Any?) {
@@ -288,6 +291,7 @@ class WorkspaceEntities {
                 Types.SCROLL_HELPER_LINES -> scrollHelperLines = value as Boolean?
                 Types.SCROLL_HELPER_LINE_STYLE -> scrollHelperLineStyle = value as Int?
                 Types.PAGE_BUTTONS -> showPageButtons = value as Boolean?
+                Types.ORDINALS -> showOrdinals = value as Boolean?
             }
         }
 
@@ -357,6 +361,7 @@ class WorkspaceEntities {
                 scrollHelperLines = false,
                 scrollHelperLineStyle = 0,
                 showPageButtons = false,
+                showOrdinals = false,
             )
 
             fun actual(

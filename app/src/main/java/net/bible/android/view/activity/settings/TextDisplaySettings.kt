@@ -59,6 +59,7 @@ import net.bible.android.view.activity.page.FootnotesInlinePreference
 import net.bible.android.view.activity.page.MorphologyPreference
 import net.bible.android.view.activity.page.NonStrongsWordItalicPreference
 import net.bible.android.view.activity.page.AiDocMarkersPreference
+import net.bible.android.view.activity.page.OrdinalsPreference
 import net.bible.android.view.activity.page.MyNotesPreference
 import net.bible.android.view.activity.page.OptionsMenuItemInterface
 import net.bible.android.view.activity.page.RedLettersPreference
@@ -147,6 +148,7 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.MEMORIZATION_INDICATORS -> ReadingMemorizationPreference(settings, Types.MEMORIZATION_INDICATORS)
         Types.AUTO_TRACK_READING -> ReadingMemorizationPreference(settings, Types.AUTO_TRACK_READING)
         Types.AI_DOC_MARKERS -> AiDocMarkersPreference(settings)
+        Types.ORDINALS -> OrdinalsPreference(settings)
         Types.PAGE_SCROLL_AMOUNT -> PageScrollAmountPreference(settings)
         Types.SCROLL_HELPER_LINES -> ScrollHelperLinesPreference(settings)
         Types.SCROLL_HELPER_LINE_STYLE -> ScrollHelperLineStylePreference(settings)
