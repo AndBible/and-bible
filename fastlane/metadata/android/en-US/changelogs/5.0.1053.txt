@@ -1,0 +1,16 @@
+- Add configurable AI response language setting (ed738cc43)
+- Add Show Ordinals text display setting (30de03783)
+- Make agent log widget monochrome-compatible for e-ink devices (0d5aca6fc)
+- Increase commentary response size limit default from 4000 to 15000 (c5b90b46e)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
