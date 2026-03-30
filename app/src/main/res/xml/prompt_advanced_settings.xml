@@ -37,4 +37,32 @@
         android:summary="@string/prompt_max_iterations_description"
         android:icon="@drawable/ic_baseline_refresh_gray_24" />
 
+    <SwitchPreference
+        android:key="specify_before_run"
+        android:title="@string/prompt_edit_before_run"
+        android:summary="@string/prompt_edit_before_run_description"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_keyboard_24" />
+
+    <SwitchPreference
+        android:key="no_document_creation"
+        android:title="@string/prompt_no_document_creation"
+        android:summary="@string/prompt_no_document_creation_description"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_visibility_off_24" />
+
+    <SwitchPreference
+        android:key="auto_include_documents"
+        android:title="@string/prompt_auto_include_documents"
+        android:summary="@string/prompt_auto_include_documents_description"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_menu_book_gray_24" />
+
+    <SwitchPreference
+        android:key="auto_include_commentaries"
+        android:title="@string/prompt_auto_include_commentaries"
+        android:summary="@string/prompt_auto_include_commentaries_description"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_chat_bubble_outline_gray_24" />
+
 </PreferenceScreen>
