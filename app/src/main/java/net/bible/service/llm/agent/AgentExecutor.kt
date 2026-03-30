@@ -600,6 +600,10 @@ class AgentExecutor(
                     }
                     val result = GetCommentariesTool.execute(args, context)
                     append("\n\n--- Commentary Entries (auto-included) ---\n")
+                    append("Each entry includes a 'linkUrl' — use it directly in clickable links. ")
+                    append("Commentary text has anchor markers like [§5] at sentence boundaries. ")
+                    append("ALWAYS append anchor ordinals to linkUrl for precise citations: ")
+                    append("[MHC §5](sword://MHC/Matt.5.3#o5) or ranges: [MHC §5-10](sword://MHC/Matt.5.3#o5-10)\n\n")
                     append(result.toJson())
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to auto-include commentaries", e)
