@@ -1632,6 +1632,10 @@
     <string name="prompt_edit_before_run_description">Show a text field for specifying the task before running the prompt</string>
     <string name="prompt_no_document_creation">No document creation</string>
     <string name="prompt_no_document_creation_description">When enabled, the AI will not create a document. Results are only shown in the activity log. Useful for action-only prompts (bookmarks, labels, StudyPad operations).</string>
+    <string name="prompt_auto_include_documents">Auto-include installed documents</string>
+    <string name="prompt_auto_include_documents_description">Automatically include the list of installed documents in the prompt context, saving an AI iteration.</string>
+    <string name="prompt_auto_include_commentaries">Auto-include commentaries</string>
+    <string name="prompt_auto_include_commentaries_description">Automatically fetch and include commentary entries for the selected verses, saving an AI iteration.</string>
     <string name="llm_no_document_creation_intercepted">Task completed (document creation disabled)</string>
     <string name="specify_before_run_title">Specify task</string>
     <string name="specify_before_run_hint">Describe the specific task…</string>

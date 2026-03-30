@@ -135,6 +135,38 @@
                 android:textAppearance="?android:attr/textAppearanceSmall"
                 android:textColor="?android:attr/textColorSecondary" />
 
+            <!-- Auto-include installed documents -->
+            <CheckBox
+                android:id="@+id/checkAutoIncludeDocuments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/prompt_auto_include_documents" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/prompt_auto_include_documents_description"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary" />
+
+            <!-- Auto-include commentaries -->
+            <CheckBox
+                android:id="@+id/checkAutoIncludeCommentaries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/prompt_auto_include_commentaries" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/prompt_auto_include_commentaries_description"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary" />
+
             <!-- Show in contexts -->
             <TextView
                 android:layout_width="wrap_content"

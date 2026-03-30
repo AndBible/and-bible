@@ -326,6 +326,10 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "0") var noDocumentCreation: Boolean = false,
     /** Per-prompt max iterations override. null = use global default, 0 = unlimited. */
     @ColumnInfo(defaultValue = "NULL") var maxIterations: Int? = null,
+    /** When true, auto-include getInstalledDocuments result in the user message. */
+    @ColumnInfo(defaultValue = "0") var autoIncludeDocuments: Boolean = false,
+    /** When true, auto-include getCommentaries result in the user message (requires verse context). */
+    @ColumnInfo(defaultValue = "0") var autoIncludeCommentaries: Boolean = false,
 )
 
 @Dao

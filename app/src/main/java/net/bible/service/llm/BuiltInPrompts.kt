@@ -188,6 +188,8 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 3b. Explain Verses → StudyPad
@@ -224,6 +226,8 @@ object BuiltInPrompts {
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS + setOf(
                     AgentTool.CREATE_STUDY_PAD,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 4. Word Study
@@ -254,6 +258,7 @@ object BuiltInPrompts {
                 strictContextMatching = false,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
             ),
 
             // 5. Cross-References
@@ -282,6 +287,7 @@ object BuiltInPrompts {
                 strictContextMatching = false,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                autoIncludeCommentaries = true,
             ),
 
             // 6. Compare Translations
@@ -323,6 +329,7 @@ object BuiltInPrompts {
                     AgentTool.GET_DICTIONARY_ENTRY,
                     AgentTool.SEARCH_BIBLE,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 7. Thematic Study → StudyPad
@@ -365,6 +372,8 @@ object BuiltInPrompts {
                     AgentTool.GET_ALL_LABELS,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 8. Devotional Reflection
@@ -390,6 +399,7 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                autoIncludeCommentaries = true,
             ),
 
             // 9. Bookmark & Annotate
@@ -432,6 +442,8 @@ object BuiltInPrompts {
                     AgentTool.ADD_BOOKMARK_NOTE,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 10. Open Study Layout
@@ -474,6 +486,7 @@ object BuiltInPrompts {
                     AgentTool.MANAGE_WINDOW,
                     AgentTool.SET_WINDOW_DOCUMENT,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 11. Workspace Assistant
@@ -516,6 +529,7 @@ object BuiltInPrompts {
                     AgentTool.MANAGE_WINDOW,
                     AgentTool.SET_WINDOW_DOCUMENT,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 12. Enhance Note
@@ -570,6 +584,8 @@ object BuiltInPrompts {
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 12. Ask a Question
@@ -587,6 +603,8 @@ object BuiltInPrompts {
                 specifyBeforeRun = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 13. Custom Prompt

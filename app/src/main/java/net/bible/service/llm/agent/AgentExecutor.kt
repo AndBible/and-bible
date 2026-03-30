@@ -49,6 +49,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.read.GetCommentariesTool
+import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
@@ -455,7 +457,7 @@ class AgentExecutor(
         return finishResult ?: ProcessToolsResult.Continue(currentContext, pendingDocumentTitle = pendingTitle)
     }
 
-    private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
+    private suspend fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
         val systemPrompt = buildSystemPrompt(prompt, context)
         val userMessage = buildUserMessage(prompt, context)
         return mutableListOf(
@@ -533,7 +535,7 @@ class AgentExecutor(
         }
     }
 
-    private fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
+    private suspend fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
         return buildString {
             // The prompt template
             append(prompt.promptTemplate)
@@ -566,6 +568,31 @@ class AgentExecutor(
             } else if (context.selectedText != null) {
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
+            }
+
+            // Auto-include installed documents if enabled
+            if (prompt.autoIncludeDocuments) {
+                try {
+                    val result = GetInstalledDocumentsTool.execute(JSONObject(), context)
+                    append("\n\n--- Installed Documents (auto-included) ---\n")
+                    append(result.toJson())
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to auto-include installed documents", e)
+                }
+            }
+
+            // Auto-include commentaries if enabled and verse context is available
+            if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
+                try {
+                    val args = JSONObject().apply {
+                        put("verseRef", context.selectedVerseRange.osisRef)
+                    }
+                    val result = GetCommentariesTool.execute(args, context)
+                    append("\n\n--- Commentary Entries (auto-included) ---\n")
+                    append(result.toJson())
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to auto-include commentaries", e)
+                }
             }
 
             // Add note editor content if editing a note

@@ -76,6 +76,8 @@ class PromptEditActivity : ActivityBase() {
     private var initialDeniedTools: Set<AgentTool>? = null
     private var initialSpecifyBeforeRun = false
     private var initialNoDocumentCreation = false
+    private var initialAutoIncludeDocuments = false
+    private var initialAutoIncludeCommentaries = false
 
     /** Initial state snapshot for Advanced tab (from the in-memory DataStore) */
     private var initialAdvancedSnapshot = AdvancedDataStore.Snapshot()
@@ -228,6 +230,8 @@ class PromptEditActivity : ActivityBase() {
             checkNoteEditor.isEnabled = false
             checkEditBeforeRun.isEnabled = false
             checkNoDocumentCreation.isEnabled = false
+            checkAutoIncludeDocuments.isEnabled = false
+            checkAutoIncludeCommentaries.isEnabled = false
             permissionModeSpinner.isEnabled = false
             btnResetToolPermissions.visibility = View.GONE
             builtInNotice.visibility = View.VISIBLE
@@ -258,6 +262,8 @@ class PromptEditActivity : ActivityBase() {
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
             checkEditBeforeRun.isChecked = prompt.specifyBeforeRun
             checkNoDocumentCreation.isChecked = prompt.noDocumentCreation
+            checkAutoIncludeDocuments.isChecked = prompt.autoIncludeDocuments
+            checkAutoIncludeCommentaries.isChecked = prompt.autoIncludeCommentaries
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
@@ -304,6 +310,8 @@ class PromptEditActivity : ActivityBase() {
             initialShowIn = collectShowIn()
             initialSpecifyBeforeRun = checkEditBeforeRun.isChecked
             initialNoDocumentCreation = checkNoDocumentCreation.isChecked
+            initialAutoIncludeDocuments = checkAutoIncludeDocuments.isChecked
+            initialAutoIncludeCommentaries = checkAutoIncludeCommentaries.isChecked
             initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
             initialAllowedTools = currentToolAllowed
             initialDeniedTools = currentToolDenied
@@ -320,6 +328,8 @@ class PromptEditActivity : ActivityBase() {
                 collectShowIn() != initialShowIn ||
                 checkEditBeforeRun.isChecked != initialSpecifyBeforeRun ||
                 checkNoDocumentCreation.isChecked != initialNoDocumentCreation ||
+                checkAutoIncludeDocuments.isChecked != initialAutoIncludeDocuments ||
+                checkAutoIncludeCommentaries.isChecked != initialAutoIncludeCommentaries ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
                 currentToolDenied != initialDeniedTools
@@ -366,6 +376,8 @@ class PromptEditActivity : ActivityBase() {
         val deniedTools = currentToolDenied
         val specifyBeforeRun = binding.checkEditBeforeRun.isChecked
         val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
+        val autoIncludeDocuments = binding.checkAutoIncludeDocuments.isChecked
+        val autoIncludeCommentaries = binding.checkAutoIncludeCommentaries.isChecked
 
         // Read Advanced settings from the data store
         val strictContextMatching = advancedDataStore.strictContextMatching
@@ -389,6 +401,8 @@ class PromptEditActivity : ActivityBase() {
                         specifyBeforeRun = specifyBeforeRun,
                         noDocumentCreation = noDocumentCreation,
                         maxIterations = maxIterations,
+                        autoIncludeDocuments = autoIncludeDocuments,
+                        autoIncludeCommentaries = autoIncludeCommentaries,
                     )
                     PromptRepository.insertPrompt(newPrompt)
                     savedPromptId = newPrompt.id
@@ -406,6 +420,8 @@ class PromptEditActivity : ActivityBase() {
                         it.specifyBeforeRun = specifyBeforeRun
                         it.noDocumentCreation = noDocumentCreation
                         it.maxIterations = maxIterations
+                        it.autoIncludeDocuments = autoIncludeDocuments
+                        it.autoIncludeCommentaries = autoIncludeCommentaries
                         PromptRepository.updatePrompt(it)
                         savedPromptId = it.id
                     }
