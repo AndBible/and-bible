@@ -154,12 +154,11 @@ object BuiltInPrompts {
                     3. **Significance** — Why this passage matters (1-2 sentences)
 
                     Keep the total length to 150-300 words.
-                    If commentaries are available, you may use getCommentaries to enrich your summary.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
-                allowedTools = BIBLE_READ_TOOLS,
-                deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                allowedTools = emptySet(),
+                deniedTools = denyExcept(emptySet()),
             ),
 
             // 3. Explain Verses
