@@ -736,7 +736,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
         pageId: IdType,
         targetWindowId: IdType? = null,
         additionalInstructions: String? = null,
-        keepPrevious: Boolean = false
+        keepPrevious: Boolean = false,
+        freshRun: Boolean = false,
+        modelOverrideId: IdType? = null
     ): Boolean {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
@@ -838,8 +840,9 @@ object AgentSessionManager : AgentSessionManagerBase() {
             prompt, selection,
             targetWindowId = targetWindowId,
             additionalInstructions = additionalInstructions,
-            previousResponse = previousContent,
-            skipCache = true
+            previousResponse = if (freshRun) null else previousContent,
+            skipCache = true,
+            modelOverrideId = modelOverrideId
         )
         return true
     }

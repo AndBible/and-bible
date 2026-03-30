@@ -1654,6 +1654,7 @@
     <string name="ai_regenerate_title">Regenerate</string>
     <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
     <string name="ai_regenerate_keep_previous">Keep previous version</string>
+    <string name="ai_regenerate_fresh_run">Fresh run (ignore previous result)</string>
     <string name="ai_document_delete">Delete</string>
     <string name="ai_unknown_prompt">AI</string>
 
