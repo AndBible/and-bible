@@ -171,6 +171,9 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
         binding.logRecyclerView.visibility = if (isExpanded) View.VISIBLE else View.GONE
         updateExpandIcon()
         notifyVisibilityChanged()
+        if (isExpanded && adapter.itemCount > 0) {
+            binding.logRecyclerView.scrollToPosition(adapter.itemCount - 1)
+        }
     }
 
     /**
