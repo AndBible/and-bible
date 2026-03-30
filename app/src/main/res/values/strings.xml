@@ -1685,7 +1685,7 @@
     <string name="default_prompt_workspace_assistant">Workspace assistant</string>
     <string name="default_prompt_workspace_assistant_desc">Manage windows: create, close, rearrange, change documents</string>
     <string name="default_prompt_enhance_note">Enhance note</string>
-    <string name="default_prompt_enhance_note_desc">Enriches your bookmark note with cross-references and commentary</string>
+    <string name="default_prompt_enhance_note_desc">Improves grammar, clarity, and readability of your note</string>
     <string name="default_prompt_ask_question">Ask a question</string>
     <string name="default_prompt_ask_question_desc">Ask any question about the selected passage</string>
     <string name="default_prompt_custom">Custom prompt</string>

@@ -538,24 +538,24 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_enhance_note),
                 description = context.getString(R.string.default_prompt_enhance_note_desc),
                 promptTemplate = """
-                    Enhance the user's note with additional context and cross-references.
+                    Improve the language and clarity of the user's note.
                     The note's entity type and ID are provided in the system prompt.
 
                     APPROACH:
                     1. Read the existing note content provided in the context.
-                    2. Use getCommentaries and getVerseContent to gather relevant information about the passage.
-                    3. Expand the note by:
-                       - Adding relevant cross-references as clickable links
-                       - Including brief commentary insights
-                       - Correcting any factual errors about the passage
-                    4. Save the enhanced note using the appropriate tool:
+                    2. Improve the note by:
+                       - Fixing grammar, spelling, and punctuation errors
+                       - Improving sentence structure and readability
+                       - Making the writing more concise where appropriate
+                       - Preserving the original meaning and intent
+                    3. Save the improved note using the appropriate tool:
                        - For BOOKMARK_NOTE: use updateBookmarkNote with the bookmark ID
                        - For STUDYPAD_TEXT: use updateStudyPadTextEntry with the entry ID
                        - For MY_DOCUMENT_PAGE: use editMyDocumentPage with the page ID
-                    5. Call finishWithoutDocument confirming the note was updated.
+                    4. Call finishWithoutDocument confirming the note was updated.
 
-                    IMPORTANT: Preserve the user's original thoughts and voice.
-                    Add to them, do not replace them. Use a separator ("---") before AI additions.
+                    IMPORTANT: Preserve the user's original thoughts, voice, and content.
+                    Only improve the language — do not add new content, commentary, or cross-references.
                     Output in the same format as the content type (Markdown or HTML).
                 """.trimIndent(),
                 showIn = setOf(PromptContext.NOTE_EDITOR),
@@ -563,29 +563,15 @@ object BuiltInPrompts {
                 noDocumentCreation = true,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = setOf(
-                    AgentTool.GET_VERSE_CONTENT,
-                    AgentTool.GET_COMMENTARIES,
-                    AgentTool.GET_DICTIONARY_ENTRY,
-                    AgentTool.GET_INSTALLED_DOCUMENTS,
-                    AgentTool.SEARCH_BIBLE,
-                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
                     AgentTool.UPDATE_BOOKMARK_NOTE,
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 ),
                 deniedTools = denyExcept(setOf(
-                    AgentTool.GET_VERSE_CONTENT,
-                    AgentTool.GET_COMMENTARIES,
-                    AgentTool.GET_DICTIONARY_ENTRY,
-                    AgentTool.GET_INSTALLED_DOCUMENTS,
-                    AgentTool.SEARCH_BIBLE,
-                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
                     AgentTool.UPDATE_BOOKMARK_NOTE,
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 )),
-                autoIncludeDocuments = true,
-                autoIncludeCommentaries = true,
             ),
 
             // 12. Ask a Question
