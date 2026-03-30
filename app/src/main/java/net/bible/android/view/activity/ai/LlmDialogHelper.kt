@@ -158,8 +158,12 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
         val keepPreviousCheckBox = CheckBox(activity).apply {
             setText(R.string.ai_regenerate_keep_previous)
         }
+        val freshRunCheckBox = CheckBox(activity).apply {
+            setText(R.string.ai_regenerate_fresh_run)
+        }
         layout.addView(editText)
         layout.addView(keepPreviousCheckBox)
+        layout.addView(freshRunCheckBox)
 
         AlertDialog.Builder(activity)
             .setTitle(R.string.ai_regenerate_title)
@@ -167,8 +171,9 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             .setPositiveButton(R.string.ai_document_regenerate) { _, _ ->
                 val instructions = editText.text.toString().trim().ifEmpty { null }
                 val keepPrevious = keepPreviousCheckBox.isChecked
+                val freshRun = freshRunCheckBox.isChecked
 
-                startRegenerateWithModelCheck(pageId, bibleView, instructions, keepPrevious)
+                startRegenerateWithModelCheck(pageId, bibleView, instructions, keepPrevious, freshRun)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -180,10 +185,10 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      */
     private fun startRegenerateWithModelCheck(
         pageId: IdType, bibleView: BibleView,
-        instructions: String?, keepPrevious: Boolean
+        instructions: String?, keepPrevious: Boolean, freshRun: Boolean
     ) {
         if (!CommonUtils.aiSettings.askModelBeforeRun) {
-            startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = null)
+            startRegenerate(pageId, bibleView, instructions, keepPrevious, freshRun, modelOverrideId = null)
             return
         }
 
@@ -194,10 +199,9 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
             launch(Dispatchers.Main) {
                 if (prompt?.configuredModelId != null) {
-                    // Prompt has its own model — skip model selection
-                    startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = null)
+                    startRegenerate(pageId, bibleView, instructions, keepPrevious, freshRun, modelOverrideId = null)
                 } else {
-                    showModelSelectionForRegenerate(pageId, bibleView, instructions, keepPrevious)
+                    showModelSelectionForRegenerate(pageId, bibleView, instructions, keepPrevious, freshRun)
                 }
             }
         }
@@ -205,7 +209,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
     private fun showModelSelectionForRegenerate(
         pageId: IdType, bibleView: BibleView,
-        instructions: String?, keepPrevious: Boolean
+        instructions: String?, keepPrevious: Boolean, freshRun: Boolean
     ) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
@@ -226,7 +230,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     .setTitle(R.string.select_model_before_run_title)
                     .setItems(displayNames.toTypedArray()) { _, which ->
                         val selectedModelId = models[which].id
-                        startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = selectedModelId)
+                        startRegenerate(pageId, bibleView, instructions, keepPrevious, freshRun, modelOverrideId = selectedModelId)
                     }
                     .setNegativeButton(R.string.cancel, null)
                     .show()
@@ -236,7 +240,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
     private fun startRegenerate(
         pageId: IdType, bibleView: BibleView,
-        instructions: String?, keepPrevious: Boolean,
+        instructions: String?, keepPrevious: Boolean, freshRun: Boolean,
         modelOverrideId: IdType?
     ) {
         activity.lifecycleScope.launch {
@@ -255,6 +259,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             targetWindowId = bibleView.window.id,
             additionalInstructions = instructions,
             keepPrevious = keepPrevious,
+            freshRun = freshRun,
             modelOverrideId = modelOverrideId
         )
     }

@@ -99,6 +99,7 @@ class AgentForegroundService : Service() {
             targetWindowId: IdType? = null,
             additionalInstructions: String? = null,
             keepPrevious: Boolean = false,
+            freshRun: Boolean = false,
             modelOverrideId: IdType? = null
         ) {
             val intent = Intent(context, AgentForegroundService::class.java).apply {
@@ -108,6 +109,7 @@ class AgentForegroundService : Service() {
                 targetWindowId?.let { putExtra("targetWindowId", it.toString()) }
                 additionalInstructions?.let { putExtra("additionalInstructions", it) }
                 putExtra("keepPrevious", keepPrevious)
+                putExtra("freshRun", freshRun)
                 modelOverrideId?.let { putExtra("modelOverrideId", it.toString()) }
             }
             startServiceCompat(context, intent)
@@ -219,6 +221,7 @@ class AgentForegroundService : Service() {
         val targetWindowId = intent.getStringExtra("targetWindowId")?.let { IdType(it) }
         val additionalInstructions = intent.getStringExtra("additionalInstructions")
         val keepPrevious = intent.getBooleanExtra("keepPrevious", false)
+        val freshRun = intent.getBooleanExtra("freshRun", false)
         val modelOverrideId = intent.getStringExtra("modelOverrideId")?.let { IdType(it) }
 
         currentWorkspaceId = workspaceId
@@ -232,6 +235,7 @@ class AgentForegroundService : Service() {
                     targetWindowId = targetWindowId,
                     additionalInstructions = additionalInstructions,
                     keepPrevious = keepPrevious,
+                    freshRun = freshRun,
                     modelOverrideId = modelOverrideId
                 )
             } catch (e: Exception) {

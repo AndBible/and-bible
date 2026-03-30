@@ -737,6 +737,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         targetWindowId: IdType? = null,
         additionalInstructions: String? = null,
         keepPrevious: Boolean = false,
+        freshRun: Boolean = false,
         modelOverrideId: IdType? = null
     ): Boolean {
         ensureInitialized()
@@ -839,7 +840,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
             prompt, selection,
             targetWindowId = targetWindowId,
             additionalInstructions = additionalInstructions,
-            previousResponse = previousContent,
+            previousResponse = if (freshRun) null else previousContent,
             skipCache = true,
             modelOverrideId = modelOverrideId
         )
