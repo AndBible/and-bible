@@ -39,7 +39,8 @@ data class OpenAiRequest(
     val model: String,
     val messages: List<OpenAiWireMessage>,
     val tools: List<OpenAiWireTool>? = null,
-    val temperature: Double? = null
+    val temperature: Double? = null,
+    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
 )
 
 @Serializable
@@ -66,7 +67,8 @@ data class OpenAiWireFunction(
 @Serializable
 data class OpenAiWireTool(
     val type: String = "function",
-    val function: OpenAiWireToolDef
+    val function: OpenAiWireToolDef,
+    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
 )
 
 @Serializable
@@ -115,7 +117,8 @@ sealed class AnthropicRequestContentBlock {
     @Serializable @SerialName("tool_result")
     data class ToolResult(
         @SerialName("tool_use_id") val toolUseId: String,
-        val content: String
+        val content: String,
+        @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
     ) : AnthropicRequestContentBlock()
 }
 
@@ -123,7 +126,8 @@ sealed class AnthropicRequestContentBlock {
 data class AnthropicWireTool(
     val name: String,
     val description: String,
-    @SerialName("input_schema") val inputSchema: JsonObject
+    @SerialName("input_schema") val inputSchema: JsonObject,
+    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
 )
 
 // --- Utility: convert org.json to kotlinx.serialization ---

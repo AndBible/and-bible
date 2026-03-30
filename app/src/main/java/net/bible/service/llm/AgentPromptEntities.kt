@@ -154,7 +154,11 @@ data class LlmProviderConfig(
     }
 
     fun resolveAdapter(): LlmApiAdapter = when (resolveApiFormat()) {
-        ApiFormat.OPENAI -> OpenAiApiAdapter()
+        ApiFormat.OPENAI -> {
+            val provider = resolveProvider()
+            val cacheControl = provider != LlmProvider.CUSTOM && provider.supportsCacheControl
+            OpenAiApiAdapter(supportsCacheControl = cacheControl)
+        }
         ApiFormat.ANTHROPIC -> AnthropicApiAdapter()
     }
 

@@ -172,10 +172,9 @@ object BuiltInPrompts {
                     Explain the meaning and context of the selected verses.
 
                     APPROACH:
-                    1. Use getInstalledDocuments to find available commentaries and dictionaries.
-                    2. Use getCommentaries to retrieve commentary from ALL available commentaries.
-                    3. Synthesize the commentary perspectives into a clear explanation.
-                    4. If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
+                    Installed documents and commentaries for the selected verses are provided below.
+                    Synthesize the commentary perspectives into a clear explanation.
+                    If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
 
                     STRUCTURE your explanation:
                     - **Historical Context** — Who wrote this, to whom, and when
@@ -183,7 +182,7 @@ object BuiltInPrompts {
                     - **Key Themes** — Major theological themes
                     - **Application** — How this applies today
 
-                    Base your explanation on the commentaries you retrieve. Cite each source by name.
+                    Base your explanation on the provided commentaries. Cite each source by name.
                     Do not invent interpretations — ground everything in the available reference works.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
@@ -203,10 +202,9 @@ object BuiltInPrompts {
                     Explain the selected verses and create a StudyPad with the explanation.
 
                     APPROACH:
-                    1. Use getInstalledDocuments to find available commentaries and dictionaries.
-                    2. Use getCommentaries to retrieve commentary from ALL available commentaries.
-                    3. If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
-                    4. Build a StudyPad using createStudyPad with these items in order:
+                    Installed documents and commentaries for the selected verses are provided below.
+                    If Strong's dictionaries are available, use getDictionaryEntry for key theological terms.
+                    Build a StudyPad using createStudyPad with these items in order:
                        - A text entry with historical context (who wrote this, to whom, when)
                        - For each verse or small group of verses:
                          a. A bookmark to the verse(s)
@@ -215,7 +213,7 @@ object BuiltInPrompts {
                        - A text entry with application for today
                     5. Call finishWithStudyPad with the returned labelId to open it.
 
-                    Base your explanation on the commentaries you retrieve.
+                    Base your explanation on the provided commentaries.
                     Do not invent interpretations — ground everything in the available reference works.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
@@ -241,8 +239,8 @@ object BuiltInPrompts {
                     Perform a word study on the original Hebrew/Greek words in the selected text.
 
                     APPROACH:
-                    1. Use getInstalledDocuments to find Strong's dictionaries and Bible translations with Strong's numbers.
-                    2. Use getVerseContent with osis=true to retrieve text with Strong's markup.
+                    Installed documents are provided below.
+                    1. Use getVerseContent with osis=true to retrieve text with Strong's markup.
                     3. For each key word, use getDictionaryEntry to look up its Strong's number.
                     4. Use searchByStrongs to find other passages where the same word appears.
 
@@ -272,8 +270,9 @@ object BuiltInPrompts {
                     Find and explain cross-references for the selected verses.
 
                     APPROACH:
+                    Commentaries for the selected verses are provided below.
                     1. Use searchBible to find passages with shared keywords and themes.
-                    2. Use getCommentaries to check what commentators mention as related passages.
+                    2. Check the provided commentaries for passages they mention as related.
 
                     GROUP cross-references by connection type:
                     - **Direct Quotes/Allusions** — Where this passage quotes or echoes another
@@ -301,8 +300,8 @@ object BuiltInPrompts {
                     Compare how different Bible translations render the selected verses.
 
                     APPROACH:
-                    1. Use getInstalledDocuments with type="bible" to find all installed Bible translations.
-                    2. Use getVerseContent to retrieve the selected passage from each installed translation.
+                    Installed documents are provided below.
+                    1. Use getVerseContent to retrieve the selected passage from each installed Bible translation.
                     3. Compare the translations side by side.
 
                     STRUCTURE:
@@ -349,7 +348,7 @@ object BuiltInPrompts {
                        knowledge of Scripture is usually more effective than keyword search.
                        If you do search, use the indexed Bible's language (see system context).
                     3. Use getVerseContent to retrieve each passage from the active document.
-                    4. Use getCommentaries if available to add depth to 2-3 key passages.
+                    4. Use the provided commentaries (included below) to add depth to 2-3 key passages.
                     5. Build a StudyPad using createStudyPad with a descriptive name
                        (e.g., "Thematic Study: God's Faithfulness") and items:
                        - A text entry with an introduction to the theme
@@ -395,7 +394,7 @@ object BuiltInPrompts {
                     Tone: Warm, reflective, accessible. Avoid academic jargon.
                     Length: 200-400 words total.
                     Ground your reflection in what the text actually says.
-                    You may use getCommentaries to add depth if commentaries are available.
+                    Use the provided commentaries (if included below) to add depth.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
@@ -413,8 +412,8 @@ object BuiltInPrompts {
                     Create a bookmark for the selected verses and add a study note.
 
                     APPROACH:
-                    1. Use getCommentaries to get brief commentary context (if available).
-                    2. Create a bookmark using createBookmark for the selected verses.
+                    Commentaries for the selected verses are provided below (if available).
+                    1. Create a bookmark using createBookmark for the selected verses.
                     3. Write a concise study note (3-5 sentences) covering:
                        - What this passage is about
                        - Key insight or takeaway
@@ -582,8 +581,9 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_ask_question),
                 description = context.getString(R.string.default_prompt_ask_question_desc),
                 promptTemplate = """
-                    Answer the user's question about the selected Bible passage.
-                    Use available commentaries and dictionaries to provide a well-sourced answer.
+                    Answer the user's question about the selected passage.
+                    Commentaries and installed documents are provided below.
+                    Use them to provide a well-sourced answer.
                     Cite your sources and include clickable Bible reference links.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),

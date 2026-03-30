@@ -21,6 +21,7 @@ import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -85,8 +86,14 @@ interface LlmApiAdapter {
 
 /**
  * OpenAI-compatible API format (also used by Gemini, xAI, Mistral, DeepSeek, Groq, OpenRouter).
+ *
+ * @param supportsCacheControl When true, adds cache_control breakpoints to the request
+ *   for providers that support it (e.g. OpenRouter). This adds a top-level cache_control field,
+ *   a breakpoint on the last tool definition, and a breakpoint on the last message.
  */
-class OpenAiApiAdapter : LlmApiAdapter {
+class OpenAiApiAdapter(
+    private val supportsCacheControl: Boolean = false
+) : LlmApiAdapter {
 
     override fun buildEndpointUrl(baseEndpoint: String): String =
         "${baseEndpoint.trimEnd('/')}/chat/completions"
@@ -101,21 +108,67 @@ class OpenAiApiAdapter : LlmApiAdapter {
     }
 
     override fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double?): String {
-        val wireMessages = messages.map { it.toOpenAiWire() }
-        val wireTools = toolDefs.map { def ->
+        val wireMessages = messages.map { it.toOpenAiWire() }.toMutableList()
+        var wireTools = toolDefs.map { def ->
             OpenAiWireTool(function = OpenAiWireToolDef(
                 name = def.name,
                 description = def.description,
                 parameters = def.parametersSchema
             ))
         }
+
+        var topLevelCache: AnthropicCacheControl? = null
+        if (supportsCacheControl) {
+            topLevelCache = AnthropicCacheControl()
+            wireTools = addToolsCacheBreakpoint(wireTools)
+            addLastMessageCacheBreakpoint(wireMessages)
+        }
+
         val request = OpenAiRequest(
             model = model,
             messages = wireMessages,
             tools = wireTools.ifEmpty { null },
-            temperature = temperature
+            temperature = temperature,
+            cacheControl = topLevelCache
         )
         return llmJson.encodeToString(request)
+    }
+
+    private fun addToolsCacheBreakpoint(tools: List<OpenAiWireTool>): List<OpenAiWireTool> {
+        if (tools.isEmpty()) return tools
+        return tools.toMutableList().apply {
+            this[lastIndex] = last().copy(cacheControl = AnthropicCacheControl())
+        }
+    }
+
+    private fun addLastMessageCacheBreakpoint(messages: MutableList<OpenAiWireMessage>) {
+        val targetIdx = messages.indexOfLast { it.role == WireRole.USER || it.role == WireRole.TOOL }
+        if (targetIdx < 0) return
+        messages[targetIdx] = messages[targetIdx].withCacheControl()
+    }
+
+    private fun OpenAiWireMessage.withCacheControl(): OpenAiWireMessage {
+        val currentContent = content ?: return this
+        val cache = llmJson.encodeToJsonElement(AnthropicCacheControl.serializer(), AnthropicCacheControl())
+        return when (currentContent) {
+            is JsonPrimitive -> copy(content = JsonArray(listOf(JsonObject(mapOf(
+                "type" to JsonPrimitive("text"),
+                "text" to currentContent,
+                "cache_control" to cache
+            )))))
+            is JsonArray -> {
+                if (currentContent.isEmpty()) return this
+                val blocks = currentContent.toMutableList()
+                val last = blocks.last()
+                if (last is JsonObject) {
+                    blocks[blocks.lastIndex] = JsonObject(last.toMutableMap().also {
+                        it["cache_control"] = cache
+                    })
+                }
+                copy(content = JsonArray(blocks))
+            }
+            else -> this
+        }
     }
 
     private fun ChatMessage.toOpenAiWire(): OpenAiWireMessage = when {
@@ -249,13 +302,16 @@ class AnthropicApiAdapter : LlmApiAdapter {
             }
         }
 
-        val wireTools = toolDefs.map { def ->
+        var wireTools = toolDefs.map { def ->
             AnthropicWireTool(
                 name = def.name,
                 description = def.description,
                 inputSchema = def.parametersSchema
             )
         }
+
+        wireTools = addToolsCacheBreakpoint(wireTools)
+        addConversationCacheBreakpoint(wireMessages)
 
         val request = AnthropicRequest(
             model = model,
@@ -266,6 +322,47 @@ class AnthropicApiAdapter : LlmApiAdapter {
             temperature = temperature
         )
         return llmJson.encodeToString(request)
+    }
+
+    private fun addToolsCacheBreakpoint(tools: List<AnthropicWireTool>): List<AnthropicWireTool> {
+        if (tools.isEmpty()) return tools
+        return tools.toMutableList().apply {
+            this[lastIndex] = last().copy(cacheControl = AnthropicCacheControl())
+        }
+    }
+
+    /**
+     * Adds a cache_control breakpoint to the last user message's last content block.
+     * This ensures the entire conversation history up to this point is cached.
+     */
+    private fun addConversationCacheBreakpoint(messages: MutableList<AnthropicWireMessage>) {
+        val lastUserIdx = messages.indexOfLast { it.role == WireRole.USER }
+        if (lastUserIdx < 0) return
+
+        val target = messages[lastUserIdx]
+        val content = target.content
+        val cacheObj = JsonObject(mapOf("type" to JsonPrimitive("ephemeral")))
+
+        if (content is JsonArray && content.isNotEmpty()) {
+            val lastBlock = content.last()
+            if (lastBlock is JsonObject) {
+                val modified = JsonObject(lastBlock.toMutableMap().apply {
+                    put("cache_control", cacheObj)
+                })
+                val newContent = JsonArray(content.toMutableList().apply { set(lastIndex, modified) })
+                messages[lastUserIdx] = AnthropicWireMessage(role = target.role, content = newContent)
+            }
+        } else if (content is JsonPrimitive) {
+            val block = JsonObject(mapOf(
+                "type" to JsonPrimitive("text"),
+                "text" to content,
+                "cache_control" to cacheObj
+            ))
+            messages[lastUserIdx] = AnthropicWireMessage(
+                role = target.role,
+                content = JsonArray(listOf(block))
+            )
+        }
     }
 
     private fun ChatMessage.toAnthropicWire(): AnthropicWireMessage = when {
