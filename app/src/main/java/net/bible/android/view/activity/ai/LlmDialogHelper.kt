@@ -32,6 +32,8 @@ import net.bible.android.database.IdType
 import net.bible.android.view.activity.page.BibleView
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.page.Selection
+import net.bible.service.common.CommonUtils
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
@@ -59,7 +61,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                         if (selectedPrompt.specifyBeforeRun) {
                             showSpecifyBeforeRunDialog(selectedPrompt, selection)
                         } else {
-                            executePrompt(selectedPrompt, selection)
+                            maybeAskModel(selectedPrompt, selection, userSpecification = null)
                         }
                     }
                     .setNegativeButton(R.string.cancel, null)
@@ -90,10 +92,54 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             .setPositiveButton(R.string.okay) { _, _ ->
                 val specification = editText.text.toString().trim()
                 if (specification.isEmpty()) return@setPositiveButton
-                executePrompt(prompt, selection, userSpecification = specification)
+                maybeAskModel(prompt, selection, userSpecification = specification)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    /**
+     * If the global "ask model before run" setting is enabled and the prompt does not have
+     * an explicit model override, show a model selection dialog. Otherwise proceed directly.
+     */
+    private fun maybeAskModel(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
+        if (CommonUtils.aiSettings.askModelBeforeRun && prompt.configuredModelId == null) {
+            showModelSelectionDialog(prompt, selection, userSpecification)
+        } else {
+            executePrompt(prompt, selection, userSpecification = userSpecification)
+        }
+    }
+
+    /**
+     * Show a dialog listing all configured models. The user picks one, then prompt execution
+     * proceeds with that model override.
+     */
+    private fun showModelSelectionDialog(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+            val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+            val defaultModelId = CommonUtils.aiSettings.defaultModelId
+
+            val models = modelDao.all().sortedByDescending { it.id == defaultModelId }
+            val providers = providerDao.all().associateBy { it.id }
+
+            val displayNames = models.map { model ->
+                val providerName = providers[model.providerConfigId]?.displayName ?: "?"
+                val suffix = if (model.id == defaultModelId) " ★" else ""
+                "${model.modelId} — $providerName$suffix"
+            }
+
+            launch(Dispatchers.Main) {
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.select_model_before_run_title)
+                    .setItems(displayNames.toTypedArray()) { _, which ->
+                        val selectedModelId = models[which].id
+                        executePrompt(prompt, selection, userSpecification = userSpecification, modelOverrideId = selectedModelId)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+        }
     }
 
     /**
@@ -146,14 +192,15 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     /**
      * Execute a prompt via the foreground service so it continues in the background.
      */
-    fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null) {
+    fun executePrompt(prompt: AgentPrompt, selection: Selection, userSpecification: String? = null, modelOverrideId: IdType? = null) {
         val workspaceId = activity.windowControl.windowRepository.id
         AgentForegroundService.startAgent(
             context = activity,
             promptId = prompt.id,
             selection = selection,
             workspaceId = workspaceId,
-            userSpecification = userSpecification
+            userSpecification = userSpecification,
+            modelOverrideId = modelOverrideId
         )
     }
 }

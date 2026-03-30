@@ -134,9 +134,9 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null): Flow<AgentEvent> = flow {
+    fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
-            val llmConfig = LlmModelConfig.fromPrompt(prompt)
+            val llmConfig = LlmModelConfig(modelOverrideId ?: prompt.configuredModelId)
             val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
             emit(AgentEvent.Started(resolved.model))
             val messages = buildInitialMessages(prompt, context)

@@ -1514,6 +1514,9 @@
     <string name="llm_continue_iterations_message">The AI agent has reached its limit of %1$d iterations without completing. Continue for %2$d more iterations?</string>
     <string name="agent_max_iterations_title">Max agent iterations</string>
     <string name="agent_max_iterations_summary">Maximum iterations before asking to continue (0 = unlimited)</string>
+    <string name="ask_model_before_run_title">Ask model before run</string>
+    <string name="ask_model_before_run_summary">Show a model selection dialog before executing a prompt (skipped when the prompt has an explicit model override)</string>
+    <string name="select_model_before_run_title">Select model</string>
     <string name="prompt_max_iterations">Max iterations override</string>
     <string name="prompt_max_iterations_hint">Leave empty for global default</string>
     <string name="prompt_max_iterations_description">Override the global max iterations for this prompt. Empty = global default, 0 = unlimited.</string>

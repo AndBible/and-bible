@@ -84,6 +84,10 @@ object AiSettings {
         get() = getOrDefault().aiLanguage
         set(value) = update { copy(aiLanguage = value) }
 
+    var askModelBeforeRun: Boolean
+        get() = getOrDefault().askModelBeforeRun
+        set(value) = update { copy(askModelBeforeRun = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

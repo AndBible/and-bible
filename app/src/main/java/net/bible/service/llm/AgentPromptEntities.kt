@@ -378,6 +378,8 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val defaultModelId: IdType? = null,
     /** BCP 47 language tag for AI responses. null = use app language (Locale.getDefault()). */
     @ColumnInfo(defaultValue = "NULL") val aiLanguage: String? = null,
+    /** When true, show a model selection dialog before executing any prompt (unless the prompt has an explicit model). */
+    @ColumnInfo(defaultValue = "0") val askModelBeforeRun: Boolean = false,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
