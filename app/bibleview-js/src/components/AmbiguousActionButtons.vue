@@ -296,10 +296,11 @@ function addParagraphBreak() {
 }
 
 function llmAction() {
+    const selectedText = window.getSelection()?.toString() ?? "";
     if(verseInfo.value) {
-        android.llmAction(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value);
+        android.llmAction(verseInfo.value.bookInitials, startOrdinal.value, endOrdinal.value, selectedText);
     } else if(ordinalInfo.value) {
-        android.llmActionGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value);
+        android.llmActionGeneric(ordinalInfo.value.bookInitials, ordinalInfo.value.osisRef, startOrdinal.value, endOrdinal.value, selectedText);
     }
     emit("close");
 }

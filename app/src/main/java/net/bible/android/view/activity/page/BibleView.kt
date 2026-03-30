@@ -215,7 +215,7 @@ class Selection(
             notes = bookmark.notes
         )
 
-    constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?):
+    constructor(bookInitials: String, startOrdinal: Int, endOrdinal: Int?, text: String = ""):
         this(
             bookInitials = bookInitials,
             startOrdinal = startOrdinal,
@@ -223,8 +223,9 @@ class Selection(
             endOrdinal = endOrdinal?: startOrdinal,
             endOffset = null,
             bookmarks = emptyList(),
+            text = text,
         )
-    constructor(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int?):
+    constructor(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int?, text: String = ""):
         this(
             bookInitials = bookInitials,
             osisRef = osisRef,
@@ -233,6 +234,7 @@ class Selection(
             endOrdinal = endOrdinal?: startOrdinal,
             endOffset = null,
             bookmarks = emptyList(),
+            text = text,
         )
 
     @Transient @Inject lateinit var windowControl: WindowControl

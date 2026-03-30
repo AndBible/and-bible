@@ -555,11 +555,22 @@ class AgentExecutor(
                 }
             }
 
+            // Indicate which part of a non-Bible document the user selected (via §-anchors)
+            if (context.selectionStartOrdinal != null) {
+                val end = context.selectionEndOrdinal ?: context.selectionStartOrdinal
+                append("\n\n--- User's Selection (FOCUS ON THIS) ---\n")
+                if (context.selectionStartOrdinal == end) {
+                    append("The user selected sentence §${context.selectionStartOrdinal} in the following document. Focus on this part.\n")
+                } else {
+                    append("The user selected sentences §${context.selectionStartOrdinal} to §$end in the following document. Focus on this part.\n")
+                }
+            }
+
             // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
                 val plainText = try {
                     val fragment = useSaxBuilder { it.build(StringReader(context.selectedContent)).rootElement }
-                    OsisToPlainText.convert(fragment)
+                    OsisToPlainText.convert(fragment, injectAnchors = true)
                 } catch (_: Exception) {
                     context.selectedContent
                 }

@@ -458,7 +458,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
             noteEditorEntityType = selection.noteEditorEntityType,
             noteEditorEntityId = selection.noteEditorEntityId,
             noteEditorContent = selection.noteEditorContent,
-            noteEditorContentType = selection.noteEditorContentType
+            noteEditorContentType = selection.noteEditorContentType,
+            selectionStartOrdinal = if (book is SwordBook && book.bookCategory != BookCategory.BIBLE)
+                selection.startOrdinal.takeIf { it >= 0 } else null,
+            selectionEndOrdinal = if (book is SwordBook && book.bookCategory != BookCategory.BIBLE)
+                selection.endOrdinal.takeIf { it >= 0 } else null,
         )
     }
 

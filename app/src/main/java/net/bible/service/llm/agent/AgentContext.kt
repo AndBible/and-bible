@@ -73,7 +73,11 @@ data class AgentContext(
     /** Content type of the editor: "MARKDOWN" or "HTML" */
     val noteEditorContentType: String? = null,
     /** Workspace context: summary of all windows for workspace-level prompts */
-    val workspaceWindowsSummary: String? = null
+    val workspaceWindowsSummary: String? = null,
+    /** Start ordinal of user's selection in non-Bible documents (for focus indication via §-anchors) */
+    val selectionStartOrdinal: Int? = null,
+    /** End ordinal of user's selection in non-Bible documents (for focus indication via §-anchors) */
+    val selectionEndOrdinal: Int? = null
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef
@@ -96,6 +100,8 @@ data class CacheableContext(
     val highlightedText: String?,
     val selectionStartOffset: Int?,
     val selectionEndOffset: Int?,
+    val selectionStartOrdinal: Int? = null,
+    val selectionEndOrdinal: Int? = null,
     val userSpecification: String? = null
 ) {
     companion object {
@@ -119,6 +125,8 @@ data class CacheableContext(
                 highlightedText = ctx.highlightedText,
                 selectionStartOffset = ctx.selectionStartOffset,
                 selectionEndOffset = ctx.selectionEndOffset,
+                selectionStartOrdinal = ctx.selectionStartOrdinal,
+                selectionEndOrdinal = ctx.selectionEndOrdinal,
                 userSpecification = ctx.userSpecification
             )
         }
