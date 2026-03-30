@@ -39,7 +39,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import androidx.preference.CheckBoxPreference
+import androidx.preference.SwitchPreferenceCompat
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -110,7 +110,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var aiLanguagePref: Preference
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
-    private lateinit var askModelBeforeRunPref: CheckBoxPreference
+    private lateinit var askModelBeforeRunPref: SwitchPreferenceCompat
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
