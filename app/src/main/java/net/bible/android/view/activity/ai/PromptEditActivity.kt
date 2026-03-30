@@ -74,10 +74,6 @@ class PromptEditActivity : ActivityBase() {
     private var initialPermissionModeIndex = 0
     private var initialAllowedTools: Set<AgentTool>? = null
     private var initialDeniedTools: Set<AgentTool>? = null
-    private var initialSpecifyBeforeRun = false
-    private var initialNoDocumentCreation = false
-    private var initialAutoIncludeDocuments = false
-    private var initialAutoIncludeCommentaries = false
 
     /** Initial state snapshot for Advanced tab (from the in-memory DataStore) */
     private var initialAdvancedSnapshot = AdvancedDataStore.Snapshot()
@@ -228,10 +224,6 @@ class PromptEditActivity : ActivityBase() {
             checkWindowMenu.isEnabled = false
             checkWorkspaceMenu.isEnabled = false
             checkNoteEditor.isEnabled = false
-            checkEditBeforeRun.isEnabled = false
-            checkNoDocumentCreation.isEnabled = false
-            checkAutoIncludeDocuments.isEnabled = false
-            checkAutoIncludeCommentaries.isEnabled = false
             permissionModeSpinner.isEnabled = false
             btnResetToolPermissions.visibility = View.GONE
             builtInNotice.visibility = View.VISIBLE
@@ -260,10 +252,6 @@ class PromptEditActivity : ActivityBase() {
             checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
             checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
-            checkEditBeforeRun.isChecked = prompt.specifyBeforeRun
-            checkNoDocumentCreation.isChecked = prompt.noDocumentCreation
-            checkAutoIncludeDocuments.isChecked = prompt.autoIncludeDocuments
-            checkAutoIncludeCommentaries.isChecked = prompt.autoIncludeCommentaries
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
@@ -276,6 +264,10 @@ class PromptEditActivity : ActivityBase() {
         advancedDataStore.modelOverrideId = prompt.configuredModelId
         advancedDataStore.strictContextMatching = prompt.strictContextMatching
         advancedDataStore.maxIterations = prompt.maxIterations
+        advancedDataStore.specifyBeforeRun = prompt.specifyBeforeRun
+        advancedDataStore.noDocumentCreation = prompt.noDocumentCreation
+        advancedDataStore.autoIncludeDocuments = prompt.autoIncludeDocuments
+        advancedDataStore.autoIncludeCommentaries = prompt.autoIncludeCommentaries
     }
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
@@ -308,10 +300,6 @@ class PromptEditActivity : ActivityBase() {
             initialDescription = promptDescription.text.toString()
             initialTemplate = promptTemplate.text.toString()
             initialShowIn = collectShowIn()
-            initialSpecifyBeforeRun = checkEditBeforeRun.isChecked
-            initialNoDocumentCreation = checkNoDocumentCreation.isChecked
-            initialAutoIncludeDocuments = checkAutoIncludeDocuments.isChecked
-            initialAutoIncludeCommentaries = checkAutoIncludeCommentaries.isChecked
             initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
             initialAllowedTools = currentToolAllowed
             initialDeniedTools = currentToolDenied
@@ -326,10 +314,6 @@ class PromptEditActivity : ActivityBase() {
                 promptDescription.text.toString() != initialDescription ||
                 promptTemplate.text.toString() != initialTemplate ||
                 collectShowIn() != initialShowIn ||
-                checkEditBeforeRun.isChecked != initialSpecifyBeforeRun ||
-                checkNoDocumentCreation.isChecked != initialNoDocumentCreation ||
-                checkAutoIncludeDocuments.isChecked != initialAutoIncludeDocuments ||
-                checkAutoIncludeCommentaries.isChecked != initialAutoIncludeCommentaries ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
                 currentToolDenied != initialDeniedTools
@@ -374,10 +358,10 @@ class PromptEditActivity : ActivityBase() {
         val selectedPermissionMode = permissionModeValues[binding.permissionModeSpinner.selectedItemPosition]
         val allowedTools = currentToolAllowed
         val deniedTools = currentToolDenied
-        val specifyBeforeRun = binding.checkEditBeforeRun.isChecked
-        val noDocumentCreation = binding.checkNoDocumentCreation.isChecked
-        val autoIncludeDocuments = binding.checkAutoIncludeDocuments.isChecked
-        val autoIncludeCommentaries = binding.checkAutoIncludeCommentaries.isChecked
+        val specifyBeforeRun = advancedDataStore.specifyBeforeRun
+        val noDocumentCreation = advancedDataStore.noDocumentCreation
+        val autoIncludeDocuments = advancedDataStore.autoIncludeDocuments
+        val autoIncludeCommentaries = advancedDataStore.autoIncludeCommentaries
 
         // Read Advanced settings from the data store
         val strictContextMatching = advancedDataStore.strictContextMatching
@@ -537,6 +521,10 @@ class AdvancedDataStore : PreferenceDataStore() {
     var modelOverrideId: IdType? = null
     var strictContextMatching: Boolean = true
     var maxIterations: Int? = null
+    var specifyBeforeRun: Boolean = false
+    var noDocumentCreation: Boolean = false
+    var autoIncludeDocuments: Boolean = false
+    var autoIncludeCommentaries: Boolean = false
 
     /** Serialized model ID for the ListPreference ("" = default/null) */
     private var modelOverrideValue: String
@@ -564,11 +552,19 @@ class AdvancedDataStore : PreferenceDataStore() {
     override fun putBoolean(key: String, value: Boolean) {
         when (key) {
             "strict_context_matching" -> strictContextMatching = value
+            "specify_before_run" -> specifyBeforeRun = value
+            "no_document_creation" -> noDocumentCreation = value
+            "auto_include_documents" -> autoIncludeDocuments = value
+            "auto_include_commentaries" -> autoIncludeCommentaries = value
         }
     }
 
     override fun getBoolean(key: String, defValue: Boolean): Boolean = when (key) {
         "strict_context_matching" -> strictContextMatching
+        "specify_before_run" -> specifyBeforeRun
+        "no_document_creation" -> noDocumentCreation
+        "auto_include_documents" -> autoIncludeDocuments
+        "auto_include_commentaries" -> autoIncludeCommentaries
         else -> defValue
     }
 
@@ -576,9 +572,16 @@ class AdvancedDataStore : PreferenceDataStore() {
         val modelOverrideId: IdType? = null,
         val strictContextMatching: Boolean = true,
         val maxIterations: Int? = null,
+        val specifyBeforeRun: Boolean = false,
+        val noDocumentCreation: Boolean = false,
+        val autoIncludeDocuments: Boolean = false,
+        val autoIncludeCommentaries: Boolean = false,
     )
 
-    fun snapshot() = Snapshot(modelOverrideId, strictContextMatching, maxIterations)
+    fun snapshot() = Snapshot(
+        modelOverrideId, strictContextMatching, maxIterations,
+        specifyBeforeRun, noDocumentCreation, autoIncludeDocuments, autoIncludeCommentaries,
+    )
 }
 
 /**
@@ -684,5 +687,9 @@ class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
         findPreference<ListPreference>("model_override")?.isEnabled = false
         findPreference<SwitchPreference>("strict_context_matching")?.isEnabled = false
         findPreference<EditTextPreference>("max_iterations")?.isEnabled = false
+        findPreference<SwitchPreference>("specify_before_run")?.isEnabled = false
+        findPreference<SwitchPreference>("no_document_creation")?.isEnabled = false
+        findPreference<SwitchPreference>("auto_include_documents")?.isEnabled = false
+        findPreference<SwitchPreference>("auto_include_commentaries")?.isEnabled = false
     }
 }
