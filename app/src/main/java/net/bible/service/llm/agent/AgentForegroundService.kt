@@ -98,7 +98,8 @@ class AgentForegroundService : Service() {
             workspaceId: IdType,
             targetWindowId: IdType? = null,
             additionalInstructions: String? = null,
-            keepPrevious: Boolean = false
+            keepPrevious: Boolean = false,
+            modelOverrideId: IdType? = null
         ) {
             val intent = Intent(context, AgentForegroundService::class.java).apply {
                 action = START_REGENERATE
@@ -107,6 +108,7 @@ class AgentForegroundService : Service() {
                 targetWindowId?.let { putExtra("targetWindowId", it.toString()) }
                 additionalInstructions?.let { putExtra("additionalInstructions", it) }
                 putExtra("keepPrevious", keepPrevious)
+                modelOverrideId?.let { putExtra("modelOverrideId", it.toString()) }
             }
             startServiceCompat(context, intent)
         }
@@ -217,6 +219,7 @@ class AgentForegroundService : Service() {
         val targetWindowId = intent.getStringExtra("targetWindowId")?.let { IdType(it) }
         val additionalInstructions = intent.getStringExtra("additionalInstructions")
         val keepPrevious = intent.getBooleanExtra("keepPrevious", false)
+        val modelOverrideId = intent.getStringExtra("modelOverrideId")?.let { IdType(it) }
 
         currentWorkspaceId = workspaceId
         startForegroundWithNotification()
@@ -228,7 +231,8 @@ class AgentForegroundService : Service() {
                     pageId,
                     targetWindowId = targetWindowId,
                     additionalInstructions = additionalInstructions,
-                    keepPrevious = keepPrevious
+                    keepPrevious = keepPrevious,
+                    modelOverrideId = modelOverrideId
                 )
             } catch (e: Exception) {
                 Log.e(TAG, "Regeneration failed", e)

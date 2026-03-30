@@ -38,6 +38,7 @@ import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentForegroundService
+import net.bible.service.sword.mydocument.MyDocumentBookManager
 
 /**
  * Handles LLM-related dialogs: prompt selection, specify-before-run, and regeneration.
@@ -167,26 +168,95 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                 val instructions = editText.text.toString().trim().ifEmpty { null }
                 val keepPrevious = keepPreviousCheckBox.isChecked
 
-                activity.lifecycleScope.launch {
-                    bibleView.loadDocument(
-                        ErrorDocument(
-                            activity.getString(R.string.ai_document_regenerating),
-                            ErrorSeverity.NORMAL
-                        )
-                    )
-                }
-                val workspaceId = activity.windowControl.windowRepository.id
-                AgentForegroundService.startRegenerate(
-                    context = activity,
-                    pageId = pageId,
-                    workspaceId = workspaceId,
-                    targetWindowId = bibleView.window.id,
-                    additionalInstructions = instructions,
-                    keepPrevious = keepPrevious
-                )
+                startRegenerateWithModelCheck(pageId, bibleView, instructions, keepPrevious)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    /**
+     * Check if model selection is needed before starting regeneration.
+     * Looks up the prompt associated with the page to check for configuredModelId.
+     */
+    private fun startRegenerateWithModelCheck(
+        pageId: IdType, bibleView: BibleView,
+        instructions: String?, keepPrevious: Boolean
+    ) {
+        if (!CommonUtils.aiSettings.askModelBeforeRun) {
+            startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = null)
+            return
+        }
+
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val page = MyDocumentBookManager.getAIDocumentPage(pageId)
+            val promptId = page?.sourcePromptId
+            val prompt = promptId?.let { PromptRepository.promptById(it) }
+
+            launch(Dispatchers.Main) {
+                if (prompt?.configuredModelId != null) {
+                    // Prompt has its own model — skip model selection
+                    startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = null)
+                } else {
+                    showModelSelectionForRegenerate(pageId, bibleView, instructions, keepPrevious)
+                }
+            }
+        }
+    }
+
+    private fun showModelSelectionForRegenerate(
+        pageId: IdType, bibleView: BibleView,
+        instructions: String?, keepPrevious: Boolean
+    ) {
+        activity.lifecycleScope.launch(Dispatchers.IO) {
+            val modelDao = DatabaseContainer.instance.aiSettingsDb.llmConfiguredModelDao()
+            val providerDao = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
+            val defaultModelId = CommonUtils.aiSettings.defaultModelId
+
+            val models = modelDao.all().sortedByDescending { it.id == defaultModelId }
+            val providers = providerDao.all().associateBy { it.id }
+
+            val displayNames = models.map { model ->
+                val providerName = providers[model.providerConfigId]?.displayName ?: "?"
+                val suffix = if (model.id == defaultModelId) " ★" else ""
+                "${model.modelId} — $providerName$suffix"
+            }
+
+            launch(Dispatchers.Main) {
+                AlertDialog.Builder(activity)
+                    .setTitle(R.string.select_model_before_run_title)
+                    .setItems(displayNames.toTypedArray()) { _, which ->
+                        val selectedModelId = models[which].id
+                        startRegenerate(pageId, bibleView, instructions, keepPrevious, modelOverrideId = selectedModelId)
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+            }
+        }
+    }
+
+    private fun startRegenerate(
+        pageId: IdType, bibleView: BibleView,
+        instructions: String?, keepPrevious: Boolean,
+        modelOverrideId: IdType?
+    ) {
+        activity.lifecycleScope.launch {
+            bibleView.loadDocument(
+                ErrorDocument(
+                    activity.getString(R.string.ai_document_regenerating),
+                    ErrorSeverity.NORMAL
+                )
+            )
+        }
+        val workspaceId = activity.windowControl.windowRepository.id
+        AgentForegroundService.startRegenerate(
+            context = activity,
+            pageId = pageId,
+            workspaceId = workspaceId,
+            targetWindowId = bibleView.window.id,
+            additionalInstructions = instructions,
+            keepPrevious = keepPrevious,
+            modelOverrideId = modelOverrideId
+        )
     }
 
     /**
