@@ -863,16 +863,16 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int) {
+    fun llmAction(bookInitials: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal)))
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, startOrdinal, positiveOrNull(endOrdinal), text = text))
         }
     }
 
     @JavascriptInterface
-    fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int) {
+    fun llmActionGeneric(bookInitials: String, osisRef: String, startOrdinal: Int, endOrdinal: Int, text: String) {
         scope.launch(Dispatchers.Main) {
-            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal)))
+            mainBibleActivity.showLlmPromptSelector(Selection(bookInitials, osisRef, startOrdinal, positiveOrNull(endOrdinal), text = text))
         }
     }
 

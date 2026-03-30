@@ -49,6 +49,8 @@ import net.bible.service.llm.tools.Tool
 import net.bible.service.llm.tools.ToolRegistry
 import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
+import net.bible.service.llm.tools.read.GetCommentariesTool
+import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
@@ -132,9 +134,9 @@ private sealed class ProcessToolsResult {
 class AgentExecutor(
     private val maxIterations: Int = DEFAULT_MAX_ITERATIONS
 ) {
-    fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null): Flow<AgentEvent> = flow {
+    fun execute(prompt: AgentPrompt, context: AgentContext, rawLlmLog: RawLlmLog? = null, modelOverrideId: IdType? = null): Flow<AgentEvent> = flow {
         try {
-            val llmConfig = LlmModelConfig.fromPrompt(prompt)
+            val llmConfig = LlmModelConfig(modelOverrideId ?: prompt.configuredModelId)
             val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
             emit(AgentEvent.Started(resolved.model))
             val messages = buildInitialMessages(prompt, context)
@@ -455,7 +457,7 @@ class AgentExecutor(
         return finishResult ?: ProcessToolsResult.Continue(currentContext, pendingDocumentTitle = pendingTitle)
     }
 
-    private fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
+    private suspend fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
         val systemPrompt = buildSystemPrompt(prompt, context)
         val userMessage = buildUserMessage(prompt, context)
         return mutableListOf(
@@ -533,7 +535,7 @@ class AgentExecutor(
         }
     }
 
-    private fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
+    private suspend fun buildUserMessage(prompt: AgentPrompt, context: AgentContext): String {
         return buildString {
             // The prompt template
             append(prompt.promptTemplate)
@@ -553,11 +555,22 @@ class AgentExecutor(
                 }
             }
 
+            // Indicate which part of a non-Bible document the user selected (via §-anchors)
+            if (context.selectionStartOrdinal != null) {
+                val end = context.selectionEndOrdinal ?: context.selectionStartOrdinal
+                append("\n\n--- User's Selection (FOCUS ON THIS) ---\n")
+                if (context.selectionStartOrdinal == end) {
+                    append("The user selected sentence §${context.selectionStartOrdinal} in the following document. Focus on this part.\n")
+                } else {
+                    append("The user selected sentences §${context.selectionStartOrdinal} to §$end in the following document. Focus on this part.\n")
+                }
+            }
+
             // Add selected content if available (converted from OSIS XML to plain text)
             if (context.selectedContent != null) {
                 val plainText = try {
                     val fragment = useSaxBuilder { it.build(StringReader(context.selectedContent)).rootElement }
-                    OsisToPlainText.convert(fragment)
+                    OsisToPlainText.convert(fragment, injectAnchors = true)
                 } catch (_: Exception) {
                     context.selectedContent
                 }
@@ -566,6 +579,31 @@ class AgentExecutor(
             } else if (context.selectedText != null) {
                 append("\n\n--- Context ---\n")
                 append(context.selectedText)
+            }
+
+            // Auto-include installed documents if enabled
+            if (prompt.autoIncludeDocuments) {
+                try {
+                    val result = GetInstalledDocumentsTool.execute(JSONObject(), context)
+                    append("\n\n--- Installed Documents (auto-included) ---\n")
+                    append(result.toJson())
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to auto-include installed documents", e)
+                }
+            }
+
+            // Auto-include commentaries if enabled and verse context is available
+            if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
+                try {
+                    val args = JSONObject().apply {
+                        put("verseRef", context.selectedVerseRange.osisRef)
+                    }
+                    val result = GetCommentariesTool.execute(args, context)
+                    append("\n\n--- Commentary Entries (auto-included) ---\n")
+                    append(result.toJson())
+                } catch (e: Exception) {
+                    Log.w(TAG, "Failed to auto-include commentaries", e)
+                }
             }
 
             // Add note editor content if editing a note

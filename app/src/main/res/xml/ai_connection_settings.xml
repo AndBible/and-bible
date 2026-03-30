@@ -89,6 +89,12 @@
             android:summary="@string/agent_max_iterations_summary"
             android:icon="@drawable/ic_baseline_description_gray_24"
             />
+        <CheckBoxPreference android:key="ask_model_before_run"
+            android:title="@string/ask_model_before_run_title"
+            android:summary="@string/ask_model_before_run_summary"
+            android:defaultValue="false"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
     </PreferenceCategory>
 
     <PreferenceCategory

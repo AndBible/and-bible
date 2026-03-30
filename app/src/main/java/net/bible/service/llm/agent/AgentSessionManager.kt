@@ -231,7 +231,8 @@ object AgentSessionManager : AgentSessionManagerBase() {
         additionalInstructions: String? = null,
         previousResponse: String? = null,
         skipCache: Boolean = false,
-        userSpecification: String? = null
+        userSpecification: String? = null,
+        modelOverrideId: IdType? = null
     ) {
         ensureInitialized()
         val workspaceId = windowControl.windowRepository.id
@@ -276,7 +277,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val effectiveMaxIterations = prompt.maxIterations ?: CommonUtils.aiSettings.maxIterations
         val executor = AgentExecutor(maxIterations = effectiveMaxIterations)
         try {
-            executor.execute(prompt, context, session.rawLlmLog).collect { event ->
+            executor.execute(prompt, context, session.rawLlmLog, modelOverrideId = modelOverrideId).collect { event ->
                 handleAgentEvent(event, session, prompt, context, cacheableContext, usedWriteToolsTracker, targetWindowId)
             }
         } catch (e: CancellationException) {
@@ -458,7 +459,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
             noteEditorEntityType = selection.noteEditorEntityType,
             noteEditorEntityId = selection.noteEditorEntityId,
             noteEditorContent = selection.noteEditorContent,
-            noteEditorContentType = selection.noteEditorContentType
+            noteEditorContentType = selection.noteEditorContentType,
+            selectionStartOrdinal = if (book is SwordBook && book.bookCategory != BookCategory.BIBLE)
+                selection.startOrdinal.takeIf { it >= 0 } else null,
+            selectionEndOrdinal = if (book is SwordBook && book.bookCategory != BookCategory.BIBLE)
+                selection.endOrdinal.takeIf { it >= 0 } else null,
         )
     }
 

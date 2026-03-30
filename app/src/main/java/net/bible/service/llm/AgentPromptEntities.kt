@@ -326,6 +326,10 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "0") var noDocumentCreation: Boolean = false,
     /** Per-prompt max iterations override. null = use global default, 0 = unlimited. */
     @ColumnInfo(defaultValue = "NULL") var maxIterations: Int? = null,
+    /** When true, auto-include getInstalledDocuments result in the user message. */
+    @ColumnInfo(defaultValue = "0") var autoIncludeDocuments: Boolean = false,
+    /** When true, auto-include getCommentaries result in the user message (requires verse context). */
+    @ColumnInfo(defaultValue = "0") var autoIncludeCommentaries: Boolean = false,
 )
 
 @Dao
@@ -374,6 +378,8 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val defaultModelId: IdType? = null,
     /** BCP 47 language tag for AI responses. null = use app language (Locale.getDefault()). */
     @ColumnInfo(defaultValue = "NULL") val aiLanguage: String? = null,
+    /** When true, show a model selection dialog before executing any prompt (unless the prompt has an explicit model). */
+    @ColumnInfo(defaultValue = "0") val askModelBeforeRun: Boolean = false,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */

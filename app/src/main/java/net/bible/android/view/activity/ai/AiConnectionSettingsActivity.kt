@@ -39,6 +39,7 @@ import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.CheckBoxPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceFragmentCompat
@@ -109,6 +110,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     private lateinit var aiLanguagePref: Preference
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
+    private lateinit var askModelBeforeRunPref: CheckBoxPreference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -128,6 +130,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         aiLanguagePref = preferenceScreen.findPreference("ai_language")!!
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
+        askModelBeforeRunPref = preferenceScreen.findPreference("ask_model_before_run")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -140,6 +143,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         setupAiLanguage()
         setupCommentaryMaxResponse()
         setupMaxIterations()
+        setupAskModelBeforeRun()
         setupUsage()
         refreshAll()
     }
@@ -784,6 +788,14 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
             getString(R.string.agent_max_iterations_summary) + " (unlimited)"
         } else {
             getString(R.string.agent_max_iterations_summary) + " ($value)"
+        }
+    }
+
+    private fun setupAskModelBeforeRun() {
+        askModelBeforeRunPref.isChecked = settings.askModelBeforeRun
+        askModelBeforeRunPref.setOnPreferenceChangeListener { _, newValue ->
+            settings.askModelBeforeRun = newValue as Boolean
+            true
         }
     }
 

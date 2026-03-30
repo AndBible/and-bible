@@ -188,4 +188,13 @@ private val addAiLanguage = makeMigration(10..11) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `aiLanguage` TEXT DEFAULT NULL")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage)
+private val addAutoIncludeFields = makeMigration(11..12) { db ->
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `autoIncludeDocuments` INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `autoIncludeCommentaries` INTEGER NOT NULL DEFAULT 0")
+}
+
+private val addAskModelBeforeRun = makeMigration(12..13) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `askModelBeforeRun` INTEGER NOT NULL DEFAULT 0")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun)

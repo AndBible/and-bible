@@ -111,8 +111,8 @@ export type BibleJavascriptInterface = {
     setReadingProgressSettings: (json: string) => void,
     goToNextChapter: () => void,
     goToPreviousChapter: () => void,
-    llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
-    llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number) => void,
+    llmAction: (bookInitials: string, startOrdinal: number, endOrdinal: number, text: string) => void,
+    llmActionGeneric: (bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal: number, text: string) => void,
     noteEditorLlmAction: (contextJson: string) => void,
     getMyDocumentPageRawContent: (callId: number, bookInitials: string, pageKey: string) => void,
     saveMyDocumentPageContent: (bookInitials: string, pageId: string, content: string, title: string | null) => void,
@@ -621,12 +621,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.goToPreviousChapter();
     }
 
-    function llmAction(bookInitials: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.llmAction(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1);
+    function llmAction(bookInitials: string, startOrdinal: number, endOrdinal?: number, text?: string) {
+        window.android.llmAction(bookInitials, startOrdinal, endOrdinal ? endOrdinal : -1, text ?? "");
     }
 
-    function llmActionGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number) {
-        window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1);
+    function llmActionGeneric(bookInitials: string, osisRef: string, startOrdinal: number, endOrdinal?: number, text?: string) {
+        window.android.llmActionGeneric(bookInitials, osisRef, startOrdinal, endOrdinal ? endOrdinal : -1, text ?? "");
     }
 
     function noteEditorLlmAction(entityType: string, entityId: string, currentText: string, contentType: string) {

@@ -129,10 +129,11 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
-                    Translate the selected Bible text to ${getUiLanguageName()}.
+                    Translate the selected text to ${getUiLanguageName()}.
+                    If the user has highlighted or selected a specific portion, translate ONLY that portion.
                     Aim for accuracy over literary style.
                     Do not add explanations or commentary.
-                    Output only the translated text with verse references.
+                    Output only the translated text.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
@@ -146,7 +147,8 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_summary),
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
-                    Create a concise summary of the selected Bible passage.
+                    Create a concise summary of the selected passage.
+                    If the user has highlighted or selected a specific portion, focus your summary on that portion.
 
                     Structure your summary as:
                     1. **Context** — Brief historical/literary context (1-2 sentences)
@@ -154,12 +156,11 @@ object BuiltInPrompts {
                     3. **Significance** — Why this passage matters (1-2 sentences)
 
                     Keep the total length to 150-300 words.
-                    If commentaries are available, you may use getCommentaries to enrich your summary.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
-                allowedTools = BIBLE_READ_TOOLS,
-                deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                allowedTools = emptySet(),
+                deniedTools = denyExcept(emptySet()),
             ),
 
             // 3. Explain Verses
@@ -189,6 +190,8 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 3b. Explain Verses → StudyPad
@@ -225,6 +228,8 @@ object BuiltInPrompts {
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS + setOf(
                     AgentTool.CREATE_STUDY_PAD,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 4. Word Study
@@ -255,6 +260,7 @@ object BuiltInPrompts {
                 strictContextMatching = false,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
             ),
 
             // 5. Cross-References
@@ -283,6 +289,7 @@ object BuiltInPrompts {
                 strictContextMatching = false,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                autoIncludeCommentaries = true,
             ),
 
             // 6. Compare Translations
@@ -324,6 +331,7 @@ object BuiltInPrompts {
                     AgentTool.GET_DICTIONARY_ENTRY,
                     AgentTool.SEARCH_BIBLE,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 7. Thematic Study → StudyPad
@@ -366,6 +374,8 @@ object BuiltInPrompts {
                     AgentTool.GET_ALL_LABELS,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 8. Devotional Reflection
@@ -391,6 +401,7 @@ object BuiltInPrompts {
                 orderNumber = order++,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
+                autoIncludeCommentaries = true,
             ),
 
             // 9. Bookmark & Annotate
@@ -433,6 +444,8 @@ object BuiltInPrompts {
                     AgentTool.ADD_BOOKMARK_NOTE,
                     AgentTool.GET_BOOKMARKS_FOR_VERSE,
                 )),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 10. Open Study Layout
@@ -475,6 +488,7 @@ object BuiltInPrompts {
                     AgentTool.MANAGE_WINDOW,
                     AgentTool.SET_WINDOW_DOCUMENT,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 11. Workspace Assistant
@@ -517,6 +531,7 @@ object BuiltInPrompts {
                     AgentTool.MANAGE_WINDOW,
                     AgentTool.SET_WINDOW_DOCUMENT,
                 )),
+                autoIncludeDocuments = true,
             ),
 
             // 12. Enhance Note
@@ -525,24 +540,24 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_enhance_note),
                 description = context.getString(R.string.default_prompt_enhance_note_desc),
                 promptTemplate = """
-                    Enhance the user's note with additional context and cross-references.
+                    Improve the language and clarity of the user's note.
                     The note's entity type and ID are provided in the system prompt.
 
                     APPROACH:
                     1. Read the existing note content provided in the context.
-                    2. Use getCommentaries and getVerseContent to gather relevant information about the passage.
-                    3. Expand the note by:
-                       - Adding relevant cross-references as clickable links
-                       - Including brief commentary insights
-                       - Correcting any factual errors about the passage
-                    4. Save the enhanced note using the appropriate tool:
+                    2. Improve the note by:
+                       - Fixing grammar, spelling, and punctuation errors
+                       - Improving sentence structure and readability
+                       - Making the writing more concise where appropriate
+                       - Preserving the original meaning and intent
+                    3. Save the improved note using the appropriate tool:
                        - For BOOKMARK_NOTE: use updateBookmarkNote with the bookmark ID
                        - For STUDYPAD_TEXT: use updateStudyPadTextEntry with the entry ID
                        - For MY_DOCUMENT_PAGE: use editMyDocumentPage with the page ID
-                    5. Call finishWithoutDocument confirming the note was updated.
+                    4. Call finishWithoutDocument confirming the note was updated.
 
-                    IMPORTANT: Preserve the user's original thoughts and voice.
-                    Add to them, do not replace them. Use a separator ("---") before AI additions.
+                    IMPORTANT: Preserve the user's original thoughts, voice, and content.
+                    Only improve the language — do not add new content, commentary, or cross-references.
                     Output in the same format as the content type (Markdown or HTML).
                 """.trimIndent(),
                 showIn = setOf(PromptContext.NOTE_EDITOR),
@@ -550,23 +565,11 @@ object BuiltInPrompts {
                 noDocumentCreation = true,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = setOf(
-                    AgentTool.GET_VERSE_CONTENT,
-                    AgentTool.GET_COMMENTARIES,
-                    AgentTool.GET_DICTIONARY_ENTRY,
-                    AgentTool.GET_INSTALLED_DOCUMENTS,
-                    AgentTool.SEARCH_BIBLE,
-                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
                     AgentTool.UPDATE_BOOKMARK_NOTE,
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
                 ),
                 deniedTools = denyExcept(setOf(
-                    AgentTool.GET_VERSE_CONTENT,
-                    AgentTool.GET_COMMENTARIES,
-                    AgentTool.GET_DICTIONARY_ENTRY,
-                    AgentTool.GET_INSTALLED_DOCUMENTS,
-                    AgentTool.SEARCH_BIBLE,
-                    AgentTool.GET_BOOKMARKS_FOR_VERSE,
                     AgentTool.UPDATE_BOOKMARK_NOTE,
                     AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
                     AgentTool.EDIT_MY_DOCUMENT_PAGE,
@@ -588,6 +591,8 @@ object BuiltInPrompts {
                 specifyBeforeRun = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
+                autoIncludeDocuments = true,
+                autoIncludeCommentaries = true,
             ),
 
             // 13. Custom Prompt
