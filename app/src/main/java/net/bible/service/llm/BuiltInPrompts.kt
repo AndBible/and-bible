@@ -129,10 +129,11 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_translate_to_language, getUiLanguageName()),
                 description = context.getString(R.string.default_prompt_translate_to_ui_language_desc),
                 promptTemplate = """
-                    Translate the selected Bible text to ${getUiLanguageName()}.
+                    Translate the selected text to ${getUiLanguageName()}.
+                    If the user has highlighted or selected a specific portion, translate ONLY that portion.
                     Aim for accuracy over literary style.
                     Do not add explanations or commentary.
-                    Output only the translated text with verse references.
+                    Output only the translated text.
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
@@ -146,7 +147,8 @@ object BuiltInPrompts {
                 name = context.getString(R.string.default_prompt_summary),
                 description = context.getString(R.string.default_prompt_summary_desc),
                 promptTemplate = """
-                    Create a concise summary of the selected Bible passage.
+                    Create a concise summary of the selected passage.
+                    If the user has highlighted or selected a specific portion, focus your summary on that portion.
 
                     Structure your summary as:
                     1. **Context** — Brief historical/literary context (1-2 sentences)

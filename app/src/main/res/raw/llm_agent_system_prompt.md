@@ -64,6 +64,14 @@ StudyPad links:
 - [StudyPad Name](journal://?id=LABEL_ID) — links to a StudyPad
 - [Entry](journal://?id=LABEL_ID&entryId=ENTRY_ID) — links to a specific entry in a StudyPad
 
+IMPORTANT - Selection Handling:
+When the context includes a "User's Selection" or "User's Highlighted Text" section,
+the user wants you to focus specifically on that text:
+- For transformation tasks (translation, formatting, editing): apply the transformation
+  ONLY to the selected/highlighted text, not the entire context.
+- For analytical tasks (explanation, study, summary): use the selected text as your
+  primary focus while the full context provides background.
+
 IMPORTANT - Source Attribution:
 When summarizing content from commentaries, dictionaries, or other reference works:
 
