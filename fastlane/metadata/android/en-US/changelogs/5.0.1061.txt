@@ -1,0 +1,19 @@
+- Add global "ask model before run" setting for AI prompts (33b28434a)
+- Add auto-include options for installed documents and commentaries in prompts (b75638905)
+- Pass selection context to LLM for commentary and non-Bible documents (e4bf1ca67)
+- Guide LLM to respect user's text selection in prompts (253cc8351)
+- Simplify Enhance Note prompt to focus on language improvements only (5aa816684)
+- Disable tools for summary built-in prompt (49bf59e5d)
+- Scroll agent log to bottom when widget is expanded (ee560316d)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
