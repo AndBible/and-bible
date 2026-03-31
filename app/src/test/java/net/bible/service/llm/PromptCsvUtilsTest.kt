@@ -471,6 +471,29 @@ class PromptCsvUtilsTest {
         assertThat(imported.deniedTools, equalTo(setOf(AgentTool.CREATE_LABEL)))
         // configuredModelId is not tested here as it requires a configured model in DB
         assertThat(imported.createdAt, equalTo(1640995200000L))
+        assertFalse(imported.bibleOnly)
+    }
+
+    @Test
+    fun testExportAndImportBibleOnlyRoundTrip(): Unit = runBlocking {
+        val original = AgentPrompt(
+            name = "Bible Only Prompt",
+            promptTemplate = "Explain verses",
+            bibleOnly = true,
+            createdAt = 1640995200000L,
+        )
+
+        val outputStream = ByteArrayOutputStream()
+        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(original))
+
+        val inputStream = ByteArrayInputStream(outputStream.toByteArray())
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+
+        val imported = dao.allPrompts()[0]
+        assertTrue(imported.bibleOnly)
     }
 
     @Test

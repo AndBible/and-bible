@@ -1612,6 +1612,7 @@
     <string name="prompt_context_window_menu">Window menu</string>
     <string name="prompt_context_workspace_menu">Workspace menu</string>
     <string name="prompt_context_note_editor">Note editor</string>
+    <string name="prompt_bible_only">Bible documents only</string>
     <string name="new_prompt">New prompt</string>
     <string name="reset_prompts_to_defaults">Reset to defaults</string>
     <string name="reset_prompts_confirm_title">Reset prompts?</string>

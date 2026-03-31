@@ -113,6 +113,13 @@
                 android:textStyle="bold" />
 
             <CheckBox
+                android:id="@+id/checkBibleOnly"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/prompt_bible_only" />
+
+            <CheckBox
                 android:id="@+id/checkVerseSelection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

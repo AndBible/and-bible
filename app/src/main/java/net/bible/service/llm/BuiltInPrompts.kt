@@ -187,6 +187,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
                 autoIncludeDocuments = true,
@@ -218,6 +219,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 strictContextMatching = false,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = BIBLE_STUDY_TOOLS + setOf(
@@ -255,6 +257,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 strictContextMatching = false,
                 allowedTools = BIBLE_STUDY_TOOLS,
                 deniedTools = denyExcept(BIBLE_STUDY_TOOLS),
@@ -285,6 +288,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 strictContextMatching = false,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
@@ -317,6 +321,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 strictContextMatching = false,
                 allowedTools = setOf(
                     AgentTool.GET_VERSE_CONTENT,
@@ -361,6 +366,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 strictContextMatching = false,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = BIBLE_READ_TOOLS + setOf(
@@ -398,6 +404,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 allowedTools = BIBLE_READ_TOOLS,
                 deniedTools = denyExcept(BIBLE_READ_TOOLS),
                 autoIncludeCommentaries = true,
@@ -425,6 +432,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION),
                 orderNumber = order++,
+                bibleOnly = true,
                 noDocumentCreation = true,
                 permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
                 allowedTools = setOf(

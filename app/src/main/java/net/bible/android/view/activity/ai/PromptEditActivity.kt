@@ -224,6 +224,7 @@ class PromptEditActivity : ActivityBase() {
             checkWindowMenu.isEnabled = false
             checkWorkspaceMenu.isEnabled = false
             checkNoteEditor.isEnabled = false
+            checkBibleOnly.isEnabled = false
             permissionModeSpinner.isEnabled = false
             btnResetToolPermissions.visibility = View.GONE
             builtInNotice.visibility = View.VISIBLE
@@ -252,6 +253,9 @@ class PromptEditActivity : ActivityBase() {
             checkWindowMenu.isChecked = PromptContext.WINDOW_MENU in prompt.showIn
             checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
+            checkBibleOnly.isChecked = prompt.bibleOnly
+            updateBibleOnlyDependentState()
+            checkBibleOnly.setOnCheckedChangeListener { _, _ -> updateBibleOnlyDependentState() }
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
@@ -268,6 +272,16 @@ class PromptEditActivity : ActivityBase() {
         advancedDataStore.noDocumentCreation = prompt.noDocumentCreation
         advancedDataStore.autoIncludeDocuments = prompt.autoIncludeDocuments
         advancedDataStore.autoIncludeCommentaries = prompt.autoIncludeCommentaries
+    }
+
+    private fun updateBibleOnlyDependentState() {
+        val bibleOnly = binding.checkBibleOnly.isChecked
+        binding.checkWorkspaceMenu.isEnabled = !bibleOnly
+        binding.checkNoteEditor.isEnabled = !bibleOnly
+        if (bibleOnly) {
+            binding.checkWorkspaceMenu.isChecked = false
+            binding.checkNoteEditor.isChecked = false
+        }
     }
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
@@ -387,6 +401,7 @@ class PromptEditActivity : ActivityBase() {
                         maxIterations = maxIterations,
                         autoIncludeDocuments = autoIncludeDocuments,
                         autoIncludeCommentaries = autoIncludeCommentaries,
+                        bibleOnly = binding.checkBibleOnly.isChecked,
                     )
                     PromptRepository.insertPrompt(newPrompt)
                     savedPromptId = newPrompt.id
@@ -406,6 +421,7 @@ class PromptEditActivity : ActivityBase() {
                         it.maxIterations = maxIterations
                         it.autoIncludeDocuments = autoIncludeDocuments
                         it.autoIncludeCommentaries = autoIncludeCommentaries
+                        it.bibleOnly = binding.checkBibleOnly.isChecked
                         PromptRepository.updatePrompt(it)
                         savedPromptId = it.id
                     }

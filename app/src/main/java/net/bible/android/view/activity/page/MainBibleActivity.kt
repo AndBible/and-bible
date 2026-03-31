@@ -2289,7 +2289,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
         llmDialogHelper.executePrompt(prompt, selection)
 
     fun showLlmPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) =
-        llmDialogHelper.showPromptSelector(selection, context)
+        llmDialogHelper.showPromptSelector(selection, context, windowRepository.activeWindow.pageManager.currentPage.documentCategory)
 
     companion object {
         var initialized = false

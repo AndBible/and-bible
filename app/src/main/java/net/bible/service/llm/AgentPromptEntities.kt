@@ -334,6 +334,8 @@ data class AgentPrompt(
     @ColumnInfo(defaultValue = "0") var autoIncludeDocuments: Boolean = false,
     /** When true, auto-include getCommentaries result in the user message (requires verse context). */
     @ColumnInfo(defaultValue = "0") var autoIncludeCommentaries: Boolean = false,
+    /** When true, this prompt only appears when the active window shows a Bible document. */
+    @ColumnInfo(defaultValue = "0") var bibleOnly: Boolean = false,
 )
 
 @Dao
