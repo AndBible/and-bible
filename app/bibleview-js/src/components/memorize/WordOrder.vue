@@ -51,15 +51,13 @@
         :animation="150"
         @end="onDragEnd"
     >
-      <template #item="{element}">
+      <template #item="{element, index}">
         <div
             class="button small order-tile"
             :class="{
-              selected: selectedIndex === element.origIdx,
-              correct: !isCompleted && element.origIdx === tiles.indexOf(element),
+              correct: !isCompleted && isCorrectAt(element, index),
               'completed-tile': isCompleted,
             }"
-            @click="handleTileTap(element.origIdx)"
         >
           {{ element.word }}
         </div>
@@ -83,7 +81,6 @@ interface TileItem {
 interface WordOrderConfig {
     orderConfig?: {
         currentOrder: number[];
-        selectedIndex: number | null;
     }
 }
 
@@ -99,12 +96,15 @@ const emit = defineEmits<{
 
 const words = ref<string[]>([]);
 const tiles = ref<TileItem[]>([]);
-const selectedIndex = ref<number | null>(null);
 const isPeeking = ref<boolean>(false);
+
+function isCorrectAt(tile: TileItem, pos: number): boolean {
+    return tile.word.toLowerCase() === words.value[pos].toLowerCase();
+}
 
 const isCompleted = computed(() => {
     if (tiles.value.length === 0) return false;
-    return tiles.value.every((tile, pos) => tile.origIdx === pos);
+    return tiles.value.every((tile, pos) => isCorrectAt(tile, pos));
 });
 
 watch(isCompleted, (completed) => {
@@ -138,29 +138,7 @@ function buildWordList() {
     words.value = result;
 }
 
-function handleTileTap(origIdx: number) {
-    if (isCompleted.value) return;
-
-    if (selectedIndex.value === null) {
-        selectedIndex.value = origIdx;
-    } else if (selectedIndex.value === origIdx) {
-        selectedIndex.value = null;
-    } else {
-        // Swap tiles
-        const posA = tiles.value.findIndex(t => t.origIdx === selectedIndex.value);
-        const posB = tiles.value.findIndex(t => t.origIdx === origIdx);
-        if (posA >= 0 && posB >= 0) {
-            const newTiles = [...tiles.value];
-            [newTiles[posA], newTiles[posB]] = [newTiles[posB], newTiles[posA]];
-            tiles.value = newTiles;
-        }
-        selectedIndex.value = null;
-        saveState();
-    }
-}
-
 function onDragEnd() {
-    selectedIndex.value = null;
     saveState();
 }
 
@@ -189,7 +167,6 @@ function saveState() {
     emit('save-mode-config', {
         orderConfig: {
             currentOrder: getCurrentOrder(),
-            selectedIndex: selectedIndex.value,
         }
     });
 }
@@ -198,7 +175,6 @@ function resetWords() {
     buildWordList();
     const indices = words.value.map((_, i) => i);
     tiles.value = buildTilesFromOrder(shuffle(indices));
-    selectedIndex.value = null;
     isPeeking.value = false;
     saveState();
 }
@@ -208,7 +184,6 @@ onMounted(() => {
     const config = props.modeConfig?.orderConfig;
     if (config && config.currentOrder?.length === words.value.length) {
         tiles.value = buildTilesFromOrder(config.currentOrder);
-        selectedIndex.value = config.selectedIndex ?? null;
     } else {
         resetWords();
     }
@@ -282,6 +257,7 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  touch-action: pan-y !important;
 }
 
 .order-tile {
@@ -301,21 +277,6 @@ onMounted(() => {
 
   &:active {
     cursor: grabbing;
-  }
-
-  &.selected {
-    border: 2px solid #2196F3;
-    .monochrome & {
-      border-color: black;
-      font-weight: 700;
-    }
-    .night & {
-      border-color: #42a5f5;
-    }
-    .monochrome.night & {
-      border-color: white;
-      font-weight: 700;
-    }
   }
 
   &.correct {
