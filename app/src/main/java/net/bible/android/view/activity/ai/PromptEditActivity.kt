@@ -74,6 +74,7 @@ class PromptEditActivity : ActivityBase() {
     private var initialPermissionModeIndex = 0
     private var initialAllowedTools: Set<AgentTool>? = null
     private var initialDeniedTools: Set<AgentTool>? = null
+    private var initialIsTextTransformation = false
 
     /** Initial state snapshot for Advanced tab (from the in-memory DataStore) */
     private var initialAdvancedSnapshot = AdvancedDataStore.Snapshot()
@@ -159,6 +160,7 @@ class PromptEditActivity : ActivityBase() {
             advancedDataStore.modelOverrideId = null
             advancedDataStore.maxIterations = null
 
+            binding.checkTextTransformation.setOnCheckedChangeListener { _, _ -> updateTextTransformationDependentState() }
             buildToolPermissions(emptySet(), emptySet())
             captureInitialState()
         }
@@ -180,9 +182,12 @@ class PromptEditActivity : ActivityBase() {
     }
 
     private fun showTab(position: Int) {
+        val hasPermissionsTab = binding.tabLayout.tabCount > 2
         binding.promptContent.visibility = if (position == 0) View.VISIBLE else View.GONE
-        binding.permissionsContent.visibility = if (position == 1) View.VISIBLE else View.GONE
-        binding.advancedContent.visibility = if (position == 2) View.VISIBLE else View.GONE
+        binding.permissionsContent.visibility = if (hasPermissionsTab && position == 1) View.VISIBLE else View.GONE
+        binding.advancedContent.visibility =
+            if ((hasPermissionsTab && position == 2) || (!hasPermissionsTab && position == 1))
+                View.VISIBLE else View.GONE
     }
 
     private fun loadPrompt(id: IdType) {
@@ -225,6 +230,7 @@ class PromptEditActivity : ActivityBase() {
             checkWorkspaceMenu.isEnabled = false
             checkNoteEditor.isEnabled = false
             checkBibleOnly.isEnabled = false
+            checkTextTransformation.isEnabled = false
             permissionModeSpinner.isEnabled = false
             btnResetToolPermissions.visibility = View.GONE
             builtInNotice.visibility = View.VISIBLE
@@ -254,8 +260,11 @@ class PromptEditActivity : ActivityBase() {
             checkWorkspaceMenu.isChecked = PromptContext.WORKSPACE_MENU in prompt.showIn
             checkNoteEditor.isChecked = PromptContext.NOTE_EDITOR in prompt.showIn
             checkBibleOnly.isChecked = prompt.bibleOnly
+            checkTextTransformation.isChecked = prompt.isTextTransformation
             updateBibleOnlyDependentState()
+            updateTextTransformationDependentState()
             checkBibleOnly.setOnCheckedChangeListener { _, _ -> updateBibleOnlyDependentState() }
+            checkTextTransformation.setOnCheckedChangeListener { _, _ -> updateTextTransformationDependentState() }
             permissionModeSpinner.setSelection(permissionModeValues.indexOf(prompt.permissionMode).coerceAtLeast(0))
         }
 
@@ -282,6 +291,23 @@ class PromptEditActivity : ActivityBase() {
             binding.checkWorkspaceMenu.isChecked = false
             binding.checkNoteEditor.isChecked = false
         }
+    }
+
+    /** Hide or show the Permissions tab and irrelevant Advanced settings based on text transformation mode. */
+    private fun updateTextTransformationDependentState() {
+        val isTextTransformation = binding.checkTextTransformation.isChecked
+
+        // Remove Permissions tab when text transformation is enabled
+        if (isTextTransformation && binding.tabLayout.tabCount > 2) {
+            binding.tabLayout.removeTabAt(1)
+        } else if (!isTextTransformation && binding.tabLayout.tabCount < 3) {
+            binding.tabLayout.addTab(
+                binding.tabLayout.newTab().setText(R.string.prompt_tab_permissions), 1
+            )
+        }
+
+        // Hide irrelevant Advanced settings
+        advancedFragment?.setTextTransformationMode(isTextTransformation)
     }
 
     private fun collectShowIn(): Set<PromptContext> = binding.run {
@@ -317,6 +343,7 @@ class PromptEditActivity : ActivityBase() {
             initialPermissionModeIndex = permissionModeSpinner.selectedItemPosition
             initialAllowedTools = currentToolAllowed
             initialDeniedTools = currentToolDenied
+            initialIsTextTransformation = checkTextTransformation.isChecked
         }
         initialAdvancedSnapshot = advancedDataStore.snapshot()
     }
@@ -330,7 +357,8 @@ class PromptEditActivity : ActivityBase() {
                 collectShowIn() != initialShowIn ||
                 permissionModeSpinner.selectedItemPosition != initialPermissionModeIndex ||
                 currentToolAllowed != initialAllowedTools ||
-                currentToolDenied != initialDeniedTools
+                currentToolDenied != initialDeniedTools ||
+                checkTextTransformation.isChecked != initialIsTextTransformation
         }
         return basicDirty || advancedDataStore.snapshot() != initialAdvancedSnapshot
     }
@@ -402,6 +430,7 @@ class PromptEditActivity : ActivityBase() {
                         autoIncludeDocuments = autoIncludeDocuments,
                         autoIncludeCommentaries = autoIncludeCommentaries,
                         bibleOnly = binding.checkBibleOnly.isChecked,
+                        isTextTransformation = binding.checkTextTransformation.isChecked,
                     )
                     PromptRepository.insertPrompt(newPrompt)
                     savedPromptId = newPrompt.id
@@ -422,6 +451,7 @@ class PromptEditActivity : ActivityBase() {
                         it.autoIncludeDocuments = autoIncludeDocuments
                         it.autoIncludeCommentaries = autoIncludeCommentaries
                         it.bibleOnly = binding.checkBibleOnly.isChecked
+                        it.isTextTransformation = binding.checkTextTransformation.isChecked
                         PromptRepository.updatePrompt(it)
                         savedPromptId = it.id
                     }
@@ -707,5 +737,13 @@ class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
         findPreference<SwitchPreference>("no_document_creation")?.isEnabled = false
         findPreference<SwitchPreference>("auto_include_documents")?.isEnabled = false
         findPreference<SwitchPreference>("auto_include_commentaries")?.isEnabled = false
+    }
+
+    /** Hide preferences that are irrelevant for text transformation prompts. */
+    fun setTextTransformationMode(isTextTransformation: Boolean) {
+        findPreference<EditTextPreference>("max_iterations")?.isVisible = !isTextTransformation
+        findPreference<SwitchPreference>("no_document_creation")?.isVisible = !isTextTransformation
+        findPreference<SwitchPreference>("auto_include_documents")?.isVisible = !isTextTransformation
+        findPreference<SwitchPreference>("auto_include_commentaries")?.isVisible = !isTextTransformation
     }
 }

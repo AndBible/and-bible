@@ -137,8 +137,7 @@ object BuiltInPrompts {
                 """.trimIndent(),
                 showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
-                allowedTools = emptySet(),
-                deniedTools = denyExcept(emptySet()),
+                isTextTransformation = true,
             ),
 
             // 2. Summary
@@ -548,39 +547,19 @@ object BuiltInPrompts {
                 description = context.getString(R.string.default_prompt_enhance_note_desc),
                 promptTemplate = """
                     Improve the language and clarity of the user's note.
-                    The note's entity type and ID are provided in the system prompt.
 
                     APPROACH:
-                    1. Read the existing note content provided in the context.
-                    2. Improve the note by:
-                       - Fixing grammar, spelling, and punctuation errors
-                       - Improving sentence structure and readability
-                       - Making the writing more concise where appropriate
-                       - Preserving the original meaning and intent
-                    3. Save the improved note using the appropriate tool:
-                       - For BOOKMARK_NOTE: use updateBookmarkNote with the bookmark ID
-                       - For STUDYPAD_TEXT: use updateStudyPadTextEntry with the entry ID
-                       - For MY_DOCUMENT_PAGE: use editMyDocumentPage with the page ID
-                    4. Call finishWithoutDocument confirming the note was updated.
+                    - Fix grammar, spelling, and punctuation errors
+                    - Improve sentence structure and readability
+                    - Make the writing more concise where appropriate
+                    - Preserve the original meaning and intent
 
                     IMPORTANT: Preserve the user's original thoughts, voice, and content.
                     Only improve the language — do not add new content, commentary, or cross-references.
-                    Output in the same format as the content type (Markdown or HTML).
                 """.trimIndent(),
                 showIn = setOf(PromptContext.NOTE_EDITOR),
                 orderNumber = order++,
-                noDocumentCreation = true,
-                permissionMode = PermissionMode.ASK_ONCE_PER_RUN,
-                allowedTools = setOf(
-                    AgentTool.UPDATE_BOOKMARK_NOTE,
-                    AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
-                    AgentTool.EDIT_MY_DOCUMENT_PAGE,
-                ),
-                deniedTools = denyExcept(setOf(
-                    AgentTool.UPDATE_BOOKMARK_NOTE,
-                    AgentTool.UPDATE_STUDYPAD_TEXT_ENTRY,
-                    AgentTool.EDIT_MY_DOCUMENT_PAGE,
-                )),
+                isTextTransformation = true,
             ),
 
             // 12. Ask a Question
