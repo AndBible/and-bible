@@ -1612,6 +1612,7 @@
     <string name="prompt_context_window_menu">Window menu</string>
     <string name="prompt_context_workspace_menu">Workspace menu</string>
     <string name="prompt_context_note_editor">Note editor</string>
+    <string name="prompt_bible_only">Bible documents only</string>
     <string name="new_prompt">New prompt</string>
     <string name="reset_prompts_to_defaults">Reset to defaults</string>
     <string name="reset_prompts_confirm_title">Reset prompts?</string>
@@ -1639,7 +1640,10 @@
     <string name="prompt_auto_include_documents_description">Automatically include the list of installed documents in the prompt context, saving an AI iteration.</string>
     <string name="prompt_auto_include_commentaries">Auto-include commentaries</string>
     <string name="prompt_auto_include_commentaries_description">Automatically fetch and include commentary entries for the selected verses, saving an AI iteration.</string>
+    <string name="prompt_is_text_transformation">Text transformation</string>
+    <string name="prompt_is_text_transformation_description">Uses a simplified system prompt that preserves formatting (links, headings, bold/italic) while transforming text content. No tools are used. Ideal for translation and editing prompts.</string>
     <string name="llm_no_document_creation_intercepted">Task completed (document creation disabled)</string>
+    <string name="llm_note_updated">Note updated</string>
     <string name="specify_before_run_title">Specify task</string>
     <string name="specify_before_run_hint">Describe the specific task…</string>
     <string name="prompt_cache_settings">Cache settings</string>

@@ -829,7 +829,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
         if (CommonUtils.settings.llmConfigured) {
             val llmSubMenu = llmActionsSubMenu.subMenu!!
             llmSubMenu.removeItem(R.id.llmActionItem)
-            val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
+            val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU, window.pageManager.currentPage.documentCategory)
             prompts.forEachIndexed { idx, prompt ->
                 llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
             }
@@ -1068,7 +1068,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             )
             R.id.llmActionItem -> CommandPreference({ _, _, _ ->
                 // Execute the selected LLM prompt for the entire window content
-                val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU)
+                val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU, window.pageManager.currentPage.documentCategory)
                 if (order < prompts.size) {
                     val selectedPrompt = prompts[order]
                     val currentPage = window.pageManager.currentPage

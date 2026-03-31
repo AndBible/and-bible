@@ -427,19 +427,14 @@ function scrollUpDown(up = false) {
     doScrolling(window.scrollY + (up ? -scrollAmount.value : scrollAmount.value), 0)
 }
 
-const helperLineStep: Record<number, number> = {25: 25, 33: 33, 50: 50, 66: 33, 75: 25};
+const helperLinePercents: Record<number, number[]> = {25: [25, 50, 75], 33: [33, 66], 50: [50], 66: [33, 66], 75: [25, 75]};
 
 const helperLinePositions = computed(() => {
-    const pct = config.pageScrollAmount;
-    const step = helperLineStep[pct];
-    if (!step) return [];
-    const positions: number[] = [];
+    const percents = helperLinePercents[config.pageScrollAmount];
+    if (!percents) return [];
     const topOff = calculatedConfig.value.topOffset;
     const pageH = calculatedConfig.value.pageHeight;
-    for (let p = step; p <= 100 - step; p += step) {
-        positions.push(topOff + pageH * (p / 100));
-    }
-    return positions;
+    return percents.map(p => topOff + pageH * (p / 100));
 });
 
 const helperLineClass = computed(() => {

@@ -60,12 +60,13 @@ object PromptCsvUtils {
     private const val HEADER_ID = "id"
     private const val MAX_IMPORT_ROWS = 1000
     private const val HEADER_CREATED_AT = "createdAt"
+    private const val HEADER_BIBLE_ONLY = "bibleOnly"
 
     private val ALL_HEADERS = listOf(
         HEADER_NAME, HEADER_DESCRIPTION, HEADER_PROMPT_TEMPLATE, HEADER_SHOW_IN,
         HEADER_ORDER_NUMBER, HEADER_STRICT_CONTEXT_MATCHING, HEADER_PERMISSION_MODE,
         HEADER_ALLOWED_TOOLS, HEADER_DENIED_TOOLS, HEADER_CONFIGURED_MODEL_ID,
-        HEADER_ID, HEADER_CREATED_AT
+        HEADER_ID, HEADER_CREATED_AT, HEADER_BIBLE_ONLY
     )
 
     /**
@@ -94,6 +95,7 @@ object PromptCsvUtils {
                         prompt.configuredModelId?.toString() ?: "",
                         prompt.id.toString(),
                         ISO_DATE_FORMAT.format(Date(prompt.createdAt)),
+                        prompt.bibleOnly.toString(),
                     )
                     writer.write(values.joinToString(CSV_SEPARATOR))
                     writer.write("\n")
@@ -236,6 +238,9 @@ object PromptCsvUtils {
             } else null
         } ?: System.currentTimeMillis()
 
+        val bibleOnly = getValueOrNull(values, headerMap, HEADER_BIBLE_ONLY)
+            ?.lowercase()?.toBooleanStrictOrNull() ?: false
+
         return AgentPrompt(
             id = id,
             name = name,
@@ -249,6 +254,7 @@ object PromptCsvUtils {
             deniedTools = deniedTools,
             configuredModelId = configuredModelId,
             createdAt = createdAt,
+            bibleOnly = bibleOnly,
         )
     }
 

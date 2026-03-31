@@ -113,6 +113,13 @@
                 android:textStyle="bold" />
 
             <CheckBox
+                android:id="@+id/checkBibleOnly"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
+                android:text="@string/prompt_bible_only" />
+
+            <CheckBox
                 android:id="@+id/checkVerseSelection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -141,6 +148,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/prompt_context_note_editor" />
+
+            <CheckBox
+                android:id="@+id/checkTextTransformation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/prompt_is_text_transformation" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:text="@string/prompt_is_text_transformation_description"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="?android:attr/textColorSecondary" />
 
         </LinearLayout>
     </ScrollView>

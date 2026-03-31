@@ -56,6 +56,11 @@ import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
 import net.bible.service.llm.tools.write.FinishWithoutDocumentTool
 import net.bible.service.llm.tools.ToolDefinition
+import net.bible.android.database.bookmarks.TextContentType
+import net.bible.android.database.mydocument.MyDocumentPageContent
+import net.bible.service.sword.mydocument.MyDocumentBookManager
+import net.bible.service.sword.mydocument.AiDocPagesChangedEvent
+import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.index.IndexStatus
@@ -151,7 +156,7 @@ class AgentExecutor(
                 rawLlmLog?.addMessage(msg.role.name, msg.content)
             }
 
-            runAgentLoop(messages, toolDefs, resolved.adapter, context, llmConfig, rawLlmLog, resolved)
+            runAgentLoop(prompt, messages, toolDefs, resolved.adapter, context, llmConfig, rawLlmLog, resolved)
 
         } catch (e: CancellationException) {
             emit(AgentEvent.Cancelled)
@@ -163,6 +168,7 @@ class AgentExecutor(
     }
 
     private suspend fun FlowCollector<AgentEvent>.runAgentLoop(
+        prompt: AgentPrompt,
         messages: MutableList<ChatMessage>,
         tools: List<ToolDefinition>,
         adapter: LlmApiAdapter,
@@ -196,7 +202,7 @@ class AgentExecutor(
 
                 when (parsed) {
                     is ParsedResponse.ToolCalls -> {
-                        when (val result = processToolCalls(adapter, parsed, messages, currentContext, rawLlmLog)) {
+                        when (val result = processToolCalls(prompt, adapter, parsed, messages, currentContext, rawLlmLog)) {
                             is ProcessToolsResult.Continue -> {
                                 currentContext = result.context
                                 if (result.pendingDocumentTitle != null) {
@@ -257,7 +263,18 @@ class AgentExecutor(
                     is ParsedResponse.TextResponse -> {
                         val normalizedContent = normalizeLlmText(parsed.content)
                         val title = pendingDocumentTitle
-                        if (title != null) {
+                        if (prompt.isTextTransformation && currentContext.noteEditorEntityType != null && normalizedContent.isNotBlank()) {
+                            // Text transformation in note editor: route content back to the note
+                            saveNoteContent(currentContext, normalizedContent)
+                            Log.d(TAG, "Text transformation (text response) saved to note: ${currentContext.noteEditorEntityType}/${currentContext.noteEditorEntityId}")
+                            emit(AgentEvent.CompletedWithoutDocument(
+                                message = application.getString(R.string.llm_note_updated),
+                                totalIterations = iteration,
+                                usage = totalUsage,
+                                model = resolved.model,
+                                configuredModelId = resolved.configuredModelId
+                            ))
+                        } else if (title != null) {
                             Log.d(TAG, "LLM returned text response, combining with pending title: $title")
                             emit(AgentEvent.CompletedWithDocument(
                                 title = title,
@@ -322,6 +339,7 @@ class AgentExecutor(
      * because Anthropic batches all tool results into a single user message.
      */
     private suspend fun FlowCollector<AgentEvent>.processToolCalls(
+        prompt: AgentPrompt,
         adapter: LlmApiAdapter,
         parsed: ParsedResponse.ToolCalls,
         messages: MutableList<ChatMessage>,
@@ -373,7 +391,28 @@ class AgentExecutor(
             if (finishResult == null && result is ToolResult.Success) {
                 when (toolCall.tool) {
                     AgentTool.SET_DOCUMENT_TITLE -> {
-                        if (currentContext.noDocumentCreation) {
+                        if (prompt.isTextTransformation && currentContext.noteEditorEntityType != null) {
+                            // Text transformation in note editor: route result back to the note
+                            val content = parsed.content?.takeIf { it.isNotBlank() }
+                            if (content != null) {
+                                saveNoteContent(currentContext, normalizeLlmText(content))
+                                Log.d(TAG, "Text transformation saved to note: ${currentContext.noteEditorEntityType}/${currentContext.noteEditorEntityId}")
+                                finishResult = ProcessToolsResult.FinishWithoutDocument(
+                                    message = application.getString(R.string.llm_note_updated),
+                                    context = currentContext
+                                )
+                            } else {
+                                // Content not yet available, save pending title and wait for content
+                                val data = result.data as? SetDocumentTitleTool.Result
+                                pendingTitle = data?.title
+                                toolResults[toolResults.lastIndex] = ToolResultBlock(
+                                    toolCallId = toolCall.id, content = ToolResult.success {
+                                        put("titleSaved", true)
+                                        put("instruction", "Title accepted. Now output your transformed text in your next response.")
+                                    }.toJson()
+                                )
+                            }
+                        } else if (currentContext.noDocumentCreation) {
                             // Enforce: block document creation, finish immediately without new iteration
                             Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
                             finishResult = ProcessToolsResult.FinishWithoutDocument(
@@ -470,10 +509,17 @@ class AgentExecutor(
         val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
 
         return buildString {
-            val template = application.resources.openRawResource(R.raw.llm_agent_system_prompt)
+            val templateRes = if (prompt.isTextTransformation)
+                R.raw.llm_text_transformation_system_prompt
+            else
+                R.raw.llm_agent_system_prompt
+            val template = application.resources.openRawResource(templateRes)
                 .bufferedReader()
                 .use { it.readText() }
             append(template.replace("{{APP_LANGUAGE}}", appLanguage))
+
+            // Text transformations use a minimal system prompt — no extra context needed
+            if (prompt.isTextTransformation) return@buildString
 
             if (context.activeDocumentInitials != null) {
                 append("Current active document: ${context.activeDocumentInitials}\n")
@@ -570,7 +616,7 @@ class AgentExecutor(
             if (context.selectedContent != null) {
                 val plainText = try {
                     val fragment = useSaxBuilder { it.build(StringReader(context.selectedContent)).rootElement }
-                    OsisToPlainText.convert(fragment, injectAnchors = true)
+                    OsisToPlainText.convert(fragment, injectAnchors = !prompt.isTextTransformation)
                 } catch (_: Exception) {
                     context.selectedContent
                 }
@@ -804,5 +850,45 @@ class AgentExecutor(
             message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
             title = application.getString(R.string.llm_continue_iterations_title)
         )
+    }
+
+    /**
+     * Routes transformed text back to the appropriate note entity based on [AgentContext.noteEditorEntityType].
+     */
+    private fun saveNoteContent(context: AgentContext, content: String) {
+        val entityId = context.noteEditorEntityId ?: return
+        val bookmarkControl = application.applicationComponent.bookmarkControl()
+
+        when (context.noteEditorEntityType) {
+            "BOOKMARK_NOTE" -> {
+                val bookmark = bookmarkControl.bibleBookmarkById(IdType(entityId)) ?: return
+                bookmark.notes = content
+                bookmark.notesContentType = TextContentType.MARKDOWN
+                bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
+            }
+            "STUDYPAD_TEXT" -> {
+                bookmarkControl.updateStudyPadTextEntryText(IdType(entityId), content)
+            }
+            "MY_DOCUMENT_PAGE" -> {
+                val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+                val pageId = IdType(entityId)
+                val page = dao.pageById(pageId) ?: return
+                page.updatedAt = System.currentTimeMillis()
+                dao.update(page)
+                dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
+
+                val document = dao.documentById(page.documentId)
+                if (document != null) {
+                    MyDocumentBookManager.refreshDocument(document.initials)
+                    val cacheEntry = dao.getCacheEntry(pageId)
+                    val start = cacheEntry?.kjvOrdinalStart
+                    val end = cacheEntry?.kjvOrdinalEnd
+                    if (start != null && end != null) {
+                        val markers = dao.aiDocMarkersForRange(start, end)
+                        ABEventBus.post(AiDocPagesChangedEvent(markers))
+                    }
+                }
+            }
+        }
     }
 }

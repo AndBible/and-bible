@@ -515,8 +515,8 @@ export function useBookmarks(
             isMounted.value;
             return documentBookmarks.value
                 .filter(b => {
+                    if (isAiDocMarker(b)) return config.showAiDocMarkers && checkOrdinal(b);
                     if (!checkOrdinalEnd(b)) return false;
-                    if (isAiDocMarker(b)) return config.showAiDocMarkers;
                     return !showHighlight(b) &&
                         ((b.hasNote && config.showMyNotes) || config.showBookmarks);
                 })
@@ -892,7 +892,10 @@ export function useBookmarks(
             }
 
             // Marker will be put to the last verse, collect those to a map.
-            const key = b.ordinalRange[1];
+            // For AI doc markers whose range extends beyond the page, clamp to page end.
+            const key = isAiDocMarker(b) && ordinalRange
+                ? Math.min(b.ordinalRange[1], ordinalRange[1])
+                : b.ordinalRange[1];
             const bookmarkLabel = getBookmarkStyleLabel(b);
             if (!isHiddenBookmark(b, bookmarkLabel) && intersection(new Set(b.labels), hideLabels).size === 0) {
                 const value = bookmarkMap.get(key) || [];

@@ -17,6 +17,7 @@
 
 package net.bible.service.llm
 
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
@@ -74,10 +75,17 @@ object PromptRepository {
     }
 
     /**
-     * Returns prompts filtered by context, respecting debug mode for test prompts.
+     * Returns prompts filtered by context and optionally by document category.
+     *
+     * When [documentCategory] is null (e.g. WORKSPACE_MENU, NOTE_EDITOR), no document type
+     * filtering is applied. When provided, prompts with [AgentPrompt.bibleOnly] = true are
+     * hidden unless the category is [DocumentCategory.BIBLE].
      */
-    fun promptsForContext(context: PromptContext): List<AgentPrompt> {
-        return allPrompts().filter { context in it.showIn }
+    fun promptsForContext(context: PromptContext, documentCategory: DocumentCategory? = null): List<AgentPrompt> {
+        return allPrompts().filter { prompt ->
+            context in prompt.showIn &&
+            (documentCategory == null || !prompt.bibleOnly || documentCategory == DocumentCategory.BIBLE)
+        }
     }
 
     /**

@@ -26,6 +26,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.android.control.page.DocumentCategory
 import net.bible.android.control.page.ErrorDocument
 import net.bible.android.control.page.ErrorSeverity
 import net.bible.android.database.IdType
@@ -49,9 +50,9 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     /**
      * Show LLM prompt selector dialog.
      */
-    fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION) {
+    fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION, documentCategory: DocumentCategory? = null) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
-            val prompts = PromptRepository.promptsForContext(context)
+            val prompts = PromptRepository.promptsForContext(context, documentCategory)
             val promptNames = prompts.map { it.name }
 
             launch(Dispatchers.Main) {
@@ -103,7 +104,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * If the global "ask model before run" setting is enabled and the prompt does not have
      * an explicit model override, show a model selection dialog. Otherwise proceed directly.
      */
-    private fun maybeAskModel(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
+    internal fun maybeAskModel(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
         if (CommonUtils.aiSettings.askModelBeforeRun && prompt.configuredModelId == null) {
             showModelSelectionDialog(prompt, selection, userSpecification)
         } else {
