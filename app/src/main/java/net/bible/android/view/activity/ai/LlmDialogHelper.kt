@@ -104,7 +104,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
      * If the global "ask model before run" setting is enabled and the prompt does not have
      * an explicit model override, show a model selection dialog. Otherwise proceed directly.
      */
-    private fun maybeAskModel(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
+    internal fun maybeAskModel(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
         if (CommonUtils.aiSettings.askModelBeforeRun && prompt.configuredModelId == null) {
             showModelSelectionDialog(prompt, selection, userSpecification)
         } else {
