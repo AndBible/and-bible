@@ -1,0 +1,18 @@
+- Add text transformation mode for LLM prompts to enhance and translate notes (ede6cca)
+- Add "Bible documents only" filter for LLM prompts (d767bf6)
+- Show model selection dialog when starting AI action from window button (b908b6b)
+- Fix AI doc marker icon not showing at end of whole-chapter AI actions (66c2899)
+- Fix word order memorization: scrolling, drag positioning, and duplicate word matching (42043e9)
+- Fix scroll helper lines display in 75% scroll mode (3ac0673)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
