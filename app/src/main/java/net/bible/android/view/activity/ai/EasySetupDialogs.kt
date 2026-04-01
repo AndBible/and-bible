@@ -41,7 +41,7 @@ import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.setApiKey
 
 /**
- * Easy Setup wizard dialogs for [AiConnectionSettingsFragment].
+ * Easy Setup wizard dialogs for AI settings fragments.
  * Provides a simple 3-step flow for new users to configure AI.
  */
 
@@ -52,7 +52,7 @@ internal data class RecommendedSetup(
     val badge: String? = null,
 )
 
-internal fun AiConnectionSettingsFragment.getRecommendedSetups() = listOf(
+internal fun AiSettingsFragmentBase.getRecommendedSetups() = listOf(
     RecommendedSetup(LlmProvider.GEMINI, "gemini-2.5-flash",
         getString(R.string.easy_setup_gemini_desc), getString(R.string.easy_setup_free_tier)),
     RecommendedSetup(LlmProvider.ANTHROPIC, "claude-haiku-4-5",
@@ -62,7 +62,7 @@ internal fun AiConnectionSettingsFragment.getRecommendedSetups() = listOf(
 )
 
 /** Step 1: Choose a recommended provider+model */
-internal fun AiConnectionSettingsFragment.showEasySetupStep1() {
+internal fun AiSettingsFragmentBase.showEasySetupStep1() {
     val setups = getRecommendedSetups()
     val items = setups.map { setup ->
         "${setup.provider.displayName} — ${setup.description}"
@@ -78,7 +78,7 @@ internal fun AiConnectionSettingsFragment.showEasySetupStep1() {
 }
 
 /** Step 2: Enter API key and test connection */
-internal fun AiConnectionSettingsFragment.showEasySetupStep2(setup: RecommendedSetup) {
+internal fun AiSettingsFragmentBase.showEasySetupStep2(setup: RecommendedSetup) {
     val context = requireContext()
     val (scrollView, layout) = createDialogLayout()
 
@@ -149,7 +149,7 @@ internal fun AiConnectionSettingsFragment.showEasySetupStep2(setup: RecommendedS
 }
 
 /** Create provider + model + set default from easy setup selection. */
-internal fun AiConnectionSettingsFragment.performEasySetup(setup: RecommendedSetup, apiKey: String) {
+internal fun AiSettingsFragmentBase.performEasySetup(setup: RecommendedSetup, apiKey: String) {
     lifecycleScope.launch {
         withContext(Dispatchers.IO) {
             val providerConfig = LlmProviderConfig(
@@ -178,7 +178,7 @@ internal fun AiConnectionSettingsFragment.performEasySetup(setup: RecommendedSet
 }
 
 /** Step 3: Done! */
-internal fun AiConnectionSettingsFragment.showEasySetupStep3() {
+internal fun AiSettingsFragmentBase.showEasySetupStep3() {
     AlertDialog.Builder(requireContext())
         .setTitle(R.string.easy_setup_done_title)
         .setMessage(R.string.easy_setup_done_message)
