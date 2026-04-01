@@ -237,7 +237,7 @@
 			android:icon="@drawable/ic_calc_pin"
 			/>
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
+	<PreferenceCategory android:title="@string/prefs_features_cat">
 		<Preference android:key="sync_settings_shortcut"
 			android:title="@string/cloud_sync_title"
 			android:summary="@string/sync_settings_shortcut_summary"
@@ -253,6 +253,8 @@
 			android:summary="@string/reading_progress_settings_summary"
 			android:icon="@drawable/ic_baseline_check_circle_24"
 			/>
+	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/prefs_advanced_settings_cat">
 		<MultiSelectListPreference android:key="experimental_features"
 			android:title="@string/prefs_experimental_features_title"
 			android:summary="@string/prefs_experimental_features_summary"

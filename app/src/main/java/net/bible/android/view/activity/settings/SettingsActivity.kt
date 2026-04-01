@@ -296,9 +296,14 @@ class SettingsFragment : PreferenceFragmentCompat() {
             }
         }
 
-        preferenceScreen.findPreference<Preference>("reading_progress_settings_shortcut")?.setOnPreferenceClickListener {
-            startActivity(Intent(context, ReadingProgressSettingsActivity::class.java))
-            true
+        preferenceScreen.findPreference<Preference>("reading_progress_settings_shortcut")?.run {
+            if (!CommonUtils.settings.readingAndMemorizationEnabled) {
+                isVisible = false
+            }
+            setOnPreferenceClickListener {
+                startActivity(Intent(context, ReadingProgressSettingsActivity::class.java))
+                true
+            }
         }
 
         preferenceScreen.findPreference<Preference>("global_text_display_settings")?.setOnPreferenceClickListener {
