@@ -43,8 +43,8 @@ import net.bible.service.llm.LlmProviderConfig
 import net.bible.service.llm.ModelPricing
 
 /**
- * Model management dialogs for [AiConnectionSettingsFragment].
- * Extracted to keep the fragment class focused on preference setup.
+ * Model management dialogs for AI settings fragments.
+ * Extracted to keep the fragment classes focused on preference setup.
  */
 
 /** Format a model name with pricing info for display, e.g. "claude-sonnet-4 ($3.00/$15.00)". */
@@ -59,7 +59,7 @@ internal fun formatModelWithPricing(modelId: String, pricing: ModelPricing?): St
  * Show dialog to add a new model to a provider.
  * For dynamic providers (OpenRouter), shows category→model two-step selection.
  */
-internal fun AiConnectionSettingsFragment.showAddModelDialog(providerConfig: LlmProviderConfig, onDone: () -> Unit) {
+internal fun AiSettingsFragmentBase.showAddModelDialog(providerConfig: LlmProviderConfig, onDone: () -> Unit) {
     val context = requireContext()
     val provider = providerConfig.resolveProvider()
     val (scrollView, layout) = createDialogLayout()
@@ -214,7 +214,7 @@ internal fun AiConnectionSettingsFragment.showAddModelDialog(providerConfig: Llm
 /**
  * Show dialog to edit an existing configured model.
  */
-internal fun AiConnectionSettingsFragment.showEditModelDialog(model: LlmConfiguredModel, onDone: () -> Unit) {
+internal fun AiSettingsFragmentBase.showEditModelDialog(model: LlmConfiguredModel, onDone: () -> Unit) {
     val context = requireContext()
     val (scrollView, layout) = createDialogLayout()
 
@@ -288,7 +288,7 @@ internal fun AiConnectionSettingsFragment.showEditModelDialog(model: LlmConfigur
         .show()
 }
 
-internal fun AiConnectionSettingsFragment.confirmDeleteModel(model: LlmConfiguredModel, onDone: () -> Unit) {
+internal fun AiSettingsFragmentBase.confirmDeleteModel(model: LlmConfiguredModel, onDone: () -> Unit) {
     AlertDialog.Builder(requireContext())
         .setTitle(R.string.ai_provider_delete)
         .setMessage(getString(R.string.model_delete_confirm, model.displayName))

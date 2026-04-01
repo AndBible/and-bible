@@ -1537,10 +1537,11 @@
     <string name="ai_provider_tier_community">Other providers (not tested)</string>
 
     <!-- Multi-provider settings -->
+    <string name="ai_providers_models_category">Providers &amp; Models</string>
     <string name="ai_providers_category">Providers</string>
+    <string name="ai_providers_summary_none">No providers configured</string>
+    <string name="ai_models_summary_none">No models configured</string>
     <string name="ai_add_provider">Add provider</string>
-    <string name="ai_add_provider_summary">Configure a new AI service provider</string>
-    <string name="ai_no_providers">No providers configured. Tap \"Add provider\" to get started.</string>
     <string name="ai_provider_edit">Edit</string>
     <string name="ai_provider_delete">Delete</string>
     <string name="ai_provider_delete_confirm">Delete provider \"%1$s\"? Prompts using this provider will revert to the default.</string>
@@ -1564,7 +1565,6 @@
     <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
     <string name="ai_models_category">Models</string>
-    <string name="ai_add_model_summary">Add a pre-configured model from a provider</string>
     <string name="add_model">Add model</string>
     <string name="add_model_title">Add model</string>
     <string name="edit_model_title">Edit model</string>
@@ -1630,9 +1630,6 @@
     <string name="prompt_context_note_editor">Note editor</string>
     <string name="prompt_bible_only">Bible documents only</string>
     <string name="new_prompt">New prompt</string>
-    <string name="reset_prompts_to_defaults">Reset to defaults</string>
-    <string name="reset_prompts_confirm_title">Reset prompts?</string>
-    <string name="reset_prompts_confirm_message">This will delete all custom prompts. Built-in prompts are not affected. Continue?</string>
     <string name="permission_always_ask">Always ask</string>
     <string name="permission_ask_once_per_run">Ask once per run</string>
     <string name="permission_allow_all">Allow all</string>

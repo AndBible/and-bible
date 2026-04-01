@@ -40,6 +40,7 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.LlmCostTracker
@@ -130,7 +131,6 @@ class AiSettingsActivity : ActivityBase() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val configured = CommonUtils.settings.llmConfigured
         menu.findItem(R.id.new_prompt)?.isVisible = configured
-        menu.findItem(R.id.reset_prompts)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
         menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
@@ -148,10 +148,6 @@ class AiSettingsActivity : ActivityBase() {
             }
             R.id.new_prompt -> {
                 createNewPrompt()
-                true
-            }
-            R.id.reset_prompts -> {
-                confirmResetToDefaults()
                 true
             }
             R.id.ai_connection_settings -> {
@@ -178,16 +174,6 @@ class AiSettingsActivity : ActivityBase() {
         }
     }
 
-    private fun confirmResetToDefaults() {
-        AlertDialog.Builder(this)
-            .setTitle(R.string.reset_prompts_confirm_title)
-            .setMessage(R.string.reset_prompts_confirm_message)
-            .setPositiveButton(R.string.okay) { _, _ ->
-                resetToDefaults()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
 
     private fun confirmResetAllAiSettings() {
         AlertDialog.Builder(this)
@@ -210,20 +196,16 @@ class AiSettingsActivity : ActivityBase() {
                 }
                 providerDao.deleteAll()
 
+                // Reset global AI settings (disclaimer, permissions, language, etc.)
+                val globalDao = DatabaseContainer.instance.aiSettingsDb.globalAiSettingsDao()
+                globalDao.set(GlobalAiSettings())
+
                 PromptRepository.deleteAllUserPrompts()
             }
             updateView()
         }
     }
 
-    private fun resetToDefaults() {
-        lifecycleScope.launch {
-            withContext(Dispatchers.IO) {
-                PromptRepository.deleteAllUserPrompts()
-            }
-            loadPrompts()
-        }
-    }
 
     private suspend fun exportPrompts() {
         try {
