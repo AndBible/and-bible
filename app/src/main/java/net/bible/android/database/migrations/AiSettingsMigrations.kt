@@ -205,4 +205,8 @@ private val addIsTextTransformation = makeMigration(14..15) { db ->
     db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `isTextTransformation` INTEGER NOT NULL DEFAULT 0")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation)
+private val addAiDisclaimerAccepted = makeMigration(15..16) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `aiDisclaimerAccepted` INTEGER NOT NULL DEFAULT 0")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted)

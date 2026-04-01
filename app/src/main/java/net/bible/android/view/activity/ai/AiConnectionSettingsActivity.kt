@@ -29,9 +29,8 @@ import android.text.method.LinkMovementMethod
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.CheckBox
+import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -56,13 +55,9 @@ import net.bible.service.common.htmlToSpan
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.ApiFormat
 import net.bible.service.llm.DynamicModelService
-import net.bible.service.llm.LlmConfiguredModel
 import net.bible.service.llm.LlmCostTracker
-import net.bible.service.llm.LlmPricing
-import net.bible.service.llm.LlmProcessingService
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmProviderConfig
-import net.bible.service.llm.ModelPricing
 import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.getApiKey
 import net.bible.service.llm.removeApiKey
@@ -99,6 +94,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
     internal val settings get() = CommonUtils.aiSettings
     internal val dao get() = DatabaseContainer.instance.aiSettingsDb.llmProviderConfigDao()
 
+    private lateinit var disclaimerWarningPref: Preference
     private lateinit var gettingStartedPref: Preference
     private lateinit var providersCategory: PreferenceCategory
     private lateinit var addProviderPref: Preference
@@ -119,6 +115,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         preferenceManager.preferenceDataStore = PreferenceStore()
         setPreferencesFromResource(R.xml.ai_connection_settings, rootKey)
 
+        disclaimerWarningPref = preferenceScreen.findPreference("ai_disclaimer_warning")!!
         gettingStartedPref = preferenceScreen.findPreference("ai_getting_started")!!
         providersCategory = preferenceScreen.findPreference("ai_providers_category")!!
         addProviderPref = preferenceScreen.findPreference("ai_add_provider")!!
@@ -135,6 +132,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
 
+        setupDisclaimerWarning()
         setupGettingStarted()
         setupAddProvider()
         setupAddModel()
@@ -319,7 +317,7 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
 
     private fun setupAddProvider() {
         addProviderPref.setOnPreferenceClickListener {
-            showAddProviderTypeDialog()
+            ensureDisclaimerAccepted { showAddProviderTypeDialog() }
             true
         }
     }
@@ -578,11 +576,97 @@ class AiConnectionSettingsFragment : PreferenceFragmentCompat() {
         layout.addView(field)
     }
 
+    private fun buildDisclaimerHtml(): String {
+        val intro = getString(R.string.ai_disclaimer_intro)
+        val p1 = getString(R.string.ai_disclaimer_point1)
+        val p2 = getString(R.string.ai_disclaimer_point2)
+        val p3 = getString(R.string.ai_disclaimer_point3)
+        val p4 = getString(R.string.ai_disclaimer_point4)
+        val p5 = getString(R.string.ai_disclaimer_point5)
+        val p6 = getString(R.string.ai_disclaimer_point6)
+        val p7 = getString(R.string.ai_disclaimer_point7)
+        val p8 = getString(R.string.ai_disclaimer_point8)
+        return "$intro<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7<br><br>$p8<br><br><i>$p5</i>"
+    }
+
+    private fun showDisclaimerInfoDialog() {
+        val spanned = htmlToSpan(buildDisclaimerHtml())
+        val d = AlertDialog.Builder(requireContext()).apply {
+            setTitle(R.string.ai_disclaimer_dialog_title)
+            setMessage(spanned)
+            setPositiveButton(R.string.okay, null)
+            setCancelable(true)
+        }.create()
+        d.show()
+        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
+    private fun setupDisclaimerWarning() {
+        disclaimerWarningPref.setOnPreferenceClickListener {
+            showDisclaimerInfoDialog()
+            true
+        }
+    }
+
+    /**
+     * Gate that ensures the user has accepted the AI disclaimer before proceeding.
+     * If already accepted, calls [onAccepted] immediately.
+     * Otherwise shows the acceptance dialog first.
+     */
+    internal fun ensureDisclaimerAccepted(onAccepted: () -> Unit) {
+        if (settings.aiDisclaimerAccepted) {
+            onAccepted()
+            return
+        }
+        val context = requireContext()
+        val density = resources.displayMetrics.density
+        val padding = (16 * density).toInt()
+
+        val textView = TextView(context).apply {
+            text = htmlToSpan(buildDisclaimerHtml())
+            movementMethod = LinkMovementMethod.getInstance()
+        }
+
+        val acceptButton = Button(context, null, android.R.attr.borderlessButtonStyle).apply {
+            text = getString(R.string.ai_disclaimer_accept_button)
+            isAllCaps = false
+            val params = LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            params.topMargin = (16 * density).toInt()
+            layoutParams = params
+        }
+
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(padding, padding, padding, padding)
+            addView(textView)
+            addView(acceptButton)
+        }
+
+        val scrollView = ScrollView(context).apply { addView(layout) }
+
+        val dialog = AlertDialog.Builder(context)
+            .setTitle(R.string.ai_disclaimer_accept_title)
+            .setView(scrollView)
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+
+        acceptButton.setOnClickListener {
+            settings.aiDisclaimerAccepted = true
+            dialog.dismiss()
+            onAccepted()
+        }
+
+        dialog.show()
+    }
+
     // Easy Setup wizard: showEasySetupStep1/2/3, performEasySetup → EasySetupDialogs.kt
 
     private fun setupGettingStarted() {
         gettingStartedPref.setOnPreferenceClickListener {
-            showEasySetupStep1()
+            ensureDisclaimerAccepted { showEasySetupStep1() }
             true
         }
     }
