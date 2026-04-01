@@ -1,0 +1,15 @@
+- Improve AI disclaimer text clarity with hallucination explanation, theological bias warning, and Scripture verification emphasis (aefb9efa1)
+- Move sync, AI, and reading progress settings to dedicated "Features" category (1828988fe)
+- Fix reading progress and memorization settings appearing when feature flag is disabled (db4d297f6)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
