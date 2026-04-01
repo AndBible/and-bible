@@ -1602,14 +1602,14 @@
     <string name="ai_disclaimer_warning_summary">Risks and responsibilities of using AI</string>
     <string name="ai_disclaimer_dialog_title">AI Tools — Important Information</string>
     <string name="ai_disclaimer_intro">AI tools can greatly enrich your Bible study experience and open new ways to engage with Scripture. At the same time, they are powerful tools — and with great power comes great responsibility. Please bear the following in mind.</string>
-    <string name="ai_disclaimer_point1">AI makes mistakes. Never blindly accept its output.</string>
-    <string name="ai_disclaimer_point2">Some models may produce intentionally misleading results.</string>
-    <string name="ai_disclaimer_point3">You are responsible for how you use AI-generated content. Always verify the results before relying on them.</string>
+    <string name="ai_disclaimer_point1">AI can make mistakes, including \"hallucinations\" (confidently stating false or fabricated information). Never blindly accept its output.</string>
+    <string name="ai_disclaimer_point2">AI responses can reflect biases from their training data, be intentionally misleading, or may present a particular theological perspective as if it were neutral or complete.</string>
+    <string name="ai_disclaimer_point3">You are responsible for how you use AI-generated content. Always verify the results against Scripture before relying on them.</string>
     <string name="ai_disclaimer_point4">AndBible strives to make verification easy (e.g. precise source citations in commentaries), but the ultimate responsibility always lies with you.</string>
     <string name="ai_disclaimer_point5">"\"Test all things; hold fast what is good.\" (1 Thessalonians 5:21)"</string>
-    <string name="ai_disclaimer_point6">These tools have no soul and no Holy Spirit. They are text processing tools, just like traditional ones. They are not suitable for directly preparing sermons or spiritual content without careful human oversight.</string>
+    <string name="ai_disclaimer_point6">These tools have no soul and no Holy Spirit. They are text-processing tools, not spiritual guides. They are not suitable for directly preparing sermons, devotionals, or other spiritual content without careful human oversight, prayer, and discernment.</string>
     <string name="ai_disclaimer_point7">Used wisely, they can benefit many users and use cases. But if you are unsure about accepting the risks, choosing not to use them is also a perfectly valid choice.</string>
-    <string name="ai_disclaimer_point8">Your data is sent to the servers of your chosen AI provider. By obtaining an API key, you have accepted that provider\'s terms of service. Self-hosted models are possible but require more technical expertise, and may not produce results as good as commercial models.</string>
+    <string name="ai_disclaimer_point8">Your data is sent to the servers of your chosen AI provider. By using an API key, you accept that provider\'s terms and privacy policy. Self-hosted models are possible but require more technical expertise, and may not produce results as good as commercial models.</string>
     <string name="ai_disclaimer_accept_title">Accept AI Disclaimer</string>
     <string name="ai_disclaimer_accept_button">I accept and take full responsibility</string>
 
