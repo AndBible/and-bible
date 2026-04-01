@@ -1600,7 +1600,7 @@
     <string name="ai_disclaimer_warning_title">Important: Read before using AI tools</string>
     <string name="ai_disclaimer_warning_summary">Risks and responsibilities of using AI</string>
     <string name="ai_disclaimer_dialog_title">AI Tools — Important Information</string>
-    <string name="ai_disclaimer_intro">AI tools are powerful and can greatly enrich your Bible study experience. However, like all powerful tools, they must be used responsibly.</string>
+    <string name="ai_disclaimer_intro">AI tools can greatly enrich your Bible study experience and open new ways to engage with Scripture. At the same time, they are powerful tools — and with great power comes great responsibility. Please bear the following in mind.</string>
     <string name="ai_disclaimer_point1">AI makes mistakes. Never blindly accept its output.</string>
     <string name="ai_disclaimer_point2">Some models may produce intentionally misleading results.</string>
     <string name="ai_disclaimer_point3">You are responsible for how you use AI-generated content. Always verify the results before relying on them.</string>
