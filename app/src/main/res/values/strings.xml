@@ -211,6 +211,7 @@
     <string name="prefs_margin_size_title">Change margin size</string>
     <string name="prefs_margin_size_mm_title">Margin size (%1$d/%2$d/%3$d mm)</string>
     <string name="prefs_advanced_settings_cat">Advanced settings</string>
+    <string name="prefs_features_cat">Features</string>
     <string name="prefs_display_customization_cat">Look &amp; feel</string>
     <string name="prefs_behavior_customization_cat">Application behavior</string>
 
