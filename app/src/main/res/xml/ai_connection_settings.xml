@@ -20,6 +20,16 @@
     android:key="ai_connection_settings">
 
     <PreferenceCategory
+        android:key="ai_disclaimer_category">
+
+        <Preference android:key="ai_disclaimer_warning"
+            android:title="@string/ai_disclaimer_warning_title"
+            android:summary="@string/ai_disclaimer_warning_summary"
+            android:icon="@drawable/ic_warning_red_24dp"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="ai_providers_category"
         android:title="@string/ai_providers_category">
 
