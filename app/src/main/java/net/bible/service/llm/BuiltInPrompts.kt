@@ -54,7 +54,7 @@ object BuiltInPrompts {
     val CROSS_REFERENCES_ID = stableId("cross-references")
     val COMPARE_TRANSLATIONS_ID = stableId("compare-translations")
     val THEMATIC_STUDY_ID = stableId("thematic-study")
-    val DEVOTIONAL_ID = stableId("devotional")
+
     val BOOKMARK_ANNOTATE_ID = stableId("bookmark-annotate")
     val STUDY_LAYOUT_ID = stableId("study-layout")
     val WORKSPACE_ASSISTANT_ID = stableId("workspace-assistant")
@@ -382,34 +382,7 @@ object BuiltInPrompts {
                 autoIncludeCommentaries = true,
             ),
 
-            // 8. Devotional Reflection
-            AgentPrompt(
-                id = DEVOTIONAL_ID,
-                name = context.getString(R.string.default_prompt_devotional),
-                description = context.getString(R.string.default_prompt_devotional_desc),
-                promptTemplate = """
-                    Write a short devotional reflection on the selected passage.
-
-                    STRUCTURE:
-                    - **Opening** — A thought-provoking observation (2-3 sentences)
-                    - **The Text** — What the passage says and means in context (1 paragraph)
-                    - **Reflection** — Spiritual insight and application for today (1-2 paragraphs)
-                    - **Prayer Prompt** — A brief prayer suggestion inspired by the passage (2-3 sentences)
-
-                    Tone: Warm, reflective, accessible. Avoid academic jargon.
-                    Length: 200-400 words total.
-                    Ground your reflection in what the text actually says.
-                    Use the provided commentaries (if included below) to add depth.
-                """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
-                orderNumber = order++,
-                bibleOnly = true,
-                allowedTools = BIBLE_READ_TOOLS,
-                deniedTools = denyExcept(BIBLE_READ_TOOLS),
-                autoIncludeCommentaries = true,
-            ),
-
-            // 9. Bookmark & Annotate
+            // 8. Bookmark & Annotate
             AgentPrompt(
                 id = BOOKMARK_ANNOTATE_ID,
                 name = context.getString(R.string.default_prompt_bookmark_annotate),
@@ -918,7 +891,7 @@ object BuiltInPrompts {
             // General
             TRANSLATE_UI_LANGUAGE_ID to CATEGORY_GENERAL_ID,
             SUMMARY_ID to CATEGORY_GENERAL_ID,
-            DEVOTIONAL_ID to CATEGORY_GENERAL_ID,
+
             ASK_QUESTION_ID to CATEGORY_GENERAL_ID,
             CUSTOM_PROMPT_ID to CATEGORY_GENERAL_ID,
             WORKSPACE_ASSISTANT_ID to CATEGORY_GENERAL_ID,
