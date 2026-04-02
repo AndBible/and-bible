@@ -81,6 +81,7 @@ import net.bible.service.sword.dbFile
 import net.bible.service.sword.epub.epubDir
 import net.bible.service.sword.epub.isManuallyInstalledEpub
 import net.bible.service.sword.mybible.isManuallyInstalledMyBibleBook
+import net.bible.service.sword.esword.isManuallyInstalledESwordBook
 import net.bible.service.sword.mysword.isManuallyInstalledMySwordBook
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -373,6 +374,8 @@ object BackupControl {
                         if (b.isManuallyInstalledMyBibleBook) {
                             addModuleFile(outFile, b.dbFile)
                         } else if (b.isManuallyInstalledMySwordBook) {
+                            addModuleFile(outFile, b.dbFile)
+                        } else if (b.isManuallyInstalledESwordBook) {
                             addModuleFile(outFile, b.dbFile)
                         } else if (b.isManuallyInstalledEpub) {
                             addModuleDir(outFile, File(SharedConstants.modulesDir, b.epubDir))

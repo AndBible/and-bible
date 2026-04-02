@@ -56,6 +56,8 @@ import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
 import net.bible.service.sword.epub.epubInitials
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
+import net.bible.service.sword.esword.addESwordBook
+import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
 import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
@@ -133,7 +135,7 @@ class ZipHandler(
                 // Ignore directory
             } else if (name.startsWith(SwordConstants.DIR_DATA + "/")) {
                 modulesFound = true
-            } else if (name.startsWith("epub/") || name.startsWith("mysword/") || name.startsWith("mybible/")) {
+            } else if (name.startsWith("epub/") || name.startsWith("mysword/") || name.startsWith("mybible/") || name.startsWith("esword/")) {
                 modulesFound = true
                 modsDirFound = true
             } else if (name == ANDBIBLE_BACKUP_MANIFEST_FILENAME) {
@@ -220,6 +222,7 @@ class ZipHandler(
         }
         addManuallyInstalledMyBibleBooks()
         addManuallyInstalledMySwordBooks()
+        addManuallyInstalledESwordBooks()
         addManuallyInstalledEpubBooks()
         addManuallyInstalledTtfBooks()
         addManuallyInstalledCsvPromptBooks()
@@ -377,10 +380,12 @@ class InstallZip : ActivityBase() {
             val zip = getString(R.string.format_zip, getString(R.string.app_name_andbible))
             val myBible = getString(R.string.format_mybible)
             val mySword = getString(R.string.format_mysword)
+            val eSword = getString(R.string.format_esword)
             val epub = getString(R.string.format_epub)
             val studyPads = getString(R.string.format_studypads)
             val ttf = getString(R.string.format_ttf)
-            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $epub, $ttf, $studyPads")
+            val csvPrompts = getString(R.string.format_csv_prompts)
+            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $eSword, $epub, $ttf, $csvPrompts, $studyPads")
 
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.install_zip)
@@ -450,7 +455,7 @@ class InstallZip : ActivityBase() {
     }
 
     enum class FileType {
-        MYBIBLE, MYSWORD, TTF;
+        MYBIBLE, MYSWORD, ESWORD, TTF;
         val displayName get () = name.lowercase()
     }
 
@@ -498,6 +503,8 @@ class InstallZip : ActivityBase() {
         val filetype = when {
             displayName.lowercase().endsWith(".sqlite3") -> FileType.MYBIBLE
             displayName.lowercase().endsWith(".mybible") -> FileType.MYSWORD
+            displayName.lowercase().endsWith(".bblx") -> FileType.ESWORD
+            displayName.lowercase().endsWith(".bbli") -> FileType.ESWORD
             else -> throw InvalidFile(displayName)
         }
 
@@ -541,6 +548,7 @@ class InstallZip : ActivityBase() {
                         val book = when (filetype) {
                             FileType.MYBIBLE -> addMyBibleBook(outFile)
                             FileType.MYSWORD -> addMySwordBook(outFile)
+                            FileType.ESWORD -> addESwordBook(outFile)
                             else -> throw InvalidFile(displayName)
                         }
                         if (book == null) {
