@@ -319,6 +319,68 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
     }
 
+    /** Intermediate result from content extraction (whole-page or selection mode). */
+    private data class SelectionContent(
+        val verseRange: VerseRange?,
+        val selectedText: String,
+        val osisContent: String?
+    )
+
+    /** Extract content for whole-page mode (ordinals are -1, Bible document). */
+    private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: org.crosswire.jsword.passage.Key?): SelectionContent {
+        val keyToUse = selection.osisRef?.let {
+            try { book.getKey(it) } catch (e: Exception) {
+                Log.w(TAG, "Could not parse osisRef: $it", e)
+                null
+            }
+        } ?: pageKey
+
+        val verseRange = keyToUse as? VerseRange
+            ?: (keyToUse as? Verse)?.let { VerseRange(it.versification, it, it) }
+
+        val selectedText = if (keyToUse != null) {
+            try { SwordContentFacade.getCanonicalText(book, keyToUse, false) }
+            catch (e: Exception) { Log.w(TAG, "Could not get canonical text", e); "" }
+        } else ""
+
+        val osisContent = if (keyToUse != null) {
+            try {
+                val fragment = SwordContentFacade.readOsisFragment(book, keyToUse)
+                XMLOutputter(Format.getRawFormat()).outputString(fragment)
+            } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }
+        } else null
+
+        return SelectionContent(verseRange, selectedText, osisContent)
+    }
+
+    /** Extract content for ordinal-based selection mode. */
+    private fun extractSelectionContent(book: org.crosswire.jsword.book.Book?, selection: Selection, pageKey: org.crosswire.jsword.passage.Key?): SelectionContent {
+        val ordinalRange = selection.startOrdinal..selection.endOrdinal
+
+        val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
+            try {
+                val v11n = book.versification
+                VerseRange(v11n, Verse(v11n, selection.startOrdinal), Verse(v11n, selection.endOrdinal))
+            } catch (e: Exception) { Log.w(TAG, "Could not create VerseRange", e); null }
+        } else null
+
+        val selectedText = if (book != null && verseRange != null) {
+            SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange).joinToString(" ")
+        } else ""
+
+        val osisContent = if (book != null) {
+            try {
+                val keyForOsis = verseRange ?: pageKey
+                if (keyForOsis != null) {
+                    val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis)
+                    XMLOutputter(Format.getRawFormat()).outputString(fragment)
+                } else null
+            } catch (e: Exception) { Log.w(TAG, "Could not get OSIS content", e); null }
+        } else null
+
+        return SelectionContent(verseRange, selectedText, osisContent)
+    }
+
     private suspend fun buildAgentContext(
         prompt: AgentPrompt,
         selection: Selection,
@@ -326,13 +388,14 @@ object AgentSessionManager : AgentSessionManagerBase() {
         previousResponse: String? = null,
         userSpecification: String? = null
     ): AgentContext {
+        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+
         // Workspace-level prompt: no specific verse/document selected
         if (selection.bookInitials == null && selection.startOrdinal < 0
             && selection.noteEditorEntityType == null) {
             val workspaceSummary = withContext(Dispatchers.Main.immediate) {
                 buildWorkspaceWindowsSummary()
             }
-            val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
             return AgentContext(
                 promptId = prompt.id,
                 workspaceId = windowControl.windowRepository.id,
@@ -350,106 +413,30 @@ object AgentSessionManager : AgentSessionManagerBase() {
         }
 
         val book = selection.bookInitials?.let { Books.installed().getBook(it) }
-        val currentPage = windowControl.activeWindowPageManager.currentPage
-        val pageKey = currentPage.key
-
-        // Check if this is "whole page" mode (ordinals are -1)
+        val pageKey = windowControl.activeWindowPageManager.currentPage.key
         val isWholePageMode = selection.startOrdinal < 0
 
-        // For whole page mode, use osisRef to get the key; otherwise use ordinals
-        val verseRange: VerseRange?
-        val selectedText: String
-        val osisContent: String?
-
-        if (isWholePageMode && book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
-            // Whole page mode: use osisRef or pageKey
-            val keyToUse = selection.osisRef?.let {
-                try {
-                    book.getKey(it)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not parse osisRef: $it", e)
-                    null
-                }
-            } ?: pageKey
-
-            verseRange = keyToUse as? VerseRange ?: (keyToUse as? Verse)?.let { VerseRange(it.versification, it, it) }
-
-            // Get all text from the page
-            selectedText = if (book != null && keyToUse != null) {
-                try {
-                    SwordContentFacade.getCanonicalText(book, keyToUse, false)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not get canonical text", e)
-                    ""
-                }
-            } else ""
-
-            // Get OSIS content for the whole page
-            osisContent = if (keyToUse != null) {
-                try {
-                    val fragment = SwordContentFacade.readOsisFragment(book, keyToUse)
-                    XMLOutputter(Format.getRawFormat()).outputString(fragment)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not get OSIS content", e)
-                    null
-                }
-            } else null
+        val content = if (isWholePageMode && book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
+            extractWholePageContent(book, selection, pageKey)
         } else {
-            // Selection mode: use ordinals
-            val ordinalRange = selection.startOrdinal..selection.endOrdinal
-
-            // Create VerseRange if Bible book
-            verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
-                try {
-                    val v11n = book.versification
-                    val startVerse = Verse(v11n, selection.startOrdinal)
-                    val endVerse = Verse(v11n, selection.endOrdinal)
-                    VerseRange(v11n, startVerse, endVerse)
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not create VerseRange", e)
-                    null
-                }
-            } else null
-
-            // Get selected text using verseRange (not pageKey, which may be from a different document)
-            selectedText = if (book != null && verseRange != null) {
-                SwordContentFacade.getTextWithinOrdinalsAsString(book, verseRange, ordinalRange).joinToString(" ")
-            } else ""
-
-            // Get OSIS XML content for the selected verses
-            osisContent = if (book != null) {
-                try {
-                    val keyForOsis = verseRange ?: pageKey
-                    if (keyForOsis != null) {
-                        val fragment = SwordContentFacade.readOsisFragment(book, keyForOsis)
-                        XMLOutputter(Format.getRawFormat()).outputString(fragment)
-                    } else null
-                } catch (e: Exception) {
-                    Log.w(TAG, "Could not get OSIS content", e)
-                    null
-                }
-            } else null
+            extractSelectionContent(book, selection, pageKey)
         }
 
-        // Get highlighted text (specific words selected by user) if available
         val highlightedText = selection.text.takeIf { it.isNotBlank() }
-
-        val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
 
         return AgentContext(
             promptId = prompt.id,
             workspaceId = windowControl.windowRepository.id,
-            selectedVerseRange = verseRange,
-            selectedContent = osisContent,
+            selectedVerseRange = content.verseRange,
+            selectedContent = content.osisContent,
             activeDocumentInitials = selection.bookInitials,
             windowId = windowControl.activeWindow.id,
-            selectedText = selectedText,
+            selectedText = content.selectedText,
             highlightedText = highlightedText,
             selectionStartOffset = if (highlightedText != null) selection.startOffset else null,
             selectionEndOffset = if (highlightedText != null) selection.endOffset else null,
             promptPermissionMode = prompt.permissionMode,
             promptAvailableTools = prompt.allowedTools,
-            // Built-in prompts: no permission auto-allow — rely on permissionMode instead
             promptAllowedTools = if (isBuiltIn) null else prompt.allowedTools,
             promptDeniedTools = prompt.deniedTools,
             noDocumentCreation = prompt.noDocumentCreation,
@@ -584,72 +571,35 @@ object AgentSessionManager : AgentSessionManagerBase() {
             }
             is AgentEvent.Completed -> {
                 if (context.noDocumentCreation) {
-                    // No document creation — just log the response
                     session.addLogEntry(AgentLogEntry.info(
                         app.getString(R.string.llm_no_document_creation_intercepted),
                         details = event.response.take(500)
                     ))
-                    session.stop(app.getString(R.string.agent_log_completed))
-                    attachTotalCost(session, event.usage, event.model, event.configuredModelId)
                 } else {
-                    // Extract title from response (first markdown H1 heading)
                     val (title, content) = extractTitleFromResponse(event.response, prompt.name, context.verseRefString)
-
-                    // Save to AI Documents
-                    val pageInfo = MyDocumentBookManager.saveAIResponse(
-                        response = content,
-                        title = title,
-                        sourcePromptId = context.promptId,
-                        cacheableContext = cacheableContext,
-                        usedWriteTools = usedWriteToolsTracker.get(),
-                        sourceModelName = event.model.takeIf { it.isNotBlank() }
-                    )
-
-                    session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, title)))
-
-                    // Open the page in target window or linked window
+                    val pageInfo = saveAndLogDocument(title, content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                     openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
-
-                    session.stop(app.getString(R.string.agent_log_completed))
-                    attachTotalCost(session, event.usage, event.model, event.configuredModelId)
                 }
+                completeSession(session, event)
             }
             is AgentEvent.CompletedWithDocument -> {
-                // LLM explicitly provided title and content via setDocumentTitle tool
-                val pageInfo = MyDocumentBookManager.saveAIResponse(
-                    response = event.content,
-                    title = event.title,
-                    sourcePromptId = context.promptId,
-                    cacheableContext = cacheableContext,
-                    usedWriteTools = usedWriteToolsTracker.get(),
-                    sourceModelName = event.model.takeIf { it.isNotBlank() }
-                )
-
-                session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_saved, event.title)))
-
-                // Open the page in target window or linked window
+                val pageInfo = saveAndLogDocument(event.title, event.content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                 openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
-
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+                completeSession(session, event)
             }
             is AgentEvent.CompletedWithoutDocument -> {
-                // Task completed without creating a document (e.g., just created a bookmark)
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+                completeSession(session, event)
             }
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 openStudyPadResult(event.labelId, event.scrollToEntryId, session)
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+                completeSession(session, event)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
-                session.stop(app.getString(R.string.agent_log_completed))
-                attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+                completeSession(session, event)
             }
             is AgentEvent.Error -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
@@ -662,6 +612,37 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 session.stop()
             }
         }
+    }
+
+    /** Stops the session and attaches total cost. Used by all completion event handlers. */
+    private fun completeSession(session: AgentSession, event: CompletionEvent) {
+        val app = BibleApplication.application
+        session.stop(app.getString(R.string.agent_log_completed))
+        attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+    }
+
+    /** Saves an AI response document and logs it. Shared by Completed and CompletedWithDocument. */
+    private fun saveAndLogDocument(
+        title: String,
+        content: String,
+        context: AgentContext,
+        cacheableContext: CacheableContext,
+        usedWriteToolsTracker: AtomicBoolean,
+        model: String,
+        session: AgentSession
+    ): MyDocumentBookManager.SavedPageInfo {
+        val pageInfo = MyDocumentBookManager.saveAIResponse(
+            response = content,
+            title = title,
+            sourcePromptId = context.promptId,
+            cacheableContext = cacheableContext,
+            usedWriteTools = usedWriteToolsTracker.get(),
+            sourceModelName = model.takeIf { it.isNotBlank() }
+        )
+        session.addLogEntry(AgentLogEntry.info(
+            BibleApplication.application.getString(R.string.agent_log_saved, title)
+        ))
+        return pageInfo
     }
 
     private fun attachTotalCost(session: AgentSession, usage: LlmUsage, model: String, configuredModelId: IdType? = null) {
