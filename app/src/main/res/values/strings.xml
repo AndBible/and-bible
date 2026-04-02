@@ -950,6 +950,7 @@
     <string name="format_esword">e-Sword documents (*.bblx, *.bbli)</string>
     <string name="format_epub">EPUB documents (*.epub)</string>
     <string name="format_ttf">TTF fonts (*.ttf)</string>
+    <string name="format_csv_prompts">AI prompt add-ons (*.csv)</string>
     <string name="format_studypads">StudyPads from AndBible databases (*.abdb)</string>
     <string name="redownload_message">
         A list of previous books/documents was found. Click below to easily download them again.

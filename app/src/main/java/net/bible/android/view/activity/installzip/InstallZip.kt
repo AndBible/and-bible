@@ -384,7 +384,8 @@ class InstallZip : ActivityBase() {
             val epub = getString(R.string.format_epub)
             val studyPads = getString(R.string.format_studypads)
             val ttf = getString(R.string.format_ttf)
-            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $eSword, $epub, $ttf, $studyPads")
+            val csvPrompts = getString(R.string.format_csv_prompts)
+            val formats = getString(R.string.choose_file, getString(R.string.app_name_andbible)) + " \n\n" + getString(R.string.supported_formats, "$zip, $myBible, $mySword, $eSword, $epub, $ttf, $csvPrompts, $studyPads")
 
             AlertDialog.Builder(this@InstallZip)
                 .setTitle(R.string.install_zip)
