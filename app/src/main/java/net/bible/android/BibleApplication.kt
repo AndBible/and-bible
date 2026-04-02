@@ -54,6 +54,7 @@ import net.bible.service.device.speak.SPEAK_NOTIFICATIONS_CHANNEL
 import net.bible.service.sword.SwordDocumentFacade
 import net.bible.service.sword.SwordEnvironmentInitialisation
 import net.bible.service.sword.epub.epubBookType
+import net.bible.service.sword.esword.eSwordBible
 import net.bible.service.sword.mybible.myBibleBible
 import net.bible.service.sword.mybible.myBibleCommentary
 import net.bible.service.sword.mybible.myBibleDictionary
@@ -146,6 +147,7 @@ open class BibleApplication : Application() {
         BookType.addSupportedBookType(mySwordCommentary)
         BookType.addSupportedBookType(mySwordDictionary)
         BookType.addSupportedBookType(epubBookType)
+        BookType.addSupportedBookType(eSwordBible)
 
         LocaleProviderManager.setLocaleProvider(MyLocaleProvider)
 

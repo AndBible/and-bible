@@ -130,6 +130,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.sword.BookAndKey
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.epub.addManuallyInstalledEpubBooks
+import net.bible.service.sword.esword.addManuallyInstalledESwordBooks
 import net.bible.service.sword.epub.isEpub
 import net.bible.service.sword.mydocument.isMyDocument
 import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
@@ -1173,6 +1174,7 @@ object CommonUtils : CommonUtilsBase() {
 
             addManuallyInstalledMyBibleBooks()
             addManuallyInstalledMySwordBooks()
+            addManuallyInstalledESwordBooks()
             addManuallyInstalledEpubBooks()
             addManuallyInstalledTtfBooks()
             addManuallyInstalledCsvPromptBooks()
@@ -1229,6 +1231,7 @@ object CommonUtils : CommonUtilsBase() {
             withContext(Dispatchers.IO) {
                 addManuallyInstalledMyBibleBooks()
                 addManuallyInstalledMySwordBooks()
+                addManuallyInstalledESwordBooks()
                 addManuallyInstalledEpubBooks()
                 addManuallyInstalledTtfBooks()
                 addManuallyInstalledCsvPromptBooks()
