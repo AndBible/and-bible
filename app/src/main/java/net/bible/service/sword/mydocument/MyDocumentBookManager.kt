@@ -26,6 +26,7 @@ import net.bible.android.database.mydocument.AiPageCacheEntry
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
+import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.agent.CacheableContext
 import org.crosswire.jsword.book.Book
@@ -238,11 +239,9 @@ object MyDocumentBookManager {
         registerDocument(aiDocument)
 
         // Shift other documents' order numbers
-        val allDocs = dao.allDocuments()
-        allDocs.filter { it.id != aiDocument.id }.forEachIndexed { index, doc ->
-            doc.orderNumber = index + 1
-            dao.update(doc)
-        }
+        val otherDocs = dao.allDocuments().filter { it.id != aiDocument.id }
+        otherDocs.forEachIndexed { index, doc -> doc.orderNumber = index + 1 }
+        dao.updateDocuments(otherDocs)
 
         Log.i(TAG, "Created AI Documents: $AI_DOCUMENTS_INITIALS")
         return aiDocument
@@ -321,7 +320,7 @@ object MyDocumentBookManager {
             page.updatedAt = System.currentTimeMillis()
             dao.update(page)
         }
-        dao.insertOrUpdateContent(net.bible.android.database.mydocument.MyDocumentPageContent(pageId = pageId, content = content))
+        dao.insertOrUpdateContent(MyDocumentPageContent(pageId = pageId, content = content))
     }
 
     /**
