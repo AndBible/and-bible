@@ -1,0 +1,15 @@
+- Add e-Sword Bible format support (.bblx and .bbli) with RTF-to-OSIS conversion (75c18bd8d)
+- Add CSV prompt add-ons to supported formats dialog (ce694a69a)
+- Remove devotional reflection built-in prompt (98513bd5b)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
