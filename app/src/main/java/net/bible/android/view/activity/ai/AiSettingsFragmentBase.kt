@@ -62,7 +62,10 @@ abstract class AiSettingsFragmentBase : PreferenceFragmentCompat() {
             setCancelable(true)
         }.create()
         d.show()
-        d.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+        d.findViewById<TextView>(android.R.id.message)!!.apply {
+            movementMethod = LinkMovementMethod.getInstance()
+            setTextIsSelectable(true)
+        }
     }
 
     /**
@@ -82,6 +85,7 @@ abstract class AiSettingsFragmentBase : PreferenceFragmentCompat() {
         val textView = TextView(context).apply {
             text = htmlToSpan(buildDisclaimerHtml())
             movementMethod = LinkMovementMethod.getInstance()
+            setTextIsSelectable(true)
         }
 
         val acceptButton = Button(context, null, android.R.attr.borderlessButtonStyle).apply {
