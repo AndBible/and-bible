@@ -89,6 +89,10 @@ object PromptRepository {
             ?: dao.promptById(id)
     }
 
+    private fun loadBuiltInPrompts(): List<AgentPrompt> =
+        if (CommonUtils.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
+        else BuiltInPrompts.productionPrompts()
+
     /**
      * Returns all prompts: built-in first (filtered by debug mode and hidden state),
      * then add-on prompts, then user prompts from DB.
@@ -97,31 +101,16 @@ object PromptRepository {
      * Hidden built-in prompts are excluded from all contexts.
      */
     fun allPrompts(): List<AgentPrompt> {
-        val builtIn = if (CommonUtils.isDebugMode) {
-            BuiltInPrompts.allBuiltInPrompts()
-        } else {
-            BuiltInPrompts.productionPrompts()
-        }
         val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
-        val visibleBuiltIn = builtIn.filter { it.id !in hidden }
-        val addonPrompts = loadAddonPrompts()
-        val userPrompts = dao.allPrompts()
-        return visibleBuiltIn + addonPrompts + userPrompts
+        val visibleBuiltIn = loadBuiltInPrompts().filter { it.id !in hidden }
+        return visibleBuiltIn + loadAddonPrompts() + dao.allPrompts()
     }
 
     /**
      * Returns all prompts including hidden ones, for use in settings UI.
      */
-    fun allPromptsIncludingHidden(): List<AgentPrompt> {
-        val builtIn = if (CommonUtils.isDebugMode) {
-            BuiltInPrompts.allBuiltInPrompts()
-        } else {
-            BuiltInPrompts.productionPrompts()
-        }
-        val addonPrompts = loadAddonPrompts()
-        val userPrompts = dao.allPrompts()
-        return builtIn + addonPrompts + userPrompts
-    }
+    fun allPromptsIncludingHidden(): List<AgentPrompt> =
+        loadBuiltInPrompts() + loadAddonPrompts() + dao.allPrompts()
 
     /**
      * Returns prompts filtered by context and optionally by document category.

@@ -80,7 +80,8 @@ interface LlmApiAdapter {
     fun buildRequestBody(model: String, messages: List<ChatMessage>, toolDefs: List<ToolDefinition>, temperature: Double?): String
     fun parseResponse(responseBody: String): ParsedResponse
     fun extractUsage(responseBody: String): LlmUsage
-    fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage
+    fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage =
+        ChatMessage(role = ChatMessage.Role.ASSISTANT, content = content, toolCalls = toolCalls)
     fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage>
 }
 
@@ -243,14 +244,6 @@ class OpenAiApiAdapter(
         } catch (_: Exception) {
             LlmUsage()
         }
-    }
-
-    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage {
-        return ChatMessage(
-            role = ChatMessage.Role.ASSISTANT,
-            content = content,
-            toolCalls = toolCalls
-        )
     }
 
     override fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage> {
@@ -450,14 +443,6 @@ class AnthropicApiAdapter : LlmApiAdapter {
         } catch (_: Exception) {
             LlmUsage()
         }
-    }
-
-    override fun createAssistantToolCallMessage(toolCalls: List<ToolCall>, content: String?): ChatMessage {
-        return ChatMessage(
-            role = ChatMessage.Role.ASSISTANT,
-            content = content,
-            toolCalls = toolCalls
-        )
     }
 
     override fun createToolResultMessages(results: List<ToolResultBlock>): List<ChatMessage> {

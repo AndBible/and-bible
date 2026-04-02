@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import android.app.Activity
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -785,25 +786,32 @@ class AgentExecutor(
             promptAvailableTools = context.promptAvailableTools,
         )
 
+    /**
+     * Waits for the current activity to become available.
+     * Posts waiting/not-waiting events so the UI can show a notification.
+     */
+    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
+        CurrentActivityHolder.currentActivity?.let { return it }
+        Log.d(TAG, "No current activity, waiting for activity to resume...")
+        if (workspaceId != null) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolName))
+        }
+        var activity: Activity?
+        do {
+            delay(500)
+            activity = CurrentActivityHolder.currentActivity
+        } while (activity == null)
+        if (workspaceId != null) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+        }
+        Log.d(TAG, "Activity resumed")
+        return activity
+    }
+
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject, workspaceId: IdType? = null): DialogResult {
-        var activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d(TAG, "No current activity, waiting for activity to resume...")
-            val toolDisplayName = ToolRegistry.getDisplayName(tool)
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolDisplayName))
-            }
-            while (activity == null) {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            }
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
-            }
-            Log.d(TAG, "Activity resumed, showing permission dialog")
-        }
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
+        val activity = awaitActivity(workspaceId, toolDisplayName)
         val actionDescription = try {
             tool.formatActionDescription(arguments)
         } catch (e: Exception) {
@@ -840,20 +848,7 @@ class AgentExecutor(
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
-        var activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d(TAG, "No current activity for continue dialog, waiting...")
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
-            }
-            while (activity == null) {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            }
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
-            }
-        }
+        val activity = awaitActivity(workspaceId)
         return Dialogs.simpleQuestion(
             activity,
             message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
