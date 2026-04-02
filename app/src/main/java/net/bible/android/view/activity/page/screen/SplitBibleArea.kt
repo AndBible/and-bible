@@ -824,19 +824,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
             item.setIcon(R.drawable.ic_text_options_24dp)
         }
 
-        // Populate LLM actions submenu
-        val llmActionsSubMenu = menu.findItem(R.id.llmActionsSubMenu)
-        if (CommonUtils.settings.llmConfigured) {
-            val llmSubMenu = llmActionsSubMenu.subMenu!!
-            llmSubMenu.removeItem(R.id.llmActionItem)
-            val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU, window.pageManager.currentPage.documentCategory)
-            prompts.forEachIndexed { idx, prompt ->
-                llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
-            }
-            // Prompts list includes the built-in "Custom prompt" at the end
-        } else {
-            llmActionsSubMenu.isVisible = false
-        }
+        // LLM actions: visibility handled by getItemOptions, click opens dialog
 
         fun handleMenu(menu: Menu) {
             for(item in menu.children) {
@@ -1062,29 +1050,21 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                     !window.pageManager.isBibleShown &&
                     window.pageManager.currentPage.currentDocument?.isSpecial != true
             )
-            R.id.llmActionsSubMenu -> SubMenuPreference(
-                onlyBibles = false,
-                visible = CommonUtils.settings.llmConfigured && window.isVisible
-            )
-            R.id.llmActionItem -> CommandPreference({ _, _, _ ->
-                // Execute the selected LLM prompt for the entire window content
-                val prompts = PromptRepository.promptsForContext(PromptContext.WINDOW_MENU, window.pageManager.currentPage.documentCategory)
-                if (order < prompts.size) {
-                    val selectedPrompt = prompts[order]
+            R.id.llmActionsSubMenu -> CommandPreference(
+                launch = { _, _, _ ->
                     val currentPage = window.pageManager.currentPage
                     val book = currentPage.currentDocument
                     val key = currentPage.key
                     if (book != null && key != null) {
-                        // Use osisRef with -1 ordinals to indicate "whole page" mode
                         val selection = Selection(book.initials, key.osisRef, -1, -1)
-                        if (selectedPrompt.specifyBeforeRun) {
-                            mainBibleActivity.llmDialogHelper.showSpecifyBeforeRunDialog(selectedPrompt, selection)
-                        } else {
-                            mainBibleActivity.executeLlmPrompt(selectedPrompt, selection)
-                        }
+                        mainBibleActivity.llmDialogHelper.showPromptSelector(
+                            selection, PromptContext.WINDOW_MENU, currentPage.documentCategory
+                        )
                     }
-                }
-            })
+                },
+                visible = CommonUtils.settings.llmConfigured && window.isVisible,
+                opensDialog = true,
+            )
             else -> throw RuntimeException("Illegal menu item")
         }
     }

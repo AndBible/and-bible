@@ -34,7 +34,11 @@ class ProvidedReadingPlan(val book: Book, val fileName: String, val isDateBased:
     val file: File get() = File(File(book.bookMetaData.location), fileName)
 }
 
+/** An add-on prompt pack, either from a SWORD module or a standalone CSV file. */
+class ProvidedPromptPack(val moduleName: String, val file: File)
+
 object AndBibleAddons {
+    private const val TAG = "AndBibleAddons"
     private var _addons: List<Book>? = null
     private val addons: List<Book> get() {
         return _addons ?:
@@ -81,6 +85,23 @@ object AndBibleAddons {
             }
         }
         return readingPlansByFileName
+    }
+
+    /** Prompt packs from SWORD add-on modules (AndBibleProvidesPrompts property). Standalone CSVs are registered as SWORD modules by CsvPromptBook. */
+    val providedPromptPacks: List<ProvidedPromptPack> get() {
+        val packs = mutableListOf<ProvidedPromptPack>()
+        for (book in addons) {
+            val csvPath = book.bookMetaData.getProperty("AndBibleProvidesPrompts")
+            if (csvPath != null) {
+                val file = File(File(book.bookMetaData.location), csvPath)
+                if (file.canRead()) {
+                    packs.add(ProvidedPromptPack(book.initials, file))
+                } else {
+                    Log.e(TAG, "Could not read prompt pack file $file for module ${book.initials}")
+                }
+            }
+        }
+        return packs
     }
 
     fun clearCaches() {

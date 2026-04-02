@@ -184,7 +184,7 @@ object BuiltInPrompts {
                     Base your explanation on the provided commentaries. Cite each source by name.
                     Do not invent interpretations — ground everything in the available reference works.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 allowedTools = BIBLE_STUDY_TOOLS,
@@ -216,7 +216,7 @@ object BuiltInPrompts {
                     Base your explanation on the provided commentaries.
                     Do not invent interpretations — ground everything in the available reference works.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 strictContextMatching = false,
@@ -254,7 +254,7 @@ object BuiltInPrompts {
 
                     Focus on the most theologically significant words.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.TEXT_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 strictContextMatching = false,
@@ -285,7 +285,7 @@ object BuiltInPrompts {
                     For each cross-reference, provide a clickable link and a brief explanation (1-2 sentences).
                     Aim for 8-15 cross-references, prioritizing the most significant connections.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 strictContextMatching = false,
@@ -318,7 +318,7 @@ object BuiltInPrompts {
                     where it helps explain why translations differ.
                     Do not editorialize about which translation is "better."
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 strictContextMatching = false,
@@ -363,7 +363,7 @@ object BuiltInPrompts {
                     Organize passages in a logical progression (e.g., Old Testament → New Testament).
                     Include 8-12 passages total.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 strictContextMatching = false,
@@ -401,7 +401,7 @@ object BuiltInPrompts {
                     Ground your reflection in what the text actually says.
                     Use the provided commentaries (if included below) to add depth.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 allowedTools = BIBLE_READ_TOOLS,
@@ -429,7 +429,7 @@ object BuiltInPrompts {
 
                     Keep the note concise and useful for future reference.
                 """.trimIndent(),
-                showIn = setOf(PromptContext.VERSE_SELECTION),
+                showIn = setOf(PromptContext.VERSE_SELECTION, PromptContext.WINDOW_MENU),
                 orderNumber = order++,
                 bibleOnly = true,
                 noDocumentCreation = true,
@@ -877,4 +877,73 @@ object BuiltInPrompts {
 
     /** Get a built-in prompt by ID, or null if not found. */
     fun promptById(id: IdType): AgentPrompt? = allBuiltInPrompts().find { it.id == id }
+
+    // --- Default categories for built-in prompts ---
+
+    /** Stable category IDs used as defaults for built-in prompts. */
+    val CATEGORY_STUDY_ID = stableId("category-study")
+    val CATEGORY_NOTES_ID = stableId("category-notes")
+    val CATEGORY_GENERAL_ID = stableId("category-general")
+    val CATEGORY_TEST_ID = stableId("category-test")
+
+    /** Default categories with localized names. Cached — only rebuilt on first access. */
+    private var _defaultCategories: List<PromptCategory>? = null
+    fun defaultCategories(): List<PromptCategory> {
+        _defaultCategories?.let { return it }
+        val ctx = BibleApplication.application
+        return buildList {
+            add(PromptCategory(id = CATEGORY_STUDY_ID, name = ctx.getString(R.string.prompt_category_study), orderNumber = 0))
+            add(PromptCategory(id = CATEGORY_NOTES_ID, name = ctx.getString(R.string.prompt_category_notes), orderNumber = 1))
+            add(PromptCategory(id = CATEGORY_GENERAL_ID, name = ctx.getString(R.string.prompt_category_general), orderNumber = 2))
+            if (CommonUtils.isDebugMode) {
+                add(PromptCategory(id = CATEGORY_TEST_ID, name = ctx.getString(R.string.prompt_category_test), orderNumber = 3))
+            }
+        }.also { _defaultCategories = it }
+    }
+
+    private val defaultCategoryMap: Map<IdType, IdType> by lazy {
+        mapOf(
+            // Study
+            EXPLAIN_VERSES_ID to CATEGORY_STUDY_ID,
+            EXPLAIN_VERSES_STUDYPAD_ID to CATEGORY_STUDY_ID,
+            STRONGS_ANNOTATION_ID to CATEGORY_STUDY_ID,
+            WORD_STUDY_ID to CATEGORY_STUDY_ID,
+            CROSS_REFERENCES_ID to CATEGORY_STUDY_ID,
+            COMPARE_TRANSLATIONS_ID to CATEGORY_STUDY_ID,
+            THEMATIC_STUDY_ID to CATEGORY_STUDY_ID,
+            // Notes
+            BOOKMARK_ANNOTATE_ID to CATEGORY_NOTES_ID,
+            ENHANCE_NOTE_ID to CATEGORY_NOTES_ID,
+            STUDY_LAYOUT_ID to CATEGORY_NOTES_ID,
+            // General
+            TRANSLATE_UI_LANGUAGE_ID to CATEGORY_GENERAL_ID,
+            SUMMARY_ID to CATEGORY_GENERAL_ID,
+            DEVOTIONAL_ID to CATEGORY_GENERAL_ID,
+            ASK_QUESTION_ID to CATEGORY_GENERAL_ID,
+            CUSTOM_PROMPT_ID to CATEGORY_GENERAL_ID,
+            WORKSPACE_ASSISTANT_ID to CATEGORY_GENERAL_ID,
+            // Test
+            TEST_TOOL_CALLING_ID to CATEGORY_TEST_ID,
+            TEST_CROSS_REFERENCES_ID to CATEGORY_TEST_ID,
+            TEST_CREATE_BOOKMARK_ID to CATEGORY_TEST_ID,
+            TEST_SEARCH_BIBLE_ID to CATEGORY_TEST_ID,
+            TEST_COMMENTARY_ID to CATEGORY_TEST_ID,
+            TEST_DICTIONARY_ID to CATEGORY_TEST_ID,
+            TEST_READ_BOOKMARKS_ID to CATEGORY_TEST_ID,
+            TEST_LABELS_ID to CATEGORY_TEST_ID,
+            TEST_STUDYPAD_ID to CATEGORY_TEST_ID,
+            TEST_FINISH_STUDYPAD_ID to CATEGORY_TEST_ID,
+            TEST_UPDATE_NOTE_ID to CATEGORY_TEST_ID,
+            TEST_STUDYPAD_READ_MODES_ID to CATEGORY_TEST_ID,
+            TEST_REGENERATE_ID to CATEGORY_TEST_ID,
+            TEST_CAPITALIZE_ID to CATEGORY_TEST_ID,
+            TEST_MY_DOCUMENTS_ID to CATEGORY_TEST_ID,
+        )
+    }
+
+    /** Check if a category ID belongs to a built-in category. */
+    fun isBuiltInCategory(id: IdType): Boolean = defaultCategories().any { it.id == id }
+
+    /** Returns the default category ID for a built-in prompt, or null if uncategorized. */
+    fun defaultCategoryForPrompt(id: IdType): IdType? = defaultCategoryMap[id]
 }

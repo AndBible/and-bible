@@ -92,6 +92,10 @@ object AiSettings {
         get() = getOrDefault().aiDisclaimerAccepted
         set(value) = update { copy(aiDisclaimerAccepted = value) }
 
+    var hiddenBuiltInCategories: Set<IdType>
+        get() = getOrDefault().hiddenBuiltInCategories
+        set(value) = update { copy(hiddenBuiltInCategories = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

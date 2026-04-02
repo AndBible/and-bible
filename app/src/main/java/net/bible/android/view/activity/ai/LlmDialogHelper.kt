@@ -17,10 +17,17 @@
 
 package net.bible.android.view.activity.ai
 
+import android.graphics.Typeface
 import android.text.InputType
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseExpandableListAdapter
 import android.widget.CheckBox
 import android.widget.EditText
+import android.widget.ExpandableListView
+import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
@@ -48,29 +55,123 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
 class LlmDialogHelper(private val activity: MainBibleActivity) {
 
     /**
-     * Show LLM prompt selector dialog.
+     * Show LLM prompt selector dialog with collapsible category groups.
+     * Category expand/collapse state is persisted in local SharedPreferences.
      */
     fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION, documentCategory: DocumentCategory? = null) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
-            val prompts = PromptRepository.promptsForContext(context, documentCategory)
-            val promptNames = prompts.map { it.name }
+            val grouped = PromptRepository.promptsForContextGrouped(context, documentCategory)
+
+            data class PromptGroup(val categoryName: String, val categoryId: IdType?, val prompts: List<AgentPrompt>)
+            val groups = mutableListOf<PromptGroup>()
+
+            // Uncategorized prompts first
+            grouped[null]?.let { groups.add(PromptGroup(activity.getString(R.string.prompt_category_uncategorized), null, it)) }
+
+            // Then categorized
+            for ((category, prompts) in grouped) {
+                if (category == null) continue
+                groups.add(PromptGroup(category.name, category.id, prompts))
+            }
+
+            if (groups.all { it.prompts.isEmpty() }) return@launch
 
             launch(Dispatchers.Main) {
-                AlertDialog.Builder(activity)
-                    .setTitle(R.string.select_llm_prompt)
-                    .setItems(promptNames.toTypedArray()) { _, which ->
-                        val selectedPrompt = prompts[which]
-                        if (selectedPrompt.specifyBeforeRun) {
-                            showSpecifyBeforeRunDialog(selectedPrompt, selection)
-                        } else {
-                            maybeAskModel(selectedPrompt, selection, userSpecification = null)
-                        }
+                val settings = CommonUtils.settings
+
+                val listView = ExpandableListView(activity).apply {
+                    setPadding(0, 16, 0, 16)
+                    setGroupIndicator(null)
+                }
+
+                val adapter = object : BaseExpandableListAdapter() {
+                    override fun getGroupCount() = groups.size
+                    override fun getChildrenCount(groupPosition: Int) = groups[groupPosition].prompts.size
+                    override fun getGroup(groupPosition: Int) = groups[groupPosition]
+                    override fun getChild(groupPosition: Int, childPosition: Int) = groups[groupPosition].prompts[childPosition]
+                    override fun getGroupId(groupPosition: Int) = groupPosition.toLong()
+                    override fun getChildId(groupPosition: Int, childPosition: Int) = childPosition.toLong()
+                    override fun hasStableIds() = false
+                    override fun isChildSelectable(groupPosition: Int, childPosition: Int) = true
+
+                    override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup): View {
+                        val view = convertView ?: activity.layoutInflater.inflate(
+                            R.layout.manage_prompts_category_header, parent, false
+                        )
+                        val group = groups[groupPosition]
+                        view.findViewById<TextView>(R.id.categoryName).text = group.categoryName
+                        view.findViewById<TextView>(R.id.promptCount).text = group.prompts.size.toString()
+                        view.findViewById<ImageView>(R.id.expandIndicator).setImageResource(
+                            if (isExpanded) R.drawable.ic_arrow_drop_up_grey_24dp
+                            else R.drawable.ic_arrow_drop_down_grey_24dp
+                        )
+                        return view
                     }
+
+                    override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
+                        val view = convertView ?: activity.layoutInflater.inflate(
+                            android.R.layout.simple_list_item_2, parent, false
+                        )
+                        val prompt = groups[groupPosition].prompts[childPosition]
+                        view.findViewById<TextView>(android.R.id.text1).apply {
+                            text = prompt.name
+                            setTypeface(null, Typeface.NORMAL)
+                        }
+                        view.findViewById<TextView>(android.R.id.text2).apply {
+                            text = prompt.description ?: ""
+                            visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
+                        }
+                        return view
+                    }
+                }
+
+                listView.setAdapter(adapter)
+
+                // Restore expand/collapse state (per-context)
+                var anyExpanded = false
+                for (i in groups.indices) {
+                    val key = collapsedPrefKey(context, groups[i].categoryId)
+                    if (!settings.getBoolean(key, false)) {
+                        listView.expandGroup(i)
+                        anyExpanded = true
+                    }
+                }
+                if (!anyExpanded && groups.isNotEmpty()) {
+                    listView.expandGroup(0)
+                }
+
+                // Persist expand/collapse changes
+                listView.setOnGroupExpandListener { groupPosition ->
+                    val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
+                    settings.setBoolean(key, false)
+                }
+                listView.setOnGroupCollapseListener { groupPosition ->
+                    val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
+                    settings.setBoolean(key, true)
+                }
+
+                val dialog = AlertDialog.Builder(activity)
+                    .setTitle(R.string.select_llm_prompt)
+                    .setView(listView)
                     .setNegativeButton(R.string.cancel, null)
                     .show()
+
+                listView.setOnChildClickListener { _, _, groupPosition, childPosition, _ ->
+                    val selectedPrompt = groups[groupPosition].prompts[childPosition]
+                    dialog.dismiss()
+                    if (selectedPrompt.specifyBeforeRun) {
+                        showSpecifyBeforeRunDialog(selectedPrompt, selection)
+                    } else {
+                        maybeAskModel(selectedPrompt, selection, userSpecification = null)
+                    }
+                    true
+                }
             }
         }
     }
+
+    private fun collapsedPrefKey(context: PromptContext, categoryId: IdType?): String =
+        "llm_cat_collapsed_${context.name}_${categoryId ?: "uncategorized"}"
 
     /**
      * Show dialog for the user to specify a task before running the prompt.
