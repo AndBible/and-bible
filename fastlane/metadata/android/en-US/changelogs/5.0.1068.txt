@@ -1,0 +1,14 @@
+- Add prompt categories for organizing AI prompts, add-on modules to install prompts from CSV/ZIP files, and unified AI Actions dialog with collapsible categories (7f548fab9)
+- Make AI disclaimer dialog text selectable and copyable, add API cost responsibility notice, and fix paragraph layout (fd34fbbfc, 48ef2abff)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
