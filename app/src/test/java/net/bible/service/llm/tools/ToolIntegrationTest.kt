@@ -1090,13 +1090,16 @@ class ToolIntegrationTest {
 
     @Test
     fun editMyDocumentPage_noPermissionForSessionPages() = runBlocking {
-        // Add a page (this adds its ID to context.createdPageIds)
+        // Add a page and simulate AgentExecutor tracking the created page ID
         val pageResult = AddMyDocumentPageTool.execute(JSONObject().apply {
             put("initials", "AIDocuments")
             put("title", "Session Page")
             put("content", "Content")
         }, context)
         val pageId = ((pageResult as ToolResult.Success).data as AddMyDocumentPageTool.Result).pageId
+
+        // Simulate what AgentExecutor.processToolCalls does: update context with created page ID
+        val updatedContext = context.copy(createdPageIds = context.createdPageIds + pageId)
 
         // Edit should not require permission for pages created in this session
         val editArgs = JSONObject().apply {
@@ -1105,7 +1108,7 @@ class ToolIntegrationTest {
         }
         assertFalse(
             "Session-created pages should not require permission",
-            EditMyDocumentPageTool.requiresPermissionForCall(editArgs, context)
+            EditMyDocumentPageTool.requiresPermissionForCall(editArgs, updatedContext)
         )
     }
 

@@ -51,6 +51,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
@@ -383,6 +384,14 @@ class AgentExecutor(
                 currentContext = currentContext.withWritePermissionGranted()
             }
 
+            // Track created page IDs for permission-free editing in this session
+            if (toolCall.tool == AgentTool.ADD_MY_DOCUMENT_PAGE && result is ToolResult.Success) {
+                val pageId = (result.data as? AddMyDocumentPageTool.Result)?.pageId
+                if (pageId != null) {
+                    currentContext = currentContext.copy(createdPageIds = currentContext.createdPageIds + pageId)
+                }
+            }
+
             emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.tool, result))
 
             toolResults.add(ToolResultBlock(toolCall.id, result.toJson()))
@@ -558,9 +567,9 @@ class AgentExecutor(
                 append("Entity ID: ${context.noteEditorEntityId}\n")
                 append("Content type: ${context.noteEditorContentType}\n")
                 when (context.noteEditorEntityType) {
-                    "BOOKMARK_NOTE" -> append("Use updateBookmarkNote with this bookmark ID to save changes.\n")
-                    "STUDYPAD_TEXT" -> append("Use updateStudyPadTextEntry with this entry ID to save changes.\n")
-                    "MY_DOCUMENT_PAGE" -> append("Use editMyDocumentPage with this page ID to save changes.\n")
+                    NoteEditorEntityType.BOOKMARK_NOTE -> append("Use updateBookmarkNote with this bookmark ID to save changes.\n")
+                    NoteEditorEntityType.STUDYPAD_TEXT -> append("Use updateStudyPadTextEntry with this entry ID to save changes.\n")
+                    NoteEditorEntityType.MY_DOCUMENT_PAGE -> append("Use editMyDocumentPage with this page ID to save changes.\n")
                 }
             }
 
@@ -860,16 +869,16 @@ class AgentExecutor(
         val bookmarkControl = application.applicationComponent.bookmarkControl()
 
         when (context.noteEditorEntityType) {
-            "BOOKMARK_NOTE" -> {
+            NoteEditorEntityType.BOOKMARK_NOTE -> {
                 val bookmark = bookmarkControl.bibleBookmarkById(IdType(entityId)) ?: return
                 bookmark.notes = content
                 bookmark.notesContentType = TextContentType.MARKDOWN
                 bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
             }
-            "STUDYPAD_TEXT" -> {
+            NoteEditorEntityType.STUDYPAD_TEXT -> {
                 bookmarkControl.updateStudyPadTextEntryText(IdType(entityId), content)
             }
-            "MY_DOCUMENT_PAGE" -> {
+            NoteEditorEntityType.MY_DOCUMENT_PAGE -> {
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
                 val page = dao.pageById(pageId) ?: return
@@ -889,6 +898,7 @@ class AgentExecutor(
                     }
                 }
             }
+            null -> {}
         }
     }
 }

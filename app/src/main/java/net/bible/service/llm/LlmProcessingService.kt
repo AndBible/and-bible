@@ -94,23 +94,6 @@ object LlmProcessingService {
     )
 
     /**
-     * Check if LLM is configured at all (any provider configs exist).
-     */
-    private fun isConfiguredAny(): Boolean =
-        CommonUtils.settings.llmConfigured
-
-    /**
-     * Check if a specific llmConfig (or the global default) is configured.
-     */
-    private fun isConfigured(llmConfig: LlmModelConfig?): Boolean {
-        if (llmConfig != null) {
-            val providerConfig = llmConfig.resolveProviderConfig()
-            if (providerConfig != null) return providerConfig.getApiKey().isNotBlank()
-        }
-        return isConfiguredAny()
-    }
-
-    /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
      */
     internal fun resolveFromConfig(llmConfig: LlmModelConfig? = null): ResolvedProvider {
@@ -129,13 +112,6 @@ object LlmProcessingService {
             endpoint = providerConfig.resolveEndpoint(),
             configuredModelId = configuredModel.id,
         )
-    }
-
-    /**
-     * Resolve the current provider and return its API adapter.
-     */
-    internal fun resolveAdapter(llmConfig: LlmModelConfig? = null): LlmApiAdapter {
-        return resolveFromConfig(llmConfig).adapter
     }
 
     /**

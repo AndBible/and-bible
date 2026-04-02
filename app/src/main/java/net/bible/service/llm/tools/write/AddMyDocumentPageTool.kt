@@ -172,9 +172,6 @@ object AddMyDocumentPageTool : Tool {
             // AiPageCacheEntry, so no marker is generated. The event is posted by
             // savePageFromAiResponse() which does create the cache entry.
 
-            // Track for permission-free editing in this session
-            context.createdPageIds.add(pageId)
-
             typedSuccess(Result(
                 pageId = pageId,
                 documentId = document.id,

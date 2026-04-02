@@ -89,6 +89,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.NoteEditorEntityType
 import java.io.File
 import java.lang.ClassCastException
 
@@ -897,7 +898,7 @@ class BibleJavascriptInterface(
             var bookInitials: String? = null
             var startOrdinal = 0
             var endOrdinal = 0
-            if (ctx.entityType == "BOOKMARK_NOTE") {
+            if (ctx.entityType == NoteEditorEntityType.BOOKMARK_NOTE.name) {
                 val bookmark = bookmarkControl.bibleBookmarkById(IdType(ctx.entityId))
                 if (bookmark != null) {
                     bookInitials = bookmark.book?.initials
@@ -913,7 +914,7 @@ class BibleJavascriptInterface(
                 endOrdinal = endOrdinal,
                 endOffset = null,
                 bookmarks = emptyList(),
-                noteEditorEntityType = ctx.entityType,
+                noteEditorEntityType = NoteEditorEntityType.fromString(ctx.entityType),
                 noteEditorEntityId = ctx.entityId,
                 noteEditorContent = ctx.currentText,
                 noteEditorContentType = ctx.contentType,
