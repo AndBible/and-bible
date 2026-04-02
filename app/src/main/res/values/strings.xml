@@ -1727,8 +1727,6 @@
     <string name="default_prompt_compare_translations_desc">Shows how different installed translations render the text</string>
     <string name="default_prompt_thematic_study">Thematic study</string>
     <string name="default_prompt_thematic_study_desc">Builds a StudyPad with passages and notes on the central theme</string>
-    <string name="default_prompt_devotional">Devotional reflection</string>
-    <string name="default_prompt_devotional_desc">Writes a short devotional with application and prayer</string>
     <string name="default_prompt_bookmark_annotate">Bookmark &amp; annotate</string>
     <string name="default_prompt_bookmark_annotate_desc">Creates a bookmark with an AI-generated study note</string>
     <string name="default_prompt_study_layout">Open study layout</string>
