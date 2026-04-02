@@ -1610,6 +1610,7 @@
     <string name="ai_disclaimer_point6">These tools have no soul and no Holy Spirit. They are text-processing tools, not spiritual guides. They are not suitable for directly preparing sermons, devotionals, or other spiritual content without careful human oversight, prayer, and discernment.</string>
     <string name="ai_disclaimer_point7">Used wisely, they can benefit many users and use cases. But if you are unsure about accepting the risks, choosing not to use them is also a perfectly valid choice.</string>
     <string name="ai_disclaimer_point8">Your data is sent to the servers of your chosen AI provider. By using an API key, you accept that provider\'s terms and privacy policy. Self-hosted models are possible but require more technical expertise, and may not produce results as good as commercial models.</string>
+    <string name="ai_disclaimer_point9">AI providers charge for API usage. It is your responsibility to monitor and manage any costs charged by your chosen provider.</string>
     <string name="ai_disclaimer_accept_title">Accept AI Disclaimer</string>
     <string name="ai_disclaimer_accept_button">I accept and take full responsibility</string>
 
