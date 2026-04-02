@@ -23,6 +23,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -283,6 +284,40 @@ interface LlmConfiguredModelDao {
     fun deleteByProvider(providerConfigId: IdType)
 }
 
+/** Category (folder) for grouping prompts in the UI. */
+@Entity
+data class PromptCategory(
+    @PrimaryKey var id: IdType = IdType(),
+    var name: String = "",
+    @ColumnInfo(defaultValue = "0") var orderNumber: Int = 0,
+    /** When true, this category and its prompts are hidden from AI Actions dialogs. */
+    @ColumnInfo(defaultValue = "0") var hidden: Boolean = false,
+)
+
+@Dao
+interface PromptCategoryDao {
+    @Query("SELECT * FROM PromptCategory ORDER BY orderNumber, name")
+    fun all(): List<PromptCategory>
+
+    @Query("SELECT * FROM PromptCategory WHERE id = :id")
+    fun getById(id: IdType): PromptCategory?
+
+    @Insert
+    fun insert(category: PromptCategory)
+
+    @Update
+    fun update(category: PromptCategory)
+
+    @Delete
+    fun delete(category: PromptCategory)
+
+    @Query("UPDATE AgentPrompt SET categoryId = NULL WHERE categoryId = :categoryId")
+    fun clearCategoryFromPrompts(categoryId: IdType)
+
+    @Query("DELETE FROM PromptCategory")
+    fun deleteAll()
+}
+
 /** User-defined or default prompt for LLM operations. */
 @Entity(
     foreignKeys = [ForeignKey(
@@ -295,6 +330,7 @@ interface LlmConfiguredModelDao {
         Index("orderNumber"),
         Index("createdAt"),
         Index("configuredModelId"),
+        Index("categoryId"),
     ]
 )
 @Serializable
@@ -339,7 +375,12 @@ data class AgentPrompt(
     /** When true, uses a simplified system prompt for text transformation (translation, editing).
      *  Preserves formatting, uses no tools, and routes note editor results back to the note. */
     @ColumnInfo(defaultValue = "0") var isTextTransformation: Boolean = false,
-)
+    /** FK → PromptCategory. null = uncategorized (root level). No DB constraint — may reference addon categories. */
+    @ColumnInfo(defaultValue = "NULL") var categoryId: IdType? = null,
+) {
+    /** Name of the add-on module this prompt comes from. Transient — not stored in DB. */
+    @Ignore var sourceModule: String? = null
+}
 
 @Dao
 interface AgentPromptDao {
@@ -358,7 +399,7 @@ interface AgentPromptDao {
     @Query("SELECT * FROM AgentPrompt WHERE id = :id")
     fun promptById(id: IdType): AgentPrompt?
 
-    @Query("SELECT * FROM AgentPrompt ORDER BY orderNumber, createdAt DESC")
+    @Query("SELECT * FROM AgentPrompt ORDER BY orderNumber")
     fun allPrompts(): List<AgentPrompt>
 
     @Query("SELECT COUNT(*) FROM AgentPrompt")
@@ -366,6 +407,15 @@ interface AgentPromptDao {
 
     @Query("DELETE FROM AgentPrompt WHERE id = :id")
     fun deleteById(id: IdType)
+
+    @Query("DELETE FROM AgentPrompt WHERE categoryId = :categoryId")
+    fun deleteByCategoryId(categoryId: IdType)
+
+    @Query("DELETE FROM AgentPrompt")
+    fun deleteAll()
+
+    @Query("UPDATE AgentPrompt SET orderNumber = orderNumber + 1 WHERE orderNumber > :afterOrder")
+    fun shiftOrderNumbersAfter(afterOrder: Int)
 }
 
 /**
@@ -391,6 +441,7 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "0") val askModelBeforeRun: Boolean = false,
     /** Whether the user has accepted the AI disclaimer (required before configuring any provider). */
     @ColumnInfo(defaultValue = "0") val aiDisclaimerAccepted: Boolean = false,
+    val hiddenBuiltInCategories: Set<IdType> = emptySet(),
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */

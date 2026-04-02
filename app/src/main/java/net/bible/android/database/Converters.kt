@@ -289,6 +289,21 @@ class Converters {
     }
 
     @TypeConverter
+    fun strToMapIdTypeNullableIdType(s: String?): Map<IdType, IdType?>? {
+        if(s == null) return null
+        return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {
+            Log.e("Converters", "Error in deserializing Map<IdType, IdType?>: $s", e)
+            null
+        }
+    }
+
+    @TypeConverter
+    fun mapIdTypeNullableIdTypeToStr(obj: Map<IdType, IdType?>?): String? {
+        if(obj == null) return null
+        return json.encodeToString(serializer(), obj)
+    }
+
+    @TypeConverter
     fun strToAgentToolSet(s: String?): Set<AgentTool>? {
         if(s == null) return null
         return try { json.decodeFromString(serializer(), s) } catch(e: SerializationException) {

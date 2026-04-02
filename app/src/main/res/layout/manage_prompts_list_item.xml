@@ -46,6 +46,16 @@
             android:textColor="?android:attr/colorAccent"
             android:textStyle="italic"
             android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/addonBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:textStyle="italic"
+            android:visibility="gone" />
     </LinearLayout>
 
     <TextView

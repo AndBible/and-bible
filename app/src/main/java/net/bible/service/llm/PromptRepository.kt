@@ -17,10 +17,14 @@
 
 package net.bible.service.llm
 
+import android.util.Log
 import net.bible.android.control.page.DocumentCategory
 import net.bible.android.database.IdType
+import net.bible.service.common.AndBibleAddons
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.ReloadAddonsEvent
 import net.bible.service.db.DatabaseContainer
+import net.bible.android.control.event.ABEventBus
 
 /**
  * Unified facade for accessing both built-in and user-created prompts.
@@ -32,19 +36,62 @@ import net.bible.service.db.DatabaseContainer
  * replacing direct DAO usage throughout the codebase.
  */
 object PromptRepository {
+    private const val TAG = "PromptRepository"
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
+    private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
+
+    /** Cached add-on prompts loaded from CSV files. Invalidated on ReloadAddonsEvent. */
+    private var addonPromptsCache: List<AgentPrompt>? = null
+
+    init {
+        ABEventBus.register(this)
+    }
+
+    /** Called by EventBus when add-on modules are reloaded. */
+    @Suppress("unused")
+    fun onEvent(event: ReloadAddonsEvent) {
+        addonPromptsCache = null
+    }
+
+    fun clearAddonCache() {
+        addonPromptsCache = null
+    }
+
+    private fun loadAddonPrompts(): List<AgentPrompt> {
+        addonPromptsCache?.let { return it }
+        val prompts = mutableListOf<AgentPrompt>()
+        for (pack in AndBibleAddons.providedPromptPacks) {
+            try {
+                val parsed = pack.file.inputStream().use { PromptCsvUtils.parsePromptsFromCsv(it) }
+                parsed.forEach { it.sourceModule = pack.moduleName }
+                prompts.addAll(parsed)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading prompt pack from ${pack.moduleName}", e)
+            }
+        }
+        addonPromptsCache = prompts
+        return prompts
+    }
+
+    /** Check if a prompt ID belongs to an add-on module prompt. */
+    fun isAddon(id: IdType): Boolean = loadAddonPrompts().any { it.id == id }
+
+    /** Check if a prompt is read-only (built-in or add-on). */
+    fun isReadOnly(id: IdType): Boolean = isBuiltIn(id) || isAddon(id)
 
     /**
-     * Get a prompt by ID, checking built-in prompts first, then DB.
+     * Get a prompt by ID, checking built-in prompts first, then add-ons, then DB.
      */
     fun promptById(id: IdType): AgentPrompt? {
-        return BuiltInPrompts.promptById(id) ?: dao.promptById(id)
+        return BuiltInPrompts.promptById(id)
+            ?: loadAddonPrompts().find { it.id == id }
+            ?: dao.promptById(id)
     }
 
     /**
      * Returns all prompts: built-in first (filtered by debug mode and hidden state),
-     * then user prompts from DB.
+     * then add-on prompts, then user prompts from DB.
      *
      * Test prompts (debugOnly) are excluded when not in debug mode.
      * Hidden built-in prompts are excluded from all contexts.
@@ -57,8 +104,9 @@ object PromptRepository {
         }
         val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
         val visibleBuiltIn = builtIn.filter { it.id !in hidden }
+        val addonPrompts = loadAddonPrompts()
         val userPrompts = dao.allPrompts()
-        return visibleBuiltIn + userPrompts
+        return visibleBuiltIn + addonPrompts + userPrompts
     }
 
     /**
@@ -70,8 +118,9 @@ object PromptRepository {
         } else {
             BuiltInPrompts.productionPrompts()
         }
+        val addonPrompts = loadAddonPrompts()
         val userPrompts = dao.allPrompts()
-        return builtIn + userPrompts
+        return builtIn + addonPrompts + userPrompts
     }
 
     /**
@@ -94,16 +143,21 @@ object PromptRepository {
     fun isBuiltIn(id: IdType): Boolean = BuiltInPrompts.isBuiltIn(id)
 
     /**
-     * Copy a prompt (built-in or user) into the DB as a new user prompt with a new ID.
+     * Copy a prompt (built-in, add-on, or user) into the DB as a new user prompt with a new ID.
      * Returns the new prompt's ID, or null if the source prompt was not found.
      */
     fun copyPrompt(id: IdType): IdType? {
         val source = promptById(id) ?: return null
+        val effectiveCategoryId = getCategoryForPrompt(source)?.id
+        val newOrder = source.orderNumber + 1
+        dao.shiftOrderNumbersAfter(source.orderNumber)
         val newPrompt = source.copy(
             id = IdType(),
             name = source.name + " (copy)",
             createdAt = System.currentTimeMillis(),
-        )
+            orderNumber = newOrder,
+            categoryId = effectiveCategoryId,
+        ).also { it.sourceModule = null }
         dao.insert(newPrompt)
         return newPrompt.id
     }
@@ -137,7 +191,12 @@ object PromptRepository {
      * Built-in prompts are unaffected (they live in code).
      */
     fun deleteAllUserPrompts() {
-        dao.allPrompts().forEach { dao.delete(it) }
+        dao.deleteAll()
+    }
+
+    /** Delete all user-created categories (built-in categories are in code and unaffected). */
+    fun deleteAllUserCategories() {
+        categoryDao.deleteAll()
     }
 
     /** Hide a built-in prompt so it doesn't appear in any context. */
@@ -149,4 +208,72 @@ object PromptRepository {
     /** Check if a built-in prompt is hidden. */
     fun isBuiltInPromptHidden(promptId: IdType): Boolean =
         promptId in CommonUtils.aiSettings.hiddenBuiltInPrompts
+
+    // --- Category operations ---
+
+    /** All categories: built-in (from code) + user-created (from DB). */
+    fun allCategories(): List<PromptCategory> =
+        BuiltInPrompts.defaultCategories() + categoryDao.all()
+
+    /** User-created categories only (from DB). */
+    fun userCategories(): List<PromptCategory> = categoryDao.all()
+
+    fun categoryById(id: IdType): PromptCategory? =
+        BuiltInPrompts.defaultCategories().find { it.id == id } ?: categoryDao.getById(id)
+
+    fun insertCategory(category: PromptCategory) = categoryDao.insert(category)
+
+    fun updateCategory(category: PromptCategory) = categoryDao.update(category)
+
+    /**
+     * Delete a user category. If [deletePrompts] is true, deletes all prompts in the category.
+     * Otherwise moves them to root (categoryId = null).
+     */
+    fun deleteCategory(categoryId: IdType, deletePrompts: Boolean) {
+        if (deletePrompts) {
+            dao.deleteByCategoryId(categoryId)
+        } else {
+            categoryDao.clearCategoryFromPrompts(categoryId)
+        }
+        categoryDao.delete(PromptCategory(id = categoryId))
+    }
+
+    /**
+     * Returns the effective category for a prompt.
+     * Built-in prompts use hardcoded defaults; user/addon prompts use the DB field.
+     */
+    fun getCategoryForPrompt(prompt: AgentPrompt): PromptCategory? {
+        if (isBuiltIn(prompt.id)) {
+            val catId = BuiltInPrompts.defaultCategoryForPrompt(prompt.id) ?: return null
+            return BuiltInPrompts.defaultCategories().find { it.id == catId }
+        }
+        return prompt.categoryId?.let { categoryById(it) }
+    }
+
+    /** Whether a category is hidden from AI Actions dialogs (works for both built-in and user categories). */
+    fun isCategoryHidden(category: PromptCategory): Boolean =
+        category.hidden || category.id in CommonUtils.aiSettings.hiddenBuiltInCategories
+
+    /**
+     * Returns prompts grouped by category for the given context.
+     * Key null = uncategorized prompts. Hidden categories are excluded.
+     */
+    fun promptsForContextGrouped(
+        context: PromptContext,
+        documentCategory: DocumentCategory? = null
+    ): Map<PromptCategory?, List<AgentPrompt>> {
+        val prompts = promptsForContext(context, documentCategory)
+        val categoryMap = allCategories().associateBy { it.id }
+        fun resolveCategory(prompt: AgentPrompt): PromptCategory? {
+            if (isBuiltIn(prompt.id)) {
+                val catId = BuiltInPrompts.defaultCategoryForPrompt(prompt.id) ?: return null
+                return categoryMap[catId]
+            }
+            return prompt.categoryId?.let { categoryMap[it] }
+        }
+        return prompts
+            .map { it to resolveCategory(it) }
+            .filter { (_, cat) -> cat == null || !isCategoryHidden(cat) }
+            .groupBy({ it.second }, { it.first })
+    }
 }

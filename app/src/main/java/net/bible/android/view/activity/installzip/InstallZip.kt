@@ -58,6 +58,7 @@ import net.bible.service.sword.mybible.addManuallyInstalledMyBibleBooks
 import net.bible.service.sword.mybible.addMyBibleBook
 import net.bible.service.sword.mysword.addManuallyInstalledMySwordBooks
 import net.bible.service.sword.mysword.addMySwordBook
+import net.bible.service.sword.csvprompt.addManuallyInstalledCsvPromptBooks
 import net.bible.service.sword.ttf.addManuallyInstalledTtfBooks
 import org.crosswire.common.util.NetUtil
 import org.crosswire.jsword.book.BookException
@@ -221,6 +222,7 @@ class ZipHandler(
         addManuallyInstalledMySwordBooks()
         addManuallyInstalledEpubBooks()
         addManuallyInstalledTtfBooks()
+        addManuallyInstalledCsvPromptBooks()
     }
 
     suspend fun execute() = withContext(Dispatchers.Main) {
@@ -411,7 +413,9 @@ class InstallZip : ActivityBase() {
             "application/x-font-otf",
             "application/vnd.sqlite3",
             "application/x-sqlite3",
-            "application/octet-stream"
+            "application/octet-stream",
+            "text/csv",
+            "text/comma-separated-values",
         ))
         val result = awaitIntent(intent)
         if (result.resultCode == Activity.RESULT_OK) {
@@ -474,6 +478,11 @@ class InstallZip : ActivityBase() {
         // Check for TTF files first
         if(displayName.lowercase().endsWith(".ttf") || mimeType?.contains("font") == true) {
             return installTtf(uri, displayName)
+        }
+
+        // Check for CSV prompt files
+        if(displayName.lowercase().endsWith(".csv") || mimeType == "text/csv") {
+            return installPromptCsv(uri, displayName)
         }
 
         val fileTypeFromContent = determineFileType(uri)
@@ -554,6 +563,68 @@ class InstallZip : ActivityBase() {
         setResult(RESULT_OK)
         finish()
         return true
+    }
+
+    private suspend fun installPromptCsv(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {
+        val displayName = displayName_ ?: "prompts.csv"
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.VISIBLE
+        }
+
+        try {
+            val inputStream = contentResolver.openInputStream(uri) ?: throw FileNotFound()
+            inputStream.use { fIn ->
+                val outDir = File(SharedConstants.modulesDir, "prompts")
+                outDir.mkdirs()
+                val outFile = File(outDir, displayName)
+
+                if (outFile.exists()) {
+                    val doInstall = withContext(Dispatchers.Main) {
+                        suspendCoroutine {
+                            AlertDialog.Builder(this@InstallZip)
+                                .setTitle(R.string.overwrite_files_title)
+                                .setMessage(getString(R.string.overwrite_files, "prompts/$displayName"))
+                                .setPositiveButton(R.string.yes) { _, _ -> it.resume(true) }
+                                .setNeutralButton(R.string.cancel) { _, _ -> it.resume(false) }
+                                .setOnCancelListener { _ -> it.resume(false) }
+                                .show()
+                        }
+                    }
+                    if (!doInstall) {
+                        withContext(Dispatchers.Main) {
+                            ABEventBus.post(ToastEvent(R.string.install_zip_canceled))
+                            binding.loadingIndicator.visibility = View.GONE
+                        }
+                        return@withContext false
+                    }
+                }
+
+                if ((outFile.exists() && !outFile.canWrite()) || (!outFile.exists() && !outDir.canWrite())) {
+                    throw CantWrite()
+                }
+
+                withContext(Dispatchers.IO) {
+                    FileOutputStream(outFile).use { out -> fIn.copyTo(out) }
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "IOException when reading prompt CSV file", e)
+            withContext(Dispatchers.Main) {
+                binding.loadingIndicator.visibility = View.GONE
+            }
+            throw FileNotFound()
+        }
+
+        addManuallyInstalledCsvPromptBooks()
+
+        withContext(Dispatchers.Main) {
+            binding.loadingIndicator.visibility = View.GONE
+            ABEventBus.post(ToastEvent(R.string.install_zip_successfull))
+            AndBibleAddons.clearCaches()
+            setResult(RESULT_OK)
+            finish()
+        }
+        true
     }
 
     private suspend fun installTtf(uri: Uri, displayName_: String?): Boolean = withContext(Dispatchers.IO) {

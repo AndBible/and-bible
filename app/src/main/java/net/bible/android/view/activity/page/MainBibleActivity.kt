@@ -936,14 +936,8 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 val intent = Intent(this, WorkspaceSelectorActivity::class.java)
                 startActivityForResult(intent, WORKSPACE_CHANGED)
             }, opensDialog = true)
-            R.id.llmActionsSubMenu -> SubMenuPreference(
-                onlyBibles = false,
-                visible = CommonUtils.settings.aiTextProcessingEnabled && CommonUtils.settings.llmConfigured
-            )
-            R.id.llmActionItem -> CommandPreference(launch = { _, _, _ ->
-                val prompts = PromptRepository.promptsForContext(PromptContext.WORKSPACE_MENU)
-                if (order < prompts.size) {
-                    val selectedPrompt = prompts[order]
+            R.id.llmActionsSubMenu -> CommandPreference(
+                launch = { _, _, _ ->
                     val selection = Selection(
                         bookInitials = null,
                         startOrdinal = -1,
@@ -952,13 +946,11 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         endOffset = null,
                         bookmarks = emptyList(),
                     )
-                    if (selectedPrompt.specifyBeforeRun) {
-                        llmDialogHelper.showSpecifyBeforeRunDialog(selectedPrompt, selection)
-                    } else {
-                        executeLlmPrompt(selectedPrompt, selection)
-                    }
-                }
-            })
+                    llmDialogHelper.showPromptSelector(selection, PromptContext.WORKSPACE_MENU)
+                },
+                visible = CommonUtils.settings.aiTextProcessingEnabled && CommonUtils.settings.llmConfigured,
+                opensDialog = true,
+            )
             else -> throw RuntimeException("Illegal menu item")
         }
     }
@@ -987,18 +979,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
         }
 
-        // Populate LLM actions submenu
-        val llmActionsSubMenu = menu.findItem(R.id.llmActionsSubMenu)
-        if (CommonUtils.settings.aiTextProcessingEnabled && CommonUtils.settings.llmConfigured) {
-            val llmSubMenu = llmActionsSubMenu.subMenu!!
-            llmSubMenu.removeItem(R.id.llmActionItem)
-            val prompts = PromptRepository.promptsForContext(PromptContext.WORKSPACE_MENU)
-            prompts.forEachIndexed { idx, prompt ->
-                llmSubMenu.add(Menu.NONE, R.id.llmActionItem, idx, prompt.name)
-            }
-        } else {
-            llmActionsSubMenu.isVisible = false
-        }
+        // LLM actions: visibility handled by getItemOptions, click opens dialog
 
         MenuCompat.setGroupDividerEnabled(menu, true)
 

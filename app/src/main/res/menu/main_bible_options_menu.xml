@@ -49,12 +49,7 @@
 		android:icon="@drawable/ic_label_settings_24"/>
 	<item android:id="@+id/llmActionsSubMenu"
 		android:icon="@drawable/ic_baseline_smart_toy_24"
-		android:title="@string/llm_actions">
-		<menu>
-			<item android:id="@+id/llmActionItem"
-				android:title="" />
-		</menu>
-	</item>
+		android:title="@string/llm_actions" />
 	<group
 		android:id="@+id/textOptionsGroup"
 		>

@@ -32,6 +32,11 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/new_category"
+        android:title="@string/new_category"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/export_prompts_csv"
         android:title="@string/export_prompts_csv"
         app:showAsAction="never" />

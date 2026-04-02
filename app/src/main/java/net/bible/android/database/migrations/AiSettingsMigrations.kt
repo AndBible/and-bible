@@ -209,4 +209,19 @@ private val addAiDisclaimerAccepted = makeMigration(15..16) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `aiDisclaimerAccepted` INTEGER NOT NULL DEFAULT 0")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted)
+private val addPromptCategories = makeMigration(16..17) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `PromptCategory` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `name` TEXT NOT NULL,
+        `orderNumber` INTEGER NOT NULL DEFAULT 0
+    )""")
+    db.execSQL("ALTER TABLE `AgentPrompt` ADD COLUMN `categoryId` BLOB DEFAULT NULL")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AgentPrompt_categoryId` ON `AgentPrompt` (`categoryId`)")
+}
+
+private val addCategoryHidden = makeMigration(17..18) { db ->
+    db.execSQL("ALTER TABLE `PromptCategory` ADD COLUMN `hidden` INTEGER NOT NULL DEFAULT 0")
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `hiddenBuiltInCategories` TEXT NOT NULL DEFAULT ''")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden)

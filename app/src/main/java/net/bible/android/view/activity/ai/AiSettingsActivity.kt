@@ -19,29 +19,41 @@ package net.bible.android.view.activity.ai
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
+import android.widget.BaseExpandableListAdapter
+import android.widget.EditText
+import android.widget.ExpandableListView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import net.bible.android.SharedConstants
+import java.io.File
+import java.io.FileOutputStream
+import kotlin.coroutines.resume
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ManagePromptsBinding
+import net.bible.android.activity.databinding.ManagePromptsCategoryHeaderBinding
 import net.bible.android.activity.databinding.ManagePromptsListItemBinding
 import net.bible.android.control.report.ErrorReportControl
+import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.common.AndBibleAddons
+import net.bible.service.sword.csvprompt.addCsvPromptBook
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.BuiltInPrompts
+import net.bible.service.llm.PromptCategory
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.PromptCsvUtils
@@ -58,7 +70,10 @@ import java.util.Locale
  */
 class AiSettingsActivity : ActivityBase() {
 
-    private val prompts = mutableListOf<AgentPrompt>()
+    /** Groups for ExpandableListView: category (null = uncategorized) + its prompts */
+    data class PromptGroup(val category: PromptCategory?, val prompts: List<AgentPrompt>)
+
+    private var groups = mutableListOf<PromptGroup>()
     private lateinit var binding: ManagePromptsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,13 +89,29 @@ class AiSettingsActivity : ActivityBase() {
             startActivity(Intent(this, AiConnectionSettingsActivity::class.java))
         }
 
-        binding.list.emptyView = binding.empty
-        binding.list.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-            editPrompt(prompts[position])
-        }
-        binding.list.onItemLongClickListener = AdapterView.OnItemLongClickListener { _, _, position, _ ->
-            showPromptContextMenu(prompts[position])
+        binding.list.setOnChildClickListener { _, _, groupPosition, childPosition, _ ->
+            editPrompt(groups[groupPosition].prompts[childPosition])
             true
+        }
+        binding.list.setOnItemLongClickListener { _, _, flatPosition, _ ->
+            val packed = (binding.list as ExpandableListView).getExpandableListPosition(flatPosition)
+            val type = ExpandableListView.getPackedPositionType(packed)
+            val groupPos = ExpandableListView.getPackedPositionGroup(packed)
+            val childPos = ExpandableListView.getPackedPositionChild(packed)
+            when (type) {
+                ExpandableListView.PACKED_POSITION_TYPE_GROUP -> {
+                    val group = groups.getOrNull(groupPos)
+                    val cat = group?.category
+                    if (cat != null) showCategoryContextMenu(cat)
+                    true
+                }
+                ExpandableListView.PACKED_POSITION_TYPE_CHILD -> {
+                    val prompt = groups.getOrNull(groupPos)?.prompts?.getOrNull(childPos)
+                    if (prompt != null) showPromptContextMenu(prompt)
+                    true
+                }
+                else -> false
+            }
         }
     }
 
@@ -101,14 +132,52 @@ class AiSettingsActivity : ActivityBase() {
 
     private fun loadPrompts() {
         lifecycleScope.launch {
-            val loadedPrompts = withContext(Dispatchers.IO) {
-                PromptRepository.allPrompts()
+            val loadedGroups = withContext(Dispatchers.IO) {
+                val allPrompts = PromptRepository.allPromptsIncludingHidden()
+                val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
+                val visiblePrompts = allPrompts.filter { it.id !in hidden || !BuiltInPrompts.isBuiltIn(it.id) }
+
+                val grouped = visiblePrompts.groupBy { PromptRepository.getCategoryForPrompt(it) }
+
+                val result = mutableListOf<PromptGroup>()
+                // Uncategorized first
+                grouped[null]?.let { result.add(PromptGroup(null, it)) }
+                // Then all categories in order (built-in + user), including empty user categories
+                for (cat in PromptRepository.allCategories().sortedBy { it.orderNumber }) {
+                    val catPrompts = grouped[cat]
+                    if (catPrompts != null) {
+                        result.add(PromptGroup(cat, catPrompts))
+                    } else if (!BuiltInPrompts.isBuiltInCategory(cat.id)) {
+                        // Show empty user categories so user can manage them
+                        result.add(PromptGroup(cat, emptyList()))
+                    }
+                }
+                result
             }
 
-            prompts.clear()
-            prompts.addAll(loadedPrompts)
+            groups.clear()
+            groups.addAll(loadedGroups)
 
-            binding.list.adapter = PromptListAdapter()
+            // Save scroll position before replacing adapter
+            val firstVisible = binding.list.firstVisiblePosition
+            val topOffset = binding.list.getChildAt(0)?.top ?: 0
+
+            val adapter = PromptExpandableAdapter()
+            binding.list.setAdapter(adapter)
+            // Expand all groups by default, except hidden categories
+            for (i in groups.indices) {
+                val cat = groups[i].category
+                if (cat == null || !PromptRepository.isCategoryHidden(cat)) {
+                    binding.list.expandGroup(i)
+                }
+            }
+
+            // Restore scroll position
+            binding.list.setSelectionFromTop(firstVisible, topOffset)
+
+            // Show empty view only when there are no prompts at all
+            val totalPrompts = groups.sumOf { it.prompts.size }
+            binding.empty.visibility = if (totalPrompts == 0) View.VISIBLE else View.GONE
         }
     }
 
@@ -131,6 +200,7 @@ class AiSettingsActivity : ActivityBase() {
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         val configured = CommonUtils.settings.llmConfigured
         menu.findItem(R.id.new_prompt)?.isVisible = configured
+        menu.findItem(R.id.new_category)?.isVisible = configured
         menu.findItem(R.id.ai_connection_settings)?.isVisible = configured
         menu.findItem(R.id.reset_all_ai_settings)?.isVisible = configured
         menu.findItem(R.id.export_prompts_csv)?.isVisible = configured
@@ -148,6 +218,10 @@ class AiSettingsActivity : ActivityBase() {
             }
             R.id.new_prompt -> {
                 createNewPrompt()
+                true
+            }
+            R.id.new_category -> {
+                showNewCategoryDialog()
                 true
             }
             R.id.ai_connection_settings -> {
@@ -201,6 +275,7 @@ class AiSettingsActivity : ActivityBase() {
                 globalDao.set(GlobalAiSettings())
 
                 PromptRepository.deleteAllUserPrompts()
+                PromptRepository.deleteAllUserCategories()
             }
             updateView()
         }
@@ -250,6 +325,19 @@ class AiSettingsActivity : ActivityBase() {
     }
 
     private suspend fun importPrompts() {
+        val options = arrayOf(
+            getString(R.string.import_prompts_editable),
+            getString(R.string.import_prompts_addon),
+        )
+        val installAsAddon = suspendCancellableCoroutine<Boolean?> { cont ->
+            AlertDialog.Builder(this)
+                .setTitle(R.string.import_prompts_csv)
+                .setItems(options) { _, which -> cont.resume(which == 1) }
+                .setNegativeButton(R.string.cancel) { _, _ -> cont.resume(null) }
+                .setOnCancelListener { cont.resume(null) }
+                .show()
+        } ?: return
+
         try {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
@@ -260,32 +348,11 @@ class AiSettingsActivity : ActivityBase() {
             val result = awaitIntent(intent)
             if (result.resultCode == RESULT_OK) {
                 result.data?.data?.let { uri ->
-                    val importResult = withContext(Dispatchers.IO) {
-                        contentResolver.openInputStream(uri)?.use { inputStream ->
-                            PromptCsvUtils.importPromptsFromCsv(inputStream)
-                        } ?: throw IllegalArgumentException("Could not open input stream")
-                    }
-
-                    if (importResult.errors > 0) {
-                        val message =
-                            getString(R.string.prompts_csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
-                                "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
-                                if (importResult.errorMessages.size > 5) "\n..." else ""
-
-                        AlertDialog.Builder(this)
-                            .setTitle(getString(R.string.import_prompts_csv))
-                            .setMessage(message)
-                            .setPositiveButton(R.string.okay, null)
-                            .show()
+                    if (installAsAddon) {
+                        installCsvAsAddon(uri)
                     } else {
-                        Toast.makeText(
-                            this,
-                            getString(R.string.prompts_csv_import_success, importResult.created, importResult.updated),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        importCsvAsEditable(uri)
                     }
-
-                    loadPrompts()
                 }
             }
         } catch (e: Exception) {
@@ -298,8 +365,194 @@ class AiSettingsActivity : ActivityBase() {
         }
     }
 
+    private suspend fun importCsvAsEditable(uri: Uri) {
+        val importResult = withContext(Dispatchers.IO) {
+            contentResolver.openInputStream(uri)?.use { inputStream ->
+                PromptCsvUtils.importPromptsFromCsv(inputStream)
+            } ?: throw IllegalArgumentException("Could not open input stream")
+        }
+
+        if (importResult.errors > 0) {
+            val message =
+                getString(R.string.prompts_csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
+                    "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
+                    if (importResult.errorMessages.size > 5) "\n..." else ""
+
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.import_prompts_csv))
+                .setMessage(message)
+                .setPositiveButton(R.string.okay, null)
+                .show()
+        } else {
+            Toast.makeText(
+                this,
+                getString(R.string.prompts_csv_import_success, importResult.created, importResult.updated),
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+        loadPrompts()
+    }
+
+    private suspend fun installCsvAsAddon(uri: Uri) {
+        val displayName = contentResolver.query(uri, null, null, null, null)?.use {
+            if (it.moveToFirst()) {
+                val idx = it.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME)
+                if (idx >= 0) it.getString(idx) else null
+            } else null
+        } ?: "prompts.csv"
+
+        withContext(Dispatchers.IO) {
+            val outDir = File(SharedConstants.modulesDir, "prompts")
+            outDir.mkdirs()
+            val outFile = File(outDir, displayName)
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(outFile).use { output -> input.copyTo(output) }
+            }
+            addCsvPromptBook(outFile)
+            AndBibleAddons.clearCaches()
+        }
+
+        PromptRepository.clearAddonCache()
+        Toast.makeText(this, R.string.install_zip_successfull, Toast.LENGTH_SHORT).show()
+        loadPrompts()
+    }
+
+    private fun showNewCategoryDialog() {
+        val editText = EditText(this).apply { hint = getString(R.string.new_category_name) }
+        AlertDialog.Builder(this)
+            .setTitle(R.string.new_category)
+            .setView(editText)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val name = editText.text.toString().trim()
+                if (name.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            PromptRepository.insertCategory(PromptCategory(name = name))
+                        }
+                        loadPrompts()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun showCategoryContextMenu(category: PromptCategory) {
+        val items = mutableListOf<Pair<String, () -> Unit>>()
+        val isBuiltInCat = BuiltInPrompts.isBuiltInCategory(category.id)
+
+        if (!isBuiltInCat) {
+            val categoryGroups = groups.filter { it.category != null }
+            val categoryIndex = categoryGroups.indexOfFirst { it.category?.id == category.id }
+
+            if (categoryIndex > 0) {
+                items.add(getString(R.string.move_category_up) to {
+                    swapCategoryOrder(category, categoryGroups[categoryIndex - 1].category!!)
+                })
+            }
+            if (categoryIndex in 0 until categoryGroups.size - 1) {
+                items.add(getString(R.string.move_category_down) to {
+                    swapCategoryOrder(category, categoryGroups[categoryIndex + 1].category!!)
+                })
+            }
+        }
+
+        val isHidden = PromptRepository.isCategoryHidden(category)
+        items.add(getString(if (isHidden) R.string.show_category else R.string.hide_category) to {
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO) {
+                    if (isBuiltInCat) {
+                        val current = CommonUtils.aiSettings.hiddenBuiltInCategories
+                        CommonUtils.aiSettings.hiddenBuiltInCategories =
+                            if (isHidden) current - category.id else current + category.id
+                    } else {
+                        PromptRepository.updateCategory(category.copy(hidden = !category.hidden))
+                    }
+                }
+                loadPrompts()
+            }
+        })
+
+        if (isBuiltInCat) {
+            // Built-in categories only support hide/show
+            AlertDialog.Builder(this)
+                .setTitle(category.name)
+                .setItems(items.map { it.first }.toTypedArray()) { _, which -> items[which].second() }
+                .show()
+            return
+        }
+
+        items.add(getString(R.string.rename_category) to {
+            val editText = EditText(this).apply { setText(category.name) }
+            AlertDialog.Builder(this)
+                .setTitle(R.string.rename_category)
+                .setView(editText)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    val newName = editText.text.toString().trim()
+                    if (newName.isNotEmpty()) {
+                        lifecycleScope.launch {
+                            withContext(Dispatchers.IO) {
+                                PromptRepository.updateCategory(category.copy(name = newName))
+                            }
+                            loadPrompts()
+                        }
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        })
+
+        items.add(getString(R.string.delete_category) to {
+            AlertDialog.Builder(this)
+                .setTitle(getString(R.string.delete_category_confirm_title, category.name))
+                .setItems(arrayOf(
+                    getString(R.string.delete_category_keep_prompts),
+                    getString(R.string.delete_category_and_prompts),
+                )) { _, which ->
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            PromptRepository.deleteCategory(category.id, deletePrompts = which == 1)
+                        }
+                        loadPrompts()
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        })
+
+        AlertDialog.Builder(this)
+            .setTitle(category.name)
+            .setItems(items.map { it.first }.toTypedArray()) { _, which -> items[which].second() }
+            .show()
+    }
+
+    private fun swapPromptOrder(a: AgentPrompt, b: AgentPrompt) {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                val aNew = a.copy(orderNumber = b.orderNumber)
+                val bNew = b.copy(orderNumber = a.orderNumber)
+                PromptRepository.updatePrompt(aNew)
+                PromptRepository.updatePrompt(bNew)
+            }
+            loadPrompts()
+        }
+    }
+
+    private fun swapCategoryOrder(a: PromptCategory, b: PromptCategory) {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                val tmpOrder = a.orderNumber
+                PromptRepository.updateCategory(a.copy(orderNumber = b.orderNumber))
+                PromptRepository.updateCategory(b.copy(orderNumber = tmpOrder))
+            }
+            loadPrompts()
+        }
+    }
+
     private fun showPromptContextMenu(prompt: AgentPrompt) {
         val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+        val isReadOnly = PromptRepository.isReadOnly(prompt.id)
         val items = mutableListOf<Pair<String, () -> Unit>>()
 
         if (isBuiltIn) {
@@ -323,7 +576,29 @@ class AiSettingsActivity : ActivityBase() {
             }
         })
 
-        if (!isBuiltIn) {
+        // Move up/down and move to category (only for user prompts)
+        if (!isReadOnly) {
+            val siblings = groups.find { it.prompts.contains(prompt) }?.prompts
+                ?.filter { !PromptRepository.isReadOnly(it.id) } ?: emptyList()
+            val promptIndex = siblings.indexOf(prompt)
+
+            if (promptIndex > 0) {
+                items.add(getString(R.string.move_category_up) to {
+                    swapPromptOrder(prompt, siblings[promptIndex - 1])
+                })
+            }
+            if (promptIndex in 0 until siblings.size - 1) {
+                items.add(getString(R.string.move_category_down) to {
+                    swapPromptOrder(prompt, siblings[promptIndex + 1])
+                })
+            }
+
+            items.add(getString(R.string.move_to_category) to {
+                showMoveToCategoryDialog(prompt)
+            })
+        }
+
+        if (!isReadOnly) {
             items.add(getString(R.string.delete) to {
                 AlertDialog.Builder(this)
                     .setTitle(prompt.name)
@@ -348,6 +623,29 @@ class AiSettingsActivity : ActivityBase() {
             .show()
     }
 
+    private fun showMoveToCategoryDialog(prompt: AgentPrompt) {
+        lifecycleScope.launch {
+            val categories = withContext(Dispatchers.IO) { PromptRepository.allCategories() }
+            val options = listOf(getString(R.string.category_none)) + categories.map { it.name }
+            val categoryIds: List<IdType?> = listOf(null) + categories.map { it.id }
+
+            AlertDialog.Builder(this@AiSettingsActivity)
+                .setTitle(R.string.move_to_category)
+                .setItems(options.toTypedArray()) { _, which ->
+                    val targetCategoryId = categoryIds[which]
+                    lifecycleScope.launch {
+                        withContext(Dispatchers.IO) {
+                            prompt.categoryId = targetCategoryId
+                            PromptRepository.updatePrompt(prompt)
+                        }
+                        loadPrompts()
+                    }
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
+    }
+
     private fun restoreHiddenPrompts() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
@@ -358,38 +656,69 @@ class AiSettingsActivity : ActivityBase() {
         }
     }
 
-    inner class PromptListAdapter : ArrayAdapter<AgentPrompt>(
-        this,
-        R.layout.manage_prompts_list_item,
-        prompts
-    ) {
-        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+    inner class PromptExpandableAdapter : BaseExpandableListAdapter() {
+        override fun getGroupCount(): Int = groups.size
+        override fun getChildrenCount(groupPosition: Int): Int = groups[groupPosition].prompts.size
+        override fun getGroup(groupPosition: Int): PromptGroup = groups[groupPosition]
+        override fun getChild(groupPosition: Int, childPosition: Int): AgentPrompt =
+            groups[groupPosition].prompts[childPosition]
+        override fun getGroupId(groupPosition: Int): Long = groupPosition.toLong()
+        override fun getChildId(groupPosition: Int, childPosition: Int): Long = childPosition.toLong()
+        override fun hasStableIds(): Boolean = false
+        override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = true
+
+        override fun getGroupView(groupPosition: Int, isExpanded: Boolean, convertView: View?, parent: ViewGroup): View {
+            val headerBinding = if (convertView != null) {
+                ManagePromptsCategoryHeaderBinding.bind(convertView)
+            } else {
+                ManagePromptsCategoryHeaderBinding.inflate(layoutInflater, parent, false)
+            }
+
+            val group = groups[groupPosition]
+            val isHidden = group.category?.let { PromptRepository.isCategoryHidden(it) } == true
+            val categoryName = group.category?.name ?: getString(R.string.prompt_category_uncategorized)
+            headerBinding.categoryName.text = if (isHidden) "$categoryName (${getString(R.string.hidden)})" else categoryName
+            headerBinding.categoryName.alpha = if (isHidden) 0.5f else 1.0f
+            headerBinding.promptCount.text = group.prompts.size.toString()
+            headerBinding.promptCount.alpha = if (isHidden) 0.5f else 1.0f
+            headerBinding.expandIndicator.setImageResource(
+                if (isExpanded) R.drawable.ic_arrow_drop_up_grey_24dp
+                else R.drawable.ic_arrow_drop_down_grey_24dp
+            )
+            headerBinding.expandIndicator.alpha = if (isHidden) 0.5f else 1.0f
+
+            return headerBinding.root
+        }
+
+        override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
             val itemBinding = if (convertView != null) {
                 ManagePromptsListItemBinding.bind(convertView)
             } else {
                 ManagePromptsListItemBinding.inflate(layoutInflater, parent, false)
             }
 
-            val prompt = prompts[position]
+            val prompt = groups[groupPosition].prompts[childPosition]
             val isBuiltIn = BuiltInPrompts.isBuiltIn(prompt.id)
+            val isAddon = prompt.sourceModule != null
 
             itemBinding.promptName.text = prompt.name
             itemBinding.promptDescription.text = prompt.description ?: ""
             itemBinding.promptDescription.visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
             itemBinding.builtInBadge.visibility = if (isBuiltIn) View.VISIBLE else View.GONE
+            if (isAddon) {
+                itemBinding.addonBadge.text = getString(R.string.addon_prompt_badge, prompt.sourceModule)
+                itemBinding.addonBadge.visibility = View.VISIBLE
+            } else {
+                itemBinding.addonBadge.visibility = View.GONE
+            }
 
             val contextNames = prompt.showIn.map { context ->
                 when (context) {
-                    PromptContext.VERSE_SELECTION ->
-                        getString(R.string.prompt_context_verse_selection)
-                    PromptContext.TEXT_SELECTION ->
-                        getString(R.string.prompt_context_text_selection)
-                    PromptContext.WINDOW_MENU ->
-                        getString(R.string.prompt_context_window_menu)
-                    PromptContext.WORKSPACE_MENU ->
-                        getString(R.string.prompt_context_workspace_menu)
-                    PromptContext.NOTE_EDITOR ->
-                        getString(R.string.prompt_context_note_editor)
+                    PromptContext.VERSE_SELECTION -> getString(R.string.prompt_context_verse_selection)
+                    PromptContext.TEXT_SELECTION -> getString(R.string.prompt_context_text_selection)
+                    PromptContext.WINDOW_MENU -> getString(R.string.prompt_context_window_menu)
+                    PromptContext.WORKSPACE_MENU -> getString(R.string.prompt_context_workspace_menu)
+                    PromptContext.NOTE_EDITOR -> getString(R.string.prompt_context_note_editor)
                 }
             }
             itemBinding.promptContexts.text = contextNames.joinToString(", ")

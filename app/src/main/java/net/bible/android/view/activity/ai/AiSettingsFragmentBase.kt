@@ -41,6 +41,8 @@ abstract class AiSettingsFragmentBase : PreferenceFragmentCompat() {
 
     internal fun buildDisclaimerHtml(): String {
         val intro = getString(R.string.ai_disclaimer_intro)
+        val approach = getString(R.string.ai_disclaimer_approach)
+        val responsibility = getString(R.string.ai_disclaimer_responsibility)
         val p1 = getString(R.string.ai_disclaimer_point1)
         val p2 = getString(R.string.ai_disclaimer_point2)
         val p3 = getString(R.string.ai_disclaimer_point3)
@@ -50,7 +52,7 @@ abstract class AiSettingsFragmentBase : PreferenceFragmentCompat() {
         val p7 = getString(R.string.ai_disclaimer_point7)
         val p8 = getString(R.string.ai_disclaimer_point8)
         val p9 = getString(R.string.ai_disclaimer_point9)
-        return "$intro<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7 $p8<br><br>$p9<br><br><i>$p5</i>"
+        return "$intro $approach $responsibility<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7 $p8<br><br>$p9<br><br><i>$p5</i>"
     }
 
     internal fun showDisclaimerInfoDialog() {

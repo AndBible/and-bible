@@ -618,6 +618,202 @@ class PromptCsvUtilsTest {
         assertNull(prompt.permissionMode)
     }
 
+    // --- Category tests ---
+
+    @Test
+    fun testExportIncludesCategoryColumn(): Unit = runBlocking {
+        val prompt = AgentPrompt(
+            name = "Categorized",
+            promptTemplate = "Template",
+            createdAt = 1640995200000L,
+        )
+
+        val outputStream = ByteArrayOutputStream()
+        PromptCsvUtils.exportPromptsToCsv(outputStream, listOf(prompt))
+
+        val csv = outputStream.toString("UTF-8")
+        val header = csv.split("\n")[0]
+        assertTrue("Header should contain category column", header.contains("category"))
+    }
+
+    @Test
+    fun testImportWithoutCategoryColumnIsBackwardCompatible(): Unit = runBlocking {
+        // Old CSV without category column
+        val csv = "name;promptTemplate\n" +
+            "Old Prompt;Old template\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+
+        val imported = dao.allPrompts()[0]
+        assertNull("categoryId should be null for old CSV without category", imported.categoryId)
+    }
+
+    @Test
+    fun testImportWithEmptyCategoryField(): Unit = runBlocking {
+        val csv = "name;promptTemplate;category\n" +
+            "No Cat;Template;\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+
+        assertThat(result.created, equalTo(1))
+        assertNull("categoryId should be null for empty category", dao.allPrompts()[0].categoryId)
+    }
+
+    @Test
+    fun testImportWithCategoryCreatesCategory(): Unit = runBlocking {
+        val csv = "name;promptTemplate;category\n" +
+            "Cat Prompt;Template;My Category\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+
+        assertThat(result.created, equalTo(1))
+        assertThat(result.errors, equalTo(0))
+
+        val imported = dao.allPrompts()[0]
+        assertNotNull("categoryId should be set", imported.categoryId)
+
+        // Verify the category was created
+        val categoryDao = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
+        val category = categoryDao.getById(imported.categoryId!!)
+        assertNotNull("Category should exist in DB", category)
+        assertThat(category!!.name, equalTo("My Category"))
+    }
+
+    @Test
+    fun testImportTwoPromptsWithSameCategoryReusesSameCategory(): Unit = runBlocking {
+        val csv = "name;promptTemplate;category\n" +
+            "Prompt A;Template A;Shared Category\n" +
+            "Prompt B;Template B;Shared Category\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val result = PromptCsvUtils.importPromptsFromCsv(inputStream)
+
+        assertThat(result.created, equalTo(2))
+
+        val prompts = dao.allPrompts()
+        assertThat(prompts[0].categoryId, equalTo(prompts[1].categoryId))
+    }
+
+    // --- parsePromptsFromCsv tests (Session 2) ---
+
+    @Test
+    fun testParsePromptsFromCsvReturnsListWithoutDbOps() {
+        val csv = "name;promptTemplate;showIn\n" +
+            "Prompt 1;Template 1;VERSE_SELECTION\n" +
+            "Prompt 2;Template 2;WINDOW_MENU,TEXT_SELECTION\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+
+        assertThat(prompts.size, equalTo(2))
+        assertThat(prompts[0].name, equalTo("Prompt 1"))
+        assertThat(prompts[0].promptTemplate, equalTo("Template 1"))
+        assertTrue(prompts[0].showIn.contains(PromptContext.VERSE_SELECTION))
+        assertThat(prompts[1].name, equalTo("Prompt 2"))
+        assertTrue(prompts[1].showIn.contains(PromptContext.WINDOW_MENU))
+        assertTrue(prompts[1].showIn.contains(PromptContext.TEXT_SELECTION))
+
+        // Verify no DB side effects
+        assertThat(dao.allPrompts().size, equalTo(0))
+    }
+
+    @Test
+    fun testParsePromptsFromCsvSkipsBadRows() {
+        val csv = "name;promptTemplate\n" +
+            "Good;Template\n" +
+            ";Missing name\n" +
+            "Also Good;Another template\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+
+        // Bad row is skipped, 2 good rows parsed
+        assertThat(prompts.size, equalTo(2))
+        assertThat(prompts[0].name, equalTo("Good"))
+        assertThat(prompts[1].name, equalTo("Also Good"))
+    }
+
+    @Test
+    fun testParsePromptsFromCsvDoesNotResolveCategoriesByDefault() {
+        val csv = "name;promptTemplate;category\n" +
+            "Test;Template;Some Category\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+
+        assertThat(prompts.size, equalTo(1))
+        assertNull("categoryId should be null when resolveCategories=false", prompts[0].categoryId)
+
+        // No category should have been created in DB
+        val categoryDao = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
+        assertThat(categoryDao.all().size, equalTo(0))
+    }
+
+    @Test
+    fun testParsePromptsFromCsvWithMultilineTemplate() {
+        val csv = "name;promptTemplate\n" +
+            "Test;\"Line 1\nLine 2\nLine 3\"\n"
+
+        val inputStream = ByteArrayInputStream(csv.toByteArray(Charsets.UTF_8))
+        val prompts = PromptCsvUtils.parsePromptsFromCsv(inputStream)
+
+        assertThat(prompts.size, equalTo(1))
+        assertThat(prompts[0].promptTemplate, equalTo("Line 1\nLine 2\nLine 3"))
+    }
+
+    // --- BuiltInPrompts category tests ---
+
+    @Test
+    fun testDefaultCategoryForBuiltInPrompts() {
+        // Study prompts
+        assertThat(
+            BuiltInPrompts.defaultCategoryForPrompt(BuiltInPrompts.EXPLAIN_VERSES_ID),
+            equalTo(BuiltInPrompts.CATEGORY_STUDY_ID)
+        )
+        assertThat(
+            BuiltInPrompts.defaultCategoryForPrompt(BuiltInPrompts.WORD_STUDY_ID),
+            equalTo(BuiltInPrompts.CATEGORY_STUDY_ID)
+        )
+
+        // Notes prompts
+        assertThat(
+            BuiltInPrompts.defaultCategoryForPrompt(BuiltInPrompts.ENHANCE_NOTE_ID),
+            equalTo(BuiltInPrompts.CATEGORY_NOTES_ID)
+        )
+
+        // General prompts
+        assertThat(
+            BuiltInPrompts.defaultCategoryForPrompt(BuiltInPrompts.TRANSLATE_UI_LANGUAGE_ID),
+            equalTo(BuiltInPrompts.CATEGORY_GENERAL_ID)
+        )
+
+        // Test prompts
+        assertThat(
+            BuiltInPrompts.defaultCategoryForPrompt(BuiltInPrompts.TEST_TOOL_CALLING_ID),
+            equalTo(BuiltInPrompts.CATEGORY_TEST_ID)
+        )
+    }
+
+    @Test
+    fun testDefaultCategoryForUnknownPromptReturnsNull() {
+        val unknownId = IdType()
+        assertNull(BuiltInPrompts.defaultCategoryForPrompt(unknownId))
+    }
+
+    @Test
+    fun testAllBuiltInPromptsHaveDefaultCategory() {
+        for (prompt in BuiltInPrompts.allBuiltInPrompts()) {
+            val category = BuiltInPrompts.defaultCategoryForPrompt(prompt.id)
+            assertNotNull("Built-in prompt '${prompt.name}' should have a default category", category)
+        }
+    }
+
     @Test
     fun testRoundTripUpdateExistingPrompt(): Unit = runBlocking {
         // Insert original
