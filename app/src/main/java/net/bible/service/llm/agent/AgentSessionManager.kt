@@ -92,7 +92,7 @@ sealed class PendingAgentResult {
 /** One active session per workspace, maintaining log entries and execution state. */
 class AgentSession(val workspaceId: IdType) {
     private val _logEntries = CopyOnWriteArrayList<AgentLogEntry>()
-    val logEntries: List<AgentLogEntry> get() = _logEntries.toList()
+    val logEntries: List<AgentLogEntry> get() = _logEntries
 
     /** Raw LLM conversation log for debug inspection. */
     var rawLlmLog: RawLlmLog? = null

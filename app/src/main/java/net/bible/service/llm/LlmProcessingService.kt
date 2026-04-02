@@ -81,6 +81,11 @@ object LlmProcessingService {
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
+    private val testClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .build()
+
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
@@ -134,10 +139,6 @@ object LlmProcessingService {
             addHeader("Content-Type", "application/json")
             post(body.toRequestBody("application/json".toMediaType()))
         }.build()
-        val testClient = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .build()
         val response = testClient.newCall(request).execute()
         response.use {
             if (!it.isSuccessful) {
