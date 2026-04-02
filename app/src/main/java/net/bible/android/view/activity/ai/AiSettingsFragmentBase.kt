@@ -49,7 +49,8 @@ abstract class AiSettingsFragmentBase : PreferenceFragmentCompat() {
         val p6 = getString(R.string.ai_disclaimer_point6)
         val p7 = getString(R.string.ai_disclaimer_point7)
         val p8 = getString(R.string.ai_disclaimer_point8)
-        return "$intro<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7<br><br>$p8<br><br><i>$p5</i>"
+        val p9 = getString(R.string.ai_disclaimer_point9)
+        return "$intro<br><br>• $p1<br><br>• $p2<br><br>• $p3<br><br>• $p4<br><br>$p6<br><br>$p7 $p8<br><br>$p9<br><br><i>$p5</i>"
     }
 
     internal fun showDisclaimerInfoDialog() {
