@@ -606,7 +606,12 @@ class BibleJavascriptInterface(
     fun openAiDocPage(documentInitials: String, pageKey: String) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(documentInitials) ?: return@launch
-            val key = book.getKey(pageKey) ?: return@launch
+            val key = try {
+                book.getKey(pageKey)
+            } catch (e: NoSuchKeyException) {
+                Log.w(TAG, "AI document page not found: $pageKey in $documentInitials", e)
+                return@launch
+            } ?: return@launch
             linkControl.showLink(book, key)
         }
     }
