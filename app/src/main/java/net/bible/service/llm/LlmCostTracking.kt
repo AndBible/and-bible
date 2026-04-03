@@ -114,31 +114,17 @@ object LlmCostTracker {
         }
     }
 
-    fun getCumulativeUsage(configuredModelId: IdType): LlmUsage {
-        val records = dao.getByModel(configuredModelId)
-        return records.fold(LlmUsage()) { acc, r ->
-            LlmUsage(
-                inputTokens = acc.inputTokens + r.inputTokens,
-                outputTokens = acc.outputTokens + r.outputTokens,
-                cacheCreationTokens = acc.cacheCreationTokens + r.cacheCreationTokens,
-                cacheReadTokens = acc.cacheReadTokens + r.cacheReadTokens,
-            )
-        }
-    }
+    private fun List<LlmUsageRecord>.sumUsage(): LlmUsage =
+        fold(LlmUsage()) { acc, r -> acc + LlmUsage(r.inputTokens, r.outputTokens, r.cacheCreationTokens, r.cacheReadTokens) }
+
+    fun getCumulativeUsage(configuredModelId: IdType): LlmUsage =
+        dao.getByModel(configuredModelId).sumUsage()
 
     fun getCumulativeCost(configuredModelId: IdType): Double =
         dao.getByModel(configuredModelId).sumOf { it.estimatedCostUsd }
 
-    fun getTotalUsage(): LlmUsage {
-        return dao.all().fold(LlmUsage()) { acc, r ->
-            LlmUsage(
-                inputTokens = acc.inputTokens + r.inputTokens,
-                outputTokens = acc.outputTokens + r.outputTokens,
-                cacheCreationTokens = acc.cacheCreationTokens + r.cacheCreationTokens,
-                cacheReadTokens = acc.cacheReadTokens + r.cacheReadTokens,
-            )
-        }
-    }
+    fun getTotalUsage(): LlmUsage =
+        dao.all().sumUsage()
 
     fun getTotalCost(): Double =
         dao.all().sumOf { it.estimatedCostUsd }

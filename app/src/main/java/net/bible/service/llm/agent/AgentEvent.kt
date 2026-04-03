@@ -22,6 +22,14 @@ import net.bible.service.llm.AgentTool
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolResult
 
+/** Shared fields for all completion events (for cost tracking and logging). */
+interface CompletionEvent {
+    val totalIterations: Int
+    val usage: LlmUsage
+    val model: String
+    val configuredModelId: IdType?
+}
+
 /** Events emitted during agent execution for UI progress tracking. */
 sealed class AgentEvent {
     data class Started(val model: String) : AgentEvent()
@@ -45,52 +53,52 @@ sealed class AgentEvent {
 
     data class Completed(
         val response: String,
-        val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage(),
-        val model: String = "",
-        val configuredModelId: IdType? = null
-    ) : AgentEvent()
+        override val totalIterations: Int,
+        override val usage: LlmUsage = LlmUsage(),
+        override val model: String = "",
+        override val configuredModelId: IdType? = null
+    ) : AgentEvent(), CompletionEvent
 
     /** Agent called finishWithoutDocument — task done, no AI document created. */
     data class CompletedWithoutDocument(
         val message: String,
-        val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage(),
-        val model: String = "",
-        val configuredModelId: IdType? = null
-    ) : AgentEvent()
+        override val totalIterations: Int,
+        override val usage: LlmUsage = LlmUsage(),
+        override val model: String = "",
+        override val configuredModelId: IdType? = null
+    ) : AgentEvent(), CompletionEvent
 
     /** Agent called setDocumentTitle — title from tool, content from text response. */
     data class CompletedWithDocument(
         val title: String,
         val content: String,
-        val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage(),
-        val model: String = "",
-        val configuredModelId: IdType? = null
-    ) : AgentEvent()
+        override val totalIterations: Int,
+        override val usage: LlmUsage = LlmUsage(),
+        override val model: String = "",
+        override val configuredModelId: IdType? = null
+    ) : AgentEvent(), CompletionEvent
 
     /** Agent called finishWithStudyPad — opens an existing StudyPad. */
     data class CompletedWithStudyPad(
         val labelId: IdType,
         val scrollToEntryId: IdType?,
         val message: String,
-        val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage(),
-        val model: String = "",
-        val configuredModelId: IdType? = null
-    ) : AgentEvent()
+        override val totalIterations: Int,
+        override val usage: LlmUsage = LlmUsage(),
+        override val model: String = "",
+        override val configuredModelId: IdType? = null
+    ) : AgentEvent(), CompletionEvent
 
     /** Agent called finishWithMyDocumentPage — opens an existing My Documents page. */
     data class CompletedWithMyDocumentPage(
         val documentInitials: String,
         val pageKey: String,
         val message: String,
-        val totalIterations: Int,
-        val usage: LlmUsage = LlmUsage(),
-        val model: String = "",
-        val configuredModelId: IdType? = null
-    ) : AgentEvent()
+        override val totalIterations: Int,
+        override val usage: LlmUsage = LlmUsage(),
+        override val model: String = "",
+        override val configuredModelId: IdType? = null
+    ) : AgentEvent(), CompletionEvent
 
     data class Error(val message: String, val cause: Throwable? = null) : AgentEvent()
     data object Cancelled : AgentEvent()

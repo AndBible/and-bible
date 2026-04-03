@@ -64,12 +64,20 @@ data class OpenAiWireFunction(
     val arguments: String
 )
 
+/** Shared interface for wire tool types that support cache_control breakpoints. */
+interface CacheableWireTool<T> {
+    val cacheControl: AnthropicCacheControl?
+    fun withCacheControl(cc: AnthropicCacheControl): T
+}
+
 @Serializable
 data class OpenAiWireTool(
     val type: String = "function",
     val function: OpenAiWireToolDef,
-    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
-)
+    @SerialName("cache_control") override val cacheControl: AnthropicCacheControl? = null
+) : CacheableWireTool<OpenAiWireTool> {
+    override fun withCacheControl(cc: AnthropicCacheControl) = copy(cacheControl = cc)
+}
 
 @Serializable
 data class OpenAiWireToolDef(
@@ -127,8 +135,10 @@ data class AnthropicWireTool(
     val name: String,
     val description: String,
     @SerialName("input_schema") val inputSchema: JsonObject,
-    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
-)
+    @SerialName("cache_control") override val cacheControl: AnthropicCacheControl? = null
+) : CacheableWireTool<AnthropicWireTool> {
+    override fun withCacheControl(cc: AnthropicCacheControl) = copy(cacheControl = cc)
+}
 
 // --- Utility: convert org.json to kotlinx.serialization ---
 

@@ -288,13 +288,12 @@ class MyDocumentsActivity : ActivityBase() {
             dao.pagesForDocument(id).map { it.id }
         }
 
-        // Delete documents
+        // Delete documents — use documentById to get the current DB state,
+        // since the dataSet list may have already removed the document
         documentsToBeDeleted.forEach { id ->
-            val doc = dao.documentById(id)
-            if (doc != null) {
-                MyDocumentBookManager.unregisterDocument(doc.initials)
-                dao.delete(doc)
-            }
+            val doc = dao.documentById(id) ?: return@forEach
+            MyDocumentBookManager.unregisterDocument(doc.initials)
+            dao.delete(doc)
         }
 
         // Update changed documents

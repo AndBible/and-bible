@@ -27,6 +27,13 @@ import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.VerseRange
 import java.security.MessageDigest
 
+/** Type of note editor entity for text transformation routing. */
+enum class NoteEditorEntityType {
+    BOOKMARK_NOTE,
+    STUDYPAD_TEXT,
+    MY_DOCUMENT_PAGE;
+}
+
 /** Context available during agent prompt execution (selected verses, active document, etc.). */
 data class AgentContext(
     val promptId: IdType,
@@ -63,9 +70,8 @@ data class AgentContext(
     /** When true, setDocumentTitle is blocked and content is only shown in the log. */
     val noDocumentCreation: Boolean = false,
     /** Page IDs created during this agent session (for permission-free editing of own pages). */
-    val createdPageIds: MutableSet<IdType> = mutableSetOf(),
-    /** Note editor entity type: "BOOKMARK_NOTE", "STUDYPAD_TEXT", or "MY_DOCUMENT_PAGE" */
-    val noteEditorEntityType: String? = null,
+    val createdPageIds: Set<IdType> = emptySet(),
+    val noteEditorEntityType: NoteEditorEntityType? = null,
     /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
     val noteEditorEntityId: String? = null,
     /** Current text content in the note editor */

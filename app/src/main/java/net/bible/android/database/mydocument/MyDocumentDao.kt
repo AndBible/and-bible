@@ -54,6 +54,9 @@ interface MyDocumentDao {
     @Query("SELECT * FROM MyDocument WHERE name = :name")
     fun documentByName(name: String): MyDocument?
 
+    @Query("SELECT MAX(orderNumber) FROM MyDocument")
+    fun maxDocumentOrderNumber(): Int?
+
     // ==================== Pages (metadata only) ====================
 
     @Insert
@@ -188,7 +191,7 @@ interface MyDocumentDao {
 
     @Transaction
     fun deletePageWithContent(page: MyDocumentPage) {
-        deleteContent(page.id)
+        // Content is deleted automatically via FK CASCADE
         delete(page)
     }
 

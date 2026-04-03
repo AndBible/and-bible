@@ -155,9 +155,6 @@ data class LlmModelConfig(
         return providerDao.getById(model.providerConfigId)
     }
 
-    /** Resolve the effective model name. */
-    fun resolveModel(): String? = resolveConfiguredModel()?.modelId
-
     companion object {
         /** Build from an AgentPrompt's per-prompt model override. */
         fun fromPrompt(prompt: AgentPrompt): LlmModelConfig =

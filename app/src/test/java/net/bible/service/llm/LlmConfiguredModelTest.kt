@@ -134,13 +134,6 @@ class LlmConfiguredModelTest {
     }
 
     @Test
-    fun resolveModel_returnsModelId() {
-        val config = LlmModelConfig(configuredModelId = testModel.id)
-        val modelId = config.resolveModel()
-        assertEquals("gemini-2.5-flash", modelId)
-    }
-
-    @Test
     fun fromPrompt_mapsConfiguredModelId() {
         val prompt = AgentPrompt(
             name = "Test",

@@ -21,7 +21,9 @@ import android.util.Log
 import net.bible.android.database.IdType
 import net.bible.android.database.mydocument.MyDocument
 import net.bible.android.database.mydocument.MyDocumentContentType
+import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.service.db.DatabaseContainer
+import org.apache.commons.text.StringEscapeUtils
 import org.crosswire.jsword.book.BookMetaData
 import org.crosswire.jsword.book.sword.AbstractKeyBackend
 import org.crosswire.jsword.book.sword.SwordBookDriver
@@ -60,6 +62,10 @@ class MyDocumentOpenFileState(
  * - MARKDOWN content: converted to XHTML via commonmark-java, then addAnchors() adds BVA elements
  * - HTML content: <OsisHtml>escaped content</OsisHtml>
  * - OSIS content: returned as-is
+ *
+ * Page list is cached to avoid repeated DB queries during TOC building.
+ * Key construction uses title for display name and pageKey for osisRef (internal lookup).
+ * Cache is invalidated when Activator.deactivate() calls releaseResources().
  */
 class MyDocumentBackend(
     private val documentId: IdType,
@@ -68,29 +74,31 @@ class MyDocumentBackend(
 
     private val dao get() = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
 
+    private var cachedPages: List<MyDocumentPage>? = null
+
+    private fun getPages(): List<MyDocumentPage> {
+        return cachedPages ?: dao.pagesForDocument(documentId).also { cachedPages = it }
+    }
+
     override fun initState(): MyDocumentOpenFileState {
+        cachedPages = null
         return MyDocumentOpenFileState(documentId, bookMetaData as SwordBookMetaData)
     }
 
-    override fun getCardinality(): Int {
-        return dao.pageCount(documentId)
-    }
+    override fun getCardinality(): Int = getPages().size
 
     override fun get(index: Int): Key {
-        val pages = dao.pagesForDocument(documentId)
+        val pages = getPages()
         if (index < 0 || index >= pages.size) {
             return DefaultLeafKeyList("", "")
         }
         val page = pages[index]
-        // Use title for display name, pageKey for osisRef (internal lookup)
         return DefaultLeafKeyList(page.title, page.pageKey)
     }
 
     override fun indexOf(that: Key): Int {
-        val pages = dao.pagesForDocument(documentId)
-        // Compare using osisRef (pageKey) for lookup, or name if osisRef not available
         val searchKey = that.osisRef?.takeIf { it.isNotEmpty() } ?: that.name
-        return pages.indexOfFirst { it.pageKey == searchKey }
+        return getPages().indexOfFirst { it.pageKey == searchKey }
     }
 
     override fun readIndex(): Key {
@@ -102,9 +110,7 @@ class MyDocumentBackend(
     }
 
     override fun iterator(): MutableIterator<Key> {
-        val pages = dao.pagesForDocument(documentId)
-        return pages.map { page ->
-            // Use title for display name, pageKey for osisRef (internal lookup)
+        return getPages().map { page ->
             DefaultLeafKeyList(page.title, page.pageKey) as Key
         }.toMutableList().iterator()
     }
@@ -112,9 +118,7 @@ class MyDocumentBackend(
     override fun readRawContent(state: MyDocumentOpenFileState?, key: Key?): String {
         if (key == null) return ""
 
-        // Use osisRef (pageKey) for lookup, fallback to name
         val pageKey = key.osisRef?.takeIf { it.isNotEmpty() } ?: key.name
-
         val page = dao.pageByKeyWithContent(documentId, pageKey)
 
         if (page == null) {
@@ -124,48 +128,27 @@ class MyDocumentBackend(
 
         val content = page.content ?: ""
 
-        // Wrap content based on type:
         // MARKDOWN: converted to XHTML, addAnchors() adds BVA elements for scroll tracking
         // HTML: wrapped in <html> tag, rendered by Vue.js Html component
         // OSIS: returned as-is
-        // Note: AI footer (regenerate/delete) is rendered by Vue.js OsisDocument component,
-        // not embedded in the content, so it doesn't leak into bookmarks or other contexts.
-        val result = when (page.contentType) {
+        // AI footer is rendered by Vue.js OsisDocument component, not embedded in content.
+        return when (page.contentType) {
             MyDocumentContentType.MARKDOWN -> {
                 val xhtml = MarkdownToXhtml.convert(content)
                 "<div class=\"mydoc-markdown\">$xhtml</div>"
             }
             MyDocumentContentType.HTML ->
-                "<div class=\"mydoc-html\"><html>${escapeXml(content)}</html></div>"
+                "<div class=\"mydoc-html\"><html>${StringEscapeUtils.escapeXml11(content)}</html></div>"
             MyDocumentContentType.OSIS -> content
         }
-        return result
     }
 
-    /**
-     * Get global key list (TOC) for this document.
-     */
     override fun getGlobalKeyList(): Key {
-        val pages = dao.pagesForDocument(documentId)
         val keyList = DefaultKeyList()
-        pages.forEach { page ->
-            // Use title for display name, pageKey for osisRef (internal lookup)
+        getPages().forEach { page ->
             keyList.addAll(DefaultLeafKeyList(page.title, page.pageKey))
         }
         return keyList
-    }
-
-    /**
-     * Escape XML special characters while preserving Markdown/HTML formatting.
-     * The content will be unescaped in Vue.js before rendering.
-     */
-    private fun escapeXml(text: String): String {
-        return text
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace("\"", "&quot;")
-            .replace("'", "&apos;")
     }
 }
 

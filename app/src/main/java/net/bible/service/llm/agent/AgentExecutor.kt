@@ -17,6 +17,7 @@
 
 package net.bible.service.llm.agent
 
+import android.app.Activity
 import android.util.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.currentCoroutineContext
@@ -51,6 +52,7 @@ import net.bible.service.llm.tools.ToolResult
 import net.bible.service.llm.tools.normalizeLlmText
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
+import net.bible.service.llm.tools.write.AddMyDocumentPageTool
 import net.bible.service.llm.tools.write.SetDocumentTitleTool
 import net.bible.service.llm.tools.write.FinishWithMyDocumentPageTool
 import net.bible.service.llm.tools.write.FinishWithStudyPadTool
@@ -383,108 +385,26 @@ class AgentExecutor(
                 currentContext = currentContext.withWritePermissionGranted()
             }
 
+            // Track created page IDs for permission-free editing in this session
+            if (toolCall.tool == AgentTool.ADD_MY_DOCUMENT_PAGE && result is ToolResult.Success) {
+                val pageId = (result.data as? AddMyDocumentPageTool.Result)?.pageId
+                if (pageId != null) {
+                    currentContext = currentContext.copy(createdPageIds = currentContext.createdPageIds + pageId)
+                }
+            }
+
             emit(AgentEvent.ToolCompleted(toolCall.id, toolCall.tool, result))
 
             toolResults.add(ToolResultBlock(toolCall.id, result.toJson()))
 
             // Check for finish tools — record the result but continue collecting tool results
             if (finishResult == null && result is ToolResult.Success) {
-                when (toolCall.tool) {
-                    AgentTool.SET_DOCUMENT_TITLE -> {
-                        if (prompt.isTextTransformation && currentContext.noteEditorEntityType != null) {
-                            // Text transformation in note editor: route result back to the note
-                            val content = parsed.content?.takeIf { it.isNotBlank() }
-                            if (content != null) {
-                                saveNoteContent(currentContext, normalizeLlmText(content))
-                                Log.d(TAG, "Text transformation saved to note: ${currentContext.noteEditorEntityType}/${currentContext.noteEditorEntityId}")
-                                finishResult = ProcessToolsResult.FinishWithoutDocument(
-                                    message = application.getString(R.string.llm_note_updated),
-                                    context = currentContext
-                                )
-                            } else {
-                                // Content not yet available, save pending title and wait for content
-                                val data = result.data as? SetDocumentTitleTool.Result
-                                pendingTitle = data?.title
-                                toolResults[toolResults.lastIndex] = ToolResultBlock(
-                                    toolCallId = toolCall.id, content = ToolResult.success {
-                                        put("titleSaved", true)
-                                        put("instruction", "Title accepted. Now output your transformed text in your next response.")
-                                    }.toJson()
-                                )
-                            }
-                        } else if (currentContext.noDocumentCreation) {
-                            // Enforce: block document creation, finish immediately without new iteration
-                            Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
-                            finishResult = ProcessToolsResult.FinishWithoutDocument(
-                                message = application.getString(R.string.llm_no_document_creation_intercepted),
-                                context = currentContext
-                            )
-                        } else {
-                            val data = result.data as? SetDocumentTitleTool.Result
-                            val title = data?.title ?: application.getString(R.string.llm_default_document_title)
-                            val content = parsed.content?.takeIf { it.isNotBlank() }
-
-                            if (content == null) {
-                                Log.i(TAG, "setDocumentTitle called without content, saving pending title: $title")
-                                pendingTitle = title
-                                toolResults[toolResults.lastIndex] = ToolResultBlock(
-                                    toolCallId = toolCall.id, content = ToolResult.success {
-                                        put("titleSaved", true)
-                                        put("title", title)
-                                        put("instruction", "Title accepted. Now output your document content as plain text in your next response.")
-                                    }.toJson()
-                                )
-                            } else {
-                                Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
-                                finishResult = ProcessToolsResult.FinishWithDocument(
-                                    title = title,
-                                    content = normalizeLlmText(content),
-                                    context = currentContext
-                                )
-                            }
-                        }
-                    }
-                    AgentTool.FINISH_WITHOUT_DOCUMENT -> {
-                        val data = result.data as? FinishWithoutDocumentTool.Result
-                        val message = data?.message ?: application.getString(R.string.llm_default_task_completed)
-                        finishResult = ProcessToolsResult.FinishWithoutDocument(
-                            message = message,
-                            context = currentContext
-                        )
-                    }
-                    AgentTool.FINISH_WITH_STUDY_PAD -> {
-                        val data = result.data as? FinishWithStudyPadTool.Result
-                        val labelId = IdType(data?.labelId ?: "")
-                        val scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) }
-                        val message = data?.message ?: application.getString(R.string.llm_default_studypad_opened)
-                        finishResult = ProcessToolsResult.FinishWithStudyPad(
-                            labelId = labelId,
-                            scrollToEntryId = scrollToEntryId,
-                            message = message,
-                            context = currentContext
-                        )
-                    }
-                    AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE -> {
-                        val data = result.data as? FinishWithMyDocumentPageTool.Result
-                        finishResult = ProcessToolsResult.FinishWithMyDocumentPage(
-                            documentInitials = data?.documentInitials ?: "",
-                            pageKey = data?.pageKey ?: "",
-                            message = data?.message ?: application.getString(R.string.llm_default_task_completed),
-                            context = currentContext
-                        )
-                    }
-                    else -> {
-                        // Check for taskComplete flag on non-structural tools
-                        val rawArgs = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
-                        if (rawArgs?.optBoolean("taskComplete", false) == true) {
-                            val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
-                                application.getString(R.string.llm_default_task_completed)
-                            }
-                            finishResult = ProcessToolsResult.FinishWithoutDocument(
-                                message = message,
-                                context = currentContext
-                            )
-                        }
+                finishResult = checkForFinishResult(
+                    toolCall, result, parsed.content, prompt, currentContext, toolResults
+                )?.also { r ->
+                    if (r is ProcessToolsResult.Continue && r.pendingDocumentTitle != null) {
+                        pendingTitle = r.pendingDocumentTitle
+                        finishResult = null  // Not actually finished, just set pending title
                     }
                 }
             }
@@ -494,6 +414,126 @@ class AgentExecutor(
         messages.addAll(adapter.createToolResultMessages(toolResults))
 
         return finishResult ?: ProcessToolsResult.Continue(currentContext, pendingDocumentTitle = pendingTitle)
+    }
+
+    /**
+     * Check if a successful tool call represents a finish action.
+     * Returns a [ProcessToolsResult] if the tool signals completion, or null to continue.
+     * For setDocumentTitle with pending content, returns [ProcessToolsResult.Continue] with pendingDocumentTitle.
+     */
+    private fun checkForFinishResult(
+        toolCall: ToolCall,
+        result: ToolResult.Success,
+        responseContent: String?,
+        prompt: AgentPrompt,
+        context: AgentContext,
+        toolResults: MutableList<ToolResultBlock>
+    ): ProcessToolsResult? = when (toolCall.tool) {
+        AgentTool.SET_DOCUMENT_TITLE ->
+            handleSetDocumentTitle(toolCall, result, responseContent, prompt, context, toolResults)
+        AgentTool.FINISH_WITHOUT_DOCUMENT -> {
+            val data = result.data as? FinishWithoutDocumentTool.Result
+            ProcessToolsResult.FinishWithoutDocument(
+                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                context = context
+            )
+        }
+        AgentTool.FINISH_WITH_STUDY_PAD -> {
+            val data = result.data as? FinishWithStudyPadTool.Result
+            ProcessToolsResult.FinishWithStudyPad(
+                labelId = IdType(data?.labelId ?: ""),
+                scrollToEntryId = data?.scrollToEntryId?.takeIf { it.isNotBlank() }?.let { IdType(it) },
+                message = data?.message ?: application.getString(R.string.llm_default_studypad_opened),
+                context = context
+            )
+        }
+        AgentTool.FINISH_WITH_MY_DOCUMENT_PAGE -> {
+            val data = result.data as? FinishWithMyDocumentPageTool.Result
+            ProcessToolsResult.FinishWithMyDocumentPage(
+                documentInitials = data?.documentInitials ?: "",
+                pageKey = data?.pageKey ?: "",
+                message = data?.message ?: application.getString(R.string.llm_default_task_completed),
+                context = context
+            )
+        }
+        else -> {
+            val rawArgs = try { JSONObject(toolCall.arguments) } catch (_: Exception) { null }
+            if (rawArgs?.optBoolean("taskComplete", false) == true) {
+                val message = rawArgs.optString("taskCompleteMessage", "").ifBlank {
+                    application.getString(R.string.llm_default_task_completed)
+                }
+                ProcessToolsResult.FinishWithoutDocument(message = message, context = context)
+            } else null
+        }
+    }
+
+    /**
+     * Handle setDocumentTitle tool: routes to note editor, blocks document creation,
+     * or sets up document with title. Returns [ProcessToolsResult.Continue] with
+     * pendingDocumentTitle when content is not yet available.
+     */
+    private fun handleSetDocumentTitle(
+        toolCall: ToolCall,
+        result: ToolResult.Success,
+        responseContent: String?,
+        prompt: AgentPrompt,
+        context: AgentContext,
+        toolResults: MutableList<ToolResultBlock>
+    ): ProcessToolsResult {
+        val content = responseContent?.takeIf { it.isNotBlank() }
+
+        // Text transformation in note editor
+        if (prompt.isTextTransformation && context.noteEditorEntityType != null) {
+            if (content != null) {
+                saveNoteContent(context, normalizeLlmText(content))
+                Log.d(TAG, "Text transformation saved to note: ${context.noteEditorEntityType}/${context.noteEditorEntityId}")
+                return ProcessToolsResult.FinishWithoutDocument(
+                    message = application.getString(R.string.llm_note_updated),
+                    context = context
+                )
+            }
+            // Content not yet available — save pending title and wait
+            val data = result.data as? SetDocumentTitleTool.Result
+            toolResults[toolResults.lastIndex] = ToolResultBlock(
+                toolCallId = toolCall.id, content = ToolResult.success {
+                    put("titleSaved", true)
+                    put("instruction", "Title accepted. Now output your transformed text in your next response.")
+                }.toJson()
+            )
+            return ProcessToolsResult.Continue(context, pendingDocumentTitle = data?.title)
+        }
+
+        // No document creation mode
+        if (context.noDocumentCreation) {
+            Log.i(TAG, "setDocumentTitle blocked: noDocumentCreation is enabled")
+            return ProcessToolsResult.FinishWithoutDocument(
+                message = application.getString(R.string.llm_no_document_creation_intercepted),
+                context = context
+            )
+        }
+
+        // Normal document creation
+        val data = result.data as? SetDocumentTitleTool.Result
+        val title = data?.title ?: application.getString(R.string.llm_default_document_title)
+
+        if (content == null) {
+            Log.i(TAG, "setDocumentTitle called without content, saving pending title: $title")
+            toolResults[toolResults.lastIndex] = ToolResultBlock(
+                toolCallId = toolCall.id, content = ToolResult.success {
+                    put("titleSaved", true)
+                    put("title", title)
+                    put("instruction", "Title accepted. Now output your document content as plain text in your next response.")
+                }.toJson()
+            )
+            return ProcessToolsResult.Continue(context, pendingDocumentTitle = title)
+        }
+
+        Log.d(TAG, "Agent finished with document: $title (content from text response, ${content.length} chars)")
+        return ProcessToolsResult.FinishWithDocument(
+            title = title,
+            content = normalizeLlmText(content),
+            context = context
+        )
     }
 
     private suspend fun buildInitialMessages(prompt: AgentPrompt, context: AgentContext): MutableList<ChatMessage> {
@@ -558,9 +598,9 @@ class AgentExecutor(
                 append("Entity ID: ${context.noteEditorEntityId}\n")
                 append("Content type: ${context.noteEditorContentType}\n")
                 when (context.noteEditorEntityType) {
-                    "BOOKMARK_NOTE" -> append("Use updateBookmarkNote with this bookmark ID to save changes.\n")
-                    "STUDYPAD_TEXT" -> append("Use updateStudyPadTextEntry with this entry ID to save changes.\n")
-                    "MY_DOCUMENT_PAGE" -> append("Use editMyDocumentPage with this page ID to save changes.\n")
+                    NoteEditorEntityType.BOOKMARK_NOTE -> append("Use updateBookmarkNote with this bookmark ID to save changes.\n")
+                    NoteEditorEntityType.STUDYPAD_TEXT -> append("Use updateStudyPadTextEntry with this entry ID to save changes.\n")
+                    NoteEditorEntityType.MY_DOCUMENT_PAGE -> append("Use editMyDocumentPage with this page ID to save changes.\n")
                 }
             }
 
@@ -776,25 +816,32 @@ class AgentExecutor(
             promptAvailableTools = context.promptAvailableTools,
         )
 
+    /**
+     * Waits for the current activity to become available.
+     * Posts waiting/not-waiting events so the UI can show a notification.
+     */
+    private suspend fun awaitActivity(workspaceId: IdType? = null, toolName: String? = null): Activity {
+        CurrentActivityHolder.currentActivity?.let { return it }
+        Log.d(TAG, "No current activity, waiting for activity to resume...")
+        if (workspaceId != null) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolName))
+        }
+        var activity: Activity?
+        do {
+            delay(500)
+            activity = CurrentActivityHolder.currentActivity
+        } while (activity == null)
+        if (workspaceId != null) {
+            ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
+        }
+        Log.d(TAG, "Activity resumed")
+        return activity
+    }
+
     /** "Always allow" persists tool to permanentlyAllowedTools after confirmation dialog. */
     private suspend fun showPermissionDialog(tool: Tool, arguments: JSONObject, workspaceId: IdType? = null): DialogResult {
-        var activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d(TAG, "No current activity, waiting for activity to resume...")
-            val toolDisplayName = ToolRegistry.getDisplayName(tool)
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true, toolName = toolDisplayName))
-            }
-            while (activity == null) {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            }
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
-            }
-            Log.d(TAG, "Activity resumed, showing permission dialog")
-        }
         val toolDisplayName = ToolRegistry.getDisplayName(tool)
+        val activity = awaitActivity(workspaceId, toolDisplayName)
         val actionDescription = try {
             tool.formatActionDescription(arguments)
         } catch (e: Exception) {
@@ -831,20 +878,7 @@ class AgentExecutor(
      * Follows the same activity-lookup pattern as [showPermissionDialog].
      */
     private suspend fun showContinueDialog(currentIteration: Int, increment: Int, workspaceId: IdType? = null): Boolean {
-        var activity = CurrentActivityHolder.currentActivity
-        if (activity == null) {
-            Log.d(TAG, "No current activity for continue dialog, waiting...")
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = true))
-            }
-            while (activity == null) {
-                delay(500)
-                activity = CurrentActivityHolder.currentActivity
-            }
-            if (workspaceId != null) {
-                ABEventBus.post(AgentPermissionWaitingEvent(workspaceId, waiting = false))
-            }
-        }
+        val activity = awaitActivity(workspaceId)
         return Dialogs.simpleQuestion(
             activity,
             message = application.getString(R.string.llm_continue_iterations_message, currentIteration, increment),
@@ -860,16 +894,16 @@ class AgentExecutor(
         val bookmarkControl = application.applicationComponent.bookmarkControl()
 
         when (context.noteEditorEntityType) {
-            "BOOKMARK_NOTE" -> {
+            NoteEditorEntityType.BOOKMARK_NOTE -> {
                 val bookmark = bookmarkControl.bibleBookmarkById(IdType(entityId)) ?: return
                 bookmark.notes = content
                 bookmark.notesContentType = TextContentType.MARKDOWN
                 bookmarkControl.addOrUpdateBibleBookmark(bookmark, updateNotes = true)
             }
-            "STUDYPAD_TEXT" -> {
+            NoteEditorEntityType.STUDYPAD_TEXT -> {
                 bookmarkControl.updateStudyPadTextEntryText(IdType(entityId), content)
             }
-            "MY_DOCUMENT_PAGE" -> {
+            NoteEditorEntityType.MY_DOCUMENT_PAGE -> {
                 val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
                 val pageId = IdType(entityId)
                 val page = dao.pageById(pageId) ?: return
@@ -889,6 +923,7 @@ class AgentExecutor(
                     }
                 }
             }
+            null -> {}
         }
     }
 }

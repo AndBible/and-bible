@@ -79,6 +79,7 @@ import net.bible.android.control.progress.MemorizationDataChangedEvent
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
 import net.bible.service.common.ReadingProgressSettings
+import net.bible.service.llm.agent.NoteEditorEntityType
 import net.bible.android.control.bookmark.BookmarksDeletedEvent
 import net.bible.android.control.bookmark.LabelAddedOrUpdatedEvent
 import net.bible.android.control.bookmark.LabelsDeletedEvent
@@ -194,8 +195,7 @@ class Selection(
     val notes: String? = null,
     val text: String = "",
     val osisRef: String? = null,
-    /** Note editor entity type: "BOOKMARK_NOTE", "STUDYPAD_TEXT", or "MY_DOCUMENT_PAGE" */
-    val noteEditorEntityType: String? = null,
+    val noteEditorEntityType: NoteEditorEntityType? = null,
     /** Note editor entity ID (bookmark UUID, studypad entry UUID, or MyDocument page ID) */
     val noteEditorEntityId: String? = null,
     /** Current text content in the note editor */

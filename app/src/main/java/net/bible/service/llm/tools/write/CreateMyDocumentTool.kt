@@ -99,7 +99,7 @@ object CreateMyDocumentTool : Tool {
         return try {
             val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
             val initials = MyDocumentBookManager.generateInitials(args.name)
-            val maxOrder = dao.allDocuments().maxOfOrNull { it.orderNumber } ?: -1
+            val maxOrder = dao.maxDocumentOrderNumber() ?: -1
 
             val document = MyDocument(
                 name = args.name,

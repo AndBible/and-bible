@@ -133,12 +133,11 @@ object DynamicModelService {
             }
         }
 
-    /** Get pricing for a model from any provider's cache. */
-    fun getPricingForModel(modelId: String): ModelPricing? {
-        for ((_, entry) in cache) {
-            entry.first.find { it.id == modelId }?.pricing?.let { return it }
-        }
-        // Try loading all cache files from disk
+    /** Whether all disk cache files have been loaded into memory. */
+    private var allDiskCachesLoaded = false
+
+    private fun ensureAllDiskCachesLoaded() {
+        if (allDiskCachesLoaded) return
         cacheFile("").parentFile?.listFiles { f -> f.name.startsWith("models_cache_") && f.name.endsWith(".json") }
             ?.forEach { file ->
                 val pid = file.name.removePrefix("models_cache_").removeSuffix(".json")
@@ -146,7 +145,17 @@ object DynamicModelService {
                     loadFromDisk(pid)
                 }
             }
-        // Retry from in-memory cache after loading
+        allDiskCachesLoaded = true
+    }
+
+    /** Get pricing for a model from any provider's cache. */
+    fun getPricingForModel(modelId: String): ModelPricing? {
+        // Quick check in already-loaded caches
+        for ((_, entry) in cache) {
+            entry.first.find { it.id == modelId }?.pricing?.let { return it }
+        }
+        // Load remaining disk caches and retry
+        ensureAllDiskCachesLoaded()
         for ((_, entry) in cache) {
             entry.first.find { it.id == modelId }?.pricing?.let { return it }
         }

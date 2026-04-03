@@ -47,6 +47,7 @@ import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import net.bible.android.activity.R
+import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.android.activity.databinding.WorkspaceSelectorBinding
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.database.IdType
@@ -324,6 +325,7 @@ class WorkspaceSelectorActivity: ActivityBase() {
     private fun applyChanges() {
         workspacesToBeDeleted.forEach {
             dao.deleteWorkspace(it)
+            AgentSessionManager.clearSession(it)
         }
         dao.updateWorkspaces(dataSet.filter { changedWorkspaces.contains(it.id) })
     }

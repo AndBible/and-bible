@@ -81,6 +81,11 @@ object LlmProcessingService {
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
+    private val testClient = OkHttpClient.Builder()
+        .connectTimeout(10, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .build()
+
     /**
      * Resolved provider/model/adapter triple, used to thread resolved state through the call chain.
      */
@@ -92,23 +97,6 @@ object LlmProcessingService {
         val endpoint: String,
         val configuredModelId: IdType? = null,
     )
-
-    /**
-     * Check if LLM is configured at all (any provider configs exist).
-     */
-    private fun isConfiguredAny(): Boolean =
-        CommonUtils.settings.llmConfigured
-
-    /**
-     * Check if a specific llmConfig (or the global default) is configured.
-     */
-    private fun isConfigured(llmConfig: LlmModelConfig?): Boolean {
-        if (llmConfig != null) {
-            val providerConfig = llmConfig.resolveProviderConfig()
-            if (providerConfig != null) return providerConfig.getApiKey().isNotBlank()
-        }
-        return isConfiguredAny()
-    }
 
     /**
      * Resolve provider, model, adapter, API key, and endpoint from an LlmModelConfig.
@@ -132,13 +120,6 @@ object LlmProcessingService {
     }
 
     /**
-     * Resolve the current provider and return its API adapter.
-     */
-    internal fun resolveAdapter(llmConfig: LlmModelConfig? = null): LlmApiAdapter {
-        return resolveFromConfig(llmConfig).adapter
-    }
-
-    /**
      * Test API connection by sending a minimal request. Throws on failure.
      * Used by Easy Setup to validate API keys before saving.
      */
@@ -158,10 +139,6 @@ object LlmProcessingService {
             addHeader("Content-Type", "application/json")
             post(body.toRequestBody("application/json".toMediaType()))
         }.build()
-        val testClient = OkHttpClient.Builder()
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .build()
         val response = testClient.newCall(request).execute()
         response.use {
             if (!it.isSuccessful) {

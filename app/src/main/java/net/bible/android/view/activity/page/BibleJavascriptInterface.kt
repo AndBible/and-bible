@@ -89,6 +89,7 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BookName
 import org.crosswire.jsword.versification.system.Versifications
 import net.bible.service.llm.PromptContext
+import net.bible.service.llm.agent.NoteEditorEntityType
 import java.io.File
 import java.lang.ClassCastException
 
@@ -605,7 +606,12 @@ class BibleJavascriptInterface(
     fun openAiDocPage(documentInitials: String, pageKey: String) {
         scope.launch(Dispatchers.Main) {
             val book = Books.installed().getBook(documentInitials) ?: return@launch
-            val key = book.getKey(pageKey) ?: return@launch
+            val key = try {
+                book.getKey(pageKey)
+            } catch (e: NoSuchKeyException) {
+                Log.w(TAG, "AI document page not found: $pageKey in $documentInitials", e)
+                return@launch
+            } ?: return@launch
             linkControl.showLink(book, key)
         }
     }
@@ -897,7 +903,7 @@ class BibleJavascriptInterface(
             var bookInitials: String? = null
             var startOrdinal = 0
             var endOrdinal = 0
-            if (ctx.entityType == "BOOKMARK_NOTE") {
+            if (ctx.entityType == NoteEditorEntityType.BOOKMARK_NOTE.name) {
                 val bookmark = bookmarkControl.bibleBookmarkById(IdType(ctx.entityId))
                 if (bookmark != null) {
                     bookInitials = bookmark.book?.initials
@@ -913,7 +919,7 @@ class BibleJavascriptInterface(
                 endOrdinal = endOrdinal,
                 endOffset = null,
                 bookmarks = emptyList(),
-                noteEditorEntityType = ctx.entityType,
+                noteEditorEntityType = try { NoteEditorEntityType.valueOf(ctx.entityType) } catch (_: IllegalArgumentException) { null },
                 noteEditorEntityId = ctx.entityId,
                 noteEditorContent = ctx.currentText,
                 noteEditorContentType = ctx.contentType,

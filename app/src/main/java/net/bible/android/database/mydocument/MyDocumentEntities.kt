@@ -21,7 +21,6 @@ import androidx.room.DatabaseView
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
-import androidx.room.Ignore
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import kotlinx.serialization.Serializable
@@ -163,9 +162,6 @@ data class AiDocMarkerInfo(
     val sourcePromptId: IdType?,
 )
 
-/**
- * DatabaseView combining page metadata with content
- */
 @DatabaseView("""
     SELECT p.*, c.content
     FROM MyDocumentPage p
@@ -215,16 +211,4 @@ data class AiCachedPageWithContent(
     override val updatedAt: Long,
     override val languageCode: String?,
     val content: String?
-): BaseMyDocumentPage {
-    @Ignore
-    val cacheEntry = AiPageCacheEntry(
-        pageId = pageId,
-        sourcePromptId = sourcePromptId,
-        sourceContext = sourceContext,
-        kjvOrdinalStart = kjvOrdinalStart,
-        kjvOrdinalEnd = kjvOrdinalEnd,
-        contextHash = contextHash,
-        usedWriteTools = usedWriteTools,
-        sourceModelName = sourceModelName
-    )
-}
+): BaseMyDocumentPage
