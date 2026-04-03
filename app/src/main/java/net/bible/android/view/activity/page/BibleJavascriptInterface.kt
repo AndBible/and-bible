@@ -919,7 +919,7 @@ class BibleJavascriptInterface(
                 endOrdinal = endOrdinal,
                 endOffset = null,
                 bookmarks = emptyList(),
-                noteEditorEntityType = NoteEditorEntityType.fromString(ctx.entityType),
+                noteEditorEntityType = try { NoteEditorEntityType.valueOf(ctx.entityType) } catch (_: IllegalArgumentException) { null },
                 noteEditorEntityId = ctx.entityId,
                 noteEditorContent = ctx.currentText,
                 noteEditorContentType = ctx.contentType,

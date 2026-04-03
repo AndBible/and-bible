@@ -32,16 +32,6 @@ enum class NoteEditorEntityType {
     BOOKMARK_NOTE,
     STUDYPAD_TEXT,
     MY_DOCUMENT_PAGE;
-
-    companion object {
-        /** Parse from Vue.js string value. Returns null for unknown values. */
-        fun fromString(value: String?): NoteEditorEntityType? = when (value) {
-            "BOOKMARK_NOTE" -> BOOKMARK_NOTE
-            "STUDYPAD_TEXT" -> STUDYPAD_TEXT
-            "MY_DOCUMENT_PAGE" -> MY_DOCUMENT_PAGE
-            else -> null
-        }
-    }
 }
 
 /** Context available during agent prompt execution (selected verses, active document, etc.). */
