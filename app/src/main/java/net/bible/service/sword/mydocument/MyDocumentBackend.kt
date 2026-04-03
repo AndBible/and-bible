@@ -65,7 +65,7 @@ class MyDocumentOpenFileState(
  *
  * Page list is cached to avoid repeated DB queries during TOC building.
  * Key construction uses title for display name and pageKey for osisRef (internal lookup).
- * Cache is invalidated when Activator.deactivate() calls releaseResources().
+ * Cache is invalidated in readIndex() (called during activation) and initState().
  */
 class MyDocumentBackend(
     private val documentId: IdType,
@@ -102,6 +102,10 @@ class MyDocumentBackend(
     }
 
     override fun readIndex(): Key {
+        // Clear cache so re-activation (deactivate+activate) reads fresh data from DB.
+        // Without this, cachedPages retains stale entries from the previous activation
+        // and newly added pages (e.g. AI responses) won't appear in the key map.
+        cachedPages = null
         val key = DefaultKeyList(null, bookMetaData.name)
         for (k in iterator()) {
             key.addAll(k)
