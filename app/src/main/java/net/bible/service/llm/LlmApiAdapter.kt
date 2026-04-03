@@ -22,6 +22,7 @@ import kotlinx.serialization.json.Json
 import net.bible.android.BibleApplication.Companion.application
 import net.bible.android.activity.R
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -86,7 +87,7 @@ interface LlmApiAdapter {
 }
 
 /** Cached JSON representation of the ephemeral cache_control object. */
-private val CACHE_CONTROL_JSON: kotlinx.serialization.json.JsonElement =
+private val CACHE_CONTROL_JSON: JsonElement =
     llmJson.encodeToJsonElement(AnthropicCacheControl.serializer(), AnthropicCacheControl())
 
 /**
@@ -94,7 +95,7 @@ private val CACHE_CONTROL_JSON: kotlinx.serialization.json.JsonElement =
  * Handles both JsonPrimitive (wraps into array) and JsonArray (adds to last block).
  * Returns the modified content, or the original if injection is not applicable.
  */
-private fun injectCacheControlToContent(content: kotlinx.serialization.json.JsonElement?): kotlinx.serialization.json.JsonElement? {
+private fun injectCacheControlToContent(content: JsonElement?): JsonElement? {
     if (content == null) return null
     return when (content) {
         is JsonPrimitive -> JsonArray(listOf(JsonObject(mapOf(

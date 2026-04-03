@@ -24,7 +24,9 @@ import net.bible.android.activity.R
 import net.bible.android.common.toV11n
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.link.LinkControl
+import net.bible.android.control.page.window.Window
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.page.window.WindowLayout.WindowState
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.android.view.activity.page.Selection
@@ -43,14 +45,17 @@ import net.bible.service.llm.tools.formatJsonForLog
 import net.bible.service.llm.tools.stripMarkdownFromTitle
 import net.bible.service.sword.SwordContentFacade
 import net.bible.service.sword.mydocument.MyDocumentBookManager
+import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.Key
 import org.crosswire.jsword.passage.VerseRange
 import org.jdom2.output.Format
 import org.jdom2.output.XMLOutputter
 import android.widget.Toast
+import net.bible.android.database.mydocument.AiCachedPageWithContent
 import net.bible.android.view.activity.base.CurrentActivityHolder
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -302,7 +307,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private fun findCachedPage(
         prompt: AgentPrompt,
         cacheableContext: CacheableContext
-    ): net.bible.android.database.mydocument.AiCachedPageWithContent? {
+    ): AiCachedPageWithContent? {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
 
         return if (prompt.strictContextMatching) {
@@ -327,7 +332,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     )
 
     /** Extract content for whole-page mode (ordinals are -1, Bible document). */
-    private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: org.crosswire.jsword.passage.Key?): SelectionContent {
+    private fun extractWholePageContent(book: SwordBook, selection: Selection, pageKey: Key?): SelectionContent {
         val keyToUse = selection.osisRef?.let {
             try { book.getKey(it) } catch (e: Exception) {
                 Log.w(TAG, "Could not parse osisRef: $it", e)
@@ -354,7 +359,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     }
 
     /** Extract content for ordinal-based selection mode. */
-    private fun extractSelectionContent(book: org.crosswire.jsword.book.Book?, selection: Selection, pageKey: org.crosswire.jsword.passage.Key?): SelectionContent {
+    private fun extractSelectionContent(book: Book?, selection: Selection, pageKey: Key?): SelectionContent {
         val ordinalRange = selection.startOrdinal..selection.endOrdinal
 
         val verseRange = if (book is SwordBook && book.bookCategory == BookCategory.BIBLE) {
@@ -459,16 +464,16 @@ object AgentSessionManager : AgentSessionManagerBase() {
         val windowRepository = windowControl.windowRepository
         val activeWindowId = windowRepository.activeWindow.id
         val windows = windowRepository.windowList
-            .filter { it.windowState != net.bible.android.control.page.window.WindowLayout.WindowState.CLOSED }
+            .filter { it.windowState != WindowState.CLOSED }
 
-        val visible = windows.filter { it.windowState == net.bible.android.control.page.window.WindowLayout.WindowState.VISIBLE }
-        val minimised = windows.filter { it.windowState == net.bible.android.control.page.window.WindowLayout.WindowState.MINIMISED }
+        val visible = windows.filter { it.windowState == WindowState.VISIBLE }
+        val minimised = windows.filter { it.windowState == WindowState.MINIMISED }
 
         return buildString {
             append("Workspace: ${windowRepository.name}\n")
             append("Windows: ${windows.size} total (${visible.size} visible, ${minimised.size} minimised)\n\n")
 
-            fun appendWindow(w: net.bible.android.control.page.window.Window) {
+            fun appendWindow(w: Window) {
                 val page = w.pageManager.currentPage
                 val doc = page.currentDocument
                 val key = page.key
