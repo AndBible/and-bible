@@ -1,0 +1,15 @@
+- Add German, Spanish, Polish, Greek, and partial Portuguese translations (2d9de69df)
+- Complete Swedish translations for all UI strings (12bca64cf)
+- Fix AI document pages not opening after creation (a38b62c03)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
