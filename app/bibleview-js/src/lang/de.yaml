@@ -18,6 +18,8 @@ footnoteTypeAlternative: Alternative
 footnoteTypeTranslation: Übersetzung
 clearLog: Lösche Fehlerprotokoll
 editTextPlaceholder: Antippen um Text zu bearbeiten
+myDocumentEdit: 'Seite bearbeiten'
+myDocumentEmptyPlaceholder: 'Tippen Sie hier, um diese Seite zu bearbeiten'
 inputPlaceholder: Hier schreiben
 inputReference: Querverweis einfügen
 invalidReference: Vers wurde nicht gefunden
@@ -38,9 +40,11 @@ referenceLink: Querverweis öffnen
 openFootnote: Fußnote öffnen
 noMyNotesTitle: Keine eigenen Notizen für dieses Kapitel.
 noMyNotesDescription: >
-  Beginne damit, Lesezeichen in einem Bibeldokument zu erstellen. Die Lesezeichen werden hier erscheinen und du kannst dann deine persönlichen Notizen dazu hinzufügen.
+  Erstellen Sie zunächst Lesezeichen in einem Bibeldokument.
+  Die Lesezeichen erscheinen dann hier und Sie können Ihre persönlichen Notizen hinzufügen.
 emptyStudyPad: >
-  Leere Studienmappe. Füge dieser Studienmappe Text hinzu oder erstelle Lesezeichen in einer Kategorien, die mit dieser Studienmappe verknüpft ist.
+  Leerer Studienblock. Beginnen Sie, indem Sie hier Texteinträge erstellen
+  oder Lesezeichen mit einer Kategorie erstellen, die diesem Studienblock entspricht.
 doYouWantToDeleteEntry: "Diesen Studienmappeneintrag löschen?"
 removeStudyPadConfirmationTitle: "Studienmappeneintrag entfernen?"
 dragHelp: Zum Umordnen Ziehen
@@ -60,38 +64,61 @@ verseCompare: Vergleiche
 verseMemorize: Auswendig lernen
 verseNote: Notiz
 verseMyNotes: Eigene Notizen
-verseParagraphBreak: ""
+verseParagraphBreak: 'Absatz'
 verseShareLong: Diesen Vers teilen
 verseCompareLong: Vers vergleichen
 verseMemorizeLong: Bibelverse auswendig lernen
+addMemorizationTarget: 'Ziel +'
+addMemorizationTargetLong: 'Als Auswendiglernziel festlegen'
+removeMemorizationTarget: 'Ziel -'
+removeMemorizationTargetLong: 'Auswendiglernziel entfernen'
+markAsMemorized: 'Als auswendig gelernt markieren'
+markedAsMemorized: 'Auswendig gelernt'
+removeFromTargets: 'Ziel -'
+viewReadingProgress: 'Lese-/Lernfortschritt'
+viewReadingProgressSettings: 'Lese-/Lerneinstellungen'
+listenInLoop: 'In Schleife anhören'
 verseNoteLong: Eine Notiz schreiben
 verseParagraphBreakLong: Absatzumbruch
 addBookmark: Lesezeichen
 selectCustomIconTitle: Benutzerdefiniertes Markierungssymbol auswählen
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: Zurücksetzen
-peek: ""
-wordBlur: ""
-wordScramble: ""
+bookmarkSettingsTitle: 'Lesezeicheneinstellungen konfigurieren'
+subtitlePlaceholder: 'Untertiteltext'
+customIconLabel: 'Benutzerdefiniertes Symbol'
+editActionLabel: 'Aktion bearbeiten'
+editActionModeLabel: 'Modus'
+editActionModeNone: 'Keine'
+editActionModeAppend: 'Text anhängen'
+editActionModePrepend: 'Text voranstellen'
+editActionContentLabel: 'Inhalt'
+editActionContentPlaceholder: 'Text eingeben, der dem Dokument hinzugefügt werden soll...'
+experimentalFeatureTitle: 'Experimentell'
+experimentalFeatureHelpTitle: 'Über experimentelle Funktionen'
+experimentalFeatureHelpContent: 'Experimentelle Funktionen sind neue Möglichkeiten, die sich noch in der Entwicklung und im Test befinden. Sie funktionieren möglicherweise nicht einwandfrei und können sich in zukünftigen App-Versionen erheblich ändern oder entfernt werden.'
+insertParagraphBreak: 'Absatzumbruch einfügen'
+insertSubtitle: 'Untertitel einfügen'
+xmlParseError: 'XML-Analysefehler'
+invalidTag: 'Ungültiges Tag'
+invalidClosingTag: 'Ungültiges schließendes Tag'
+unmatchedClosingTag: 'Nicht übereinstimmendes schließendes Tag'
+unclosedTag: 'Nicht geschlossenes Tag'
+unknownError: 'Unbekannter Fehler'
+wordBlur: 'Unschärfe'
+wordScramble: 'Durchmischen'
+wordType: 'Typ'
+wordOrder: 'Reihenfolge'
+typeEverything: 'Vollständige Wörter eingeben'
+tapToStartTyping: 'Hier tippen, um zu beginnen'
+wordVisibility: 'Wortsichtbarkeit'
+wordVisibilityLight: 'Hell'
+wordVisibilityDim: 'Gedimmt'
+wordVisibilityHidden: 'Ausgeblendet'
+errorHeatmap: 'Fehlerheatmap'
+hideUsedButtons: 'Verwendete Wortschaltflächen ausblenden'
 more: Mehr
+llmAction: 'KI'
+llmActionLong: 'KI-Aktion'
+aiDocumentRegenerate: 'Neu generieren'
+aiDocumentDelete: 'Löschen'
+aiGeneratedBy: 'Generiert von %s'
+aiGeneratedByWithModel: 'Generiert von %s (%s)'

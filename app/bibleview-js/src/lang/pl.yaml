@@ -18,6 +18,8 @@ footnoteTypeAlternative: alternatywa
 footnoteTypeTranslation: tłumaczenie
 clearLog: Wymaż dziennik błędów
 editTextPlaceholder: "Stuknij, aby edytować"
+myDocumentEdit: Edytuj stronę
+myDocumentEmptyPlaceholder: Dotknij, aby rozpocząć edycję tej strony
 inputPlaceholder: Pisz tutaj
 inputReference: Wprowadź odsyłacz biblijny
 invalidReference: Nie znaleziono wersetu
@@ -64,6 +66,16 @@ verseParagraphBreak: Akapit
 verseShareLong: Udostępnij werset
 verseCompareLong: Porównaj werset
 verseMemorizeLong: Ucz się wersetów biblijnych na pamięć
+addMemorizationTarget: 'Cel +'
+addMemorizationTargetLong: Ustaw jako cel zapamiętywania
+removeMemorizationTarget: 'Cel -'
+removeMemorizationTargetLong: Usuń cel zapamiętywania
+markAsMemorized: Oznacz jako zapamiętane
+markedAsMemorized: Zapamiętane
+removeFromTargets: 'Cel -'
+viewReadingProgress: Postęp czytania/nauki
+viewReadingProgressSettings: Ustawienia czytania/nauki
+listenInLoop: Słuchaj w pętli
 verseNoteLong: Napisz notatkę
 verseParagraphBreakLong: Dodaj nową linię
 addBookmark: Zakładka
@@ -89,9 +101,22 @@ invalidClosingTag: Nieprawidłowy znacznik zamykający
 unmatchedClosingTag: Niepasujący znacznik zamykający
 unclosedTag: Niezamknięty znacznik
 unknownError: Nieznany błąd
-blur: Zasłoń
-reset: Reset
-peek: Podglądnij
 wordBlur: Zasłoń słowa
 wordScramble: Pomieszaj słowa
+wordType: Typ
+wordOrder: Kolejność
+typeEverything: Wpisz całe słowa
+tapToStartTyping: Dotknij tutaj, aby rozpocząć pisanie
+wordVisibility: Widoczność słów
+wordVisibilityLight: Jasne
+wordVisibilityDim: Przyciemnione
+wordVisibilityHidden: Ukryte
+errorHeatmap: Mapa błędów
+hideUsedButtons: Ukryj użyte przyciski słów
 more: Więcej
+llmAction: AI
+llmActionLong: Akcja AI
+aiDocumentRegenerate: Wygeneruj ponownie
+aiDocumentDelete: Usuń
+aiGeneratedBy: "Wygenerowane przez %s"
+aiGeneratedByWithModel: "Wygenerowane przez %s (%s)"
