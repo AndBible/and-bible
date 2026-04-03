@@ -95,3 +95,31 @@ peek: Kika
 wordBlur: Sudda ord
 wordScramble: Rada ord
 more: Mer
+addMemorizationTarget: Mål +
+addMemorizationTargetLong: Ange som memoreringsmål
+aiDocumentDelete: Ta bort
+aiDocumentRegenerate: Återskapa
+aiGeneratedBy: Genererad av %s
+aiGeneratedByWithModel: "Genererad av %s (%s)"
+errorHeatmap: Felkarta
+hideUsedButtons: Dölj använda ordknappar
+listenInLoop: Lyssna i loop
+llmAction: AI
+llmActionLong: AI-åtgärd
+markAsMemorized: Markera som memorerad
+markedAsMemorized: Memorerad
+myDocumentEdit: Redigera sida
+myDocumentEmptyPlaceholder: Tryck för att börja redigera den här sidan
+removeFromTargets: Mål -
+removeMemorizationTarget: Mål -
+removeMemorizationTargetLong: Ta bort memoreringsmål
+tapToStartTyping: Tryck här för att börja skriva
+typeEverything: Skriv hela ord
+viewReadingProgress: Läs-/memoreringsframsteg
+viewReadingProgressSettings: Läs-/memoreringsinställningar
+wordOrder: Ordning
+wordType: Typ
+wordVisibility: Ordsynlighet
+wordVisibilityDim: Nedtonad
+wordVisibilityHidden: Dold
+wordVisibilityLight: Ljus

@@ -2,8 +2,8 @@
 bookmarks: Marcadores
 bookmarksAndNotes: Marcadores y Mis Notas
 openMyNotes: Abrir en Mis Notas
-openStudyPad: Abrir en Pizarra de Estudio (%s)
-noteText: Notas al pie (%s)
+openStudyPad: "Abrir en Pizarra de Estudio (%s)"
+noteText: "Notas al pie (%s)"
 noteTextWithoutType: Notas al pie
 crossReferenceText: Referencias cruzadas
 findAllOccurrences: Encuentra todas las coincidencias
@@ -18,18 +18,20 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traduccion
 clearLog: Borrar errores
 editTextPlaceholder: Toca para editar el texto
+myDocumentEdit: Editar página
+myDocumentEmptyPlaceholder: Toca para empezar a editar esta página
 inputPlaceholder: Escriba aqui
 inputReference: Ingrese la referencia de la Biblia
 invalidReference: Verso no encontrado
-bookmarkAccurate: El marcador se creó en %s
+bookmarkAccurate: "El marcador se creó en %s"
 bookmarkInaccurate: "La información del libro de marcadores no se almacena, el contenido se muestra en %s."
 defaultBook: documento Bíblico predeterminada
 ok: OK
 yes: "Sí"
-ambiguousSelection: "¿Qué acción desea realizar?"
+ambiguousSelection: ¿Qué acción desea realizar?
 cancel: Cancelar
-removeBookmarkConfirmationTitle: "¿Eliminar marcador?"
-removeBookmarkConfirmation: "¿Seguro que quiere eliminar este marcador?"
+removeBookmarkConfirmationTitle: ¿Eliminar marcador?
+removeBookmarkConfirmation: ¿Seguro que quiere eliminar este marcador?
 createdAt: "Creado: %s"
 lastUpdatedOn: "Última actualización: %s"
 strongsAndMorph: Definición y morfología
@@ -37,12 +39,12 @@ externalLink: Abrir enlace externo
 referenceLink: Abrir enlace de referencia
 openFootnote: Abrir nota al pie
 noMyNotesTitle: No existen Mis Notas en este capítulo.
-noMyNotesDescription: >
-  Comience creando marcadores en un documento bíblico. Los marcadores aparecerán aquí y podrá agregarles sus notas personales.
-emptyStudyPad: >
-  Bloc de estudio vacía. Comience a agregar elementos a este bloc de estudio creando entradas de texto aquí o creando marcadores con una etiqueta de marcador que se corresponda con este bloc de estudio.
-doYouWantToDeleteEntry: "¿Eliminar esta pizarra de estudio?"
-removeStudyPadConfirmationTitle: "¿Eliminar la entrada del bloc de estudio?"
+noMyNotesDescription: Comience creando marcadores en un documento bíblico. Los marcadores aparecerán aquí y podrá agregarles sus notas personales.
+
+emptyStudyPad: Bloc de estudio vacía. Comience a agregar elementos a este bloc de estudio creando entradas de texto aquí o creando marcadores con una etiqueta de marcador que se corresponda con este bloc de estudio.
+
+doYouWantToDeleteEntry: ¿Eliminar esta pizarra de estudio?
+removeStudyPadConfirmationTitle: ¿Eliminar la entrada del bloc de estudio?
 dragHelp: Arrastre para reordenar
 openAll: Abrir todas las referencias
 editBookmarkPlaceholder: Toque para editar Mis Notas para este marcador
@@ -52,7 +54,7 @@ assignLabelsMenuEntry1: Seleccionar o editar etiquetas...
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recientes
 bookmarkLabels: Etiquetas de marcador
-refParserHelp: Instale el módulo %s para utilizar referencias en idiomas distintos del Inglés.
+refParserHelp: "Instale el módulo %s para utilizar referencias en idiomas distintos del Inglés."
 openDownloads: Ir a descargas de complementos
 verseShare: Compartir
 verseSpeak: Con voz
@@ -64,6 +66,16 @@ verseParagraphBreak: Párrafo
 verseShareLong: Compartir este versículo
 verseCompareLong: Comparar versículo
 verseMemorizeLong: Memorizar versículos de la Biblia
+addMemorizationTarget: Meta +
+addMemorizationTargetLong: Establecer como meta de memorización
+removeMemorizationTarget: Meta -
+removeMemorizationTargetLong: Eliminar meta de memorización
+markAsMemorized: Marcar como memorizado
+markedAsMemorized: Memorizado
+removeFromTargets: Meta -
+viewReadingProgress: Progreso de lectura/memorización
+viewReadingProgressSettings: Ajustes de lectura/memorización
+listenInLoop: Escuchar en bucle
 verseNoteLong: Escribir una nota
 verseParagraphBreakLong: Salto de párrafo
 addBookmark: Marcador
@@ -89,9 +101,22 @@ invalidClosingTag: Etiqueta de cierre no válida
 unmatchedClosingTag: Etiqueta de cierre no coincidente
 unclosedTag: Etiqueta sin cerrar
 unknownError: Error desconocido
-blur: Desenfoque
-reset: Restablecer
-peek: Mirar
 wordBlur: Desenfoque de palabras
 wordScramble: Revuelve las palabras
+wordType: Tipo
+wordOrder: Orden
+typeEverything: Escribe las palabras completas
+tapToStartTyping: Toca aquí para empezar a escribir
+wordVisibility: Visibilidad de palabras
+wordVisibilityLight: Sutil
+wordVisibilityDim: Tenue
+wordVisibilityHidden: Oculto
+errorHeatmap: Mapa de calor de errores
+hideUsedButtons: Ocultar botones de palabras usadas
 more: Más
+llmAction: IA
+llmActionLong: Acción de IA
+aiDocumentRegenerate: Regenerar
+aiDocumentDelete: Eliminar
+aiGeneratedBy: "Generado por %s"
+aiGeneratedByWithModel: "Generado por %s (%s)"
