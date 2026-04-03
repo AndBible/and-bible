@@ -21,10 +21,12 @@
 
 <script setup lang="ts">
 import {useCommon} from "@/composables";
+import {emit} from "@/eventbus";
 
 defineProps<{href: string}>();
 
 function openLink(event: MouseEvent, url: string) {
+    emit("set_scroll_anchor", event.target as HTMLElement);
     window.location.assign(url);
 }
 

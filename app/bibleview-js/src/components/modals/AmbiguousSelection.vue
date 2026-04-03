@@ -301,6 +301,11 @@ function minusKeyPressed() {
 }
 async function handle(event: MouseEvent) {
     console.log("AmbiguousSelection handling", event);
+    // Set scroll anchor for link clicks (preserves visibility when links window opens)
+    const clickedLink = (event.target as HTMLElement)?.closest("a");
+    if (clickedLink) {
+        emit("set_scroll_anchor", clickedLink as HTMLElement);
+    }
     const isActive = appSettings.activeWindow && (performance.now() - appSettings.activeSince > 250);
     const eventFunctions = getHighestPriorityEventFunctions(event);
     const allEventFunctions = getAllEventFunctions(event).filter(e => config.showBookmarks || !e.options.bookmarkId);

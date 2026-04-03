@@ -17,7 +17,7 @@
 
 import {computed, nextTick, ref, Ref, watch} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {isInViewport, setupWindowEventListener} from "@/utils";
+import {isInViewport, setupWindowEventListener, waitNextAnimationFrame} from "@/utils";
 import {AppSettings, CalculatedConfig, Config} from "@/composables/config";
 import {useOrdinalHighlight} from "@/composables/ordinal-highlight";
 import {Nullable} from "@/types/common";
@@ -245,6 +245,43 @@ export function useScroll(
     setupEventBusListener("set_offsets", setToolbarOffset)
     setupEventBusListener("scroll_to_verse", scrollToId)
     setupEventBusListener("setup_content", setupContent)
+
+    // Scroll anchor: preserves clicked element visibility when viewport shrinks (e.g. links window opens)
+    let scrollAnchorElement: HTMLElement | null = null;
+    let scrollAnchorCleanupTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    function clearScrollAnchor() {
+        scrollAnchorElement = null;
+        if (scrollAnchorCleanupTimeout) {
+            clearTimeout(scrollAnchorCleanupTimeout);
+            scrollAnchorCleanupTimeout = null;
+        }
+    }
+
+    function setScrollAnchor(element: HTMLElement) {
+        clearScrollAnchor();
+        scrollAnchorElement = (element.closest('.ordinal') as HTMLElement) || element;
+        scrollAnchorCleanupTimeout = setTimeout(clearScrollAnchor, 3000);
+    }
+
+    setupEventBusListener("set_scroll_anchor", setScrollAnchor);
+
+    setupWindowEventListener('resize', async () => {
+        if (!scrollAnchorElement) return;
+        await waitNextAnimationFrame();
+        if (!scrollAnchorElement) return;
+        const rect = scrollAnchorElement.getBoundingClientRect();
+        const viewTop = calculatedConfig.value.topOffset;
+        const viewBottom = window.innerHeight;
+
+        if (rect.bottom < viewTop || rect.top > viewBottom) {
+            const elementTop = rect.top + window.scrollY;
+            const targetY = elementTop - viewTop - (viewBottom - viewTop) / 3;
+            window.scrollTo(0, Math.max(0, targetY));
+        }
+        clearScrollAnchor();
+    });
+
     return {scrollToId, isScrolling, doScrolling, scrollYAtStart, scrollY}
 }
 

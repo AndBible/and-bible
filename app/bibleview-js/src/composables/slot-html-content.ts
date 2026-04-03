@@ -16,6 +16,7 @@
  */
 
 import {onMounted, ref, watch} from "vue";
+import {emit} from "@/eventbus";
 
 /**
  * DOMPurify config that allows AndBible's custom URI schemes (sword://, osis://, etc.)
@@ -57,6 +58,7 @@ export function useSlotHtmlContent() {
             event.preventDefault();
             const href = link.getAttribute("href");
             if (href) {
+                emit("set_scroll_anchor", link);
                 window.location.assign(href);
             }
         }
