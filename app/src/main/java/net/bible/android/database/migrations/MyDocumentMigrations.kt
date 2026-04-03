@@ -23,16 +23,7 @@ private val addSourceModelName = makeMigration(1..2) { db ->
     db.execSQL("ALTER TABLE `AiPageCacheEntry` ADD COLUMN `sourceModelName` TEXT DEFAULT NULL")
     // Recreate view to include the new column (SQL must match Room's expected output exactly)
     db.execSQL("DROP VIEW IF EXISTS `AiCachedPageWithContent`")
-    db.execSQL("""
-        CREATE VIEW `AiCachedPageWithContent` AS
-        SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,
-               c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,
-               p.title, p.pageKey, p.contentType, p.documentId,
-               p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content
-        FROM AiPageCacheEntry c
-        INNER JOIN MyDocumentPage p ON c.pageId = p.id
-        LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId
-    """.trimIndent())
+    db.execSQL("CREATE VIEW `AiCachedPageWithContent` AS SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,\n           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,\n           p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId")
 }
 
 private val addOrdinalRangeIndex = makeMigration(2..3) { db ->
