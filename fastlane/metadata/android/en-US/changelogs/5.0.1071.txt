@@ -1,0 +1,15 @@
+- Preserve clicked link visibility when links window opens (a876bd3c2)
+- Fix crash when opening deleted AI document page from BibleView (5283cb288)
+- Fix AI system memory leak when deleting workspaces (995a507fb)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
