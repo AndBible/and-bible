@@ -18,6 +18,8 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Tradução
 clearLog: Limpar o registo de erros
 editTextPlaceholder: Toque para editar o texto
+myDocumentEdit: Editar página
+myDocumentEmptyPlaceholder: Toque para começar a editar esta página
 inputPlaceholder: Escreva aqui
 inputReference: Introduza a referência Bíblica
 invalidReference: Não foi encontrado o versículo
@@ -64,6 +66,16 @@ verseParagraphBreak: Parágrafo
 verseShareLong: Partilhar este versículo
 verseCompareLong: Comparar versículo
 verseMemorizeLong: Memorizar versículos da Bíblia
+addMemorizationTarget: Objetivo +
+addMemorizationTargetLong: Definir como objetivo de memorização
+removeMemorizationTarget: Objetivo -
+removeMemorizationTargetLong: Remover objetivo de memorização
+markAsMemorized: Marcar como memorizado
+markedAsMemorized: Memorizado
+removeFromTargets: Objetivo -
+viewReadingProgress: Progresso de Leitura/Memorização
+viewReadingProgressSettings: Definições de Leitura/Memorização
+listenInLoop: Ouvir em ciclo
 verseNoteLong: Escreva uma nota
 verseParagraphBreakLong: Quebra de parágrafo
 addBookmark: Marcador
@@ -89,9 +101,22 @@ invalidClosingTag: Tag de encerramento inválida
 unmatchedClosingTag: Tag de fechamento sem par
 unclosedTag: Tag não fechada
 unknownError: Erro desconhecido
-blur: Borrão
-reset: Reiniciar
-peek: Espreitar
-wordBlur: Borrão de palavras
+wordBlur: Borrão
 wordScramble: Caça palavras
+wordType: Digitar
+wordOrder: Ordem
+typeEverything: Digitar palavras completas
+tapToStartTyping: Toque aqui para começar a digitar
+wordVisibility: Visibilidade das palavras
+wordVisibilityLight: Claro
+wordVisibilityDim: Esbatido
+wordVisibilityHidden: Oculto
+errorHeatmap: Mapa de erros
+hideUsedButtons: Ocultar botões já usados
 more: Mais
+llmAction: IA
+llmActionLong: Ação de IA
+aiDocumentRegenerate: Regenerar
+aiDocumentDelete: Apagar
+aiGeneratedBy: "Gerado por %s"
+aiGeneratedByWithModel: "Gerado por %s (%s)"

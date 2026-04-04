@@ -1506,7 +1506,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
     <string name="prompt_description">Kuvaus</string>
     <string name="prompt_template">Kehotepohja</string>
     <string name="prompt_show_in">Näytä kohteessa</string>
-    <string name="prompt_context_verse_selection">Jakevalinta</string>
+    <string name="prompt_context_verse_selection">Jaevalinta</string>
     <string name="prompt_context_text_selection">Tekstivalinta</string>
     <string name="prompt_context_window_menu">Ikkunan valikko</string>
     <string name="prompt_context_workspace_menu">Työtilan valikko</string>
@@ -1786,7 +1786,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
 
     <!-- LLM One Tap Actions -->
     <string name="select_llm_prompt">Valitse tekoälytoiminto</string>
-    <string name="no_llm_prompts_configured">Tekoälykehotteita ei ole määritetty jakevalinnalle</string>
+    <string name="no_llm_prompts_configured">Tekoälykehotteita ei ole määritetty jaevalinnalle</string>
     <string name="llm_prompt_executing">Suoritetaan tekoälykehotetta: %s</string>
     <string name="llm_actions">Tekoälytoiminnot</string>
 

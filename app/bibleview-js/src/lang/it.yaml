@@ -18,6 +18,8 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Traduzione
 clearLog: Pulisci il registro degli errori
 editTextPlaceholder: Tocca per modificare il testo
+myDocumentEdit: Modifica pagina
+myDocumentEmptyPlaceholder: Tocca per iniziare a modificare questa pagina
 inputPlaceholder: Scrivi qui
 inputReference: Inserisci un riferimento biblico
 invalidReference: Versetto non trovato
@@ -25,7 +27,7 @@ bookmarkAccurate: Segnalibro creato in %s
 bookmarkInaccurate: "Informazioni del segnalibro non salvate, il contenuto è mostrato in %s."
 defaultBook: documento Bibbia predefinito
 ok: OK
-yes: "Si"
+yes: "Sì"
 ambiguousSelection: "Quale azione vuoi eseguire?"
 cancel: Annulla
 removeBookmarkConfirmationTitle: "Cancellare il segnalibro?"
@@ -64,6 +66,16 @@ verseParagraphBreak: Paragrafo
 verseShareLong: Condividi questo verso
 verseCompareLong: Confronta verso
 verseMemorizeLong: Memorizza versi della Bibbia
+addMemorizationTarget: Obiettivo +
+addMemorizationTargetLong: Imposta come obiettivo di memorizzazione
+removeMemorizationTarget: Obiettivo -
+removeMemorizationTargetLong: Rimuovi obiettivo di memorizzazione
+markAsMemorized: Segna come memorizzato
+markedAsMemorized: Memorizzato
+removeFromTargets: Obiettivo -
+viewReadingProgress: Progresso lettura/memorizzazione
+viewReadingProgressSettings: Impostazioni lettura/memorizzazione
+listenInLoop: Ascolta in loop
 verseNoteLong: Scrivi una nota
 verseParagraphBreakLong: Interruzione di paragrafo
 addBookmark: Segnalibro
@@ -89,9 +101,22 @@ invalidClosingTag: Tag di chiusura non valido
 unmatchedClosingTag: Tag di chiusura non corrispondente
 unclosedTag: Tag non chiuso
 unknownError: Errore sconosciuto
-blur: Sfoca
-reset: Ripristina
-peek: Sbircia
 wordBlur: Sfoca parola
 wordScramble: Mescola parola
+wordType: Tipo
+wordOrder: Ordine
+typeEverything: Digita le parole per intero
+tapToStartTyping: Tocca qui per iniziare a digitare
+wordVisibility: Visibilità parole
+wordVisibilityLight: Chiaro
+wordVisibilityDim: Attenuato
+wordVisibilityHidden: Nascosto
+errorHeatmap: Mappa degli errori
+hideUsedButtons: Nascondi i pulsanti delle parole usate
 more: Di più
+llmAction: IA
+llmActionLong: Azione IA
+aiDocumentRegenerate: Rigenera
+aiDocumentDelete: Elimina
+aiGeneratedBy: "Generato da %s"
+aiGeneratedByWithModel: "Generato da %s (%s)"
