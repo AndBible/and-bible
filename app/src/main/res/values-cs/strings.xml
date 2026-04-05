@@ -47,7 +47,7 @@
   <string name="rebuild_index_button">Znovu vytvořit</string>
   <string name="creating_index_for">Vytváří se index pro %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">Výsledkem %1$s je %2$s</string>
+  <string name="search_with_results2">%1$s výsledků v %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>

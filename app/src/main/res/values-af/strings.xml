@@ -764,7 +764,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_no_content">Geen inhoud vir geselekteerde vers</string>
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
-  <string name="error_key_not_in_document2">%1$s is nie in dokument gevind nie %2$s.</string>  <string name="empty_list">Geen items om te wys</string>
+  <string name="error_key_not_in_document2">%1$s is nie in dokument %2$s gevind nie.</string>  <string name="empty_list">Geen items om te wys</string>
   <string name="error_skip">Vermy</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>

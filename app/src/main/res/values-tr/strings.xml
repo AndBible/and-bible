@@ -47,7 +47,7 @@
   <string name="rebuild_index_button">Yeniden oluştur</string>
   <string name="creating_index_for">%s için dizin yeniden oluşturuluyor…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1$s içinde %2$s sonuç</string>
+  <string name="search_with_results2">%2$s içinde %1$s sonuç</string>
     <!-- Tasks -->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
