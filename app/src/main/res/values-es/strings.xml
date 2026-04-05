@@ -67,8 +67,7 @@
     <string name="rebuild_index_button">Reconstruir</string>
     <string name="creating_index_for">Crear índice para %s…</string>
     <!-- X results in module Y -->
-    <string name="search_with_results2">%1s resultados en %2s</string>
-
+    <string name="search_with_results2">%1$s resultados en %2$s</string>
     <!-- Tasks -->
     <string name="progress_status">Progreso</string>
     <string name="task_kill_warning">Estas tareas de larga duración pueden interrumpirse si cambia a otra aplicación antes de que terminen.</string>
@@ -648,8 +647,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
     <string-array name="speak_divinename_original">
-        <item>Lord</item>
-        <item>God</item>
+        <item>Señor</item>
+        <item>Dios</item>
         <item/>
         <item/>
         <item/>
@@ -660,8 +659,8 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
     <string-array name="speak_divinename_replace">
-        <item>Yahweh</item>
-        <item>Yahweh</item>
+        <item>Yahvé</item>
+        <item>Yahvé</item>
         <item/>
         <item/>
         <item/>
@@ -804,8 +803,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
     <string name="error_no_content">No hay contenido para el verso seleccionado</string>
     <string name="error_page_too_large">La página es muy grande como para ser cargada</string>
     <string name="error_key_not_in_document">No encontrado en el documento</string>
-    <string name="error_key_not_in_document2">%s no se encontró en el documento %s.</string>
-    <string name="empty_list">No hay ítems para mostrar</string>
+    <string name="error_key_not_in_document2">%1$s no se encontró en el documento %2$s.</string>    <string name="empty_list">No hay ítems para mostrar</string>
     <string name="error_skip">Saltar</string>
     <string name="bug_report_email_title">Enviar informe de fallo por correo electrónico</string>
     <string name="bug_report_email_text">A continuación, por favor seleccione su aplicación de correo preferida (por ejemplo Gmail) para enviar el informe al equipo de desarrollo.</string>
@@ -1145,16 +1143,12 @@ informe los problemas a los mantenedores de texto
     <string name="reset_something">Restablecer: %1$s</string>
     <string name="export">Exportar</string>
     <string name="csv_export_success">%d favoritos exportados a CSV</string>
-    <string name="csv_import_success">Importación completada: %d creado, %d actualizado</string>
-    <string name="csv_import_errors">Importación completada con errores: %d creados, %d actualizados, %d errores</string>
-    <string name="csv_import_failed">La importación CSV ha fallado: %s</string>
+    <string name="csv_import_success">Importación completada: %1$d creado, %2$d actualizado</string>    <string name="csv_import_errors">Importación completada con errores: %1$d creados, %2$d actualizados, %3$d errores</string>    <string name="csv_import_failed">La importación CSV ha fallado: %s</string>
     <string name="csv_export_failed">Error al exportar CSV: %s</string>
     <string name="export_prompts_csv">Exportar indicaciones a CSV</string>
     <string name="import_prompts_csv">Importar indicaciones desde CSV</string>
     <string name="prompts_csv_export_success">Se exportaron %d indicaciones a CSV</string>
-    <string name="prompts_csv_import_success">Importación completada: %d creadas, %d actualizadas</string>
-    <string name="prompts_csv_import_errors">Importación completada con errores: %d creadas, %d actualizadas, %d errores</string>
-    <string name="prompts_csv_import_failed">Error al importar CSV: %s</string>
+    <string name="prompts_csv_import_success">Importación completada: %1$d creadas, %2$d actualizadas</string>    <string name="prompts_csv_import_errors">Importación completada con errores: %1$d creadas, %2$d actualizadas, %3$d errores</string>    <string name="prompts_csv_import_failed">Error al importar CSV: %s</string>
     <string name="prompts_csv_export_failed">Error al exportar CSV: %s</string>
     <string name="no_prompts_to_export">No hay indicaciones de usuario para exportar</string>
     <string name="csv_column_selection_title">Seleccionar columnas CSV</string>

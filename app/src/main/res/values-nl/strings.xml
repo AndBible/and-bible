@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Opnieuw bouwen</string>
   <string name="creating_index_for">Index maken voor %s...</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s resulteert in %2s</string>
-
+  <string name="search_with_results2">%1$s resulteert in %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Voortgang</string>
   <string name="task_kill_warning">Deze langlopende taken kunnen beëindigd worden als je overschakelt naar een andere app.</string>
@@ -757,8 +756,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="error_no_content">Het geselecteerde vers bevat geen inhoud</string>
   <string name="error_page_too_large">De pagina is te groot om te worden geladen</string>
   <string name="error_key_not_in_document">Niet aangetroffen in het document</string>
-  <string name="error_key_not_in_document2">%s is niet gevonden in document %s.</string>
-  <string name="empty_list">Geen te tonen items</string>
+  <string name="error_key_not_in_document2">%1$s is niet gevonden in document %2$s.</string>  <string name="empty_list">Geen te tonen items</string>
   <string name="error_skip">Overslaan</string>
   <string name="bug_report_email_title">Stuur bug rapport via email</string>
   <string name="bug_report_email_text">Selecteer uw email programma (bijvoorbeeld Gmail) om het rapport aan het team van ontwikkelaars te sturen.</string>
@@ -1076,16 +1074,12 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="reset_something">Sıfırla: %1$s</string>
   <string name="export">Dışa aktar</string>
   <string name="csv_export_success">%d yer imi CSV\'ye dışa aktarıldı</string>
-  <string name="csv_import_success">İçe aktarma tamamlandı: %d oluşturuldu, %d güncellendi</string>
-  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %d oluşturuldu, %d güncellendi, %d hata</string>
-  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="export_prompts_csv">İstemleri CSV\'ye dışa aktar</string>
   <string name="import_prompts_csv">İstemleri CSV\'den içe aktar</string>
   <string name="prompts_csv_export_success">%d istem CSV\'ye dışa aktarıldı</string>
-  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %d oluşturuldu, %d güncellendi</string>
-  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %d oluşturuldu, %d güncellendi, %d hata</string>
-  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="prompts_csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="no_prompts_to_export">Dışa aktarılacak kullanıcı istemi yok</string>
   <string name="csv_column_selection_title">CSV Sütunlarını Seçin</string>

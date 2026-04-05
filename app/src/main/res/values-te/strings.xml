@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">పునర్నిర్మించండి</string>
   <string name="creating_index_for">%s కోసం సూచికను సృష్టిస్తోంది</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s %2sగాను పరిణమిస్తుంది</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s %2$sగాను పరిణమిస్తుంది</string>  <!--Tasks-->
   <string name="progress_status">పురోగతి</string>
   <string name="task_kill_warning">ఎక్కువ సమయం తీసుకొనే ఇ కార్యాలు పూర్తయ్యేలోపు మీరు మరొక అప్లికేషన్‌కి మారితే అవి ఆగిపోవచ్చు.</string>
   <string name="no_tasks_running">ప్రస్తుతం జరుగుతున్న పనులు ఏవీ లేవు.</string>
@@ -628,8 +627,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="error_no_content">ఎంపిక చేసిన వచనానికి కాంటెంట్ లేదు</string>
   <string name="error_page_too_large">లోడ్ చేయలేనంత పెద్ద పేజి</string>
   <string name="error_key_not_in_document">డాక్యుమెంటులో లేదు</string>
-  <string name="error_key_not_in_document2">పత్రం %sలో %s కనుగొనబడలేదు.</string>
-  <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
+  <string name="error_key_not_in_document2">పత్రం %1$sలో %2$s కనుగొనబడలేదు.</string>  <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <string name="error_skip">దాటవేయండి</string>
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>

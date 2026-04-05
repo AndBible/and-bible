@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">Rekrei</string>
   <string name="creating_index_for">Kreado de indekso por %s…</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s rezultoj en %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s rezultoj en %2$s</string>  <!--Tasks-->
   <string name="progress_status">Progreso</string>
   <string name="task_kill_warning">Tiuj ĉi tempokupaj taskoj povas interrompiĝi, se vi iros al alia aplikaĵo antaŭ ol ili finiĝos.</string>
   <string name="no_tasks_running">Nune neniu tasko estas lanĉata.</string>
@@ -617,8 +616,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
-  <string name="error_key_not_in_document2">Ne trovis “%s” en %s.</string>
-  <string name="empty_list">Neniu elemento por montri</string>
+  <string name="error_key_not_in_document2">Ne trovis “%1$s” en %2$s.</string>  <string name="empty_list">Neniu elemento por montri</string>
   <string name="error_skip">Preterlasi</string>
   <string name="bug_report_email_title">Sendi erar-raporton per retpoŝto</string>
   <string name="bug_report_email_text">Sekve elektu vian preferatan retpoŝtilon (ekzemple Gmail) por sendi raporton al la programistoj.</string>
@@ -858,9 +856,7 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="import_menu">Enporti aŭ elporti</string>
   <string name="export">Elporti</string>
   <string name="csv_export_success">Elportis %d legosignojn al CSV</string>
-  <string name="csv_import_success">Finis enportadon: %d kreitaj, %d ĝisdatigitaj</string>
-  <string name="csv_import_errors">Finis enportadon kun eraroj: %d kreitaj, %d ĝisdatigitaj, %d eraroj</string>
-  <string name="csv_import_failed">Malsukcesis enporti CSV-dosieron: %s</string>
+  <string name="csv_import_success">Finis enportadon: %1$d kreitaj, %2$d ĝisdatigitaj</string>  <string name="csv_import_errors">Finis enportadon kun eraroj: %1$d kreitaj, %2$d ĝisdatigitaj, %3$d eraroj</string>  <string name="csv_import_failed">Malsukcesis enporti CSV-dosieron: %s</string>
   <string name="csv_export_failed">Malsukcesis elporti CSV-dosieron: %s</string>
   <string name="csv_column_selection_title">Elekti kolumnojn por CSV</string>
   <string name="choose_csv_file">Elekti CSV-dosieron por enporti</string>

@@ -67,7 +67,7 @@
     <string name="rebuild_index_button">Rebuild</string>
     <string name="creating_index_for">Creating index for %s…</string>
     <!-- X results in module Y -->
-    <string name="search_with_results2">%1s results in %2s</string>
+    <string name="search_with_results2">%1$s results in %2$s</string>
 
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -810,7 +810,7 @@
     <string name="error_no_content">No content for selected verse</string>
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
-    <string name="error_key_not_in_document2">%s was not found in document %s.</string>
+    <string name="error_key_not_in_document2">%1$s was not found in document %2$s.</string>
     <string name="empty_list">No items to display</string>
     <string name="error_skip">Skip</string>
     <string name="bug_report_email_title">Send bug report via email</string>
@@ -1154,15 +1154,15 @@
     <string name="reset_something">Reset: %1$s</string>
     <string name="export">Export</string>
     <string name="csv_export_success">Exported %d bookmarks to CSV</string>
-    <string name="csv_import_success">Import completed: %d created, %d updated</string>
-    <string name="csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
+    <string name="csv_import_success">Import completed: %1$d created, %2$d updated</string>
+    <string name="csv_import_errors">Import completed with errors: %1$d created, %2$d updated, %3$d errors</string>
     <string name="csv_import_failed">CSV import failed: %s</string>
     <string name="csv_export_failed">CSV export failed: %s</string>
     <string name="export_prompts_csv">Export prompts to CSV</string>
     <string name="import_prompts_csv">Import prompts from CSV</string>
     <string name="prompts_csv_export_success">Exported %d prompts to CSV</string>
-    <string name="prompts_csv_import_success">Import completed: %d created, %d updated</string>
-    <string name="prompts_csv_import_errors">Import completed with errors: %d created, %d updated, %d errors</string>
+    <string name="prompts_csv_import_success">Import completed: %1$d created, %2$d updated</string>
+    <string name="prompts_csv_import_errors">Import completed with errors: %1$d created, %2$d updated, %3$d errors</string>
     <string name="prompts_csv_import_failed">CSV import failed: %s</string>
     <string name="prompts_csv_export_failed">CSV export failed: %s</string>
     <string name="no_prompts_to_export">No user prompts to export</string>

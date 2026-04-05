@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Znovu vytvořit</string>
   <string name="creating_index_for">Vytváří se index pro %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">Výsledkem %1s je %2s</string>
-
+  <string name="search_with_results2">Výsledkem %1$s je %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
@@ -767,8 +766,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="error_no_content">Žádný obsah pro vybraný verš</string>
   <string name="error_page_too_large">Strana je pro načtení příliš velká</string>
   <string name="error_key_not_in_document">V dokumentu nenalezeno</string>
-  <string name="error_key_not_in_document2">%s se v dokumentu %s nenachází.</string>
-  <string name="empty_list">Žádné položky k zobrazení</string>
+  <string name="error_key_not_in_document2">%1$s se v dokumentu %2$s nenachází.</string>  <string name="empty_list">Žádné položky k zobrazení</string>
   <string name="error_skip">Přeskočit</string>
   <string name="bug_report_email_title">Nahlášení chyby emailem</string>
   <string name="bug_report_email_text">Dále prosím vyberte preferovanou mailovou aplikaci (například Gmail) pro poslání hlášení chyby vývojovému týmu.</string>
@@ -1108,16 +1106,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="reset_something">Sıfırla: %1$s</string>
   <string name="export">Dışa aktar</string>
   <string name="csv_export_success">%d yer imi CSV\'ye dışa aktarıldı</string>
-  <string name="csv_import_success">İçe aktarma tamamlandı: %d oluşturuldu, %d güncellendi</string>
-  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %d oluşturuldu, %d güncellendi, %d hata</string>
-  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="export_prompts_csv">İstemleri CSV\'ye dışa aktar</string>
   <string name="import_prompts_csv">İstemleri CSV\'den içe aktar</string>
   <string name="prompts_csv_export_success">%d istem CSV\'ye dışa aktarıldı</string>
-  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %d oluşturuldu, %d güncellendi</string>
-  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %d oluşturuldu, %d güncellendi, %d hata</string>
-  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="prompts_csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="no_prompts_to_export">Dışa aktarılacak kullanıcı istemi yok</string>
   <string name="csv_column_selection_title">CSV Sütunlarını Seçin</string>

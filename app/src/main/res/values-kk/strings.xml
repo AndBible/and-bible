@@ -41,8 +41,7 @@
   <string name="do_in_background">Артқы аясында жалғастыру</string>
   <string name="rebuild_index_button">Қайта құру</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s нәтиже береді %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s нәтиже береді %2$s</string>  <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Егер сіз тапсырмалардың соңына жетпей басқа қолдабаға ауыстарсаңыз, осы ұзақ жұмыс істейтін тапсырмалар тоқтатылуы мүмкін.</string>
   <string name="no_tasks_running">Қазір орындалып жатқан еш тапсырма жоқ.</string>
@@ -606,8 +605,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
   <string name="error_key_not_in_document">Құжатта табылмаған</string>
-  <string name="error_key_not_in_document2">%s құжатта табылмады%s.</string>
-  <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
+  <string name="error_key_not_in_document2">%1$s құжатта табылмады%2$s.</string>  <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
   <string name="error_skip">Өткізіп жіберу</string>
   <string name="bug_report_email_title">Қате туралы есепті электрондық пошта арқылы жіберіңіз</string>
   <string name="bug_report_email_text">Әрі қарай, әзірлеушілер тобына есепті жіберу үшін қалаған электрондық пошта қолданбасын (мысалы, Gmail) таңдаңыз.</string>

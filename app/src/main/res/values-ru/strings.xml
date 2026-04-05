@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">Перестроить</string>
   <string name="creating_index_for">Создаю индекс для %s…</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s результатов в %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s результатов в %2$s</string>  <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
@@ -508,8 +507,8 @@ http://www.heartlight.org, разрешение предоставлено
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_original">
-    <item>Lord</item>
-    <item>God</item>
+    <item>Господь</item>
+    <item>Бог</item>
     <item></item>
     <item></item>
     <item></item>
@@ -520,8 +519,8 @@ http://www.heartlight.org, разрешение предоставлено
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_replace">
-    <item>Yahweh</item>
-    <item>Yahweh</item>
+    <item>Яхве</item>
+    <item>Яхве</item>
     <item></item>
     <item></item>
     <item></item>
@@ -644,8 +643,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_no_content">В выбранных стихах нет содержания</string>
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
-  <string name="error_key_not_in_document2">%s не найдено в ресурсе %s.</string>
-  <string name="empty_list">Для отображения ничего нет</string>
+  <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>  <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>

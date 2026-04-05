@@ -43,8 +43,7 @@
   <string name="do_in_background">המשך ברקע</string>
   <string name="rebuild_index_button">בנייה-מחדש</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s תוצאות ב %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s תוצאות ב %2$s</string>  <!--Tasks-->
   <string name="progress_status">בתהליך</string>
   <string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
   <string name="no_tasks_running">אין משימות שפועלות כעת.</string>
@@ -599,8 +598,7 @@
   <string name="error_no_content">אין תוכן עבור הפסוק הנבחר</string>
   <string name="error_page_too_large">העמוד גדול מדי ולא ניתן לטעון אותו</string>
   <string name="error_key_not_in_document">לא נמצא</string>
-  <string name="error_key_not_in_document2">%s לא נמצא במסמך %s.</string>
-  <string name="empty_list">אין פריטים</string>
+  <string name="error_key_not_in_document2">%1$s לא נמצא במסמך %2$s.</string>  <string name="empty_list">אין פריטים</string>
   <string name="error_skip">דלג</string>
   <string name="bug_report_email_title">שלח דווח תקלה בדואל</string>
   <!--Notifications-->

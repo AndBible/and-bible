@@ -41,8 +41,7 @@
   <string name="do_in_background">Настави у позадини</string>
   <string name="rebuild_index_button">Поново изгради</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1sрезултата у %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$sрезултата у %2$s</string>  <!--Tasks-->
   <string name="progress_status">Напредак</string>
   <string name="task_kill_warning">Ови дуготрајни задаци могу бити прекинути ако се пребацитe на другу апликацију пре но што заврше.</string>
   <string name="no_tasks_running">Нема задатака који се тренутно извршавају.</string>
@@ -638,8 +637,7 @@
   <string name="error_no_content">Нема садржаја у означеном стиху</string>
   <string name="error_page_too_large">Страница је превелика да би се учитала</string>
   <string name="error_key_not_in_document">Није пронађено у документу</string>
-  <string name="error_key_not_in_document2">%sније пронађен у документу %s.</string>
-  <string name="empty_list">Нема ставки за приказ</string>
+  <string name="error_key_not_in_document2">%1$sније пронађен у документу %2$s.</string>  <string name="empty_list">Нема ставки за приказ</string>
   <string name="error_skip">Прескочи</string>
   <string name="bug_report_email_title">Пошаљите пријаву о грешци путем имејла</string>
   <string name="bug_report_email_text">Следеће, молимо Вас да одаберете Вашу жељену имејл апликацију (као на пример Gmail) како бисте послати извештај програмерском тиму.</string>

@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Ponovno stvori</string>
   <string name="creating_index_for">正在為 %s 建立索引…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s rezultata u %2s</string>
-
+  <string name="search_with_results2">%1$s rezultata u %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Napredak</string>
   <string name="task_kill_warning">Zadatci koji dugo traju mogu biti prekinuti ako se prebacite u drugu aplikaciju prije završetka.</string>
@@ -760,8 +759,7 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="error_no_content">Nema sadržaja u označenom retku</string>
   <string name="error_page_too_large">Stranica je prevelika da bi se učitala</string>
   <string name="error_key_not_in_document">Nije pronađeno u dokumentu</string>
-  <string name="error_key_not_in_document2">%s nije pronađen u dokumentu %s</string>
-  <string name="empty_list">Nema stavki za prikaz</string>
+  <string name="error_key_not_in_document2">%1$s nije pronađen u dokumentu %2$s</string>  <string name="empty_list">Nema stavki za prikaz</string>
   <string name="error_skip">Preskoči</string>
   <string name="bug_report_email_title">Pošaljite prijavu o pogrešci putem e-pošte</string>
   <string name="bug_report_email_text">Sljedeće, molimo Vas da odaberete Vašu željenu aplikaciju e-pošte (primjerice Gmail) kako biste poslali izvješće programerskom timu.</string>
@@ -1082,16 +1080,12 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="reset_something">重設：%1$s</string>
   <string name="export">匯出</string>
   <string name="csv_export_success">已將 %d 個書籤匯出為 CSV</string>
-  <string name="csv_import_success">匯入完成：已建立 %d 個，已更新 %d 個</string>
-  <string name="csv_import_errors">匯入完成但有錯誤：已建立 %d 個，已更新 %d 個，%d 個錯誤</string>
-  <string name="csv_import_failed">CSV 匯入失敗：%s</string>
+  <string name="csv_import_success">匯入完成：已建立 %1$d 個，已更新 %2$d 個</string>  <string name="csv_import_errors">匯入完成但有錯誤：已建立 %1$d 個，已更新 %2$d 個，%3$d 個錯誤</string>  <string name="csv_import_failed">CSV 匯入失敗：%s</string>
   <string name="csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="export_prompts_csv">匯出提示詞至 CSV</string>
   <string name="import_prompts_csv">從 CSV 匯入提示詞</string>
   <string name="prompts_csv_export_success">已將 %d 個提示詞匯出至 CSV</string>
-  <string name="prompts_csv_import_success">匯入完成：已建立 %d 筆，已更新 %d 筆</string>
-  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %d 筆，已更新 %d 筆，%d 筆錯誤</string>
-  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
+  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
   <string name="prompts_csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="no_prompts_to_export">沒有可匯出的使用者提示詞</string>
   <string name="csv_column_selection_title">選擇 CSV 欄位</string>

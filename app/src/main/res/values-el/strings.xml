@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Αναδόμηση</string>
   <string name="creating_index_for">Δημιουργία ευρετηρίου για %s...</string>
   <!-- X results in module Y -->
-  <string name="search_with_results2">%1s αποτελέσματα σε %2s</string>
-
+  <string name="search_with_results2">%1$s αποτελέσματα σε %2$s</string>
   <!-- Tasks -->
   <string name="progress_status">Πρόοδος</string>
   <string name="task_kill_warning">Αυτές οι μακροχρόνιες εργασίες λειτουργίας μπορεί να τερματίστουν αν μεταβείτε σε μια άλλη εφαρμογή πριν τελειώσουν.</string>
@@ -743,8 +742,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="error_no_content">Δεν υπάρχει περιεχόμενο για τον επιλεγμένο στίχο</string>
   <string name="error_page_too_large">Η σελίδα είναι πολύ μεγάλη για να φορτωθεί</string>
   <string name="error_key_not_in_document">Δεν βρέθηκε στο έγγραφο</string>
-  <string name="error_key_not_in_document2">%s δεν βρέθηκε στο έγγραφο %s.</string>
-  <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
+  <string name="error_key_not_in_document2">%1$s δεν βρέθηκε στο έγγραφο %2$s.</string>  <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
   <string name="error_skip">Παράβλεψη</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
@@ -1060,16 +1058,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reset_something">Επαναφορά: %1$s</string>
   <string name="export">Εξαγωγή</string>
   <string name="csv_export_success">Έγινε εξαγωγή %d σελιδοδεικτών σε CSV</string>
-  <string name="csv_import_success">Εισαγωγή ολοκληρώθηκε: %dδημιουργήθηκε, %dενημερώθηκε</string>
-  <string name="csv_import_errors">Εισαγωγή ολοκληρώθηκε με σφάλματα: %d δημιουργήθηκε, %d ενημερώθηκε, %d σφάλματα</string>
-  <string name="csv_import_failed">Εισαγωγή του CSV απέτυχε: %s</string>
+  <string name="csv_import_success">Εισαγωγή ολοκληρώθηκε: %1$dδημιουργήθηκε, %2$dενημερώθηκε</string>  <string name="csv_import_errors">Εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκε, %2$d ενημερώθηκε, %3$d σφάλματα</string>  <string name="csv_import_failed">Εισαγωγή του CSV απέτυχε: %s</string>
   <string name="csv_export_failed">Εξαγωγή του CSV απέτυχε: %s</string>
   <string name="export_prompts_csv">Εξαγωγή εντολών σε CSV</string>
   <string name="import_prompts_csv">Εισαγωγή εντολών από CSV</string>
   <string name="prompts_csv_export_success">Εξαγωγή %d εντολών σε CSV</string>
-  <string name="prompts_csv_import_success">Η εισαγωγή ολοκληρώθηκε: %d δημιουργήθηκαν, %d ενημερώθηκαν</string>
-  <string name="prompts_csv_import_errors">Η εισαγωγή ολοκληρώθηκε με σφάλματα: %d δημιουργήθηκαν, %d ενημερώθηκαν, %d σφάλματα</string>
-  <string name="prompts_csv_import_failed">Η εισαγωγή CSV απέτυχε: %s</string>
+  <string name="prompts_csv_import_success">Η εισαγωγή ολοκληρώθηκε: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν</string>  <string name="prompts_csv_import_errors">Η εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν, %3$d σφάλματα</string>  <string name="prompts_csv_import_failed">Η εισαγωγή CSV απέτυχε: %s</string>
   <string name="prompts_csv_export_failed">Η εξαγωγή CSV απέτυχε: %s</string>
   <string name="no_prompts_to_export">Δεν υπάρχουν εντολές χρήστη για εξαγωγή</string>
   <string name="csv_column_selection_title">Επιλογή στηλών CSV</string>

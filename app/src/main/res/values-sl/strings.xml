@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Ponovno zgradi</string>
   <string name="creating_index_for">Izdelujem kazalo za %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s rezultati v %2s</string>
-
+  <string name="search_with_results2">%1$s rezultati v %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Napredek</string>
   <string name="task_kill_warning">Ta dolgo trajajoča opravila lahko končate, če preklopite na drugo aplikacijo, še preden se le-ta zaključijo.</string>
@@ -771,8 +770,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="error_no_content">Izbrana vrstica je brez vsebine</string>
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
-  <string name="error_key_not_in_document2">%s ni bilo mogoče najti v dokumentu %s.</string>
-  <string name="empty_list">Za prikaz ni nobenega predmeta</string>
+  <string name="error_key_not_in_document2">%1$s ni bilo mogoče najti v dokumentu %2$s.</string>  <string name="empty_list">Za prikaz ni nobenega predmeta</string>
   <string name="error_skip">Preskoči</string>
   <string name="bug_report_email_title">Poročilo o napaki pošljite prek e-pošte</string>
   <string name="bug_report_email_text">Nato izberite želeno e-poštno aplikacijo (na primer Gmail) da pošljete poročilo ekipi razvijalcev.</string>
@@ -1102,16 +1100,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="reset_something">Ponastavi: %1$s</string>
   <string name="export">Izvoz</string>
   <string name="csv_export_success">Izvoženih %d zaznamko za CSV</string>
-  <string name="csv_import_success">Uvoz zaključen: %d ustvarjenih, %d posodobljenih</string>
-  <string name="csv_import_errors">Uvoz zaključen z napakami: %d ustvarjenih, %d posodobljenih, %d napak</string>
-  <string name="csv_import_failed">Uvoz CSV ni uspel: %s</string>
+  <string name="csv_import_success">Uvoz zaključen: %1$d ustvarjenih, %2$d posodobljenih</string>  <string name="csv_import_errors">Uvoz zaključen z napakami: %1$d ustvarjenih, %2$d posodobljenih, %3$d napak</string>  <string name="csv_import_failed">Uvoz CSV ni uspel: %s</string>
   <string name="csv_export_failed">CSV izvoz ni uspel: %s</string>
   <string name="export_prompts_csv">Izvozi pozive v CSV</string>
   <string name="import_prompts_csv">Uvozi pozive iz CSV</string>
   <string name="prompts_csv_export_success">Izvoženo %d pozivov v CSV</string>
-  <string name="prompts_csv_import_success">Uvoz končan: %d ustvarjenih, %d posodobljenih</string>
-  <string name="prompts_csv_import_errors">Uvoz končan z napakami: %d ustvarjenih, %d posodobljenih, %d napak</string>
-  <string name="prompts_csv_import_failed">Uvoz CSV ni uspel: %s</string>
+  <string name="prompts_csv_import_success">Uvoz končan: %1$d ustvarjenih, %2$d posodobljenih</string>  <string name="prompts_csv_import_errors">Uvoz končan z napakami: %1$d ustvarjenih, %2$d posodobljenih, %3$d napak</string>  <string name="prompts_csv_import_failed">Uvoz CSV ni uspel: %s</string>
   <string name="prompts_csv_export_failed">Izvoz CSV ni uspel: %s</string>
   <string name="no_prompts_to_export">Ni uporabniških pozivov za izvoz</string>
   <string name="csv_column_selection_title">Izberite CSV stolpce</string>

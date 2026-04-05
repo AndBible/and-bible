@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Herbou</string>
   <string name="creating_index_for">Skep indeks vir %s....</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s resultate in  %2s</string>
-
+  <string name="search_with_results2">%1$s resultate in  %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Vordering</string>
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
@@ -765,8 +764,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_no_content">Geen inhoud vir geselekteerde vers</string>
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
-  <string name="error_key_not_in_document2">%s is nie in dokument gevind nie %s.</string>
-  <string name="empty_list">Geen items om te wys</string>
+  <string name="error_key_not_in_document2">%1$s is nie in dokument gevind nie %2$s.</string>  <string name="empty_list">Geen items om te wys</string>
   <string name="error_skip">Vermy</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
@@ -1091,16 +1089,12 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="reset_something">Reset: %1$s</string>
   <string name="export">Uitvoer</string>
   <string name="csv_export_success">Exportovaných %d záložiek do CSV</string>
-  <string name="csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
-  <string name="csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
-  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="csv_export_failed">Export CSV zlyhal: %s</string>
   <string name="export_prompts_csv">Exportovať výzvy do CSV</string>
   <string name="import_prompts_csv">Importovať výzvy z CSV</string>
   <string name="prompts_csv_export_success">Exportovaných %d výziev do CSV</string>
-  <string name="prompts_csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
-  <string name="prompts_csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
-  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="prompts_csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="prompts_csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="prompts_csv_export_failed">Export CSV zlyhal: %s</string>
   <string name="no_prompts_to_export">Žiadne používateľské výzvy na export</string>
   <string name="csv_column_selection_title">Vybrať stĺpce CSV</string>

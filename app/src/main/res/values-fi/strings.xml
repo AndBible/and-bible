@@ -67,8 +67,7 @@
     <string name="rebuild_index_button">Luo indeksi</string>
     <string name="creating_index_for">Luodaan indeksiä: %s...</string>
     <!-- X results in module Y -->
-    <string name="search_with_results2"> %2s:  %1s tulosta</string>
-
+    <string name="search_with_results2"> %2$s:  %1$s tulosta</string>
     <!-- Tasks -->
     <string name="progress_status">Edistyminen</string>
     <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
@@ -627,8 +626,8 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
     <string-array name="speak_divinename_original">
-        <item>Lord</item>
-        <item>God</item>
+        <item>Herra</item>
+        <item>Jumala</item>
         <item/>
         <item/>
         <item/>
@@ -639,8 +638,8 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
     <string-array name="speak_divinename_replace">
-        <item>Yahweh</item>
-        <item>Yahweh</item>
+        <item>Jahve</item>
+        <item>Jahve</item>
         <item/>
         <item/>
         <item/>
@@ -782,8 +781,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
     <string name="error_no_content">Ei sisältöä valitulle jakeelle</string>
     <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
     <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
-    <string name="error_key_not_in_document2">%s ei löytynyt teoksesta %s.</string>
-    <string name="empty_list">Ei näytettävää</string>
+    <string name="error_key_not_in_document2">%1$s ei löytynyt teoksesta %2$s.</string>    <string name="empty_list">Ei näytettävää</string>
     <string name="error_skip">Ohita</string>
     <string name="bug_report_email_title">Lähetä bugiraportti sähköpostilla</string>
     <string name="bug_report_email_text">Valitse seuraavaksi haluamasi sähköpostisovellus (GMail esimerkiksi) lähettääksi raportin kehittäjätiimille.</string>
@@ -1063,16 +1061,12 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
     <string name="reset_something">Nollaa: %1$s</string>
     <string name="export">Vie</string>
     <string name="csv_export_success">Viety %d kirjanmerkkiä CSV:n</string>
-    <string name="csv_import_success">Tuonti valmistui: %d luotu, %d päivitetty</string>
-    <string name="csv_import_errors">Tuonti valmistui: %d luotu, %d päivitetty, %d virhettä</string>
-    <string name="csv_import_failed">CSV tuonti epäonnistui: %s</string>
+    <string name="csv_import_success">Tuonti valmistui: %1$d luotu, %2$d päivitetty</string>    <string name="csv_import_errors">Tuonti valmistui: %1$d luotu, %2$d päivitetty, %3$d virhettä</string>    <string name="csv_import_failed">CSV tuonti epäonnistui: %s</string>
     <string name="csv_export_failed">CSV vienti epäonnistui: %s</string>
     <string name="export_prompts_csv">Vie kehotteet CSV-tiedostoon</string>
     <string name="import_prompts_csv">Tuo kehotteet CSV-tiedostosta</string>
     <string name="prompts_csv_export_success">Vietiin %d kehotetta CSV-tiedostoon</string>
-    <string name="prompts_csv_import_success">Tuonti valmistui: %d luotu, %d päivitetty</string>
-    <string name="prompts_csv_import_errors">Tuonti valmistui virhein: %d luotu, %d päivitetty, %d virhettä</string>
-    <string name="prompts_csv_import_failed">CSV-tuonti epäonnistui: %s</string>
+    <string name="prompts_csv_import_success">Tuonti valmistui: %1$d luotu, %2$d päivitetty</string>    <string name="prompts_csv_import_errors">Tuonti valmistui virhein: %1$d luotu, %2$d päivitetty, %3$d virhettä</string>    <string name="prompts_csv_import_failed">CSV-tuonti epäonnistui: %s</string>
     <string name="prompts_csv_export_failed">CSV-vienti epäonnistui: %s</string>
     <string name="no_prompts_to_export">Ei käyttäjän kehotteita vietäväksi</string>
     <string name="csv_column_selection_title">Valitse CSV:n sarakkeet</string>

@@ -39,8 +39,7 @@
   <string name="rebuild_index_button">اعادة بناء</string>
   <string name="creating_index_for">إنشاء فهرس لـ %s...</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s نتيجة في %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s نتيجة في %2$s</string>  <!--Tasks-->
   <string name="progress_status">الحالة</string>
   <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
   <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
@@ -604,8 +603,7 @@
   <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>
   <string name="error_page_too_large">لا نستطيع تحميل الصفحة لأنها كبيرة جدا</string>
   <string name="error_key_not_in_document">لا يوجد مستند</string>
-  <string name="error_key_not_in_document2">%s غير موجود في المستند %s.</string>
-  <string name="empty_list">لا يوجد مواد للعرض</string>
+  <string name="error_key_not_in_document2">%1$s غير موجود في المستند %2$s.</string>  <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
