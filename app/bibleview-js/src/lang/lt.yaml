@@ -2,8 +2,8 @@
 bookmarks: Žymės
 bookmarksAndNotes: Žymės ir mano pastabos
 openMyNotes: Atverti mano pastabose
-openStudyPad: Atverti bloknote (%s)
-noteText: Išnašos (%s)
+openStudyPad: "Atverti bloknote (%s)"
+noteText: "Išnašos (%s)"
 noteTextWithoutType: Išnašos
 crossReferenceText: Kryžminės nuorodos
 findAllOccurrences: Rasti visus atitikmenis
@@ -17,19 +17,21 @@ footnoteTypeVariant: Variantas
 footnoteTypeAlternative: Alternatyva
 footnoteTypeTranslation: Vertimas
 clearLog: Išvalyti klaidų žurnalą
-editTextPlaceholder: "Bakstelėkite, norėdami taisyti tekstą"
+editTextPlaceholder: Bakstelėkite, norėdami taisyti tekstą
+myDocumentEdit: Redaguoti puslapį
+myDocumentEmptyPlaceholder: Bakstelėkite, kad pradėtumėte redaguoti šį puslapį
 inputPlaceholder: Rašykite čia
 inputReference: Įveskite Biblijos nuorodą
 invalidReference: Eilutė nerasta
-bookmarkAccurate: Žymė buvo sukurta dokumente %s
+bookmarkAccurate: "Žymė buvo sukurta dokumente %s"
 bookmarkInaccurate: "Žymės knygos informacija nėra saugoma, turinys yra rodomas čia: %s."
 defaultBook: numatytasis Biblijos dokumentas
 ok: Gerai
 yes: "Taip"
-ambiguousSelection: "Kurį veiksmą norite atlikti?"
+ambiguousSelection: Kurį veiksmą norite atlikti?
 cancel: Atsisakyti
-removeBookmarkConfirmationTitle: "Šalinti žymę?"
-removeBookmarkConfirmation: "Ar tikrai norite pašalinti šią žymę?"
+removeBookmarkConfirmationTitle: Šalinti žymę?
+removeBookmarkConfirmation: Ar tikrai norite pašalinti šią žymę?
 createdAt: "Sukurta: %s"
 lastUpdatedOn: "Paskiausiai atnaujinta: %s"
 strongsAndMorph: Apibrėžimas ir morfologija
@@ -37,15 +39,14 @@ externalLink: Atverti išorinę nuorodą
 referenceLink: Atverti nuorodos adresą
 openFootnote: Atverti išnašą
 noMyNotesTitle: Šiam skyriui nėra mano pastabų.
-noMyNotesDescription: >
-  Pradėkite, sukurdami Biblijos dokumente žymes. Tuomet žymės bus rodomos čia ir prie jų galėsite pridėti asmenines pastabas.
-emptyStudyPad: >-
-  Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
-doYouWantToDeleteEntry: "Ištrinti šį bloknoto įrašą?"
-removeStudyPadConfirmationTitle: "Šalinti bloknoto įrašą?"
-dragHelp: "Tempkite, norėdami pertvarkyti"
+noMyNotesDescription: Pradėkite, sukurdami Biblijos dokumente žymes. Tuomet žymės bus rodomos čia ir prie jų galėsite pridėti asmenines pastabas.
+
+emptyStudyPad: Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
+doYouWantToDeleteEntry: Ištrinti šį bloknoto įrašą?
+removeStudyPadConfirmationTitle: Šalinti bloknoto įrašą?
+dragHelp: Tempkite, norėdami pertvarkyti
 openAll: Atverti visas nuorodas
-editBookmarkPlaceholder: "Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas"
+editBookmarkPlaceholder: Bakstelėkite, norėdami taisyti šioje eilutėje mano pastabas
 onlyLabel: Tik etiketę
 wholeBookmark: Visą žymę
 assignLabelsMenuEntry1: Pasirinkti ar taisyti etiketes…
@@ -64,6 +65,16 @@ verseParagraphBreak: Pastraipa
 verseShareLong: Bendrinti šią eilutę
 verseCompareLong: Lyginti eilutę
 verseMemorizeLong: Išmokti mintinai Biblijos eilutes
+addMemorizationTarget: Tikslas +
+addMemorizationTargetLong: Nustatyti kaip įsiminimo tikslą
+removeMemorizationTarget: Tikslas -
+removeMemorizationTargetLong: Pašalinti įsiminimo tikslą
+markAsMemorized: Pažymėti kaip įsimintą
+markedAsMemorized: Įsiminta
+removeFromTargets: Tikslas -
+viewReadingProgress: Skaitymo/Įsiminimo pažanga
+viewReadingProgressSettings: Skaitymo/Įsiminimo nustatymai
+listenInLoop: Klausyti kilpa
 verseNoteLong: Rašyti pastabą
 verseParagraphBreakLong: ""
 addBookmark: Pridėti žymę
@@ -89,9 +100,22 @@ invalidClosingTag: ""
 unmatchedClosingTag: ""
 unclosedTag: ""
 unknownError: Nežinoma klaida
-blur: ""
-reset: Atstatyti
-peek: ""
 wordBlur: ""
 wordScramble: ""
+wordType: Tipas
+wordOrder: Tvarka
+typeEverything: Rinkti visus žodžius
+tapToStartTyping: Bakstelėkite čia, kad pradėtumėte rinkti
+wordVisibility: Žodžių matomumas
+wordVisibilityLight: Šviesus
+wordVisibilityDim: Pritemdytas
+wordVisibilityHidden: Paslėptas
+errorHeatmap: Klaidų šilumos žemėlapis
+hideUsedButtons: Slėpti panaudotus žodžių mygtukus
 more: Daugiau
+llmAction: DI
+llmActionLong: DI veiksmas
+aiDocumentRegenerate: Regeneruoti
+aiDocumentDelete: Ištrinti
+aiGeneratedBy: "Sugeneravo %s"
+aiGeneratedByWithModel: "Sugeneravo %s (%s)"

@@ -41,6 +41,8 @@ import net.bible.service.llm.tools.uniqueLabelName
 import net.bible.service.llm.tools.yamlToJson
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.PassageKeyFactory
 import org.crosswire.jsword.passage.RestrictionType
 import org.json.JSONObject
@@ -232,12 +234,17 @@ object CreateStudyPadTool : Tool {
                         val verseRange = key.getRangeAt(0, RestrictionType.NONE)
                             ?: throw IllegalArgumentException("Invalid verse reference: $verseRef")
 
+                        // Resolve the active Bible translation so study pad shows correct version
+                        val swordBook = context.activeDocumentInitials?.let {
+                            Books.installed().getBook(it) as? SwordBook
+                        }
+
                         // Create bookmark with AI label only (not the StudyPad label)
                         val bookmark = BibleBookmarkWithNotes(
                             verseRange = verseRange,
                             textRange = null,
                             wholeVerse = true,
-                            book = null
+                            book = swordBook
                         )
                         bookmark.sourcePromptId = context.promptId
 

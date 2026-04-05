@@ -1,16 +1,16 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: Marcadores
-bookmarksAndNotes: Marcadores e Minhas notas
-openMyNotes: Abrir em Minhas notas
-openStudyPad: Abrir em Estudos (%s)
-noteText: Notas de rodapé (%s)
-noteTextWithoutType: Notas de rodapé
+bookmarksAndNotes: "Marcadores & Minhas Notas"
+openMyNotes: Abrir em Minhas Notas
+openStudyPad: "Abrir no Bloco de Estudo (%s)"
+noteText: "Notas de Rodapé (%s)"
+noteTextWithoutType: Notas de Rodapé
 crossReferenceText: Referências cruzadas
 findAllOccurrences: Encontrar todas as ocorrências
 reportError: Reportar um erro
-errorTitle: Aconteceu um erro
-warningTitle: Atenção
-normalTitle: Por favor anote
+errorTitle: Ocorreu um erro
+warningTitle: Aviso
+normalTitle: Por favor, observe
 footnoteTypeStudy: Estudo
 footnoteTypeExplanation: Explicação
 footnoteTypeVariant: Variante
@@ -18,80 +18,103 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Tradução
 clearLog: Limpar registro de erros
 editTextPlaceholder: Toque para editar o texto
+myDocumentEdit: Editar página
+myDocumentEmptyPlaceholder: Toque para começar a editar esta página
 inputPlaceholder: Escreva aqui
-inputReference: Entre com a referência bíblica
+inputReference: Digite a referência bíblica
 invalidReference: Versículo não encontrado
-bookmarkAccurate: Marcador foi criado em %s
-bookmarkInaccurate: "Informação do marcador não armazenado, o conteúdo é exibido em %s."
-defaultBook: Documento bíblico padrão
+bookmarkAccurate: "Marcador criado em %s"
+bookmarkInaccurate: "Informações do livro do marcador não armazenadas, o conteúdo é exibido em %s."
+defaultBook: documento bíblico padrão
 ok: OK
 yes: "Sim"
-ambiguousSelection: "Qual ação você deseja realizar?"
+ambiguousSelection: Qual ação você deseja realizar?
 cancel: Cancelar
-removeBookmarkConfirmationTitle: "Deseja remover o marcador?"
-removeBookmarkConfirmation: "Você realmente deseja remover este marcador?"
-createdAt: "Criado: %s"
+removeBookmarkConfirmationTitle: Remover marcador?
+removeBookmarkConfirmation: Tem certeza de que deseja remover este marcador?
+createdAt: "Criado em: %s"
 lastUpdatedOn: "Última atualização: %s"
-strongsAndMorph: Definição e morfologia
+strongsAndMorph: "Definição & Morfologia"
 externalLink: Abrir link externo
 referenceLink: Abrir link de referência
 openFootnote: Abrir nota de rodapé
-noMyNotesTitle: Não exibir Minhas notas neste capítulo
-noMyNotesDescription: >
-  Inicie criando marcadores em um documento bíblico. Os marcadores então irão aparecer aqui e você poderá adicionar suas notas pessoais nele. 
-emptyStudyPad: >
-  Bloco de estudos vazio. Comece adicionando a este bloco de estudo através da criação de entradas de textos aqui ou criando marcadores com uma etiqueta de marcador que corresponda a este bloco de estudos.
-doYouWantToDeleteEntry: "Excluir esta estrada do bloco de estudos?"
-removeStudyPadConfirmationTitle: "Remover entrada do bloco de estudos?"
-dragHelp: Arraste para reorganizar
+noMyNotesTitle: Sem Minhas Notas para este capítulo.
+noMyNotesDescription: Comece criando marcadores em um documento bíblico. Os marcadores aparecerão aqui e você poderá adicionar suas notas pessoais a eles.
+emptyStudyPad: Bloco de estudo vazio. Comece adicionando entradas de texto aqui ou criando marcadores com uma etiqueta que corresponda a este bloco de estudo.
+doYouWantToDeleteEntry: Excluir esta entrada do bloco de estudo?
+removeStudyPadConfirmationTitle: Remover entrada do bloco de estudo?
+dragHelp: Arraste para reordenar
 openAll: Abrir todas as referências
-editBookmarkPlaceholder: Toque para editar Minhas notas para este marcador
-onlyLabel: Somente etiqueta
-wholeBookmark: Todos os marcadores
-assignLabelsMenuEntry1: Selecione ou edite as etiquetas...
+editBookmarkPlaceholder: Toque para editar Minhas Notas deste marcador
+onlyLabel: Apenas etiqueta
+wholeBookmark: Marcador inteiro
+assignLabelsMenuEntry1: Selecionar ou editar etiquetas…
 favouriteLabels: Etiquetas favoritas
 recentLabels: Etiquetas recentes
-bookmarkLabels: Etiquetas dos marcadores
-refParserHelp: Instale os módulos %s  para usar as referências em outros idiomas além do inglês.
-openDownloads: ir para Baixar Módulos
+bookmarkLabels: Etiquetas de marcadores
+refParserHelp: "Instale o módulo %s para usar referências em outros idiomas além do inglês."
+openDownloads: Ir para downloads de complementos
 verseShare: Compartilhar
 verseSpeak: Falar
 verseCompare: Comparar
 verseMemorize: Memorizar
 verseNote: Nota
-verseMyNotes: Minhas notas
+verseMyNotes: Minhas Notas
 verseParagraphBreak: Parágrafo
 verseShareLong: Compartilhar este versículo
 verseCompareLong: Comparar versículo
 verseMemorizeLong: Memorizar versículos bíblicos
+addMemorizationTarget: Meta +
+addMemorizationTargetLong: Definir como meta de memorização
+removeMemorizationTarget: Meta -
+removeMemorizationTargetLong: Remover meta de memorização
+markAsMemorized: Marcar como memorizado
+markedAsMemorized: Memorizado
+removeFromTargets: Meta -
+viewReadingProgress: Progresso de Leitura/Memorização
+viewReadingProgressSettings: Configurações de Leitura/Memorização
+listenInLoop: Ouvir em loop
 verseNoteLong: Escrever uma nota
 verseParagraphBreakLong: Quebra de parágrafo
 addBookmark: Marcador
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
+selectCustomIconTitle: Selecionar ícone personalizado
+bookmarkSettingsTitle: Configurar ajustes do marcador
+subtitlePlaceholder: Texto do subtítulo
 customIconLabel: Ícone personalizado
-editActionLabel: ""
-editActionModeLabel: ""
+editActionLabel: Editar ação
+editActionModeLabel: Modo
 editActionModeNone: Nenhum
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: Redefinir
-peek: ""
-wordBlur: ""
-wordScramble: ""
+editActionModeAppend: Acrescentar texto
+editActionModePrepend: Inserir texto antes
+editActionContentLabel: Conteúdo
+editActionContentPlaceholder: Digite o texto a ser adicionado ao documento...
+experimentalFeatureTitle: Experimental
+experimentalFeatureHelpTitle: Sobre Recursos Experimentais
+experimentalFeatureHelpContent: Recursos experimentais são novas funcionalidades ainda em desenvolvimento e testes. Podem não funcionar perfeitamente e podem mudar significativamente ou ser removidas em versões futuras do aplicativo.
+insertParagraphBreak: Inserir quebra de parágrafo
+insertSubtitle: Inserir subtítulo
+xmlParseError: Erro de análise XML
+invalidTag: Tag inválida
+invalidClosingTag: Tag de fechamento inválida
+unmatchedClosingTag: Tag de fechamento sem correspondência
+unclosedTag: Tag não fechada
+unknownError: Erro desconhecido
+wordBlur: Desfoque
+wordScramble: Embaralhar
+wordType: Digitar
+wordOrder: Ordem
+typeEverything: Digitar palavras completas
+tapToStartTyping: Toque aqui para começar a digitar
+wordVisibility: Visibilidade da palavra
+wordVisibilityLight: Claro
+wordVisibilityDim: Escuro
+wordVisibilityHidden: Oculto
+errorHeatmap: Mapa de erros
+hideUsedButtons: Ocultar botões de palavras usadas
 more: Mais
+llmAction: IA
+llmActionLong: Ação de IA
+aiDocumentRegenerate: Regenerar
+aiDocumentDelete: Excluir
+aiGeneratedBy: "Gerado por %s"
+aiGeneratedByWithModel: "Gerado por %s (%s)"
