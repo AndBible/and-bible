@@ -1,0 +1,17 @@
+Based on the commits provided, here's the user-facing changelog:
+
+- Fixed StudyPad bookmarks to use the correct active Bible translation (60ac9940b)
+
+*Note: The remaining commits are translation updates handled automatically by the Transifex localization process and are not listed as user-facing changes.*
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
