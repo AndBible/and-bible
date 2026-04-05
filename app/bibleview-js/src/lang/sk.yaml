@@ -2,8 +2,8 @@
 bookmarks: Záložky
 bookmarksAndNotes: Záložky a Moje poznámky
 openMyNotes: Otvoriť v Mojich poznámkach
-openStudyPad: Otvoriť v Študijnej zložke (%s)
-noteText: Poznámky (%s)
+openStudyPad: "Otvoriť v Študijnej zložke (%s)"
+noteText: "Poznámky (%s)"
 noteTextWithoutType: Poznámky pod čiarou
 crossReferenceText: Krížové referencie
 findAllOccurrences: Nájsť všetky výskyty
@@ -18,18 +18,20 @@ footnoteTypeAlternative: Alternatíva
 footnoteTypeTranslation: Preklad
 clearLog: Zmazať chybový záznam
 editTextPlaceholder: Ťuknutím upraviť text
+myDocumentEdit: Upraviť stránku
+myDocumentEmptyPlaceholder: Klepnutím začnete upravovať túto stránku
 inputPlaceholder: Sem písať
 inputReference: Vložiť referenciu na Bibliu
 invalidReference: Verš nebol nájdený
-bookmarkAccurate: Záložka bola vytvorená v %s
+bookmarkAccurate: "Záložka bola vytvorená v %s"
 bookmarkInaccurate: "Záložky knihy nie sú uložené, obsah sa zobrazuje v %s."
 defaultBook: prednastavený dokument Biblie
 ok: OK
 yes: "Áno"
-ambiguousSelection: "Ktorú akciu chcete vykonať?"
+ambiguousSelection: Ktorú akciu chcete vykonať?
 cancel: Zrušiť
-removeBookmarkConfirmationTitle: "Odstrániť záložku?"
-removeBookmarkConfirmation: "Naozaj chcete odstrániť túto záložku?"
+removeBookmarkConfirmationTitle: Odstrániť záložku?
+removeBookmarkConfirmation: Naozaj chcete odstrániť túto záložku?
 createdAt: "Vytvorená: %s"
 lastUpdatedOn: "Posledná aktualizácia: %s"
 strongsAndMorph: Definícia a Morfológia
@@ -37,12 +39,12 @@ externalLink: Otvoriť externý odkaz
 referenceLink: Otvoriť referenčný odkaz
 openFootnote: Otvoriť poznámku pod čiarou
 noMyNotesTitle: Nie je Moja poznámka pre túto kapitolu.
-noMyNotesDescription: >
-  Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
-emptyStudyPad: >
-  Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
-doYouWantToDeleteEntry: "Zmazať túto položku študijnej zložky?"
-removeStudyPadConfirmationTitle: "Odstrániť túto položku študijnej zložky?"
+noMyNotesDescription: Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
+
+emptyStudyPad: Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
+
+doYouWantToDeleteEntry: Zmazať túto položku študijnej zložky?
+removeStudyPadConfirmationTitle: Odstrániť túto položku študijnej zložky?
 dragHelp: Ťahaním zoradiť
 openAll: Otvoriť všetky odkazy
 editBookmarkPlaceholder: Klepnutím upraviť Moje poznámky pre túto záložku
@@ -56,7 +58,7 @@ refParserHelp: "Nainštalujte si prosím modul %s, aby ste mohli požívať refe
 openDownloads: Prejsť do sťahovania doplnkov
 verseShare: Zdielať
 verseSpeak: Čítať
-verseCompare: "Porovnať "
+verseCompare: Porovnať 
 verseMemorize: ""
 verseNote: Poznámka
 verseMyNotes: Moje poznámky
@@ -64,6 +66,16 @@ verseParagraphBreak: ""
 verseShareLong: Zdielať tento verš
 verseCompareLong: Porovnať verš
 verseMemorizeLong: ""
+addMemorizationTarget: Cieľ +
+addMemorizationTargetLong: Nastaviť ako cieľ memorovania
+removeMemorizationTarget: Cieľ -
+removeMemorizationTargetLong: Odstrániť cieľ memorovania
+markAsMemorized: Označiť ako naučené
+markedAsMemorized: Naučené
+removeFromTargets: Cieľ -
+viewReadingProgress: Pokrok čítania/memorovania
+viewReadingProgressSettings: Nastavenia čítania/memorovania
+listenInLoop: Počúvať v slučke
 verseNoteLong: Napísať poznámku
 verseParagraphBreakLong: ""
 addBookmark: Záložka
@@ -89,9 +101,22 @@ invalidClosingTag: ""
 unmatchedClosingTag: ""
 unclosedTag: ""
 unknownError: ""
-blur: ""
-reset: Reset
-peek: ""
 wordBlur: ""
 wordScramble: ""
+wordType: Typ
+wordOrder: Poradie
+typeEverything: Písať celé slová
+tapToStartTyping: Klepnite sem a začnite písať
+wordVisibility: Viditeľnosť slov
+wordVisibilityLight: Svetlá
+wordVisibilityDim: Stlmená
+wordVisibilityHidden: Skrytá
+errorHeatmap: Mapa chýb
+hideUsedButtons: Skryť použité tlačidlá slov
 more: Viac
+llmAction: AI
+llmActionLong: Akcia AI
+aiDocumentRegenerate: Znovu vygenerovať
+aiDocumentDelete: Odstrániť
+aiGeneratedBy: "Vygenerované pomocou %s"
+aiGeneratedByWithModel: "Vygenerované pomocou %s (%s)"
