@@ -2,8 +2,8 @@
 bookmarks: Záložky
 bookmarksAndNotes: Záložky a poznámky
 openMyNotes: Otevřít v Poznámkách
-openStudyPad: Otevřít ve studijní složce (%s)
-noteText: Poznámky pod čarou (%s)
+openStudyPad: "Otevřít ve studijní složce (%s)"
+noteText: "Poznámky pod čarou (%s)"
 noteTextWithoutType: Poznámky pod čarou
 crossReferenceText: Křížový odkaz
 findAllOccurrences: Najít všechny výskyty
@@ -18,18 +18,20 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Překlad
 clearLog: Smazat záznam chyb
 editTextPlaceholder: Úprava textu po kliknutí
+myDocumentEdit: Upravit stránku
+myDocumentEmptyPlaceholder: Klepněte pro zahájení úprav této stránky
 inputPlaceholder: Psát zde
 inputReference: Vložit biblický odkaz
 invalidReference: Verš nebyl nalezen
-bookmarkAccurate: Záložka vytvořena v %s
+bookmarkAccurate: "Záložka vytvořena v %s"
 bookmarkInaccurate: "Záložky knihy neuloženy, obsah je zobrazen v %s."
 defaultBook: výchozí dokument Bible
 ok: OK
 yes: "Ano"
-ambiguousSelection: "Co chcete provést?"
+ambiguousSelection: Co chcete provést?
 cancel: Zrušit
-removeBookmarkConfirmationTitle: "Odstranit záložku?"
-removeBookmarkConfirmation: "Jste si jisti, že chcete tuto záložku odstranit?"
+removeBookmarkConfirmationTitle: Odstranit záložku?
+removeBookmarkConfirmation: Jste si jisti, že chcete tuto záložku odstranit?
 createdAt: "Vytvořeno: %s"
 lastUpdatedOn: "Aktualizováno: %s"
 strongsAndMorph: Definice a morfologie
@@ -37,12 +39,12 @@ externalLink: Otevřít externí odkaz
 referenceLink: Otevřít referenční odkaz
 openFootnote: Otevřít poznámku pod čarou
 noMyNotesTitle: K této kapitole nemáte poznámky.
-noMyNotesDescription: >
-  Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
-emptyStudyPad: >
-  Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
-doYouWantToDeleteEntry: "Smazat tento obsah ze složky?"
-removeStudyPadConfirmationTitle: "Odstranit studijní složku?"
+noMyNotesDescription: Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
+
+emptyStudyPad: Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
+
+doYouWantToDeleteEntry: Smazat tento obsah ze složky?
+removeStudyPadConfirmationTitle: Odstranit studijní složku?
 dragHelp: Přetažením setřídit
 openAll: Otevřít všechny odkazy
 editBookmarkPlaceholder: Klepnutím upravíte poznámky této záložky
@@ -64,6 +66,16 @@ verseParagraphBreak: ""
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
 verseMemorizeLong: Zapamatovat biblické verše
+addMemorizationTarget: Cíl +
+addMemorizationTargetLong: Nastavit jako cíl zapamatování
+removeMemorizationTarget: Cíl -
+removeMemorizationTargetLong: Odebrat cíl zapamatování
+markAsMemorized: Označit jako zapamatované
+markedAsMemorized: Zapamatováno
+removeFromTargets: Cíl -
+viewReadingProgress: Průběh čtení/zapamatování
+viewReadingProgressSettings: Nastavení čtení/zapamatování
+listenInLoop: Poslouchat ve smyčce
 verseNoteLong: Napsat poznámku
 verseParagraphBreakLong: Zalomení odstavce
 addBookmark: Záložka
@@ -89,9 +101,22 @@ invalidClosingTag: ""
 unmatchedClosingTag: ""
 unclosedTag: ""
 unknownError: ""
-blur: ""
-reset: Resetovat
-peek: ""
 wordBlur: ""
 wordScramble: ""
+wordType: Typ
+wordOrder: Pořadí
+typeEverything: Psát celá slova
+tapToStartTyping: Klepněte sem pro zahájení psaní
+wordVisibility: Viditelnost slov
+wordVisibilityLight: Světlá
+wordVisibilityDim: Ztlumená
+wordVisibilityHidden: Skrytá
+errorHeatmap: Heatmapa chyb
+hideUsedButtons: Skrýt použitá tlačítka slov
 more: Více
+llmAction: AI
+llmActionLong: Akce AI
+aiDocumentRegenerate: Regenerovat
+aiDocumentDelete: Smazat
+aiGeneratedBy: "Vygenerováno pomocí %s"
+aiGeneratedByWithModel: "Vygenerováno pomocí %s (%s)"
