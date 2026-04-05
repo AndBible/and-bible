@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel Studie (AndBible)</string>
   <string name="app_name_long">AndBible: Bybel Studie</string>
   <string name="project">AndBible Oop Bron Projek </string>
+
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Kieslys</string>
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Teks</string>
@@ -23,13 +26,15 @@
   <string name="administration">Administrasie</string>
   <string name="rate_application">Beoordeel &amp; hersien</string>
   <string name="chooce_document">Kies Dokument</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Kies \'n Boek</string>
   <string name="choosePassageChapterName">Kies \'n Hoofstuk</string>
   <string name="choosePassageVerseName">Kies \'n Vers</string>
   <string name="bible">Bybel</string>
   <string name="deuterocanonical">Deuterokanonieke</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Soek Indeks</string>
   <string name="index_creation_required">\'n Indeks is nodig om te soek.</string>
   <string name="create_index_for">\'n Indeks is nodig om te soek. \ n \ n Skep indeks vir %s?</string>
@@ -41,13 +46,15 @@
   <string name="do_in_background">Gaan voort in die agtergrond</string>
   <string name="rebuild_index_button">Herbou</string>
   <string name="creating_index_for">Skep indeks vir %s....</string>
-  <!--X results in module Y-->
+    <!-- X results in module Y -->
   <string name="search_with_results2">%1s resultate in  %2s</string>
-  <!--Tasks-->
+
+    <!-- Tasks -->
   <string name="progress_status">Vordering</string>
   <string name="task_kill_warning">As And Bible lank oop is, mag hy gestop word as jy oorskakel na \'n ander program voordat And Bible klaar is.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Vind verse</string>
   <string name="search_all_words">Alle woorde</string>
   <string name="search_any_word">Enige woord</string>
@@ -62,24 +69,48 @@
   <string name="search_current_book">Huidige boek</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <string name="type_text_or_bible_reference">Tik teks of Bybel verwysing</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Maak Oop %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Vind \"%s\"</string>
-  <!--Preferences-->
+    <!-- Multi-translation search -->
+  <string name="search_translations">Preklady</string>
+  <string name="choose_translations">Vyberte preklady…</string>
+  <string name="multi_search_results">%1$d veršov v %2$d prekladoch</string>
+  <string name="search_index_not_created">žiadny index</string>
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Hoofstuk &amp; vers nommers</string>
   <string name="prefs_show_verseno_summary">Wys hoofstuk &amp; vers nommers</string>
+
   <string name="prefs_e_ink_mode_title">Swart &amp; wit modus</string>
   <string name="prefs_eink_mode_summary">Gebruik die toep in monochroom-modus (geen kleure nie), wat dit meer geskik maak vir E-ink-toestelle.</string>
+  <string name="prefs_eink_settings_cat">Nastavenia e-ink</string>
+  <string name="prefs_eink_display_title">Funkcie e-ink</string>
+  <string name="prefs_eink_display_summary">Povoliť funkcie pre e-ink (tlačidlá posúvania stránok, pomocné čiary)</string>
+
   <string name="prefs_disable_animations_title">Deaktiveer animasies</string>
   <string name="prefs_disable_animations_summary">Deaktiveer verskeie animasies soos gladde blaai.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Zakázať úpravu kliknutím v študijnej zložke</string>
+  <string name="prefs_disable_click_to_edit_summary">Na úpravu poznámok v študijnej zložke je potrebné použiť tlačidlo úpravy.</string>
+
+  <string name="prefs_notes_content_type_title">Formát nových poznámok záložiek</string>
+  <string name="prefs_notes_content_type_summary">Textový formát používaný pri vytváraní nových poznámok záložiek a záznamov v študijnej zložke</string>
+  <string name="notes_content_type_html">Formátovaný text (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
   <string name="prefs_paragraph_spacing_title">Paragraaf spasiëring (%smm)</string>
   <string name="prefs_paragraph_spacing_summary">Verstel spasie tussen paragrawe.</string>
+
   <string name="prefs_show_verseno_title1">Vers nommers</string>
+
   <string name="prefs_show_chapter_no_title">Hoofstuk getalle</string>
   <string name="prefs_show_chapter_no_summary">Wys hoofstuk nommers</string>
+
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
+
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
   <string name="prefs_show_notes_summary">Wys voetnotas en kruisverwysings</string>
   <string name="prefs_show_strongs_summary">Skakels na Griekse |&amp;  Hebreeus definisies</string>
@@ -87,30 +118,49 @@
   <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
   <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
   <string name="prefs_text_size_title">Skrif voorkeure</string>
+
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
   <string name="prefs_show_footnotes_title">Voet Notas</string>
   <string name="prefs_show_xrefs_title">Kruis verwysings</string>
   <string name="prefs_show_footnotes_summary">Wys voetnote, as hulle in die dokument beskikbaar is</string>
+  <string name="prefs_show_footnotes_inline_title">Poznámky pod čiarou vložené</string>
+  <string name="prefs_show_footnotes_inline_summary">Zobraziť poznámky pod čiarou priamo v texte namiesto klikateľných značiek</string>
   <string name="prefs_show_xrefs_summary">Wys kruisverwysings, as hulle in die dokument beskikbaar is</string>
+
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
+  <string name="prefs_non_strongs_word_italic_title">Kurzívou doplnené slová</string>
+  <string name="prefs_non_strongs_word_italic_summary">Zobraziť kurzívou slová bez Strongových čísel</string>
   <string name="prefs_section_title_title">Afdeling Titels</string>
+  <string name="prefs_title_scroll_button_title">Tlačidlo posúvania k názvu</string>
+  <string name="prefs_title_scroll_button_summary">Zobraziť tlačidlo posúvania nahor vedľa názvov sekcií</string>
   <string name="prefs_red_letter_title">Rooi woorde</string>
+  <string name="prefs_infinite_scroll_title">Nekonečné posúvanie</string>
+  <string name="prefs_infinite_scroll_summary">Automaticky načítať ďalší obsah pri posúvaní</string>
+  <string name="prefs_mark_as_read_button_title">Tlačidlo označenia ako prečítané</string>
+  <string name="prefs_mark_as_read_button_summary">Zobraziť tlačidlo na konci každej kapitoly na označenie ako prečítanej</string>
+  <string name="prefs_show_memorization_indicators_title">Indikátory memorovania</string>
+  <string name="prefs_show_memorization_indicators_summary">Zobraziť farebné indikátory okraja pre memorované verše a cieľové verše</string>
+  <string name="prefs_auto_track_reading_title">Automatické sledovanie čítania</string>
+  <string name="prefs_auto_track_reading_summary">Automaticky označovať kapitoly ako prečítané pri posúvaní cez ne</string>
   <string name="prefs_tilt_to_scroll_title">Kantel om te skuif</string>
+
   <string name="prefs_toolbar_button_action_title">Aksie vir nutsbalk knoppie druk</string>
   <string name="prefs_toolbar_button_action_summary">Aksie om te neem wanneer jy Bybel- of Kommentaar nutsbalk knoppies druk</string>
   <string name="prefs_toolbar_button_action_default">Druk om kieslys oop te maak, lang druk vir dokumente skerm (standaard)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Druk om volgende dokument oop te maak, lang druk om kieslys oop te maak</string>
   <string name="prefs_toolbar_button_action_swap_activity">Druk om volgende dokument oop te maak, lang druk vir dokumente skerm</string>
+
   <string name="prefs_night_mode_title">Nag mode skakel</string>
   <string name="prefs_night_mode_summary">Of jy nou outomaties na nagmodus oorskakel (as toestel dit ondersteun), handmatig of via stelselinstelling (Android 10). Handleidingwisseling kan gedoen word uit die 3-dot opsies kieslys op die hoofskerm.</string>
   <string name="prefs_night_mode_manual">handleiding</string>
   <string name="prefs_night_mode_automatic">Outomaties</string>
   <string name="prefs_night_mode_system">Stelsel</string>
   <string name="options_menu_night_mode">Nag mode</string>
+
   <string name="prefs_navigate_to_verse_title">Gaan na vers</string>
   <string name="prefs_navigate_to_verse_summary">Kies vers (en hoofstuk) wanneer \'n teks gekies word</string>
   <string name="prefs_open_links_in_special_window_title">Skakels venster</string>
@@ -121,31 +171,52 @@
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
   <string name="reset_fontsize">Herstel</string>
+
   <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
   <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van dokumente wat met die hand geïnstalleer is, vanaf die jsword- / swaardmap op interne berging</string>
+
   <string name="prefs_expand_footnotes_title">Inlyn kruis verwysings </string>
   <string name="prefs_expand_footnotes_summary">Wys kruis verwysinhoud in lyn binne die teks, in plaas van \'n skakel wat \'n opspring dialoog oopmaak</string>
+
   <string name="all_text_options_window_menutitle">Alle teks opsies</string>
   <string name="text_options_window_menutitle">Teks opsies</string>
   <string name="auto_fullscreen">Volskerm deur te blaai</string>
   <string name="reversed_split_mode">Omgekeerde verdeel modus</string>
+
   <string name="add_ellipsis">%s ...</string>
+
   <string name="font_size_pt">%dpt</string>
   <string name="value_mm">%dmm</string>
   <string name="auto_fullscreen_summary">Skakel outomaties oor na volskerm wanneer u teks blaai. Wenk: u kan ook altyd oorskakel na die volledige skerm deur te dubbel klik op die skerm.</string>
   <string name="prefs_margin_size_title">Verander kantruimte grootte</string>
   <string name="prefs_margin_size_mm_title">Kantlyn grootte (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Gevorderde instellings</string>
+  <string name="prefs_features_cat">Funkcie</string>
   <string name="prefs_display_customization_cat">Aanskou &amp; voel</string>
   <string name="prefs_behavior_customization_cat">Toepassings gedrag</string>
+
   <string name="prefs_margin_size_summary">Verstel links en regs kantruimte teks uitsig. Jy kan ook
          die maksimum breedte van die teks verstel.</string>
+  <string name="prefs_margin_size_summary_2">Tip: Ťuknutím na okraj môžete preskočiť o jednu stranu nahor/nadol.</string>
+
   <string name="prefs_text_colors_summary">Verstel teks en agtergrond kleure en geraas effek</string>
   <string name="text_display_settings_activity_title">teks vertoon instelling</string>
   <string name="workspace_text_display_settings_title">Teks opsies - %s</string>
   <string name="window_text_display_settings_title">Teks opsies - Venster %d</string>
-  <string name="prefs_text_display_settings_title">Formateer</string>
-  <string name="prefs_text_appearance_title">Voorkoms</string>
+  <string name="global_text_display_settings_title">Globálne možnosti textu</string>
+  <string name="global_text_display_settings_summary">Predvolené nastavenia zobrazenia textu pre všetky pracovné plochy</string>
+  <string name="parent_settings_category_title">Nadradené nastavenia</string>
+  <string name="workspace_text_options_link">Možnosti textu pracovnej plochy — %s</string>
+  <string name="workspace_text_options_link_summary">Upraviť nastavenia zobrazenia textu pre túto pracovnú plochu</string>
+  <string name="global_text_options_link">Globálne možnosti textu</string>
+  <string name="global_text_options_link_summary">Upraviť predvolené nastavenia zobrazenia textu pre všetky pracovné plochy</string>
+  <string name="prefs_font_and_colors_title">Písmo a farby</string>
+  <string name="prefs_text_layout_title">Rozloženie textu</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s a morfológia</string>
+  <string name="prefs_footnotes_and_xrefs_title">Poznámky pod čiarou a krížové odkazy</string>
+  <string name="prefs_verses_and_headings_title">Verše a nadpisy</string>
+  <string name="prefs_page_scrolling_title">Posúvanie stránky</string>
+
   <string name="prefs_justify_title">teksformaat-lyn teks</string>
   <string name="prefs_justify_summary">Belyn teks in \'teksformaat\' -styl, wat beteken dat linker en regter kantruimte teks ooreenstem</string>
   <string name="pref_left_margin_label_mm">Linger kant (%d mm)</string>
@@ -168,8 +239,10 @@ Woordafbreking</string>
   <string name="hide_window_buttons_summary">Venster knoppies wat aan die regterkant van die Bybel aansigte vertoon word, word weggesteek. Venster navigasiebalk aan die onderkant word steeds vertoon en jy kan venste ropspring kieslys oopmaak deur hulle lank te klik</string>
   <string name="hide_bible_reference_overlay_title">Versteek Bybel verwysing oorleg</string>
   <string name="hide_bible_reference_overlay_summary">Moenie die semi-deursigtige Bybel verwysings oorleg wys wanneer toep in volskerm modus is nie</string>
+
   <string name="full_screen_hide_buttons_pref_title">Versteek venster knoppiebalk in volskerm</string>
   <string name="full_screen_hide_buttons_pref_summary">Wanneer na volskerm modus oorskakel, verberg outomaties die venster knoppiebalk wat aan die onderkant van die skerm is</string>
+
   <string name="prefs_dictionaries_cat">Woordeboeke</string>
   <string name="choose_strongs_greek_dictionary_title">Strongs Griekse woordeboek</string>
   <string name="choose_strongs_greek_dictionary_summary">Kies Strongs woordeboek vir Griekse woord definisies</string>
@@ -177,21 +250,32 @@ Woordafbreking</string>
   <string name="choose_strongs_hebrew_dictionary_summary">Kies Strongs woordeboek vir Hebreeuse  woord definisies</string>
   <string name="choose_strongs_greek_morphology_title">Robinson Griekse morfologie</string>
   <string name="choose_strongs_greek_morphology_summary">Kies woordeboek vir Robinson Griekse morfologie definisies</string>
+  <string name="choose_word_lookup_dictionary_title">Slovníky na vyhľadávanie slov</string>
+  <string name="choose_word_lookup_dictionary_summary">Vyberte slovníky na vyhľadávanie slov</string>
+  <string name="lookup_in_dictionary">Vyhľadať v slovníkoch</string>
+  <string name="word_not_found_in_dictionaries">Slovo sa nenašlo v žiadnom slovníku</string>
+
   <string name="prefs_top_margin_title_mm">Boonste kantlyn (%d mm)</string>
   <string name="font_size_title">Skrif grootte</string>
   <string name="font_size_title_pt">Skrif grootte (%dpt)</string>
   <string name="prefs_font_text_size_summary">Verstel hoof teks skrif grootte</string>
+
   <string name="pref_font_family_label_name">Skrif familie (%s)</string>
   <string name="prefs_font_family_summary">Verander skrif familie. Wenk: meer lettertipes kan geïnstalleer word via Aflaai Dokumente / Byvoegings.</string>
+
   <string name="prefs_text_bookmarks_title">Boekmerk &amp; My Notas instellings</string>
+  <string name="prefs_reading_and_memorization_title">Čítanie a memorovanie</string>
+
   <string name="prefs_enable_bluetooth_title">Aktiveer Bluetooth-media knoppies</string>
   <string name="prefs_enable_bluetooth_summary">Hanteer Bluetooth-mediak noppies om te begin /stop praat.</string>
   <string name="create_bookmark">Skep \'n nuwe Boekmerk</string>
   <string name="create_bookmark_with_a_note">Skep \'n nuwe Boekmerk met \'n nota</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Kleur instellings</string>
   <string name="window_color_settings_title">Venster kleur instellings</string>
   <string name="workspace_color_settings_title">Werkruimte kleur Standaard instellings</string>
+
   <string name="color_workspace">Werkspasie kleur</string>
   <string name="color_text">Teks kleur</string>
   <string name="color_background">Agtergrond kleur</string>
@@ -199,12 +283,14 @@ Woordafbreking</string>
   <string name="colors_night_mode_title">Nag mode</string>
   <string name="prefs_noise_title">Agtergrond kleur</string>
   <string name="prefs_noise_summary">Voeg \'n bietjie geraas by agtergrond dit mag dalk dit beter maak vir jou oë.</string>
+
   <string name="cpv_default_title">Kies \'n kleur</string>
   <string name="cpv_presets">Voorafbepaalde</string>
   <string name="cpv_custom">Gebruik</string>
   <string name="cpv_select">Kies</string>
   <string name="cpv_transparency">Deursigtigheid</string>
-  <!--Window-->
+
+    <!-- Window -->
   <string name="new_window">Nuwe venster</string>
   <string name="windowClose">Maak Toe</string>
   <string name="windowMaximise">Vermeeder</string>
@@ -215,19 +301,23 @@ Woordafbreking</string>
   <string name="copy_settings">Kopieer instellings na</string>
   <string name="copy_settings_to_workspace">Werkspasie</string>
   <string name="copy_settings_to_window">Venster %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings_to_global">Globálne predvolené</string>
   <string name="change_to_normal">Verander na normale venster</string>
   <string name="window_pin_mode">Speld</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">Daar is geen notas vir hierdie hoofstuk nie</string>
   <string name="no_verse_notes">Daar is geen notas ​​vir hierdie vers nie</string>
   <string name="previous">Vorige</string>
   <string name="next">Volgende</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
   <string name="no_indexed_bible_with_strongs_ref">U moet \'n Bybel aflaai wat Strong se getalle bevat en die indeks daarvan bou via Soek</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <string name="go_to_downloads">Gaan na Aflaaie</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">Laai Dokumente af</string>
   <string name="redownload">Herlaai Dokumente</string>
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
@@ -258,7 +348,8 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="failed_repositories_message">Kon nie met die volgende dokument bediener verbind nie: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Die volgende lêers kon nie afgelaai word nie:\n\n%s\n\n</string>
   <string name="cant_delete_document">Hierdie dokument kan nie verwyder word nie.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">Laai dokumente van uit lêers </string>
   <string name="install_zip_module">Installeer Bybel Module</string>
   <string name="install_zip_module_discrete">Installeer sakrekenaar module</string>
@@ -271,7 +362,8 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="overwrite_files_title">Oorskryf lêers?</string>
   <string name="could_not_overwrite_files">Kon nie lêers oorheers nie: %s Afgesien daarvan was die installasie suksesvol.</string>
   <string name="install_do_you_want">Wil jy module installeer (%s)?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="reading_plans_plural">Lees Planne</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
@@ -332,28 +424,32 @@ met vier verskillende voorlesings vir gesins- sowel as persoonlike toewyding. El
 Lees deur die Bybel in 2 jaar, en lees die NT en Psalms twee keer.
 Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming verleen
  </string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Skrap</string>
   <string name="delete_index">Skrap soek indeks</string>
   <string name="about">Betreffende</string>
   <string name="delete_doc">Skrap %s?</string>
   <string name="delete_search_index_doc">Skrap indeks van %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Voetnotas en verwysings</string>
   <string name="share_verse">Deel...</string>
   <string name="share_verse_widget_title">Deel seleksie</string>
   <string name="share_verse_subject_2">\'n Bybel vers is gedeel met wat jy gebruik %s.</string>
   <string name="compare_translations">Vergelyk vertalings</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Maak skakel hier oop</string>
   <string name="open_link_in_new_window">Maak skakel oop in \'n nuwe venster</string>
   <string name="open_link_in_special_window">Maak skakel oop in spesiale venster</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Boekmerke &amp; My Notas</string>
   <string name="migrated_my_notes">Migreer my notas</string>
   <string name="bookmarks">Boekmerke</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Etikette</string>
   <string name="manage_labels">Bestuur Etikette</string>
   <string name="assign_labels">Ken etikette toe</string>
@@ -367,6 +463,9 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="add_bookmark_whole_verse">Boekmerk Vers</string>
   <string name="add_bookmark_whole_verse1">Verse</string>
   <string name="add_bookmark_whole_verse2">Volle verse</string>
+  <string name="add_whole_page_bookmark">Pridať záložku pre celú stránku</string>
+  <string name="add_paragraph_break">Odsek</string>
+  <string name="ai_label">AI</string>
   <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
@@ -375,7 +474,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="auto_assign_labels1">Outo-toewys etiket aan nuwe boekmerke</string>
   <string name="auto_assign_labels_primary">Outo-toewys as primêre</string>
   <string name="label_color">Etiketteer kleur</string>
-  <!--can be removed-->
   <string name="label_color_example">Voorbeeld</string>
   <string name="marker_style">Wys slegs merker vir boekmerke seleksie</string>
   <string name="marker_style_whole_verse">Wys slegs merker vir hele vers van boekmerke</string>
@@ -387,31 +485,34 @@ As dokument struktuur verander het, kan die opdatering van hierdie dokument maak
 dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwyn heeltemal.</string>
   <string name="bookmark_warning3">Wil u nog steeds die module opdateer?</string>
   <string name="bookmark_warning4">Dit word aanbeveel dat u die module rugsteun voordat u dit opdateer.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
   <string name="sort_by_alphabetical">Alfabetiese volgorde</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Soek notas</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Woordeboek</string>
   <string name="search_dictionary_hint">Soek woordeboek</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Boek</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d hoofstuk</string>
   <string name="some_chapters">%d hoofstukke</string>
   <string name="rest_of_book">Gaan na die einde van die boek</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d verse</string>
   <string name="rest_of_chapter">Gaan na die einde van hoofstuk</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d bladsy</string>
   <string name="some_pages">%d bladsye</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Stop</string>
   <string name="pause">Pouse</string>
   <string name="rewind">Terugwen</string>
@@ -419,7 +520,8 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="tts_lang_not_available">Taal is nie beskikbaar nie.</string>
   <string name="speak_queue">Lys</string>
   <string name="speak_repeat">Herhaal</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Praat spoed</string>
   <string name="speak_and_play_earcons_title">Praat en speel earcon klanke vir</string>
   <string name="playback_settings_title">Speel instellings</string>
@@ -428,14 +530,17 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="speak_bookmarks_menu_title">Praat uit boekmerk instellings</string>
   <string name="speak_advanced_settings">Gevorderde Instellings</string>
   <string name="speak_sleep_timer_title">Slaap tydhouer</string>
+
   <string name="speak_no_books_available">Geen boeke beskibaar om te praat</string>
   <string name="speak_general_error">Spraak kon nie vir hierdie boek begin word nie</string>
+
   <string name="repeat_passage">Herhaal inleiding</string>
   <string name="set_repeat_passage_range">Stel herhaalde inleiding omvang</string>
   <string name="speak_beginning_of_passage">Kies begin van inlaiding</string>
   <string name="speak_ending_of_passage">Kies einde van inleiding</string>
   <string name="speak_verse_range_to_repeat">Kies vers omvang om te herhaal</string>
   <string name="speak_ending_verse_must_be_later">Die einde van die vers moet later wees as die begin van die vers</string>
+
   <string name="conf_speak_synchronize">Teks volg spraak</string>
   <string name="conf_speak_auto_bookmark">Outomatiese boekmerke</string>
   <string name="conf_save_playback_settings_to_bookmarks">Stoor speel instellings na boekmerke</string>
@@ -444,10 +549,12 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="conf_change_title">Titels</string>
   <string name="conf_speak_footnotes">Voet Notas</string>
   <string name="conf_speak_sleep_timer">Stel slaap tydhouer</string>
+
   <string name="sleep_timer_title">Slaap tydhouer in minute</string>
   <string name="sleep_timer_set">Stel slaap tydhouer.  Stel Tydhouer: %d minute </string>
   <string name="sleep_timer_started">Slaap tydhouer begin oor, %d minute</string>
   <string name="sleep_timer_active_at">Slaap tydhouer %s minute oor</string>
+
   <string name="speak_next">Volgende</string>
   <string name="speak_previous">Vorige</string>
   <string name="widget_toggle_sleep_timer">Verander slaap tydhour</string>
@@ -455,33 +562,45 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="speak_status_stopped">Gestop.</string>
   <string name="speak_autobookmarking_disabled">Outo-boekmerke gedeaktiveer!</string>
   <string name="system_speak_settings">Maak oop stelsel TTS instellings</string>
+
   <string name="auto_assing_labels_help1">Hier kan jy aanpas watter etikette outomaties toegeken word aan boekmerke wat jy skep.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Hierdie instelling is van toepassing op %s.</string>
   <string name="setting_scope_window">hierdie venster</string>
   <string name="setting_scope_workspace">hierdie werkruimte</string>
+
   <string name="assing_labels_help1">Elke boekmerk kan aan verskeie etikette toegeken word.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Gebruik %s om te spesifiseer watter etiketkleur gewys word.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Tik op %s ikoon om daardie etiket te kry, word outomaties aan nuwe boekmerke toegeken.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Tik op %s om etiket by jou gunstelinglys te voeg vir vinnige toegang..</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Tik op %s om die lys weer te bestel op grond van jou keuses.</string>
+
+  <string name="global_text_options_help_title">Globálne možnosti textu</string>
+  <string name="global_text_options_help1">Toto sú globálne predvolené nastavenia pre všetky pracovné plochy. Každá pracovná plocha ich môže prepísať vlastnými nastaveniami.</string>
+
   <string name="workspace_text_options_help_title">Werkruimte teks opsies</string>
   <string name="workspace_text_options_help1">Hierdie instellings bepaal die opsie vir alle werkruimtevensters.</string>
   <string name="workspace_text_options_help2">Jy kan dit oorheers deur die individuele vensterinstellings te verander.</string>
+
   <string name="window_text_options_help_title">Venster teks opsies</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ikoon dui aan dat die instelling van die werkruimte-instellings kom.</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">%sikoon dui aan dat hierdie instelling vir hierdie spesifieke venster verander is.</string>
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Gebruik %1$s knoppie om al hierdie instellings terug te stel na %2$s.</string>
   <string name="reset_defaults">Staande waardes</string>
   <string name="reset_workspace_defaults">werkruimte staande waardes</string>
+
   <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
+
   <string name="speak_help_auto_bookmark">
 \'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
 Outomaties gegenereerde boekmerke is gemerk met die spesial Praat-etiket.
@@ -496,24 +615,19 @@ van die boekmerk af gelaai word.</string>
  maar aan Romeine stadiger met hoorbare oorklanke op hoofstukveranderinge, dan
  jy kan verskillende afspeelinstellings vir hierdie boeke hê,
  wanneer hierdie instellings in die ooreenstemmende boekmerke gestoor word.</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_replace">
-    <item>Yahweh</item>
-    <item>Yahweh</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
+         in speak settings. -->
+
   <string name="speak_book_changed">Boek het verander</string>
   <string name="speak_chapter_changed">Hoofstuk</string>
   <string name="speak_first">Eerste</string>
@@ -521,12 +635,15 @@ van die boekmerk af gelaai word.</string>
   <string name="speak_third">Derde</string>
   <string name="speak_fourth">Vierde</string>
   <string name="speak_fifth">Vyfde</string>
+
   <string name="verse_range_mode_disabled">
 Herhaalde gedeelte mode was outomaties gedeaktiveer omdat
 praat buite die omskrewe versreeks begin het.</string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">My Notas</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Rugsteun na waar?</string>
   <string name="backup_backup_message">Rugsteun na foon of elders via die deel-funksie (e-pos, Google Drive, ens.)?</string>
   <string name="backup_phone_storage">Foon berging</string>
@@ -542,13 +659,15 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_document_info">Bybels, kommentare, woordeboeke, kaarte ens.</string>
   <string name="backup_to">Rugsteun na ...</string>
   <string name="backup_restore_from">Herstel vanaf ...</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Herstel of voer in vanaf ... </string>
   <string name="backup_restore">Herstel</string>
   <string name="backup_restore2">Herstel of voer in</string>
   <string name="overwrite_something">Oorskryf %s? </string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">Wat wil jy herstel?</string>
+
   <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
   <string name="restore_database">Rugsteun databasis leer ...</string>
   <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
@@ -558,10 +677,13 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
   <string name="backup_success2">My Notas, Boekmerke, Studie Blokkies, Lees Planne en Werkruimtes is suksesvol gerugsteun.</string>
   <string name="backup_modules_success">Geselekteerde modules is suksesvol gerugsteun.</string>
+
   <string name="backup_modules_email_subject_2">%s modules rugsteun</string>
   <string name="backup_modules_email_message_2">Aangeheg is jou %1$s  modules rugsteun, wat die volgende modules bevat: %2$s</string>
+
   <string name="backup_email_subject_2">%s databasis rugsteun</string>
   <string name="backup_email_message_2">Jou %s databasis met boekmerke, notas, leesplanne en werkruimtes is aangeheg</string>
+
   <string name="exported_studypads_subject">Uitgevoerde Studieblok(e)</string>
   <string name="exported_studypads_message">Jou %s databasis wat Boekmerke en Notas bevat, wat verband hou met geselekteerde StudyPads is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
@@ -574,20 +696,24 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="restore">Herstel</string>
   <string name="import2">Invoer</string>
   <string name="export_studypads_help">Lêer wat uitgevoerde Studiebloke bevat (dws etikette en boekmerke) kan ingevoer word via hoofkieslys -&gt; rugsteun en herstel.</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
-  <string name="bookmarks_db_stats">\"%1$s\" and %2$s ander etiket(te) / studieblad(e) en %3$s Boekmerke</string>
-  <!--About-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" a %2$s ďalší štítok/štítky/študijná zložka a %3$s záložiek</string>
+
+    <!-- About -->
   <string name="module_about_copyright">Kopiereg:%s</string>
   <string name="module_about_installed_version">Geïnstalleerde weergawe: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Laaste weergawe:  %1$s (%2$s)</string>
   <string name="module_about_versification">Verifiëring:%s</string>
   <string name="module_about_repository">Verspreidings bediener: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">Fout verslag</string>
   <string name="send_feedback_title">Terugvoer</string>
   <string name="send_bug_report_title">Terugvoer / fout verslag</string>
   <string name="report_bug_email_subject_3">[%1$s] Fout verslag vir %2$s %3$s</string>
+
   <string name="report_bug_big_heading">HUUR SKRYF JOU TERUGVOER OF FOUTVERSLAG BO HIERDIE LYN</string>
   <string name="report_bug_heading1">Instruksies:</string>
   <string name="report_bug_line_1">Vertel ons kortliks wat het jy gedoen / wat gebeur het toe die kwessie plaasgevind het</string>
@@ -603,7 +729,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="bug_report_screenshot">Skermskoot van toep wanneer ineenstorting plaas gevind het, of wanneer foutverslag geskep is.</string>
   <string name="bug_report_attachment_line_1">Om hierdie lêers aangeheg te hê, help toep ontwikkelaars baie in die vasstelling van die gerapporteerde fout.</string>
   <string name="report_bug_heading_4">Toestel inligting:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Alle tipes</string>
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>
@@ -611,11 +738,14 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="doc_type_book">Boek</string>
   <string name="doc_type_map">Kaart</string>
   <string name="doc_type_addons">Byvoegsels</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">Standaard</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">Goed</string>
   <string name="cancel">Kanselleer</string>
+  <string name="discard_changes_confirmation">Zahodiť neuložené zmeny?</string>
   <string name="yes">Ja</string>
   <string name="no">Nee</string>
   <string name="error">Fout</string>
@@ -626,7 +756,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="reset_generic">Herstel</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
   <string name="verse_not_found">Vers nie gevind</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
   <string name="error_occurred_crash_last_time">Die vorige keer toe u die toepassing gebruik het, het dit ineengestort. Om ons te help om die fout reg te stel, sal ons dit waardeer as u \'n foutverslag vir ons stuur.</string>
@@ -639,10 +770,12 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="error_skip">Vermy</string>
   <string name="bug_report_email_title">Stuur fout verslag per e-pos </string>
   <string name="bug_report_email_text">Kies vervolgens u voorkeur-e-postoepassing (byvoorbeeld Gmail) om die verslag aan die ontwikkelaarspan te stuur.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Teks na spraak</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="new_workspace">Nuut</string>
   <string name="switch_to_workspace">Werkspasies</string>
   <string name="delete_workspace">Verwyder</string>
@@ -660,15 +793,19 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="select_all">Kies Alles</string>
   <string name="copy_settings_workspaces_title">Na watter werkruimtes wil u instellings kopieer?</string>
   <string name="reset_settings">Herstel</string>
+  <string name="search_settings">Nastavenia hľadania</string>
   <string name="workspace_dismiss">Verdaag</string>
   <string name="workspace_listing_with_current">%s(huidige)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
+  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 In die beta-weergawe is daar nuwe funksies wat nog nie behoorlik getoets is nie,
 en dus gebruik van beta kan onverwagte gedrag veroorsaak, dit wil sê foute.
 Dit word aanbeveel dat gewone Bybellesers eerder \'n stabiele weergawe gebruik.
  </string>
+
   <string name="beta_notice_content_2">
 Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   (verkieslik) via %s
@@ -680,12 +817,15 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Los</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
+
   <string name="stable_notice_title">Die aansoek is opgegradeer!</string>
   <string name="upgrade_video_message">Sien asseblief video met nuwe kenmerke van hierdie vrystelling (%s)</string>
   <string name="stable_notice_par1">Nuwe weergawe %1$svan %2$s is suksesvol geïnstalleer!</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">Geskiedenis (%1$s:Venster %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Navigasie</string>
   <string name="help_nav_text">Gaan na die volgende of vorige hoofstuk deur die skerm met jou vinger te vee.
  Dubbel druk  op Bybelteks om oor te skakel na die volledige skerm modus 
@@ -708,8 +848,9 @@ Studie blokies is ontwerp om dit maklik te maak om preek notas te skryf, voor te
 persoonlike Bybelstudienotas neer te skry wat veelvuldige Bybelverwysings het. Elke studieblok word geassosieer met een boekmerk etieket.
 Alle Boekmerke wat met daardie onderskeie etiket geskep is, verskyn outomaties in die studiepaddokument.
 Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.</string>
+
   <string name="help_search_title">Soek</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
 (sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
   <string name="help_search_text2">Soek teks kan spesiale karakters insluit soos *, AND, OR, NOT</string>
@@ -740,30 +881,37 @@ on-gespende vensters. Jy wil miskienbBybel dokumente oopmaak as vasgespelde vens
  kommentaar en kaarte, ens. as vensters wat nie vasgespeld is nie. Dan kan jy maklik
 bybel dokumente altyd oop laat wees, en wissel vinnig tussen kommentaar en
 ander ekstra materiaal as jy die bybel bestudeer.</string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Vinnige Herlaai</string>
   <string name="welcome_message">Dankie vir die aflaai %s. Daar is tans geen Bybels of dokumente geïnstalleer nie. Om voort te gaan, installeer asseblief
 Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
 Rugsteun.</string>
-  <!--Supported file formats for documents-->
+    <!-- Supported file formats for documents -->
   <string name="supported_formats_title">Ondersteunde formate </string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>
   <string name="supported_formats">Ondersteunde formate vir die laai van dokumente vanaf \'n lêer: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Zip-lêer wat Sword-module (s) bevat, of dokumente-rugsteunlêer (*.abmd) geskep deur %s</string>
   <string name="format_mysword">MySword dokumente (*.mybible)</string>
   <string name="format_mybible">MyBible dokumente (*. SQLite3)</string>
+  <string name="format_esword">Dokumenty e-Sword (*.bblx, *.bbli)</string>
   <string name="format_epub">EPUB dokumente (*.epub) </string>
-  <string name="format_studypads">Studie blokke van AndBible-databasisse (*.abdb)</string>
+  <string name="format_ttf">Písma TTF (*.ttf)</string>
+  <string name="format_csv_prompts">Doplnky výziev AI (*.csv)</string>
+  <string name="format_studypads">Študijné zložky z databáz AndBible (*.abdb)</string>
   <string name="redownload_message">
 n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af te laai. </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Eindig</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Ek verstaan</string>
   <string name="first_time_help_show_next_time">Wys volgende keer weer</string>
+
   <string name="strongs_mode_title">Kies strong modus</string>
+
   <string name="download_dialog_message">Die volgende boeke kon nie afgelaai word nie:</string>
   <string name="select_multiple">Kies veelvuldige</string>
   <string name="journal_description">Gebruiker-redigeerbare studie blokkies met persoonlike teks en boekmerke</string>
@@ -785,13 +933,45 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="unlock_info">Geënkripteerde module ontsluitings inligting</string>
   <string name="try_again_passphrase">Wagfrase het nie gewerk nie. Probeer weer?</string>
   <string name="show_unlock_info">Module &amp; ontsluit inligting</string>
+
+  <string name="prefs_experimental_features_title">Experimentálne funkcie</string>
+  <string name="prefs_experimental_features_summary">Vyberte experimentálne funkcie na povolenie. Tieto funkcie sú stále vo vývoji a môžu sa zmeniť alebo odstrániť</string>
+  <string name="experimental_feature_bookmark_edit_actions">Akcie úpravy záložiek</string>
+  <string name="experimental_feature_add_paragraph_break">Pridať záložku odsekovej prestávky</string>
+  <string name="experimental_feature_ai_features">Funkcie AI a moje dokumenty</string>
+  <string name="experimental_feature_reading_and_memorization">Sledovanie čítania a memorovanie</string>
+  <string name="raw_llm_log_title">Surový záznam LLM</string>
+  <string name="raw_llm_log_empty">Žiadne surové záznamy nie sú k dispozícii</string>
+  <string name="raw_llm_log_copied">Záznam skopírovaný do schránky</string>
+  <string name="raw_llm_log_total">Celkovo: vstup %1$s / výstup %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Systémová výzva</string>
+  <string name="raw_llm_log_entry_user">Správa používateľa</string>
+  <string name="raw_llm_log_entry_assistant">Odpoveď asistenta</string>
+  <string name="raw_llm_log_entry_tool_call">Volanie nástroja: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Výsledok nástroja [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Definície nástrojov (%d nástrojov)</string>
+  <string name="raw_llm_log_entry_api_response">Odpoveď API (iterácia %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s tokenov</string>
+  <string name="raw_llm_log_entry_usage">vstup: %1$s / výstup: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(prázdne)</string>
+  <string name="raw_llm_log_entry_tool_desc">Popis: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Parametre: %s</string>
+  <string name="agent_log_view_raw">Zobraziť surový záznam LLM</string>
+  <string name="agent_log_model_selector">Zmeniť predvolený model (momentálne: %1$s)</string>
+  <string name="agent_log_model_not_configured">Žiadny model nie je nakonfigurovaný</string>
+  <string name="agent_log_select_model">Vybrať predvolený model</string>
+  <string name="share">Zdielať</string>
   <string name="prefs_show_error_box_title">Wys Javascript fout vak</string>
   <string name="prefs_show_error_box_summary">Nuttig vir ontwikkelaars wanneer BibleView javascript kantfoute ontfout word. Dit sal die toep stadiger maak.</string>
   <string name="active_window_indicator_title">Wys aktiewe venste raanwyser</string>
   <string name="active_window_indicator_summary">Merk vensterhoeke om te help herken watter venster aktief is</string>
   <string name="app_licence_title">Maak bron lisensie oop</string>
+
   <string name="how_to_contribute">Hoe om by te dra?</string>
   <string name="confirm_delete_bookmarks">Wil jy %d boekmerke en hul notas  verwyder?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Vybraný štítok je priradený k %d záložkám, ktoré nemajú iné štítky. Chcete tieto záložky vymazať spolu so štítkami?</string>
+  <string name="delete_label_and_bookmarks">Vymazať štítok aj záložky</string>
+  <string name="delete_label_only">Vymazať iba štítok</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Beveel dit aan vir \'n vriend</string>
   <string name="tell_friend_message1">Ek wil graag %s vir jou aanbeveel.</string>
@@ -799,7 +979,7 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message3">Installeer dit by Google Play Winkel: %s</string>
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
-  <string name="web_search">Web soektog </string>
+  <string name="web_search">Webové hľadanie</string>
   <string name="verse_action_copy">Kopieër</string>
   <string name="generic_share">Deel</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
@@ -812,16 +992,18 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="show_reference_at_front">Wys voor in vers</string>
   <string name="abbreviate_reference">Verkorte verwysing</string>
   <string name="version_name">Naam van Weergawe </string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Sluit weergawe naam in</string>
   <string name="show_ellipsis">Wys beletselteken (...)</string>
   <string name="show_quotes">Wys aanhalings </string>
+  <string name="separate_verses_with_newlines">Oddeliť verše novými riadkami</string>
+
   <string name="backup_button">Rugsteun</string>
   <string name="back_button">Terug</string>
   <string name="upgrading_database">Opgradering van databasis. Wag asseblief...</string>
   <string name="initializing_app">Inisialiseer tans die program…</string>
   <string name="show_notes">Wys notas</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Android WebView pakket is te oud (%1$s).  Jy moet jou Android WebView pakket opgradeer na ten minste weergawe %2$s te gebruik %3$s.  of die meeste toestelle dit kan oor gedoen word %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Gaan in elk geval voort</string>
@@ -831,13 +1013,14 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
        Positiewe en gedetailleerde resensies help AndBible Oop Bron Projek baie. Dankie!</string>
   <string name="rate_message6">
 Voordat u negatiewe oorsig hersien, oorweeg asseblief die volgende</string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
 As jy \'n probleem met toep het, asseblief %1$s of %2$s in plaas daarvan.</string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
 As een of ander teks / Bybelvertaling \'n probleem het, %s.</string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
 Indien spesifieke teks nie in die toepassing beskikbaar is nie, %s</string>
   <string name="rate_message4">
@@ -857,6 +1040,13 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
   <string name="this_bookmark">Hierdie boekmerk</string>
   <string name="this_workspace">Hierdie werkruimte</string>
+  <string name="override_style">Prepísať štýl</string>
+  <string name="no_override_suffix">(bez prepísania)</string>
+  <string name="display_mode_highlight">Zvýraznenie</string>
+  <string name="display_mode_underline">Podčiarknutie</string>
+  <string name="display_mode_marker">Iba značka</string>
+  <string name="display_mode_hidden">Skryté</string>
+  <string name="workspace_override_indicator">Tento štítok má špecifický režim zobrazenia pre pracovnú plochu</string>
   <string name="primary_label">Primêre etiket</string>
   <string name="highlight_entire_verse">Lig die hele vers uit</string>
   <string name="favourite_label">Gunsteling etiket</string>
@@ -870,6 +1060,7 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="book_menu_sort_row_opt">Maak boeke horisontaal</string>
   <string name="book_menu_group_by_category">Groepeer boeke volgens kategorie</string>
   <string name="book_menu_show_long_book_name">Wys lang boek naam </string>
+  <string name="book_menu_show_progress_bars">Zobraziť ukazovatele postupu</string>
   <string name="reset_workspace_labels">Wil jy outo-toewysing en gunsteling instellings vir hierdie werkruimte terugstel?</string>
   <string name="reset_hide_labels">Wil jy instelling terugstel om gespesifiseerde etikette instellings weg te steek?</string>
   <string name="reorder">Herbestelling</string>
@@ -890,20 +1081,63 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="label_salvation">Redding</string>
   <string name="label_underline">Onderlyn</string>
   <string name="import_menu">Invoer &amp; Uitvoer</string>
+  <string name="auto_backups_title">Automatické zálohy</string>
+  <string name="backup_file_info">Aplikácia v%1$d, %2$s</string>
+  <string name="reset_databases_title">Resetovať databázy</string>
+  <string name="reset_databases_description">Resetovať jednotlivé databázy do počiatočného prázdneho stavu. Toto nie je možné vrátiť späť.</string>
+  <string name="last_crash_info_title">Informácie o poslednom páde</string>
+  <string name="reset_database_confirm">Toto natrvalo vymaže všetky údaje v \"%1$s\" a resetuje ich do počiatočného stavu. Toto nie je možné vrátiť späť.\n\nSte si istí?</string>
+  <string name="reset_database_success">Databáza bola úspešne resetovaná</string>
+  <string name="reset_something">Reset: %1$s</string>
   <string name="export">Uitvoer</string>
+  <string name="csv_export_success">Exportovaných %d záložiek do CSV</string>
+  <string name="csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
+  <string name="csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
+  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="csv_export_failed">Export CSV zlyhal: %s</string>
+  <string name="export_prompts_csv">Exportovať výzvy do CSV</string>
+  <string name="import_prompts_csv">Importovať výzvy z CSV</string>
+  <string name="prompts_csv_export_success">Exportovaných %d výziev do CSV</string>
+  <string name="prompts_csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
+  <string name="prompts_csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
+  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="prompts_csv_export_failed">Export CSV zlyhal: %s</string>
+  <string name="no_prompts_to_export">Žiadne používateľské výzvy na export</string>
+  <string name="csv_column_selection_title">Vybrať stĺpce CSV</string>
+  <string name="choose_csv_file">Vybrať súbor CSV na import</string>
+  <string name="no_bookmarks_to_export">Žiadne záložky na export</string>
   <string name="export_fileformat">Voer uit as %s</string>
   <string name="export_something">Uitvoer %s</string>
   <string name="import_items">Invoer %s</string>
   <string name="import_from_db">Voer in uit Program databasis lêer</string>
   <string name="import_error">Invoer vanaf Program databasis het misluk. Databasis lêer kan verkeerde formaat wees of gemaak word met te ou weergawe van %s.</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+
+  <string name="export_bookmarks_csv">Exportovať záložky ako %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">Odkaz OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Odkaz na bibliu</string>
   <string name="document">Dokument</string>
-  <string name="book">Boek</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
-  <!--Verse is the verse number in the chapter, starting from 1-->
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+  <string name="book">Kniha</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Začiatok kapitoly</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Začiatok verša</string>
+  <string name="chapter_end">Koniec kapitoly</string>
+  <string name="verse_end">Koniec verša</string>
+  <string name="id">Identifikátor</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Začiatok poradia</string>
+  <string name="ordinal_end">Koniec poradia</string>
+  <string name="created_at">Vytvorené</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Začiatočný posun</string>
+  <string name="end_offset">Koncový posun</string>
+  <string name="custom_icon">Vlastná ikona</string>
+  <string name="last_updated_at">Naposledy aktualizované</string>
+  <string name="bookmark_notes">Poznámky k záložke</string>
+
   <string name="chooser_range">Reeks</string>
   <string name="chooser_jump">Spring</string>
   <string name="chooser_OT_abbrev">OT</string>
@@ -912,9 +1146,9 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="chooser_style_lists">Lyste</string>
   <string name="chooser_select">Kies %s</string>
   <string name="chooser_pref_reset">Moenie hoofstuk/vers na 1 terugstel wanneer boek/hoofstuk gekies word nie</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Ons is jammer, maar ons het slegs gedeeltelike vertaling van gebruikerskoppelvlak in %1$sse taal. Dit is omdat %2$s dit geheel en al deur vrywilligers ontwikkel is. As jy kan help met die vertaling, sien asseblief %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instruksies vir vertalers</string>
   <string name="questions_title">Vrae?</string>
   <string name="questions_title2">Het jy hulp nodig?</string>
@@ -925,10 +1159,17 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="strongs_hidden_links">Versteekte skakels</string>
   <string name="verse_tip">Om gedeeltelike of baie verse te kies, kan jy Bybel teks lank druk</string>
+
   <string name="permission_required">Toestemming benodig</string>
   <string name="labels_search_hint">Soek</string>
+  <string name="search_mode_name_start">Názov (od začiatku)</string>
+  <string name="search_mode_name_contains">Názov (obsahuje)</string>
+  <string name="search_mode_content">Obsah</string>
+  <string name="search_results_matches">%d zhôd</string>
+  <string name="search_results_match">1 zhoda</string>
   <string name="progress_status_permission">Om kennisgewings (aflaai status, verwerking, praat status) te wys, het ons jou toestemming nodig.</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Eenvoudige Sakrekenaar</string>
   <string name="prefs_persecution_cat">Instellings vir die vervolgde</string>
   <string name="prefs_discrete_mode">Versteek godsdienstige simbole</string>
@@ -937,12 +1178,13 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="prefs_calculator_pin">Sakrekenaar PIN</string>
   <string name="prefs_calculator_pin_desc">PIN-kode om die toep oop te maak wanneer die sakrekenaar gewys word.</string>
   <string name="calc_division_by_zero">Deel deur nul word nie toegelaat nie</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Verkeerde Formaat</string>
   <string name="calc_wrong_format_operand">Verkeerde Formaat. Operand Sonder enige getalle?</string>
   <string name="prefs_persecuted_help">Lees dit eers! </string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Instruksies vir die instellings en inligting oor spesifieke diskrete bou.</string>
+
   <string name="calculator_par1">
       Voordat u die toep binnegaan, word die sakrekenaarskerm vertoon.</string>
   <string name="calculator_par2">
@@ -958,13 +1200,15 @@ Vir verbeterde sekuriteit in \'n vervolgde omgewing, beveel ons sterk aan om dis
 van die toep, wat altyd \'n sakrekenaar sal vertoon, selfs al is die toep data uitgevee.</string>
   <string name="discrete_mode_link">
 Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">Sinkroniseer groep</string>
   <string name="sync_group_n">Groep %d</string>
   <string name="disable_sync">Deaktiveer sinchroniseer</string>
   <string name="open_in_window">Maak resultate in \'n venster oop</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Pasgemaakte bewaarplekke</string>
   <string name="custom_repositories_empty_list_message">Geen pasgemaakte bewaarplekke word gedefinieer nie</string>
   <string name="custom_repositories_create_button_label">Voeg Pasgemaakte Bewaarplek by</string>
@@ -978,14 +1222,17 @@ Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
   <string name="wiki_page">WIKI bladsy</string>
   <string name="custom_repositories_help0">U kan dokumente vanaf eksterne aangepaste bewaarplekke installeer, deur ook pasgemaakte bewaarplekke te installeer.</string>
   <string name="duplicate_custom_repository">Bewaarplek met naam %s bestaan ​​reeds, kan nie \'n ander byvoeg nie.</string>
+
   <string name="packages_dir">Pakketgids (zip-lêers)</string>
   <string name="warn_bad_document">Waarskuwing: Hierdie dokument kan (ten minste gedeeltelik) slegte tegniese gehalte wees.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Maak Bybel skakels oop in AndBible</string>
   <string name="open_bible_links_summary">As jy op skakels klik wat verwys na AndBible ondersteunde Bybel URL, maak dit oop in AndBible</string>
   <string name="copyReference">Kopieer skakel na knipbord </string>
   <string name="reference_copied_to_clipboard">Verwysing gekopieer na knipbord</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
 Kies watter backend cloud jy wil gebruik om verskeie toestelle te sinchroniseer.</string>
   <string name="prefs_sync_introduction_summary2">
@@ -1000,6 +1247,28 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="reading_plans_content">Lees planne en hul statusse</string>
   <string name="bookmarks_contents">Boekmerke, etikette en studieblokkies</string>
   <string name="workspaces_contents">Werkspasies en Windows</string>
+  <string name="my_documents_contents">Moje dokumenty a ich obsah</string>
+  <string name="ai_settings_sync_title">Nastavenia AI</string>
+  <string name="ai_settings_sync_contents">Výzvy AI a konfigurácie poskytovateľa</string>
+  <string name="progress_sync_title">Pokrok v čítaní</string>
+  <string name="progress_sync_contents">Zapamätané verše a záznamy o čítaní kapitol</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Pokrok v čítaní/memorovaní</string>
+  <string name="reading_progress_chapters_read">prečítané kapitoly</string>
+  <string name="reading_progress_verses_memorized">zapamätané verše</string>
+  <string name="reading_progress_active_days">aktívne dni</string>
+  <string name="reading_progress_overall">%s%% Biblie prečítanej</string>
+  <string name="reading_progress_bible_heatmap">Prehľad Biblie</string>
+  <string name="reading_progress_old_testament">Starý zákon</string>
+  <string name="reading_progress_new_testament">Nový zákon</string>
+  <string name="reading_progress_calendar">Aktivita čítania</string>
+  <string name="reading_progress_cycle">Cyklus %d</string>
+  <string name="reading_progress_new_cycle">Nový cyklus</string>
+  <string name="reading_progress_new_cycle_confirm">Začať nový cyklus čítania? Tým sa začne sledovanie vášho pokroku od začiatku, pričom sa zachovajú údaje z predchádzajúceho cyklu.</string>
+  <string name="reading_progress_previous_cycle">Predchádzajúci cyklus</string>
+  <string name="reading_progress_next_cycle">Nasledujúci cyklus</string>
+
   <string name="cloud_fetch_and_restore_initial">Kopieer vanaf Cloud na hierdie toestel</string>
   <string name="cloud_create_new">Kopieer vanaf hierdie toestel na Cloud</string>
   <string name="cloud_disable_sync">Kanselleer &amp;amp deaktiveer sinchronisasie</string>
@@ -1014,8 +1283,11 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Volgende Cloud</string>
   <string name="auth_title">Verifikasie aan %s</string>
+  <string name="auth_server_uri">URL servera</string>
   <string name="auth_username">Gebruiker naam</string>
   <string name="auth_password">Wagwoord</string>
+  <string name="auth_folder_path">Cesta k priečinku synchronizácie</string>
+  <string name="auth_folder_path_summary">Nadradený priečinok pre synchronizačné dáta (prázdne = koreň)</string>
   <string name="auth_access_token">Toegang teken </string>
   <string name="synchronization_categories">Sinchronisasie kategorieë</string>
   <string name="sync_general_settings">Inligting &amp; algemene instellings</string>
@@ -1023,11 +1295,11 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="are_you_sure">Is jy seker?</string>
   <string name="are_you_sure_reset_local">Dit sal jou plaaslike databasis terugstel vir %s met die inhoud wat tans in cloud diens gestoor word.</string>
   <string name="are_you_sure_reset_cloud">Dit sal u cloud databasis terugstel vir %s s met die inhoud wat u op hierdie toestel het.</string>
-  <string name="sync_cant_fetch"><div></div></string>
+  <string name="sync_cant_fetch"><div /></string>
   <string name="sync_disabling">Deaktiveer sinchronisasie vir %s vir eers.</string>
   <string name="sync_update_app">Dateer asseblief die toep op om voort te gaan met sinchronisasie.</string>
   <string name="sign_in_failed">Aanmelding by sinchronisasie backend diens het misluk.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Deaktiveer wolk sinchronisasie. U moet handmatig inskakel na herstel.</string>
   <string name="report">Verslag</string>
   <string name="sync_error">Fout het voorgekom in Clud sinchronisasie</string>
@@ -1035,12 +1307,14 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="restore_from_cloud_description">As u Toestel sinchronisasie op \'n ander toestel geaktiveer het, kan u begin deur die databasis vanaf Cloud te herstel.</string>
   <string name="enable_sync">Aktiveer sinchronisasie </string>
   <string name="last_updated">Laas opgedateer: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Kan nie die lêer lees nie </string>
   <string name="sqlite_invalid_file">Ongeldige modulelêer of lêernaam: %s</string>
   <string name="sqlite_cant_write">Kan nie die lêer (oor) skryf nie</string>
   <string name="install_failed_reason">Die installeringsmodule het om die volgende rede misluk: %s.</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Toep is elders oopgemaak</string>
   <string name="open_here">Maak hier oop </string>
   <string name="external_link">Eksterne skakel </string>
@@ -1064,5 +1338,584 @@ Dit sal nie foutoplossings of opdaterings ontvang nie</string>
 As jy nie wil opgradeer nie, deaktiveer asseblief \'Outomatiese opdaterings\' in jou toepassingwinkel (Google Play / F-Droid ens.).</string>
   <string name="dont_show">
 Moenie hierdie boodskap weer wys nie</string>
+  <string name="pref_font_size_multiplier_title">Násobič veľkosti písma</string>
+  <string name="pref_font_size_multiplier_summary_1">Vynásobiť veľkosti písma textu týmto číslom.</string>
+  <string name="pref_font_size_multiplier_summary_2">Užitočné, ak máte synchronizované zariadenie, ktoré sa používa s väčším písmom.</string>
+  <string name="current_value">Aktuálna hodnota: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Akcia pre gesto potiahnutia doľava/doprava</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Gesto potiahnutia doľava/doprava možno použiť na prechod na ďalšiu stranu/kapitolu.</string>
   <string name="prefs_swipe_mode_chapter">Hoofstuk</string>
+  <string name="prefs_swipe_mode_page">Strana</string>
+  <string name="prefs_swipe_mode_none">Vypnuté</string>
+  <string name="prefs_volume_keys_scroll_title">Posúvanie tlačidlami hlasitosti</string>
+  <string name="prefs_volume_keys_scroll_summary">Použite tlačidlá zvýšenia/zníženia hlasitosti na posúvanie textu Biblie</string>
+  <string name="page_number_title">Relatívne číslo strany</string>
+  <string name="page_number_summary">Zobrazí prekrytie s číslom strany. Číslo strany je relatívne k počiatočnej polohe.</string>
+  <string name="select_custom_icon">Vybrať vlastnú ikonu markera</string>
+  <string name="invalid_url_message">Zadaná URL adresa je neplatná. Zadajte platnú URL adresu (napr. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Zapamätajte si verše Biblie</string>
+  <string name="memorize_abbreviation">Memorovať</string>
+  <string name="add_memorization_target">Nastaviť ako cieľ memorovania</string>
+  <string name="memorize_memorized_passages">Zapamätané pasáže</string>
+  <string name="memorize_no_memorized_passages">Zatiaľ žiadne zapamätané pasáže</string>
+  <string name="memorize_targets">Ciele memorovania</string>
+  <string name="memorize_no_targets">Nie sú nastavené žiadne ciele memorovania</string>
+  <string name="memorize_auto_mark">Automaticky označiť ako zapamätané</string>
+  <string name="memorize_auto_mark_summary">Automaticky označiť verše ako zapamätané po dokončení cvičenia</string>
+  <string name="memorize_type_full_words">Písať celé slová</string>
+  <string name="memorize_type_full_words_summary">Vyžadovať napísanie celého slova namiesto len prvého písmena</string>
+  <string name="memorize_word_visibility">Viditeľnosť slov</string>
+  <string name="memorize_word_visibility_summary">Ako viditeľné sú nenapísané slová: ľahká nápoveda, stmavené alebo úplne skryté</string>
+  <string name="memorize_word_visibility_light">Ľahká</string>
+  <string name="memorize_word_visibility_dim">Stmavená</string>
+  <string name="memorize_word_visibility_hidden">Skrytá</string>
+  <string name="memorize_error_heatmap">Heatmapa chýb</string>
+  <string name="memorize_error_heatmap_summary">Zvýrazniť slová s viacerými chybami postupne hlbšou červenou farbou</string>
+  <string name="memorize_scramble_hide_used">Skryť použité tlačidlá slov</string>
+  <string name="memorize_scramble_hide_used_summary">Úplne skryť tlačidlá slov po ich správnom umiestnení v režime miešania slov</string>
+  <string name="reading_progress_settings">Pokrok a memorovanie</string>
+  <string name="reading_progress_settings_summary">Automatické sledovanie, memorovanie a nastavenia praxe písania</string>
+  <string name="memorize_confirm_unmark">Odstrániť stav zapamätania pre %s?</string>
+  <string name="memorize_confirm_remove_target">Odstrániť cieľ memorovania %s?</string>
+  <string name="memorize_tab_reading">Čítanie</string>
+  <string name="memorize_tab_memorization">Memorovanie</string>
+  <string name="memorize_verses_memorized">Zapamätané</string>
+  <string name="memorize_verses_target">Cieľ</string>
+  <string name="memorize_show_more">Zobraziť %d ďalšie</string>
+  <string name="memorize_calendar">Aktivita memorovania</string>
+  <string name="memorize_view_list">Zoznam</string>
+  <string name="memorize_view_overview">Prehľad</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">Preklad AI</string>
+  <string name="sync_settings_shortcut_summary">Synchronizovať dáta medzi zariadeniami</string>
+  <string name="llm_api_key_title">API kľúč</string>
+  <string name="llm_api_key_summary">API kľúč kompatibilný s OpenAI</string>
+  <string name="llm_provider_custom">Vlastný (kompatibilný s OpenAI)</string>
+  <string name="llm_provider_title">Poskytovateľ</string>
+  <string name="llm_provider_summary">Vyberte, ktorého poskytovateľa služby AI použiť. Koncový bod API a dostupné modely sa nakonfigurujú automaticky.</string>
+  <string name="llm_provider_current">Aktuálny: %s</string>
+  <string name="llm_api_key_detected_provider">Zistený poskytovateľ: %s</string>
+  <string name="ai_connection_category">Pripojenie</string>
+  <string name="ai_model_category">Model</string>
+  <string name="ai_behavior_category">Správanie</string>
+  <string name="ai_language_title">Jazyk odpovedí AI</string>
+  <string name="ai_language_summary">Jazyk, ktorý AI používa pre odpovede</string>
+  <string name="ai_language_app_default">Jazyk aplikácie (%1$s)</string>
+  <string name="ai_language_custom">Vlastný\u2026</string>
+  <string name="ai_language_custom_hint">Zadajte názov alebo kód jazyka</string>
+  <string name="ai_language_custom_example">napr. suomi, Tagalog, sk</string>
+  <string name="ai_usage_category">Využitie</string>
+  <string name="llm_usage_summary_title">Využitie tokenov</string>
+  <string name="llm_usage_summary_default">Žiadne údaje o využití</string>
+  <string name="llm_usage_summary_format">Vstup: %1$d tokenov | Výstup: %2$d tokenov\nOdhadované náklady: %3$s</string>
+  <string name="llm_reset_usage_title">Resetovať údaje o využití</string>
+  <string name="llm_reset_usage_summary">Vymazať kumulatívne sledovanie tokenov a nákladov</string>
+  <string name="llm_reset_usage_confirm_title">Resetovať údaje o využití?</string>
+  <string name="llm_reset_usage_confirm_message">Tým sa vymažú všetky kumulatívne údaje o využití.</string>
+  <string name="llm_custom_input_price_title">Vstupná cena ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">Náklady na milión vstupných tokenov pre tento model</string>
+  <string name="llm_custom_output_price_title">Výstupná cena ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">Náklady na milión výstupných tokenov pre tento model</string>
+  <string name="llm_cost_total">Celkovo: %1$s</string>
+  <string name="llm_endpoint_title">Koncový bod API</string>
+  <string name="llm_endpoint_summary">Základná URL adresa pre API</string>
+  <string name="llm_model_title">Model</string>
+  <string name="llm_model_summary">ID modelu</string>
+  <string name="llm_custom_model">Vlastný…</string>
+  <string name="llm_custom_model_dialog_title">Vlastný model</string>
+  <string name="llm_custom_model_dialog_message">Zadajte ID modelu</string>
+  <string name="llm_rate_limited_retrying">Obmedzenie rýchlosti. Opakovanie za %1$ss\u2026</string>
+  <string name="llm_default_document_title">Odpoveď AI</string>
+  <string name="llm_default_task_completed">Úloha dokončená</string>
+  <string name="llm_default_studypad_opened">Študijná zložka otvorená</string>
+  <string name="llm_parse_error">Nepodarilo sa analyzovať odpoveď LLM: %1$s</string>
+  <string name="llm_parse_error_no_choices">V odpovedi OpenAI nie sú žiadne možnosti</string>
+  <string name="llm_parse_error_openai">Nepodarilo sa analyzovať odpoveď OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Nepodarilo sa spracovať odpoveď Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Prompt sa nenašiel: %1$s</string>
+  <string name="llm_error_unknown">Neznáma chyba</string>
+  <string name="llm_error_max_iterations">Dosiahnutý maximálny počet iterácií (%1$d) bez dokončenia</string>
+  <string name="llm_continue_iterations_title">Pokračovať?</string>
+  <string name="llm_continue_iterations_message">AI agent dosiahol limit %1$d iterácií bez dokončenia. Pokračovať o %2$d ďalších iterácií?</string>
+  <string name="agent_max_iterations_title">Max. iterácií agenta</string>
+  <string name="agent_max_iterations_summary">Maximálny počet iterácií pred opýtaním na pokračovanie (0 = neobmedzene)</string>
+  <string name="ask_model_before_run_title">Opýtať sa na model pred spustením</string>
+  <string name="ask_model_before_run_summary">Zobraziť dialóg výberu modelu pred vykonaním promptu (preskočí sa, ak má prompt explicitné prepísanie modelu)</string>
+  <string name="select_model_before_run_title">Vybrať model</string>
+  <string name="prompt_max_iterations">Prepísanie max. iterácií</string>
+  <string name="prompt_max_iterations_hint">Nechajte prázdne pre globálne predvolené</string>
+  <string name="prompt_max_iterations_description">Prepísať globálne max. iterácie pre tento prompt. Prázdne = globálne predvolené, 0 = neobmedzene.</string>
+  <string name="prompt_max_iterations_unlimited">Neobmedzene</string>
+  <string name="prompt_max_iterations_global_default">Globálne predvolené (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Prepísať globálne max. iterácie pre tento prompt. 0 = neobmedzene.\nAktuálne: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Spravovať AI prompty</string>
+  <string name="manage_prompts_summary">Vytvárať a upravovať AI prompty</string>
+  <string name="ai_settings">Nastavenia AI</string>
+  <string name="ai_connection_settings">Nastavenia pripojenia</string>
+  <string name="ai_setup_title">Nastaviť AI</string>
+  <string name="ai_setup_description">AndBible môže využívať AI na preklad biblického textu, vysvetľovanie veršov, vytváranie zhrnutí a ďalšie funkcie. Začnite nastavením pripojenia k poskytovateľovi API kompatibilného s OpenAI.</string>
+  <string name="ai_configure_button">Nastaviť pripojenie</string>
+  <string name="ai_settings_shortcut_summary">Nastavenia AI pripojenia a promptov</string>
+  <string name="ai_provider_tier_recommended">Odporúčané</string>
+  <string name="ai_provider_tier_community">Iní poskytovatelia (netestované)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Poskytovatelia a modely</string>
+  <string name="ai_providers_category">Poskytovatelia</string>
+  <string name="ai_providers_summary_none">Žiadni poskytovatelia nie sú nastavení</string>
+  <string name="ai_models_summary_none">Žiadne modely nie sú nastavené</string>
+  <string name="ai_add_provider">Pridať poskytovateľa</string>
+  <string name="ai_provider_edit">Upraviť</string>
+  <string name="ai_provider_delete">Vymazať</string>
+  <string name="ai_provider_delete_confirm">Vymazať poskytovateľa \"%1$s\"? Prompty využívajúce tohto poskytovateľa sa vrátia na predvolené.</string>
+  <string name="ai_provider_api_key_not_set">API kľúč nie je nastavený</string>
+  <string name="ai_provider_select_type">Vybrať typ poskytovateľa</string>
+  <string name="ai_provider_name">Názov poskytovateľa</string>
+  <string name="ai_provider_name_hint">Zobrazovaný názov tohto poskytovateľa</string>
+  <string name="ai_provider_api_key">API kľúč</string>
+  <string name="ai_provider_endpoint">Koncový bod API</string>
+  <string name="ai_provider_api_format">Formát API</string>
+  <string name="ai_provider_saved">Poskytovateľ uložený</string>
+  <string name="ai_provider_deleted">Poskytovateľ vymazaný</string>
+
+  <string name="llm_fetch_models_title">Stiahnuť zoznam modelov</string>
+  <string name="llm_fetch_models_message">Stiahnuť zoznam dostupných modelov od %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Viac sa nepýtať</string>
+  <string name="llm_fetch_models_success">Načítaných %1$d modelov</string>
+  <string name="llm_fetch_models_failed">Nepodarilo sa načítať modely</string>
+  <string name="llm_openrouter_category">Kategória</string>
+  <string name="llm_openrouter_category_all">Všetky</string>
+  <string name="llm_openrouter_model">Model</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Modely</string>
+  <string name="add_model">Pridať model</string>
+  <string name="add_model_title">Pridať model</string>
+  <string name="edit_model_title">Upraviť model</string>
+  <string name="model_saved">Model uložený</string>
+  <string name="model_deleted">Model vymazaný</string>
+  <string name="model_delete_confirm">Vymazať model \"%1$s\"?</string>
+  <string name="model_set_default">Nastaviť ako predvolený model</string>
+  <string name="model_select_provider">Poskytovateľ</string>
+  <string name="no_models_configured">Žiadne modely nie sú nastavené</string>
+  <string name="model_cache_creation_price">Cena za vytvorenie vyrovnávacej pamäte ($/Mtoken)</string>
+  <string name="model_cache_read_price">Cena za čítanie vyrovnávacej pamäte ($/Mtoken)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s vstup / %2$s výstup za Mtoken</string>
+  <string name="easy_setup_free_tier">Bezplatná úroveň</string>
+  <string name="unknown_error">Neznáma chyba</string>
+  <string name="easy_setup_title">Rýchle nastavenie</string>
+  <string name="easy_setup_pref_summary">Nastaviť AI s odporúčaným poskytovateľom v niekoľkých krokoch</string>
+  <string name="easy_setup_choose_provider">Vyberte poskytovateľa na začiatok:</string>
+  <string name="easy_setup_enter_api_key">Zadajte svoj API kľúč</string>
+  <string name="easy_setup_api_key_instructions">Získajte API kľúč od:</string>
+  <string name="easy_setup_test_connection">Otestovať pripojenie</string>
+  <string name="easy_setup_testing">Testujem…</string>
+  <string name="easy_setup_success">Pripojenie úspešné\!</string>
+  <string name="easy_setup_failed">Pripojenie zlyhalo: %1$s</string>
+  <string name="easy_setup_done_title">AI je pripravená\!</string>
+  <string name="easy_setup_done_message">Označte text v Biblii a vyskúšajte funkcie AI. Ďalšie modely a poskytovateľov môžete pridať v nastaveniach.</string>
+  <string name="easy_setup_gemini_desc">Dostupná bezplatná úroveň, dobrá kvalita</string>
+  <string name="easy_setup_anthropic_desc">Cenovo dostupné, vynikajúca kvalita</string>
+  <string name="easy_setup_openai_desc">Dobre známe, spoľahlivé</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Dôležité: Prečítajte si pred použitím nástrojov AI</string>
+  <string name="ai_disclaimer_warning_summary">Riziká a zodpovednosti pri používaní AI</string>
+  <string name="ai_disclaimer_dialog_title">Nástroje AI — dôležité informácie</string>
+  <string name="ai_disclaimer_intro">Nástroje AI môžu výrazne obohatiť váš zážitok zo štúdia Biblie a otvoriť nové spôsoby práce s Písmom.</string>
+  <string name="ai_disclaimer_approach">AndBible primárne využíva AI na spracovanie textu z dokumentov, ktoré máte nainštalované — komentárov, slovníkov a iných modulov — namiesto spoliehania sa na vlastné trénovacie dáta modelu.</string>
+  <string name="ai_disclaimer_responsibility">Napriek tomu sú to stále výkonné nástroje — a s veľkou mocou prichádza veľká zodpovednosť. Majte prosím na pamäti nasledovné.</string>
+  <string name="ai_disclaimer_point1">AI môže robiť chyby vrátane „halucinácií" (sebavedomé uvádzanie nepravdivých alebo vymyslených informácií). Nikdy slepo neprijímajte jej výstup.</string>
+  <string name="ai_disclaimer_point2">Odpovede AI môžu odrážať predsudky z ich trénovacích dát, môžu byť zámerne zavádzajúce alebo môžu prezentovať konkrétny teologický pohľad, akoby bol neutrálny alebo úplný.</string>
+  <string name="ai_disclaimer_point3">Ste zodpovední za to, ako používate obsah generovaný AI. Vždy overte výsledky podľa Písma skôr, ako sa na ne spoliehate.</string>
+  <string name="ai_disclaimer_point4">AndBible sa snaží uľahčiť overovanie (napr. presné citácie zdrojov v komentároch), ale konečná zodpovednosť vždy leží na vás.</string>
+  <string name="ai_disclaimer_point5">\"Skúmajte všetko, dobrého sa držte.\" (1. Tesalonickým 5:21)</string>
+  <string name="ai_disclaimer_point6">Tieto nástroje nemajú dušu ani Svätého Ducha. Sú to nástroje na spracovanie textu, nie duchovní sprievodcovia. Nie sú vhodné na priame pripravovanie kázní, pobožností ani iného duchovného obsahu bez starostlivého ľudského dohľadu, modlitby a rozlišovania.</string>
+  <string name="ai_disclaimer_point7">Ak sa používajú múdro, môžu prospieť mnohým používateľom a prípadom použitia. Ak si však nie ste istí prijatím rizík, je tiež úplne platnou voľbou ich nepoužívať.</string>
+  <string name="ai_disclaimer_point8">Vaše údaje sú odosielané na servery vami zvoleného poskytovateľa AI. Použitím API kľúča prijímate podmienky a zásady ochrany súkromia daného poskytovateľa. Lokálne hostované modely sú možné, ale vyžadujú väčšie technické znalosti a nemusia produkovať také dobré výsledky ako komerčné modely.</string>
+  <string name="ai_disclaimer_point9">Poskytovatelia AI účtujú za použitie API. Odhady nákladov zobrazené v AndBible sú približné — vždy si overte skutočné poplatky vo fakturácii vášho poskytovateľa.</string>
+  <string name="ai_disclaimer_accept_title">Prijať vyhlásenie o AI</string>
+  <string name="ai_disclaimer_accept_button">Prijímam a preberám plnú zodpovednosť</string>
+
+  <string name="prompt_permission_mode">Režim oprávnení</string>
+  <string name="prompt_permission_mode_description">Kontroluje, kedy sa vyžaduje potvrdenie používateľa pred tým, ako AI vykoná operácie zápisu. Nastavenia jednotlivých nástrojov nižšie môžu toto prepísať pre konkrétne nástroje.</string>
+  <string name="agent_permission_mode_summary">Kontroluje, kedy sa vyžaduje potvrdenie používateľa pred operáciami zápisu AI</string>
+  <string name="prompt_permission_use_default">Použiť predvolené</string>
+  <string name="prompt_tab_prompt">Prompt</string>
+  <string name="prompt_tab_permissions">Oprávnenia</string>
+  <string name="prompt_tab_advanced">Rozšírené</string>
+  <string name="prompt_name">Názov</string>
+  <string name="prompt_description">Popis</string>
+  <string name="prompt_template">Šablóna promptu</string>
+  <string name="prompt_show_in">Zobraziť v</string>
+  <string name="prompt_context_verse_selection">Výber verša</string>
+  <string name="prompt_context_text_selection">Výber textu</string>
+  <string name="prompt_context_window_menu">Ponuka okna</string>
+  <string name="prompt_context_workspace_menu">Ponuka pracovnej plochy</string>
+  <string name="prompt_context_note_editor">Editor poznámok</string>
+  <string name="prompt_bible_only">Iba biblické dokumenty</string>
+  <string name="prompt_category_study">Štúdium</string>
+  <string name="prompt_category_notes">Poznámky</string>
+  <string name="prompt_category_general">Všeobecné</string>
+  <string name="prompt_category_test">Test</string>
+  <string name="prompt_category_uncategorized">Nekategorizované</string>
+  <string name="addon_prompt_badge">Doplnok: %s</string>
+  <string name="addon_prompt_notice">Tento prompt pochádza z doplnkového modulu „%s" a nedá sa upravovať. Použite „Kopírovať na úpravu" na vytvorenie upraviteľnej kópie.</string>
+  <string name="new_category">Nová kategória</string>
+  <string name="new_category_name">Názov kategórie</string>
+  <string name="rename_category">Premenovať</string>
+  <string name="move_category_up">Presunúť nahor</string>
+  <string name="move_category_down">Presunúť nadol</string>
+  <string name="hide_category">Skryť z akcií AI</string>
+  <string name="show_category">Zobraziť v akciách AI</string>
+  <string name="hidden">skryté</string>
+  <string name="delete_category">Vymazať kategóriu</string>
+  <string name="delete_category_and_prompts">Vymazať kategóriu aj jej výzvy</string>
+  <string name="delete_category_keep_prompts">Presunúť výzvy do koreňa a vymazať kategóriu</string>
+  <string name="delete_category_confirm_title">Vymazať kategóriu \"%s\"?</string>
+  <string name="move_to_category">Presunúť do kategórie…</string>
+  <string name="category_none">Bez kategórie</string>
+  <string name="import_prompts_editable">Importovať ako upraviteľné výzvy</string>
+  <string name="import_prompts_addon">Nainštalovať ako doplnok (iba na čítanie)</string>
+  <string name="prompt_category">Kategória</string>
+  <string name="new_prompt">Nová výzva</string>
+  <string name="permission_always_ask">Vždy sa opýtať</string>
+  <string name="permission_ask_once_per_run">Opýtať sa raz za spustenie</string>
+  <string name="permission_allow_all">Povoliť všetko</string>
+  <string name="permission_deny_all">Zakázať všetko</string>
+  <string name="reset_all_ai_settings">Resetovať všetky nastavenia AI</string>
+  <string name="reset_all_ai_settings_confirm_title">Resetovať všetky nastavenia AI?</string>
+  <string name="reset_all_ai_settings_confirm_message">Tým sa vymaže API kľúč, poskytovateľ, koncový bod, model a všetky výzvy sa obnovia na predvolené hodnoty. Pokračovať?</string>
+  <string name="edit_prompt">Upraviť výzvu</string>
+  <string name="built_in_prompt">Vstavaná</string>
+  <string name="built_in_prompt_notice">Toto je vstavaná výzva a nedá sa upraviť. Použite „Kopírovať na prispôsobenie" na vytvorenie upraviteľnej kópie.</string>
+  <string name="copy_to_customize">Kopírovať na prispôsobenie</string>
+  <string name="prompt_copied">Výzva skopírovaná</string>
+  <string name="delete_prompt_confirmation">Vymazať výzvu \"%s\"?</string>
+  <string name="prompt_name_required">Názov výzvy je povinný</string>
+  <string name="prompt_template_required">Šablóna výzvy je povinná</string>
+  <string name="prompt_edit_before_run">Špecifikovať pred spustením</string>
+  <string name="prompt_edit_before_run_description">Zobraziť textové pole na špecifikáciu úlohy pred spustením výzvy</string>
+  <string name="prompt_no_document_creation">Bez vytvárania dokumentov</string>
+  <string name="prompt_no_document_creation_description">Keď je povolené, AI nevytvorí dokument. Výsledky sa zobrazujú iba v protokole aktivít. Užitočné pre výzvy zamerané len na akcie (záložky, štítky, operácie so študijnou zložkou).</string>
+  <string name="prompt_auto_include_documents">Automaticky zahrnúť nainštalované dokumenty</string>
+  <string name="prompt_auto_include_documents_description">Automaticky zahrnúť zoznam nainštalovaných dokumentov do kontextu výzvy, čím sa ušetrí jedna iterácia AI.</string>
+  <string name="prompt_auto_include_commentaries">Automaticky zahrnúť komentáre</string>
+  <string name="prompt_auto_include_commentaries_description">Automaticky načítať a zahrnúť záznamy komentárov pre vybrané verše, čím sa ušetrí jedna iterácia AI.</string>
+  <string name="prompt_is_text_transformation">Transformácia textu</string>
+  <string name="prompt_is_text_transformation_description">Používa zjednodušenú systémovú výzvu, ktorá zachováva formátovanie (odkazy, nadpisy, tučné/kurzíva) pri transformácii obsahu textu. Nepoužívajú sa žiadne nástroje. Ideálne pre výzvy na preklad a úpravu.</string>
+  <string name="llm_no_document_creation_intercepted">Úloha dokončená (vytváranie dokumentov je zakázané)</string>
+  <string name="llm_note_updated">Poznámka aktualizovaná</string>
+  <string name="specify_before_run_title">Špecifikovať úlohu</string>
+  <string name="specify_before_run_hint">Opíšte konkrétnu úlohu…</string>
+  <string name="prompt_cache_settings">Nastavenia vyrovnávacej pamäte</string>
+  <string name="prompt_strict_context_matching">Kontextovo závislá vyrovnávacia pamäť</string>
+  <string name="prompt_strict_context_matching_description">Keď je povolené, zhoda vo vyrovnávacej pamäti nastane len vtedy, keď je celý kontext (verzia Biblie, vybraný text) rovnaký. Keď je zakázané, zhoda nastane vtedy, keď sú verše rovnaké bez ohľadu na verziu Biblie.</string>
+  <string name="ai_document_delete_confirmation">Vymazať tento dokument AI?</string>
+  <string name="ai_document_deleted">Tento dokument AI bol vymazaný.</string>
+  <string name="ai_document_regenerating">Obnova dokumentu AI…</string>
+  <string name="ai_document_regenerate_not_implemented">Obnova bude dostupná v budúcej aktualizácii</string>
+  <string name="ai_regenerate_prompt_not_found">Nedá sa obnoviť: pôvodná výzva nebola nájdená. Mohla byť vymazaná.</string>
+  <string name="ai_document_regenerate">Obnoviť</string>
+  <string name="ai_regenerate_title">Obnoviť</string>
+  <string name="ai_regenerate_instructions_hint">Ďalšie pokyny (voliteľné)</string>
+  <string name="ai_regenerate_keep_previous">Zachovať predchádzajúcu verziu</string>
+  <string name="ai_regenerate_fresh_run">Nové spustenie (ignorovať predchádzajúci výsledok)</string>
+  <string name="ai_document_delete">Vymazať</string>
+  <string name="ai_unknown_prompt">AI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Preložiť do %s</string>
+  <string name="default_prompt_translate_to_ui_language">Preložiť do jazyka rozhrania</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Preloží text dokumentu do jazyka rozhrania aplikácie</string>
+  <string name="default_prompt_translate_to_english">Preložiť do angličtiny</string>
+  <string name="default_prompt_translate_to_english_desc">Preloží vybraný text do angličtiny</string>
+  <string name="default_prompt_summary">Zhrnutie</string>
+  <string name="default_prompt_summary_desc">Vytvorí stručné zhrnutie vybraného textu</string>
+  <string name="default_prompt_explain_verses">Vysvetliť verše</string>
+  <string name="default_prompt_explain_verses_desc">Vysvetlí význam a kontext vybraných veršov</string>
+  <string name="default_prompt_explain_verses_studypad">Vysvetliť verše → Študijná zložka</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Vytvoriť študijnú zložku s vysvetlením verš po verši a záložkami</string>
+  <string name="default_prompt_word_study">Štúdium slov</string>
+  <string name="default_prompt_word_study_desc">Analyzuje pôvodné hebrejské/grécke slová</string>
+  <string name="default_prompt_strongs_annotation">Anotácia číslami Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">Pridáva konkordančné čísla Strong\'s k ľubovoľnému prekladu Biblie s použitím KJV ako referencie</string>
+  <string name="default_prompt_cross_references">Krížové odkazy</string>
+  <string name="default_prompt_cross_references_desc">Nájde a vysvetlí súvisiace pasáže Biblie</string>
+  <string name="default_prompt_compare_translations">Porovnať preklady</string>
+  <string name="default_prompt_compare_translations_desc">Zobrazí, ako rôzne nainštalované preklady vyjadrujú text</string>
+  <string name="default_prompt_thematic_study">Tematická štúdia</string>
+  <string name="default_prompt_thematic_study_desc">Vytvorí študijnú zložku s pasážami a poznámkami k ústrednej téme</string>
+  <string name="default_prompt_bookmark_annotate">Záložka a anotácia</string>
+  <string name="default_prompt_bookmark_annotate_desc">Vytvorí záložku so štúdijnou poznámkou vygenerovanou AI</string>
+  <string name="default_prompt_study_layout">Otvoriť rozloženie pre štúdium</string>
+  <string name="default_prompt_study_layout_desc">Otvorí okná s komentármi a paralelným prekladom na štúdium</string>
+  <string name="default_prompt_workspace_assistant">Asistent pracovnej plochy</string>
+  <string name="default_prompt_workspace_assistant_desc">Spravovať okná: vytvárať, zatvárať, usporiadať, meniť dokumenty</string>
+  <string name="default_prompt_enhance_note">Vylepšiť poznámku</string>
+  <string name="default_prompt_enhance_note_desc">Zlepší gramatiku, zrozumiteľnosť a čitateľnosť vašej poznámky</string>
+  <string name="default_prompt_ask_question">Položiť otázku</string>
+  <string name="default_prompt_ask_question_desc">Položte akúkoľvek otázku k vybranej pasáži</string>
+  <string name="default_prompt_custom">Vlastná výzva</string>
+  <string name="default_prompt_custom_desc">Spustiť vlastnú úlohu na vybranej pasáži</string>
+  <string name="default_prompt_custom_template">Postupujte podľa špecifikácie úlohy používateľa pre vybranú biblickú pasáž.</string>
+  <string name="copy">Kopírovať</string>
+  <string name="delete_prompt_confirm_message">Naozaj chcete vymazať túto výzvu?</string>
+  <string name="ai_hide_prompt">Skryť</string>
+  <string name="ai_restore_hidden_prompts">Obnoviť skryté výzvy</string>
+  <string name="ai_prompt_hidden">Výzva skrytá</string>
+  <string name="ai_prompts_restored">Skryté výzvy obnovené</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Vytvoriť záložku</string>
+  <string name="tool_add_bookmark_note">Pridať poznámku k záložke</string>
+  <string name="tool_update_bookmark_note">Aktualizovať poznámku záložky</string>
+  <string name="tool_create_label">Vytvoriť štítok</string>
+  <string name="tool_add_label_to_bookmark">Pridať štítok k záložke</string>
+  <string name="tool_delete_bookmark">Vymazať záložku</string>
+  <string name="tool_delete_label">Vymazať štítok</string>
+  <string name="tool_remove_label_from_bookmark">Odstrániť štítok zo záložky</string>
+  <string name="tool_add_study_pad_entry">Pridať záznam do študijnej zložky</string>
+  <string name="tool_update_studypad_text_entry">Aktualizovať textový záznam študijnej zložky</string>
+  <string name="tool_create_study_pad">Vytvoriť študijnú zložku</string>
+  <string name="action_update_studypad_text_entry">Aktualizovať textový záznam študijnej zložky %1$s</string>
+  <string name="action_create_studypad">Vytvoriť študijnú zložku \"%1$s\" s %2$d položkami</string>
+  <string name="tool_set_document_title">Nastaviť názov dokumentu</string>
+  <string name="tool_finish_with_study_pad">Otvoriť študijnú zložku</string>
+  <string name="tool_finish_with_my_document_page">Otvoriť stránku Môj dokument</string>
+  <string name="tool_finish_without_document">Dokončiť bez dokumentu</string>
+  <string name="tool_get_verse_content">Čítať obsah verša</string>
+  <string name="tool_get_commentaries">Čítať komentáre</string>
+  <string name="tool_get_dictionary_entry">Vyhľadať záznam v slovníku</string>
+  <string name="tool_search_bible">Hľadať v Biblii</string>
+  <string name="tool_search_by_strongs">Hľadať podľa čísla Strong\'s</string>
+  <string name="tool_get_installed_documents">Zobraziť nainštalované dokumenty</string>
+  <string name="tool_get_all_labels">Zobraziť všetky štítky</string>
+  <string name="tool_get_bookmarks_for_verse">Získať záložky pre verš</string>
+  <string name="tool_get_bookmarks_with_label">Získať záložky so štítkom</string>
+  <string name="tool_get_study_pad_content">Čítať obsah študijnej zložky</string>
+  <string name="tool_search_study_pads">Hľadať v študijných zložkách</string>
+  <string name="tool_get_my_documents">Zobraziť moje dokumenty</string>
+  <string name="tool_get_my_document_pages">Zobraziť stránky môjho dokumentu</string>
+  <string name="tool_create_my_document">Vytvoriť môj dokument</string>
+  <string name="tool_add_my_document_page">Pridať stránku môjho dokumentu</string>
+  <string name="tool_edit_my_document_page">Upraviť stránku môjho dokumentu</string>
+  <string name="tool_delete_my_document_page">Vymazať stránku môjho dokumentu</string>
+  <string name="tool_get_windows">Zobraziť okná</string>
+  <string name="tool_create_window">Vytvoriť okno</string>
+  <string name="tool_manage_window">Spravovať okno</string>
+  <string name="tool_set_window_document">Nastaviť dokument okna</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Povolenie agenta</string>
+  <string name="agent_permission_message">AI asistent chce použiť \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">AI asistent chce:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Vytvoriť záložku na %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Vytvoriť záložku na %1$s (%2$s)</string>
+  <string name="action_with_note">s poznámkou</string>
+  <string name="action_labels">štítky: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Pridať poznámku k záložke na %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Aktualizovať poznámku na záložke na %1$s</string>
+  <string name="action_create_label">Vytvoriť štítok \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Pridať štítok \"%1$s\" k záložke na %2$s</string>
+  <string name="action_delete_bookmark">Vymazať záložku na %1$s</string>
+  <string name="action_delete_label">Vymazať štítok \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Odstrániť štítok \"%1$s\" zo záložky na %2$s</string>
+  <string name="action_add_entry_to_studypad">Pridať záznam do študijnej zložky \"%1$s\"</string>
+  <string name="action_create_my_document">Vytvoriť môj dokument: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Pridať stránku \"%1$s\" do môjho dokumentu %2$s</string>
+  <string name="action_edit_my_document_page">Upraviť stránku môjho dokumentu: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Vymazať stránku môjho dokumentu: \"%1$s\"</string>
+  <string name="action_set_document_title">Nastaviť názov dokumentu: \"%1$s\"</string>
+  <string name="action_open_studypad">Otvoriť študijnú zložku \"%1$s\"</string>
+  <string name="action_open_my_document_page">Otvoriť stránku môjho dokumentu \"%1$s\"</string>
+  <string name="action_create_window">Vytvoriť nové okno</string>
+  <string name="action_create_window_with_doc">Vytvoriť okno s %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Vytvoriť okno s %1$s na %2$s</string>
+  <string name="action_close_window">Zatvoriť okno (%1$s)</string>
+  <string name="action_minimize_window">Minimalizovať okno (%1$s)</string>
+  <string name="action_restore_window">Obnoviť okno (%1$s)</string>
+  <string name="action_set_window_document">Nastaviť %1$s na %2$s</string>
+  <string name="action_set_window_document_with_key">Nastaviť %1$s na %2$s na %3$s</string>
+  <string name="action_active_window">aktívne okno</string>
+  <string name="action_finish">Dokončiť: \"%1$s\"</string>
+  <string name="permission_allow_once">Povoliť raz</string>
+  <string name="permission_allow_for_session">Povoliť pre toto sedenie</string>
+  <string name="permission_allow_all_session">Povoliť všetky nástroje v tomto sedení</string>
+  <string name="permission_allow_always">Vždy povoliť \"%1$s\"</string>
+  <string name="permission_deny">Odmietnuť</string>
+  <string name="permission_always_allow_confirm_title">Vždy povoliť?</string>
+  <string name="permission_always_allow_confirm">Naozaj chcete natrvalo povoliť \"%1$s\"?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Toto môžete resetovať v nastaveniach AI.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Povolenia nástrojov</string>
+  <string name="manage_tool_permissions_summary">Spravovať povolenia jednotlivých nástrojov</string>
+  <string name="commentary_max_response_title">Limit veľkosti odpovede komentárov</string>
+  <string name="commentary_max_response_summary">Zobraziť dialóg výberu, keď odpoveď prekročí limit</string>
+  <string name="commentary_max_response_no_limit">Bez limitu</string>
+  <string name="commentary_max_response_value">~%s tokenov</string>
+  <string name="commentary_max_response_dialog_title">Nastaviť maximálnu veľkosť odpovede (tokeny)</string>
+  <string name="commentary_max_response_dialog_message">Keď AI načíta komentáre a celková odpoveď prekročí tento limit tokenov, dialóg výberu vám umožní zvoliť, ktoré komentáre odoslať AI.\n\n0 = bez limitu (všetky komentáre sa odošlú automaticky).</string>
+  <string name="commentary_filter_dialog_title">Odpoveď komentárov je príliš veľká</string>
+  <string name="commentary_filter_dialog_message">Limit tokenov (~%s) bol prekročený. Odznačte komentáre, ktoré nechcete odoslať AI.\n\nTento limit môžete upraviť v nastaveniach pripojenia AI.</string>
+  <string name="commentary_filter_total_tokens">Vybrané: ~%1$s / %2$s tokenov</string>
+  <string name="tool_log_commentary_count">%d komentárov</string>
+  <string name="tool_log_label_count">%d štítkov</string>
+  <string name="tool_log_document_count">%d dokumentov</string>
+  <string name="tool_log_study_pad_count">%d študijných zložiek</string>
+  <string name="tool_log_search_results">%1$d/%2$d výsledkov</string>
+  <string name="tool_log_bookmark_count">%d záložiek</string>
+  <string name="tool_log_my_document_count">%d dokumentov</string>
+  <string name="tool_log_my_document_page_count">%d stránok</string>
+  <string name="tool_log_window_count">%d okien</string>
+  <string name="tool_log_window_copy">kópia</string>
+  <string name="tool_log_window_minimized">minimalizované</string>
+  <string name="tool_log_window_removed">odstránené</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s tokenov)</string>
+  <string name="ai_document_filter_title">Prístup k dokumentom</string>
+  <string name="ai_document_filter_summary">Zvoliť, ktoré dokumenty môže AI čítať</string>
+  <string name="ai_document_filter_summary_count">%d dokumentov vylúčených</string>
+  <string name="ai_document_filter_activity_title">Prístup AI k dokumentom</string>
+  <string name="ai_document_excluded_error">Dokument vylúčený nastaveniami používateľa: %s</string>
+  <string name="permission_status_default">Pýtať sa (predvolené)</string>
+  <string name="permission_status_allowed">Vždy povolené</string>
+  <string name="permission_status_denied">Vždy odmietnuté</string>
+  <string name="permission_option_default">Pýtať sa zakaždým (predvolené)</string>
+  <string name="permission_option_always_allow">Vždy povoliť</string>
+  <string name="permission_option_always_deny">Vždy odmietnuť</string>
+  <string name="reset_all_permissions">Resetovať všetky</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Dostupné nástroje</string>
+  <string name="ai_read_tools">Nástroje na čítanie</string>
+  <string name="ai_write_tools">Nástroje na zápis</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Predvolené nastavenia nástrojov</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Povolenia nástrojov</string>
+  <string name="prompt_tool_permissions_read_only">Povolenia nástrojov (len na čítanie)</string>
+  <string name="prompt_tool_permissions_description">Prepísať povolenia nástrojov pre tento pokyn</string>
+  <string name="tool_section_read_tools">Nástroje na čítanie</string>
+  <string name="tool_section_write_tools">Nástroje na zápis</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Biblia a vyhľadávanie</string>
+  <string name="tool_category_bookmarks">Záložky</string>
+  <string name="tool_category_labels">Štítky</string>
+  <string name="tool_category_study_pads">Študijné zložky</string>
+  <string name="tool_category_my_documents">Moje dokumenty</string>
+  <string name="tool_category_windows">Okná</string>
+  <string name="tool_category_read">Čítanie</string>
+  <string name="tool_category_write">Zápis</string>
+  <string name="expand_collapse">Rozbaliť/zbaliť</string>
+  <string name="tool_option_enabled">Zapnuté</string>
+  <string name="tool_option_disabled">Vypnuté</string>
+  <string name="tool_option_default_enabled">Predvolené (zapnuté)</string>
+  <string name="tool_option_default_disabled">Predvolené (vypnuté)</string>
+  <string name="tool_option_default_allowed">Predvolené (povolené)</string>
+  <string name="tool_option_default_denied">Predvolené (odmietnuté)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Model</string>
+  <string name="prompt_model_default">Predvolený</string>
+  <string name="prompt_model_custom">Vlastný</string>
+  <string name="prompt_model_custom_hint">Zadajte názov modelu</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Vybrať akciu AI</string>
+  <string name="no_llm_prompts_configured">Pre výber verša nie sú nakonfigurované žiadne podnety AI</string>
+  <string name="llm_prompt_executing">Vykonávanie podnetu AI: %s</string>
+  <string name="llm_actions">Akcie AI</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Rozbaliť/zbaliť záznam agenta</string>
+  <string name="agent_log_close">Zatvoriť záznam agenta</string>
+  <string name="agent_log_stop">Zastaviť AI</string>
+  <string name="agent_log_idle">AI asistent</string>
+  <string name="agent_log_running">AI pracuje…</string>
+  <string name="agent_log_completed">Dokončené</string>
+  <string name="agent_log_error">Nastala chyba</string>
+  <string name="agent_log_executing">Vykonávam: %s</string>
+  <string name="agent_log_iteration">Iterácia %d</string>
+  <string name="agent_log_tool">Nástroj: %s</string>
+  <string name="agent_log_tool_completed">Nástroj %s dokončený</string>
+  <string name="agent_log_tool_failed">Nástroj %s zlyhal</string>
+  <string name="agent_log_response_received">Odpoveď prijatá</string>
+  <string name="agent_log_saved">Uložené: %s</string>
+  <string name="agent_log_done">Hotovo: %s</string>
+  <string name="agent_log_cancelled">Zrušené</string>
+  <string name="agent_execution_completed">Vykonávanie agenta dokončené</string>
+  <string name="agent_already_running">AI agent už beží. Počkajte prosím alebo ho najprv zastavte.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">AI agent</string>
+  <string name="ai_agent_notification_running">AI agent pracuje…</string>
+  <string name="ai_agent_notification_permission_needed">AI agent potrebuje vaše schválenie</string>
+  <string name="ai_agent_notification_permission_tap">Ťuknutím sa vrátite do AndBible</string>
+  <string name="ai_agent_notification_completed">Úloha AI dokončená</string>
+  <string name="ai_agent_notification_completed_tap">Ťuknutím zobrazíte výsledky</string>
+  <string name="ai_agent_notification_error">Úloha AI zlyhala</string>
+  <string name="ai_agent_notification_cancel">Zrušiť</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Moje dokumenty</string>
+  <string name="my_documents_empty">Zatiaľ žiadne dokumenty. Ťuknutím na + vytvoríte nový.</string>
+  <string name="my_document_new_name">Dokument %d</string>
+  <string name="my_document_create_title">Vytvoriť nový dokument</string>
+  <string name="my_document_rename_title">Premenovať dokument</string>
+  <string name="my_document_edit_description_title">Upraviť popis</string>
+  <string name="my_document_delete_confirmation">Vymazať dokument \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nie je možné vymazať, pokiaľ obsahujú stránky. Najprv vymažte stránky.</string>
+  <string name="my_document_save_changes">Uložiť zmeny?</string>
+  <string name="my_document_no_description">Bez popisu</string>
+  <string name="my_document_rename">Premenovať</string>
+  <string name="my_document_edit_description">Upraviť popis</string>
+  <string name="my_document_delete">Vymazať</string>
+
+  <string name="my_document_pages_title">%s – Stránky</string>
+  <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
+  <string name="my_document_page_rename_title">Premenovať stránku</string>
+  <string name="my_document_page_delete_confirmation">Vymazať stránku \"%s\"?</string>
+  <string name="my_document_page_rename">Premenovať</string>
+  <string name="my_document_page_delete">Vymazať</string>
+  <string name="my_document_page_export">Export</string>
+  <string name="my_document_new_page_name">Stránka %1$d</string>
+  <string name="my_document_create_page_title">Nová stránka</string>
+  <string name="my_document_content_type_label">Typ obsahu</string>
+  <string name="my_document_import_page">Importovať Markdown/HTML</string>
+  <string name="my_document_export_page">Exportovať stránku</string>
+  <string name="my_document_imported_page_name">Importované</string>
+  <string name="my_document_export_fallback_name">stránka</string>
+  <string name="my_document_export_document">Exportovať všetky stránky</string>
+  <string name="my_document_import_document">Importovať súbory ako dokument</string>
+  <string name="my_document_import_empty_selection">Neboli vybrané žiadne importovateľné súbory</string>
+  <string name="my_document_export_success">Stránky boli úspešne exportované</string>
+  <string name="ai_doc_choose_page">Vybrať stránku dokumentu AI</string>
+  <string name="prefs_show_ai_doc_markers_title">Zobraziť značky dokumentov AI</string>
+  <string name="prefs_show_ai_doc_markers_summary">Zobraziť ikony značiek pre stránky dokumentov generovaných AI prepojených s veršami</string>
+  <string name="prefs_show_ordinals_title">Zobraziť poradové čísla</string>
+  <string name="prefs_show_ordinals_summary">Zobraziť značky poradovej pozície v texte</string>
+
+  <string name="prefs_page_scroll_amount_title">Množstvo posúvania stránky</string>
+  <string name="prefs_page_scroll_amount_summary">Koľko stránky sa posunie pri posúvaní nahor/nadol</string>
+  <string name="page_scroll_amount_dialog_title">Množstvo posúvania stránky</string>
+  <string name="prefs_scroll_helper_lines_title">Pomocné čiary posúvania</string>
+  <string name="prefs_scroll_helper_lines_summary">Zobraziť vodorovné vodiace čiary na hraniciach posúvania stránky</string>
+  <string name="prefs_scroll_helper_line_style_title">Štýl pomocnej čiary</string>
+  <string name="prefs_scroll_helper_line_style_summary">Zvoliť vizuálny štýl pomocných čiar posúvania</string>
+  <string name="scroll_helper_line_style_dialog_title">Štýl pomocnej čiary</string>
+  <string name="scroll_helper_line_style_thin_dotted">Tenká bodkovaná čiara</string>
+  <string name="scroll_helper_line_style_thin_solid">Tenká plná čiara</string>
+  <string name="scroll_helper_line_style_thick_solid">Hrubá plná čiara</string>
+  <string name="prefs_page_buttons_title">Tlačidlá posúvania stránky</string>
+  <string name="prefs_page_buttons_summary">Zobraziť viditeľné tlačidlá posúvania nahor/nadol na obrazovke</string>
 </resources>
