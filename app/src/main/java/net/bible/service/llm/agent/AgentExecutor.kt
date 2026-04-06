@@ -147,7 +147,7 @@ class AgentExecutor(
             val resolved = LlmProcessingService.resolveFromConfig(llmConfig)
             emit(AgentEvent.Started(resolved.model))
             val messages = buildInitialMessages(prompt, context)
-            val excludedTools = computeExcludedTools(context)
+            val excludedTools = computeExcludedTools(prompt, context)
             val toolDefs = ToolRegistry.getToolDefinitions(excludedTools = excludedTools)
 
             // Capture tool definitions in raw log
@@ -805,16 +805,21 @@ class AgentExecutor(
 
     /**
      * Computes the set of tools to exclude from LLM tool definitions.
-     * Combines globally permanently denied tools and per-prompt denied tools,
+     * Text transformation prompts get no tools (only structural tools remain).
+     * Otherwise combines globally permanently denied tools and per-prompt denied tools,
      * then removes any tools that the per-prompt allows (override).
      * Structural tools are never excluded (handled by [ToolRegistry.getToolDefinitions]).
      */
-    private fun computeExcludedTools(context: AgentContext): Set<AgentTool> =
-        computeExcludedTools(
+    private fun computeExcludedTools(prompt: AgentPrompt, context: AgentContext): Set<AgentTool> {
+        if (prompt.isTextTransformation) {
+            return AgentTool.entries.toSet() - ToolRegistry.STRUCTURAL_TOOLS
+        }
+        return computeExcludedTools(
             permanentlyDeniedTools = CommonUtils.aiSettings.permanentlyDeniedTools,
             promptDeniedTools = context.promptDeniedTools,
             promptAvailableTools = context.promptAvailableTools,
         )
+    }
 
     /**
      * Waits for the current activity to become available.
