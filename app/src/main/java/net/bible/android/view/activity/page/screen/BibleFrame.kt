@@ -164,7 +164,7 @@ class BibleFrame(
         if (!mainBibleActivity.isSplitVertically) {
             button.translationY = mainBibleActivity.topOffset2.toFloat()
         } else {
-            if (windowRepository.firstVisibleWindow.id == window.id) {
+            if (windowRepository.firstVisibleWindow?.id == window.id) {
                 button.translationY =
                     if (windowControl.isSingleWindow) -mainBibleActivity.bottomOffset2.toFloat()
                     else mainBibleActivity.topOffset2.toFloat()

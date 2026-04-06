@@ -150,8 +150,8 @@ open class WindowRepository(val scope: CoroutineScope) {
 
     private val defaultState = WindowState.VISIBLE
 
-    val firstVisibleWindow: Window get() = visibleWindows.first()
-    val lastVisibleWindow: Window get() = visibleWindows.last()
+    val firstVisibleWindow: Window? get() = visibleWindows.firstOrNull()
+    val lastVisibleWindow: Window? get() = visibleWindows.lastOrNull()
 
     private fun getDefaultActiveWindow() =
         windowList.find { it.isVisible } ?: createNewWindow(null, true)
