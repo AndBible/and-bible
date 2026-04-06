@@ -75,8 +75,6 @@
     <!-- Multi-translation search -->
   <string name="search_translations">Preklady</string>
   <string name="choose_translations">Vyberte preklady…</string>
-  <string name="multi_search_results">%1$d veršov v %2$d prekladoch</string>
-  <string name="search_index_not_created">žiadny index</string>
 
     <!-- Preferences -->
   <string name="prefs_show_verseno_title">Números de capítulo e versículos</string>
@@ -86,16 +84,11 @@
   <string name="prefs_eink_mode_summary">Usar o aplicativo em modo monocromático (sem cor), de forma a ficar adaptado para dispositivos E-ink</string>
   <string name="prefs_eink_settings_cat">Nastavenia e-ink</string>
   <string name="prefs_eink_display_title">Funkcie e-ink</string>
-  <string name="prefs_eink_display_summary">Povoliť funkcie pre e-ink (tlačidlá posúvania stránok, pomocné čiary)</string>
 
   <string name="prefs_disable_animations_title">Desativar animações</string>
   <string name="prefs_disable_animations_summary">Desativar várias animações tais como deslocamento suave.</string>
 
-  <string name="prefs_disable_click_to_edit_title">Zakázať úpravu kliknutím v študijnej zložke</string>
-  <string name="prefs_disable_click_to_edit_summary">Na úpravu poznámok v študijnej zložke je potrebné použiť tlačidlo úpravy.</string>
 
-  <string name="prefs_notes_content_type_title">Formát nových poznámok záložiek</string>
-  <string name="prefs_notes_content_type_summary">Textový formát používaný pri vytváraní nových poznámok záložiek a záznamov v študijnej zložke</string>
   <string name="notes_content_type_html">Formátovaný text (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
@@ -124,27 +117,15 @@
   <string name="prefs_show_footnotes_title">Notas de rodapé</string>
   <string name="prefs_show_xrefs_title">Referências cruzadas</string>
   <string name="prefs_show_footnotes_summary">Mostrar resumo das notas de rodapé</string>
-  <string name="prefs_show_footnotes_inline_title">Poznámky pod čiarou vložené</string>
-  <string name="prefs_show_footnotes_inline_summary">Zobraziť poznámky pod čiarou priamo v texte namiesto klikateľných značiek</string>
   <string name="prefs_show_xrefs_summary">Mostrar resumo de refexs</string>
 
   <string name="prefs_show_notes_title">Mostrar título das notas</string>
   <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Mostrar título da morfologia</string>
   <string name="prefs_non_strongs_word_italic_title">Kurzívou doplnené slová</string>
-  <string name="prefs_non_strongs_word_italic_summary">Zobraziť kurzívou slová bez Strongových čísel</string>
   <string name="prefs_section_title_title">Títulos da seção</string>
-  <string name="prefs_title_scroll_button_title">Tlačidlo posúvania k názvu</string>
-  <string name="prefs_title_scroll_button_summary">Zobraziť tlačidlo posúvania nahor vedľa názvov sekcií</string>
   <string name="prefs_red_letter_title">Letras vermelhas</string>
-  <string name="prefs_infinite_scroll_title">Nekonečné posúvanie</string>
-  <string name="prefs_infinite_scroll_summary">Automaticky načítať ďalší obsah pri posúvaní</string>
-  <string name="prefs_mark_as_read_button_title">Tlačidlo označenia ako prečítané</string>
-  <string name="prefs_mark_as_read_button_summary">Zobraziť tlačidlo na konci každej kapitoly na označenie ako prečítanej</string>
   <string name="prefs_show_memorization_indicators_title">Indikátory memorovania</string>
-  <string name="prefs_show_memorization_indicators_summary">Zobraziť farebné indikátory okraja pre memorované verše a cieľové verše</string>
-  <string name="prefs_auto_track_reading_title">Automatické sledovanie čítania</string>
-  <string name="prefs_auto_track_reading_summary">Automaticky označovať kapitoly ako prečítané pri posúvaní cez ne</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para deslizar página</string>
 
   <string name="prefs_toolbar_button_action_title">Ação do botão da barra de ferramentas</string>
@@ -196,24 +177,14 @@
 
   <string name="prefs_margin_size_summary">Ajuste as margens esquerda e direita da janela de texto. Pode também ajustar
  a largura máxima do texto.</string>
-  <string name="prefs_margin_size_summary_2">Tip: Ťuknutím na okraj môžete preskočiť o jednu stranu nahor/nadol.</string>
 
   <string name="prefs_text_colors_summary">Ajustar cores do texto, fundo e efeito ruído.</string>
   <string name="text_display_settings_activity_title">Configurações de exibição de texto</string>
   <string name="workspace_text_display_settings_title">Opções de texto - %s</string>
   <string name="window_text_display_settings_title">Opções de texto  - Janela %d</string>
-  <string name="global_text_display_settings_title">Globálne možnosti textu</string>
-  <string name="global_text_display_settings_summary">Predvolené nastavenia zobrazenia textu pre všetky pracovné plochy</string>
   <string name="parent_settings_category_title">Nadradené nastavenia</string>
-  <string name="workspace_text_options_link">Možnosti textu pracovnej plochy — %s</string>
-  <string name="workspace_text_options_link_summary">Upraviť nastavenia zobrazenia textu pre túto pracovnú plochu</string>
-  <string name="global_text_options_link">Globálne možnosti textu</string>
-  <string name="global_text_options_link_summary">Upraviť predvolené nastavenia zobrazenia textu pre všetky pracovné plochy</string>
   <string name="prefs_font_and_colors_title">Písmo a farby</string>
-  <string name="prefs_text_layout_title">Rozloženie textu</string>
   <string name="prefs_strongs_and_morphology_title">Strong\'s a morfológia</string>
-  <string name="prefs_footnotes_and_xrefs_title">Poznámky pod čiarou a krížové odkazy</string>
-  <string name="prefs_verses_and_headings_title">Verše a nadpisy</string>
   <string name="prefs_page_scrolling_title">Posúvanie stránky</string>
 
   <string name="prefs_justify_title">Alinhar/justificar texto</string>
@@ -248,10 +219,6 @@
   <string name="choose_strongs_hebrew_dictionary_summary">Escolha o dicionário de Strong para definições de palavras em hebraico</string>
   <string name="choose_strongs_greek_morphology_title">Morfologia grega de Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Escolha o dicionário para as definições de morfologia grega de Robinson</string>
-  <string name="choose_word_lookup_dictionary_title">Slovníky na vyhľadávanie slov</string>
-  <string name="choose_word_lookup_dictionary_summary">Vyberte slovníky na vyhľadávanie slov</string>
-  <string name="lookup_in_dictionary">Vyhľadať v slovníkoch</string>
-  <string name="word_not_found_in_dictionaries">Slovo sa nenašlo v žiadnom slovníku</string>
 
   <string name="prefs_top_margin_title_mm">Margem superior (%d mm)</string>
   <string name="font_size_title">Tamanho da fonte</string>
@@ -262,7 +229,6 @@
   <string name="prefs_font_family_summary">Altere a família de fonte. Dica: mais tipos de fontes podem ser instaladas por meio da função Baixar de documentos / Complementos.</string>
 
   <string name="prefs_text_bookmarks_title">Definições de Marcadores e  Minhas notas</string>
-  <string name="prefs_reading_and_memorization_title">Čítanie a memorovanie</string>
 
   <string name="prefs_enable_bluetooth_title">Ativar botões de mídia via Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Manipule botões de mídia Bluetooth para iniciar/parar de falar</string>
@@ -456,7 +422,6 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="add_bookmark_whole_verse">Adicionar marcador ao versículo</string>
   <string name="add_bookmark_whole_verse1">Versículos</string>
   <string name="add_bookmark_whole_verse2">Versículo inteiro</string>
-  <string name="add_whole_page_bookmark">Pridať záložku pre celú stránku</string>
   <string name="add_paragraph_break">Odsek</string>
   <string name="ai_label">AI</string>
   <string name="remove_bookmark">Remover</string>
@@ -574,8 +539,6 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
     <!-- param is refresh icon -->
   <string name="assing_labels_help5">Toque em %s para re-ordenar a lista, com base nas suas escolhas.</string>
 
-  <string name="global_text_options_help_title">Globálne možnosti textu</string>
-  <string name="global_text_options_help1">Toto sú globálne predvolené nastavenia pre všetky pracovné plochy. Každá pracovná plocha ich môže prepísať vlastnými nastaveniami.</string>
 
   <string name="workspace_text_options_help_title">Opções de texto da área de trabalho</string>
   <string name="workspace_text_options_help1">Estas configurações determinam o padrão para todas as janelas da área de trabalho.</string>
@@ -691,7 +654,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="export_studypads_help">O arquivo que contém Blocos de estudo exportados (ou seja, etiquetas e marcadores) pode ser importado através do Menu Principal -&gt; Backup e Restauração.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
-  <string name="bookmarks_db_stats">\"%1$s\" a %2$s ďalší štítok/štítky/študijná zložka a %3$s záložiek</string>
 
     <!-- About -->
   <string name="module_about_copyright">Direitos autorais:%s</string>
@@ -738,7 +700,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
     <!-- General -->
   <string name="okay">OK</string>
   <string name="cancel">Cancelar</string>
-  <string name="discard_changes_confirmation">Zahodiť neuložené zmeny?</string>
   <string name="yes">Sim</string>
   <string name="no">Não</string>
   <string name="error">Erro</string>
@@ -758,7 +719,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
   <string name="error_page_too_large">Página grande demais para ser carregada</string>
   <string name="error_key_not_in_document">Não encontrado no documento</string>
-  <string name="error_key_not_in_document2">%1$s não foi encontrado no documento %2$s</string>  <string name="empty_list">Lista vazia</string>
+  <string name="error_key_not_in_document2">%1$s não foi encontrado no documento %2$s</string>
+  <string name="empty_list">Lista vazia</string>
   <string name="error_skip">Pular</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
   <string name="bug_report_email_text">Próximo, selecione seu aplicativo de e-mail preferencial (Gmail por exemplo) para enviar o relatório para a equipe de desenvolvimento.</string>
@@ -785,7 +747,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="select_all">Selecionar tudo</string>
   <string name="copy_settings_workspaces_title">Para que área de trabalho quer copiar as configurações?</string>
   <string name="reset_settings">Redefinir</string>
-  <string name="search_settings">Nastavenia hľadania</string>
   <string name="workspace_dismiss">Dispensar</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
 
@@ -885,7 +846,6 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="format_epub">Documentos EPUB (*.epub)</string>
   <string name="format_ttf">Písma TTF (*.ttf)</string>
   <string name="format_csv_prompts">Doplnky výziev AI (*.csv)</string>
-  <string name="format_studypads">Študijné zložky z databáz AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
 
@@ -920,32 +880,19 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_unlock_info">Informação de módulo e de desbloqueio</string>
 
   <string name="prefs_experimental_features_title">Experimentálne funkcie</string>
-  <string name="prefs_experimental_features_summary">Vyberte experimentálne funkcie na povolenie. Tieto funkcie sú stále vo vývoji a môžu sa zmeniť alebo odstrániť</string>
-  <string name="experimental_feature_bookmark_edit_actions">Akcie úpravy záložiek</string>
-  <string name="experimental_feature_add_paragraph_break">Pridať záložku odsekovej prestávky</string>
   <string name="experimental_feature_ai_features">Funkcie AI a moje dokumenty</string>
-  <string name="experimental_feature_reading_and_memorization">Sledovanie čítania a memorovanie</string>
   <string name="raw_llm_log_title">Surový záznam LLM</string>
-  <string name="raw_llm_log_empty">Žiadne surové záznamy nie sú k dispozícii</string>
   <string name="raw_llm_log_copied">Záznam skopírovaný do schránky</string>
   <string name="raw_llm_log_total">Celkovo: vstup %1$s / výstup %2$s%3$s</string>
   <string name="raw_llm_log_entry_system">Systémová výzva</string>
-  <string name="raw_llm_log_entry_user">Správa používateľa</string>
-  <string name="raw_llm_log_entry_assistant">Odpoveď asistenta</string>
   <string name="raw_llm_log_entry_tool_call">Volanie nástroja: %s</string>
   <string name="raw_llm_log_entry_tool_result">Výsledok nástroja [%s]</string>
   <string name="raw_llm_log_entry_tool_definitions">Definície nástrojov (%d nástrojov)</string>
-  <string name="raw_llm_log_entry_api_response">Odpoveď API (iterácia %d)</string>
   <string name="raw_llm_log_entry_tokens">~%s tokenov</string>
   <string name="raw_llm_log_entry_usage">vstup: %1$s / výstup: %2$s%3$s</string>
   <string name="raw_llm_log_entry_empty">(prázdne)</string>
   <string name="raw_llm_log_entry_tool_desc">Popis: %s</string>
   <string name="raw_llm_log_entry_tool_params">Parametre: %s</string>
-  <string name="agent_log_view_raw">Zobraziť surový záznam LLM</string>
-  <string name="agent_log_model_selector">Zmeniť predvolený model (momentálne: %1$s)</string>
-  <string name="agent_log_model_not_configured">Žiadny model nie je nakonfigurovaný</string>
-  <string name="agent_log_select_model">Vybrať predvolený model</string>
-  <string name="share">Zdielať</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicativo mais lento.</string>
   <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>
@@ -954,9 +901,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
 
   <string name="how_to_contribute">Como contribuir?</string>
   <string name="confirm_delete_bookmarks">Pretende remover os marcadores de %d e as suas notas?</string>
-  <string name="confirm_delete_orphaned_bookmarks">Vybraný štítok je priradený k %d záložkám, ktoré nemajú iné štítky. Chcete tieto záložky vymazať spolu so štítkami?</string>
-  <string name="delete_label_and_bookmarks">Vymazať štítok aj záložky</string>
-  <string name="delete_label_only">Vymazať iba štítok</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a um amigo</string>
   <string name="tell_friend_message1">Gostaria de recomendar para você %s</string>
@@ -964,7 +908,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="tell_friend_message3">Instale a partir da Play Store: %s</string>
   <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
   <string name="share_verse_ok">Compartilhar / Copiar</string>
-  <string name="web_search">Webové hľadanie</string>
   <string name="verse_action_copy">Copiar</string>
   <string name="generic_share">Compartilhar</string>
   <string name="share_verse_menu_title">Compartilhar / copiar...</string>
@@ -981,7 +924,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_version_name">Incluir o nome da versão</string>
   <string name="show_ellipsis">Mostrar reticências (...)</string>
   <string name="show_quotes">Mostrar citações</string>
-  <string name="separate_verses_with_newlines">Oddeliť verše novými riadkami</string>
 
   <string name="backup_button">Cópia de segurança</string>
   <string name="back_button">Voltar</string>
@@ -1025,13 +967,9 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="whole_verse_turned_on">O marcador agora agora marcado para o versículo inteiro</string>
   <string name="this_bookmark">Este marcador</string>
   <string name="this_workspace">Esta área de trabalho</string>
-  <string name="override_style">Prepísať štýl</string>
   <string name="no_override_suffix">(bez prepísania)</string>
   <string name="display_mode_highlight">Zvýraznenie</string>
-  <string name="display_mode_underline">Podčiarknutie</string>
-  <string name="display_mode_marker">Iba značka</string>
   <string name="display_mode_hidden">Skryté</string>
-  <string name="workspace_override_indicator">Tento štítok má špecifický režim zobrazenia pre pracovnú plochu</string>
   <string name="primary_label">Etiqueta primária</string>
   <string name="highlight_entire_verse">Destacar o versículo inteiro</string>
   <string name="favourite_label">Etiqueta favorita</string>
@@ -1045,7 +983,6 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="book_menu_sort_row_opt">Ordenar livros na horizontal</string>
   <string name="book_menu_group_by_category">Agrupar livros por categoria</string>
   <string name="book_menu_show_long_book_name">Mostrar nome longo do livro</string>
-  <string name="book_menu_show_progress_bars">Zobraziť ukazovatele postupu</string>
   <string name="reset_workspace_labels">Deseja redefinir a atribuição automática e as configurações de favoritos para esta área de trabalho?</string>
   <string name="reset_hide_labels">Pretende redefinir a configuração para ocultar as configurações das etiquetas especificadas?</string>
   <string name="reorder">Reordenar</string>
@@ -1068,32 +1005,20 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="import_menu">Importar e Exportar</string>
   <string name="auto_backups_title">Automatické zálohy</string>
   <string name="backup_file_info">Aplikácia v%1$d, %2$s</string>
-  <string name="reset_databases_title">Resetovať databázy</string>
-  <string name="reset_databases_description">Resetovať jednotlivé databázy do počiatočného prázdneho stavu. Toto nie je možné vrátiť späť.</string>
   <string name="last_crash_info_title">Informácie o poslednom páde</string>
-  <string name="reset_database_confirm">Toto natrvalo vymaže všetky údaje v \"%1$s\" a resetuje ich do počiatočného stavu. Toto nie je možné vrátiť späť.\n\nSte si istí?</string>
-  <string name="reset_database_success">Databáza bola úspešne resetovaná</string>
   <string name="reset_something">Reset: %1$s</string>
   <string name="export">Exportar</string>
-  <string name="csv_export_success">Exportovaných %d záložiek do CSV</string>
-  <string name="csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="csv_export_failed">Export CSV zlyhal: %s</string>
-  <string name="export_prompts_csv">Exportovať výzvy do CSV</string>
-  <string name="import_prompts_csv">Importovať výzvy z CSV</string>
   <string name="prompts_csv_export_success">Exportovaných %d výziev do CSV</string>
-  <string name="prompts_csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="prompts_csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="prompts_csv_export_failed">Export CSV zlyhal: %s</string>
-  <string name="no_prompts_to_export">Žiadne používateľské výzvy na export</string>
-  <string name="csv_column_selection_title">Vybrať stĺpce CSV</string>
-  <string name="choose_csv_file">Vybrať súbor CSV na import</string>
-  <string name="no_bookmarks_to_export">Žiadne záložky na export</string>
   <string name="export_fileformat">Exportar como %s</string>
   <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar do banco de dados</string>
   <string name="import_error">A importação a partir do banco de dados do aplicativo falhou. O arquivo do banco de dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
 
-  <string name="export_bookmarks_csv">Exportovať záložky ako %s</string>
 
     <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">Odkaz OSIS</string>
@@ -1102,22 +1027,16 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="document">Documento</string>
   <string name="book">Kniha</string>
     <!-- Chapter is the chapter number in the book, starting from 1 -->
-  <string name="chapter_start">Začiatok kapitoly</string>
     <!-- Verse is the verse number in the chapter, starting from 1 -->
-  <string name="verse_start">Začiatok verša</string>
   <string name="chapter_end">Koniec kapitoly</string>
-  <string name="verse_end">Koniec verša</string>
   <string name="id">Identifikátor</string>
     <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
-  <string name="ordinal_start">Začiatok poradia</string>
   <string name="ordinal_end">Koniec poradia</string>
   <string name="created_at">Vytvorené</string>
     <!-- Offsets are used to indicate from which character a bookmark starts. -->
-  <string name="start_offset">Začiatočný posun</string>
   <string name="end_offset">Koncový posun</string>
   <string name="custom_icon">Vlastná ikona</string>
   <string name="last_updated_at">Naposledy aktualizované</string>
-  <string name="bookmark_notes">Poznámky k záložke</string>
 
   <string name="chooser_range">Onde procurar</string>
   <string name="chooser_jump">Saltar para</string>
@@ -1143,10 +1062,8 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
 
   <string name="permission_required">Permissão necessária</string>
   <string name="labels_search_hint">Pesquisar</string>
-  <string name="search_mode_name_start">Názov (od začiatku)</string>
   <string name="search_mode_name_contains">Názov (obsahuje)</string>
   <string name="search_mode_content">Obsah</string>
-  <string name="search_results_matches">%d zhôd</string>
   <string name="search_results_match">1 zhoda</string>
   <string name="progress_status_permission">Para mostrar notificações (status de download, processos, status da fala), precisamos de sua permissão.</string>
 
@@ -1232,23 +1149,13 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="workspaces_contents">Áreas de trabalho e Janelas</string>
   <string name="my_documents_contents">Moje dokumenty a ich obsah</string>
   <string name="ai_settings_sync_title">Nastavenia AI</string>
-  <string name="ai_settings_sync_contents">Výzvy AI a konfigurácie poskytovateľa</string>
-  <string name="progress_sync_title">Pokrok v čítaní</string>
-  <string name="progress_sync_contents">Zapamätané verše a záznamy o čítaní kapitol</string>
 
     <!-- Reading Progress Activity -->
-  <string name="reading_progress_title">Pokrok v čítaní/memorovaní</string>
-  <string name="reading_progress_chapters_read">prečítané kapitoly</string>
-  <string name="reading_progress_verses_memorized">zapamätané verše</string>
   <string name="reading_progress_active_days">aktívne dni</string>
-  <string name="reading_progress_overall">%s%% Biblie prečítanej</string>
-  <string name="reading_progress_bible_heatmap">Prehľad Biblie</string>
   <string name="reading_progress_old_testament">Starý zákon</string>
   <string name="reading_progress_new_testament">Nový zákon</string>
-  <string name="reading_progress_calendar">Aktivita čítania</string>
   <string name="reading_progress_cycle">Cyklus %d</string>
   <string name="reading_progress_new_cycle">Nový cyklus</string>
-  <string name="reading_progress_new_cycle_confirm">Začať nový cyklus čítania? Tým sa začne sledovanie vášho pokroku od začiatku, pričom sa zachovajú údaje z predchádzajúceho cyklu.</string>
   <string name="reading_progress_previous_cycle">Predchádzajúci cyklus</string>
   <string name="reading_progress_next_cycle">Nasledujúci cyklus</string>
 
@@ -1269,8 +1176,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="auth_server_uri">URL servera</string>
   <string name="auth_username">Nome de usuário</string>
   <string name="auth_password">Senha</string>
-  <string name="auth_folder_path">Cesta k priečinku synchronizácie</string>
-  <string name="auth_folder_path_summary">Nadradený priečinok pre synchronizačné dáta (prázdne = koreň)</string>
   <string name="auth_access_token">Token de acesso</string>
   <string name="synchronization_categories">Categorias de sincronização</string>
   <string name="sync_general_settings">Configurações gerais</string>
@@ -1326,81 +1231,35 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="dont_show">
         Não mostrar essa mensagem novamente
     </string>
-  <string name="pref_font_size_multiplier_title">Násobič veľkosti písma</string>
-  <string name="pref_font_size_multiplier_summary_1">Vynásobiť veľkosti písma textu týmto číslom.</string>
-  <string name="pref_font_size_multiplier_summary_2">Užitočné, ak máte synchronizované zariadenie, ktoré sa používa s väčším písmom.</string>
   <string name="current_value">Aktuálna hodnota: %s</string>
-  <string name="prefs_bible_view_swipe_mode_title">Akcia pre gesto potiahnutia doľava/doprava</string>
-  <string name="prefs_bible_view_swipe_mode_summary">Gesto potiahnutia doľava/doprava možno použiť na prechod na ďalšiu stranu/kapitolu.</string>
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
   <string name="prefs_swipe_mode_page">Strana</string>
   <string name="prefs_swipe_mode_none">Vypnuté</string>
-  <string name="prefs_volume_keys_scroll_title">Posúvanie tlačidlami hlasitosti</string>
-  <string name="prefs_volume_keys_scroll_summary">Použite tlačidlá zvýšenia/zníženia hlasitosti na posúvanie textu Biblie</string>
-  <string name="page_number_title">Relatívne číslo strany</string>
-  <string name="page_number_summary">Zobrazí prekrytie s číslom strany. Číslo strany je relatívne k počiatočnej polohe.</string>
-  <string name="select_custom_icon">Vybrať vlastnú ikonu markera</string>
   <string name="invalid_url_message">Zadaná URL adresa je neplatná. Zadajte platnú URL adresu (napr. https://nextcloud.example.com)</string>
-  <string name="memorize_description">Zapamätajte si verše Biblie</string>
-  <string name="memorize_abbreviation">Memorovať</string>
-  <string name="add_memorization_target">Nastaviť ako cieľ memorovania</string>
-  <string name="memorize_memorized_passages">Zapamätané pasáže</string>
-  <string name="memorize_no_memorized_passages">Zatiaľ žiadne zapamätané pasáže</string>
   <string name="memorize_targets">Ciele memorovania</string>
-  <string name="memorize_no_targets">Nie sú nastavené žiadne ciele memorovania</string>
-  <string name="memorize_auto_mark">Automaticky označiť ako zapamätané</string>
-  <string name="memorize_auto_mark_summary">Automaticky označiť verše ako zapamätané po dokončení cvičenia</string>
-  <string name="memorize_type_full_words">Písať celé slová</string>
-  <string name="memorize_type_full_words_summary">Vyžadovať napísanie celého slova namiesto len prvého písmena</string>
-  <string name="memorize_word_visibility">Viditeľnosť slov</string>
-  <string name="memorize_word_visibility_summary">Ako viditeľné sú nenapísané slová: ľahká nápoveda, stmavené alebo úplne skryté</string>
-  <string name="memorize_word_visibility_light">Ľahká</string>
   <string name="memorize_word_visibility_dim">Stmavená</string>
   <string name="memorize_word_visibility_hidden">Skrytá</string>
   <string name="memorize_error_heatmap">Heatmapa chýb</string>
-  <string name="memorize_error_heatmap_summary">Zvýrazniť slová s viacerými chybami postupne hlbšou červenou farbou</string>
-  <string name="memorize_scramble_hide_used">Skryť použité tlačidlá slov</string>
-  <string name="memorize_scramble_hide_used_summary">Úplne skryť tlačidlá slov po ich správnom umiestnení v režime miešania slov</string>
   <string name="reading_progress_settings">Pokrok a memorovanie</string>
   <string name="reading_progress_settings_summary">Automatické sledovanie, memorovanie a nastavenia praxe písania</string>
-  <string name="memorize_confirm_unmark">Odstrániť stav zapamätania pre %s?</string>
-  <string name="memorize_confirm_remove_target">Odstrániť cieľ memorovania %s?</string>
-  <string name="memorize_tab_reading">Čítanie</string>
   <string name="memorize_tab_memorization">Memorovanie</string>
   <string name="memorize_verses_memorized">Zapamätané</string>
-  <string name="memorize_verses_target">Cieľ</string>
-  <string name="memorize_show_more">Zobraziť %d ďalšie</string>
   <string name="memorize_calendar">Aktivita memorovania</string>
   <string name="memorize_view_list">Zoznam</string>
-  <string name="memorize_view_overview">Prehľad</string>
 
     <!-- LLM Translation Settings -->
   <string name="llm_settings_title">Preklad AI</string>
-  <string name="sync_settings_shortcut_summary">Synchronizovať dáta medzi zariadeniami</string>
-  <string name="llm_api_key_title">API kľúč</string>
-  <string name="llm_api_key_summary">API kľúč kompatibilný s OpenAI</string>
   <string name="llm_provider_custom">Vlastný (kompatibilný s OpenAI)</string>
-  <string name="llm_provider_title">Poskytovateľ</string>
-  <string name="llm_provider_summary">Vyberte, ktorého poskytovateľa služby AI použiť. Koncový bod API a dostupné modely sa nakonfigurujú automaticky.</string>
   <string name="llm_provider_current">Aktuálny: %s</string>
-  <string name="llm_api_key_detected_provider">Zistený poskytovateľ: %s</string>
   <string name="ai_connection_category">Pripojenie</string>
   <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Správanie</string>
   <string name="ai_language_title">Jazyk odpovedí AI</string>
-  <string name="ai_language_summary">Jazyk, ktorý AI používa pre odpovede</string>
   <string name="ai_language_app_default">Jazyk aplikácie (%1$s)</string>
   <string name="ai_language_custom">Vlastný\u2026</string>
   <string name="ai_language_custom_hint">Zadajte názov alebo kód jazyka</string>
   <string name="ai_language_custom_example">napr. suomi, Tagalog, sk</string>
-  <string name="ai_usage_category">Využitie</string>
-  <string name="llm_usage_summary_title">Využitie tokenov</string>
-  <string name="llm_usage_summary_default">Žiadne údaje o využití</string>
   <string name="llm_usage_summary_format">Vstup: %1$d tokenov | Výstup: %2$d tokenov\nOdhadované náklady: %3$s</string>
-  <string name="llm_reset_usage_title">Resetovať údaje o využití</string>
-  <string name="llm_reset_usage_summary">Vymazať kumulatívne sledovanie tokenov a nákladov</string>
-  <string name="llm_reset_usage_confirm_title">Resetovať údaje o využití?</string>
-  <string name="llm_reset_usage_confirm_message">Tým sa vymažú všetky kumulatívne údaje o využití.</string>
   <string name="llm_custom_input_price_title">Vstupná cena ($/Mtoken)</string>
   <string name="llm_custom_input_price_summary">Náklady na milión vstupných tokenov pre tento model</string>
   <string name="llm_custom_output_price_title">Výstupná cena ($/Mtoken)</string>
@@ -1414,352 +1273,99 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_custom_model_dialog_title">Vlastný model</string>
   <string name="llm_custom_model_dialog_message">Zadajte ID modelu</string>
   <string name="llm_rate_limited_retrying">Obmedzenie rýchlosti. Opakovanie za %1$ss\u2026</string>
-  <string name="llm_default_document_title">Odpoveď AI</string>
-  <string name="llm_default_task_completed">Úloha dokončená</string>
-  <string name="llm_default_studypad_opened">Študijná zložka otvorená</string>
-  <string name="llm_parse_error">Nepodarilo sa analyzovať odpoveď LLM: %1$s</string>
-  <string name="llm_parse_error_no_choices">V odpovedi OpenAI nie sú žiadne možnosti</string>
-  <string name="llm_parse_error_openai">Nepodarilo sa analyzovať odpoveď OpenAI: %1$s</string>
-  <string name="llm_parse_error_anthropic">Nepodarilo sa spracovať odpoveď Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt sa nenašiel: %1$s</string>
   <string name="llm_error_unknown">Neznáma chyba</string>
-  <string name="llm_error_max_iterations">Dosiahnutý maximálny počet iterácií (%1$d) bez dokončenia</string>
-  <string name="llm_continue_iterations_title">Pokračovať?</string>
-  <string name="llm_continue_iterations_message">AI agent dosiahol limit %1$d iterácií bez dokončenia. Pokračovať o %2$d ďalších iterácií?</string>
   <string name="agent_max_iterations_title">Max. iterácií agenta</string>
-  <string name="agent_max_iterations_summary">Maximálny počet iterácií pred opýtaním na pokračovanie (0 = neobmedzene)</string>
-  <string name="ask_model_before_run_title">Opýtať sa na model pred spustením</string>
-  <string name="ask_model_before_run_summary">Zobraziť dialóg výberu modelu pred vykonaním promptu (preskočí sa, ak má prompt explicitné prepísanie modelu)</string>
-  <string name="select_model_before_run_title">Vybrať model</string>
   <string name="prompt_max_iterations">Prepísanie max. iterácií</string>
   <string name="prompt_max_iterations_hint">Nechajte prázdne pre globálne predvolené</string>
-  <string name="prompt_max_iterations_description">Prepísať globálne max. iterácie pre tento prompt. Prázdne = globálne predvolené, 0 = neobmedzene.</string>
   <string name="prompt_max_iterations_unlimited">Neobmedzene</string>
   <string name="prompt_max_iterations_global_default">Globálne predvolené (%d)</string>
-  <string name="prompt_max_iterations_summary_with_value">Prepísať globálne max. iterácie pre tento prompt. 0 = neobmedzene.\nAktuálne: %s</string>
 
     <!-- Prompt Manager -->
-  <string name="manage_prompts">Spravovať AI prompty</string>
-  <string name="manage_prompts_summary">Vytvárať a upravovať AI prompty</string>
   <string name="ai_settings">Nastavenia AI</string>
   <string name="ai_connection_settings">Nastavenia pripojenia</string>
-  <string name="ai_setup_title">Nastaviť AI</string>
-  <string name="ai_setup_description">AndBible môže využívať AI na preklad biblického textu, vysvetľovanie veršov, vytváranie zhrnutí a ďalšie funkcie. Začnite nastavením pripojenia k poskytovateľovi API kompatibilného s OpenAI.</string>
-  <string name="ai_configure_button">Nastaviť pripojenie</string>
   <string name="ai_settings_shortcut_summary">Nastavenia AI pripojenia a promptov</string>
-  <string name="ai_provider_tier_recommended">Odporúčané</string>
   <string name="ai_provider_tier_community">Iní poskytovatelia (netestované)</string>
 
     <!-- Multi-provider settings -->
   <string name="ai_providers_models_category">Poskytovatelia a modely</string>
   <string name="ai_providers_category">Poskytovatelia</string>
-  <string name="ai_providers_summary_none">Žiadni poskytovatelia nie sú nastavení</string>
-  <string name="ai_models_summary_none">Žiadne modely nie sú nastavené</string>
-  <string name="ai_add_provider">Pridať poskytovateľa</string>
-  <string name="ai_provider_edit">Upraviť</string>
-  <string name="ai_provider_delete">Vymazať</string>
-  <string name="ai_provider_delete_confirm">Vymazať poskytovateľa \"%1$s\"? Prompty využívajúce tohto poskytovateľa sa vrátia na predvolené.</string>
-  <string name="ai_provider_api_key_not_set">API kľúč nie je nastavený</string>
-  <string name="ai_provider_select_type">Vybrať typ poskytovateľa</string>
-  <string name="ai_provider_name">Názov poskytovateľa</string>
-  <string name="ai_provider_name_hint">Zobrazovaný názov tohto poskytovateľa</string>
-  <string name="ai_provider_api_key">API kľúč</string>
   <string name="ai_provider_endpoint">Koncový bod API</string>
   <string name="ai_provider_api_format">Formát API</string>
-  <string name="ai_provider_saved">Poskytovateľ uložený</string>
-  <string name="ai_provider_deleted">Poskytovateľ vymazaný</string>
 
-  <string name="llm_fetch_models_title">Stiahnuť zoznam modelov</string>
-  <string name="llm_fetch_models_message">Stiahnuť zoznam dostupných modelov od %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Viac sa nepýtať</string>
-  <string name="llm_fetch_models_success">Načítaných %1$d modelov</string>
-  <string name="llm_fetch_models_failed">Nepodarilo sa načítať modely</string>
   <string name="llm_openrouter_category">Kategória</string>
-  <string name="llm_openrouter_category_all">Všetky</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modely</string>
-  <string name="add_model">Pridať model</string>
-  <string name="add_model_title">Pridať model</string>
-  <string name="edit_model_title">Upraviť model</string>
-  <string name="model_saved">Model uložený</string>
   <string name="model_deleted">Model vymazaný</string>
-  <string name="model_delete_confirm">Vymazať model \"%1$s\"?</string>
-  <string name="model_set_default">Nastaviť ako predvolený model</string>
-  <string name="model_select_provider">Poskytovateľ</string>
-  <string name="no_models_configured">Žiadne modely nie sú nastavené</string>
   <string name="model_cache_creation_price">Cena za vytvorenie vyrovnávacej pamäte ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cena za čítanie vyrovnávacej pamäte ($/Mtoken)</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s vstup / %2$s výstup za Mtoken</string>
-  <string name="easy_setup_free_tier">Bezplatná úroveň</string>
   <string name="unknown_error">Neznáma chyba</string>
   <string name="easy_setup_title">Rýchle nastavenie</string>
-  <string name="easy_setup_pref_summary">Nastaviť AI s odporúčaným poskytovateľom v niekoľkých krokoch</string>
-  <string name="easy_setup_choose_provider">Vyberte poskytovateľa na začiatok:</string>
-  <string name="easy_setup_enter_api_key">Zadajte svoj API kľúč</string>
-  <string name="easy_setup_api_key_instructions">Získajte API kľúč od:</string>
-  <string name="easy_setup_test_connection">Otestovať pripojenie</string>
   <string name="easy_setup_testing">Testujem…</string>
-  <string name="easy_setup_success">Pripojenie úspešné\!</string>
   <string name="easy_setup_failed">Pripojenie zlyhalo: %1$s</string>
   <string name="easy_setup_done_title">AI je pripravená\!</string>
-  <string name="easy_setup_done_message">Označte text v Biblii a vyskúšajte funkcie AI. Ďalšie modely a poskytovateľov môžete pridať v nastaveniach.</string>
-  <string name="easy_setup_gemini_desc">Dostupná bezplatná úroveň, dobrá kvalita</string>
   <string name="easy_setup_anthropic_desc">Cenovo dostupné, vynikajúca kvalita</string>
-  <string name="easy_setup_openai_desc">Dobre známe, spoľahlivé</string>
 
     <!-- AI Disclaimer -->
-  <string name="ai_disclaimer_warning_title">Dôležité: Prečítajte si pred použitím nástrojov AI</string>
-  <string name="ai_disclaimer_warning_summary">Riziká a zodpovednosti pri používaní AI</string>
-  <string name="ai_disclaimer_dialog_title">Nástroje AI — dôležité informácie</string>
-  <string name="ai_disclaimer_intro">Nástroje AI môžu výrazne obohatiť váš zážitok zo štúdia Biblie a otvoriť nové spôsoby práce s Písmom.</string>
-  <string name="ai_disclaimer_approach">AndBible primárne využíva AI na spracovanie textu z dokumentov, ktoré máte nainštalované — komentárov, slovníkov a iných modulov — namiesto spoliehania sa na vlastné trénovacie dáta modelu.</string>
-  <string name="ai_disclaimer_responsibility">Napriek tomu sú to stále výkonné nástroje — a s veľkou mocou prichádza veľká zodpovednosť. Majte prosím na pamäti nasledovné.</string>
-  <string name="ai_disclaimer_point1">AI môže robiť chyby vrátane „halucinácií" (sebavedomé uvádzanie nepravdivých alebo vymyslených informácií). Nikdy slepo neprijímajte jej výstup.</string>
-  <string name="ai_disclaimer_point2">Odpovede AI môžu odrážať predsudky z ich trénovacích dát, môžu byť zámerne zavádzajúce alebo môžu prezentovať konkrétny teologický pohľad, akoby bol neutrálny alebo úplný.</string>
-  <string name="ai_disclaimer_point3">Ste zodpovední za to, ako používate obsah generovaný AI. Vždy overte výsledky podľa Písma skôr, ako sa na ne spoliehate.</string>
-  <string name="ai_disclaimer_point4">AndBible sa snaží uľahčiť overovanie (napr. presné citácie zdrojov v komentároch), ale konečná zodpovednosť vždy leží na vás.</string>
-  <string name="ai_disclaimer_point5">\"Skúmajte všetko, dobrého sa držte.\" (1. Tesalonickým 5:21)</string>
-  <string name="ai_disclaimer_point6">Tieto nástroje nemajú dušu ani Svätého Ducha. Sú to nástroje na spracovanie textu, nie duchovní sprievodcovia. Nie sú vhodné na priame pripravovanie kázní, pobožností ani iného duchovného obsahu bez starostlivého ľudského dohľadu, modlitby a rozlišovania.</string>
-  <string name="ai_disclaimer_point7">Ak sa používajú múdro, môžu prospieť mnohým používateľom a prípadom použitia. Ak si však nie ste istí prijatím rizík, je tiež úplne platnou voľbou ich nepoužívať.</string>
-  <string name="ai_disclaimer_point8">Vaše údaje sú odosielané na servery vami zvoleného poskytovateľa AI. Použitím API kľúča prijímate podmienky a zásady ochrany súkromia daného poskytovateľa. Lokálne hostované modely sú možné, ale vyžadujú väčšie technické znalosti a nemusia produkovať také dobré výsledky ako komerčné modely.</string>
-  <string name="ai_disclaimer_point9">Poskytovatelia AI účtujú za použitie API. Odhady nákladov zobrazené v AndBible sú približné — vždy si overte skutočné poplatky vo fakturácii vášho poskytovateľa.</string>
-  <string name="ai_disclaimer_accept_title">Prijať vyhlásenie o AI</string>
-  <string name="ai_disclaimer_accept_button">Prijímam a preberám plnú zodpovednosť</string>
 
-  <string name="prompt_permission_mode">Režim oprávnení</string>
-  <string name="prompt_permission_mode_description">Kontroluje, kedy sa vyžaduje potvrdenie používateľa pred tým, ako AI vykoná operácie zápisu. Nastavenia jednotlivých nástrojov nižšie môžu toto prepísať pre konkrétne nástroje.</string>
-  <string name="agent_permission_mode_summary">Kontroluje, kedy sa vyžaduje potvrdenie používateľa pred operáciami zápisu AI</string>
-  <string name="prompt_permission_use_default">Použiť predvolené</string>
   <string name="prompt_tab_prompt">Prompt</string>
   <string name="prompt_tab_permissions">Oprávnenia</string>
-  <string name="prompt_tab_advanced">Rozšírené</string>
   <string name="prompt_name">Názov</string>
   <string name="prompt_description">Popis</string>
-  <string name="prompt_template">Šablóna promptu</string>
-  <string name="prompt_show_in">Zobraziť v</string>
-  <string name="prompt_context_verse_selection">Výber verša</string>
   <string name="prompt_context_text_selection">Výber textu</string>
   <string name="prompt_context_window_menu">Ponuka okna</string>
   <string name="prompt_context_workspace_menu">Ponuka pracovnej plochy</string>
   <string name="prompt_context_note_editor">Editor poznámok</string>
   <string name="prompt_bible_only">Iba biblické dokumenty</string>
-  <string name="prompt_category_study">Štúdium</string>
   <string name="prompt_category_notes">Poznámky</string>
-  <string name="prompt_category_general">Všeobecné</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Nekategorizované</string>
   <string name="addon_prompt_badge">Doplnok: %s</string>
-  <string name="addon_prompt_notice">Tento prompt pochádza z doplnkového modulu „%s" a nedá sa upravovať. Použite „Kopírovať na úpravu" na vytvorenie upraviteľnej kópie.</string>
   <string name="new_category">Nová kategória</string>
   <string name="new_category_name">Názov kategórie</string>
-  <string name="rename_category">Premenovať</string>
-  <string name="move_category_up">Presunúť nahor</string>
-  <string name="move_category_down">Presunúť nadol</string>
-  <string name="hide_category">Skryť z akcií AI</string>
-  <string name="show_category">Zobraziť v akciách AI</string>
   <string name="hidden">skryté</string>
-  <string name="delete_category">Vymazať kategóriu</string>
-  <string name="delete_category_and_prompts">Vymazať kategóriu aj jej výzvy</string>
-  <string name="delete_category_keep_prompts">Presunúť výzvy do koreňa a vymazať kategóriu</string>
-  <string name="delete_category_confirm_title">Vymazať kategóriu \"%s\"?</string>
-  <string name="move_to_category">Presunúť do kategórie…</string>
   <string name="category_none">Bez kategórie</string>
-  <string name="import_prompts_editable">Importovať ako upraviteľné výzvy</string>
-  <string name="import_prompts_addon">Nainštalovať ako doplnok (iba na čítanie)</string>
   <string name="prompt_category">Kategória</string>
   <string name="new_prompt">Nová výzva</string>
-  <string name="permission_always_ask">Vždy sa opýtať</string>
-  <string name="permission_ask_once_per_run">Opýtať sa raz za spustenie</string>
-  <string name="permission_allow_all">Povoliť všetko</string>
-  <string name="permission_deny_all">Zakázať všetko</string>
-  <string name="reset_all_ai_settings">Resetovať všetky nastavenia AI</string>
-  <string name="reset_all_ai_settings_confirm_title">Resetovať všetky nastavenia AI?</string>
-  <string name="reset_all_ai_settings_confirm_message">Tým sa vymaže API kľúč, poskytovateľ, koncový bod, model a všetky výzvy sa obnovia na predvolené hodnoty. Pokračovať?</string>
-  <string name="edit_prompt">Upraviť výzvu</string>
   <string name="built_in_prompt">Vstavaná</string>
-  <string name="built_in_prompt_notice">Toto je vstavaná výzva a nedá sa upraviť. Použite „Kopírovať na prispôsobenie" na vytvorenie upraviteľnej kópie.</string>
-  <string name="copy_to_customize">Kopírovať na prispôsobenie</string>
   <string name="prompt_copied">Výzva skopírovaná</string>
-  <string name="delete_prompt_confirmation">Vymazať výzvu \"%s\"?</string>
   <string name="prompt_name_required">Názov výzvy je povinný</string>
-  <string name="prompt_template_required">Šablóna výzvy je povinná</string>
-  <string name="prompt_edit_before_run">Špecifikovať pred spustením</string>
-  <string name="prompt_edit_before_run_description">Zobraziť textové pole na špecifikáciu úlohy pred spustením výzvy</string>
   <string name="prompt_no_document_creation">Bez vytvárania dokumentov</string>
-  <string name="prompt_no_document_creation_description">Keď je povolené, AI nevytvorí dokument. Výsledky sa zobrazujú iba v protokole aktivít. Užitočné pre výzvy zamerané len na akcie (záložky, štítky, operácie so študijnou zložkou).</string>
-  <string name="prompt_auto_include_documents">Automaticky zahrnúť nainštalované dokumenty</string>
-  <string name="prompt_auto_include_documents_description">Automaticky zahrnúť zoznam nainštalovaných dokumentov do kontextu výzvy, čím sa ušetrí jedna iterácia AI.</string>
-  <string name="prompt_auto_include_commentaries">Automaticky zahrnúť komentáre</string>
-  <string name="prompt_auto_include_commentaries_description">Automaticky načítať a zahrnúť záznamy komentárov pre vybrané verše, čím sa ušetrí jedna iterácia AI.</string>
   <string name="prompt_is_text_transformation">Transformácia textu</string>
-  <string name="prompt_is_text_transformation_description">Používa zjednodušenú systémovú výzvu, ktorá zachováva formátovanie (odkazy, nadpisy, tučné/kurzíva) pri transformácii obsahu textu. Nepoužívajú sa žiadne nástroje. Ideálne pre výzvy na preklad a úpravu.</string>
-  <string name="llm_no_document_creation_intercepted">Úloha dokončená (vytváranie dokumentov je zakázané)</string>
   <string name="llm_note_updated">Poznámka aktualizovaná</string>
-  <string name="specify_before_run_title">Špecifikovať úlohu</string>
-  <string name="specify_before_run_hint">Opíšte konkrétnu úlohu…</string>
   <string name="prompt_cache_settings">Nastavenia vyrovnávacej pamäte</string>
-  <string name="prompt_strict_context_matching">Kontextovo závislá vyrovnávacia pamäť</string>
-  <string name="prompt_strict_context_matching_description">Keď je povolené, zhoda vo vyrovnávacej pamäti nastane len vtedy, keď je celý kontext (verzia Biblie, vybraný text) rovnaký. Keď je zakázané, zhoda nastane vtedy, keď sú verše rovnaké bez ohľadu na verziu Biblie.</string>
-  <string name="ai_document_delete_confirmation">Vymazať tento dokument AI?</string>
   <string name="ai_document_deleted">Tento dokument AI bol vymazaný.</string>
   <string name="ai_document_regenerating">Obnova dokumentu AI…</string>
   <string name="ai_document_regenerate_not_implemented">Obnova bude dostupná v budúcej aktualizácii</string>
-  <string name="ai_regenerate_prompt_not_found">Nedá sa obnoviť: pôvodná výzva nebola nájdená. Mohla byť vymazaná.</string>
-  <string name="ai_document_regenerate">Obnoviť</string>
-  <string name="ai_regenerate_title">Obnoviť</string>
-  <string name="ai_regenerate_instructions_hint">Ďalšie pokyny (voliteľné)</string>
-  <string name="ai_regenerate_keep_previous">Zachovať predchádzajúcu verziu</string>
-  <string name="ai_regenerate_fresh_run">Nové spustenie (ignorovať predchádzajúci výsledok)</string>
-  <string name="ai_document_delete">Vymazať</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
-  <string name="default_prompt_translate_to_language">Preložiť do %s</string>
-  <string name="default_prompt_translate_to_ui_language">Preložiť do jazyka rozhrania</string>
-  <string name="default_prompt_translate_to_ui_language_desc">Preloží text dokumentu do jazyka rozhrania aplikácie</string>
-  <string name="default_prompt_translate_to_english">Preložiť do angličtiny</string>
-  <string name="default_prompt_translate_to_english_desc">Preloží vybraný text do angličtiny</string>
   <string name="default_prompt_summary">Zhrnutie</string>
-  <string name="default_prompt_summary_desc">Vytvorí stručné zhrnutie vybraného textu</string>
-  <string name="default_prompt_explain_verses">Vysvetliť verše</string>
-  <string name="default_prompt_explain_verses_desc">Vysvetlí význam a kontext vybraných veršov</string>
-  <string name="default_prompt_explain_verses_studypad">Vysvetliť verše → Študijná zložka</string>
-  <string name="default_prompt_explain_verses_studypad_desc">Vytvoriť študijnú zložku s vysvetlením verš po verši a záložkami</string>
-  <string name="default_prompt_word_study">Štúdium slov</string>
-  <string name="default_prompt_word_study_desc">Analyzuje pôvodné hebrejské/grécke slová</string>
-  <string name="default_prompt_strongs_annotation">Anotácia číslami Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Pridáva konkordančné čísla Strong\'s k ľubovoľnému prekladu Biblie s použitím KJV ako referencie</string>
-  <string name="default_prompt_cross_references">Krížové odkazy</string>
-  <string name="default_prompt_cross_references_desc">Nájde a vysvetlí súvisiace pasáže Biblie</string>
-  <string name="default_prompt_compare_translations">Porovnať preklady</string>
-  <string name="default_prompt_compare_translations_desc">Zobrazí, ako rôzne nainštalované preklady vyjadrujú text</string>
-  <string name="default_prompt_thematic_study">Tematická štúdia</string>
-  <string name="default_prompt_thematic_study_desc">Vytvorí študijnú zložku s pasážami a poznámkami k ústrednej téme</string>
-  <string name="default_prompt_bookmark_annotate">Záložka a anotácia</string>
-  <string name="default_prompt_bookmark_annotate_desc">Vytvorí záložku so štúdijnou poznámkou vygenerovanou AI</string>
-  <string name="default_prompt_study_layout">Otvoriť rozloženie pre štúdium</string>
-  <string name="default_prompt_study_layout_desc">Otvorí okná s komentármi a paralelným prekladom na štúdium</string>
   <string name="default_prompt_workspace_assistant">Asistent pracovnej plochy</string>
-  <string name="default_prompt_workspace_assistant_desc">Spravovať okná: vytvárať, zatvárať, usporiadať, meniť dokumenty</string>
-  <string name="default_prompt_enhance_note">Vylepšiť poznámku</string>
-  <string name="default_prompt_enhance_note_desc">Zlepší gramatiku, zrozumiteľnosť a čitateľnosť vašej poznámky</string>
-  <string name="default_prompt_ask_question">Položiť otázku</string>
-  <string name="default_prompt_ask_question_desc">Položte akúkoľvek otázku k vybranej pasáži</string>
   <string name="default_prompt_custom">Vlastná výzva</string>
-  <string name="default_prompt_custom_desc">Spustiť vlastnú úlohu na vybranej pasáži</string>
-  <string name="default_prompt_custom_template">Postupujte podľa špecifikácie úlohy používateľa pre vybranú biblickú pasáž.</string>
-  <string name="copy">Kopírovať</string>
-  <string name="delete_prompt_confirm_message">Naozaj chcete vymazať túto výzvu?</string>
-  <string name="ai_hide_prompt">Skryť</string>
-  <string name="ai_restore_hidden_prompts">Obnoviť skryté výzvy</string>
   <string name="ai_prompt_hidden">Výzva skrytá</string>
   <string name="ai_prompts_restored">Skryté výzvy obnovené</string>
 
     <!-- Agent Tool Display Names -->
-  <string name="tool_create_bookmark">Vytvoriť záložku</string>
-  <string name="tool_add_bookmark_note">Pridať poznámku k záložke</string>
-  <string name="tool_update_bookmark_note">Aktualizovať poznámku záložky</string>
-  <string name="tool_create_label">Vytvoriť štítok</string>
-  <string name="tool_add_label_to_bookmark">Pridať štítok k záložke</string>
-  <string name="tool_delete_bookmark">Vymazať záložku</string>
-  <string name="tool_delete_label">Vymazať štítok</string>
-  <string name="tool_remove_label_from_bookmark">Odstrániť štítok zo záložky</string>
-  <string name="tool_add_study_pad_entry">Pridať záznam do študijnej zložky</string>
-  <string name="tool_update_studypad_text_entry">Aktualizovať textový záznam študijnej zložky</string>
-  <string name="tool_create_study_pad">Vytvoriť študijnú zložku</string>
-  <string name="action_update_studypad_text_entry">Aktualizovať textový záznam študijnej zložky %1$s</string>
-  <string name="action_create_studypad">Vytvoriť študijnú zložku \"%1$s\" s %2$d položkami</string>
-  <string name="tool_set_document_title">Nastaviť názov dokumentu</string>
-  <string name="tool_finish_with_study_pad">Otvoriť študijnú zložku</string>
-  <string name="tool_finish_with_my_document_page">Otvoriť stránku Môj dokument</string>
-  <string name="tool_finish_without_document">Dokončiť bez dokumentu</string>
-  <string name="tool_get_verse_content">Čítať obsah verša</string>
-  <string name="tool_get_commentaries">Čítať komentáre</string>
-  <string name="tool_get_dictionary_entry">Vyhľadať záznam v slovníku</string>
-  <string name="tool_search_bible">Hľadať v Biblii</string>
-  <string name="tool_search_by_strongs">Hľadať podľa čísla Strong\'s</string>
-  <string name="tool_get_installed_documents">Zobraziť nainštalované dokumenty</string>
-  <string name="tool_get_all_labels">Zobraziť všetky štítky</string>
-  <string name="tool_get_bookmarks_for_verse">Získať záložky pre verš</string>
-  <string name="tool_get_bookmarks_with_label">Získať záložky so štítkom</string>
-  <string name="tool_get_study_pad_content">Čítať obsah študijnej zložky</string>
-  <string name="tool_search_study_pads">Hľadať v študijných zložkách</string>
-  <string name="tool_get_my_documents">Zobraziť moje dokumenty</string>
-  <string name="tool_get_my_document_pages">Zobraziť stránky môjho dokumentu</string>
-  <string name="tool_create_my_document">Vytvoriť môj dokument</string>
-  <string name="tool_add_my_document_page">Pridať stránku môjho dokumentu</string>
-  <string name="tool_edit_my_document_page">Upraviť stránku môjho dokumentu</string>
-  <string name="tool_delete_my_document_page">Vymazať stránku môjho dokumentu</string>
-  <string name="tool_get_windows">Zobraziť okná</string>
-  <string name="tool_create_window">Vytvoriť okno</string>
-  <string name="tool_manage_window">Spravovať okno</string>
-  <string name="tool_set_window_document">Nastaviť dokument okna</string>
 
     <!-- Agent Permission Dialog -->
   <string name="agent_permission_title">Povolenie agenta</string>
-  <string name="agent_permission_message">AI asistent chce použiť \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">AI asistent chce:\n\n%1$s</string>
 
     <!-- Tool action descriptions for permission dialog -->
-  <string name="action_create_bookmark_at">Vytvoriť záložku na %1$s</string>
-  <string name="action_create_bookmark_at_with_extras">Vytvoriť záložku na %1$s (%2$s)</string>
   <string name="action_with_note">s poznámkou</string>
-  <string name="action_labels">štítky: %1$s</string>
-  <string name="action_add_note_to_bookmark_at">Pridať poznámku k záložke na %1$s</string>
-  <string name="action_update_note_on_bookmark_at">Aktualizovať poznámku na záložke na %1$s</string>
-  <string name="action_create_label">Vytvoriť štítok \"%1$s\"</string>
-  <string name="action_add_label_to_bookmark">Pridať štítok \"%1$s\" k záložke na %2$s</string>
-  <string name="action_delete_bookmark">Vymazať záložku na %1$s</string>
-  <string name="action_delete_label">Vymazať štítok \"%1$s\"</string>
-  <string name="action_remove_label_from_bookmark">Odstrániť štítok \"%1$s\" zo záložky na %2$s</string>
-  <string name="action_add_entry_to_studypad">Pridať záznam do študijnej zložky \"%1$s\"</string>
-  <string name="action_create_my_document">Vytvoriť môj dokument: \"%1$s\"</string>
-  <string name="action_add_my_document_page">Pridať stránku \"%1$s\" do môjho dokumentu %2$s</string>
-  <string name="action_edit_my_document_page">Upraviť stránku môjho dokumentu: \"%1$s\"</string>
-  <string name="action_delete_my_document_page">Vymazať stránku môjho dokumentu: \"%1$s\"</string>
-  <string name="action_set_document_title">Nastaviť názov dokumentu: \"%1$s\"</string>
-  <string name="action_open_studypad">Otvoriť študijnú zložku \"%1$s\"</string>
-  <string name="action_open_my_document_page">Otvoriť stránku môjho dokumentu \"%1$s\"</string>
-  <string name="action_create_window">Vytvoriť nové okno</string>
-  <string name="action_create_window_with_doc">Vytvoriť okno s %1$s</string>
-  <string name="action_create_window_with_doc_and_key">Vytvoriť okno s %1$s na %2$s</string>
-  <string name="action_close_window">Zatvoriť okno (%1$s)</string>
-  <string name="action_minimize_window">Minimalizovať okno (%1$s)</string>
-  <string name="action_restore_window">Obnoviť okno (%1$s)</string>
-  <string name="action_set_window_document">Nastaviť %1$s na %2$s</string>
-  <string name="action_set_window_document_with_key">Nastaviť %1$s na %2$s na %3$s</string>
   <string name="action_active_window">aktívne okno</string>
-  <string name="action_finish">Dokončiť: \"%1$s\"</string>
-  <string name="permission_allow_once">Povoliť raz</string>
-  <string name="permission_allow_for_session">Povoliť pre toto sedenie</string>
-  <string name="permission_allow_all_session">Povoliť všetky nástroje v tomto sedení</string>
-  <string name="permission_allow_always">Vždy povoliť \"%1$s\"</string>
-  <string name="permission_deny">Odmietnuť</string>
-  <string name="permission_always_allow_confirm_title">Vždy povoliť?</string>
-  <string name="permission_always_allow_confirm">Naozaj chcete natrvalo povoliť \"%1$s\"?</string>
-  <string name="permission_always_allow_confirm_reset_hint">Toto môžete resetovať v nastaveniach AI.</string>
 
     <!-- Agent Tool Permission Settings -->
   <string name="manage_tool_permissions_title">Povolenia nástrojov</string>
-  <string name="manage_tool_permissions_summary">Spravovať povolenia jednotlivých nástrojov</string>
-  <string name="commentary_max_response_title">Limit veľkosti odpovede komentárov</string>
-  <string name="commentary_max_response_summary">Zobraziť dialóg výberu, keď odpoveď prekročí limit</string>
   <string name="commentary_max_response_no_limit">Bez limitu</string>
   <string name="commentary_max_response_value">~%s tokenov</string>
-  <string name="commentary_max_response_dialog_title">Nastaviť maximálnu veľkosť odpovede (tokeny)</string>
-  <string name="commentary_max_response_dialog_message">Keď AI načíta komentáre a celková odpoveď prekročí tento limit tokenov, dialóg výberu vám umožní zvoliť, ktoré komentáre odoslať AI.\n\n0 = bez limitu (všetky komentáre sa odošlú automaticky).</string>
-  <string name="commentary_filter_dialog_title">Odpoveď komentárov je príliš veľká</string>
-  <string name="commentary_filter_dialog_message">Limit tokenov (~%s) bol prekročený. Odznačte komentáre, ktoré nechcete odoslať AI.\n\nTento limit môžete upraviť v nastaveniach pripojenia AI.</string>
   <string name="commentary_filter_total_tokens">Vybrané: ~%1$s / %2$s tokenov</string>
   <string name="tool_log_commentary_count">%d komentárov</string>
-  <string name="tool_log_label_count">%d štítkov</string>
   <string name="tool_log_document_count">%d dokumentov</string>
-  <string name="tool_log_study_pad_count">%d študijných zložiek</string>
   <string name="tool_log_search_results">%1$d/%2$d výsledkov</string>
-  <string name="tool_log_bookmark_count">%d záložiek</string>
   <string name="tool_log_my_document_count">%d dokumentov</string>
   <string name="tool_log_my_document_page_count">%d stránok</string>
   <string name="tool_log_window_count">%d okien</string>
@@ -1768,21 +1374,10 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="tool_log_window_removed">odstránené</string>
   <string name="commentary_filter_item">%1$s%2$s (~%3$s tokenov)</string>
   <string name="ai_document_filter_title">Prístup k dokumentom</string>
-  <string name="ai_document_filter_summary">Zvoliť, ktoré dokumenty môže AI čítať</string>
-  <string name="ai_document_filter_summary_count">%d dokumentov vylúčených</string>
   <string name="ai_document_filter_activity_title">Prístup AI k dokumentom</string>
-  <string name="ai_document_excluded_error">Dokument vylúčený nastaveniami používateľa: %s</string>
-  <string name="permission_status_default">Pýtať sa (predvolené)</string>
-  <string name="permission_status_allowed">Vždy povolené</string>
-  <string name="permission_status_denied">Vždy odmietnuté</string>
-  <string name="permission_option_default">Pýtať sa zakaždým (predvolené)</string>
-  <string name="permission_option_always_allow">Vždy povoliť</string>
-  <string name="permission_option_always_deny">Vždy odmietnuť</string>
-  <string name="reset_all_permissions">Resetovať všetky</string>
 
     <!-- Tool Info -->
   <string name="ai_available_tools">Dostupné nástroje</string>
-  <string name="ai_read_tools">Nástroje na čítanie</string>
   <string name="ai_write_tools">Nástroje na zápis</string>
 
     <!-- Global Tool Permissions Activity -->
@@ -1790,21 +1385,12 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Povolenia nástrojov</string>
-  <string name="prompt_tool_permissions_read_only">Povolenia nástrojov (len na čítanie)</string>
-  <string name="prompt_tool_permissions_description">Prepísať povolenia nástrojov pre tento pokyn</string>
-  <string name="tool_section_read_tools">Nástroje na čítanie</string>
   <string name="tool_section_write_tools">Nástroje na zápis</string>
 
     <!-- Tool categories -->
-  <string name="tool_category_bible_search">Biblia a vyhľadávanie</string>
-  <string name="tool_category_bookmarks">Záložky</string>
-  <string name="tool_category_labels">Štítky</string>
-  <string name="tool_category_study_pads">Študijné zložky</string>
   <string name="tool_category_my_documents">Moje dokumenty</string>
   <string name="tool_category_windows">Okná</string>
-  <string name="tool_category_read">Čítanie</string>
   <string name="tool_category_write">Zápis</string>
-  <string name="expand_collapse">Rozbaliť/zbaliť</string>
   <string name="tool_option_enabled">Zapnuté</string>
   <string name="tool_option_disabled">Vypnuté</string>
   <string name="tool_option_default_enabled">Predvolené (zapnuté)</string>
@@ -1819,91 +1405,35 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="prompt_model_custom_hint">Zadajte názov modelu</string>
 
     <!-- LLM One Tap Actions -->
-  <string name="select_llm_prompt">Vybrať akciu AI</string>
-  <string name="no_llm_prompts_configured">Pre výber verša nie sú nakonfigurované žiadne podnety AI</string>
   <string name="llm_prompt_executing">Vykonávanie podnetu AI: %s</string>
   <string name="llm_actions">Akcie AI</string>
 
     <!-- Agent Log Widget -->
-  <string name="agent_log_expand">Rozbaliť/zbaliť záznam agenta</string>
-  <string name="agent_log_close">Zatvoriť záznam agenta</string>
-  <string name="agent_log_stop">Zastaviť AI</string>
   <string name="agent_log_idle">AI asistent</string>
   <string name="agent_log_running">AI pracuje…</string>
-  <string name="agent_log_completed">Dokončené</string>
   <string name="agent_log_error">Nastala chyba</string>
   <string name="agent_log_executing">Vykonávam: %s</string>
   <string name="agent_log_iteration">Iterácia %d</string>
   <string name="agent_log_tool">Nástroj: %s</string>
-  <string name="agent_log_tool_completed">Nástroj %s dokončený</string>
   <string name="agent_log_tool_failed">Nástroj %s zlyhal</string>
-  <string name="agent_log_response_received">Odpoveď prijatá</string>
-  <string name="agent_log_saved">Uložené: %s</string>
   <string name="agent_log_done">Hotovo: %s</string>
-  <string name="agent_log_cancelled">Zrušené</string>
-  <string name="agent_execution_completed">Vykonávanie agenta dokončené</string>
-  <string name="agent_already_running">AI agent už beží. Počkajte prosím alebo ho najprv zastavte.</string>
 
     <!-- AI Agent Notifications -->
   <string name="ai_agent_notification_channel_name">AI agent</string>
   <string name="ai_agent_notification_running">AI agent pracuje…</string>
-  <string name="ai_agent_notification_permission_needed">AI agent potrebuje vaše schválenie</string>
-  <string name="ai_agent_notification_permission_tap">Ťuknutím sa vrátite do AndBible</string>
-  <string name="ai_agent_notification_completed">Úloha AI dokončená</string>
-  <string name="ai_agent_notification_completed_tap">Ťuknutím zobrazíte výsledky</string>
   <string name="ai_agent_notification_error">Úloha AI zlyhala</string>
-  <string name="ai_agent_notification_cancel">Zrušiť</string>
 
     <!-- My Documents -->
   <string name="my_documents_title">Moje dokumenty</string>
-  <string name="my_documents_empty">Zatiaľ žiadne dokumenty. Ťuknutím na + vytvoríte nový.</string>
   <string name="my_document_new_name">Dokument %d</string>
-  <string name="my_document_create_title">Vytvoriť nový dokument</string>
-  <string name="my_document_rename_title">Premenovať dokument</string>
-  <string name="my_document_edit_description_title">Upraviť popis</string>
-  <string name="my_document_delete_confirmation">Vymazať dokument \"%s\"?</string>
-  <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nie je možné vymazať, pokiaľ obsahujú stránky. Najprv vymažte stránky.</string>
-  <string name="my_document_save_changes">Uložiť zmeny?</string>
   <string name="my_document_no_description">Bez popisu</string>
-  <string name="my_document_rename">Premenovať</string>
-  <string name="my_document_edit_description">Upraviť popis</string>
-  <string name="my_document_delete">Vymazať</string>
 
   <string name="my_document_pages_title">%s – Stránky</string>
-  <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
-  <string name="my_document_page_rename_title">Premenovať stránku</string>
-  <string name="my_document_page_delete_confirmation">Vymazať stránku \"%s\"?</string>
-  <string name="my_document_page_rename">Premenovať</string>
-  <string name="my_document_page_delete">Vymazať</string>
   <string name="my_document_page_export">Export</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
-  <string name="my_document_import_page">Importovať Markdown/HTML</string>
-  <string name="my_document_export_page">Exportovať stránku</string>
   <string name="my_document_imported_page_name">Importované</string>
   <string name="my_document_export_fallback_name">stránka</string>
-  <string name="my_document_export_document">Exportovať všetky stránky</string>
-  <string name="my_document_import_document">Importovať súbory ako dokument</string>
-  <string name="my_document_import_empty_selection">Neboli vybrané žiadne importovateľné súbory</string>
-  <string name="my_document_export_success">Stránky boli úspešne exportované</string>
-  <string name="ai_doc_choose_page">Vybrať stránku dokumentu AI</string>
-  <string name="prefs_show_ai_doc_markers_title">Zobraziť značky dokumentov AI</string>
-  <string name="prefs_show_ai_doc_markers_summary">Zobraziť ikony značiek pre stránky dokumentov generovaných AI prepojených s veršami</string>
-  <string name="prefs_show_ordinals_title">Zobraziť poradové čísla</string>
-  <string name="prefs_show_ordinals_summary">Zobraziť značky poradovej pozície v texte</string>
 
-  <string name="prefs_page_scroll_amount_title">Množstvo posúvania stránky</string>
-  <string name="prefs_page_scroll_amount_summary">Koľko stránky sa posunie pri posúvaní nahor/nadol</string>
-  <string name="page_scroll_amount_dialog_title">Množstvo posúvania stránky</string>
-  <string name="prefs_scroll_helper_lines_title">Pomocné čiary posúvania</string>
-  <string name="prefs_scroll_helper_lines_summary">Zobraziť vodorovné vodiace čiary na hraniciach posúvania stránky</string>
-  <string name="prefs_scroll_helper_line_style_title">Štýl pomocnej čiary</string>
-  <string name="prefs_scroll_helper_line_style_summary">Zvoliť vizuálny štýl pomocných čiar posúvania</string>
-  <string name="scroll_helper_line_style_dialog_title">Štýl pomocnej čiary</string>
-  <string name="scroll_helper_line_style_thin_dotted">Tenká bodkovaná čiara</string>
-  <string name="scroll_helper_line_style_thin_solid">Tenká plná čiara</string>
-  <string name="scroll_helper_line_style_thick_solid">Hrubá plná čiara</string>
-  <string name="prefs_page_buttons_title">Tlačidlá posúvania stránky</string>
-  <string name="prefs_page_buttons_summary">Zobraziť viditeľné tlačidlá posúvania nahor/nadol na obrazovke</string>
 </resources>

@@ -45,7 +45,6 @@
   <string name="search_in">Pretraži u %s</string>
   <string name="do_in_background">Nastavi u pozadini</string>
   <string name="rebuild_index_button">Ponovno stvori</string>
-  <string name="creating_index_for">正在為 %s 建立索引…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%1$s rezultata u %2$s</string>
     <!-- Tasks -->
@@ -58,7 +57,6 @@
   <string name="search_all_words">Sve riječi</string>
   <string name="search_any_word">Bilo koja riječ</string>
   <string name="search_phrase">Izraz</string>
-  <string name="search_fts_query">原始查詢語法</string>
   <string name="search_result_count">Pronađeno %d rezultata</string>
   <string name="search_showing_first">Previše rezultata. Prikazujem prvih %d</string>
   <string name="search_bible_section_group_prompt">Gdje tražiti</string>
@@ -73,10 +71,6 @@
     <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Pretraži %s</string>
     <!-- Multi-translation search -->
-  <string name="search_translations">翻譯版本</string>
-  <string name="choose_translations">選擇翻譯版本…</string>
-  <string name="multi_search_results">%2$d 個翻譯版本中共 %1$d 節經文</string>
-  <string name="search_index_not_created">無索引</string>
 
     <!-- Preferences -->
   <string name="prefs_show_verseno_title">Brojevi poglavlja i redaka</string>
@@ -84,19 +78,11 @@
 
   <string name="prefs_e_ink_mode_title">Crno-bijeli način</string>
   <string name="prefs_eink_mode_summary">Koristite aplikaciju u monokromatskom (jednobojnom) načinu, prilagođenom za E-ink uređaje.</string>
-  <string name="prefs_eink_settings_cat">電子墨水設定</string>
-  <string name="prefs_eink_display_title">電子墨水功能</string>
-  <string name="prefs_eink_display_summary">啟用電子墨水專屬功能（翻頁按鈕、捲動輔助線）</string>
 
   <string name="prefs_disable_animations_title">Isključite animacije</string>
   <string name="prefs_disable_animations_summary">Isključite razne animacije kao što su neprimjetno pomicanje.</string>
 
-  <string name="prefs_disable_click_to_edit_title">停用學習筆記點擊編輯</string>
-  <string name="prefs_disable_click_to_edit_summary">需使用編輯按鈕來編輯學習筆記中的內容。</string>
 
-  <string name="prefs_notes_content_type_title">新建書籤筆記的格式</string>
-  <string name="prefs_notes_content_type_summary">建立新書籤筆記和學習筆記條目時使用的文字格式</string>
-  <string name="notes_content_type_html">富文字（HTML）</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
   <string name="prefs_paragraph_spacing_title">Razmak između odlomaka (%s mm)</string>
@@ -124,27 +110,13 @@
   <string name="prefs_show_footnotes_title">Fusnote</string>
   <string name="prefs_show_xrefs_title">Unakrsne reference</string>
   <string name="prefs_show_footnotes_summary">Prikaži fusnote, ako su dostupne u dokumentu</string>
-  <string name="prefs_show_footnotes_inline_title">內嵌註腳</string>
-  <string name="prefs_show_footnotes_inline_summary">將註腳以內嵌方式顯示在正文中，而非作為可點擊的標註</string>
   <string name="prefs_show_xrefs_summary">Prikaži reference, ako su dostupne u dokumentu</string>
 
   <string name="prefs_show_notes_title">Fusnote i unakrsne reference</string>
   <string name="prefs_show_strongs_title">Strongovi brojevi</string>
   <string name="prefs_show_morphology_title">Morfološki kodovi</string>
-  <string name="prefs_non_strongs_word_italic_title">斜體顯示補充詞語</string>
-  <string name="prefs_non_strongs_word_italic_summary">對沒有 Strong\'s 編號的詞語使用斜體</string>
   <string name="prefs_section_title_title">Naslovi odjeljaka</string>
-  <string name="prefs_title_scroll_button_title">標題捲動按鈕</string>
-  <string name="prefs_title_scroll_button_summary">在章節標題旁顯示捲動至頂部的按鈕</string>
   <string name="prefs_red_letter_title">Crveno pismo</string>
-  <string name="prefs_infinite_scroll_title">無限捲動</string>
-  <string name="prefs_infinite_scroll_summary">捲動時自動載入更多內容</string>
-  <string name="prefs_mark_as_read_button_title">標記已讀按鈕</string>
-  <string name="prefs_mark_as_read_button_summary">在每章末尾顯示標記為已讀的按鈕</string>
-  <string name="prefs_show_memorization_indicators_title">記憶指示器</string>
-  <string name="prefs_show_memorization_indicators_summary">在頁邊顯示已記憶和目標經文的彩色指示器</string>
-  <string name="prefs_auto_track_reading_title">自動追蹤閱讀</string>
-  <string name="prefs_auto_track_reading_summary">捲動瀏覽章節時自動標記為已讀</string>
   <string name="prefs_tilt_to_scroll_title">Nagni za pomicanje</string>
 
   <string name="prefs_toolbar_button_action_title">Radnja za gumb trake sa alatima</string>
@@ -190,31 +162,16 @@
   <string name="prefs_margin_size_title">Promijeni veličinu margina</string>
   <string name="prefs_margin_size_mm_title">Veličina margina (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Napredne postavke</string>
-  <string name="prefs_features_cat">功能</string>
   <string name="prefs_display_customization_cat">Izgled i osjećaj</string>
   <string name="prefs_behavior_customization_cat">Ponašanje aplikacije</string>
 
   <string name="prefs_margin_size_summary">Prilagodite lijevu i desnu marginu u prikazu teksta. Također, možete
         prilagoditi maksimalnu širinu teksta</string>
-  <string name="prefs_margin_size_summary_2">提示：可點擊頁邊區域向上／向下翻頁。</string>
 
   <string name="prefs_text_colors_summary">Prilagodite boje teksta i pozadine, kao i efekt šuma</string>
   <string name="text_display_settings_activity_title">Postavke prikaza teksta</string>
   <string name="workspace_text_display_settings_title">Opcije teksta - %s</string>
   <string name="window_text_display_settings_title">Opcije teksta - Prozor %d</string>
-  <string name="global_text_display_settings_title">全域文字選項</string>
-  <string name="global_text_display_settings_summary">所有工作區的預設文字顯示設定</string>
-  <string name="parent_settings_category_title">上層設定</string>
-  <string name="workspace_text_options_link">工作區文字選項 — %s</string>
-  <string name="workspace_text_options_link_summary">編輯此工作區的文字顯示設定</string>
-  <string name="global_text_options_link">全域文字選項</string>
-  <string name="global_text_options_link_summary">編輯所有工作區的預設文字顯示設定</string>
-  <string name="prefs_font_and_colors_title">字型與色彩</string>
-  <string name="prefs_text_layout_title">文字排版</string>
-  <string name="prefs_strongs_and_morphology_title">Strong\'s 與詞形分析</string>
-  <string name="prefs_footnotes_and_xrefs_title">註腳與交叉引用</string>
-  <string name="prefs_verses_and_headings_title">經文與標題</string>
-  <string name="prefs_page_scrolling_title">頁面捲動</string>
 
   <string name="prefs_justify_title">Poravnavanje teksta</string>
   <string name="prefs_justify_summary">Poravnaj tekst u ujednačenom stilu, znači da su lijeva i desna margina u liniji</string>
@@ -248,10 +205,6 @@
   <string name="choose_strongs_hebrew_dictionary_summary">Odaberite Strongov rječnik za definicije hebrejskih riječi</string>
   <string name="choose_strongs_greek_morphology_title">Robinsonova grčka morfologija</string>
   <string name="choose_strongs_greek_morphology_summary">Odaberite rječnik za definicije Robinsonove grčke morfologije</string>
-  <string name="choose_word_lookup_dictionary_title">單字查詢字典</string>
-  <string name="choose_word_lookup_dictionary_summary">選擇用於查詢單字的字典</string>
-  <string name="lookup_in_dictionary">在字典中查詢</string>
-  <string name="word_not_found_in_dictionaries">在任何字典中均未找到該單字</string>
 
   <string name="prefs_top_margin_title_mm">Gornja margina (%d mm)</string>
   <string name="font_size_title">Veličina teksta</string>
@@ -262,7 +215,6 @@
   <string name="prefs_font_family_summary">Promijenite stil teksta. Savjet: još stilova je moguće postaviti preko Preuzmi Dokumente / Dodatke</string>
 
   <string name="prefs_text_bookmarks_title">Straničnik i Moje bilješke postavke</string>
-  <string name="prefs_reading_and_memorization_title">閱讀與記憶</string>
 
   <string name="prefs_enable_bluetooth_title">Omogući Bluetooth gumb za medije</string>
   <string name="prefs_enable_bluetooth_summary">Upravljajte Bluetooth gumbima za medije kako biste pokrenuli ili zaustavili govor</string>
@@ -299,7 +251,6 @@
   <string name="copy_settings">Kopiraj postavke na</string>
   <string name="copy_settings_to_workspace">Radna površina</string>
   <string name="copy_settings_to_window">Prozor %1$d(%2$s:%3$s)</string>
-  <string name="copy_settings_to_global">全域預設值</string>
   <string name="change_to_normal">Promijeni u običan prozor</string>
   <string name="window_pin_mode">Prikvači</string>
 
@@ -455,8 +406,6 @@ Ljubaznošću Heartlight internet magazina,
   <string name="add_bookmark_whole_verse">Obilježi redak</string>
   <string name="add_bookmark_whole_verse1">Redci</string>
   <string name="add_bookmark_whole_verse2">Cijeli redci</string>
-  <string name="add_whole_page_bookmark">為整頁新增書籤</string>
-  <string name="add_paragraph_break">段落分隔符</string>
   <string name="ai_label">AI</string>
   <string name="remove_bookmark">Ukloni</string>
   <string name="bookmark_settings_hide_labels_title">Sakrij naznačene oznake</string>
@@ -573,8 +522,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
     <!-- param is refresh icon -->
   <string name="assing_labels_help5">Dodirnite %s kako biste promijenili redoslijed liste na osnovu Vaših odabira.</string>
 
-  <string name="global_text_options_help_title">全域文字選項</string>
-  <string name="global_text_options_help1">這些是所有工作區的全域預設設定。每個工作區可用自己的設定覆蓋這些預設值。</string>
 
   <string name="workspace_text_options_help_title">Radna površina - opcije teksta</string>
   <string name="workspace_text_options_help1">Ove postavke određuju zadane parametre za sve prozore radne površine.</string>
@@ -655,10 +602,7 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="backup_to">Napravi sigurnosne kopije u...</string>
   <string name="backup_restore_from">Vratiti iz...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
-  <string name="backup_restore_from2">從…還原或匯入</string>
   <string name="backup_restore">Vratiti</string>
-  <string name="backup_restore2">還原或匯入</string>
-  <string name="overwrite_something">覆寫 %s？</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">Što želite vratiti?</string>
@@ -679,20 +623,14 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="backup_email_subject_2">Sigurnosna kopija baze podataka %s</string>
   <string name="backup_email_message_2">Baza podataka %s koja sadrži straničnike, bilješke, planove čitanja i radne površine je priložena</string>
 
-  <string name="exported_studypads_subject">已匯出的學習筆記</string>
-  <string name="exported_studypads_message">您的 %s 資料庫（包含所選學習筆記相關的書籤和筆記）已附加</string>
   <string name="restore_unsuccessfull">Vraćanje baze podataka je bilo neuspješno. Možda ste dali neodgovarajuću datoteku</string>
   <string name="restore_modules">Vrati dokumente sa...</string>
   <string name="send_backup_file">Pošalji datoteku sigurnosne kopije</string>
   <string name="backup_modules_title">Odaberi module za rezervnu kopiju</string>
   <string name="install_zip_canceled">Instalacija modula otkazana</string>
-  <string name="ask_restore_or_import">%s 的資料庫可以選擇還原（即刪除現有資料庫並載入所選資料庫）或匯入（將所選資料庫匯入現有資料庫）。請選擇操作？</string>
   <string name="restore">Vratiti</string>
-  <string name="import2">匯入</string>
-  <string name="export_studypads_help">包含已匯出學習筆記（即標籤和書籤）的檔案，可透過主選單 -> 備份與還原匯入。</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
-  <string name="bookmarks_db_stats">\"%1$s\" 及其他 %2$s 個標籤／學習筆記和 %3$s 個書籤</string>
 
     <!-- About -->
   <string name="module_about_copyright">Autorska prava: %s</string>
@@ -739,7 +677,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
     <!-- General -->
   <string name="okay">U redu</string>
   <string name="cancel">Odustani</string>
-  <string name="discard_changes_confirmation">放棄未儲存的變更？</string>
   <string name="yes">Da</string>
   <string name="no">Ne</string>
   <string name="error">Pogreška</string>
@@ -759,7 +696,8 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="error_no_content">Nema sadržaja u označenom retku</string>
   <string name="error_page_too_large">Stranica je prevelika da bi se učitala</string>
   <string name="error_key_not_in_document">Nije pronađeno u dokumentu</string>
-  <string name="error_key_not_in_document2">%1$s nije pronađen u dokumentu %2$s</string>  <string name="empty_list">Nema stavki za prikaz</string>
+  <string name="error_key_not_in_document2">%1$s nije pronađen u dokumentu %2$s</string>
+  <string name="empty_list">Nema stavki za prikaz</string>
   <string name="error_skip">Preskoči</string>
   <string name="bug_report_email_title">Pošaljite prijavu o pogrešci putem e-pošte</string>
   <string name="bug_report_email_text">Sljedeće, molimo Vas da odaberete Vašu željenu aplikaciju e-pošte (primjerice Gmail) kako biste poslali izvješće programerskom timu.</string>
@@ -786,13 +724,11 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="select_all">Odaberi sve</string>
   <string name="copy_settings_workspaces_title">Na koju radnu površinu želite iskopirati postavke?</string>
   <string name="reset_settings">Poništi</string>
-  <string name="search_settings">搜尋設定</string>
   <string name="workspace_dismiss">Odustani</string>
   <string name="workspace_listing_with_current">%s (trenutno)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Ovo je beta verzija!</string>
-  <string name="beta_flag">測試版</string>
   <string name="beta_notice_content_1">
         U beta izdanju, postoje nove mogućnosti koje nisu temeljito testirane,
         i stoga upotreba beta izdanja može uvesti neočekivano ponašanje, tj. pogreške.
@@ -843,10 +779,6 @@ Pored straničnika, moguće je i unijeti tekst po želji u radnoj bilježnici.</
   <string name="help_search_text">Tekst za pretraživanje može sadržavati posebne znakove kao *, ?, AND, OR, NOT
         (za više detalja pogledajte Apache Lucene - Query Parser Syntax)
     </string>
-  <string name="help_search_text2">搜尋文字可包含特殊字元，如 *、AND、OR、NOT</string>
-  <string name="help_search_details">詳情請參閱 %s。</string>
-  <string name="help_apache_lucene">Apache Lucene - 查詢解析器語法</string>
-  <string name="help_fts5">FTS5 全文查詢語法</string>
   <string name="help_workspaces_title">Radne površine</string>
   <string name="help_workspaces_text">
         Radna površina daje mogućnost postojanja više kontekstualnih radnih okruženja. Funkcijama radnih površina
@@ -885,11 +817,7 @@ iz zip datoteke.</string>
   <string name="format_zip">Zip datoteke koje sadrže Sword modul(e), ili rezervne kopije dokumenata (*.abmd) napravljeni su od strane %s</string>
   <string name="format_mysword">MySword dokumenti (*.mybible)</string>
   <string name="format_mybible">MyBible dokumenti (*SQLite3)</string>
-  <string name="format_esword">e-Sword 文件（*.bblx、*.bbli）</string>
   <string name="format_epub">EPUB dokumenti (*.epub)</string>
-  <string name="format_ttf">TTF 字型（*.ttf）</string>
-  <string name="format_csv_prompts">AI 提示詞外掛（*.csv）</string>
-  <string name="format_studypads">來自 AndBible 資料庫的學習筆記（*.abdb）</string>
   <string name="redownload_message">
 Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih ponovno lako preuzeli.</string>
 
@@ -906,7 +834,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="journal_description">Korisničko-uređivačke Radne bilježnice sa tekstovima i straničnicima po volji</string>
   <string name="my_notes_description">Korisničko-uređivačke bilješke priložene straničnicima</string>
   <string name="my_notes_abbreviation">Moje bilješke</string>
-  <string name="studypad">學習筆記</string>
   <string name="studypads">Radne bilježnice</string>
   <string name="multi_description">Više referenci</string>
   <string name="multi_abbreviation">Višestruko</string>
@@ -923,33 +850,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="try_again_passphrase">Lozinka nije urodila plodom, pokušajte ponovno?</string>
   <string name="show_unlock_info">Modul &amp; detalji otključavanja</string>
 
-  <string name="prefs_experimental_features_title">實驗性功能</string>
-  <string name="prefs_experimental_features_summary">選擇要啟用的實驗性功能。這些功能仍在開發中，可能會變更或移除</string>
-  <string name="experimental_feature_bookmark_edit_actions">書籤編輯操作</string>
-  <string name="experimental_feature_add_paragraph_break">新增段落分隔符書籤</string>
-  <string name="experimental_feature_ai_features">AI 功能與我的文件</string>
-  <string name="experimental_feature_reading_and_memorization">閱讀追蹤與記憶</string>
-  <string name="raw_llm_log_title">原始 LLM 日誌</string>
-  <string name="raw_llm_log_empty">暫無原始日誌資料</string>
-  <string name="raw_llm_log_copied">日誌已複製到剪貼簿</string>
-  <string name="raw_llm_log_total">總計：輸入 %1$s／輸出 %2$s%3$s</string>
-  <string name="raw_llm_log_entry_system">系統提示詞</string>
-  <string name="raw_llm_log_entry_user">使用者訊息</string>
-  <string name="raw_llm_log_entry_assistant">助理回覆</string>
-  <string name="raw_llm_log_entry_tool_call">工具呼叫：%s</string>
-  <string name="raw_llm_log_entry_tool_result">工具結果 [%s]</string>
-  <string name="raw_llm_log_entry_tool_definitions">工具定義（%d 個工具）</string>
-  <string name="raw_llm_log_entry_api_response">API 回應（第 %d 次迭代）</string>
-  <string name="raw_llm_log_entry_tokens">約 %s 個 token</string>
-  <string name="raw_llm_log_entry_usage">輸入：%1$s／輸出：%2$s%3$s</string>
-  <string name="raw_llm_log_entry_empty">（空）</string>
-  <string name="raw_llm_log_entry_tool_desc">描述：%s</string>
-  <string name="raw_llm_log_entry_tool_params">參數：%s</string>
-  <string name="agent_log_view_raw">查看原始 LLM 日誌</string>
-  <string name="agent_log_model_selector">變更預設模型（目前：%1$s）</string>
-  <string name="agent_log_model_not_configured">未設定模型</string>
-  <string name="agent_log_select_model">選擇預設模型</string>
-  <string name="share">分享</string>
   <string name="prefs_show_error_box_title">Prikaži prozor sa pogreškom Javascript</string>
   <string name="prefs_show_error_box_summary">Korisno za programere pri otklanjanju sporednih pogrešaka BibleView. Ovo će usporiti rad aplikacije</string>
   <string name="active_window_indicator_title">Prikaži aktivni indikator prozora</string>
@@ -958,9 +858,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
 
   <string name="how_to_contribute">Kako možete doprinijeti?</string>
   <string name="confirm_delete_bookmarks">Želite li ukloniti %d straničnik(a) i njihove bilješke?</string>
-  <string name="confirm_delete_orphaned_bookmarks">所選標籤附加在 %d 個無其他標籤的書籤上。是否同時刪除這些書籤和標籤？</string>
-  <string name="delete_label_and_bookmarks">刪除標籤和書籤</string>
-  <string name="delete_label_only">僅刪除標籤</string>
   <string name="module_size_megabytes">%.1fMB</string>
   <string name="tell_friend_title">Preporučite prijatelju</string>
   <string name="tell_friend_message1">Želim ti preporučiti %s.</string>
@@ -968,7 +865,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="tell_friend_message3">Instaliraj je sa Google Play-a: %s</string>
   <string name="tell_friend_message4">Pročitaj više; više instalacijskih opcija: %s</string>
   <string name="share_verse_ok">Podijeli / Kopiraj</string>
-  <string name="web_search">網路搜尋</string>
   <string name="verse_action_copy">Kopiraj</string>
   <string name="generic_share">Dijeli</string>
   <string name="share_verse_menu_title">Podijeli / kopiraj...</string>
@@ -985,7 +881,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="show_version_name">Dodaj i naziv verzije</string>
   <string name="show_ellipsis">Prikaži točke (...)</string>
   <string name="show_quotes">Prikaži citate</string>
-  <string name="separate_verses_with_newlines">以換行符分隔經文</string>
 
   <string name="backup_button">Sigurnosna kopija</string>
   <string name="back_button">Natrag</string>
@@ -1029,13 +924,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="whole_verse_turned_on">Straničnik je sada obilježen za cijeli redak</string>
   <string name="this_bookmark">Ovaj straničnik</string>
   <string name="this_workspace">Ova radna površina</string>
-  <string name="override_style">覆蓋樣式</string>
-  <string name="no_override_suffix">（無覆蓋）</string>
-  <string name="display_mode_highlight">螢光標記</string>
-  <string name="display_mode_underline">底線</string>
-  <string name="display_mode_marker">僅標記</string>
-  <string name="display_mode_hidden">隱藏</string>
-  <string name="workspace_override_indicator">此標籤具有特定工作區的顯示模式</string>
   <string name="primary_label">Glavna oznaka</string>
   <string name="highlight_entire_verse">Istakni cijeli redak</string>
   <string name="favourite_label">Omiljena oznaka</string>
@@ -1049,7 +937,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="book_menu_sort_row_opt">Poredaj knjige vodoravno</string>
   <string name="book_menu_group_by_category">Grupiraj knjige po kategorijama</string>
   <string name="book_menu_show_long_book_name">Prikaži dugo ime knjige</string>
-  <string name="book_menu_show_progress_bars">顯示進度條</string>
   <string name="reset_workspace_labels">Želite li poništiti auto-dodijeljivanje i omiljena podešavanja za ovu radnu površinu?</string>
   <string name="reset_hide_labels">Želite li poništiti parametre za podešavanja skrivanja određenih oznaka?</string>
   <string name="reorder">Ponovno preuredi</string>
@@ -1070,58 +957,20 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="label_salvation">Spasenje</string>
   <string name="label_underline">Podcrtaj</string>
   <string name="import_menu">Uvezi &amp; Izvezi</string>
-  <string name="auto_backups_title">自動備份</string>
-  <string name="backup_file_info">應用程式版本 %1$d，%2$s</string>
-  <string name="reset_databases_title">重設資料庫</string>
-  <string name="reset_databases_description">將各資料庫重設為初始空白狀態。此操作無法復原。</string>
-  <string name="last_crash_info_title">上次當機資訊</string>
-  <string name="reset_database_confirm">此操作將永久刪除 \"%1$s\" 中的所有資料並將其重設為初始狀態。此操作無法復原。\n\n確定要繼續嗎？</string>
-  <string name="reset_database_success">資料庫已成功重設</string>
-  <string name="reset_something">重設：%1$s</string>
-  <string name="export">匯出</string>
-  <string name="csv_export_success">已將 %d 個書籤匯出為 CSV</string>
-  <string name="csv_import_success">匯入完成：已建立 %1$d 個，已更新 %2$d 個</string>  <string name="csv_import_errors">匯入完成但有錯誤：已建立 %1$d 個，已更新 %2$d 個，%3$d 個錯誤</string>  <string name="csv_import_failed">CSV 匯入失敗：%s</string>
-  <string name="csv_export_failed">CSV 匯出失敗：%s</string>
-  <string name="export_prompts_csv">匯出提示詞至 CSV</string>
-  <string name="import_prompts_csv">從 CSV 匯入提示詞</string>
-  <string name="prompts_csv_export_success">已將 %d 個提示詞匯出至 CSV</string>
-  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
-  <string name="prompts_csv_export_failed">CSV 匯出失敗：%s</string>
-  <string name="no_prompts_to_export">沒有可匯出的使用者提示詞</string>
-  <string name="csv_column_selection_title">選擇 CSV 欄位</string>
-  <string name="choose_csv_file">選擇要匯入的 CSV 檔案</string>
-  <string name="no_bookmarks_to_export">沒有可匯出的書籤</string>
   <string name="export_fileformat">Izvezi kao %s</string>
-  <string name="export_something">匯出 %s</string>
   <string name="import_items">Uvezi %s</string>
   <string name="import_from_db">Uvezi iz baze podataka aplikacije</string>
   <string name="import_error">Uvoz iz baze podataka aplikacije neuspješan. Možda je datoteka baze podataka pogrešnog formata ili je napravljen prestarom verzijom %s.</string>
 
-  <string name="export_bookmarks_csv">將書籤匯出為 %s</string>
 
     <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
-  <string name="osis_reference">OSIS 引用</string>
     <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
-  <string name="bible_reference">聖經引用</string>
   <string name="document">Dokument</string>
   <string name="book">Kniha</string>
     <!-- Chapter is the chapter number in the book, starting from 1 -->
-  <string name="chapter_start">章節開始</string>
     <!-- Verse is the verse number in the chapter, starting from 1 -->
-  <string name="verse_start">經文開始</string>
-  <string name="chapter_end">章節結束</string>
-  <string name="verse_end">經文結束</string>
-  <string name="id">識別碼</string>
     <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
-  <string name="ordinal_start">序號開始</string>
-  <string name="ordinal_end">序號結束</string>
-  <string name="created_at">建立時間</string>
     <!-- Offsets are used to indicate from which character a bookmark starts. -->
-  <string name="start_offset">起始偏移</string>
-  <string name="end_offset">結束偏移</string>
-  <string name="custom_icon">自訂圖示</string>
-  <string name="last_updated_at">最後更新時間</string>
-  <string name="bookmark_notes">書籤備註</string>
 
   <string name="chooser_range">Opseg</string>
   <string name="chooser_jump">Idi na</string>
@@ -1142,16 +991,10 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="strongs_off">Isključeno</string>
   <string name="strongs_links">Poveznice</string>
   <string name="strongs_text_and_links">Tekst i poveznice</string>
-  <string name="strongs_hidden_links">隱藏連結</string>
   <string name="verse_tip">Da biste izabrali dio ili više redaka, možete to učiniti dugim pritiskom na biblijski tekst</string>
 
   <string name="permission_required">Potrebna dozvola</string>
   <string name="labels_search_hint">Pretraži</string>
-  <string name="search_mode_name_start">名稱（從開頭）</string>
-  <string name="search_mode_name_contains">名稱（包含）</string>
-  <string name="search_mode_content">內容</string>
-  <string name="search_results_matches">%d 個符合</string>
-  <string name="search_results_match">1 個符合</string>
   <string name="progress_status_permission">Da bi Vam se pokazala obaviještenja (status preuzimanja, procesiranja, izgovora), treba nam Vaša dozvola.</string>
 
     <!-- Discrete mode settings -->
@@ -1231,27 +1074,8 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="reading_plans_content">Planovi čitanja i njihovi statusi</string>
   <string name="bookmarks_contents">Straničnici, Oznake i Radne bilježnice</string>
   <string name="workspaces_contents">Radne površine i Prozori</string>
-  <string name="my_documents_contents">我的文件及其內容</string>
-  <string name="ai_settings_sync_title">AI 設定</string>
-  <string name="ai_settings_sync_contents">AI 提示詞和服務商配置</string>
-  <string name="progress_sync_title">閱讀進度</string>
-  <string name="progress_sync_contents">已記憶的經文和章節閱讀記錄</string>
 
     <!-- Reading Progress Activity -->
-  <string name="reading_progress_title">閱讀／記憶進度</string>
-  <string name="reading_progress_chapters_read">已讀章節</string>
-  <string name="reading_progress_verses_memorized">已記憶經文</string>
-  <string name="reading_progress_active_days">活躍天數</string>
-  <string name="reading_progress_overall">已讀聖經的 %s%%</string>
-  <string name="reading_progress_bible_heatmap">聖經總覽</string>
-  <string name="reading_progress_old_testament">舊約</string>
-  <string name="reading_progress_new_testament">新約</string>
-  <string name="reading_progress_calendar">閱讀活動</string>
-  <string name="reading_progress_cycle">第 %d 輪</string>
-  <string name="reading_progress_new_cycle">新一輪</string>
-  <string name="reading_progress_new_cycle_confirm">開始新一輪閱讀？這將從頭開始記錄您的進度，同時保留上一輪的資料。</string>
-  <string name="reading_progress_previous_cycle">上一輪</string>
-  <string name="reading_progress_next_cycle">下一輪</string>
 
   <string name="cloud_fetch_and_restore_initial">Kopiraj iz oblaka na ovaj uređaj</string>
   <string name="cloud_create_new">Kopiraj sa ovog uređaja na oblak</string>
@@ -1267,11 +1091,8 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autorizacija %s</string>
-  <string name="auth_server_uri">伺服器位址</string>
   <string name="auth_username">Korisničko ime</string>
   <string name="auth_password">Lozinka</string>
-  <string name="auth_folder_path">同步資料夾路徑</string>
-  <string name="auth_folder_path_summary">同步資料的上層資料夾（空白 = 根目錄）</string>
   <string name="auth_access_token">Pristupni token</string>
   <string name="synchronization_categories">Kategorije usklađivanja</string>
   <string name="sync_general_settings">Informacije &amp; opće postavke</string>
@@ -1327,584 +1148,49 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="dont_show">
 Ne prikazuj ovu poruku ponovno.
       </string>
-  <string name="pref_font_size_multiplier_title">字體大小倍數</string>
-  <string name="pref_font_size_multiplier_summary_1">將文字字體大小乘以此數值。</string>
-  <string name="pref_font_size_multiplier_summary_2">如果您有用於較大字體的同步裝置，此功能非常實用。</string>
-  <string name="current_value">目前值：%s</string>
-  <string name="prefs_bible_view_swipe_mode_title">左右滑動手勢動作</string>
-  <string name="prefs_bible_view_swipe_mode_summary">左右滑動手勢可用於翻到下一頁／章節。</string>
   <string name="prefs_swipe_mode_chapter">Poglavlje</string>
-  <string name="prefs_swipe_mode_page">頁面</string>
-  <string name="prefs_swipe_mode_none">已停用</string>
-  <string name="prefs_volume_keys_scroll_title">音量鍵捲動</string>
-  <string name="prefs_volume_keys_scroll_summary">使用音量加／減鍵捲動聖經文字</string>
-  <string name="page_number_title">相對頁碼</string>
-  <string name="page_number_summary">顯示頁碼疊加層。頁碼相對於起始位置。</string>
-  <string name="select_custom_icon">選擇自訂標記圖示</string>
-  <string name="invalid_url_message">您輸入的網址無效。請輸入有效的網址（例如：https://nextcloud.example.com）</string>
-  <string name="memorize_description">記憶聖經經文</string>
-  <string name="memorize_abbreviation">記憶</string>
-  <string name="add_memorization_target">設為記憶目標</string>
-  <string name="memorize_memorized_passages">已記憶段落</string>
-  <string name="memorize_no_memorized_passages">暫無已記憶的段落</string>
-  <string name="memorize_targets">記憶目標</string>
-  <string name="memorize_no_targets">尚未設置記憶目標</string>
-  <string name="memorize_auto_mark">自動標記為已記憶</string>
-  <string name="memorize_auto_mark_summary">練習完成後自動將經文標記為已記憶</string>
-  <string name="memorize_type_full_words">輸入完整單字</string>
-  <string name="memorize_type_full_words_summary">要求輸入完整單字，而不僅僅是首字母</string>
-  <string name="memorize_word_visibility">單字可見度</string>
-  <string name="memorize_word_visibility_summary">未輸入單字的可見程度：淺色提示、暗淡或完全隱藏</string>
-  <string name="memorize_word_visibility_light">淺色</string>
-  <string name="memorize_word_visibility_dim">暗淡</string>
-  <string name="memorize_word_visibility_hidden">隱藏</string>
-  <string name="memorize_error_heatmap">錯誤熱圖</string>
-  <string name="memorize_error_heatmap_summary">將錯誤較多的單字以逐漸加深的紅色突出顯示</string>
-  <string name="memorize_scramble_hide_used">隱藏已用單字按鈕</string>
-  <string name="memorize_scramble_hide_used_summary">在單字拼接模式中，正確放置單字後完全隱藏其按鈕</string>
-  <string name="reading_progress_settings">進度與記憶</string>
-  <string name="reading_progress_settings_summary">自動追蹤、記憶和打字練習設定</string>
-  <string name="memorize_confirm_unmark">取消 %s 的已記憶狀態？</string>
-  <string name="memorize_confirm_remove_target">刪除記憶目標 %s？</string>
-  <string name="memorize_tab_reading">閱讀</string>
-  <string name="memorize_tab_memorization">記憶</string>
-  <string name="memorize_verses_memorized">已記憶</string>
-  <string name="memorize_verses_target">目標</string>
-  <string name="memorize_show_more">顯示更多 %d 條</string>
-  <string name="memorize_calendar">記憶活動</string>
-  <string name="memorize_view_list">列表</string>
-  <string name="memorize_view_overview">總覽</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM 翻譯</string>
-  <string name="sync_settings_shortcut_summary">在裝置之間同步資料</string>
-  <string name="llm_api_key_title">API 金鑰</string>
-  <string name="llm_api_key_summary">相容 OpenAI 的 API 金鑰</string>
-  <string name="llm_provider_custom">自訂（相容 OpenAI）</string>
-  <string name="llm_provider_title">服務商</string>
-  <string name="llm_provider_summary">選擇使用哪個 AI 服務商。API 端點和可用模型將自動配置。</string>
-  <string name="llm_provider_current">目前：%s</string>
-  <string name="llm_api_key_detected_provider">偵測到的服務商：%s</string>
-  <string name="ai_connection_category">連線</string>
-  <string name="ai_model_category">模型</string>
-  <string name="ai_behavior_category">行為</string>
-  <string name="ai_language_title">AI 回應語言</string>
-  <string name="ai_language_summary">AI 用於回應的語言</string>
-  <string name="ai_language_app_default">應用程式語言（%1$s）</string>
-  <string name="ai_language_custom">自訂\u2026</string>
-  <string name="ai_language_custom_hint">輸入語言名稱或代碼</string>
-  <string name="ai_language_custom_example">例如：suomi、Tagalog、en</string>
-  <string name="ai_usage_category">使用情況</string>
-  <string name="llm_usage_summary_title">Token 用量</string>
-  <string name="llm_usage_summary_default">暫無用量資料</string>
-  <string name="llm_usage_summary_format">輸入：%1$d 個 token | 輸出：%2$d 個 token\n預估費用：%3$s</string>
-  <string name="llm_reset_usage_title">重置用量資料</string>
-  <string name="llm_reset_usage_summary">清除累計的 token 和費用記錄</string>
-  <string name="llm_reset_usage_confirm_title">重置用量資料？</string>
-  <string name="llm_reset_usage_confirm_message">這將清除所有累計用量資料。</string>
-  <string name="llm_custom_input_price_title">輸入價格（$/百萬 token）</string>
-  <string name="llm_custom_input_price_summary">該模型每百萬輸入 token 的費用</string>
-  <string name="llm_custom_output_price_title">輸出價格（$/百萬token）</string>
-  <string name="llm_custom_output_price_summary">此模型每百萬輸出token的費用</string>
-  <string name="llm_cost_total">總計：%1$s</string>
-  <string name="llm_endpoint_title">API端點</string>
-  <string name="llm_endpoint_summary">API的基礎URL</string>
-  <string name="llm_model_title">模型</string>
-  <string name="llm_model_summary">模型ID</string>
-  <string name="llm_custom_model">自訂…</string>
-  <string name="llm_custom_model_dialog_title">自訂模型</string>
-  <string name="llm_custom_model_dialog_message">輸入模型ID</string>
-  <string name="llm_rate_limited_retrying">已達速率限制。%1$s秒後重試…</string>
-  <string name="llm_default_document_title">AI回應</string>
-  <string name="llm_default_task_completed">任務已完成</string>
-  <string name="llm_default_studypad_opened">學習本已開啟</string>
-  <string name="llm_parse_error">解析LLM回應失敗：%1$s</string>
-  <string name="llm_parse_error_no_choices">OpenAI回應中沒有候選項</string>
-  <string name="llm_parse_error_openai">解析OpenAI回應失敗：%1$s</string>
-  <string name="llm_parse_error_anthropic">解析Anthropic回應失敗：%1$s</string>
-  <string name="llm_error_prompt_not_found">未找到提示詞：%1$s</string>
-  <string name="llm_error_unknown">未知錯誤</string>
-  <string name="llm_error_max_iterations">已達最大迭代次數（%1$d），未能完成</string>
-  <string name="llm_continue_iterations_title">繼續？</string>
-  <string name="llm_continue_iterations_message">AI助理已達到%1$d次迭代上限，尚未完成。是否繼續%2$d次迭代？</string>
-  <string name="agent_max_iterations_title">最大代理迭代次數</string>
-  <string name="agent_max_iterations_summary">詢問是否繼續前的最大迭代次數（0 = 不限）</string>
-  <string name="ask_model_before_run_title">執行前詢問模型</string>
-  <string name="ask_model_before_run_summary">執行提示詞前顯示模型選擇對話框（當提示詞有明確的模型指定時跳過）</string>
-  <string name="select_model_before_run_title">選擇模型</string>
-  <string name="prompt_max_iterations">最大迭代次數覆蓋</string>
-  <string name="prompt_max_iterations_hint">留空則使用全域預設值</string>
-  <string name="prompt_max_iterations_description">覆蓋此提示詞的全域最大迭代次數。留空 = 全域預設，0 = 不限。</string>
-  <string name="prompt_max_iterations_unlimited">不限</string>
-  <string name="prompt_max_iterations_global_default">全域預設（%d）</string>
-  <string name="prompt_max_iterations_summary_with_value">覆蓋此提示詞的全域最大迭代次數。0 = 不限。\n目前值：%s</string>
 
     <!-- Prompt Manager -->
-  <string name="manage_prompts">管理AI提示詞</string>
-  <string name="manage_prompts_summary">建立和編輯AI提示詞</string>
-  <string name="ai_settings">AI設定</string>
-  <string name="ai_connection_settings">連線設定</string>
-  <string name="ai_setup_title">設定AI</string>
-  <string name="ai_setup_description">AndBible可使用AI翻譯聖經文本、解釋經文、建立摘要等。若要開始使用，請設定與OpenAI相容API提供商的連線。</string>
-  <string name="ai_configure_button">設定連線</string>
-  <string name="ai_settings_shortcut_summary">AI連線和提示詞設定</string>
-  <string name="ai_provider_tier_recommended">推薦</string>
-  <string name="ai_provider_tier_community">其他提供商（未經測試）</string>
 
     <!-- Multi-provider settings -->
-  <string name="ai_providers_models_category">提供商與模型</string>
-  <string name="ai_providers_category">提供商</string>
-  <string name="ai_providers_summary_none">未設定提供商</string>
-  <string name="ai_models_summary_none">未設定模型</string>
-  <string name="ai_add_provider">新增提供商</string>
-  <string name="ai_provider_edit">編輯</string>
-  <string name="ai_provider_delete">刪除</string>
-  <string name="ai_provider_delete_confirm">刪除提供商「%1$s」？使用此提供商的提示詞將恢復為預設。</string>
-  <string name="ai_provider_api_key_not_set">未設定API金鑰</string>
-  <string name="ai_provider_select_type">選擇提供商類型</string>
-  <string name="ai_provider_name">提供商名稱</string>
-  <string name="ai_provider_name_hint">此提供商的顯示名稱</string>
-  <string name="ai_provider_api_key">API金鑰</string>
-  <string name="ai_provider_endpoint">API端點</string>
-  <string name="ai_provider_api_format">API格式</string>
-  <string name="ai_provider_saved">提供商已儲存</string>
-  <string name="ai_provider_deleted">提供商已刪除</string>
 
-  <string name="llm_fetch_models_title">下載模型清單</string>
-  <string name="llm_fetch_models_message">從%1$s下載可用模型清單？</string>
-  <string name="llm_fetch_models_dont_ask">不再詢問</string>
-  <string name="llm_fetch_models_success">已載入%1$d個模型</string>
-  <string name="llm_fetch_models_failed">獲取模型失敗</string>
-  <string name="llm_openrouter_category">類別</string>
-  <string name="llm_openrouter_category_all">全部</string>
-  <string name="llm_openrouter_model">模型</string>
     <!-- Configured models management -->
-  <string name="ai_models_category">模型</string>
-  <string name="add_model">新增模型</string>
-  <string name="add_model_title">新增模型</string>
-  <string name="edit_model_title">編輯模型</string>
-  <string name="model_saved">模型已儲存</string>
-  <string name="model_deleted">模型已刪除</string>
-  <string name="model_delete_confirm">刪除模型「%1$s」？</string>
-  <string name="model_set_default">設為預設模型</string>
-  <string name="model_select_provider">提供商</string>
-  <string name="no_models_configured">未設定模型</string>
-  <string name="model_cache_creation_price">快取建立價格（美元/百萬token）</string>
-  <string name="model_cache_read_price">快取讀取價格（美元/百萬token）</string>
 
     <!-- Easy Setup -->
-  <string name="model_pricing_summary">輸入%1$s / 輸出%2$s（每百萬token）</string>
-  <string name="easy_setup_free_tier">免費方案</string>
-  <string name="unknown_error">未知錯誤</string>
-  <string name="easy_setup_title">快速設定</string>
-  <string name="easy_setup_pref_summary">透過推薦提供商幾步完成AI設定</string>
-  <string name="easy_setup_choose_provider">選擇一個提供商開始：</string>
-  <string name="easy_setup_enter_api_key">輸入您的API金鑰</string>
-  <string name="easy_setup_api_key_instructions">從以下地址取得API金鑰：</string>
-  <string name="easy_setup_test_connection">測試連線</string>
-  <string name="easy_setup_testing">測試中…</string>
-  <string name="easy_setup_success">連線成功！</string>
-  <string name="easy_setup_failed">連線失敗：%1$s</string>
-  <string name="easy_setup_done_title">AI已就緒！</string>
-  <string name="easy_setup_done_message">在聖經中選取文字，然後嘗試AI功能。您可以在設定中新增更多模型和提供商。</string>
-  <string name="easy_setup_gemini_desc">提供免費方案，品質良好</string>
-  <string name="easy_setup_anthropic_desc">價格實惠，品質出色</string>
-  <string name="easy_setup_openai_desc">廣為人知，穩定可靠</string>
 
     <!-- AI Disclaimer -->
-  <string name="ai_disclaimer_warning_title">重要：使用AI工具前請閱讀</string>
-  <string name="ai_disclaimer_warning_summary">使用AI的風險與責任</string>
-  <string name="ai_disclaimer_dialog_title">AI工具——重要資訊</string>
-  <string name="ai_disclaimer_intro">AI工具可以極大地豐富您的聖經學習體驗，並開闢與聖經互動的新方式。</string>
-  <string name="ai_disclaimer_approach">AndBible主要使用AI處理您已安裝文件中的文字——注釋、詞典及其他模組——而非依賴模型本身的訓練資料。</string>
-  <string name="ai_disclaimer_responsibility">然而，它們仍然是強大的工具——能力越大，責任越大。請牢記以下幾點。</string>
-  <string name="ai_disclaimer_point1">AI可能出錯，包括「幻覺」（自信地陳述虛假或捏造的資訊）。切勿盲目接受其輸出。</string>
-  <string name="ai_disclaimer_point2">AI的回應可能反映訓練資料中的偏見、存在誤導性，或將某一特定神學觀點呈現為中立或完整的。</string>
-  <string name="ai_disclaimer_point3">您對如何使用AI產生的內容負有責任。在依賴這些內容之前，請始終對照聖經加以核實。</string>
-  <string name="ai_disclaimer_point4">AndBible致力於讓核實變得簡便（例如在注釋中提供精確的來源引用），但最終責任始終在於您。</string>
-  <string name="ai_disclaimer_point5">「要檢驗一切，持守那美善的。」（帖撒羅尼迦前書5:21）</string>
-  <string name="ai_disclaimer_point6">這些工具既無靈魂，也無聖靈。它們是文字處理工具，而非屬靈嚮導。未經仔細的人工監督、禱告與辨別，不適合直接用於準備講道、靈修或其他屬靈內容。</string>
-  <string name="ai_disclaimer_point7">善加使用，它們可以造福許多使用者和使用情境。但如果您不確定是否願意承擔相關風險，選擇不使用也是完全合理的。</string>
-  <string name="ai_disclaimer_point8">您的資料將傳送至您所選AI提供商的伺服器。使用API金鑰即表示您接受該提供商的服務條款和隱私權政策。自架模型在技術上可行，但需要更多專業知識，且效果可能不如商業模型。</string>
-  <string name="ai_disclaimer_point9">AI提供商會對API使用收費。AndBible中顯示的費用估算為近似值——實際費用請以您提供商的帳單為準。</string>
-  <string name="ai_disclaimer_accept_title">接受AI免責聲明</string>
-  <string name="ai_disclaimer_accept_button">我接受並承擔全部責任</string>
 
-  <string name="prompt_permission_mode">權限模式</string>
-  <string name="prompt_permission_mode_description">控制AI執行寫入操作前何時需要使用者確認。以下各工具的個別設定可覆蓋此項。</string>
-  <string name="agent_permission_mode_summary">控制AI寫入操作前何時需要使用者確認</string>
-  <string name="prompt_permission_use_default">使用預設值</string>
-  <string name="prompt_tab_prompt">提示詞</string>
-  <string name="prompt_tab_permissions">權限</string>
-  <string name="prompt_tab_advanced">進階</string>
-  <string name="prompt_name">名稱</string>
-  <string name="prompt_description">說明</string>
-  <string name="prompt_template">提示詞範本</string>
-  <string name="prompt_show_in">顯示位置</string>
-  <string name="prompt_context_verse_selection">經文選取</string>
-  <string name="prompt_context_text_selection">文字選取</string>
-  <string name="prompt_context_window_menu">視窗選單</string>
-  <string name="prompt_context_workspace_menu">工作區選單</string>
-  <string name="prompt_context_note_editor">筆記編輯器</string>
-  <string name="prompt_bible_only">僅聖經文件</string>
-  <string name="prompt_category_study">學習</string>
-  <string name="prompt_category_notes">筆記</string>
-  <string name="prompt_category_general">一般</string>
-  <string name="prompt_category_test">測試</string>
-  <string name="prompt_category_uncategorized">未分類</string>
-  <string name="addon_prompt_badge">附加元件：%s</string>
-  <string name="addon_prompt_notice">此提示詞來自附加元件模組「%s」，無法編輯。請使用「複製以自定義」來建立可編輯的副本。</string>
-  <string name="new_category">新建分類</string>
-  <string name="new_category_name">分類名稱</string>
-  <string name="rename_category">重新命名</string>
-  <string name="move_category_up">向上移動</string>
-  <string name="move_category_down">向下移動</string>
-  <string name="hide_category">從AI操作中隱藏</string>
-  <string name="show_category">在AI操作中顯示</string>
-  <string name="hidden">已隱藏</string>
-  <string name="delete_category">刪除分類</string>
-  <string name="delete_category_and_prompts">刪除分類及其提示詞</string>
-  <string name="delete_category_keep_prompts">將提示詞移至根目錄並刪除分類</string>
-  <string name="delete_category_confirm_title">刪除分類「%s」？</string>
-  <string name="move_to_category">移動到分類…</string>
-  <string name="category_none">無分類</string>
-  <string name="import_prompts_editable">作為可編輯提示詞匯入</string>
-  <string name="import_prompts_addon">安裝為附加元件（唯讀）</string>
-  <string name="prompt_category">分類</string>
-  <string name="new_prompt">新建提示詞</string>
-  <string name="permission_always_ask">每次詢問</string>
-  <string name="permission_ask_once_per_run">每次執行詢問一次</string>
-  <string name="permission_allow_all">允許全部</string>
-  <string name="permission_deny_all">拒絕全部</string>
-  <string name="reset_all_ai_settings">重置所有AI設定</string>
-  <string name="reset_all_ai_settings_confirm_title">重置所有AI設定？</string>
-  <string name="reset_all_ai_settings_confirm_message">這將清除API金鑰、提供商、端點、模型，並將所有提示詞重置為預設值。是否繼續？</string>
-  <string name="edit_prompt">編輯提示詞</string>
-  <string name="built_in_prompt">內建</string>
-  <string name="built_in_prompt_notice">這是內建提示詞，無法編輯。請使用「複製以自定義」來建立可編輯的副本。</string>
-  <string name="copy_to_customize">複製以自定義</string>
-  <string name="prompt_copied">提示詞已複製</string>
-  <string name="delete_prompt_confirmation">刪除提示詞「%s」？</string>
-  <string name="prompt_name_required">提示詞名稱不能為空</string>
-  <string name="prompt_template_required">提示詞範本不能為空</string>
-  <string name="prompt_edit_before_run">執行前指定</string>
-  <string name="prompt_edit_before_run_description">在執行提示詞前顯示文字輸入框以指定任務</string>
-  <string name="prompt_no_document_creation">不建立文件</string>
-  <string name="prompt_no_document_creation_description">啟用後，AI將不會建立文件。結果僅顯示在活動記錄中。適用於僅執行操作的提示詞（書籤、標籤、學習筆記操作）。</string>
-  <string name="prompt_auto_include_documents">自動包含已安裝文件</string>
-  <string name="prompt_auto_include_documents_description">自動將已安裝文件清單包含在提示詞內容中，減少AI迭代次數。</string>
-  <string name="prompt_auto_include_commentaries">自動包含注釋</string>
-  <string name="prompt_auto_include_commentaries_description">自動擷取並將所選經文的注釋條目包含在內，減少AI迭代次數。</string>
-  <string name="prompt_is_text_transformation">文字轉換</string>
-  <string name="prompt_is_text_transformation_description">使用簡化的系統提示詞，在轉換文字內容的同時保留格式（連結、標題、粗體/斜體）。不使用工具。適合翻譯和編輯類提示詞。</string>
-  <string name="llm_no_document_creation_intercepted">任務已完成（已停用文件建立）</string>
-  <string name="llm_note_updated">筆記已更新</string>
-  <string name="specify_before_run_title">指定任務</string>
-  <string name="specify_before_run_hint">描述具體任務…</string>
-  <string name="prompt_cache_settings">快取設定</string>
-  <string name="prompt_strict_context_matching">內容相關快取</string>
-  <string name="prompt_strict_context_matching_description">啟用後，僅在所有內容（聖經版本、所選文字）相同時才符合快取。停用後，無論聖經版本如何，只要經文相同即符合快取。</string>
-  <string name="ai_document_delete_confirmation">刪除此AI文件？</string>
-  <string name="ai_document_deleted">此AI文件已被刪除。</string>
-  <string name="ai_document_regenerating">正在重新產生AI文件…</string>
-  <string name="ai_document_regenerate_not_implemented">重新產生功能將在未來版本中提供</string>
-  <string name="ai_regenerate_prompt_not_found">無法重新產生：未找到原始提示詞，可能已被刪除。</string>
-  <string name="ai_document_regenerate">重新產生</string>
-  <string name="ai_regenerate_title">重新產生</string>
-  <string name="ai_regenerate_instructions_hint">附加說明（可選）</string>
-  <string name="ai_regenerate_keep_previous">保留上一個版本</string>
-  <string name="ai_regenerate_fresh_run">全新執行（忽略上次結果）</string>
-  <string name="ai_document_delete">刪除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
-  <string name="default_prompt_translate_to_language">翻譯為%s</string>
-  <string name="default_prompt_translate_to_ui_language">翻譯為介面語言</string>
-  <string name="default_prompt_translate_to_ui_language_desc">將文件文字翻譯為應用程式介面語言</string>
-  <string name="default_prompt_translate_to_english">翻譯為英語</string>
-  <string name="default_prompt_translate_to_english_desc">將所選文字翻譯為英語</string>
-  <string name="default_prompt_summary">摘要</string>
-  <string name="default_prompt_summary_desc">建立所選文字的簡明摘要</string>
-  <string name="default_prompt_explain_verses">解釋經文</string>
-  <string name="default_prompt_explain_verses_desc">解釋所選經文的含義和背景</string>
-  <string name="default_prompt_explain_verses_studypad">解釋經文 → 學習筆記</string>
-  <string name="default_prompt_explain_verses_studypad_desc">建立包含逐節解釋和書籤的學習筆記</string>
-  <string name="default_prompt_word_study">詞語研究</string>
-  <string name="default_prompt_word_study_desc">分析原文希伯來語/希臘語詞彙</string>
-  <string name="default_prompt_strongs_annotation">司壯編號標注</string>
-  <string name="default_prompt_strongs_annotation_desc">以KJV為參考，為任意聖經譯本新增司壯經文彙編編號</string>
-  <string name="default_prompt_cross_references">交叉參考</string>
-  <string name="default_prompt_cross_references_desc">尋找並解釋相關聖經段落</string>
-  <string name="default_prompt_compare_translations">比較譯本</string>
-  <string name="default_prompt_compare_translations_desc">展示不同已安裝譯本對文字的翻譯方式</string>
-  <string name="default_prompt_thematic_study">主題研究</string>
-  <string name="default_prompt_thematic_study_desc">建立包含相關段落和筆記的學習筆記，聚焦中心主題</string>
-  <string name="default_prompt_bookmark_annotate">書籤與注釋</string>
-  <string name="default_prompt_bookmark_annotate_desc">建立帶有AI產生學習筆記的書籤</string>
-  <string name="default_prompt_study_layout">開啟學習版面</string>
-  <string name="default_prompt_study_layout_desc">開啟注釋和平行譯本視窗以供研讀</string>
-  <string name="default_prompt_workspace_assistant">工作區助理</string>
-  <string name="default_prompt_workspace_assistant_desc">管理視窗：建立、關閉、重新排列、更換文件</string>
-  <string name="default_prompt_enhance_note">優化筆記</string>
-  <string name="default_prompt_enhance_note_desc">改善筆記的語法、清晰度和可讀性</string>
-  <string name="default_prompt_ask_question">提問</string>
-  <string name="default_prompt_ask_question_desc">就所選段落提出任何問題</string>
-  <string name="default_prompt_custom">自定義提示詞</string>
-  <string name="default_prompt_custom_desc">對所選段落執行自定義任務</string>
-  <string name="default_prompt_custom_template">根據使用者的任務說明處理所選聖經段落。</string>
-  <string name="copy">複製</string>
-  <string name="delete_prompt_confirm_message">確定要刪除此提示詞嗎？</string>
-  <string name="ai_hide_prompt">隱藏</string>
-  <string name="ai_restore_hidden_prompts">恢復已隱藏的提示詞</string>
-  <string name="ai_prompt_hidden">提示詞已隱藏</string>
-  <string name="ai_prompts_restored">已隱藏的提示詞已恢復</string>
 
     <!-- Agent Tool Display Names -->
-  <string name="tool_create_bookmark">建立書籤</string>
-  <string name="tool_add_bookmark_note">新增書籤筆記</string>
-  <string name="tool_update_bookmark_note">更新書籤筆記</string>
-  <string name="tool_create_label">建立標籤</string>
-  <string name="tool_add_label_to_bookmark">為書籤新增標籤</string>
-  <string name="tool_delete_bookmark">刪除書籤</string>
-  <string name="tool_delete_label">刪除標籤</string>
-  <string name="tool_remove_label_from_bookmark">從書籤移除標籤</string>
-  <string name="tool_add_study_pad_entry">新增學習筆記條目</string>
-  <string name="tool_update_studypad_text_entry">更新學習筆記文字條目</string>
-  <string name="tool_create_study_pad">建立學習筆記</string>
-  <string name="action_update_studypad_text_entry">更新學習筆記文字條目%1$s</string>
-  <string name="action_create_studypad">建立學習筆記「%1$s」，共%2$d個條目</string>
-  <string name="tool_set_document_title">設定文件標題</string>
-  <string name="tool_finish_with_study_pad">開啟學習筆記</string>
-  <string name="tool_finish_with_my_document_page">開啟我的文件頁面</string>
-  <string name="tool_finish_without_document">完成（不建立文件）</string>
-  <string name="tool_get_verse_content">讀取經文內容</string>
-  <string name="tool_get_commentaries">讀取注釋</string>
-  <string name="tool_get_dictionary_entry">查詢字典條目</string>
-  <string name="tool_search_bible">搜尋聖經</string>
-  <string name="tool_search_by_strongs">依據 Strong\'s 編號搜尋</string>
-  <string name="tool_get_installed_documents">列出已安裝的文件</string>
-  <string name="tool_get_all_labels">列出所有標籤</string>
-  <string name="tool_get_bookmarks_for_verse">取得該節經文的書籤</string>
-  <string name="tool_get_bookmarks_with_label">取得含有標籤的書籤</string>
-  <string name="tool_get_study_pad_content">讀取研讀本內容</string>
-  <string name="tool_search_study_pads">搜尋研讀本</string>
-  <string name="tool_get_my_documents">列出我的文件</string>
-  <string name="tool_get_my_document_pages">列出我的文件頁面</string>
-  <string name="tool_create_my_document">建立我的文件</string>
-  <string name="tool_add_my_document_page">新增我的文件頁面</string>
-  <string name="tool_edit_my_document_page">編輯我的文件頁面</string>
-  <string name="tool_delete_my_document_page">刪除我的文件頁面</string>
-  <string name="tool_get_windows">列出視窗</string>
-  <string name="tool_create_window">建立視窗</string>
-  <string name="tool_manage_window">管理視窗</string>
-  <string name="tool_set_window_document">設定視窗文件</string>
 
     <!-- Agent Permission Dialog -->
-  <string name="agent_permission_title">代理權限</string>
-  <string name="agent_permission_message">AI 助理想要使用「%1$s」：\n\n%2$s</string>
-  <string name="agent_permission_message_with_action">AI 助理想要：\n\n%1$s</string>
 
     <!-- Tool action descriptions for permission dialog -->
-  <string name="action_create_bookmark_at">在 %1$s 建立書籤</string>
-  <string name="action_create_bookmark_at_with_extras">在 %1$s 建立書籤（%2$s）</string>
-  <string name="action_with_note">附帶備註</string>
-  <string name="action_labels">標籤：%1$s</string>
-  <string name="action_add_note_to_bookmark_at">在 %1$s 的書籤新增備註</string>
-  <string name="action_update_note_on_bookmark_at">更新 %1$s 書籤上的備註</string>
-  <string name="action_create_label">建立標籤「%1$s」</string>
-  <string name="action_add_label_to_bookmark">將標籤「%1$s」新增至 %2$s 的書籤</string>
-  <string name="action_delete_bookmark">刪除 %1$s 的書籤</string>
-  <string name="action_delete_label">刪除標籤「%1$s」</string>
-  <string name="action_remove_label_from_bookmark">從 %2$s 的書籤移除標籤「%1$s」</string>
-  <string name="action_add_entry_to_studypad">向研讀本「%1$s」新增條目</string>
-  <string name="action_create_my_document">建立我的文件：「%1$s」</string>
-  <string name="action_add_my_document_page">向我的文件 %2$s 新增頁面「%1$s」</string>
-  <string name="action_edit_my_document_page">編輯我的文件頁面：「%1$s」</string>
-  <string name="action_delete_my_document_page">刪除我的文件頁面：「%1$s」</string>
-  <string name="action_set_document_title">設定文件標題：「%1$s」</string>
-  <string name="action_open_studypad">開啟研讀本「%1$s」</string>
-  <string name="action_open_my_document_page">開啟我的文件頁面「%1$s」</string>
-  <string name="action_create_window">建立新視窗</string>
-  <string name="action_create_window_with_doc">以 %1$s 建立視窗</string>
-  <string name="action_create_window_with_doc_and_key">以 %1$s 在 %2$s 建立視窗</string>
-  <string name="action_close_window">關閉視窗（%1$s）</string>
-  <string name="action_minimize_window">最小化視窗（%1$s）</string>
-  <string name="action_restore_window">還原視窗（%1$s）</string>
-  <string name="action_set_window_document">將 %1$s 設定為 %2$s</string>
-  <string name="action_set_window_document_with_key">將 %1$s 設定為 %2$s，位於 %3$s</string>
-  <string name="action_active_window">使用中的視窗</string>
-  <string name="action_finish">完成：「%1$s」</string>
-  <string name="permission_allow_once">允許一次</string>
-  <string name="permission_allow_for_session">本次工作階段允許</string>
-  <string name="permission_allow_all_session">本次工作階段允許所有工具</string>
-  <string name="permission_allow_always">永遠允許「%1$s」</string>
-  <string name="permission_deny">拒絕</string>
-  <string name="permission_always_allow_confirm_title">永遠允許？</string>
-  <string name="permission_always_allow_confirm">您確定要永久允許「%1$s」嗎？</string>
-  <string name="permission_always_allow_confirm_reset_hint">您可以在 AI 設定中重設此選項。</string>
 
     <!-- Agent Tool Permission Settings -->
-  <string name="manage_tool_permissions_title">工具權限</string>
-  <string name="manage_tool_permissions_summary">管理每個工具的權限覆寫設定</string>
-  <string name="commentary_max_response_title">註釋回應大小限制</string>
-  <string name="commentary_max_response_summary">當回應超出限制時顯示選擇對話框</string>
-  <string name="commentary_max_response_no_limit">無限制</string>
-  <string name="commentary_max_response_value">約 %s 個語彙基元</string>
-  <string name="commentary_max_response_dialog_title">設定最大回應大小（語彙基元）</string>
-  <string name="commentary_max_response_dialog_message">當 AI 擷取註釋且總回應超過此語彙基元限制時，選擇對話框將讓您選擇要傳送給 AI 的註釋。\n\n0 = 無限制（所有註釋自動傳送）。</string>
-  <string name="commentary_filter_dialog_title">註釋回應過大</string>
-  <string name="commentary_filter_dialog_message">語彙基元限制（約 %s）已超出。請取消選取不想傳送給 AI 的註釋。\n\n您可以在 AI 連線設定中調整此限制。</string>
-  <string name="commentary_filter_total_tokens">已選取：約 %1$s / %2$s 個語彙基元</string>
-  <string name="tool_log_commentary_count">%d 則註釋</string>
-  <string name="tool_log_label_count">%d 個標籤</string>
-  <string name="tool_log_document_count">%d 份文件</string>
-  <string name="tool_log_study_pad_count">%d 個研讀本</string>
-  <string name="tool_log_search_results">%1$d/%2$d 個結果</string>
-  <string name="tool_log_bookmark_count">%d 個書籤</string>
-  <string name="tool_log_my_document_count">%d 份文件</string>
-  <string name="tool_log_my_document_page_count">%d 頁</string>
-  <string name="tool_log_window_count">%d 個視窗</string>
-  <string name="tool_log_window_copy">副本</string>
-  <string name="tool_log_window_minimized">已最小化</string>
-  <string name="tool_log_window_removed">已移除</string>
-  <string name="commentary_filter_item">%1$s%2$s（約 %3$s 個語彙基元）</string>
-  <string name="ai_document_filter_title">文件存取</string>
-  <string name="ai_document_filter_summary">選擇 AI 可以讀取的文件</string>
-  <string name="ai_document_filter_summary_count">已排除 %d 份文件</string>
-  <string name="ai_document_filter_activity_title">AI 文件存取</string>
-  <string name="ai_document_excluded_error">文件已被使用者設定排除：%s</string>
-  <string name="permission_status_default">詢問（預設）</string>
-  <string name="permission_status_allowed">永遠允許</string>
-  <string name="permission_status_denied">永遠拒絕</string>
-  <string name="permission_option_default">每次詢問（預設）</string>
-  <string name="permission_option_always_allow">永遠允許</string>
-  <string name="permission_option_always_deny">永遠拒絕</string>
-  <string name="reset_all_permissions">全部重設</string>
 
     <!-- Tool Info -->
-  <string name="ai_available_tools">可用工具</string>
-  <string name="ai_read_tools">讀取工具</string>
-  <string name="ai_write_tools">寫入工具</string>
 
     <!-- Global Tool Permissions Activity -->
-  <string name="global_tool_permissions_title">預設工具設定</string>
 
     <!-- Per-Prompt Tool Permissions -->
-  <string name="prompt_tool_permissions">工具權限</string>
-  <string name="prompt_tool_permissions_read_only">工具權限（唯讀）</string>
-  <string name="prompt_tool_permissions_description">覆寫此提示的工具權限</string>
-  <string name="tool_section_read_tools">讀取工具</string>
-  <string name="tool_section_write_tools">寫入工具</string>
 
     <!-- Tool categories -->
-  <string name="tool_category_bible_search">聖經與搜尋</string>
-  <string name="tool_category_bookmarks">書籤</string>
-  <string name="tool_category_labels">標籤</string>
-  <string name="tool_category_study_pads">研讀本</string>
-  <string name="tool_category_my_documents">我的文件</string>
-  <string name="tool_category_windows">視窗</string>
-  <string name="tool_category_read">讀取</string>
-  <string name="tool_category_write">寫入</string>
-  <string name="expand_collapse">展開／收合</string>
-  <string name="tool_option_enabled">已啟用</string>
-  <string name="tool_option_disabled">已停用</string>
-  <string name="tool_option_default_enabled">預設（已啟用）</string>
-  <string name="tool_option_default_disabled">預設（已停用）</string>
-  <string name="tool_option_default_allowed">預設（已允許）</string>
-  <string name="tool_option_default_denied">預設（已拒絕）</string>
 
     <!-- Per-Prompt Model Override -->
-  <string name="prompt_model_override">模型</string>
-  <string name="prompt_model_default">預設</string>
-  <string name="prompt_model_custom">自訂</string>
-  <string name="prompt_model_custom_hint">輸入模型名稱</string>
 
     <!-- LLM One Tap Actions -->
-  <string name="select_llm_prompt">選擇 AI 操作</string>
-  <string name="no_llm_prompts_configured">未為經文選取設定 AI 提示</string>
-  <string name="llm_prompt_executing">正在執行 AI 提示：%s</string>
-  <string name="llm_actions">AI 操作</string>
 
     <!-- Agent Log Widget -->
-  <string name="agent_log_expand">展開／收合代理日誌</string>
-  <string name="agent_log_close">關閉代理日誌</string>
-  <string name="agent_log_stop">停止 AI</string>
-  <string name="agent_log_idle">AI 助理</string>
-  <string name="agent_log_running">AI 正在運作中…</string>
-  <string name="agent_log_completed">已完成</string>
-  <string name="agent_log_error">發生錯誤</string>
-  <string name="agent_log_executing">正在執行：%s</string>
-  <string name="agent_log_iteration">第 %d 次迭代</string>
-  <string name="agent_log_tool">工具：%s</string>
-  <string name="agent_log_tool_completed">工具 %s 已完成</string>
-  <string name="agent_log_tool_failed">工具 %s 失敗</string>
-  <string name="agent_log_response_received">已收到回應</string>
-  <string name="agent_log_saved">已儲存：%s</string>
-  <string name="agent_log_done">完成：%s</string>
-  <string name="agent_log_cancelled">已取消</string>
-  <string name="agent_execution_completed">AI 代理執行已完成</string>
-  <string name="agent_already_running">AI 代理已在執行中，請稍候或先將其停止。</string>
 
     <!-- AI Agent Notifications -->
-  <string name="ai_agent_notification_channel_name">AI 代理</string>
-  <string name="ai_agent_notification_running">AI 代理運作中…</string>
-  <string name="ai_agent_notification_permission_needed">AI 代理需要您的授權</string>
-  <string name="ai_agent_notification_permission_tap">點擊以返回 AndBible</string>
-  <string name="ai_agent_notification_completed">AI 任務已完成</string>
-  <string name="ai_agent_notification_completed_tap">點擊以檢視結果</string>
-  <string name="ai_agent_notification_error">AI 任務失敗</string>
-  <string name="ai_agent_notification_cancel">取消</string>
 
     <!-- My Documents -->
-  <string name="my_documents_title">我的文件</string>
-  <string name="my_documents_empty">尚無文件。點擊 + 以建立。</string>
-  <string name="my_document_new_name">文件 %d</string>
-  <string name="my_document_create_title">新增文件</string>
-  <string name="my_document_rename_title">重新命名文件</string>
-  <string name="my_document_edit_description_title">編輯描述</string>
-  <string name="my_document_delete_confirmation">刪除文件「%s」？</string>
-  <string name="my_document_cannot_delete_ai_documents">AI 文件包含頁面時無法刪除。請先刪除其中的頁面。</string>
-  <string name="my_document_save_changes">儲存變更？</string>
-  <string name="my_document_no_description">無描述</string>
-  <string name="my_document_rename">重新命名</string>
-  <string name="my_document_edit_description">編輯描述</string>
-  <string name="my_document_delete">刪除</string>
 
-  <string name="my_document_pages_title">%s - 頁面</string>
-  <string name="my_document_pages_empty">此文件中沒有頁面。</string>
-  <string name="my_document_page_rename_title">重新命名頁面</string>
-  <string name="my_document_page_delete_confirmation">刪除頁面「%s」？</string>
-  <string name="my_document_page_rename">重新命名</string>
-  <string name="my_document_page_delete">刪除</string>
-  <string name="my_document_page_export">匯出</string>
-  <string name="my_document_new_page_name">第 %1$d 頁</string>
-  <string name="my_document_create_page_title">新增頁面</string>
-  <string name="my_document_content_type_label">內容類型</string>
-  <string name="my_document_import_page">匯入 Markdown/HTML</string>
-  <string name="my_document_export_page">匯出頁面</string>
-  <string name="my_document_imported_page_name">已匯入</string>
-  <string name="my_document_export_fallback_name">頁面</string>
-  <string name="my_document_export_document">匯出所有頁面</string>
-  <string name="my_document_import_document">將檔案匯入為文件</string>
-  <string name="my_document_import_empty_selection">未選擇可匯入的檔案</string>
-  <string name="my_document_export_success">頁面匯出成功</string>
-  <string name="ai_doc_choose_page">選擇 AI 文件頁面</string>
-  <string name="prefs_show_ai_doc_markers_title">顯示 AI 文件標記</string>
-  <string name="prefs_show_ai_doc_markers_summary">為連結到經節的 AI 生成文件頁面顯示標記圖示</string>
-  <string name="prefs_show_ordinals_title">顯示序數編號</string>
-  <string name="prefs_show_ordinals_summary">在文字中顯示序數位置標記</string>
 
-  <string name="prefs_page_scroll_amount_title">翻頁捲動幅度</string>
-  <string name="prefs_page_scroll_amount_summary">向上／向下翻頁時捲動的頁面比例</string>
-  <string name="page_scroll_amount_dialog_title">翻頁捲動幅度</string>
-  <string name="prefs_scroll_helper_lines_title">捲動輔助線</string>
-  <string name="prefs_scroll_helper_lines_summary">在翻頁邊界處顯示水平參考線</string>
-  <string name="prefs_scroll_helper_line_style_title">輔助線樣式</string>
-  <string name="prefs_scroll_helper_line_style_summary">選擇捲動輔助線的視覺樣式</string>
-  <string name="scroll_helper_line_style_dialog_title">輔助線樣式</string>
-  <string name="scroll_helper_line_style_thin_dotted">細虛線</string>
-  <string name="scroll_helper_line_style_thin_solid">細實線</string>
-  <string name="scroll_helper_line_style_thick_solid">粗實線</string>
-  <string name="prefs_page_buttons_title">翻頁按鈕</string>
-  <string name="prefs_page_buttons_summary">在螢幕上顯示向上／向下翻頁按鈕</string>
 </resources>
