@@ -42,7 +42,7 @@
   <string name="rebuild_index_button">পুনরায় তৈরি করুন </string>
   <string name="creating_index_for">সূচক তৈরি করা হচ্ছে%s</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1$sফলাফল%2$s</string>  <!--Tasks-->
+  <string name="search_with_results2">%2$s-এ %1$s ফলাফল</string>  <!--Tasks-->
   <string name="progress_status">উন্নতি</string>
   <string name="task_kill_warning">এই দীর্ঘ চলমান কাজগুলি যদি আপনি অন্য অ্যাপ্লিকেশনটি শেষ করার আগে সুইচ করেন তবে তা শেস হতে পারে । </string>
   <string name="no_tasks_running">বর্তমানে কোন কাজ নির্গত করা হচ্ছে না । </string>
@@ -133,7 +133,7 @@
   <string name="value_mm">%dmm</string>
   <string name="auto_fullscreen_summary">পাঠ্য স্ক্রোল করার সময় স্বয়ংক্রিয়ভাবে পূর্ণস্ক্রিনে স্যুইচ করুন। টিপ: আপনি সর্বদা ডাবলটিপিং স্ক্রিন দ্বারা পূর্ণ স্ক্রিনে স্যুইচ করতে পারেন।</string>
   <string name="prefs_margin_size_title">মার্জিনের আকার পরিবর্তন করুন</string>
-  <string name="prefs_margin_size_mm_title">মার্জিনের আকার (%1$d/%2$d/%3$dmm)</string>
+  <string name="prefs_margin_size_mm_title">মার্জিনের আকার (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">এ্যডভান্স সেটিংস</string>
   <string name="prefs_display_customization_cat">দেখা &amp; অনুভব করা</string>
   <string name="prefs_behavior_customization_cat">প্রয়োগ আচরণ</string>
@@ -212,10 +212,10 @@
   <string name="windowMinimise">কমান</string>
   <string name="windowSynchronise">সিংক্রোনাইজ</string>
   <string name="move_window">স্থানান্তরিত করেন</string>
-  <string name="move_window_to_position2">স্থান %1$d(%2$s%3$s)</string>
+  <string name="move_window_to_position2">স্থান %1$d (%2$s: %3$s)</string>
   <string name="copy_settings">এতে সেটিংস অনুলিপি করুন</string>
   <string name="copy_settings_to_workspace">কর্মস্থান</string>
-  <string name="copy_settings_to_window">উইন্ডো %1$d(%2$sঃ%3$s)</string>
+  <string name="copy_settings_to_window">উইন্ডো %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">সাধারণ উইন্ডোতে পরিবর্তন করুন</string>
   <string name="window_pin_mode">পিন</string>
   <!--Notes screen-->
@@ -240,7 +240,7 @@
   <string name="download_document_confirm_prefix">ডাউনলোড</string>
   <string name="download_refresh_book_list_menu_item">রিফ্রেস করুন </string>
   <string name="error_downloading">ডাউনলোড করতে একটি ত্রুটি ঘটেছে। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন।</string>
-  <string name="error_downloading_status">হোস্ট যে সার্ভার %1$sএর কারণে একটি ত্রুটি ফিরিয়ে দিয়েছে%2$s(%3$d)।</string>
+  <string name="error_downloading_status">হোস্ট যে সার্ভার %1$s এর কারণে একটি ত্রুটি ফিরিয়ে দিয়েছে %2$s (%3$d)।</string>
   <string name="storage_space_warning">অপর্যাপ্ত স্থানীয় সঞ্চয় স্থান।</string>
   <string name="too_many_jobs">অনেক কাজ চলছে। কিছু শেষ করার জন্য অপেক্ষা করুন এবং আবার চেষ্টা করুন.</string>
   <string name="document_not_installed">দয়াকরে ডাউনলোড করুন %s </string>
@@ -478,7 +478,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%sআইকন নির্দেশ করে যে এই নির্দিষ্ট উইন্ডোটির জন্য এই সেটিং পরিবর্তন করা হয়েছে।</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">এই সমস্ত সেটিংস পুনরায় সেট করতে %2$sবোতামটি ব্যবহার করুন%1$s।</string>
+  <string name="text_options_reset_help">এই সমস্ত সেটিংস %2$s এ পুনরায় সেট করতে %1$s বোতামটি ব্যবহার করুন।</string>
   <string name="reset_defaults">ডিফল্ট মান</string>
   <string name="reset_workspace_defaults">ওয়ার্কস্পেস ডিফল্ট মান</string>
   <string name="speak_bookmark_help">কথা বলার বুকমার্ক এর জন্য সাহায্য</string>
@@ -563,7 +563,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="backup_success2">আমার নোট, বুকমার্ক, স্টাডি প্যাড, রিডিং প্ল্যান এবং ওয়ার্কস্পেস সফলভাবে ব্যাক আপ করা হয়েছে।</string>
   <string name="backup_modules_success">নির্বাচিত মডিউল সফলভাবে ব্যাক আপ করা হয়েছে৷</string>
   <string name="backup_modules_email_subject_2">%s মডিউল ব্যাকআপ</string>
-  <string name="backup_modules_email_message_2">আপনার মডিউল ব্যাকআপ সংযুক্ত করা হয়েছে%1$s, যাতে নিম্নলিখিত মডিউলগুলি রয়েছে:%2$s</string>
+  <string name="backup_modules_email_message_2">আপনার মডিউল ব্যাকআপ সংযুক্ত করা হয়েছে %1$s, যাতে নিম্নলিখিত মডিউলগুলি রয়েছে: %2$s</string>
   <string name="backup_email_subject_2">%s ডাটাবেস ব্যাকআপ</string>
   <string name="backup_email_message_2">বুকমার্ক, নোটস, পড়ার পরিকল্পনা এবং কর্মক্ষেত্রযুক্ত আপনার %s ডাটাবেসটি সংযুক্ত রয়েছে </string>
   <string name="exported_studypads_subject">রপ্তানি করা স্টাডিপ্যাড(গুলি)</string>
@@ -578,11 +578,11 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="import2">আমদানি</string>
   <string name="export_studypads_help">রপ্তানি করা স্টাডিপ্যাড (যেমন লেবেল এবং বুকমার্ক) ধারণকারী ফাইল প্রধান মেনু -&gt; এর মাধ্যমে আমদানি করা যেতে পারে। ব্যাকআপ &amp; পুনরুদ্ধার করুন।</string>
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
-  <string name="bookmarks_db_stats">%1$s\" এবং%2$s অন্যান্য লেবেল(গুলি) / স্টাডিপ্যাড/(গুলি) এবং %3$sবুকমার্ক৷</string>
+  <string name="bookmarks_db_stats">\"%1$s\" এবং %2$s অন্যান্য লেবেল(গুলি) / স্টাডিপ্যাড/(গুলি) এবং %3$s বুকমার্ক৷</string>
   <!--About-->
   <string name="module_about_copyright">কপিরাইট:%s</string>
-  <string name="module_about_installed_version">ইনস্টল করা সংস্করণ:%1$s(%2$s)</string>
-  <string name="module_about_latest_version">সর্বশেষ সংস্করণ:%1$s(%2$s)</string>
+  <string name="module_about_installed_version">ইনস্টল করা সংস্করণ: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">সর্বশেষ সংস্করণ: %1$s (%2$s)</string>
   <string name="module_about_versification">ছন্দঃ: %s </string>
   <string name="module_about_repository">বিতরণ সার্ভার:%s</string>
   <string name="module_about_osisId">OSIS ID: %s </string>
@@ -590,7 +590,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="send_bug_report_title1">বাগ রিপোর্ট</string>
   <string name="send_feedback_title">প্রতিক্রিয়া</string>
   <string name="send_bug_report_title">প্রতিক্রিয়া / বাগ রিপোর্ট</string>
-  <string name="report_bug_email_subject_3">[%1$s]এর জন্য বাগ রিপোর্ট%2$s%3$s</string>
+  <string name="report_bug_email_subject_3">[%1$s] এর জন্য বাগ রিপোর্ট %2$s %3$s</string>
   <string name="report_bug_big_heading">অনুগ্রহ করে এই লাইনের উপরে আপনার প্রতিক্রিয়া বা বাগ রিপোর্ট লিখুন</string>
   <string name="report_bug_heading1">নির্দেশাবলী:</string>
   <string name="report_bug_line_1">আমাদের সংক্ষিপ্তভাবে বলুন আপনি কি করেছেন / যখন সমস্যাটি হয়েছিল তখন কী হয়েছিল।</string>
@@ -637,7 +637,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="error_no_content">নির্বাচিত পদের জন্য কোনও সামগ্রী নেই</string>
   <string name="error_page_too_large">পৃষ্ঠাটি লোড করার জন্য খুব বড়</string>
   <string name="error_key_not_in_document">নথিতে পাওয়া যায় নি</string>
-  <string name="error_key_not_in_document2">%1$sনথিতে পাওয়া যায়নি%2$s</string>  <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
+  <string name="error_key_not_in_document2">%1$s নথিতে পাওয়া যায়নি %2$s</string>  <string name="empty_list">প্রদর্শনের জন্য কোনও আইটেম নেই</string>
   <string name="error_skip">এড়িয়ে যান</string>
   <string name="bug_report_email_title">ইমেলের মাধ্যমে বাগ রিপোর্ট পাঠান</string>
   <string name="bug_report_email_text">এরপর, ডেভেলপার দলের কাছে রিপোর্ট পাঠাতে অনুগ্রহ করে আপনার পছন্দের ইমেল অ্যাপ্লিকেশন (উদাহরণস্বরূপ Gmail) নির্বাচন করুন।</string>
@@ -681,9 +681,9 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="beta_notice_dismiss_until_update">পরবর্তী আপডেট হওয়া পর্যন্ত খারিজ করুন</string>
   <string name="stable_notice_title">আবেদন আপগ্রেড করা হয়েছে!</string>
   <string name="upgrade_video_message">এই রিলিজ (%s) এর নতুন বৈশিষ্ট্য সমন্বিত ভিডিও দেখুন.</string>
-  <string name="stable_notice_par1">%1$sএর নতুন সংস্করণ%2$s সফলভাবে ইনস্টল করা হয়েছে!</string>
+  <string name="stable_notice_par1">%2$sএর নতুন সংস্করণ %1$s সফলভাবে ইনস্টল করা হয়েছে!</string>
   <!--History-->
-  <string name="history_for">ইতিহাস (%1$sউনন্ডো %2$d )</string>
+  <string name="history_for">ইতিহাস (%1$s: উইন্ডো %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">ন্যাভিগেশন</string>
   <string name="help_nav_text">আপনার আঙুল দিয়ে স্ক্রীন সোয়াইপ করে পরবর্তী বা পূর্ববর্তী অধ্যায়ে যান।
@@ -752,7 +752,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 আগের বই/নথিপত্রের তালিকা পাওয়া গেছে। সহজে আবার ডাউনলোড করতে নিচে ক্লিক করুন.</string>
   <!--Uncategorized-->
   <string name="close">বন্ধ করুন </string>
-  <string name="something_with_parenthesis">%1$s(%2$s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">আমি বুঝেছি</string>
   <string name="first_time_help_show_next_time">পরের বার আবার প্রদর্শন করুন</string>
   <string name="strongs_mode_title">শক্তিশালী মোড নির্বাচন করুন</string>
@@ -814,7 +814,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="initializing_app">আবেদন শুরু করা হচ্ছে...</string>
   <string name="show_notes">নোট দেখান</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">অ্যান্ড্রয়েড ওয়েবভিউ প্যাকেজ অনেক পুরানো (%1$s)। ব্যবহার করার জন্য আপনাকে আপনার Android WebView প্যাকেজটিকে কমপক্ষে সংস্করণে %2$sআপগ্রেড করতে হবে%3$s। বেশিরভাগ ডিভাইসের জন্য এটি এর মাধ্যমে %4$sকরা যেতে পারে।</string>
+  <string name="old_webview">অ্যান্ড্রয়েড ওয়েবভিউ প্যাকেজ অনেক পুরানো (%1$s)। ব্যবহার করার জন্য আপনাকে আপনার Android WebView প্যাকেজটিকে কমপক্ষে সংস্করণে %2$s আপগ্রেড করতে হবে %3$s। বেশিরভাগ ডিভাইসের জন্য এটি এর মাধ্যমে %4$s করা যেতে পারে।</string>
   <string name="play">গুগল প্লে</string>
   <string name="proceed_anyway">যাইহোক এগিয়ে যান</string>
   <string name="proceed">এগিয়ে যান</string>
@@ -825,7 +825,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 নেতিবাচক পর্যালোচনা পর্যালোচনা করার আগে, নিম্নলিখিত বিবেচনা করুন:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-অ্যাপের সাথে কোন সমস্যা হলে, অনুগ্রহ করে %1$sবা %2$sপরিবর্তে।</string>
+অ্যাপের সাথে কোন সমস্যা হলে, অনুগ্রহ করে %1$s বা %2$s পরিবর্তে।</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 যদি কিছু পাঠ্য/বাইবেল অনুবাদে সমস্যা থাকে,%s</string>
@@ -905,7 +905,7 @@ Google Play এ এগিয়ে যান</string>
   <string name="chooser_select">নির্বাচন করুন%s</string>
   <string name="chooser_pref_reset">বই/অধ্যায় নির্বাচন করা হলে অধ্যায়/্পদ 1 এ রিসেট করবেন না</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">আমরা দুঃখিত, কিন্তু আমাদের ভাষায় শুধুমাত্র আংশিক ইউজার ইন্টারফেস অনুবাদ আছে%1$s। যে কারণ %2$sসম্পূর্ণরূপে স্বেচ্ছাসেবকদের দ্বারা বিকশিত হয়. আপনি যদি অনুবাদে সাহায্য করতে পারেন, দয়া করে দেখুন%3$s</string>
+  <string name="incomplete_translation">আমরা দুঃখিত, কিন্তু আমাদের ভাষায় শুধুমাত্র আংশিক ইউজার ইন্টারফেস অনুবাদ আছে %1$s। যে কারণ %2$s সম্পূর্ণরূপে স্বেচ্ছাসেবকদের দ্বারা বিকশিত হয়. আপনি যদি অনুবাদে সাহায্য করতে পারেন, দয়া করে দেখুন %3$s</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">অনুবাদকদের জন্য নির্দেশাবলী</string>
   <string name="questions_title">প্রশ্নাবলী?</string>
@@ -1044,8 +1044,8 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="buy_development">উন্নয়ন কাজ কিনুন</string>
   <string name="buy_development2">সমর্থন প্রকল্প</string>
   <string name="new_version_warning">
-একটি নতুন রিলিজ শীঘ্রই আসছে. মুক্তির প্রত্যাশিত তারিখ হল%1$s। আমাদের দেখুন
-%2$sনতুন বৈশিষ্ট্য এবং উন্নতি আবিষ্কার করতে।</string>
+একটি নতুন রিলিজ শীঘ্রই আসছে. মুক্তির প্রত্যাশিত তারিখ হল %1$s। আমাদের দেখুন
+%2$s নতুন বৈশিষ্ট্য এবং উন্নতি আবিষ্কার করতে।</string>
   <string name="new_version_trailer">ট্রেলার ভিডিও</string>
   <string name="new_version_warning2">
 মুক্তির পরে, এই সংস্করণটি বজায় রাখা হয় না।</string>

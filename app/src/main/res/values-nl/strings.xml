@@ -273,7 +273,7 @@
   <string name="move_window_to_position2">Positie %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Kopieer instellingen naar</string>
   <string name="copy_settings_to_workspace">Werkblad</string>
-  <string name="copy_settings_to_window">Venster%1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_window">Venster %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Wisselen naar normaal venster</string>
   <string name="window_pin_mode">Zet vast</string>
 
@@ -299,7 +299,7 @@
   <string name="download_document_confirm_prefix">Downloaden</string>
   <string name="download_refresh_book_list_menu_item">Verversen</string>
   <string name="error_downloading">Fout tijdens downloaden. Controleer uw internet verbinding svp.</string>
-  <string name="error_downloading_status">De server die %1$s bevat, geeft een foutmelding vanwege%2$s (%3$d).</string>
+  <string name="error_downloading_status">De server die %1$s bevat, geeft een foutmelding vanwege %2$s (%3$d).</string>
   <string name="storage_space_warning">Onvoldoende lokale opslagruimte.</string>
   <string name="too_many_jobs">Er worden teveel taken uitgevoerd. Wacht tot sommige beëindigd zijn en probeer het opnieuw.</string>
   <string name="document_not_installed">Download \'%s\'</string>
@@ -918,7 +918,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="initializing_app">Bezig met starten...</string>
   <string name="show_notes">Notities tonen</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
-  <string name="old_webview">Het pakket Android WebView is te oud (%1$s). U dient uw Android WebView-pakket te updaten naar version %2$s of hoger, om %3$s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %4$s.</string>
+  <string name="old_webview">Het pakket Android WebView is te oud (%1$s). U dient uw Android WebView-pakket te updaten naar versie %2$s of hoger, om %3$s te kunnen gebruiken. Voor de meeste apparaten kunt u dit doen via %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Toch doorgaan</string>
   <string name="proceed">Doorgaan</string>

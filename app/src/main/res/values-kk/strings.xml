@@ -233,7 +233,7 @@
   <string name="download_document_confirm_prefix">Жүктеу</string>
   <string name="download_refresh_book_list_menu_item">Жаңарту</string>
   <string name="error_downloading">Жүктеу барысында қате пайда болды. Өтінеміз, интернет байланысыңызды тексеріңіз.</string>
-  <string name="error_downloading_status">Қондыратын сервер %1$s себебіне байланысты қатені қайтарды %2$s(%3$d).</string>
+  <string name="error_downloading_status">Қондыратын сервер %1$s себебіне байланысты қатені қайтарды %2$s (%3$d).</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі. </string>
   <string name="too_many_jobs">Тым көп тапсырмалар орындалуда. Кейбіреуі аяқталғанша күтіңіз және қайта тырысып көріңіз.</string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
@@ -463,7 +463,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">%1$sқолданыңыз,  барлық осы параметрлерді қалпына келтіру үшін түймесін басыңыз %2$s.</string>
+  <string name="text_options_reset_help">%1$s қолданыңыз, барлық осы параметрлерді %2$s қалпына келтіру үшін.</string>
   <string name="reset_defaults">әдепкі мәндер</string>
   <string name="reset_workspace_defaults">жұмыс кеңістігінің әдепкі мәндері</string>
   <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
@@ -769,7 +769,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="initializing_app">Қолданбаны бастаңыз....</string>
   <string name="show_notes">Жазбаларды көрсету</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView бумасы тым ескі (%1$s). Android WebView бумасын %2$sкем дегенде %3$sнұсқасын  қолданып жаңартуыңыз қажет. Көптеген құрылғылар үшін бұл %4$sарқылы жасауға болады.  </string>
+  <string name="old_webview">Android WebView бумасы тым ескі (%1$s). %3$s қолдану үшін Android WebView бумасын кем дегенде %2$s нұсқасына жаңартуыңыз қажет. Көптеген құрылғылар үшін бұл %4$s арқылы жасауға болады.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Кез келген жағдайда жалғастыру</string>
   <string name="proceed">Жалғастыру</string>
@@ -779,7 +779,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="rate_message6">Теріс шолу жасамас бұрын, келесілерді ескеріңіз:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-Қолданбаға қатысты мәселе болса, өтінемін %1$s немесе %2$sорнына.</string>
+Қолданбаға қатысты мәселе болса, өтінемін %1$s немесе %2$s орнына.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Егер Киелі кітаптың қандайда бір мәтінінде / аудармасында мәселе болса, %s.
@@ -859,7 +859,7 @@ Google Play -ге өтіңіз
   <string name="chooser_select">%s Таңда</string>
   <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн қалпына келтірмеңіз</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Кешіріңіз, бірақ бізде тілдегі пайдаланушы интерфейсінің жартылай %1$sаудармасы ғана бар.  Себебі %2$s оны толығымен еріктілер әзірлейді. Аударуға көмектесетін болсаңыз, %3$s қараңыз.</string>
+  <string name="incomplete_translation">Кешіріңіз, бірақ бізде тілдегі пайдаланушы интерфейсінің жартылай %1$s аудармасы ғана бар.  Себебі %2$s оны толығымен еріктілер әзірлейді. Аударуға көмектесетін болсаңыз, %3$s қараңыз.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>

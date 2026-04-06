@@ -247,10 +247,10 @@
   <string name="windowMinimise">Umanji</string>
   <string name="windowSynchronise">Uskladi</string>
   <string name="move_window">Premjesti</string>
-  <string name="move_window_to_position2">Pozicija %1$d(%2$s2:%3$s)</string>
+  <string name="move_window_to_position2">Pozicija %1$d (%2$s: %3$s)</string>
   <string name="copy_settings">Kopiraj postavke na</string>
   <string name="copy_settings_to_workspace">Radna površina</string>
-  <string name="copy_settings_to_window">Prozor %1$d(%2$s:%3$s)</string>
+  <string name="copy_settings_to_window">Prozor %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Promijeni u običan prozor</string>
   <string name="window_pin_mode">Prikvači</string>
 
@@ -276,7 +276,7 @@
   <string name="download_document_confirm_prefix">Preuzmi</string>
   <string name="download_refresh_book_list_menu_item">Osvježi</string>
   <string name="error_downloading">Pogreška tijekom preuzimanja. Provjerite vezu sa internetom</string>
-  <string name="error_downloading_status">Domaćin poslužitelj %1$s je naišao na pogrešku uslijed %2$s(%3$d)</string>
+  <string name="error_downloading_status">Domaćin poslužitelj %1$s je naišao na pogrešku uslijed %2$s (%3$d)</string>
   <string name="storage_space_warning">Nedovoljno prostora za pohranu.</string>
   <string name="too_many_jobs">Previše zadataka se izvršava. Molim pričekajte da se neki završe, pa pokušajte ponovno</string>
   <string name="document_not_installed">Molimo preuzmite %s</string>

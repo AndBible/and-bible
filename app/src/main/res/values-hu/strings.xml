@@ -875,7 +875,7 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="initializing_app">Alkalmazás inicializálása…</string>
   <string name="show_notes">Jegyzetek megjelenítése</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
-  <string name="old_webview">Az Androd WebView csomag túl régi (%1$s). Frissítse az Android WebView csomagot legalább a %2$s verzióra a %3$s használatához. A legtöbb eszközön ez a %4$s-en keresztül tehető meg. </string>
+  <string name="old_webview">Az Android WebView csomag túl régi (%1$s). Frissítse az Android WebView csomagot legalább a %2$s verzióra a %3$s használatához. A legtöbb eszközön ez a %4$s-en keresztül tehető meg. </string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Mégis telepítse az alkalmazást</string>
   <string name="proceed">Folytatás</string>

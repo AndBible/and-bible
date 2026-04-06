@@ -47,7 +47,7 @@
   <string name="rebuild_index_button">Reconstruir</string>
   <string name="creating_index_for">Criar índice para %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1$s resulta em %2$s</string>
+  <string name="search_with_results2">%1$s resultados em %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outro aplicativo antes que elas terminem.</string>
@@ -636,7 +636,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_modules_success">Os módulos selecionados tiveram backup com sucesso.</string>
 
   <string name="backup_modules_email_subject_2">%scópia de segurança de módulos</string>
-  <string name="backup_modules_email_message_2">Em anexo estão %1$sdos módulos em cópias de segurança, que contêm os seguintes módulos: %2$s</string>
+  <string name="backup_modules_email_message_2">Em anexo estão %1$s dos módulos em cópias de segurança, que contêm os seguintes módulos: %2$s</string>
 
   <string name="backup_email_subject_2">%sde cópia de segurança do banco de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, notas, planos de leitura e áreas de trabalho em anexo</string>
@@ -657,8 +657,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
 
     <!-- About -->
   <string name="module_about_copyright">Direitos autorais:%s</string>
-  <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
-  <string name="module_about_latest_version">Última versão:%1$s(%2$s)</string>
+  <string name="module_about_installed_version">Versão instalada: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Última versão: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificação:%s</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">ID OSIS: %s</string>
@@ -773,7 +773,7 @@ através de %s você mesmo. :-)</string>
   <string name="stable_notice_par1">Uma nova versão %1$s de %2$s foi instalada com sucesso!</string>
 
     <!-- History -->
-  <string name="history_for">Histórico(%1$s:Janela%2$d)</string>
+  <string name="history_for">Histórico (%1$s: Janela %2$d)</string>
 
     <!-- Help -->
   <string name="help_nav_title">Navegação</string>
@@ -943,7 +943,7 @@ Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
 
     <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
-Se tiver algum problema com a aplicação, por favor %1$sou em vez disso %2$s.</string>
+Se tiver algum problema com a aplicação, por favor %1$s ou em vez disso %2$s.</string>
     <!-- param is "please report maintainers" -->
   <string name="rate_message2">
 Se algum texto / tradução da Bíblia tem um problema, %s . </string>

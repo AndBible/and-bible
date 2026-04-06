@@ -188,7 +188,7 @@
   <string name="value_mm">1 %d mm</string>
   <string name="auto_fullscreen_summary">Maximizar ecran automátcamente quando arrastar texto para cima/baixo. Dica: pode sempre maximizar o ecran tocando duas vezes </string>
   <string name="prefs_margin_size_title">Alterar o tamanho das margens</string>
-  <string name="prefs_margin_size_mm_title">Tamanho das margens (%1$d/%2$d/%3$dmm)</string>
+  <string name="prefs_margin_size_mm_title">Tamanho das margens (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Opções avançadas</string>
   <string name="prefs_features_cat">Funcionalidades</string>
   <string name="prefs_display_customization_cat">Aparência</string>
@@ -294,10 +294,10 @@
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
   <string name="move_window">Mover para</string>
-  <string name="move_window_to_position2">Posição %1$d(%2$s:%3$s)</string>
+  <string name="move_window_to_position2">Posição %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Copiar definições para</string>
   <string name="copy_settings_to_workspace">Ambiente de trabalho</string>
-  <string name="copy_settings_to_window">Janela %1$d(%2$s:%3$s)</string>
+  <string name="copy_settings_to_window">Janela %1$d (%2$s:%3$s)</string>
   <string name="copy_settings_to_global">Predefinições globais</string>
   <string name="change_to_normal">Mudar para janela normal</string>
   <string name="window_pin_mode">Fixar</string>
@@ -324,7 +324,7 @@
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor, verifique sua ligaçao à internet. </string>
-  <string name="error_downloading_status">O servidor que hospeda 1 %1$s devolveu um erro devido a %2$s (%3$d).</string>
+  <string name="error_downloading_status">O servidor que hospeda %1$s devolveu um erro devido a %2$s (%3$d).</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
   <string name="too_many_jobs">Muitas tarefas estão sendo executadas. Aguarde a conclusão de algumas e tente novamente.</string>
   <string name="document_not_installed">Por favor faça o download: \'%s\'</string>
@@ -694,8 +694,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
 
     <!-- About -->
   <string name="module_about_copyright">Direitos de Autor:%s</string>
-  <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
-  <string name="module_about_latest_version">Última versão:%1$s(%2$s)</string>
+  <string name="module_about_installed_version">Versão instalada: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Última versão: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificação:%s</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">OSIS ID:%s</string>

@@ -1017,7 +1017,7 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
 
     <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
-        Če imate težave z aplikacijo prosimo, da namesto tega  uporabite%1$sali%2$s.</string>
+        Če imate težave z aplikacijo prosimo, da namesto tega  uporabite %1$s ali %2$s.</string>
     <!-- param is "please report maintainers" -->
   <string name="rate_message2">
         Če ima kakšen prevod besedila ali Biblije težavo, %s.

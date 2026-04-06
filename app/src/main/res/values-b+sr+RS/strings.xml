@@ -208,7 +208,7 @@
   <string name="windowMinimise">Минимизирај</string>
   <string name="windowSynchronise">Усклади</string>
   <string name="move_window">Премести</string>
-  <string name="move_window_to_position2">Позиција%1$d(%2$s:%3$s)</string>
+  <string name="move_window_to_position2">Позиција %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Копирај поставке на</string>
   <string name="copy_settings_to_workspace">Радна површ</string>
   <string name="copy_settings_to_window">Прозор %1$d (%2$s:%3$s)</string>
@@ -234,7 +234,7 @@
   <string name="download_document_confirm_prefix">Преузми</string>
   <string name="download_refresh_book_list_menu_item">Освежи</string>
   <string name="error_downloading">Грешка приликом преузимања. Проверите везу са интернетом.</string>
-  <string name="error_downloading_status">Хост сервер%1$sје наишао на грешку услед %2$s (%3$d).</string>
+  <string name="error_downloading_status">Хост сервер %1$s је наишао на грешку услед %2$s (%3$d).</string>
   <string name="storage_space_warning">Недовољно простора на локалном складишту.</string>
   <string name="too_many_jobs">Превише задатака се извршава. Молим сачекајте да се неки заврше па пробајте поново.</string>
   <string name="document_not_installed">Молим преузмите \'%s\'</string>
@@ -477,7 +477,7 @@
   <!--Parameter is actual icon-->
   <string name="window_text_options_help2">%s икона указује да је ово подешавање промењено баш за овај прозор.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="text_options_reset_help">Користите %1$sдугме како бисте ресетовали сва подешавања натраг на %2$s.</string>
+  <string name="text_options_reset_help">Користите %1$s дугме како бисте ресетовали сва подешавања натраг на %2$s.</string>
   <string name="reset_defaults">Задане вредности</string>
   <string name="reset_workspace_defaults">Задане вредности Радног простора</string>
   <string name="speak_bookmark_help">Помоћ а обележиваче Изговора</string>
@@ -582,7 +582,7 @@
   <!--About-->
   <string name="module_about_copyright">Ауторска права: %s</string>
   <string name="module_about_installed_version">Уграђена верзија: %1$s (%2$s)</string>
-  <string name="module_about_latest_version">Последња верзија; %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Последња верзија: %1$s (%2$s)</string>
   <string name="module_about_versification">Стил стихова: %s</string>
   <string name="module_about_repository">Дистрибуциони сервер: %s</string>
   <string name="module_about_osisId">OSIS ИД: %s</string>
@@ -590,7 +590,7 @@
   <string name="send_bug_report_title1">Пријава о грешци</string>
   <string name="send_feedback_title">Повратне информације</string>
   <string name="send_bug_report_title">Повратне информације / пријава о грешци</string>
-  <string name="report_bug_email_subject_3">[%1$s] Пријава грешке за %2$s%3$s</string>
+  <string name="report_bug_email_subject_3">[%1$s] Пријава грешке за %2$s %3$s</string>
   <string name="report_bug_big_heading">МОЛИМО ВАС НАПИШИТЕ ВАШЕ ПОВРАТНЕ ИНФОРМАЦИЈЕ ИЛИ ПРИЈАВЕ ЗА ГРЕШКЕ ИЗНАД ОВОГ РЕДА</string>
   <string name="report_bug_heading1">Инструкције:</string>
   <string name="report_bug_line_1">Укратко нам кажите шта сте урадили / шта се догодило када је искрсао овај проблем</string>
@@ -683,7 +683,7 @@
   <string name="beta_notice_dismiss_until_update">Склони до следећег ажурирања</string>
   <string name="stable_notice_title">Апликација је ажурирана!</string>
   <string name="upgrade_video_message">Молимо Вас погледајте видео запис који показује нове ставке овог издања (%s).</string>
-  <string name="stable_notice_par1">Нова верзија %1$sод  %2$s је успешно инсталирана!</string>
+  <string name="stable_notice_par1">Нова верзија %1$s од %2$s је успешно инсталирана!</string>
   <!--History-->
   <string name="history_for">Историјат (%1$s: Прозор %2$d)</string>
   <!--Help-->
@@ -759,7 +759,7 @@
 Списак претходних књига/докумената је пронађена. Притисните испод како бисте их поново лако преузели.</string>
   <!--Uncategorized-->
   <string name="close">Затвори</string>
-  <string name="something_with_parenthesis">%1$s(%2$s)</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Разумем</string>
   <string name="first_time_help_show_next_time">Прикажи и следећи пут</string>
   <string name="strongs_mode_title">Изаберите strongs мод</string>
@@ -819,7 +819,7 @@
   <string name="initializing_app">Иницијализација апликације...</string>
   <string name="show_notes">Покажи белешке</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <string name="old_webview">Android WebView пакет је превише стар (%1$s). Морате надоградити ваш Android WebView пакет макар на %2$s како бисте користили %3$s. За већину уређаја ово се може урадити путем%4$s.</string>
+  <string name="old_webview">Android WebView пакет је превише стар (%1$s). Морате надоградити ваш Android WebView пакет макар на %2$s како бисте користили %3$s. За већину уређаја ово се може урадити путем %4$s.</string>
   <string name="play">Play продавница</string>
   <string name="proceed_anyway">Свеједно наставити</string>
   <string name="proceed">Наставити</string>
@@ -830,7 +830,7 @@
 Пре постављања негативне рецензије, молимо Вас да размотрите о следећем:</string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-Уколико имате проблем са апликацијом, молимо Вас %1$sили%2$s.</string>
+Уколико имате проблем са апликацијом, молимо Вас %1$s или %2$s.</string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
 Уколико неки текстови / библијски преводи садрже проблем, %s.</string>
@@ -1048,7 +1048,7 @@
   <string name="buy_development2">Подржите пројекат</string>
   <string name="new_version_warning">
 Ново издање ускоро долази. Очекивани датум изласка је %1$s. Пратите нашу
-%2$sкако бисте открили нове функције и побољшања.</string>
+%2$s како бисте открили нове функције и побољшања.</string>
   <string name="new_version_trailer">Најава филма</string>
   <string name="new_version_warning2">
 Након изласка, тренутна верзија неће више бити одржавана.</string>

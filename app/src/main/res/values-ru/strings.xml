@@ -571,7 +571,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
-  <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули:%2$s</string>
+  <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули: %2$s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="exported_studypads_subject">Экспортированный Блокнот(ы)</string>
@@ -587,7 +587,7 @@ http://www.heartlight.org, разрешение предоставлено
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
-  <string name="module_about_installed_version">Установленная версия: %1$s(%2$s)</string>
+  <string name="module_about_installed_version">Установленная версия: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Последняя версия: %1$s (%2$s)</string>
   <string name="module_about_versification">Версия: %s</string>
   <string name="module_about_repository">Сервер распространения : %s</string>

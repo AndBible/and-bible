@@ -670,7 +670,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
     <!-- About -->
   <string name="module_about_copyright">Autorská práva: %s</string>
-  <string name="module_about_installed_version">nstalovaná verze: %1$s (%2$s)</string>
+  <string name="module_about_installed_version">Instalovaná verze: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Poslední verze: %1$s (%2$s)</string>
   <string name="module_about_versification">Veršování: %s</string>
   <string name="module_about_repository">Zdrojový server: %s</string>

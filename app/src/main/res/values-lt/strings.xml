@@ -246,7 +246,7 @@
   <string name="windowMinimise">Suskleisti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
   <string name="move_window">Perkelti į</string>
-  <string name="move_window_to_position2">Pozicija%1$d (%2$s:%3$s)</string>
+  <string name="move_window_to_position2">Pozicija %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Kopijuoti nustatymus į</string>
   <string name="copy_settings_to_workspace">Darbo sritis</string>
   <string name="copy_settings_to_window">Langas %1$d (%2$s: %3$s)</string>

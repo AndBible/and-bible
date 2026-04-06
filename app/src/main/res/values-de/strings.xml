@@ -773,7 +773,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
     <string name="error_no_content">Kein Inhalt für diesen Vers</string>
     <string name="error_page_too_large">Seite zu groß zum Laden</string>
     <string name="error_key_not_in_document">Nichts gefunden</string>
-    <string name="error_key_not_in_document2">%1$s wurde nicht in Dokumen %2$s gefunden.</string>    <string name="empty_list">Nichts anzuzeigen</string>
+    <string name="error_key_not_in_document2">%1$s wurde nicht in Dokument %2$s gefunden.</string>    <string name="empty_list">Nichts anzuzeigen</string>
     <string name="error_skip">Üerspringen</string>
     <string name="bug_report_email_title">Fehlerbericht via E-Mail senden</string>
     <string name="bug_report_email_text">Als nächstes wähle bitte deine bevorzugte E-Mail Anwendung (z.B. Gmail) aus, um den Fehlerbericht an das Entwicklerteam zu senden.</string>
@@ -1003,7 +1003,7 @@ Vor dem Posten einer negativen Bewertung beachte bitte Folgendes:</string>
 
     <!-- parameters are actions (file a bug, send email) -->
     <string name="rate_message1">
-Wenn du ein Problem mit dem Programm hast, dann kannst du stattdessen %1$soder %2$s.</string>
+Wenn du ein Problem mit dem Programm hast, dann kannst du stattdessen %1$s oder %2$s.</string>
     <!-- param is "please report maintainers" -->
     <string name="rate_message2">
 Wenn ein Text oder eine Bibelübersetzung ein Problem hat, %s

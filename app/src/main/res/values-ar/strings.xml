@@ -650,7 +650,7 @@
   <string name="upgrade_video_message">يرجى مشاهدة مقطع الفيديو الذي يعرض الميزات الجديدة لهذا الإصدار (%s).</string>
   <string name="stable_notice_par1">النسخة الجديدة %1$s من %2$s تم تثبيتها بنجاح!</string>
   <!--History-->
-  <string name="history_for">تاريخ (%1$s: نافذة%2$d)</string>
+  <string name="history_for">تاريخ (%1$s: نافذة %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">التنقل</string>
   <string name="help_nav_text">اذهب إلى الإصحاح التالي أو السابق عن طريق تمرير إصبعك على الشاشة.
