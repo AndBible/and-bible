@@ -991,7 +991,7 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
     <string name="initializing_app">Programm wird gestartet...</string>
     <string name="show_notes">Notizen anzeigen</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
-    <string name="old_webview">Android WebView package is too old (%1$s). You need to upgrade your Android WebView package to at least version %2$s to use %3$s. For most devices this can be done via %4$s.</string>
+    <string name="old_webview">Das Android-WebView-Paket ist zu alt (%1$s). Sie müssen Ihr Android-WebView-Paket auf mindestens Version %2$s aktualisieren, um %3$s zu verwenden. Auf den meisten Geräten können Sie dies über %4$s tun.</string>
     <string name="play">Google Play</string>
     <string name="proceed_anyway">Trotzdem fortfahren</string>
     <string name="proceed">Fortfahren</string>

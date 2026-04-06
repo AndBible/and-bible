@@ -586,7 +586,7 @@
   <string name="send_bug_report_title1">பிழை அறிக்கை</string>
   <string name="send_feedback_title">கருத்துகள்</string>
   <string name="send_bug_report_title">கருத்துகள் / பிழை அறிக்கைகள்</string>
-  <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
+  <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s பிழை அறிக்கை</string>
   <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
   <string name="report_bug_heading1">வழிமுறைகள்:</string>
   <string name="report_bug_line_1">நீங்கள் என்ன செய்தீர்கள் / சிக்கல் நடந்தபோது என்ன நடந்தது என்பதை சுருக்கமாக கூறுங்கள்.</string>
@@ -832,7 +832,7 @@
     </string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-        இச்செயலில் ஏதேனும் சிக்கல் இருப்பின், please %1$s அல்லது %2$s .
+        இச்செயலில் ஏதேனும் சிக்கல் இருப்பின், தயவுசெய்து %1$s அல்லது %2$s.
     </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">
