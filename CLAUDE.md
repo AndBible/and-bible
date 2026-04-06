@@ -135,7 +135,7 @@ Add KDoc/Javadoc-style documentation to new classes, functions, and methods when
 
 ## Translations / Localization
 
-**During development, only English strings are needed.** Do not add translations to other languages — the Transifex localization process handles all translations automatically.
+**During development, only English strings are needed.** Do not add translations to other languages — for languages supported by Claude, translations are handled separately using AI translation tools (see the `update-translations` skill). Transifex is used only for review rounds, not as the primary translation method.
 
 However, **all user-facing strings must go through the translation system**:
 - **Android**: Add strings to `app/src/main/res/values/strings.xml`
