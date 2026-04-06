@@ -174,15 +174,20 @@ abstract class CurrentPageBase protected constructor(
             PromptRepository.promptById(promptId)?.name ?: application.getString(R.string.ai_unknown_prompt)
         } else null
 
+        val effectiveKey = annotateKey ?: key
+        val aiDocMarkers = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+            .aiDocMarkersForPage(currentDocument.initials, effectiveKey.osisRef)
+
         OsisDocument(
             book = currentDocument,
             key = key,
             osisFragment = frag,
-            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, annotateKey ?: key, withLabels = true),
+            genericBookmarks = pageManager.bookmarkControl.genericBookmarksFor(currentDocument, effectiveKey, withLabels = true),
             myDocumentPageId = myDocumentPage?.id?.toString(),
             sourcePromptId = myDocumentPage?.sourcePromptId?.toString(),
             sourcePromptName = promptName,
             sourceModelName = cacheEntry?.sourceModelName,
+            aiDocMarkers = aiDocMarkers,
         )
     } catch (e: Exception) {
         Log.e(TAG, "Error getting bible text", e)

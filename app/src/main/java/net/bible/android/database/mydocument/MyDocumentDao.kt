@@ -159,7 +159,7 @@ interface MyDocumentDao {
     @Query("""
         SELECT c.pageId, p.documentId, d.initials AS documentInitials,
                p.title AS pageTitle, p.pageKey, c.kjvOrdinalStart, c.kjvOrdinalEnd,
-               c.sourcePromptId
+               c.sourcePromptId, c.sourceBookInitials, c.sourceBookKey
         FROM AiPageCacheEntry c
         INNER JOIN MyDocumentPage p ON c.pageId = p.id
         INNER JOIN MyDocument d ON p.documentId = d.id
@@ -167,6 +167,21 @@ interface MyDocumentDao {
           AND c.kjvOrdinalStart <= :rangeEnd AND c.kjvOrdinalEnd >= :rangeStart
     """)
     fun aiDocMarkersForRange(rangeStart: Int, rangeEnd: Int): List<AiDocMarkerInfo>
+
+    /**
+     * Find AI document pages created from a specific non-Bible document page.
+     * Used to show AI doc marker icons on commentary and other non-Bible pages.
+     */
+    @Query("""
+        SELECT c.pageId, p.documentId, d.initials AS documentInitials,
+               p.title AS pageTitle, p.pageKey, c.kjvOrdinalStart, c.kjvOrdinalEnd,
+               c.sourcePromptId, c.sourceBookInitials, c.sourceBookKey
+        FROM AiPageCacheEntry c
+        INNER JOIN MyDocumentPage p ON c.pageId = p.id
+        INNER JOIN MyDocument d ON p.documentId = d.id
+        WHERE c.sourceBookInitials = :bookInitials AND c.sourceBookKey = :bookKey
+    """)
+    fun aiDocMarkersForPage(bookInitials: String, bookKey: String): List<AiDocMarkerInfo>
 
     // ==================== Transaction helpers ====================
 

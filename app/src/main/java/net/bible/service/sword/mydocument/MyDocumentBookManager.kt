@@ -53,6 +53,10 @@ class MyDocumentUpdatedEvent(val initials: String)
 class AiDocPagesChangedEvent(
     val markers: List<AiDocMarkerInfo> = emptyList(),
     val deletedPageIds: List<IdType> = emptyList(),
+    /** Source book initials for non-Bible page markers (commentary, etc.) */
+    val sourceBookInitials: String? = null,
+    /** Source book key for non-Bible page markers */
+    val sourceBookKey: String? = null,
 )
 
 /**
@@ -396,7 +400,9 @@ object MyDocumentBookManager {
             kjvOrdinalEnd = cacheableContext.kjvOrdinalEnd,
             contextHash = cacheableContext.computeHash(),
             usedWriteTools = usedWriteTools,
-            sourceModelName = sourceModelName
+            sourceModelName = sourceModelName,
+            sourceBookInitials = cacheableContext.activeDocumentInitials,
+            sourceBookKey = cacheableContext.sourceBookKey
         )
 
         // Save clean content - footer is rendered by Vue.js based on sourcePromptId
@@ -404,11 +410,15 @@ object MyDocumentBookManager {
         refreshDocument(aiDocument.initials)
         val start = cacheableContext.kjvOrdinalStart
         val end = cacheableContext.kjvOrdinalEnd
+        val bookInitials = cacheableContext.activeDocumentInitials
+        val bookKey = cacheableContext.sourceBookKey
         if (start != null && end != null) {
             val markers = dao.aiDocMarkersForRange(start, end)
             ABEventBus.post(AiDocPagesChangedEvent(markers))
+        } else if (bookInitials != null && bookKey != null) {
+            val markers = dao.aiDocMarkersForPage(bookInitials, bookKey)
+            ABEventBus.post(AiDocPagesChangedEvent(markers, sourceBookInitials = bookInitials, sourceBookKey = bookKey))
         }
-        // No event needed when ordinals are null — no marker exists without them
 
         Log.i(TAG, "Saved AI response as page: ${aiDocument.initials}/${page.pageKey}")
         return SavedPageInfo(aiDocument.initials, page.pageKey)

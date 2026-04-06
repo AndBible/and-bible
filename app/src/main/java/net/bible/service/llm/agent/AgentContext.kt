@@ -83,7 +83,9 @@ data class AgentContext(
     /** Start ordinal of user's selection in non-Bible documents (for focus indication via §-anchors) */
     val selectionStartOrdinal: Int? = null,
     /** End ordinal of user's selection in non-Bible documents (for focus indication via §-anchors) */
-    val selectionEndOrdinal: Int? = null
+    val selectionEndOrdinal: Int? = null,
+    /** Book key (osisRef) of the source document — used for non-Bible AI doc marker matching */
+    val sourceBookKey: String? = null
 ) {
     val verseRefString: String?
         get() = selectedVerseRange?.osisRef
@@ -108,7 +110,9 @@ data class CacheableContext(
     val selectionEndOffset: Int?,
     val selectionStartOrdinal: Int? = null,
     val selectionEndOrdinal: Int? = null,
-    val userSpecification: String? = null
+    val userSpecification: String? = null,
+    /** Source book initials for non-Bible pages (commentary, etc.) — used for AI doc marker matching */
+    val sourceBookKey: String? = null
 ) {
     companion object {
         private val json = Json { prettyPrint = false }
@@ -133,7 +137,8 @@ data class CacheableContext(
                 selectionEndOffset = ctx.selectionEndOffset,
                 selectionStartOrdinal = ctx.selectionStartOrdinal,
                 selectionEndOrdinal = ctx.selectionEndOrdinal,
-                userSpecification = ctx.userSpecification
+                userSpecification = ctx.userSpecification,
+                sourceBookKey = ctx.sourceBookKey ?: ctx.verseRefString
             )
         }
     }

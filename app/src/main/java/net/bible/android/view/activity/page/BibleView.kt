@@ -1832,9 +1832,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     }
 
     fun onEvent(event: AiDocPagesChangedEvent) {
-        val doc = firstDocument
-        if (doc !is BibleDocument) return
-        val v11n = doc.swordBook.versification
+        // For Bible documents, convert ordinals to target versification.
+        // For all other documents, pass markers as-is — Vue.js filters by sourceBookInitials/Key.
+        val v11n = (firstDocument as? BibleDocument)?.swordBook?.versification
 
         if (event.markers.isNotEmpty()) {
             val markerStr = event.markers.map { ClientAiDocMarker(it, v11n).asJson }.joinToString(",", "[", "]")

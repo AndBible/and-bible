@@ -82,13 +82,14 @@ const {
     genericBookmarks,
     highlightedOrdinalRange,
     isMyDocument,
+    aiDocMarkers,
 } = props.document;
 const referenceCollector = useReferenceCollector();
 
 const globalBookmarks = inject(globalBookmarksKey)!;
 const {registerBook} = inject(customCssKey)!;
 const android = inject(androidKey)!;
-globalBookmarks.updateBookmarks(genericBookmarks);
+globalBookmarks.updateBookmarks([...genericBookmarks, ...aiDocMarkers]);
 
 const {config, appSettings, ...common} = useCommon();
 const strings = useStrings();

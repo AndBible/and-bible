@@ -41,7 +41,7 @@
 
       <template #menubutton>
         <div class="journal-button">
-          <FontAwesomeIcon :icon="hasBookmarks ? faBookmark : faEllipsisH"/>
+          <FontAwesomeIcon :icon="menuIcon"/>
         </div>
       </template>
     </ButtonRow>
@@ -49,22 +49,32 @@
 </template>
 
 <script setup lang="ts">
-import {computed, inject, ref} from "vue";
+import {computed, inject} from "vue";
 import {FontAwesomeIcon} from "@fortawesome/vue-fontawesome";
 import {faBookmark, faCopy, faEdit, faEllipsisH, faShareAlt, faSync, faTrash} from "@fortawesome/free-solid-svg-icons";
-import {androidKey} from "@/types/constants";
+import {androidKey, globalBookmarksKey} from "@/types/constants";
 import {emit} from "@/eventbus";
 import ButtonRow from "@/components/ButtonRow.vue";
 import WholePageBookmarks from "@/components/WholePageBookmarks.vue";
 import type {OsisDocument} from "@/types/documents";
+import {isWholePageItem, resolveIcon} from "@/composables/bookmarks";
 
-defineProps<{
+const props = defineProps<{
   document: OsisDocument
 }>();
 
 const android = inject(androidKey)!;
-const wholePageBookmarks = ref<InstanceType<typeof WholePageBookmarks>>();
-const hasBookmarks = computed(() => (wholePageBookmarks.value?.visibleBookmarks.length ?? 0) > 0);
+const globalBookmarks = inject(globalBookmarksKey)!;
+
+const menuIcon = computed(() => {
+    const item = globalBookmarks.bookmarks.value.find(b =>
+        isWholePageItem(b, props.document.bookInitials, props.document.annotateRef)
+    );
+    if (!item) return faEllipsisH;
+    const label = globalBookmarks.bookmarkLabels.get(item.primaryLabelId || item.labels[0]);
+    if (!label) return faBookmark;
+    return resolveIcon(item, label) ?? faBookmark;
+});
 </script>
 
 <style scoped lang="scss">

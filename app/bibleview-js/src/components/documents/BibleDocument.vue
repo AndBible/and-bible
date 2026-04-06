@@ -46,14 +46,14 @@ import {faCheck} from "@fortawesome/free-solid-svg-icons";
 const props = defineProps<{ document: BibleDocumentType }>();
 
 // eslint-disable-next-line no-unused-vars,vue/no-setup-props-destructure
-const {id, bibleBookName, bookInitials, bookmarks, ordinalRange, originalOrdinalRange, v11n, osisRef} = props.document;
+const {id, bibleBookName, bookInitials, bookmarks, aiDocMarkers, ordinalRange, originalOrdinalRange, v11n, osisRef} = props.document;
 
 provide(bibleDocumentInfoKey, {bibleBookName, bookInitials, ordinalRange, originalOrdinalRange, v11n})
 
 const containerRef = ref<HTMLElement | null>(null);
 
 const globalBookmarks = inject(globalBookmarksKey)!;
-globalBookmarks.updateBookmarks([...bookmarks, ...(props.document.aiDocMarkers ?? [])]);
+globalBookmarks.updateBookmarks([...bookmarks, ...aiDocMarkers]);
 
 const memorization = inject(memorizationKey)!;
 if (props.document.memorizedOrdinals) {
