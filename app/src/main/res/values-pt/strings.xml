@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Reconstruir</string>
   <string name="creating_index_for">Criar índice para %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s resultados em %2s</string>
-
+  <string name="search_with_results2">%1$s resultados em %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outra aplicação antes que elas terminem.</string>
@@ -189,7 +188,7 @@
   <string name="value_mm">1 %d mm</string>
   <string name="auto_fullscreen_summary">Maximizar ecran automátcamente quando arrastar texto para cima/baixo. Dica: pode sempre maximizar o ecran tocando duas vezes </string>
   <string name="prefs_margin_size_title">Alterar o tamanho das margens</string>
-  <string name="prefs_margin_size_mm_title">Tamanho das margens (%1$d/%2$d/%3$dmm)</string>
+  <string name="prefs_margin_size_mm_title">Tamanho das margens (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Opções avançadas</string>
   <string name="prefs_features_cat">Funcionalidades</string>
   <string name="prefs_display_customization_cat">Aparência</string>
@@ -295,10 +294,10 @@
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
   <string name="move_window">Mover para</string>
-  <string name="move_window_to_position2">Posição %1$d(%2$s:%3$s)</string>
+  <string name="move_window_to_position2">Posição %1$d (%2$s:%3$s)</string>
   <string name="copy_settings">Copiar definições para</string>
   <string name="copy_settings_to_workspace">Ambiente de trabalho</string>
-  <string name="copy_settings_to_window">Janela %1$d(%2$s:%3$s)</string>
+  <string name="copy_settings_to_window">Janela %1$d (%2$s:%3$s)</string>
   <string name="copy_settings_to_global">Predefinições globais</string>
   <string name="change_to_normal">Mudar para janela normal</string>
   <string name="window_pin_mode">Fixar</string>
@@ -325,7 +324,7 @@
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor, verifique sua ligaçao à internet. </string>
-  <string name="error_downloading_status">O servidor que hospeda 1 %1$s devolveu um erro devido a %2$s (%3$d).</string>
+  <string name="error_downloading_status">O servidor que hospeda %1$s devolveu um erro devido a %2$s (%3$d).</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
   <string name="too_many_jobs">Muitas tarefas estão sendo executadas. Aguarde a conclusão de algumas e tente novamente.</string>
   <string name="document_not_installed">Por favor faça o download: \'%s\'</string>
@@ -695,8 +694,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
 
     <!-- About -->
   <string name="module_about_copyright">Direitos de Autor:%s</string>
-  <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
-  <string name="module_about_latest_version">Última versão:%1$s(%2$s)</string>
+  <string name="module_about_installed_version">Versão instalada: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Última versão: %1$s (%2$s)</string>
   <string name="module_about_versification">Versificação:%s</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">OSIS ID:%s</string>
@@ -758,8 +757,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
   <string name="error_page_too_large">Página grande demais para ser carregada</string>
   <string name="error_key_not_in_document">Não encontrado no documento</string>
-  <string name="error_key_not_in_document2">%s não foi encontrado no documento %s</string>
-  <string name="empty_list">Sem itens para exibir</string>
+  <string name="error_key_not_in_document2">%1$s não foi encontrado no documento %2$s</string>  <string name="empty_list">Sem itens para exibir</string>
   <string name="error_skip">Passar à frente</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
   <string name="bug_report_email_text">Próximo, selecione seu aplicativo de e-mail preferencial (Gmail por exemplo) para enviar o relatório para a equipe de desenvolvimento.</string>
@@ -1078,16 +1076,12 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="reset_something">Repor: %1$s</string>
   <string name="export">Exportar</string>
   <string name="csv_export_success">Exportou %d marcadores para CSV</string>
-  <string name="csv_import_success">Importação concluída: %d criados, %d actualizados</string>
-  <string name="csv_import_errors">Importação concluída com erros: %d criados, %d actualizados, %d erros</string>
-  <string name="csv_import_failed">Falha na importação de CSV: %s</string>
+  <string name="csv_import_success">Importação concluída: %1$d criados, %2$d actualizados</string>  <string name="csv_import_errors">Importação concluída com erros: %1$d criados, %2$d actualizados, %3$d erros</string>  <string name="csv_import_failed">Falha na importação de CSV: %s</string>
   <string name="csv_export_failed">Falha na exportação de CSV: %s</string>
   <string name="export_prompts_csv">Exportar prompts para CSV</string>
   <string name="import_prompts_csv">Importar prompts de CSV</string>
   <string name="prompts_csv_export_success">%d prompts exportados para CSV</string>
-  <string name="prompts_csv_import_success">Importação concluída: %d criados, %d atualizados</string>
-  <string name="prompts_csv_import_errors">Importação concluída com erros: %d criados, %d atualizados, %d erros</string>
-  <string name="prompts_csv_import_failed">Falha na importação de CSV: %s</string>
+  <string name="prompts_csv_import_success">Importação concluída: %1$d criados, %2$d atualizados</string>  <string name="prompts_csv_import_errors">Importação concluída com erros: %1$d criados, %2$d atualizados, %3$d erros</string>  <string name="prompts_csv_import_failed">Falha na importação de CSV: %s</string>
   <string name="prompts_csv_export_failed">Falha na exportação de CSV: %s</string>
   <string name="no_prompts_to_export">Sem prompts de utilizador para exportar</string>
   <string name="csv_column_selection_title">Selecione Colunas CSV</string>

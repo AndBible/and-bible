@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Відновити</string>
   <string name="creating_index_for">Створення індексу для %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s результати у %2s</string>
-
+  <string name="search_with_results2">%1$s результати у %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Перебіг виконання</string>
   <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
@@ -767,8 +766,7 @@
   <string name="error_no_content">Немає вмісту для вибраного вірша</string>
   <string name="error_page_too_large">Сторінка завелика для завантаження</string>
   <string name="error_key_not_in_document">Не знайдено</string>
-  <string name="error_key_not_in_document2">%s не знайдено в ресурсі %s.</string>
-  <string name="empty_list">Немає елементів для відображення</string>
+  <string name="error_key_not_in_document2">%1$s не знайдено в ресурсі %2$s.</string>  <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
   <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
@@ -1102,16 +1100,12 @@
   <string name="reset_something">Скинути: %1$s</string>
   <string name="export">Експортувати</string>
   <string name="csv_export_success">Експортовано %d закладок у CSV</string>
-  <string name="csv_import_success">Імпорт завершено: %d створено, %d оновлено</string>
-  <string name="csv_import_errors">Імпорт завершено з помилками: %d створено, %d оновлено, %d помилок</string>
-  <string name="csv_import_failed">Імпорт CSV не вдався: %s</string>
+  <string name="csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>  <string name="csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>  <string name="csv_import_failed">Імпорт CSV не вдався: %s</string>
   <string name="csv_export_failed">Експорт CSV не вдався: %s</string>
   <string name="export_prompts_csv">Експортувати промпти у CSV</string>
   <string name="import_prompts_csv">Імпортувати промпти з CSV</string>
   <string name="prompts_csv_export_success">Експортовано %d промптів у CSV</string>
-  <string name="prompts_csv_import_success">Імпорт завершено: %d створено, %d оновлено</string>
-  <string name="prompts_csv_import_errors">Імпорт завершено з помилками: %d створено, %d оновлено, %d помилок</string>
-  <string name="prompts_csv_import_failed">Імпорт CSV не вдався: %s</string>
+  <string name="prompts_csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>  <string name="prompts_csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>  <string name="prompts_csv_import_failed">Імпорт CSV не вдався: %s</string>
   <string name="prompts_csv_export_failed">Експорт CSV не вдався: %s</string>
   <string name="no_prompts_to_export">Немає користувацьких промптів для експорту</string>
   <string name="csv_column_selection_title">Вибрати стовпці CSV</string>

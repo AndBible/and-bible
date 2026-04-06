@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Znova vytvoriť</string>
   <string name="creating_index_for">Vytváranie indexu pre %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s výsledkov v %2s</string>
-
+  <string name="search_with_results2">%1$s výsledkov v %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Priebeh</string>
   <string name="task_kill_warning">Tieto dlho trvajúce úlohy môžu byť zrušené, ak sa prepnete na inú aplikáciu pre ich dokončením.</string>
@@ -599,7 +598,7 @@
   <string name="window_text_options_help2">%s  ikona indikuje, že nastavenia boli zmenené pre toto konkrétne okno.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
-  <string name="text_options_reset_help">Pomocou tlačidla%1$s zresetujete všetky tieto nastavenia späť na  %2$s.</string>
+  <string name="text_options_reset_help">Pomocou tlačidla %1$s zresetujete všetky tieto nastavenia späť na %2$s.</string>
   <string name="reset_defaults">prednastavené hodnoty</string>
   <string name="reset_workspace_defaults">prednastavené hodnoty pracovnej plochy</string>
 
@@ -718,7 +717,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="send_bug_report_title1">Nahlásenie chyby</string>
   <string name="send_feedback_title">Spätná väzba</string>
   <string name="send_bug_report_title">Spätná väzba / nahlásenie chyby</string>
-  <string name="report_bug_email_subject_3">[%1$s] Hlásenie chyba pre %2$s %3$s</string>
+  <string name="report_bug_email_subject_3">[%1$s] Hlásenie chyby pre %2$s %3$s</string>
 
   <string name="report_bug_big_heading">PROSÍM NAPÍŠTE SVOJU REAKCIU ALEBO CHYBOVÉ HLÁSENIA NAD TÝMTO RIADKOM</string>
   <string name="report_bug_heading1">Inštrukcie:</string>
@@ -772,8 +771,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="error_no_content">Pre vybraný verš nie je žiadny obsah</string>
   <string name="error_page_too_large">Stránka je príliš veľká na načítanie</string>
   <string name="error_key_not_in_document">V dokumente nenájdené</string>
-  <string name="error_key_not_in_document2">%s nebolo nájdené v dokumente %s.</string>
-  <string name="empty_list">Žiadne položky k zobrazeniu</string>
+  <string name="error_key_not_in_document2">%1$s nebolo nájdené v dokumente %2$s.</string>  <string name="empty_list">Žiadne položky k zobrazeniu</string>
   <string name="error_skip">Preskočiť</string>
   <string name="bug_report_email_title">Poslať hlásenie o chybe e-mailom</string>
   <string name="bug_report_email_text">Potom vyberte preferovanú e-mailovú aplikáciu (napríklad Gmail), aby ste správu odoslali tímu vývojárov.</string>
@@ -1114,16 +1112,12 @@ Režim opakovania bol vypnutý, pretože
   <string name="reset_something">Reset: %1$s</string>
   <string name="export">Export</string>
   <string name="csv_export_success">Exportovaných %d záložiek do CSV</string>
-  <string name="csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
-  <string name="csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
-  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="csv_export_failed">Export CSV zlyhal: %s</string>
   <string name="export_prompts_csv">Exportovať výzvy do CSV</string>
   <string name="import_prompts_csv">Importovať výzvy z CSV</string>
   <string name="prompts_csv_export_success">Exportovaných %d výziev do CSV</string>
-  <string name="prompts_csv_import_success">Import dokončený: %d vytvorených, %d aktualizovaných</string>
-  <string name="prompts_csv_import_errors">Import dokončený s chybami: %d vytvorených, %d aktualizovaných, %d chýb</string>
-  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
+  <string name="prompts_csv_import_success">Import dokončený: %1$d vytvorených, %2$d aktualizovaných</string>  <string name="prompts_csv_import_errors">Import dokončený s chybami: %1$d vytvorených, %2$d aktualizovaných, %3$d chýb</string>  <string name="prompts_csv_import_failed">Import CSV zlyhal: %s</string>
   <string name="prompts_csv_export_failed">Export CSV zlyhal: %s</string>
   <string name="no_prompts_to_export">Žiadne používateľské výzvy na export</string>
   <string name="csv_column_selection_title">Vybrať stĺpce CSV</string>

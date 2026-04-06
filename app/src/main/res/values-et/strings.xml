@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">Loo uuesti</string>
   <string name="creating_index_for"> %s registri loomine …</string>
   <!--X results in module Y-->
-  <string name="search_with_results2"> %2s sisaldab %1s tulemust</string>
-  <!--Tasks-->
+  <string name="search_with_results2"> %2$s sisaldab %1$s tulemust</string>  <!--Tasks-->
   <string name="progress_status">Edenemine</string>
   <string name="task_kill_warning">Need kaua töötavad toimingud võivad katkeda, kui sa lülitud enne nende lõpetamist mõnele teisele rakendusele.</string>
   <string name="no_tasks_running">Ühtegi ülesannet pole momendil täitmisel.</string>
@@ -805,9 +804,7 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="import_menu">Import &amp; eksport</string>
   <string name="export">Ekspordi</string>
   <string name="csv_export_success">CSV faili eksporditi %d järjehoidjat</string>
-  <string name="csv_import_success">Importimine lõpetatud: %d loodud, %d uuendatud</string>
-  <string name="csv_import_errors">Importimine lõpetatud vigadega: %d loodud, %d uuendatud, %d viga</string>
-  <string name="csv_import_failed">CSV faili importimine ebaõnnestus: %s</string>
+  <string name="csv_import_success">Importimine lõpetatud: %1$d loodud, %2$d uuendatud</string>  <string name="csv_import_errors">Importimine lõpetatud vigadega: %1$d loodud, %2$d uuendatud, %3$d viga</string>  <string name="csv_import_failed">CSV faili importimine ebaõnnestus: %s</string>
   <string name="csv_export_failed">CSV faili eksportimine ebaõnnestus: %s</string>
   <string name="csv_column_selection_title">Vali CSV faili veerud</string>
   <string name="choose_csv_file">Vali CSV fail mida importida</string>

@@ -559,8 +559,7 @@
   <string name="error_no_content">선택된 구절에 대한 내용 없음</string>
   <string name="error_page_too_large">페이지가 커서 불러올 수 없습니다.</string>
   <string name="error_key_not_in_document">문서에서 찾을 수 없음</string>
-  <string name="error_key_not_in_document2">%s 이 항목은 %s 문서에서 발견되지 않습니다.</string>
-  <string name="empty_list">표시할 항목이 없습니다</string>
+  <string name="error_key_not_in_document2">%1$s 이 항목은 %2$s 문서에서 발견되지 않습니다.</string>  <string name="empty_list">표시할 항목이 없습니다</string>
   <string name="error_skip">건너뛰기</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">읽을 텍스트</string>

@@ -41,8 +41,7 @@
   <string name="do_in_background">Nastavi u pozadini</string>
   <string name="rebuild_index_button">Ponovo izgradi</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s rezultata u %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s rezultata u %2$s</string>  <!--Tasks-->
   <string name="progress_status">Napredak</string>
   <string name="task_kill_warning">Ovi dugotrajni zadaci mogu biti prekinuti ako se prebaciti na drugu aplikaciju pre no što završe.</string>
   <string name="no_tasks_running">Nema zadataka koji se trenutno izvršavaju.</string>
@@ -209,10 +208,10 @@
   <string name="windowMinimise">Minimiziraj</string>
   <string name="windowSynchronise">Uskladi</string>
   <string name="move_window">Premesti</string>
-  <string name="move_window_to_position2">Pozicija %1$d(%2$s2:%3$s)</string>
+  <string name="move_window_to_position2">Pozicija %1$d (%2$s: %3$s)</string>
   <string name="copy_settings">Kopiraj postavke na</string>
   <string name="copy_settings_to_workspace">Radna površ</string>
-  <string name="copy_settings_to_window">Prozor %1$d(%2$s:%3$s)</string>
+  <string name="copy_settings_to_window">Prozor %1$d (%2$s: %3$s)</string>
   <string name="change_to_normal">Promeni u običan prozor</string>
   <string name="window_pin_mode">Istakni</string>
   <!--Notes screen-->
@@ -235,7 +234,7 @@
   <string name="download_document_confirm_prefix">Preuzmi</string>
   <string name="download_refresh_book_list_menu_item">Osveži</string>
   <string name="error_downloading">Greška prilikom preuzimanja. Proverite vezu sa internetom.</string>
-  <string name="error_downloading_status">Host server %1$s je naišao na grešku usled %2$s(%3$d).</string>
+  <string name="error_downloading_status">Host server %1$s je naišao na grešku usled %2$s (%3$d).</string>
   <string name="storage_space_warning">Nedovoljno prostora na lokalnom skladištu.</string>
   <string name="too_many_jobs">Previše zadataka se izvršava. Molim sačekajte da se neki završe pa probajte ponovo.</string>
   <string name="document_not_installed">Molim preuzmite \'%s\'</string>
@@ -637,8 +636,7 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="error_no_content">Nema sadržaja u označenom stihu</string>
   <string name="error_page_too_large">Stranica je prevelika da bi se učitala</string>
   <string name="error_key_not_in_document">Nije pronađeno u dokumentu</string>
-  <string name="error_key_not_in_document2">%s nije pronađen u dokumentu %s.</string>
-  <string name="empty_list">Nema stavki za prikaz</string>
+  <string name="error_key_not_in_document2">%1$s nije pronađen u dokumentu %2$s.</string>  <string name="empty_list">Nema stavki za prikaz</string>
   <string name="error_skip">Preskoči</string>
   <string name="bug_report_email_title">Pošaljite prijavu o grešci putem imejla</string>
   <string name="bug_report_email_text">Sledeće, molimo Vas da odaberete Vašu željenu imejl aplikaciju (kao na primer Gmail) kako biste poslali izveštaj programerskom timu.</string>

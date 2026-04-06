@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Utwórz ponownie</string>
   <string name="creating_index_for">Indeksowanie: %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s wyników w %2s</string>
-
+  <string name="search_with_results2">%1$s wyników w %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Postęp</string>
   <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
@@ -733,8 +732,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>
   <string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string>
   <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
-  <string name="error_key_not_in_document2">Nie znaleziono „%s” w dokumencie: %s.</string>
-  <string name="empty_list">Brak elementów do wyświetlenia</string>
+  <string name="error_key_not_in_document2">Nie znaleziono „%1$s” w dokumencie: %2$s.</string>  <string name="empty_list">Brak elementów do wyświetlenia</string>
   <string name="error_skip">Pomiń</string>
   <string name="bug_report_email_title">Wyślij raport o błędach e-pocztą</string>
   <string name="bug_report_email_text">W następnym kroku wybierz preferowaną aplikację pocztową (np. Gmail), aby wysłać zgłoszenie do zespołu programistów.</string>
@@ -1029,16 +1027,12 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="reset_something">Resetuj: %1$s</string>
   <string name="export">Eksportuj</string>
   <string name="csv_export_success">Wyeksportowano %d zakładek do CSV</string>
-  <string name="csv_import_success">Zakończono import: %d nowych, %d zaktualizowanych</string>
-  <string name="csv_import_errors">Zakończono import z błędami: %d nowych, %d zaktualizowanych, %d błędów</string>
-  <string name="csv_import_failed">Nie udało się zaimportować CSV: %s</string>
+  <string name="csv_import_success">Zakończono import: %1$d nowych, %2$d zaktualizowanych</string>  <string name="csv_import_errors">Zakończono import z błędami: %1$d nowych, %2$d zaktualizowanych, %3$d błędów</string>  <string name="csv_import_failed">Nie udało się zaimportować CSV: %s</string>
   <string name="csv_export_failed">Nie udało się wyeksportować do CSV: %s</string>
   <string name="export_prompts_csv">Eksportuj prompty do CSV</string>
   <string name="import_prompts_csv">Importuj prompty z CSV</string>
   <string name="prompts_csv_export_success">Wyeksportowano %d promptów do CSV</string>
-  <string name="prompts_csv_import_success">Import zakończony: %d utworzono, %d zaktualizowano</string>
-  <string name="prompts_csv_import_errors">Import zakończony z błędami: %d utworzono, %d zaktualizowano, %d błędów</string>
-  <string name="prompts_csv_import_failed">Import CSV nie powiódł się: %s</string>
+  <string name="prompts_csv_import_success">Import zakończony: %1$d utworzono, %2$d zaktualizowano</string>  <string name="prompts_csv_import_errors">Import zakończony z błędami: %1$d utworzono, %2$d zaktualizowano, %3$d błędów</string>  <string name="prompts_csv_import_failed">Import CSV nie powiódł się: %s</string>
   <string name="prompts_csv_export_failed">Eksport CSV nie powiódł się: %s</string>
   <string name="no_prompts_to_export">Brak promptów użytkownika do eksportu</string>
   <string name="csv_column_selection_title">Wybierz kolumny pliku CSV</string>

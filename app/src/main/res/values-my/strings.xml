@@ -556,8 +556,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="error_no_content">ရွေးထားသည့် အခန်းငယ်အတွက် မည်သည့်အကြောင်းအရာမှ မရှိပါ</string>
   <string name="error_page_too_large">စာမျက်နှာကြီးလွန်းသည့်အတွက် ဖွင့်မရပါ</string>
   <string name="error_key_not_in_document">မှတ်တမ်းတွင် ရှာမတွေ့ပါ</string>
-  <string name="error_key_not_in_document2">%s မှတ်တမ်းတွင် ရှာမတွေ့ပါ %s.</string>
-  <string name="empty_list">ဖော်ပြရန် မည်သည့်အကြောင်းအရာမှမရှိပါ</string>
+  <string name="error_key_not_in_document2">%1$s မှတ်တမ်းတွင် ရှာမတွေ့ပါ %2$s.</string>  <string name="empty_list">ဖော်ပြရန် မည်သည့်အကြောင်းအရာမှမရှိပါ</string>
   <string name="error_skip">ကျော်သွားပါ</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status">အသံဖြင့်ပြောရန် စာသား</string>

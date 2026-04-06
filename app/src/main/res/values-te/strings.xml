@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">పునర్నిర్మించండి</string>
   <string name="creating_index_for">%s కోసం సూచికను సృష్టిస్తోంది</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s %2sగాను పరిణమిస్తుంది</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%2$sలో %1$s ఫలితాలు</string>  <!--Tasks-->
   <string name="progress_status">పురోగతి</string>
   <string name="task_kill_warning">ఎక్కువ సమయం తీసుకొనే ఇ కార్యాలు పూర్తయ్యేలోపు మీరు మరొక అప్లికేషన్‌కి మారితే అవి ఆగిపోవచ్చు.</string>
   <string name="no_tasks_running">ప్రస్తుతం జరుగుతున్న పనులు ఏవీ లేవు.</string>
@@ -560,7 +559,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="backup_success2">నా నోట్స్, బుక్‌మార్క్‌లు, స్టడీ ప్యాడ్‌లు, రీడింగ్ ప్లాన్‌లు మరియు వర్క్‌స్పేస్‌లు విజయవంతంగా బ్యాకప్ చేయబడ్డాయి.</string>
   <string name="backup_modules_success">ఎంచుకున్న మాడ్యూల్స్ విజయవంతంగా బ్యాకప్ చేయబడ్డాయి.</string>
   <string name="backup_modules_email_subject_2">%s మాడ్యూల్స్ బ్యాకప్</string>
-  <string name="backup_modules_email_message_2">కింది మాడ్యూల్‌లను కలిగి ఉన్న మీ %2$s మాడ్యూల్స్ బ్యాకప్ జోడించబడింది: %1$s</string>
+  <string name="backup_modules_email_message_2">కింది మాడ్యూల్‌లను కలిగి ఉన్న మీ %1$s మాడ్యూల్స్ బ్యాకప్ జోడించబడింది: %2$s</string>
   <string name="backup_email_subject_2">%s డేటాబేస్ బ్యాకప్</string>
   <string name="backup_email_message_2">బుక్‌మార్క్‌లు, నోట్స్, రీడింగ్ ప్లాన్‌లు మరియు వర్క్‌స్పేస్‌లను కలిగి ఉన్న మీ %s డేటాబేస్ జోడించబడింది</string>
   <string name="restore_unsuccessfull">డేటాబేస్‌ని పునరుద్ధరించడం విఫలమైంది. బహుశా మీరు చెల్లని డేటాబేస్ ఫైల్ ఇచ్చారు.</string>
@@ -628,8 +627,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="error_no_content">ఎంపిక చేసిన వచనానికి కాంటెంట్ లేదు</string>
   <string name="error_page_too_large">లోడ్ చేయలేనంత పెద్ద పేజి</string>
   <string name="error_key_not_in_document">డాక్యుమెంటులో లేదు</string>
-  <string name="error_key_not_in_document2">పత్రం %sలో %s కనుగొనబడలేదు.</string>
-  <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
+  <string name="error_key_not_in_document2">పత్రం %2$sలో %1$s కనుగొనబడలేదు.</string>  <string name="empty_list">చూపించడానికి ఏమి లేవు</string>
   <string name="error_skip">దాటవేయండి</string>
   <string name="bug_report_email_title">ఇమెయిల్ ద్వారా బగ్ నివేదికను పంపండి</string>
   <string name="bug_report_email_text">తర్వాత, దయచేసి డెవలపర్ బృందానికి నివేదికను పంపడానికి మీ ప్రాధాన్య ఇమెయిల్ అప్లికేషన్ (ఉదాహరణకు Gmail) ఎంచుకోండి.</string>
@@ -673,7 +671,7 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="upgrade_video_message">దయచేసి ఈ విడుదల (%s) యొక్క కొత్త ఫీచర్‌లను కలిగి ఉన్న వీడియోను చూడండి.</string>
   <string name="stable_notice_par1">%2$s యొక్క కొత్త వెర్షన్ %1$s విజయవంతంగా ఇన్‌స్టాల్ చేయబడింది!</string>
   <!--History-->
-  <string name="history_for">%2$dవృత్తాంతము (%1$s: విండో )</string>
+  <string name="history_for">వృత్తాంతము (%1$s: విండో %2$d)</string>
   <!--Help-->
   <string name="help_nav_title">నావిగేషన్</string>
   <string name="help_nav_text">మీ వేలితో స్క్రీన్‌ను స్వైప్ చేయడం ద్వారా తదుపరి లేదా మునుపటి అధ్యాయానికి వెళ్లండి.

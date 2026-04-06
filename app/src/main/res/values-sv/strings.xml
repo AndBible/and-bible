@@ -43,8 +43,7 @@
     <string name="do_in_background">Fortsätt i bakgrunden</string>
     <string name="rebuild_index_button">Återuppbygg</string>
     <string name="creating_index_for">Skapar index index för%s...</string>
-    <string name="search_with_results2">%1s resultat i %2s</string>
-
+    <string name="search_with_results2">%1$s resultat i %2$s</string>
     <string name="progress_status">Framsteg</string>
     <string name="task_kill_warning">Dessa aktiviteter kan avbrytas om du växlar till en annan app innan de är klara.</string>
     <string name="no_tasks_running">Det finns för närvarande inga körande aktiviteter.</string>
@@ -713,8 +712,7 @@ i GT och NT varje dag.
     <string name="error_no_content">Innehåll saknas för den markerade versen</string>
     <string name="error_page_too_large">Sidan är för stor för att laddas</string>
     <string name="error_key_not_in_document">Hittades inte i dokument</string>
-    <string name="error_key_not_in_document2">%s hittades inte i dokument %s.</string>
-    <string name="empty_list">Inga poster att visa</string>
+    <string name="error_key_not_in_document2">%1$s hittades inte i dokument %2$s.</string>    <string name="empty_list">Inga poster att visa</string>
     <string name="error_skip">Hoppa över</string>
     <string name="bug_report_email_title">Skicka buggrapport via e-post</string>
     <string name="bug_report_email_text">Välj nu den e-postapp du föredrar (t.ex. Gmail) för att skicka rapporten till utvecklarna.</string>
@@ -1041,16 +1039,12 @@ vänligen rapportera problemen till dem som underhåller texten
     <string name="reset_something">Återställ: %1$s</string>
     <string name="export">Exportera</string>
     <string name="csv_export_success">Exporterade %d bokmärken till CSV</string>
-    <string name="csv_import_success">Import slutförd: %d skapade, %d uppdaterade</string>
-    <string name="csv_import_errors">Import slutförd med fel: %d skapade, %d uppdaterade, %d fel</string>
-    <string name="csv_import_failed">CSV-import misslyckades: %s</string>
+    <string name="csv_import_success">Import slutförd: %1$d skapade, %2$d uppdaterade</string>    <string name="csv_import_errors">Import slutförd med fel: %1$d skapade, %2$d uppdaterade, %3$d fel</string>    <string name="csv_import_failed">CSV-import misslyckades: %s</string>
     <string name="csv_export_failed">CSV-export misslyckades: %s</string>
     <string name="export_prompts_csv">Exportera prompter till CSV</string>
     <string name="import_prompts_csv">Importera prompter från CSV</string>
     <string name="prompts_csv_export_success">Exporterade %d promptar till CSV</string>
-    <string name="prompts_csv_import_success">Import slutförd: %d skapade, %d uppdaterade</string>
-    <string name="prompts_csv_import_errors">Import slutförd med fel: %d skapade, %d uppdaterade, %d fel</string>
-    <string name="prompts_csv_import_failed">CSV-import misslyckades: %s</string>
+    <string name="prompts_csv_import_success">Import slutförd: %1$d skapade, %2$d uppdaterade</string>    <string name="prompts_csv_import_errors">Import slutförd med fel: %1$d skapade, %2$d uppdaterade, %3$d fel</string>    <string name="prompts_csv_import_failed">CSV-import misslyckades: %s</string>
     <string name="prompts_csv_export_failed">CSV-export misslyckades: %s</string>
     <string name="no_prompts_to_export">Inga användarpromptar att exportera</string>
     <string name="csv_column_selection_title">Välj kolumner för CSV-filen</string>

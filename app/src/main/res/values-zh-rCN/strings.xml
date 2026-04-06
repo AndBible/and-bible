@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">重建</string>
   <string name="creating_index_for">为%s建立索引</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">在 %2s 中找到 %1s 个结果</string>
-
+  <string name="search_with_results2">在 %2$s 中找到 %1$s 个结果</string>
     <!-- Tasks -->
   <string name="progress_status">进度</string>
   <string name="task_kill_warning">当前任务可能运行很久，若你在完成前切换到其它应用，可能会导致任务终止。</string>
@@ -769,8 +768,7 @@ http://www.heartlight.org 准予使用
   <string name="error_no_content">选定经节没有内容</string>
   <string name="error_page_too_large">页面太大无法加载</string>
   <string name="error_key_not_in_document">文件内没有发现</string>
-  <string name="error_key_not_in_document2">%s并没有在文件%s中找到。</string>
-  <string name="empty_list">没有可显示项目</string>
+  <string name="error_key_not_in_document2">%1$s并没有在文件%2$s中找到。</string>  <string name="empty_list">没有可显示项目</string>
   <string name="error_skip">暂停</string>
   <string name="bug_report_email_title">通过电子邮件发送缺陷报告</string>
   <string name="bug_report_email_text">请在下一步选择您想要的电子邮件应用（例如 Gmail）来将报告发送给开发者团队。</string>
@@ -1094,16 +1092,12 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="reset_something">重置：%1$s</string>
   <string name="export">Dışa aktar</string>
   <string name="csv_export_success">已将 %d 个书签导出为 CSV</string>
-  <string name="csv_import_success">导入完成：已创建 %d 个，已更新 %d 个</string>
-  <string name="csv_import_errors">导入完成但有错误：已创建 %d 个，已更新 %d 个，%d 个错误</string>
-  <string name="csv_import_failed">CSV 导入失败：%s</string>
+  <string name="csv_import_success">导入完成：已创建 %1$d 个，已更新 %2$d 个</string>  <string name="csv_import_errors">导入完成但有错误：已创建 %1$d 个，已更新 %2$d 个，%3$d 个错误</string>  <string name="csv_import_failed">CSV 导入失败：%s</string>
   <string name="csv_export_failed">CSV 导出失败：%s</string>
   <string name="export_prompts_csv">将提示词导出为 CSV</string>
   <string name="import_prompts_csv">从 CSV 导入提示词</string>
   <string name="prompts_csv_export_success">已将 %d 个提示词导出为 CSV</string>
-  <string name="prompts_csv_import_success">导入完成：已创建 %d 个，已更新 %d 个</string>
-  <string name="prompts_csv_import_errors">导入完成但有错误：已创建 %d 个，已更新 %d 个，%d 个错误</string>
-  <string name="prompts_csv_import_failed">CSV 导入失败：%s</string>
+  <string name="prompts_csv_import_success">导入完成：已创建 %1$d 个，已更新 %2$d 个</string>  <string name="prompts_csv_import_errors">导入完成但有错误：已创建 %1$d 个，已更新 %2$d 个，%3$d 个错误</string>  <string name="prompts_csv_import_failed">CSV 导入失败：%s</string>
   <string name="prompts_csv_export_failed">CSV 导出失败：%s</string>
   <string name="no_prompts_to_export">无用户提示词可导出</string>
   <string name="csv_column_selection_title">选择 CSV 列</string>

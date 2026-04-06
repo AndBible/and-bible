@@ -581,8 +581,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="error_no_content">यह छंद खाली है</string>
   <string name="error_page_too_large">पृष्ठ बहुत बड़ी, लोड नहीं हुई</string>
   <string name="error_key_not_in_document">इस किताब में नहीं मिला</string>
-  <string name="error_key_not_in_document2">%s, %s दस्तावेज़ में नहीं मिली</string>
-  <string name="empty_list">कुछ मौजूद नहीं</string>
+  <string name="error_key_not_in_document2">%1$s, %2$s दस्तावेज़ में नहीं मिली</string>  <string name="empty_list">कुछ मौजूद नहीं</string>
   <string name="error_skip">छोड़ें</string>
   <!--Notifications-->
   <string name="notification_channel_tts_status"> लिखे हुए को बोलने में बदलना</string>

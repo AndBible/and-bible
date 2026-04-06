@@ -40,9 +40,7 @@ referenceLink: Otvori poveznicu za referencu
 openFootnote: Otvori fusnotu
 noMyNotesTitle: Bez Moje bilješke za ovo poglavlje.
 noMyNotesDescription: Počnite stvaranjem straničnika u biblijskom dokumentu. Straničnici će zatim biti prikazani ovdje i možete im dodati vaše osobne bilješke.
-
 emptyStudyPad: Radna bilježnica je prazna. Krenite sa njenim popunjavanjem tako što ćete unijeti ovdje tekst ili stvaranjem straničnika sa oznakom straničnika koja odgovara ovoj radnoj bilježnici.
-
 doYouWantToDeleteEntry: Izbrisati unos ove radne bilježnice?
 removeStudyPadConfirmationTitle: Ukloniti unos radne bilježnice?
 dragHelp: Zadržite i povucite radi mijenjanja redoslijeda
@@ -59,13 +57,13 @@ openDownloads: Idite na Preuzimanje dodataka
 verseShare: Dijeli
 verseSpeak: Izgovori
 verseCompare: Usporedi
-verseMemorize: ""
+verseMemorize: Memoriraj
 verseNote: Bilješka
 verseMyNotes: Moje bilješke
-verseParagraphBreak: ""
+verseParagraphBreak: Odlomak
 verseShareLong: Podijeli ovaj redak
 verseCompareLong: Usporedi redak
-verseMemorizeLong: ""
+verseMemorizeLong: Memoriraj biblijske retke
 addMemorizationTarget: Cilj +
 addMemorizationTargetLong: Postavi kao cilj memoriranja
 removeMemorizationTarget: Cilj -
@@ -77,32 +75,32 @@ viewReadingProgress: Napredak čitanja/memoriranja
 viewReadingProgressSettings: Postavke čitanja/memoriranja
 listenInLoop: Slušaj u petlji
 verseNoteLong: Napiši bilješku
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Prijelom odlomka
 addBookmark: Straničnik
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Odaberite prilagođenu ikonu oznake
+bookmarkSettingsTitle: Postavke straničnika
+subtitlePlaceholder: Tekst podnaslova
+customIconLabel: Prilagođena ikona
+editActionLabel: Uredi radnju
+editActionModeLabel: Način
+editActionModeNone: Ništa
+editActionModeAppend: Dodaj tekst na kraj
+editActionModePrepend: Dodaj tekst na početak
+editActionContentLabel: Sadržaj
+editActionContentPlaceholder: Unesite tekst za dodavanje u dokument...
+experimentalFeatureTitle: Eksperimentalno
+experimentalFeatureHelpTitle: O eksperimentalnim značajkama
+experimentalFeatureHelpContent: Eksperimentalne značajke su nove mogućnosti koje su još u razvoju i testiranju. Možda neće raditi savršeno i mogle bi se značajno promijeniti ili biti uklonjene u budućim verzijama aplikacije.
+insertParagraphBreak: Umetni prijelom odlomka
+insertSubtitle: Umetni podnaslov
+xmlParseError: Greška pri parsiranju XML-a
+invalidTag: Nevažeća oznaka
+invalidClosingTag: Nevažeća zatvarajuća oznaka
+unmatchedClosingTag: Neuparena zatvarajuća oznaka
+unclosedTag: Nezatvorena oznaka
+unknownError: Nepoznata greška
+wordBlur: Zamućenje
+wordScramble: Miješanje
 wordType: Vrsta
 wordOrder: Redoslijed
 typeEverything: Upiši cijele riječi

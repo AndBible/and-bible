@@ -41,8 +41,7 @@
   <string name="do_in_background">பின்னணியில் தொடர்க</string>
   <string name="rebuild_index_button">அட்டவணைப்படுத்து</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%2s இல் %1s முடிவுகள்</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%2$s இல் %1$s முடிவுகள்</string>  <!--Tasks-->
   <string name="progress_status">முன்னேற்றம்</string>
   <string name="task_kill_warning">நெடுநேரம் இயங்கும் இந்தப் பணிகள் முடிவதற்குள் வேறொரு ஆப்புக்கு மாறினால் இவை நிறுத்தப்படலாம்.</string>
   <string name="no_tasks_running">தற்போது எந்த பணிகளும் செயல்பாட்டில் இல்லை.</string>
@@ -587,7 +586,7 @@
   <string name="send_bug_report_title1">பிழை அறிக்கை</string>
   <string name="send_feedback_title">கருத்துகள்</string>
   <string name="send_bug_report_title">கருத்துகள் / பிழை அறிக்கைகள்</string>
-  <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
+  <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s பிழை அறிக்கை</string>
   <string name="report_bug_big_heading">PLEASE WRITE YOUR FEEDBACK OR BUG REPORT ABOVE THIS LINE</string>
   <string name="report_bug_heading1">வழிமுறைகள்:</string>
   <string name="report_bug_line_1">நீங்கள் என்ன செய்தீர்கள் / சிக்கல் நடந்தபோது என்ன நடந்தது என்பதை சுருக்கமாக கூறுங்கள்.</string>
@@ -635,8 +634,7 @@
   <string name="error_no_content">தேர்ந்தெடுக்கப்பட்ட வசனத்திற்கு உள்ளடக்கம் எதுவும் இல்லை</string>
   <string name="error_page_too_large">ஏற்றுவதற்கு இந்த பக்கம் மிகவும் பெரியது</string>
   <string name="error_key_not_in_document">கோப்பில் இல்லை</string>
-  <string name="error_key_not_in_document2">%s, ஆவணம் %s இல் இல்லை.</string>
-  <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
+  <string name="error_key_not_in_document2">%1$s, ஆவணம் %2$s இல் இல்லை.</string>  <string name="empty_list">காட்டுவதற்கு எதுவும் இல்லை</string>
   <string name="error_skip">தவிர்க்க</string>
   <string name="bug_report_email_title">பிழை அறிக்கையை மின்னஞ்சல் மூலம் அனுப்புக</string>
   <string name="bug_report_email_text">அடுத்து, டெவலப்பர் குழுவிற்கு அறிக்கையை அனுப்ப, உங்களுக்கு விருப்பமான மின்னஞ்சல் பயன்பாட்டை (உதாரணமாக ஜிமெயில்) தேர்ந்தெடுக்கவும்.</string>
@@ -834,7 +832,7 @@
     </string>
   <!--parameters are actions (file a bug, send email)-->
   <string name="rate_message1">
-        இச்செயலில் ஏதேனும் சிக்கல் இருப்பின், please %1$s அல்லது %2$s .
+        இச்செயலில் ஏதேனும் சிக்கல் இருப்பின், தயவுசெய்து %1$s அல்லது %2$s.
     </string>
   <!--param is "please report maintainers"-->
   <string name="rate_message2">

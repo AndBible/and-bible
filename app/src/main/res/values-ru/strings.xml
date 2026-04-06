@@ -42,8 +42,7 @@
   <string name="rebuild_index_button">Перестроить</string>
   <string name="creating_index_for">Создаю индекс для %s…</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">%1s результатов в %2s</string>
-  <!--Tasks-->
+  <string name="search_with_results2">%1$s результатов в %2$s</string>  <!--Tasks-->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
@@ -508,8 +507,8 @@ http://www.heartlight.org, разрешение предоставлено
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_original">
-    <item>Lord</item>
-    <item>God</item>
+    <item>Господь</item>
+    <item>Бог</item>
     <item></item>
     <item></item>
     <item></item>
@@ -520,8 +519,8 @@ http://www.heartlight.org, разрешение предоставлено
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings.-->
   <string-array name="speak_divinename_replace">
-    <item>Yahweh</item>
-    <item>Yahweh</item>
+    <item>Яхве</item>
+    <item>Яхве</item>
     <item></item>
     <item></item>
     <item></item>
@@ -572,7 +571,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
-  <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули:%2$s</string>
+  <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули: %2$s</string>
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
   <string name="exported_studypads_subject">Экспортированный Блокнот(ы)</string>
@@ -588,7 +587,7 @@ http://www.heartlight.org, разрешение предоставлено
   <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
   <!--About-->
   <string name="module_about_copyright">Авторское право: %s</string>
-  <string name="module_about_installed_version">Установленная версия: %1$s(%2$s)</string>
+  <string name="module_about_installed_version">Установленная версия: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Последняя версия: %1$s (%2$s)</string>
   <string name="module_about_versification">Версия: %s</string>
   <string name="module_about_repository">Сервер распространения : %s</string>
@@ -644,8 +643,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_no_content">В выбранных стихах нет содержания</string>
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
-  <string name="error_key_not_in_document2">%s не найдено в ресурсе %s.</string>
-  <string name="empty_list">Для отображения ничего нет</string>
+  <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>  <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>

@@ -41,8 +41,7 @@
   <string name="do_in_background">背景中繼續</string>
   <string name="rebuild_index_button">重建</string>
   <!--X results in module Y-->
-  <string name="search_with_results2">在 %1s 中找到 %2s 個結果</string>
-  <!--Tasks-->
+  <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>  <!--Tasks-->
   <string name="progress_status">進度</string>
   <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
   <string name="no_tasks_running">當前沒有任務</string>
@@ -631,8 +630,7 @@ http://www.heartlight.org 准予使用
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
-  <string name="error_key_not_in_document2">%s並沒有在文件%s中找到。</string>
-  <string name="empty_list">沒有可顯示項目</string>
+  <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>  <string name="empty_list">沒有可顯示項目</string>
   <string name="error_skip">暫停</string>
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
   <string name="bug_report_email_text">然後，請選擇你想用的電郵程式 (例如Gmail)，將回報發送至開發團隊。</string>

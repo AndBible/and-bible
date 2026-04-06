@@ -47,8 +47,7 @@
   <string name="rebuild_index_button">Ricostruisci</string>
   <string name="creating_index_for">Creazione indice per %s…</string>
     <!-- X results in module Y -->
-  <string name="search_with_results2">%1s risultati in %2s</string>
-
+  <string name="search_with_results2">%1$s risultati in %2$s</string>
     <!-- Tasks -->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Queste operazioni lunghe potrebbero interrompersi se passi ad un\'altra applicazione prima della fine.</string>
@@ -739,8 +738,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="error_no_content">Nessun contenuto per il versetto selezionato</string>
   <string name="error_page_too_large">La pagina è troppo grande per essere caricata</string>
   <string name="error_key_not_in_document">Non trovato nel documento</string>
-  <string name="error_key_not_in_document2">%s non trovato nel documento %s.</string>
-  <string name="empty_list">Niente da mostrare</string>
+  <string name="error_key_not_in_document2">%1$s non trovato nel documento %2$s.</string>  <string name="empty_list">Niente da mostrare</string>
   <string name="error_skip">Salta</string>
   <string name="bug_report_email_title">Invia segnalazione di errore via email</string>
   <string name="bug_report_email_text">Successivamente, seleziona l\'applicazione di posta elettronica preferita (ad esempio Gmail) per inviare la segnalazione al team di sviluppo.</string>
@@ -1058,16 +1056,12 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reset_something">Ripristina: %1$s</string>
   <string name="export">Esporta</string>
   <string name="csv_export_success">Esportati %d segnalibri in CSV</string>
-  <string name="csv_import_success">Importazione completata: %d creati, %d aggiornati</string>
-  <string name="csv_import_errors">Importazione completata con errori: %d creati, %d aggiornati, %d errori</string>
-  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
+  <string name="csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>  <string name="csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
   <string name="csv_export_failed">Esportazione CSV fallita: %s</string>
   <string name="export_prompts_csv">Esporta prompt in CSV</string>
   <string name="import_prompts_csv">Importa prompt da CSV</string>
   <string name="prompts_csv_export_success">%d prompt esportati in CSV</string>
-  <string name="prompts_csv_import_success">Importazione completata: %d creati, %d aggiornati</string>
-  <string name="prompts_csv_import_errors">Importazione completata con errori: %d creati, %d aggiornati, %d errori</string>
-  <string name="prompts_csv_import_failed">Importazione CSV non riuscita: %s</string>
+  <string name="prompts_csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>  <string name="prompts_csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>  <string name="prompts_csv_import_failed">Importazione CSV non riuscita: %s</string>
   <string name="prompts_csv_export_failed">Esportazione CSV non riuscita: %s</string>
   <string name="no_prompts_to_export">Nessun prompt utente da esportare</string>
   <string name="csv_column_selection_title">Scelta colonne CSV</string>
