@@ -40,9 +40,7 @@ referenceLink: Referencia megnyitása
 openFootnote: Lábjegyzet megnyitása
 noMyNotesTitle: Nincsenek Saját Jegyzetek ehhez a fejezethez.
 noMyNotesDescription: Az elmentett könyvjelzők itt fognak megjelenni, később személyes jegyzeteket is fűzhet hozzájuk.
-
 emptyStudyPad: Üres jegyzetlap. Ide egyszerűen felvehet jegyzeteket, könyvjelzőket. A könyvjelzők automatikusan ennek a jegyzetlapnak megfelelő címkét fognak kapni.
-
 doYouWantToDeleteEntry: Törli ezt a jegyzetet?
 removeStudyPadConfirmationTitle: Törli ezt a jegyzetet?
 dragHelp: Húzza el más sorrendbe tevéshez
@@ -59,13 +57,13 @@ openDownloads: Kiegészítők letöltése
 verseShare: Megosztás
 verseSpeak: Felolvasás
 verseCompare: Összehasonlítás
-verseMemorize: ""
+verseMemorize: Memorizálás
 verseNote: Jegyzet
 verseMyNotes: Jegyzeteim
-verseParagraphBreak: ""
+verseParagraphBreak: Bekezdés
 verseShareLong: Vers megosztása
 verseCompareLong: Vers összehasonlítása
-verseMemorizeLong: ""
+verseMemorizeLong: Bibliai versek memorizálása
 addMemorizationTarget: Cél +
 addMemorizationTargetLong: Memorizálási célként beállítás
 removeMemorizationTarget: Cél -
@@ -77,32 +75,32 @@ viewReadingProgress: Olvasási/memorizálási haladás
 viewReadingProgressSettings: Olvasási/memorizálási beállítások
 listenInLoop: Ismételt lejátszás
 verseNoteLong: Jegyzet hozzáadása
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Bekezdéstörés
 addBookmark: Könyvjelző
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Egyéni jelölőikon kiválasztása
+bookmarkSettingsTitle: Könyvjelző-beállítások konfigurálása
+subtitlePlaceholder: Alcím szövege
+customIconLabel: Egyéni ikon
+editActionLabel: Művelet szerkesztése
+editActionModeLabel: Mód
+editActionModeNone: Nincs
+editActionModeAppend: Szöveg hozzáfűzése
+editActionModePrepend: Szöveg előre fűzése
+editActionContentLabel: Tartalom
+editActionContentPlaceholder: Írja be a dokumentumhoz adandó szöveget...
+experimentalFeatureTitle: Kísérleti
+experimentalFeatureHelpTitle: A kísérleti funkciókról
+experimentalFeatureHelpContent: A kísérleti funkciók olyan új képességek, amelyek még fejlesztés és tesztelés alatt állnak. Előfordulhat, hogy nem működnek tökéletesen, és az alkalmazás jövőbeli verzióiban jelentősen megváltozhatnak vagy eltávolíthatók.
+insertParagraphBreak: Bekezdéstörés beszúrása
+insertSubtitle: Alcím beszúrása
+xmlParseError: XML-elemzési hiba
+invalidTag: Érvénytelen tag
+invalidClosingTag: Érvénytelen záró tag
+unmatchedClosingTag: Páratlan záró tag
+unclosedTag: Lezáratlan tag
+unknownError: Ismeretlen hiba
+wordBlur: Elmosás
+wordScramble: Összekeverés
 wordType: Típus
 wordOrder: Sorrend
 typeEverything: Teljes szavak gépelése
