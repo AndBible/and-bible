@@ -34,8 +34,8 @@
     </div>
 
     <template v-else>
-      <DocumentActionMenu :document="document"/>
       <OsisFragment :is-native-html="document.isNativeHtml" :fragment="osisFragment"/>
+      <DocumentActionMenu ref="actionMenuRef" :document="document"/>
       <div v-if="isMyDocument && isContentEmpty" class="mydoc-placeholder" @click="startEditing">
         <FontAwesomeIcon :icon="faEdit" class="placeholder-icon"/>
         <span>{{ strings.myDocumentEmptyPlaceholder }}</span>
@@ -67,6 +67,7 @@ import {OsisDocument} from "@/types/documents";
 import {useBookmarks} from "@/composables/bookmarks";
 import {setupEventBusListener} from "@/eventbus";
 import {TextContentType} from "@/types/client-objects";
+import {useInlineActionIcons} from "@/composables/inline-action-icons";
 
 const props = defineProps<{ document: OsisDocument }>();
 
@@ -107,6 +108,12 @@ registerBook(`epub/${bookInitials}/${osisRef}`)
 if (bookCategory === "COMMENTARY" || bookCategory === "GENERAL_BOOK") {
     provide(referenceCollectorKey, referenceCollector);
 }
+
+const actionMenuRef = ref<InstanceType<typeof DocumentActionMenu> | null>(null);
+
+useInlineActionIcons(id, bookInitials, annotateRef, (anchor) => {
+    actionMenuRef.value?.openMenu(anchor);
+});
 
 // MyDocument editing state
 const editMode = ref(false);
@@ -184,6 +191,23 @@ if (isMyDocument) {
   .prompt-link {
     cursor: pointer;
     text-decoration: underline;
+  }
+}
+</style>
+
+<style lang="scss">
+.inline-action-icon {
+  display: inline;
+  cursor: pointer;
+  opacity: 0.4;
+
+  margin-right: 18px;
+
+  svg {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    fill: currentColor;
   }
 }
 </style>
