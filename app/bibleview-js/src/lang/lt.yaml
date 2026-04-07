@@ -40,7 +40,6 @@ referenceLink: Atverti nuorodos adresą
 openFootnote: Atverti išnašą
 noMyNotesTitle: Šiam skyriui nėra mano pastabų.
 noMyNotesDescription: Pradėkite, sukurdami Biblijos dokumente žymes. Tuomet žymės bus rodomos čia ir prie jų galėsite pridėti asmenines pastabas.
-
 emptyStudyPad: Tuščias bloknotas. Galite pridėti turinį į šį bloknotą ,sukurdami čia teksto įrašus arba sukurdami žymes su žymės etikete, kuri atitinka šį bloknotą.
 doYouWantToDeleteEntry: Ištrinti šį bloknoto įrašą?
 removeStudyPadConfirmationTitle: Šalinti bloknoto įrašą?
@@ -76,32 +75,32 @@ viewReadingProgress: Skaitymo/Įsiminimo pažanga
 viewReadingProgressSettings: Skaitymo/Įsiminimo nustatymai
 listenInLoop: Klausyti kilpa
 verseNoteLong: Rašyti pastabą
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Pastraipos pertrauka
 addBookmark: Pridėti žymę
 selectCustomIconTitle: Pasirinkti tinkintą žymeklio piktogramą
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
+bookmarkSettingsTitle: Konfigūruoti žymių nustatymus
+subtitlePlaceholder: Paantraštės tekstas
 customIconLabel: Tinkinta piktograma
 editActionLabel: Taisyti veiksmą
 editActionModeLabel: Režimas
 editActionModeNone: Nėra
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
+editActionModeAppend: Pridėti pabaigoje
+editActionModePrepend: Pridėti pradžioje
+editActionContentLabel: Turinys
+editActionContentPlaceholder: Įveskite tekstą, kuris bus pridėtas prie dokumento...
 experimentalFeatureTitle: Eksperimentinė
 experimentalFeatureHelpTitle: Apie eksperimentines ypatybes
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
+experimentalFeatureHelpContent: Eksperimentinės funkcijos yra naujos galimybės, kurios vis dar kuriamos ir testuojamos. Jos gali veikti netobulai ir ateities programos versijose gali žymiai pasikeisti arba būti pašalintos.
+insertParagraphBreak: Įterpti pastraipos pertrauką
+insertSubtitle: Įterpti paantraštę
 xmlParseError: XML nagrinėjimo klaida
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
+invalidTag: Neteisinga gairė
+invalidClosingTag: Neteisinga uždaromoji gairė
+unmatchedClosingTag: Nesuderinta uždaromoji gairė
+unclosedTag: Neuždaryta gairė
 unknownError: Nežinoma klaida
-wordBlur: ""
-wordScramble: ""
+wordBlur: Suliejimas
+wordScramble: Sumaišymas
 wordType: Tipas
 wordOrder: Tvarka
 typeEverything: Rinkti visus žodžius

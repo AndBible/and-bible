@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Biblijos studijos</string>
   <string name="app_name_medium">Biblijos studijos (AndBible)</string>
   <string name="app_name_long">AndBible: Biblijos studijos</string>
   <string name="project">AndBible atviro kodo projektas</string>
+
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Įdėkite SD kortelę ir paleiskite programėlę iš naujo.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Meniu</string>
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Ištrauka</string>
@@ -23,13 +26,15 @@
   <string name="administration">Valdymas</string>
   <string name="rate_application">Įvertinti ir apžvelgti</string>
   <string name="chooce_document">Pasirinkti dokumentą</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Pasirinkite knygą</string>
   <string name="choosePassageChapterName">Pasirinkite skyrių</string>
   <string name="choosePassageVerseName">Pasirinkite eilutę</string>
   <string name="bible">Biblija</string>
   <string name="deuterocanonical">Apokrifai</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">Paieškai reikalingas indeksas</string>
   <string name="create_index_for">Paieškai reikalingas indeksas. \n\nSukurti  %s indeksą?</string>
@@ -41,13 +46,15 @@
   <string name="do_in_background">Tęsti fone</string>
   <string name="rebuild_index_button">Perkurti</string>
   <string name="creating_index_for">Kuriamas %s indeksas…</string>
-  <!--X results in module Y-->
-  <string name="search_with_results2">Rezultatų (%1s): %2s</string>
-  <!--Tasks-->
+    <!-- X results in module Y -->
+  <string name="search_with_results2">Rezultatų (%1$s): %2$s</string>
+
+    <!-- Tasks -->
   <string name="progress_status">Pažanga</string>
   <string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
   <string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Ieškoti eilučių</string>
   <string name="search_all_words">Visi žodžiai</string>
   <string name="search_any_word">Bet kuris žodis</string>
@@ -62,24 +69,48 @@
   <string name="search_current_book">Esamoje knygoje</string>
   <string name="error_executing_search">Neteisinga paieškos užklausa</string>
   <string name="type_text_or_bible_reference">Įrašykite tekstą arba biblijos nuorodą</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Atverti %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Ieškoti „%s“</string>
-  <!--Preferences-->
+    <!-- Multi-translation search -->
+  <string name="search_translations">Vertimai</string>
+  <string name="choose_translations">Pasirinkti vertimus…</string>
+  <string name="multi_search_results">%1$d eilutės %2$d vertimuose</string>
+  <string name="search_index_not_created">indeksas nesukurtas</string>
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Skyrių &amp; eilučių numeriai</string>
   <string name="prefs_show_verseno_summary">Rodyti skyrių &amp; eilučių numerius</string>
+
   <string name="prefs_e_ink_mode_title">Nespalvotasis režimas</string>
   <string name="prefs_eink_mode_summary">Naudoti programėlę nespalvotame režime (be spalvų), taip paverčiant ją labiau tinkama elektroninio popieriaus įrenginiams.</string>
+  <string name="prefs_eink_settings_cat">El. rašalo nustatymai</string>
+  <string name="prefs_eink_display_title">El. rašalo funkcijos</string>
+  <string name="prefs_eink_display_summary">Įjungti el. rašalui skirtas funkcijas (puslapio slinkimo mygtukai, slinkimo pagalbinės linijos)</string>
+
   <string name="prefs_disable_animations_title">Išjungti animacijas</string>
   <string name="prefs_disable_animations_summary">Išjungti įvairias animacijas, tokias kaip, glotnus slinkimas.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Išjungti spustelėjimą redaguoti užrašų knygelėje</string>
+  <string name="prefs_disable_click_to_edit_summary">Norint redaguoti pastabas užrašų knygelėje, reikia naudoti redagavimo mygtuką.</string>
+
+  <string name="prefs_notes_content_type_title">Naujų žymių pastabų formatas</string>
+  <string name="prefs_notes_content_type_summary">Teksto formatas, naudojamas kuriant naujas žymių pastabas ir užrašų knygelės įrašus</string>
+  <string name="notes_content_type_html">Raiškusis tekstas (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
   <string name="prefs_paragraph_spacing_title">Tarpai tarp pastraipų (%s mm)</string>
   <string name="prefs_paragraph_spacing_summary">Reguliuoti tarpus tarp pastraipų.</string>
+
   <string name="prefs_show_verseno_title1">Eilučių numeriai</string>
+
   <string name="prefs_show_chapter_no_title">Skyrių numeriai</string>
   <string name="prefs_show_chapter_no_summary">Rodyti skyrių numerius</string>
+
   <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
   <string name="prefs_show_bookmarks_summary">Nuimkite žymėjimą, norėdami paslėpti visas žymes</string>
+
   <string name="prefs_show_mynotes_summary">Rodyti piktogramą eilutėse su mano pastabomis</string>
   <string name="prefs_show_notes_summary">Rodyti išnašas ir kryžmines nuorodas</string>
   <string name="prefs_show_strongs_summary">Nuorodos į graikų ir hebrajų apibrėžtis</string>
@@ -87,30 +118,49 @@
   <string name="prefs_section_title_summary">Rodyti nekanonines skyrių antraštes</string>
   <string name="prefs_red_letter_summary">Rodyti Kristaus žodžius raudona spalva</string>
   <string name="prefs_text_size_title">Šrifto nustatymai</string>
+
   <string name="prefs_verse_per_line_title">Po vieną eilutę eilutėje</string>
   <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
   <string name="prefs_show_mynotes_title">Rodyti mano pastabų piktogramas</string>
   <string name="prefs_show_footnotes_title">Išnašos</string>
   <string name="prefs_show_xrefs_title">Kryžminės nuorodos</string>
   <string name="prefs_show_footnotes_summary">Rodyti išnašas, jei jos yra prieinamos dokumente</string>
+  <string name="prefs_show_footnotes_inline_title">Išnašos eilutėje</string>
+  <string name="prefs_show_footnotes_inline_summary">Rodyti išnašas eilutėje su tekstu, o ne kaip spustelėjamus valdiklius</string>
   <string name="prefs_show_xrefs_summary">Rodyti kryžmines nuorodas, jei jos yra prieinamos dokumente</string>
+
   <string name="prefs_show_notes_title">Išnašos ir x-nuorodos</string>
   <string name="prefs_show_strongs_title">Strongo numeriai</string>
   <string name="prefs_show_morphology_title">Morfologiniai kodai</string>
+  <string name="prefs_non_strongs_word_italic_title">Kursyvu rašyti pridėtus žodžius</string>
+  <string name="prefs_non_strongs_word_italic_summary">Kursyvu rašyti žodžius be Strong\'o numerių</string>
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
+  <string name="prefs_title_scroll_button_title">Antraštės slinkimo mygtukas</string>
+  <string name="prefs_title_scroll_button_summary">Rodyti mygtuką „slinkti į viršų" šalia sekcijų antraščių</string>
   <string name="prefs_red_letter_title">Raudonas laiškas</string>
+  <string name="prefs_infinite_scroll_title">Begalinė slinkimas</string>
+  <string name="prefs_infinite_scroll_summary">Automatiškai įkelti daugiau turinio slenkant</string>
+  <string name="prefs_mark_as_read_button_title">Mygtukas „Žymėti kaip skaitytą"</string>
+  <string name="prefs_mark_as_read_button_summary">Rodyti mygtuką kiekvieno skyriaus pabaigoje, kad galėtumėte jį pažymėti kaip skaitytą</string>
+  <string name="prefs_show_memorization_indicators_title">Įsiminimo rodikliai</string>
+  <string name="prefs_show_memorization_indicators_summary">Rodyti spalvotus paraštės rodiklius įsimintoms ir tikslinėms eilutėms</string>
+  <string name="prefs_auto_track_reading_title">Automatinis skaitymo sekimas</string>
+  <string name="prefs_auto_track_reading_summary">Automatiškai žymėti skyrius kaip skaitytus, kai per juos slenkate</string>
   <string name="prefs_tilt_to_scroll_title">Pastačius įrenginį, slinkti žemyn</string>
+
   <string name="prefs_toolbar_button_action_title">Veiksmas paspaudus ant įrankių juostos mygtuko</string>
   <string name="prefs_toolbar_button_action_summary">Veiksmas, kuris bus atliekamas paspaudus/paspaudus ir palaikius ant Biblijos arba Komentarų mygtuko įrankių juostoje</string>
   <string name="prefs_toolbar_button_action_default">Paspaudus atverti meniu, paspaudus ir palaikius - dokumentų langą (numatytoji)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti meniu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Paspaudus atverti kitą dokumentą, paspaudus ir palaikius atverti dokumentų langą</string>
+
   <string name="prefs_night_mode_title">Nakties režimo perjungimas</string>
   <string name="prefs_night_mode_summary">Perjungti į nakties režimą automatiškai (jei įrenginys palaiko), rankiniu būdu arba per sisteminius nustatymus („Android“ 10+). Rankinį perjungimą galima atlikti pagrindiniame ekrane, 3 taškų parinkčių meniu.</string>
   <string name="prefs_night_mode_manual">Rankiniu būdu</string>
   <string name="prefs_night_mode_automatic">Automatinis</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Nakties režimas</string>
+
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Renkantis ištrauką, pasirinkti eilutę (ir skyrių)</string>
   <string name="prefs_open_links_in_special_window_title">Nuorodų langas</string>
@@ -121,31 +171,51 @@
   <string name="prefs_interface_locale_title">Programėlės kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkti naudotojo sąsajos kalbą</string>
   <string name="reset_fontsize">Atstatyti</string>
+
   <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
   <string name="prefs_request_sdcard_permission_summary">Leisti naudoti rankiniu būdu įdiegtus dokumentus iš jsword/sword katalogo arba vidinės atmintinės</string>
+
   <string name="prefs_expand_footnotes_title">Įterptinės kryžminės nuorodos</string>
   <string name="prefs_expand_footnotes_summary">Rodyti kryžminių nuorodų turinį iškart tekste, o ne nuorodą, atveriančią dialogo langą</string>
+
   <string name="all_text_options_window_menutitle">Visos teksto parinktys</string>
   <string name="text_options_window_menutitle">Teksto parinktys</string>
   <string name="auto_fullscreen">Visas ekranas, slenkant</string>
   <string name="reversed_split_mode">Atvirkštinis dalinimo būdas</string>
+
   <string name="add_ellipsis">%s…</string>
+
   <string name="font_size_pt">%d tšk.</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Slenkant tekstą, automatiškai perjungti į viso ekrano režimą. Pastaba: visada galima perjungti į viso ekrano režimą spustelėjus dukart ekrane.</string>
   <string name="prefs_margin_size_title">Keisti paraščių dydį</string>
   <string name="prefs_margin_size_mm_title">Paraščių plotis (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Išplėstiniai nustatymai</string>
+  <string name="prefs_features_cat">Funkcijos</string>
   <string name="prefs_display_customization_cat">Išvaizda ir turinys</string>
   <string name="prefs_behavior_customization_cat">Programėlės elgsena</string>
+
   <string name="prefs_margin_size_summary">Derinti teksto paraštes kairėje ir dešinėje. Taip pat galima derinti maksimalų teksto plotį.</string>
   <string name="prefs_margin_size_summary_2">Patarimas: Galite bakstelėti paraščių srityje, kad verstumėte vieną puslapį aukštyn / žemyn. </string>
+
   <string name="prefs_text_colors_summary">Keisti teksto ir fono spalvas bei triukšmo efektą</string>
   <string name="text_display_settings_activity_title">Teksto rodymo nustatymai</string>
   <string name="workspace_text_display_settings_title">Teksto parinktys - %s</string>
   <string name="window_text_display_settings_title">Teksto parinktys - Langas %d</string>
-  <string name="prefs_text_display_settings_title">Formatavimas</string>
-  <string name="prefs_text_appearance_title">Išvaizda</string>
+  <string name="global_text_display_settings_title">Globalios teksto parinktys</string>
+  <string name="global_text_display_settings_summary">Numatytieji teksto rodymo nustatymai visoms darbo sritims</string>
+  <string name="parent_settings_category_title">Tėviniai nustatymai</string>
+  <string name="workspace_text_options_link">Darbo srities teksto parinktys — %s</string>
+  <string name="workspace_text_options_link_summary">Redaguoti teksto rodymo nustatymus šiai darbo sričiai</string>
+  <string name="global_text_options_link">Globalios teksto parinktys</string>
+  <string name="global_text_options_link_summary">Redaguoti numatytuosius teksto rodymo nustatymus visoms darbo sritims</string>
+  <string name="prefs_font_and_colors_title">Šriftas ir spalvos</string>
+  <string name="prefs_text_layout_title">Teksto išdėstymas</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'o skaičiai ir morfologija</string>
+  <string name="prefs_footnotes_and_xrefs_title">Išnašos ir kryžminės nuorodos</string>
+  <string name="prefs_verses_and_headings_title">Eilutės ir antraštės</string>
+  <string name="prefs_page_scrolling_title">Puslapio slinkimas</string>
+
   <string name="prefs_justify_title">Abipusė teksto lygiuotė</string>
   <string name="prefs_justify_summary">Lygiuoti tekstą abiejose pusėse, t.y. taip, kad kairys ir dešinys teksto kraštas būtų proporcingai toje pačioje linijoje.</string>
   <string name="pref_left_margin_label_mm">Kairioji paraštė (%d mm)</string>
@@ -167,8 +237,10 @@
   <string name="hide_window_buttons_summary">Biblijos rodinio dešinėje pusėje esantys mygtukai yra paslėpti. Apačioje esanti naršymo juosta yra vis dar rodoma ir jūs galite atverti iškylantįjį langą ant jos paspaudę ir palaikę.</string>
   <string name="hide_bible_reference_overlay_title">Paslėpti Biblijos nuorodų sluoksnį</string>
   <string name="hide_bible_reference_overlay_summary">Nerodyti pusiau permatomo Biblijos nuorodų sluoksnio, kai programėlė yra atidaryta visame ekrane</string>
+
   <string name="full_screen_hide_buttons_pref_title">Viso ekrano režime slėpti lango mygtukų juostą</string>
   <string name="full_screen_hide_buttons_pref_summary">Perjungiant į viso ekrano režimą, automatiškai paslėpti ekrano apačioje esančią lango mygtukų juostą</string>
+
   <string name="prefs_dictionaries_cat">Žodynai</string>
   <string name="choose_strongs_greek_dictionary_title">Strongo graikų žodynas</string>
   <string name="choose_strongs_greek_dictionary_summary">Pasirinkite graikiškų žodžių apibrėžimų Strongo žodyną</string>
@@ -176,21 +248,32 @@
   <string name="choose_strongs_hebrew_dictionary_summary">Pasirinkite hebrajiškų žodžių apibrėžimų Strongo žodyną</string>
   <string name="choose_strongs_greek_morphology_title">Robinsono graikų morfologija</string>
   <string name="choose_strongs_greek_morphology_summary">Pasirinkite žodyną Robinsono graikų morfologijos apibrėžimams</string>
+  <string name="choose_word_lookup_dictionary_title">Žodžių peržvalgos žodynai</string>
+  <string name="choose_word_lookup_dictionary_summary">Pasirinkti žodynus žodžių paieškai</string>
+  <string name="lookup_in_dictionary">Ieškoti žodyne</string>
+  <string name="word_not_found_in_dictionaries">Žodis nerastas nei viename žodyne</string>
+
   <string name="prefs_top_margin_title_mm">Viršutinė paraštė (%d mm)</string>
   <string name="font_size_title">Šrifto dydis</string>
   <string name="font_size_title_pt">Šrifto dydis (%d tšk.)</string>
   <string name="prefs_font_text_size_summary">Reguliuoti pagrindinio teksto šrifto dydį</string>
+
   <string name="pref_font_family_label_name">Šriftas (%s)</string>
   <string name="prefs_font_family_summary">Pakeisti šriftą. Patarimas: galima įdiegti daugiau šriftų naudojant Atsisiųsti dokumentus / Papildiniai.</string>
+
   <string name="prefs_text_bookmarks_title">Žymių ir mano pastabų nustatymai</string>
+  <string name="prefs_reading_and_memorization_title">Skaitymas ir įsiminimas</string>
+
   <string name="prefs_enable_bluetooth_title">Įjungti Bluetooth medijos mygtukus</string>
   <string name="prefs_enable_bluetooth_summary">Apdoroti Bluetooth medijos mygtukus siekiant pradėti/stabdyti kalbėjimą.</string>
   <string name="create_bookmark">Sukurti naują žymę</string>
   <string name="create_bookmark_with_a_note">Sukurti naują žymę su pastaba</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Spalvos nustatymai</string>
   <string name="window_color_settings_title">Lango spalvų nustatymai</string>
   <string name="workspace_color_settings_title">Numatytieji darbo srities spalvų nustatymai</string>
+
   <string name="color_workspace">Darbo srities spalva</string>
   <string name="color_text">Teksto spalva</string>
   <string name="color_background">Fono spalva</string>
@@ -198,12 +281,14 @@
   <string name="colors_night_mode_title">Nakties režimas</string>
   <string name="prefs_noise_title">Fono triukšmas</string>
   <string name="prefs_noise_summary">Fonui pridėjus triukšmo, padidėja komfortas akims.</string>
+
   <string name="cpv_default_title">Pasirinkti spalvą</string>
   <string name="cpv_presets">Išankstinės parinktys</string>
   <string name="cpv_custom">Pritaikytas</string>
   <string name="cpv_select">Pasirinkti</string>
   <string name="cpv_transparency">Permatomumas</string>
-  <!--Window-->
+
+    <!-- Window -->
   <string name="new_window">Naujas langas</string>
   <string name="windowClose">Užverti</string>
   <string name="windowMaximise">Išskleisti</string>
@@ -214,19 +299,23 @@
   <string name="copy_settings">Kopijuoti nustatymus į</string>
   <string name="copy_settings_to_workspace">Darbo sritis</string>
   <string name="copy_settings_to_window">Langas %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Globalūs numatytieji</string>
   <string name="change_to_normal">Keisti į normalų</string>
   <string name="window_pin_mode">Prisegti</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
   <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
   <string name="previous">Ankstesnis</string>
   <string name="next">Kitas</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">Atsisiųskite Strongo hebrajų ir graikų žodynus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jūs privalote atsisiųsti Biblija su Strongo numeriais ir per paiešką sudaryti jos indeksą</string>
   <string name="morph_robinson_not_installed">Atsisiųskite žodyną „Robinson\'s Morphological Analysis Codes“</string>
   <string name="go_to_downloads">Pereiti į Atsiuntimus</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">Atsisiųsti dokumentus</string>
   <string name="redownload">Iš naujo atsisiųsti dokumentus</string>
   <string name="download_confirmation">Atsisiųsti Bibliją iš interneto?</string>
@@ -256,7 +345,8 @@
   <string name="failed_repositories_message">Nepavyko prisijungti prie šių dokumentų saugyklų: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Nepavyko atsisiųsti šių failų:\n\n%s\n\n</string>
   <string name="cant_delete_document">Šis dokumentas negali būti ištrintas.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">Įkelti dokumentus iš failų</string>
   <string name="install_zip_module">Įdiegti Biblijos modulį</string>
   <string name="install_zip_module_discrete">Įdiegti skaičiuotuvo modulį</string>
@@ -269,7 +359,8 @@
   <string name="overwrite_files_title">Perrašyti failus?</string>
   <string name="could_not_overwrite_files">Nepavyko ant viršaus užrašyti failų: %s. Visas kitas diegimas buvo sėkmingas.</string>
   <string name="install_do_you_want">Ar norite įdiegti modulį (%s)?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Skaitymo planas</string>
   <string name="reading_plans_plural">Skaitymo planai</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
@@ -333,28 +424,32 @@
        Wholesome Words leidus,  http://www.wholesomewords.org/,
        leidimas suteiktas
     </string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Ištrinti</string>
   <string name="delete_index">Ištrinti paieškos indeksą</string>
   <string name="about">Apie</string>
   <string name="delete_doc">Ištrinti %s?</string>
   <string name="delete_search_index_doc">Ištrinti %s indeksą?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Išnašos ir nuorodos</string>
   <string name="share_verse">Bendrinti…</string>
   <string name="share_verse_widget_title">Bendrinti žymėjimą</string>
   <string name="share_verse_subject_2">Su jumis pasidalinta Biblijos eilute naudojant %s.</string>
   <string name="compare_translations">Lyginti vertimus</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Atverti nuorodą čia</string>
   <string name="open_link_in_new_window">Atverti nuorodą naujame lange</string>
   <string name="open_link_in_special_window">Atverti nuorodą specialiame lange</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Žymės ir mano pastabos</string>
   <string name="migrated_my_notes">Perkeltos mano pastabos</string>
   <string name="bookmarks">Žymės</string>
   <string name="bookmark_added">Žymė pridėta</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Etiketės</string>
   <string name="manage_labels">Tvarkyti etiketes</string>
   <string name="assign_labels">Priskirti etiketes</string>
@@ -368,6 +463,9 @@
   <string name="add_bookmark_whole_verse">Pažymėti eilutę</string>
   <string name="add_bookmark_whole_verse1">Eilutės</string>
   <string name="add_bookmark_whole_verse2">Pilnos eilutės</string>
+  <string name="add_whole_page_bookmark">Pridėti žymę visam puslapiui</string>
+  <string name="add_paragraph_break">Pastraipos pertrauka</string>
+  <string name="ai_label">DI</string>
   <string name="remove_bookmark">Šalinti</string>
   <string name="bookmark_settings_hide_labels_title">Paslėpti nurodytas etiketes</string>
   <string name="bookmark_settings_hide_labels_summary">Paslėpti žymes, kurios pažymėtos nurodyta etikete(-ėmis)</string>
@@ -376,7 +474,6 @@
   <string name="auto_assign_labels1">Automatiškai priskirti etiketę naujoms žymėms</string>
   <string name="auto_assign_labels_primary">Automatiškai priskirti kaip pirminę</string>
   <string name="label_color">Etiketės spalva</string>
-  <!--can be removed-->
   <string name="label_color_example">Pavyzdys</string>
   <string name="marker_style">Rodyti tik žymeklį pažymimoms nuorodoms</string>
   <string name="marker_style_whole_verse">Rodyti tik žymeklį visos eilutės žymėms</string>
@@ -389,31 +486,34 @@
     </string>
   <string name="bookmark_warning3">Ar vis dar norite atnaujinti pmodulį?</string>
   <string name="bookmark_warning4">Rekomenduojama prieš atnaujinant padaryti modulio atsarginę kopiją.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Rikiavimas pagal datą</string>
   <string name="sort_by_bible_book">Rikiavimas pagal Bibliją</string>
   <string name="sort_by_alphabetical">Abėcėlinė tvarka</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Ieškoti pastabose</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Žodynas</string>
   <string name="search_dictionary_hint">Ieškoti žodyne</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Knyga</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d skyrius</string>
   <string name="some_chapters">%d skyriai</string>
   <string name="rest_of_book">Iki knygos pabaigos</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d eilutė</string>
   <string name="some_verses">%d eilutės</string>
   <string name="rest_of_chapter">Iki skyriaus pabaigos</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d puslapis</string>
   <string name="some_pages">%d puslapiai</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Sustabdyti</string>
   <string name="pause">Pauzė</string>
   <string name="rewind">Persukti</string>
@@ -421,7 +521,8 @@
   <string name="tts_lang_not_available">Nėra kalbos.</string>
   <string name="speak_queue">Eilė</string>
   <string name="speak_repeat">Kartoti</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Kalbėjimo greitis</string>
   <string name="speak_and_play_earcons_title">Kalbėti ir atkurti garsinį ženklelį</string>
   <string name="playback_settings_title">Garsinio atkūrimo nustatymai</string>
@@ -430,14 +531,17 @@
   <string name="speak_bookmarks_menu_title">Kalbėti nuo žymės</string>
   <string name="speak_advanced_settings">Išplėstiniai nustatymai</string>
   <string name="speak_sleep_timer_title">Miego laikrodis</string>
+
   <string name="speak_no_books_available">Nėra knygų, skirtų įgarsinimui</string>
   <string name="speak_general_error">Šiai knygai nepavyko paleisti kalbėjimo</string>
+
   <string name="repeat_passage">Kartoti ištrauką</string>
   <string name="set_repeat_passage_range">Nustatyti ištraukos kartojimo sritį</string>
   <string name="speak_beginning_of_passage">Pasirinkite ištraukos pradžią</string>
   <string name="speak_ending_of_passage">Pasirinkite ištraukos pabaigą</string>
   <string name="speak_verse_range_to_repeat">Pasirinkite kartojamų eilučių sritį</string>
   <string name="speak_ending_verse_must_be_later">Pabaigos eilutė turi būti už pradžios eilutės</string>
+
   <string name="conf_speak_synchronize">Tekstas seka skaitymą</string>
   <string name="conf_speak_auto_bookmark">Automatinis žymėjimas</string>
   <string name="conf_save_playback_settings_to_bookmarks">Išsaugoti garsinio atkūrimo nustatymus žymėse</string>
@@ -446,10 +550,12 @@
   <string name="conf_change_title">Antraštei</string>
   <string name="conf_speak_footnotes">Išnašoms</string>
   <string name="conf_speak_sleep_timer">Nustatyti miego laikrodį</string>
+
   <string name="sleep_timer_title">Miegojimo laikas minutėmis</string>
   <string name="sleep_timer_set">Nustatyti miego laikrodį. Laikrodis nustatytas: %d minučių</string>
   <string name="sleep_timer_started">Miego laikas prasidėjo, %d minučių</string>
   <string name="sleep_timer_active_at">Miego laikas: liko %s minučių</string>
+
   <string name="speak_next">Kitas</string>
   <string name="speak_previous">Anstesnis</string>
   <string name="widget_toggle_sleep_timer">Perjungti miego laikrodį</string>
@@ -457,33 +563,45 @@
   <string name="speak_status_stopped">sustabdyta</string>
   <string name="speak_autobookmarking_disabled">Automatinis žymių dėjimas išjungtas!</string>
   <string name="system_speak_settings">Atverti sistemos TTS nustatymus</string>
+
   <string name="auto_assing_labels_help1">Čia galite reguliuoti, kurios etiketės bus automatiškai priskiriamos jūsų kuriamoms žymėms.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Šis nustatymas taikomas %s.</string>
   <string name="setting_scope_window">šiam langui</string>
   <string name="setting_scope_workspace">šiai darbo sričiai</string>
+
   <string name="assing_labels_help1">Kiekvienai žymei gali būti priskirtos kelios etiketės.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Naudokite %s norėdami nurodyti, kuri etiketės spalva bus rodoma.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Bakstelėkite %s piktogramą, kad ta etiketė būtų automatiškai priskiriama naujoms žymėms.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Bakstelėkite %s norėdami pridėti etiketę prie savo mėgstamų sąrašo.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Bakstelėkite %s norėdami pertvarkyti sąrašą pagal savo pasirinkimus.</string>
+
+  <string name="global_text_options_help_title">Globalios teksto parinktys</string>
+  <string name="global_text_options_help1">Tai globalūs numatytieji nustatymai visoms darbo sritims. Kiekviena darbo sritis gali juos pakeisti savo nustatymais.</string>
+
   <string name="workspace_text_options_help_title">Darbo srities teksto parinktys</string>
   <string name="workspace_text_options_help1">Šie nustatymai nustato numatytąsias reikšmes visiems darbo srities langams.</string>
   <string name="workspace_text_options_help2">Galite juos nustelbti keisdami kiekvieno atskiro lango nustatymus.</string>
+
   <string name="window_text_options_help_title">Lango teksto parinktys</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s piktograma nurodo, kad nustatymas yra perimamas iš darbo srities nustatymų.</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">%s piktograma nurodo, kad šis nustatymas buvo pakeistas šiam konkrečiam langui.</string>
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Naudokite mygtuką %1$s norėdami atstatyti visus šiuos nustatymus į %2$s.</string>
   <string name="reset_defaults">numatytąsias reikšmes</string>
   <string name="reset_workspace_defaults">darbo srities numatytąsias reikšmes</string>
+
   <string name="speak_bookmark_help">Kalbėjimo žymių pagalba</string>
+
   <string name="speak_help_auto_bookmark">
 Kalbos žymė bus automatiškai pridėta, kai kalbėjimas bus pristabdytas arba baigtas.
 Automatiškai sukurtos žymės yra išskirtos specialia kalbos etikete.
@@ -497,31 +615,19 @@ greičiau klausytis Pradžios knygos atjungus pranešimus keičiantis skyriams,
 o laiško Romiečiams norite klausytis lėčiau, įtraukiant ir garsinius pranešimus keičiantis skyriams, tuomet,
 kai šie nustatymai išsaugomi atitinkamose žymėse,
 galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_original">
-    <item>Viešpats</item>
-    <item>Dievas</item>
-    <item>Karalius</item>
-    <item>Visagalis</item>
-    <item></item>
-  </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_replace">
-    <item>Jahvė</item>
-    <item>Jahvė</item>
-    <item>Jahvė</item>
-    <item>Jahvė</item>
-    <item></item>
-  </string-array>
+         in speak settings. -->
+
   <string name="speak_book_changed">Knyga pakeista</string>
   <string name="speak_chapter_changed">Skyrius</string>
   <string name="speak_first">Pirmas</string>
@@ -529,13 +635,16 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="speak_third">Trečias</string>
   <string name="speak_fourth">Ketvirtas</string>
   <string name="speak_fifth">Penktas</string>
+
   <string name="verse_range_mode_disabled">
         Ištraukos kartojimo režimas buvo automatiškai išjungtas, nes
         kalbėjimas buvo pradėtas už apibrėžtų eilučių srities.
     </string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">Mano pastabos</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Kur išsaugoti atsarginę kopiją?</string>
   <string name="backup_backup_message">Išsaugoti atsarginę kopiją telefone arba kitur naudojant bendrinimo funkciją (el. paštas, „Google“ Diskas ir kt.)?</string>
   <string name="backup_phone_storage">Telefono saugykla</string>
@@ -551,13 +660,15 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_document_info">Biblijos, komentarai, žodynai, žemėlapiai ir t.t.</string>
   <string name="backup_to">Daryti atsarginę kopiją į…</string>
   <string name="backup_restore_from">Atkurti iš…</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Atkurti arba importuoti iš...</string>
   <string name="backup_restore">Atstatyti</string>
   <string name="backup_restore2">Atkurti arba importuoti</string>
   <string name="overwrite_something">Perrašyti %s?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">Ką norite atkurti?</string>
+
   <string name="restore_app_database">Atkurti programėlės duomenų bazę iš…</string>
   <string name="restore_database">Atkurti duomenų bazės failą</string>
   <string name="restore_confirmation">Perrašyti mano pastabas, žymes, bloknotus, skaitymo planus ir darbo sritis?</string>
@@ -567,10 +678,13 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="loading_backup">Įkeliama duomenų bazė iš atsarginės kopijos…</string>
   <string name="backup_success2">Sėkmingai padaryta mano pastabų, žymių, bloknotų, skaitymo planų ir darbo sričių atsarginė kopija.</string>
   <string name="backup_modules_success">Sėkmingai padaryta pasirinktų modulių atsarginė kopija.</string>
+
   <string name="backup_modules_email_subject_2">%s modulių atsarginės kopijos</string>
   <string name="backup_modules_email_message_2">Priede yra jūsų %1$s modulių atsarginė kopija, kurioje yra šie moduliai: %2$s</string>
+
   <string name="backup_email_subject_2">%s duomenų bazės atsarginė kopija</string>
   <string name="backup_email_message_2">Jūsų %s duomenų bazė su žymėmis, pastabomis, skaitymo planais ir darbo sritimis yra pridėta</string>
+
   <string name="exported_studypads_subject">Eksportuoti bloknotai</string>
   <string name="exported_studypads_message">Jūsų %s duomenų bazė su Žymėmis ir Pastabomis, susijusiomis su pažymėtais bloknotais, yra prisegta</string>
   <string name="restore_unsuccessfull">Duomenų bazės atkūrimas buvo nesėkmingas. Galbūt, pateikėte neteisingą duomenų bazės failą.</string>
@@ -582,20 +696,24 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="restore">Atkurti</string>
   <string name="import2">Importuoti</string>
   <string name="export_studypads_help">Failas su eksportuotais bloknotais (t.y. etiketėmis ir žymėmis) gali būti importuotas per pagrindinį meniu -&gt; Saugoti ir atkurti atsargines kopijas.</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">„%1$s“ ir %2$s kitos etiketės / bloknotai ir %3$s žymės</string>
-  <!--About-->
+
+    <!-- About -->
   <string name="module_about_copyright">Autorių teisės: %s</string>
   <string name="module_about_installed_version">Įdiegta versija: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Naujausia versija: %1$s (%2$s)</string>
   <string name="module_about_versification">Versijavimas: %s</string>
   <string name="module_about_repository">Platinimo serveris: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">Pranešimas apie klaidą</string>
   <string name="send_feedback_title">Atsiliepimas</string>
   <string name="send_bug_report_title">Atsiliepimas / pranešimas apie klaidą</string>
   <string name="report_bug_email_subject_3">[%1$s] Pranešimas apie klaidą %2$s %3$s</string>
+
   <string name="report_bug_big_heading">RAŠYKITE ATSILIEPIMĄ AR PRANEŠIMĄ APIE KLAIDĄ VIRŠ ŠIOS LINIJOS</string>
   <string name="report_bug_heading1">Instrukcija:</string>
   <string name="report_bug_line_1">Trumpai aprašykite, ką darėte / kas nutiko, kai įvyko klaida.</string>
@@ -612,7 +730,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="bug_report_screenshot">Programėlės ekrano kopija tuo metu, kai įvyko strigtis arba, kai buvo sukurtas pranešimas apie klaidą.</string>
   <string name="bug_report_attachment_line_1">Šie pridėti failai labai padeda programėlės plėtotojams ištaisyti klaidas, apie kurias buvo pranešta.</string>
   <string name="report_bug_heading_4">Informacija apie įrenginį:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Visi tipai</string>
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>
@@ -620,11 +739,14 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="doc_type_book">Knyga</string>
   <string name="doc_type_map">Žemėlapis</string>
   <string name="doc_type_addons">Papildiniai</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">Įprastinė</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">Gerai</string>
   <string name="cancel">Atsisakyti</string>
+  <string name="discard_changes_confirmation">Atmesti neišsaugotus pakeitimus?</string>
   <string name="yes">Taip</string>
   <string name="no">Ne</string>
   <string name="error">Klaida</string>
@@ -635,7 +757,8 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="reset_generic">Atstatyti</string>
   <string name="watch_tutorial_video">Žiūrėti mokymo vaizdo įrašą (anglų kalba)</string>
   <string name="verse_not_found">Eilutė nerasta</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>
   <string name="error_occurred_crash_last_time">Kai paskutinį kartą naudojote programėlę, ji užstrigo. Jūs mums pagelbėtumėte ištaisyti šią klaidą, jei išsiųstumėte pranešimą apie klaidą.</string>
@@ -643,15 +766,17 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="error_no_content">Šiai eilutei nėra teksto</string>
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
-  <string name="error_key_not_in_document2">%s buvo nerastas dokumente %s.</string>
+  <string name="error_key_not_in_document2">%1$s buvo nerastas dokumente %2$s.</string>
   <string name="empty_list">Nėra ko rodyti</string>
   <string name="error_skip">Praleisti</string>
   <string name="bug_report_email_title">Siųsti pranešimą apie klaidą el. paštu</string>
   <string name="bug_report_email_text">Toliau, pasirinkite pageidaujamą el. pašto kliento programėlę (pvz., Gmail), kad išsiųstumėte plėtotojų komandai pranešimą apie klaidą.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Tekstas į kalbą</string>
   <string name="notification_channel_progress_status">Pranešimas apie dokumentų atsiuntimo ir t.t. eigos būseną</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="new_workspace">Naujas</string>
   <string name="switch_to_workspace">Darbo sritys</string>
   <string name="delete_workspace">Šalinti</string>
@@ -669,9 +794,11 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="select_all">Žymėti viską</string>
   <string name="copy_settings_workspaces_title">Į kurias darbo sritis norite kopijuoti nustatymus?</string>
   <string name="reset_settings">Atstatyti</string>
+  <string name="search_settings">Paieškos nustatymai</string>
   <string name="workspace_dismiss">Atšaukti</string>
   <string name="workspace_listing_with_current">%s (dabartinė)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Tai yra beta versija!</string>
   <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
@@ -679,6 +806,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
         ir todėl, naudojantis beta versija, gali atsirasti netikėtos elgsenos, t. y. programėlės klaidų.
         Yra rekomenduojama, kad vietoj šios versijos, įprasti Biblijos skaitytojai naudotų stabilią versiją.
     </string>
+
   <string name="beta_notice_content_2">
         Beta versija besinaudojantys žmonės yra skatinami pranešti
         apie programėlės klaidas per „Google Play“ arba (labiau pageidautina)
@@ -690,12 +818,15 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Atmesti</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
+
   <string name="stable_notice_title">Programėlė atnaujinta!</string>
   <string name="upgrade_video_message">Žiūrėkite vaizdo įrašą, kuriame demonstruojamos naujos programėlės ypatybės (%s).</string>
   <string name="stable_notice_par1">Nauja %2$s versija %1$s sėkmingai įdiegta!</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">Istorija (%1$s: Langas %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Naršymas</string>
   <string name="help_nav_text">Eikite į kitą arba ankstesnį skyrių pirštu braukdami per ekraną iš kairės į dešinę arba atvirkščiai.
      Bakstelėkite ekrane dukart, kad perjungtumėte į viso ekrano režimą.
@@ -720,8 +851,9 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
         Visos žymės, kurios buvo sukurtos naudojant tą atitinkamą etiketę, automatiškai atsiranda bloknoto dokumente.
         Be žymių, bloknote dar gali būti įterpiami teksto įrašai.
     </string>
+
   <string name="help_search_title">Paieška</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
 (Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
   <string name="help_search_text2">Ieškomame tekste gali būti ypatingi simboliai, pvz.: *, AND, OR, NOT</string>
@@ -750,32 +882,38 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
      kaip nepritvirtintus. Tuomet turėsite Biblijos dokumentus visuomet atvertus ir
      lengvai persijungsite prie komentarų ir kitos papildomos medžiagos.
 </string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Greitas atsisiuntimas iš naujo</string>
   <string name="welcome_message">Dėkojame, kad atsisiuntėte %s. Šiuo metu nėra įdiegta jokių dokumentų ar Biblijų. Norėdami tęsti, įsidiekite
         bent 1 dokumentą, atsisiųsdami jį iš interneto arba įkeldami iš zip failo dokumento atsarginės kopijos.
     </string>
-  <!--Supported file formats for documents-->
+    <!-- Supported file formats for documents -->
   <string name="supported_formats_title">Palaikomi formatai</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Turite pasirinkti failą, kurį norite įkelti į %s.</string>
   <string name="supported_formats">Dokumentų įkėlimo iš failo palaikomi formatai: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">%s sukūrė zip failą, kuriame yra Sword modulis(-iai) arba dokumentų atsarginės kopijos failas (.abmd)</string>
   <string name="format_mysword">MySword dokumentai (*.mybible)</string>
   <string name="format_mybible">MyBible dokumentai (*.SQLite3)</string>
+  <string name="format_esword">e-Sword dokumentai (*.bblx, *.bbli)</string>
   <string name="format_epub">EPUB dokumentai (*.epub)</string>
   <string name="format_ttf">TTF šriftai (*.ttf)</string>
+  <string name="format_csv_prompts">DI užklausų priedai (*.csv)</string>
   <string name="format_studypads">Bloknotai iš AndBible duomenų bazių (*.abdb)</string>
   <string name="redownload_message">
         Buvo rastas ankstesnių knygų/dokumentų sąrašas. Spustelėkite žemiau, norėdami vėl juos lengvai atsisiųsti.
     </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Užverti</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Aš suprantu</string>
   <string name="first_time_help_show_next_time">Rodyti ir kitą kartą</string>
+
   <string name="strongs_mode_title">Pasirinkite Strongo režimą</string>
+
   <string name="download_dialog_message">Nepavyko atsisiųsti šių knygų:</string>
   <string name="select_multiple">Žymėti kelias</string>
   <string name="journal_description">Naudotojo redaguojami bloknotai su įterpiamu tekstu ir žymėmis</string>
@@ -797,15 +935,45 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="unlock_info">Informacija apie šifruoto modulio atrakinimą</string>
   <string name="try_again_passphrase">Slaptafrazė nesuveikė, bandyti dar kartą?</string>
   <string name="show_unlock_info">Modulis ir informacija apie atrakinimą</string>
+
   <string name="prefs_experimental_features_title">Eksperimentinės ypatybės</string>
   <string name="prefs_experimental_features_summary">Pažymėkite, kurias eksperimentines ypatybes norite įjungti. Šios ypatybės yra vis dar plėtojamos ir gali būti pakeistos ar pašalintos</string>
+  <string name="experimental_feature_bookmark_edit_actions">Žymių redagavimo veiksmai</string>
+  <string name="experimental_feature_add_paragraph_break">Pridėti pastraipos pertraukos žymę</string>
+  <string name="experimental_feature_ai_features">DI funkcijos ir mano dokumentai</string>
+  <string name="experimental_feature_reading_and_memorization">Skaitymo sekimas ir įsiminimas</string>
+  <string name="raw_llm_log_title">Neapdorotas DI žurnalas</string>
+  <string name="raw_llm_log_empty">Neapdoroto žurnalo duomenų nėra</string>
+  <string name="raw_llm_log_copied">Žurnalas nukopijuotas į iškarpinę</string>
+  <string name="raw_llm_log_total">Iš viso: įvestis %1$s / išvestis %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Sistemos užklausa</string>
+  <string name="raw_llm_log_entry_user">Naudotojo žinutė</string>
+  <string name="raw_llm_log_entry_assistant">Asistento atsakymas</string>
+  <string name="raw_llm_log_entry_tool_call">Įrankio iškvietimas: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Įrankio rezultatas [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Įrankių aprašai (%d įrankių)</string>
+  <string name="raw_llm_log_entry_api_response">API atsakymas (iteracija %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s žetonų</string>
+  <string name="raw_llm_log_entry_usage">įvestis: %1$s / išvestis: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(tuščia)</string>
+  <string name="raw_llm_log_entry_tool_desc">Aprašymas: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Parametrai: %s</string>
+  <string name="agent_log_view_raw">Peržiūrėti neapdorotą DI žurnalą</string>
+  <string name="agent_log_model_selector">Keisti numatytąjį modelį (šiuo metu: %1$s)</string>
+  <string name="agent_log_model_not_configured">Modelis nesukonfigūruotas</string>
+  <string name="agent_log_select_model">Pasirinkti numatytąjį modelį</string>
+  <string name="share">Bendrinti</string>
   <string name="prefs_show_error_box_title">Rodyti Javascript klaidų langą</string>
   <string name="prefs_show_error_box_summary">Praverčia plėtotojams derinant BibleView javascript pusės klaidas. Tai sulėtins programėlės veikimą.</string>
   <string name="active_window_indicator_title">Rodyti aktyvaus lango indikatorių</string>
   <string name="active_window_indicator_summary">Paryškinti lango kampus, kad būtų lengviau atpažinti aktyvų langą</string>
   <string name="app_licence_title">Atvirojo kodo licencija</string>
+
   <string name="how_to_contribute">Kaip talkinti?</string>
   <string name="confirm_delete_bookmarks">Ar norite pašalinti %d žymes(-ių) ir jų pastabas?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Pasirinkta etiketė priskirta %d žymėms, kurios neturi kitų etikečių. Ar norite ištrinti šias žymes kartu su etiketėmis?</string>
+  <string name="delete_label_and_bookmarks">Ištrinti etiketę ir žymes</string>
+  <string name="delete_label_only">Ištrinti tik etiketę</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Rekomenduoti draugui</string>
   <string name="tell_friend_message1">Norėčiau tau parekomenduoti %s.</string>
@@ -826,16 +994,18 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="show_reference_at_front">Rodyti eilutės priekyje</string>
   <string name="abbreviate_reference">Sutrumpinti nuorodą</string>
   <string name="version_name">Versijos pavadinimas</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Įtraukti versijos pavadinimą</string>
   <string name="show_ellipsis">Rodyti daugtaškį (…)</string>
   <string name="show_quotes">Rodyti kabutes</string>
+  <string name="separate_verses_with_newlines">Eilutes skirti naujomis eilutėmis</string>
+
   <string name="backup_button">Atsarginė kopija</string>
   <string name="back_button">Atgal</string>
   <string name="upgrading_database">Naujinama duomenų bazė. Palaukite…</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
   <string name="show_notes">Rodyti pastabas</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">„Android WebView“ paketas yra per senas (%1$s). Turite atnaujinti „Android WebView“ paketą bent iki versijos %2$s, kad galėtumėte naudoti %3$s. Daugumoje įrenginių, tai galima atlikti per %4$s.</string>
   <string name="play">„Google Play“</string>
   <string name="proceed_anyway">Vis tiek tęsti</string>
@@ -847,15 +1017,16 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="rate_message6">
         Prieš rašydami neigiamą apžvalgą, turėkite omenyje šiuos dalykus:
     </string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
         Jei susidūrėte su problema programėlėje, %1$s arba, vietoj to, %2$s.
     </string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
         Jei tekste / Biblijos vertime yra klaida, %s.
     </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
         Jei programėlėje nėra prieinamas tam tikras tekstas, %s.
     </string>
@@ -882,6 +1053,13 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="whole_verse_turned_on">Dabar, žymė yra pažymėta visai eilutei</string>
   <string name="this_bookmark">Ši žymė</string>
   <string name="this_workspace">Ši darbo sritis</string>
+  <string name="override_style">Perrašyti stilių</string>
+  <string name="no_override_suffix">(be perrašymo)</string>
+  <string name="display_mode_highlight">Paryškinimas</string>
+  <string name="display_mode_underline">Pabraukimas</string>
+  <string name="display_mode_marker">Tik žymeklis</string>
+  <string name="display_mode_hidden">Paslėpta</string>
+  <string name="workspace_override_indicator">Ši etiketė turi darbo sričiai būdingą rodymo režimą</string>
   <string name="primary_label">Pirminė etiketė</string>
   <string name="highlight_entire_verse">Paryškinti visą eilutę</string>
   <string name="favourite_label">Mėgstama etiketė</string>
@@ -895,6 +1073,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="book_menu_sort_row_opt">Rikiuoti knygas horizontaliai</string>
   <string name="book_menu_group_by_category">Grupuoti knygas pagal kategoriją</string>
   <string name="book_menu_show_long_book_name">Rodyti ilguosius knygų pavadinimus</string>
+  <string name="book_menu_show_progress_bars">Rodyti eigos juostas</string>
   <string name="reset_workspace_labels">Ar norite atstatyti šios darbo srities automatinio priskyrimo ir mėgstamų nustatymus?</string>
   <string name="reset_hide_labels">Ar norite atstatyti tam tikrų etikečių nustatymų slėpimo nustatymą?</string>
   <string name="reorder">Pertvarkyti</string>
@@ -915,12 +1094,29 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="label_salvation">Išgelbėjimas</string>
   <string name="label_underline">Pabraukimas</string>
   <string name="import_menu">Importuoti ir eksportuoti</string>
+  <string name="auto_backups_title">Automatinės atsarginės kopijos</string>
+  <string name="backup_file_info">Programa v%1$d, %2$s</string>
+  <string name="reset_databases_title">Atstatyti duomenų bazes</string>
+  <string name="reset_databases_description">Atstatyti atskiras duomenų bazes į pradinę tuščią būseną. Šio veiksmo negalima atšaukti.</string>
+  <string name="last_crash_info_title">Paskutinės avarijos informacija</string>
+  <string name="reset_database_confirm">Tai visam laikui ištrins visus duomenis iš \"%1$s\" ir atstatys į pradinę būseną. Šio veiksmo negalima atšaukti.\n\nAr tikrai?</string>
+  <string name="reset_database_success">Duomenų bazė sėkmingai atstatyta</string>
+  <string name="reset_something">Atstatyta: %1$s</string>
   <string name="export">Eksportuoti</string>
   <string name="csv_export_success">Eksportuota %d žymių(-ės) į CSV</string>
-  <string name="csv_import_success">Importavimas užbaigtas: sukurta %d, atnaujinta %d</string>
-  <string name="csv_import_errors">Importavimas užbaigtas su klaidomis: sukurta %d, atnaujinta %d, su klaidomis %d</string>
+  <string name="csv_import_success">Importavimas užbaigtas: sukurta %1$d, atnaujinta %2$d</string>
+  <string name="csv_import_errors">Importavimas užbaigtas su klaidomis: sukurta %1$d, atnaujinta %2$d, su klaidomis %3$d</string>
   <string name="csv_import_failed">CSV importavimas patyrė nesėkmę: %s</string>
   <string name="csv_export_failed">CSV eksportavimas patyrė nesėkmę: %s</string>
+  <string name="export_prompts_csv">Eksportuoti užklausas į CSV</string>
+  <string name="import_prompts_csv">Importuoti užklausas iš CSV</string>
+  <string name="prompts_csv_export_success">Eksportuota %d užklausų į CSV</string>
+  <string name="prompts_csv_import_success">Importavimas baigtas: %1$d sukurta, %2$d atnaujinta</string>
+  <string name="prompts_csv_import_errors">Importavimas baigtas su klaidomis: %1$d sukurta, %2$d atnaujinta, %3$d klaidų</string>
+  <string name="prompts_csv_import_failed">CSV importavimas nepavyko: %s</string>
+  <string name="prompts_csv_export_failed">CSV eksportavimas nepavyko: %s</string>
+  <string name="no_prompts_to_export">Nėra naudotojo užklausų eksportavimui</string>
+  <string name="csv_column_selection_title">Pasirinkti CSV stulpelius</string>
   <string name="choose_csv_file">Pasirinkite CSV failą, kurį importuoti</string>
   <string name="no_bookmarks_to_export">Nėra žymių, kurias galima būtų eksportuoti</string>
   <string name="export_fileformat">Eksportuoti kaip %s</string>
@@ -928,27 +1124,33 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="import_items">Importuoti %s</string>
   <string name="import_from_db">Importuoti iš programėlės duomenų bazės failo</string>
   <string name="import_error">Nepavyko importuoti iš programėlės duomenų bazės. Gali būti, kad duomenų bazės failas yra neteisingo formato arba sukurtas naudojant per seną %s versiją.</string>
+
   <string name="export_bookmarks_csv">Eksportuoti žymes kaip %s</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">OSIS nuoroda</string>
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
   <string name="bible_reference">Biblijos nuoroda</string>
   <string name="document">Dokumentas</string>
   <string name="book">Knyga</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
   <string name="chapter_start">Skyriaus pradžia</string>
-  <!--Verse is the verse number in the chapter, starting from 1-->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
   <string name="verse_start">Eilutės pradžia</string>
   <string name="chapter_end">Skyriaus pabaiga</string>
   <string name="verse_end">Eilutės pabaiga</string>
   <string name="id">Identifikatorius</string>
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Eilės numerio pradžia</string>
+  <string name="ordinal_end">Eilės numerio pabaiga</string>
   <string name="created_at">Sukurta</string>
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
   <string name="start_offset">Pradžios poslinkis</string>
   <string name="end_offset">Pabaigos poslinkis</string>
   <string name="custom_icon">Tinkinta piktograma</string>
   <string name="last_updated_at">Paskiausiai atnaujinta</string>
+  <string name="bookmark_notes">Žymių pastabos</string>
+
   <string name="chooser_range">Rėžis</string>
   <string name="chooser_jump">Peršokti</string>
   <string name="chooser_OT_abbrev">ST</string>
@@ -957,9 +1159,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="chooser_style_lists">Sąrašai</string>
   <string name="chooser_select">Pasirinkti %s</string>
   <string name="chooser_pref_reset">Pasirinkus knygą/skyrių, neatstatyti skyriaus/eilutės į 1</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Apgailestaujame, bet naudotojo sąsajos vertimas %1$s kalba yra tik dalinis. Taip yra todėl, kad %2$s yra pilnai plėtojama tik savanorių. Jei galite padėti išversti, žiūrėkite %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instrukciją vertėjams</string>
   <string name="questions_title">Turite klausimų?</string>
   <string name="questions_title2">Reikia pagalbos?</string>
@@ -970,10 +1172,17 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="strongs_text_and_links">Tekstas ir nuorodos</string>
   <string name="strongs_hidden_links">Paslėptos nuorodos</string>
   <string name="verse_tip">Norėdami žymėti kelias eilutes ar eilutės dalį, paspauskite ir palaikykite ant Biblijos teksto</string>
+
   <string name="permission_required">Reikalingas leidimas</string>
   <string name="labels_search_hint">Ieškoti</string>
+  <string name="search_mode_name_start">Pavadinimas (nuo pradžios)</string>
+  <string name="search_mode_name_contains">Pavadinimas (yra)</string>
+  <string name="search_mode_content">Turinys</string>
+  <string name="search_results_matches">%d atitikmenų</string>
+  <string name="search_results_match">1 atitikmuo</string>
   <string name="progress_status_permission">Reikia jūsų leidimo, kad galima būtų rodyti pranešimus (atsiuntimo būseną, apdorojimą, kalbėjimo būseną).</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Paprastas skaičiuotuvas</string>
   <string name="prefs_persecution_cat">Nustatymai persekiojamiems</string>
   <string name="prefs_discrete_mode">Slėpti religinius simbolius</string>
@@ -982,12 +1191,13 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prefs_calculator_pin">Skaičiuotuvo PIN kodas</string>
   <string name="prefs_calculator_pin_desc">PIN kodas, skirtas įėjimui į programėlę, kai rodomas skaičiuotuvas.</string>
   <string name="calc_division_by_zero">Dalyba iš nulio yra negalima</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Neteisingas formatas</string>
   <string name="calc_wrong_format_operand">Neteisingas formatas. Operandas be jokių skaitmenų?</string>
   <string name="prefs_persecuted_help">Pirmiausia, perskaitykite štai ką!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Nurodymai ir informacija apie tai, kaip nusistatyti tam tikrą uždarą programėlės darinį.</string>
+
   <string name="calculator_par1">
         Prieš atveriant programėlę, yra rodomas skaičiuotuvas.
     </string>
@@ -1010,13 +1220,15 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="discrete_mode_link">
         Galite atsisiųsti naujausią uždarą programėlės versiją iš %s.
     </string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">Sinchronizuoti grupę</string>
   <string name="sync_group_n">Grupė %d</string>
   <string name="disable_sync">Išjungti sinchronizavimą</string>
   <string name="open_in_window">Atverti rezultatus lange</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Tinkintos saugyklos</string>
   <string name="custom_repositories_empty_list_message">Nėra apibrėžta jokių tinkintų saugyklų</string>
   <string name="custom_repositories_create_button_label">Pridėti tinkintą saugyklą</string>
@@ -1030,14 +1242,17 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="wiki_page">Vikio puslapis</string>
   <string name="custom_repositories_help0">Įdiegdami tinkintas saugyklas, galite diegti dokumentus iš išorinių tinkintų saugyklų.</string>
   <string name="duplicate_custom_repository">Saugykla, pavadinimu „%s“, jau yra. Negalima pridėti dar vienos.</string>
+
   <string name="packages_dir">Paketų katalogas (Zip failai)</string>
   <string name="warn_bad_document">Įspėjimas: Gali būti, jog šis dokumentas (bent dalinai) yra blogos techninės kokybės.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Atverti Biblijos nuorodas AndBible programėlėje</string>
   <string name="open_bible_links_summary">Spustelėjus ant nuorodų, kurios nurodo į AndBible palaikomus Biblijos URL adresus, atverti juos AndBible programėlėje</string>
   <string name="copyReference">Kopijuoti nuorodą į iškarpinę</string>
   <string name="reference_copied_to_clipboard">Nuoroda nukopijuota į iškarpinę</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
         Pasirinkite, kurių debesijos paslaugų vidinę sąsają norėtumėte naudoti, kad galėtumėte sinchronizuoti keletą įrenginių.
     </string>
@@ -1055,6 +1270,28 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="reading_plans_content">Skaitymo planai ir jų būsena</string>
   <string name="bookmarks_contents">Žymės, etiketės ir bloknotai</string>
   <string name="workspaces_contents">Darbo sritys ir langai</string>
+  <string name="my_documents_contents">Mano dokumentai ir jų turinys</string>
+  <string name="ai_settings_sync_title">DI nustatymai</string>
+  <string name="ai_settings_sync_contents">DI užklausos ir tiekėjų konfigūracijos</string>
+  <string name="progress_sync_title">Skaitymo pažanga</string>
+  <string name="progress_sync_contents">Įsiminti eilutės ir skyrių skaitymo įrašai</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Skaitymo / įsiminimo pažanga</string>
+  <string name="reading_progress_chapters_read">skyriai perskaityti</string>
+  <string name="reading_progress_verses_memorized">įsimintų eilučių</string>
+  <string name="reading_progress_active_days">aktyvios dienos</string>
+  <string name="reading_progress_overall">%s%% Biblijos perskaityto</string>
+  <string name="reading_progress_bible_heatmap">Biblijos apžvalga</string>
+  <string name="reading_progress_old_testament">Senasis Testamentas</string>
+  <string name="reading_progress_new_testament">Naujasis Testamentas</string>
+  <string name="reading_progress_calendar">Skaitymo veikla</string>
+  <string name="reading_progress_cycle">Ciklas %d</string>
+  <string name="reading_progress_new_cycle">Naujas ciklas</string>
+  <string name="reading_progress_new_cycle_confirm">Pradėti naują skaitymo ciklą? Bus pradedamas naujas progreso sekimas nuo nulio, išsaugant ankstesnio ciklo duomenis.</string>
+  <string name="reading_progress_previous_cycle">Ankstesnis ciklas</string>
+  <string name="reading_progress_next_cycle">Kitas ciklas</string>
+
   <string name="cloud_fetch_and_restore_initial">Kopijuoti iš debesijos į šį įrenginį</string>
   <string name="cloud_create_new">Kopijuoti iš šio įrenginio į debesiją</string>
   <string name="cloud_disable_sync">Atsisakyti ir išjungti sinchronizavimą</string>
@@ -1072,6 +1309,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="auth_server_uri">Serverio URL</string>
   <string name="auth_username">Naudotojo vardas</string>
   <string name="auth_password">Slaptažodis</string>
+  <string name="auth_folder_path">Sinchronizavimo aplanko kelias</string>
+  <string name="auth_folder_path_summary">Pagrindinis sinchronizavimo duomenų aplankas (tuščias = šaknis)</string>
   <string name="auth_access_token">Prieigos raktas</string>
   <string name="synchronization_categories">Sinchronizavimo kategorijos</string>
   <string name="sync_general_settings">Informacija ir bendri nustatymai</string>
@@ -1083,7 +1322,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="sync_disabling">Kol kas išjungiamas %s sinchronizavimas.</string>
   <string name="sync_update_app">Norėdami tęsti sinchronizavimą, atnaujinkite programėlę.</string>
   <string name="sign_in_failed">Nepavyko prisijungti prie sinchronizavimo vidinės sąsajos paslaugų.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Išjungiamas debesijos sinchronizavimas. Atkūrus, privalėsite rankiniu būdu įjungti iš naujo.</string>
   <string name="report">Siųsti pranešimą</string>
   <string name="sync_error">Įvyko klaida debesijos sinchronizavime</string>
@@ -1091,12 +1330,14 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="restore_from_cloud_description">Jei kitame įrenginyje esate įjungę įrenginio sinchronizavimą, galite pradėti atkurdami iš debesijos duomenų bazę.</string>
   <string name="enable_sync">Įjungti sinchronizavimą</string>
   <string name="last_updated">Paskiausiai atnaujinta: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Nepavyksta perskaityti failo</string>
   <string name="sqlite_invalid_file">Neteisingas modulio failas ar failo pavadinimas: %s</string>
   <string name="sqlite_cant_write">Nepavyksta (per)rašyti failo</string>
   <string name="install_failed_reason">Nepavyko įdiegti modulio dėl šios priežasties: %s.</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Programėlė atverta kitur</string>
   <string name="open_here">Atverti čia</string>
   <string name="external_link">Išorinė nuoroda</string>
@@ -1134,10 +1375,575 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prefs_swipe_mode_chapter">Skyrius</string>
   <string name="prefs_swipe_mode_page">Puslapis</string>
   <string name="prefs_swipe_mode_none">Išjungta</string>
+  <string name="prefs_volume_keys_scroll_title">Garso mygtukai slinkčiai</string>
+  <string name="prefs_volume_keys_scroll_summary">Naudoti garso didinimo/mažinimo mygtukus Biblijos teksto slinkimui</string>
   <string name="page_number_title">Santykinis puslapio numeris</string>
   <string name="page_number_summary">Rodyti puslapio numerio perdangą. Puslapio numeris yra santykinis pradžios vietos atžvilgiu.</string>
   <string name="select_custom_icon">Pasirinkti tinkintą žymeklio piktogramą</string>
   <string name="invalid_url_message">Įvestas URL yra netinkamas. Įveskite tinkamą URL (pvz., https://nextcloud.example.com)</string>
   <string name="memorize_description">Išmokti mintinai Biblijos eilutes</string>
   <string name="memorize_abbreviation">Išmokti mintinai</string>
+  <string name="add_memorization_target">Nustatyti kaip įsiminimo tikslą</string>
+  <string name="memorize_memorized_passages">Įsiminti ištraukos</string>
+  <string name="memorize_no_memorized_passages">Dar nėra įsimintų ištraukų</string>
+  <string name="memorize_targets">Įsiminimo tikslai</string>
+  <string name="memorize_no_targets">Įsiminimo tikslai nenustatyti</string>
+  <string name="memorize_auto_mark">Automatiškai pažymėti kaip įsimintą</string>
+  <string name="memorize_auto_mark_summary">Automatiškai pažymėti eilutes kaip įsimintas, kai užduotis yra atlikta</string>
+  <string name="memorize_type_full_words">Rašyti visus žodžius</string>
+  <string name="memorize_type_full_words_summary">Reikalauti įvesti visą žodį, o ne tik pirmą raidę</string>
+  <string name="memorize_word_visibility">Žodžių matomumas</string>
+  <string name="memorize_word_visibility_summary">Kaip matomi neįvesti žodžiai: šviesi užuomina, blankus arba visiškai paslėptas</string>
+  <string name="memorize_word_visibility_light">Šviesus</string>
+  <string name="memorize_word_visibility_dim">Blankus</string>
+  <string name="memorize_word_visibility_hidden">Paslėptas</string>
+  <string name="memorize_error_heatmap">Klaidų žemėlapis</string>
+  <string name="memorize_error_heatmap_summary">Paryškinti žodžius su daugiau klaidų vis tamsesne raudona spalva</string>
+  <string name="memorize_scramble_hide_used">Slėpti panaudotus žodžių mygtukus</string>
+  <string name="memorize_scramble_hide_used_summary">Visiškai slėpti žodžių mygtukus, kai jie teisingai sudėti žodžių maišymo režime</string>
+  <string name="reading_progress_settings">Progresas ir įsiminimas</string>
+  <string name="reading_progress_settings_summary">Automatinio sekimo, įsiminimo ir rašymo praktikos nustatymai</string>
+  <string name="memorize_confirm_unmark">Pašalinti įsiminto statusą eilutei %s?</string>
+  <string name="memorize_confirm_remove_target">Pašalinti įsiminimo tikslą %s?</string>
+  <string name="memorize_tab_reading">Skaitymas</string>
+  <string name="memorize_tab_memorization">Įsiminimas</string>
+  <string name="memorize_verses_memorized">Įsiminta</string>
+  <string name="memorize_verses_target">Tikslas</string>
+  <string name="memorize_show_more">Rodyti %d daugiau</string>
+  <string name="memorize_calendar">Įsiminimo veikla</string>
+  <string name="memorize_view_list">Sąrašas</string>
+  <string name="memorize_view_overview">Apžvalga</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">DI vertimas</string>
+  <string name="sync_settings_shortcut_summary">Sinchronizuoti duomenis tarp įrenginių</string>
+  <string name="llm_api_key_title">API raktas</string>
+  <string name="llm_api_key_summary">OpenAI suderinamas API raktas</string>
+  <string name="llm_provider_custom">Pasirinktinis (suderinamas su OpenAI)</string>
+  <string name="llm_provider_title">Tiekėjas</string>
+  <string name="llm_provider_summary">Pasirinkite, kurią DI paslaugų teikėją naudoti. API galinė vieta ir galimi modeliai bus sukonfigūruoti automatiškai.</string>
+  <string name="llm_provider_current">Dabartinis: %s</string>
+  <string name="llm_api_key_detected_provider">Aptiktas tiekėjas: %s</string>
+  <string name="ai_connection_category">Ryšys</string>
+  <string name="ai_model_category">Modelis</string>
+  <string name="ai_behavior_category">Elgesys</string>
+  <string name="ai_language_title">DI atsakymų kalba</string>
+  <string name="ai_language_summary">Kalba, kuria DI teikia atsakymus</string>
+  <string name="ai_language_app_default">Programos kalba (%1$s)</string>
+  <string name="ai_language_custom">Pasirinktinė\u2026</string>
+  <string name="ai_language_custom_hint">Įveskite kalbos pavadinimą arba kodą</string>
+  <string name="ai_language_custom_example">pvz. suomi, Tagalog, en</string>
+  <string name="ai_usage_category">Naudojimas</string>
+  <string name="llm_usage_summary_title">Žetonų naudojimas</string>
+  <string name="llm_usage_summary_default">Naudojimo duomenų nėra</string>
+  <string name="llm_usage_summary_format">Įvestis: %1$d žetonai | Išvestis: %2$d žetonai\nNumatoma kaina: %3$s</string>
+  <string name="llm_reset_usage_title">Atstatyti naudojimo duomenis</string>
+  <string name="llm_reset_usage_summary">Išvalyti sukauptų žetonų ir kainos stebėjimą</string>
+  <string name="llm_reset_usage_confirm_title">Atstatyti naudojimo duomenis?</string>
+  <string name="llm_reset_usage_confirm_message">Tai išvalys visus sukauptus naudojimo duomenis.</string>
+  <string name="llm_custom_input_price_title">Įvesties kaina ($/Mžetonas)</string>
+  <string name="llm_custom_input_price_summary">Kaina už milijoną įvesties žetonų šiam modeliui</string>
+  <string name="llm_custom_output_price_title">Išvesties kaina ($/Mžetonas)</string>
+  <string name="llm_custom_output_price_summary">Kaina už milijoną išvesties žetonų šiam modeliui</string>
+  <string name="llm_cost_total">Iš viso: %1$s</string>
+  <string name="llm_endpoint_title">API galinė vieta</string>
+  <string name="llm_endpoint_summary">Pagrindinis API URL</string>
+  <string name="llm_model_title">Modelis</string>
+  <string name="llm_model_summary">Modelio ID</string>
+  <string name="llm_custom_model">Pasirinktinis…</string>
+  <string name="llm_custom_model_dialog_title">Pasirinktinis modelis</string>
+  <string name="llm_custom_model_dialog_message">Įveskite modelio ID</string>
+  <string name="llm_rate_limited_retrying">Viršytas užklausų limitas. Kartojama po %1$ss\u2026</string>
+  <string name="llm_default_document_title">DI atsakymas</string>
+  <string name="llm_default_task_completed">Užduotis atlikta</string>
+  <string name="llm_default_studypad_opened">Užrašų knygelė atidaryta</string>
+  <string name="llm_parse_error">Nepavyko analizuoti DI atsako: %1$s</string>
+  <string name="llm_parse_error_no_choices">Nėra pasirinkimų OpenAI atsakyme</string>
+  <string name="llm_parse_error_openai">Nepavyko analizuoti OpenAI atsakymo: %1$s</string>
+  <string name="llm_parse_error_anthropic">Nepavyko analizuoti Anthropic atsakymo: %1$s</string>
+  <string name="llm_error_prompt_not_found">Užklausa nerasta: %1$s</string>
+  <string name="llm_error_unknown">Nežinoma klaida</string>
+  <string name="llm_error_max_iterations">Pasiektas maksimalus iteracijų skaičius (%1$d) nebaigus</string>
+  <string name="llm_continue_iterations_title">Tęsti?</string>
+  <string name="llm_continue_iterations_message">DI agentas pasiekė %1$d iteracijų limitą nebaigęs. Tęsti dar %2$d iteracijų?</string>
+  <string name="agent_max_iterations_title">Maks. agento iteracijos</string>
+  <string name="agent_max_iterations_summary">Maksimalus iteracijų skaičius prieš paklausiant tęsti (0 = neribota)</string>
+  <string name="ask_model_before_run_title">Klausti modelio prieš vykdymą</string>
+  <string name="ask_model_before_run_summary">Rodyti modelio pasirinkimo dialogą prieš vykdant užklausą (praleidžiama, kai užklausa turi aiškų modelio pasirinkimą)</string>
+  <string name="select_model_before_run_title">Pasirinkti modelį</string>
+  <string name="prompt_max_iterations">Maks. iteracijų perrašymas</string>
+  <string name="prompt_max_iterations_hint">Palikite tuščią, kad naudoti numatytąjį</string>
+  <string name="prompt_max_iterations_description">Perrašyti globalų maks. iteracijų skaičių šiai užklausai. Tuščia = globalus numatytasis, 0 = neribota.</string>
+  <string name="prompt_max_iterations_unlimited">Neribota</string>
+  <string name="prompt_max_iterations_global_default">Globalus numatytasis (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Perrašyti globalų maks. iteracijų skaičių šiai užklausai. 0 = neribota.\nDabartinis: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Valdyti DI užklausas</string>
+  <string name="manage_prompts_summary">Kurti ir redaguoti DI užklausas</string>
+  <string name="ai_settings">DI nustatymai</string>
+  <string name="ai_connection_settings">Ryšio nustatymai</string>
+  <string name="ai_setup_title">Konfigūruoti DI</string>
+  <string name="ai_setup_description">AndBible gali naudoti DI Biblijos teksto vertimui, eilučių aiškinimui, santraukų kūrimui ir kt. Norėdami pradėti, sukonfigūruokite ryšį su OpenAI suderinamu API tiekėju.</string>
+  <string name="ai_configure_button">Konfigūruoti ryšį</string>
+  <string name="ai_settings_shortcut_summary">DI ryšio ir užklausų nustatymai</string>
+  <string name="ai_provider_tier_recommended">Rekomenduojama</string>
+  <string name="ai_provider_tier_community">Kiti tiekėjai (neišbandyta)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Tiekėjai ir modeliai</string>
+  <string name="ai_providers_category">Tiekėjai</string>
+  <string name="ai_providers_summary_none">Tiekėjai nesukonfigūruoti</string>
+  <string name="ai_models_summary_none">Modeliai nesukonfigūruoti</string>
+  <string name="ai_add_provider">Pridėti tiekėją</string>
+  <string name="ai_provider_edit">Redaguoti</string>
+  <string name="ai_provider_delete">Ištrinti</string>
+  <string name="ai_provider_delete_confirm">Ištrinti tiekėją „%1$s"? Užklausos, naudojančios šį tiekėją, grįš prie numatytojo.</string>
+  <string name="ai_provider_api_key_not_set">API raktas nenustatytas</string>
+  <string name="ai_provider_select_type">Pasirinkti tiekėjo tipą</string>
+  <string name="ai_provider_name">Tiekėjo pavadinimas</string>
+  <string name="ai_provider_name_hint">Rodomas šio tiekėjo pavadinimas</string>
+  <string name="ai_provider_api_key">API raktas</string>
+  <string name="ai_provider_endpoint">API galinė vieta</string>
+  <string name="ai_provider_api_format">API formatas</string>
+  <string name="ai_provider_saved">Tiekėjas išsaugotas</string>
+  <string name="ai_provider_deleted">Tiekėjas ištrintas</string>
+
+  <string name="llm_fetch_models_title">Atsisiųsti modelių sąrašą</string>
+  <string name="llm_fetch_models_message">Atsisiųsti galimų modelių sąrašą iš %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Daugiau neklausinėti</string>
+  <string name="llm_fetch_models_success">Įkelta %1$d modelių</string>
+  <string name="llm_fetch_models_failed">Nepavyko gauti modelių sąrašo</string>
+  <string name="llm_openrouter_category">Kategorija</string>
+  <string name="llm_openrouter_category_all">Visi</string>
+  <string name="llm_openrouter_model">Modelis</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Modeliai</string>
+  <string name="add_model">Pridėti modelį</string>
+  <string name="add_model_title">Pridėti modelį</string>
+  <string name="edit_model_title">Taisyti modelį</string>
+  <string name="model_saved">Modelis išsaugotas</string>
+  <string name="model_deleted">Modelis ištrintas</string>
+  <string name="model_delete_confirm">Ištrinti modelį \"%1$s\"?</string>
+  <string name="model_set_default">Nustatyti kaip numatytąjį modelį</string>
+  <string name="model_select_provider">Tiekėjas</string>
+  <string name="no_models_configured">Nėra sukonfigūruotų modelių</string>
+  <string name="model_cache_creation_price">Talpyklos kūrimo kaina ($/Mtoken)</string>
+  <string name="model_cache_read_price">Talpyklos skaitymo kaina ($/Mtoken)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s įvestis / %2$s išvestis už Mtoken</string>
+  <string name="easy_setup_free_tier">Nemokamas lygis</string>
+  <string name="unknown_error">Nežinoma klaida</string>
+  <string name="easy_setup_title">Greita sąranka</string>
+  <string name="easy_setup_pref_summary">Nustatykite DI su rekomenduojamu tiekėju keliais žingsniais</string>
+  <string name="easy_setup_choose_provider">Pasirinkite tiekėją, kad pradėtumėte:</string>
+  <string name="easy_setup_enter_api_key">Įveskite savo API raktą</string>
+  <string name="easy_setup_api_key_instructions">Gaukite savo API raktą iš:</string>
+  <string name="easy_setup_test_connection">Tikrinti ryšį</string>
+  <string name="easy_setup_testing">Tikrinama…</string>
+  <string name="easy_setup_success">Ryšys sėkmingas!</string>
+  <string name="easy_setup_failed">Ryšys nepavyko: %1$s</string>
+  <string name="easy_setup_done_title">DI paruoštas!</string>
+  <string name="easy_setup_done_message">Pasirinkite tekstą Biblijoje ir išbandykite DI funkcijas. Nustatymuose galite pridėti daugiau modelių ir tiekėjų.</string>
+  <string name="easy_setup_gemini_desc">Yra nemokamas lygis, gera kokybė</string>
+  <string name="easy_setup_anthropic_desc">Nebrangu, puiki kokybė</string>
+  <string name="easy_setup_openai_desc">Gerai žinomas, patikimas</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Svarbu: perskaitykite prieš naudodami DI įrankius</string>
+  <string name="ai_disclaimer_warning_summary">DI naudojimo rizika ir atsakomybė</string>
+  <string name="ai_disclaimer_dialog_title">DI įrankiai — svarbi informacija</string>
+  <string name="ai_disclaimer_intro">DI įrankiai gali labai praturtinti jūsų Biblijos studijų patirtį ir atverti naujus būdus bendrauti su Šventuoju Raštu.</string>
+  <string name="ai_disclaimer_approach">AndBible pirmiausia naudoja DI apdoroti tekstą iš jūsų įdiegtų dokumentų — komentarų, žodynų ir kitų modulių — o ne remiasi paties modelio mokymo duomenimis.</string>
+  <string name="ai_disclaimer_responsibility">Tačiau tai vis tiek galingi įrankiai — o didelė galia reikalauja didelės atsakomybės. Prašome turėti omenyje toliau pateiktus dalykus.</string>
+  <string name="ai_disclaimer_point1">DI gali klysti, įskaitant „haliucinacijas" (užtikrintai teigia klaidingą ar išgalvotą informaciją). Niekada aklai nepriimkite jo rezultatų.</string>
+  <string name="ai_disclaimer_point2">DI atsakymai gali atspindėti šališkumą iš jų mokymo duomenų, būti tyčia klaidinantys arba pateikti tam tikrą teologinę perspektyvą tarsi ji būtų neutrali ar išsami.</string>
+  <string name="ai_disclaimer_point3">Jūs esate atsakingi už tai, kaip naudojate DI sukurtą turinį. Prieš remdamiesi rezultatais, visada patikrinkite juos pagal Šventąjį Raštą.</string>
+  <string name="ai_disclaimer_point4">AndBible siekia padaryti tikrinimą lengvą (pvz., tikslios šaltinio citatos komentaruose), tačiau galutinė atsakomybė visada tenka jums.</string>
+  <string name="ai_disclaimer_point5">„Visa ištirkite, kas gera — laikykitės." (1 Tesalonikiečiams 5:21)</string>
+  <string name="ai_disclaimer_point6">Šie įrankiai neturi sielos ir Šventosios Dvasios. Tai teksto apdorojimo įrankiai, ne dvasiniai vadovai. Jie netinka tiesiogiai rengti pamokslams, pamaldoms ar kitam dvasiniam turiniui be atidžios žmogaus priežiūros, maldos ir įžvalgos.</string>
+  <string name="ai_disclaimer_point7">Naudojami išmintingai, jie gali būti naudingi daugeliui vartotojų ir atvejų. Tačiau jei nesate tikri dėl rizikos priėmimo, nepradėti jų naudoti taip pat yra visiškai tinkamas pasirinkimas.</string>
+  <string name="ai_disclaimer_point8">Jūsų duomenys siunčiami į jūsų pasirinkto DI tiekėjo serverius. Naudodami API raktą, sutinkate su to tiekėjo sąlygomis ir privatumo politika. Vietoje talpinami modeliai yra įmanomi, tačiau reikalauja daugiau techninių žinių ir gali duoti ne tokius gerus rezultatus kaip komerciniai modeliai.</string>
+  <string name="ai_disclaimer_point9">DI tiekėjai ima mokestį už API naudojimą. AndBible rodomos sąnaudų apytikslės — visada tikrinkite savo tiekėjo sąskaitą dėl faktinių mokesčių.</string>
+  <string name="ai_disclaimer_accept_title">Priimti DI atsakomybės atsisakymą</string>
+  <string name="ai_disclaimer_accept_button">Sutinku ir priimu visą atsakomybę</string>
+
+  <string name="prompt_permission_mode">Leidimų režimas</string>
+  <string name="prompt_permission_mode_description">Kontroliuoja, kada reikalingas naudotojo patvirtinimas prieš DI atliekant rašymo operacijas. Toliau pateikti atskirų įrankių nustatymai gali tai nepaisyti konkretiems įrankiams.</string>
+  <string name="agent_permission_mode_summary">Kontroliuoja, kada reikalingas naudotojo patvirtinimas prieš DI rašymo operacijas</string>
+  <string name="prompt_permission_use_default">Naudoti numatytąjį</string>
+  <string name="prompt_tab_prompt">Raginimas</string>
+  <string name="prompt_tab_permissions">Leidimai</string>
+  <string name="prompt_tab_advanced">Išplėstiniai</string>
+  <string name="prompt_name">Pavadinimas</string>
+  <string name="prompt_description">Aprašymas</string>
+  <string name="prompt_template">Raginimo šablonas</string>
+  <string name="prompt_show_in">Rodyti</string>
+  <string name="prompt_context_verse_selection">Eilutės pasirinkimas</string>
+  <string name="prompt_context_text_selection">Teksto pasirinkimas</string>
+  <string name="prompt_context_window_menu">Lango meniu</string>
+  <string name="prompt_context_workspace_menu">Darbo srities meniu</string>
+  <string name="prompt_context_note_editor">Pastabų redaktorius</string>
+  <string name="prompt_bible_only">Tik Biblijos dokumentai</string>
+  <string name="prompt_category_study">Studija</string>
+  <string name="prompt_category_notes">Pastabos</string>
+  <string name="prompt_category_general">Bendra</string>
+  <string name="prompt_category_test">Testas</string>
+  <string name="prompt_category_uncategorized">Nekategorizuota</string>
+  <string name="addon_prompt_badge">Priedas: %s</string>
+  <string name="addon_prompt_notice">Šis raginimas yra iš priedo modulio \"%s\" ir negali būti taisomas. Naudokite „Kopijuoti ir tinkinti" norėdami sukurti taisomą kopiją.</string>
+  <string name="new_category">Nauja kategorija</string>
+  <string name="new_category_name">Kategorijos pavadinimas</string>
+  <string name="rename_category">Pervadinti</string>
+  <string name="move_category_up">Perkelti aukštyn</string>
+  <string name="move_category_down">Perkelti žemyn</string>
+  <string name="hide_category">Slėpti DI veiksmuose</string>
+  <string name="show_category">Rodyti DI veiksmuose</string>
+  <string name="hidden">paslėpta</string>
+  <string name="delete_category">Ištrinti kategoriją</string>
+  <string name="delete_category_and_prompts">Ištrinti kategoriją ir jos raginimus</string>
+  <string name="delete_category_keep_prompts">Perkelti raginimus į šaknį ir ištrinti kategoriją</string>
+  <string name="delete_category_confirm_title">Ištrinti kategoriją \"%s\"?</string>
+  <string name="move_to_category">Perkelti į kategoriją…</string>
+  <string name="category_none">Nėra kategorijos</string>
+  <string name="import_prompts_editable">Importuoti kaip taisomus raginimus</string>
+  <string name="import_prompts_addon">Įdiegti kaip priedą (tik skaityti)</string>
+  <string name="prompt_category">Kategorija</string>
+  <string name="new_prompt">Naujas raginimas</string>
+  <string name="permission_always_ask">Visada klausti</string>
+  <string name="permission_ask_once_per_run">Klausti vieną kartą per paleidimą</string>
+  <string name="permission_allow_all">Leisti viską</string>
+  <string name="permission_deny_all">Atmesti viską</string>
+  <string name="reset_all_ai_settings">Atstatyti visus DI nustatymus</string>
+  <string name="reset_all_ai_settings_confirm_title">Atstatyti visus DI nustatymus?</string>
+  <string name="reset_all_ai_settings_confirm_message">Tai išvalys API raktą, tiekėją, galinį tašką, modelį ir atstatys visus raginimus į numatytąsias reikšmes. Tęsti?</string>
+  <string name="edit_prompt">Taisyti raginimą</string>
+  <string name="built_in_prompt">Įtaisytasis</string>
+  <string name="built_in_prompt_notice">Tai yra įtaisytasis raginimas ir negali būti taisomas. Naudokite „Kopijuoti ir tinkinti" norėdami sukurti taisomą kopiją.</string>
+  <string name="copy_to_customize">Kopijuoti ir tinkinti</string>
+  <string name="prompt_copied">Raginimas nukopijuotas</string>
+  <string name="delete_prompt_confirmation">Ištrinti raginimą \"%s\"?</string>
+  <string name="prompt_name_required">Raginimo pavadinimas yra privalomas</string>
+  <string name="prompt_template_required">Raginimo šablonas yra privalomas</string>
+  <string name="prompt_edit_before_run">Nurodyti prieš paleidimą</string>
+  <string name="prompt_edit_before_run_description">Rodyti teksto lauką užduočiai nurodyti prieš paleidžiant raginimą</string>
+  <string name="prompt_no_document_creation">Nesukurti dokumento</string>
+  <string name="prompt_no_document_creation_description">Kai įjungta, DI nesukurs dokumento. Rezultatai rodomi tik veiklos žurnale. Naudinga tik veiksmų raginimuose (žymės, etiketės, bloknotų operacijos).</string>
+  <string name="prompt_auto_include_documents">Automatiškai įtraukti įdiegtus dokumentus</string>
+  <string name="prompt_auto_include_documents_description">Automatiškai įtraukti įdiegtų dokumentų sąrašą į raginimo kontekstą, taupant DI iteraciją.</string>
+  <string name="prompt_auto_include_commentaries">Automatiškai įtraukti komentarus</string>
+  <string name="prompt_auto_include_commentaries_description">Automatiškai gauti ir įtraukti komentarų įrašus pasirinktoms eilutėms, taupant DI iteraciją.</string>
+  <string name="prompt_is_text_transformation">Teksto transformacija</string>
+  <string name="prompt_is_text_transformation_description">Naudoja supaprastintą sistemos raginimą, kuris išsaugo formatavimą (nuorodas, antraštes, paryškintą/kursyvą) transformuodamas teksto turinį. Įrankiai nenaudojami. Idealiai tinka vertimo ir redagavimo raginimams.</string>
+  <string name="llm_no_document_creation_intercepted">Užduotis atlikta (dokumento kūrimas išjungtas)</string>
+  <string name="llm_note_updated">Pastaba atnaujinta</string>
+  <string name="specify_before_run_title">Nurodyti užduotį</string>
+  <string name="specify_before_run_hint">Aprašykite konkrečią užduotį…</string>
+  <string name="prompt_cache_settings">Talpyklos nustatymai</string>
+  <string name="prompt_strict_context_matching">Kontekstui priklausoma talpykla</string>
+  <string name="prompt_strict_context_matching_description">Kai įjungta, talpykla sutampa tik tada, kai visas kontekstas (Biblijos versija, pasirinktas tekstas) yra vienodas. Kai išjungta, talpykla sutampa, kai eilutės yra vienodos, nepriklausomai nuo Biblijos versijos.</string>
+  <string name="ai_document_delete_confirmation">Ištrinti šį DI dokumentą?</string>
+  <string name="ai_document_deleted">Šis DI dokumentas buvo ištrintas.</string>
+  <string name="ai_document_regenerating">Regeneruojamas DI dokumentas…</string>
+  <string name="ai_document_regenerate_not_implemented">Regeneravimas bus prieinamas būsimame atnaujinime</string>
+  <string name="ai_regenerate_prompt_not_found">Nepavyksta regeneruoti: originalus raginimas nerastas. Jis gali būti ištrintas.</string>
+  <string name="ai_document_regenerate">Regeneruoti</string>
+  <string name="ai_regenerate_title">Regeneruoti</string>
+  <string name="ai_regenerate_instructions_hint">Papildomos instrukcijos (nebūtina)</string>
+  <string name="ai_regenerate_keep_previous">Palikti ankstesnę versiją</string>
+  <string name="ai_regenerate_fresh_run">Naujas paleidimas (ignoruoti ankstesnį rezultatą)</string>
+  <string name="ai_document_delete">Ištrinti</string>
+  <string name="ai_unknown_prompt">DI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Versti į %s</string>
+  <string name="default_prompt_translate_to_ui_language">Versti į sąsajos kalbą</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Verčia dokumento tekstą į programos sąsajos kalbą</string>
+  <string name="default_prompt_translate_to_english">Versti į anglų kalbą</string>
+  <string name="default_prompt_translate_to_english_desc">Verčia pasirinktą tekstą į anglų kalbą</string>
+  <string name="default_prompt_summary">Santrauka</string>
+  <string name="default_prompt_summary_desc">Sukuria glaustą pasirinkto teksto santrauką</string>
+  <string name="default_prompt_explain_verses">Paaiškinti eilutes</string>
+  <string name="default_prompt_explain_verses_desc">Paaiškina pasirinktų eilučių prasmę ir kontekstą</string>
+  <string name="default_prompt_explain_verses_studypad">Paaiškinti eilutes → Užrašų knygelė</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Sukuria užrašų knygelę su eilutė po eilutės paaiškinimu ir žymėmis</string>
+  <string name="default_prompt_word_study">Žodžio tyrimas</string>
+  <string name="default_prompt_word_study_desc">Analizuoja originalius hebrajų / graikų žodžius</string>
+  <string name="default_prompt_strongs_annotation">Strongo numerių anotacija</string>
+  <string name="default_prompt_strongs_annotation_desc">Prideda Strongo konkordanso numerius prie bet kurio Biblijos vertimo naudojant KJV kaip nuorodą</string>
+  <string name="default_prompt_cross_references">Kryžminės nuorodos</string>
+  <string name="default_prompt_cross_references_desc">Randa ir paaiškina susijusias Biblijos ištraukas</string>
+  <string name="default_prompt_compare_translations">Palyginti vertimus</string>
+  <string name="default_prompt_compare_translations_desc">Parodo, kaip skirtingi įdiegti vertimai pateikia tekstą</string>
+  <string name="default_prompt_thematic_study">Teminė studija</string>
+  <string name="default_prompt_thematic_study_desc">Sukuria užrašų knygelę su ištraukomis ir pastabomis apie pagrindinę temą</string>
+  <string name="default_prompt_bookmark_annotate">Žymė ir anotacija</string>
+  <string name="default_prompt_bookmark_annotate_desc">Sukuria žymę su DI sugeneruota studijų pastaba</string>
+  <string name="default_prompt_study_layout">Atidaryti studijų išdėstymą</string>
+  <string name="default_prompt_study_layout_desc">Atidaro komentaro ir lygiagretaus vertimo langus studijoms</string>
+  <string name="default_prompt_workspace_assistant">Darbo srities asistentas</string>
+  <string name="default_prompt_workspace_assistant_desc">Tvarkyti langus: kurti, uždaryti, pertvarkyti, keisti dokumentus</string>
+  <string name="default_prompt_enhance_note">Patobulinti pastabą</string>
+  <string name="default_prompt_enhance_note_desc">Pagerina jūsų pastabos gramatiką, aiškumą ir skaitomumą</string>
+  <string name="default_prompt_ask_question">Užduoti klausimą</string>
+  <string name="default_prompt_ask_question_desc">Užduokite bet kokį klausimą apie pasirinktą ištrauką</string>
+  <string name="default_prompt_custom">Pasirinktinis raginimas</string>
+  <string name="default_prompt_custom_desc">Vykdyti pasirinktinę užduotį su pasirinkta ištrauka</string>
+  <string name="default_prompt_custom_template">Vykdykite vartotojo užduoties specifikaciją pasirinktai Biblijos ištraukai.</string>
+  <string name="copy">Kopijuoti</string>
+  <string name="delete_prompt_confirm_message">Ar tikrai norite ištrinti šį raginimą?</string>
+  <string name="ai_hide_prompt">Slėpti</string>
+  <string name="ai_restore_hidden_prompts">Atkurti paslėptus raginimus</string>
+  <string name="ai_prompt_hidden">Raginimas paslėptas</string>
+  <string name="ai_prompts_restored">Paslėpti raginimai atkurti</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Sukurti žymę</string>
+  <string name="tool_add_bookmark_note">Pridėti žymės pastabą</string>
+  <string name="tool_update_bookmark_note">Atnaujinti žymės pastabą</string>
+  <string name="tool_create_label">Sukurti etiketę</string>
+  <string name="tool_add_label_to_bookmark">Pridėti etiketę prie žymės</string>
+  <string name="tool_delete_bookmark">Ištrinti žymę</string>
+  <string name="tool_delete_label">Ištrinti etiketę</string>
+  <string name="tool_remove_label_from_bookmark">Pašalinti etiketę nuo žymės</string>
+  <string name="tool_add_study_pad_entry">Pridėti įrašą į užrašų knygelę</string>
+  <string name="tool_update_studypad_text_entry">Atnaujinti užrašų knygelės teksto įrašą</string>
+  <string name="tool_create_study_pad">Sukurti užrašų knygelę</string>
+  <string name="action_update_studypad_text_entry">Atnaujinti užrašų knygelės teksto įrašą %1$s</string>
+  <string name="action_create_studypad">Sukurti užrašų knygelę \"%1$s\" su %2$d elementais</string>
+  <string name="tool_set_document_title">Nustatyti dokumento pavadinimą</string>
+  <string name="tool_finish_with_study_pad">Atidaryti užrašų knygelę</string>
+  <string name="tool_finish_with_my_document_page">Atidaryti mano dokumento puslapį</string>
+  <string name="tool_finish_without_document">Baigti be dokumento</string>
+  <string name="tool_get_verse_content">Skaityti eilutės turinį</string>
+  <string name="tool_get_commentaries">Skaityti komentarus</string>
+  <string name="tool_get_dictionary_entry">Ieškoti žodyno įrašo</string>
+  <string name="tool_search_bible">Ieškoti Biblijoje</string>
+  <string name="tool_search_by_strongs">Ieškoti pagal Strongo numerį</string>
+  <string name="tool_get_installed_documents">Rodyti įdiegtus dokumentus</string>
+  <string name="tool_get_all_labels">Rodyti visas etiketes</string>
+  <string name="tool_get_bookmarks_for_verse">Gauti eilutės žymes</string>
+  <string name="tool_get_bookmarks_with_label">Gauti žymes su etikete</string>
+  <string name="tool_get_study_pad_content">Skaityti užrašų knygelės turinį</string>
+  <string name="tool_search_study_pads">Ieškoti užrašų knygelėse</string>
+  <string name="tool_get_my_documents">Rodyti mano dokumentus</string>
+  <string name="tool_get_my_document_pages">Rodyti mano dokumento puslapius</string>
+  <string name="tool_create_my_document">Sukurti mano dokumentą</string>
+  <string name="tool_add_my_document_page">Pridėti mano dokumento puslapį</string>
+  <string name="tool_edit_my_document_page">Redaguoti mano dokumento puslapį</string>
+  <string name="tool_delete_my_document_page">Ištrinti mano dokumento puslapį</string>
+  <string name="tool_get_windows">Rodyti langus</string>
+  <string name="tool_create_window">Sukurti langą</string>
+  <string name="tool_manage_window">Tvarkyti langą</string>
+  <string name="tool_set_window_document">Nustatyti lango dokumentą</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Agento leidimas</string>
+  <string name="agent_permission_message">DI asistentas nori naudoti „%1$s":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">DI asistentas nori:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Sukurti žymę ties %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Sukurti žymę ties %1$s (%2$s)</string>
+  <string name="action_with_note">su pastaba</string>
+  <string name="action_labels">etiketės: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Pridėti pastabą prie žymės ties %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Atnaujinti pastabą ant žymės ties %1$s</string>
+  <string name="action_create_label">Sukurti etiketę „%1$s"</string>
+  <string name="action_add_label_to_bookmark">Pridėti etiketę „%1$s" prie žymės ties %2$s</string>
+  <string name="action_delete_bookmark">Ištrinti žymę ties %1$s</string>
+  <string name="action_delete_label">Ištrinti etiketę „%1$s"</string>
+  <string name="action_remove_label_from_bookmark">Pašalinti etiketę „%1$s" nuo žymės ties %2$s</string>
+  <string name="action_add_entry_to_studypad">Pridėti įrašą į užrašų knygelę „%1$s"</string>
+  <string name="action_create_my_document">Sukurti mano dokumentą: „%1$s"</string>
+  <string name="action_add_my_document_page">Pridėti puslapį „%1$s" prie mano dokumento %2$s</string>
+  <string name="action_edit_my_document_page">Redaguoti mano dokumento puslapį: „%1$s"</string>
+  <string name="action_delete_my_document_page">Ištrinti mano dokumento puslapį: „%1$s"</string>
+  <string name="action_set_document_title">Nustatyti dokumento pavadinimą: „%1$s"</string>
+  <string name="action_open_studypad">Atidaryti užrašų knygelę „%1$s"</string>
+  <string name="action_open_my_document_page">Atidaryti mano dokumento puslapį „%1$s"</string>
+  <string name="action_create_window">Sukurti naują langą</string>
+  <string name="action_create_window_with_doc">Sukurti langą su %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Sukurti langą su %1$s ties %2$s</string>
+  <string name="action_close_window">Uždaryti langą (%1$s)</string>
+  <string name="action_minimize_window">Minimizuoti langą (%1$s)</string>
+  <string name="action_restore_window">Atkurti langą (%1$s)</string>
+  <string name="action_set_window_document">Nustatyti %1$s į %2$s</string>
+  <string name="action_set_window_document_with_key">Nustatyti %1$s į %2$s ties %3$s</string>
+  <string name="action_active_window">aktyvus langas</string>
+  <string name="action_finish">Baigti: „%1$s"</string>
+  <string name="permission_allow_once">Leisti vieną kartą</string>
+  <string name="permission_allow_for_session">Leisti šiai sesijai</string>
+  <string name="permission_allow_all_session">Leisti visus įrankius šiai sesijai</string>
+  <string name="permission_allow_always">Visada leisti „%1$s"</string>
+  <string name="permission_deny">Atmesti</string>
+  <string name="permission_always_allow_confirm_title">Visada leisti?</string>
+  <string name="permission_always_allow_confirm">Ar tikrai norite visam laikui leisti „%1$s"?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Tai galite nustatyti iš naujo DI nustatymuose.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Įrankių leidimai</string>
+  <string name="manage_tool_permissions_summary">Tvarkyti atskirų įrankių leidimų perrašymus</string>
+  <string name="commentary_max_response_title">Komentaro atsakymo dydžio riba</string>
+  <string name="commentary_max_response_summary">Rodyti pasirinkimo dialogą, kai atsakymas viršija ribą</string>
+  <string name="commentary_max_response_no_limit">Be apribojimų</string>
+  <string name="commentary_max_response_value">~%s žetonų</string>
+  <string name="commentary_max_response_dialog_title">Nustatyti maksimalų atsakymo dydį (žetonai)</string>
+  <string name="commentary_max_response_dialog_message">Kai DI gauna komentarus ir bendras atsakymas viršija šią žetonų ribą, pasirinkimo dialogas leidžia pasirinkti, kuriuos komentarus siųsti DI.\n\n0 = be apribojimų (visi komentarai siunčiami automatiškai).</string>
+  <string name="commentary_filter_dialog_title">Komentaro atsakymas per didelis</string>
+  <string name="commentary_filter_dialog_message">Žetonų riba (~%s) viršyta. Panaikinkite komentarų, kurių nenorite siųsti DI, žymėjimą.\n\nŠią ribą galite keisti DI ryšio nustatymuose.</string>
+  <string name="commentary_filter_total_tokens">Pasirinkta: ~%1$s / %2$s žetonų</string>
+  <string name="tool_log_commentary_count">%d komentarų</string>
+  <string name="tool_log_label_count">%d etikečių</string>
+  <string name="tool_log_document_count">%d dokumentų</string>
+  <string name="tool_log_study_pad_count">%d užrašų knygelių</string>
+  <string name="tool_log_search_results">%1$d/%2$d rezultatų</string>
+  <string name="tool_log_bookmark_count">%d žymių</string>
+  <string name="tool_log_my_document_count">%d dokumentų</string>
+  <string name="tool_log_my_document_page_count">%d puslapių</string>
+  <string name="tool_log_window_count">%d langų</string>
+  <string name="tool_log_window_copy">kopija</string>
+  <string name="tool_log_window_minimized">sumažintas</string>
+  <string name="tool_log_window_removed">pašalintas</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s žetonų)</string>
+  <string name="ai_document_filter_title">Prieiga prie dokumentų</string>
+  <string name="ai_document_filter_summary">Pasirinkite, kuriuos dokumentus DI gali skaityti</string>
+  <string name="ai_document_filter_summary_count">%d dokumentų neįtraukta</string>
+  <string name="ai_document_filter_activity_title">DI prieiga prie dokumentų</string>
+  <string name="ai_document_excluded_error">Dokumentą atmetė vartotojo nustatymai: %s</string>
+  <string name="permission_status_default">Klausti (numatyta)</string>
+  <string name="permission_status_allowed">Visada leidžiama</string>
+  <string name="permission_status_denied">Visada draudžiama</string>
+  <string name="permission_option_default">Klausti kiekvieną kartą (numatyta)</string>
+  <string name="permission_option_always_allow">Visada leisti</string>
+  <string name="permission_option_always_deny">Visada drausti</string>
+  <string name="reset_all_permissions">Atstatyti viską</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Galimi įrankiai</string>
+  <string name="ai_read_tools">Skaitymo įrankiai</string>
+  <string name="ai_write_tools">Rašymo įrankiai</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Numatytieji įrankių nustatymai</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Įrankių leidimai</string>
+  <string name="prompt_tool_permissions_read_only">Įrankių leidimai (tik skaitymas)</string>
+  <string name="prompt_tool_permissions_description">Perrašyti įrankių leidimus šiam raginimui</string>
+  <string name="tool_section_read_tools">Skaitymo įrankiai</string>
+  <string name="tool_section_write_tools">Rašymo įrankiai</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Biblija ir paieška</string>
+  <string name="tool_category_bookmarks">Žymės</string>
+  <string name="tool_category_labels">Etiketės</string>
+  <string name="tool_category_study_pads">Užrašų knygelės</string>
+  <string name="tool_category_my_documents">Mano dokumentai</string>
+  <string name="tool_category_windows">Langai</string>
+  <string name="tool_category_read">Skaitymas</string>
+  <string name="tool_category_write">Rašymas</string>
+  <string name="expand_collapse">Išskleisti / sutraukti</string>
+  <string name="tool_option_enabled">Įjungta</string>
+  <string name="tool_option_disabled">Išjungta</string>
+  <string name="tool_option_default_enabled">Numatyta (įjungta)</string>
+  <string name="tool_option_default_disabled">Numatyta (išjungta)</string>
+  <string name="tool_option_default_allowed">Numatyta (leidžiama)</string>
+  <string name="tool_option_default_denied">Numatyta (draudžiama)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Modelis</string>
+  <string name="prompt_model_default">Numatytasis</string>
+  <string name="prompt_model_custom">Pasirinktinis</string>
+  <string name="prompt_model_custom_hint">Įveskite modelio pavadinimą</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Pasirinkti DI veiksmą</string>
+  <string name="no_llm_prompts_configured">Eilutės pasirinkimui nesukonfigūruota jokių DI raginimų</string>
+  <string name="llm_prompt_executing">Vykdomas DI raginimas: %s</string>
+  <string name="llm_actions">DI veiksmai</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Išskleisti / sutraukti agento žurnalą</string>
+  <string name="agent_log_close">Uždaryti agento žurnalą</string>
+  <string name="agent_log_stop">Sustabdyti DI</string>
+  <string name="agent_log_idle">DI asistentas</string>
+  <string name="agent_log_running">DI dirba…</string>
+  <string name="agent_log_completed">Baigta</string>
+  <string name="agent_log_error">Įvyko klaida</string>
+  <string name="agent_log_executing">Vykdoma: %s</string>
+  <string name="agent_log_iteration">%d iteracija</string>
+  <string name="agent_log_tool">Įrankis: %s</string>
+  <string name="agent_log_tool_completed">Įrankis %s baigė darbą</string>
+  <string name="agent_log_tool_failed">Įrankio %s klaida</string>
+  <string name="agent_log_response_received">Gautas atsakymas</string>
+  <string name="agent_log_saved">Išsaugota: %s</string>
+  <string name="agent_log_done">Atlikta: %s</string>
+  <string name="agent_log_cancelled">Atšaukta</string>
+  <string name="agent_execution_completed">Agento vykdymas baigtas</string>
+  <string name="agent_already_running">DI agentas jau veikia. Palaukite arba pirmiausia jį sustabdykite.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">DI agentas</string>
+  <string name="ai_agent_notification_running">DI agentas dirba…</string>
+  <string name="ai_agent_notification_permission_needed">DI agentui reikia jūsų patvirtinimo</string>
+  <string name="ai_agent_notification_permission_tap">Palieskite, kad grįžtumėte į AndBible</string>
+  <string name="ai_agent_notification_completed">DI užduotis baigta</string>
+  <string name="ai_agent_notification_completed_tap">Palieskite, kad pamatytumėte rezultatus</string>
+  <string name="ai_agent_notification_error">DI užduotis nepavyko</string>
+  <string name="ai_agent_notification_cancel">Atšaukti</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Mano dokumentai</string>
+  <string name="my_documents_empty">Dar nėra dokumentų. Palieskite +, kad sukurtumėte.</string>
+  <string name="my_document_new_name">Dokumentas %d</string>
+  <string name="my_document_create_title">Kurti naują dokumentą</string>
+  <string name="my_document_rename_title">Pervadinti dokumentą</string>
+  <string name="my_document_edit_description_title">Redaguoti aprašymą</string>
+  <string name="my_document_delete_confirmation">Ištrinti dokumentą \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">DI dokumentų negalima ištrinti, kol juose yra puslapių. Pirmiausia ištrinkite puslapius.</string>
+  <string name="my_document_save_changes">Išsaugoti pakeitimus?</string>
+  <string name="my_document_no_description">Nėra aprašymo</string>
+  <string name="my_document_rename">Pervadinti</string>
+  <string name="my_document_edit_description">Redaguoti aprašymą</string>
+  <string name="my_document_delete">Ištrinti</string>
+
+  <string name="my_document_pages_title">%s – puslapiai</string>
+  <string name="my_document_pages_empty">Šiame dokumente nėra puslapių.</string>
+  <string name="my_document_page_rename_title">Pervadinti puslapį</string>
+  <string name="my_document_page_delete_confirmation">Ištrinti puslapį \"%s\"?</string>
+  <string name="my_document_page_rename">Pervadinti</string>
+  <string name="my_document_page_delete">Ištrinti</string>
+  <string name="my_document_page_export">Eksportuoti</string>
+  <string name="my_document_new_page_name">Puslapis %1$d</string>
+  <string name="my_document_create_page_title">Naujas puslapis</string>
+  <string name="my_document_content_type_label">Turinio tipas</string>
+  <string name="my_document_import_page">Importuoti Markdown / HTML</string>
+  <string name="my_document_export_page">Eksportuoti puslapį</string>
+  <string name="my_document_imported_page_name">Importuota</string>
+  <string name="my_document_export_fallback_name">puslapis</string>
+  <string name="my_document_export_document">Eksportuoti visus puslapius</string>
+  <string name="my_document_import_document">Importuoti failus kaip dokumentą</string>
+  <string name="my_document_import_empty_selection">Nepasirinkta jokių importuojamų failų</string>
+  <string name="my_document_export_success">Puslapiai sėkmingai eksportuoti</string>
+  <string name="ai_doc_choose_page">Pasirinkti DI dokumento puslapį</string>
+  <string name="prefs_show_ai_doc_markers_title">Rodyti DI dokumentų žymeklius</string>
+  <string name="prefs_show_ai_doc_markers_summary">Rodyti žymeklio piktogramas DI sugeneruotiems dokumentų puslapiams, susietiems su eilutėmis</string>
+  <string name="prefs_show_ordinals_title">Rodyti eilės numerius</string>
+  <string name="prefs_show_ordinals_summary">Rodyti eilės padėties žymeklius tekste</string>
+
+  <string name="prefs_page_scroll_amount_title">Puslapio slinkties kiekis</string>
+  <string name="prefs_page_scroll_amount_summary">Kiek puslapio slinkti spaudžiant puslapį aukštyn / žemyn</string>
+  <string name="page_scroll_amount_dialog_title">Puslapio slinkimo kiekis</string>
+  <string name="prefs_scroll_helper_lines_title">Slinkimo pagalbinės linijos</string>
+  <string name="prefs_scroll_helper_lines_summary">Rodyti horizontalias gaires puslapio slinkimo ribose</string>
+  <string name="prefs_scroll_helper_line_style_title">Pagalbinės linijos stilius</string>
+  <string name="prefs_scroll_helper_line_style_summary">Pasirinkite slinkimo pagalbinių linijų vaizdinį stilių</string>
+  <string name="scroll_helper_line_style_dialog_title">Pagalbinės linijos stilius</string>
+  <string name="scroll_helper_line_style_thin_dotted">Plona taškinė linija</string>
+  <string name="scroll_helper_line_style_thin_solid">Plona ištisinė linija</string>
+  <string name="scroll_helper_line_style_thick_solid">Stora ištisinė linija</string>
+  <string name="prefs_page_buttons_title">Puslapio slinkimo mygtukai</string>
+  <string name="prefs_page_buttons_summary">Rodyti matomus puslapio aukštyn/žemyn mygtukus ekrane</string>
 </resources>
