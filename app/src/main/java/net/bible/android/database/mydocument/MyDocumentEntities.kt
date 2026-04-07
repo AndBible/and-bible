@@ -133,7 +133,8 @@ interface BaseMyDocumentPage {
     indices = [
         Index(value = ["sourcePromptId", "contextHash"]),
         Index(value = ["sourcePromptId", "kjvOrdinalStart", "kjvOrdinalEnd"]),
-        Index(value = ["kjvOrdinalStart", "kjvOrdinalEnd"])
+        Index(value = ["kjvOrdinalStart", "kjvOrdinalEnd"]),
+        Index(value = ["sourceBookInitials", "sourceBookKey"])
     ]
 )
 data class AiPageCacheEntry(
@@ -144,7 +145,11 @@ data class AiPageCacheEntry(
     var kjvOrdinalEnd: Int?,
     var contextHash: String?,
     var usedWriteTools: Boolean = false,
-    var sourceModelName: String? = null
+    var sourceModelName: String? = null,
+    /** Book initials of the document where the AI action was triggered (for non-Bible page matching) */
+    var sourceBookInitials: String? = null,
+    /** Book key (e.g. commentary key) where the AI action was triggered */
+    var sourceBookKey: String? = null
 )
 
 /**
@@ -157,9 +162,11 @@ data class AiDocMarkerInfo(
     val documentInitials: String,
     val pageTitle: String,
     val pageKey: String,
-    val kjvOrdinalStart: Int,
-    val kjvOrdinalEnd: Int,
+    val kjvOrdinalStart: Int?,
+    val kjvOrdinalEnd: Int?,
     val sourcePromptId: IdType?,
+    val sourceBookInitials: String?,
+    val sourceBookKey: String?,
 )
 
 @DatabaseView("""
@@ -187,6 +194,7 @@ data class MyDocumentPageWithContent(
 @DatabaseView("""
     SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,
            c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,
+           c.sourceBookInitials, c.sourceBookKey,
            p.title, p.pageKey, p.contentType, p.documentId,
            p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content
     FROM AiPageCacheEntry c
@@ -202,6 +210,8 @@ data class AiCachedPageWithContent(
     val contextHash: String?,
     val usedWriteTools: Boolean,
     val sourceModelName: String?,
+    val sourceBookInitials: String?,
+    val sourceBookKey: String?,
     override val title: String,
     override val pageKey: String,
     override val contentType: MyDocumentContentType,

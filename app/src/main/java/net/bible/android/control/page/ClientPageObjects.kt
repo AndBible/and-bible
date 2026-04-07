@@ -114,6 +114,7 @@ open class OsisDocument(
     val sourcePromptId: String? = null,
     val sourcePromptName: String? = null,
     val sourceModelName: String? = null,
+    open val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
 ): Document {
     override val asHashMap: Map<String, String> get () {
         val highlightedOrdinalRange =
@@ -149,6 +150,7 @@ open class OsisDocument(
             "sourcePromptId" to wrapString(sourcePromptId),
             "sourcePromptName" to wrapString(sourcePromptName),
             "sourceModelName" to wrapString(sourceModelName),
+            "aiDocMarkers" to listToJson(aiDocMarkers.map { ClientAiDocMarker(it, (book as? SwordBook)?.versification).asJson }),
         )
     }
 }
@@ -159,7 +161,7 @@ class BibleDocument(
     osisFragment: OsisFragment,
     val swordBook: SwordBook,
     val originalKey: Key?,
-    val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
+    override val aiDocMarkers: List<AiDocMarkerInfo> = emptyList(),
 ): OsisDocument(osisFragment, swordBook, verseRange) {
     override val asHashMap: Map<String, String> get () {
         val bookmarks = bookmarks.map { ClientBibleBookmark(it, swordBook.versification).asJson }
@@ -175,10 +177,8 @@ class BibleDocument(
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
         val targetOrdinals = ProgressControl.getTargetOrdinalsInRange(kjvRange.start.ordinal, kjvRange.end.ordinal)
             .map { Verse(KJVA, it).toV11n(v11n).ordinal }
-        val aiDocMarkerList = aiDocMarkers.map { ClientAiDocMarker(it, swordBook.versification).asJson }
         return super.asHashMap.toMutableMap().apply {
             put("bookmarks", listToJson(bookmarks))
-            put("aiDocMarkers", listToJson(aiDocMarkerList))
             put("type", wrapString("bible"))
             put("bibleBookName", wrapString(swordBook.versification.getPreferredNameInLocale(verseRange.start.book, Locale.getDefault())))
             put("ordinalRange", json.encodeToString(serializer(), listOf(vrInV11n.start.ordinal, vrInV11n.end.ordinal)))
@@ -426,22 +426,25 @@ class ClientAiDocMarker(
     private val v11n: Versification?
 ) : Document {
     override val asHashMap: Map<String, String> get() {
-        val startOrdinal = if (v11n != null) {
+        val startOrdinal = if (v11n != null && marker.kjvOrdinalStart != null) {
             Verse(KJVA, marker.kjvOrdinalStart).toV11n(v11n).ordinal
         } else marker.kjvOrdinalStart
-        val endOrdinal = if (v11n != null) {
+        val endOrdinal = if (v11n != null && marker.kjvOrdinalEnd != null) {
             Verse(KJVA, marker.kjvOrdinalEnd).toV11n(v11n).ordinal
         } else marker.kjvOrdinalEnd
-        val targetV11n = v11n ?: KJVA
-        val startVerse = Verse(targetV11n, startOrdinal)
-        val endVerse = Verse(targetV11n, endOrdinal)
-        val verseRange = VerseRange(targetV11n, startVerse, endVerse)
+
+        val verseRangeAbbreviated = if (startOrdinal != null && endOrdinal != null) {
+            val targetV11n = v11n ?: KJVA
+            VerseRange(targetV11n, Verse(targetV11n, startOrdinal), Verse(targetV11n, endOrdinal)).abbreviated
+        } else ""
+
         val aiLabelId = AI_DOC_LABEL_ID
         return mapOf(
             "id" to wrapString(marker.pageId.toString()),
             "type" to wrapString("ai-doc-marker"),
             "hashCode" to kotlin.math.abs(marker.pageId.hashCode()).toString(),
-            "ordinalRange" to json.encodeToString(serializer(), listOf(startOrdinal, endOrdinal)),
+            "ordinalRange" to if (startOrdinal != null && endOrdinal != null)
+                json.encodeToString(serializer(), listOf(startOrdinal, endOrdinal)) else "null",
             "offsetRange" to "null",
             "labels" to json.encodeToString(serializer(), listOf(aiLabelId)),
             "primaryLabelId" to wrapString(aiLabelId),
@@ -461,10 +464,12 @@ class ClientAiDocMarker(
             "editAction" to json.encodeToString(serializer(), BookmarkEntities.EditAction()),
             "sourcePromptId" to wrapString(marker.sourcePromptId?.toString()),
             // AI doc marker specific fields
-            "verseRangeAbbreviated" to wrapString(verseRange.abbreviated),
+            "verseRangeAbbreviated" to wrapString(verseRangeAbbreviated),
             "title" to wrapString(marker.pageTitle, true),
             "documentInitials" to wrapString(marker.documentInitials),
             "pageKey" to wrapString(marker.pageKey),
+            "sourceBookInitials" to wrapString(marker.sourceBookInitials),
+            "sourceBookKey" to wrapString(marker.sourceBookKey),
         )
     }
 }

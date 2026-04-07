@@ -40,9 +40,7 @@ referenceLink: Otevřít referenční odkaz
 openFootnote: Otevřít poznámku pod čarou
 noMyNotesTitle: K této kapitole nemáte poznámky.
 noMyNotesDescription: Nejprve si v biblickém dokumentu vytvořte záložku. Ty budou následně dostupné zde a můžete si k nim přidávat své poznámky.
-
 emptyStudyPad: Prázdná studijní složka. Sem můžete přidávat textové poznámky nebo tvořit záložky se štítkem odkazujícím k této studijní složce.
-
 doYouWantToDeleteEntry: Smazat tento obsah ze složky?
 removeStudyPadConfirmationTitle: Odstranit studijní složku?
 dragHelp: Přetažením setřídit
@@ -62,7 +60,7 @@ verseCompare: Porovnat
 verseMemorize: Zapamatovat
 verseNote: Poznámka
 verseMyNotes: Poznámky
-verseParagraphBreak: ""
+verseParagraphBreak: Odstavec
 verseShareLong: Sdílet verš
 verseCompareLong: Porovnat verš
 verseMemorizeLong: Zapamatovat biblické verše
@@ -80,29 +78,29 @@ verseNoteLong: Napsat poznámku
 verseParagraphBreakLong: Zalomení odstavce
 addBookmark: Záložka
 selectCustomIconTitle: Vybrat vlastní ikonu pro záložku
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
+bookmarkSettingsTitle: Konfigurovat nastavení záložek
+subtitlePlaceholder: Text podnadpisu
+customIconLabel: Vlastní ikona
+editActionLabel: Upravit akci
+editActionModeLabel: Režim
+editActionModeNone: Žádný
+editActionModeAppend: Přidat text na konec
+editActionModePrepend: Přidat text na začátek
 editActionContentLabel: Obsah
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+editActionContentPlaceholder: Zadejte text, který chcete přidat do dokumentu...
+experimentalFeatureTitle: Experimentální
+experimentalFeatureHelpTitle: O experimentálních funkcích
+experimentalFeatureHelpContent: Experimentální funkce jsou nové možnosti, které jsou stále ve vývoji a testování. Nemusí fungovat dokonale a v budoucích verzích aplikace se mohou výrazně změnit nebo být odebrány.
+insertParagraphBreak: Vložit konec odstavce
+insertSubtitle: Vložit podnadpis
+xmlParseError: Chyba při analýze XML
+invalidTag: Neplatná značka
+invalidClosingTag: Neplatná uzavírací značka
+unmatchedClosingTag: Nespárovaná uzavírací značka
+unclosedTag: Neuzavřená značka
+unknownError: Neznámá chyba
+wordBlur: Rozmazání
+wordScramble: Zamíchání
 wordType: Typ
 wordOrder: Pořadí
 typeEverything: Psát celá slova

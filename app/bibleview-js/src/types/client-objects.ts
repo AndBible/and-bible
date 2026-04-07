@@ -139,11 +139,13 @@ export type GenericBookmark = BaseBookmark & {
  */
 export type AiDocMarker = BaseBookmark & {
     readonly type: "ai-doc-marker"
-    readonly ordinalRange: OrdinalRange
+    readonly ordinalRange: Nullable<OrdinalRange>
     readonly verseRangeAbbreviated: string
     readonly title: string
     readonly documentInitials: string
     readonly pageKey: string
+    readonly sourceBookInitials: Nullable<string>
+    readonly sourceBookKey: Nullable<string>
 }
 
 export type StudyPadTextItem = {

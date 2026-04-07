@@ -105,6 +105,14 @@ export function isAiDocMarker(bookmark: BaseBookmark): bookmark is AiDocMarker {
     return bookmark.type === "ai-doc-marker"
 }
 
+/** Check if a bookmark/marker is a whole-page item (bookmark or AI doc marker) for a specific page */
+export function isWholePageItem(b: BaseBookmark, bookInitials: string, bookKey: string): boolean {
+    if (isAiDocMarker(b)) {
+        return b.sourceBookInitials === bookInitials && b.sourceBookKey === bookKey;
+    }
+    return isGenericBookmark(b) && b.bookInitials === bookInitials && b.key === bookKey && isWholePageBookmark(b);
+}
+
 export function verseHighlighting(
     {
         highlightLabels,
@@ -185,12 +193,15 @@ export function verseHighlighting(
 // Fixed pseudo-label ID for AI doc markers (matches AI_DOC_LABEL_ID in BookmarkEntities.kt)
 const AI_DOC_LABEL_ID = "00000000-0000-ab1e-0000-a1d0c00001a1";
 
+/** AI doc marker color (blue-ish), same as __AI_LABEL__ in BookmarkEntities.kt */
+export const AI_DOC_COLOR = 0xFF6464FF;
+
 const AI_DOC_LABEL_STYLE: LabelAndStyle = {
     id: AI_DOC_LABEL_ID,
     name: "AI Documents",
     isRealLabel: false,
     style: {
-        color: 0xFF6464FF,  // blue-ish, same as __AI_LABEL__
+        color: AI_DOC_COLOR,
         isSpeak: false,
         isParagraphBreak: false,
         underline: false,
@@ -202,7 +213,7 @@ const AI_DOC_LABEL_STYLE: LabelAndStyle = {
         customIcon: "robot",
     },
     // Flatten style fields into LabelAndStyle (Label & BookmarkStyle)
-    color: 0xFF6464FF,
+    color: AI_DOC_COLOR,
     isSpeak: false,
     isParagraphBreak: false,
     underline: false,
@@ -392,7 +403,8 @@ export function useBookmarks(
         if (!documentReady.value) return [];
         return bookmarks.value.filter(b => {
             if (isAiDocMarker(b)) {
-                return isBibleDocument && checkOrdinal(b);
+                if (isBibleDocument) return checkOrdinal(b);
+                return isWholePageItem(b, bookInitials, key!);
             } else if(isBibleDocument) {
                 return isBibleBookmark(b) && (noOrdinalNeeded(b) || checkOrdinal(b));
             } else {

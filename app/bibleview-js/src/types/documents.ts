@@ -70,6 +70,7 @@ interface BaseOsisDocument extends BaseDocument {
     sourcePromptId: string | null
     sourcePromptName: string | null
     sourceModelName: string | null
+    aiDocMarkers: AiDocMarker[]
 }
 
 export interface OsisDocument extends BaseOsisDocument {
@@ -86,7 +87,6 @@ export interface ErrorDocument extends BaseDocument {
 export interface BibleDocumentType extends BaseOsisDocument {
     type: "bible"
     bookmarks: BibleBookmark[]
-    aiDocMarkers?: AiDocMarker[]
     bibleBookName: string
     addChapter: boolean
     chapterNumber: number

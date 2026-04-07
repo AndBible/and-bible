@@ -21,7 +21,7 @@
       :key="bookmark.id"
       class="journal-button bookmark-item"
       :style="{ color: getColor(bookmark) }"
-      @click.stop="openBookmark(bookmark)"
+      @click.stop="openItem(bookmark)"
   >
     <FontAwesomeIcon :icon="getIcon(bookmark)" />
     <span v-if="bookmark.hasNote" class="note-indicator">
@@ -38,8 +38,8 @@ import { computed, inject } from "vue";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import { faBookmark, faEdit, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { androidKey, globalBookmarksKey } from "@/types/constants";
-import { BaseBookmark, GenericBookmark } from "@/types/client-objects";
-import { isGenericBookmark, isWholePageBookmark, resolveIcon as resolveIconUtil } from "@/composables/bookmarks";
+import { BaseBookmark } from "@/types/client-objects";
+import { isAiDocMarker, isWholePageItem, resolveIcon as resolveIconUtil } from "@/composables/bookmarks";
 import { useCommon } from "@/composables";
 import { emit } from "@/eventbus";
 
@@ -52,21 +52,16 @@ const globalBookmarks = inject(globalBookmarksKey)!;
 const android = inject(androidKey)!;
 const { config, appSettings, adjustedColor } = useCommon();
 
-const wholePageBookmarks = computed(() => {
-  return globalBookmarks.bookmarks.value.filter(b =>
-    isGenericBookmark(b) &&
-    b.bookInitials === props.bookInitials &&
-    b.key === props.bookKey &&
-    isWholePageBookmark(b)
-  ) as GenericBookmark[];
+const wholePageItems = computed(() => {
+  return globalBookmarks.bookmarks.value.filter(b => isWholePageItem(b, props.bookInitials, props.bookKey));
 });
 
 const visibleBookmarks = computed(() => {
   const hideLabels = new Set(config.bookmarksHideLabels);
-  return wholePageBookmarks.value.filter(b => {
+  return wholePageItems.value.filter(b => {
+    if (isAiDocMarker(b)) return config.showAiDocMarkers;
     if (!config.showBookmarks && !(b.hasNote && config.showMyNotes)) return false;
-    const labelIds = new Set(b.labels);
-    for (const labelId of labelIds) {
+    for (const labelId of b.labels) {
       if (hideLabels.has(labelId)) return false;
     }
     return true;
@@ -91,8 +86,12 @@ function getIcon(bookmark: BaseBookmark) {
   return resolved ?? faBookmark;
 }
 
-function openBookmark(bookmark: BaseBookmark) {
-  emit("bookmark_clicked", bookmark.id);
+function openItem(bookmark: BaseBookmark) {
+  if (isAiDocMarker(bookmark)) {
+    window.android.openAiDocPage(bookmark.documentInitials, bookmark.pageKey);
+  } else {
+    emit("bookmark_clicked", bookmark.id);
+  }
 }
 
 function createBookmark() {

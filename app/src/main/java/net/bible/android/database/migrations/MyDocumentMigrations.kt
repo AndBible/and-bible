@@ -30,4 +30,12 @@ private val addOrdinalRangeIndex = makeMigration(2..3) { db ->
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_kjvOrdinalStart_kjvOrdinalEnd` ON `AiPageCacheEntry` (`kjvOrdinalStart`, `kjvOrdinalEnd`)")
 }
 
-val myDocumentMigrations: Array<Migration> = arrayOf(addSourceModelName, addOrdinalRangeIndex)
+private val addSourceBookFields = makeMigration(3..4) { db ->
+    db.execSQL("ALTER TABLE `AiPageCacheEntry` ADD COLUMN `sourceBookInitials` TEXT DEFAULT NULL")
+    db.execSQL("ALTER TABLE `AiPageCacheEntry` ADD COLUMN `sourceBookKey` TEXT DEFAULT NULL")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_AiPageCacheEntry_sourceBookInitials_sourceBookKey` ON `AiPageCacheEntry` (`sourceBookInitials`, `sourceBookKey`)")
+    db.execSQL("DROP VIEW IF EXISTS `AiCachedPageWithContent`")
+    db.execSQL("CREATE VIEW `AiCachedPageWithContent` AS SELECT c.pageId, c.sourcePromptId, c.sourceContext, c.kjvOrdinalStart,\n           c.kjvOrdinalEnd, c.contextHash, c.usedWriteTools, c.sourceModelName,\n           c.sourceBookInitials, c.sourceBookKey,\n           p.title, p.pageKey, p.contentType, p.documentId,\n           p.orderNumber, p.createdAt, p.updatedAt, p.languageCode, cnt.content\n    FROM AiPageCacheEntry c\n    INNER JOIN MyDocumentPage p ON c.pageId = p.id\n    LEFT OUTER JOIN MyDocumentPageContent cnt ON p.id = cnt.pageId")
+}
+
+val myDocumentMigrations: Array<Migration> = arrayOf(addSourceModelName, addOrdinalRangeIndex, addSourceBookFields)

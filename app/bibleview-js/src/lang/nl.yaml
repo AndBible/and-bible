@@ -40,14 +40,12 @@ referenceLink: Open referentie link
 openFootnote: Voetnoot openen
 noMyNotesTitle: Geen persoonlijke notities voor dit hoofdstuk.
 noMyNotesDescription: Start met het creëren van bladwijzers in een bijbel document. Deze bladwijzers zullen hier verschijnen en je kan ook persoonlijke notities toevoegen.
-
 emptyStudyPad: Lege studiemap. Maak tekst items in deze studiemap en voeg bladwijzers toe door ze aan te maken en het label van deze studiemap te geven.
-
 doYouWantToDeleteEntry: Wis dit item uit de studiemap?
 removeStudyPadConfirmationTitle: Verwijder dit item uit de studiemap?
 dragHelp: Wijzig volgorde door te slepen
 openAll: Open alle referenties
-editBookmarkPlaceholder: Tik om Mijn Notities te wijzigen voor deze bladwijzer. 
+editBookmarkPlaceholder: Tik om Mijn Notities te wijzigen voor deze bladwijzer.
 onlyLabel: Alleen label
 wholeBookmark: Hele bladwijzer
 assignLabelsMenuEntry1: Selecteer of wijzig labels...
@@ -59,13 +57,13 @@ openDownloads: Ga naar uitbreiding downloads
 verseShare: Delen
 verseSpeak: Voorlezen
 verseCompare: Vergelijken
-verseMemorize: ""
+verseMemorize: Memoriseren
 verseNote: Notitie
 verseMyNotes: Mijn notities
-verseParagraphBreak: ""
+verseParagraphBreak: Alinea
 verseShareLong: Dit vers delen
 verseCompareLong: Vers vergelijken
-verseMemorizeLong: ""
+verseMemorizeLong: Bijbelverzen memoriseren
 addMemorizationTarget: Doel +
 addMemorizationTargetLong: Instellen als memorisatiedoel
 removeMemorizationTarget: Doel -
@@ -77,32 +75,32 @@ viewReadingProgress: Lees-/geheugenvoortgang
 viewReadingProgressSettings: Lees-/geheugeninstellingen
 listenInLoop: Luisteren in lus
 verseNoteLong: Schrijf een notitie
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Alineascheiding
 addBookmark: Bladwijzer
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Aangepast markeerpictogram kiezen
+bookmarkSettingsTitle: Bladwijzerinstellingen configureren
+subtitlePlaceholder: Ondertiteltekst
+customIconLabel: Aangepast pictogram
+editActionLabel: Actie bewerken
+editActionModeLabel: Modus
+editActionModeNone: Geen
+editActionModeAppend: Tekst toevoegen achteraan
+editActionModePrepend: Tekst toevoegen vooraan
+editActionContentLabel: Inhoud
+editActionContentPlaceholder: Voer in te voegen tekst in...
+experimentalFeatureTitle: Experimenteel
+experimentalFeatureHelpTitle: Over experimentele functies
+experimentalFeatureHelpContent: Experimentele functies zijn nieuwe mogelijkheden die nog in ontwikkeling en testfase zijn. Ze werken mogelijk niet perfect en kunnen in toekomstige versies van de app aanzienlijk veranderen of worden verwijderd.
+insertParagraphBreak: Alineascheiding invoegen
+insertSubtitle: Ondertitel invoegen
+xmlParseError: XML-parserfout
+invalidTag: Ongeldige tag
+invalidClosingTag: Ongeldige sluitingstag
+unmatchedClosingTag: Niet-overeenkomende sluitingstag
+unclosedTag: Niet-gesloten tag
+unknownError: Onbekende fout
+wordBlur: Vervagen
+wordScramble: Door elkaar
 wordType: Type
 wordOrder: Volgorde
 typeEverything: Volledige woorden typen
