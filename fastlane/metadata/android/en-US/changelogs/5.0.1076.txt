@@ -1,0 +1,24 @@
+**New Features:**
+- Inline document action menu with bookmark state indicator (bb5db93b)
+- AI document markers appear on commentary pages as whole-page bookmarks (62b7fe9a8)
+
+**Improvements:**
+- Complete translation coverage for Hungarian and Croatian languages (4555d3aa1, ad48abac6)
+- Update translations for Dutch, Czech, Lithuanian, and other languages (7c22fe53d, 5ccac9b46, 87ee44fae)
+
+**Bug Fixes:**
+- Prevent crash when visibleWindows list is empty during workspace transitions (db04c8b90)
+- Fix text transformation prompts from exposing all tools to the LLM (05eed12d9)
+- Fix translation contamination and quality issues (parameter swaps, typos, spacing) across multiple languages (73a1a4338, f867fa21c, 3e2a98d3a, 1b34c2ef4)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
