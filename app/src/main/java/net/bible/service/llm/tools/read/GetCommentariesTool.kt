@@ -87,6 +87,7 @@ object GetCommentariesTool : Tool {
     data class CommentaryResult(
         val initials: String,
         val name: String,
+        val abbreviation: String,
         val entries: List<CommentaryEntry>
     )
 
@@ -108,19 +109,9 @@ object GetCommentariesTool : Tool {
         Supports verse ranges (e.g. 'Matt.5.1-10') — iterates through each verse and deduplicates
         identical content that commentaries repeat across consecutive verses.
 
-        IMPORTANT: Each entry includes 'linkUrl' (already properly URL-encoded).
-        When citing commentaries in your response, ALWAYS use the linkUrl value directly
-        in clickable links. Example: [MHC](sword://MHC/Matt.5.3)
-        Note: Some module initials contain spaces. The linkUrl handles encoding for you,
-        so always use it as-is rather than constructing URLs manually.
-
-        Commentary text includes anchor markers like [§5] at each sentence boundary.
-        ALWAYS use these anchors to make your citations as precise as possible.
-        Append anchor ordinal(s) to the linkUrl:
-        - Single sentence: [MHC §5](sword://MHC/Matt.5.3#o5)
-        - Range of sentences: [MHC §5-10](sword://MHC/Matt.5.3#o5-10)
-        The cited range will be highlighted when the user clicks the link.
-        Prefer ranges over single anchors when citing multi-sentence passages.
+        Each entry includes 'linkUrl' (already URL-encoded). Use it in citation links.
+        Commentary text includes anchor markers like [§N] — use these for precise citations
+        as described in the system instructions.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""
@@ -262,6 +253,7 @@ object GetCommentariesTool : Tool {
                 commentaryResults.add(CommentaryResult(
                     initials = commentary.initials,
                     name = commentary.name,
+                    abbreviation = commentary.abbreviation,
                     entries = entries
                 ))
             } catch (_: Exception) {

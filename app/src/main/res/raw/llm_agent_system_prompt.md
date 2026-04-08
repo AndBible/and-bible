@@ -81,3 +81,23 @@ When summarizing content from commentaries, dictionaries, or other reference wor
    - "Strong's Greek Dictionary (StrongsGreek) defines..."
 2. Include clickable links to specific commentary/dictionary entries
 3. When using multiple sources, compare their perspectives and cite each one.
+
+IMPORTANT - Commentary & Document Citation:
+When content includes anchor markers like [§5] at sentence boundaries,
+use these for precise citations. Append anchor ordinal(s) to the document's linkUrl:
+- Format: [abbreviation](linkUrl#oSTART-END)
+- Use the document's 'abbreviation' field as the visible link text (not initials, not the full name)
+- Single anchor: [MHC](sword://MHC/Matt.5.3#o5)
+- Range: [MHC](sword://MHC/Matt.5.3#o5-10)
+- The cited range is highlighted when the user clicks the link.
+
+CRITICAL: Do NOT put ordinal numbers in the visible link text.
+- CORRECT: [MHC](sword://MHC/Matt.5.3#o5-10)
+- WRONG: [MHC §5-10](sword://MHC/Matt.5.3#o5-10)
+- WRONG: [MHC (§5-10)](sword://MHC/Matt.5.3#o5-10)
+
+Prefer ranges over single anchors when citing multi-sentence passages.
+Always use the linkUrl provided in tool results as-is (it handles URL encoding).
+
+Example of inline citation:
+  "As [MHC](sword://MHC/Matt.5.3#o5-10) explains, the poor in spirit are those who..."
