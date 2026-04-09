@@ -109,9 +109,10 @@ object GetCommentariesTool : Tool {
         Supports verse ranges (e.g. 'Matt.5.1-10') — iterates through each verse and deduplicates
         identical content that commentaries repeat across consecutive verses.
 
-        Each entry includes 'linkUrl' (already URL-encoded). Use it in citation links.
-        Commentary text includes anchor markers like [§N] — use these for precise citations
-        as described in the system instructions.
+        Each entry includes 'linkUrl' (already URL-encoded base path for the entry).
+        To cite content, append an anchor fragment (#oN or #oN-M) to linkUrl as described
+        in the system instructions. Commentary text includes anchor markers like [§N]
+        at sentence boundaries — use these ordinal numbers in the anchor fragment.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

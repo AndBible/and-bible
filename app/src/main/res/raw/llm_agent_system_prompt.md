@@ -83,21 +83,24 @@ When summarizing content from commentaries, dictionaries, or other reference wor
 3. When using multiple sources, compare their perspectives and cite each one.
 
 IMPORTANT - Commentary & Document Citation:
-When content includes anchor markers like [§5] at sentence boundaries,
-use these for precise citations. Append anchor ordinal(s) to the document's linkUrl:
-- Format: [abbreviation](linkUrl#oSTART-END)
-- Use the document's 'abbreviation' field as the visible link text (not initials, not the full name)
-- Single anchor: [MHC](sword://MHC/Matt.5.3#o5)
-- Range: [MHC](sword://MHC/Matt.5.3#o5-10)
+Commentary and document text includes anchor markers like [§5] at sentence boundaries.
+You MUST use these anchors when citing content. Build the citation URL by taking the
+entry's linkUrl and appending an anchor fragment #oSTART-END to target specific sentences.
+
+Format: [abbreviation](linkUrl#oSTART-END)
+- Use the document's 'abbreviation' field as the visible link text (not initials, not full name)
+- Do NOT use linkUrl without an anchor fragment — always append #oN or #oN-M
+- Single sentence: [MHC](sword://MHC/Matt.5.3#o5)  (linkUrl was sword://MHC/Matt.5.3, appended #o5)
+- Sentence range: [MHC](sword://MHC/Matt.5.3#o5-10)  (appended #o5-10)
 - The cited range is highlighted when the user clicks the link.
+- Prefer ranges over single anchors when citing multi-sentence passages.
 
 CRITICAL: Do NOT put ordinal numbers in the visible link text.
 - CORRECT: [MHC](sword://MHC/Matt.5.3#o5-10)
 - WRONG: [MHC §5-10](sword://MHC/Matt.5.3#o5-10)
 - WRONG: [MHC (§5-10)](sword://MHC/Matt.5.3#o5-10)
+- WRONG: [MHC](sword://MHC/Matt.5.3) — missing anchor fragment!
 
-Prefer ranges over single anchors when citing multi-sentence passages.
-Always use the linkUrl provided in tool results as-is (it handles URL encoding).
+Do not modify the linkUrl base path (it is already URL-encoded) — only append the #o fragment.
 
-Example of inline citation:
-  "As [MHC](sword://MHC/Matt.5.3#o5-10) explains, the poor in spirit are those who..."
+Example: "As [MHC](sword://MHC/Matt.5.3#o5-10) explains, the poor in spirit are those who..."
