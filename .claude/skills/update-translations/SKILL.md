@@ -9,7 +9,7 @@ description: >
 
 # Update Translations
 
-Translate missing UI strings for AndBible — both Android XML and Vue.js YAML — with consistent terminology, correct structure, and full validation. Supports single language or all languages at once.
+Translate missing UI strings for AndBible — Android XML, Vue.js YAML, and Play Store descriptions — with consistent terminology, correct structure, and full validation. Supports single language or all languages at once.
 
 ## When to Use
 
@@ -27,7 +27,9 @@ Translate missing UI strings for AndBible — both Android XML and Vue.js YAML �
 4. Dispatch translation agents with glossary + chunks
 5. Restructure Android XML (run restructure.py with chunk directory)
 6. Restructure Vue.js YAML (run restructure_yaml.py)
-7. Validate everything (run validate.py)
+7. Restructure Play Store YAML (run restructure_playstore.py)
+8. Validate everything (run validate.py)
+9. Compile Play Store descriptions (run play/compile_description.py)
 ```
 
 ### All Languages
@@ -60,6 +62,9 @@ Some languages may not yet have a Vue.js translation file. The `restructure_yaml
 |------|---------------|--------|
 | Android | `app/src/main/res/values/strings.xml` | `app/src/main/res/values-{android_code}/strings.xml` |
 | Vue.js | `app/bibleview-js/src/lang/default.yaml` | `app/bibleview-js/src/lang/{vuejs_code}.yaml` |
+| Play Store | `play/playstore-description.yml` | `play/description-translations/{playstore_code}.yml` |
+
+Play Store descriptions use Jinja2 templates with `{{ variable }}` placeholders (e.g. `{{ title }}`, `{{ total_documents }}`). These must be preserved verbatim in translations. After translating, run `python3 play/compile_description.py` to compile YAML → fastlane text files.
 
 ## Scripts
 
@@ -88,8 +93,15 @@ python3 $SKILL/restructure.py LANG tmp/translate-chunks/ --keep-stale   # keep s
 python3 $SKILL/restructure_yaml.py LANG                          # restructure only
 python3 $SKILL/restructure_yaml.py LANG tmp/translate-results/new.yaml     # merge new + restructure
 
-# Step 7: Validate coverage, format specifiers, order, XML
+# Step 7: Restructure Play Store YAML (merges + preserves base key order + comments)
+python3 $SKILL/restructure_playstore.py LANG                                    # restructure only
+python3 $SKILL/restructure_playstore.py LANG tmp/translate-results/playstore.yml # merge new + restructure
+
+# Step 8: Validate coverage, format specifiers, order, XML, Play Store lengths
 python3 $SKILL/validate.py LANG
+
+# Step 9: Compile Play Store descriptions (YAML → fastlane text files)
+cd play && python3 compile_description.py && cd ..
 
 # Scan all languages (for all-languages workflow)
 python3 $SKILL/scan_languages.py                            # full table
@@ -222,13 +234,33 @@ The script:
 - Handles YAML `yes` key (boolean coercion) correctly
 - Preserves proper quoting for strings with `%s`, colons, special characters
 
-## Step 7: Validate
+## Step 7: Restructure Play Store YAML
+
+```bash
+# Merge new translations and restructure:
+python3 $SKILL/restructure_playstore.py LANG tmp/translate-results/playstore.yml
+
+# Or just restructure existing translations:
+python3 $SKILL/restructure_playstore.py LANG
+```
+
+The script preserves the base file's key order and comments, drops stale keys, and handles YAML quoting.
+
+## Step 8: Validate
 
 ```bash
 python3 $SKILL/validate.py LANG
 ```
 
-Checks: coverage, format specifiers, string/key order, XML well-formedness, empty values.
+Checks: coverage, format specifiers, string/key order, XML well-formedness, empty values, Play Store template variables and length limits (title ≤ 50, short_description ≤ 80).
+
+## Step 9: Compile Play Store Descriptions
+
+```bash
+cd play && python3 compile_description.py && cd ..
+```
+
+Compiles all Play Store YAML translations into `fastlane/metadata/android/` text files. Run this after all languages are updated. Warns about title > 30, short_description > 80, and full_description > 4000 chars.
 
 ### Additional validation
 
@@ -272,13 +304,15 @@ SKILL=.claude/skills/update-translations
 2. python3 $SKILL/find_missing.py XX → see what's missing
 3. python3 $SKILL/prepare_chunks.py XX → chunk files in tmp/translate-chunks/
 4. Dispatch agents (1 per chunk) with glossary + chunk content
-5. Save agent output to tmp/translate-results/*.xml and *.yaml
+5. Save agent output to tmp/translate-results/*.xml, *.yaml, and *_playstore.yml
 6. python3 $SKILL/restructure.py XX tmp/translate-results/
 7. python3 $SKILL/restructure_yaml.py XX tmp/translate-results/vuejs.yaml
-8. python3 $SKILL/validate.py XX
-9. xmllint --noout app/src/main/res/values-XX/strings.xml
-10. cd app/bibleview-js && npm run test:ci && npm run lint
-11. cd back to repo root!
+8. python3 $SKILL/restructure_playstore.py XX tmp/translate-results/XX_playstore.yml
+9. python3 $SKILL/validate.py XX
+10. xmllint --noout app/src/main/res/values-XX/strings.xml
+11. cd app/bibleview-js && npm run test:ci && npm run lint
+12. cd back to repo root!
+13. cd play && python3 compile_description.py && cd ..
 ```
 
 ## All Languages Workflow
@@ -358,6 +392,10 @@ Follow these steps exactly. Run all commands from the repo root.
      to tmp/translate-results/{LANG}_chunk_N.xml (one file per input chunk)
    - Vue.js: save as YAML key-value pairs using the Write tool
      to tmp/translate-results/{LANG}_vuejs.yaml
+   - Play Store: save as YAML key-value pairs using the Write tool
+     to tmp/translate-results/{LANG}_playstore.yml
+     IMPORTANT: Preserve {{ variable }} placeholders exactly (e.g. {{ title }}, {{ total_documents }}).
+     title must be ≤ 50 chars, short_description ≤ 80 chars.
    - NEVER use Bash heredocs for XML — always use the Write tool.
 
 5. Restructure Android:
@@ -367,7 +405,10 @@ Follow these steps exactly. Run all commands from the repo root.
 6. Restructure Vue.js (if Vue.js strings were translated):
    python3 $SKILL/restructure_yaml.py {LANG} tmp/translate-results/{LANG}_vuejs.yaml
 
-7. Validate:
+7. Restructure Play Store (if Play Store strings were translated):
+   python3 $SKILL/restructure_playstore.py {LANG} tmp/translate-results/{LANG}_playstore.yml
+
+8. Validate:
    python3 $SKILL/validate.py {LANG}
 
 Report the validation result.
@@ -383,6 +424,14 @@ SKILL=.claude/skills/update-translations
 for lang in $(python3 $SKILL/scan_languages.py --tier 1,2 --json | python3 -c "import sys,json; [print(l['lang']) for l in json.load(sys.stdin)]"); do
   python3 $SKILL/validate.py $lang 2>&1 | tail -1
 done
+```
+
+### Step 4: Compile Play Store
+
+After all languages are validated:
+
+```bash
+cd play && python3 compile_description.py && cd ..
 ```
 
 ### Quick Reference — All Languages

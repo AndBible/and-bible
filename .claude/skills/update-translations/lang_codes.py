@@ -3,7 +3,7 @@
 Shared language metadata for AndBible translation scripts.
 
 Provides language names, Claude translation quality tiers, and
-Android ↔ Vue.js code mappings with path resolution.
+Android ↔ Vue.js ↔ Play Store code mappings with path resolution.
 """
 
 # Claude Sonnet translation quality tiers:
@@ -11,53 +11,53 @@ Android ↔ Vue.js code mappings with path resolution.
 # Tier 2: Good — medium-resource languages, generally reliable
 # Tier 3: Fair — lower-resource, quality may vary significantly
 
-# Each entry: (human name, tier, android dir code, vuejs file code or None)
+# Each entry: (human name, tier, android dir code, vuejs file code, playstore file code or None)
 # The dict key is the "canonical code" (= Android directory suffix for most languages).
 LANGUAGES = {
-    'af':        ('Afrikaans',              2, 'af',       'af'),
-    'ar':        ('Arabic',                 1, 'ar',       'ar'),
-    'az':        ('Azerbaijani',            3, 'az',       'az'),
-    'b+sr+Latn': ('Serbian (Latin)',        2, 'b+sr+Latn','b+sr+Latn'),
-    'b+sr+RS':   ('Serbian (Cyrillic)',     2, 'b+sr+RS',  'b+sr+RS'),
-    'bg':        ('Bulgarian',              1, 'bg',       'bg'),
-    'bn':        ('Bengali',                2, 'bn',       'bn'),
-    'cs':        ('Czech',                  1, 'cs',       'cs'),
-    'de':        ('German',                 1, 'de',       'de'),
-    'el':        ('Greek',                  1, 'el',       'el'),
-    'eo':        ('Esperanto',              2, 'eo',       'eo'),
-    'es':        ('Spanish',                1, 'es',       'es'),
-    'et':        ('Estonian',               2, 'et',       'et'),
-    'fi':        ('Finnish',                1, 'fi',       'fi'),
-    'fr':        ('French',                 1, 'fr',       'fr'),
-    'hi':        ('Hindi',                  1, 'hi',       'hi'),
-    'hr':        ('Croatian',               1, 'hr',       'hr'),
-    'hu':        ('Hungarian',              1, 'hu',       'hu'),
-    'in':        ('Indonesian',             2, 'in',       'in'),
-    'it':        ('Italian',                1, 'it',       'it'),
-    'iw':        ('Hebrew',                 1, 'iw',       'he'),
-    'kk':        ('Kazakh',                 3, 'kk',       'kk'),
-    'ko':        ('Korean',                 1, 'ko',       'ko'),
-    'lt':        ('Lithuanian',             2, 'lt',       'lt'),
-    'ml':        ('Malayalam',              3, 'ml',       'ml'),
-    'my':        ('Burmese',                3, 'my',       'my'),
-    'nb':        ('Norwegian Bokmål',       2, 'nb',       'nb'),
-    'nl':        ('Dutch',                  1, 'nl',       'nl'),
-    'pl':        ('Polish',                 1, 'pl',       'pl'),
-    'pt':        ('Portuguese',             1, 'pt',       'pt'),
-    'pt-rBR':    ('Portuguese (Brazil)',    1, 'pt-rBR',   'pt-BR'),
-    'ro':        ('Romanian',               1, 'ro',       'ro'),
-    'ru':        ('Russian',                1, 'ru',       'ru'),
-    'sk':        ('Slovak',                 2, 'sk',       'sk'),
-    'sl':        ('Slovenian',              2, 'sl',       'sl'),
-    'sv':        ('Swedish',                1, 'sv',       'sv'),
-    'ta':        ('Tamil',                  2, 'ta',       'ta'),
-    'te':        ('Telugu',                 2, 'te',       'te'),
-    'tr':        ('Turkish',                1, 'tr',       'tr'),
-    'uk':        ('Ukrainian',              1, 'uk',       'uk'),
-    'uz':        ('Uzbek',                  3, 'uz',       'uz'),
-    'yue':       ('Cantonese',              3, 'yue',      'yue'),
-    'zh-rCN':    ('Chinese (Simplified)',   1, 'zh-rCN',   'zh-CN'),
-    'zh-rTW':    ('Chinese (Traditional)',  1, 'zh-rTW',   'zh'),
+    'af':        ('Afrikaans',              2, 'af',       'af',       'af'),
+    'ar':        ('Arabic',                 1, 'ar',       'ar',       'ar'),
+    'az':        ('Azerbaijani',            3, 'az',       'az',       'az-AZ'),
+    'b+sr+Latn': ('Serbian (Latin)',        2, 'b+sr+Latn','b+sr+Latn','sr'),
+    'b+sr+RS':   ('Serbian (Cyrillic)',     2, 'b+sr+RS',  'b+sr+RS',  'sr'),
+    'bg':        ('Bulgarian',              1, 'bg',       'bg',       'bg'),
+    'bn':        ('Bengali',                2, 'bn',       'bn',       'bn-BD'),
+    'cs':        ('Czech',                  1, 'cs',       'cs',       'cs-CZ'),
+    'de':        ('German',                 1, 'de',       'de',       'de-DE'),
+    'el':        ('Greek',                  1, 'el',       'el',       'el-GR'),
+    'eo':        ('Esperanto',              2, 'eo',       'eo',       'eo'),
+    'es':        ('Spanish',                1, 'es',       'es',       'es-ES'),
+    'et':        ('Estonian',               2, 'et',       'et',       'et'),
+    'fi':        ('Finnish',                1, 'fi',       'fi',       'fi-FI'),
+    'fr':        ('French',                 1, 'fr',       'fr',       'fr-FR'),
+    'hi':        ('Hindi',                  1, 'hi',       'hi',       'hi-IN'),
+    'hr':        ('Croatian',               1, 'hr',       'hr',       'hr'),
+    'hu':        ('Hungarian',              1, 'hu',       'hu',       'hu-HU'),
+    'in':        ('Indonesian',             2, 'in',       'in',       'id'),
+    'it':        ('Italian',                1, 'it',       'it',       'it-IT'),
+    'iw':        ('Hebrew',                 1, 'iw',       'he',       'iw-IL'),
+    'kk':        ('Kazakh',                 3, 'kk',       'kk',       'kk'),
+    'ko':        ('Korean',                 1, 'ko',       'ko',       'ko-KR'),
+    'lt':        ('Lithuanian',             2, 'lt',       'lt',       'lt'),
+    'ml':        ('Malayalam',              3, 'ml',       'ml',       'ml-IN'),
+    'my':        ('Burmese',                3, 'my',       'my',       'my-MM'),
+    'nb':        ('Norwegian Bokmål',       2, 'nb',       'nb',       'no-NO'),
+    'nl':        ('Dutch',                  1, 'nl',       'nl',       'nl-NL'),
+    'pl':        ('Polish',                 1, 'pl',       'pl',       'pl-PL'),
+    'pt':        ('Portuguese',             1, 'pt',       'pt',       'pt-PT'),
+    'pt-rBR':    ('Portuguese (Brazil)',    1, 'pt-rBR',   'pt-BR',    'pt-BR'),
+    'ro':        ('Romanian',               1, 'ro',       'ro',       'ro'),
+    'ru':        ('Russian',                1, 'ru',       'ru',       'ru-RU'),
+    'sk':        ('Slovak',                 2, 'sk',       'sk',       'sk'),
+    'sl':        ('Slovenian',              2, 'sl',       'sl',       'sl'),
+    'sv':        ('Swedish',                1, 'sv',       'sv',       'sv-SE'),
+    'ta':        ('Tamil',                  2, 'ta',       'ta',       'ta-IN'),
+    'te':        ('Telugu',                 2, 'te',       'te',       'te-IN'),
+    'tr':        ('Turkish',                1, 'tr',       'tr',       'tr-TR'),
+    'uk':        ('Ukrainian',              1, 'uk',       'uk',       'uk'),
+    'uz':        ('Uzbek',                  3, 'uz',       'uz',       'uz'),
+    'yue':       ('Cantonese',              3, 'yue',      'yue',      'yue'),
+    'zh-rCN':    ('Chinese (Simplified)',   1, 'zh-rCN',   'zh-CN',    'zh-CN'),
+    'zh-rTW':    ('Chinese (Traditional)',  1, 'zh-rTW',   'zh',       'zh-TW'),
 }
 
 # Android directory codes to skip in "all languages" mode
@@ -70,7 +70,7 @@ SKIP_CODES = {
 
 # Reverse lookup: Vue.js code → canonical code (for languages where codes differ)
 _VUEJS_TO_CANONICAL = {}
-for _key, (_name, _tier, _android, _vuejs) in LANGUAGES.items():
+for _key, (_name, _tier, _android, _vuejs, _playstore) in LANGUAGES.items():
     if _vuejs and _vuejs != _android:
         _VUEJS_TO_CANONICAL[_vuejs] = _key
 
@@ -99,7 +99,7 @@ def resolve_paths(lang):
     entry = LANGUAGES.get(canonical)
 
     if entry:
-        _name, _tier, android_code, vuejs_code = entry
+        _name, _tier, android_code, vuejs_code, _playstore = entry
     else:
         # Unknown language — assume same code for both
         android_code = canonical
@@ -110,14 +110,24 @@ def resolve_paths(lang):
     android_target = f'app/src/main/res/values-{android_code}/strings.xml'
     vuejs_target = f'app/bibleview-js/src/lang/{vuejs_code}.yaml' if vuejs_code else None
 
+    # Play Store paths
+    playstore_code = None
+    if entry:
+        playstore_code = entry[4]
+    playstore_base = 'play/playstore-description.yml'
+    playstore_target = f'play/description-translations/{playstore_code}.yml' if playstore_code else None
+
     return {
         'lang': canonical,
         'android_code': android_code,
         'vuejs_code': vuejs_code,
+        'playstore_code': playstore_code,
         'android_base': android_base,
         'android_target': android_target,
         'vuejs_base': vuejs_base,
         'vuejs_target': vuejs_target,
+        'playstore_base': playstore_base,
+        'playstore_target': playstore_target,
     }
 
 
@@ -144,7 +154,7 @@ def get_translatable_languages(tiers=None):
     only returns languages in those tiers.
     """
     result = []
-    for code, (_name, tier, _android, _vuejs) in LANGUAGES.items():
+    for code, (_name, tier, _android, _vuejs, _playstore) in LANGUAGES.items():
         if code in SKIP_CODES:
             continue
         if tiers and tier not in tiers:

@@ -168,6 +168,59 @@ def main():
 
             print(f"  Keys: {len(target_keys)}/{len(base_keys)}")
 
+    # ===== PLAY STORE =====
+    print("Validating Play Store YAML...")
+
+    playstore_base = paths['playstore_base']
+    playstore_target = paths['playstore_target']
+
+    if playstore_target is None:
+        print("  Play Store: N/A (no Play Store code for this language)")
+    elif not os.path.exists(playstore_target):
+        warnings.append(f"Play Store target file missing: {playstore_target}")
+    else:
+        try:
+            with open(playstore_base) as f:
+                ps_base_data = yaml.safe_load(f) or {}
+            with open(playstore_target) as f:
+                ps_target_data = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            errors.append(f"Play Store YAML parse error: {e}")
+            ps_base_data = None
+            ps_target_data = None
+
+        if ps_base_data is not None and ps_target_data is not None:
+            ps_base_keys = {k for k, v in ps_base_data.items()
+                           if v is not None and str(v).strip()}
+            ps_filled = {k for k, v in ps_target_data.items()
+                         if v is not None and str(v).strip()}
+            ps_missing = ps_base_keys - ps_filled
+            if ps_missing:
+                warnings.append(f"Play Store: {len(ps_missing)} missing/empty keys: {sorted(ps_missing)[:10]}")
+
+            # Check template variables are preserved
+            for k in ps_target_data:
+                if k in ps_base_data:
+                    base_val = str(ps_base_data[k])
+                    target_val = str(ps_target_data[k])
+                    # Check {{ variable }} placeholders
+                    import re
+                    base_vars = set(re.findall(r'\{\{(\w+)\}\}', base_val))
+                    target_vars = set(re.findall(r'\{\{(\w+)\}\}', target_val))
+                    if base_vars and base_vars != target_vars:
+                        errors.append(f"Play Store template var mismatch in '{k}': "
+                                     f"base={base_vars}, target={target_vars}")
+
+            # Length checks
+            title = str(ps_target_data.get('title', '')).strip()
+            if title and len(title) > 50:
+                warnings.append(f"Play Store: title too long ({len(title)} > 50 chars)")
+            short = str(ps_target_data.get('short_description', '')).strip()
+            if short and len(short) > 80:
+                warnings.append(f"Play Store: short_description too long ({len(short)} > 80 chars)")
+
+            print(f"  Keys filled: {len(ps_filled)}/{len(ps_base_keys)}")
+
     # ===== RESULTS =====
     print()
     if warnings:

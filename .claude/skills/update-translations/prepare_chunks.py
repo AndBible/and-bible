@@ -113,8 +113,36 @@ def main():
                 for key, value in missing_yaml:
                     f.write(f'{key}|||{value}\n')
 
+    # --- Play Store ---
+    playstore_base_path = paths['playstore_base']
+    playstore_target = paths['playstore_target']
+    missing_playstore = []
+    playstore_path = None
+
+    if playstore_target is not None and os.path.exists(playstore_base_path):
+        with open(playstore_base_path) as f:
+            ps_base = yaml.safe_load(f) or {}
+        ps_base_keys = {k: str(v).strip() for k, v in ps_base.items()
+                        if v is not None and str(v).strip()}
+
+        ps_target = {}
+        if os.path.exists(playstore_target):
+            with open(playstore_target) as f:
+                ps_target = yaml.safe_load(f) or {}
+
+        ps_filled = {k for k, v in ps_target.items()
+                     if v is not None and str(v).strip()}
+        missing_playstore = [(k, ps_base_keys[k]) for k in ps_base_keys
+                             if k not in ps_filled]
+
+        if missing_playstore:
+            playstore_path = os.path.join(output_dir, f'{lang}_playstore.txt')
+            with open(playstore_path, 'w') as f:
+                for key, value in missing_playstore:
+                    f.write(f'{key}|||{value}\n')
+
     # --- Summary ---
-    total_missing = len(missing_android) + len(missing_yaml)
+    total_missing = len(missing_android) + len(missing_yaml) + len(missing_playstore)
     if total_missing == 0:
         print(f"Nothing missing for '{lang}'. All translations complete.")
         sys.exit(0)
@@ -140,9 +168,17 @@ def main():
     else:
         print("Vue.js: complete")
 
+    if playstore_target is None:
+        print("Play Store: N/A (no Play Store code for this language)")
+    elif missing_playstore:
+        print(f"Play Store: {len(missing_playstore)} missing → 1 file")
+        print(f"  {playstore_path} ({len(missing_playstore)} keys)")
+    else:
+        print("Play Store: complete")
+
+    file_count = len(android_chunks) + (1 if missing_yaml else 0) + (1 if missing_playstore else 0)
     print()
-    print(f"Total: {total_missing} missing strings in {len(android_chunks) + (1 if missing_yaml else 0)} files")
-    print(f"Dispatch {len(android_chunks)} Android agent(s) + {1 if missing_yaml else 0} Vue.js agent(s)")
+    print(f"Total: {total_missing} missing strings in {file_count} files")
 
 
 if __name__ == '__main__':
