@@ -178,6 +178,7 @@ import org.crosswire.jsword.versification.system.Versifications
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlin.system.exitProcess
@@ -236,6 +237,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     private var transportBarVisible = false
         get() = if (isFullScreen) false else field
         set(value) {
+            if (field == value) return
             binding.speakButton.alpha = if(value) 0.7F else 1.0F
             field = value
             ABEventBus.post(SpeakTransportVisibilityChanged(value))
@@ -544,7 +546,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             }
             docDao.insert(allDocs)
         } else {
-            knownInstalled.map {
+            knownInstalled.forEach {
                 Log.i(TAG, "The ${it.name} is installed")
             }
         }
@@ -656,24 +658,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val extraMessage = ""
-            //""""
-            //    |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (6th Oct 2023)</b><br><br>
-            //    |Stable release is approaching. If everything goes as planned
-            //    |(especially if there are no important UI translations lacking)
-            //    |we will release 5.0 to stable channels around 2nd November, 2023. <br>
-            //    |<br>
-            //    |Please test new features and report any bugs (crashes or misbehaviors) you find
-            //    |using either Main Menu -> Report a bug or via <a href="https://github.com/AndBible/and-bible/issues/new/choose">Github</a>.
-            //    |<br>
-            //    |<br>
-            //    | Best regards, Tuomas<br><br>
-            //    | P.S. You can now support AndBible development financially by <a href="$buyDevelopmentLink">buying development hours</a>.
-            //    | <br><br>
-            //    | (Standard beta notice below)
-            //    | <br><br>
-            //""".trimMargin()
-            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
+            val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
 
@@ -704,20 +689,16 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
                 Log.i(TAG, "onFling")
                 e1 ?: return false
-                val vertical = Math.abs(e1.y - e2.y).toDouble()
-                val horizontal = Math.abs(e1.x - e2.x).toDouble()
+                val vertical = abs(e1.y - e2.y).toDouble()
+                val horizontal = abs(e1.x - e2.x).toDouble()
 
-                if (vertical > scaledMinimumDistance && Math.abs(velocityY) > minScaledVelocity) {
+                if (vertical > scaledMinimumDistance && abs(velocityY) > minScaledVelocity) {
                     val intent = Intent(this@MainBibleActivity, WorkspaceSelectorActivity::class.java)
                     startActivityForResult(intent, WORKSPACE_CHANGED)
                     return true
 
-                } else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
-                    if (e1.x > e2.x) {
-                        nextWorkspace()
-                    } else {
-                        previousWorkspace()
-                    }
+                } else if (horizontal > scaledMinimumDistance && abs(velocityX) > minScaledVelocity) {
+                    cycleWorkspace(forward = e1.x > e2.x)
                     return true
                 }
 
@@ -869,23 +850,17 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     val workspaces get() = dao.allWorkspaces()
     lateinit var windowRepository: WindowRepository
 
-    private fun previousWorkspace() {
+    private fun cycleWorkspace(forward: Boolean) {
         val workspaces = workspaces
         if(workspaces.size < 2) return
         windowRepository.saveIntoDb()
         val currentWorkspacePos = workspaces.indexOf(workspaces.find {it.id == currentWorkspaceId})
-
-        currentWorkspaceId = if(currentWorkspacePos > 0) workspaces[currentWorkspacePos - 1].id else workspaces[workspaces.size -1].id
-    }
-
-    private fun nextWorkspace() {
-        val workspaces = workspaces
-        if(workspaces.size < 2) return
-        windowRepository.saveIntoDb()
-
-        val currentWorkspacePos = workspaces.indexOf(workspaces.find {it.id == currentWorkspaceId})
-
-        currentWorkspaceId = if(currentWorkspacePos < workspaces.size - 1) workspaces[currentWorkspacePos + 1].id else workspaces[0].id
+        val nextPos = if (forward) {
+            if (currentWorkspacePos < workspaces.size - 1) currentWorkspacePos + 1 else 0
+        } else {
+            if (currentWorkspacePos > 0) currentWorkspacePos - 1 else workspaces.size - 1
+        }
+        currentWorkspaceId = workspaces[nextPos].id
     }
 
     private var currentWorkspaceId
@@ -1088,26 +1063,19 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
     }
 
     private fun updateStrongsButton() {
-        if(documentControl.isNewTestament) {
-            when (dummyStrongsPrefOption.value) {
-                0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
-                1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links)
-                2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek_links_text)
-                3 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_greek)
-            }
-        } else {
-            when (dummyStrongsPrefOption.value) {
-                0 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
-                1 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links)
-                2 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew_links_text)
-                3 -> binding.strongsButton.setImageResource(R.drawable.ic_strongs_hebrew)
-            }
-        }
-        if(dummyStrongsPrefOption.value == 0) {
-            val alpha = if(CommonUtils.settings.disableAnimations) 0.8F else 0.5F
-            binding.strongsButton.alpha = alpha
-        } else
-            binding.strongsButton.alpha = 1.0F
+        val prefValue = dummyStrongsPrefOption.value
+        val icons = if (documentControl.isNewTestament)
+            intArrayOf(R.drawable.ic_strongs_greek, R.drawable.ic_strongs_greek_links, R.drawable.ic_strongs_greek_links_text)
+        else
+            intArrayOf(R.drawable.ic_strongs_hebrew, R.drawable.ic_strongs_hebrew_links, R.drawable.ic_strongs_hebrew_links_text)
+
+        val iconIndex = if (prefValue as Int in 1..2) prefValue else 0
+        binding.strongsButton.setImageResource(icons[iconIndex])
+
+        binding.strongsButton.alpha = if (prefValue == 0) {
+            if (CommonUtils.settings.disableAnimations) 0.8F else 0.5F
+        } else 1.0F
+
         if (CommonUtils.settings.monochromeMode) {
             binding.strongsButton.imageTintList = ColorStateList.valueOf(Color.BLACK)
         }
@@ -2049,7 +2017,6 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
 
     private fun workspaceSettingsChanged(settingsBundle: SettingsBundle, requiresReload: Boolean = false,
                                          reset: Boolean = false, dirtyTypes: Set<TextDisplaySettings.Types>? = null) {
-        val needsReload = requiresReload
         when (settingsBundle.level) {
             SettingsLevel.WINDOW -> {
                 val window = windowRepository.getWindow(settingsBundle.windowId!!)!!
@@ -2058,7 +2025,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 else
                     settingsBundle.pageManagerSettings!!
 
-                if(needsReload)
+                if(requiresReload)
                     window.loadText()
                 else {
                     window.bibleView?.updateTextDisplaySettings()
@@ -2075,7 +2042,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 if(dirtyTypes != null) {
                     windowRepository.updateWindowTextDisplaySettingsValues(dirtyTypes, settingsBundle.workspaceSettings)
                 }
-                if(needsReload) {
+                if(requiresReload) {
                     ABEventBus.post(SynchronizeWindowsEvent(true))
                 } else {
                     windowRepository.updateAllWindowsTextDisplaySettings()
@@ -2088,7 +2055,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                         dirtyTypes, CommonUtils.globalTextDisplaySettings
                     )
                 }
-                if(needsReload) {
+                if(requiresReload) {
                     ABEventBus.post(SynchronizeWindowsEvent(true))
                 } else {
                     windowRepository.updateAllWindowsTextDisplaySettings()

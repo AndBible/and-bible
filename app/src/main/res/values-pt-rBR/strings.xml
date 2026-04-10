@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Estudos bíblicos</string>
   <string name="app_name_medium">Bíblia de estudo (AndBible)</string>
   <string name="app_name_long">AndBible: Bíblia de estudo</string>
   <string name="project">Projeto Open Source AndBible</string>
+
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Por favor insira um cartão SD e reinicie o aplicativo.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Menu</string>
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passagem</string>
@@ -23,13 +26,15 @@
   <string name="administration">Administração</string>
   <string name="rate_application">Notas e avaliações</string>
   <string name="chooce_document">Escolher documento</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Escolher Livro</string>
   <string name="choosePassageChapterName">Escolher Capítulo</string>
   <string name="choosePassageVerseName">Escolher Versículo</string>
   <string name="bible">Bíblia</string>
   <string name="deuterocanonical">Deuterocanônico</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Índice de pesquisa</string>
   <string name="index_creation_required">Um índice é necessário para pesquisar</string>
   <string name="create_index_for">É necessário um índice para pesquisar. \n\nDeseja criar um índice para %s?</string>
@@ -41,13 +46,15 @@
   <string name="do_in_background">Continuar em segundo plano</string>
   <string name="rebuild_index_button">Reconstruir</string>
   <string name="creating_index_for">Criar índice para %s…</string>
-  <!--X results in module Y-->
-  <string name="search_with_results2">%1s resulta em %2s</string>
-  <!--Tasks-->
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s resultados em %2$s</string>
+
+    <!-- Tasks -->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você for para outro aplicativo antes que elas terminem.</string>
   <string name="no_tasks_running">Não há tarefas sendo executadas.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Encontrar versículos</string>
   <string name="search_all_words">Todas as palavras</string>
   <string name="search_any_word">Qualquer palavra</string>
@@ -62,24 +69,48 @@
   <string name="search_current_book">Livro atual</string>
   <string name="error_executing_search">Erro ao executar a pesquisa</string>
   <string name="type_text_or_bible_reference">Digite um texto ou uma referência bíblica</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Abrir %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Encontrar \"%s\"</string>
-  <!--Preferences-->
+    <!-- Multi-translation search -->
+  <string name="search_translations">Traduções</string>
+  <string name="choose_translations">Escolher traduções…</string>
+  <string name="multi_search_results">%1$d versículos em %2$d traduções</string>
+  <string name="search_index_not_created">sem índice</string>
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Números de capítulo e versículos</string>
   <string name="prefs_show_verseno_summary">Mostrar números de capítulo e versículo</string>
+
   <string name="prefs_e_ink_mode_title">Modo preto e branco</string>
   <string name="prefs_eink_mode_summary">Usar o aplicativo em modo monocromático (sem cor), de forma a ficar adaptado para dispositivos E-ink</string>
+  <string name="prefs_eink_settings_cat">Configurações de E-ink</string>
+  <string name="prefs_eink_display_title">Recursos de E-ink</string>
+  <string name="prefs_eink_display_summary">Ativar recursos específicos para e-ink (botões de rolagem de página, linhas auxiliares de rolagem)</string>
+
   <string name="prefs_disable_animations_title">Desativar animações</string>
   <string name="prefs_disable_animations_summary">Desativar várias animações tais como deslocamento suave.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Desativar clique para editar no Bloco de Estudo</string>
+  <string name="prefs_disable_click_to_edit_summary">Requer o uso do botão de editar para editar notas no Bloco de Estudo.</string>
+
+  <string name="prefs_notes_content_type_title">Formato para novas notas de marcadores</string>
+  <string name="prefs_notes_content_type_summary">Formato de texto usado ao criar novas notas de marcadores e entradas do Bloco de Estudo</string>
+  <string name="notes_content_type_html">Texto rico (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
   <string name="prefs_paragraph_spacing_title">Espaçamento entre parágrafos (%smm)</string>
   <string name="prefs_paragraph_spacing_summary">Ajustar o espaçamento entre parágrafos</string>
+
   <string name="prefs_show_verseno_title1">Número dos versículos</string>
+
   <string name="prefs_show_chapter_no_title">Números dos capítulos</string>
   <string name="prefs_show_chapter_no_summary">Mostrar números de capítulo</string>
+
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
   <string name="prefs_show_bookmarks_summary">Apague seleção para esconder todos os marcadores</string>
+
   <string name="prefs_show_mynotes_summary">Mostrar o ícone nos versículos com Minhas notas</string>
   <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_summary">Atalhos para definições em grego &amp; hebraico</string>
@@ -87,30 +118,49 @@
   <string name="prefs_section_title_summary">Mostrar títulos das seções não canônicas</string>
   <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo em vermelho</string>
   <string name="prefs_text_size_title">Preferências da fonte</string>
+
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
   <string name="prefs_show_mynotes_title">Mostrar ícones das Minhas notas</string>
   <string name="prefs_show_footnotes_title">Notas de rodapé</string>
   <string name="prefs_show_xrefs_title">Referências cruzadas</string>
   <string name="prefs_show_footnotes_summary">Mostrar resumo das notas de rodapé</string>
+  <string name="prefs_show_footnotes_inline_title">Notas de rodapé embutidas</string>
+  <string name="prefs_show_footnotes_inline_summary">Exibir notas de rodapé embutidas no texto em vez de como marcadores clicáveis</string>
   <string name="prefs_show_xrefs_summary">Mostrar resumo de refexs</string>
+
   <string name="prefs_show_notes_title">Mostrar título das notas</string>
   <string name="prefs_show_strongs_title">Números de Strong</string>
   <string name="prefs_show_morphology_title">Mostrar título da morfologia</string>
+  <string name="prefs_non_strongs_word_italic_title">Itálico para palavras adicionadas</string>
+  <string name="prefs_non_strongs_word_italic_summary">Colocar em itálico palavras sem números de Strong</string>
   <string name="prefs_section_title_title">Títulos da seção</string>
+  <string name="prefs_title_scroll_button_title">Botão de rolagem do título</string>
+  <string name="prefs_title_scroll_button_summary">Exibir botão de voltar ao topo ao lado dos títulos de seção</string>
   <string name="prefs_red_letter_title">Letras vermelhas</string>
+  <string name="prefs_infinite_scroll_title">Rolagem infinita</string>
+  <string name="prefs_infinite_scroll_summary">Carregar mais conteúdo automaticamente ao rolar</string>
+  <string name="prefs_mark_as_read_button_title">Botão de marcar como lido</string>
+  <string name="prefs_mark_as_read_button_summary">Exibir um botão no final de cada capítulo para marcá-lo como lido</string>
+  <string name="prefs_show_memorization_indicators_title">Indicadores de memorização</string>
+  <string name="prefs_show_memorization_indicators_summary">Exibir indicadores coloridos na margem para versículos memorizados e versículos-alvo</string>
+  <string name="prefs_auto_track_reading_title">Rastreamento automático de leitura</string>
+  <string name="prefs_auto_track_reading_summary">Marcar capítulos automaticamente como lidos ao rolar por eles</string>
   <string name="prefs_tilt_to_scroll_title">Inclinar para deslizar página</string>
+
   <string name="prefs_toolbar_button_action_title">Ação do botão da barra de ferramentas</string>
   <string name="prefs_toolbar_button_action_summary">Ação a ser executada ao pressionar / pressionar longamente os botões da barra de ferramentas Bíblia ou Comentário</string>
   <string name="prefs_toolbar_button_action_default">Pressione para abrir o menu, pressione e mantenha para a tela de documentos (padrão)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Pressione para abrir o próximo documento, pressione e mantenha para abrir o menu</string>
   <string name="prefs_toolbar_button_action_swap_activity">Pressione para abrir o próximo documento, pressione e mantenha para abrir a tela de documentos</string>
+
   <string name="prefs_night_mode_title">Mudar para modo noturno</string>
   <string name="prefs_night_mode_summary">Para alternar para o modo noturno automaticamente (se o dispositivo for compatível), manualmente ou por meio da configuração do sistema (Android 10+). A comutação manual pode ser feita no menu de opções de 3 pontos na tela principal.</string>
   <string name="prefs_night_mode_manual">Manual</string>
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_night_mode_system">Sistema</string>
   <string name="options_menu_night_mode">Modo noturno</string>
+
   <string name="prefs_navigate_to_verse_title">Navegar para o versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionar uma passagem</string>
   <string name="prefs_open_links_in_special_window_title">Janela de atalhos</string>
@@ -121,31 +171,52 @@
   <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
   <string name="prefs_interface_locale_summary">Seleciona o idioma de preferência para a interface</string>
   <string name="reset_fontsize">Redefinir</string>
+
   <string name="prefs_request_sdcard_permission_title">Existem documentos instalados manualmente</string>
   <string name="prefs_request_sdcard_permission_summary">Permitir o uso de documentos instalados manualmente no armazenamento interno a partir da pasta jsword/sword</string>
+
   <string name="prefs_expand_footnotes_title">Referências cruzadas entre linhas</string>
   <string name="prefs_expand_footnotes_summary">Mostrar conteúdo de referência cruzada em linha dentro do texto, em vez de um atalho que abre uma caixa de diálogo pop-up</string>
+
   <string name="all_text_options_window_menutitle">Todas as opções de texto</string>
   <string name="text_options_window_menutitle">Opções de texto</string>
   <string name="auto_fullscreen">Tela cheia arrastando para cima/baixo</string>
   <string name="reversed_split_mode">Modo de divisão invertida</string>
+
   <string name="add_ellipsis">%s…</string>
+
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d mm</string>
   <string name="auto_fullscreen_summary">Maximizar  a tela automaticamente quando arrastar texto para cima/baixo. Dica: pode sempre maximizar a tela tocando duas vezes </string>
   <string name="prefs_margin_size_title">Alterar o tamanho das margens</string>
   <string name="prefs_margin_size_mm_title">Tamanho da margem (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">Configurações avançadas</string>
+  <string name="prefs_features_cat">Recursos</string>
   <string name="prefs_display_customization_cat">Aparência</string>
   <string name="prefs_behavior_customization_cat">Comportamento da aplicação</string>
+
   <string name="prefs_margin_size_summary">Ajuste as margens esquerda e direita da janela de texto. Pode também ajustar
  a largura máxima do texto.</string>
+  <string name="prefs_margin_size_summary_2">Dica: Você pode tocar na área da margem para avançar ou recuar uma página.</string>
+
   <string name="prefs_text_colors_summary">Ajustar cores do texto, fundo e efeito ruído.</string>
   <string name="text_display_settings_activity_title">Configurações de exibição de texto</string>
   <string name="workspace_text_display_settings_title">Opções de texto - %s</string>
   <string name="window_text_display_settings_title">Opções de texto  - Janela %d</string>
-  <string name="prefs_text_display_settings_title">Formatar</string>
-  <string name="prefs_text_appearance_title">Aparência</string>
+  <string name="global_text_display_settings_title">Opções globais de texto</string>
+  <string name="global_text_display_settings_summary">Configurações padrão de exibição de texto para todas as áreas de trabalho</string>
+  <string name="parent_settings_category_title">Configurações pai</string>
+  <string name="workspace_text_options_link">Opções de texto da área de trabalho — %s</string>
+  <string name="workspace_text_options_link_summary">Editar configurações de exibição de texto para esta área de trabalho</string>
+  <string name="global_text_options_link">Opções globais de texto</string>
+  <string name="global_text_options_link_summary">Editar configurações padrão de exibição de texto para todas as áreas de trabalho</string>
+  <string name="prefs_font_and_colors_title">Fonte &amp; Cores</string>
+  <string name="prefs_text_layout_title">Layout de Texto</string>
+  <string name="prefs_strongs_and_morphology_title">Strong &amp; Morfologia</string>
+  <string name="prefs_footnotes_and_xrefs_title">Notas de Rodapé &amp; Referências Cruzadas</string>
+  <string name="prefs_verses_and_headings_title">Versículos &amp; Títulos</string>
+  <string name="prefs_page_scrolling_title">Rolagem de Página</string>
+
   <string name="prefs_justify_title">Alinhar/justificar texto</string>
   <string name="prefs_justify_summary">Alinhar o texto no estilo \'justificar\', o que significa que as margens esquerda e direita do texto estão alinhadas</string>
   <string name="pref_left_margin_label_mm">Margem esquerda (%dmm)</string>
@@ -167,8 +238,10 @@
   <string name="hide_window_buttons_summary">Os botões da janela que são exibidos no lado direito das visualizações da Bíblia ficam ocultos. A barra de navegação da janela na parte inferior ainda é exibida e você pode abrir o menu pop-up da janela clicando-lhes longamente.</string>
   <string name="hide_bible_reference_overlay_title">Ocultar sobreposição de referência da Bíblia</string>
   <string name="hide_bible_reference_overlay_summary">Não mostrar a sobreposição semitransparente de referência da Bíblia quando o aplicativo estiver no modo de tela cheia</string>
+
   <string name="full_screen_hide_buttons_pref_title">Ocultar botões em tela cheia</string>
   <string name="full_screen_hide_buttons_pref_summary">Ao alternar para o modo de tela cheia, ocultar automaticamente a barra de botões da janela na parte inferior da tela</string>
+
   <string name="prefs_dictionaries_cat">Dicionários</string>
   <string name="choose_strongs_greek_dictionary_title">Dicionário grego de Strong</string>
   <string name="choose_strongs_greek_dictionary_summary">Escolha o dicionário de Strong para definições de palavras gregas</string>
@@ -176,21 +249,32 @@
   <string name="choose_strongs_hebrew_dictionary_summary">Escolha o dicionário de Strong para definições de palavras em hebraico</string>
   <string name="choose_strongs_greek_morphology_title">Morfologia grega de Robinson</string>
   <string name="choose_strongs_greek_morphology_summary">Escolha o dicionário para as definições de morfologia grega de Robinson</string>
+  <string name="choose_word_lookup_dictionary_title">Dicionários de consulta de palavras</string>
+  <string name="choose_word_lookup_dictionary_summary">Escolher dicionários para pesquisar palavras</string>
+  <string name="lookup_in_dictionary">Consultar em dicionários</string>
+  <string name="word_not_found_in_dictionaries">Palavra não encontrada em nenhum dicionário</string>
+
   <string name="prefs_top_margin_title_mm">Margem superior (%d mm)</string>
   <string name="font_size_title">Tamanho da fonte</string>
   <string name="font_size_title_pt">Tamanho da fonte (%d pt)</string>
   <string name="prefs_font_text_size_summary">Ajustar o tamanho de letra principal</string>
+
   <string name="pref_font_family_label_name">Família de fontes (%s)</string>
   <string name="prefs_font_family_summary">Altere a família de fonte. Dica: mais tipos de fontes podem ser instaladas por meio da função Baixar de documentos / Complementos.</string>
+
   <string name="prefs_text_bookmarks_title">Definições de Marcadores e  Minhas notas</string>
+  <string name="prefs_reading_and_memorization_title">Leitura &amp; Memorização</string>
+
   <string name="prefs_enable_bluetooth_title">Ativar botões de mídia via Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Manipule botões de mídia Bluetooth para iniciar/parar de falar</string>
   <string name="create_bookmark">Criar um novo Marcador</string>
   <string name="create_bookmark_with_a_note">Criar Marcador com uma nota</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Configurações de cores</string>
   <string name="window_color_settings_title">Configurações de cores da janela</string>
   <string name="workspace_color_settings_title">Configurações de cores da área de trabalho padrão</string>
+
   <string name="color_workspace">Cores da área de trabalho</string>
   <string name="color_text">Cor do texto</string>
   <string name="color_background">Cor de fundo</string>
@@ -198,12 +282,14 @@
   <string name="colors_night_mode_title">Modo noturno</string>
   <string name="prefs_noise_title">Ruído de fundo</string>
   <string name="prefs_noise_summary">Adicionar algum ruído ao fundo pode torná-lo mais confortável aos olhos.</string>
+
   <string name="cpv_default_title">Escolher uma cor</string>
   <string name="cpv_presets">Valores pré definidos</string>
   <string name="cpv_custom">Personalizar</string>
   <string name="cpv_select">Selecionar</string>
   <string name="cpv_transparency">Transparência</string>
-  <!--Window-->
+
+    <!-- Window -->
   <string name="new_window">Nova janela</string>
   <string name="windowClose">Fechar</string>
   <string name="windowMaximise">Maximizar</string>
@@ -214,19 +300,23 @@
   <string name="copy_settings">Copiar configurações para</string>
   <string name="copy_settings_to_workspace">Área de trabalho</string>
   <string name="copy_settings_to_window">Janela %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Padrões globais</string>
   <string name="change_to_normal">Mudar para janela normal</string>
   <string name="window_pin_mode">Fixar</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">Não existem notas neste capítulo</string>
   <string name="no_verse_notes">Não existem notas para este versículo</string>
   <string name="previous">Anterior</string>
   <string name="next">Próximo</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">Por favor instale os dicionários de Strong em Hebraico e Grego</string>
   <string name="no_indexed_bible_with_strongs_ref">Você deve fazer baixar uma bíblia contendo números do dicionário Strong e baixar o índice através da Pesquisa</string>
   <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="go_to_downloads">Ir para Baixar</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">Baixar documentos</string>
   <string name="redownload">Baixar novamente</string>
   <string name="download_confirmation">Deseja baixar uma Bíblia da internet?</string>
@@ -257,7 +347,8 @@
   <string name="failed_repositories_message">Não foi possível conectar ao seguinte servidor de documentos: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Os seguintes arquivos não puderam ser baixados:\n\n %s \n\n</string>
   <string name="cant_delete_document">O documento não pode ser excluído.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">Carregar documento dos arquivos</string>
   <string name="install_zip_module">Instalar módulo bíblico</string>
   <string name="install_zip_module_discrete">Instalar o módulo calculadora</string>
@@ -271,7 +362,8 @@ Deseja substituir?</string>
   <string name="overwrite_files_title">Sobrescrever arquivos?</string>
   <string name="could_not_overwrite_files">Não foi possível sobrescrever os arquivos: %s.  Além disso, a instalação foi bem-sucedida.</string>
   <string name="install_do_you_want">Deseja instalar o módulo (%s)?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Plano de leitura</string>
   <string name="reading_plans_plural">Planos de leitura</string>
   <string name="rdg_plan_selector_title">Selecionar um Plano de leitura</string>
@@ -326,28 +418,32 @@ você lê o Antigo Testamento uma vez e o Novo Testamento e Salmos duas vezes.</
   <string name="plan_description_y2ot1ntps2">
 Leia a Bíblia em 2 anos, lendo o NT e os Salmos duas vezes.
 Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedida</string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Excluir</string>
   <string name="delete_index">Excluir índice de pesquisa</string>
   <string name="about">Sobre</string>
   <string name="delete_doc">Excluir %s?</string>
   <string name="delete_search_index_doc">Apagar índice de %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Notas e referências</string>
   <string name="share_verse">Compartilhar...</string>
   <string name="share_verse_widget_title">Compartilhar seleção</string>
   <string name="share_verse_subject_2">Um versículo da Bíblia foi partilhado com você através de %s</string>
   <string name="compare_translations">Comparar traduções</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Abrir atalho nesta janela</string>
   <string name="open_link_in_new_window">Abrir atalhos em uma nova janela</string>
   <string name="open_link_in_special_window">Abrir atalhos em janela especial</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Marcadores e Minhas notas</string>
   <string name="migrated_my_notes">Migrar as Minhas notas</string>
   <string name="bookmarks">Marcadores</string>
   <string name="bookmark_added">Marcador adicionado</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Etiquetas</string>
   <string name="manage_labels">Gerenciar etiquetas</string>
   <string name="assign_labels">Atribuir etiquetas</string>
@@ -361,7 +457,9 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="add_bookmark_whole_verse">Adicionar marcador ao versículo</string>
   <string name="add_bookmark_whole_verse1">Versículos</string>
   <string name="add_bookmark_whole_verse2">Versículo inteiro</string>
+  <string name="add_whole_page_bookmark">Adicionar marcador para a página inteira</string>
   <string name="add_paragraph_break">Quebra de parágrafo</string>
+  <string name="ai_label">IA</string>
   <string name="remove_bookmark">Remover</string>
   <string name="bookmark_settings_hide_labels_title">Ocultar as etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que são marcados com etiqueta (s) especificada</string>
@@ -370,7 +468,6 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="auto_assign_labels1">Auto-atribuir etiqueta a novos marcadores</string>
   <string name="auto_assign_labels_primary">Auto-atribuir como principal</string>
   <string name="label_color">Cor da etiqueta</string>
-  <!--can be removed-->
   <string name="label_color_example">Exemplo</string>
   <string name="marker_style">Mostrar somente marcador para marcadores selecionados</string>
   <string name="marker_style_whole_verse">Mostrar somente o marcador para versículos inteiros destacados</string>
@@ -382,31 +479,34 @@ Se a estrutura do documento tiver sido alterada, a atualização deste documento
 os locais desses marcadores/notas se movam dentro do documento ou desapareçam completamente.</string>
   <string name="bookmark_warning3">Deseja continuar atualizando o módulo?</string>
   <string name="bookmark_warning4">É recomendável que faça cópia de segurança do módulo ante de atualizar.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Classificar por data</string>
   <string name="sort_by_bible_book">Classificar por livro bíblico</string>
   <string name="sort_by_alphabetical">Classificar por ordem alfabética</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Pesquisar notas</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Dicionário</string>
   <string name="search_dictionary_hint">Pesquisar no dicionário</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Livro</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">capítulo %d</string>
   <string name="some_chapters">capítulos %d</string>
   <string name="rest_of_book">Para o fim do livro</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">versículo %d</string>
   <string name="some_verses">versículos %d</string>
   <string name="rest_of_chapter">Para o fim do capítulo</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">página %d</string>
   <string name="some_pages">páginas %d</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Parar</string>
   <string name="pause">Pausar</string>
   <string name="rewind">Retroceder</string>
@@ -414,7 +514,8 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="tts_lang_not_available">Idioma não disponível</string>
   <string name="speak_queue">Fila</string>
   <string name="speak_repeat">Repetir</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Velocidade de fala</string>
   <string name="speak_and_play_earcons_title">Gravação e reprodução de som dos fones de ouvido</string>
   <string name="playback_settings_title">Configurações de reprodução</string>
@@ -423,14 +524,17 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="speak_bookmarks_menu_title">Falar a partir de um marcador</string>
   <string name="speak_advanced_settings">Configurações avançadas</string>
   <string name="speak_sleep_timer_title">Temporizador</string>
+
   <string name="speak_no_books_available">Não existem livros em áudio disponíveis</string>
   <string name="speak_general_error">A função \"falar\" não pôde ser iniciada para este livro</string>
+
   <string name="repeat_passage">Repetir passagem</string>
   <string name="set_repeat_passage_range">Definir faixa de repetição de passagem</string>
   <string name="speak_beginning_of_passage">Escolher o início da passagem</string>
   <string name="speak_ending_of_passage">Escolher o fim da passagem</string>
   <string name="speak_verse_range_to_repeat">Escolher intervalo de versículos para repetir</string>
   <string name="speak_ending_verse_must_be_later">O versículo final deve ser posterior ao versículo inicial</string>
+
   <string name="conf_speak_synchronize">O texto segue a fala</string>
   <string name="conf_speak_auto_bookmark">Marcadores automáticos</string>
   <string name="conf_save_playback_settings_to_bookmarks">Guardar as configurações de reprodução nos marcadores</string>
@@ -439,10 +543,12 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="conf_change_title">Títulos</string>
   <string name="conf_speak_footnotes">Notas de rodapé</string>
   <string name="conf_speak_sleep_timer">Definir o temporizador</string>
+
   <string name="sleep_timer_title">Temporizador em minutos</string>
   <string name="sleep_timer_set">Definir temporizador. Definido: %dminutos</string>
   <string name="sleep_timer_started">Início do temporizador, %dminutos</string>
   <string name="sleep_timer_active_at">Temporizador: %sminutos restantes.</string>
+
   <string name="speak_next">Próximo</string>
   <string name="speak_previous">Anterior</string>
   <string name="widget_toggle_sleep_timer">Ligar/desligar temporizador</string>
@@ -450,33 +556,45 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="speak_status_stopped">parado</string>
   <string name="speak_autobookmarking_disabled">Autobookmarking desativado</string>
   <string name="system_speak_settings">Configurações de fala do sistema</string>
+
   <string name="auto_assing_labels_help1">Aqui você pode ajustar que etiquetas são atribuídos automaticamente aos marcadores que cria.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Esta configuração aplica-se a %s .</string>
   <string name="setting_scope_window">esta janela</string>
   <string name="setting_scope_workspace">esta área de trabalho</string>
+
   <string name="assing_labels_help1">A cada marcador podem ser atribuídas várias etiquetas.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Use %s para especificar que cor de etiqueta é mostrada.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Toque no ícone %s para que essa etiqueta seja atribuída automaticamente a novos marcadores.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Toque em %s para acrescentar uma etiqueta à sua lista favorita, para acesso rápido.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Toque em %s para re-ordenar a lista, com base nas suas escolhas.</string>
+
+  <string name="global_text_options_help_title">Opções globais de texto</string>
+  <string name="global_text_options_help1">Estas são as configurações padrão globais para todas as áreas de trabalho. Cada área de trabalho pode substituí-las com suas próprias configurações.</string>
+
   <string name="workspace_text_options_help_title">Opções de texto da área de trabalho</string>
   <string name="workspace_text_options_help1">Estas configurações determinam o padrão para todas as janelas da área de trabalho.</string>
   <string name="workspace_text_options_help2">Pode substituí-los alterando as configurações individuais da janela.</string>
+
   <string name="window_text_options_help_title">Opções de texto para a janela</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações da área de trabalho.</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Use o botão %1$s para redefinir todas estas definições de volta para %2$s.</string>
   <string name="reset_defaults">valores padrão</string>
   <string name="reset_workspace_defaults">Valores padrão para a área de trabalho</string>
+
   <string name="speak_bookmark_help">Ajuda para marcadores falados</string>
+
   <string name="speak_help_auto_bookmark">
 Um marcador de fala será adicionado automaticamente quando o modo de Fala for posto em pausa ou parado.
 Os marcadores gerados automaticamente são rotulados com o rótulo Fala especial.
@@ -492,31 +610,19 @@ deseja ouvir Gênesis falado rapidamente, sem notificações de alteração de c
 mas para Romanos mais lentamente, com sons audíveis nas mudanças de capítulo,
 você pode ter configurações diferentes de reprodução para esses livros,
 quando essas configurações são guardadas nos marcadores correspondentes</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_original">
-    <item>Senhor</item>
-    <item>Deus</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_replace">
-    <item>Javé</item>
-    <item>Javé</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
+         in speak settings. -->
+
   <string name="speak_book_changed">Livro alterado</string>
   <string name="speak_chapter_changed">Capítulo</string>
   <string name="speak_first">Primeiro</string>
@@ -524,12 +630,15 @@ quando essas configurações são guardadas nos marcadores correspondentes</stri
   <string name="speak_third">Terceiro</string>
   <string name="speak_fourth">Quarto</string>
   <string name="speak_fifth">Quinto</string>
+
   <string name="verse_range_mode_disabled">
 O modo de repetição de passagem foi desativado automaticamente porque
 a fala foi iniciada fora da gama dos versículos.</string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">Minhas notas</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Fazer backup para onde?</string>
   <string name="backup_backup_message">Backup para telefone ou outro local através da função Compartilhar (e-mail, Google Drive etc.)?</string>
   <string name="backup_phone_storage">Armanezamento do telefone</string>
@@ -545,13 +654,15 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_document_info">Bíblias, comentários, dicionários, mapas, etc.</string>
   <string name="backup_to">Cópia de segurança para</string>
   <string name="backup_restore_from">Restauração de cópia de segurança de ...</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restaurar ou importar de...</string>
   <string name="backup_restore">Restaurar</string>
   <string name="backup_restore2">Restaurar ou Importar</string>
   <string name="overwrite_something">Sobrescreverr %s?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">O que deseja restaurar?</string>
+
   <string name="restore_app_database">Restaurar banco de dados do aplicativo a partir de ...</string>
   <string name="restore_database">Restaurar banco de dados</string>
   <string name="restore_confirmation">Substituir Minhas notas, Estudos, Plano de leitura e Área de trabalho?</string>
@@ -561,10 +672,13 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="loading_backup">Carregando banco de dados a partir da cópia de segurança...</string>
   <string name="backup_success2">Minhas notas, Marcadores, Estudo, Panos de leitura e Áreas de trabalho, tiveram cópia de segurança com sucesso.</string>
   <string name="backup_modules_success">Os módulos selecionados tiveram backup com sucesso.</string>
+
   <string name="backup_modules_email_subject_2">%scópia de segurança de módulos</string>
   <string name="backup_modules_email_message_2">Em anexo estão %1$sdos módulos em cópias de segurança, que contêm os seguintes módulos: %2$s</string>
+
   <string name="backup_email_subject_2">%sde cópia de segurança do banco de dados</string>
   <string name="backup_email_message_2">A sua %sbase de dados contém marcadores, notas, planos de leitura e áreas de trabalho em anexo</string>
+
   <string name="exported_studypads_subject">Áreas de Estudo exportada(s)</string>
   <string name="exported_studypads_message">O seu banco de dados %s contém Marcadores e Notas relacionados com as Áreas de Estudo selecionadas em anexo.</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar o banco de dados. Talvez tenha fornecido um arquivo de banco de dados inválido.</string>
@@ -576,20 +690,24 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="restore">Restaurar</string>
   <string name="import2">Importar</string>
   <string name="export_studypads_help">O arquivo que contém Blocos de estudo exportados (ou seja, etiquetas e marcadores) pode ser importado através do Menu Principal -&gt; Backup e Restauração.</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" e %2$s outras Etiqueta(s) / Área de Estudo(s) e %3$s Marcadores</string>
-  <!--About-->
+
+    <!-- About -->
   <string name="module_about_copyright">Direitos autorais:%s</string>
   <string name="module_about_installed_version">Versão instalada: %1$s(%2$s)</string>
   <string name="module_about_latest_version">Última versão:%1$s(%2$s)</string>
   <string name="module_about_versification">Versificação:%s</string>
   <string name="module_about_repository">Servidor de distribuição: %s</string>
   <string name="module_about_osisId">ID OSIS: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">Enviar relatório de erros</string>
   <string name="send_feedback_title">Comentários</string>
   <string name="send_bug_report_title">Comentários / Relatório de erro</string>
   <string name="report_bug_email_subject_3">[%1$s] Relatório de erro para %2$s %3$s</string>
+
   <string name="report_bug_big_heading">ESCREVA O SEU COMENTÁRIO OU RELATÓRIO DE ERRO ACIMA DESTA LINHA</string>
   <string name="report_bug_heading1">Instruções:</string>
   <string name="report_bug_line_1">Conte-nos resumidamente o que fez / o que aconteceu quando ocorreu o problema.</string>
@@ -605,7 +723,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="bug_report_screenshot">Captura de tela do aplicativo quando ocorreu o erro ou quando o relatório de erro foi criado.</string>
   <string name="bug_report_attachment_line_1">Ter estes arquivos anexados ajuda muito os desenvolvedores de aplicativos a corrigir o erro relatado.</string>
   <string name="report_bug_heading_4">Informação sobre o aparelho:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Todos os tipos</string>
   <string name="doc_type_bible">Biblía</string>
   <string name="doc_type_commentary">Comentário</string>
@@ -613,11 +732,14 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="doc_type_book">Livro</string>
   <string name="doc_type_map">Mapa</string>
   <string name="doc_type_addons">Complementos de tipo de documento</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">Padrão</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">OK</string>
   <string name="cancel">Cancelar</string>
+  <string name="discard_changes_confirmation">Descartar alterações não salvas?</string>
   <string name="yes">Sim</string>
   <string name="no">Não</string>
   <string name="error">Erro</string>
@@ -628,7 +750,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="reset_generic">Redefinir</string>
   <string name="watch_tutorial_video">Assista ao vídeo tutorial (Inglês)</string>
   <string name="verse_not_found">Versículo não encontrado</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Reportar erro</string>
   <string name="error_occurred">Ocorreu um erro</string>
   <string name="error_occurred_crash_last_time">Da última vez que usou o aplicativo, ocorreu um erro. Para nos ajudar a reparar o erro, agradecemos que nos enviei um relatório de erro.</string>
@@ -636,15 +759,17 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
   <string name="error_page_too_large">Página grande demais para ser carregada</string>
   <string name="error_key_not_in_document">Não encontrado no documento</string>
-  <string name="error_key_not_in_document2">%s não foi encontrado no documento %s</string>
+  <string name="error_key_not_in_document2">%1$s não foi encontrado no documento %2$s</string>
   <string name="empty_list">Lista vazia</string>
   <string name="error_skip">Pular</string>
   <string name="bug_report_email_title">Enviar relatório de erro por e-mail</string>
   <string name="bug_report_email_text">Próximo, selecione seu aplicativo de e-mail preferencial (Gmail por exemplo) para enviar o relatório para a equipe de desenvolvimento.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Texto para fala</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="new_workspace">Novo</string>
   <string name="switch_to_workspace">Área de trabalho</string>
   <string name="delete_workspace">Excluir</string>
@@ -662,15 +787,18 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="select_all">Selecionar tudo</string>
   <string name="copy_settings_workspaces_title">Para que área de trabalho quer copiar as configurações?</string>
   <string name="reset_settings">Redefinir</string>
+  <string name="search_settings">Configurações de pesquisa</string>
   <string name="workspace_dismiss">Dispensar</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
   <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Na versão beta, há novos recursos que ainda não foram testados corretamente,
 e, portanto, usar uma versão beta pode introduzir um comportamento inesperado, ou seja, erros.
 Recomenda-se que os leitores comuns da Bíblia usem a versão estável.</string>
+
   <string name="beta_notice_content_2">
 Os utilizadores de versões beta são incentivados a relatar bugs via Google Play ou
 (preferencialmente) via%s</string>
@@ -680,12 +808,15 @@ através de %s você mesmo. :-)</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Dispensar</string>
   <string name="beta_notice_dismiss_until_update">Dispensado até a próxima atualização</string>
+
   <string name="stable_notice_title">O aplicativo o foi atualizado!</string>
   <string name="upgrade_video_message">Por favor veja o vídeo com as novas funções desta versão (%s).</string>
   <string name="stable_notice_par1">Uma nova versão %1$s de %2$s foi instalada com sucesso!</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">Histórico(%1$s:Janela%2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Navegação</string>
   <string name="help_nav_text">Vá para o capítulo seguinte ou retorne para o anterior deslizando o dedo na tela.
  Toque duas vezes no texto da Bíblia para alternar o modo de tela cheia.
@@ -708,8 +839,9 @@ Os Estudos são projetados para tornar mais fácil escrever notas de sermões, p
  anotar notas pessoais de estudo da Bíblia que tenham várias referências bíblicas. Cada Estudo está associado a uma etiqueta de marcador.
  Todos os marcadores que foram criados com aquela respectiva etiqueta aparecem automaticamente no documento do Estudo.
  Além dos marcadores, pode haver entradas de texto personalizadas num Estudo</string>
+
   <string name="help_search_title">Pesquisar</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
 (consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
   <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, E, OU, NÃO</string>
@@ -738,29 +870,35 @@ Pode habilitar a fixação de janelas no menu de opções (três pontos, canto s
 comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilmente
  ter os Módulos bíblicos sempre abertos e
  alternar rapidamente entre comentários e outro material extra ao estudar a Bíblia.</string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Baixar novamente os documentos</string>
   <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um arquivo em formato zip de um documento de cópia de segurança</string>
-  <!--Supported file formats for documents-->
+    <!-- Supported file formats for documents -->
   <string name="supported_formats_title">Formatos suportados</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Selecione um arquivo para carregar em %s.</string>
   <string name="supported_formats">Formatos suportados para carregar um documento de um arquivo: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Arquivo ZIP contendo módulo(s) Sword, ou arquivo de cópia de segurança (*abmd) criado por %s</string>
   <string name="format_mysword">Documentos MySword (*.mybible)</string>
   <string name="format_mybible">Documentos MyBible (*.SQLite3)</string>
+  <string name="format_esword">Documentos e-Sword (*.bblx, *.bbli)</string>
   <string name="format_epub">Documentos EPUB (*.epub)</string>
   <string name="format_ttf">Fontes TTF (*.ttf)</string>
+  <string name="format_csv_prompts">Complementos de prompt de IA (*.csv)</string>
   <string name="format_studypads">Bloco de estudos dos banco de dados AndBible (*.abdb)</string>
   <string name="redownload_message">
 Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para baixá-los facilmente novamente.</string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Fechar</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Compreendo</string>
   <string name="first_time_help_show_next_time">Ajuda na primeira vez mostrar na próxima vez</string>
+
   <string name="strongs_mode_title">Escolha o modo de Strong</string>
+
   <string name="download_dialog_message">Os seguintes livros não puderam ser baixados:</string>
   <string name="select_multiple">Selecione vários</string>
   <string name="journal_description">Estudos editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
@@ -782,14 +920,45 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="unlock_info">Informação sobre o desbloqueio do módulo</string>
   <string name="try_again_passphrase">A senha não foi reconhecida, tentar novamente?</string>
   <string name="show_unlock_info">Informação de módulo e de desbloqueio</string>
+
   <string name="prefs_experimental_features_title">Feitos experimentais</string>
+  <string name="prefs_experimental_features_summary">Selecionar quais recursos experimentais ativar. Esses recursos ainda estão em desenvolvimento e podem ser alterados ou removidos</string>
+  <string name="experimental_feature_bookmark_edit_actions">Ações de edição de marcadores</string>
+  <string name="experimental_feature_add_paragraph_break">Adicionar marcador de quebra de parágrafo</string>
+  <string name="experimental_feature_ai_features">Recursos de IA &amp; Meus Documentos</string>
+  <string name="experimental_feature_reading_and_memorization">Rastreamento de leitura &amp; Memorização</string>
+  <string name="raw_llm_log_title">Log bruto do LLM</string>
+  <string name="raw_llm_log_empty">Nenhum dado de log bruto disponível</string>
+  <string name="raw_llm_log_copied">Log copiado para a área de transferência</string>
+  <string name="raw_llm_log_total">Total: entrada %1$s / saída %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Prompt do sistema</string>
+  <string name="raw_llm_log_entry_user">Mensagem do usuário</string>
+  <string name="raw_llm_log_entry_assistant">Resposta do assistente</string>
+  <string name="raw_llm_log_entry_tool_call">Chamada de ferramenta: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Resultado da ferramenta [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Definições de ferramentas (%d ferramentas)</string>
+  <string name="raw_llm_log_entry_api_response">Resposta da API (iteração %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s tokens</string>
+  <string name="raw_llm_log_entry_usage">entrada: %1$s / saída: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(vazio)</string>
+  <string name="raw_llm_log_entry_tool_desc">Descrição: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Parâmetros: %s</string>
+  <string name="agent_log_view_raw">Ver log bruto do LLM</string>
+  <string name="agent_log_model_selector">Alterar modelo padrão (atualmente: %1$s)</string>
+  <string name="agent_log_model_not_configured">Nenhum modelo configurado</string>
+  <string name="agent_log_select_model">Selecionar modelo padrão</string>
+  <string name="share">Compartilhar</string>
   <string name="prefs_show_error_box_title">Mostrar a caixa de erro Javascript</string>
   <string name="prefs_show_error_box_summary">Útil para programadores ao depurar erros secundários de BibleView javascript. Isso tornará o aplicativo mais lento.</string>
   <string name="active_window_indicator_title">Mostrar indicador de janela ativa</string>
   <string name="active_window_indicator_summary">Destaque os cantos da janela para ajudar a reconhecer qual a janela que está ativa</string>
   <string name="app_licence_title">Licença Open Source</string>
+
   <string name="how_to_contribute">Como contribuir?</string>
   <string name="confirm_delete_bookmarks">Pretende remover os marcadores de %d e as suas notas?</string>
+  <string name="confirm_delete_orphaned_bookmarks">A etiqueta selecionada está associada a %d marcadores que não têm outras etiquetas. Deseja excluir esses marcadores junto com as etiquetas?</string>
+  <string name="delete_label_and_bookmarks">Excluir etiqueta e marcadores</string>
+  <string name="delete_label_only">Excluir somente a etiqueta</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Recomendar a um amigo</string>
   <string name="tell_friend_message1">Gostaria de recomendar para você %s</string>
@@ -810,16 +979,18 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_reference_at_front">Mostrar referência na frente do versículo</string>
   <string name="abbreviate_reference">Referência abreviada</string>
   <string name="version_name">Nome da versão</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Incluir o nome da versão</string>
   <string name="show_ellipsis">Mostrar reticências (...)</string>
   <string name="show_quotes">Mostrar citações</string>
+  <string name="separate_verses_with_newlines">Separar versículos com quebras de linha</string>
+
   <string name="backup_button">Cópia de segurança</string>
   <string name="back_button">Voltar</string>
   <string name="upgrading_database">Atualizando banco de dados. Aguarde...</string>
   <string name="initializing_app">Inicializando o aplicativo</string>
   <string name="show_notes">Mostrar notas</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">O pacote do Android WebView é muito antigo (%1$s). Precisa atualizar o seu pacote Android WebView para pelo menos a versão %2$s para usar %3$s. Para a maioria dos dispositivos, isso pode ser feito por meio de %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Prossiga mesmo assim</string>
@@ -829,13 +1000,14 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
 Avaliações positivas e detalhadas ajudam muito o Projeto Open Source AndBible. Obrigado! </string>
   <string name="rate_message6">
 Antes de dar uma avaliação negativa, por favor considere o seguinte:</string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
 Se tiver algum problema com a aplicação, por favor %1$sou em vez disso %2$s.</string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
 Se algum texto / tradução da Bíblia tem um problema, %s . </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
 Se um texto em particular não está disponível no aplicativo, %s.</string>
   <string name="rate_message4">
@@ -855,6 +1027,13 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="whole_verse_turned_on">O marcador agora agora marcado para o versículo inteiro</string>
   <string name="this_bookmark">Este marcador</string>
   <string name="this_workspace">Esta área de trabalho</string>
+  <string name="override_style">Substituir estilo</string>
+  <string name="no_override_suffix">(sem substituição)</string>
+  <string name="display_mode_highlight">Destacar</string>
+  <string name="display_mode_underline">Sublinhar</string>
+  <string name="display_mode_marker">Somente marcador</string>
+  <string name="display_mode_hidden">Oculto</string>
+  <string name="workspace_override_indicator">Esta etiqueta tem modo de exibição específico para a área de trabalho</string>
   <string name="primary_label">Etiqueta primária</string>
   <string name="highlight_entire_verse">Destacar o versículo inteiro</string>
   <string name="favourite_label">Etiqueta favorita</string>
@@ -868,6 +1047,7 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="book_menu_sort_row_opt">Ordenar livros na horizontal</string>
   <string name="book_menu_group_by_category">Agrupar livros por categoria</string>
   <string name="book_menu_show_long_book_name">Mostrar nome longo do livro</string>
+  <string name="book_menu_show_progress_bars">Exibir barras de progresso</string>
   <string name="reset_workspace_labels">Deseja redefinir a atribuição automática e as configurações de favoritos para esta área de trabalho?</string>
   <string name="reset_hide_labels">Pretende redefinir a configuração para ocultar as configurações das etiquetas especificadas?</string>
   <string name="reorder">Reordenar</string>
@@ -888,20 +1068,63 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="label_salvation">Salvação</string>
   <string name="label_underline">Sublinhado</string>
   <string name="import_menu">Importar e Exportar</string>
+  <string name="auto_backups_title">Cópias de Segurança Automáticas</string>
+  <string name="backup_file_info">App v%1$d, %2$s</string>
+  <string name="reset_databases_title">Redefinir Bancos de Dados</string>
+  <string name="reset_databases_description">Redefinir bancos de dados individuais para o estado inicial vazio. Isso não pode ser desfeito.</string>
+  <string name="last_crash_info_title">Informações do último travamento</string>
+  <string name="reset_database_confirm">Isso excluirá permanentemente todos os dados em \"%1$s\" e o redefinirá para o estado inicial. Isso não pode ser desfeito.\n\nTem certeza?</string>
+  <string name="reset_database_success">Banco de dados redefinido com sucesso</string>
+  <string name="reset_something">Redefinir: %1$s</string>
   <string name="export">Exportar</string>
+  <string name="csv_export_success">%d marcadores exportados para CSV</string>
+  <string name="csv_import_success">Importação concluída: %1$d criados, %2$d atualizados</string>
+  <string name="csv_import_errors">Importação concluída com erros: %1$d criados, %2$d atualizados, %3$d erros</string>
+  <string name="csv_import_failed">Falha na importação do CSV: %s</string>
+  <string name="csv_export_failed">Falha na exportação do CSV: %s</string>
+  <string name="export_prompts_csv">Exportar prompts para CSV</string>
+  <string name="import_prompts_csv">Importar prompts de CSV</string>
+  <string name="prompts_csv_export_success">%d prompts exportados para CSV</string>
+  <string name="prompts_csv_import_success">Importação concluída: %1$d criados, %2$d atualizados</string>
+  <string name="prompts_csv_import_errors">Importação concluída com erros: %1$d criados, %2$d atualizados, %3$d erros</string>
+  <string name="prompts_csv_import_failed">Falha na importação do CSV: %s</string>
+  <string name="prompts_csv_export_failed">Falha na exportação do CSV: %s</string>
+  <string name="no_prompts_to_export">Nenhum prompt de usuário para exportar</string>
+  <string name="csv_column_selection_title">Selecionar Colunas do CSV</string>
+  <string name="choose_csv_file">Escolher arquivo CSV para importar</string>
+  <string name="no_bookmarks_to_export">Nenhum marcador disponível para exportar</string>
   <string name="export_fileformat">Exportar como %s</string>
   <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
   <string name="import_from_db">Importar do banco de dados</string>
   <string name="import_error">A importação a partir do banco de dados do aplicativo falhou. O arquivo do banco de dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+
+  <string name="export_bookmarks_csv">Exportar Marcadores como %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">Referência OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Referência Bíblica</string>
   <string name="document">Documento</string>
   <string name="book">Livro</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
-  <!--Verse is the verse number in the chapter, starting from 1-->
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Início do Capítulo</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Início do Versículo</string>
+  <string name="chapter_end">Fim do Capítulo</string>
+  <string name="verse_end">Fim do Versículo</string>
+  <string name="id">Identificador</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Início Ordinal</string>
+  <string name="ordinal_end">Fim Ordinal</string>
+  <string name="created_at">Criado Em</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Deslocamento Inicial</string>
+  <string name="end_offset">Deslocamento final</string>
+  <string name="custom_icon">Ícone personalizado</string>
+  <string name="last_updated_at">Última atualização em</string>
+  <string name="bookmark_notes">Notas do marcador</string>
+
   <string name="chooser_range">Onde procurar</string>
   <string name="chooser_jump">Saltar para</string>
   <string name="chooser_OT_abbrev">AT</string>
@@ -910,9 +1133,9 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="chooser_style_lists">Listas</string>
   <string name="chooser_select">Selecionar %s</string>
   <string name="chooser_pref_reset">Não redefina o capítulo / versículo para 1 quando o livro / capítulo é selecionado</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Lamentamos, mas temos apenas tradução parcial da interface do utilizador no idioma %1$s. Isto porque %2$s é inteiramente desenvolvido por voluntários. Se puder ajudar na tradução, consulte %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">Instruções para tradutores</string>
   <string name="questions_title">Perguntas?</string>
   <string name="questions_title2">Precisa de ajuda?</string>
@@ -923,10 +1146,17 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="strongs_text_and_links">Textos e atalhos</string>
   <string name="strongs_hidden_links">Links ocultos</string>
   <string name="verse_tip">Para selecionar parte ou vários versículos, mantenha pressionado o texto da Bíblia</string>
+
   <string name="permission_required">Permissão necessária</string>
   <string name="labels_search_hint">Pesquisar</string>
+  <string name="search_mode_name_start">Nome (do início)</string>
+  <string name="search_mode_name_contains">Nome (contém)</string>
+  <string name="search_mode_content">Conteúdo</string>
+  <string name="search_results_matches">%d correspondências</string>
+  <string name="search_results_match">1 correspondência</string>
   <string name="progress_status_permission">Para mostrar notificações (status de download, processos, status da fala), precisamos de sua permissão.</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Calculadora simples</string>
   <string name="prefs_persecution_cat">Configurações para perseguidos</string>
   <string name="prefs_discrete_mode">Ocultar símbolos religiosos</string>
@@ -935,12 +1165,13 @@ por favor comunique qualquer problema à equipe que mantém os textos </string>
   <string name="prefs_calculator_pin">PIN da Calculadora</string>
   <string name="prefs_calculator_pin_desc">Código PIN para acessar o aplicativo quando a calculadora é exibida.</string>
   <string name="calc_division_by_zero">Divisão por zero não é permitida</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Formato errado</string>
   <string name="calc_wrong_format_operand">Formato errado. Operando sem nenhum número?</string>
   <string name="prefs_persecuted_help">Leia primeiro!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Instruções para configurações e informações específicas sobre o modo discreto.</string>
+
   <string name="calculator_par1">
 Antes de entrar no aplicativo, a tela da calculadora é exibida.</string>
   <string name="calculator_par2">
@@ -955,13 +1186,15 @@ Para melhorar a segurança em ambientes perseguidos, recomendamos o uso da
 versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do aplicativo forem excluídos.</string>
   <string name="discrete_mode_link">
 É possível baixar a última versão da versão discreta de %s.</string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">Sincronizar grupo</string>
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Desativar sincronização</string>
   <string name="open_in_window">Abrir resultados em uma janela</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Repositórios personalizados</string>
   <string name="custom_repositories_empty_list_message">Nenhum repositório personalizado foi definido</string>
   <string name="custom_repositories_create_button_label">Adicionar repositórios personalizados</string>
@@ -975,14 +1208,17 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <string name="wiki_page">Página Wiki</string>
   <string name="custom_repositories_help0">É possível instalar documentos de repositórios personalizados externos instalando os respectivos repositórios.</string>
   <string name="duplicate_custom_repository">Repositório com o nome %s já existe, não é possível adicionar outro.</string>
+
   <string name="packages_dir">Diretório de pacotes (arquivos ZIP)</string>
   <string name="warn_bad_document">Aviso: Este documento pode ser (ao menos parcialmente) de má qualidade técnica.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Abrir links bíblicos no AndBible</string>
   <string name="open_bible_links_summary">Quando clicar em atalhos suportados pelo URL bíblico e AndBible, abrí-los no AndBible</string>
   <string name="copyReference">Copiar atalho para área de transferência</string>
   <string name="reference_copied_to_clipboard">Referência copiada para a área de transferência</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
         Escolha qual serviço de nuvem de back-end você deseja usar para sincronizar vários dispositivos.
     </string>
@@ -1000,6 +1236,28 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="reading_plans_content">Planos de leitura e seus status</string>
   <string name="bookmarks_contents">Conteúdo dos favoritos</string>
   <string name="workspaces_contents">Áreas de trabalho e Janelas</string>
+  <string name="my_documents_contents">Meus documentos e seu conteúdo</string>
+  <string name="ai_settings_sync_title">Configurações de IA</string>
+  <string name="ai_settings_sync_contents">Prompts de IA e configurações de provedor</string>
+  <string name="progress_sync_title">Progresso de leitura</string>
+  <string name="progress_sync_contents">Versículos memorizados e registros de leitura de capítulos</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Progresso de leitura/memorização</string>
+  <string name="reading_progress_chapters_read">capítulos lidos</string>
+  <string name="reading_progress_verses_memorized">versículos memorizados</string>
+  <string name="reading_progress_active_days">dias ativos</string>
+  <string name="reading_progress_overall">%s%% da Bíblia lida</string>
+  <string name="reading_progress_bible_heatmap">Visão geral da Bíblia</string>
+  <string name="reading_progress_old_testament">Antigo Testamento</string>
+  <string name="reading_progress_new_testament">Novo Testamento</string>
+  <string name="reading_progress_calendar">Atividade de leitura</string>
+  <string name="reading_progress_cycle">Ciclo %d</string>
+  <string name="reading_progress_new_cycle">Novo ciclo</string>
+  <string name="reading_progress_new_cycle_confirm">Iniciar um novo ciclo de leitura? Isso começará a rastrear seu progresso do zero, preservando os dados do ciclo anterior.</string>
+  <string name="reading_progress_previous_cycle">Ciclo anterior</string>
+  <string name="reading_progress_next_cycle">Próximo ciclo</string>
+
   <string name="cloud_fetch_and_restore_initial">Copiar da Nuvem para este dispositivo</string>
   <string name="cloud_create_new">Copiar deste dispositivo para a Nuvem</string>
   <string name="cloud_disable_sync">Cancelar e desativar sincronização</string>
@@ -1014,8 +1272,11 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
   <string name="auth_title">Autenticação para %s</string>
+  <string name="auth_server_uri">URL do servidor</string>
   <string name="auth_username">Nome de usuário</string>
   <string name="auth_password">Senha</string>
+  <string name="auth_folder_path">Caminho da pasta de sincronização</string>
+  <string name="auth_folder_path_summary">Pasta pai para dados de sincronização (vazio = raiz)</string>
   <string name="auth_access_token">Token de acesso</string>
   <string name="synchronization_categories">Categorias de sincronização</string>
   <string name="sync_general_settings">Configurações gerais</string>
@@ -1027,7 +1288,7 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="sync_disabling">Sincronização desabilitada para %s por hora.</string>
   <string name="sync_update_app">Atualize o aplicativo para continuar a sincronização.</string>
   <string name="sign_in_failed">Falha ao entrar no serviço de back-end de sincronização.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Desabilitando a sincronização da nuvem. Você deve reativar manualmente após restaurar.</string>
   <string name="report">Relatório</string>
   <string name="sync_error">Ocorreu um erro de sincronização na Nuvem</string>
@@ -1035,12 +1296,14 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="restore_from_cloud_description">Se você tiver a Sincronização de Dispositivos habilitada em outro dispositivo, poderá começar restaurando o banco de dados da Nuvem.</string>
   <string name="enable_sync">Ativar sincronização</string>
   <string name="last_updated">Última atualização: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Não foi possível ler o arquivo</string>
   <string name="sqlite_invalid_file">Arquivo inválido ou nome de arquivo: %s</string>
   <string name="sqlite_cant_write">Não foi possível sobrescrever o arquivo</string>
   <string name="install_failed_reason">Falha na instalação do módulo devido a seguinte razão: %s</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Aplicativo aberto em outro lugar</string>
   <string name="open_here">Abrir aqui</string>
   <string name="external_link">Link externo</string>
@@ -1069,7 +1332,584 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="dont_show">
         Não mostrar essa mensagem novamente
     </string>
+  <string name="pref_font_size_multiplier_title">Multiplicador de tamanho de fonte</string>
+  <string name="pref_font_size_multiplier_summary_1">Multiplica os tamanhos de fonte do texto por este número.</string>
+  <string name="pref_font_size_multiplier_summary_2">Útil se você tem um dispositivo sincronizado usado com fonte maior.</string>
+  <string name="current_value">Valor atual: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Ação para gesto de deslizar para esquerda / direita</string>
+  <string name="prefs_bible_view_swipe_mode_summary">O gesto de deslizar para esquerda / direita pode ser usado para ir à próxima página / capítulo.</string>
   <string name="prefs_swipe_mode_chapter">Capítulo</string>
+  <string name="prefs_swipe_mode_page">Página</string>
+  <string name="prefs_swipe_mode_none">Desativado</string>
+  <string name="prefs_volume_keys_scroll_title">Botões de volume rolam</string>
+  <string name="prefs_volume_keys_scroll_summary">Use volume para cima/baixo para rolar o texto da Bíblia</string>
+  <string name="page_number_title">Número de página relativo</string>
+  <string name="page_number_summary">Mostrar sobreposição de número de página. O número de página é relativo à posição inicial.</string>
+  <string name="select_custom_icon">Selecionar ícone de marcador personalizado</string>
+  <string name="invalid_url_message">A URL inserida é inválida. Por favor, insira uma URL válida (ex.: https://nextcloud.example.com)</string>
   <string name="memorize_description">Memorizar versículos bíblicos</string>
   <string name="memorize_abbreviation">Memorizar</string>
+  <string name="add_memorization_target">Definir como meta de memorização</string>
+  <string name="memorize_memorized_passages">Passagens memorizadas</string>
+  <string name="memorize_no_memorized_passages">Nenhuma passagem memorizada ainda</string>
+  <string name="memorize_targets">Metas de memorização</string>
+  <string name="memorize_no_targets">Nenhuma meta de memorização definida</string>
+  <string name="memorize_auto_mark">Marcar automaticamente como memorizado</string>
+  <string name="memorize_auto_mark_summary">Marcar automaticamente versículos como memorizados quando um exercício for concluído</string>
+  <string name="memorize_type_full_words">Digitar palavras completas</string>
+  <string name="memorize_type_full_words_summary">Exigir a digitação da palavra completa em vez de apenas a primeira letra</string>
+  <string name="memorize_word_visibility">Visibilidade das palavras</string>
+  <string name="memorize_word_visibility_summary">Quão visíveis são as palavras não digitadas: dica leve, escurecida ou completamente oculta</string>
+  <string name="memorize_word_visibility_light">Leve</string>
+  <string name="memorize_word_visibility_dim">Escurecida</string>
+  <string name="memorize_word_visibility_hidden">Oculta</string>
+  <string name="memorize_error_heatmap">Mapa de erros</string>
+  <string name="memorize_error_heatmap_summary">Destacar palavras com mais erros em vermelho progressivamente mais intenso</string>
+  <string name="memorize_scramble_hide_used">Ocultar botões de palavras usadas</string>
+  <string name="memorize_scramble_hide_used_summary">Ocultar completamente os botões de palavras após serem corretamente posicionados no modo de embaralhamento</string>
+  <string name="reading_progress_settings">Progresso e memorização</string>
+  <string name="reading_progress_settings_summary">Configurações de rastreamento automático, memorização e prática de digitação</string>
+  <string name="memorize_confirm_unmark">Remover status de memorizado para %s?</string>
+  <string name="memorize_confirm_remove_target">Remover meta de memorização %s?</string>
+  <string name="memorize_tab_reading">Leitura</string>
+  <string name="memorize_tab_memorization">Memorização</string>
+  <string name="memorize_verses_memorized">Memorizado</string>
+  <string name="memorize_verses_target">Meta</string>
+  <string name="memorize_show_more">Mostrar mais %d</string>
+  <string name="memorize_calendar">Atividade de memorização</string>
+  <string name="memorize_view_list">Lista</string>
+  <string name="memorize_view_overview">Visão geral</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">Tradução por IA</string>
+  <string name="sync_settings_shortcut_summary">Sincronizar dados entre dispositivos</string>
+  <string name="llm_api_key_title">Chave de API</string>
+  <string name="llm_api_key_summary">Chave de API compatível com OpenAI</string>
+  <string name="llm_provider_custom">Personalizado (compatível com OpenAI)</string>
+  <string name="llm_provider_title">Provedor</string>
+  <string name="llm_provider_summary">Escolha qual provedor de serviço de IA usar. O endpoint da API e os modelos disponíveis serão configurados automaticamente.</string>
+  <string name="llm_provider_current">Atual: %s</string>
+  <string name="llm_api_key_detected_provider">Provedor detectado: %s</string>
+  <string name="ai_connection_category">Conexão</string>
+  <string name="ai_model_category">Modelo</string>
+  <string name="ai_behavior_category">Comportamento</string>
+  <string name="ai_language_title">Idioma das respostas da IA</string>
+  <string name="ai_language_summary">Idioma que a IA usa para as respostas</string>
+  <string name="ai_language_app_default">Idioma do aplicativo (%1$s)</string>
+  <string name="ai_language_custom">Personalizado\u2026</string>
+  <string name="ai_language_custom_hint">Insira o nome ou código do idioma</string>
+  <string name="ai_language_custom_example">ex.: suomi, Tagalog, pt</string>
+  <string name="ai_usage_category">Uso</string>
+  <string name="llm_usage_summary_title">Uso de tokens</string>
+  <string name="llm_usage_summary_default">Sem dados de uso</string>
+  <string name="llm_usage_summary_format">Entrada: %1$d tokens | Saída: %2$d tokens\nCusto estimado: %3$s</string>
+  <string name="llm_reset_usage_title">Redefinir dados de uso</string>
+  <string name="llm_reset_usage_summary">Limpar rastreamento acumulado de tokens e custos</string>
+  <string name="llm_reset_usage_confirm_title">Redefinir dados de uso?</string>
+  <string name="llm_reset_usage_confirm_message">Isso limpará todos os dados de uso acumulados.</string>
+  <string name="llm_custom_input_price_title">Preço de entrada ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">Custo por milhão de tokens de entrada para este modelo</string>
+  <string name="llm_custom_output_price_title">Preço de saída ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">Custo por milhão de tokens de saída para este modelo</string>
+  <string name="llm_cost_total">Total: %1$s</string>
+  <string name="llm_endpoint_title">Endpoint da API</string>
+  <string name="llm_endpoint_summary">URL base para a API</string>
+  <string name="llm_model_title">Modelo</string>
+  <string name="llm_model_summary">ID do modelo</string>
+  <string name="llm_custom_model">Personalizado…</string>
+  <string name="llm_custom_model_dialog_title">Modelo personalizado</string>
+  <string name="llm_custom_model_dialog_message">Insira o ID do modelo</string>
+  <string name="llm_rate_limited_retrying">Limite de taxa atingido. Tentando novamente em %1$ss\u2026</string>
+  <string name="llm_default_document_title">Resposta da IA</string>
+  <string name="llm_default_task_completed">Tarefa concluída</string>
+  <string name="llm_default_studypad_opened">Bloco de estudo aberto</string>
+  <string name="llm_parse_error">Falha ao analisar resposta da IA: %1$s</string>
+  <string name="llm_parse_error_no_choices">Nenhuma opção na resposta OpenAI</string>
+  <string name="llm_parse_error_openai">Falha ao analisar resposta OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Falha ao analisar resposta Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Prompt não encontrado: %1$s</string>
+  <string name="llm_error_unknown">Erro desconhecido</string>
+  <string name="llm_error_max_iterations">Número máximo de iterações (%1$d) atingido sem conclusão</string>
+  <string name="llm_continue_iterations_title">Continuar?</string>
+  <string name="llm_continue_iterations_message">O agente de IA atingiu seu limite de %1$d iterações sem concluir. Continuar por mais %2$d iterações?</string>
+  <string name="agent_max_iterations_title">Máximo de iterações do agente</string>
+  <string name="agent_max_iterations_summary">Máximo de iterações antes de perguntar para continuar (0 = ilimitado)</string>
+  <string name="ask_model_before_run_title">Perguntar sobre modelo antes de executar</string>
+  <string name="ask_model_before_run_summary">Mostrar um diálogo de seleção de modelo antes de executar um prompt (ignorado quando o prompt tem uma substituição de modelo explícita)</string>
+  <string name="select_model_before_run_title">Selecionar modelo</string>
+  <string name="prompt_max_iterations">Substituição de máximo de iterações</string>
+  <string name="prompt_max_iterations_hint">Deixe vazio para usar o padrão global</string>
+  <string name="prompt_max_iterations_description">Substitua o máximo de iterações global para este prompt. Vazio = padrão global, 0 = ilimitado.</string>
+  <string name="prompt_max_iterations_unlimited">Ilimitado</string>
+  <string name="prompt_max_iterations_global_default">Padrão global (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Substitua o máximo de iterações global para este prompt. 0 = ilimitado.\nAtual: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Gerenciar prompts de IA</string>
+  <string name="manage_prompts_summary">Criar e editar prompts de IA</string>
+  <string name="ai_settings">Configurações de IA</string>
+  <string name="ai_connection_settings">Configurações de conexão</string>
+  <string name="ai_setup_title">Configurar IA</string>
+  <string name="ai_setup_description">O AndBible pode usar IA para traduzir textos bíblicos, explicar versículos, criar resumos e muito mais. Para começar, configure uma conexão com um provedor de API compatível com OpenAI.</string>
+  <string name="ai_configure_button">Configurar conexão</string>
+  <string name="ai_settings_shortcut_summary">Configurações de conexão de IA e prompt</string>
+  <string name="ai_provider_tier_recommended">Recomendado</string>
+  <string name="ai_provider_tier_community">Outros provedores (não testados)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Provedores e modelos</string>
+  <string name="ai_providers_category">Provedores</string>
+  <string name="ai_providers_summary_none">Nenhum provedor configurado</string>
+  <string name="ai_models_summary_none">Nenhum modelo configurado</string>
+  <string name="ai_add_provider">Adicionar provedor</string>
+  <string name="ai_provider_edit">Editar</string>
+  <string name="ai_provider_delete">Excluir</string>
+  <string name="ai_provider_delete_confirm">Excluir provedor \"%1$s\"? Os prompts que usam este provedor voltarão ao padrão.</string>
+  <string name="ai_provider_api_key_not_set">Chave de API não definida</string>
+  <string name="ai_provider_select_type">Selecionar tipo de provedor</string>
+  <string name="ai_provider_name">Nome do provedor</string>
+  <string name="ai_provider_name_hint">Nome de exibição para este provedor</string>
+  <string name="ai_provider_api_key">Chave de API</string>
+  <string name="ai_provider_endpoint">Endpoint da API</string>
+  <string name="ai_provider_api_format">Formato da API</string>
+  <string name="ai_provider_saved">Provedor salvo</string>
+  <string name="ai_provider_deleted">Provedor excluído</string>
+
+  <string name="llm_fetch_models_title">Baixar lista de modelos</string>
+  <string name="llm_fetch_models_message">Baixar a lista de modelos disponíveis de %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Não perguntar novamente</string>
+  <string name="llm_fetch_models_success">%1$d modelos carregados</string>
+  <string name="llm_fetch_models_failed">Falha ao buscar modelos</string>
+  <string name="llm_openrouter_category">Categoria</string>
+  <string name="llm_openrouter_category_all">Todos</string>
+  <string name="llm_openrouter_model">Modelo</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Modelos</string>
+  <string name="add_model">Adicionar modelo</string>
+  <string name="add_model_title">Adicionar modelo</string>
+  <string name="edit_model_title">Editar modelo</string>
+  <string name="model_saved">Modelo salvo</string>
+  <string name="model_deleted">Modelo excluído</string>
+  <string name="model_delete_confirm">Excluir modelo \"%1$s\"?</string>
+  <string name="model_set_default">Definir como modelo padrão</string>
+  <string name="model_select_provider">Provedor</string>
+  <string name="no_models_configured">Nenhum modelo configurado</string>
+  <string name="model_cache_creation_price">Preço de criação de cache ($/Mtoken)</string>
+  <string name="model_cache_read_price">Preço de leitura de cache ($/Mtoken)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s entrada / %2$s saída por Mtoken</string>
+  <string name="easy_setup_free_tier">Plano gratuito</string>
+  <string name="unknown_error">Erro desconhecido</string>
+  <string name="easy_setup_title">Configuração rápida</string>
+  <string name="easy_setup_pref_summary">Configure a IA com um provedor recomendado em poucos passos</string>
+  <string name="easy_setup_choose_provider">Escolha um provedor para começar:</string>
+  <string name="easy_setup_enter_api_key">Digite sua chave de API</string>
+  <string name="easy_setup_api_key_instructions">Obtenha sua chave de API em:</string>
+  <string name="easy_setup_test_connection">Testar conexão</string>
+  <string name="easy_setup_testing">Testando…</string>
+  <string name="easy_setup_success">Conexão bem-sucedida!</string>
+  <string name="easy_setup_failed">Falha na conexão: %1$s</string>
+  <string name="easy_setup_done_title">A IA está pronta!</string>
+  <string name="easy_setup_done_message">Selecione um texto na Bíblia e experimente os recursos de IA. Você pode adicionar mais modelos e provedores nas configurações.</string>
+  <string name="easy_setup_gemini_desc">Plano gratuito disponível, boa qualidade</string>
+  <string name="easy_setup_anthropic_desc">Acessível, excelente qualidade</string>
+  <string name="easy_setup_openai_desc">Bem conhecido, confiável</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Importante: Leia antes de usar as ferramentas de IA</string>
+  <string name="ai_disclaimer_warning_summary">Riscos e responsabilidades do uso de IA</string>
+  <string name="ai_disclaimer_dialog_title">Ferramentas de IA — Informações importantes</string>
+  <string name="ai_disclaimer_intro">As ferramentas de IA podem enriquecer muito sua experiência de estudo bíblico e abrir novas formas de se envolver com as Escrituras.</string>
+  <string name="ai_disclaimer_approach">O AndBible usa principalmente a IA para processar textos dos documentos que você instalou — comentários, dicionários e outros módulos — em vez de depender dos próprios dados de treinamento do modelo.</string>
+  <string name="ai_disclaimer_responsibility">No entanto, ainda são ferramentas poderosas — e grandes poderes trazem grandes responsabilidades. Tenha os seguintes pontos em mente.</string>
+  <string name="ai_disclaimer_point1">A IA pode cometer erros, incluindo \"alucinações\" (afirmar com confiança informações falsas ou fabricadas). Nunca aceite seus resultados cegamente.</string>
+  <string name="ai_disclaimer_point2">As respostas da IA podem refletir preconceitos de seus dados de treinamento, ser intencionalmente enganosas ou apresentar uma perspectiva teológica específica como se fosse neutra ou completa.</string>
+  <string name="ai_disclaimer_point3">Você é responsável pelo uso do conteúdo gerado por IA. Sempre verifique os resultados com as Escrituras antes de se basear neles.</string>
+  <string name="ai_disclaimer_point4">O AndBible se esforça para facilitar a verificação (por exemplo, citações precisas de fontes em comentários), mas a responsabilidade final é sempre sua.</string>
+  <string name="ai_disclaimer_point5">\"Examinai tudo. Retende o bem.\" (1 Tessalonicenses 5:21)</string>
+  <string name="ai_disclaimer_point6">Essas ferramentas não têm alma nem Espírito Santo. São ferramentas de processamento de texto, não guias espirituais. Não são adequadas para preparar diretamente sermões, devocionais ou outro conteúdo espiritual sem cuidadosa supervisão humana, oração e discernimento.</string>
+  <string name="ai_disclaimer_point7">Usadas com sabedoria, podem beneficiar muitos usuários e casos de uso. Mas se você não tiver certeza sobre aceitar os riscos, optar por não usá-las também é uma escolha perfeitamente válida.</string>
+  <string name="ai_disclaimer_point8">Seus dados são enviados aos servidores do provedor de IA que você escolheu. Ao usar uma chave de API, você aceita os termos e a política de privacidade daquele provedor. Modelos auto-hospedados são possíveis, mas exigem mais conhecimento técnico e podem não produzir resultados tão bons quanto os modelos comerciais.</string>
+  <string name="ai_disclaimer_point9">Os provedores de IA cobram pelo uso da API. As estimativas de custo exibidas no AndBible são aproximadas — sempre verifique a fatura do seu provedor para os valores reais.</string>
+  <string name="ai_disclaimer_accept_title">Aceitar aviso de IA</string>
+  <string name="ai_disclaimer_accept_button">Aceito e assumo total responsabilidade</string>
+
+  <string name="prompt_permission_mode">Modo de permissão</string>
+  <string name="prompt_permission_mode_description">Controla quando a confirmação do usuário é necessária antes que a IA realize operações de escrita. As configurações por ferramenta abaixo podem substituir isso para ferramentas individuais.</string>
+  <string name="agent_permission_mode_summary">Controla quando a confirmação do usuário é necessária antes de operações de escrita da IA</string>
+  <string name="prompt_permission_use_default">Usar padrão</string>
+  <string name="prompt_tab_prompt">Prompt</string>
+  <string name="prompt_tab_permissions">Permissões</string>
+  <string name="prompt_tab_advanced">Avançado</string>
+  <string name="prompt_name">Nome</string>
+  <string name="prompt_description">Descrição</string>
+  <string name="prompt_template">Modelo de prompt</string>
+  <string name="prompt_show_in">Mostrar em</string>
+  <string name="prompt_context_verse_selection">Seleção de versículo</string>
+  <string name="prompt_context_text_selection">Seleção de texto</string>
+  <string name="prompt_context_window_menu">Menu da janela</string>
+  <string name="prompt_context_workspace_menu">Menu da área de trabalho</string>
+  <string name="prompt_context_note_editor">Editor de notas</string>
+  <string name="prompt_bible_only">Apenas documentos bíblicos</string>
+  <string name="prompt_category_study">Estudo</string>
+  <string name="prompt_category_notes">Notas</string>
+  <string name="prompt_category_general">Geral</string>
+  <string name="prompt_category_test">Teste</string>
+  <string name="prompt_category_uncategorized">Sem categoria</string>
+  <string name="addon_prompt_badge">Complemento: %s</string>
+  <string name="addon_prompt_notice">Este prompt é do módulo complemento \"%s\" e não pode ser editado. Use \"Copiar para personalizar\" para criar uma cópia editável.</string>
+  <string name="new_category">Nova categoria</string>
+  <string name="new_category_name">Nome da categoria</string>
+  <string name="rename_category">Renomear</string>
+  <string name="move_category_up">Mover para cima</string>
+  <string name="move_category_down">Mover para baixo</string>
+  <string name="hide_category">Ocultar das ações de IA</string>
+  <string name="show_category">Mostrar nas ações de IA</string>
+  <string name="hidden">oculto</string>
+  <string name="delete_category">Excluir categoria</string>
+  <string name="delete_category_and_prompts">Excluir categoria e seus prompts</string>
+  <string name="delete_category_keep_prompts">Mover prompts para a raiz e excluir categoria</string>
+  <string name="delete_category_confirm_title">Excluir categoria \"%s\"?</string>
+  <string name="move_to_category">Mover para categoria…</string>
+  <string name="category_none">Sem categoria</string>
+  <string name="import_prompts_editable">Importar como prompts editáveis</string>
+  <string name="import_prompts_addon">Instalar como complemento (somente leitura)</string>
+  <string name="prompt_category">Categoria</string>
+  <string name="new_prompt">Novo prompt</string>
+  <string name="permission_always_ask">Sempre perguntar</string>
+  <string name="permission_ask_once_per_run">Perguntar uma vez por execução</string>
+  <string name="permission_allow_all">Permitir tudo</string>
+  <string name="permission_deny_all">Negar tudo</string>
+  <string name="reset_all_ai_settings">Redefinir todas as configurações de IA</string>
+  <string name="reset_all_ai_settings_confirm_title">Redefinir todas as configurações de IA?</string>
+  <string name="reset_all_ai_settings_confirm_message">Isso limpará a chave de API, provedor, endpoint, modelo e redefinirá todos os prompts para os padrões. Continuar?</string>
+  <string name="edit_prompt">Editar prompt</string>
+  <string name="built_in_prompt">Integrado</string>
+  <string name="built_in_prompt_notice">Este é um prompt integrado e não pode ser editado. Use \"Copiar para personalizar\" para criar uma cópia editável.</string>
+  <string name="copy_to_customize">Copiar para personalizar</string>
+  <string name="prompt_copied">Prompt copiado</string>
+  <string name="delete_prompt_confirmation">Excluir prompt \"%s\"?</string>
+  <string name="prompt_name_required">O nome do prompt é obrigatório</string>
+  <string name="prompt_template_required">O modelo do prompt é obrigatório</string>
+  <string name="prompt_edit_before_run">Especificar antes de executar</string>
+  <string name="prompt_edit_before_run_description">Exibir um campo de texto para especificar a tarefa antes de executar o prompt</string>
+  <string name="prompt_no_document_creation">Sem criação de documento</string>
+  <string name="prompt_no_document_creation_description">Quando ativado, a IA não criará um documento. Os resultados são exibidos apenas no registro de atividades. Útil para prompts de ação apenas (marcadores, etiquetas, operações do StudyPad).</string>
+  <string name="prompt_auto_include_documents">Incluir automaticamente documentos instalados</string>
+  <string name="prompt_auto_include_documents_description">Inclui automaticamente a lista de documentos instalados no contexto do prompt, economizando uma iteração de IA.</string>
+  <string name="prompt_auto_include_commentaries">Incluir automaticamente comentários</string>
+  <string name="prompt_auto_include_commentaries_description">Busca e inclui automaticamente entradas de comentários para os versículos selecionados, economizando uma iteração de IA.</string>
+  <string name="prompt_is_text_transformation">Transformação de texto</string>
+  <string name="prompt_is_text_transformation_description">Usa um prompt de sistema simplificado que preserva a formatação (links, títulos, negrito/itálico) enquanto transforma o conteúdo do texto. Nenhuma ferramenta é usada. Ideal para prompts de tradução e edição.</string>
+  <string name="llm_no_document_creation_intercepted">Tarefa concluída (criação de documento desativada)</string>
+  <string name="llm_note_updated">Nota atualizada</string>
+  <string name="specify_before_run_title">Especificar tarefa</string>
+  <string name="specify_before_run_hint">Descreva a tarefa específica…</string>
+  <string name="prompt_cache_settings">Configurações de cache</string>
+  <string name="prompt_strict_context_matching">Cache dependente de contexto</string>
+  <string name="prompt_strict_context_matching_description">Quando ativado, o cache é correspondido apenas quando todo o contexto (versão da Bíblia, texto selecionado) é o mesmo. Quando desativado, o cache é correspondido quando os versículos são os mesmos, independentemente da versão da Bíblia.</string>
+  <string name="ai_document_delete_confirmation">Excluir este documento de IA?</string>
+  <string name="ai_document_deleted">Este documento de IA foi excluído.</string>
+  <string name="ai_document_regenerating">Regenerando documento de IA…</string>
+  <string name="ai_document_regenerate_not_implemented">A regeneração estará disponível em uma atualização futura</string>
+  <string name="ai_regenerate_prompt_not_found">Não é possível regenerar: o prompt original não foi encontrado. Ele pode ter sido excluído.</string>
+  <string name="ai_document_regenerate">Regenerar</string>
+  <string name="ai_regenerate_title">Regenerar</string>
+  <string name="ai_regenerate_instructions_hint">Instruções adicionais (opcional)</string>
+  <string name="ai_regenerate_keep_previous">Manter versão anterior</string>
+  <string name="ai_regenerate_fresh_run">Execução nova (ignorar resultado anterior)</string>
+  <string name="ai_document_delete">Excluir</string>
+  <string name="ai_unknown_prompt">IA</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Traduzir para %s</string>
+  <string name="default_prompt_translate_to_ui_language">Traduzir para o idioma da interface</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Traduz o texto do documento para o idioma da interface do aplicativo</string>
+  <string name="default_prompt_translate_to_english">Traduzir para o inglês</string>
+  <string name="default_prompt_translate_to_english_desc">Traduz o texto selecionado para o inglês</string>
+  <string name="default_prompt_summary">Resumo</string>
+  <string name="default_prompt_summary_desc">Cria um resumo conciso do texto selecionado</string>
+  <string name="default_prompt_explain_verses">Explicar versículos</string>
+  <string name="default_prompt_explain_verses_desc">Explica o significado e o contexto dos versículos selecionados</string>
+  <string name="default_prompt_explain_verses_studypad">Explicar versículos → Bloco de Estudo</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Criar um Bloco de Estudo com explicação versículo a versículo e marcadores</string>
+  <string name="default_prompt_word_study">Estudo de palavras</string>
+  <string name="default_prompt_word_study_desc">Analisa palavras originais em hebraico/grego</string>
+  <string name="default_prompt_strongs_annotation">Anotação de números de Strong</string>
+  <string name="default_prompt_strongs_annotation_desc">Adiciona números de concordância de Strong a qualquer tradução da Bíblia usando a KJV como referência</string>
+  <string name="default_prompt_cross_references">Referências cruzadas</string>
+  <string name="default_prompt_cross_references_desc">Encontra e explica passagens bíblicas relacionadas</string>
+  <string name="default_prompt_compare_translations">Comparar traduções</string>
+  <string name="default_prompt_compare_translations_desc">Mostra como diferentes traduções instaladas renderizam o texto</string>
+  <string name="default_prompt_thematic_study">Estudo temático</string>
+  <string name="default_prompt_thematic_study_desc">Cria um StudyPad com passagens e notas sobre o tema central</string>
+  <string name="default_prompt_bookmark_annotate">Marcar e anotar</string>
+  <string name="default_prompt_bookmark_annotate_desc">Cria um marcador com uma nota de estudo gerada por IA</string>
+  <string name="default_prompt_study_layout">Abrir layout de estudo</string>
+  <string name="default_prompt_study_layout_desc">Abre janelas de comentários e tradução paralela para estudo</string>
+  <string name="default_prompt_workspace_assistant">Assistente de área de trabalho</string>
+  <string name="default_prompt_workspace_assistant_desc">Gerenciar janelas: criar, fechar, reorganizar, alterar documentos</string>
+  <string name="default_prompt_enhance_note">Aprimorar nota</string>
+  <string name="default_prompt_enhance_note_desc">Melhora a gramática, clareza e legibilidade da sua nota</string>
+  <string name="default_prompt_ask_question">Fazer uma pergunta</string>
+  <string name="default_prompt_ask_question_desc">Faça qualquer pergunta sobre a passagem selecionada</string>
+  <string name="default_prompt_custom">Prompt personalizado</string>
+  <string name="default_prompt_custom_desc">Executar uma tarefa personalizada na passagem selecionada</string>
+  <string name="default_prompt_custom_template">Siga a especificação de tarefa do usuário para a passagem bíblica selecionada.</string>
+  <string name="copy">Copiar</string>
+  <string name="delete_prompt_confirm_message">Tem certeza de que deseja excluir este prompt?</string>
+  <string name="ai_hide_prompt">Ocultar</string>
+  <string name="ai_restore_hidden_prompts">Restaurar prompts ocultos</string>
+  <string name="ai_prompt_hidden">Prompt ocultado</string>
+  <string name="ai_prompts_restored">Prompts ocultos restaurados</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Criar marcador</string>
+  <string name="tool_add_bookmark_note">Adicionar nota ao marcador</string>
+  <string name="tool_update_bookmark_note">Atualizar nota do marcador</string>
+  <string name="tool_create_label">Criar etiqueta</string>
+  <string name="tool_add_label_to_bookmark">Adicionar etiqueta ao marcador</string>
+  <string name="tool_delete_bookmark">Excluir marcador</string>
+  <string name="tool_delete_label">Excluir etiqueta</string>
+  <string name="tool_remove_label_from_bookmark">Remover etiqueta do marcador</string>
+  <string name="tool_add_study_pad_entry">Adicionar entrada ao bloco de estudo</string>
+  <string name="tool_update_studypad_text_entry">Atualizar entrada de texto do bloco de estudo</string>
+  <string name="tool_create_study_pad">Criar bloco de estudo</string>
+  <string name="action_update_studypad_text_entry">Atualizar entrada de texto do bloco de estudo %1$s</string>
+  <string name="action_create_studypad">Criar StudyPad \"%1$s\" com %2$d itens</string>
+  <string name="tool_set_document_title">Definir título do documento</string>
+  <string name="tool_finish_with_study_pad">Abrir bloco de estudo</string>
+  <string name="tool_finish_with_my_document_page">Abrir página Meu Documento</string>
+  <string name="tool_finish_without_document">Concluir sem documento</string>
+  <string name="tool_get_verse_content">Ler conteúdo do versículo</string>
+  <string name="tool_get_commentaries">Ler comentários</string>
+  <string name="tool_get_dictionary_entry">Consultar entrada do dicionário</string>
+  <string name="tool_search_bible">Pesquisar na Bíblia</string>
+  <string name="tool_search_by_strongs">Pesquisar pelo número de Strong</string>
+  <string name="tool_get_installed_documents">Listar documentos instalados</string>
+  <string name="tool_get_all_labels">Listar todas as etiquetas</string>
+  <string name="tool_get_bookmarks_for_verse">Obter marcadores do versículo</string>
+  <string name="tool_get_bookmarks_with_label">Obter marcadores com etiqueta</string>
+  <string name="tool_get_study_pad_content">Ler conteúdo do bloco de estudo</string>
+  <string name="tool_search_study_pads">Pesquisar blocos de estudo</string>
+  <string name="tool_get_my_documents">Listar Meus Documentos</string>
+  <string name="tool_get_my_document_pages">Listar páginas de Meu Documento</string>
+  <string name="tool_create_my_document">Criar Meu Documento</string>
+  <string name="tool_add_my_document_page">Adicionar página a Meu Documento</string>
+  <string name="tool_edit_my_document_page">Editar página de Meu Documento</string>
+  <string name="tool_delete_my_document_page">Excluir página de Meu Documento</string>
+  <string name="tool_get_windows">Listar janelas</string>
+  <string name="tool_create_window">Criar janela</string>
+  <string name="tool_manage_window">Gerenciar janela</string>
+  <string name="tool_set_window_document">Definir documento da janela</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Permissão do Agente</string>
+  <string name="agent_permission_message">O assistente de IA deseja usar \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">O assistente de IA deseja:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Criar marcador em %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Criar marcador em %1$s (%2$s)</string>
+  <string name="action_with_note">com nota</string>
+  <string name="action_labels">etiquetas: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Adicionar nota ao marcador em %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Atualizar nota no marcador em %1$s</string>
+  <string name="action_create_label">Criar etiqueta \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Adicionar etiqueta \"%1$s\" ao marcador em %2$s</string>
+  <string name="action_delete_bookmark">Excluir marcador em %1$s</string>
+  <string name="action_delete_label">Excluir etiqueta \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Remover etiqueta \"%1$s\" do marcador em %2$s</string>
+  <string name="action_add_entry_to_studypad">Adicionar entrada ao bloco de estudo \"%1$s\"</string>
+  <string name="action_create_my_document">Criar Meu Documento: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Adicionar página \"%1$s\" ao Meu Documento %2$s</string>
+  <string name="action_edit_my_document_page">Editar página do Meu Documento: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Excluir página do Meu Documento: \"%1$s\"</string>
+  <string name="action_set_document_title">Definir título do documento: \"%1$s\"</string>
+  <string name="action_open_studypad">Abrir bloco de estudo \"%1$s\"</string>
+  <string name="action_open_my_document_page">Abrir página do Meu Documento \"%1$s\"</string>
+  <string name="action_create_window">Criar nova janela</string>
+  <string name="action_create_window_with_doc">Criar janela com %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Criar janela com %1$s em %2$s</string>
+  <string name="action_close_window">Fechar janela (%1$s)</string>
+  <string name="action_minimize_window">Minimizar janela (%1$s)</string>
+  <string name="action_restore_window">Restaurar janela (%1$s)</string>
+  <string name="action_set_window_document">Definir %1$s como %2$s</string>
+  <string name="action_set_window_document_with_key">Definir %1$s como %2$s em %3$s</string>
+  <string name="action_active_window">janela ativa</string>
+  <string name="action_finish">Concluir: \"%1$s\"</string>
+  <string name="permission_allow_once">Permitir uma vez</string>
+  <string name="permission_allow_for_session">Permitir nesta sessão</string>
+  <string name="permission_allow_all_session">Permitir todas as ferramentas nesta sessão</string>
+  <string name="permission_allow_always">Sempre permitir \"%1$s\"</string>
+  <string name="permission_deny">Negar</string>
+  <string name="permission_always_allow_confirm_title">Sempre permitir?</string>
+  <string name="permission_always_allow_confirm">Tem certeza de que deseja permitir permanentemente \"%1$s\"?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Você pode redefinir isso nas Configurações de IA.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Permissões de ferramentas</string>
+  <string name="manage_tool_permissions_summary">Gerenciar substituições de permissão por ferramenta</string>
+  <string name="commentary_max_response_title">Limite de tamanho de resposta do comentário</string>
+  <string name="commentary_max_response_summary">Exibir diálogo de seleção quando a resposta ultrapassar o limite</string>
+  <string name="commentary_max_response_no_limit">Sem limite</string>
+  <string name="commentary_max_response_value">~%s tokens</string>
+  <string name="commentary_max_response_dialog_title">Definir tamanho máximo de resposta (tokens)</string>
+  <string name="commentary_max_response_dialog_message">Quando a IA buscar comentários e a resposta total exceder este limite de tokens, um diálogo de seleção permite escolher quais comentários enviar à IA.\n\n0 = sem limite (todos os comentários são enviados automaticamente).</string>
+  <string name="commentary_filter_dialog_title">Resposta do comentário muito grande</string>
+  <string name="commentary_filter_dialog_message">Limite de tokens (~%s) excedido. Desmarque os comentários que não deseja enviar à IA.\n\nVocê pode ajustar este limite nas configurações de Conexão com IA.</string>
+  <string name="commentary_filter_total_tokens">Selecionados: ~%1$s / %2$s tokens</string>
+  <string name="tool_log_commentary_count">%d comentários</string>
+  <string name="tool_log_label_count">%d etiquetas</string>
+  <string name="tool_log_document_count">%d documentos</string>
+  <string name="tool_log_study_pad_count">%d blocos de estudo</string>
+  <string name="tool_log_search_results">%1$d/%2$d resultados</string>
+  <string name="tool_log_bookmark_count">%d marcadores</string>
+  <string name="tool_log_my_document_count">%d documentos</string>
+  <string name="tool_log_my_document_page_count">%d páginas</string>
+  <string name="tool_log_window_count">%d janelas</string>
+  <string name="tool_log_window_copy">cópia</string>
+  <string name="tool_log_window_minimized">minimizada</string>
+  <string name="tool_log_window_removed">removida</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
+  <string name="ai_document_filter_title">Acesso a documentos</string>
+  <string name="ai_document_filter_summary">Escolher quais documentos a IA pode ler</string>
+  <string name="ai_document_filter_summary_count">%d documentos excluídos</string>
+  <string name="ai_document_filter_activity_title">Acesso a documentos da IA</string>
+  <string name="ai_document_excluded_error">Documento excluído pelas configurações do usuário: %s</string>
+  <string name="permission_status_default">Perguntar (padrão)</string>
+  <string name="permission_status_allowed">Sempre permitido</string>
+  <string name="permission_status_denied">Sempre negado</string>
+  <string name="permission_option_default">Perguntar sempre (padrão)</string>
+  <string name="permission_option_always_allow">Sempre permitir</string>
+  <string name="permission_option_always_deny">Sempre negar</string>
+  <string name="reset_all_permissions">Redefinir tudo</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Ferramentas disponíveis</string>
+  <string name="ai_read_tools">Ferramentas de leitura</string>
+  <string name="ai_write_tools">Ferramentas de escrita</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Configurações padrão de ferramentas</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Permissões de ferramentas</string>
+  <string name="prompt_tool_permissions_read_only">Permissões de ferramentas (somente leitura)</string>
+  <string name="prompt_tool_permissions_description">Substituir permissões de ferramentas para este prompt</string>
+  <string name="tool_section_read_tools">Ferramentas de leitura</string>
+  <string name="tool_section_write_tools">Ferramentas de escrita</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Bíblia e pesquisa</string>
+  <string name="tool_category_bookmarks">Marcadores</string>
+  <string name="tool_category_labels">Etiquetas</string>
+  <string name="tool_category_study_pads">Blocos de estudo</string>
+  <string name="tool_category_my_documents">Meus Documentos</string>
+  <string name="tool_category_windows">Janelas</string>
+  <string name="tool_category_read">Leitura</string>
+  <string name="tool_category_write">Escrita</string>
+  <string name="expand_collapse">Expandir/recolher</string>
+  <string name="tool_option_enabled">Ativado</string>
+  <string name="tool_option_disabled">Desativado</string>
+  <string name="tool_option_default_enabled">Padrão (ativado)</string>
+  <string name="tool_option_default_disabled">Padrão (desativado)</string>
+  <string name="tool_option_default_allowed">Padrão (permitido)</string>
+  <string name="tool_option_default_denied">Padrão (negado)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Modelo</string>
+  <string name="prompt_model_default">Padrão</string>
+  <string name="prompt_model_custom">Personalizado</string>
+  <string name="prompt_model_custom_hint">Inserir nome do modelo</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Selecionar ação de IA</string>
+  <string name="no_llm_prompts_configured">Nenhuma ação de IA configurada para seleção de versículo</string>
+  <string name="llm_prompt_executing">Executando prompt de IA: %s</string>
+  <string name="llm_actions">Ações de IA</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Expandir/recolher log do agente</string>
+  <string name="agent_log_close">Fechar log do agente</string>
+  <string name="agent_log_stop">Parar IA</string>
+  <string name="agent_log_idle">Assistente de IA</string>
+  <string name="agent_log_running">A IA está trabalhando…</string>
+  <string name="agent_log_completed">Concluído</string>
+  <string name="agent_log_error">Ocorreu um erro</string>
+  <string name="agent_log_executing">Executando: %s</string>
+  <string name="agent_log_iteration">Iteração %d</string>
+  <string name="agent_log_tool">Ferramenta: %s</string>
+  <string name="agent_log_tool_completed">Ferramenta %s concluída</string>
+  <string name="agent_log_tool_failed">Ferramenta %s falhou</string>
+  <string name="agent_log_response_received">Resposta recebida</string>
+  <string name="agent_log_saved">Salvo: %s</string>
+  <string name="agent_log_done">Concluído: %s</string>
+  <string name="agent_log_cancelled">Cancelado</string>
+  <string name="agent_execution_completed">Execução do agente concluída</string>
+  <string name="agent_already_running">Um agente de IA já está em execução. Aguarde ou pare-o primeiro.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">Agente de IA</string>
+  <string name="ai_agent_notification_running">Agente de IA trabalhando…</string>
+  <string name="ai_agent_notification_permission_needed">Agente de IA precisa da sua aprovação</string>
+  <string name="ai_agent_notification_permission_tap">Toque para voltar ao AndBible</string>
+  <string name="ai_agent_notification_completed">Tarefa de IA concluída</string>
+  <string name="ai_agent_notification_completed_tap">Toque para ver os resultados</string>
+  <string name="ai_agent_notification_error">Tarefa de IA falhou</string>
+  <string name="ai_agent_notification_cancel">Cancelar</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Meus Documentos</string>
+  <string name="my_documents_empty">Nenhum documento ainda. Toque em + para criar um.</string>
+  <string name="my_document_new_name">Documento %d</string>
+  <string name="my_document_create_title">Criar novo documento</string>
+  <string name="my_document_rename_title">Renomear documento</string>
+  <string name="my_document_edit_description_title">Editar descrição</string>
+  <string name="my_document_delete_confirmation">Excluir documento \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">Documentos de IA não podem ser excluídos enquanto contiverem páginas. Exclua as páginas primeiro.</string>
+  <string name="my_document_save_changes">Salvar alterações?</string>
+  <string name="my_document_no_description">Sem descrição</string>
+  <string name="my_document_rename">Renomear</string>
+  <string name="my_document_edit_description">Editar descrição</string>
+  <string name="my_document_delete">Excluir</string>
+
+  <string name="my_document_pages_title">%s - Páginas</string>
+  <string name="my_document_pages_empty">Nenhuma página neste documento.</string>
+  <string name="my_document_page_rename_title">Renomear página</string>
+  <string name="my_document_page_delete_confirmation">Excluir página \"%s\"?</string>
+  <string name="my_document_page_rename">Renomear</string>
+  <string name="my_document_page_delete">Excluir</string>
+  <string name="my_document_page_export">Exportar</string>
+  <string name="my_document_new_page_name">Página %1$d</string>
+  <string name="my_document_create_page_title">Nova página</string>
+  <string name="my_document_content_type_label">Tipo de conteúdo</string>
+  <string name="my_document_import_page">Importar Markdown/HTML</string>
+  <string name="my_document_export_page">Exportar página</string>
+  <string name="my_document_imported_page_name">Importado</string>
+  <string name="my_document_export_fallback_name">página</string>
+  <string name="my_document_export_document">Exportar todas as páginas</string>
+  <string name="my_document_import_document">Importar arquivos como documento</string>
+  <string name="my_document_import_empty_selection">Nenhum arquivo importável selecionado</string>
+  <string name="my_document_export_success">Páginas exportadas com sucesso</string>
+  <string name="ai_doc_choose_page">Escolher página de documento de IA</string>
+  <string name="prefs_show_ai_doc_markers_title">Mostrar marcadores de documento de IA</string>
+  <string name="prefs_show_ai_doc_markers_summary">Mostrar ícones de marcador para páginas de documentos gerados por IA vinculadas a versículos</string>
+  <string name="prefs_show_ordinals_title">Mostrar números ordinais</string>
+  <string name="prefs_show_ordinals_summary">Mostrar marcadores de posição ordinal no texto</string>
+
+  <string name="prefs_page_scroll_amount_title">Quantidade de rolagem da página</string>
+  <string name="prefs_page_scroll_amount_summary">Quanto da página rolar com página acima/abaixo</string>
+  <string name="page_scroll_amount_dialog_title">Quantidade de rolagem da página</string>
+  <string name="prefs_scroll_helper_lines_title">Linhas guia de rolagem</string>
+  <string name="prefs_scroll_helper_lines_summary">Mostrar linhas guia horizontais nos limites de rolagem da página</string>
+  <string name="prefs_scroll_helper_line_style_title">Estilo da linha guia</string>
+  <string name="prefs_scroll_helper_line_style_summary">Escolher o estilo visual das linhas guia de rolagem</string>
+  <string name="scroll_helper_line_style_dialog_title">Estilo da linha guia</string>
+  <string name="scroll_helper_line_style_thin_dotted">Linha pontilhada fina</string>
+  <string name="scroll_helper_line_style_thin_solid">Linha contínua fina</string>
+  <string name="scroll_helper_line_style_thick_solid">Linha contínua grossa</string>
+  <string name="prefs_page_buttons_title">Botões de rolagem de página</string>
+  <string name="prefs_page_buttons_summary">Mostrar botões visíveis de página acima/abaixo na tela</string>
 </resources>
