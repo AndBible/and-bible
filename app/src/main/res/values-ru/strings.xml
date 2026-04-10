@@ -1,13 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
   <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">Изучение Библии</string>
   <string name="app_name_medium">Изучение Библии (AndBible) </string>
   <string name="app_name_long">AndBible: Изучение Библии</string>
   <string name="project">AndBible Проект с открытым исходным кодом</string>
+
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD-карту и перезапустите приложение.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">Меню</string>
   <string name="chooseBook">Ресурсы</string>
   <string name="selectPassage">Отрывок</string>
@@ -23,13 +26,15 @@
   <string name="administration">Управление</string>
   <string name="rate_application">Оценка и отзыв</string>
   <string name="chooce_document">Выбрать модуль</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Выбрать книгу</string>
   <string name="choosePassageChapterName">Выбрать главу</string>
   <string name="choosePassageVerseName">Выбрать стих</string>
   <string name="bible">Библия</string>
   <string name="deuterocanonical">Второканонические</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Поисковой индекс</string>
   <string name="index_creation_required">Для поиска нужен индекс.</string>
   <string name="create_index_for">Для поиска нужен индекс. \n\nСоздать индекс для %s?</string>
@@ -41,16 +46,20 @@
   <string name="do_in_background">Продолжить в фоновом режиме</string>
   <string name="rebuild_index_button">Перестроить</string>
   <string name="creating_index_for">Создаю индекс для %s…</string>
-  <!--X results in module Y-->
-  <string name="search_with_results2">%1$s результатов в %2$s</string>  <!--Tasks-->
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s результатов в %2$s</string>
+
+    <!-- Tasks -->
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
   <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Найти стихи</string>
   <string name="search_all_words">Все слова</string>
   <string name="search_any_word">Любое слово</string>
   <string name="search_phrase">Фраза</string>
+  <string name="search_fts_query">Синтаксис запроса</string>
   <string name="search_result_count">%d совпадений найдено</string>
   <string name="search_showing_first">Слишком много совпадений. Показаны первые %d</string>
   <string name="search_bible_section_group_prompt">Искать в</string>
@@ -60,24 +69,48 @@
   <string name="search_current_book">Текущая книга</string>
   <string name="error_executing_search">Неверный запрос</string>
   <string name="type_text_or_bible_reference">Введите текст или библейскую ссылку</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Открыть %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Найти \"%s\"</string>
-  <!--Preferences-->
+    <!-- Multi-translation search -->
+  <string name="search_translations">Переводы</string>
+  <string name="choose_translations">Выбрать переводы…</string>
+  <string name="multi_search_results">%1$d стихов в %2$d переводах</string>
+  <string name="search_index_not_created">индекс не создан</string>
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Номера глав и стихов</string>
   <string name="prefs_show_verseno_summary">Показать номера глав и стихов</string>
+
   <string name="prefs_e_ink_mode_title">Черно-белый режим</string>
   <string name="prefs_eink_mode_summary">Используйте приложение в монохромном режиме (без цветов), что делает его более подходящим для устройств E-ink.</string>
+  <string name="prefs_eink_settings_cat">Настройки E-ink</string>
+  <string name="prefs_eink_display_title">Функции E-ink</string>
+  <string name="prefs_eink_display_summary">Включить функции для E-ink-устройств (кнопки прокрутки страниц, вспомогательные линии прокрутки)</string>
+
   <string name="prefs_disable_animations_title">Отключить анимацию</string>
   <string name="prefs_disable_animations_summary">Отключить различные анимации, например плавную прокрутку.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Отключить редактирование нажатием в блокноте</string>
+  <string name="prefs_disable_click_to_edit_summary">Для редактирования заметок в блокноте потребуется нажать кнопку правки.</string>
+
+  <string name="prefs_notes_content_type_title">Формат новых заметок к закладкам</string>
+  <string name="prefs_notes_content_type_summary">Текстовый формат для новых заметок к закладкам и записей в блокноте</string>
+  <string name="notes_content_type_html">Форматированный текст (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
   <string name="prefs_paragraph_spacing_title">Интервал между абзацами (%s мм)</string>
   <string name="prefs_paragraph_spacing_summary">Отрегулировать расстояние между абзацами.</string>
+
   <string name="prefs_show_verseno_title1">Нумерация стихов</string>
+
   <string name="prefs_show_chapter_no_title">Номера глав</string>
   <string name="prefs_show_chapter_no_summary">Показать номера глав</string>
+
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
+
   <string name="prefs_show_mynotes_summary">Показать значок в стихах с Моей Заметкой</string>
   <string name="prefs_show_notes_summary">Показать сноски и перекрестные ссылки</string>
   <string name="prefs_show_strongs_summary">Ссылки на греческие и еврейские определения</string>
@@ -85,30 +118,49 @@
   <string name="prefs_section_title_summary">Показать неканонические заголовки разделов</string>
   <string name="prefs_red_letter_summary">Показать слова Христа красным шрифтом</string>
   <string name="prefs_text_size_title">Настройки шрифта</string>
+
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
   <string name="prefs_show_footnotes_title">Примечаний</string>
   <string name="prefs_show_xrefs_title">Перекрестные ссылки</string>
   <string name="prefs_show_footnotes_summary">Показывать сноски, если они есть в документе</string>
+  <string name="prefs_show_footnotes_inline_title">Примечания в тексте</string>
+  <string name="prefs_show_footnotes_inline_summary">Показывать примечания непосредственно в тексте, а не в виде интерактивных значков</string>
   <string name="prefs_show_xrefs_summary">Показать перекрестные ссылки, если они есть в документе</string>
+
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_strongs_title">Номера Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
+  <string name="prefs_non_strongs_word_italic_title">Курсив для добавленных слов</string>
+  <string name="prefs_non_strongs_word_italic_summary">Выделять курсивом слова без номеров Стронга</string>
   <string name="prefs_section_title_title">Названия разделов</string>
+  <string name="prefs_title_scroll_button_title">Кнопка прокрутки к заголовку</string>
+  <string name="prefs_title_scroll_button_summary">Показывать кнопку прокрутки вверх рядом с заголовками разделов</string>
   <string name="prefs_red_letter_title">Красный шрифт</string>
+  <string name="prefs_infinite_scroll_title">Бесконечная прокрутка</string>
+  <string name="prefs_infinite_scroll_summary">Автоматически загружать больше контента при прокрутке</string>
+  <string name="prefs_mark_as_read_button_title">Кнопка «Отметить как прочитанное»</string>
+  <string name="prefs_mark_as_read_button_summary">Показывать кнопку в конце каждой главы для отметки о прочтении</string>
+  <string name="prefs_show_memorization_indicators_title">Индикаторы запоминания</string>
+  <string name="prefs_show_memorization_indicators_summary">Показывать цветные индикаторы на полях для запомненных и целевых стихов</string>
+  <string name="prefs_auto_track_reading_title">Автоотслеживание чтения</string>
+  <string name="prefs_auto_track_reading_summary">Автоматически отмечать главы как прочитанные при прокрутке</string>
   <string name="prefs_tilt_to_scroll_title">Прокручивание текста</string>
+
   <string name="prefs_toolbar_button_action_title">Действие при нажатии кнопки панели инструментов</string>
   <string name="prefs_toolbar_button_action_summary">Действия, выполняемые при нажатии / долгом нажатии кнопок панели инструментов Библии или комментариев</string>
   <string name="prefs_toolbar_button_action_default">Нажмите, чтобы открыть меню, нажмите и удерживайте, чтобы открыть экран ресурсов (по умолчанию)</string>
   <string name="prefs_toolbar_button_action_swap_menu">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть меню</string>
   <string name="prefs_toolbar_button_action_swap_activity">Нажмите, чтобы открыть следующий ресурс, нажмите и удерживайте, чтобы открыть экран ресурсов</string>
+
   <string name="prefs_night_mode_title">Переключение ночного режима</string>
   <string name="prefs_night_mode_summary">Следует ли переключаться в ночной режим автоматически (если устройство поддерживает), вручную или через системные настройки (Android 10+). Ручное переключение может быть выполнено из 3-точечного меню опций на главном экране.</string>
   <string name="prefs_night_mode_manual">Вручную</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_night_mode_system">Система</string>
   <string name="options_menu_night_mode">Ночной режим</string>
+
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
   <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
   <string name="prefs_open_links_in_special_window_title">Окно ссылок</string>
@@ -119,31 +171,52 @@
   <string name="prefs_interface_locale_title">Язык</string>
   <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
   <string name="reset_fontsize">Сбросить</string>
+
   <string name="prefs_request_sdcard_permission_title">Ресурсы, установленные вручную, существуют</string>
   <string name="prefs_request_sdcard_permission_summary">Включить использование установленных вручную документов из папки jsword / sword на внутреннем хранилище</string>
+
   <string name="prefs_expand_footnotes_title">Встроенные перекрестные ссылки</string>
   <string name="prefs_expand_footnotes_summary">Показывать содержимое перекрестной ссылки в тексте вместо ссылки, открывающей всплывающее диалоговое окно.</string>
+
   <string name="all_text_options_window_menutitle">Все параметры текста</string>
   <string name="text_options_window_menutitle">Параметры текста</string>
   <string name="auto_fullscreen">Полный экран с помощью прокрутки</string>
   <string name="reversed_split_mode">Режим обратного разделения</string>
+
   <string name="add_ellipsis">%s…</string>
+
   <string name="font_size_pt">%d pt</string>
   <string name="value_mm">%d мм</string>
   <string name="auto_fullscreen_summary">Автоматически переключаться в полноэкранный режим при прокрутке текста. Совет: вы также всегда можете переключиться в полноэкранный режим, дважды нажав экран.</string>
   <string name="prefs_margin_size_title">Изменить размер поля</string>
   <string name="prefs_margin_size_mm_title">Размер поля (%1$d/%2$d/%3$d мм)</string>
   <string name="prefs_advanced_settings_cat">Расширенные настройки</string>
+  <string name="prefs_features_cat">Функции</string>
   <string name="prefs_display_customization_cat">Оформление и удобство</string>
   <string name="prefs_behavior_customization_cat">Поведение приложения</string>
+
   <string name="prefs_margin_size_summary">Отрегулировать левое и правое поле текста. Также можна
 настроить максимальную ширину текста.</string>
+  <string name="prefs_margin_size_summary_2">Подсказка: нажмите на область полей, чтобы перейти на страницу вверх / вниз.</string>
+
   <string name="prefs_text_colors_summary">Отрегулировать цвет текста, фона и эффект шума</string>
   <string name="text_display_settings_activity_title">Настройки отображения текста</string>
   <string name="workspace_text_display_settings_title">Параметры текста - %s</string>
   <string name="window_text_display_settings_title">Параметры текста - Окно %d</string>
-  <string name="prefs_text_display_settings_title">Форматирование</string>
-  <string name="prefs_text_appearance_title">Внешность</string>
+  <string name="global_text_display_settings_title">Глобальные параметры текста</string>
+  <string name="global_text_display_settings_summary">Настройки отображения текста по умолчанию для всех рабочих областей</string>
+  <string name="parent_settings_category_title">Родительские настройки</string>
+  <string name="workspace_text_options_link">Параметры текста рабочей области — %s</string>
+  <string name="workspace_text_options_link_summary">Изменить настройки отображения текста для этой рабочей области</string>
+  <string name="global_text_options_link">Глобальные параметры текста</string>
+  <string name="global_text_options_link_summary">Изменить настройки отображения текста по умолчанию для всех рабочих областей</string>
+  <string name="prefs_font_and_colors_title">Шрифт &amp; Цвета</string>
+  <string name="prefs_text_layout_title">Макет текста</string>
+  <string name="prefs_strongs_and_morphology_title">Номера Стронга &amp; Морфология</string>
+  <string name="prefs_footnotes_and_xrefs_title">Примечания &amp; Перекрёстные ссылки</string>
+  <string name="prefs_verses_and_headings_title">Стихи &amp; Заголовки</string>
+  <string name="prefs_page_scrolling_title">Прокрутка страниц</string>
+
   <string name="prefs_justify_title">Выровнять текст</string>
   <string name="prefs_justify_summary">Выровнять текст, чтобы левый и правый поля текста были в строке</string>
   <string name="pref_left_margin_label_mm">Левое поле (%d mm)</string>
@@ -165,8 +238,10 @@
   <string name="hide_window_buttons_summary">Кнопки окна, которые отображаются справа от просмотра Библии, скрыты. Панель навигации окна внизу по-прежнему отображается, и вы можете открыть всплывающее меню окна, нажав и удерживая ее.</string>
   <string name="hide_bible_reference_overlay_title">Скрыть наложение/оверлей ссылки на Библию</string>
   <string name="hide_bible_reference_overlay_summary">Не показывать полупрозрачное наложение со ссылкой на Библию, когда приложение находится в полноэкранном режиме</string>
+
   <string name="full_screen_hide_buttons_pref_title">Скрыть панель кнопок окна в полноэкранном режиме</string>
   <string name="full_screen_hide_buttons_pref_summary">При переключении в полноэкранный режим автоматически скрывать панель кнопок окна, расположенную внизу экрана</string>
+
   <string name="prefs_dictionaries_cat">Словари</string>
   <string name="choose_strongs_greek_dictionary_title">Греческий словарь Стронга</string>
   <string name="choose_strongs_greek_dictionary_summary">Выберите словарь Стронга для определений греческих слов</string>
@@ -174,21 +249,32 @@
   <string name="choose_strongs_hebrew_dictionary_summary">Выберите словарь Стронга для определений слов на иврите</string>
   <string name="choose_strongs_greek_morphology_title">Греческая морфология Робинзона</string>
   <string name="choose_strongs_greek_morphology_summary">Выберите словарь Робинзона для определений морфологии греческого языка</string>
+  <string name="choose_word_lookup_dictionary_title">Словари для поиска слов</string>
+  <string name="choose_word_lookup_dictionary_summary">Выбрать словари для поиска слов</string>
+  <string name="lookup_in_dictionary">Найти в словарях</string>
+  <string name="word_not_found_in_dictionaries">Слово не найдено ни в одном словаре</string>
+
   <string name="prefs_top_margin_title_mm">Верхнее поле (%d мм)</string>
   <string name="font_size_title">Размер шрифта</string>
   <string name="font_size_title_pt">Размер шрифта (%d pt)</string>
   <string name="prefs_font_text_size_summary">Настроить размер шрифта основного текста</string>
+
   <string name="pref_font_family_label_name">Семейство шрифтов (%s)</string>
   <string name="prefs_font_family_summary">Измените семейство шрифтов. Совет: дополнительные шрифты можно установить с помощью Скачать ресурсы / Дополнительные компоненты.</string>
+
   <string name="prefs_text_bookmarks_title">Настройки закладок и заметок</string>
+  <string name="prefs_reading_and_memorization_title">Чтение &amp; Запоминание</string>
+
   <string name="prefs_enable_bluetooth_title">Активировать медиа кнопки Bluetooth</string>
   <string name="prefs_enable_bluetooth_summary">Управление медиа кнопками Bluetooth для начала/завершения голосовой функции.</string>
   <string name="create_bookmark">Создать новую закладку</string>
   <string name="create_bookmark_with_a_note">Создать новую закладку с заметкой</string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Настройки цвета</string>
   <string name="window_color_settings_title">Настройки цвета окна</string>
   <string name="workspace_color_settings_title">Настройки цвета рабочей области по умолчанию</string>
+
   <string name="color_workspace">Цвет рабочей области</string>
   <string name="color_text">Цвет текста</string>
   <string name="color_background">Фоновый цвет</string>
@@ -196,12 +282,14 @@
   <string name="colors_night_mode_title">Ночной режим</string>
   <string name="prefs_noise_title">Фоновый шум</string>
   <string name="prefs_noise_summary">Добавление некоторого шума к фону может сделать его более удобным для глаз.</string>
+
   <string name="cpv_default_title">Выберите цвет</string>
   <string name="cpv_presets">Предустановки</string>
   <string name="cpv_custom">Пользовательский</string>
   <string name="cpv_select">Выбрать</string>
   <string name="cpv_transparency">Прозрачность</string>
-  <!--Window-->
+
+    <!-- Window -->
   <string name="new_window">Новое окно</string>
   <string name="windowClose">Закрыть</string>
   <string name="windowMaximise">Развернуть</string>
@@ -212,19 +300,23 @@
   <string name="copy_settings">Копировать настройки в</string>
   <string name="copy_settings_to_workspace">Рабочая область</string>
   <string name="copy_settings_to_window">Окно %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Глобальные значения по умолчанию</string>
   <string name="change_to_normal">Изменить на нормальное окно</string>
   <string name="window_pin_mode">Прикрепить</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">В этой главе нет заметок.</string>
   <string name="no_verse_notes">В этом стихе нет заметок.</string>
   <string name="previous">Назад</string>
   <string name="next">Вперед</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
   <string name="no_indexed_bible_with_strongs_ref">Вам необходимо загрузить модуль Библии, содержащий номера Стронга, а затем индексировать его посредством Поиска&lt;br&gt;</string>
   <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
   <string name="go_to_downloads">Перейти к Загрузке</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">Скачать ресурсы</string>
   <string name="redownload">Повторно скачать ресурсы</string>
   <string name="download_confirmation">Скачать Библию из интернета?</string>
@@ -255,7 +347,8 @@
   <string name="failed_repositories_message">Не удалось подключиться к следующему серверу ресурсов: \n\n%s\n\n</string>
   <string name="failed_downloads_message">Следующие файлы не могут быть загружены:\n\n%s\n\n</string>
   <string name="cant_delete_document">Этот ресурс невозможно удалить.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">Загрузка ресурсов из файлов</string>
   <string name="install_zip_module">Установить библейский модуль</string>
   <string name="install_zip_module_discrete">Установить модуль калькулятора</string>
@@ -268,7 +361,8 @@
   <string name="overwrite_files_title">Перезаписать файлы?</string>
   <string name="could_not_overwrite_files">Не удалось перезаписать файлы: %s. В остальном установка прошла успешно.</string>
   <string name="install_do_you_want">Хотите установить (%s) модуль?</string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">План чтения</string>
   <string name="reading_plans_plural">Планы чтения</string>
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>
@@ -330,28 +424,32 @@ http://www.heartlight.org, разрешение предоставлено
         Прочитайте Библию за 2 года, дважды прочитав НЗ и Псалмы.
 Предоставлено Wholesome Words, http://www.wholesomewords.org/, разрешение получено
     </string>
-  <!--Document context menu-->
+
+    <!-- Document context menu -->
   <string name="delete">Удалить</string>
   <string name="delete_index">Удалить поисковой индекс?</string>
   <string name="about">Источник</string>
   <string name="delete_doc">Удалить %s?</string>
   <string name="delete_search_index_doc">Удалить индекс %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Заметки и ссылки</string>
   <string name="share_verse">Поделиться...</string>
   <string name="share_verse_widget_title">Поделиться выделенным текстом</string>
   <string name="share_verse_subject_2">Библейский стих был отправлен вам с помощью %s.</string>
   <string name="compare_translations">Сравнить переводы</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Открыть ссылку на месте</string>
   <string name="open_link_in_new_window">Открыть ссылку в новом окне</string>
   <string name="open_link_in_special_window">Открыть ссылку в специальном окне</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Закладки и мои заметки</string>
   <string name="migrated_my_notes">Мои заметки перенесены</string>
   <string name="bookmarks">Закладки</string>
   <string name="bookmark_added">Закладка добавлена</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">Метки</string>
   <string name="manage_labels">Управление ярлыками</string>
   <string name="assign_labels">Прикрепить ярлыки</string>
@@ -365,6 +463,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="add_bookmark_whole_verse">Стих закладки</string>
   <string name="add_bookmark_whole_verse1">Стихи</string>
   <string name="add_bookmark_whole_verse2">Полные стихи</string>
+  <string name="add_whole_page_bookmark">Добавить закладку для всей страницы</string>
+  <string name="add_paragraph_break">Разрыв абзаца</string>
+  <string name="ai_label">AI</string>
   <string name="remove_bookmark">Удалить</string>
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
@@ -373,7 +474,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
   <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
   <string name="label_color">Цвет ярлыка</string>
-  <!--can be removed-->
   <string name="label_color_example">Пример</string>
   <string name="marker_style">Показывать только маркер для выделенных закладок</string>
   <string name="marker_style_whole_verse">Показывать только маркер для закладок всего стиха</string>
@@ -386,31 +486,34 @@ http://www.heartlight.org, разрешение предоставлено
     </string>
   <string name="bookmark_warning3">Вы все еще хотите обновить модуль?</string>
   <string name="bookmark_warning4">Перед обновлением рекомендуется сделать резервную копию модуля.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
   <string name="sort_by_alphabetical">Сортировка по алфавиту</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Поиск заметок</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Книга</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d главы</string>
   <string name="some_chapters">%d глав</string>
   <string name="rest_of_book">в конец книги</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d стихов</string>
   <string name="some_verses">%d стихов</string>
   <string name="rest_of_chapter">в конец главы</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d страниц</string>
   <string name="some_pages">%d страниц</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Остановить</string>
   <string name="pause"> \t\nПауза</string>
   <string name="rewind">Назад</string>
@@ -418,7 +521,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tts_lang_not_available">Язык не установлен</string>
   <string name="speak_queue">По порядку</string>
   <string name="speak_repeat">Повторить</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Скорость речи</string>
   <string name="speak_and_play_earcons_title">Прослушивать и воспроизводить краткие звуки для</string>
   <string name="playback_settings_title">Настройки воспроизведения</string>
@@ -427,14 +531,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_bookmarks_menu_title">Прослушать из закладки</string>
   <string name="speak_advanced_settings">Расширенные настройки</string>
   <string name="speak_sleep_timer_title">Таймер сна</string>
+
   <string name="speak_no_books_available">Нет доступных книг для прослушивания</string>
   <string name="speak_general_error">Не удалось начать прослушивание этой книги</string>
+
   <string name="repeat_passage">Повторить отрывок</string>
   <string name="set_repeat_passage_range">Определить отрывок для повтора</string>
   <string name="speak_beginning_of_passage">Выбрать начало отрывка</string>
   <string name="speak_ending_of_passage">Выбрать конец отрывка</string>
   <string name="speak_verse_range_to_repeat">Выбрать диапазон стихов для повтора</string>
   <string name="speak_ending_verse_must_be_later">Конечный стиха должно быть позже, чем стартовый стих</string>
+
   <string name="conf_speak_synchronize">Текст следует за речью</string>
   <string name="conf_speak_auto_bookmark">Автоматическое создание закладок</string>
   <string name="conf_save_playback_settings_to_bookmarks">Сохранять настройки воспроизведения в закладки</string>
@@ -443,10 +550,12 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="conf_change_title">Подзаголовок</string>
   <string name="conf_speak_footnotes">Примечаний</string>
   <string name="conf_speak_sleep_timer">Установить таймер сна</string>
+
   <string name="sleep_timer_title">Время сна в минутах</string>
   <string name="sleep_timer_set">Установить таймер сна. Таймер установлен: %dминут</string>
   <string name="sleep_timer_started">Таймер сна запущен, %d минут</string>
   <string name="sleep_timer_active_at">Таймер сна: осталось %s минут.</string>
+
   <string name="speak_next">Следуюущее</string>
   <string name="speak_previous">Предыдущее</string>
   <string name="widget_toggle_sleep_timer">Переключить таймер сна</string>
@@ -454,33 +563,45 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_status_stopped">остановлено</string>
   <string name="speak_autobookmarking_disabled">Авто установка закладкок отключена!</string>
   <string name="system_speak_settings">Открыть системные настройки TTS</string>
+
   <string name="auto_assing_labels_help1">Здесь вы можете настроить, какие ярлыки автоматически назначаются закладкам, которые вы создаете.</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Этот параметр применяется к %s.</string>
   <string name="setting_scope_window">это окно</string>
   <string name="setting_scope_workspace">этой рабочей области</string>
+
   <string name="assing_labels_help1">Каждой закладке можно назначить несколько ярлыков.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Используйте %s, чтобы указать цвет метки</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Нажмите %s значок, чтобы этот ярлык автоматически назначался новым закладкам.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Нажмите %s, чтобы добавить ярлык в список для быстрого доступа.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Нажмите %s, чтобы изменить порядок списка.</string>
+
+  <string name="global_text_options_help_title">Глобальные параметры текста</string>
+  <string name="global_text_options_help1">Это глобальные настройки по умолчанию для всех рабочих областей. Каждая рабочая область может переопределить их собственными настройками.</string>
+
   <string name="workspace_text_options_help_title">Параметры текста рабочей области</string>
   <string name="workspace_text_options_help1">Эти настройки определяют настройки по умолчанию для всех окон рабочей области.</string>
   <string name="workspace_text_options_help2">Вы можете переопределить их, изменив индивидуальные настройки окна.</string>
+
   <string name="window_text_options_help_title">Параметры текста окна</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s значок указывает, что параметр взят из настроек рабочей области.</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Используйте %1$s кнопку, чтобы сбросить все эти настройки обратно на %2$s.</string>
   <string name="reset_defaults">значения по умолчанию</string>
   <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
+
   <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
+
   <string name="speak_help_auto_bookmark">
 Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
 Автоматически сгенерированные закладки помечаются специальной меткой Прослушать.
@@ -500,31 +621,19 @@ http://www.heartlight.org, разрешение предоставлено
 а к Римлянам медленнее с краткими звуками при смене глав, то
 Вы можете иметь различные настройки воспроизведения для этих книг,
 при сохранении этих настроек в соответствующие закладки.</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_original">
-    <item>Господь</item>
-    <item>Бог</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_replace">
-    <item>Яхве</item>
-    <item>Яхве</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
+         in speak settings. -->
+
   <string name="speak_book_changed">Книга изменилась.</string>
   <string name="speak_chapter_changed">Глава</string>
   <string name="speak_first">Первая</string>
@@ -532,13 +641,16 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="speak_third">Третья</string>
   <string name="speak_fourth">Четвертая</string>
   <string name="speak_fifth">Пятая</string>
+
   <string name="verse_range_mode_disabled">
         Режим повторного прохождения был отключен автоматически, потому что
 прослушивание речи началось за пределами определенного диапазона стихов.
     </string>
-  <!--User Notes-->
+
+    <!-- User Notes -->
   <string name="mynotes">Мои заметки</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Сохранить резервную копию куда?</string>
   <string name="backup_backup_message">Резервное копирование на телефон или в другое место через функцию «Поделиться» (электронная почта, Google Drive и т. д.)?</string>
   <string name="backup_phone_storage">Память телефона</string>
@@ -554,13 +666,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_document_info">Библии, комментарии, словари, карты и т. д.</string>
   <string name="backup_to">Резервное копирование в…</string>
   <string name="backup_restore_from">Восстановить из…</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Восстановить или Импортировать из...</string>
   <string name="backup_restore">Восстановить</string>
   <string name="backup_restore2">Восстановить или Импортировать</string>
   <string name="overwrite_something">Перезаписать %s?</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">Что вы хотите восстановить?</string>
+
   <string name="restore_app_database">Восстановить базу данных приложения из…</string>
   <string name="restore_database">Восстановить файл базы данных</string>
   <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
@@ -570,10 +684,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
   <string name="backup_success2">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно скопированы.</string>
   <string name="backup_modules_success">Резервное копирование выбранных модулей успешно выполнено.</string>
+
   <string name="backup_modules_email_subject_2">%s резервное копирование модулей</string>
   <string name="backup_modules_email_message_2">Прикреплена %1$s резервная копия ваших модулей, которая содержит следующие модули: %2$s</string>
+
   <string name="backup_email_subject_2">%s резервное копирование базы данных</string>
   <string name="backup_email_message_2">Ваша %s база данных, содержащая закладки, заметки, планы чтения и рабочие области, прилагается</string>
+
   <string name="exported_studypads_subject">Экспортированный Блокнот(ы)</string>
   <string name="exported_studypads_message">Прикреплен %sвашей базы данных, содержащий Закладки и Заметки, относящиеся к выбранным Блокнотам</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
@@ -584,19 +701,25 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ask_restore_or_import">База данных для %sможет быть либо восстановлена (т.е. существующая база данных удаляется и загружается выбранная база данных), либо импортирована (выбранная база данных импортируется в существующую). Что Вы хотите сделать?</string>
   <string name="restore">Восстановить</string>
   <string name="import2">Импортировать</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
-  <!--About-->
+  <string name="export_studypads_help">Файл с экспортированными блокнотами (т.е. метками и закладками) можно импортировать через Главное меню -&gt; Резервное копирование &amp; Восстановление.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">«%1$s» и %2$s других меток / блокнотов и %3$s закладок</string>
+
+    <!-- About -->
   <string name="module_about_copyright">Авторское право: %s</string>
   <string name="module_about_installed_version">Установленная версия: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Последняя версия: %1$s (%2$s)</string>
   <string name="module_about_versification">Версия: %s</string>
   <string name="module_about_repository">Сервер распространения : %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
-  <!--Bug reporting-->
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">Отчет об ошибке</string>
   <string name="send_feedback_title">Отзыв</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
   <string name="report_bug_email_subject_3">[%1$s] Отчет об ошибке для %2$s %3$s</string>
+
   <string name="report_bug_big_heading">ПОЖАЛУЙСТА, НАПИШИТЕ ОТЗЫВЫ ИЛИ ОТЧЕТ ОБ ОШИБКЕ ВЫШЕ ЭТОЙ СТРОКИ</string>
   <string name="report_bug_heading1">Инструкция:</string>
   <string name="report_bug_line_1">Расскажите нам вкратце, что вы делали / что произошло, когда возникла проблема.</string>
@@ -612,7 +735,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="bug_report_screenshot">Снимок экрана приложения, когда произошел сбой или когда был создан отчет об ошибке.</string>
   <string name="bug_report_attachment_line_1">Прикрепление этих файлов очень помогает разработчикам приложений исправить обнаруженную ошибку.</string>
   <string name="report_bug_heading_4">Информация об устройстве:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">Все типы</string>
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Комментарий</string>
@@ -620,11 +744,14 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
   <string name="doc_type_addons">Дополнительные компоненты</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">По умолчанию</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">ОК</string>
   <string name="cancel">Отмена</string>
+  <string name="discard_changes_confirmation">Отменить несохранённые изменения?</string>
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
@@ -635,7 +762,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reset_generic">Сброс настроек</string>
   <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <string name="verse_not_found">Стих не найден</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>
   <string name="error_occurred_crash_last_time">Последний раз, когда вы использовали приложение, произошел сбой. Чтобы помочь нам исправить ошибку, мы будем признательны, если вы отправите нам отчет об ошибке.</string>
@@ -643,14 +771,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="error_no_content">В выбранных стихах нет содержания</string>
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
-  <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>  <string name="empty_list">Для отображения ничего нет</string>
+  <string name="error_key_not_in_document2">%1$s не найдено в ресурсе %2$s.</string>
+  <string name="empty_list">Для отображения ничего нет</string>
   <string name="error_skip">Пропустить</string>
   <string name="bug_report_email_title">Отправить отчет об ошибке по электронной почте</string>
   <string name="bug_report_email_text">Затем выберите предпочитаемое почтовое приложение (например, Gmail), чтобы отправить отчет команде разработчиков.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Текст в речь</string>
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="new_workspace">Новая</string>
   <string name="switch_to_workspace">Рабочие области</string>
   <string name="delete_workspace">Удалить</string>
@@ -668,15 +799,19 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="select_all">Выбрать все</string>
   <string name="copy_settings_workspaces_title">В какие рабочие области вы хотите скопировать настройки?</string>
   <string name="reset_settings">Сбросить</string>
+  <string name="search_settings">Настройки поиска</string>
   <string name="workspace_dismiss">Отклонить</string>
   <string name="workspace_listing_with_current">%s (текущий)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">Это бета-версия!</string>
+  <string name="beta_flag">БЕТА</string>
   <string name="beta_notice_content_1">
         В бета-версии есть новые функции, которые еще не были должным образом протестированы,
 и, следовательно, использование бета-версии может привести к неожиданному поведению, то есть к ошибкам.
 Вместо этого рекомендуется, чтобы обычные читатели Библии использовали стабильную версию.
     </string>
+
   <string name="beta_notice_content_2">
         Пользователям бета-версии рекомендуется сообщать об ошибках через Google Play или
 (предпочтительно) через %s.
@@ -687,12 +822,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">Отклонить</string>
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
+
   <string name="stable_notice_title">Приложение обновлено!</string>
   <string name="upgrade_video_message">См. видео, в котором представлены новые функции этого выпуска. (%s).</string>
   <string name="stable_notice_par1">Новая версия %1$s \"%2$s\" успешно установлена!</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">История (%1$s: Окно %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">Навигация</string>
   <string name="help_nav_text">Чтобы перейти к следующей или предыдущей главе, проведите пальцем по экрану.
 Дважды коснитесь текста Библии, чтобы переключиться в полноэкранный режим.
@@ -715,12 +853,15 @@ http://www.heartlight.org, разрешение предоставлено
 для записей личных заметок по изучению Библии, в которых есть несколько ссылок на Библию. Каждый блокнот связан с одной меткой закладки.
 Все закладки, созданные с соответствующим ярлыком, автоматически появляются в блокноте.
 Помимо закладок, в блокноте могут быть пользовательские текстовые записи.</string>
+
   <string name="help_search_title">Поиск</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
 (см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
   <string name="help_search_text2">Строка поиска может включать спецсимволы, такие как *, AND, OR, NOT</string>
   <string name="help_search_details">Пожалуйста смотрите подробности в %s.</string>
+  <string name="help_apache_lucene">Apache Lucene — синтаксис парсера запросов</string>
+  <string name="help_fts5">Синтаксис полнотекстовых запросов FTS5</string>
   <string name="help_workspaces_title">Рабочие области</string>
   <string name="help_workspaces_text">
 Рабочие области позволяют иметь несколько контекстно-зависимых рабочих сред. Функции рабочей области
@@ -743,29 +884,36 @@ http://www.heartlight.org, разрешение предоставлено
 комментарии, карты и т. д. как незакрепленные окна. Тогда вы легко сможете
 всегда открывать библейские ресурсы и быстро переключаться между комментариями и
 другим дополнительным материалом при изучении Библии.</string>
-  <!--Welcome text-->
+
+    <!-- Welcome text -->
   <string name="redownload_documents">Быстрая повторная загрузка</string>
   <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
-  <!--Supported file formats for documents-->
+    <!-- Supported file formats for documents -->
   <string name="supported_formats_title">Поддерживаемые форматы</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Вам нужно выбрать файл, который вы хотите загрузить в %s.</string>
   <string name="supported_formats">Поддерживаемые форматы загрузки документов из файла: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">ZIP-файл, содержащий модуль(и) Sword, или файл резервной копии ресурсов (*.abmd), созданный %s</string>
   <string name="format_mysword">MySword ресурсы (*.mybible)</string>
   <string name="format_mybible">MyBible ресурсы (*.SQLite3)</string>
+  <string name="format_esword">Ресурсы e-Sword (*.bblx, *.bbli)</string>
   <string name="format_epub">EPUB ресурсы (*.epub)</string>
+  <string name="format_ttf">Шрифты TTF (*.ttf)</string>
+  <string name="format_csv_prompts">Дополнения к подсказкам AI (*.csv)</string>
   <string name="format_studypads">Блокноты из баз данных AndBible (*.abdb)</string>
   <string name="redownload_message">
         Был найден список предыдущих книг / ресурсов. Нажмите ниже, чтобы легко загрузить их снова.
     </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">Закрыть</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Понятно</string>
   <string name="first_time_help_show_next_time">Показать снова в следующий раз</string>
+
   <string name="strongs_mode_title">Выберите режим Стронга</string>
+
   <string name="download_dialog_message">Не удалось загрузить следующие книги:</string>
   <string name="select_multiple">Выбрать несколько</string>
   <string name="journal_description">Редактируемые пользователем блокноты с настраиваемым текстом и закладками</string>
@@ -787,13 +935,45 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="unlock_info">Информация о разблокировке зашифрованного модуля</string>
   <string name="try_again_passphrase">Парольная фраза не сработала, попробовать еще раз?</string>
   <string name="show_unlock_info">Информация о модуле и разблокировке</string>
+
+  <string name="prefs_experimental_features_title">Экспериментальные функции</string>
+  <string name="prefs_experimental_features_summary">Выберите, какие экспериментальные функции включить. Эти функции ещё в разработке и могут измениться или быть удалены</string>
+  <string name="experimental_feature_bookmark_edit_actions">Действия по редактированию закладок</string>
+  <string name="experimental_feature_add_paragraph_break">Добавить разрыв абзаца в закладку</string>
+  <string name="experimental_feature_ai_features">Функции AI &amp; Мои документы</string>
+  <string name="experimental_feature_reading_and_memorization">Отслеживание чтения &amp; Запоминание</string>
+  <string name="raw_llm_log_title">Журнал LLM</string>
+  <string name="raw_llm_log_empty">Данные журнала отсутствуют</string>
+  <string name="raw_llm_log_copied">Журнал скопирован в буфер обмена</string>
+  <string name="raw_llm_log_total">Итого: вход %1$s / выход %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Системная подсказка</string>
+  <string name="raw_llm_log_entry_user">Сообщение пользователя</string>
+  <string name="raw_llm_log_entry_assistant">Ответ ассистента</string>
+  <string name="raw_llm_log_entry_tool_call">Вызов инструмента: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Результат инструмента [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Определения инструментов (%d инструментов)</string>
+  <string name="raw_llm_log_entry_api_response">Ответ API (итерация %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s токенов</string>
+  <string name="raw_llm_log_entry_usage">вход: %1$s / выход: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(пусто)</string>
+  <string name="raw_llm_log_entry_tool_desc">Описание: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Параметры: %s</string>
+  <string name="agent_log_view_raw">Просмотр журнала LLM</string>
+  <string name="agent_log_model_selector">Изменить модель по умолчанию (текущая: %1$s)</string>
+  <string name="agent_log_model_not_configured">Модель не настроена</string>
+  <string name="agent_log_select_model">Выбрать модель по умолчанию</string>
+  <string name="share">Поделиться</string>
   <string name="prefs_show_error_box_title">Показать окно ошибки Javascript</string>
   <string name="prefs_show_error_box_summary">Полезно для разработчиков при исправлении побочных ошибок JavaScript в BibleView. Это замедлит работу приложения.</string>
   <string name="active_window_indicator_title">Показать индикатор активного окна</string>
   <string name="active_window_indicator_summary">Выделите углы окна, чтобы определить, какое окно активно</string>
   <string name="app_licence_title">Лицензия с открытым исходным кодом</string>
+
   <string name="how_to_contribute">Как внести свой вклад?</string>
   <string name="confirm_delete_bookmarks">Вы хотите удалить %d закладки и их заметки?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Выбранная метка прикреплена к %d закладкам, у которых нет других меток. Удалить эти закладки вместе с метками?</string>
+  <string name="delete_label_and_bookmarks">Удалить метку и закладки</string>
+  <string name="delete_label_only">Удалить только метку</string>
   <string name="module_size_megabytes">%.1f MB</string>
   <string name="tell_friend_title">Порекомендовать другу</string>
   <string name="tell_friend_message1">Хочу порекомендовать вам приложение %s для глубокого и удобного изучения Библии.</string>
@@ -801,6 +981,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tell_friend_message3">Установить из Play Store: %s</string>
   <string name="tell_friend_message4">Подробнее и дополнительные варианты установки: %s</string>
   <string name="share_verse_ok">Поделиться / Копировать</string>
+  <string name="web_search">Поиск в интернете</string>
   <string name="verse_action_copy">Копировать</string>
   <string name="generic_share">Поделиться</string>
   <string name="share_verse_menu_title">Поделиться / копировать…</string>
@@ -813,16 +994,18 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="show_reference_at_front">Показывать перед стихом</string>
   <string name="abbreviate_reference">Сокращенная ссылка</string>
   <string name="version_name">Название перевода</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Включить название версии</string>
   <string name="show_ellipsis">Показать многоточие (…)</string>
   <string name="show_quotes">Показать цитаты</string>
+  <string name="separate_verses_with_newlines">Разделять стихи новыми строками</string>
+
   <string name="backup_button">Резервное копирование</string>
   <string name="back_button">Назад</string>
   <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
   <string name="initializing_app">Инициализация приложения…</string>
   <string name="show_notes">Показать заметки</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Пакет Android WebView слишком старый (%1$s). Вам необходимо обновить пакет Android WebView как минимум до версии %2$s чтобы использовать %3$s. Для большинства устройств это можно сделать через %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Все равно продолжить</string>
@@ -834,15 +1017,16 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="rate_message6">
         Прежде чем оставить отрицательный отзыв, обратите внимание на следующее:
     </string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
         Если у вас проблемы с приложением, пожалуйста %1$s или %2$s.
     </string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
         Если с некоторым текстом / переводом Библии есть проблемы, %s.
     </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
        Если конкретный текст недоступен в приложении, %s.
     </string>
@@ -869,6 +1053,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="whole_verse_turned_on">Закладка теперь выделена для всего стиха</string>
   <string name="this_bookmark">Эта закладка</string>
   <string name="this_workspace">Эта рабочая область</string>
+  <string name="override_style">Переопределить стиль</string>
+  <string name="no_override_suffix">(без переопределения)</string>
+  <string name="display_mode_highlight">Выделение</string>
+  <string name="display_mode_underline">Подчёркивание</string>
+  <string name="display_mode_marker">Только маркер</string>
+  <string name="display_mode_hidden">Скрытый</string>
+  <string name="workspace_override_indicator">У этой метки есть режим отображения для конкретной рабочей области</string>
   <string name="primary_label">Первичный ярлык</string>
   <string name="highlight_entire_verse">Выделите стих целиком</string>
   <string name="favourite_label">Любимый ярлык</string>
@@ -882,6 +1073,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="book_menu_sort_row_opt">Упорядочить книги по горизонтали</string>
   <string name="book_menu_group_by_category">Группировать книги по категориям</string>
   <string name="book_menu_show_long_book_name">Показать длинное название книги</string>
+  <string name="book_menu_show_progress_bars">Показать индикаторы прогресса</string>
   <string name="reset_workspace_labels">Вы хотите сбросить настройки автоматического назначения и любимых ярлыков для этой рабочей области?</string>
   <string name="reset_hide_labels">Сбросить настройку скрытия настроек ярлыков?</string>
   <string name="reorder">Изменение порядка</string>
@@ -902,20 +1094,63 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_salvation">Спасение</string>
   <string name="label_underline">Подчеркивание</string>
   <string name="import_menu">Импорт и экспорт</string>
+  <string name="auto_backups_title">Автоматическое резервное копирование</string>
+  <string name="backup_file_info">Приложение v%1$d, %2$s</string>
+  <string name="reset_databases_title">Сбросить базы данных</string>
+  <string name="reset_databases_description">Сбросить отдельные базы данных до исходного пустого состояния. Это действие нельзя отменить.</string>
+  <string name="last_crash_info_title">Сведения о последнем сбое</string>
+  <string name="reset_database_confirm">Это действие безвозвратно удалит все данные в «%1$s» и сбросит базу данных до исходного состояния. Его нельзя отменить.\n\nВы уверены?</string>
+  <string name="reset_database_success">База данных успешно сброшена</string>
+  <string name="reset_something">Сброс: %1$s</string>
   <string name="export">Экспортировать</string>
+  <string name="csv_export_success">Экспортировано %d закладок в CSV</string>
+  <string name="csv_import_success">Импорт завершён: создано %1$d, обновлено %2$d</string>
+  <string name="csv_import_errors">Импорт завершён с ошибками: создано %1$d, обновлено %2$d, ошибок %3$d</string>
+  <string name="csv_import_failed">Ошибка импорта CSV: %s</string>
+  <string name="csv_export_failed">Ошибка экспорта CSV: %s</string>
+  <string name="export_prompts_csv">Экспортировать подсказки в CSV</string>
+  <string name="import_prompts_csv">Импортировать подсказки из CSV</string>
+  <string name="prompts_csv_export_success">Экспортировано %d подсказок в CSV</string>
+  <string name="prompts_csv_import_success">Импорт завершён: создано %1$d, обновлено %2$d</string>
+  <string name="prompts_csv_import_errors">Импорт завершён с ошибками: создано %1$d, обновлено %2$d, ошибок %3$d</string>
+  <string name="prompts_csv_import_failed">Ошибка импорта CSV: %s</string>
+  <string name="prompts_csv_export_failed">Ошибка экспорта CSV: %s</string>
+  <string name="no_prompts_to_export">Нет пользовательских подсказок для экспорта</string>
+  <string name="csv_column_selection_title">Выбрать столбцы CSV</string>
+  <string name="choose_csv_file">Выбрать CSV-файл для импорта</string>
+  <string name="no_bookmarks_to_export">Нет закладок для экспорта</string>
   <string name="export_fileformat">Экспорт как %s</string>
   <string name="export_something">Экспортировать %s</string>
   <string name="import_items">Импорт как %s</string>
   <string name="import_from_db">Импорт из файла базы данных приложения</string>
   <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+
+  <string name="export_bookmarks_csv">Экспортировать закладки как %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">Ссылка OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Ссылка на Библию</string>
   <string name="document">Ресурсы</string>
   <string name="book">Книга</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
-  <!--Verse is the verse number in the chapter, starting from 1-->
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Начало главы</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Начало стиха</string>
+  <string name="chapter_end">Конец главы</string>
+  <string name="verse_end">Конец стиха</string>
+  <string name="id">Идентификатор</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Начальный порядковый номер</string>
+  <string name="ordinal_end">Конечный порядковый номер</string>
+  <string name="created_at">Создано</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Начальное смещение</string>
+  <string name="end_offset">Конечное смещение</string>
+  <string name="custom_icon">Пользовательский значок</string>
+  <string name="last_updated_at">Последнее обновление</string>
+  <string name="bookmark_notes">Заметки к закладке</string>
+
   <string name="chooser_range">Диапазон</string>
   <string name="chooser_jump">Перейти </string>
   <string name="chooser_OT_abbrev">СЗ</string>
@@ -924,9 +1159,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="chooser_style_lists">Списки</string>
   <string name="chooser_select">Выбрать %s</string>
   <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %1$s языке. Это потому, что %2$s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %3$s.</string>
-  <!--will be added to incomplete_translation as a link-->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">инструкции для переводчиков</string>
   <string name="questions_title">Вопросы?</string>
   <string name="questions_title2">Нужна помощь?</string>
@@ -937,10 +1172,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="strongs_hidden_links">Скрытые Ссылки</string>
   <string name="verse_tip">Чтобы выбрать часть или несколько стихов, вы можете нажать и удерживать текст Библии.</string>
+
   <string name="permission_required">Отказано в доступе</string>
   <string name="labels_search_hint">Поиск</string>
+  <string name="search_mode_name_start">Имя (с начала)</string>
+  <string name="search_mode_name_contains">Имя (содержит)</string>
+  <string name="search_mode_content">Содержимое</string>
+  <string name="search_results_matches">%d совпадений</string>
+  <string name="search_results_match">1 совпадение</string>
   <string name="progress_status_permission">Чтобы показывать уведомления (статус загрузки, обработка, голосовой статус), нам необходимо ваше разрешение.</string>
-  <!--Discrete mode settings-->
+
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Простой калькулятор</string>
   <string name="prefs_persecution_cat">Настройки для преследуемых</string>
   <string name="prefs_discrete_mode">Скрыть религиозные символы</string>
@@ -949,12 +1191,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="prefs_calculator_pin">PIN-код калькулятора</string>
   <string name="prefs_calculator_pin_desc">PIN-код для входа в приложение, когда отображается калькулятор.</string>
   <string name="calc_division_by_zero">Деление на ноль не допускается.</string>
-  <!--Context: calculator. Wrong number format etc.-->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Неверный формат</string>
   <string name="calc_wrong_format_operand">Неверный формат. Операнд без каких-либо чисел?</string>
   <string name="prefs_persecuted_help">Прочтите это первым!</string>
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Инструкция по настройке и информация о дискретной версии приложения для приследуемых христиан.</string>
+
   <string name="calculator_par1">
         Перед входом в приложение отображается экран калькулятора.
     </string>
@@ -976,13 +1219,15 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="discrete_mode_link">
         Вы можете скачать последнюю версию дискретной версии с сайта %s.
     </string>
-  <!--Window synchronize groups-->
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">Синхронизировать группу</string>
   <string name="sync_group_n">Группа %d</string>
   <string name="disable_sync">Отключить синхронизацию</string>
   <string name="open_in_window">Открыть результаты в окне</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Личные репозитории</string>
   <string name="custom_repositories_empty_list_message">Личные репозитории не определены</string>
   <string name="custom_repositories_create_button_label">Добавить личный репозиторий</string>
@@ -996,14 +1241,17 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="wiki_page">ВИКИ-страница</string>
   <string name="custom_repositories_help0">Вы можете установить ресурсы из внешних репозиториев, установив личные репозитории.</string>
   <string name="duplicate_custom_repository">Репозиторий с именем %s уже существует, добавить другой невозможно.</string>
+
   <string name="packages_dir">Каталог пакетов (Zip-файлы)</string>
   <string name="warn_bad_document">Внимание: Этот документ может быть (по крайней мере частично) плохого технического качества.</string>
-  <!--Open links in AndBible (Deep linking)-->
+
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Открыть ссылки на библию в AndBible</string>
   <string name="open_bible_links_summary">При нажатии на ссылки, которые ссылаются на URL-адрес библии, поддерживаемы AndBible, открыть их в AndBible.</string>
   <string name="copyReference">Скопировать ссылку в буфер обмена</string>
   <string name="reference_copied_to_clipboard">Ссылка скопирована в буфер обмена.</string>
-  <!--Device cloud synchronization-->
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
         Выберите, какую серверную облачную службу вы хотите использовать для синхронизации нескольких устройств.
     </string>
@@ -1021,6 +1269,28 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reading_plans_content">Планы чтения и их статусы</string>
   <string name="bookmarks_contents">Закладки, ярлыки и блокноты</string>
   <string name="workspaces_contents">Рабочие области и окна</string>
+  <string name="my_documents_contents">Мои документы и их содержимое</string>
+  <string name="ai_settings_sync_title">Настройки AI</string>
+  <string name="ai_settings_sync_contents">Промпты AI и конфигурации провайдеров</string>
+  <string name="progress_sync_title">Прогресс чтения</string>
+  <string name="progress_sync_contents">Заученные стихи и записи о прочитанных главах</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Прогресс чтения/заучивания</string>
+  <string name="reading_progress_chapters_read">прочитано глав</string>
+  <string name="reading_progress_verses_memorized">заучено стихов</string>
+  <string name="reading_progress_active_days">активных дней</string>
+  <string name="reading_progress_overall">%s%% Библии прочитано</string>
+  <string name="reading_progress_bible_heatmap">Обзор Библии</string>
+  <string name="reading_progress_old_testament">Ветхий Завет</string>
+  <string name="reading_progress_new_testament">Новый Завет</string>
+  <string name="reading_progress_calendar">Активность чтения</string>
+  <string name="reading_progress_cycle">Цикл %d</string>
+  <string name="reading_progress_new_cycle">Новый цикл</string>
+  <string name="reading_progress_new_cycle_confirm">Начать новый цикл чтения? Отслеживание прогресса начнётся заново, при этом данные предыдущего цикла будут сохранены.</string>
+  <string name="reading_progress_previous_cycle">Предыдущий цикл</string>
+  <string name="reading_progress_next_cycle">Следующий цикл</string>
+
   <string name="cloud_fetch_and_restore_initial">Скопировать из облака на это устройство</string>
   <string name="cloud_create_new">Скопировать с этого устройства в облако</string>
   <string name="cloud_disable_sync">Отменить и отключить синхронизацию</string>
@@ -1035,8 +1305,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="adapters_google_drive">Гугл Диск</string>
   <string name="adapters_next_cloud">Следующее облако</string>
   <string name="auth_title">Аутентификация для %s</string>
+  <string name="auth_server_uri">URL сервера</string>
   <string name="auth_username">Имя пользователя</string>
   <string name="auth_password">Пароль</string>
+  <string name="auth_folder_path">Путь к папке синхронизации</string>
+  <string name="auth_folder_path_summary">Родительская папка для данных синхронизации (пусто = корень)</string>
   <string name="auth_access_token">Токен доступа</string>
   <string name="synchronization_categories">Категории синхронизации</string>
   <string name="sync_general_settings">Информация и общие настройки</string>
@@ -1048,7 +1321,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_disabling">Отключение синхронизации для %s на данный момент.</string>
   <string name="sync_update_app">Пожалуйста, обновите приложение, чтобы продолжить синхронизацию.</string>
   <string name="sign_in_failed">Не удалось войти в серверную службу синхронизации.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Отключение синхронизации с облаком. После восстановления необходимо повторно включить вручную.</string>
   <string name="report">Отчет</string>
   <string name="sync_error">Произошла ошибка при синхронизации с облаком.</string>
@@ -1056,12 +1329,14 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="restore_from_cloud_description">Если на другом устройстве включена синхронизация устройств, вы можете начать с восстановления базы данных из облака.</string>
   <string name="enable_sync">Включить синхронизацию</string>
   <string name="last_updated">Последнее обновление: %s</string>
-  <!--MyBible/MySword module support-->
+
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Невозможно прочитать файл</string>
   <string name="sqlite_invalid_file">Неверный файл модуля или имя файла: %s</string>
   <string name="sqlite_cant_write">Невозможно (пере)записать файл</string>
   <string name="install_failed_reason">Установка модуля не удалась по следующей причине: %s.</string>
-  <!--Other / uncategorized-->
+
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Приложение открыто в другом месте</string>
   <string name="open_here">Открыть здесь</string>
   <string name="external_link">Внешняя ссылка</string>
@@ -1090,5 +1365,618 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="dont_show">
         Больше не показывать это сообщение
     </string>
+  <string name="pref_font_size_multiplier_title">Множитель размера шрифта</string>
+  <string name="pref_font_size_multiplier_summary_1">Умножить размеры шрифта текста на это число.</string>
+  <string name="pref_font_size_multiplier_summary_2">Полезно, если у вас синхронизированное устройство с более крупным шрифтом.</string>
+  <string name="current_value">Текущее значение: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Действие для жеста смахивания влево/вправо</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Жест смахивания влево/вправо можно использовать для перехода к следующей странице/главе.</string>
   <string name="prefs_swipe_mode_chapter">Глава</string>
+  <string name="prefs_swipe_mode_page">Страница</string>
+  <string name="prefs_swipe_mode_none">Отключено</string>
+  <string name="prefs_volume_keys_scroll_title">Прокрутка кнопками громкости</string>
+  <string name="prefs_volume_keys_scroll_summary">Использовать кнопки громкости для прокрутки текста Библии</string>
+  <string name="page_number_title">Относительный номер страницы</string>
+  <string name="page_number_summary">Показывать наложенный номер страницы. Номер страницы отсчитывается от начальной позиции.</string>
+  <string name="select_custom_icon">Выбрать пользовательский значок маркера</string>
+  <string name="invalid_url_message">Введённый URL недействителен. Введите корректный URL (например, https://nextcloud.example.com)</string>
+  <string name="memorize_description">Заучивать стихи Библии</string>
+  <string name="memorize_abbreviation">Заучивать</string>
+  <string name="add_memorization_target">Установить как цель заучивания</string>
+  <string name="memorize_memorized_passages">Заученные отрывки</string>
+  <string name="memorize_no_memorized_passages">Заученных отрывков пока нет</string>
+  <string name="memorize_targets">Цели заучивания</string>
+  <string name="memorize_no_targets">Цели заучивания не установлены</string>
+  <string name="memorize_auto_mark">Отмечать как заученное автоматически</string>
+  <string name="memorize_auto_mark_summary">Автоматически отмечать стихи как заученные после завершения упражнения</string>
+  <string name="memorize_type_full_words">Вводить слова полностью</string>
+  <string name="memorize_type_full_words_summary">Требовать ввода полного слова, а не только первой буквы</string>
+  <string name="memorize_word_visibility">Видимость слов</string>
+  <string name="memorize_word_visibility_summary">Насколько видны не введённые слова: лёгкая подсказка, затемнённые или полностью скрытые</string>
+  <string name="memorize_word_visibility_light">Светлые</string>
+  <string name="memorize_word_visibility_dim">Затемнённые</string>
+  <string name="memorize_word_visibility_hidden">Скрытые</string>
+  <string name="memorize_error_heatmap">Тепловая карта ошибок</string>
+  <string name="memorize_error_heatmap_summary">Выделять слова с большим количеством ошибок всё более насыщенным красным цветом</string>
+  <string name="memorize_scramble_hide_used">Скрывать использованные кнопки слов</string>
+  <string name="memorize_scramble_hide_used_summary">Полностью скрывать кнопки слов после их правильного размещения в режиме перестановки слов</string>
+  <string name="reading_progress_settings">Прогресс &amp; заучивание</string>
+  <string name="reading_progress_settings_summary">Настройки автоматического отслеживания, заучивания и упражнений на ввод</string>
+  <string name="memorize_confirm_unmark">Снять отметку «заучено» для %s?</string>
+  <string name="memorize_confirm_remove_target">Удалить цель заучивания %s?</string>
+  <string name="memorize_tab_reading">Чтение</string>
+  <string name="memorize_tab_memorization">Заучивание</string>
+  <string name="memorize_verses_memorized">Заучено</string>
+  <string name="memorize_verses_target">Цель</string>
+  <string name="memorize_show_more">Показать ещё %d</string>
+  <string name="memorize_calendar">Активность заучивания</string>
+  <string name="memorize_view_list">Список</string>
+  <string name="memorize_view_overview">Обзор</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">LLM-перевод</string>
+  <string name="sync_settings_shortcut_summary">Синхронизировать данные между устройствами</string>
+  <string name="llm_api_key_title">API-ключ</string>
+  <string name="llm_api_key_summary">API-ключ, совместимый с OpenAI</string>
+  <string name="llm_provider_custom">Пользовательский (совместимый с OpenAI)</string>
+  <string name="llm_provider_title">Провайдер</string>
+  <string name="llm_provider_summary">Выберите провайдера AI-сервиса. Конечная точка API и доступные модели будут настроены автоматически.</string>
+  <string name="llm_provider_current">Текущий: %s</string>
+  <string name="llm_api_key_detected_provider">Определённый провайдер: %s</string>
+  <string name="ai_connection_category">Подключение</string>
+  <string name="ai_model_category">Модель</string>
+  <string name="ai_behavior_category">Поведение</string>
+  <string name="ai_language_title">Язык ответов AI</string>
+  <string name="ai_language_summary">Язык, на котором AI даёт ответы</string>
+  <string name="ai_language_app_default">Язык приложения (%1$s)</string>
+  <string name="ai_language_custom">Другой\u2026</string>
+  <string name="ai_language_custom_hint">Введите название или код языка</string>
+  <string name="ai_language_custom_example">например, suomi, Tagalog, en</string>
+  <string name="ai_usage_category">Использование</string>
+  <string name="llm_usage_summary_title">Использование токенов</string>
+  <string name="llm_usage_summary_default">Нет данных об использовании</string>
+  <string name="llm_usage_summary_format">Входящие: %1$d токенов | Исходящие: %2$d токенов\nПримерная стоимость: %3$s</string>
+  <string name="llm_reset_usage_title">Сбросить данные об использовании</string>
+  <string name="llm_reset_usage_summary">Очистить накопленную статистику токенов и стоимости</string>
+  <string name="llm_reset_usage_confirm_title">Сбросить данные об использовании?</string>
+  <string name="llm_reset_usage_confirm_message">Все накопленные данные об использовании будут удалены.</string>
+  <string name="llm_custom_input_price_title">Цена входящих ($/млн токенов)</string>
+  <string name="llm_custom_input_price_summary">Стоимость миллиона входящих токенов для этой модели</string>
+  <string name="llm_custom_output_price_title">Цена исходящих ($/млн токенов)</string>
+  <string name="llm_custom_output_price_summary">Стоимость миллиона исходящих токенов для этой модели</string>
+  <string name="llm_cost_total">Итого: %1$s</string>
+  <string name="llm_endpoint_title">Конечная точка API</string>
+  <string name="llm_endpoint_summary">Базовый URL для API</string>
+  <string name="llm_model_title">Модель</string>
+  <string name="llm_model_summary">Идентификатор модели</string>
+  <string name="llm_custom_model">Другая…</string>
+  <string name="llm_custom_model_dialog_title">Пользовательская модель</string>
+  <string name="llm_custom_model_dialog_message">Введите идентификатор модели</string>
+  <string name="llm_rate_limited_retrying">Превышен лимит запросов. Повтор через %1$ss\u2026</string>
+  <string name="llm_default_document_title">Ответ AI</string>
+  <string name="llm_default_task_completed">Задача выполнена</string>
+  <string name="llm_default_studypad_opened">Блокнот открыт</string>
+  <string name="llm_parse_error">Не удалось разобрать ответ LLM: %1$s</string>
+  <string name="llm_parse_error_no_choices">Нет вариантов в ответе OpenAI</string>
+  <string name="llm_parse_error_openai">Не удалось разобрать ответ OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Не удалось разобрать ответ Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Промпт не найден: %1$s</string>
+  <string name="llm_error_unknown">Неизвестная ошибка</string>
+  <string name="llm_error_max_iterations">Достигнуто максимальное количество итераций (%1$d) без завершения</string>
+  <string name="llm_continue_iterations_title">Продолжить?</string>
+  <string name="llm_continue_iterations_message">ИИ-агент достиг предела в %1$d итераций без завершения. Продолжить ещё %2$d итераций?</string>
+  <string name="agent_max_iterations_title">Макс. итераций агента</string>
+  <string name="agent_max_iterations_summary">Максимальное количество итераций перед запросом на продолжение (0 = без ограничений)</string>
+  <string name="ask_model_before_run_title">Спрашивать модель перед запуском</string>
+  <string name="ask_model_before_run_summary">Показывать диалог выбора модели перед выполнением промпта (пропускается, если для промпта явно задана модель)</string>
+  <string name="custom_agent_system_prompt_title">Системный промпт агента</string>
+  <string name="custom_system_prompt_summary">Редактирование не рекомендуется, если вы не знаете, что делаете</string>
+  <string name="custom_text_transform_system_prompt_title">Системный промпт преобразования текста</string>
+  <string name="ai_advanced_category">Дополнительно</string>
+  <string name="custom_system_prompt_default">По умолчанию</string>
+  <string name="custom_system_prompt_custom">Пользовательский</string>
+  <string name="reset_to_default">Сбросить до значения по умолчанию</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">История журналов ИИ</string>
+  <string name="raw_log_history_summary">Просмотр и управление сохранёнными журналами разговоров с ИИ</string>
+  <string name="raw_log_history_empty">Нет сохранённых журналов</string>
+  <string name="raw_log_delete_selected">Удалить выбранные</string>
+  <string name="raw_log_delete_old">Удалить старые журналы\u2026</string>
+  <string name="raw_log_delete_confirm">%d выбрано</string>
+  <string name="raw_log_older_1_week">Старше 1 недели</string>
+  <string name="raw_log_older_1_month">Старше 1 месяца</string>
+  <string name="raw_log_older_3_months">Старше 3 месяцев</string>
+  <string name="raw_log_delete_all">Удалить все</string>
+  <string name="raw_log_item_tokens">%1$s вх. / %2$s исх.</string>
+  <string name="raw_log_error_indicator">Ошибка</string>
+  <string name="raw_log_retention_title">Автоудаление старых журналов</string>
+  <string name="raw_log_retention_summary_days">Через %d дней</string>
+  <string name="raw_log_retention_summary_disabled">Отключено (хранить все)</string>
+  <string name="send_ai_bug_report_title">Сообщить об ошибке ИИ</string>
+  <string name="ai_bug_report_menu">Сообщить об ошибке ИИ</string>
+  <string name="ai_bug_report_recommended_only">Отчёты об ошибках доступны только для рекомендованных моделей провайдеров</string>
+
+  <string name="select_model_before_run_title">Выбор модели</string>
+  <string name="set_default_model_for_prompt">Установить как модель по умолчанию для этого промпта</string>
+  <string name="prompt_max_iterations">Переопределение макс. итераций</string>
+  <string name="prompt_max_iterations_hint">Оставьте пустым для глобального значения по умолчанию</string>
+  <string name="prompt_max_iterations_description">Переопределяет глобальный лимит итераций для этого промпта. Пусто = глобальное значение по умолчанию, 0 = без ограничений.</string>
+  <string name="prompt_max_iterations_unlimited">Без ограничений</string>
+  <string name="prompt_max_iterations_global_default">Глобальное значение по умолчанию (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Переопределяет глобальный лимит итераций для этого промпта. 0 = без ограничений.\nТекущее: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Управление промптами ИИ</string>
+  <string name="manage_prompts_summary">Создание и редактирование промптов ИИ</string>
+  <string name="ai_settings">Настройки ИИ</string>
+  <string name="ai_connection_settings">Настройки подключения</string>
+  <string name="ai_setup_title">Настройка ИИ</string>
+  <string name="ai_setup_description">AndBible может использовать ИИ для перевода библейского текста, объяснения стихов, создания резюме и многого другого. Для начала настройте подключение к провайдеру API, совместимому с OpenAI.</string>
+  <string name="ai_configure_button">Настроить подключение</string>
+  <string name="ai_settings_shortcut_summary">Настройки подключения ИИ и промптов</string>
+  <string name="ai_provider_tier_recommended">Рекомендовано</string>
+  <string name="ai_provider_tier_community">Другие провайдеры (не тестировались)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Провайдеры &amp; Модели</string>
+  <string name="ai_providers_category">Провайдеры</string>
+  <string name="ai_providers_summary_none">Провайдеры не настроены</string>
+  <string name="ai_models_summary_none">Модели не настроены</string>
+  <string name="ai_add_provider">Добавить провайдер</string>
+  <string name="ai_provider_edit">Изменить</string>
+  <string name="ai_provider_delete">Удалить</string>
+  <string name="ai_provider_delete_confirm">Удалить провайдер \"%1$s\"? Промпты, использующие этого провайдера, вернутся к значению по умолчанию.</string>
+  <string name="ai_provider_api_key_not_set">API-ключ не задан</string>
+  <string name="ai_provider_select_type">Выберите тип провайдера</string>
+  <string name="ai_provider_name">Название провайдера</string>
+  <string name="ai_provider_name_hint">Отображаемое имя этого провайдера</string>
+  <string name="ai_provider_api_key">API-ключ</string>
+  <string name="ai_provider_endpoint">Конечная точка API</string>
+  <string name="ai_provider_api_format">Формат API</string>
+  <string name="ai_provider_saved">Провайдер сохранён</string>
+  <string name="ai_provider_deleted">Провайдер удалён</string>
+
+  <string name="llm_fetch_models_title">Загрузить список моделей</string>
+  <string name="llm_fetch_models_message">Загрузить список доступных моделей с %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Больше не спрашивать</string>
+  <string name="llm_fetch_models_success">Загружено %1$d моделей</string>
+  <string name="llm_fetch_models_failed">Не удалось загрузить модели</string>
+  <string name="llm_openrouter_category">Категория</string>
+  <string name="llm_openrouter_category_all">Все</string>
+  <string name="llm_openrouter_model">Модель</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Модели</string>
+  <string name="add_model">Добавить модель</string>
+  <string name="add_model_title">Добавить модель</string>
+  <string name="edit_model_title">Изменить модель</string>
+  <string name="model_saved">Модель сохранена</string>
+  <string name="model_deleted">Модель удалена</string>
+  <string name="model_delete_confirm">Удалить модель \"%1$s\"?</string>
+  <string name="model_set_default">Установить как модель по умолчанию</string>
+  <string name="model_select_provider">Провайдер</string>
+  <string name="no_models_configured">Модели не настроены</string>
+  <string name="model_cache_creation_price">Цена создания кэша ($/Mтокен)</string>
+  <string name="model_cache_read_price">Цена чтения кэша ($/Mтокен)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s вх. / %2$s исх. за Mтокен</string>
+  <string name="easy_setup_free_tier">Бесплатный уровень</string>
+  <string name="unknown_error">Неизвестная ошибка</string>
+  <string name="easy_setup_title">Быстрая настройка</string>
+  <string name="easy_setup_pref_summary">Настройте ИИ с рекомендованным провайдером за несколько шагов</string>
+  <string name="easy_setup_choose_provider">Выберите провайдера для начала работы:</string>
+  <string name="easy_setup_enter_api_key">Введите ваш API-ключ</string>
+  <string name="easy_setup_api_key_instructions">Получите ваш API-ключ по адресу:</string>
+  <string name="easy_setup_test_connection">Проверить подключение</string>
+  <string name="easy_setup_testing">Проверка…</string>
+  <string name="easy_setup_success">Подключение успешно!</string>
+  <string name="easy_setup_failed">Ошибка подключения: %1$s</string>
+  <string name="easy_setup_done_title">ИИ готов к работе!</string>
+  <string name="easy_setup_done_message">Выделите текст в Библии и попробуйте функции ИИ. Вы можете добавить дополнительные модели и провайдеры в настройках.</string>
+  <string name="easy_setup_gemini_desc">Доступен бесплатный уровень, хорошее качество</string>
+  <string name="easy_setup_anthropic_desc">Доступный, отличное качество</string>
+  <string name="easy_setup_openai_desc">Известный, надёжный</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Важно: прочитайте перед использованием инструментов ИИ</string>
+  <string name="ai_disclaimer_warning_summary">Риски и ответственность при использовании ИИ</string>
+  <string name="ai_disclaimer_dialog_title">Инструменты ИИ — важная информация</string>
+  <string name="ai_disclaimer_intro">Инструменты ИИ могут значительно обогатить ваше изучение Библии и открыть новые способы взаимодействия со Священным Писанием.</string>
+  <string name="ai_disclaimer_approach">AndBible прежде всего использует ИИ для обработки текста из установленных вами документов — комментариев, словарей и других модулей — а не полагается на собственные обучающие данные модели.</string>
+  <string name="ai_disclaimer_responsibility">Однако это по-прежнему мощные инструменты — и с большой силой приходит большая ответственность. Пожалуйста, имейте в виду следующее.</string>
+  <string name="ai_disclaimer_point1">ИИ может ошибаться, в том числе «галлюцинировать» (уверенно излагать ложную или выдуманную информацию). Никогда не принимайте его результаты слепо.</string>
+  <string name="ai_disclaimer_point2">Ответы ИИ могут отражать предвзятость обучающих данных, быть намеренно вводящими в заблуждение или представлять определённую богословскую точку зрения как нейтральную или исчерпывающую.</string>
+  <string name="ai_disclaimer_point3">Вы несёте ответственность за то, как используете контент, созданный ИИ. Всегда проверяйте результаты по Священному Писанию, прежде чем опираться на них.</string>
+  <string name="ai_disclaimer_point4">AndBible стремится сделать проверку простой (например, точные ссылки на источники в комментариях), но конечная ответственность всегда лежит на вас.</string>
+  <string name="ai_disclaimer_point5">«Всё испытывайте, хорошего держитесь.» (1 Фессалоникийцам 5:21)</string>
+  <string name="ai_disclaimer_point6">Эти инструменты не имеют души и Святого Духа. Они являются инструментами обработки текста, а не духовными наставниками. Они не подходят для непосредственной подготовки проповедей, материалов для богослужений или другого духовного содержания без тщательного человеческого надзора, молитвы и рассуждения.</string>
+  <string name="ai_disclaimer_point7">При разумном использовании они могут принести пользу многим пользователям и в различных ситуациях. Но если вы не уверены в принятии рисков, отказ от их использования — тоже совершенно допустимый выбор.</string>
+  <string name="ai_disclaimer_point8">Ваши данные отправляются на серверы выбранного вами провайдера ИИ. Используя API-ключ, вы принимаете условия использования и политику конфиденциальности этого провайдера. Самостоятельно размещённые модели возможны, но требуют более глубоких технических знаний и могут давать результаты хуже, чем коммерческие модели.</string>
+  <string name="ai_disclaimer_point9">Провайдеры ИИ взимают плату за использование API. Оценки стоимости, отображаемые в AndBible, являются приблизительными — всегда проверяйте фактические расходы в биллинге вашего провайдера.</string>
+  <string name="ai_disclaimer_accept_title">Принять условия использования ИИ</string>
+  <string name="ai_disclaimer_accept_button">Я принимаю и беру на себя полную ответственность</string>
+
+  <string name="prompt_permission_mode">Режим разрешений</string>
+  <string name="prompt_permission_mode_description">Управляет тем, когда требуется подтверждение пользователя перед выполнением операций записи ИИ. Настройки отдельных инструментов ниже могут переопределять это для конкретных инструментов.</string>
+  <string name="agent_permission_mode_summary">Управляет тем, когда требуется подтверждение пользователя перед операциями записи ИИ</string>
+  <string name="prompt_permission_use_default">По умолчанию</string>
+  <string name="prompt_tab_prompt">Промпт</string>
+  <string name="prompt_tab_permissions">Разрешения</string>
+  <string name="prompt_tab_advanced">Дополнительно</string>
+  <string name="prompt_name">Название</string>
+  <string name="prompt_description">Описание</string>
+  <string name="prompt_template">Шаблон промпта</string>
+  <string name="prompt_show_in">Показывать в</string>
+  <string name="prompt_context_verse_selection">Выбор стиха</string>
+  <string name="prompt_context_text_selection">Выбор текста</string>
+  <string name="prompt_context_window_menu">Меню окна</string>
+  <string name="prompt_context_workspace_menu">Меню рабочей области</string>
+  <string name="prompt_context_note_editor">Редактор заметок</string>
+  <string name="prompt_bible_only">Только документы Библии</string>
+  <string name="prompt_category_study">Изучение</string>
+  <string name="prompt_category_notes">Заметки</string>
+  <string name="prompt_category_general">Общее</string>
+  <string name="prompt_category_test">Тест</string>
+  <string name="prompt_category_uncategorized">Без категории</string>
+  <string name="prompt_category_favorites">Избранное</string>
+  <string name="addon_prompt_badge">Дополнение: %s</string>
+  <string name="addon_prompt_notice">Этот промпт из модуля дополнения \"%s\" и не может быть изменён. Используйте «Копировать для настройки», чтобы создать редактируемую копию.</string>
+  <string name="new_category">Новая категория</string>
+  <string name="new_category_name">Название категории</string>
+  <string name="rename_category">Переименовать</string>
+  <string name="move_category_up">Переместить вверх</string>
+  <string name="move_category_down">Переместить вниз</string>
+  <string name="hide_category">Скрыть из действий ИИ</string>
+  <string name="show_category">Показать в действиях ИИ</string>
+  <string name="hidden">скрыто</string>
+  <string name="delete_category">Удалить категорию</string>
+  <string name="delete_category_and_prompts">Удалить категорию и её промпты</string>
+  <string name="delete_category_keep_prompts">Переместить промпты в корень и удалить категорию</string>
+  <string name="delete_category_confirm_title">Удалить категорию «%s»?</string>
+  <string name="move_to_category">Переместить в категорию…</string>
+  <string name="category_none">Без категории</string>
+  <string name="import_prompts_editable">Импортировать как редактируемые промпты</string>
+  <string name="import_prompts_addon">Установить как дополнение (только для чтения)</string>
+  <string name="prompt_category">Категория</string>
+  <string name="new_prompt">Новый промпт</string>
+  <string name="permission_always_ask">Всегда спрашивать</string>
+  <string name="permission_ask_once_per_run">Спрашивать один раз за сеанс</string>
+  <string name="permission_allow_all">Разрешить всё</string>
+  <string name="permission_deny_all">Запретить всё</string>
+  <string name="reset_all_ai_settings">Сбросить все настройки ИИ</string>
+  <string name="reset_all_ai_settings_confirm_title">Сбросить все настройки ИИ?</string>
+  <string name="reset_all_ai_settings_confirm_message">Это очистит API-ключ, провайдера, конечную точку, модель и сбросит все промпты до значений по умолчанию. Продолжить?</string>
+  <string name="edit_prompt">Изменить промпт</string>
+  <string name="built_in_prompt">Встроенный</string>
+  <string name="built_in_prompt_notice">Это встроенный промпт, который нельзя изменить. Используйте «Копировать для настройки», чтобы создать редактируемую копию.</string>
+  <string name="copy_to_customize">Копировать для настройки</string>
+  <string name="prompt_copied">Промпт скопирован</string>
+  <string name="delete_prompt_confirmation">Удалить промпт «%s»?</string>
+  <string name="prompt_name_required">Необходимо указать название промпта</string>
+  <string name="prompt_template_required">Необходимо указать шаблон промпта</string>
+  <string name="prompt_edit_before_run">Уточнить перед запуском</string>
+  <string name="prompt_edit_before_run_description">Показывать текстовое поле для уточнения задачи перед запуском промпта</string>
+  <string name="prompt_no_document_creation">Без создания документа</string>
+  <string name="prompt_no_document_creation_description">Если включено, ИИ не будет создавать документ. Результаты отображаются только в журнале активности. Полезно для промптов с действиями (закладки, метки, операции с блокнотом).</string>
+  <string name="prompt_auto_include_documents">Автоматически включать установленные документы</string>
+  <string name="prompt_auto_include_documents_description">Автоматически включать список установленных документов в контекст промпта, экономя одну итерацию ИИ.</string>
+  <string name="prompt_auto_include_commentaries">Автоматически включать комментарии</string>
+  <string name="prompt_auto_include_commentaries_description">Автоматически получать и включать записи комментариев для выбранных стихов, экономя одну итерацию ИИ.</string>
+  <string name="prompt_is_text_transformation">Преобразование текста</string>
+  <string name="prompt_is_text_transformation_description">Использует упрощённый системный промпт, который сохраняет форматирование (ссылки, заголовки, жирный/курсив) при преобразовании текста. Инструменты не используются. Идеально для промптов перевода и редактирования.</string>
+  <string name="llm_no_document_creation_intercepted">Задача выполнена (создание документа отключено)</string>
+  <string name="llm_note_updated">Заметка обновлена</string>
+  <string name="specify_before_run_title">Уточните задачу</string>
+  <string name="specify_before_run_hint">Опишите конкретную задачу…</string>
+  <string name="prompt_cache_settings">Настройки кэша</string>
+  <string name="prompt_strict_context_matching">Контекстно-зависимый кэш</string>
+  <string name="prompt_strict_context_matching_description">Если включено, кэш совпадает только при одинаковом контексте (версия Библии, выбранный текст). Если отключено, кэш совпадает при одинаковых стихах независимо от версии Библии.</string>
+  <string name="ai_document_delete_confirmation">Удалить этот документ ИИ?</string>
+  <string name="ai_document_deleted">Этот документ ИИ был удалён.</string>
+  <string name="ai_document_regenerating">Регенерация документа ИИ…</string>
+  <string name="ai_document_regenerate_not_implemented">Регенерация будет доступна в будущем обновлении</string>
+  <string name="ai_regenerate_prompt_not_found">Невозможно регенерировать: исходный промпт не найден. Возможно, он был удалён.</string>
+  <string name="ai_document_regenerate">Регенерировать</string>
+  <string name="ai_regenerate_title">Регенерировать</string>
+  <string name="ai_regenerate_instructions_hint">Дополнительные инструкции (необязательно)</string>
+  <string name="ai_regenerate_keep_previous">Сохранить предыдущую версию</string>
+  <string name="ai_regenerate_fresh_run">Новый запуск (игнорировать предыдущий результат)</string>
+  <string name="ai_document_delete">Удалить</string>
+  <string name="ai_unknown_prompt">ИИ</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Перевести на %s</string>
+  <string name="default_prompt_translate_to_ui_language">Перевести на язык интерфейса</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Переводит текст документа на язык интерфейса приложения</string>
+  <string name="default_prompt_translate_to_english">Перевести на английский</string>
+  <string name="default_prompt_translate_to_english_desc">Переводит выбранный текст на английский язык</string>
+  <string name="default_prompt_summary">Краткое изложение</string>
+  <string name="default_prompt_summary_desc">Создаёт краткое изложение выбранного текста</string>
+  <string name="default_prompt_explain_verses">Объяснить стихи</string>
+  <string name="default_prompt_explain_verses_desc">Объясняет смысл и контекст выбранных стихов</string>
+  <string name="default_prompt_explain_verses_studypad">Объяснить стихи → Блокнот</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Создать блокнот с пояснениями по каждому стиху и закладками</string>
+  <string name="default_prompt_word_study">Изучение слов</string>
+  <string name="default_prompt_word_study_desc">Анализирует оригинальные древнееврейские/греческие слова</string>
+  <string name="default_prompt_strongs_annotation">Аннотация номерами Стронга</string>
+  <string name="default_prompt_strongs_annotation_desc">Добавляет номера симфонии Стронга к любому переводу Библии, используя KJV в качестве эталона</string>
+  <string name="default_prompt_cross_references">Перекрёстные ссылки</string>
+  <string name="default_prompt_cross_references_desc">Находит и объясняет связанные отрывки Библии</string>
+  <string name="default_prompt_compare_translations">Сравнить переводы</string>
+  <string name="default_prompt_compare_translations_desc">Показывает, как разные установленные переводы передают текст</string>
+  <string name="default_prompt_thematic_study">Тематическое исследование</string>
+  <string name="default_prompt_thematic_study_desc">Создаёт блокнот с отрывками и заметками по центральной теме</string>
+  <string name="default_prompt_bookmark_annotate">Закладка &amp; аннотация</string>
+  <string name="default_prompt_bookmark_annotate_desc">Создаёт закладку с исследовательской заметкой, сгенерированной ИИ</string>
+  <string name="default_prompt_study_layout">Открыть учебный макет</string>
+  <string name="default_prompt_study_layout_desc">Открывает окна комментария и параллельного перевода для изучения</string>
+  <string name="default_prompt_workspace_assistant">Помощник рабочей области</string>
+  <string name="default_prompt_workspace_assistant_desc">Управление окнами: создание, закрытие, перестановка, изменение документов</string>
+  <string name="default_prompt_enhance_note">Улучшить заметку</string>
+  <string name="default_prompt_enhance_note_desc">Улучшает грамматику, ясность и читабельность вашей заметки</string>
+  <string name="default_prompt_ask_question">Задать вопрос</string>
+  <string name="default_prompt_ask_question_desc">Задайте любой вопрос об выбранном отрывке</string>
+  <string name="default_prompt_custom">Пользовательский промпт</string>
+  <string name="default_prompt_custom_desc">Выполнить пользовательскую задачу для выбранного отрывка</string>
+  <string name="default_prompt_custom_template">Следуйте указаниям пользователя для выбранного отрывка Библии.</string>
+  <string name="copy">Копировать</string>
+  <string name="delete_prompt_confirm_message">Вы уверены, что хотите удалить этот промпт?</string>
+  <string name="ai_hide_prompt">Скрыть</string>
+  <string name="ai_restore_hidden_prompts">Восстановить скрытые промпты</string>
+  <string name="ai_prompt_hidden">Промпт скрыт</string>
+  <string name="ai_prompts_restored">Скрытые промпты восстановлены</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Создать закладку</string>
+  <string name="tool_add_bookmark_note">Добавить заметку к закладке</string>
+  <string name="tool_update_bookmark_note">Обновить заметку закладки</string>
+  <string name="tool_create_label">Создать метку</string>
+  <string name="tool_add_label_to_bookmark">Добавить метку к закладке</string>
+  <string name="tool_delete_bookmark">Удалить закладку</string>
+  <string name="tool_delete_label">Удалить метку</string>
+  <string name="tool_remove_label_from_bookmark">Удалить метку из закладки</string>
+  <string name="tool_add_study_pad_entry">Добавить запись в блокнот</string>
+  <string name="tool_update_studypad_text_entry">Обновить текстовую запись блокнота</string>
+  <string name="tool_create_study_pad">Создать блокнот</string>
+  <string name="action_update_studypad_text_entry">Обновить текстовую запись блокнота %1$s</string>
+  <string name="action_create_studypad">Создать блокнот \"%1$s\" с %2$d элементами</string>
+  <string name="tool_set_document_title">Задать заголовок документа</string>
+  <string name="tool_finish_with_study_pad">Открыть блокнот</string>
+  <string name="tool_finish_with_my_document_page">Открыть страницу «Мой документ»</string>
+  <string name="tool_finish_without_document">Завершить без документа</string>
+  <string name="tool_get_verse_content">Прочитать содержимое стиха</string>
+  <string name="tool_get_commentaries">Прочитать комментарии</string>
+  <string name="tool_get_dictionary_entry">Найти статью в словаре</string>
+  <string name="tool_search_bible">Найти в Библии</string>
+  <string name="tool_search_by_strongs">Поиск по номеру Strong\'s</string>
+  <string name="tool_get_installed_documents">Показать установленные документы</string>
+  <string name="tool_get_all_labels">Показать все метки</string>
+  <string name="tool_get_bookmarks_for_verse">Получить закладки для стиха</string>
+  <string name="tool_get_bookmarks_with_label">Получить закладки с меткой</string>
+  <string name="tool_get_study_pad_content">Прочитать содержимое блокнота</string>
+  <string name="tool_search_study_pads">Найти в блокнотах</string>
+  <string name="tool_get_my_documents">Показать мои документы</string>
+  <string name="tool_get_my_document_pages">Показать страницы моего документа</string>
+  <string name="tool_get_genbook_keys">Показать разделы общей книги</string>
+  <string name="tool_get_genbook_content">Прочитать содержимое общей книги</string>
+  <string name="tool_create_my_document">Создать мой документ</string>
+  <string name="tool_add_my_document_page">Добавить страницу в мой документ</string>
+  <string name="tool_edit_my_document_page">Редактировать страницу моего документа</string>
+  <string name="tool_delete_my_document_page">Удалить страницу моего документа</string>
+  <string name="tool_get_windows">Показать окна</string>
+  <string name="tool_create_window">Создать окно</string>
+  <string name="tool_manage_window">Управление окном</string>
+  <string name="tool_set_window_document">Задать документ для окна</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Разрешение для AI-агента</string>
+  <string name="agent_permission_message">Ассистент AI хочет использовать \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">Ассистент AI хочет:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Создать закладку на %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Создать закладку на %1$s (%2$s)</string>
+  <string name="action_with_note">с заметкой</string>
+  <string name="action_labels">метки: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Добавить заметку к закладке на %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Обновить заметку на закладке %1$s</string>
+  <string name="action_create_label">Создать метку \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Добавить метку \"%1$s\" к закладке на %2$s</string>
+  <string name="action_delete_bookmark">Удалить закладку на %1$s</string>
+  <string name="action_delete_label">Удалить метку \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Удалить метку \"%1$s\" из закладки на %2$s</string>
+  <string name="action_add_entry_to_studypad">Добавить запись в блокнот \"%1$s\"</string>
+  <string name="action_create_my_document">Создать мой документ: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Добавить страницу \"%1$s\" в мой документ %2$s</string>
+  <string name="action_edit_my_document_page">Редактировать страницу моего документа: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Удалить страницу моего документа: \"%1$s\"</string>
+  <string name="action_set_document_title">Задать заголовок документа: \"%1$s\"</string>
+  <string name="action_open_studypad">Открыть блокнот \"%1$s\"</string>
+  <string name="action_open_my_document_page">Открыть страницу моего документа \"%1$s\"</string>
+  <string name="action_create_window">Создать новое окно</string>
+  <string name="action_create_window_with_doc">Создать окно с %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Создать окно с %1$s на %2$s</string>
+  <string name="action_close_window">Закрыть окно (%1$s)</string>
+  <string name="action_minimize_window">Свернуть окно (%1$s)</string>
+  <string name="action_restore_window">Восстановить окно (%1$s)</string>
+  <string name="action_set_window_document">Установить %1$s для %2$s</string>
+  <string name="action_set_window_document_with_key">Установить %1$s для %2$s на %3$s</string>
+  <string name="action_active_window">активное окно</string>
+  <string name="action_finish">Завершить: \"%1$s\"</string>
+  <string name="permission_allow_once">Разрешить один раз</string>
+  <string name="permission_allow_for_session">Разрешить для этой сессии</string>
+  <string name="permission_allow_all_session">Разрешить все инструменты для этой сессии</string>
+  <string name="permission_allow_always">Всегда разрешать \"%1$s\"</string>
+  <string name="permission_deny">Запретить</string>
+  <string name="permission_always_allow_confirm_title">Всегда разрешать?</string>
+  <string name="permission_always_allow_confirm">Вы уверены, что хотите постоянно разрешать \"%1$s\"?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Вы можете сбросить это в настройках AI.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Разрешения инструментов</string>
+  <string name="manage_tool_permissions_summary">Управление переопределением разрешений для каждого инструмента</string>
+  <string name="commentary_max_response_title">Ограничение размера ответа комментария</string>
+  <string name="commentary_max_response_summary">Показывать диалог выбора, когда ответ превышает ограничение</string>
+  <string name="commentary_max_response_no_limit">Без ограничений</string>
+  <string name="commentary_max_response_value">~%s токенов</string>
+  <string name="commentary_max_response_dialog_title">Задать максимальный размер ответа (токены)</string>
+  <string name="commentary_max_response_dialog_message">Когда AI получает комментарии и общий ответ превышает этот лимит токенов, диалог выбора позволяет указать, какие комментарии отправить AI.\n\n0 = без ограничений (все комментарии отправляются автоматически).</string>
+  <string name="commentary_filter_dialog_title">Ответ комментария слишком большой</string>
+  <string name="commentary_filter_dialog_message">Лимит токенов (~%s) превышен. Снимите выделение с комментариев, которые не нужно отправлять AI.\n\nВы можете изменить этот лимит в настройках подключения AI.</string>
+  <string name="commentary_filter_total_tokens">Выбрано: ~%1$s / %2$s токенов</string>
+  <string name="tool_log_commentary_count">%d комментариев</string>
+  <string name="tool_log_label_count">%d меток</string>
+  <string name="tool_log_document_count">%d документов</string>
+  <string name="tool_log_study_pad_count">%d блокнотов</string>
+  <string name="tool_log_search_results">%1$d/%2$d результатов</string>
+  <string name="tool_log_bookmark_count">%d закладок</string>
+  <string name="tool_log_my_document_count">%d документов</string>
+  <string name="tool_log_my_document_page_count">%d страниц</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d разделов</string>
+  <string name="tool_log_window_count">%d окон</string>
+  <string name="tool_log_window_copy">копия</string>
+  <string name="tool_log_window_minimized">свёрнуто</string>
+  <string name="tool_log_window_removed">удалено</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s токенов)</string>
+  <string name="ai_document_filter_title">Доступ к документам</string>
+  <string name="ai_document_filter_summary">Выбрать, какие документы может читать AI</string>
+  <string name="ai_document_filter_summary_count">%d документов исключено</string>
+  <string name="ai_document_filter_activity_title">Доступ AI к документам</string>
+  <string name="ai_document_excluded_error">Документ исключён настройками пользователя: %s</string>
+  <string name="permission_status_default">Спрашивать (по умолчанию)</string>
+  <string name="permission_status_allowed">Всегда разрешено</string>
+  <string name="permission_status_denied">Всегда запрещено</string>
+  <string name="permission_option_default">Спрашивать каждый раз (по умолчанию)</string>
+  <string name="permission_option_always_allow">Всегда разрешать</string>
+  <string name="permission_option_always_deny">Всегда запрещать</string>
+  <string name="reset_all_permissions">Сбросить все</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Доступные инструменты</string>
+  <string name="ai_read_tools">Инструменты чтения</string>
+  <string name="ai_write_tools">Инструменты записи</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Настройки инструментов по умолчанию</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Разрешения инструментов</string>
+  <string name="prompt_tool_permissions_read_only">Разрешения инструментов (только чтение)</string>
+  <string name="prompt_tool_permissions_description">Переопределить разрешения инструментов для этого запроса</string>
+  <string name="tool_section_read_tools">Инструменты чтения</string>
+  <string name="tool_section_write_tools">Инструменты записи</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Библия &amp; Поиск</string>
+  <string name="tool_category_bookmarks">Закладки</string>
+  <string name="tool_category_labels">Метки</string>
+  <string name="tool_category_study_pads">Блокноты</string>
+  <string name="tool_category_my_documents">Мои документы</string>
+  <string name="tool_category_general_books">Общие книги</string>
+  <string name="tool_category_windows">Окна</string>
+  <string name="tool_category_read">Чтение</string>
+  <string name="tool_category_write">Запись</string>
+  <string name="expand_collapse">Развернуть/свернуть</string>
+  <string name="tool_option_enabled">Включено</string>
+  <string name="tool_option_disabled">Отключено</string>
+  <string name="tool_option_default_enabled">По умолчанию (включено)</string>
+  <string name="tool_option_default_disabled">По умолчанию (отключено)</string>
+  <string name="tool_option_default_allowed">По умолчанию (разрешено)</string>
+  <string name="tool_option_default_denied">По умолчанию (запрещено)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Модель</string>
+  <string name="prompt_model_default">По умолчанию</string>
+  <string name="prompt_model_custom">Пользовательская</string>
+  <string name="prompt_model_custom_hint">Введите название модели</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Выбрать действие AI</string>
+  <string name="no_llm_prompts_configured">Нет настроенных AI-промптов для выбора стиха</string>
+  <string name="llm_prompt_executing">Выполнение AI-промпта: %s</string>
+  <string name="llm_actions">Действия AI</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Развернуть/свернуть журнал агента</string>
+  <string name="agent_log_close">Закрыть журнал агента</string>
+  <string name="agent_log_stop">Остановить AI</string>
+  <string name="agent_log_idle">AI-ассистент</string>
+  <string name="agent_log_running">AI работает…</string>
+  <string name="agent_log_completed">Завершено</string>
+  <string name="agent_log_error">Произошла ошибка</string>
+  <string name="agent_log_executing">Выполнение: %s</string>
+  <string name="agent_log_iteration">Итерация %d</string>
+  <string name="agent_log_tool">Инструмент: %s</string>
+  <string name="agent_log_tool_completed">Инструмент %s завершён</string>
+  <string name="agent_log_tool_failed">Инструмент %s завершился с ошибкой</string>
+  <string name="agent_log_response_received">Ответ получен</string>
+  <string name="agent_log_saved">Сохранено: %s</string>
+  <string name="agent_log_done">Готово: %s</string>
+  <string name="agent_log_cancelled">Отменено</string>
+  <string name="agent_execution_completed">Выполнение агента завершено</string>
+  <string name="agent_already_running">AI-агент уже запущен. Подождите или остановите его.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">AI-агент</string>
+  <string name="ai_agent_notification_running">AI-агент работает…</string>
+  <string name="ai_agent_notification_permission_needed">AI-агенту требуется ваше разрешение</string>
+  <string name="ai_agent_notification_permission_tap">Нажмите, чтобы вернуться в AndBible</string>
+  <string name="ai_agent_notification_completed">Задача AI выполнена</string>
+  <string name="ai_agent_notification_completed_tap">Нажмите для просмотра результатов</string>
+  <string name="ai_agent_notification_error">Задача AI завершилась с ошибкой</string>
+  <string name="ai_agent_notification_cancel">Отмена</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Мои документы</string>
+  <string name="my_documents_empty">Документов пока нет. Нажмите +, чтобы создать.</string>
+  <string name="my_document_new_name">Документ %d</string>
+  <string name="my_document_create_title">Создать новый документ</string>
+  <string name="my_document_rename_title">Переименовать документ</string>
+  <string name="my_document_edit_description_title">Изменить описание</string>
+  <string name="my_document_delete_confirmation">Удалить документ \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">AI-документы нельзя удалить, пока они содержат страницы. Сначала удалите страницы.</string>
+  <string name="my_document_save_changes">Сохранить изменения?</string>
+  <string name="my_document_no_description">Нет описания</string>
+  <string name="my_document_rename">Переименовать</string>
+  <string name="my_document_edit_description">Изменить описание</string>
+  <string name="my_document_delete">Удалить</string>
+
+  <string name="my_document_pages_title">%s — Страницы</string>
+  <string name="my_document_pages_empty">В этом документе нет страниц.</string>
+  <string name="my_document_page_rename_title">Переименовать страницу</string>
+  <string name="my_document_page_delete_confirmation">Удалить страницу \"%s\"?</string>
+  <string name="my_document_page_rename">Переименовать</string>
+  <string name="my_document_page_delete">Удалить</string>
+  <string name="my_document_page_export">Экспорт</string>
+  <string name="my_document_new_page_name">Страница %1$d</string>
+  <string name="my_document_create_page_title">Новая страница</string>
+  <string name="my_document_content_type_label">Тип содержимого</string>
+  <string name="my_document_import_page">Импортировать Markdown/HTML</string>
+  <string name="my_document_export_page">Экспортировать страницу</string>
+  <string name="my_document_imported_page_name">Импортировано</string>
+  <string name="my_document_export_fallback_name">страница</string>
+  <string name="my_document_export_document">Экспортировать все страницы</string>
+  <string name="my_document_import_document">Импортировать файлы как документ</string>
+  <string name="my_document_import_empty_selection">Нет выбранных файлов для импорта</string>
+  <string name="my_document_export_success">Страницы успешно экспортированы</string>
+  <string name="ai_doc_choose_page">Выбрать страницу AI-документа</string>
+  <string name="prefs_show_ai_doc_markers_title">Показывать маркеры AI-документов</string>
+  <string name="prefs_show_ai_doc_markers_summary">Показывать значки маркеров для страниц AI-документов, связанных со стихами</string>
+  <string name="prefs_show_ordinals_title">Показывать порядковые номера</string>
+  <string name="prefs_show_ordinals_summary">Показывать маркеры порядкового положения в тексте</string>
+
+  <string name="prefs_page_scroll_amount_title">Величина прокрутки страницы</string>
+  <string name="prefs_page_scroll_amount_summary">Насколько прокручивать страницу при нажатии кнопок вверх/вниз</string>
+  <string name="page_scroll_amount_dialog_title">Величина прокрутки страницы</string>
+  <string name="prefs_scroll_helper_lines_title">Вспомогательные линии прокрутки</string>
+  <string name="prefs_scroll_helper_lines_summary">Показывать горизонтальные направляющие линии на границах прокрутки страницы</string>
+  <string name="prefs_scroll_helper_line_style_title">Стиль вспомогательных линий</string>
+  <string name="prefs_scroll_helper_line_style_summary">Выберите визуальный стиль вспомогательных линий прокрутки</string>
+  <string name="scroll_helper_line_style_dialog_title">Стиль вспомогательных линий</string>
+  <string name="scroll_helper_line_style_thin_dotted">Тонкая пунктирная линия</string>
+  <string name="scroll_helper_line_style_thin_solid">Тонкая сплошная линия</string>
+  <string name="scroll_helper_line_style_thick_solid">Толстая сплошная линия</string>
+  <string name="prefs_page_buttons_title">Кнопки прокрутки страницы</string>
+  <string name="prefs_page_buttons_summary">Показывать кнопки прокрутки страницы вверх/вниз на экране</string>
 </resources>

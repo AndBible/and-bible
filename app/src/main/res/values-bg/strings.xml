@@ -1,53 +1,65 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!--
-  ~ Copyright (c) 2022 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
-  ~
-  ~ This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
-  ~
-  ~ AndBible is free software: you can redistribute it and/or modify it under the
-  ~ terms of the GNU General Public License as published by the Free Software Foundation,
-  ~ either version 3 of the License, or (at your option) any later version.
-  ~
-  ~ AndBible is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
-  ~ without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  ~ See the GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License along with AndBible.
-  ~ If not, see http://www.gnu.org/licenses/.
-  -->
 
 <resources>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">Библейско изследване</string>
+  <string name="app_name_medium">Библейско изследване (AndBible)</string>
+  <string name="app_name_long">AndBible: Библейско изследване</string>
+  <string name="project">AndBible проект с отворен код</string>
+
   <string name="version_text">Версия %s</string>
-  <!--Main menu-->
+  <string name="no_sdcard_error">Моля, поставете SD карта и рестартирайте приложението.</string>
+
+    <!-- Main menu -->
   <string name="menu">Меню</string>
   <string name="chooseBook">Ресурси</string>
   <string name="selectPassage">Пасаж</string>
   <string name="search">Търсене</string>
+  <string name="settings">Настройки на приложението</string>
   <string name="history">История</string>
   <string name="speak">Реч</string>
   <string name="help">Помощ</string>
+  <string name="information">Информация</string>
+  <string name="other">Друго</string>
+  <string name="contact">Контакт</string>
+  <string name="help_and_tips">Помощ и съвети</string>
   <string name="administration">Управление...</string>
+  <string name="rate_application">Оценка и рецензия</string>
   <string name="chooce_document">Избери документ</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Избери книга</string>
   <string name="choosePassageChapterName">Избери глава</string>
   <string name="choosePassageVerseName">Избери стих</string>
   <string name="bible">Библия</string>
   <string name="deuterocanonical">Неканонични</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">Индексация за търсене</string>
+  <string name="index_creation_required">За търсене е необходим индекс.</string>
+  <string name="create_index_for">За търсене е необходим индекс. \n\nДа се създаде индекс за %s?</string>
+  <string name="rebuild_index_for">Да се преизгради индексът за %s?</string>
   <string name="indexing_wait_msg">Екранът за търсене ще се покаже, след като индексирането приключи.</string>
   <string name="index_create">Създай</string>
   <string name="rebuild_index">Поднови индексирането</string>
-  <!--Tasks-->
+  <string name="search_in">Намери в %s</string>
+  <string name="do_in_background">Продължи на заден план</string>
+  <string name="rebuild_index_button">Преизгради</string>
+  <string name="creating_index_for">Създаване на индекс за %s…</string>
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s резултата в %2$s</string>
+
+    <!-- Tasks -->
   <string name="progress_status">Прогрес</string>
   <string name="task_kill_warning">Тези дълги задачи могат да бъдат прекъснати, ако затворите And Bible преди те да са приключили.</string>
   <string name="no_tasks_running">Няма други задачи.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">Намери стиховете.</string>
   <string name="search_all_words">Всички думи.</string>
   <string name="search_any_word">Която и да е от думите.</string>
   <string name="search_phrase">Фраза</string>
+  <string name="search_fts_query">Синтаксис на необработена заявка</string>
   <string name="search_result_count">Намерени %d съвпадения.</string>
   <string name="search_showing_first">Твърде много резултати. Показани първите %d</string>
   <string name="search_bible_section_group_prompt">Търси в</string>
@@ -56,115 +68,417 @@
   <string name="search_old_testament">Старият Завет</string>
   <string name="search_current_book">Текуща книга</string>
   <string name="error_executing_search">Невалидно търсене</string>
-  <!--Preferences-->
+  <string name="type_text_or_bible_reference">Въведете текст или библейска препратка</string>
+    <!-- Open (bible reference X) -->
+  <string name="go_to_ref">Отвори %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <string name="search_what">Намери \"%s\"</string>
+    <!-- Multi-translation search -->
+  <string name="search_translations">Преводи</string>
+  <string name="choose_translations">Избери преводи…</string>
+  <string name="multi_search_results">%1$d стиха в %2$d превода</string>
+  <string name="search_index_not_created">няма индекс</string>
+
+    <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Номера на глави и стихове</string>
+  <string name="prefs_show_verseno_summary">Показвай номерата на глави и стихове</string>
+
+  <string name="prefs_e_ink_mode_title">Черно-бял режим</string>
+  <string name="prefs_eink_mode_summary">Използвай приложението в монохромен режим (без цветове), което го прави по-подходящо за устройства с E-ink екран.</string>
+  <string name="prefs_eink_settings_cat">E-ink настройки</string>
+  <string name="prefs_eink_display_title">E-ink функции</string>
+  <string name="prefs_eink_display_summary">Активирай специфични E-ink функции (бутони за превъртане на страница, помощни линии за превъртане)</string>
+
+  <string name="prefs_disable_animations_title">Деактивирай анимации</string>
+  <string name="prefs_disable_animations_summary">Деактивирай различни анимации като плавно превъртане.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Деактивирай редактиране с клик в Study Pad</string>
+  <string name="prefs_disable_click_to_edit_summary">Изисква използването на бутона за редактиране, за да се редактират бележки в Study Pad.</string>
+
+  <string name="prefs_notes_content_type_title">Формат за нови бележки към отметки</string>
+  <string name="prefs_notes_content_type_summary">Текстов формат при създаване на нови бележки към отметки и записи в Study Pad</string>
+  <string name="notes_content_type_html">Форматиран текст (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
+  <string name="prefs_paragraph_spacing_title">Разстояние между абзаци (%s мм)</string>
+  <string name="prefs_paragraph_spacing_summary">Настрой разстоянието между абзаци.</string>
+
   <string name="prefs_show_verseno_title1">Номерът на стиха</string>
+
+  <string name="prefs_show_chapter_no_title">Номера на глави</string>
+  <string name="prefs_show_chapter_no_summary">Показвай номерата на глави</string>
+
   <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
   <string name="prefs_show_bookmarks_summary">Скриване всички отметки</string>
+
   <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
   <string name="prefs_show_notes_summary">Покажи бележки под линия и препратки</string>
   <string name="prefs_show_strongs_summary">Покажи обяснения към Гръцки и еврейски думи</string>
   <string name="prefs_show_morphology_summary">Покажи морфологията на гръцкия език според Робинсон</string>
   <string name="prefs_section_title_summary">Покажи заглавия на раздели в текста</string>
   <string name="prefs_red_letter_summary">Покажи думите на Иисус в червено</string>
+  <string name="prefs_text_size_title">Настройки на шрифта</string>
+
   <string name="prefs_verse_per_line_title">По един стих на ред</string>
   <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
   <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
+  <string name="prefs_show_footnotes_title">Бележки под линия</string>
+  <string name="prefs_show_xrefs_title">Кръстосани препратки</string>
+  <string name="prefs_show_footnotes_summary">Показвай бележките под линия, ако са налични в ресурса</string>
+  <string name="prefs_show_footnotes_inline_title">Вградени бележки под линия</string>
+  <string name="prefs_show_footnotes_inline_summary">Показвай бележките под линия вградени в текста, вместо като кликащи маркери</string>
+  <string name="prefs_show_xrefs_summary">Показвай кръстосани препратки, ако са налични в ресурса</string>
+
   <string name="prefs_show_notes_title">Бележки и препратки</string>
+  <string name="prefs_show_strongs_title">Номера на Strong\'s</string>
   <string name="prefs_show_morphology_title">Морфологичните кодове</string>
+  <string name="prefs_non_strongs_word_italic_title">Курсив за добавени думи</string>
+  <string name="prefs_non_strongs_word_italic_summary">Поставяй в курсив думите без номера на Strong\'s</string>
   <string name="prefs_section_title_title">Заглавия</string>
+  <string name="prefs_title_scroll_button_title">Бутон за превъртане към заглавие</string>
+  <string name="prefs_title_scroll_button_summary">Показвай бутон за превъртане към началото до заглавията на раздели</string>
   <string name="prefs_red_letter_title">Червен шрифт</string>
+  <string name="prefs_infinite_scroll_title">Безкрайно превъртане</string>
+  <string name="prefs_infinite_scroll_summary">Автоматично зарежда повече съдържание при превъртане</string>
+  <string name="prefs_mark_as_read_button_title">Бутон „Маркирай като прочетено"</string>
+  <string name="prefs_mark_as_read_button_summary">Показвай бутон в края на всяка глава за маркиране като прочетена</string>
+  <string name="prefs_show_memorization_indicators_title">Индикатори за запаметяване</string>
+  <string name="prefs_show_memorization_indicators_summary">Показвай цветни индикатори в полето за запаметени и целеви стихове</string>
+  <string name="prefs_auto_track_reading_title">Автоматично проследяване на четенето</string>
+  <string name="prefs_auto_track_reading_summary">Автоматично маркирай главите като прочетени при превъртане</string>
   <string name="prefs_tilt_to_scroll_title">Превъртване чрез накланяне</string>
+
+  <string name="prefs_toolbar_button_action_title">Действие при натискане на бутон в лентата с инструменти</string>
+  <string name="prefs_toolbar_button_action_summary">Действие при натискане/дълго натискане на бутоните в лентата с инструменти за библия или коментар</string>
+  <string name="prefs_toolbar_button_action_default">Натискане отваря меню, дълго натискане отваря екрана с ресурси (по подразбиране)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Натискане отваря следващия ресурс, дълго натискане отваря меню</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Натискане отваря следващия ресурс, дълго натискане отваря екрана с ресурси</string>
+
+  <string name="prefs_night_mode_title">Превключване на нощен режим</string>
+  <string name="prefs_night_mode_summary">Дали да се превключва автоматично към нощен режим (ако устройството поддържа), ръчно или чрез системната настройка (Android 10+). Ръчното превключване може да се направи от менюто с 3 точки на главния екран.</string>
+  <string name="prefs_night_mode_manual">Ръчно</string>
   <string name="prefs_night_mode_automatic">Автоматично</string>
+  <string name="prefs_night_mode_system">Системно</string>
   <string name="options_menu_night_mode">Нощен режим</string>
+
   <string name="prefs_navigate_to_verse_title">Отвори стих</string>
   <string name="prefs_navigate_to_verse_summary">Избери стих (и глава) при отваряне на пасажа</string>
+  <string name="prefs_open_links_in_special_window_title">Прозорец за връзки</string>
+  <string name="prefs_open_links_in_special_window_summary">Отваряй връзки в специален прозорец за по-бързо показване на кръстосани препратки и Strong\'s</string>
   <string name="prefs_text_size_sample_text">Примерен текст</string>
   <string name="prefs_screen_keep_on_title">Дръж екрана включен</string>
   <string name="prefs_screen_keep_on_summary">Не изключвай екрана докато се ползва приложението</string>
   <string name="prefs_interface_locale_title">Език</string>
   <string name="prefs_interface_locale_summary">Избери езика на интерфейса</string>
   <string name="reset_fontsize">Изчистване</string>
+
   <string name="prefs_request_sdcard_permission_title">Има ръчно инсталирани документи</string>
-  <!--Colors preferences-->
+  <string name="prefs_request_sdcard_permission_summary">Разреши използването на ръчно инсталирани ресурси от папката jsword/sword на вътрешното хранилище</string>
+
+  <string name="prefs_expand_footnotes_title">Вградени кръстосани препратки</string>
+  <string name="prefs_expand_footnotes_summary">Показвай съдържанието на кръстосаните препратки вградено в текста, вместо като връзка, отваряща диалог</string>
+
+  <string name="all_text_options_window_menutitle">Всички текстови опции</string>
+  <string name="text_options_window_menutitle">Текстови опции</string>
+  <string name="auto_fullscreen">Цял екран при превъртане</string>
+  <string name="reversed_split_mode">Обърнат режим на разделяне</string>
+
+  <string name="add_ellipsis">%s…</string>
+
+  <string name="font_size_pt">%d пт</string>
+  <string name="value_mm">%d мм</string>
+  <string name="auto_fullscreen_summary">Превключвай автоматично към цял екран при превъртане на текст. Съвет: можете също да превключите към цял екран с двойно докосване на екрана.</string>
+  <string name="prefs_margin_size_title">Промяна на размера на полетата</string>
+  <string name="prefs_margin_size_mm_title">Размер на полетата (%1$d/%2$d/%3$d мм)</string>
+  <string name="prefs_advanced_settings_cat">Разширени настройки</string>
+  <string name="prefs_features_cat">Функции</string>
+  <string name="prefs_display_customization_cat">Вид и усещане</string>
+  <string name="prefs_behavior_customization_cat">Поведение на приложението</string>
+
+  <string name="prefs_margin_size_summary">Настрой лявото и дясното поле на изгледа с текст. Можете също да настроите максималната ширина на текста.</string>
+  <string name="prefs_margin_size_summary_2">Съвет: Можете да докоснете областта на полето, за да преминете една страница нагоре/надолу.</string>
+
+  <string name="prefs_text_colors_summary">Настрой цветовете на текста и фона, и ефекта на шум</string>
+  <string name="text_display_settings_activity_title">Настройки за показване на текст</string>
+  <string name="workspace_text_display_settings_title">Текстови опции — %s</string>
+  <string name="window_text_display_settings_title">Текстови опции — Прозорец %d</string>
+  <string name="global_text_display_settings_title">Глобални текстови опции</string>
+  <string name="global_text_display_settings_summary">Настройки за показване на текст по подразбиране за всички работни пространства</string>
+  <string name="parent_settings_category_title">Родителски настройки</string>
+  <string name="workspace_text_options_link">Текстови опции на работното пространство — %s</string>
+  <string name="workspace_text_options_link_summary">Редактирай настройките за показване на текст за това работно пространство</string>
+  <string name="global_text_options_link">Глобални текстови опции</string>
+  <string name="global_text_options_link_summary">Редактирай настройките за показване на текст по подразбиране за всички работни пространства</string>
+  <string name="prefs_font_and_colors_title">Шрифт и цветове</string>
+  <string name="prefs_text_layout_title">Оформление на текст</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s и морфология</string>
+  <string name="prefs_footnotes_and_xrefs_title">Бележки под линия и кръстосани препратки</string>
+  <string name="prefs_verses_and_headings_title">Стихове и заглавия</string>
+  <string name="prefs_page_scrolling_title">Превъртане на страница</string>
+
+  <string name="prefs_justify_title">Изравняване на текст</string>
+  <string name="prefs_justify_summary">Наредбе текста в стил \'изравняване\', при което левите и десните полета на текста са в една линия</string>
+  <string name="pref_left_margin_label_mm">Ляво поле (%d мм)</string>
+  <string name="pref_right_margin_label_mm">Дясно поле (%d мм)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Максимална ширина на текста (%d мм)</string>
+  <string name="prefs_line_spacing_pt">Разстояние между редове %1.1fx</string>
+  <string name="pref_font_family_label">Семейство шрифтове</string>
+  <string name="prefs_top_margin_title">Горно поле</string>
+  <string name="prefs_top_margin_summary">Добавяй поле (с визуално указание) в горната част на прозореца, съдържащ библейски ресурс. Библията се превърта така, че текущият стих да започва под полето.</string>
+  <string name="prefs_hyphenation_title">Пренасяне на думи</string>
+  <string name="prefs_hyphenation_summary">Автоматично пренасяй думите, ако езикът се поддържа</string>
+  <string name="prefs_line_spacing_pt_title">Разстояние между редове (%1.1fx)</string>
+  <string name="line_spacing_title">Разстояние между редове</string>
+  <string name="line_spacing_summary">Задай разстоянието между редовете</string>
+  <string name="select_none">Избери нищо</string>
+  <string name="reset_are_you_sure">Сигурни ли сте, че искате да нулирате всички тези стойности?</string>
+  <string name="window_pinning_menutitle">Закрепване на прозорец</string>
+  <string name="hide_window_buttons_title">Скриване на бутоните на прозореца</string>
+  <string name="hide_window_buttons_summary">Бутоните на прозореца, показвани вдясно на изгледите на Библията, са скрити. Лентата за навигация между прозорците в долната част продължава да се показва и можете да отворите изскачащото меню на прозореца с продължително натискане.</string>
+  <string name="hide_bible_reference_overlay_title">Скриване на наслагването с библейска препратка</string>
+  <string name="hide_bible_reference_overlay_summary">Да не се показва полупрозрачното наслагване с библейска препратка, когато приложението е в режим на цял екран</string>
+
+  <string name="full_screen_hide_buttons_pref_title">Скриване на лентата с бутони при цял екран</string>
+  <string name="full_screen_hide_buttons_pref_summary">При превключване в режим на цял екран автоматично се скрива лентата с бутони на прозореца в долната част на екрана</string>
+
+  <string name="prefs_dictionaries_cat">Речници</string>
+  <string name="choose_strongs_greek_dictionary_title">Гръцки речник на Стронг</string>
+  <string name="choose_strongs_greek_dictionary_summary">Изберете речника на Стронг за дефиниции на гръцки думи</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Еврейски речник на Стронг</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Изберете речника на Стронг за дефиниции на еврейски думи</string>
+  <string name="choose_strongs_greek_morphology_title">Гръцка морфология на Робинсон</string>
+  <string name="choose_strongs_greek_morphology_summary">Изберете речник за дефиниции на гръцката морфология на Робинсон</string>
+  <string name="choose_word_lookup_dictionary_title">Речници за търсене на думи</string>
+  <string name="choose_word_lookup_dictionary_summary">Изберете речници за търсене на думи</string>
+  <string name="lookup_in_dictionary">Търси в речниците</string>
+  <string name="word_not_found_in_dictionaries">Думата не е намерена в нито един речник</string>
+
+  <string name="prefs_top_margin_title_mm">Горно поле (%d мм)</string>
+  <string name="font_size_title">Размер на шрифта</string>
+  <string name="font_size_title_pt">Размер на шрифта (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Регулиране на размера на шрифта на основния текст</string>
+
+  <string name="pref_font_family_label_name">Шрифтово семейство (%s)</string>
+  <string name="prefs_font_family_summary">Промяна на шрифтовото семейство. Съвет: повече шрифтове могат да бъдат инсталирани чрез Изтегляне на документи / Добавки.</string>
+
+  <string name="prefs_text_bookmarks_title">Настройки на отметки и мои бележки</string>
+  <string name="prefs_reading_and_memorization_title">Четене и запаметяване</string>
+
+  <string name="prefs_enable_bluetooth_title">Разрешаване на Bluetooth медийни бутони</string>
+  <string name="prefs_enable_bluetooth_summary">Управление на Bluetooth медийни бутони за стартиране/спиране на четенето на глас.</string>
+  <string name="create_bookmark">Създай нова отметка</string>
+  <string name="create_bookmark_with_a_note">Създай нова отметка с бележка</string>
+
+    <!-- Colors preferences -->
+  <string name="prefs_text_colors_menutitle">Настройки на цветовете</string>
+  <string name="window_color_settings_title">Настройки на цветовете на прозореца</string>
+  <string name="workspace_color_settings_title">Настройки по подразбиране за цветовете на работното пространство</string>
+
+  <string name="color_workspace">Цвят на работното пространство</string>
+  <string name="color_text">Цвят на текста</string>
+  <string name="color_background">Цвят на фона</string>
+  <string name="colors_day_mode_title">Дневен режим</string>
   <string name="colors_night_mode_title">Нощен режим</string>
-  <!--Window-->
+  <string name="prefs_noise_title">Фонов шум</string>
+  <string name="prefs_noise_summary">Добавянето на малко шум към фона може да го направи по-удобен за очите.</string>
+
+  <string name="cpv_default_title">Изберете цвят</string>
+  <string name="cpv_presets">Предварителни настройки</string>
+  <string name="cpv_custom">Персонализиран</string>
+  <string name="cpv_select">Избери</string>
+  <string name="cpv_transparency">Прозрачност</string>
+
+    <!-- Window -->
   <string name="new_window">Нов прозорец</string>
   <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Уголеми</string>
   <string name="windowMinimise">Смали</string>
   <string name="windowSynchronise">Синхронизирай</string>
-  <!--Notes screen-->
+  <string name="move_window">Премести в</string>
+  <string name="move_window_to_position2">Позиция %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings">Копирай настройките в</string>
+  <string name="copy_settings_to_workspace">Работно пространство</string>
+  <string name="copy_settings_to_window">Прозорец %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Глобални настройки по подразбиране</string>
+  <string name="change_to_normal">Промени в обикновен прозорец</string>
+  <string name="window_pin_mode">Закачи</string>
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">Няма коментари за тази глава</string>
   <string name="no_verse_notes">Няма коментари за този стих</string>
   <string name="previous">Назад</string>
   <string name="next">Напред</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">Моля изтеглете от интернет речници за Гръцки и Еврейски</string>
   <string name="no_indexed_bible_with_strongs_ref">Трябва да изтеглите текст който съдържа числата на Стронг, както и сътветен индекс за текста.</string>
   <string name="morph_robinson_not_installed">Моля изтеглете речникът \"Robinson\'s Morphological Analysis Codes\"</string>
-  <!--Module download-->
+  <string name="go_to_downloads">Отиди към Изтегляния</string>
+
+    <!-- Module download -->
   <string name="download">Изтеглете ресурси</string>
+  <string name="redownload">Преизтегли документи</string>
+  <string name="download_confirmation">Изтегляне на Библия от интернет?</string>
+  <string name="download_source_last_updated">Списъците с документи са обновени последно: %s.</string>
+  <string name="download_refreshing_book_list">Обновяване на списъка с налични документи от сървърите за документи…</string>
+  <string name="download_source_message1">Документите се изтеглят от следните източници:</string>
   <string name="download_document_confirm_prefix">Изтегляне</string>
   <string name="download_refresh_book_list_menu_item">Обнови</string>
+  <string name="error_downloading">Възникна грешка при изтеглянето. Моля, проверете интернет връзката си.</string>
+  <string name="error_downloading_status">Сървърът, хостващ %1$s, върна грешка поради %2$s (%3$d).</string>
   <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
+  <string name="too_many_jobs">Изпълняват се твърде много задачи. Моля, изчакайте някои да завършат и опитайте отново.</string>
   <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
   <string name="free_text_search_documents">Търси</string>
-  <!--Install zip file-->
+  <string name="chooce_language_hint">Език</string>
+  <string name="one_more_back_press">Натиснете назад отново, за да затворите приложението</string>
+  <string name="document_filter_results">%d документа</string>
+  <string name="download_question_title">Искате ли да продължите с изтеглянето на документи?</string>
+  <string name="download_question_message">Ако живеете в страна, където се преследват вярващи, трябва да внимавате при изтеглянето на християнски материали от интернет. Вместо това може да искате да получите zip файлове с модули по-сигурен начин и да ги инсталирате чрез „Зареждане на документи от Zip". Сигурни ли сте, че искате да продължите с изтеглянето? Всички изтегляния от сървърите за модули са криптирани (HTTPS).</string>
+  <string name="do_not_ask_again">Да, не питай повече</string>
+  <string name="recommended_document">Препоръчано!</string>
+  <string name="about_version_history">История на версиите: %s</string>
+  <string name="download_errors">Грешки при изтегляне</string>
+  <string name="failed_repositories_message">Не можа да се установи връзка със следния сървър за документи: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Следните файлове не можаха да бъдат изтеглени:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Този документ не може да бъде изтрит.</string>
+
+    <!--  Install zip file -->
   <string name="install_zip">Зареди документ от ZIP архив</string>
   <string name="install_zip_module">Инсталирай модул</string>
+  <string name="install_zip_module_discrete">Инсталирай модул Калкулатор</string>
   <string name="install_zip_successfull">Успешна инсталация на модула</string>
+  <string name="extracting_zip_file">Разархивиране на Zip файла…</string>
+  <string name="checking_zip_file">Проверка на дадения файл…</string>
   <string name="invalid_module">Файлът не съдържа валиден SWORD модул</string>
   <string name="install_zip_title">Моля изчакайте. Зареждане на Zip файла.</string>
-  <!--Daily Reading Plan-->
+  <string name="overwrite_files">Следните файлове вече съществуват: %s Да се презапишат?</string>
+  <string name="overwrite_files_title">Презаписване на файлове?</string>
+  <string name="could_not_overwrite_files">Файловете не можаха да бъдат презаписани: %s. Освен това инсталацията е успешна.</string>
+  <string name="install_do_you_want">Искате ли да инсталирате модул (%s)?</string>
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">План за четене</string>
+  <string name="reading_plans_plural">Планове за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
   <string name="rdg_plan_day">Ден %s</string>
+  <string name="rdg_plan_set_start_date">Задай начална дата…</string>
+  <string name="set_current_day">Задай като текущ ден…</string>
+  <string name="msg_set_current_day_reading_plan">Това ще зададе днес като текущия ден в този план и ще маркира всички предишни дни като прочетени. Продължаване?</string>
   <string name="done">Готово</string>
-  <!--Document context menu-->
+  <string name="reset_plan_question">Сигурни ли сте, че искате да изчистите този план?</string>
+  <string name="import_reading_plan">Импортирай план за четене…</string>
+  <string name="import_reading_plan_error">Грешка при импортиране</string>
+  <string name="import_reading_plan_error_duplicate">Следните дни бяха дублирани: %s</string>
+  <string name="import_reading_plan_error_days">Следните дни съдържаха грешки: %s</string>
+  <string name="import_reading_plan_anyway">Импортирай въпреки това</string>
+  <string name="overwrite_reading_plan">Искате ли да презапишете %s?</string>
+  <string name="delete_reading_plan">Изтрий този план</string>
+  <string name="reading_plan_deleted">Планът за четене е изтрит</string>
+  <string name="reading_plan_ships_with_ab">Този план за четене се доставя с %s</string>
+  <string name="confirm_delete_reading_plan">Сигурни ли сте, че искате да изтриете %s заедно с историята му на четене? Съвет: ако трябва да актуализирате плана, можете просто да го импортирате отново със същото име на файл и историята ще бъде запазена.</string>
+  <string name="plan_duplicate_user_plan">На SD картата има потребителски план за четене в jsword/readingplan със същото име като вътрешен план. Той не може да бъде показан тук. Моля, преименувайте файла на друго название, запазвайки разширението му .properties</string>
+  <string name="plan_name_y1ntpspr">НЗ, Псалми и Притчи за една година</string>
+  <string name="plan_description_y1ntpspr">С любезното съдействие на интернет списание HEARTLIGHT, http://www.heartlight.org, с разрешение</string>
+  <string name="plan_name_y1ot1nt1_chronological">Хронологично четене на Библията за 1 година</string>
+  <string name="plan_description_y1ot1nt1_chronological">План, базиран на хронологичните събития в Библията. Хронологичната времева линия е приблизителна.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 година – СЗ+НЗ едновременно</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">Прочетете Библията за 1 година, с глави от СЗ и НЗ всеки ден.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Четене на Библията за 1 година</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">Прочетете Библията за 1 година, започвайки от Битие и завършвайки с Откровение. Първо е СЗ, после НЗ.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne – 1 година, 4 глави на ден</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">Този план е базиран на системата за четене на M\'Cheyne, включваща четири различни четива за семейни и лични молитвени времена. Всеки ден има два пасажа от Стария Завет, един от Новия Завет и един от Псалмите или Евангелията. За една година прочитате Стария Завет веднъж, а Новия Завет и Псалмите — два пъти.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">План за четене на проф. Хорнер – 10 глави на ден</string>
+  <string name="plan_description_y1ot6nt4_profHorner">С любезното съдействие на проф. Хорнер, с разрешение</string>
+  <string name="plan_name_y2ot1ntps2">2 години през Библията, НЗ+ПС два пъти</string>
+  <string name="plan_description_y2ot1ntps2">Прочетете Библията за 2 години, като НЗ и Псалмите се четат два пъти. С любезното съдействие на Wholesome Words, http://www.wholesomewords.org/, с разрешение</string>
+
+    <!-- Document context menu -->
   <string name="delete">Изтрий</string>
   <string name="delete_index">Изтрий индекса за търсене</string>
   <string name="about">Относно</string>
   <string name="delete_doc">Изтрий %s?</string>
   <string name="delete_search_index_doc">Изтриване на индекса  %s?</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">Бележки и препратки</string>
+  <string name="share_verse">Сподели…</string>
+  <string name="share_verse_widget_title">Сподели избраното</string>
+  <string name="share_verse_subject_2">Библейски стих беше споделен с вас чрез %s.</string>
   <string name="compare_translations">Сравни преводи</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Отваряй препратките тук</string>
   <string name="open_link_in_new_window">Отваряй препратките в нов прозорец</string>
   <string name="open_link_in_special_window">Отваряй препратките в специален прозорец</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
+  <string name="bookmarks_and_mynotes_title">Отметки и мои бележки</string>
+  <string name="migrated_my_notes">Мигрирани мои бележки</string>
   <string name="bookmarks">Отметките</string>
   <string name="bookmark_added">Отметката е добавена</string>
+    <!-- Bookmark / note labels -->
+  <string name="labels">Етикети</string>
+  <string name="manage_labels">Управление на етикети</string>
   <string name="assign_labels">Задай етикет</string>
   <string name="new_item">Ново</string>
   <string name="new_label">Нов етикет</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Етикетът е махнат</string>
-  <!--can be removed-->
-  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="add_bookmark1">Отметка</string>
+  <string name="add_bookmark2">Отметка на избраното</string>
+  <string name="add_bookmark3">Избрано</string>
+  <string name="add_bookmark_whole_verse">Отметка на стих</string>
+  <string name="add_bookmark_whole_verse1">Стихове</string>
+  <string name="add_bookmark_whole_verse2">Пълни стихове</string>
+  <string name="add_whole_page_bookmark">Добави отметка за цялата страница</string>
+  <string name="add_paragraph_break">Нов абзац</string>
+  <string name="ai_label">ИИ</string>
+  <string name="remove_bookmark">Премахни</string>
+  <string name="bookmark_settings_hide_labels_title">Скриване на посочени етикети</string>
+  <string name="bookmark_settings_hide_labels_summary">Скриване на отметки, маркирани с посочен(и) етикет(и)</string>
+  <string name="auto_assign_labels_title">Настройки на етикети</string>
+  <string name="auto_assign_labels">Автоматично присвояване и любими етикети</string>
+  <string name="auto_assign_labels1">Автоматично присвояване на етикет към нови отметки</string>
+  <string name="auto_assign_labels_primary">Автоматично присвояване като основен</string>
+  <string name="label_color">Цвят на етикета</string>
+  <string name="label_color_example">Пример</string>
+  <string name="marker_style">Показвай само маркер за отметки на избор</string>
+  <string name="marker_style_whole_verse">Показвай само маркер за отметки на цял стих</string>
+  <string name="hide_style">Скрий за отметки на избор</string>
+  <string name="hide_style_whole_verse">Скрий за отметки на цял стих</string>
+  <string name="bookmark_warning">За този ресурс има отметки и/или бележки.</string>
+  <string name="bookmark_warning2">Ако структурата на документа се е променила, актуализирането на този документ може да доведе до преместване на местоположенията на тези отметки/бележки в документа или до пълното им изчезване.</string>
+  <string name="bookmark_warning3">Искате ли да актуализирате модула?</string>
+  <string name="bookmark_warning4">Препоръчително е да направите резервно копие на модула преди актуализация.</string>
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">По дата</string>
   <string name="sort_by_bible_book">Подредба</string>
   <string name="sort_by_alphabetical">По азбучен ред</string>
-  <!--Dictionary-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <string name="filter_by_notes">Търси бележки</string>
+
+    <!-- Dictionary -->
   <string name="dictionary">Речник</string>
   <string name="search_dictionary_hint">Намери речник</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">Книга</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d глава</string>
   <string name="some_chapters">%d глави</string>
   <string name="rest_of_book">до края на книгата</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d стиха</string>
   <string name="some_verses">%d стиха</string>
   <string name="rest_of_chapter">до края на главата</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d страница</string>
   <string name="some_pages">%d страници</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">Спри</string>
   <string name="pause">Пауза</string>
   <string name="rewind">Назад</string>
@@ -172,101 +486,1348 @@
   <string name="tts_lang_not_available">Езикът не е инсталиран</string>
   <string name="speak_queue">Опашка</string>
   <string name="speak_repeat">Повтори</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Скорост на говора</string>
+  <string name="speak_and_play_earcons_title">Реч и звукови сигнали за</string>
+  <string name="playback_settings_title">Настройки за възпроизвеждане</string>
+  <string name="speak_settings_title">Общи настройки за реч</string>
+  <string name="speak_bookmarking_settings_title">Настройки за отметки</string>
+  <string name="speak_bookmarks_menu_title">Реч от отметка</string>
+  <string name="speak_advanced_settings">Разширени настройки</string>
+  <string name="speak_sleep_timer_title">Таймер за заспиване</string>
+
+  <string name="speak_no_books_available">Няма налични книги за четене</string>
+  <string name="speak_general_error">Речта не може да бъде стартирана за тази книга</string>
+
+  <string name="repeat_passage">Повтори пасаж</string>
+  <string name="set_repeat_passage_range">Задай диапазон за повтаряне на пасажа</string>
+  <string name="speak_beginning_of_passage">Избери начало на пасажа</string>
+  <string name="speak_ending_of_passage">Избери край на пасажа</string>
+  <string name="speak_verse_range_to_repeat">Избери диапазон от стихове за повтаряне</string>
+  <string name="speak_ending_verse_must_be_later">Крайният стих трябва да е след началния стих</string>
+
+  <string name="conf_speak_synchronize">Текстът следва речта</string>
+  <string name="conf_speak_auto_bookmark">Автоматично поставяне на отметки</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Запази настройките за възпроизвеждане в отметките</string>
   <string name="conf_replace_divinename">Показвай Yahweh вместо името на Бога</string>
+  <string name="conf_change_chapter">Промяна на глава</string>
   <string name="conf_change_title">Заглавия</string>
+  <string name="conf_speak_footnotes">Бележки под линия</string>
+  <string name="conf_speak_sleep_timer">Задай таймер за заспиване</string>
+
+  <string name="sleep_timer_title">Време за заспиване в минути</string>
   <string name="sleep_timer_set">Включн таймер. Отброява %d минути.</string>
   <string name="sleep_timer_started">Таймерът отброява %d минути</string>
   <string name="sleep_timer_active_at">Таймер: Остават %s минути.</string>
+
   <string name="speak_next">Следващ</string>
   <string name="speak_previous">Предишен</string>
   <string name="widget_toggle_sleep_timer">Покажи/скрий таймера</string>
+  <string name="widget_bookmark_helptext">Тук ще се появят бутони за бързи отметки за реч.</string>
   <string name="speak_status_stopped">спрян</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
-  <!--param is bookmark icon-->
-  <!--param is auto-assign label icon-->
-  <!--param is heart icon-->
-  <!--param is refresh icon-->
-  <!--Parameter is actual icon-->
-  <!--Parameter is actual icon-->
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+  <string name="speak_autobookmarking_disabled">Автоматичното поставяне на отметки е деактивирано!</string>
+  <string name="system_speak_settings">Отвори системните настройки за TTS</string>
+
+  <string name="auto_assing_labels_help1">Тук можете да настроите кои етикети се присвояват автоматично към отметките, които създавате.</string>
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <string name="setting_scope">Тази настройка се прилага за %s.</string>
+  <string name="setting_scope_window">този прозорец</string>
+  <string name="setting_scope_workspace">това работно пространство</string>
+
+  <string name="assing_labels_help1">Към всяка отметка могат да бъдат присвоени няколко етикета.</string>
+    <!-- param is bookmark icon -->
+  <string name="assing_labels_help2">Използвайте %s, за да укажете кой цвят на етикета се показва.</string>
+    <!-- param is auto-assign label icon -->
+  <string name="assing_labels_help3">Натиснете иконата %s, за да се присвоява автоматично този етикет към нови отметки.</string>
+    <!-- param is heart icon -->
+  <string name="assing_labels_help4">Натиснете %s, за да добавите етикета към списъка с любими за бърз достъп.</string>
+
+    <!-- param is refresh icon -->
+  <string name="assing_labels_help5">Натиснете %s, за да подредите отново списъка въз основа на вашите избори.</string>
+
+  <string name="global_text_options_help_title">Глобални опции за текст</string>
+  <string name="global_text_options_help1">Това са глобалните настройки по подразбиране за всички работни пространства. Всяко работно пространство може да ги замени със собствени настройки.</string>
+
+  <string name="workspace_text_options_help_title">Опции за текст на работното пространство</string>
+  <string name="workspace_text_options_help1">Тези настройки определят стойностите по подразбиране за всички прозорци в работното пространство. Настройките, наследени от глобалните стойности, са обозначени съответно.</string>
+  <string name="workspace_text_options_help2">Можете да ги замените, като промените настройките на отделните прозорци.</string>
+
+  <string name="window_text_options_help_title">Опции за текст на прозореца</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help1">Иконата %s показва, че настройката идва от настройките на работното пространство.</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help2">Иконата %s показва, че тази настройка е променена за конкретния прозорец.</string>
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <string name="text_options_reset_help">Използвайте бутона %1$s, за да върнете всички тези настройки към %2$s.</string>
+  <string name="reset_defaults">стойности по подразбиране</string>
+  <string name="reset_workspace_defaults">стойности по подразбиране на работното пространство</string>
+
+  <string name="speak_bookmark_help">Помощ за отметки на речта</string>
+
+  <string name="speak_help_auto_bookmark">Отметка за четене ще бъде добавена автоматично, когато четенето бъде поставено на пауза или спряно. Автоматично генерираните отметки са означени със специален етикет за четене. Ако започнете от отметка за четене, тя ще бъде преместена към стиха, на който спрете или поставите на пауза следващия път. Само етикетите за четене ще бъдат преместени, всички останали ще останат непроменени.</string>
+  <string name="speak_help_playback_settings">Специалните настройки за възпроизвеждане (в „Настройки за възпроизвеждане" на екрана за четене) се запазват в отметките за четене, когато тази настройка е избрана. Когато рестартирате четенето от отметка за четене, запазените настройки за възпроизвеждане се зареждат от отметката.</string>
+  <string name="speak_help_playback_settings_example">Например ако слушате Битие и Римляни и искате да слушате Битие бързо, без известия при смяна на глава, а Римляни — по-бавно с чуваеми звукови сигнали при смяна на глава, тогава можете да имате различни настройки за възпроизвеждане за тези книги, когато тези настройки са запазени в съответните отметки.</string>
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <!--User Notes-->
+         in speak settings. -->
+
+  <string name="speak_book_changed">Книгата е сменена.</string>
+  <string name="speak_chapter_changed">Глава</string>
+  <string name="speak_first">Първа</string>
+  <string name="speak_second">Втора</string>
+  <string name="speak_third">Трета</string>
+  <string name="speak_fourth">Четвърта</string>
+  <string name="speak_fifth">Пета</string>
+
+  <string name="verse_range_mode_disabled">Режимът на повторение на пасажа беше деактивиран автоматично, тъй като четенето беше започнато извън зададения диапазон от стихове.</string>
+
+    <!-- User Notes -->
   <string name="mynotes">Мои бележки</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
+  <string name="backup_backup_title">Резервно копие — къде?</string>
+  <string name="backup_backup_message">Резервно копие на телефона или другаде чрез функцията за споделяне (имейл, Google Диск и др.)?</string>
+  <string name="backup_phone_storage">Хранилище на телефона</string>
   <string name="backup_and_restore">Резервно копие</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
-  <!--About-->
+  <string name="backup_modules2">Резервно копие на ресурсите в…</string>
+  <string name="backup_app_database2">Резервно копие на базата данни в…</string>
+  <string name="backup_app2">Резервно копие на приложението (.apk файл) в…</string>
+  <string name="backup_application">Приложение</string>
+  <string name="backup_database">База данни</string>
+  <string name="backup_documents">Ресурси</string>
+  <string name="backup_application_info">Файл на приложението (.APK)</string>
+  <string name="backup_database_info">Отметки, етикети, бележки, бележници, планове за четене, работни пространства и др.</string>
+  <string name="backup_document_info">Библии, коментари, речници, карти и др.</string>
+  <string name="backup_to">Резервно копие в…</string>
+  <string name="backup_restore_from">Възстанови от…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <string name="backup_restore_from2">Възстанови или импортирай от…</string>
+  <string name="backup_restore">Възстанови</string>
+  <string name="backup_restore2">Възстанови или импортирай</string>
+  <string name="overwrite_something">Презаписване на %s?</string>
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+  <string name="restore_what">Какво искате да възстановите?</string>
+
+  <string name="restore_app_database">Възстанови базата данни на приложението от…</string>
+  <string name="restore_database">Възстанови файл с база данни</string>
+  <string name="restore_confirmation">Презаписване на мои бележки, отметки, бележници, планове за четене и работни пространства?</string>
+  <string name="restore_success2">Избраните секции от базата данни са възстановени успешно</string>
+  <string name="restore_success">Мои бележки, отметки, бележници, планове за четене и работни пространства са възстановени успешно</string>
+  <string name="downloading_backup">Изтегляне на резервния файл…</string>
+  <string name="loading_backup">Зареждане на базата данни от резервно копие…</string>
+  <string name="backup_success2">Мои бележки, отметки, бележници, планове за четене и работни пространства са архивирани успешно.</string>
+  <string name="backup_modules_success">Избраните модули са архивирани успешно.</string>
+
+  <string name="backup_modules_email_subject_2">Резервно копие на модули %s</string>
+  <string name="backup_modules_email_message_2">Приложено е резервното ви копие на модули %1$s, което съдържа следните модули: %2$s</string>
+
+  <string name="backup_email_subject_2">Резервно копие на база данни %s</string>
+  <string name="backup_email_message_2">Приложена е базата ви данни %s, съдържаща отметки, бележки, планове за четене и работни пространства</string>
+
+  <string name="exported_studypads_subject">Експортирани бележници</string>
+  <string name="exported_studypads_message">Приложена е базата ви данни %s, съдържаща отметки и бележки за избраните бележници</string>
+  <string name="restore_unsuccessfull">Възстановяването на базата данни беше неуспешно. Вероятно сте предоставили невалиден файл с база данни.</string>
+  <string name="restore_modules">Възстанови ресурси от…</string>
+  <string name="send_backup_file">Изпрати резервен файл</string>
+  <string name="backup_modules_title">Изберете кои модули да архивирате</string>
+  <string name="install_zip_canceled">Инсталирането на модула е отменено</string>
+  <string name="ask_restore_or_import">Базата данни за %s може да бъде възстановена (т.е. съществуващата база данни се премахва и се зарежда избраната) или импортирана (избраната база данни се импортира в съществуващата). Какво искате да направите?</string>
+  <string name="restore">Възстанови</string>
+  <string name="import2">Импортирай</string>
+  <string name="export_studypads_help">Файл, съдържащ експортирани бележници (т.е. етикети и отметки), може да бъде импортиран чрез Главно меню → Архивиране и възстановяване.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" и %2$s други етикет(а) / бележник(а) и %3$s отметки</string>
+
+    <!-- About -->
   <string name="module_about_copyright">Авторско право: %s</string>
+  <string name="module_about_installed_version">Инсталирана версия: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Последна версия: %1$s (%2$s)</string>
   <string name="module_about_versification">Версификация: %s</string>
-  <!--Bug reporting-->
-  <!--Document types-->
+  <string name="module_about_repository">Сървър за разпространение: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+
+    <!-- Bug reporting -->
+  <string name="send_bug_report_title1">Доклад за грешка</string>
+  <string name="send_feedback_title">Обратна връзка</string>
+  <string name="send_bug_report_title">Обратна връзка / доклад за грешка</string>
+  <string name="report_bug_email_subject_3">[%1$s] Доклад за грешка за %2$s %3$s</string>
+
+  <string name="report_bug_big_heading">МОЛЯ, НАПИШЕТЕ СВОЯТА ОБРАТНА ВРЪЗКА ИЛИ ДОКЛАД ЗА ГРЕШКА НАД ТОЗИ РЕД</string>
+  <string name="report_bug_heading1">Инструкции:</string>
+  <string name="report_bug_line_1">Разкажете ни накратко какво сте направили / какво се е случило при появата на проблема.</string>
+  <string name="report_bug_heading2">Например:</string>
+  <string name="report_bug_instructions1">1. Отворих приложението</string>
+  <string name="report_bug_instructions2">2. Натиснах менюто на прозореца</string>
+  <string name="report_bug_instructions3">-&gt; Срив</string>
+  <string name="report_bug_line_2">Понякога ръчно направените снимки на екрана също помагат при решаването на проблеми.</string>
+  <string name="report_bug_line_3">Моля, използвайте тази функция, за да докладвате веднага щом забележите проблем.</string>
+  <string name="report_bug_line_4">Можете да използвате тази функция и след отваряне на приложението, след като е настъпил срив.</string>
+  <string name="report_bug_heading_3">Прикачени файлове:</string>
+  <string name="bug_report_logcat">Файл с регистрационни записи, генериран от приложението. Не съдържа информация за други приложения.</string>
+  <string name="bug_report_screenshot">Снимка на екрана при срива или при създаването на доклада за грешка.</string>
+  <string name="bug_report_attachment_line_1">Прикачването на тези файлове помага значително на разработчиците при отстраняването на докладваната грешка.</string>
+  <string name="report_bug_heading_4">Информация за устройството:</string>
+
+    <!-- Document types -->
+  <string name="doc_type_all">Всички видове</string>
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Коментар</string>
   <string name="doc_type_dictionary">Речник</string>
   <string name="doc_type_book">Книга</string>
   <string name="doc_type_map">Карта</string>
-  <!--Languages-->
+  <string name="doc_type_addons">Добавки</string>
+
+    <!-- Languages -->
   <string name="lang_default">По подразбиране</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">ОК</string>
   <string name="cancel">Отмяна</string>
+  <string name="discard_changes_confirmation">Да се откажат ли незапазените промени?</string>
   <string name="yes">Да</string>
   <string name="no">Не</string>
   <string name="error">Грешка</string>
   <string name="delete_generic">Изтрий</string>
+  <string name="please_wait">Моля, изчакайте…</string>
   <string name="all">Всичко</string>
   <string name="edit">Редактирай</string>
   <string name="reset_generic">Изчистване</string>
   <string name="watch_tutorial_video">Гледай гид на потребителя (на английски)</string>
-  <!--Errors-->
+  <string name="verse_not_found">Стихът не е намерен</string>
+
+    <!-- Errors -->
   <string name="report_error">Изпрати отчет</string>
   <string name="error_occurred">Грешка</string>
+  <string name="error_occurred_crash_last_time">При последното използване на приложението то спря неочаквано. За да ни помогнете с отстраняването на грешката, ще се радваме да ни изпратите доклад за грешка.</string>
+  <string name="error_occurred_with_link">Възникна грешка. %s</string>
   <string name="error_no_content">Избранният стих няма съдържание</string>
   <string name="error_page_too_large">Страницата е твърде голяма за да бъде отворена</string>
   <string name="error_key_not_in_document">Не се намира в зададения ресурс</string>
+  <string name="error_key_not_in_document2">%1$s не е намерен в ресурса %2$s.</string>
   <string name="empty_list">Нищо за показване</string>
-  <!--Notifications-->
-  <!--Workspaces-->
+  <string name="error_skip">Пропусни</string>
+  <string name="bug_report_email_title">Изпрати доклад за грешка по имейл</string>
+  <string name="bug_report_email_text">Моля, изберете предпочитаното от вас имейл приложение (например Gmail), за да изпратите доклада до екипа на разработчиците.</string>
+
+    <!-- Notifications -->
+  <string name="notification_channel_tts_status">Реч</string>
+  <string name="notification_channel_progress_status">Известие за напредъка при изтегляне на ресурси и др.</string>
+
+    <!-- Workspaces -->
   <string name="new_workspace">Ново</string>
+  <string name="switch_to_workspace">Работни пространства</string>
+  <string name="delete_workspace">Премахни</string>
+  <string name="new_copied_workspace">Копирай като ново</string>
+  <string name="workspace_number">Работно пространство %d</string>
   <string name="rename_workspace">Преименуване</string>
+  <string name="workspace_selector_title">Изберете работно пространство</string>
+  <string name="workspace_settings">Настройки…</string>
+  <string name="give_name_workspace">Въведете име за новото работно пространство</string>
   <string name="save_and_exit">Запази</string>
+  <string name="workspace_save_changes">Да се приложат ли промените в работните пространства?</string>
+  <string name="copy_of_workspace">Копие на %s</string>
+  <string name="copy_workspace_settings">Копирай настройки…</string>
+  <string name="copy_settings_title">Кои настройки искате да копирате?</string>
+  <string name="select_all">Избери всички</string>
+  <string name="copy_settings_workspaces_title">В кои работни пространства искате да копирате настройките?</string>
   <string name="reset_settings">Изчистване</string>
-  <!--Beta notice-->
-  <!--History-->
-  <!--Help-->
+  <string name="search_settings">Търси настройки</string>
+  <string name="workspace_dismiss">Затвори</string>
+  <string name="workspace_listing_with_current">%s (текущо)</string>
+
+    <!-- Beta notice -->
+  <string name="beta_notice_title">Това е бета версия!</string>
+  <string name="beta_flag">БЕТА</string>
+  <string name="beta_notice_content_1">В бета версията има нови функции, които не са напълно тествани, и затова използването на бета може да въведе неочаквано поведение, т.е. грешки. Препоръчва се обикновените читатели на Библията да използват стабилната версия.</string>
+
+  <string name="beta_notice_content_2">Бета потребителите се насърчават да докладват грешки чрез Google Play или (за предпочитане) чрез %s.</string>
+  <string name="beta_notice_content_3">Ако сте програмист, моля, обмислете да допринесете с поправки на грешки чрез %s сами. :-)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Затвори</string>
+  <string name="beta_notice_dismiss_until_update">Затвори до следващата актуализация</string>
+
+  <string name="stable_notice_title">Приложението е актуализирано!</string>
+  <string name="upgrade_video_message">Моля, вижте видеото с новите функции на тази версия (%s).</string>
+  <string name="stable_notice_par1">Новата версия %1$s на %2$s е инсталирана успешно!</string>
+
+    <!-- History -->
+  <string name="history_for">История (%1$s: Прозорец %2$d)</string>
+
+    <!-- Help -->
   <string name="help_nav_title">Навигация</string>
+  <string name="help_nav_text">Преминете към следващата или предишната глава, като плъзнете екрана с пръст. Докоснете двукратно текста на Библията, за да превключите режима на цял екран. Разделените екрани (наречени също прозорци) имат бутон за меню в горния десен ъгъл, който ви позволява да използвате няколко функции, специфични за прозореца, и да персонализирате изгледа и поведението му.</string>
   <string name="help_contextmenus_title">Контекстни менюта</string>
+  <string name="help_contextmenus_text">Натискането за продължително натискане отваря контекстното меню или режима на действие в няколко изгледа. Натиснете продължително в изгледа на Библията, за да отворите режима на действие за действия, засягащи текущия стих. Натиснете продължително върху елемент от документа в списъка на „Избор на документ" или „Изтегляне", за да изтриете документа или да видите информация за него. Натиснете продължително върху отметка в списъка с отметки, за да добавите етикети или да изтриете отметката. Натиснете продължително върху връзки, за да изберете дали да ги отворите в текущия прозорец, нов прозорец или специален прозорец за връзки.</string>
+  <string name="help_bookmarks_title">Отметки и мои бележки</string>
+  <string name="help_bookmarks_text">Отметките могат да се създават, като изберете текст и изберете „Отметка" от изскачащото меню. Можете да добавите свои бележки към новата отметка, като докоснете маркирания текст в изгледа на Библията. Има и специален документ „Моите бележки" в коментарите, който ви позволява да видите бележките си в отделен прозорец.</string>
+  <string name="help_studypads_text">Учебните бележници са проектирани, за да улеснят писането на проповеднически бележки, подготовката на проповеди или просто записването на лични бележки за изучаване на Библията с множество библейски препратки. Всеки учебен бележник е свързан с един етикет на отметка. Всички отметки, създадени с този съответен етикет, се появяват автоматично в документа на учебния бележник. В допълнение към отметките може да има персонализирани текстови записи в учебен бележник.</string>
+
   <string name="help_search_title">Търси</string>
+    <!-- TODO: to be removed -->
   <string name="help_search_text">Текстът за търсене може да включва специални знаци като *, ?, AND, OR, NOT
         (виж документацията на \"Apache Lucene - Query Parser Syntax\")
     </string>
-  <!--Welcome text-->
-  <!--Uncategorized-->
+  <string name="help_search_text2">Търсеният текст може да включва специални символи като *, AND, OR, NOT</string>
+  <string name="help_search_details">Моля, вижте %s за повече подробности.</string>
+  <string name="help_apache_lucene">Apache Lucene — синтаксис на заявките за търсене</string>
+  <string name="help_fts5">Синтаксис на пълнотекстовото търсене FTS5</string>
+  <string name="help_workspaces_title">Работни пространства</string>
+  <string name="help_workspaces_text">Работните пространства позволяват наличието на множество работни среди в зависимост от контекста. Функциите на работното пространство са достъпни чрез елемента „Работни пространства" в менюто с опции (горен десен ъгъл). Бърз начин за достъп до работните пространства е чрез плъзгане надолу от лентата с инструменти. Можете също да използвате жестове за плъзгане наляво и надясно върху лентата с инструменти, за да превключите към предишното / следващото работно пространство.</string>
+  <string name="help_hidden_features_title">Скрити клавишни комбинации</string>
+  <string name="help_hidden_features_text">Плъзнете надолу от лентата с инструменти, за да покажете селектора на работното пространство. Натиснете продължително бутона на прозореца, за да го минимизирате бързо. Натиснете продължително бутона на лентата с инструменти за четене, за да отидете бързо към настройките за четене. Натиснете продължително заглавието на местоположението на стиха в лентата с инструменти, за да преминете към селектора на документи. Натиснете продължително бутона „Назад", за да получите достъп до списъка с история.</string>
+  <string name="help_window_pinning_title">Закрепване на прозорец</string>
+  <string name="help_window_pinning_text">Можете да активирате закрепването на прозорци от менюто с опции (три точки, горен десен ъгъл). Ако закрепването на прозорци е активирано, можете да показвате много закрепени прозорци в изгледа на Библията, но само един незакрепен прозорец. Закрепените прозорци се показват първи, след тях са незакрепените прозорци. Може да искате да отворите библейски документи като закрепени прозорци, а коментарите и картите и т.н. — като незакрепени прозорци. Тогава лесно можете да имате библейски документи винаги отворени и бързо да превключвате между коментари и друг допълнителен материал, докато изучавате Библията.</string>
+
+    <!-- Welcome text -->
+  <string name="redownload_documents">Бързо повторно изтегляне</string>
+  <string name="welcome_message">Благодарим ви, че изтеглихте %s. В момента няма инсталирани Библии или документи. За да продължите, моля инсталирайте поне 1 документ, като го изтеглите от интернет или го заредите от zip файл с архив на документи.</string>
+    <!-- Supported file formats for documents -->
+  <string name="supported_formats_title">Поддържани формати</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="choose_file">Трябва да изберете файла, който искате да заредите в %s.</string>
+  <string name="supported_formats">Поддържани формати за зареждане на ресурси от файл: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="format_zip">Zip файл, съдържащ Sword модул(и), или файл с резервно копие на ресурси (*.abmd), създаден от %s</string>
+  <string name="format_mysword">MySword ресурси (*.mybible)</string>
+  <string name="format_mybible">MyBible ресурси (*.SQLite3)</string>
+  <string name="format_esword">e-Sword ресурси (*.bblx, *.bbli)</string>
+  <string name="format_epub">EPUB ресурси (*.epub)</string>
+  <string name="format_ttf">TTF шрифтове (*.ttf)</string>
+  <string name="format_csv_prompts">AI добавки с подкани (*.csv)</string>
+  <string name="format_studypads">Бележници от бази данни на AndBible (*.abdb)</string>
+  <string name="redownload_message">Намерен е списък с предишни книги/документи. Кликнете по-долу, за да ги изтеглите отново лесно.</string>
+
+    <!-- Uncategorized -->
   <string name="close">Затвори</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
+  <string name="first_time_help_do_not_show_again">Разбирам</string>
+  <string name="first_time_help_show_next_time">Покажи отново следващия път</string>
+
+  <string name="strongs_mode_title">Изберете режим на Strong\'s</string>
+
+  <string name="download_dialog_message">Следните книги не можаха да бъдат изтеглени:</string>
+  <string name="select_multiple">Избери няколко</string>
+  <string name="journal_description">Редактируеми от потребителя бележници с произволен текст и отметки</string>
+  <string name="my_notes_description">Редактируеми от потребителя бележки, прикачени към отметки</string>
   <string name="my_notes_abbreviation">Мои бележки</string>
+  <string name="studypad">Бележник</string>
+  <string name="studypads">Бележници</string>
+  <string name="multi_description">Множество препратки</string>
+  <string name="multi_abbreviation">Множество</string>
   <string name="compare_description">Сравни преводи</string>
+  <string name="compare_abbreviation">Сравни</string>
+  <string name="compare">Сравни</string>
+  <string name="http_forbidden">Забранено</string>
+  <string name="http_not_found">Не е намерено</string>
+  <string name="http_unknown">Друга грешка</string>
+  <string name="give_passphrase_for_module">Ресурсът %s е шифрован и изисква парола за отключване</string>
+  <string name="unlocking_failed">Отключването не бе успешно, невалидна парола</string>
+  <string name="unlock_module">Задай парола за модул</string>
+  <string name="unlock_info">Информация за отключване на шифрован модул</string>
+  <string name="try_again_passphrase">Паролата не работи, опитайте отново?</string>
+  <string name="show_unlock_info">Модул и информация за отключване</string>
+
+  <string name="prefs_experimental_features_title">Експериментални функции</string>
+  <string name="prefs_experimental_features_summary">Изберете кои експериментални функции да се активират. Тези функции все още са в разработка и може да се променят или да бъдат премахнати</string>
+  <string name="experimental_feature_bookmark_edit_actions">Действия за редактиране на отметки</string>
+  <string name="experimental_feature_add_paragraph_break">Добави прекъсване на параграф към отметката</string>
+  <string name="experimental_feature_ai_features">AI функции и моите ресурси</string>
+  <string name="experimental_feature_reading_and_memorization">Проследяване на четенето и запаметяване</string>
+  <string name="raw_llm_log_title">Необработен LLM регистър</string>
+  <string name="raw_llm_log_empty">Няма налични необработени данни в регистъра</string>
+  <string name="raw_llm_log_copied">Регистърът е копиран в клипборда</string>
+  <string name="raw_llm_log_total">Общо: вход %1$s / изход %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Системна подкана</string>
+  <string name="raw_llm_log_entry_user">Съобщение от потребителя</string>
+  <string name="raw_llm_log_entry_assistant">Отговор на асистента</string>
+  <string name="raw_llm_log_entry_tool_call">Извикване на инструмент: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Резултат от инструмент [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Дефиниции на инструменти (%d инструмента)</string>
+  <string name="raw_llm_log_entry_api_response">API отговор (итерация %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s токена</string>
+  <string name="raw_llm_log_entry_usage">вход: %1$s / изход: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(празно)</string>
+  <string name="raw_llm_log_entry_tool_desc">Описание: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Параметри: %s</string>
+  <string name="agent_log_view_raw">Виж необработения LLM регистър</string>
+  <string name="agent_log_model_selector">Смени модела по подразбиране (в момента: %1$s)</string>
+  <string name="agent_log_model_not_configured">Не е конфигуриран модел</string>
+  <string name="agent_log_select_model">Избери модел по подразбиране</string>
+  <string name="share">Сподели</string>
+  <string name="prefs_show_error_box_title">Показвай кутия за Javascript грешки</string>
+  <string name="prefs_show_error_box_summary">Полезно за разработчици при отстраняване на грешки в JavaScript страната на BibleView. Това ще забави приложението.</string>
+  <string name="active_window_indicator_title">Показвай индикатор за активен прозорец</string>
+  <string name="active_window_indicator_summary">Откроявай ъглите на прозореца, за да се разпознава кой прозорец е активен</string>
+  <string name="app_licence_title">Лиценз с отворен код</string>
+
+  <string name="how_to_contribute">Как да допринеса?</string>
+  <string name="confirm_delete_bookmarks">Искате ли да премахнете %d отметки и техните бележки?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Избраният етикет е прикачен към %d отметки, които нямат други етикети. Искате ли да изтриете тези отметки заедно с етикетите?</string>
+  <string name="delete_label_and_bookmarks">Изтрий етикета и отметките</string>
+  <string name="delete_label_only">Изтрий само етикета</string>
+  <string name="module_size_megabytes">%.1f МБ</string>
+  <string name="tell_friend_title">Препоръчай на приятел</string>
+  <string name="tell_friend_message1">Искам да ти препоръчам %s.</string>
+  <string name="tell_friend_message2">Това е мощно, но лесно за използване офлайн приложение за изучаване на Библията за Android.</string>
+  <string name="tell_friend_message3">Инсталирай го от Play Store: %s</string>
+  <string name="tell_friend_message4">Прочети повече и повече опции за инсталиране: %s</string>
+  <string name="share_verse_ok">Сподели / Копирай</string>
+  <string name="web_search">Търсене в мрежата</string>
   <string name="verse_action_copy">Копирай</string>
+  <string name="generic_share">Сподели</string>
+  <string name="share_verse_menu_title">Сподели / копирай…</string>
   <string name="show_versenumbers">Покажи номерата на стиховете.</string>
+  <string name="show_full_verses">Показвай пълни стихове</string>
+  <string name="show_selection_only">Показвай само избрания текст</string>
+  <string name="advertise_app">Рекламирай приложението</string>
+  <string name="verse_share_advertise">Споделено чрез %s.</string>
+  <string name="show_reference">Показвай препратка</string>
+  <string name="show_reference_at_front">Показвай в началото на стиха</string>
+  <string name="abbreviate_reference">Съкращавай препратката</string>
+  <string name="version_name">Име на версията</string>
+    <!-- meaning, bible version name -->
+  <string name="show_version_name">Включи името на версията</string>
+  <string name="show_ellipsis">Показвай многоточие (…)</string>
+  <string name="show_quotes">Показвай кавички</string>
+  <string name="separate_verses_with_newlines">Разделяй стихове с нови редове</string>
+
   <string name="backup_button">Резервно копие</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
-  <!--parameters are actions (file a bug, send email)-->
-  <!--param is "please report maintainers"-->
-  <!--param is "please read what you can do"-->
+  <string name="back_button">Назад</string>
+  <string name="upgrading_database">Надграждане на базата данни. Моля, изчакайте…</string>
+  <string name="initializing_app">Инициализиране на приложението…</string>
+  <string name="show_notes">Показвай бележки</string>
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <string name="old_webview">Пакетът Android WebView е твърде стар (%1$s). Трябва да надградите пакета Android WebView поне до версия %2$s, за да използвате %3$s. За повечето устройства това може да стане чрез %4$s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Продължи въпреки това</string>
+  <string name="proceed">Продължи</string>
+  <string name="rate_title">Оценяване и рецензиране на приложението</string>
+  <string name="rate_message5">\n        Положителните и подробни рецензии помагат много на проекта с отворен код AndBible. Благодаря!\n    </string>
+  <string name="rate_message6">\n        Преди да напишете отрицателна рецензия, моля, имайте предвид следното:\n    </string>
+
+    <!-- parameters are actions (file a bug, send email) -->
+  <string name="rate_message1">\n        Ако имате проблем с приложението, моля %1$s или %2$s вместо това.\n    </string>
+    <!-- param is "please report maintainers" -->
+  <string name="rate_message2">\n        Ако даден текст / библейски превод има проблем, %s.\n    </string>
+    <!-- param is "please read what you can do" -->
+  <string name="rate_message3">\n        Ако даден текст не е наличен в приложението, %s.\n    </string>
+  <string name="rate_message4">\n        Разработчиците на това приложение не отговарят за поддръжката на ресурсите.\n    </string>
+  <string name="bug_report">\n        изпратете доклад за грешка (от Главното меню)\n    </string>
+  <string name="how_to_help">\n        прочетете какво можете да направите, за да помогнете\n    </string>
+  <string name="send_email">\n       изпратете имейл до разработчиците\n    </string>
+  <string name="proceed_google_play">\n        Продължи към Google Play\n    </string>
+  <string name="text_maintainers">\n       моля, докладвайте проблеми на поддържащите текста\n    </string>
+  <string name="does_not_exist_abbreviation">Не съществува</string>
+  <string name="cant_change_wholeverse">Не може да се изключи маркирането на целия стих за тази отметка</string>
+  <string name="whole_verse_turned_on">Отметката вече е маркирана за целия стих</string>
+  <string name="this_bookmark">Тази отметка</string>
+  <string name="this_workspace">Това работно пространство</string>
+  <string name="override_style">Замени стила</string>
+  <string name="no_override_suffix">(без замяна)</string>
+  <string name="display_mode_highlight">Открояване</string>
+  <string name="display_mode_underline">Подчертаване</string>
+  <string name="display_mode_marker">Само маркер</string>
+  <string name="display_mode_hidden">Скрито</string>
+  <string name="workspace_override_indicator">Този етикет има режим на показване, специфичен за работното пространство</string>
+  <string name="primary_label">Основен етикет</string>
+  <string name="highlight_entire_verse">Открояване на целия стих</string>
+  <string name="favourite_label">Любим етикет</string>
+  <string name="edit_label">Редактирай етикета</string>
+  <string name="delete_label_confirmation">Искате ли да премахнете етикета за отметка „%s"? Всички свързани бележки от бележника също ще бъдат премахнати.</string>
+  <string name="bookmark_underline_style_arbitrary">Стил на подчертаване за отметки на избор</string>
+  <string name="bookmark_underline_style_whole_verse">Стил на подчертаване за отметки на целия стих</string>
+  <string name="active_labels">Избрани етикети</string>
+  <string name="recent_labels">Скорошни етикети</string>
+  <string name="other_labels">Други етикети</string>
+  <string name="book_menu_sort_row_opt">Наредба на книгите хоризонтално</string>
+  <string name="book_menu_group_by_category">Групирай книгите по категория</string>
+  <string name="book_menu_show_long_book_name">Показвай пълното име на книгата</string>
+  <string name="book_menu_show_progress_bars">Показвай ленти за напредък</string>
+  <string name="reset_workspace_labels">Искате ли да изчистите настройките за автоматично присвояване и любими за това работно пространство?</string>
+  <string name="reset_hide_labels">Искате ли да изчистите настройките за скриване на определени етикети?</string>
+  <string name="reorder">Пренаредване</string>
+  <string name="system_items">Системни действия</string>
   <string name="system_items1">Още</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <string name="incomplete_translation">Съжаляваме, но имаме само частичен превод на потребителски интерфейс на език %s. Това е така, защото %s е изцяло разработен от доброволци. Ако можете да помогнете при превода, моля, вижте %s.</string>
-  <!--will be added to incomplete_translation as a link-->
+  <string name="system_action2">Действия на Android</string>
+  <string name="text_copied_to_clicpboard">Текстът е копиран в клипборда</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Добавяне на отметка в една стъпка</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Показвай елементите „Избор" и „Стихове" директно в менюто за избор в изгледа на Библията</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Двойно докосване за цял екран</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Влизане в режим на цял екран чрез двойно докосване на прозореца</string>
+  <string name="toggle_fullscreen">Цял екран</string>
+  <string name="exit_fullscreen">Двойно докосване на екрана за изход от цял екран</string>
+  <string name="reset_app_prefs">Искате ли да върнете всички глобални настройки на приложението, показани на този екран, към стойностите им по подразбиране?</string>
+  <string name="label_red">Червен</string>
+  <string name="label_green">Зелен</string>
+  <string name="label_blue">Син</string>
+  <string name="label_salvation">Спасение</string>
+  <string name="label_underline">Подчертаване</string>
+  <string name="import_menu">Импортиране и експортиране</string>
+  <string name="auto_backups_title">Автоматични резервни копия</string>
+  <string name="backup_file_info">Прил. v%1$d, %2$s</string>
+  <string name="reset_databases_title">Изчистване на бази данни</string>
+  <string name="reset_databases_description">Изчисти отделни бази данни до началното им празно състояние. Това не може да бъде отменено.</string>
+  <string name="last_crash_info_title">Информация за последния срив</string>
+  <string name="reset_database_confirm">Това ще изтрие окончателно всички данни в „%1$s" и ще я върне в началното състояние. Това не може да бъде отменено.\n\nСигурни ли сте?</string>
+  <string name="reset_database_success">Базата данни е изчистена успешно</string>
+  <string name="reset_something">Изчистване: %1$s</string>
+  <string name="export">Експортирай</string>
+  <string name="csv_export_success">Експортирани %d отметки в CSV</string>
+  <string name="csv_import_success">Импортирането завърши: %1$d създадени, %2$d актуализирани</string>
+  <string name="csv_import_errors">Импортирането завърши с грешки: %1$d създадени, %2$d актуализирани, %3$d грешки</string>
+  <string name="csv_import_failed">Импортирането от CSV не бе успешно: %s</string>
+  <string name="csv_export_failed">Експортирането в CSV не бе успешно: %s</string>
+  <string name="export_prompts_csv">Експортирай подкани в CSV</string>
+  <string name="import_prompts_csv">Импортирай подкани от CSV</string>
+  <string name="prompts_csv_export_success">Експортирани %d подкани в CSV</string>
+  <string name="prompts_csv_import_success">Импортирането завърши: %1$d създадени, %2$d актуализирани</string>
+  <string name="prompts_csv_import_errors">Импортирането завърши с грешки: %1$d създадени, %2$d актуализирани, %3$d грешки</string>
+  <string name="prompts_csv_import_failed">Импортирането от CSV не бе успешно: %s</string>
+  <string name="prompts_csv_export_failed">Експортирането в CSV не бе успешно: %s</string>
+  <string name="no_prompts_to_export">Няма потребителски подкани за експортиране</string>
+  <string name="csv_column_selection_title">Избор на колони за CSV</string>
+  <string name="choose_csv_file">Избери CSV файл за импортиране</string>
+  <string name="no_bookmarks_to_export">Няма налични отметки за експортиране</string>
+  <string name="export_fileformat">Експортирай като %s</string>
+  <string name="export_something">Експортирай %s</string>
+  <string name="import_items">Импортирай %s</string>
+  <string name="import_from_db">Импортирай от файл с база данни на приложението</string>
+  <string name="import_error">Импортирането от база данни на приложението не бе успешно. Файлът с база данни може да е в грешен формат или да е направен с твърде стара версия на %s.</string>
+
+  <string name="export_bookmarks_csv">Експортирай отметки като %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">OSIS препратка</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Библейска препратка</string>
+  <string name="document">Ресурс</string>
+  <string name="book">Книга</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Начало на глава</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Начало на стих</string>
+  <string name="chapter_end">Край на глава</string>
+  <string name="verse_end">Край на стих</string>
+  <string name="id">Идентификатор</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Начален пореден номер</string>
+  <string name="ordinal_end">Краен пореден номер</string>
+  <string name="created_at">Създадено на</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Начално отместване</string>
+  <string name="end_offset">Крайно отместване</string>
+  <string name="custom_icon">Персонализирана икона</string>
+  <string name="last_updated_at">Последно обновено на</string>
+  <string name="bookmark_notes">Бележки към отметката</string>
+
+  <string name="chooser_range">Диапазон</string>
+  <string name="chooser_jump">Прескочи</string>
+  <string name="chooser_OT_abbrev">СЗ</string>
+  <string name="chooser_NT_abbrev">НЗ</string>
+  <string name="chooser_style_grid">Мрежа</string>
+  <string name="chooser_style_lists">Списъци</string>
+  <string name="chooser_select">Избери %s</string>
+  <string name="chooser_pref_reset">Да не се нулира глава/стих до 1 при избор на книга/глава</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <string name="incomplete_translation">Съжаляваме, но имаме само частичен превод на потребителски интерфейс на език %1$s. Това е така, защото %2$s е изцяло разработен от доброволци. Ако можете да помогнете при превода, моля, вижте %3$s.</string>
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">инструкции за преводачи</string>
+  <string name="questions_title">Въпроси?</string>
+  <string name="questions_title2">Нужна ли ви е помощ?</string>
+  <string name="bookmark_style">Стил на отметката</string>
+  <string name="added_to_bookmark">Присвоено към тази отметка</string>
+  <string name="strongs_off">Изключено</string>
+  <string name="strongs_links">Връзки</string>
+  <string name="strongs_text_and_links">Текст и връзки</string>
+  <string name="strongs_hidden_links">Скрити връзки</string>
+  <string name="verse_tip">За да изберете частичен или много стихове, можете да натиснете продължително върху библейския текст</string>
+
+  <string name="permission_required">Необходимо е разрешение</string>
+  <string name="labels_search_hint">Търси</string>
+  <string name="search_mode_name_start">Наименование (от началото)</string>
+  <string name="search_mode_name_contains">Наименование (съдържа)</string>
+  <string name="search_mode_content">Съдържание</string>
+  <string name="search_results_matches">%d съвпадения</string>
+  <string name="search_results_match">1 съвпадение</string>
+  <string name="progress_status_permission">За да показвате известия (статус на изтегляне, обработка, статус на речта), ни е необходимо вашето разрешение.</string>
+
+    <!-- Discrete mode settings -->
+  <string name="app_name_calculator">Прост калкулатор</string>
+  <string name="prefs_persecution_cat">Настройки за преследваните</string>
+  <string name="prefs_discrete_mode">Скрий религиозните символи</string>
+  <string name="prefs_discrete_mode_desc">Преименувай приложението на \'Калкулатор\' и покажи различна икона в стартовия екран.</string>
+  <string name="prefs_show_calculator">Калкулатор</string>
+  <string name="prefs_calculator_pin">PIN код за калкулатора</string>
+  <string name="prefs_calculator_pin_desc">PIN код за влизане в приложението, когато е показан калкулаторът.</string>
+  <string name="calc_division_by_zero">Делението на нула не е позволено</string>
+    <!-- Context: calculator. Wrong number format etc. -->
+  <string name="calc_wrong_format">Грешен формат</string>
+  <string name="calc_wrong_format_operand">Грешен формат. Операнд без числа?</string>
+  <string name="prefs_persecuted_help">Прочети това първо!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <string name="prefs_persecuted_summary">Инструкции за настройките и информация за специалната дискретна версия.</string>
+
+  <string name="calculator_par1">Преди влизане в приложението се показва екранът на калкулатора.</string>
+  <string name="calculator_par2">В него можете да извършвате стандартни изчисления, а когато искате да влезете в приложението, просто въведете своя PIN код (по подразбиране е 1234) и след това натиснете бутона „=".</string>
+  <string name="calculator_par3">Можете да зададете персонализиран PIN код чрез настройката „PIN код на калкулатора".</string>
+  <string name="discrete_mode_info_par1">Използвате стандартната версия на приложението, което означава, че все още е възможно да се види истинското му название и икона в информацията за приложението.</string>
+  <string name="discrete_mode_info_par2">За подобрена сигурност в среда на преследване силно препоръчваме използването на дискретната версия на приложението, която винаги показва калкулатор, дори ако данните на приложението бъдат изтрити.</string>
+  <string name="discrete_mode_link">Можете да изтеглите най-новата версия на дискретната версия от %s.</string>
+
+    <!-- Window synchronize groups -->
+  <string name="sync_group_submenu">Синхронизирай група</string>
+  <string name="sync_group_n">Група %d</string>
+  <string name="disable_sync">Забрани синхронизирането</string>
+  <string name="open_in_window">Отвори резултатите в прозорец</string>
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <string name="custom_repositories">Персонализирани хранилища</string>
+  <string name="custom_repositories_empty_list_message">Няма дефинирани персонализирани хранилища</string>
+  <string name="custom_repositories_create_button_label">Добави персонализирано хранилище</string>
+  <string name="custom_repositories_info_button_label">Информация</string>
+  <string name="name_for_repository">Наименование за хранилището</string>
+  <string name="repository_specification">URL адрес на хранилището</string>
+  <string name="delete_custom_repository">Искате ли да премахнете персонализираното хранилище %s?</string>
+  <string name="invalid_repository_not_saved">Спецификацията на хранилището беше невалидна и не беше запазена.</string>
+  <string name="custom_repositories_help1">За да добавите ново персонализирано хранилище, въведете или копирайте и поставете URL адреса на персонализираното хранилище тук.</string>
+  <string name="custom_repositories_help2">Можете да прочетете повече информация за персонализираните хранилища в %s.</string>
+  <string name="wiki_page">WIKI страница</string>
+  <string name="custom_repositories_help0">Можете да инсталирате ресурси от външни персонализирани хранилища, като добавите персонализирани хранилища.</string>
+  <string name="duplicate_custom_repository">Хранилище с наименование %s вече съществува, не може да се добави друго.</string>
+
+  <string name="packages_dir">Директория с пакети (Zip файлове)</string>
+  <string name="warn_bad_document">Предупреждение: Този ресурс може да е (поне частично) с лошо техническо качество.</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
+  <string name="open_bible_links_title">Отваряй библейски връзки в AndBible</string>
+  <string name="open_bible_links_summary">При щракване върху връзки, препращащи към поддържан от AndBible библейски URL, ги отваряй в AndBible</string>
+  <string name="copyReference">Копирай връзката в клипборда</string>
+  <string name="reference_copied_to_clipboard">Препратката е копирана в клипборда</string>
+
+    <!-- Device cloud synchronization -->
+  <string name="prefs_sync_introduction_summary1">Изберете коя облачна услуга искате да използвате за синхронизиране на множество устройства.</string>
+  <string name="prefs_sync_introduction_summary2">При използване на Google Drive, %s получава достъп само до файловете на приложенията, а не до лични файлове.</string>
+  <string name="restore_backup_sections">Кои раздели от резервното копие искате да възстановите?</string>
+  <string name="db_repositories">Хранилища и свързани настройки</string>
+  <string name="db_bookmarks">Отметки, мои бележки, етикети и бележници</string>
+  <string name="synchronizing">Синхронизиране…</string>
+  <string name="overrideBackup">В облака е намерена съществуваща база данни, с която това устройство не е синхронизирано. Базата данни съдържа %s. Какво искате да направите?</string>
+  <string name="reading_plans_content">Планове за четене и техните статуси</string>
+  <string name="bookmarks_contents">Отметки, етикети и бележници</string>
+  <string name="workspaces_contents">Работни пространства и прозорци</string>
+  <string name="my_documents_contents">Моите ресурси и тяхното съдържание</string>
+  <string name="ai_settings_sync_title">AI настройки</string>
+  <string name="ai_settings_sync_contents">AI подсказки и конфигурации на доставчика</string>
+  <string name="progress_sync_title">Напредък в четенето</string>
+  <string name="progress_sync_contents">Запомнени стихове и записи за четене на глави</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Напредък в четенето/запаметяването</string>
+  <string name="reading_progress_chapters_read">прочетени глави</string>
+  <string name="reading_progress_verses_memorized">запомнени стихове</string>
+  <string name="reading_progress_active_days">активни дни</string>
+  <string name="reading_progress_overall">%s%% от библията прочетена</string>
+  <string name="reading_progress_bible_heatmap">Преглед на библията</string>
+  <string name="reading_progress_old_testament">Стар завет</string>
+  <string name="reading_progress_new_testament">Нов завет</string>
+  <string name="reading_progress_calendar">Активност при четене</string>
+  <string name="reading_progress_cycle">Цикъл %d</string>
+  <string name="reading_progress_new_cycle">Нов цикъл</string>
+  <string name="reading_progress_new_cycle_confirm">Да се започне нов цикъл на четене? Това ще започне проследяване на напредъка ви отначало, като се запазват данните от предишния цикъл.</string>
+  <string name="reading_progress_previous_cycle">Предишен цикъл</string>
+  <string name="reading_progress_next_cycle">Следващ цикъл</string>
+
+  <string name="cloud_fetch_and_restore_initial">Копирай от облака към това устройство</string>
+  <string name="cloud_create_new">Копирай от това устройство в облака</string>
+  <string name="cloud_disable_sync">Отмяна и забрана на синхронизирането</string>
+  <string name="cloud_sync_title">Синхронизиране на устройства</string>
+  <string name="reset_sync">Изход от акаунта</string>
+  <string name="prefs_reset_sync_summary">Забрани синхронизирането и изчисти свързаните настройки.</string>
+  <string name="sync_confirmation">Сигурни ли сте, че искате да излезете от акаунта и да нулирате синхронизирането?</string>
+  <string name="cloud_info">Информация за облака</string>
+  <string name="cloud_info_summary">Данни в облачното хранилище: %s Мб</string>
+  <string name="sync_adapter">Бекенд за синхронизиране</string>
+  <string name="sync_adapter_summary">Текущ: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Удостоверяване в %s</string>
+  <string name="auth_server_uri">URL адрес на сървъра</string>
+  <string name="auth_username">Потребителско име</string>
+  <string name="auth_password">Парола</string>
+  <string name="auth_folder_path">Път до папката за синхронизиране</string>
+  <string name="auth_folder_path_summary">Родителска папка за данните за синхронизиране (празно = основна)</string>
+  <string name="auth_access_token">Токен за достъп</string>
+  <string name="synchronization_categories">Категории за синхронизиране</string>
+  <string name="sync_general_settings">Информация и общи настройки</string>
+  <string name="sync_introduction">Въведение</string>
+  <string name="are_you_sure">Сигурни ли сте?</string>
+  <string name="are_you_sure_reset_local">Това ще нулира локалната ви база данни за %s със съдържанието, което в момента е съхранено в облачната услуга.</string>
+  <string name="are_you_sure_reset_cloud">Това ще нулира облачната ви база данни за %s със съдържанието, което имате на това устройство.</string>
+  <string name="sync_cant_fetch">Версията на базата данни или файла за кръпки, съхранена в облака, е по-висока от поддържаната от това приложение.</string>
+  <string name="sync_disabling">Синхронизирането за %s временно е деактивирано.</string>
+  <string name="sync_update_app">Моля, актуализирайте приложението, за да продължите синхронизирането.</string>
+  <string name="sign_in_failed">Влизането в услугата за синхронизиране не бе успешно.</string>
+    <!--  ... after restoring from backup file -->
+  <string name="disabling_sync">Деактивиране на облачното синхронизиране. Трябва ръчно да го активирате отново след възстановяване.</string>
+  <string name="report">Доклад</string>
+  <string name="sync_error">Възникна грешка при облачното синхронизиране</string>
+  <string name="error_notification_channel_name">Известия за грешки</string>
+  <string name="restore_from_cloud_description">Ако сте активирали синхронизиране на устройства на друго устройство, можете да започнете, като възстановите базата данни от облака.</string>
+  <string name="enable_sync">Активирай синхронизирането</string>
+  <string name="last_updated">Последно актуализирано: %s</string>
+
+    <!-- MyBible/MySword module support -->
+  <string name="sqlite_cant_read">Файлът не може да бъде прочетен</string>
+  <string name="sqlite_invalid_file">Невалиден файл на модул или невалидно име на файл: %s</string>
+  <string name="sqlite_cant_write">Файлът не може да бъде записан (или презаписан)</string>
+  <string name="install_failed_reason">Инсталирането на модула не бе успешно поради следната причина: %s.</string>
+
+    <!-- Other / uncategorized -->
+  <string name="app_opened_elsewhere">Приложението е отворено другаде</string>
+  <string name="open_here">Отвори тук</string>
+  <string name="external_link">Външна връзка</string>
+  <string name="external_link_question">Това ще отвори външната връзка %s в браузър приложение. Желаете ли да продължите?</string>
+  <string name="nameless">Заглавието не е зададено</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Действия с едно докосване (Библии)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Действия с едно докосване (Други)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">При докосване на текст се показва прозорец с действия с едно докосване. Кои бутони за действие да се показват?</string>
+  <string name="processing_epub">Обработване на EPUB: %s</string>
+  <string name="buy_development">Купи разработка</string>
+  <string name="buy_development2">Подкрепи проекта</string>
+  <string name="new_version_warning">Скоро ще бъде пуснато ново издание. Очакваната дата на пускане е %1$s. Следете нашия %2$s, за да разберете за новите функции и подобрения.</string>
+  <string name="new_version_trailer">трейлър видео</string>
+  <string name="new_version_warning2">След пускането тази версия няма да се поддържа.</string>
+  <string name="new_version_warning3">Тя няма да получава поправки на грешки или актуализации.</string>
+  <string name="new_version_warning4">Ако не искате да надстроите, моля деактивирайте „Автоматични актуализации" в магазина си за приложения (Google Play / F-Droid и т.н.).</string>
+  <string name="dont_show">Не показвай това съобщение отново</string>
+  <string name="pref_font_size_multiplier_title">Множител за размер на шрифта</string>
+  <string name="pref_font_size_multiplier_summary_1">Умножава размерите на шрифта на текста по това число.</string>
+  <string name="pref_font_size_multiplier_summary_2">Полезно, ако имате синхронизирано устройство, което се използва с по-голям шрифт.</string>
+  <string name="current_value">Текуща стойност: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Действие при плъзгане наляво / надясно</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Плъзгането наляво / надясно може да се използва за преминаване към следваща страница / глава.</string>
+  <string name="prefs_swipe_mode_chapter">Глава</string>
+  <string name="prefs_swipe_mode_page">Страница</string>
+  <string name="prefs_swipe_mode_none">Деактивирано</string>
+  <string name="prefs_volume_keys_scroll_title">Превъртане с бутоните за сила на звука</string>
+  <string name="prefs_volume_keys_scroll_summary">Използвай бутоните за увеличаване/намаляване на звука за превъртане на текста на Библията</string>
+  <string name="page_number_title">Относителен номер на страницата</string>
+  <string name="page_number_summary">Показва наслагване с номер на страницата. Номерът е относителен спрямо началната позиция.</string>
+  <string name="select_custom_icon">Избери персонализирана икона за маркер</string>
+  <string name="invalid_url_message">Въведеният URL адрес е невалиден. Моля, въведете валиден URL адрес (напр. https://nextcloud.example.com)</string>
+  <string name="memorize_description">Наизустяване на библейски стихове</string>
+  <string name="memorize_abbreviation">Наизуст</string>
+  <string name="add_memorization_target">Задай като цел за наизустяване</string>
+  <string name="memorize_memorized_passages">Наизустени пасажи</string>
+  <string name="memorize_no_memorized_passages">Все още няма наизустени пасажи</string>
+  <string name="memorize_targets">Цели за наизустяване</string>
+  <string name="memorize_no_targets">Няма зададени цели за наизустяване</string>
+  <string name="memorize_auto_mark">Автоматично маркиране като наизустено</string>
+  <string name="memorize_auto_mark_summary">Автоматично маркирай стиховете като наизустени при завършване на упражнение</string>
+  <string name="memorize_type_full_words">Въвеждане на пълни думи</string>
+  <string name="memorize_type_full_words_summary">Изисква въвеждане на пълната дума вместо само на първата буква</string>
+  <string name="memorize_word_visibility">Видимост на думите</string>
+  <string name="memorize_word_visibility_summary">Колко видими са невъведените думи: лека подсказка, приглушено или напълно скрити</string>
+  <string name="memorize_word_visibility_light">Лека</string>
+  <string name="memorize_word_visibility_dim">Приглушена</string>
+  <string name="memorize_word_visibility_hidden">Скрита</string>
+  <string name="memorize_error_heatmap">Топлинна карта на грешките</string>
+  <string name="memorize_error_heatmap_summary">Маркирай думи с повече грешки в прогресивно по-наситен червен цвят</string>
+  <string name="memorize_scramble_hide_used">Скрий използваните бутони за думи</string>
+  <string name="memorize_scramble_hide_used_summary">Скрий напълно бутоните за думи, след като са правилно поставени в режима за наредба на думи</string>
+  <string name="reading_progress_settings">Напредък и наизустяване</string>
+  <string name="reading_progress_settings_summary">Настройки за автоматично проследяване, наизустяване и практика с въвеждане</string>
+  <string name="memorize_confirm_unmark">Премахни статуса \"наизустено\" за %s?</string>
+  <string name="memorize_confirm_remove_target">Премахни целта за наизустяване %s?</string>
+  <string name="memorize_tab_reading">Четене</string>
+  <string name="memorize_tab_memorization">Наизустяване</string>
+  <string name="memorize_verses_memorized">Наизустени</string>
+  <string name="memorize_verses_target">Цел</string>
+  <string name="memorize_show_more">Покажи още %d</string>
+  <string name="memorize_calendar">Активност по наизустяване</string>
+  <string name="memorize_view_list">Списък</string>
+  <string name="memorize_view_overview">Преглед</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">LLM превод</string>
+  <string name="sync_settings_shortcut_summary">Синхронизирай данни между устройства</string>
+  <string name="llm_api_key_title">API ключ</string>
+  <string name="llm_api_key_summary">API ключ, съвместим с OpenAI</string>
+  <string name="llm_provider_custom">Персонализиран (съвместим с OpenAI)</string>
+  <string name="llm_provider_title">Доставчик</string>
+  <string name="llm_provider_summary">Изберете кой AI доставчик на услуги да използвате. API крайната точка и наличните модели ще бъдат конфигурирани автоматично.</string>
+  <string name="llm_provider_current">Текущ: %s</string>
+  <string name="llm_api_key_detected_provider">Открит доставчик: %s</string>
+  <string name="ai_connection_category">Връзка</string>
+  <string name="ai_model_category">Модел</string>
+  <string name="ai_behavior_category">Поведение</string>
+  <string name="ai_language_title">Език на AI отговорите</string>
+  <string name="ai_language_summary">Езикът, който AI използва за отговори</string>
+  <string name="ai_language_app_default">Език на приложението (%1$s)</string>
+  <string name="ai_language_custom">Персонализиран\u2026</string>
+  <string name="ai_language_custom_hint">Въведете името или кода на езика</string>
+  <string name="ai_language_custom_example">напр. суоми, Tagalog, en</string>
+  <string name="ai_usage_category">Използване</string>
+  <string name="llm_usage_summary_title">Използване на токени</string>
+  <string name="llm_usage_summary_default">Няма данни за използване</string>
+  <string name="llm_usage_summary_format">Вход: %1$d токена | Изход: %2$d токена\nПриблизителна цена: %3$s</string>
+  <string name="llm_reset_usage_title">Нулиране на данните за използване</string>
+  <string name="llm_reset_usage_summary">Изчисти натрупаното проследяване на токени и разходи</string>
+  <string name="llm_reset_usage_confirm_title">Нулиране на данните за използване?</string>
+  <string name="llm_reset_usage_confirm_message">Това ще изчисти всички натрупани данни за използване.</string>
+  <string name="llm_custom_input_price_title">Цена за вход ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">Цена за милион входни токени за този модел</string>
+  <string name="llm_custom_output_price_title">Цена за изход ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">Цена за милион изходни токени за този модел</string>
+  <string name="llm_cost_total">Общо: %1$s</string>
+  <string name="llm_endpoint_title">API крайна точка</string>
+  <string name="llm_endpoint_summary">Основен URL адрес на API</string>
+  <string name="llm_model_title">Модел</string>
+  <string name="llm_model_summary">Идентификатор на модела</string>
+  <string name="llm_custom_model">Персонализиран…</string>
+  <string name="llm_custom_model_dialog_title">Персонализиран модел</string>
+  <string name="llm_custom_model_dialog_message">Въведете идентификатора на модела</string>
+  <string name="llm_rate_limited_retrying">Ограничена скорост. Повторен опит след %1$ss\u2026</string>
+  <string name="llm_default_document_title">AI отговор</string>
+  <string name="llm_default_task_completed">Задачата е изпълнена</string>
+  <string name="llm_default_studypad_opened">Бележникът е отворен</string>
+  <string name="llm_parse_error">Неуспешно анализиране на LLM отговора: %1$s</string>
+  <string name="llm_parse_error_no_choices">Няма избори в отговора на OpenAI</string>
+  <string name="llm_parse_error_openai">Неуспешно анализиране на отговора на OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Неуспешно анализиране на отговора на Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Подканата не е намерена: %1$s</string>
+  <string name="llm_error_unknown">Неизвестна грешка</string>
+  <string name="llm_error_max_iterations">Достигнат е максималният брой итерации (%1$d) без завършване</string>
+  <string name="llm_continue_iterations_title">Продължи?</string>
+  <string name="llm_continue_iterations_message">AI агентът достигна лимита от %1$d итерации без завършване. Продължи с още %2$d итерации?</string>
+  <string name="agent_max_iterations_title">Максимален брой итерации на агента</string>
+  <string name="agent_max_iterations_summary">Максималният брой итерации преди искане за продължаване (0 = без ограничение)</string>
+  <string name="ask_model_before_run_title">Питай за модел преди изпълнение</string>
+  <string name="ask_model_before_run_summary">Показвай диалог за избор на модел преди изпълнение на подкана (пропуска се, когато подканата има изричен избор на модел)</string>
+  <string name="custom_agent_system_prompt_title">Системна подкана на агента</string>
+  <string name="custom_system_prompt_summary">Редактирането не се препоръчва, освен ако не знаете какво правите</string>
+  <string name="custom_text_transform_system_prompt_title">Системна подкана за трансформация на текст</string>
+  <string name="ai_advanced_category">Разширени</string>
+  <string name="custom_system_prompt_default">По подразбиране</string>
+  <string name="custom_system_prompt_custom">Персонализирана</string>
+  <string name="reset_to_default">Изчисти до стандартните</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">История на AI журнала</string>
+  <string name="raw_log_history_summary">Преглед и управление на запазените журнали от AI разговори</string>
+  <string name="raw_log_history_empty">Няма запазени журнали</string>
+  <string name="raw_log_delete_selected">Изтрий избраните</string>
+  <string name="raw_log_delete_old">Изтрий стари журнали\u2026</string>
+  <string name="raw_log_delete_confirm">%d избрани</string>
+  <string name="raw_log_older_1_week">По-стари от 1 седмица</string>
+  <string name="raw_log_older_1_month">По-стари от 1 месец</string>
+  <string name="raw_log_older_3_months">По-стари от 3 месеца</string>
+  <string name="raw_log_delete_all">Изтрий всички</string>
+  <string name="raw_log_item_tokens">%1$s вх. / %2$s изх.</string>
+  <string name="raw_log_error_indicator">Грешка</string>
+  <string name="raw_log_retention_title">Автоматично изтриване на стари журнали</string>
+  <string name="raw_log_retention_summary_days">След %d дни</string>
+  <string name="raw_log_retention_summary_disabled">Изключено (запази всички)</string>
+  <string name="send_ai_bug_report_title">Докладвай AI грешка</string>
+  <string name="ai_bug_report_menu">Докладвай AI грешка</string>
+  <string name="ai_bug_report_recommended_only">Докладването на грешки е достъпно само за препоръчани модели на доставчика</string>
+
+  <string name="select_model_before_run_title">Избери модел</string>
+  <string name="set_default_model_for_prompt">Задай като модел по подразбиране за тази подкана</string>
+  <string name="prompt_max_iterations">Замяна на максималните итерации</string>
+  <string name="prompt_max_iterations_hint">Оставете празно за глобалното по подразбиране</string>
+  <string name="prompt_max_iterations_description">Замени глобалния максимален брой итерации за тази подкана. Празно = глобално по подразбиране, 0 = без ограничение.</string>
+  <string name="prompt_max_iterations_unlimited">Без ограничение</string>
+  <string name="prompt_max_iterations_global_default">Глобално по подразбиране (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Замени глобалния максимален брой итерации за тази подкана. 0 = без ограничение.\nТекущо: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Управление на AI подканите</string>
+  <string name="manage_prompts_summary">Създавай и редактирай AI подкани</string>
+  <string name="ai_settings">AI настройки</string>
+  <string name="ai_connection_settings">Настройки на връзката</string>
+  <string name="ai_setup_title">Конфигуриране на AI</string>
+  <string name="ai_setup_description">AndBible може да използва AI за превод на библейски текст, обяснение на стихове, създаване на резюмета и др. За да започнете, конфигурирайте връзка с доставчик, съвместим с OpenAI API.</string>
+  <string name="ai_configure_button">Конфигурирай връзка</string>
+  <string name="ai_settings_shortcut_summary">Настройки на AI връзката и подканите</string>
+  <string name="ai_provider_tier_recommended">Препоръчан</string>
+  <string name="ai_provider_tier_community">Други доставчици (не са тествани)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Доставчици и модели</string>
+  <string name="ai_providers_category">Доставчици</string>
+  <string name="ai_providers_summary_none">Няма конфигурирани доставчици</string>
+  <string name="ai_models_summary_none">Няма конфигурирани модели</string>
+  <string name="ai_add_provider">Добави доставчик</string>
+  <string name="ai_provider_edit">Редактирай</string>
+  <string name="ai_provider_delete">Изтрий</string>
+  <string name="ai_provider_delete_confirm">Изтрий доставчика \"%1$s\"? Подканите, използващи този доставчик, ще се върнат към стандартния.</string>
+  <string name="ai_provider_api_key_not_set">API ключът не е зададен</string>
+  <string name="ai_provider_select_type">Избери тип доставчик</string>
+  <string name="ai_provider_name">Име на доставчика</string>
+  <string name="ai_provider_name_hint">Показвано име за този доставчик</string>
+  <string name="ai_provider_api_key">API ключ</string>
+  <string name="ai_provider_endpoint">API крайна точка</string>
+  <string name="ai_provider_api_format">API формат</string>
+  <string name="ai_provider_saved">Доставчикът е запазен</string>
+  <string name="ai_provider_deleted">Доставчикът е изтрит</string>
+
+  <string name="llm_fetch_models_title">Изтегли списък с модели</string>
+  <string name="llm_fetch_models_message">Изтегли списъка с налични модели от %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Не питай отново</string>
+  <string name="llm_fetch_models_success">Заредени са %1$d модела</string>
+  <string name="llm_fetch_models_failed">Неуспешно изтегляне на модели</string>
+  <string name="llm_openrouter_category">Категория</string>
+  <string name="llm_openrouter_category_all">Всички</string>
+  <string name="llm_openrouter_model">Модел</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Модели</string>
+  <string name="add_model">Добави модел</string>
+  <string name="add_model_title">Добави модел</string>
+  <string name="edit_model_title">Редактирай модел</string>
+  <string name="model_saved">Моделът е запазен</string>
+  <string name="model_deleted">Моделът е изтрит</string>
+  <string name="model_delete_confirm">Изтрий модела \"%1$s\"?</string>
+  <string name="model_set_default">Задай като модел по подразбиране</string>
+  <string name="model_select_provider">Доставчик</string>
+  <string name="no_models_configured">Няма конфигурирани модели</string>
+  <string name="model_cache_creation_price">Цена за създаване на кеш ($/Мтокен)</string>
+  <string name="model_cache_read_price">Цена за четене от кеш ($/Мтокен)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s вх. / %2$s изх. на Мтокен</string>
+  <string name="easy_setup_free_tier">Безплатно ниво</string>
+  <string name="unknown_error">Неизвестна грешка</string>
+  <string name="easy_setup_title">Бързо настройване</string>
+  <string name="easy_setup_pref_summary">Настройте AI с препоръчан доставчик в няколко стъпки</string>
+  <string name="easy_setup_choose_provider">Изберете доставчик, за да започнете:</string>
+  <string name="easy_setup_enter_api_key">Въведете вашия API ключ</string>
+  <string name="easy_setup_api_key_instructions">Вземете своя API ключ от:</string>
+  <string name="easy_setup_test_connection">Тествай връзката</string>
+  <string name="easy_setup_testing">Тестване…</string>
+  <string name="easy_setup_success">Връзката е успешна!</string>
+  <string name="easy_setup_failed">Неуспешна връзка: %1$s</string>
+  <string name="easy_setup_done_title">AI е готов!</string>
+  <string name="easy_setup_done_message">Изберете текст в Библията и изпробвайте AI функциите. Можете да добавите още модели и доставчици в настройките.</string>
+  <string name="easy_setup_gemini_desc">Достъпно безплатно ниво, добро качество</string>
+  <string name="easy_setup_anthropic_desc">Достъпна цена, отлично качество</string>
+  <string name="easy_setup_openai_desc">Добре известен, надежден</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Важно: Прочетете преди да използвате AI инструментите</string>
+  <string name="ai_disclaimer_warning_summary">Рискове и отговорности при използване на AI</string>
+  <string name="ai_disclaimer_dialog_title">AI инструменти — Важна информация</string>
+  <string name="ai_disclaimer_intro">AI инструментите могат значително да обогатят вашето изучаване на Библията и да открият нови начини за ангажиране с Писанието.</string>
+  <string name="ai_disclaimer_approach">AndBible използва AI предимно за обработка на текст от инсталираните от вас ресурси — коментари, речници и други модули — вместо да разчита на собствените обучителни данни на модела.</string>
+  <string name="ai_disclaimer_responsibility">Въпреки това те остават мощни инструменти — а с голямата сила идва голяма отговорност. Моля, имайте предвид следното.</string>
+  <string name="ai_disclaimer_point1">AI може да допуска грешки, включително „халюцинации" (уверено излагане на невярна или измислена информация). Никога не приемайте резултатите му сляпо.</string>
+  <string name="ai_disclaimer_point2">AI отговорите могат да отразяват предразсъдъци от обучителните данни, да бъдат умишлено подвеждащи или да представят определена теологична гледна точка като неутрална или пълна.</string>
+  <string name="ai_disclaimer_point3">Вие носите отговорност за начина, по който използвате съдържанието, генерирано от AI. Винаги проверявайте резултатите спрямо Писанието, преди да им се доверите.</string>
+  <string name="ai_disclaimer_point4">AndBible се стреми да улесни проверката (напр. точни цитати на източници в коментарите), но крайната отговорност винаги е ваша.</string>
+  <string name="ai_disclaimer_point5">„Изпитвайте всичко; дръжте се за доброто." (1 Солунци 5:21)</string>
+  <string name="ai_disclaimer_point6">Тези инструменти нямат душа и Свети Дух. Те са инструменти за обработка на текст, не духовни водачи. Не са подходящи за пряко подготвяне на проповеди, поклонение или друго духовно съдържание без внимателен човешки надзор, молитва и разсъждение.</string>
+  <string name="ai_disclaimer_point7">Използвани мъдро, те могат да бъдат от полза за много потребители и случаи на употреба. Но ако не сте сигурни дали приемате рисковете, отказването от тяхното използване е също напълно валиден избор.</string>
+  <string name="ai_disclaimer_point8">Вашите данни се изпращат до сървърите на избрания от вас AI доставчик. Използвайки API ключ, вие приемате условията и политиката за поверителност на този доставчик. Самостоятелно хостваните модели са възможни, но изискват по-голяма техническа компетентност и може да не дават резултати, толкова добри, колкото търговските модели.</string>
+  <string name="ai_disclaimer_point9">AI доставчиците начисляват такси за използване на API. Оценките на разходите, показани в AndBible, са приблизителни — винаги проверявайте фактурирането на вашия доставчик за действителните суми.</string>
+  <string name="ai_disclaimer_accept_title">Приеми отказа от отговорност за AI</string>
+  <string name="ai_disclaimer_accept_button">Приемам и поемам пълна отговорност</string>
+
+  <string name="prompt_permission_mode">Режим на разрешения</string>
+  <string name="prompt_permission_mode_description">Контролира кога е необходимо потвърждение от потребителя, преди AI да извърши операции на запис. Настройките за отделни инструменти по-долу могат да заменят това за конкретни инструменти.</string>
+  <string name="agent_permission_mode_summary">Контролира кога е необходимо потвърждение от потребителя преди AI операции на запис</string>
+  <string name="prompt_permission_use_default">Използвай стандартното</string>
+  <string name="prompt_tab_prompt">Подкана</string>
+  <string name="prompt_tab_permissions">Разрешения</string>
+  <string name="prompt_tab_advanced">Разширени</string>
+  <string name="prompt_name">Наименование</string>
+  <string name="prompt_description">Описание</string>
+  <string name="prompt_template">Шаблон за подсказка</string>
+  <string name="prompt_show_in">Показване в</string>
+  <string name="prompt_context_verse_selection">Избор на стих</string>
+  <string name="prompt_context_text_selection">Избор на текст</string>
+  <string name="prompt_context_window_menu">Меню на прозорец</string>
+  <string name="prompt_context_workspace_menu">Меню на работно пространство</string>
+  <string name="prompt_context_note_editor">Редактор на бележки</string>
+  <string name="prompt_bible_only">Само библейски ресурси</string>
+  <string name="prompt_category_study">Изучаване</string>
+  <string name="prompt_category_notes">Бележки</string>
+  <string name="prompt_category_general">Общи</string>
+  <string name="prompt_category_test">Тест</string>
+  <string name="prompt_category_uncategorized">Некатегоризирани</string>
+  <string name="prompt_category_favorites">Любими</string>
+  <string name="addon_prompt_badge">Добавка: %s</string>
+  <string name="addon_prompt_notice">Тази подсказка е от добавъчен модул \"%s\" и не може да се редактира. Използвайте „Копирай за персонализиране", за да създадете редактируемо копие.</string>
+  <string name="new_category">Нова категория</string>
+  <string name="new_category_name">Наименование на категория</string>
+  <string name="rename_category">Преименувай</string>
+  <string name="move_category_up">Премести нагоре</string>
+  <string name="move_category_down">Премести надолу</string>
+  <string name="hide_category">Скрий от AI действия</string>
+  <string name="show_category">Покажи в AI действия</string>
+  <string name="hidden">скрито</string>
+  <string name="delete_category">Изтрий категория</string>
+  <string name="delete_category_and_prompts">Изтрий категорията и нейните подсказки</string>
+  <string name="delete_category_keep_prompts">Премести подсказките в корена и изтрий категорията</string>
+  <string name="delete_category_confirm_title">Изтриване на категория „%s"?</string>
+  <string name="move_to_category">Премести в категория…</string>
+  <string name="category_none">Без категория</string>
+  <string name="import_prompts_editable">Импортирай като редактируеми подсказки</string>
+  <string name="import_prompts_addon">Инсталирай като добавка (само за четене)</string>
+  <string name="prompt_category">Категория</string>
+  <string name="new_prompt">Нова подсказка</string>
+  <string name="permission_always_ask">Винаги питай</string>
+  <string name="permission_ask_once_per_run">Питай веднъж за стартиране</string>
+  <string name="permission_allow_all">Разреши всичко</string>
+  <string name="permission_deny_all">Откажи всичко</string>
+  <string name="reset_all_ai_settings">Изчистване на всички AI настройки</string>
+  <string name="reset_all_ai_settings_confirm_title">Изчистване на всички AI настройки?</string>
+  <string name="reset_all_ai_settings_confirm_message">Това ще изчисти API ключа, доставчика, крайната точка, модела и ще върне всички подсказки към стандартните. Продължавате?</string>
+  <string name="edit_prompt">Редактирай подсказка</string>
+  <string name="built_in_prompt">Вградена</string>
+  <string name="built_in_prompt_notice">Това е вградена подсказка и не може да се редактира. Използвайте „Копирай за персонализиране", за да създадете редактируемо копие.</string>
+  <string name="copy_to_customize">Копирай за персонализиране</string>
+  <string name="prompt_copied">Подсказката е копирана</string>
+  <string name="delete_prompt_confirmation">Изтриване на подсказка „%s"?</string>
+  <string name="prompt_name_required">Необходимо е наименование на подсказката</string>
+  <string name="prompt_template_required">Необходим е шаблон на подсказката</string>
+  <string name="prompt_edit_before_run">Уточни преди стартиране</string>
+  <string name="prompt_edit_before_run_description">Показва текстово поле за уточняване на задачата преди стартиране на подсказката</string>
+  <string name="prompt_no_document_creation">Без създаване на ресурс</string>
+  <string name="prompt_no_document_creation_description">Когато е активирано, AI няма да създава ресурс. Резултатите се показват само в журнала на дейността. Подходящо за подсказки само с действия (отметки, етикети, операции с бележника).</string>
+  <string name="prompt_auto_include_documents">Автоматично включване на инсталирани ресурси</string>
+  <string name="prompt_auto_include_documents_description">Автоматично включва списъка с инсталирани ресурси в контекста на подсказката, спестявайки AI итерация.</string>
+  <string name="prompt_auto_include_commentaries">Автоматично включване на коментари</string>
+  <string name="prompt_auto_include_commentaries_description">Автоматично извлича и включва записите от коментари за избраните стихове, спестявайки AI итерация.</string>
+  <string name="prompt_is_text_transformation">Трансформация на текст</string>
+  <string name="prompt_is_text_transformation_description">Използва опростена системна подсказка, която запазва форматирането (връзки, заглавия, получер/курсив) при трансформиране на текстово съдържание. Не се използват инструменти. Идеална за подсказки за превод и редактиране.</string>
+  <string name="llm_no_document_creation_intercepted">Задачата е завършена (създаването на ресурс е деактивирано)</string>
+  <string name="llm_note_updated">Бележката е обновена</string>
+  <string name="specify_before_run_title">Уточнете задачата</string>
+  <string name="specify_before_run_hint">Опишете конкретната задача…</string>
+  <string name="prompt_cache_settings">Настройки на кеша</string>
+  <string name="prompt_strict_context_matching">Кеш, зависим от контекста</string>
+  <string name="prompt_strict_context_matching_description">Когато е активирано, кешът съвпада само ако целият контекст (версия на библията, избран текст) е еднакъв. Когато е деактивирано, кешът съвпада при еднакви стихове независимо от версията на библията.</string>
+  <string name="ai_document_delete_confirmation">Изтриване на този AI ресурс?</string>
+  <string name="ai_document_deleted">Този AI ресурс беше изтрит.</string>
+  <string name="ai_document_regenerating">Повторно генериране на AI ресурс…</string>
+  <string name="ai_document_regenerate_not_implemented">Повторното генериране ще бъде налично в бъдеща актуализация</string>
+  <string name="ai_regenerate_prompt_not_found">Не може да се генерира повторно: оригиналната подсказка не е намерена. Може би е била изтрита.</string>
+  <string name="ai_document_regenerate">Генерирай повторно</string>
+  <string name="ai_regenerate_title">Повторно генериране</string>
+  <string name="ai_regenerate_instructions_hint">Допълнителни инструкции (незадължително)</string>
+  <string name="ai_regenerate_keep_previous">Запази предишната версия</string>
+  <string name="ai_regenerate_fresh_run">Ново стартиране (игнорирай предишния резултат)</string>
+  <string name="ai_document_delete">Изтрий</string>
+  <string name="ai_unknown_prompt">AI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Преведи на %s</string>
+  <string name="default_prompt_translate_to_ui_language">Преведи на езика на интерфейса</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Превежда текста на ресурса на езика на интерфейса на приложението</string>
+  <string name="default_prompt_translate_to_english">Преведи на английски</string>
+  <string name="default_prompt_translate_to_english_desc">Превежда избрания текст на английски</string>
+  <string name="default_prompt_summary">Резюме</string>
+  <string name="default_prompt_summary_desc">Създава кратко резюме на избрания текст</string>
+  <string name="default_prompt_explain_verses">Обясни стиховете</string>
+  <string name="default_prompt_explain_verses_desc">Обяснява смисъла и контекста на избраните стихове</string>
+  <string name="default_prompt_explain_verses_studypad">Обясни стиховете → Бележник</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Създава бележник с обяснение стих по стих и отметки</string>
+  <string name="default_prompt_word_study">Изучаване на думи</string>
+  <string name="default_prompt_word_study_desc">Анализира оригинални еврейски/гръцки думи</string>
+  <string name="default_prompt_strongs_annotation">Анотация с номера на Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">Добавя номера от конкорданса на Strong\'s към всеки библейски превод, използвайки KJV като справка</string>
+  <string name="default_prompt_cross_references">Препратки</string>
+  <string name="default_prompt_cross_references_desc">Открива и обяснява свързани библейски пасажи</string>
+  <string name="default_prompt_compare_translations">Сравни преводи</string>
+  <string name="default_prompt_compare_translations_desc">Показва как различните инсталирани преводи предават текста</string>
+  <string name="default_prompt_thematic_study">Тематично изучаване</string>
+  <string name="default_prompt_thematic_study_desc">Създава бележник с пасажи и бележки по централната тема</string>
+  <string name="default_prompt_bookmark_annotate">Отметка и анотация</string>
+  <string name="default_prompt_bookmark_annotate_desc">Създава отметка с генерирана от AI учебна бележка</string>
+  <string name="default_prompt_study_layout">Отвори оформление за изучаване</string>
+  <string name="default_prompt_study_layout_desc">Отваря прозорци с коментар и паралелен превод за изучаване</string>
+  <string name="default_prompt_workspace_assistant">Асистент за работно пространство</string>
+  <string name="default_prompt_workspace_assistant_desc">Управлява прозорци: създаване, затваряне, пренареждане, смяна на ресурси</string>
+  <string name="default_prompt_enhance_note">Подобри бележката</string>
+  <string name="default_prompt_enhance_note_desc">Подобрява граматиката, яснотата и четимостта на вашата бележка</string>
+  <string name="default_prompt_ask_question">Задай въпрос</string>
+  <string name="default_prompt_ask_question_desc">Задайте всякакъв въпрос относно избрания пасаж</string>
+  <string name="default_prompt_custom">Потребителска подсказка</string>
+  <string name="default_prompt_custom_desc">Изпълнява потребителска задача върху избрания пасаж</string>
+  <string name="default_prompt_custom_template">Изпълни спецификацията на задачата на потребителя за избрания библейски пасаж.</string>
+  <string name="copy">Копирай</string>
+  <string name="delete_prompt_confirm_message">Сигурни ли сте, че искате да изтриете тази подсказка?</string>
+  <string name="ai_hide_prompt">Скрий</string>
+  <string name="ai_restore_hidden_prompts">Възстанови скритите подсказки</string>
+  <string name="ai_prompt_hidden">Подсказката е скрита</string>
+  <string name="ai_prompts_restored">Скритите подсказки са възстановени</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Създай отметка</string>
+  <string name="tool_add_bookmark_note">Добави бележка към отметка</string>
+  <string name="tool_update_bookmark_note">Обнови бележката на отметката</string>
+  <string name="tool_create_label">Създай етикет</string>
+  <string name="tool_add_label_to_bookmark">Добави етикет към отметка</string>
+  <string name="tool_delete_bookmark">Изтрий отметка</string>
+  <string name="tool_delete_label">Изтрий етикет</string>
+  <string name="tool_remove_label_from_bookmark">Премахни етикет от отметка</string>
+  <string name="tool_add_study_pad_entry">Добави запис в бележника</string>
+  <string name="tool_update_studypad_text_entry">Обнови текстовия запис в бележника</string>
+  <string name="tool_create_study_pad">Създай бележник</string>
+  <string name="action_update_studypad_text_entry">Актуализирай текстов запис в бележника %1$s</string>
+  <string name="action_create_studypad">Създай бележник \"%1$s\" с %2$d записа</string>
+  <string name="tool_set_document_title">Задай заглавие на ресурса</string>
+  <string name="tool_finish_with_study_pad">Отвори бележника</string>
+  <string name="tool_finish_with_my_document_page">Отвори страница от моя ресурс</string>
+  <string name="tool_finish_without_document">Завърши без ресурс</string>
+  <string name="tool_get_verse_content">Прочети съдържание на стих</string>
+  <string name="tool_get_commentaries">Прочети коментари</string>
+  <string name="tool_get_dictionary_entry">Потърси в речника</string>
+  <string name="tool_search_bible">Търси в библията</string>
+  <string name="tool_search_by_strongs">Търси по номер на Strong\'s</string>
+  <string name="tool_get_installed_documents">Изброй инсталираните ресурси</string>
+  <string name="tool_get_all_labels">Изброй всички етикети</string>
+  <string name="tool_get_bookmarks_for_verse">Вземи отметките за стих</string>
+  <string name="tool_get_bookmarks_with_label">Вземи отметките с етикет</string>
+  <string name="tool_get_study_pad_content">Прочети съдържание на бележника</string>
+  <string name="tool_search_study_pads">Търси в бележниците</string>
+  <string name="tool_get_my_documents">Изброй моите ресурси</string>
+  <string name="tool_get_my_document_pages">Изброй страниците на моя ресурс</string>
+  <string name="tool_get_genbook_keys">Изброй ключовете на общата книга</string>
+  <string name="tool_get_genbook_content">Прочети съдържание на общата книга</string>
+  <string name="tool_create_my_document">Създай мой ресурс</string>
+  <string name="tool_add_my_document_page">Добави страница към моя ресурс</string>
+  <string name="tool_edit_my_document_page">Редактирай страница от моя ресурс</string>
+  <string name="tool_delete_my_document_page">Изтрий страница от моя ресурс</string>
+  <string name="tool_get_windows">Изброй прозорците</string>
+  <string name="tool_create_window">Създай прозорец</string>
+  <string name="tool_manage_window">Управлявай прозорец</string>
+  <string name="tool_set_window_document">Задай ресурс на прозорец</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Разрешение за агент</string>
+  <string name="agent_permission_message">ИИ асистентът иска да използва \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">ИИ асистентът иска да:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Създай отметка при %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Създай отметка при %1$s (%2$s)</string>
+  <string name="action_with_note">с бележка</string>
+  <string name="action_labels">етикети: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Добави бележка към отметката при %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Актуализирай бележката към отметката при %1$s</string>
+  <string name="action_create_label">Създай етикет \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Добави етикет \"%1$s\" към отметката при %2$s</string>
+  <string name="action_delete_bookmark">Изтрий отметката при %1$s</string>
+  <string name="action_delete_label">Изтрий етикет \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Премахни етикет \"%1$s\" от отметката при %2$s</string>
+  <string name="action_add_entry_to_studypad">Добави запис в бележника \"%1$s\"</string>
+  <string name="action_create_my_document">Създай мой ресурс: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Добави страница \"%1$s\" към моя ресурс %2$s</string>
+  <string name="action_edit_my_document_page">Редактирай страница от моя ресурс: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Изтрий страница от моя ресурс: \"%1$s\"</string>
+  <string name="action_set_document_title">Задай заглавие на ресурса: \"%1$s\"</string>
+  <string name="action_open_studypad">Отвори бележник \"%1$s\"</string>
+  <string name="action_open_my_document_page">Отвори страница от моя ресурс \"%1$s\"</string>
+  <string name="action_create_window">Създай нов прозорец</string>
+  <string name="action_create_window_with_doc">Създай прозорец с %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Създай прозорец с %1$s при %2$s</string>
+  <string name="action_close_window">Затвори прозорец (%1$s)</string>
+  <string name="action_minimize_window">Минимизирай прозорец (%1$s)</string>
+  <string name="action_restore_window">Възстанови прозорец (%1$s)</string>
+  <string name="action_set_window_document">Задай %1$s на %2$s</string>
+  <string name="action_set_window_document_with_key">Задай %1$s на %2$s при %3$s</string>
+  <string name="action_active_window">активен прозорец</string>
+  <string name="action_finish">Завърши: \"%1$s\"</string>
+  <string name="permission_allow_once">Разреши веднъж</string>
+  <string name="permission_allow_for_session">Разреши за тази сесия</string>
+  <string name="permission_allow_all_session">Разреши всички инструменти за тази сесия</string>
+  <string name="permission_allow_always">Винаги разрешавай \"%1$s\"</string>
+  <string name="permission_deny">Откажи</string>
+  <string name="permission_always_allow_confirm_title">Винаги да се разрешава?</string>
+  <string name="permission_always_allow_confirm">Сигурни ли сте, че искате постоянно да разрешите \"%1$s\"?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Можете да нулирате това в настройките за ИИ.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Разрешения за инструменти</string>
+  <string name="manage_tool_permissions_summary">Управлявай индивидуалните разрешения за инструменти</string>
+  <string name="commentary_max_response_title">Ограничение на размера на отговора с коментар</string>
+  <string name="commentary_max_response_summary">Показвай диалог за избор, когато отговорът надхвърли ограничението</string>
+  <string name="commentary_max_response_no_limit">Без ограничение</string>
+  <string name="commentary_max_response_value">~%s токена</string>
+  <string name="commentary_max_response_dialog_title">Задай максимален размер на отговора (токени)</string>
+  <string name="commentary_max_response_dialog_message">Когато ИИ извлича коментари и общият отговор надхвърли това ограничение в токени, диалог за избор ви позволява да изберете кои коментари да се изпратят на ИИ.\n\n0 = без ограничение (всички коментари се изпращат автоматично).</string>
+  <string name="commentary_filter_dialog_title">Отговорът с коментар е твърде голям</string>
+  <string name="commentary_filter_dialog_message">Ограничението от токени (~%s) е надхвърлено. Премахнете избора на коментари, които не искате да изпратите на ИИ.\n\nМожете да промените това ограничение в настройките за връзка с ИИ.</string>
+  <string name="commentary_filter_total_tokens">Избрани: ~%1$s / %2$s токена</string>
+  <string name="tool_log_commentary_count">%d коментара</string>
+  <string name="tool_log_label_count">%d етикета</string>
+  <string name="tool_log_document_count">%d ресурса</string>
+  <string name="tool_log_study_pad_count">%d бележника</string>
+  <string name="tool_log_search_results">%1$d/%2$d резултата</string>
+  <string name="tool_log_bookmark_count">%d отметки</string>
+  <string name="tool_log_my_document_count">%d ресурса</string>
+  <string name="tool_log_my_document_page_count">%d страници</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d ключа</string>
+  <string name="tool_log_window_count">%d прозореца</string>
+  <string name="tool_log_window_copy">копие</string>
+  <string name="tool_log_window_minimized">минимизиран</string>
+  <string name="tool_log_window_removed">премахнат</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s токена)</string>
+  <string name="ai_document_filter_title">Достъп до ресурси</string>
+  <string name="ai_document_filter_summary">Изберете кои ресурси може да чете ИИ</string>
+  <string name="ai_document_filter_summary_count">%d изключени ресурса</string>
+  <string name="ai_document_filter_activity_title">Достъп на ИИ до ресурси</string>
+  <string name="ai_document_excluded_error">Ресурсът е изключен от настройките на потребителя: %s</string>
+  <string name="permission_status_default">Питай (по подразбиране)</string>
+  <string name="permission_status_allowed">Винаги разрешено</string>
+  <string name="permission_status_denied">Винаги отказано</string>
+  <string name="permission_option_default">Питай всеки път (по подразбиране)</string>
+  <string name="permission_option_always_allow">Винаги разрешавай</string>
+  <string name="permission_option_always_deny">Винаги отказвай</string>
+  <string name="reset_all_permissions">Нулирай всички</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Налични инструменти</string>
+  <string name="ai_read_tools">Инструменти за четене</string>
+  <string name="ai_write_tools">Инструменти за писане</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Настройки на инструментите по подразбиране</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Разрешения за инструменти</string>
+  <string name="prompt_tool_permissions_read_only">Разрешения за инструменти (само за четене)</string>
+  <string name="prompt_tool_permissions_description">Замени разрешенията за инструменти за тази заявка</string>
+  <string name="tool_section_read_tools">Инструменти за четене</string>
+  <string name="tool_section_write_tools">Инструменти за писане</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Библия и търсене</string>
+  <string name="tool_category_bookmarks">Отметки</string>
+  <string name="tool_category_labels">Етикети</string>
+  <string name="tool_category_study_pads">Бележници</string>
+  <string name="tool_category_my_documents">Мои ресурси</string>
+  <string name="tool_category_general_books">Общи книги</string>
+  <string name="tool_category_windows">Прозорци</string>
+  <string name="tool_category_read">Четене</string>
+  <string name="tool_category_write">Писане</string>
+  <string name="expand_collapse">Разгъни/свий</string>
+  <string name="tool_option_enabled">Включено</string>
+  <string name="tool_option_disabled">Изключено</string>
+  <string name="tool_option_default_enabled">По подразбиране (включено)</string>
+  <string name="tool_option_default_disabled">По подразбиране (изключено)</string>
+  <string name="tool_option_default_allowed">По подразбиране (разрешено)</string>
+  <string name="tool_option_default_denied">По подразбиране (забранено)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Модел</string>
+  <string name="prompt_model_default">По подразбиране</string>
+  <string name="prompt_model_custom">Персонализиран</string>
+  <string name="prompt_model_custom_hint">Въведете име на модел</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Избери AI действие</string>
+  <string name="no_llm_prompts_configured">Няма конфигурирани AI подсказки за избор на стих</string>
+  <string name="llm_prompt_executing">Изпълнение на AI подсказка: %s</string>
+  <string name="llm_actions">AI действия</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Разгъни/свий дневника на агента</string>
+  <string name="agent_log_close">Затвори дневника на агента</string>
+  <string name="agent_log_stop">Спри AI</string>
+  <string name="agent_log_idle">AI асистент</string>
+  <string name="agent_log_running">AI работи…</string>
+  <string name="agent_log_completed">Завършено</string>
+  <string name="agent_log_error">Възникна грешка</string>
+  <string name="agent_log_executing">Изпълнява се: %s</string>
+  <string name="agent_log_iteration">Итерация %d</string>
+  <string name="agent_log_tool">Инструмент: %s</string>
+  <string name="agent_log_tool_completed">Инструментът %s завърши</string>
+  <string name="agent_log_tool_failed">Инструментът %s се провали</string>
+  <string name="agent_log_response_received">Получен отговор</string>
+  <string name="agent_log_saved">Запазено: %s</string>
+  <string name="agent_log_done">Готово: %s</string>
+  <string name="agent_log_cancelled">Отменено</string>
+  <string name="agent_execution_completed">Изпълнението на агента завърши</string>
+  <string name="agent_already_running">Вече работи AI агент. Изчакайте или го спрете първо.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">AI агент</string>
+  <string name="ai_agent_notification_running">AI агентът работи…</string>
+  <string name="ai_agent_notification_permission_needed">AI агентът изисква вашето одобрение</string>
+  <string name="ai_agent_notification_permission_tap">Докоснете, за да се върнете в AndBible</string>
+  <string name="ai_agent_notification_completed">AI задачата е завършена</string>
+  <string name="ai_agent_notification_completed_tap">Докоснете, за да видите резултатите</string>
+  <string name="ai_agent_notification_error">AI задачата се провали</string>
+  <string name="ai_agent_notification_cancel">Отмяна</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Моите документи</string>
+  <string name="my_documents_empty">Няма документи. Докоснете +, за да създадете.</string>
+  <string name="my_document_new_name">Документ %d</string>
+  <string name="my_document_create_title">Създай нов документ</string>
+  <string name="my_document_rename_title">Преименувай документ</string>
+  <string name="my_document_edit_description_title">Редактирай описание</string>
+  <string name="my_document_delete_confirmation">Изтрий документа \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">AI документите не могат да бъдат изтрити, докато съдържат страници. Изтрийте първо страниците.</string>
+  <string name="my_document_save_changes">Запази промените?</string>
+  <string name="my_document_no_description">Няма описание</string>
+  <string name="my_document_rename">Преименувай</string>
+  <string name="my_document_edit_description">Редактирай описание</string>
+  <string name="my_document_delete">Изтрий</string>
+
+  <string name="my_document_pages_title">%s – Страници</string>
+  <string name="my_document_pages_empty">Няма страници в този документ.</string>
+  <string name="my_document_page_rename_title">Преименувай страница</string>
+  <string name="my_document_page_delete_confirmation">Изтрий страницата \"%s\"?</string>
+  <string name="my_document_page_rename">Преименувай</string>
+  <string name="my_document_page_delete">Изтрий</string>
+  <string name="my_document_page_export">Експортирай</string>
+  <string name="my_document_new_page_name">Страница %1$d</string>
+  <string name="my_document_create_page_title">Нова страница</string>
+  <string name="my_document_content_type_label">Тип съдържание</string>
+  <string name="my_document_import_page">Импортирай Markdown/HTML</string>
+  <string name="my_document_export_page">Експортирай страница</string>
+  <string name="my_document_imported_page_name">Импортирано</string>
+  <string name="my_document_export_fallback_name">страница</string>
+  <string name="my_document_export_document">Експортирай всички страници</string>
+  <string name="my_document_import_document">Импортирай файлове като документ</string>
+  <string name="my_document_import_empty_selection">Не са избрани файлове за импортиране</string>
+  <string name="my_document_export_success">Страниците са експортирани успешно</string>
+  <string name="ai_doc_choose_page">Избери страница от AI документ</string>
+  <string name="prefs_show_ai_doc_markers_title">Показвай маркери на AI документи</string>
+  <string name="prefs_show_ai_doc_markers_summary">Показвай икони за маркери на AI-генерирани документни страници, свързани със стихове</string>
+  <string name="prefs_show_ordinals_title">Показвай поредни номера</string>
+  <string name="prefs_show_ordinals_summary">Показвай маркери за поредна позиция в текста</string>
+
+  <string name="prefs_page_scroll_amount_title">Количество превъртане на страница</string>
+  <string name="prefs_page_scroll_amount_summary">Колко от страницата да се превърта при страница нагоре/надолу</string>
+  <string name="page_scroll_amount_dialog_title">Количество превъртане на страница</string>
+  <string name="prefs_scroll_helper_lines_title">Помощни линии за превъртане</string>
+  <string name="prefs_scroll_helper_lines_summary">Показвай хоризонтални ориентировъчни линии на границите при превъртане на страница</string>
+  <string name="prefs_scroll_helper_line_style_title">Стил на помощната линия</string>
+  <string name="prefs_scroll_helper_line_style_summary">Избери визуалния стил на помощните линии за превъртане</string>
+  <string name="scroll_helper_line_style_dialog_title">Стил на помощната линия</string>
+  <string name="scroll_helper_line_style_thin_dotted">Тънка пунктирана линия</string>
+  <string name="scroll_helper_line_style_thin_solid">Тънка непрекъсната линия</string>
+  <string name="scroll_helper_line_style_thick_solid">Дебела непрекъсната линия</string>
+  <string name="prefs_page_buttons_title">Бутони за превъртане на страница</string>
+  <string name="prefs_page_buttons_summary">Показвай видими бутони за страница нагоре/надолу на екрана</string>
 </resources>

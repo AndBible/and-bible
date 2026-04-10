@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: बुकमार्क
-bookmarksAndNotes: ""
+bookmarksAndNotes: बुकमार्क और मेरे नोट्स
 openMyNotes: मेरे नोट्स में खोलें
 openStudyPad: "स्टडी पैड (%s) में खोलें "
-noteText: फुटनोट (%s)
+noteText: "फुटनोट (%s)"
 noteTextWithoutType: " फ़ुटनोट"
 crossReferenceText: क्रॉस रेफरेन्सेस
 findAllOccurrences: सभी घटना खोजें
@@ -18,18 +18,20 @@ footnoteTypeAlternative: विकल्प
 footnoteTypeTranslation: अनुवाद
 clearLog: त्रुटि संग्रह साफ़ करें
 editTextPlaceholder: टेक्स्ट संपादित करने के लिए टैप करें
+myDocumentEdit: पेज संपादित करें
+myDocumentEmptyPlaceholder: इस पेज को संपादित करना शुरू करने के लिए टैप करें
 inputPlaceholder: यहाँ लिखें
 inputReference: बाइबिल संदर्भ दर्ज करें
 invalidReference: " छंद नहीं मिला"
-bookmarkAccurate: बुकमार्क %s में बनाया गया था
+bookmarkAccurate: "बुकमार्क %s में बनाया गया था"
 bookmarkInaccurate: "बुकमार्क बुक जानकारी संग्रहीत नहीं है, सामग्री %s में प्रदर्शित होती है।"
 defaultBook: डिफ़ॉल्ट बाइबिल दस्तावेज़
 ok: ठीक है
 yes: "हाँ"
-ambiguousSelection: "आप कौन सी कार्रवाई करना चाहते हैं?"
+ambiguousSelection: आप कौन सी कार्रवाई करना चाहते हैं?
 cancel: रद्द करें
-removeBookmarkConfirmationTitle: "बुकमार्क हटाएं?"
-removeBookmarkConfirmation: "क्या आप वाकई इस बुकमार्क को हटाना चाहते हैं?"
+removeBookmarkConfirmationTitle: बुकमार्क हटाएं?
+removeBookmarkConfirmation: क्या आप वाकई इस बुकमार्क को हटाना चाहते हैं?
 createdAt: "बनाया गया: %s"
 lastUpdatedOn: "पिछली बार अपडेट किया गया: %s"
 strongsAndMorph: परिभाषा और आकृति विज्ञान
@@ -37,12 +39,12 @@ externalLink: बाहरी लिंक खोलें
 referenceLink: संदर्भ लिंक खोलें
 openFootnote: फुटनोट खोलें
 noMyNotesTitle: इस अध्याय के लिए कोई मेरे नोट्स नहीं हैं।
-noMyNotesDescription: >
-  बाइबिल दस्तावेज़ में बुकमार्क बनाकर आरंभ करें। फिर बुकमार्क यहां दिखाई देंगे और आप उनमें अपने व्यक्तिगत नोट्स जोड़ सकते हैं।
-emptyStudyPad: >
-  खाली स्टडी पैड। यहां टेक्स्ट प्रविष्टियां बनाकर या इस स्टडी पैड से मेल खाने वाले बुकमार्क लेबल के साथ बुकमार्क बनाकर इस स्टडी पैड में जोड़ना शुरू करें।
-doYouWantToDeleteEntry: "इस स्टडी पैड प्रविष्टि को हटाएं?"
-removeStudyPadConfirmationTitle: "स्टडी पैड प्रविष्टि को हटाएं?"
+noMyNotesDescription: बाइबिल दस्तावेज़ में बुकमार्क बनाकर आरंभ करें। फिर बुकमार्क यहां दिखाई देंगे और आप उनमें अपने व्यक्तिगत नोट्स जोड़ सकते हैं।
+
+emptyStudyPad: खाली स्टडी पैड। यहां टेक्स्ट प्रविष्टियां बनाकर या इस स्टडी पैड से मेल खाने वाले बुकमार्क लेबल के साथ बुकमार्क बनाकर इस स्टडी पैड में जोड़ना शुरू करें।
+
+doYouWantToDeleteEntry: इस स्टडी पैड प्रविष्टि को हटाएं?
+removeStudyPadConfirmationTitle: स्टडी पैड प्रविष्टि को हटाएं?
 dragHelp: व्यवस्थित करने के लिए खींचे
 openAll: सभी संदर्भ खोलें
 editBookmarkPlaceholder: इस बुकमार्क के लिए मेरे नोट्स संपादित करने के लिए टैप करें
@@ -52,46 +54,69 @@ assignLabelsMenuEntry1: लेबल चुनें या संपादि�
 favouriteLabels: पसंदीदा लेबल
 recentLabels: हाल के लेबल
 bookmarkLabels: बुकमार्क लेबल
-refParserHelp: अंग्रेजी के अलावा अन्य भाषाओं में संदर्भों का उपयोग करने के लिए कृपया %s मॉड्यूल स्थापित करें।
+refParserHelp: "अंग्रेजी के अलावा अन्य भाषाओं में संदर्भों का उपयोग करने के लिए कृपया %s मॉड्यूल स्थापित करें।"
 openDownloads: ऐड-ऑन डाउनलोड पर जाएं
 verseShare: शेयर
 verseSpeak: अध्याय सुनिए
 verseCompare: तुलना करना
-verseMemorize: ""
+verseMemorize: याद करें
 verseNote: नोट
 verseMyNotes: मेरे टिप्पणीयां
-verseParagraphBreak: ""
+verseParagraphBreak: अनुच्छेद
 verseShareLong: इस छंद को शेयर करें
 verseCompareLong: छंद की तुलना करें
-verseMemorizeLong: ""
+verseMemorizeLong: बाइबिल छंद याद करें
+addMemorizationTarget: लक्ष्य +
+addMemorizationTargetLong: याद करने का लक्ष्य निर्धारित करें
+removeMemorizationTarget: लक्ष्य -
+removeMemorizationTargetLong: याद करने का लक्ष्य हटाएं
+markAsMemorized: याद किया हुआ चिह्नित करें
+markedAsMemorized: याद किया गया
+removeFromTargets: लक्ष्य -
+viewReadingProgress: पठन/स्मरण प्रगति
+viewReadingProgressSettings: पठन/स्मरण सेटिंग्स
+listenInLoop: लूप में सुनें
 verseNoteLong: एक टिप्पणी लिखो
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: अनुच्छेद विराम
 addBookmark: बुकमार्क
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: रिसेट
-peek: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: कस्टम मार्कर आइकन चुनें
+bookmarkSettingsTitle: बुकमार्क सेटिंग्स कॉन्फ़िगर करें
+subtitlePlaceholder: उपशीर्षक टेक्स्ट
+customIconLabel: कस्टम आइकन
+editActionLabel: क्रिया संपादित करें
+editActionModeLabel: मोड
+editActionModeNone: कोई नहीं
+editActionModeAppend: टेक्स्ट जोड़ें (अंत में)
+editActionModePrepend: टेक्स्ट जोड़ें (शुरू में)
+editActionContentLabel: सामग्री
+editActionContentPlaceholder: दस्तावेज़ में जोड़ा जाने वाला टेक्स्ट दर्ज करें...
+experimentalFeatureTitle: प्रयोगात्मक
+experimentalFeatureHelpTitle: प्रयोगात्मक फ़ीचर के बारे में
+experimentalFeatureHelpContent: प्रयोगात्मक फ़ीचर नई क्षमताएं हैं जो अभी विकसित और परीक्षण की जा रही हैं। ये पूरी तरह काम नहीं कर सकते और भविष्य के ऐप संस्करणों में महत्वपूर्ण रूप से बदल या हटाए जा सकते हैं।
+insertParagraphBreak: अनुच्छेद विराम डालें
+insertSubtitle: उपशीर्षक डालें
+xmlParseError: XML पार्सिंग त्रुटि
+invalidTag: अमान्य टैग
+invalidClosingTag: अमान्य closing टैग
+unmatchedClosingTag: बेजोड़ closing टैग
+unclosedTag: बिना बंद किया टैग
+unknownError: अज्ञात त्रुटि
+wordBlur: धुंधला
+wordScramble: बिखेरें
+wordType: टाइप करें
+wordOrder: क्रम
+typeEverything: पूरे शब्द टाइप करें
+tapToStartTyping: टाइप करने के लिए यहाँ टैप करें
+wordVisibility: शब्द दृश्यता
+wordVisibilityLight: हल्का
+wordVisibilityDim: धुंधला
+wordVisibilityHidden: छुपा हुआ
+errorHeatmap: त्रुटि हीटमैप
+hideUsedButtons: उपयोग किए गए शब्द बटन छुपाएं
 more: और
+llmAction: AI
+llmActionLong: AI क्रिया
+aiDocumentRegenerate: पुनर्जनन करें
+aiDocumentDelete: हटाएं
+aiGeneratedBy: "%s द्वारा जनित"
+aiGeneratedByWithModel: "%s (%s) द्वारा जनित"

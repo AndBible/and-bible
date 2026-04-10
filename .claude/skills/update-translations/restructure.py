@@ -54,14 +54,37 @@ def fix_double_escapes(value):
 
 
 def load_translations_from_file(path):
-    """Parse <string name="...">...</string> lines from a file."""
+    """Parse <string name="...">...</string> entries from a file.
+
+    Supports both single-line and multiline <string> entries.
+    Multiline values are collapsed to single-line (whitespace normalized)
+    to match Android resource conventions.
+    """
     translations = {}
     with open(path, 'r') as f:
-        for line in f:
-            line = line.strip()
-            m = re.match(r'<string name="([^"]+)">(.*)</string>', line, re.DOTALL)
-            if m:
-                translations[m.group(1)] = fix_double_escapes(m.group(2))
+        content = f.read()
+
+    # First try XML parsing (handles multiline strings correctly)
+    try:
+        root = ET.fromstring('<resources>' + content + '</resources>')
+        for elem in root.findall('string'):
+            name = elem.get('name')
+            if name:
+                text = (elem.text or '').strip()
+                # Collapse internal whitespace (multiline → single line)
+                text = re.sub(r'\s+', ' ', text)
+                translations[name] = fix_double_escapes(text)
+        if translations:
+            return translations
+    except ET.ParseError:
+        pass
+
+    # Fallback: line-by-line regex (for files that aren't valid XML)
+    for line in content.splitlines():
+        line = line.strip()
+        m = re.match(r'<string name="([^"]+)">(.*)</string>', line, re.DOTALL)
+        if m:
+            translations[m.group(1)] = fix_double_escapes(m.group(2))
     return translations
 
 
