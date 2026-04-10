@@ -289,18 +289,16 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     val selectedModelId = models[position].id
                     if (checkBox.isChecked) {
                         activity.lifecycleScope.launch(Dispatchers.IO) {
-                            val promptDao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
-                            prompt.configuredModelId = selectedModelId
-                            promptDao.update(prompt)
+                            if (PromptRepository.isBuiltIn(prompt.id)) {
+                                PromptRepository.setBuiltinPromptModelOverride(prompt.id, selectedModelId)
+                            } else {
+                                prompt.configuredModelId = selectedModelId
+                                DatabaseContainer.instance.aiSettingsDb.agentPromptDao().update(prompt)
+                            }
                         }
                     }
                     dialog.dismiss()
-                    executePrompt(
-                        prompt,
-                        selection,
-                        userSpecification = userSpecification,
-                        modelOverrideId = selectedModelId
-                    )
+                    executePrompt(prompt, selection, userSpecification = userSpecification, modelOverrideId = selectedModelId)
                 }
             }
         }

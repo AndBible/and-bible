@@ -256,4 +256,13 @@ private val addRawLogTable = makeMigration(20..21) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `rawLogRetentionDays` INTEGER DEFAULT 30")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts, addRawLogTable)
+private val addBuiltinPromptOverride = makeMigration(21..22) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `BuiltinPromptOverride` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `configuredModelId` BLOB DEFAULT NULL,
+        FOREIGN KEY(`configuredModelId`) REFERENCES `LlmConfiguredModel`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_BuiltinPromptOverride_configuredModelId` ON `BuiltinPromptOverride` (`configuredModelId`)")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts, addRawLogTable, addBuiltinPromptOverride)

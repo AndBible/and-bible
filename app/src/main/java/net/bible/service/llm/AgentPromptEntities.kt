@@ -583,3 +583,42 @@ interface LlmRawLogRecordDao {
     @Query("DELETE FROM LlmRawLogRecord")
     fun deleteAll()
 }
+
+/**
+ * Per-builtin-prompt overrides that persist user customizations (e.g. model selection)
+ * without modifying the built-in prompt definitions in code.
+ *
+ * The [id] matches the built-in prompt's stable ID. Only fields that differ from the
+ * code-defined defaults need to be set; null fields mean "use the built-in default".
+ */
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = LlmConfiguredModel::class,
+        parentColumns = ["id"],
+        childColumns = ["configuredModelId"],
+        onDelete = ForeignKey.SET_NULL
+    )],
+    indices = [Index("configuredModelId")]
+)
+@Serializable
+data class BuiltinPromptOverride(
+    /** Same ID as the built-in prompt this overrides. */
+    @PrimaryKey val id: IdType,
+    /** FK → LlmConfiguredModel. null = use global default model. */
+    @ColumnInfo(defaultValue = "NULL") var configuredModelId: IdType? = null,
+)
+
+@Dao
+interface BuiltinPromptOverrideDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun upsert(entity: BuiltinPromptOverride)
+
+    @Query("SELECT * FROM BuiltinPromptOverride WHERE id = :id")
+    fun getById(id: IdType): BuiltinPromptOverride?
+
+    @Query("SELECT * FROM BuiltinPromptOverride")
+    fun all(): List<BuiltinPromptOverride>
+
+    @Query("DELETE FROM BuiltinPromptOverride WHERE id = :id")
+    fun deleteById(id: IdType)
+}

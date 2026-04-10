@@ -31,6 +31,8 @@ import net.bible.android.database.readingplan.ReadingPlanDao
 import net.bible.android.database.readingplan.ReadingPlanEntities
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentPromptDao
+import net.bible.service.llm.BuiltinPromptOverride
+import net.bible.service.llm.BuiltinPromptOverrideDao
 import net.bible.service.llm.GlobalAiSettings
 import net.bible.service.llm.GlobalAiSettingsDao
 import net.bible.service.llm.LlmConfiguredModel
@@ -171,7 +173,7 @@ abstract class SettingsDatabase: RoomDatabase() {
     }
 }
 
-const val AI_SETTINGS_DATABASE_VERSION = 21
+const val AI_SETTINGS_DATABASE_VERSION = 22
 
 @Database(
     entities = [
@@ -182,6 +184,7 @@ const val AI_SETTINGS_DATABASE_VERSION = 21
         LlmUsageRecord::class,
         LlmRawLogRecord::class,
         PromptCategory::class,
+        BuiltinPromptOverride::class,
         LogEntry::class,
         SyncConfiguration::class,
         SyncStatus::class,
@@ -197,6 +200,7 @@ abstract class AiSettingsDatabase: SyncableRoomDatabase() {
     abstract fun llmUsageRecordDao(): LlmUsageRecordDao
     abstract fun llmRawLogRecordDao(): LlmRawLogRecordDao
     abstract fun promptCategoryDao(): PromptCategoryDao
+    abstract fun builtinPromptOverrideDao(): BuiltinPromptOverrideDao
     companion object {
         const val dbFileName = "ai_settings.sqlite3"
     }

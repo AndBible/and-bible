@@ -40,6 +40,7 @@ object PromptRepository {
 
     private val dao get() = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
     private val categoryDao get() = DatabaseContainer.instance.aiSettingsDb.promptCategoryDao()
+    private val overrideDao get() = DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao()
 
     /** Cached add-on prompts loaded from CSV files. Invalidated on ReloadAddonsEvent. */
     private var addonPromptsCache: List<AgentPrompt>? = null
@@ -80,18 +81,27 @@ object PromptRepository {
     /** Check if a prompt is read-only (built-in or add-on). */
     fun isReadOnly(id: IdType): Boolean = isBuiltIn(id) || isAddon(id)
 
+    /** Apply DB overrides (e.g. model selection) to a built-in prompt. */
+    private fun applyOverride(prompt: AgentPrompt): AgentPrompt {
+        val override = overrideDao.getById(prompt.id) ?: return prompt
+        return prompt.copy(configuredModelId = override.configuredModelId)
+    }
+
     /**
      * Get a prompt by ID, checking built-in prompts first, then add-ons, then DB.
+     * Built-in prompts are merged with any DB overrides.
      */
     fun promptById(id: IdType): AgentPrompt? {
-        return BuiltInPrompts.promptById(id)
-            ?: loadAddonPrompts().find { it.id == id }
+        BuiltInPrompts.promptById(id)?.let { return applyOverride(it) }
+        return loadAddonPrompts().find { it.id == id }
             ?: dao.promptById(id)
     }
 
-    private fun loadBuiltInPrompts(): List<AgentPrompt> =
-        if (CommonUtils.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
-        else BuiltInPrompts.productionPrompts()
+    private fun loadBuiltInPrompts(): List<AgentPrompt> {
+        val prompts = if (CommonUtils.isDebugMode) BuiltInPrompts.allBuiltInPrompts()
+            else BuiltInPrompts.productionPrompts()
+        return prompts.map { applyOverride(it) }
+    }
 
     /**
      * Returns all prompts: built-in first (filtered by debug mode and hidden state),
@@ -186,6 +196,11 @@ object PromptRepository {
     /** Delete all user-created categories (built-in categories are in code and unaffected). */
     fun deleteAllUserCategories() {
         categoryDao.deleteAll()
+    }
+
+    /** Set the model override for a built-in prompt. */
+    fun setBuiltinPromptModelOverride(promptId: IdType, modelId: IdType) {
+        overrideDao.upsert(BuiltinPromptOverride(id = promptId, configuredModelId = modelId))
     }
 
     /** Hide a built-in prompt so it doesn't appear in any context. */
