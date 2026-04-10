@@ -252,7 +252,7 @@ The script preserves the base file's key order and comments, drops stale keys, a
 python3 $SKILL/validate.py LANG
 ```
 
-Checks: coverage, format specifiers, string/key order, XML well-formedness, empty values, Play Store template variables and length limits (title ≤ 50, short_description ≤ 80).
+Checks: coverage, format specifiers, string/key order, XML well-formedness, empty values, Play Store template variables and length limits (title ≤ 30, short_description ≤ 80).
 
 ## Step 9: Compile Play Store Descriptions
 

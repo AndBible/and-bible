@@ -213,8 +213,8 @@ def main():
 
             # Length checks
             title = str(ps_target_data.get('title', '')).strip()
-            if title and len(title) > 50:
-                warnings.append(f"Play Store: title too long ({len(title)} > 50 chars)")
+            if title and len(title) > 30:
+                warnings.append(f"Play Store: title too long ({len(title)} > 30 chars)")
             short = str(ps_target_data.get('short_description', '')).strip()
             if short and len(short) > 80:
                 warnings.append(f"Play Store: short_description too long ({len(short)} > 80 chars)")
