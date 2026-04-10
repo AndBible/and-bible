@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: إشارات مرجعية
-bookmarksAndNotes: ""
+bookmarksAndNotes: الإشارات المرجعية وملاحظاتي
 openMyNotes: فتح في ملاحظاتي
-openStudyPad: فتح في لوحة الدراسة (%s)
-noteText: الحواشي (%s)
+openStudyPad: "فتح في لوحة الدراسة (%s)"
+noteText: "الحواشي (%s)"
 noteTextWithoutType: الحواشي
 crossReferenceText: تخطي المراجع
 findAllOccurrences: ايجاد كل التكرارات
@@ -18,11 +18,13 @@ footnoteTypeAlternative: بديل
 footnoteTypeTranslation: ترجمة
 clearLog: مسح سجل الخطأ
 editTextPlaceholder: انقر لتحرير النص
+myDocumentEdit: تعديل الصفحة
+myDocumentEmptyPlaceholder: انقر لبدء تعديل هذه الصفحة
 inputPlaceholder: اكتب هنا
 inputReference: أدخل مرجع الكتاب المقدس
 invalidReference: الآية غير موجودة
-bookmarkAccurate: تم إنشاء الإشارة المرجعية في %s
-bookmarkInaccurate: لم يتم تخزين معلومات مرجعية المرجعية، يتم عرض المحتوى بتنسيق %s.
+bookmarkAccurate: "تم إنشاء الإشارة المرجعية في %s"
+bookmarkInaccurate: "لم يتم تخزين معلومات مرجعية المرجعية، يتم عرض المحتوى بتنسيق %s."
 defaultBook: وثيقة الكتاب المقدس الافتراضية
 ok: موافق
 yes: "نعم"
@@ -37,10 +39,10 @@ externalLink: افتح رابط خارجي
 referenceLink: افتح رابط المرجع
 openFootnote: افتح الحاشية
 noMyNotesTitle: لا ملاحظاتي لهذا الفصل.
-noMyNotesDescription: >
-  ابدأ بإنشاء إشارات مرجعية في مستند الكتاب المقدس. ستظهر الإشارات المرجعية هنا ويمكنك إضافة ملاحظاتك الشخصية إليها.
-emptyStudyPad: >
-  لوحة دراسية فارغة. ابدأ في الإضافة إلى اللوحة الدراسة هذه عن طريق إنشاء مدخلات نصية هنا أو عن طريق إنشاء إشارات مرجعية بعلامة مرجعية تتوافق مع لوحة الدراسة هذه.
+noMyNotesDescription: ابدأ بإنشاء إشارات مرجعية في مستند الكتاب المقدس. ستظهر الإشارات المرجعية هنا ويمكنك إضافة ملاحظاتك الشخصية إليها.
+
+emptyStudyPad: لوحة دراسية فارغة. ابدأ في الإضافة إلى اللوحة الدراسة هذه عن طريق إنشاء مدخلات نصية هنا أو عن طريق إنشاء إشارات مرجعية بعلامة مرجعية تتوافق مع لوحة الدراسة هذه.
+
 doYouWantToDeleteEntry: حذف مدخل اللوحة الدراسية هذا؟
 removeStudyPadConfirmationTitle: إزالة مدخل اللوحة الدراسية؟
 dragHelp: اسحب لإعادة ترتيب
@@ -52,46 +54,69 @@ assignLabelsMenuEntry1: تحديد أو تحرير الملصقات ...
 favouriteLabels: الملصقات المفضلة
 recentLabels: الملصقات الحديثة
 bookmarkLabels: تسميات الإشارات المرجعية
-refParserHelp: الرجاء تثبيت %s الوحدة النمطية لاستخدام المراجع بلغات أخرى غير الإنجليزية.
+refParserHelp: "الرجاء تثبيت %s الوحدة النمطية لاستخدام المراجع بلغات أخرى غير الإنجليزية."
 openDownloads: انتقل إلى تنزيلات الإضافات
 verseShare: مشاركة
 verseSpeak: تكلم
 verseCompare: مقارنة
-verseMemorize: ""
+verseMemorize: حفظ
 verseNote: ملاحظة
 verseMyNotes: ملاحظاتي
-verseParagraphBreak: ""
+verseParagraphBreak: فقرة
 verseShareLong: مشاركة هذه الآية
 verseCompareLong: مقارنة الآية
-verseMemorizeLong: ""
+verseMemorizeLong: حفظ آيات الكتاب المقدس
+addMemorizationTarget: هدف +
+addMemorizationTargetLong: تعيين كهدف للحفظ
+removeMemorizationTarget: هدف -
+removeMemorizationTargetLong: إزالة هدف الحفظ
+markAsMemorized: وضع علامة محفوظ
+markedAsMemorized: محفوظ
+removeFromTargets: هدف -
+viewReadingProgress: تقدم القراءة والحفظ
+viewReadingProgressSettings: إعدادات القراءة والحفظ
+listenInLoop: الاستماع في حلقة
 verseNoteLong: كتابة ملاحظة
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: فاصل فقرة
 addBookmark: إشارة مرجعية
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: اعادة تهيئة
-peek: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: اختر أيقونة علامة مخصصة
+bookmarkSettingsTitle: تكوين إعدادات الإشارة المرجعية
+subtitlePlaceholder: نص العنوان الفرعي
+customIconLabel: أيقونة مخصصة
+editActionLabel: تعديل الإجراء
+editActionModeLabel: الوضع
+editActionModeNone: لا شيء
+editActionModeAppend: إلحاق نص
+editActionModePrepend: إدراج نص في البداية
+editActionContentLabel: المحتوى
+editActionContentPlaceholder: أدخل النص المراد إضافته إلى المستند...
+experimentalFeatureTitle: تجريبي
+experimentalFeatureHelpTitle: حول الميزات التجريبية
+experimentalFeatureHelpContent: الميزات التجريبية هي قدرات جديدة لا تزال قيد التطوير والاختبار. قد لا تعمل بشكل مثالي وقد تتغير بشكل كبير أو تُزال في إصدارات التطبيق المستقبلية.
+insertParagraphBreak: إدراج فاصل فقرة
+insertSubtitle: إدراج عنوان فرعي
+xmlParseError: خطأ في تحليل XML
+invalidTag: وسم غير صالح
+invalidClosingTag: وسم إغلاق غير صالح
+unmatchedClosingTag: وسم إغلاق غير متطابق
+unclosedTag: وسم غير مغلق
+unknownError: خطأ غير معروف
+wordBlur: تعتيم
+wordScramble: خلط
+wordType: كتابة
+wordOrder: ترتيب
+typeEverything: كتابة الكلمات كاملةً
+tapToStartTyping: انقر هنا لبدء الكتابة
+wordVisibility: ظهور الكلمات
+wordVisibilityLight: خفيف
+wordVisibilityDim: ضعيف
+wordVisibilityHidden: مخفي
+errorHeatmap: خريطة الأخطاء الحرارية
+hideUsedButtons: إخفاء أزرار الكلمات المستخدمة
 more: المزيد
+llmAction: الذكاء الاصطناعي
+llmActionLong: إجراء الذكاء الاصطناعي
+aiDocumentRegenerate: إعادة الإنشاء
+aiDocumentDelete: حذف
+aiGeneratedBy: "أُنشئ بواسطة %s"
+aiGeneratedByWithModel: "أُنشئ بواسطة %s (%s)"

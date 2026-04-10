@@ -1,10 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
 <resources>
+  <string name="app_name_andbible">AndBible</string>
   <string name="app_name_short">دراسة الكتاب المقدس</string>
+  <string name="app_name_medium">دراسة الكتاب المقدس (AndBible)</string>
   <string name="app_name_long">دراسة الكتاب المقدس :AndBible</string>
+  <string name="project">مشروع AndBible مفتوح المصدر</string>
+
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة وإعادة تشغيل التطبيق.</string>
-  <!--Main menu-->
+
+    <!-- Main menu -->
   <string name="menu">القائمة</string>
   <string name="chooseBook">المستند</string>
   <string name="selectPassage">مرور</string>
@@ -20,13 +26,15 @@
   <string name="administration">ادارة</string>
   <string name="rate_application">تقييم ومراجعة</string>
   <string name="chooce_document">إختر مستند</string>
-  <!--Passage navigation-->
+
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">إختر سفر</string>
   <string name="choosePassageChapterName">إختر إصحاح</string>
   <string name="choosePassageVerseName">إختر آية</string>
   <string name="bible">إنجيل</string>
   <string name="deuterocanonical">الاسفار القانونية الثانية</string>
-  <!--Search-->
+
+    <!--  Search -->
   <string name="search_index">بحث الفهرس</string>
   <string name="index_creation_required">الفهرس مطلوب للبحث</string>
   <string name="create_index_for">مطلوب فهرس للبحث. إنشاء فهرس لـ %s؟</string>
@@ -38,16 +46,20 @@
   <string name="do_in_background">استكمال في الخلفية</string>
   <string name="rebuild_index_button">اعادة بناء</string>
   <string name="creating_index_for">إنشاء فهرس لـ %s...</string>
-  <!--X results in module Y-->
-  <string name="search_with_results2">%1$s نتيجة في %2$s</string>  <!--Tasks-->
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s نتيجة في %2$s</string>
+
+    <!-- Tasks -->
   <string name="progress_status">الحالة</string>
   <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
   <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
-  <!--Search-->
+
+    <!-- Search -->
   <string name="search_words_group_prompt">بحث الآيات</string>
   <string name="search_all_words">كل الكلمات</string>
   <string name="search_any_word">أي كلمة</string>
   <string name="search_phrase">جملة</string>
+  <string name="search_fts_query">صيغة الاستعلام الخام</string>
   <string name="search_result_count">يوجد %d </string>
   <string name="search_showing_first">يوجد نتائج كثيرة جدا،  نعرض أول  %d نتيجة</string>
   <string name="search_bible_section_group_prompt">أين</string>
@@ -57,24 +69,48 @@
   <string name="search_current_book">السفر الحالي</string>
   <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
   <string name="type_text_or_bible_reference">أدخل نصاً أو مرجعاً من الكتاب المقدس</string>
-  <!--Open (bible reference X)-->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">افتح %s</string>
-  <!--Finx "(keywords x)", keywords based on text selection-->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">أوجد \"%s\"</string>
-  <!--Preferences-->
+    <!-- Multi-translation search -->
+  <string name="search_translations">الترجمات</string>
+  <string name="choose_translations">اختر الترجمات…</string>
+  <string name="multi_search_results">%1$d آية في %2$d ترجمات</string>
+  <string name="search_index_not_created">لا يوجد فهرس</string>
+
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">الإصحاح وأعداد الآية</string>
   <string name="prefs_show_verseno_summary">عرض الإصحاح وأعداد الآية</string>
+
   <string name="prefs_e_ink_mode_title">وضع أبيض وأسود</string>
   <string name="prefs_eink_mode_summary">استخدم التطبيق في الوضع أحادي اللون (بدون ألوان)، مما يجعله أكثر ملاءمة لأجهزة الحبر الإلكتروني.</string>
+  <string name="prefs_eink_settings_cat">إعدادات الحبر الإلكتروني</string>
+  <string name="prefs_eink_display_title">ميزات الحبر الإلكتروني</string>
+  <string name="prefs_eink_display_summary">تفعيل الميزات الخاصة بشاشات الحبر الإلكتروني (أزرار تمرير الصفحة، وخطوط مساعدة التمرير)</string>
+
   <string name="prefs_disable_animations_title">تعطيل الرسوم المتحركة</string>
   <string name="prefs_disable_animations_summary">تعطيل الرسوم المتحركة المختلفة مثل التمرير السلس.</string>
+
+  <string name="prefs_disable_click_to_edit_title">تعطيل النقر للتحرير في لوحة الدراسة</string>
+  <string name="prefs_disable_click_to_edit_summary">يتطلب استخدام زر التحرير لتعديل الملاحظات في لوحة الدراسة.</string>
+
+  <string name="prefs_notes_content_type_title">تنسيق ملاحظات الإشارات المرجعية الجديدة</string>
+  <string name="prefs_notes_content_type_summary">تنسيق النص المستخدم عند إنشاء ملاحظات إشارات مرجعية جديدة وإدخالات لوحة الدراسة</string>
+  <string name="notes_content_type_html">نص منسق (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
   <string name="prefs_paragraph_spacing_title">تباعد الفقرات (%s مم)</string>
   <string name="prefs_paragraph_spacing_summary">تعديل المسافة بين الاجزاء</string>
+
   <string name="prefs_show_verseno_title1">رقم الآية</string>
+
   <string name="prefs_show_chapter_no_title">رقم السفر</string>
   <string name="prefs_show_chapter_no_summary">اظهر رقم السفر</string>
+
   <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
   <string name="prefs_show_bookmarks_summary">الغي التحديد لاخفاء كل علامات التبويب</string>
+
   <string name="prefs_show_mynotes_summary">إظهار علامة ملاحظاتي في الآيات </string>
   <string name="prefs_show_notes_summary">اظهر التذييل و المراجع </string>
   <string name="prefs_show_strongs_summary">روابط وصل للتعريفات اليونانية و العبرية</string>
@@ -82,30 +118,49 @@
   <string name="prefs_section_title_summary">أظهر عناوين المقاطع الغير قانونية</string>
   <string name="prefs_red_letter_summary">اظهار كلةم السيد المسيح بخط احمر</string>
   <string name="prefs_text_size_title">تفضيلات الخط</string>
+
   <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
   <string name="prefs_show_bookmarks_title">اظهار علامات التبويب</string>
   <string name="prefs_show_mynotes_title">إظهار علامة ملاحظاتي</string>
   <string name="prefs_show_footnotes_title">الحواشي</string>
   <string name="prefs_show_xrefs_title">تخطي المراجع</string>
   <string name="prefs_show_footnotes_summary">إظهار الحواشي، إذا كانت متوفرة في المستند</string>
+  <string name="prefs_show_footnotes_inline_title">الحواشي المضمّنة</string>
+  <string name="prefs_show_footnotes_inline_summary">عرض الحواشي مضمّنة مع النص بدلاً من عرضها كمقابض قابلة للنقر</string>
   <string name="prefs_show_xrefs_summary">إظهار المراجع التبادلية، إذا كانت متوفرة في المستند</string>
+
   <string name="prefs_show_notes_title">التذييل و x-ref</string>
   <string name="prefs_show_strongs_title">أعداد سترونج</string>
   <string name="prefs_show_morphology_title">رموز التشكيل (المورفولوجية)</string>
+  <string name="prefs_non_strongs_word_italic_title">إمالة الكلمات المضافة</string>
+  <string name="prefs_non_strongs_word_italic_summary">إمالة الكلمات التي لا تحتوي على أرقام Strong\'s</string>
   <string name="prefs_section_title_title">عناوين المقاطع</string>
+  <string name="prefs_title_scroll_button_title">زر التمرير إلى العنوان</string>
+  <string name="prefs_title_scroll_button_summary">عرض زر التمرير إلى الأعلى بجوار عناوين الأقسام</string>
   <string name="prefs_red_letter_title">حروف حمراء</string>
+  <string name="prefs_infinite_scroll_title">التمرير اللانهائي</string>
+  <string name="prefs_infinite_scroll_summary">تحميل المزيد من المحتوى تلقائياً عند التمرير</string>
+  <string name="prefs_mark_as_read_button_title">زر "وضع علامة مقروء"</string>
+  <string name="prefs_mark_as_read_button_summary">عرض زر في نهاية كل فصل لوضع علامة مقروء</string>
+  <string name="prefs_show_memorization_indicators_title">مؤشرات الحفظ</string>
+  <string name="prefs_show_memorization_indicators_summary">عرض مؤشرات هامش ملوّنة للآيات المحفوظة والمستهدفة</string>
+  <string name="prefs_auto_track_reading_title">تتبع القراءة تلقائياً</string>
+  <string name="prefs_auto_track_reading_summary">وضع علامة مقروء على الفصول تلقائياً عند التمرير خلالها</string>
   <string name="prefs_tilt_to_scroll_title">امل الهاتف للف الصفحة</string>
+
   <string name="prefs_toolbar_button_action_title">الإجراء الخاص بالضغط على زر شريط الأدوات</string>
   <string name="prefs_toolbar_button_action_summary">الإجراء الذي يجب اتخاذه عند الضغط / الضغط المطول على أزرار شريط أدوات الكتاب المقدس أو التعليق</string>
   <string name="prefs_toolbar_button_action_default">اضغط لفتح القائمة، ضغطة مطولة لشاشة المستندات (افتراضي)</string>
   <string name="prefs_toolbar_button_action_swap_menu">اضغط لفتح المستند التالي، ضغطة مطولة لفتح القائمة</string>
   <string name="prefs_toolbar_button_action_swap_activity">اضغط لفتح المستند التالي، اضغط مطولاً على شاشة المستندات</string>
+
   <string name="prefs_night_mode_title">تبديل الوضع الليلي</string>
   <string name="prefs_night_mode_summary">سواء كان التبديل إلى الوضع الليلي تلقائيًا (إذا كان الجهاز يدعم) أو يدوياً أو عبر إعدادات النظام (اندرويد 10+). يمكن التبديل يدوياً من قائمة الـ 3 نقاط على الشاشة الرئيسية.</string>
   <string name="prefs_night_mode_manual">يدوي</string>
   <string name="prefs_night_mode_automatic">اوتوماتيك</string>
   <string name="prefs_night_mode_system">نظام</string>
   <string name="options_menu_night_mode">الوضع الليلي</string>
+
   <string name="prefs_navigate_to_verse_title">الذهاب الى الآية</string>
   <string name="prefs_navigate_to_verse_summary">اختار الآية ( او الاصحاح) للاختيار</string>
   <string name="prefs_open_links_in_special_window_title">نافذة الروابط</string>
@@ -116,31 +171,52 @@
   <string name="prefs_interface_locale_title">لغة التطبيق (البرنامج)</string>
   <string name="prefs_interface_locale_summary">اختر اللغة لواجهة الاستخدام في البرنامج</string>
   <string name="reset_fontsize">اعادة تهيئة</string>
+
   <string name="prefs_request_sdcard_permission_title">المستندات المثبتة يدوياً</string>
   <string name="prefs_request_sdcard_permission_summary">تمكين استخدام المستندات المثبتة يدوياً من مجلد jsword/sword على وحدة التخزين الداخلية</string>
+
   <string name="prefs_expand_footnotes_title">مرجع ترافقي مضمن</string>
   <string name="prefs_expand_footnotes_summary">اظهار محتوى المرجع الترافقي ضمن النص، عوضاً عن رابط يفتح نافذة منبثقة </string>
+
   <string name="all_text_options_window_menutitle">خيارات كل النصوص</string>
   <string name="text_options_window_menutitle">خيارات النصوص</string>
   <string name="auto_fullscreen">ملء الشاشة عند التمرير</string>
   <string name="reversed_split_mode">وضع الانقسام المعكوس</string>
+
   <string name="add_ellipsis">%s...</string>
+
   <string name="font_size_pt">%dنقطة</string>
   <string name="value_mm">%dمم</string>
   <string name="auto_fullscreen_summary">التبديل تلقائيًا إلى وضع ملء الشاشة عند تمرير النص. نصيحة: يمكنك دائمًا التبديل إلى ملء الشاشة عن طريق النقر المزدوج على الشاشة.</string>
   <string name="prefs_margin_size_title">تغيير حجم الهامش</string>
   <string name="prefs_margin_size_mm_title">حجم الهامش (%1$d/%2$d/%3$d mm)</string>
   <string name="prefs_advanced_settings_cat">اعدادات متقدمة</string>
+  <string name="prefs_features_cat">الميزات</string>
   <string name="prefs_display_customization_cat">المظهر و الاحساس</string>
   <string name="prefs_behavior_customization_cat">سلوك التطبيق</string>
+
   <string name="prefs_margin_size_summary">ضبط الهامش الأيمن والأيسر لعرض النص. بامكانك ايضا
 ضبط أقصى عرض للنص.</string>
+  <string name="prefs_margin_size_summary_2">تلميح: يمكنك النقر على منطقة الهامش للقفز صفحة للأعلى أو للأسفل.</string>
+
   <string name="prefs_text_colors_summary">ضبط ألوان النص والخلفية وتأثير التشويش</string>
   <string name="text_display_settings_activity_title">إعدادات عرض النص</string>
   <string name="workspace_text_display_settings_title">خيارات النص - %s</string>
   <string name="window_text_display_settings_title">خيارات النص - النافذة %d</string>
-  <string name="prefs_text_display_settings_title">التنسيق</string>
-  <string name="prefs_text_appearance_title">المظهر</string>
+  <string name="global_text_display_settings_title">خيارات النص العامة</string>
+  <string name="global_text_display_settings_summary">إعدادات عرض النص الافتراضية لجميع مساحات العمل</string>
+  <string name="parent_settings_category_title">الإعدادات الرئيسية</string>
+  <string name="workspace_text_options_link">خيارات نص مساحة العمل — %s</string>
+  <string name="workspace_text_options_link_summary">تعديل إعدادات عرض النص لهذه مساحة العمل</string>
+  <string name="global_text_options_link">خيارات النص العامة</string>
+  <string name="global_text_options_link_summary">تعديل إعدادات عرض النص الافتراضية لجميع مساحات العمل</string>
+  <string name="prefs_font_and_colors_title">الخط والألوان</string>
+  <string name="prefs_text_layout_title">تخطيط النص</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s والصرف</string>
+  <string name="prefs_footnotes_and_xrefs_title">الحواشي والمراجع المتقاطعة</string>
+  <string name="prefs_verses_and_headings_title">الآيات والعناوين</string>
+  <string name="prefs_page_scrolling_title">تمرير الصفحة</string>
+
   <string name="prefs_justify_title">ضبط محاذاة النص</string>
   <string name="prefs_justify_summary">محاذاة النص في نمط \"ضبط\"، مما يعني أن الهوامش اليمنى واليسرى للنص في خط</string>
   <string name="pref_left_margin_label_mm">الهامش الأيسر (%d مم)</string>
@@ -162,8 +238,10 @@
   <string name="hide_window_buttons_summary">أزرار النافذة التي يتم عرضها على الجانب الأيمن من عروض الكتاب المقدس مخفية. لا يزال شريط تنقل النافذة في الجزء السفلي معروضًا ويمكنك فتح قائمة منبثقة من خلال النقر عليها مطولاً.</string>
   <string name="hide_bible_reference_overlay_title">إخفاء تراكب مرجع الكتاب المقدس</string>
   <string name="hide_bible_reference_overlay_summary">لا تعرض تراكب مراجع الكتاب المقدس شبه الشفافة عندما يكون التطبيق في وضع ملء الشاشة</string>
+
   <string name="full_screen_hide_buttons_pref_title">إخفاء شريط زر النافذة في وضع ملء الشاشة</string>
   <string name="full_screen_hide_buttons_pref_summary">عند التبديل إلى وضع ملء الشاشة، إخفاء شريط أزرار النافذة تلقائيًا الموجود أسفل الشاشة</string>
+
   <string name="prefs_dictionaries_cat">القواميس</string>
   <string name="choose_strongs_greek_dictionary_title">القاموس اليوناني Strongs</string>
   <string name="choose_strongs_greek_dictionary_summary">اختر قاموس Strongs لتعريفات الكلمات اليونانية</string>
@@ -171,21 +249,32 @@
   <string name="choose_strongs_hebrew_dictionary_summary">اختر قاموس Strongs لتعريفات الكلمات العبرية</string>
   <string name="choose_strongs_greek_morphology_title">علم التشكل اليوناني روبنسون</string>
   <string name="choose_strongs_greek_morphology_summary">اختر قاموسًا لتعريفات علم التشكل اليونانية روبنسون</string>
+  <string name="choose_word_lookup_dictionary_title">قواميس البحث عن الكلمات</string>
+  <string name="choose_word_lookup_dictionary_summary">اختر القواميس للبحث عن الكلمات</string>
+  <string name="lookup_in_dictionary">البحث في القواميس</string>
+  <string name="word_not_found_in_dictionaries">الكلمة غير موجودة في أي قاموس</string>
+
   <string name="prefs_top_margin_title_mm">الهامش العلوي (%d مم)</string>
   <string name="font_size_title">حجم الخط</string>
   <string name="font_size_title_pt">حجم الخط (%d نقطة)</string>
   <string name="prefs_font_text_size_summary">ضبط حجم خط النص الرئيسي</string>
+
   <string name="pref_font_family_label_name">عائلة الخط (%s)</string>
   <string name="prefs_font_family_summary">تغيير عائلة الخط. نصيحة: يمكن تثبيت المزيد من الخطوط عبر تنزيل المستندات / الإضافات.</string>
+
   <string name="prefs_text_bookmarks_title">إعدادات الإشارات المرجعية وملاحظاتي</string>
+  <string name="prefs_reading_and_memorization_title">القراءة والحفظ</string>
+
   <string name="prefs_enable_bluetooth_title">تمكين أزرار وسائط البلوتوث</string>
   <string name="prefs_enable_bluetooth_summary">تعامل مع أزرار وسائط البلوتوث لبدء / إيقاف التحدث.</string>
   <string name="create_bookmark">أنشئ إشارة مرجعية جديدة</string>
   <string name="create_bookmark_with_a_note">أنشئ إشارة مرجعية جديدة مع ملاحظة </string>
-  <!--Colors preferences-->
+
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">إعدادات الألوان</string>
   <string name="window_color_settings_title">إعدادات لون النافذة</string>
   <string name="workspace_color_settings_title">الإعدادات الافتراضية لإعدادات مساحة العمل</string>
+
   <string name="color_workspace">لَون مساحة العمل</string>
   <string name="color_text">لون الخط</string>
   <string name="color_background">لون الخلفية</string>
@@ -193,12 +282,14 @@
   <string name="colors_night_mode_title">الوضع الليلي</string>
   <string name="prefs_noise_title">تشويش الخلفية</string>
   <string name="prefs_noise_summary">قد تؤدي إضافة بعض التشويش إلى الخلفية إلى جعلها أكثر راحة للعيون.</string>
+
   <string name="cpv_default_title">تحديد لون</string>
   <string name="cpv_presets">المسبقة</string>
   <string name="cpv_custom">مخصص</string>
   <string name="cpv_select">تحديد</string>
   <string name="cpv_transparency">الشفافية</string>
-  <!--Window-->
+
+    <!-- Window -->
   <string name="new_window">نافذة جديدة</string>
   <string name="windowClose">إغلاق</string>
   <string name="windowMaximise">تكبير</string>
@@ -209,19 +300,23 @@
   <string name="copy_settings">نسخ الإعدادات إلى</string>
   <string name="copy_settings_to_workspace">مساحة العمل</string>
   <string name="copy_settings_to_window">النافذة %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">الإعدادات الافتراضية العامة</string>
   <string name="change_to_normal">التغيير إلى نافذة عادية</string>
   <string name="window_pin_mode">تثبيت</string>
-  <!--Notes screen-->
+
+    <!-- Notes screen -->
   <string name="no_chapter_notes">لا يوجد ملاحظات في الاصحاح</string>
   <string name="no_verse_notes">لا يوجد ملاحظات للآية</string>
   <string name="previous">السابق</string>
   <string name="next">التالي</string>
-  <!--Strongs-->
+
+    <!--  Strongs -->
   <string name="strongs_not_installed">تحميل معجم القوة للغة العبرية و اليونانية</string>
   <string name="no_indexed_bible_with_strongs_ref">يجب عليك تنزيل كتاب مقدس يحتوي على أرقام Strong وإنشاء فهرس لها عبر البحث</string>
   <string name="morph_robinson_not_installed">برجاء تحميل فهرس روبنسون التحليلي.</string>
   <string name="go_to_downloads">الانتقال إلى التنزيلات</string>
-  <!--Module download-->
+
+    <!-- Module download -->
   <string name="download">تحميل المستندات</string>
   <string name="redownload">إعادة تنزيل المستندات</string>
   <string name="download_confirmation">تنزيل كتاب مقدس من الإنترنت؟</string>
@@ -252,7 +347,8 @@
   <string name="failed_repositories_message">تعذر الاتصال بخادم المستندات التالي: \n\n%s\n\n</string>
   <string name="failed_downloads_message">تعذر تحميل الملفات التالية:\n\n%s\n\n</string>
   <string name="cant_delete_document">هذا المستند لا يمكن حذفه.</string>
-  <!--Install zip file-->
+
+    <!--  Install zip file -->
   <string name="install_zip">حمّل المستندات من الملفات</string>
   <string name="install_zip_module">تثبيت وحدة الكتاب المقدس</string>
   <string name="install_zip_module_discrete">ثبّت وحدة الالة الحاسبة</string>
@@ -265,7 +361,8 @@
   <string name="overwrite_files_title">الكتابة فوق الملفات؟</string>
   <string name="could_not_overwrite_files">لم نتمكن من استبدال الملفات: %s. عدا عن ذلك فقد كان التثبيت ناجحاً</string>
   <string name="install_do_you_want">هل تريد تثبيت الوحدة (%s)؟ </string>
-  <!--Daily Reading Plan-->
+
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">خطة القراءة</string>
   <string name="reading_plans_plural">خطط القراءة</string>
   <string name="rdg_plan_selector_title">اختيار خطة القراءة</string>
@@ -295,6 +392,8 @@
         رجاءً اعد تسمية الملف لشئ آخر، مع الحفاظ على لاحقة الملف كخصائص
     </string>
   <string name="plan_name_y1ntpspr">العهد الجديد، المزامير و الامثال في سنة.</string>
+  <string name="plan_description_y1ntpspr">بإذن من مجلة HEARTLIGHT الإنترنتية، http://www.heartlight.org</string>
+  <string name="plan_name_y1ot1nt1_chronological">الكتاب المقدس كاملاً بترتيب زمني في سنة واحدة</string>
   <string name="plan_description_y1ot1nt1_chronological">
         خطة مبنية على التسلسل الزمني للاحداث في الكتاب المقدس
         التسلسل الزمني تقريبي
@@ -310,31 +409,37 @@
         و انتهاءاً بسفر الرؤيا. العهد القديم أولاً، ثم العهد الجديد.
     </string>
   <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne سنة-1 4-إصحاح/باليوم </string>
+  <string name="plan_description_y1ot1nt2_mcheyne">تستند هذه الخطة إلى نظام قراءة M\'Cheyne، وتتضمن أربع قراءات يومية للاستخدام في التأملات العائلية والشخصية. كل يوم يحتوي على مقطعين من العهد القديم، ومقطع من العهد الجديد، ومقطع من المزامير أو الأناجيل. في سنة واحدة، تقرأ العهد القديم مرة واحدة، والعهد الجديد والمزامير مرتين.</string>
   <string name="plan_name_y1ot6nt4_profHorner">خطة البروفيسور هورنر لقراءة 10-إصحاح/باليوم</string>
   <string name="plan_description_y1ot6nt4_profHorner">بإذن من البروفيسور هورنر ، تم منح الإذن</string>
   <string name="plan_name_y2ot1ntps2">2-سنة في الكتاب المقدس، العهد الجديد + المزامير مرتين</string>
-  <!--Document context menu-->
+  <string name="plan_description_y2ot1ntps2">اقرأ الكتاب المقدس في سنتين، مع قراءة العهد الجديد والمزامير مرتين. بإذن من Wholesome Words، http://www.wholesomewords.org/</string>
+
+    <!-- Document context menu -->
   <string name="delete">الغاء (حذف)</string>
   <string name="delete_index">حذف  فهرس البحث.</string>
   <string name="about">عن البرنامج</string>
   <string name="delete_doc">حذف %s ؟</string>
   <string name="delete_search_index_doc">حذف فهرس من %s ؟</string>
-  <!--Verse context menu-->
+
+    <!-- Verse context menu -->
   <string name="notes">التذييل و المراجع</string>
   <string name="share_verse">مشاركة...</string>
   <string name="share_verse_widget_title">مشاركة التحديد</string>
   <string name="share_verse_subject_2">تم مشاركتك بآية من الكتاب المقدس باستخدام %s.</string>
   <string name="compare_translations">مقارنة الترجمات</string>
-  <!--Link context menu-->
+
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">أفتح الرابط هنا</string>
   <string name="open_link_in_new_window">أفتح الرابط في نافذة جديدة</string>
   <string name="open_link_in_special_window">أفتح الرابط في نافذة خاصة</string>
-  <!--Bookmarks-->
+
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="migrated_my_notes">ترحيل ملاحظاتي</string>
   <string name="bookmarks">إشارات مرجعية</string>
   <string name="bookmark_added">تم أضافة أشارة مرجعية</string>
-  <!--Bookmark / note labels-->
+    <!-- Bookmark / note labels -->
   <string name="labels">تسميات</string>
   <string name="manage_labels">إدارة الملصقات</string>
   <string name="assign_labels">تعيين التسميات</string>
@@ -348,6 +453,9 @@
   <string name="add_bookmark_whole_verse">إشارة مرجعية للآية</string>
   <string name="add_bookmark_whole_verse1">آيات</string>
   <string name="add_bookmark_whole_verse2">آيات كاملة</string>
+  <string name="add_whole_page_bookmark">إضافة إشارة مرجعية للصفحة كاملة</string>
+  <string name="add_paragraph_break">فاصل فقرة</string>
+  <string name="ai_label">الذكاء الاصطناعي</string>
   <string name="remove_bookmark">إزالة</string>
   <string name="bookmark_settings_hide_labels_title">إخفاء ملصقات محددة</string>
   <string name="bookmark_settings_hide_labels_summary">إخفاء الإشارات المرجعية التي تم تمييزها بعلامة ملصق(ملصقات) محددة</string>
@@ -356,8 +464,11 @@
   <string name="auto_assign_labels1">عيّن ملصق تلقائياً لعلامة مرجعية جديدة</string>
   <string name="auto_assign_labels_primary">التعيين التلقائي كأساسي</string>
   <string name="label_color">لون الملصق</string>
-  <!--can be removed-->
   <string name="label_color_example">مثال</string>
+  <string name="marker_style">إظهار العلامة فقط للإشارات المرجعية للتحديد</string>
+  <string name="marker_style_whole_verse">إظهار العلامة فقط للإشارات المرجعية للآية كاملة</string>
+  <string name="hide_style">إخفاء للإشارات المرجعية للتحديد</string>
+  <string name="hide_style_whole_verse">إخفاء للإشارات المرجعية للآية كاملة</string>
   <string name="bookmark_warning">لا يوجد علامات مرجعية و/أو ملاحظات لهذا المستند</string>
   <string name="bookmark_warning2">
          اذا تغيرت بنية المستند، قد يؤدي تحديث هذا المستند الى
@@ -365,31 +476,34 @@
     </string>
   <string name="bookmark_warning3">هل ما زلت تريد تحديث الوحدة؟</string>
   <string name="bookmark_warning4">يُنصح بأخذ نسخة احتياطية من الوحدة قبل التحديث.</string>
-  <!--Sort orders used for Bookmarks and MyNotes-->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">ترتيب التاريخ</string>
   <string name="sort_by_bible_book">ترتيب الكتاب المقدس</string>
   <string name="sort_by_alphabetical">ترتيب ابجدي</string>
-  <!--notes = user notes ("My Notes") that are attached to bookmark-->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">ابحث في الملاحظات</string>
-  <!--Dictionary-->
+
+    <!-- Dictionary -->
   <string name="dictionary">القاموس</string>
   <string name="search_dictionary_hint">إبحث في القاموس</string>
-  <!--General Book-->
+
+    <!-- General Book -->
   <string name="general_book">سفر</string>
-  <!--Speak-->
-  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
-  <!--Speak - Bible-->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d إصحاح</string>
   <string name="some_chapters">%d إصحاحات</string>
   <string name="rest_of_book">إلى نهاية السفر</string>
-  <!--Speak - Commentary-->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d آية</string>
   <string name="some_verses">%d آيات</string>
   <string name="rest_of_chapter">إلى نهاية الإصحاح</string>
-  <!--Speak - Dictionary and other-->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d صفحة</string>
   <string name="some_pages">%d صفحات</string>
-  <!--Speak - Common-->
+    <!-- Speak - Common -->
   <string name="stop">توقف</string>
   <string name="pause">وقفة</string>
   <string name="rewind">إعادة</string>
@@ -397,7 +511,8 @@
   <string name="tts_lang_not_available">اللغة غير متاحة</string>
   <string name="speak_queue">بانتظام</string>
   <string name="speak_repeat">تكرار</string>
-  <!--Speak - Bible-->
+
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">سرعة التحدث</string>
   <string name="speak_and_play_earcons_title">التحدث وتشغيل أصوات earcon ل</string>
   <string name="playback_settings_title">إعدادات التشغيل</string>
@@ -406,14 +521,17 @@
   <string name="speak_bookmarks_menu_title">التحدث من المرجعية</string>
   <string name="speak_advanced_settings">إعدادات متقدمة</string>
   <string name="speak_sleep_timer_title">مؤقت النوم</string>
+
   <string name="speak_no_books_available">لا توجد كتب متاحة للتحدث</string>
   <string name="speak_general_error">لا يمكن بدء الكلام لهذا الكتاب</string>
+
   <string name="repeat_passage">تكرار الفقرة</string>
   <string name="set_repeat_passage_range">تعيين نطاق تكرار الفقرة</string>
   <string name="speak_beginning_of_passage">اختيار بداية المقطع</string>
   <string name="speak_ending_of_passage">اختيار نهاية المقطع</string>
   <string name="speak_verse_range_to_repeat">اختيار نطاق الآية لتكرارها</string>
   <string name="speak_ending_verse_must_be_later">يجب أن تكون الآية الختامية متأخرة عن آية البداية</string>
+
   <string name="conf_speak_synchronize">النص يتبع الكلام</string>
   <string name="conf_speak_auto_bookmark">الإشارة المرجعية التلقائية</string>
   <string name="conf_save_playback_settings_to_bookmarks">حفظ إعدادات التشغيل في الإشارات المرجعية</string>
@@ -422,10 +540,12 @@
   <string name="conf_change_title">العناوين</string>
   <string name="conf_speak_footnotes">الحواشي</string>
   <string name="conf_speak_sleep_timer">ضبط مؤقت النوم</string>
+
   <string name="sleep_timer_title">وقت النوم بالدقائق</string>
   <string name="sleep_timer_set">ضبط مؤقت النوم. ضبط المؤقت:%dدقائق</string>
   <string name="sleep_timer_started">بدأ مؤقت النوم، %d دقائق</string>
   <string name="sleep_timer_active_at">مؤقت النوم: %s دقائق متبقية.</string>
+
   <string name="speak_next">التالي</string>
   <string name="speak_previous">السابق</string>
   <string name="widget_toggle_sleep_timer">تبديل مؤقت النوم</string>
@@ -433,33 +553,45 @@
   <string name="speak_status_stopped">متوقف</string>
   <string name="speak_autobookmarking_disabled">تم تعطيل الإشارة المرجعية التلقائية!</string>
   <string name="system_speak_settings">فتح إعدادات نظام تحويل النص إلى كلام</string>
+
   <string name="auto_assing_labels_help1">يمكنك هنا ان تضبط أي من الملصقات يتم تعيينها تلقائياً للعلامات المرجعية التي تُنشئها</string>
-  <!--parameter is ether setting_scope_window or setting_scope_workspace-->
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">هذا الإعداد ينطبق على %s.</string>
   <string name="setting_scope_window">هذه النافذة</string>
   <string name="setting_scope_workspace">مساحة العمل هذه</string>
+
   <string name="assing_labels_help1">كل علامة مرجعية يمكن ان تحدد بعدّة ملصقات.</string>
-  <!--param is bookmark icon-->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">استخدم %s لتحديد أيّ لون للملصق سيتم إظهاره.</string>
-  <!--param is auto-assign label icon-->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">انقر على رمز %s ليتم تعيين الملصق تلقائياً للعلامة المرجعية الجديدة.</string>
-  <!--param is heart icon-->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">انقر على %s لإضافة الملصق إلى قائمة المفضلة للوصول السريع.</string>
-  <!--param is refresh icon-->
+
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">انقر على %s لتعيد ترتيب القائمة حسب اختيارك.</string>
+
+  <string name="global_text_options_help_title">خيارات النص العامة</string>
+  <string name="global_text_options_help1">هذه هي الإعدادات الافتراضية العامة لجميع مساحات العمل. يمكن لكل مساحة عمل تجاوز هذه الإعدادات بإعداداتها الخاصة.</string>
+
   <string name="workspace_text_options_help_title">خيارات نص مساحة العمل</string>
   <string name="workspace_text_options_help1">هذه الإعدادات تحدد اللاعداد الافتراضي لكل نوافذ مساحات العمل.</string>
   <string name="workspace_text_options_help2">يمكنك تجاوزها عن طريق تغيير إعدادات النافذة على انفراد.</string>
+
   <string name="window_text_options_help_title">خيارات نص النافذة</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s رمز يشير إلى أن الإعداد آتٍ من إعدادات مساخة العمل.</string>
-  <!--Parameter is actual icon-->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">%s رمز يشير إلى أن الإعداد قد تم تغييره من أجل هذه النافذة.</string>
-  <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">استخدم زر %1$s لإعادة تعيين كل هذه الإعدادات مجدداً إلى %2$s.</string>
   <string name="reset_defaults">القيم الافتراضية</string>
   <string name="reset_workspace_defaults">القيم الافتراضية لمساحة العمل</string>
+
   <string name="speak_bookmark_help">نطق تعليمات الإشارة المرجعية</string>
+
   <string name="speak_help_auto_bookmark">
 ستتم إضافة إشارة \"النطق\" تلقائيًا عند إيقاف \"التحدث\" مؤقتًا أو إيقافه.
 يتم تمييز الإشارات المرجعية التي تم إنشاؤها تلقائيًا بعلامة التحدث الخاصة.
@@ -477,31 +609,19 @@
 ولكن بالنسبة إلى رومية بشكل أبطأ بأصوات إيركون مسموعة عند تغيير الإصحاح، إذن
 يمكن أن يكون لديك إعدادات تشغيل مختلفة لهذه الأسفار،
 عندما يتم حفظ هذه الإعدادات في الإشارات المرجعية المقابلة.</string>
-  <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_original">
-    <item>السيد</item>
-    <item>الرب</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
-  <!--List of (max 5) words that we will replace those words listed in divinename_original.
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
-         in speak settings.-->
-  <string-array name="speak_divinename_replace">
-    <item>يهوه</item>
-    <item>يهوه</item>
-    <item></item>
-    <item></item>
-    <item></item>
-  </string-array>
+         in speak settings. -->
+
   <string name="speak_book_changed">تغير الكتاب.</string>
   <string name="speak_chapter_changed">فصل</string>
   <string name="speak_first">أولاً</string>
@@ -509,10 +629,15 @@
   <string name="speak_third">الثالث</string>
   <string name="speak_fourth">رابعاً</string>
   <string name="speak_fifth">الخامس</string>
-  <!--User Notes-->
+
+  <string name="verse_range_mode_disabled">تم تعطيل وضع تكرار المقطع تلقائياً لأن التشغيل بدأ خارج نطاق الآيات المحدد.</string>
+
+    <!-- User Notes -->
   <string name="mynotes">ملاحظاتي</string>
-  <!--Backup and restore-->
+
+    <!-- Backup and restore -->
   <string name="backup_backup_title">النسخ الاحتياطي إلى أين؟</string>
+  <string name="backup_backup_message">نسخ احتياطي إلى الهاتف أو مكان آخر عبر وظيفة المشاركة (البريد الإلكتروني، Google Drive، إلخ)؟</string>
   <string name="backup_phone_storage">ذاكرة الهاتف</string>
   <string name="backup_and_restore">النسخ الاحتياطي و الاستعادة</string>
   <string name="backup_modules2">نسخ المستندات احتياطياً إلى...</string>
@@ -526,10 +651,15 @@
   <string name="backup_document_info">الأناجيل، التعليقات، القواميس، الخرائط إلخ.</string>
   <string name="backup_to">قم بنسخ احتياطي إلى...</string>
   <string name="backup_restore_from">استعادة من...</string>
-  <!--Restore = overwrite existing. Import = merge into existing-->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <string name="backup_restore_from2">استعادة أو استيراد من…</string>
   <string name="backup_restore">إستعادة</string>
-  <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
+  <string name="backup_restore2">استعادة أو استيراد</string>
+  <string name="overwrite_something">الكتابة فوق %s؟</string>
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">ماذا تريد أن تستعيد؟</string>
+
   <string name="restore_app_database">استعادة قاعدة بيانات التطبيق من...</string>
   <string name="restore_database">استعادة ملف قاعدة البيانات</string>
   <string name="restore_confirmation">الكتابة فوق ملاحظاتي، والإشارات المرجعية، واللوحات الدراسية، وخطط القراءة ومساحات العمل؟</string>
@@ -539,30 +669,49 @@
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
   <string name="backup_success2">تم النسخ الاحتياطي للملاحظات، العلامات المرجعية، اللوحات الدراسية، خطط القراءة و مساحات العمل الخاصة بي بنجاح.</string>
   <string name="backup_modules_success">تم النسخ الاحتياطي للوحدات المحددة بنجاح.</string>
+
+  <string name="backup_modules_email_subject_2">نسخة احتياطية لوحدات %s</string>
   <string name="backup_modules_email_message_2">المرفق هو وحدات %1$s المنسوخة احتياطياً، والتي تحوي الوحدات التالية: %2$s</string>
+
+  <string name="backup_email_subject_2">نسخة احتياطية لقاعدة بيانات %s</string>
   <string name="backup_email_message_2">قاعدة بيانات %s خاصتك التي تحوي العلامات المرجعية، الملاحظات، خطط القراءة، ومساحات العمل قد تم إرفاقها</string>
+
+  <string name="exported_studypads_subject">لوحات الدراسة المُصدَّرة</string>
+  <string name="exported_studypads_message">قاعدة البيانات %s المحتوية على الإشارات المرجعية والملاحظات المتعلقة بلوحات الدراسة المحددة مرفقة</string>
   <string name="restore_unsuccessfull">استعادة قاعدة البيانات فشل. ربما أدخلت ملف قاعدة بيانات غير صالح.</string>
   <string name="restore_modules">استعادة المستندات من...</string>
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
   <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
+  <string name="ask_restore_or_import">يمكن استعادة قاعدة بيانات %s (أي إزالة قاعدة البيانات الحالية وتحميل القاعدة المحددة) أو استيرادها (استيراد قاعدة البيانات المحددة في قاعدة البيانات الحالية). ماذا تريد أن تفعل؟</string>
   <string name="restore">إستعادة</string>
-  <!--First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively-->
-  <!--About-->
+  <string name="import2">استيراد</string>
+  <string name="export_studypads_help">يمكن استيراد الملف المحتوي على لوحات الدراسة المُصدَّرة (أي التسميات والإشارات المرجعية) عبر القائمة الرئيسية -> النسخ الاحتياطي والاستعادة.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" و%2$s تسمية/لوحة دراسة أخرى و%3$s إشارة مرجعية</string>
+
+    <!-- About -->
   <string name="module_about_copyright">حقوق النشر: %s</string>
   <string name="module_about_installed_version">النسخة المثبتة: %1$s (%2$s)</string>
   <string name="module_about_latest_version">أحدث نسخة: %1$s (%2$s)</string>
   <string name="module_about_versification">رقم المنظومة: %s</string>
   <string name="module_about_repository">خادم التوزيعة: %s</string>
-  <!--Bug reporting-->
+  <string name="module_about_osisId">معرّف OSIS: %s</string>
+
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">تقرير الأخطاء</string>
   <string name="send_feedback_title">تعليق</string>
   <string name="send_bug_report_title">تقرير التعليقات / الأخطاء</string>
+  <string name="report_bug_email_subject_3">[%1$s] تقرير خطأ لـ %2$s %3$s</string>
+
+  <string name="report_bug_big_heading">يرجى كتابة ملاحظاتك أو تقرير الخطأ فوق هذا السطر</string>
   <string name="report_bug_heading1">تعليمات:</string>
   <string name="report_bug_line_1">أخبرنا باختصار ماذا فعلت/حدث عندما حدثت المشكلة.</string>
   <string name="report_bug_heading2">على سبيل المثال:</string>
   <string name="report_bug_instructions1">1. فتح التطبيق</string>
   <string name="report_bug_instructions2">2. النقر فوق قائمة النافذة</string>
+  <string name="report_bug_instructions3">-> عطل</string>
   <string name="report_bug_line_2">أحيانًا تكون لقطات الشاشة التي يتم التقاطها يدويًا مفيدة أيضًا في حل المشكلات.</string>
   <string name="report_bug_line_3">الرجاء استخدام هذه الوظيفة للإبلاغ بمجرد ملاحظة حدوث مشكلة.</string>
   <string name="report_bug_line_4">يمكنك أيضاً استخدام هذه الخاصية بعد فتح التطبيق، بعد ان حدث العطل.
@@ -572,7 +721,8 @@
   <string name="bug_report_screenshot">لقطة شاشة للتطبيق عند حدوث عطل أو عند إنشاء تقرير خطأ.</string>
   <string name="bug_report_attachment_line_1">إرفاق هذه الملفات يساعد مطوري التطبيق كثيراً في إصلاح الخطأ المبلغ عنه.</string>
   <string name="report_bug_heading_4">بيانات الجهاز:</string>
-  <!--Document types-->
+
+    <!-- Document types -->
   <string name="doc_type_all">كل الأنواع</string>
   <string name="doc_type_bible">إنجيل</string>
   <string name="doc_type_commentary">تعليق</string>
@@ -580,11 +730,14 @@
   <string name="doc_type_book">سفر</string>
   <string name="doc_type_map">خريطة</string>
   <string name="doc_type_addons">الإضافات</string>
-  <!--Languages-->
+
+    <!-- Languages -->
   <string name="lang_default">إفتراضي</string>
-  <!--General-->
+
+    <!-- General -->
   <string name="okay">موافق</string>
   <string name="cancel">تجاهل</string>
+  <string name="discard_changes_confirmation">تجاهل التغييرات غير المحفوظة؟</string>
   <string name="yes">نعم</string>
   <string name="no">لا</string>
   <string name="error">خطأ</string>
@@ -595,7 +748,8 @@
   <string name="reset_generic">اعادة تهيئة</string>
   <string name="watch_tutorial_video">شاهد فيديو تعليمي (بالإنجليزية)</string>
   <string name="verse_not_found">الآية غير موجودة</string>
-  <!--Errors-->
+
+    <!-- Errors -->
   <string name="report_error">إرسال تقرير</string>
   <string name="error_occurred">حدث خطأ ما</string>
   <string name="error_occurred_crash_last_time">آخر مرة عندما استخدمت التطبيق، حدث خلل. لمساعدتنا في حل الخطأ، سنكون ممتنين إذا ارسلت لنا تقرير اخطاء.</string>
@@ -603,14 +757,17 @@
   <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>
   <string name="error_page_too_large">لا نستطيع تحميل الصفحة لأنها كبيرة جدا</string>
   <string name="error_key_not_in_document">لا يوجد مستند</string>
-  <string name="error_key_not_in_document2">%1$s غير موجود في المستند %2$s.</string>  <string name="empty_list">لا يوجد مواد للعرض</string>
+  <string name="error_key_not_in_document2">%1$s غير موجود في المستند %2$s.</string>
+  <string name="empty_list">لا يوجد مواد للعرض</string>
   <string name="error_skip">تخطي</string>
   <string name="bug_report_email_title">أرسل تقرير اخطاء عبر البريد الإلكتروني.</string>
   <string name="bug_report_email_text">تالياً، الرجاء تحديد تطبيق البريد الإلكتروني المفضل (Gmail مثلا) لإرسال التقرير لفريق التطوير.</string>
-  <!--Notifications-->
+
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">النص إلى الكلام</string>
   <string name="notification_channel_progress_status">إشعار حالة التقدم لتنزيل المستندات وما إلى ذلك.</string>
-  <!--Workspaces-->
+
+    <!-- Workspaces -->
   <string name="new_workspace">جديد</string>
   <string name="switch_to_workspace">مساحات العمل</string>
   <string name="delete_workspace">إزالة</string>
@@ -628,15 +785,19 @@
   <string name="select_all">تحديد الكل</string>
   <string name="copy_settings_workspaces_title">لأيّ مساحة عمل ترغب في نسخ الإعداد؟</string>
   <string name="reset_settings">اعادة تهيئة</string>
+  <string name="search_settings">إعدادات البحث</string>
   <string name="workspace_dismiss">استبعاد</string>
   <string name="workspace_listing_with_current">%s (الحالية)</string>
-  <!--Beta notice-->
+
+    <!-- Beta notice -->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
+  <string name="beta_flag">تجريبي</string>
   <string name="beta_notice_content_1">
         في النسخة التجريبية، يوجد ميّزات لم يتم اختبارها جيداً بعد.
         و بالتالي استخدام النسخة التجريبية قد يقدم سلوك غير متوقع، كالاخطاء مثلاً.
         من المستحسن أن يستخدم قراء الكتاب المقدس العاديون نسخة مستقرة بدلاً من ذلك
     </string>
+
   <string name="beta_notice_content_2">
         نشجع مستخدمي النسخة التجريبية على التبليغ عن الأخطاء عبر Google Play أو (تفضيلاً) عبر %s.
     </string>
@@ -646,12 +807,15 @@
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss">استبعاد</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>
+
   <string name="stable_notice_title">لقد تم ترقية التطبيق!</string>
   <string name="upgrade_video_message">يرجى مشاهدة مقطع الفيديو الذي يعرض الميزات الجديدة لهذا الإصدار (%s).</string>
   <string name="stable_notice_par1">النسخة الجديدة %1$s من %2$s تم تثبيتها بنجاح!</string>
-  <!--History-->
+
+    <!-- History -->
   <string name="history_for">تاريخ (%1$s: نافذة %2$d)</string>
-  <!--Help-->
+
+    <!-- Help -->
   <string name="help_nav_title">التنقل</string>
   <string name="help_nav_text">اذهب إلى الإصحاح التالي أو السابق عن طريق تمرير إصبعك على الشاشة.
         نقرة مزدوجة على نص الكتاب المقدس للتبديل لنمط ملء الشاشة.
@@ -659,42 +823,62 @@
         و التي تمكنك من استخدام عدّة وظائف خاصّة بالنافذة و تخصيص شكل و سلوك النافذة. 
     </string>
   <string name="help_contextmenus_title">قوائم السياق</string>
+  <string name="help_contextmenus_text">الضغط المطوّل يفتح قائمة السياق أو وضع الإجراء في عدة مشاهد. اضغط مطوّلاً على مشهد الكتاب المقدس لفتح وضع الإجراء للإجراءات التي تؤثر على الآية الحالية. اضغط مطوّلاً على عنصر مستند في قائمة اختيار المستندات أو التنزيل لحذف المستند أو عرض معلوماته. اضغط مطوّلاً على إشارة مرجعية في قائمة الإشارات المرجعية لإضافة تسميات أو حذف الإشارة المرجعية. اضغط مطوّلاً على الروابط للاختيار بين فتحها في النافذة الحالية أو نافذة جديدة أو نافذة الروابط الخاصة.</string>
   <string name="help_bookmarks_title">الإشارات المرجعية وملاحظاتي</string>
+  <string name="help_bookmarks_text">يمكن إنشاء الإشارات المرجعية بتحديد نص ثم اختيار "إشارة مرجعية" من القائمة المنبثقة. يمكنك إضافة ملاحظاتك المخصصة للإشارة المرجعية الجديدة بالنقر على النص المُبرَّز في مشهد الكتاب المقدس. يوجد أيضاً مستند "ملاحظاتي" الخاص في التعليقات الذي يتيح لك عرض ملاحظاتك في نافذة منفصلة.</string>
+  <string name="help_studypads_text">لوحات الدراسة مصممة لتسهيل كتابة ملاحظات العظات وإعدادها أو كتابة ملاحظات دراسة الكتاب المقدس الشخصية التي تحتوي على مراجع كتابية متعددة. ترتبط كل لوحة دراسة بتسمية إشارة مرجعية واحدة. تظهر جميع الإشارات المرجعية التي تم إنشاؤها بهذه التسمية تلقائياً في مستند لوحة الدراسة. بالإضافة إلى الإشارات المرجعية، يمكن أن تحتوي لوحة الدراسة على إدخالات نصية مخصصة.</string>
+
   <string name="help_search_title">بحث</string>
-  <!--TODO: to be removed-->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT
         (انظر الى \"Apache Lucene - Query Parser Syntax\" لتفاصيل أكثر) 
     </string>
   <string name="help_search_text2">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT</string>
   <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
+  <string name="help_apache_lucene">Apache Lucene - صيغة محلل الاستعلام</string>
+  <string name="help_fts5">صيغة استعلام النص الكامل FTS5</string>
   <string name="help_workspaces_title">مساحات العمل</string>
+  <string name="help_workspaces_text">تتيح مساحات العمل الحصول على بيئات عمل متعددة تعتمد على السياق. يمكن الوصول إلى وظائف مساحات العمل عبر عنصر "مساحات العمل" في قائمة الخيارات (الزاوية العلوية اليمنى). الطريقة السريعة للوصول إلى مساحات العمل هي بالتمرير للأسفل من شريط الأدوات. يمكنك أيضاً استخدام إيماءتي التمرير للوصول إلى مساحة العمل السابقة أو التالية.</string>
   <string name="help_hidden_features_title">الاختصارات المخفية</string>
+  <string name="help_hidden_features_text">مرّر للأسفل من شريط الأدوات لإظهار محدد مساحة العمل. اضغط مطوّلاً على زر النافذة لتصغيرها بسرعة. اضغط مطوّلاً على زر التشغيل في شريط الأدوات للانتقال السريع لإعدادات التشغيل. اضغط مطوّلاً على عنوان موقع الآية في شريط الأدوات للقفز إلى محدد المستند. اضغط مطوّلاً على زر الرجوع للوصول إلى قائمة السجل.</string>
   <string name="help_window_pinning_title">تثبيت النافذة</string>
-  <!--Welcome text-->
+  <string name="help_window_pinning_text">يمكنك تفعيل تثبيت النافذة من قائمة الخيارات (ثلاث نقاط، الزاوية العلوية اليمنى). إذا تم تفعيل تثبيت النافذة، يمكنك عرض نوافذ مثبّتة متعددة في مشهد الكتاب المقدس، لكن نافذة واحدة فقط غير مثبّتة. تُعرض النوافذ المثبّتة أولاً ثم النوافذ غير المثبّتة. قد ترغب في فتح مستندات الكتاب المقدس في نوافذ مثبّتة، و التعليقات والخرائط وما شابهها في نوافذ غير مثبّتة. بهذه الطريقة يمكنك الاحتفاظ بمستندات الكتاب المقدس مفتوحة دائماً، والتبديل بسرعة بين التعليقات و المواد الإضافية الأخرى أثناء الدراسة.</string>
+
+    <!-- Welcome text -->
   <string name="redownload_documents">إعادة تنزيل سريعة</string>
-  <!--Supported file formats for documents-->
-  <!--argument is app_name_andbible (AndBible).-->
+  <string name="welcome_message">شكراً لتنزيل %s. لا توجد حالياً أي أسفار أو مستندات مثبّتة. للمتابعة، يرجى تثبيت مستند واحد على الأقل عن طريق التنزيل من الإنترنت، أو التحميل من ملف نسخة احتياطية مضغوط.</string>
+    <!-- Supported file formats for documents -->
+  <string name="supported_formats_title">الصيغ المدعومة</string>
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">عليك أن تختار الملف الذي تريد تحميله إلى %s. </string>
   <string name="supported_formats">الأنواع المدعومة لتحميل المستندات من الملف: %s</string>
-  <!--argument is app_name_andbible (AndBible).-->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">ملف zip يحوي وحدات Sword، أو ملف نسخة احتياطية للمستندات (*.abmd) تم إنشاؤه عن طريق %s</string>
   <string name="format_mysword">مستندات MySword (*.mybible)</string>
   <string name="format_mybible">مستندات MySword (*.SQLite3)</string>
+  <string name="format_esword">مستندات e-Sword (*.bblx, *.bbli)</string>
   <string name="format_epub">مستندات EPUB (.*epub)</string>
+  <string name="format_ttf">خطوط TTF (*.ttf)</string>
+  <string name="format_csv_prompts">إضافات موجهات الذكاء الاصطناعي (*.csv)</string>
+  <string name="format_studypads">لوحات الدراسة من قواعد بيانات AndBible (*.abdb)</string>
   <string name="redownload_message">
         قائمة بالكتب/المستندات السابقة قد تم إيجادها. اضغط بالأسفل لتحميلها مجدداً بسهولة.
     </string>
-  <!--Uncategorized-->
+
+    <!-- Uncategorized -->
   <string name="close">إغلاق</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">مفهوم</string>
   <string name="first_time_help_show_next_time">عرض مرة أخرى في المرة القادمة</string>
+
   <string name="strongs_mode_title">اختر وضع strongs</string>
+
   <string name="download_dialog_message">تعذر تحميل الملفات للتالية:</string>
   <string name="select_multiple">تحديد متعدد</string>
   <string name="journal_description">لوحات دراسية قابلة للتعديل من قبل المستخدم مع نصوص مخصصة وعلامات مرجعية</string>
   <string name="my_notes_description">ملاحظات قابلة للتحرير من قبل المستخدم مرفقة مع الإشارات المرجعية </string>
   <string name="my_notes_abbreviation">ملاحظاتي</string>
+  <string name="studypad">لوحة الدراسة</string>
   <string name="studypads">لوحات دراسية</string>
   <string name="multi_description">مراجع متعددة</string>
   <string name="multi_abbreviation">متعدد</string>
@@ -710,15 +894,53 @@
   <string name="unlock_info">معلومات فتح الوحدة المشفرة</string>
   <string name="try_again_passphrase">كلمة المرور لم تعمل، جرب مجدداً؟</string>
   <string name="show_unlock_info">الوحدة و معلومات الفتح</string>
+
+  <string name="prefs_experimental_features_title">الميزات التجريبية</string>
+  <string name="prefs_experimental_features_summary">اختر الميزات التجريبية التي تريد تفعيلها. هذه الميزات لا تزال قيد التطوير وقد تتغير أو تُزال</string>
+  <string name="experimental_feature_bookmark_edit_actions">إجراءات تعديل الإشارات المرجعية</string>
+  <string name="experimental_feature_add_paragraph_break">إضافة فاصل فقرة للإشارة المرجعية</string>
+  <string name="experimental_feature_ai_features">ميزات الذكاء الاصطناعي ومستنداتي</string>
+  <string name="experimental_feature_reading_and_memorization">تتبع القراءة والحفظ</string>
+  <string name="raw_llm_log_title">سجل نموذج اللغة الخام</string>
+  <string name="raw_llm_log_empty">لا توجد بيانات سجل خام</string>
+  <string name="raw_llm_log_copied">تم نسخ السجل إلى الحافظة</string>
+  <string name="raw_llm_log_total">الإجمالي: داخل %1$s / خارج %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">موجّه النظام</string>
+  <string name="raw_llm_log_entry_user">رسالة المستخدم</string>
+  <string name="raw_llm_log_entry_assistant">رد المساعد</string>
+  <string name="raw_llm_log_entry_tool_call">استدعاء أداة: %s</string>
+  <string name="raw_llm_log_entry_tool_result">نتيجة الأداة [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">تعريفات الأدوات (%d أداة)</string>
+  <string name="raw_llm_log_entry_api_response">رد API (التكرار %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s رمز</string>
+  <string name="raw_llm_log_entry_usage">داخل: %1$s / خارج: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(فارغ)</string>
+  <string name="raw_llm_log_entry_tool_desc">الوصف: %s</string>
+  <string name="raw_llm_log_entry_tool_params">المعاملات: %s</string>
+  <string name="agent_log_view_raw">عرض سجل نموذج اللغة الخام</string>
+  <string name="agent_log_model_selector">تغيير النموذج الافتراضي (الحالي: %1$s)</string>
+  <string name="agent_log_model_not_configured">لم يتم تكوين نموذج</string>
+  <string name="agent_log_select_model">اختر النموذج الافتراضي</string>
+  <string name="share">مشاركة</string>
+  <string name="prefs_show_error_box_title">إظهار مربع خطأ JavaScript</string>
+  <string name="prefs_show_error_box_summary">مفيد للمطورين عند تصحيح أخطاء جانب JavaScript في BibleView. سيجعل هذا التطبيق أبطأ.</string>
   <string name="active_window_indicator_title">عرض مؤشر النافذة النشطة</string>
+  <string name="active_window_indicator_summary">إبراز زوايا النافذة للمساعدة في التعرف على النافذة النشطة</string>
   <string name="app_licence_title">رخصة مفتوحة المصدر</string>
+
   <string name="how_to_contribute">كيف تساهم؟</string>
   <string name="confirm_delete_bookmarks">هل تريد إزالة %d إشارات مرجعية وملاحظاتها؟</string>
+  <string name="confirm_delete_orphaned_bookmarks">التسمية المحددة مرتبطة بـ %d إشارة مرجعية لا تحتوي على تسميات أخرى. هل تريد حذف هذه الإشارات المرجعية مع التسميات؟</string>
+  <string name="delete_label_and_bookmarks">حذف التسمية والإشارات المرجعية</string>
+  <string name="delete_label_only">حذف التسمية فقط</string>
+  <string name="module_size_megabytes">%.1f ميجابايت</string>
   <string name="tell_friend_title">أوصي به لصديق</string>
   <string name="tell_friend_message1">أرغب أن انصحك ب %s.</string>
   <string name="tell_friend_message2">إنه تطبيق قوي و لكن سهل الاستخدام لدراسة الكتاب المقدس بدون اتصال بالإنترنت لنظام أندرويد </string>
   <string name="tell_friend_message3">قم بتثبيته من متجر play: %s</string>
+  <string name="tell_friend_message4">اقرأ المزيد وخيارات التثبيت الإضافية: %s</string>
   <string name="share_verse_ok">مشاركة / نسخ</string>
+  <string name="web_search">البحث على الإنترنت</string>
   <string name="verse_action_copy">نسخ</string>
   <string name="generic_share">مشاركة</string>
   <string name="share_verse_menu_title">مشاركة / نسخ...</string>
@@ -731,16 +953,19 @@
   <string name="show_reference_at_front">أظهر في بداية الآية</string>
   <string name="abbreviate_reference">اختصار المرجع</string>
   <string name="version_name">اسم الإصدار</string>
-  <!--meaning, bible version name-->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">تضمين اسم النسخة</string>
   <string name="show_ellipsis">اظهار علامة القطع (...)</string>
   <string name="show_quotes">إظهار علامات الاقتباس</string>
+  <string name="separate_verses_with_newlines">فصل الآيات بأسطر جديدة</string>
+
   <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
   <string name="back_button">رجوع</string>
   <string name="upgrading_database">ترقية قاعدة البيانات. برجاء الانتظار…</string>
   <string name="initializing_app">جارٍ تهيئة التطبيق...</string>
   <string name="show_notes">عرض الملاحظات</string>
-  <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <string name="old_webview">حزمة Android WebView قديمة جداً (%1$s). يجب ترقية حزمة Android WebView إلى الإصدار %2$s على الأقل لاستخدام %3$s. يمكن إجراء ذلك على معظم الأجهزة عبر %4$s.</string>
   <string name="play">متجر جوجل</string>
   <string name="proceed_anyway">المتابعة على أية حال</string>
   <string name="proceed">تابع</string>
@@ -751,15 +976,16 @@
   <string name="rate_message6">
         قبل تقديم مراجعة سلبية، يرجى مراعاة الآتي:
     </string>
-  <!--parameters are actions (file a bug, send email)-->
+
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
         إذا كان لديك مشكلة مع التطبيق، الرجاء %1$s أو %2$s عوضاً عن ذلك.
     </string>
-  <!--param is "please report maintainers"-->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
         إذا كان نص / ترجمة الكتاب المقدس به مشكلة، %s.
     </string>
-  <!--param is "please read what you can do"-->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
         إذا كان هناك نص معين غير موجود في التطبيق، %s.
     </string>
@@ -779,37 +1005,109 @@
   <string name="text_maintainers">
 الرجاء الإبلاغ عن المشكلات إلى المشرفين على النص</string>
   <string name="does_not_exist_abbreviation">غير موجود</string>
+  <string name="cant_change_wholeverse">لا يمكن إيقاف تمييز الآية كاملة لهذه الإشارة المرجعية</string>
   <string name="whole_verse_turned_on">تم وضع علامة مرجعية الآن على الآية بأكملها</string>
   <string name="this_bookmark">هذه الإشارة المرجعية</string>
   <string name="this_workspace">مساحة العمل هذه</string>
+  <string name="override_style">تجاوز النمط</string>
+  <string name="no_override_suffix">(بدون تجاوز)</string>
+  <string name="display_mode_highlight">تمييز</string>
+  <string name="display_mode_underline">تسطير</string>
+  <string name="display_mode_marker">علامة فقط</string>
+  <string name="display_mode_hidden">مخفي</string>
+  <string name="workspace_override_indicator">هذه التسمية لها وضع عرض خاص بمساحة العمل</string>
   <string name="primary_label">ملصق أساسي</string>
   <string name="highlight_entire_verse">تمييز الآية بأكملها</string>
   <string name="favourite_label">ملصق مفضل</string>
   <string name="edit_label">تحرير ملصق</string>
+  <string name="delete_label_confirmation">هل تريد إزالة تسمية الإشارة المرجعية "%s"؟ ستُزال أيضاً جميع ملاحظات لوحة الدراسة المرتبطة بها.</string>
+  <string name="bookmark_underline_style_arbitrary">نمط التسطير للإشارات المرجعية التحديدية</string>
+  <string name="bookmark_underline_style_whole_verse">نمط التسطير للإشارات المرجعية للآية كاملة</string>
+  <string name="active_labels">التسميات المحددة</string>
+  <string name="recent_labels">التسميات الأخيرة</string>
+  <string name="other_labels">تسميات أخرى</string>
+  <string name="book_menu_sort_row_opt">ترتيب الأسفار أفقياً</string>
+  <string name="book_menu_group_by_category">تجميع الأسفار حسب الفئة</string>
+  <string name="book_menu_show_long_book_name">إظهار اسم السفر الكامل</string>
+  <string name="book_menu_show_progress_bars">إظهار أشرطة التقدم</string>
+  <string name="reset_workspace_labels">هل تريد إعادة تعيين الإعدادات التلقائية والمفضلة لهذه مساحة العمل؟</string>
+  <string name="reset_hide_labels">هل تريد إعادة تعيين إعداد إخفاء التسميات المحددة؟</string>
   <string name="reorder">إعادة ترتيب</string>
   <string name="system_items">إجراءات النظام</string>
   <string name="system_items1">المزيد</string>
   <string name="system_action2">إجراءات اندرويد</string>
   <string name="text_copied_to_clicpboard">تم نسخ النص إلى الحافظة</string>
+  <string name="prefs_disable_two_step_bookmarking_title">الإشارة المرجعية بخطوة واحدة</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">إظهار عناصر "التحديد" و"الآيات" مباشرةً في قائمة التحديد بمشهد الكتاب المقدس</string>
   <string name="prefs_double_tap_to_fullscreen_title">نقراً مزدوجاً للوصول إلى وضع ملء الشاشة</string>
   <string name="prefs_double_tap_to_fullscreen_summary">الدخول إلى وضع ملء الشاشة عن طريق النقر المزدوج على النافذة</string>
   <string name="toggle_fullscreen">ملء الشاشة</string>
   <string name="exit_fullscreen">نقراً مزدوجاً على الشاشة للخروج من وضع ملء الشاشة</string>
+  <string name="reset_app_prefs">هل تريد إعادة تعيين جميع تفضيلات التطبيق العامة المعروضة على هذه الشاشة إلى قيمها الافتراضية؟</string>
   <string name="label_red">أحمر</string>
   <string name="label_green">أخضر</string>
   <string name="label_blue">أزرق</string>
+  <string name="label_salvation">الخلاص</string>
   <string name="label_underline">ضع خطاً تحت</string>
+  <string name="import_menu">استيراد وتصدير</string>
+  <string name="auto_backups_title">النسخ الاحتياطي التلقائي</string>
+  <string name="backup_file_info">التطبيق الإصدار %1$d، %2$s</string>
+  <string name="reset_databases_title">إعادة تعيين قواعد البيانات</string>
+  <string name="reset_databases_description">إعادة تعيين قواعد البيانات الفردية إلى حالتها الفارغة الأولية. لا يمكن التراجع عن هذا الإجراء.</string>
+  <string name="last_crash_info_title">معلومات آخر عطل</string>
+  <string name="reset_database_confirm">سيؤدي هذا إلى حذف جميع البيانات في \"%1$s\" وإعادة تعيينها إلى الحالة الأولية. لا يمكن التراجع عن هذا الإجراء.\n\nهل أنت متأكد؟</string>
+  <string name="reset_database_success">تمت إعادة تعيين قاعدة البيانات بنجاح</string>
+  <string name="reset_something">إعادة تعيين: %1$s</string>
+  <string name="export">تصدير</string>
+  <string name="csv_export_success">تم تصدير %d إشارة مرجعية بتنسيق CSV</string>
+  <string name="csv_import_success">اكتمل الاستيراد: تم إنشاء %1$d وتحديث %2$d</string>
+  <string name="csv_import_errors">اكتمل الاستيراد مع وجود أخطاء: تم إنشاء %1$d وتحديث %2$d وحدث %3$d خطأ</string>
+  <string name="csv_import_failed">فشل استيراد CSV: %s</string>
+  <string name="csv_export_failed">فشل تصدير CSV: %s</string>
+  <string name="export_prompts_csv">تصدير الموجّهات بتنسيق CSV</string>
+  <string name="import_prompts_csv">استيراد الموجّهات من CSV</string>
+  <string name="prompts_csv_export_success">تم تصدير %d موجّه بتنسيق CSV</string>
+  <string name="prompts_csv_import_success">اكتمل الاستيراد: تم إنشاء %1$d وتحديث %2$d</string>
+  <string name="prompts_csv_import_errors">اكتمل الاستيراد مع وجود أخطاء: تم إنشاء %1$d وتحديث %2$d وحدث %3$d خطأ</string>
+  <string name="prompts_csv_import_failed">فشل استيراد CSV: %s</string>
+  <string name="prompts_csv_export_failed">فشل تصدير CSV: %s</string>
+  <string name="no_prompts_to_export">لا توجد موجّهات مستخدم للتصدير</string>
+  <string name="csv_column_selection_title">اختر أعمدة CSV</string>
+  <string name="choose_csv_file">اختر ملف CSV للاستيراد</string>
+  <string name="no_bookmarks_to_export">لا توجد إشارات مرجعية للتصدير</string>
   <string name="export_fileformat">تصدير بتنسيق %s</string>
+  <string name="export_something">تصدير %s</string>
   <string name="import_items">استيراد %s</string>
   <string name="import_from_db">استيراد من ملف قاعدة بيانات تطبيق</string>
-  <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
-  <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
+  <string name="import_error">فشل الاستيراد من قاعدة بيانات التطبيق. قد يكون ملف قاعدة البيانات بتنسيق خاطئ أو تم إنشاؤه بإصدار قديم جداً من %s.</string>
+
+  <string name="export_bookmarks_csv">تصدير الإشارات المرجعية بتنسيق %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">مرجع OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">مرجع الكتاب المقدس</string>
   <string name="document">المستند</string>
   <string name="book">سفر</string>
-  <!--Chapter is the chapter number in the book, starting from 1-->
-  <!--Verse is the verse number in the chapter, starting from 1-->
-  <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
-  <!--Offsets are used to indicate from which character a bookmark starts.-->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">بداية الفصل</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">بداية الآية</string>
+  <string name="chapter_end">نهاية الفصل</string>
+  <string name="verse_end">نهاية الآية</string>
+  <string name="id">المعرّف</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">البداية الترتيبية</string>
+  <string name="ordinal_end">النهاية الترتيبية</string>
+  <string name="created_at">تاريخ الإنشاء</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">إزاحة البداية</string>
+  <string name="end_offset">إزاحة النهاية</string>
+  <string name="custom_icon">أيقونة مخصصة</string>
+  <string name="last_updated_at">آخر تحديث</string>
+  <string name="bookmark_notes">ملاحظات الإشارة المرجعية</string>
+
+  <string name="chooser_range">النطاق</string>
   <string name="chooser_jump">قفز</string>
   <string name="chooser_OT_abbrev">OT</string>
   <string name="chooser_NT_abbrev">NT</string>
@@ -817,27 +1115,60 @@
   <string name="chooser_style_lists">القوائم</string>
   <string name="chooser_select">تحديد %s</string>
   <string name="chooser_pref_reset">لا تعيد ضبط الإصحاح / الآية إلى 1 عند اختيار السفر / الفصل</string>
-  <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
-  <!--will be added to incomplete_translation as a link-->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <string name="incomplete_translation">نعتذر، لدينا ترجمة جزئية فقط لواجهة المستخدم باللغة %1$s. وذلك لأن %2$s يُطوَّر بالكامل من قِبل متطوعين. إذا كان بإمكانك المساعدة في الترجمة، يرجى مراجعة %3$s.</string>
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">تعليمات للمترجمين</string>
   <string name="questions_title">أسئلة؟</string>
   <string name="questions_title2">تحتاج مساعدة؟</string>
   <string name="bookmark_style">نمط الإشارة المرجعية</string>
   <string name="added_to_bookmark">مخصص لهذه الإشارة المرجعية</string>
+  <string name="strongs_off">إيقاف</string>
   <string name="strongs_links">الروابط</string>
   <string name="strongs_text_and_links">النص والروابط</string>
+  <string name="strongs_hidden_links">روابط مخفية</string>
   <string name="verse_tip">لتحديد آيات جزئية أو عدة آيات، يمكنك الضغط مطولاً على نص الكتاب المقدس</string>
+
   <string name="permission_required">الإذن مطلوب</string>
   <string name="labels_search_hint">بحث</string>
-  <!--Discrete mode settings-->
-  <!--Context: calculator. Wrong number format etc.-->
-  <!--Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted.-->
-  <!--Window synchronize groups-->
+  <string name="search_mode_name_start">الاسم (من البداية)</string>
+  <string name="search_mode_name_contains">الاسم (يحتوي على)</string>
+  <string name="search_mode_content">المحتوى</string>
+  <string name="search_results_matches">%d نتيجة</string>
+  <string name="search_results_match">نتيجة واحدة</string>
+  <string name="progress_status_permission">لعرض الإشعارات (حالة التنزيل، المعالجة، حالة التشغيل)، نحتاج إلى إذنك.</string>
+
+    <!-- Discrete mode settings -->
+  <string name="app_name_calculator">آلة حاسبة بسيطة</string>
+  <string name="prefs_persecution_cat">إعدادات للمضطهَدين</string>
+  <string name="prefs_discrete_mode">إخفاء الرموز الدينية</string>
+  <string name="prefs_discrete_mode_desc">إعادة تسمية التطبيق إلى \'آلة حاسبة\' وعرض أيقونة مختلفة في مشغّل التطبيقات.</string>
+  <string name="prefs_show_calculator">آلة حاسبة</string>
+  <string name="prefs_calculator_pin">رمز PIN للآلة الحاسبة</string>
+  <string name="prefs_calculator_pin_desc">رمز PIN للدخول إلى التطبيق عند عرض الآلة الحاسبة.</string>
+  <string name="calc_division_by_zero">القسمة على صفر غير مسموح بها</string>
+    <!-- Context: calculator. Wrong number format etc. -->
+  <string name="calc_wrong_format">صيغة خاطئة</string>
+  <string name="calc_wrong_format_operand">صيغة خاطئة. معامل بدون أرقام؟</string>
+  <string name="prefs_persecuted_help">اقرأ هذا أولاً!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <string name="prefs_persecuted_summary">تعليمات الإعدادات ومعلومات حول الإصدار المنفصل المحدد.</string>
+
+  <string name="calculator_par1">قبل الدخول إلى التطبيق، تُعرض شاشة الآلة الحاسبة.</string>
+  <string name="calculator_par2">يمكنك إجراء العمليات الحسابية العادية، وعندما تريد الدخول إلى التطبيق فقط اكتب رمز PIN الخاص بك (الافتراضي هو 1234) ثم اضغط على زر "=".</string>
+  <string name="calculator_par3">يمكنك تعيين رمز PIN مخصص من خلال إعداد "رمز PIN للآلة الحاسبة".</string>
+  <string name="discrete_mode_info_par1">أنت تستخدم إصدار التطبيق القياسي، مما يعني أنه لا يزال بالإمكان رؤية الاسم الحقيقي وأيقونة التطبيق في معلومات التطبيق.</string>
+  <string name="discrete_mode_info_par2">لتعزيز الأمان في البيئات التي تعاني من الاضطهاد، نوصي بشدة باستخدام الإصدار المنفصل من التطبيق الذي يعرض الآلة الحاسبة دائماً، حتى لو تم حذف بيانات التطبيق.</string>
+  <string name="discrete_mode_link">يمكنك تنزيل أحدث إصدار من الإصدار المنفصل من %s.</string>
+
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">مجموعة المزامنة</string>
+  <string name="sync_group_n">المجموعة %d</string>
   <string name="disable_sync">إيقاف المزامنة</string>
   <string name="open_in_window">افتح النتائج في نافذة</string>
-  <!--Custom repositories-->
-  <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">مستودعات مخصصة</string>
   <string name="custom_repositories_empty_list_message">لا يوجد مستودعات مخصصة معرفة</string>
   <string name="custom_repositories_create_button_label">أضف مستودعات مخصصة</string>
@@ -848,34 +1179,732 @@
   <string name="invalid_repository_not_saved">مواصفات المستودع غير صالحة ولم يتم حفظها.</string>
   <string name="custom_repositories_help1">لإضافة مستودع مخصص جديد، اكتب أو انسخ و الصق رابط المستودع هنا.</string>
   <string name="custom_repositories_help2">يمكنك قراءة المزيد من المعلومات عن المستودعات المخصصة في %s.</string>
+  <string name="wiki_page">صفحة WIKI</string>
   <string name="custom_repositories_help0">يمكنك تثبيت المستندات من مستودعات مخصصة خارجية عن طريق تثبيت مستودعات مخصصة </string>
   <string name="duplicate_custom_repository">مستودع بإسم %s موجود مسبقاً، لا يمكن إضافة آخر.</string>
-  <!--Open links in AndBible (Deep linking)-->
-  <!--Device cloud synchronization-->
+
+  <string name="packages_dir">دليل الحزم (ملفات Zip)</string>
+  <string name="warn_bad_document">تحذير: قد يكون هذا المستند (على الأقل جزئياً) ذا جودة تقنية رديئة.</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
+  <string name="open_bible_links_title">فتح روابط الكتاب المقدس في AndBible</string>
+  <string name="open_bible_links_summary">عند النقر على روابط تشير إلى عناوين URL للكتاب المقدس المدعومة من AndBible، افتحها في AndBible</string>
+  <string name="copyReference">نسخ الرابط إلى الحافظة</string>
+  <string name="reference_copied_to_clipboard">تم نسخ المرجع إلى الحافظة</string>
+
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
         اختر مزوّد الخدمة السحابية الذي تريد استخدامه لمزامنة أجهزة عدة.
     </string>
+  <string name="prefs_sync_introduction_summary2">عند استخدام Google Drive، يُمنح %s حق الوصول إلى ملفات التطبيقات فقط، وليس أي ملفات شخصية.</string>
+  <string name="restore_backup_sections">أي أقسام النسخة الاحتياطية تريد استعادتها؟</string>
+  <string name="db_repositories">المستودعات والإعدادات ذات الصلة</string>
+  <string name="db_bookmarks">الإشارات المرجعية وملاحظاتي والتسميات ولوحات الدراسة</string>
   <string name="synchronizing">مزامنة...</string>
   <string name="overrideBackup">
         يوجد قاعدة بيانات لم تتم مزامنة هذا الجهاز معها في السحابة.
         قاعدة البيانات تحوي %s. ماذا تريد ان تفعل؟
     </string>
+  <string name="reading_plans_content">خطط القراءة وحالاتها</string>
+  <string name="bookmarks_contents">الإشارات المرجعية والتسميات ولوحات الدراسة</string>
+  <string name="workspaces_contents">مساحات العمل والنوافذ</string>
+  <string name="my_documents_contents">مستنداتي ومحتواها</string>
+  <string name="ai_settings_sync_title">إعدادات الذكاء الاصطناعي</string>
+  <string name="ai_settings_sync_contents">موجّهات الذكاء الاصطناعي وتكوينات الموفر</string>
+  <string name="progress_sync_title">تقدم القراءة</string>
+  <string name="progress_sync_contents">الآيات المحفوظة وسجلات قراءة الفصول</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">تقدم القراءة والحفظ</string>
+  <string name="reading_progress_chapters_read">فصول مقروءة</string>
+  <string name="reading_progress_verses_memorized">آيات محفوظة</string>
+  <string name="reading_progress_active_days">أيام نشطة</string>
+  <string name="reading_progress_overall">%s%% من الكتاب المقدس تمت قراءته</string>
+  <string name="reading_progress_bible_heatmap">نظرة عامة على الكتاب المقدس</string>
+  <string name="reading_progress_old_testament">العهد القديم</string>
+  <string name="reading_progress_new_testament">العهد الجديد</string>
+  <string name="reading_progress_calendar">نشاط القراءة</string>
+  <string name="reading_progress_cycle">الدورة %d</string>
+  <string name="reading_progress_new_cycle">دورة جديدة</string>
+  <string name="reading_progress_new_cycle_confirm">هل تريد بدء دورة قراءة جديدة؟ سيبدأ هذا تتبع تقدمك من الصفر مع الحفاظ على بيانات دورتك السابقة.</string>
+  <string name="reading_progress_previous_cycle">الدورة السابقة</string>
+  <string name="reading_progress_next_cycle">الدورة التالية</string>
+
+  <string name="cloud_fetch_and_restore_initial">نسخ من السحابة إلى هذا الجهاز</string>
+  <string name="cloud_create_new">نسخ من هذا الجهاز إلى السحابة</string>
   <string name="cloud_disable_sync">إلغاء و إيقاف المزامنة</string>
   <string name="cloud_sync_title">مزامنة الأجهزة </string>
+  <string name="reset_sync">تسجيل الخروج</string>
   <string name="prefs_reset_sync_summary">إيقاف المزامنة و إعادة تعيين الإعدادات المتعلقة بها.</string>
   <string name="sync_confirmation">هل أنت متأكد أنك تريد تسجيل الخروج و إعادة تعيين المزامنة؟</string>
+  <string name="cloud_info">معلومات السحابة</string>
+  <string name="cloud_info_summary">البيانات في التخزين السحابي: %s ميجابايت</string>
   <string name="sync_adapter">مزوّد المزامنة</string>
+  <string name="sync_adapter_summary">الحالي: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">المصادقة على %s</string>
+  <string name="auth_server_uri">عنوان URL للخادم</string>
+  <string name="auth_username">اسم المستخدم</string>
+  <string name="auth_password">كلمة المرور</string>
+  <string name="auth_folder_path">مسار مجلد المزامنة</string>
+  <string name="auth_folder_path_summary">المجلد الرئيسي لبيانات المزامنة (فارغ = الجذر)</string>
+  <string name="auth_access_token">رمز الوصول</string>
   <string name="synchronization_categories">فئات المزامنة</string>
+  <string name="sync_general_settings">المعلومات والإعدادات العامة</string>
+  <string name="sync_introduction">مقدمة</string>
+  <string name="are_you_sure">هل أنت متأكد؟</string>
+  <string name="are_you_sure_reset_local">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك المحلية لـ %s بالمحتوى المخزّن حالياً في الخدمة السحابية.</string>
+  <string name="are_you_sure_reset_cloud">سيؤدي هذا إلى إعادة تعيين قاعدة بياناتك السحابية لـ %s بالمحتوى الموجود على هذا الجهاز.</string>
+  <string name="sync_cant_fetch">إصدار قاعدة البيانات أو ملف التصحيح المخزّن في السحابة أعلى مما يدعمه هذا التطبيق.</string>
   <string name="sync_disabling">إيقاف مزامنة %s في الوقت الراهن.</string>
   <string name="sync_update_app">الرجاء تحديث التطبيق لمتابعة المزامنة.</string>
   <string name="sign_in_failed">تسجيل الدخول لمزوّد خدمة المزامنة قد فشل.</string>
-  <!--... after restoring from backup file-->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">إيقاف تشغيل المزامنة السحابية. يجب عليك إعادة تشغيلها يدوياً بعد الاستعادة.</string>
+  <string name="report">تقرير</string>
   <string name="sync_error">حدث خطأ في المزامنة السحابية</string>
+  <string name="error_notification_channel_name">إشعارات الأخطاء</string>
   <string name="restore_from_cloud_description">اذا كانت مزامنة الأجهزة لديك مفعلة على جهاز آخر، يمكنك البدء باستعادة قاعدة البيانات من السحابة.</string>
   <string name="enable_sync">تفعيل المزامنة</string>
   <string name="last_updated">آخر تحديث: %s</string>
-  <!--MyBible/MySword module support-->
-  <!--Other / uncategorized-->
+
+    <!-- MyBible/MySword module support -->
+  <string name="sqlite_cant_read">لا يمكن قراءة الملف</string>
+  <string name="sqlite_invalid_file">ملف الوحدة أو اسم الملف غير صالح: %s</string>
+  <string name="sqlite_cant_write">لا يمكن (الكتابة فوق) الملف</string>
+  <string name="install_failed_reason">فشل تثبيت الوحدة للسبب التالي: %s.</string>
+
+    <!-- Other / uncategorized -->
+  <string name="app_opened_elsewhere">تم فتح التطبيق في مكان آخر</string>
+  <string name="open_here">فتح هنا</string>
+  <string name="external_link">رابط خارجي</string>
+  <string name="external_link_question">سيفتح هذا الرابط الخارجي %s في متصفح، هل تريد المتابعة؟</string>
+  <string name="nameless">العنوان غير محدد</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (الأسفار)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">الإجراءات بنقرة واحدة (أخرى)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">عند النقر على نص، تُعرض نافذة الإجراء بنقرة واحدة. أي أزرار إجراء يجب عرضها؟</string>
+  <string name="processing_epub">معالجة EPUB: %s</string>
+  <string name="buy_development">شراء عمل التطوير</string>
+  <string name="buy_development2">دعم المشروع</string>
+  <string name="new_version_warning">إصدار جديد قادم قريباً. التاريخ المتوقع للإصدار هو %1$s. تابع %2$s لاكتشاف الميزات والتحسينات الجديدة.</string>
+  <string name="new_version_trailer">فيديو تشويقي</string>
+  <string name="new_version_warning2">بعد الإصدار، لن يُصان هذا الإصدار.</string>
+  <string name="new_version_warning3">لن يتلقى إصلاحات للأخطاء أو تحديثات.</string>
+  <string name="new_version_warning4">إذا كنت لا تريد الترقية، يرجى تعطيل \'التحديثات التلقائية\' في متجر التطبيقات (Google Play / F-Droid إلخ).</string>
+  <string name="dont_show">لا تُظهر هذه الرسالة مجدداً</string>
+  <string name="pref_font_size_multiplier_title">مضاعف حجم الخط</string>
+  <string name="pref_font_size_multiplier_summary_1">ضرب أحجام خطوط النص بهذا الرقم.</string>
+  <string name="pref_font_size_multiplier_summary_2">مفيد إذا كان لديك جهاز متزامن يُستخدم بخط أكبر.</string>
+  <string name="current_value">القيمة الحالية: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">إجراء إيماءة التمرير يساراً / يميناً</string>
+  <string name="prefs_bible_view_swipe_mode_summary">يمكن استخدام إيماءة التمرير يساراً / يميناً للانتقال إلى الصفحة / الفصل التالي.</string>
   <string name="prefs_swipe_mode_chapter">فصل</string>
+  <string name="prefs_swipe_mode_page">الصفحة</string>
+  <string name="prefs_swipe_mode_none">معطّل</string>
+  <string name="prefs_volume_keys_scroll_title">تمرير أزرار الصوت</string>
+  <string name="prefs_volume_keys_scroll_summary">استخدم زر رفع/خفض الصوت لتمرير نص الكتاب المقدس</string>
+  <string name="page_number_title">رقم الصفحة النسبي</string>
+  <string name="page_number_summary">عرض تراكب رقم الصفحة. رقم الصفحة نسبي إلى موضع البداية.</string>
+  <string name="select_custom_icon">اختر أيقونة علامة مخصصة</string>
+  <string name="invalid_url_message">عنوان URL الذي أدخلته غير صالح. يرجى إدخال عنوان URL صالح (مثل https://nextcloud.example.com)</string>
+  <string name="memorize_description">حفظ آيات الكتاب المقدس</string>
+  <string name="memorize_abbreviation">حفظ</string>
+  <string name="add_memorization_target">تعيين كهدف للحفظ</string>
+  <string name="memorize_memorized_passages">المقاطع المحفوظة</string>
+  <string name="memorize_no_memorized_passages">لا توجد مقاطع محفوظة بعد</string>
+  <string name="memorize_targets">أهداف الحفظ</string>
+  <string name="memorize_no_targets">لم يتم تعيين أهداف للحفظ</string>
+  <string name="memorize_auto_mark">وضع علامة محفوظ تلقائياً</string>
+  <string name="memorize_auto_mark_summary">وضع علامة محفوظ على الآيات تلقائياً عند اكتمال تمرين</string>
+  <string name="memorize_type_full_words">كتابة الكلمات كاملةً</string>
+  <string name="memorize_type_full_words_summary">تتطلب كتابة الكلمة كاملةً بدلاً من الحرف الأول فقط</string>
+  <string name="memorize_word_visibility">ظهور الكلمات</string>
+  <string name="memorize_word_visibility_summary">مدى ظهور الكلمات غير المكتوبة: تلميح خفيف، ضعيف، أو مخفي تماماً</string>
+  <string name="memorize_word_visibility_light">خفيف</string>
+  <string name="memorize_word_visibility_dim">ضعيف</string>
+  <string name="memorize_word_visibility_hidden">مخفي</string>
+  <string name="memorize_error_heatmap">خريطة الأخطاء الحرارية</string>
+  <string name="memorize_error_heatmap_summary">إبراز الكلمات ذات الأخطاء الأكثر باللون الأحمر المتصاعد</string>
+  <string name="memorize_scramble_hide_used">إخفاء أزرار الكلمات المستخدمة</string>
+  <string name="memorize_scramble_hide_used_summary">إخفاء أزرار الكلمات كلياً بعد وضعها بشكل صحيح في وضع ترتيب الكلمات</string>
+  <string name="reading_progress_settings">التقدم والحفظ</string>
+  <string name="reading_progress_settings_summary">إعدادات التتبع التلقائي والحفظ وممارسة الكتابة</string>
+  <string name="memorize_confirm_unmark">إزالة حالة الحفظ لـ %s؟</string>
+  <string name="memorize_confirm_remove_target">إزالة هدف الحفظ %s؟</string>
+  <string name="memorize_tab_reading">القراءة</string>
+  <string name="memorize_tab_memorization">الحفظ</string>
+  <string name="memorize_verses_memorized">محفوظ</string>
+  <string name="memorize_verses_target">الهدف</string>
+  <string name="memorize_show_more">عرض %d أكثر</string>
+  <string name="memorize_calendar">نشاط الحفظ</string>
+  <string name="memorize_view_list">قائمة</string>
+  <string name="memorize_view_overview">نظرة عامة</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">ترجمة نموذج اللغة</string>
+  <string name="sync_settings_shortcut_summary">مزامنة البيانات بين الأجهزة</string>
+  <string name="llm_api_key_title">مفتاح API</string>
+  <string name="llm_api_key_summary">مفتاح API متوافق مع OpenAI</string>
+  <string name="llm_provider_custom">مخصص (متوافق مع OpenAI)</string>
+  <string name="llm_provider_title">الموفر</string>
+  <string name="llm_provider_summary">اختر موفر خدمة الذكاء الاصطناعي. سيتم تكوين نقطة نهاية API والنماذج المتاحة تلقائياً.</string>
+  <string name="llm_provider_current">الحالي: %s</string>
+  <string name="llm_api_key_detected_provider">الموفر المُكتشف: %s</string>
+  <string name="ai_connection_category">الاتصال</string>
+  <string name="ai_model_category">النموذج</string>
+  <string name="ai_behavior_category">السلوك</string>
+  <string name="ai_language_title">لغة ردود الذكاء الاصطناعي</string>
+  <string name="ai_language_summary">اللغة التي يستخدمها الذكاء الاصطناعي في ردوده</string>
+  <string name="ai_language_app_default">لغة التطبيق (%1$s)</string>
+  <string name="ai_language_custom">مخصصة\u2026</string>
+  <string name="ai_language_custom_hint">أدخل اسم اللغة أو رمزها</string>
+  <string name="ai_language_custom_example">مثال: عربي، Tagalog، en</string>
+  <string name="ai_usage_category">الاستخدام</string>
+  <string name="llm_usage_summary_title">استخدام الرموز</string>
+  <string name="llm_usage_summary_default">لا توجد بيانات استخدام</string>
+  <string name="llm_usage_summary_format">الإدخال: %1$d رمز | الإخراج: %2$d رمز\nالتكلفة المقدّرة: %3$s</string>
+  <string name="llm_reset_usage_title">إعادة تعيين بيانات الاستخدام</string>
+  <string name="llm_reset_usage_summary">مسح تتبع الرموز والتكلفة التراكمي</string>
+  <string name="llm_reset_usage_confirm_title">إعادة تعيين بيانات الاستخدام؟</string>
+  <string name="llm_reset_usage_confirm_message">سيؤدي هذا إلى مسح جميع بيانات الاستخدام التراكمية.</string>
+  <string name="llm_custom_input_price_title">سعر الإدخال ($/مليون رمز)</string>
+  <string name="llm_custom_input_price_summary">التكلفة لكل مليون رمز إدخال لهذا النموذج</string>
+  <string name="llm_custom_output_price_title">سعر الإخراج ($/مليون رمز)</string>
+  <string name="llm_custom_output_price_summary">التكلفة لكل مليون رمز إخراج لهذا النموذج</string>
+  <string name="llm_cost_total">الإجمالي: %1$s</string>
+  <string name="llm_endpoint_title">نقطة نهاية API</string>
+  <string name="llm_endpoint_summary">عنوان URL الأساسي لـ API</string>
+  <string name="llm_model_title">النموذج</string>
+  <string name="llm_model_summary">معرّف النموذج</string>
+  <string name="llm_custom_model">مخصص…</string>
+  <string name="llm_custom_model_dialog_title">نموذج مخصص</string>
+  <string name="llm_custom_model_dialog_message">أدخل معرّف النموذج</string>
+  <string name="llm_rate_limited_retrying">تجاوز حد المعدل. إعادة المحاولة بعد %1$s ثانية\u2026</string>
+  <string name="llm_default_document_title">رد الذكاء الاصطناعي</string>
+  <string name="llm_default_task_completed">اكتملت المهمة</string>
+  <string name="llm_default_studypad_opened">تم فتح لوحة الدراسة</string>
+  <string name="llm_parse_error">فشل تحليل رد نموذج اللغة: %1$s</string>
+  <string name="llm_parse_error_no_choices">لا توجد خيارات في رد OpenAI</string>
+  <string name="llm_parse_error_openai">فشل تحليل رد OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">فشل تحليل رد Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">الموجّه غير موجود: %1$s</string>
+  <string name="llm_error_unknown">خطأ غير معروف</string>
+  <string name="llm_error_max_iterations">تم الوصول إلى الحد الأقصى من التكرارات (%1$d) دون إتمام</string>
+  <string name="llm_continue_iterations_title">متابعة؟</string>
+  <string name="llm_continue_iterations_message">وصل وكيل الذكاء الاصطناعي إلى حد %1$d تكرار دون إتمام. هل تريد المتابعة لـ %2$d تكرار إضافي؟</string>
+  <string name="agent_max_iterations_title">الحد الأقصى لتكرارات الوكيل</string>
+  <string name="agent_max_iterations_summary">الحد الأقصى للتكرارات قبل طلب المتابعة (0 = غير محدود)</string>
+  <string name="ask_model_before_run_title">سؤال عن النموذج قبل التشغيل</string>
+  <string name="ask_model_before_run_summary">عرض مربع حوار اختيار النموذج قبل تنفيذ موجّه (يُتخطى عند وجود تجاوز نموذج صريح في الموجّه)</string>
+  <string name="custom_agent_system_prompt_title">موجّه النظام للوكيل</string>
+  <string name="custom_system_prompt_summary">لا يُنصح بالتعديل إلا إذا كنت تعرف ما تفعله</string>
+  <string name="custom_text_transform_system_prompt_title">موجّه النظام لتحويل النص</string>
+  <string name="ai_advanced_category">متقدم</string>
+  <string name="custom_system_prompt_default">افتراضي</string>
+  <string name="custom_system_prompt_custom">مخصص</string>
+  <string name="reset_to_default">إعادة التعيين إلى الافتراضي</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">سجل الذكاء الاصطناعي</string>
+  <string name="raw_log_history_summary">عرض وإدارة سجلات محادثات الذكاء الاصطناعي المحفوظة</string>
+  <string name="raw_log_history_empty">لا توجد سجلات محفوظة</string>
+  <string name="raw_log_delete_selected">حذف المحدد</string>
+  <string name="raw_log_delete_old">حذف السجلات القديمة\u2026</string>
+  <string name="raw_log_delete_confirm">%d محدد</string>
+  <string name="raw_log_older_1_week">أقدم من أسبوع واحد</string>
+  <string name="raw_log_older_1_month">أقدم من شهر واحد</string>
+  <string name="raw_log_older_3_months">أقدم من 3 أشهر</string>
+  <string name="raw_log_delete_all">حذف الكل</string>
+  <string name="raw_log_item_tokens">%1$s داخل / %2$s خارج</string>
+  <string name="raw_log_error_indicator">خطأ</string>
+  <string name="raw_log_retention_title">حذف السجلات القديمة تلقائياً</string>
+  <string name="raw_log_retention_summary_days">بعد %d يوم</string>
+  <string name="raw_log_retention_summary_disabled">معطّل (الاحتفاظ بالكل)</string>
+  <string name="send_ai_bug_report_title">الإبلاغ عن خطأ في الذكاء الاصطناعي</string>
+  <string name="ai_bug_report_menu">الإبلاغ عن خطأ في الذكاء الاصطناعي</string>
+  <string name="ai_bug_report_recommended_only">الإبلاغ عن الأخطاء متاح فقط لنماذج الموفرين الموصى بهم</string>
+
+  <string name="select_model_before_run_title">اختر نموذجاً</string>
+  <string name="set_default_model_for_prompt">تعيين كنموذج افتراضي لهذا الموجّه</string>
+  <string name="prompt_max_iterations">تجاوز الحد الأقصى للتكرارات</string>
+  <string name="prompt_max_iterations_hint">اتركه فارغاً للإعداد الافتراضي العام</string>
+  <string name="prompt_max_iterations_description">تجاوز الحد الأقصى العام للتكرارات لهذا الموجّه. فارغ = الافتراضي العام، 0 = غير محدود.</string>
+  <string name="prompt_max_iterations_unlimited">غير محدود</string>
+  <string name="prompt_max_iterations_global_default">الافتراضي العام (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">تجاوز الحد الأقصى العام للتكرارات لهذا الموجّه. 0 = غير محدود.\nالحالي: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">إدارة موجّهات الذكاء الاصطناعي</string>
+  <string name="manage_prompts_summary">إنشاء وتحرير موجّهات الذكاء الاصطناعي</string>
+  <string name="ai_settings">إعدادات الذكاء الاصطناعي</string>
+  <string name="ai_connection_settings">إعدادات الاتصال</string>
+  <string name="ai_setup_title">تكوين الذكاء الاصطناعي</string>
+  <string name="ai_setup_description">يمكن لـ AndBible استخدام الذكاء الاصطناعي لترجمة نص الكتاب المقدس وشرح الآيات وإنشاء الملخصات والمزيد. للبدء، قم بتكوين اتصال بموفر API متوافق مع OpenAI.</string>
+  <string name="ai_configure_button">تكوين الاتصال</string>
+  <string name="ai_settings_shortcut_summary">إعدادات اتصال الذكاء الاصطناعي والموجّهات</string>
+  <string name="ai_provider_tier_recommended">موصى به</string>
+  <string name="ai_provider_tier_community">موفرون آخرون (غير مختبَرين)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">الموفرون والنماذج</string>
+  <string name="ai_providers_category">الموفرون</string>
+  <string name="ai_providers_summary_none">لم يتم تكوين موفرين</string>
+  <string name="ai_models_summary_none">لم يتم تكوين نماذج</string>
+  <string name="ai_add_provider">إضافة موفر</string>
+  <string name="ai_provider_edit">تعديل</string>
+  <string name="ai_provider_delete">حذف</string>
+  <string name="ai_provider_delete_confirm">حذف الموفر \"%1$s\"؟ ستعود الموجّهات التي تستخدم هذا الموفر إلى الافتراضي.</string>
+  <string name="ai_provider_api_key_not_set">لم يتم تعيين مفتاح API</string>
+  <string name="ai_provider_select_type">اختر نوع الموفر</string>
+  <string name="ai_provider_name">اسم الموفر</string>
+  <string name="ai_provider_name_hint">الاسم المعروض لهذا الموفر</string>
+  <string name="ai_provider_api_key">مفتاح API</string>
+  <string name="ai_provider_endpoint">نقطة نهاية API</string>
+  <string name="ai_provider_api_format">صيغة API</string>
+  <string name="ai_provider_saved">تم حفظ الموفر</string>
+  <string name="ai_provider_deleted">تم حذف الموفر</string>
+
+  <string name="llm_fetch_models_title">تنزيل قائمة النماذج</string>
+  <string name="llm_fetch_models_message">هل تريد تنزيل قائمة النماذج المتاحة من %1$s؟</string>
+  <string name="llm_fetch_models_dont_ask">لا تسأل مجدداً</string>
+  <string name="llm_fetch_models_success">تم تحميل %1$d نموذج</string>
+  <string name="llm_fetch_models_failed">فشل جلب النماذج</string>
+  <string name="llm_openrouter_category">الفئة</string>
+  <string name="llm_openrouter_category_all">الكل</string>
+  <string name="llm_openrouter_model">النموذج</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">النماذج</string>
+  <string name="add_model">إضافة نموذج</string>
+  <string name="add_model_title">إضافة نموذج</string>
+  <string name="edit_model_title">تعديل نموذج</string>
+  <string name="model_saved">تم حفظ النموذج</string>
+  <string name="model_deleted">تم حذف النموذج</string>
+  <string name="model_delete_confirm">حذف النموذج \"%1$s\"؟</string>
+  <string name="model_set_default">تعيين كنموذج افتراضي</string>
+  <string name="model_select_provider">الموفر</string>
+  <string name="no_models_configured">لم يتم تكوين نماذج</string>
+  <string name="model_cache_creation_price">سعر إنشاء الذاكرة المؤقتة ($/مليون رمز)</string>
+  <string name="model_cache_read_price">سعر قراءة الذاكرة المؤقتة ($/مليون رمز)</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s داخل / %2$s خارج لكل مليون رمز</string>
+  <string name="easy_setup_free_tier">المستوى المجاني</string>
+  <string name="unknown_error">خطأ غير معروف</string>
+  <string name="easy_setup_title">الإعداد السريع</string>
+  <string name="easy_setup_pref_summary">إعداد الذكاء الاصطناعي مع موفر موصى به في بضع خطوات</string>
+  <string name="easy_setup_choose_provider">اختر موفراً للبدء:</string>
+  <string name="easy_setup_enter_api_key">أدخل مفتاح API الخاص بك</string>
+  <string name="easy_setup_api_key_instructions">احصل على مفتاح API من:</string>
+  <string name="easy_setup_test_connection">اختبار الاتصال</string>
+  <string name="easy_setup_testing">جارٍ الاختبار…</string>
+  <string name="easy_setup_success">تم الاتصال بنجاح!</string>
+  <string name="easy_setup_failed">فشل الاتصال: %1$s</string>
+  <string name="easy_setup_done_title">الذكاء الاصطناعي جاهز!</string>
+  <string name="easy_setup_done_message">حدّد نصاً في الكتاب المقدس وجرّب ميزات الذكاء الاصطناعي. يمكنك إضافة المزيد من النماذج والموفرين في الإعدادات.</string>
+  <string name="easy_setup_gemini_desc">مستوى مجاني متاح، جودة جيدة</string>
+  <string name="easy_setup_anthropic_desc">بأسعار معقولة، جودة ممتازة</string>
+  <string name="easy_setup_openai_desc">معروف وموثوق</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">مهم: اقرأ قبل استخدام أدوات الذكاء الاصطناعي</string>
+  <string name="ai_disclaimer_warning_summary">المخاطر والمسؤوليات المتعلقة باستخدام الذكاء الاصطناعي</string>
+  <string name="ai_disclaimer_dialog_title">أدوات الذكاء الاصطناعي — معلومات مهمة</string>
+  <string name="ai_disclaimer_intro">يمكن لأدوات الذكاء الاصطناعي أن تُثري تجربة دراسة الكتاب المقدس كثيراً وتفتح طرقاً جديدة للتفاعل مع الكتاب المقدس.</string>
+  <string name="ai_disclaimer_approach">يستخدم AndBible الذكاء الاصطناعي أساساً لمعالجة نص المستندات المثبّتة لديك — التعليقات والقواميس والوحدات الأخرى — بدلاً من الاعتماد على بيانات تدريب النموذج نفسه.</string>
+  <string name="ai_disclaimer_responsibility">غير أنها لا تزال أدوات قوية — ومع القدرة الكبيرة تأتي المسؤولية الكبيرة. يُرجى مراعاة ما يلي.</string>
+  <string name="ai_disclaimer_point1">قد يرتكب الذكاء الاصطناعي أخطاء، بما في ذلك "الهلوسة" (ادّعاء معلومات خاطئة أو مختلقة بثقة). لا تقبل مخرجاته عمياً.</string>
+  <string name="ai_disclaimer_point2">قد تعكس ردود الذكاء الاصطناعي تحيّزات من بيانات تدريبه، أو تكون مضلّلة عمداً، أو تعرض وجهة نظر لاهوتية معينة كأنها محايدة أو كاملة.</string>
+  <string name="ai_disclaimer_point3">أنت مسؤول عن كيفية استخدام المحتوى الذي ينشئه الذكاء الاصطناعي. تحقق دائماً من النتائج بمقارنتها بالكتاب المقدس قبل الاعتماد عليها.</string>
+  <string name="ai_disclaimer_point4">يسعى AndBible إلى تسهيل عملية التحقق (مثل الاستشهادات الدقيقة بالمصادر في التعليقات)، لكن المسؤولية النهائية تقع دائماً عليك.</string>
+  <string name="ai_disclaimer_point5">"\"امتحنوا كل شيء؛ تمسّكوا بالحسن.\" (تسالونيكي الأولى 5: 21)"</string>
+  <string name="ai_disclaimer_point6">هذه الأدوات ليس لها روح ولا روح قدس. إنها أدوات معالجة نصوص، وليست مرشدين روحيين. وهي غير مناسبة لإعداد العظات أو التأملات أو المحتوى الروحي الآخر مباشرةً دون إشراف بشري دقيق والصلاة والتمييز.</string>
+  <string name="ai_disclaimer_point7">إذا استُخدمت بحكمة، يمكنها الاستفادة بكثير من المستخدمين والحالات. لكن إذا لم تكن متأكداً من قبول المخاطر، فإن عدم استخدامها هو أيضاً خيار صالح تماماً.</string>
+  <string name="ai_disclaimer_point8">يُرسل بياناتك إلى خوادم موفر الذكاء الاصطناعي الذي اخترته. باستخدام مفتاح API، فإنك توافق على شروط وسياسة خصوصية ذلك الموفر. النماذج المستضافة ذاتياً ممكنة لكنها تتطلب خبرة تقنية أكبر وقد لا تنتج نتائج بجودة النماذج التجارية.</string>
+  <string name="ai_disclaimer_point9">يتقاضى موفرو الذكاء الاصطناعي مقابل استخدام API. تقديرات التكلفة المعروضة في AndBible تقريبية — تحقق دائماً من الفواتير لدى موفرك للاطلاع على الرسوم الفعلية.</string>
+  <string name="ai_disclaimer_accept_title">قبول إخلاء مسؤولية الذكاء الاصطناعي</string>
+  <string name="ai_disclaimer_accept_button">أقبل وأتحمل المسؤولية الكاملة</string>
+
+  <string name="prompt_permission_mode">وضع الأذونات</string>
+  <string name="prompt_permission_mode_description">يتحكم في وقت الحاجة إلى تأكيد المستخدم قبل إجراء الذكاء الاصطناعي لعمليات الكتابة. يمكن لإعدادات الأدوات الفردية أدناه تجاوز هذا لأدوات بعينها.</string>
+  <string name="agent_permission_mode_summary">يتحكم في وقت الحاجة إلى تأكيد المستخدم قبل عمليات الكتابة بالذكاء الاصطناعي</string>
+  <string name="prompt_permission_use_default">استخدام الافتراضي</string>
+  <string name="prompt_tab_prompt">الموجّه</string>
+  <string name="prompt_tab_permissions">الأذونات</string>
+  <string name="prompt_tab_advanced">متقدم</string>
+  <string name="prompt_name">الاسم</string>
+  <string name="prompt_description">الوصف</string>
+  <string name="prompt_template">قالب الموجّه</string>
+  <string name="prompt_show_in">عرض في</string>
+  <string name="prompt_context_verse_selection">تحديد الآية</string>
+  <string name="prompt_context_text_selection">تحديد النص</string>
+  <string name="prompt_context_window_menu">قائمة النافذة</string>
+  <string name="prompt_context_workspace_menu">قائمة مساحة العمل</string>
+  <string name="prompt_context_note_editor">محرر الملاحظات</string>
+  <string name="prompt_bible_only">مستندات الكتاب المقدس فقط</string>
+  <string name="prompt_category_study">الدراسة</string>
+  <string name="prompt_category_notes">الملاحظات</string>
+  <string name="prompt_category_general">عام</string>
+  <string name="prompt_category_test">اختبار</string>
+  <string name="prompt_category_uncategorized">غير مصنّف</string>
+  <string name="prompt_category_favorites">المفضلة</string>
+  <string name="addon_prompt_badge">إضافة: %s</string>
+  <string name="addon_prompt_notice">هذا الموجّه من وحدة إضافة \"%s\" ولا يمكن تعديله. استخدم "نسخ للتخصيص" لإنشاء نسخة قابلة للتعديل.</string>
+  <string name="new_category">فئة جديدة</string>
+  <string name="new_category_name">اسم الفئة</string>
+  <string name="rename_category">إعادة التسمية</string>
+  <string name="move_category_up">تحريك للأعلى</string>
+  <string name="move_category_down">تحريك للأسفل</string>
+  <string name="hide_category">إخفاء من إجراءات الذكاء الاصطناعي</string>
+  <string name="show_category">عرض في إجراءات الذكاء الاصطناعي</string>
+  <string name="hidden">مخفي</string>
+  <string name="delete_category">حذف الفئة</string>
+  <string name="delete_category_and_prompts">حذف الفئة وموجّهاتها</string>
+  <string name="delete_category_keep_prompts">نقل الموجّهات إلى الجذر وحذف الفئة</string>
+  <string name="delete_category_confirm_title">حذف الفئة "%s"؟</string>
+  <string name="move_to_category">نقل إلى فئة…</string>
+  <string name="category_none">بدون فئة</string>
+  <string name="import_prompts_editable">استيراد كموجّهات قابلة للتعديل</string>
+  <string name="import_prompts_addon">تثبيت كإضافة (للقراءة فقط)</string>
+  <string name="prompt_category">الفئة</string>
+  <string name="new_prompt">موجّه جديد</string>
+  <string name="permission_always_ask">السؤال دائماً</string>
+  <string name="permission_ask_once_per_run">السؤال مرة واحدة لكل تشغيل</string>
+  <string name="permission_allow_all">السماح بالكل</string>
+  <string name="permission_deny_all">رفض الكل</string>
+  <string name="reset_all_ai_settings">إعادة تعيين جميع إعدادات الذكاء الاصطناعي</string>
+  <string name="reset_all_ai_settings_confirm_title">إعادة تعيين جميع إعدادات الذكاء الاصطناعي؟</string>
+  <string name="reset_all_ai_settings_confirm_message">سيؤدي هذا إلى مسح مفتاح API والموفر ونقطة النهاية والنموذج وإعادة تعيين جميع الموجّهات إلى الإعدادات الافتراضية. هل تريد المتابعة؟</string>
+  <string name="edit_prompt">تعديل الموجّه</string>
+  <string name="built_in_prompt">مدمج</string>
+  <string name="built_in_prompt_notice">هذا موجّه مدمج ولا يمكن تعديله. استخدم "نسخ للتخصيص" لإنشاء نسخة قابلة للتعديل.</string>
+  <string name="copy_to_customize">نسخ للتخصيص</string>
+  <string name="prompt_copied">تم نسخ الموجّه</string>
+  <string name="delete_prompt_confirmation">حذف الموجّه "%s"؟</string>
+  <string name="prompt_name_required">اسم الموجّه مطلوب</string>
+  <string name="prompt_template_required">قالب الموجّه مطلوب</string>
+  <string name="prompt_edit_before_run">تحديد قبل التشغيل</string>
+  <string name="prompt_edit_before_run_description">عرض حقل نص لتحديد المهمة قبل تشغيل الموجّه</string>
+  <string name="prompt_no_document_creation">بدون إنشاء مستند</string>
+  <string name="prompt_no_document_creation_description">عند التفعيل، لن ينشئ الذكاء الاصطناعي مستنداً. تُعرض النتائج في سجل النشاط فقط. مفيد للموجّهات ذات الإجراء فقط (الإشارات المرجعية والتسميات وعمليات لوحة الدراسة).</string>
+  <string name="prompt_auto_include_documents">التضمين التلقائي للمستندات المثبّتة</string>
+  <string name="prompt_auto_include_documents_description">تضمين قائمة المستندات المثبّتة تلقائياً في سياق الموجّه، مما يوفر تكراراً للذكاء الاصطناعي.</string>
+  <string name="prompt_auto_include_commentaries">التضمين التلقائي للتعليقات</string>
+  <string name="prompt_auto_include_commentaries_description">جلب وتضمين إدخالات التعليقات للآيات المحددة تلقائياً، مما يوفر تكراراً للذكاء الاصطناعي.</string>
+  <string name="prompt_is_text_transformation">تحويل النص</string>
+  <string name="prompt_is_text_transformation_description">يستخدم موجّه نظام مبسّطاً يحافظ على التنسيق (الروابط والعناوين والغامق/المائل) مع تحويل محتوى النص. لا تُستخدم أدوات. مثالي لموجّهات الترجمة والتحرير.</string>
+  <string name="llm_no_document_creation_intercepted">اكتملت المهمة (إنشاء المستند معطّل)</string>
+  <string name="llm_note_updated">تم تحديث الملاحظة</string>
+  <string name="specify_before_run_title">تحديد المهمة</string>
+  <string name="specify_before_run_hint">صف المهمة المحددة…</string>
+  <string name="prompt_cache_settings">إعدادات الذاكرة المؤقتة</string>
+  <string name="prompt_strict_context_matching">ذاكرة مؤقتة معتمدة على السياق</string>
+  <string name="prompt_strict_context_matching_description">عند التفعيل، تتطابق الذاكرة المؤقتة فقط عند تطابق كل السياق (إصدار الكتاب المقدس، النص المحدد). عند التعطيل، تتطابق الذاكرة المؤقتة عندما تتطابق الآيات بغض النظر عن إصدار الكتاب المقدس.</string>
+  <string name="ai_document_delete_confirmation">حذف مستند الذكاء الاصطناعي هذا؟</string>
+  <string name="ai_document_deleted">تم حذف مستند الذكاء الاصطناعي هذا.</string>
+  <string name="ai_document_regenerating">إعادة إنشاء مستند الذكاء الاصطناعي…</string>
+  <string name="ai_document_regenerate_not_implemented">ستكون إعادة الإنشاء متاحة في تحديث مستقبلي</string>
+  <string name="ai_regenerate_prompt_not_found">لا يمكن إعادة الإنشاء: الموجّه الأصلي غير موجود. قد يكون قد حُذف.</string>
+  <string name="ai_document_regenerate">إعادة الإنشاء</string>
+  <string name="ai_regenerate_title">إعادة الإنشاء</string>
+  <string name="ai_regenerate_instructions_hint">تعليمات إضافية (اختياري)</string>
+  <string name="ai_regenerate_keep_previous">الاحتفاظ بالإصدار السابق</string>
+  <string name="ai_regenerate_fresh_run">تشغيل جديد (تجاهل النتيجة السابقة)</string>
+  <string name="ai_document_delete">حذف</string>
+  <string name="ai_unknown_prompt">الذكاء الاصطناعي</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">الترجمة إلى %s</string>
+  <string name="default_prompt_translate_to_ui_language">الترجمة إلى لغة الواجهة</string>
+  <string name="default_prompt_translate_to_ui_language_desc">يترجم نص المستند إلى لغة واجهة التطبيق</string>
+  <string name="default_prompt_translate_to_english">الترجمة إلى الإنجليزية</string>
+  <string name="default_prompt_translate_to_english_desc">يترجم النص المحدد إلى الإنجليزية</string>
+  <string name="default_prompt_summary">ملخص</string>
+  <string name="default_prompt_summary_desc">ينشئ ملخصاً موجزاً للنص المحدد</string>
+  <string name="default_prompt_explain_verses">شرح الآيات</string>
+  <string name="default_prompt_explain_verses_desc">يشرح معنى وسياق الآيات المحددة</string>
+  <string name="default_prompt_explain_verses_studypad">شرح الآيات ← لوحة الدراسة</string>
+  <string name="default_prompt_explain_verses_studypad_desc">إنشاء لوحة دراسة مع شرح آية بآية وإشارات مرجعية</string>
+  <string name="default_prompt_word_study">دراسة كلمة</string>
+  <string name="default_prompt_word_study_desc">تحليل الكلمات العبرية/اليونانية الأصلية</string>
+  <string name="default_prompt_strongs_annotation">تعليق أرقام Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">يضيف أرقام تطابق Strong\'s لأي ترجمة للكتاب المقدس باستخدام KJV كمرجع</string>
+  <string name="default_prompt_cross_references">المراجع المتقاطعة</string>
+  <string name="default_prompt_cross_references_desc">يبحث ويشرح المقاطع الكتابية المرتبطة</string>
+  <string name="default_prompt_compare_translations">مقارنة الترجمات</string>
+  <string name="default_prompt_compare_translations_desc">يعرض كيف تُقدّم الترجمات المثبّتة المختلفة النص</string>
+  <string name="default_prompt_thematic_study">الدراسة الموضوعية</string>
+  <string name="default_prompt_thematic_study_desc">ينشئ لوحة دراسة بمقاطع وملاحظات حول الموضوع المركزي</string>
+  <string name="default_prompt_bookmark_annotate">إشارة مرجعية وتعليق</string>
+  <string name="default_prompt_bookmark_annotate_desc">ينشئ إشارة مرجعية مع ملاحظة دراسة يُنشئها الذكاء الاصطناعي</string>
+  <string name="default_prompt_study_layout">فتح تخطيط الدراسة</string>
+  <string name="default_prompt_study_layout_desc">يفتح نوافذ التعليق والترجمة المتوازية للدراسة</string>
+  <string name="default_prompt_workspace_assistant">مساعد مساحة العمل</string>
+  <string name="default_prompt_workspace_assistant_desc">إدارة النوافذ: الإنشاء والإغلاق وإعادة الترتيب وتغيير المستندات</string>
+  <string name="default_prompt_enhance_note">تحسين الملاحظة</string>
+  <string name="default_prompt_enhance_note_desc">تحسين قواعد اللغة والوضوح وسهولة القراءة في ملاحظتك</string>
+  <string name="default_prompt_ask_question">طرح سؤال</string>
+  <string name="default_prompt_ask_question_desc">اطرح أي سؤال حول المقطع المحدد</string>
+  <string name="default_prompt_custom">موجّه مخصص</string>
+  <string name="default_prompt_custom_desc">تنفيذ مهمة مخصصة على المقطع المحدد</string>
+  <string name="default_prompt_custom_template">اتبع مواصفات مهمة المستخدم للمقطع الكتابي المحدد.</string>
+  <string name="copy">نسخ</string>
+  <string name="delete_prompt_confirm_message">هل أنت متأكد أنك تريد حذف هذا الموجّه؟</string>
+  <string name="ai_hide_prompt">إخفاء</string>
+  <string name="ai_restore_hidden_prompts">استعادة الموجّهات المخفية</string>
+  <string name="ai_prompt_hidden">تم إخفاء الموجّه</string>
+  <string name="ai_prompts_restored">تمت استعادة الموجّهات المخفية</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">إنشاء إشارة مرجعية</string>
+  <string name="tool_add_bookmark_note">إضافة ملاحظة للإشارة المرجعية</string>
+  <string name="tool_update_bookmark_note">تحديث ملاحظة الإشارة المرجعية</string>
+  <string name="tool_create_label">إنشاء تسمية</string>
+  <string name="tool_add_label_to_bookmark">إضافة تسمية للإشارة المرجعية</string>
+  <string name="tool_delete_bookmark">حذف الإشارة المرجعية</string>
+  <string name="tool_delete_label">حذف التسمية</string>
+  <string name="tool_remove_label_from_bookmark">إزالة التسمية من الإشارة المرجعية</string>
+  <string name="tool_add_study_pad_entry">إضافة إدخال إلى لوحة الدراسة</string>
+  <string name="tool_update_studypad_text_entry">تحديث إدخال نص لوحة الدراسة</string>
+  <string name="tool_create_study_pad">إنشاء لوحة دراسة</string>
+  <string name="action_update_studypad_text_entry">تحديث إدخال نص لوحة الدراسة %1$s</string>
+  <string name="action_create_studypad">إنشاء لوحة دراسة \"%1$s\" مع %2$d عناصر</string>
+  <string name="tool_set_document_title">تعيين عنوان المستند</string>
+  <string name="tool_finish_with_study_pad">فتح لوحة الدراسة</string>
+  <string name="tool_finish_with_my_document_page">فتح صفحة مستنداتي</string>
+  <string name="tool_finish_without_document">الإنهاء بدون مستند</string>
+  <string name="tool_get_verse_content">قراءة محتوى الآية</string>
+  <string name="tool_get_commentaries">قراءة التعليقات</string>
+  <string name="tool_get_dictionary_entry">البحث في إدخال القاموس</string>
+  <string name="tool_search_bible">البحث في الكتاب المقدس</string>
+  <string name="tool_search_by_strongs">البحث برقم Strong\'s</string>
+  <string name="tool_get_installed_documents">عرض قائمة المستندات المثبّتة</string>
+  <string name="tool_get_all_labels">عرض قائمة جميع التسميات</string>
+  <string name="tool_get_bookmarks_for_verse">الحصول على الإشارات المرجعية للآية</string>
+  <string name="tool_get_bookmarks_with_label">الحصول على الإشارات المرجعية بتسمية</string>
+  <string name="tool_get_study_pad_content">قراءة محتوى لوحة الدراسة</string>
+  <string name="tool_search_study_pads">البحث في لوحات الدراسة</string>
+  <string name="tool_get_my_documents">عرض قائمة مستنداتي</string>
+  <string name="tool_get_my_document_pages">عرض قائمة صفحات مستنداتي</string>
+  <string name="tool_get_genbook_keys">عرض قائمة مفاتيح الكتاب العام</string>
+  <string name="tool_get_genbook_content">قراءة محتوى الكتاب العام</string>
+  <string name="tool_create_my_document">إنشاء مستند شخصي</string>
+  <string name="tool_add_my_document_page">إضافة صفحة لمستنداتي</string>
+  <string name="tool_edit_my_document_page">تعديل صفحة مستنداتي</string>
+  <string name="tool_delete_my_document_page">حذف صفحة مستنداتي</string>
+  <string name="tool_get_windows">عرض قائمة النوافذ</string>
+  <string name="tool_create_window">إنشاء نافذة</string>
+  <string name="tool_manage_window">إدارة النافذة</string>
+  <string name="tool_set_window_document">تعيين مستند النافذة</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">إذن الوكيل</string>
+  <string name="agent_permission_message">يريد مساعد الذكاء الاصطناعي استخدام \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">يريد مساعد الذكاء الاصطناعي:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">إنشاء إشارة مرجعية عند %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">إنشاء إشارة مرجعية عند %1$s (%2$s)</string>
+  <string name="action_with_note">مع ملاحظة</string>
+  <string name="action_labels">التسميات: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">إضافة ملاحظة للإشارة المرجعية عند %1$s</string>
+  <string name="action_update_note_on_bookmark_at">تحديث ملاحظة الإشارة المرجعية عند %1$s</string>
+  <string name="action_create_label">إنشاء تسمية \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">إضافة التسمية \"%1$s\" للإشارة المرجعية عند %2$s</string>
+  <string name="action_delete_bookmark">حذف الإشارة المرجعية عند %1$s</string>
+  <string name="action_delete_label">حذف التسمية \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">إزالة التسمية \"%1$s\" من الإشارة المرجعية عند %2$s</string>
+  <string name="action_add_entry_to_studypad">إضافة إدخال إلى لوحة الدراسة \"%1$s\"</string>
+  <string name="action_create_my_document">إنشاء مستند شخصي: \"%1$s\"</string>
+  <string name="action_add_my_document_page">إضافة صفحة \"%1$s\" إلى مستنداتي %2$s</string>
+  <string name="action_edit_my_document_page">تعديل صفحة مستنداتي: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">حذف صفحة مستنداتي: \"%1$s\"</string>
+  <string name="action_set_document_title">تعيين عنوان المستند: \"%1$s\"</string>
+  <string name="action_open_studypad">فتح لوحة الدراسة \"%1$s\"</string>
+  <string name="action_open_my_document_page">فتح صفحة مستنداتي \"%1$s\"</string>
+  <string name="action_create_window">إنشاء نافذة جديدة</string>
+  <string name="action_create_window_with_doc">إنشاء نافذة مع %1$s</string>
+  <string name="action_create_window_with_doc_and_key">إنشاء نافذة مع %1$s عند %2$s</string>
+  <string name="action_close_window">إغلاق النافذة (%1$s)</string>
+  <string name="action_minimize_window">تصغير النافذة (%1$s)</string>
+  <string name="action_restore_window">استعادة النافذة (%1$s)</string>
+  <string name="action_set_window_document">تعيين %1$s إلى %2$s</string>
+  <string name="action_set_window_document_with_key">تعيين %1$s إلى %2$s عند %3$s</string>
+  <string name="action_active_window">النافذة النشطة</string>
+  <string name="action_finish">إنهاء: \"%1$s\"</string>
+  <string name="permission_allow_once">السماح مرة واحدة</string>
+  <string name="permission_allow_for_session">السماح لهذه الجلسة</string>
+  <string name="permission_allow_all_session">السماح بجميع الأدوات في هذه الجلسة</string>
+  <string name="permission_allow_always">السماح دائماً بـ \"%1$s\"</string>
+  <string name="permission_deny">رفض</string>
+  <string name="permission_always_allow_confirm_title">السماح دائماً؟</string>
+  <string name="permission_always_allow_confirm">هل أنت متأكد أنك تريد السماح دائماً بـ \"%1$s\"؟</string>
+  <string name="permission_always_allow_confirm_reset_hint">يمكنك إعادة تعيين هذا في إعدادات الذكاء الاصطناعي.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">أذونات الأدوات</string>
+  <string name="manage_tool_permissions_summary">إدارة تجاوزات أذونات الأدوات الفردية</string>
+  <string name="commentary_max_response_title">حد حجم رد التعليق</string>
+  <string name="commentary_max_response_summary">عرض مربع حوار الاختيار عند تجاوز الرد للحد</string>
+  <string name="commentary_max_response_no_limit">بدون حد</string>
+  <string name="commentary_max_response_value">~%s رمز</string>
+  <string name="commentary_max_response_dialog_title">تعيين الحد الأقصى لحجم الرد (رموز)</string>
+  <string name="commentary_max_response_dialog_message">عندما يجلب الذكاء الاصطناعي التعليقات ويتجاوز إجمالي الرد حد الرموز هذا، يتيح مربع حوار الاختيار تحديد التعليقات التي تريد إرسالها للذكاء الاصطناعي.\n\n0 = بدون حد (يتم إرسال جميع التعليقات تلقائياً).</string>
+  <string name="commentary_filter_dialog_title">رد التعليق كبير جداً</string>
+  <string name="commentary_filter_dialog_message">تم تجاوز حد الرموز (~%s). قم بإلغاء تحديد التعليقات التي لا تريد إرسالها للذكاء الاصطناعي.\n\nيمكنك ضبط هذا الحد في إعدادات اتصال الذكاء الاصطناعي.</string>
+  <string name="commentary_filter_total_tokens">المحدد: ~%1$s / %2$s رمز</string>
+  <string name="tool_log_commentary_count">%d تعليق</string>
+  <string name="tool_log_label_count">%d تسمية</string>
+  <string name="tool_log_document_count">%d مستند</string>
+  <string name="tool_log_study_pad_count">%d لوحة دراسة</string>
+  <string name="tool_log_search_results">%1$d/%2$d نتيجة</string>
+  <string name="tool_log_bookmark_count">%d إشارة مرجعية</string>
+  <string name="tool_log_my_document_count">%d مستند</string>
+  <string name="tool_log_my_document_page_count">%d صفحة</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d مفتاح</string>
+  <string name="tool_log_window_count">%d نافذة</string>
+  <string name="tool_log_window_copy">نسخة</string>
+  <string name="tool_log_window_minimized">مصغّرة</string>
+  <string name="tool_log_window_removed">محذوفة</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s رمز)</string>
+  <string name="ai_document_filter_title">الوصول إلى المستندات</string>
+  <string name="ai_document_filter_summary">اختر المستندات التي يمكن للذكاء الاصطناعي قراءتها</string>
+  <string name="ai_document_filter_summary_count">%d مستند مستبعد</string>
+  <string name="ai_document_filter_activity_title">وصول الذكاء الاصطناعي للمستندات</string>
+  <string name="ai_document_excluded_error">المستند مستبعد بواسطة إعدادات المستخدم: %s</string>
+  <string name="permission_status_default">سؤال (افتراضي)</string>
+  <string name="permission_status_allowed">مسموح دائماً</string>
+  <string name="permission_status_denied">مرفوض دائماً</string>
+  <string name="permission_option_default">السؤال في كل مرة (افتراضي)</string>
+  <string name="permission_option_always_allow">السماح دائماً</string>
+  <string name="permission_option_always_deny">الرفض دائماً</string>
+  <string name="reset_all_permissions">إعادة تعيين الكل</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">الأدوات المتاحة</string>
+  <string name="ai_read_tools">أدوات القراءة</string>
+  <string name="ai_write_tools">أدوات الكتابة</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">إعدادات الأدوات الافتراضية</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">أذونات الأدوات</string>
+  <string name="prompt_tool_permissions_read_only">أذونات الأدوات (للقراءة فقط)</string>
+  <string name="prompt_tool_permissions_description">تجاوز أذونات الأدوات لهذا الموجّه</string>
+  <string name="tool_section_read_tools">أدوات القراءة</string>
+  <string name="tool_section_write_tools">أدوات الكتابة</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">الكتاب المقدس والبحث</string>
+  <string name="tool_category_bookmarks">الإشارات المرجعية</string>
+  <string name="tool_category_labels">التسميات</string>
+  <string name="tool_category_study_pads">لوحات الدراسة</string>
+  <string name="tool_category_my_documents">مستنداتي</string>
+  <string name="tool_category_general_books">الكتب العامة</string>
+  <string name="tool_category_windows">النوافذ</string>
+  <string name="tool_category_read">قراءة</string>
+  <string name="tool_category_write">كتابة</string>
+  <string name="expand_collapse">توسيع/طي</string>
+  <string name="tool_option_enabled">مفعّل</string>
+  <string name="tool_option_disabled">معطّل</string>
+  <string name="tool_option_default_enabled">افتراضي (مفعّل)</string>
+  <string name="tool_option_default_disabled">افتراضي (معطّل)</string>
+  <string name="tool_option_default_allowed">افتراضي (مسموح)</string>
+  <string name="tool_option_default_denied">افتراضي (مرفوض)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">النموذج</string>
+  <string name="prompt_model_default">افتراضي</string>
+  <string name="prompt_model_custom">مخصص</string>
+  <string name="prompt_model_custom_hint">أدخل اسم النموذج</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">اختر إجراء الذكاء الاصطناعي</string>
+  <string name="no_llm_prompts_configured">لم يتم تكوين موجّهات ذكاء اصطناعي لتحديد الآية</string>
+  <string name="llm_prompt_executing">تنفيذ موجّه الذكاء الاصطناعي: %s</string>
+  <string name="llm_actions">إجراءات الذكاء الاصطناعي</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">توسيع/طي سجل الوكيل</string>
+  <string name="agent_log_close">إغلاق سجل الوكيل</string>
+  <string name="agent_log_stop">إيقاف الذكاء الاصطناعي</string>
+  <string name="agent_log_idle">مساعد الذكاء الاصطناعي</string>
+  <string name="agent_log_running">الذكاء الاصطناعي يعمل…</string>
+  <string name="agent_log_completed">اكتمل</string>
+  <string name="agent_log_error">حدث خطأ</string>
+  <string name="agent_log_executing">تنفيذ: %s</string>
+  <string name="agent_log_iteration">التكرار %d</string>
+  <string name="agent_log_tool">الأداة: %s</string>
+  <string name="agent_log_tool_completed">اكتملت الأداة %s</string>
+  <string name="agent_log_tool_failed">فشلت الأداة %s</string>
+  <string name="agent_log_response_received">تم استلام الرد</string>
+  <string name="agent_log_saved">تم الحفظ: %s</string>
+  <string name="agent_log_done">تم: %s</string>
+  <string name="agent_log_cancelled">تم الإلغاء</string>
+  <string name="agent_execution_completed">اكتمل تنفيذ الوكيل</string>
+  <string name="agent_already_running">وكيل الذكاء الاصطناعي يعمل بالفعل. يرجى الانتظار أو إيقافه أولاً.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">وكيل الذكاء الاصطناعي</string>
+  <string name="ai_agent_notification_running">وكيل الذكاء الاصطناعي يعمل…</string>
+  <string name="ai_agent_notification_permission_needed">وكيل الذكاء الاصطناعي يحتاج موافقتك</string>
+  <string name="ai_agent_notification_permission_tap">انقر للعودة إلى AndBible</string>
+  <string name="ai_agent_notification_completed">اكتملت مهمة الذكاء الاصطناعي</string>
+  <string name="ai_agent_notification_completed_tap">انقر لعرض النتائج</string>
+  <string name="ai_agent_notification_error">فشلت مهمة الذكاء الاصطناعي</string>
+  <string name="ai_agent_notification_cancel">إلغاء</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">مستنداتي</string>
+  <string name="my_documents_empty">لا توجد مستندات بعد. انقر على + لإنشاء واحد.</string>
+  <string name="my_document_new_name">مستند %d</string>
+  <string name="my_document_create_title">إنشاء مستند جديد</string>
+  <string name="my_document_rename_title">إعادة تسمية المستند</string>
+  <string name="my_document_edit_description_title">تعديل الوصف</string>
+  <string name="my_document_delete_confirmation">حذف المستند \"%s\"؟</string>
+  <string name="my_document_cannot_delete_ai_documents">لا يمكن حذف مستندات الذكاء الاصطناعي بينما تحتوي على صفحات. احذف الصفحات أولاً.</string>
+  <string name="my_document_save_changes">حفظ التغييرات؟</string>
+  <string name="my_document_no_description">بدون وصف</string>
+  <string name="my_document_rename">إعادة التسمية</string>
+  <string name="my_document_edit_description">تعديل الوصف</string>
+  <string name="my_document_delete">حذف</string>
+
+  <string name="my_document_pages_title">%s - الصفحات</string>
+  <string name="my_document_pages_empty">لا توجد صفحات في هذا المستند.</string>
+  <string name="my_document_page_rename_title">إعادة تسمية الصفحة</string>
+  <string name="my_document_page_delete_confirmation">حذف الصفحة \"%s\"؟</string>
+  <string name="my_document_page_rename">إعادة التسمية</string>
+  <string name="my_document_page_delete">حذف</string>
+  <string name="my_document_page_export">تصدير</string>
+  <string name="my_document_new_page_name">صفحة %1$d</string>
+  <string name="my_document_create_page_title">صفحة جديدة</string>
+  <string name="my_document_content_type_label">نوع المحتوى</string>
+  <string name="my_document_import_page">استيراد Markdown/HTML</string>
+  <string name="my_document_export_page">تصدير الصفحة</string>
+  <string name="my_document_imported_page_name">مستورد</string>
+  <string name="my_document_export_fallback_name">صفحة</string>
+  <string name="my_document_export_document">تصدير جميع الصفحات</string>
+  <string name="my_document_import_document">استيراد ملفات كمستند</string>
+  <string name="my_document_import_empty_selection">لم يتم تحديد ملفات قابلة للاستيراد</string>
+  <string name="my_document_export_success">تم تصدير الصفحات بنجاح</string>
+  <string name="ai_doc_choose_page">اختر صفحة مستند الذكاء الاصطناعي</string>
+  <string name="prefs_show_ai_doc_markers_title">عرض علامات مستندات الذكاء الاصطناعي</string>
+  <string name="prefs_show_ai_doc_markers_summary">عرض أيقونات العلامات لصفحات المستندات المُنشأة بالذكاء الاصطناعي المرتبطة بالآيات</string>
+  <string name="prefs_show_ordinals_title">عرض الأرقام الترتيبية</string>
+  <string name="prefs_show_ordinals_summary">عرض علامات الموضع الترتيبي في النص</string>
+
+  <string name="prefs_page_scroll_amount_title">مقدار تمرير الصفحة</string>
+  <string name="prefs_page_scroll_amount_summary">مقدار تمرير الصفحة عند الضغط على أعلى/أسفل الصفحة</string>
+  <string name="page_scroll_amount_dialog_title">مقدار تمرير الصفحة</string>
+  <string name="prefs_scroll_helper_lines_title">خطوط مساعدة التمرير</string>
+  <string name="prefs_scroll_helper_lines_summary">عرض خطوط توجيه أفقية عند حدود تمرير الصفحة</string>
+  <string name="prefs_scroll_helper_line_style_title">نمط خط المساعدة</string>
+  <string name="prefs_scroll_helper_line_style_summary">اختر النمط المرئي لخطوط مساعدة التمرير</string>
+  <string name="scroll_helper_line_style_dialog_title">نمط خط المساعدة</string>
+  <string name="scroll_helper_line_style_thin_dotted">خط منقط رفيع</string>
+  <string name="scroll_helper_line_style_thin_solid">خط صلب رفيع</string>
+  <string name="scroll_helper_line_style_thick_solid">خط صلب سميك</string>
+  <string name="prefs_page_buttons_title">أزرار تمرير الصفحة</string>
+  <string name="prefs_page_buttons_summary">عرض أزرار أعلى/أسفل الصفحة على الشاشة</string>
 </resources>

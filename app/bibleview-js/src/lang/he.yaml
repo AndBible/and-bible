@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: סימניות
 bookmarksAndNotes: סימניות והערות
-openMyNotes: פתח ב"הערות שלי"
-openStudyPad: פתח בפנקס לימוד (%s)
-noteText: הערות שוליים (%s)
+openMyNotes: "פתח ב\"הערות שלי\""
+openStudyPad: "פתח בפנקס לימוד (%s)"
+noteText: "הערות שוליים (%s)"
 noteTextWithoutType: הערות שוליים
 crossReferenceText: מראי מקום
 findAllOccurrences: מצא את כל המופעים
@@ -18,18 +18,20 @@ footnoteTypeAlternative: חלופה
 footnoteTypeTranslation: תרגום
 clearLog: מחיקת לוג שגיאות
 editTextPlaceholder: לחץ לעריכת הטקסט
+myDocumentEdit: ערוך עמוד
+myDocumentEmptyPlaceholder: הקש להתחלת עריכת עמוד זה
 inputPlaceholder: כתוב כאן
 inputReference: הכנס מראה מקום
 invalidReference: הפסוק לא נמצא
-bookmarkAccurate: הסימניה נוצרה ב %s
+bookmarkAccurate: "הסימניה נוצרה ב %s"
 bookmarkInaccurate: "הסימניה לא מכילה את שם הספר, התוכן מוצג ב\"%s\"."
 defaultBook: טקסט מקראי ברירת מחדל
 ok: אישור
 yes: "כן"
-ambiguousSelection: "מה תרצה לעשות?"
+ambiguousSelection: מה תרצה לעשות?
 cancel: ביטול
-removeBookmarkConfirmationTitle: "למחוק את הסימניה?"
-removeBookmarkConfirmation: "אתה בטוח שאתה רוצה למחוק סימניה זו?"
+removeBookmarkConfirmationTitle: למחוק את הסימניה?
+removeBookmarkConfirmation: אתה בטוח שאתה רוצה למחוק סימניה זו?
 createdAt: "נוצר: %s"
 lastUpdatedOn: "עודכן לאחרונה: %s"
 strongsAndMorph: הגדרה ומורפולוגיה
@@ -37,22 +39,22 @@ externalLink: פתח קישור חיצוני
 referenceLink: פתח קישור מראה מקום
 openFootnote: פתח הערת שוליים
 noMyNotesTitle: פתח את ההערות שלי לפרק
-noMyNotesDescription: >
-  כדי להתחיל, יש ליצור סימניות במסמך תנ"ך. הסימניות תופענה כאן, ואז אפשר להוסיף אליהן הערות אישיות.
-emptyStudyPad: >
-  זהו פנקס לימוד ריק. לשם התחלה, יש להוסיף טקסט, או ליצור סימניות עם תווית התואמת את הפנקס הזה.
-doYouWantToDeleteEntry: "למחוק מפנקס הלימוד את הרשימה הזו?"
+noMyNotesDescription: "כדי להתחיל, יש ליצור סימניות במסמך תנ\"ך. הסימניות תופענה כאן, ואז אפשר להוסיף אליהן הערות אישיות.
+"
+emptyStudyPad: זהו פנקס לימוד ריק. לשם התחלה, יש להוסיף טקסט, או ליצור סימניות עם תווית התואמת את הפנקס הזה.
+
+doYouWantToDeleteEntry: למחוק מפנקס הלימוד את הרשימה הזו?
 removeStudyPadConfirmationTitle: מחיקת רשומה מפנקס הלימוד
 dragHelp: גרור כדי לסדר מחדש
 openAll: פתח את כל מראי המקומות
-editBookmarkPlaceholder: לחץ על "הערות שלי" כדי לערוך
+editBookmarkPlaceholder: "לחץ על \"הערות שלי\" כדי לערוך"
 onlyLabel: תווית בלבד
 wholeBookmark: כל הסימניה
 assignLabelsMenuEntry1: בחירת או עריכת תגיות...
 favouriteLabels: תגיות מועדפות
 recentLabels: תגיות אחרונות
 bookmarkLabels: תגיות של סימניות
-refParserHelp: נא להתקין את המסמך "%s" כדי להשתמש במראי מקומות בשפות שונות מאנגלית.
+refParserHelp: "נא להתקין את המסמך \"%s\" כדי להשתמש במראי מקומות בשפות שונות מאנגלית."
 openDownloads: לך להורדת תוספים
 verseShare: שתף
 verseSpeak: הקראה
@@ -60,38 +62,61 @@ verseCompare: השוואה
 verseMemorize: שינון
 verseNote: הערה
 verseMyNotes: הערות אישיות
-verseParagraphBreak: ""
+verseParagraphBreak: פסקה
 verseShareLong: שתף פסוק זה
 verseCompareLong: השוואת פסוק
 verseMemorizeLong: שינון פסוקים
+addMemorizationTarget: יעד +
+addMemorizationTargetLong: הגדר כיעד שינון
+removeMemorizationTarget: יעד -
+removeMemorizationTargetLong: הסר יעד שינון
+markAsMemorized: סמן כנשנן
+markedAsMemorized: נשנן
+removeFromTargets: יעד -
+viewReadingProgress: התקדמות קריאה/שינון
+viewReadingProgressSettings: הגדרות קריאה/שינון
+listenInLoop: האזן בלולאה
 verseNoteLong: כתיבת הערה
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: מעבר פסקה
 addBookmark: סימניה
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: איפוס
-peek: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: בחר סמל מותאם אישית
+bookmarkSettingsTitle: הגדר הגדרות סימניה
+subtitlePlaceholder: טקסט כותרת משנה
+customIconLabel: סמל מותאם אישית
+editActionLabel: ערוך פעולה
+editActionModeLabel: מצב
+editActionModeNone: ללא
+editActionModeAppend: הוסף טקסט בסוף
+editActionModePrepend: הוסף טקסט בהתחלה
+editActionContentLabel: תוכן
+editActionContentPlaceholder: הכנס טקסט להוספה למסמך...
+experimentalFeatureTitle: ניסיוני
+experimentalFeatureHelpTitle: אודות תכונות ניסיוניות
+experimentalFeatureHelpContent: תכונות ניסיוניות הן יכולות חדשות שעדיין בפיתוח ובבדיקה. ייתכן שלא יפעלו בצורה מושלמת ועשויות להשתנות משמעותית או להיות מוסרות בגרסאות עתידיות של האפליקציה.
+insertParagraphBreak: הוסף מעבר פסקה
+insertSubtitle: הוסף כותרת משנה
+xmlParseError: שגיאת ניתוח XML
+invalidTag: תג לא תקין
+invalidClosingTag: תג סגירה לא תקין
+unmatchedClosingTag: תג סגירה ללא פתיחה
+unclosedTag: תג לא סגור
+unknownError: שגיאה לא ידועה
+wordBlur: טשטוש
+wordScramble: ערבול
+wordType: הקלדה
+wordOrder: סדר
+typeEverything: הקלד מילים שלמות
+tapToStartTyping: הקש כאן להתחלת הקלדה
+wordVisibility: נראות מילים
+wordVisibilityLight: קל
+wordVisibilityDim: מעומעם
+wordVisibilityHidden: מוסתר
+errorHeatmap: מפת חום שגיאות
+hideUsedButtons: הסתר כפתורי מילים משומשים
 more: עוד
+llmAction: בינה מלאכותית
+llmActionLong: פעולת בינה מלאכותית
+aiDocumentRegenerate: חדש
+aiDocumentDelete: מחק
+aiGeneratedBy: "נוצר על ידי %s"
+aiGeneratedByWithModel: "נוצר על ידי %s (%s)"
