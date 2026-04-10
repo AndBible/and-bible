@@ -1,0 +1,21 @@
+- AI conversation logs now persist with history view and bug reporting support (dbef5a053)
+- Add custom AI system prompt editor in AI Settings → Advanced (da026b003)
+- Add favorite prompts system and compact category headers in prompt selector (2edd73ef8)
+- Allow model selection override for builtin prompts (1bc7604b0)
+- Add "set as default model" option in prompt selection dialog (dbca898e7)
+- Add AI agent tools to read GenBooks and MyDocuments content (b6f62fcaf)
+- BibleView now refreshes when device sync updates MyDocuments (1a7593eb9)
+- Fix delete icon color (223be1a86)
+- Fix prompt list layout: move addon badge to separate line (5d04dbcb9)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
