@@ -23,6 +23,10 @@ import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.tools.ToolDefinition
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.util.zip.GZIPInputStream
+import java.util.zip.GZIPOutputStream
 
 /**
  * Per-iteration usage and model data, stored alongside raw API responses.
@@ -108,6 +112,15 @@ class RawLlmLog {
     }
 
     companion object {
+        fun gzipCompress(text: String): ByteArray {
+            val bos = ByteArrayOutputStream()
+            GZIPOutputStream(bos).use { it.write(text.toByteArray(Charsets.UTF_8)) }
+            return bos.toByteArray()
+        }
+
+        fun gzipDecompress(data: ByteArray): String =
+            GZIPInputStream(ByteArrayInputStream(data)).bufferedReader(Charsets.UTF_8).use { it.readText() }
+
         /** Regex matching a JSON string value that is at least 80 chars long. */
         private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")
 

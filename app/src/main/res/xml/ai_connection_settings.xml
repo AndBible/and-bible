@@ -127,6 +127,15 @@
             android:summary="@string/llm_reset_usage_summary"
             android:icon="@drawable/ic_baseline_refresh_gray_24"
             />
+        <Preference android:key="raw_log_history"
+            android:title="@string/raw_log_history_title"
+            android:summary="@string/raw_log_history_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+        <Preference android:key="raw_log_retention"
+            android:title="@string/raw_log_retention_title"
+            android:icon="@drawable/ic_delete_24dp"
+            />
     </PreferenceCategory>
 
 </PreferenceScreen>

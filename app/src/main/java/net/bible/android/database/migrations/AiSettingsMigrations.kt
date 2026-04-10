@@ -233,4 +233,27 @@ private val addFavoritePrompts = makeMigration(19..20) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `favoritePrompts` TEXT NOT NULL DEFAULT ''")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts)
+private val addRawLogTable = makeMigration(20..21) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmRawLogRecord` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `promptId` BLOB DEFAULT NULL,
+        `promptName` TEXT NOT NULL DEFAULT '',
+        `promptDescription` TEXT DEFAULT NULL,
+        `configuredModelId` BLOB DEFAULT NULL,
+        `modelName` TEXT NOT NULL DEFAULT '',
+        `providerType` TEXT NOT NULL DEFAULT '',
+        `timestamp` INTEGER NOT NULL DEFAULT 0,
+        `totalInputTokens` INTEGER NOT NULL DEFAULT 0,
+        `totalOutputTokens` INTEGER NOT NULL DEFAULT 0,
+        `estimatedCostUsd` REAL NOT NULL DEFAULT 0.0,
+        `logData` BLOB NOT NULL,
+        `iterationCount` INTEGER NOT NULL DEFAULT 0,
+        `wasError` INTEGER NOT NULL DEFAULT 0
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_timestamp` ON `LlmRawLogRecord` (`timestamp`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_promptId` ON `LlmRawLogRecord` (`promptId`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_configuredModelId` ON `LlmRawLogRecord` (`configuredModelId`)")
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `rawLogRetentionDays` INTEGER DEFAULT 30")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts, addRawLogTable)

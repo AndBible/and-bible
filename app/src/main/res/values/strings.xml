@@ -1526,6 +1526,27 @@
     <string name="custom_system_prompt_default">Default</string>
     <string name="custom_system_prompt_custom">Custom</string>
     <string name="reset_to_default">Reset to default</string>
+
+    <!-- Raw log history -->
+    <string name="raw_log_history_title">AI Log History</string>
+    <string name="raw_log_history_summary">View and manage saved AI conversation logs</string>
+    <string name="raw_log_history_empty">No saved logs</string>
+    <string name="raw_log_delete_selected">Delete selected</string>
+    <string name="raw_log_delete_old">Delete old logs\u2026</string>
+    <string name="raw_log_delete_confirm">%d selected</string>
+    <string name="raw_log_older_1_week">Older than 1 week</string>
+    <string name="raw_log_older_1_month">Older than 1 month</string>
+    <string name="raw_log_older_3_months">Older than 3 months</string>
+    <string name="raw_log_delete_all">Delete all</string>
+    <string name="raw_log_item_tokens">%1$s in / %2$s out</string>
+    <string name="raw_log_error_indicator">Error</string>
+    <string name="raw_log_retention_title">Auto-delete old logs</string>
+    <string name="raw_log_retention_summary_days">After %d days</string>
+    <string name="raw_log_retention_summary_disabled">Disabled (keep all)</string>
+    <string name="send_ai_bug_report_title">Report AI Bug</string>
+    <string name="ai_bug_report_menu">Report AI bug</string>
+    <string name="ai_bug_report_recommended_only">Bug reporting is only available for recommended provider models</string>
+
     <string name="select_model_before_run_title">Select model</string>
     <string name="set_default_model_for_prompt">Set as default model for this prompt</string>
     <string name="prompt_max_iterations">Max iterations override</string>

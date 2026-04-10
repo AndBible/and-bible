@@ -108,6 +108,11 @@ object AiSettings {
         get() = getOrDefault().favoritePrompts
         set(value) = update { copy(favoritePrompts = value) }
 
+    /** Auto-delete raw logs older than this many days. null = no auto-delete. */
+    var rawLogRetentionDays: Int?
+        get() = getOrDefault().rawLogRetentionDays
+        set(value) = update { copy(rawLogRetentionDays = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

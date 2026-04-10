@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.text.InputType
 import android.view.Gravity
 import android.view.MenuItem
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -87,6 +88,8 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
+    private lateinit var rawLogHistoryPref: Preference
+    private lateinit var rawLogRetentionPref: Preference
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         preferenceManager.preferenceDataStore = PreferenceStore()
@@ -110,6 +113,8 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
+        rawLogHistoryPref = preferenceScreen.findPreference("raw_log_history")!!
+        rawLogRetentionPref = preferenceScreen.findPreference("raw_log_retention")!!
 
         // Set initial visibility before first render to avoid layout animation
         val hasProviders = dao.getCount() > 0
@@ -507,6 +512,60 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
                 .setNegativeButton(R.string.cancel, null)
                 .show()
             true
+        }
+
+        rawLogHistoryPref.setOnPreferenceClickListener {
+            startActivity(Intent(requireContext(), RawLogHistoryActivity::class.java))
+            true
+        }
+
+        setupRawLogRetention()
+    }
+
+    private fun setupRawLogRetention() {
+        updateRetentionSummary()
+        rawLogRetentionPref.setOnPreferenceClickListener {
+            val currentDays = settings.rawLogRetentionDays
+            val (scrollView, layout) = createDialogLayout()
+            val input = EditText(requireContext()).apply {
+                inputType = InputType.TYPE_CLASS_NUMBER
+                hint = "30"
+                setText(currentDays?.toString() ?: "")
+            }
+            layout.addView(input)
+            val checkBox = CheckBox(requireContext()).apply {
+                text = getString(R.string.raw_log_retention_summary_disabled)
+                isChecked = currentDays == null
+                setOnCheckedChangeListener { _, isChecked ->
+                    input.isEnabled = !isChecked
+                }
+            }
+            layout.addView(checkBox)
+            input.isEnabled = currentDays != null
+            AlertDialog.Builder(requireContext())
+                .setTitle(R.string.raw_log_retention_title)
+                .setView(scrollView)
+                .setPositiveButton(R.string.okay) { _, _ ->
+                    if (checkBox.isChecked) {
+                        settings.rawLogRetentionDays = null
+                    } else {
+                        val days = input.text.toString().toIntOrNull()?.coerceAtLeast(1) ?: 30
+                        settings.rawLogRetentionDays = days
+                    }
+                    updateRetentionSummary()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+            true
+        }
+    }
+
+    private fun updateRetentionSummary() {
+        val days = settings.rawLogRetentionDays
+        rawLogRetentionPref.summary = if (days != null) {
+            getString(R.string.raw_log_retention_summary_days, days)
+        } else {
+            getString(R.string.raw_log_retention_summary_disabled)
         }
     }
 

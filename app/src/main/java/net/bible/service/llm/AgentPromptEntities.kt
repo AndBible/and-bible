@@ -447,6 +447,8 @@ data class GlobalAiSettings(
     /** Custom system prompt for text transformation mode. null = use built-in default. */
     @ColumnInfo(defaultValue = "NULL") val customTextTransformationSystemPrompt: String? = null,
     val favoritePrompts: Set<IdType> = emptySet(),
+    /** Auto-delete raw logs older than this many days. null = no auto-delete. */
+    @ColumnInfo(defaultValue = "30") val rawLogRetentionDays: Int? = 30,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
@@ -504,4 +506,77 @@ interface LlmUsageRecordDao {
 
     @Query("SELECT * FROM LlmUsageRecord")
     fun all(): List<LlmUsageRecord>
+}
+
+/**
+ * Persisted raw LLM conversation log for debugging.
+ * Stored as a gzipped BLOB of the formatted log text.
+ * NOT synced across devices — device-local debug data.
+ */
+@Entity(
+    indices = [
+        Index("timestamp"),
+        Index("promptId"),
+        Index("configuredModelId"),
+    ]
+)
+data class LlmRawLogRecord(
+    @PrimaryKey val id: IdType = IdType(),
+    val promptId: IdType? = null,
+    val promptName: String = "",
+    val promptDescription: String? = null,
+    val configuredModelId: IdType? = null,
+    val modelName: String = "",
+    /** LlmProvider enum name, denormalized so logs remain readable after provider deletion. */
+    val providerType: String = "",
+    val timestamp: Long = System.currentTimeMillis(),
+    val totalInputTokens: Long = 0,
+    val totalOutputTokens: Long = 0,
+    @ColumnInfo(defaultValue = "0.0") val estimatedCostUsd: Double = 0.0,
+    /** Gzipped formatted log text (from RawLlmLog.format()). */
+    val logData: ByteArray,
+    @ColumnInfo(defaultValue = "0") val iterationCount: Int = 0,
+    /** Whether the session ended with an error or cancellation. */
+    @ColumnInfo(defaultValue = "0") val wasError: Boolean = false,
+)
+
+/** Lightweight projection for list views — excludes the large logData BLOB. */
+data class LlmRawLogSummary(
+    val id: IdType,
+    val promptId: IdType?,
+    val promptName: String,
+    val promptDescription: String?,
+    val configuredModelId: IdType?,
+    val modelName: String,
+    val providerType: String,
+    val timestamp: Long,
+    val totalInputTokens: Long,
+    val totalOutputTokens: Long,
+    val estimatedCostUsd: Double,
+    val iterationCount: Int,
+    val wasError: Boolean,
+)
+
+@Dao
+interface LlmRawLogRecordDao {
+    @Query("SELECT id, promptId, promptName, promptDescription, configuredModelId, modelName, providerType, timestamp, totalInputTokens, totalOutputTokens, estimatedCostUsd, iterationCount, wasError FROM LlmRawLogRecord ORDER BY timestamp DESC")
+    fun allSummaries(): List<LlmRawLogSummary>
+
+    @Query("SELECT * FROM LlmRawLogRecord WHERE id = :id")
+    fun getById(id: IdType): LlmRawLogRecord?
+
+    @Insert
+    fun insert(record: LlmRawLogRecord)
+
+    @Query("DELETE FROM LlmRawLogRecord WHERE id IN (:ids)")
+    fun deleteByIds(ids: List<IdType>)
+
+    @Query("DELETE FROM LlmRawLogRecord WHERE timestamp < :beforeTimestamp")
+    fun deleteOlderThan(beforeTimestamp: Long)
+
+    @Query("SELECT COUNT(*) FROM LlmRawLogRecord")
+    fun getCount(): Int
+
+    @Query("DELETE FROM LlmRawLogRecord")
+    fun deleteAll()
 }
