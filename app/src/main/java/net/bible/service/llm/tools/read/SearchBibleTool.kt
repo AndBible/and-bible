@@ -81,6 +81,7 @@ object SearchBibleTool : Tool {
     override val description = """
         Search for words or phrases in Bible translations using a Lucene full-text index.
         Returns a list of verses matching the query. Only indexed books can be searched.
+        getInstalledDocuments isIndexed tells which documents can be used for searching.
         Supports pagination via offset parameter.
 
         IMPORTANT: This is a keyword index, NOT a semantic/thematic search. Queries must use
@@ -165,6 +166,27 @@ object SearchBibleTool : Tool {
                 return ToolResult.error("No indexed Bible found. Please index a Bible first.", "NO_INDEX")
             }
             listOf(indexedBible.initials)
+        }
+
+        // Validate explicitly-requested books are indexed
+        if (args.books.isNotEmpty()) {
+            val notIndexed = mutableListOf<String>()
+            val notFound = mutableListOf<String>()
+            for (initials in bookInitials) {
+                val book = Books.installed().getBook(initials) as? SwordBook
+                if (book == null) notFound.add(initials)
+                else if (book.indexStatus != IndexStatus.DONE) notIndexed.add(initials)
+            }
+            if (notFound.size + notIndexed.size == bookInitials.size) {
+                val parts = mutableListOf<String>()
+                if (notIndexed.isNotEmpty()) {
+                    parts.add("${notIndexed.joinToString(", ")} ${if (notIndexed.size == 1) "is" else "are"} not indexed. Please index first to enable search.")
+                }
+                if (notFound.isNotEmpty()) {
+                    parts.add("${notFound.joinToString(", ")} not found.")
+                }
+                return ToolResult.error(parts.joinToString(" "), "NOT_INDEXED")
+            }
         }
 
         return try {

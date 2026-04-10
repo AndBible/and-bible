@@ -207,6 +207,18 @@ class ReadToolsTest {
         assertNull(SearchBibleTool.formatResultForLog(ToolResult.error("fail")))
     }
 
+    @Test
+    fun searchBible_explicitNonExistentBook_returnsNotIndexedError() = runBlocking {
+        val args = JSONObject().apply {
+            put("query", "love")
+            put("books", JSONArray().apply { put("NONEXISTENT_BOOK") })
+        }
+        val result = SearchBibleTool.execute(args, context)
+        assertTrue(result is ToolResult.Error)
+        assertEquals("NOT_INDEXED", (result as ToolResult.Error).code)
+        assertTrue(result.message.contains("not found"))
+    }
+
     // === GetCommentariesTool ===
 
     @Test

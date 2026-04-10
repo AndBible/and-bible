@@ -72,6 +72,36 @@ import java.io.StringReader
 private const val TAG = "AgentExecutor"
 private const val DEFAULT_MAX_ITERATIONS = 10
 
+/** Compact representation of a tool call for loop detection. */
+internal data class ToolCallSignature(val tool: AgentTool, val argsHash: Int)
+
+internal fun extractSignatures(toolCalls: List<ToolCall>): List<ToolCallSignature> =
+    toolCalls.map { tc ->
+        val normalized = try {
+            val json = JSONObject(tc.arguments)
+            // Sort keys for consistent hashing regardless of key order
+            JSONObject().apply {
+                json.keys().asSequence().sorted().forEach { key -> put(key, json.get(key)) }
+            }.toString()
+        } catch (_: Exception) { tc.arguments }
+        ToolCallSignature(tc.tool, normalized.hashCode())
+    }
+
+/**
+ * Detect repetitive tool call patterns.
+ * Returns true if any single (tool, args) signature appears [threshold] or more times
+ * in the last [windowSize] calls.
+ */
+internal fun detectLoop(
+    history: List<ToolCallSignature>,
+    threshold: Int = 3,
+    windowSize: Int = 5
+): Boolean {
+    if (history.size < threshold) return false
+    val window = history.takeLast(windowSize)
+    return window.groupBy { it }.any { (_, v) -> v.size >= threshold }
+}
+
 /**
  * Computes the set of tools to exclude from LLM tool definitions.
  *
@@ -184,6 +214,7 @@ class AgentExecutor(
         var currentContext = context  // Mutable context for session permission tracking
         var totalUsage = LlmUsage()
         var pendingDocumentTitle: String? = null
+        val toolCallHistory = mutableListOf<ToolCallSignature>()
         val resolved = preResolved ?: LlmProcessingService.resolveFromConfig(llmConfig)
         val loopHeaders = LlmProcessingService.buildProviderExtraHeaders(resolved.providerConfig)
 
@@ -204,12 +235,25 @@ class AgentExecutor(
 
                 when (parsed) {
                     is ParsedResponse.ToolCalls -> {
-                        when (val result = processToolCalls(prompt, adapter, parsed, messages, currentContext, rawLlmLog)) {
+                        toolCallHistory.addAll(extractSignatures(parsed.toolCalls))
+                        val loopDetected = detectLoop(toolCallHistory)
+                        if (loopDetected) {
+                            Log.w(TAG, "Loop detected at iteration $iteration: repeated tool calls")
+                        }
+                        val loopHint = if (loopDetected)
+                            "SYSTEM NOTE: You appear to be repeating the same tool calls without making progress. " +
+                            "The tool has returned the same results multiple times. Please try a completely different " +
+                            "approach, use different tools, or complete your response with the information you already have. " +
+                            "Do not retry the same tool with similar arguments."
+                        else null
+
+                        when (val result = processToolCalls(prompt, adapter, parsed, messages, currentContext, rawLlmLog, loopHint)) {
                             is ProcessToolsResult.Continue -> {
                                 currentContext = result.context
                                 if (result.pendingDocumentTitle != null) {
                                     pendingDocumentTitle = result.pendingDocumentTitle
                                 }
+                                if (loopDetected) toolCallHistory.clear()
                             }
                             is ProcessToolsResult.FinishWithDocument -> {
                                 Log.d(TAG, "Agent finished with document: ${result.title}")
@@ -346,7 +390,8 @@ class AgentExecutor(
         parsed: ParsedResponse.ToolCalls,
         messages: MutableList<ChatMessage>,
         context: AgentContext,
-        rawLlmLog: RawLlmLog? = null
+        rawLlmLog: RawLlmLog? = null,
+        loopHint: String? = null
     ): ProcessToolsResult {
         Log.d(TAG, "LLM requested ${parsed.toolCalls.size} tool calls")
         var currentContext = context
@@ -408,6 +453,12 @@ class AgentExecutor(
                     }
                 }
             }
+        }
+
+        // Inject loop detection hint into the last tool result if needed
+        if (loopHint != null && toolResults.isNotEmpty()) {
+            val last = toolResults.last()
+            toolResults[toolResults.lastIndex] = ToolResultBlock(last.toolCallId, last.content + "\n\n" + loopHint)
         }
 
         // Add all tool results to messages

@@ -30,11 +30,13 @@ data class ModelPricing(
     val inputPerMillion: Double,
     val outputPerMillion: Double,
     val cacheCreationPerMillion: Double = inputPerMillion,
-    val cacheReadPerMillion: Double = inputPerMillion * 0.1
+    val cacheReadPerMillion: Double = inputPerMillion * 0.1,
+    /** Supported models can send AI bug reports. */
+    val supported: Boolean = false,
 )
 
-private fun p(input: Double, output: Double, cacheCreate: Double = input, cacheRead: Double = input * 0.1) =
-    ModelPricing(input, output, cacheCreate, cacheRead)
+private fun p(input: Double, output: Double, cacheCreate: Double = input, cacheRead: Double = input * 0.1, supported: Boolean = false) =
+    ModelPricing(input, output, cacheCreate, cacheRead, supported)
 
 enum class LlmProvider(
     val displayName: String,
@@ -52,20 +54,23 @@ enum class LlmProvider(
     val supportsCacheControl: Boolean = false,
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
-        "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
-        "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125),
-        "gemini-3-flash" to p(0.15, 0.60),
+        "gemini-3-flash" to p(0.50, 3.00, supported = true),
+        "gemini-3.1-pro-preview" to p(2.00, 12.00, 2.00, 0.20, supported = true),
+        "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125, supported = true),
+        "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375, supported = true),
     ), apiKeyUrl = "https://aistudio.google.com/apikey"),
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1", listOf(
+        "gpt-5.4-mini" to p(0.75, 4.50, 0.75, 0.075, supported = true),
+        "gpt-5.4" to p(2.50, 15.00, 2.50, 0.25, supported = true),
         "gpt-5-mini" to p(0.40, 1.60, 0.40, 0.10),
         "gpt-5-nano" to p(0.10, 0.40, 0.10, 0.025),
         "gpt-5.2" to p(2.00, 8.00, 2.00, 0.50),
         "gpt-4o-mini" to p(0.15, 0.60, 0.15, 0.075),
     ), apiKeyUrl = "https://platform.openai.com/api-keys"),
     ANTHROPIC("Anthropic (Claude)", "https://api.anthropic.com/v1", listOf(
-        "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08),
-        "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30),
-        "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50),
+        "claude-haiku-4-5" to p(0.80, 4.00, 1.00, 0.08, supported = true),
+        "claude-sonnet-4-6" to p(3.00, 15.00, 3.75, 0.30, supported = true),
+        "claude-opus-4-6" to p(15.00, 75.00, 18.75, 1.50, supported = true),
     ), apiFormat = ApiFormat.ANTHROPIC, apiKeyUrl = "https://console.anthropic.com/settings/keys", supportsDynamicModels = false),
     XAI("xAI (Grok)", "https://api.x.ai/v1", listOf(
         "grok-4-0709" to p(3.00, 15.00),
@@ -92,8 +97,8 @@ enum class LlmProvider(
     ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://bailian.console.alibabacloud.com/?apiKey=1#/api-key"),
     OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1", listOf(
         "anthropic/claude-sonnet-4" to null,
-        "google/gemini-2.5-flash" to null,
-        "openai/gpt-5-mini" to null,
+        "google/gemini-3-flash" to null,
+        "openai/gpt-5.4-mini" to null,
     ), apiKeyUrl = "https://openrouter.ai/keys", modelsEndpointPublic = true, supportsCacheControl = true),
     CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED, supportsDynamicModels = false);
 
@@ -121,6 +126,9 @@ enum class LlmProvider(
 
         /** Check if a model has known pricing. */
         fun hasKnownPricing(model: String): Boolean = findPricing(model) != null
+
+        /** Whether a model is marked as supported (eligible for AI bug reports). Handles OpenRouter prefixes. */
+        fun isModelSupported(model: String): Boolean = findPricing(model)?.supported == true
     }
 }
 
