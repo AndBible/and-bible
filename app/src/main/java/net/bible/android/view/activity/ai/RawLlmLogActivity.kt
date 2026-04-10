@@ -200,18 +200,18 @@ class RawLlmLogActivity : ActivityBase() {
             .setIcon(R.drawable.ic_baseline_share_24)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
 
-        // Bug report: available in both modes for RECOMMENDED tier models
+        // Bug report: available in both modes for supported models
         val record = logRecord
         if (record != null) {
             // Database mode: delete + report
             menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, R.string.delete)
             val reportItem = menu.add(Menu.NONE, MENU_REPORT_BUG, Menu.NONE, R.string.ai_bug_report_menu)
-            reportItem.isEnabled = AiBugReport.isReportAvailable(record.providerType)
+            reportItem.isEnabled = AiBugReport.isReportAvailable(record.modelName)
         } else if (rawLog != null && rawLog!!.usageByIteration.isNotEmpty()) {
             // In-memory mode: report only
-            val providerType = AiBugReport.resolveProviderTypeFromRawLog(rawLog!!)
+            val modelName = AiBugReport.resolveModelNameFromRawLog(rawLog!!)
             val reportItem = menu.add(Menu.NONE, MENU_REPORT_BUG, Menu.NONE, R.string.ai_bug_report_menu)
-            reportItem.isEnabled = AiBugReport.isReportAvailable(providerType)
+            reportItem.isEnabled = AiBugReport.isReportAvailable(modelName)
         }
 
         val typedValue = TypedValue()

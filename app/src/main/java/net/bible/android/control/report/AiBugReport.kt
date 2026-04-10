@@ -34,22 +34,18 @@ import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.LlmUsage
-import net.bible.service.llm.ProviderTier
 import net.bible.service.llm.agent.RawLlmLog
 import java.io.File
 import java.util.Date
 
 object AiBugReport {
 
-    /** Whether bug reporting is available for a given provider type (RECOMMENDED tier only). */
-    fun isReportAvailable(providerType: String): Boolean {
-        val provider = try { LlmProvider.valueOf(providerType) } catch (_: Exception) { null }
-        return provider?.tier == ProviderTier.RECOMMENDED
-    }
+    /** Whether bug reporting is available for a given model (supported models only). */
+    fun isReportAvailable(modelName: String): Boolean = LlmProvider.isModelSupported(modelName)
 
     suspend fun reportAiBug(activity: ActivityBase, logRecordId: IdType) {
         val record = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(logRecordId) ?: return
-        if (!isReportAvailable(record.providerType)) return
+        if (!isReportAvailable(record.modelName)) return
 
         val confirmed = Dialogs.simpleQuestion(
             activity,
@@ -84,8 +80,7 @@ object AiBugReport {
     suspend fun reportAiBugFromRawLog(activity: ActivityBase, rawLog: RawLlmLog) {
         if (rawLog.isEmpty()) return
         val lastIteration = rawLog.usageByIteration.values.lastOrNull() ?: return
-        val providerType = resolveProviderType(lastIteration.configuredModelId)
-        if (!isReportAvailable(providerType)) return
+        if (!isReportAvailable(lastIteration.model)) return
 
         val confirmed = Dialogs.simpleQuestion(
             activity,
@@ -105,8 +100,9 @@ object AiBugReport {
 
         val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", logFile)
         val model = lastIteration.model
+        val resolvedProviderType = resolveProviderType(lastIteration.configuredModelId)
         val subject = "AI Bug Report v${CommonUtils.applicationVersionName}: $model"
-        val body = buildReportBodyFromRawLog(model, providerType, totalUsage, cost, rawLog.usageByIteration.size)
+        val body = buildReportBodyFromRawLog(model, resolvedProviderType, totalUsage, cost, rawLog.usageByIteration.size)
 
         val emailIntent = Intent(Intent.ACTION_SEND).apply {
             putExtra(Intent.EXTRA_STREAM, uri)
@@ -129,11 +125,9 @@ object AiBugReport {
         return provider.providerType
     }
 
-    /** Resolve provider type from an in-memory RawLlmLog's iteration data. */
-    fun resolveProviderTypeFromRawLog(rawLog: RawLlmLog): String {
-        val configuredModelId = rawLog.usageByIteration.values.lastOrNull()?.configuredModelId ?: return ""
-        return resolveProviderType(configuredModelId)
-    }
+    /** Resolve model name from an in-memory RawLlmLog's iteration data. */
+    fun resolveModelNameFromRawLog(rawLog: RawLlmLog): String =
+        rawLog.usageByIteration.values.lastOrNull()?.model ?: ""
 
     private fun buildReportBodyFromRawLog(
         model: String, providerType: String, usage: LlmUsage, cost: Double, iterationCount: Int
