@@ -1,0 +1,16 @@
+- AI bug report option now available in in-memory raw log view (5f14c71)
+- New LLM models available: Gemini 3.1-Pro-Preview and OpenAI gpt-5.4; default models updated to Gemini 3-Flash and gpt-5.4-mini (e795323, 492e5f0)
+- AI bug reports now respect per-model 'supported' flag (e795323)
+- Fix AI agent looping on non-indexed Bibles (#3254) (781be1ce)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
