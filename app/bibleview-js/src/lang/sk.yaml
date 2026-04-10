@@ -40,9 +40,7 @@ referenceLink: Otvoriť referenčný odkaz
 openFootnote: Otvoriť poznámku pod čiarou
 noMyNotesTitle: Nie je Moja poznámka pre túto kapitolu.
 noMyNotesDescription: Začnite vytvorením záložiek v biblickom dokumente. Potom sa tu zobrazia záložky a môžete k nim pridať svoje osobné poznámky.
-
 emptyStudyPad: Prázdna študijná zložka. Tu môžete pridávať textové položky tu alebo vytvorením záložiek so štítkom záložky, ktorý zodpovedá tejto študijnej zložke.
-
 doYouWantToDeleteEntry: Zmazať túto položku študijnej zložky?
 removeStudyPadConfirmationTitle: Odstrániť túto položku študijnej zložky?
 dragHelp: Ťahaním zoradiť
@@ -58,14 +56,14 @@ refParserHelp: "Nainštalujte si prosím modul %s, aby ste mohli požívať refe
 openDownloads: Prejsť do sťahovania doplnkov
 verseShare: Zdielať
 verseSpeak: Čítať
-verseCompare: Porovnať 
-verseMemorize: ""
+verseCompare: Porovnať
+verseMemorize: Memorovať
 verseNote: Poznámka
 verseMyNotes: Moje poznámky
-verseParagraphBreak: ""
+verseParagraphBreak: Odsek
 verseShareLong: Zdielať tento verš
 verseCompareLong: Porovnať verš
-verseMemorizeLong: ""
+verseMemorizeLong: Memorovať verše Biblie
 addMemorizationTarget: Cieľ +
 addMemorizationTargetLong: Nastaviť ako cieľ memorovania
 removeMemorizationTarget: Cieľ -
@@ -77,32 +75,32 @@ viewReadingProgress: Pokrok čítania/memorovania
 viewReadingProgressSettings: Nastavenia čítania/memorovania
 listenInLoop: Počúvať v slučke
 verseNoteLong: Napísať poznámku
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Zalomenie odseku
 addBookmark: Záložka
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Vybrať vlastnú ikonu markera
+bookmarkSettingsTitle: Konfigurovať nastavenia záložiek
+subtitlePlaceholder: Text podnadpisu
+customIconLabel: Vlastná ikona
+editActionLabel: Akcia úpravy
+editActionModeLabel: Režim
+editActionModeNone: Žiadny
+editActionModeAppend: Pripojiť text
+editActionModePrepend: Pridať text na začiatok
+editActionContentLabel: Obsah
+editActionContentPlaceholder: Zadajte text, ktorý sa má pridať do dokumentu...
+experimentalFeatureTitle: Experimentálne
+experimentalFeatureHelpTitle: O experimentálnych funkciách
+experimentalFeatureHelpContent: Experimentálne funkcie sú nové možnosti, ktoré sú stále vo vývoji a testovaní. Nemusia fungovať dokonale a môžu sa výrazne zmeniť alebo byť v budúcich verziách aplikácie odstránené.
+insertParagraphBreak: Vložiť zalomenie odseku
+insertSubtitle: Vložiť podnadpis
+xmlParseError: Chyba analýzy XML
+invalidTag: Neplatná značka
+invalidClosingTag: Neplatná uzatváracia značka
+unmatchedClosingTag: Nezhoda uzatváracej značky
+unclosedTag: Neuzavretá značka
+unknownError: Neznáma chyba
+wordBlur: Rozmazanie
+wordScramble: Pomiešanie
 wordType: Typ
 wordOrder: Poradie
 typeEverything: Písať celé slová
