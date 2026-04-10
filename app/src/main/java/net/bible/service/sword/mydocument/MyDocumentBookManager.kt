@@ -100,8 +100,14 @@ object MyDocumentBookManager {
     /**
      * Handle sync event: re-register all documents and refresh only the
      * BibleView windows that display documents affected by the sync.
+     *
+     * Must run on the main thread (onEventMainThread) because SwordGenBook
+     * and the JSword Activator are not thread-safe. Running clear() +
+     * registerAllDocuments() on a background thread causes a race condition
+     * where the main thread sees a newly registered book whose internal
+     * key map hasn't been activated yet, leading to NPE in getKey().
      */
-    fun onEvent(e: MyDocumentsUpdatedViaSyncEvent) {
+    fun onEventMainThread(e: MyDocumentsUpdatedViaSyncEvent) {
         val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
         val affectedInitials = mutableSetOf<String>()
         var refreshAll = false
