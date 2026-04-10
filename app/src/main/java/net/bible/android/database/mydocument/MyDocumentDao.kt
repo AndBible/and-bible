@@ -57,6 +57,12 @@ interface MyDocumentDao {
     @Query("SELECT MAX(orderNumber) FROM MyDocument")
     fun maxDocumentOrderNumber(): Int?
 
+    @Query("SELECT DISTINCT initials FROM MyDocument WHERE id IN (:ids)")
+    fun initialsByIds(ids: List<IdType>): List<String>
+
+    @Query("SELECT DISTINCT d.initials FROM MyDocumentPage p JOIN MyDocument d ON p.documentId = d.id WHERE p.id IN (:pageIds)")
+    fun initialsByPageIds(pageIds: List<IdType>): List<String>
+
     // ==================== Pages (metadata only) ====================
 
     @Insert
