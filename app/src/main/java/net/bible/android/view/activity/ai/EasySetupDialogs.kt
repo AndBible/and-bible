@@ -53,11 +53,11 @@ internal data class RecommendedSetup(
 )
 
 internal fun AiSettingsFragmentBase.getRecommendedSetups() = listOf(
-    RecommendedSetup(LlmProvider.GEMINI, "gemini-2.5-flash",
+    RecommendedSetup(LlmProvider.GEMINI, "gemini-3-flash",
         getString(R.string.easy_setup_gemini_desc), getString(R.string.easy_setup_free_tier)),
     RecommendedSetup(LlmProvider.ANTHROPIC, "claude-haiku-4-5",
         getString(R.string.easy_setup_anthropic_desc)),
-    RecommendedSetup(LlmProvider.OPENAI, "gpt-4o-mini",
+    RecommendedSetup(LlmProvider.OPENAI, "gpt-5.4-mini",
         getString(R.string.easy_setup_openai_desc)),
 )
 

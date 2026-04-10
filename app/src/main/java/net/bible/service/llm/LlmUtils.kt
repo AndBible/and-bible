@@ -52,11 +52,12 @@ enum class LlmProvider(
     val supportsCacheControl: Boolean = false,
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
-        "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
+        "gemini-3-flash" to p(0.50, 3.00),
         "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125),
-        "gemini-3-flash" to p(0.15, 0.60),
+        "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375),
     ), apiKeyUrl = "https://aistudio.google.com/apikey"),
     OPENAI("OpenAI (ChatGPT)", "https://api.openai.com/v1", listOf(
+        "gpt-5.4-mini" to p(0.75, 4.50, 0.75, 0.075),
         "gpt-5-mini" to p(0.40, 1.60, 0.40, 0.10),
         "gpt-5-nano" to p(0.10, 0.40, 0.10, 0.025),
         "gpt-5.2" to p(2.00, 8.00, 2.00, 0.50),
@@ -92,8 +93,8 @@ enum class LlmProvider(
     ), tier = ProviderTier.COMMUNITY, apiKeyUrl = "https://bailian.console.alibabacloud.com/?apiKey=1#/api-key"),
     OPENROUTER("OpenRouter", "https://openrouter.ai/api/v1", listOf(
         "anthropic/claude-sonnet-4" to null,
-        "google/gemini-2.5-flash" to null,
-        "openai/gpt-5-mini" to null,
+        "google/gemini-3-flash" to null,
+        "openai/gpt-5.4-mini" to null,
     ), apiKeyUrl = "https://openrouter.ai/keys", modelsEndpointPublic = true, supportsCacheControl = true),
     CUSTOM("Custom", "", listOf(), tier = ProviderTier.UNCATEGORIZED, supportsDynamicModels = false);
 
