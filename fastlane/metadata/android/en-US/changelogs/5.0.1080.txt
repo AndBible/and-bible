@@ -1,0 +1,16 @@
+- Allow editing model override for builtin prompts in prompt editor (1bc7604b0)
+- Add update-translations skill with all-languages support (6630f7726)
+- Fix NPE in SwordGenBook.getKey() during device sync (9d63d1e7c)
+- Fix delete icon color (223be1a86)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
