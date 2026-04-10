@@ -21,6 +21,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputType
+import android.view.Gravity
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -80,6 +81,9 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
     private lateinit var commentaryMaxResponsePref: Preference
     private lateinit var maxIterationsPref: Preference
     private lateinit var askModelBeforeRunPref: SwitchPreferenceCompat
+    private lateinit var advancedCategory: PreferenceCategory
+    private lateinit var customAgentSystemPromptPref: Preference
+    private lateinit var customTextTransformSystemPromptPref: Preference
     private lateinit var usageCategory: PreferenceCategory
     private lateinit var usageSummaryPref: Preference
     private lateinit var resetUsagePref: Preference
@@ -100,6 +104,9 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         commentaryMaxResponsePref = preferenceScreen.findPreference("commentary_max_response_chars")!!
         maxIterationsPref = preferenceScreen.findPreference("agent_max_iterations")!!
         askModelBeforeRunPref = preferenceScreen.findPreference("ask_model_before_run")!!
+        advancedCategory = preferenceScreen.findPreference("ai_advanced_category")!!
+        customAgentSystemPromptPref = preferenceScreen.findPreference("custom_agent_system_prompt")!!
+        customTextTransformSystemPromptPref = preferenceScreen.findPreference("custom_text_transform_system_prompt")!!
         usageCategory = preferenceScreen.findPreference("ai_usage_category")!!
         usageSummaryPref = preferenceScreen.findPreference("llm_usage_summary")!!
         resetUsagePref = preferenceScreen.findPreference("llm_reset_usage")!!
@@ -109,6 +116,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         gettingStartedPref.isVisible = !hasProviders
         modelsShortcutPref.isVisible = hasProviders
         behaviorCategory.isVisible = hasProviders
+        advancedCategory.isVisible = hasProviders
         usageCategory.isVisible = hasProviders
 
         setupDisclaimerWarning()
@@ -121,6 +129,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         setupCommentaryMaxResponse()
         setupMaxIterations()
         setupAskModelBeforeRun()
+        setupCustomSystemPrompts()
         setupUsage()
     }
 
@@ -145,6 +154,7 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         gettingStartedPref.isVisible = !hasProviders
         modelsShortcutPref.isVisible = hasProviders
         behaviorCategory.isVisible = hasProviders
+        advancedCategory.isVisible = hasProviders
         usageCategory.isVisible = hasProviders
         if (hasProviders) updateUsageSummary()
     }
@@ -400,6 +410,79 @@ class AiConnectionSettingsFragment : AiSettingsFragmentBase() {
         askModelBeforeRunPref.setOnPreferenceChangeListener { _, newValue ->
             settings.askModelBeforeRun = newValue as Boolean
             true
+        }
+    }
+
+    // ---- Custom system prompts ----
+
+    private fun setupCustomSystemPrompts() {
+        updateCustomSystemPromptSummary(customAgentSystemPromptPref, settings.customAgentSystemPrompt)
+        updateCustomSystemPromptSummary(customTextTransformSystemPromptPref, settings.customTextTransformationSystemPrompt)
+
+        customAgentSystemPromptPref.setOnPreferenceClickListener {
+            showCustomSystemPromptEditor(
+                titleRes = R.string.custom_agent_system_prompt_title,
+                defaultRawRes = R.raw.llm_agent_system_prompt,
+                currentValue = settings.customAgentSystemPrompt,
+                onSave = { value ->
+                    settings.customAgentSystemPrompt = value
+                    updateCustomSystemPromptSummary(customAgentSystemPromptPref, value)
+                }
+            )
+            true
+        }
+
+        customTextTransformSystemPromptPref.setOnPreferenceClickListener {
+            showCustomSystemPromptEditor(
+                titleRes = R.string.custom_text_transform_system_prompt_title,
+                defaultRawRes = R.raw.llm_text_transformation_system_prompt,
+                currentValue = settings.customTextTransformationSystemPrompt,
+                onSave = { value ->
+                    settings.customTextTransformationSystemPrompt = value
+                    updateCustomSystemPromptSummary(customTextTransformSystemPromptPref, value)
+                }
+            )
+            true
+        }
+    }
+
+    private fun showCustomSystemPromptEditor(
+        titleRes: Int,
+        defaultRawRes: Int,
+        currentValue: String?,
+        onSave: (String?) -> Unit,
+    ) {
+        val defaultPrompt = resources.openRawResource(defaultRawRes)
+            .bufferedReader()
+            .use { it.readText() }
+        val input = EditText(requireContext()).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE
+            minLines = 8
+            gravity = Gravity.TOP or Gravity.START
+            setHorizontallyScrolling(false)
+            setText(currentValue ?: defaultPrompt)
+        }
+        val (scrollView, layout) = createDialogLayout()
+        layout.addView(input)
+        AlertDialog.Builder(requireContext())
+            .setTitle(titleRes)
+            .setView(scrollView)
+            .setPositiveButton(R.string.okay) { _, _ ->
+                val text = input.text.toString()
+                onSave(if (text == defaultPrompt) null else text.ifBlank { null })
+            }
+            .setNeutralButton(R.string.reset_to_default) { _, _ ->
+                onSave(null)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun updateCustomSystemPromptSummary(pref: Preference, value: String?) {
+        pref.summary = if (value.isNullOrBlank()) {
+            getString(R.string.custom_system_prompt_default)
+        } else {
+            getString(R.string.custom_system_prompt_custom)
         }
     }
 

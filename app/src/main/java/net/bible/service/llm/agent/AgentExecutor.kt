@@ -549,14 +549,16 @@ class AgentExecutor(
         val appLanguage = CommonUtils.aiSettings.aiDisplayLanguage
 
         return buildString {
-            val templateRes = if (prompt.isTextTransformation)
-                R.raw.llm_text_transformation_system_prompt
+            val (customPrompt, templateRes) = if (prompt.isTextTransformation)
+                CommonUtils.aiSettings.customTextTransformationSystemPrompt to R.raw.llm_text_transformation_system_prompt
             else
-                R.raw.llm_agent_system_prompt
-            val template = application.resources.openRawResource(templateRes)
-                .bufferedReader()
-                .use { it.readText() }
-            append(template.replace("{{APP_LANGUAGE}}", appLanguage))
+                CommonUtils.aiSettings.customAgentSystemPrompt to R.raw.llm_agent_system_prompt
+
+            val basePrompt = customPrompt?.takeIf { it.isNotBlank() }
+                ?: application.resources.openRawResource(templateRes)
+                    .bufferedReader()
+                    .use { it.readText() }
+            append(basePrompt.replace("{{APP_LANGUAGE}}", appLanguage))
 
             // Text transformations use a minimal system prompt — no extra context needed
             if (prompt.isTextTransformation) return@buildString

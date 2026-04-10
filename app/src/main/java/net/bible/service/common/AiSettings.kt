@@ -96,6 +96,14 @@ object AiSettings {
         get() = getOrDefault().hiddenBuiltInCategories
         set(value) = update { copy(hiddenBuiltInCategories = value) }
 
+    var customAgentSystemPrompt: String?
+        get() = getOrDefault().customAgentSystemPrompt
+        set(value) = update { copy(customAgentSystemPrompt = value) }
+
+    var customTextTransformationSystemPrompt: String?
+        get() = getOrDefault().customTextTransformationSystemPrompt
+        set(value) = update { copy(customTextTransformationSystemPrompt = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

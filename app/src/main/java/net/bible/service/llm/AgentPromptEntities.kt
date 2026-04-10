@@ -442,6 +442,10 @@ data class GlobalAiSettings(
     /** Whether the user has accepted the AI disclaimer (required before configuring any provider). */
     @ColumnInfo(defaultValue = "0") val aiDisclaimerAccepted: Boolean = false,
     val hiddenBuiltInCategories: Set<IdType> = emptySet(),
+    /** Custom system prompt for agent mode. null = use built-in default. */
+    @ColumnInfo(defaultValue = "NULL") val customAgentSystemPrompt: String? = null,
+    /** Custom system prompt for text transformation mode. null = use built-in default. */
+    @ColumnInfo(defaultValue = "NULL") val customTextTransformationSystemPrompt: String? = null,
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
