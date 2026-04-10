@@ -123,6 +123,8 @@ enum class SyncableDatabaseDefinition {
             Table(tableName = "AgentPrompt"),
             Table(tableName = "GlobalAiSettings"),
             Table(tableName = "LlmUsageRecord"),
+            Table(tableName = "PromptCategory"),
+            Table(tableName = "BuiltinPromptOverride"),
         )
         PROGRESS -> listOf(
             Table(tableName = "MemorizedVerse"),

@@ -69,8 +69,13 @@ object GetMyDocumentPagesTool : Tool {
 
     override val description = """
         List pages of a My Documents book. Identify the document by documentId or initials.
-        Set includeContent=true to also return page content (default: titles only).
+        Set includeContent=true to also return raw page content (default: titles only).
         Use getMyDocuments first to find document IDs and initials.
+
+        NOTE: This tool returns raw source content (Markdown/HTML/OSIS) without anchor markers.
+        Use this when you need raw content for editing (with editMyDocumentPage).
+        To READ formatted content with ordinal anchors ([§N]) for citation, use getGenBookContent instead
+        — My Documents are general books and work with getGenBookKeys/getGenBookContent.
     """.trimIndent()
 
     override val parametersSchema = yamlToJson("""

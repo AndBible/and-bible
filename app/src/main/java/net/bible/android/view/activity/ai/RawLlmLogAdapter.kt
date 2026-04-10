@@ -138,11 +138,7 @@ class RawLlmLogAdapter(
     }
 
     companion object {
-        fun formatTokenCount(count: Long): String = when {
-            count >= 1_000_000 -> "%.1fM".format(count / 1_000_000.0)
-            count >= 1_000 -> "%.1fk".format(count / 1_000.0)
-            else -> count.toString()
-        }
+        fun formatTokenCount(count: Long): String = LlmCostTracker.formatTokenCount(count)
 
         private val longStringValueRegex = Regex(""""((?:[^"\\]|\\.){80,})"""")
 

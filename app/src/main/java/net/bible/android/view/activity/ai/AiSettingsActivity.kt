@@ -74,6 +74,7 @@ class AiSettingsActivity : ActivityBase() {
     data class PromptGroup(val category: PromptCategory?, val prompts: List<AgentPrompt>)
 
     private var groups = mutableListOf<PromptGroup>()
+    private var favoriteIds = emptySet<IdType>()
     private lateinit var binding: ManagePromptsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -102,7 +103,7 @@ class AiSettingsActivity : ActivityBase() {
                 ExpandableListView.PACKED_POSITION_TYPE_GROUP -> {
                     val group = groups.getOrNull(groupPos)
                     val cat = group?.category
-                    if (cat != null) showCategoryContextMenu(cat)
+                    if (cat != null && cat.id != PromptRepository.FAVORITES_CATEGORY_ID) showCategoryContextMenu(cat)
                     true
                 }
                 ExpandableListView.PACKED_POSITION_TYPE_CHILD -> {
@@ -132,7 +133,7 @@ class AiSettingsActivity : ActivityBase() {
 
     private fun loadPrompts() {
         lifecycleScope.launch {
-            val loadedGroups = withContext(Dispatchers.IO) {
+            val (loadedGroups, loadedFavoriteIds) = withContext(Dispatchers.IO) {
                 val allPrompts = PromptRepository.allPromptsIncludingHidden()
                 val hidden = CommonUtils.aiSettings.hiddenBuiltInPrompts
                 val visiblePrompts = allPrompts.filter { it.id !in hidden || !BuiltInPrompts.isBuiltIn(it.id) }
@@ -140,7 +141,15 @@ class AiSettingsActivity : ActivityBase() {
                 val grouped = visiblePrompts.groupBy { PromptRepository.getCategoryForPrompt(it) }
 
                 val result = mutableListOf<PromptGroup>()
-                // Uncategorized first
+
+                // Virtual "Favorites" group first
+                val favIds = PromptRepository.favoritePromptIds()
+                val favoritePrompts = visiblePrompts.filter { it.id in favIds }
+                if (favoritePrompts.isNotEmpty()) {
+                    result.add(PromptGroup(PromptCategory(id = PromptRepository.FAVORITES_CATEGORY_ID), favoritePrompts))
+                }
+
+                // Uncategorized
                 grouped[null]?.let { result.add(PromptGroup(null, it)) }
                 // Then all categories in order (built-in + user), including empty user categories
                 for (cat in PromptRepository.allCategories().sortedBy { it.orderNumber }) {
@@ -152,11 +161,12 @@ class AiSettingsActivity : ActivityBase() {
                         result.add(PromptGroup(cat, emptyList()))
                     }
                 }
-                result
+                Pair(result, favIds)
             }
 
             groups.clear()
             groups.addAll(loadedGroups)
+            favoriteIds = loadedFavoriteIds
 
             // Save scroll position before replacing adapter
             val firstVisible = binding.list.firstVisiblePosition
@@ -675,8 +685,13 @@ class AiSettingsActivity : ActivityBase() {
             }
 
             val group = groups[groupPosition]
-            val isHidden = group.category?.let { PromptRepository.isCategoryHidden(it) } == true
-            val categoryName = group.category?.name ?: getString(R.string.prompt_category_uncategorized)
+            val isFavorites = group.category?.id == PromptRepository.FAVORITES_CATEGORY_ID
+            val isHidden = !isFavorites && group.category?.let { PromptRepository.isCategoryHidden(it) } == true
+            val categoryName = when {
+                isFavorites -> getString(R.string.prompt_category_favorites)
+                group.category != null -> group.category.name
+                else -> getString(R.string.prompt_category_uncategorized)
+            }
             headerBinding.categoryName.text = if (isHidden) "$categoryName (${getString(R.string.hidden)})" else categoryName
             headerBinding.categoryName.alpha = if (isHidden) 0.5f else 1.0f
             headerBinding.promptCount.text = group.prompts.size.toString()
@@ -722,6 +737,17 @@ class AiSettingsActivity : ActivityBase() {
                 }
             }
             itemBinding.promptContexts.text = contextNames.joinToString(", ")
+
+            itemBinding.favoriteIcon.setImageResource(
+                if (prompt.id in favoriteIds) R.drawable.ic_star_filled_24
+                else R.drawable.ic_star_outline_24
+            )
+            itemBinding.favoriteIcon.setOnClickListener {
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO) { PromptRepository.toggleFavorite(prompt.id) }
+                    loadPrompts()
+                }
+            }
 
             return itemBinding.root
         }

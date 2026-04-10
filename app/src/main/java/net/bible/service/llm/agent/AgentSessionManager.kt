@@ -36,6 +36,7 @@ import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
+import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.tools.ToolRegistry
@@ -181,6 +182,7 @@ object AgentSessionManager : AgentSessionManagerBase() {
     private fun ensureInitialized() {
         if (!initialized) {
             CommonUtils.buildActivityComponent().inject(this)
+            cleanupOldRawLogs()
             initialized = true
         }
     }
@@ -586,45 +588,124 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     val pageInfo = saveAndLogDocument(title, content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                     openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
                 }
-                completeSession(session, event)
+                completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithDocument -> {
                 val pageInfo = saveAndLogDocument(event.title, event.content, context, cacheableContext, usedWriteToolsTracker, event.model, session)
                 openMyDocumentResult(pageInfo.documentInitials, pageInfo.pageKey, targetWindowId, session)
-                completeSession(session, event)
+                completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithoutDocument -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
-                completeSession(session, event)
+                completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithStudyPad -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 openStudyPadResult(event.labelId, event.scrollToEntryId, session)
-                completeSession(session, event)
+                completeSession(session, event, prompt)
             }
             is AgentEvent.CompletedWithMyDocumentPage -> {
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_done, event.message)))
                 openMyDocumentResult(event.documentInitials, event.pageKey, targetWindowId, session)
-                completeSession(session, event)
+                completeSession(session, event, prompt)
             }
             is AgentEvent.Error -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
                 session.addLogEntry(AgentLogEntry.error(event.message, details = event.cause?.message, showRawLogLink = hasRawLog))
+                persistRawLogFromIterations(session, prompt)
                 session.stop()
             }
             is AgentEvent.Cancelled -> {
                 val hasRawLog = session.rawLlmLog?.isEmpty() == false
                 session.addLogEntry(AgentLogEntry.info(app.getString(R.string.agent_log_cancelled), showRawLogLink = hasRawLog))
+                persistRawLogFromIterations(session, prompt)
                 session.stop()
             }
         }
     }
 
-    /** Stops the session and attaches total cost. Used by all completion event handlers. */
-    private fun completeSession(session: AgentSession, event: CompletionEvent) {
+    /** Stops the session, attaches total cost, and persists raw log. Used by all completion event handlers. */
+    private fun completeSession(session: AgentSession, event: CompletionEvent, prompt: AgentPrompt) {
         val app = BibleApplication.application
         session.stop(app.getString(R.string.agent_log_completed))
         attachTotalCost(session, event.usage, event.model, event.configuredModelId)
+        persistRawLog(
+            session, prompt,
+            model = event.model,
+            providerType = resolveProviderType(event.configuredModelId),
+            configuredModelId = event.configuredModelId,
+            usage = event.usage,
+            wasError = false
+        )
+    }
+
+    private fun resolveProviderType(configuredModelId: IdType?): String {
+        if (configuredModelId == null) return ""
+        val db = DatabaseContainer.instance.aiSettingsDb
+        val model = db.llmConfiguredModelDao().getById(configuredModelId) ?: return ""
+        val provider = db.llmProviderConfigDao().getById(model.providerConfigId) ?: return ""
+        return provider.providerType
+    }
+
+    private fun persistRawLog(
+        session: AgentSession,
+        prompt: AgentPrompt,
+        model: String,
+        providerType: String,
+        configuredModelId: IdType?,
+        usage: LlmUsage,
+        wasError: Boolean
+    ) {
+        val rawLog = session.rawLlmLog ?: return
+        if (rawLog.isEmpty()) return
+        try {
+            val formattedText = rawLog.format()
+            val gzipped = RawLlmLog.gzipCompress(formattedText)
+            val cost = LlmPricing.estimateCost(usage, model, configuredModelId) ?: 0.0
+
+            val record = LlmRawLogRecord(
+                promptId = prompt.id,
+                promptName = prompt.name,
+                promptDescription = prompt.description,
+                configuredModelId = configuredModelId,
+                modelName = model,
+                providerType = providerType,
+                totalInputTokens = usage.inputTokens,
+                totalOutputTokens = usage.outputTokens,
+                estimatedCostUsd = cost,
+                logData = gzipped,
+                iterationCount = rawLog.usageByIteration.size,
+                wasError = wasError,
+            )
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().insert(record)
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to persist raw log", e)
+        }
+    }
+
+    private fun persistRawLogFromIterations(session: AgentSession, prompt: AgentPrompt) {
+        val rawLog = session.rawLlmLog ?: return
+        if (rawLog.isEmpty()) return
+        val lastIteration = rawLog.usageByIteration.values.lastOrNull()
+        val totalUsage = rawLog.usageByIteration.values.fold(LlmUsage()) { acc, d -> acc + d.usage }
+        persistRawLog(
+            session, prompt,
+            model = lastIteration?.model ?: "",
+            providerType = resolveProviderType(lastIteration?.configuredModelId),
+            configuredModelId = lastIteration?.configuredModelId,
+            usage = totalUsage,
+            wasError = true
+        )
+    }
+
+    private fun cleanupOldRawLogs() {
+        try {
+            val retentionDays = CommonUtils.aiSettings.rawLogRetentionDays ?: return
+            val cutoff = System.currentTimeMillis() - retentionDays.toLong() * 24 * 60 * 60 * 1000
+            DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteOlderThan(cutoff)
+        } catch (e: Exception) {
+            Log.w(TAG, "Failed to cleanup old raw logs", e)
+        }
     }
 
     /** Saves an AI response document and logs it. Shared by Completed and CompletedWithDocument. */

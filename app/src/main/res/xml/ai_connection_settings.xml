@@ -97,6 +97,22 @@
     </PreferenceCategory>
 
     <PreferenceCategory
+        android:key="ai_advanced_category"
+        android:title="@string/ai_advanced_category">
+
+        <Preference android:key="custom_agent_system_prompt"
+            android:title="@string/custom_agent_system_prompt_title"
+            android:summary="@string/custom_system_prompt_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+        <Preference android:key="custom_text_transform_system_prompt"
+            android:title="@string/custom_text_transform_system_prompt_title"
+            android:summary="@string/custom_system_prompt_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:key="ai_usage_category"
         android:title="@string/ai_usage_category">
 
@@ -110,6 +126,15 @@
             android:title="@string/llm_reset_usage_title"
             android:summary="@string/llm_reset_usage_summary"
             android:icon="@drawable/ic_baseline_refresh_gray_24"
+            />
+        <Preference android:key="raw_log_history"
+            android:title="@string/raw_log_history_title"
+            android:summary="@string/raw_log_history_summary"
+            android:icon="@drawable/ic_baseline_description_gray_24"
+            />
+        <Preference android:key="raw_log_retention"
+            android:title="@string/raw_log_retention_title"
+            android:icon="@drawable/ic_delete_24dp"
             />
     </PreferenceCategory>
 

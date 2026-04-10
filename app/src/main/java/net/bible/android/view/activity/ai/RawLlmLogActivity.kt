@@ -17,6 +17,7 @@
 
 package net.bible.android.view.activity.ai
 
+import android.app.AlertDialog
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -27,25 +28,47 @@ import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.MenuItemCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.bible.android.activity.R
 import net.bible.android.activity.databinding.ActivityRawLlmLogBinding
+import net.bible.android.control.report.AiBugReport
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
+import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.LlmPricing
+import net.bible.service.llm.LlmRawLogRecord
 import net.bible.service.llm.agent.AgentSessionManager
 import net.bible.service.llm.agent.RawLlmLog
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
- * Displays the raw LLM conversation log as an expandable list for debugging.
+ * Displays the raw LLM conversation log for debugging.
+ *
+ * Two modes:
+ * - In-memory mode (EXTRA_WORKSPACE_ID): Shows structured entries from active AgentSession
+ * - Database mode (EXTRA_LOG_RECORD_ID): Shows formatted text from persisted LlmRawLogRecord
  */
 class RawLlmLogActivity : ActivityBase() {
 
     private lateinit var binding: ActivityRawLlmLogBinding
+
+    /** In-memory log from active session (mode 1). */
     private var rawLog: RawLlmLog? = null
+
+    /** Persisted log record (mode 2). */
+    private var logRecord: LlmRawLogRecord? = null
+    private var logRecordText: String? = null
 
     @Suppress("DEPRECATION")
     override fun onBackPressed() {
@@ -60,23 +83,78 @@ class RawLlmLogActivity : ActivityBase() {
         title = getString(R.string.raw_llm_log_title)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        val logRecordIdStr = intent.getStringExtra(EXTRA_LOG_RECORD_ID)
         val workspaceIdStr = intent.getStringExtra(EXTRA_WORKSPACE_ID)
-        rawLog = if (workspaceIdStr != null) {
-            AgentSessionManager.getSession(IdType(workspaceIdStr))?.rawLlmLog
-        } else null
+
+        if (logRecordIdStr != null) {
+            setupDatabaseMode(IdType(logRecordIdStr))
+        } else if (workspaceIdStr != null) {
+            setupInMemoryMode(IdType(workspaceIdStr))
+        } else {
+            showEmpty()
+        }
+    }
+
+    private fun setupDatabaseMode(logRecordId: IdType) {
+        lifecycleScope.launch {
+            val (record, text) = withContext(Dispatchers.IO) {
+                val r = DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().getById(logRecordId)
+                    ?: return@withContext null to null
+                r to RawLlmLog.gzipDecompress(r.logData)
+            }
+            if (record == null || text == null) {
+                showEmpty()
+                return@launch
+            }
+            logRecord = record
+            logRecordText = text
+
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            title = "${record.modelName} — ${dateFormat.format(Date(record.timestamp))}"
+
+            if (record.estimatedCostUsd > 0 || record.totalInputTokens > 0) {
+                val costStr = if (record.estimatedCostUsd > 0) " · ${LlmCostTracker.formatCost(record.estimatedCostUsd)}" else ""
+                binding.totalCostHeader.text = getString(
+                    R.string.raw_llm_log_total,
+                    RawLlmLogAdapter.formatTokenCount(record.totalInputTokens),
+                    RawLlmLogAdapter.formatTokenCount(record.totalOutputTokens),
+                    costStr
+                )
+                binding.totalCostHeader.visibility = View.VISIBLE
+                binding.headerDivider.visibility = View.VISIBLE
+            }
+
+            // Display as scrollable plain text
+            binding.recyclerView.visibility = View.GONE
+            val scrollView = ScrollView(this@RawLlmLogActivity)
+            val textView = TextView(this@RawLlmLogActivity).apply {
+                setPadding(24, 16, 24, 16)
+                textSize = 11f
+                setTextIsSelectable(true)
+                typeface = android.graphics.Typeface.MONOSPACE
+                setText(text)
+            }
+            scrollView.addView(textView)
+
+            val parent = binding.recyclerView.parent as? android.view.ViewGroup
+            parent?.addView(scrollView, binding.recyclerView.layoutParams)
+
+            invalidateOptionsMenu()
+        }
+    }
+
+    private fun setupInMemoryMode(workspaceId: IdType) {
+        rawLog = AgentSessionManager.getSession(workspaceId)?.rawLlmLog
 
         val log = rawLog
         if (log == null || log.isEmpty()) {
-            binding.emptyText.visibility = View.VISIBLE
-            binding.emptyText.text = getString(R.string.raw_llm_log_empty)
-            binding.recyclerView.visibility = View.GONE
+            showEmpty()
             return
         }
 
         val entries = log.getEntries()
         val usageByIteration = log.usageByIteration
 
-        // Show total cost header
         if (usageByIteration.isNotEmpty()) {
             var totalCost = 0.0
             var hasCost = false
@@ -108,6 +186,12 @@ class RawLlmLogActivity : ActivityBase() {
         }
     }
 
+    private fun showEmpty() {
+        binding.emptyText.visibility = View.VISIBLE
+        binding.emptyText.text = getString(R.string.raw_llm_log_empty)
+        binding.recyclerView.visibility = View.GONE
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menu.add(Menu.NONE, MENU_COPY, Menu.NONE, android.R.string.copy)
             .setIcon(R.drawable.ic_content_copy_black_24dp)
@@ -115,6 +199,14 @@ class RawLlmLogActivity : ActivityBase() {
         menu.add(Menu.NONE, MENU_SHARE, Menu.NONE, R.string.share)
             .setIcon(R.drawable.ic_baseline_share_24)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
+
+        // Database mode: add delete and bug report menu items
+        val record = logRecord
+        if (record != null) {
+            menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, R.string.delete)
+            val reportItem = menu.add(Menu.NONE, MENU_REPORT_BUG, Menu.NONE, R.string.ai_bug_report_menu)
+            reportItem.isEnabled = AiBugReport.isReportAvailable(record.providerType)
+        }
 
         val typedValue = TypedValue()
         theme.resolveAttribute(R.attr.toolbarTextColor, typedValue, true)
@@ -128,19 +220,38 @@ class RawLlmLogActivity : ActivityBase() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             MENU_COPY -> {
-                val logText = rawLog?.format() ?: ""
+                val logText = getLogText()
                 val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(ClipData.newPlainText("Raw LLM Log", logText))
                 Toast.makeText(this, R.string.raw_llm_log_copied, Toast.LENGTH_SHORT).show()
                 true
             }
             MENU_SHARE -> {
-                val logText = rawLog?.format() ?: ""
+                val logText = getLogText()
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     putExtra(Intent.EXTRA_TEXT, logText)
                     type = "text/plain"
                 }
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.share)))
+                true
+            }
+            MENU_DELETE -> {
+                val record = logRecord ?: return true
+                AlertDialog.Builder(this)
+                    .setMessage(R.string.are_you_sure)
+                    .setPositiveButton(R.string.yes) { _, _ ->
+                        DatabaseContainer.instance.aiSettingsDb.llmRawLogRecordDao().deleteByIds(listOf(record.id))
+                        finish()
+                    }
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+                true
+            }
+            MENU_REPORT_BUG -> {
+                val record = logRecord ?: return true
+                lifecycleScope.launch {
+                    AiBugReport.reportAiBug(this@RawLlmLogActivity, record.id)
+                }
                 true
             }
             android.R.id.home -> {
@@ -151,9 +262,14 @@ class RawLlmLogActivity : ActivityBase() {
         }
     }
 
+    private fun getLogText(): String = logRecordText ?: rawLog?.format() ?: ""
+
     companion object {
         const val EXTRA_WORKSPACE_ID = "workspace_id"
+        const val EXTRA_LOG_RECORD_ID = "log_record_id"
         private const val MENU_COPY = 1
         private const val MENU_SHARE = 2
+        private const val MENU_DELETE = 3
+        private const val MENU_REPORT_BUG = 4
     }
 }

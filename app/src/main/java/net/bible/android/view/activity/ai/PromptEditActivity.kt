@@ -47,6 +47,7 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.llm.AgentPrompt
 import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
+import net.bible.service.llm.BuiltinPromptOverride
 import net.bible.service.llm.LlmCostTracker
 import net.bible.service.llm.ModelPricing
 import net.bible.service.llm.PromptCategory
@@ -269,7 +270,7 @@ class PromptEditActivity : ActivityBase() {
             builtInNotice.visibility = View.VISIBLE
         }
         listBuilder.setReadOnly()
-        advancedFragment?.setReadOnly()
+        advancedFragment?.setReadOnly(keepModelEditable = isBuiltIn)
     }
 
     private fun buildToolPermissions(allowedTools: Set<AgentTool>, deniedTools: Set<AgentTool>) {
@@ -385,6 +386,7 @@ class PromptEditActivity : ActivityBase() {
     }
 
     private fun isDirty(): Boolean {
+        if (isBuiltIn) return advancedDataStore.snapshot() != initialAdvancedSnapshot
         if (isReadOnly) return false
         val basicDirty = binding.run {
             promptName.text.toString() != initialName ||
@@ -412,7 +414,24 @@ class PromptEditActivity : ActivityBase() {
         }
     }
 
+    /** Save only the overridable fields for a built-in prompt. */
+    private fun saveBuiltinOverride() {
+        val promptId = prompt?.id ?: return
+        val modelId = advancedDataStore.modelOverrideId
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                val override = BuiltinPromptOverride(id = promptId, configuredModelId = modelId)
+                DatabaseContainer.instance.aiSettingsDb.builtinPromptOverrideDao().upsert(override)
+            }
+            finish()
+        }
+    }
+
     private fun validateAndSave() {
+        if (isBuiltIn) {
+            saveBuiltinOverride()
+            return
+        }
         if (isReadOnly) return
 
         val name = binding.promptName.text.toString().trim()
@@ -551,7 +570,7 @@ class PromptEditActivity : ActivityBase() {
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
         if (isReadOnly) {
-            menu.findItem(R.id.save_prompt)?.isVisible = false
+            menu.findItem(R.id.save_prompt)?.isVisible = isBuiltIn
             menu.findItem(R.id.delete_prompt)?.isVisible = false
             menu.findItem(R.id.copy_to_customize)?.isVisible = true
         } else {
@@ -769,8 +788,10 @@ class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
         pref.summary = getString(R.string.prompt_max_iterations_summary_with_value, formatMaxIterationsValue(value))
     }
 
-    fun setReadOnly() {
-        findPreference<ListPreference>("model_override")?.isEnabled = false
+    fun setReadOnly(keepModelEditable: Boolean = false) {
+        if (!keepModelEditable) {
+            findPreference<ListPreference>("model_override")?.isEnabled = false
+        }
         findPreference<SwitchPreference>("strict_context_matching")?.isEnabled = false
         findPreference<EditTextPreference>("max_iterations")?.isEnabled = false
         findPreference<SwitchPreference>("specify_before_run")?.isEnabled = false

@@ -17,7 +17,6 @@
 
 package net.bible.android.view.activity.ai
 
-import android.graphics.Typeface
 import android.text.InputType
 import android.view.View
 import android.view.ViewGroup
@@ -27,6 +26,8 @@ import android.widget.EditText
 import android.widget.ExpandableListView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -54,6 +55,9 @@ import net.bible.service.sword.mydocument.MyDocumentBookManager
  */
 class LlmDialogHelper(private val activity: MainBibleActivity) {
 
+    /** Current prompt selector dialog, kept as field so it can be dismissed on favorite toggle. */
+    private var dialog: AlertDialog? = null
+
     /**
      * Show LLM prompt selector dialog with collapsible category groups.
      * Category expand/collapse state is persisted in local SharedPreferences.
@@ -61,11 +65,19 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     fun showPromptSelector(selection: Selection, context: PromptContext = PromptContext.VERSE_SELECTION, documentCategory: DocumentCategory? = null) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
             val grouped = PromptRepository.promptsForContextGrouped(context, documentCategory)
+            val favoriteIds = PromptRepository.favoritePromptIds()
 
-            data class PromptGroup(val categoryName: String, val categoryId: IdType?, val prompts: List<AgentPrompt>)
+            data class PromptGroup(val categoryName: String, val categoryId: IdType?, val prompts: List<AgentPrompt>, val isFavorites: Boolean = false)
             val groups = mutableListOf<PromptGroup>()
 
-            // Uncategorized prompts first
+            // Collect all prompts for favorites virtual group
+            val allPrompts = grouped.values.flatten()
+            val favoritePrompts = allPrompts.filter { it.id in favoriteIds }
+            if (favoritePrompts.isNotEmpty()) {
+                groups.add(PromptGroup(activity.getString(R.string.prompt_category_favorites), PromptRepository.FAVORITES_CATEGORY_ID, favoritePrompts, isFavorites = true))
+            }
+
+            // Uncategorized prompts
             grouped[null]?.let { groups.add(PromptGroup(activity.getString(R.string.prompt_category_uncategorized), null, it)) }
 
             // Then categorized
@@ -110,16 +122,28 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
                     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup): View {
                         val view = convertView ?: activity.layoutInflater.inflate(
-                            android.R.layout.simple_list_item_2, parent, false
+                            R.layout.prompt_selector_item, parent, false
                         )
                         val prompt = groups[groupPosition].prompts[childPosition]
-                        view.findViewById<TextView>(android.R.id.text1).apply {
-                            text = prompt.name
-                            setTypeface(null, Typeface.NORMAL)
-                        }
-                        view.findViewById<TextView>(android.R.id.text2).apply {
+                        view.findViewById<TextView>(R.id.promptName).text = prompt.name
+                        view.findViewById<TextView>(R.id.promptDescription).apply {
                             text = prompt.description ?: ""
                             visibility = if (prompt.description.isNullOrEmpty()) View.GONE else View.VISIBLE
+                        }
+                        val favoriteIcon = view.findViewById<ImageView>(R.id.favoriteIcon)
+                        favoriteIcon.setImageResource(
+                            if (prompt.id in favoriteIds) R.drawable.ic_star_filled_24
+                            else R.drawable.ic_star_outline_24
+                        )
+                        favoriteIcon.setOnClickListener {
+                            activity.lifecycleScope.launch(Dispatchers.IO) {
+                                PromptRepository.toggleFavorite(prompt.id)
+                                launch(Dispatchers.Main) {
+                                    // Rebuild the dialog with updated favorites
+                                    dialog?.dismiss()
+                                    showPromptSelector(selection, context, documentCategory)
+                                }
+                            }
                         }
                         return view
                     }
@@ -127,9 +151,14 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
                 listView.setAdapter(adapter)
 
-                // Restore expand/collapse state (per-context)
+                // Restore expand/collapse state (per-context); favorites always expanded
                 var anyExpanded = false
                 for (i in groups.indices) {
+                    if (groups[i].isFavorites) {
+                        listView.expandGroup(i)
+                        anyExpanded = true
+                        continue
+                    }
                     val key = collapsedPrefKey(context, groups[i].categoryId)
                     if (!settings.getBoolean(key, false)) {
                         listView.expandGroup(i)
@@ -140,17 +169,21 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
                     listView.expandGroup(0)
                 }
 
-                // Persist expand/collapse changes
+                // Persist expand/collapse changes (skip favorites group)
                 listView.setOnGroupExpandListener { groupPosition ->
-                    val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
-                    settings.setBoolean(key, false)
+                    if (!groups[groupPosition].isFavorites) {
+                        val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
+                        settings.setBoolean(key, false)
+                    }
                 }
                 listView.setOnGroupCollapseListener { groupPosition ->
-                    val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
-                    settings.setBoolean(key, true)
+                    if (!groups[groupPosition].isFavorites) {
+                        val key = collapsedPrefKey(context, groups[groupPosition].categoryId)
+                        settings.setBoolean(key, true)
+                    }
                 }
 
-                val dialog = AlertDialog.Builder(activity)
+                dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.select_llm_prompt)
                     .setView(listView)
                     .setNegativeButton(R.string.cancel, null)
@@ -158,7 +191,7 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
 
                 listView.setOnChildClickListener { _, _, groupPosition, childPosition, _ ->
                     val selectedPrompt = groups[groupPosition].prompts[childPosition]
-                    dialog.dismiss()
+                    dialog?.dismiss()
                     if (selectedPrompt.specifyBeforeRun) {
                         showSpecifyBeforeRunDialog(selectedPrompt, selection)
                     } else {
@@ -214,8 +247,9 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     }
 
     /**
-     * Show a dialog listing all configured models. The user picks one, then prompt execution
-     * proceeds with that model override.
+     * Show a dialog listing all configured models with an option to set the selected model
+     * as default for this prompt. The user picks one, then prompt execution proceeds with
+     * that model override.
      */
     private fun showModelSelectionDialog(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
@@ -233,14 +267,39 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             }
 
             launch(Dispatchers.Main) {
-                AlertDialog.Builder(activity)
+                val layout = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                }
+                val listView = ListView(activity)
+                listView.adapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, displayNames)
+                val checkBox = CheckBox(activity).apply {
+                    setText(R.string.set_default_model_for_prompt)
+                    setPadding(48, 16, 48, 16)
+                }
+                layout.addView(listView)
+                layout.addView(checkBox)
+
+                val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.select_model_before_run_title)
-                    .setItems(displayNames.toTypedArray()) { _, which ->
-                        val selectedModelId = models[which].id
-                        executePrompt(prompt, selection, userSpecification = userSpecification, modelOverrideId = selectedModelId)
-                    }
+                    .setView(layout)
                     .setNegativeButton(R.string.cancel, null)
                     .show()
+
+                listView.setOnItemClickListener { _, _, position, _ ->
+                    val selectedModelId = models[position].id
+                    if (checkBox.isChecked) {
+                        activity.lifecycleScope.launch(Dispatchers.IO) {
+                            if (PromptRepository.isBuiltIn(prompt.id)) {
+                                PromptRepository.setBuiltinPromptModelOverride(prompt.id, selectedModelId)
+                            } else {
+                                prompt.configuredModelId = selectedModelId
+                                DatabaseContainer.instance.aiSettingsDb.agentPromptDao().update(prompt)
+                            }
+                        }
+                    }
+                    dialog.dismiss()
+                    executePrompt(prompt, selection, userSpecification = userSpecification, modelOverrideId = selectedModelId)
+                }
             }
         }
     }
@@ -380,4 +439,5 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             modelOverrideId = modelOverrideId
         )
     }
+
 }

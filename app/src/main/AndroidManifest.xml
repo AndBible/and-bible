@@ -225,6 +225,12 @@
             android:parentActivityName="net.bible.android.view.activity.page.MainBibleActivity"
             />
         <activity
+            android:name="net.bible.android.view.activity.ai.RawLogHistoryActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|locale"
+            android:label="@string/raw_log_history_title"
+            android:parentActivityName="net.bible.android.view.activity.ai.AiConnectionSettingsActivity"
+            />
+        <activity
             android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
             android:configChanges="keyboardHidden|orientation|screenSize|locale"
             android:label="@string/dictionary"

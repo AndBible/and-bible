@@ -141,6 +141,12 @@ object LlmCostTracker {
         if (pricePerMillion < 0.01 && pricePerMillion > 0) "< \$0.01"
         else "\$%.2f".format(pricePerMillion)
 
+    fun formatTokenCount(count: Long): String = when {
+        count >= 1_000_000 -> "%.1fM".format(count / 1_000_000.0)
+        count >= 1_000 -> "%.1fk".format(count / 1_000.0)
+        else -> count.toString()
+    }
+
     fun formatUsageSummary(usage: LlmUsage, model: String, configuredModelId: IdType? = null): String {
         val cost = LlmPricing.estimateCost(usage, model, configuredModelId)
         val base = "${usage.inputTokens} in / ${usage.outputTokens} out"

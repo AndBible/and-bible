@@ -21,6 +21,7 @@ import android.util.Log
 import kotlinx.serialization.Serializable
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.database.IdType
+import net.bible.android.database.LogEntryTypes
 import net.bible.android.database.mydocument.AiDocMarkerInfo
 import net.bible.android.database.mydocument.AiPageCacheEntry
 import net.bible.android.database.mydocument.MyDocument
@@ -28,7 +29,9 @@ import net.bible.android.database.mydocument.MyDocumentContentType
 import net.bible.android.database.mydocument.MyDocumentPage
 import net.bible.android.database.mydocument.MyDocumentPageContent
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.db.MyDocumentsUpdatedViaSyncEvent
 import net.bible.service.llm.agent.CacheableContext
+import net.bible.service.sword.SwordContentFacade
 import org.crosswire.jsword.book.Book
 import org.crosswire.common.activate.Activator
 import org.crosswire.jsword.book.Books
@@ -86,6 +89,57 @@ object MyDocumentBookManager {
 
     /** Special initials for the AI Documents default document */
     const val AI_DOCUMENTS_INITIALS = "AIDocuments"
+
+    val registeredInitials: Set<String>
+        get() = registeredBooks.keys.toSet()
+
+    init {
+        ABEventBus.register(this)
+    }
+
+    /**
+     * Handle sync event: re-register all documents and refresh only the
+     * BibleView windows that display documents affected by the sync.
+     */
+    fun onEvent(e: MyDocumentsUpdatedViaSyncEvent) {
+        val dao = DatabaseContainer.instance.myDocumentDb.myDocumentDao()
+        val affectedInitials = mutableSetOf<String>()
+        var refreshAll = false
+
+        val documentIds = mutableListOf<IdType>()
+        val pageIds = mutableListOf<IdType>()
+
+        for (entry in e.updated) {
+            when (entry.tableName) {
+                "MyDocument" -> documentIds.add(entry.entityId1)
+                "MyDocumentPage" -> {
+                    pageIds.add(entry.entityId1)
+                    // Deleted pages are already gone from DB — can't resolve parent document
+                    if (entry.type == LogEntryTypes.DELETE) refreshAll = true
+                }
+                "MyDocumentPageContent", "AiPageCacheEntry" -> {
+                    pageIds.add(entry.entityId1)
+                }
+            }
+        }
+
+        if (documentIds.isNotEmpty()) {
+            affectedInitials.addAll(dao.initialsByIds(documentIds))
+        }
+        if (pageIds.isNotEmpty()) {
+            affectedInitials.addAll(dao.initialsByPageIds(pageIds))
+        }
+
+        clear()
+        registerAllDocuments()
+
+        val initialsToRefresh = if (refreshAll) registeredInitials else affectedInitials
+        for (initials in initialsToRefresh) {
+            SwordContentFacade.evictBook(initials)
+            ABEventBus.post(MyDocumentUpdatedEvent(initials))
+        }
+        Log.i(TAG, "Sync update: refreshed ${initialsToRefresh.size} MyDocuments (refreshAll=$refreshAll)")
+    }
 
     /**
      * Register all MyDocuments from the database.

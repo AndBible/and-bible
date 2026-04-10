@@ -224,4 +224,45 @@ private val addCategoryHidden = makeMigration(17..18) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `hiddenBuiltInCategories` TEXT NOT NULL DEFAULT ''")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden)
+private val addCustomSystemPrompts = makeMigration(18..19) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `customAgentSystemPrompt` TEXT DEFAULT NULL")
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `customTextTransformationSystemPrompt` TEXT DEFAULT NULL")
+}
+
+private val addFavoritePrompts = makeMigration(19..20) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `favoritePrompts` TEXT NOT NULL DEFAULT ''")
+}
+
+private val addRawLogTable = makeMigration(20..21) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `LlmRawLogRecord` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `promptId` BLOB DEFAULT NULL,
+        `promptName` TEXT NOT NULL DEFAULT '',
+        `promptDescription` TEXT DEFAULT NULL,
+        `configuredModelId` BLOB DEFAULT NULL,
+        `modelName` TEXT NOT NULL DEFAULT '',
+        `providerType` TEXT NOT NULL DEFAULT '',
+        `timestamp` INTEGER NOT NULL DEFAULT 0,
+        `totalInputTokens` INTEGER NOT NULL DEFAULT 0,
+        `totalOutputTokens` INTEGER NOT NULL DEFAULT 0,
+        `estimatedCostUsd` REAL NOT NULL DEFAULT 0.0,
+        `logData` BLOB NOT NULL,
+        `iterationCount` INTEGER NOT NULL DEFAULT 0,
+        `wasError` INTEGER NOT NULL DEFAULT 0
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_timestamp` ON `LlmRawLogRecord` (`timestamp`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_promptId` ON `LlmRawLogRecord` (`promptId`)")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_LlmRawLogRecord_configuredModelId` ON `LlmRawLogRecord` (`configuredModelId`)")
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `rawLogRetentionDays` INTEGER DEFAULT 30")
+}
+
+private val addBuiltinPromptOverride = makeMigration(21..22) { db ->
+    db.execSQL("""CREATE TABLE IF NOT EXISTS `BuiltinPromptOverride` (
+        `id` BLOB NOT NULL PRIMARY KEY,
+        `configuredModelId` BLOB DEFAULT NULL,
+        FOREIGN KEY(`configuredModelId`) REFERENCES `LlmConfiguredModel`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL
+    )""")
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_BuiltinPromptOverride_configuredModelId` ON `BuiltinPromptOverride` (`configuredModelId`)")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts, addRawLogTable, addBuiltinPromptOverride)
