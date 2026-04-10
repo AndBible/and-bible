@@ -52,7 +52,7 @@ Scripts accept the **canonical code** (Android directory suffix). The `lang_code
 
 Most languages use the same code for both (e.g., `de` → `values-de/` + `de.yaml`).
 
-Some languages have Android translations only (no Vue.js file): az, bg, in, ml, uz. Scripts handle this gracefully.
+Some languages may not yet have a Vue.js translation file. The `restructure_yaml.py` script creates new files automatically when needed.
 
 ## File Locations
 
@@ -260,6 +260,7 @@ Review a sample from each thematic group (AI, bookmarks, settings, etc.) for ter
 | Bash brace expansion `{1,2,3}` triggers sandbox prompt | Use Grep/Glob tools or `ls`/`for f in dir/*.xml` instead |
 | Stale strings appended to output | restructure.py drops stale by default now |
 | Cross-language contamination when translating multiple languages in one session | restructure.py now filters chunk files by language prefix. **Always clean `tmp/translate-results/` between languages**, or rely on the `{LANG}_` prefix filtering. |
+| Multiline `<string>` tags in agent output silently dropped by restructure.py | Fixed: restructure.py now parses multiline entries via XML parsing with single-line regex fallback |
 
 ## Quick Reference — Single Language
 
