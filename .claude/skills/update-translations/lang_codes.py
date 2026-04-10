@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""
+Shared language metadata for AndBible translation scripts.
+
+Provides language names, Claude translation quality tiers, and
+Android ↔ Vue.js code mappings with path resolution.
+"""
+
+# Claude Sonnet translation quality tiers:
+# Tier 1: Excellent — major languages with strong LLM support
+# Tier 2: Good — medium-resource languages, generally reliable
+# Tier 3: Fair — lower-resource, quality may vary significantly
+
+# Each entry: (human name, tier, android dir code, vuejs file code or None)
+# The dict key is the "canonical code" (= Android directory suffix for most languages).
+LANGUAGES = {
+    'af':        ('Afrikaans',              2, 'af',       'af'),
+    'ar':        ('Arabic',                 1, 'ar',       'ar'),
+    'az':        ('Azerbaijani',            3, 'az',       None),
+    'b+sr+Latn': ('Serbian (Latin)',        2, 'b+sr+Latn','b+sr+Latn'),
+    'b+sr+RS':   ('Serbian (Cyrillic)',     2, 'b+sr+RS',  'b+sr+RS'),
+    'bg':        ('Bulgarian',              1, 'bg',       None),
+    'bn':        ('Bengali',                2, 'bn',       'bn'),
+    'cs':        ('Czech',                  1, 'cs',       'cs'),
+    'de':        ('German',                 1, 'de',       'de'),
+    'el':        ('Greek',                  1, 'el',       'el'),
+    'eo':        ('Esperanto',              2, 'eo',       'eo'),
+    'es':        ('Spanish',                1, 'es',       'es'),
+    'et':        ('Estonian',               2, 'et',       'et'),
+    'fi':        ('Finnish',                1, 'fi',       'fi'),
+    'fr':        ('French',                 1, 'fr',       'fr'),
+    'hi':        ('Hindi',                  1, 'hi',       'hi'),
+    'hr':        ('Croatian',               1, 'hr',       'hr'),
+    'hu':        ('Hungarian',              1, 'hu',       'hu'),
+    'in':        ('Indonesian',             2, 'in',       None),
+    'it':        ('Italian',                1, 'it',       'it'),
+    'iw':        ('Hebrew',                 1, 'iw',       'he'),
+    'kk':        ('Kazakh',                 3, 'kk',       'kk'),
+    'ko':        ('Korean',                 1, 'ko',       'ko'),
+    'lt':        ('Lithuanian',             2, 'lt',       'lt'),
+    'ml':        ('Malayalam',              3, 'ml',       None),
+    'my':        ('Burmese',                3, 'my',       'my'),
+    'nb':        ('Norwegian Bokmål',       2, 'nb',       'nb'),
+    'nl':        ('Dutch',                  1, 'nl',       'nl'),
+    'pl':        ('Polish',                 1, 'pl',       'pl'),
+    'pt':        ('Portuguese',             1, 'pt',       'pt'),
+    'pt-rBR':    ('Portuguese (Brazil)',    1, 'pt-rBR',   'pt-BR'),
+    'ro':        ('Romanian',               1, 'ro',       'ro'),
+    'ru':        ('Russian',                1, 'ru',       'ru'),
+    'sk':        ('Slovak',                 2, 'sk',       'sk'),
+    'sl':        ('Slovenian',              2, 'sl',       'sl'),
+    'sv':        ('Swedish',                1, 'sv',       'sv'),
+    'ta':        ('Tamil',                  2, 'ta',       'ta'),
+    'te':        ('Telugu',                 2, 'te',       'te'),
+    'tr':        ('Turkish',                1, 'tr',       'tr'),
+    'uk':        ('Ukrainian',              1, 'uk',       'uk'),
+    'uz':        ('Uzbek',                  3, 'uz',       None),
+    'yue':       ('Cantonese',              3, 'yue',      'yue'),
+    'zh-rCN':    ('Chinese (Simplified)',   1, 'zh-rCN',   'zh-CN'),
+    'zh-rTW':    ('Chinese (Traditional)',  1, 'zh-rTW',   'zh'),
+}
+
+# Android directory codes to skip in "all languages" mode
+SKIP_CODES = {
+    'en',    # Source language
+    'b+sr',  # Use specific variants b+sr+Latn / b+sr+RS
+    'id',    # Android legacy duplicate of 'in'
+    'zh',    # Older/smaller fallback, duplicate of zh-rTW
+}
+
+# Reverse lookup: Vue.js code → canonical code (for languages where codes differ)
+_VUEJS_TO_CANONICAL = {}
+for _key, (_name, _tier, _android, _vuejs) in LANGUAGES.items():
+    if _vuejs and _vuejs != _android:
+        _VUEJS_TO_CANONICAL[_vuejs] = _key
+
+
+def normalize_code(lang):
+    """Normalize a language code to canonical form.
+
+    Accepts either an Android code (canonical) or a Vue.js code and
+    returns the canonical key used in LANGUAGES.
+    """
+    if lang in LANGUAGES:
+        return lang
+    if lang in _VUEJS_TO_CANONICAL:
+        return _VUEJS_TO_CANONICAL[lang]
+    return lang
+
+
+def resolve_paths(lang):
+    """Resolve Android and Vue.js file paths for a language code.
+
+    Accepts either canonical (Android) or Vue.js code.
+    Returns dict with android_base, android_target, vuejs_base, vuejs_target.
+    vuejs_target is None if the language has no Vue.js translations.
+    """
+    canonical = normalize_code(lang)
+    entry = LANGUAGES.get(canonical)
+
+    if entry:
+        _name, _tier, android_code, vuejs_code = entry
+    else:
+        # Unknown language — assume same code for both
+        android_code = canonical
+        vuejs_code = canonical
+
+    android_base = 'app/src/main/res/values/strings.xml'
+    vuejs_base = 'app/bibleview-js/src/lang/default.yaml'
+    android_target = f'app/src/main/res/values-{android_code}/strings.xml'
+    vuejs_target = f'app/bibleview-js/src/lang/{vuejs_code}.yaml' if vuejs_code else None
+
+    return {
+        'lang': canonical,
+        'android_code': android_code,
+        'vuejs_code': vuejs_code,
+        'android_base': android_base,
+        'android_target': android_target,
+        'vuejs_base': vuejs_base,
+        'vuejs_target': vuejs_target,
+    }
+
+
+def get_language_name(lang):
+    """Get human-readable name for a language code."""
+    canonical = normalize_code(lang)
+    if canonical in LANGUAGES:
+        return LANGUAGES[canonical][0]
+    return lang
+
+
+def get_tier(lang):
+    """Get Claude quality tier (1=excellent, 2=good, 3=fair)."""
+    canonical = normalize_code(lang)
+    if canonical in LANGUAGES:
+        return LANGUAGES[canonical][1]
+    return 3
+
+
+def get_translatable_languages(tiers=None):
+    """Return list of canonical codes for translatable languages.
+
+    Excludes SKIP_CODES. If tiers is specified (e.g. [1, 2]),
+    only returns languages in those tiers.
+    """
+    result = []
+    for code, (_name, tier, _android, _vuejs) in LANGUAGES.items():
+        if code in SKIP_CODES:
+            continue
+        if tiers and tier not in tiers:
+            continue
+        result.append(code)
+    return result

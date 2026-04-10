@@ -33,7 +33,8 @@
 .profile
 .zprofile
 .zshrc
-.claude/
+.claude/*
+!.claude/skills/
 .playwright-mcp/
 .gitconfig
 .gitmodules
