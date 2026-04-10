@@ -75,6 +75,24 @@ def count_vuejs_missing(base_keys, target_path):
         return -1, 0
 
 
+def count_playstore_missing(base_keys, target_path):
+    """Count missing Play Store YAML keys. Returns (missing_count, total_target)."""
+    if target_path is None:
+        return None, None  # No Play Store file for this language
+    if not os.path.exists(target_path):
+        return len(base_keys), 0
+    try:
+        with open(target_path) as f:
+            target = yaml.safe_load(f) or {}
+        # Count keys that are missing or have empty/whitespace-only values
+        filled_keys = {k for k, v in target.items()
+                       if v is not None and str(v).strip()}
+        missing = len(base_keys - filled_keys)
+        return missing, len(filled_keys)
+    except yaml.YAMLError:
+        return -1, 0
+
+
 def main():
     needs_work, tiers, output_json, only, exclude = parse_args()
 
@@ -94,6 +112,16 @@ def main():
         vuejs_base = yaml.safe_load(f)
     vuejs_base_keys = set(vuejs_base.keys())
 
+    # Play Store base
+    playstore_base_path = 'play/playstore-description.yml'
+    playstore_base_keys = set()
+    if os.path.exists(playstore_base_path):
+        with open(playstore_base_path) as f:
+            playstore_base = yaml.safe_load(f) or {}
+        # Only count keys that have non-empty values in the base
+        playstore_base_keys = {k for k, v in playstore_base.items()
+                               if v is not None and str(v).strip()}
+
     # Get language list
     languages = get_translatable_languages(tiers=tiers)
     if only:
@@ -111,8 +139,11 @@ def main():
             android_base_names, paths['android_target'])
         vuejs_missing, vuejs_total = count_vuejs_missing(
             vuejs_base_keys, paths['vuejs_target'])
+        playstore_missing, playstore_total = count_playstore_missing(
+            playstore_base_keys, paths['playstore_target'])
 
-        total_missing = (android_missing or 0) + (vuejs_missing or 0)
+        total_missing = ((android_missing or 0) + (vuejs_missing or 0)
+                         + (playstore_missing or 0))
 
         if needs_work and total_missing == 0:
             continue
@@ -125,6 +156,8 @@ def main():
             'android_total': android_total,
             'vuejs_missing': vuejs_missing,
             'vuejs_total': vuejs_total,
+            'playstore_missing': playstore_missing,
+            'playstore_total': playstore_total,
             'total_missing': total_missing,
         })
 
@@ -135,8 +168,9 @@ def main():
     # Print table
     android_base_count = len(android_base_names)
     vuejs_base_count = len(vuejs_base_keys)
+    playstore_base_count = len(playstore_base_keys)
 
-    print(f"Base: {android_base_count} Android strings, {vuejs_base_count} Vue.js keys")
+    print(f"Base: {android_base_count} Android strings, {vuejs_base_count} Vue.js keys, {playstore_base_count} Play Store keys")
     filters = []
     if tiers:
         filters.append(f"tier {','.join(str(t) for t in tiers)}")
@@ -151,30 +185,33 @@ def main():
     print()
 
     # Header
-    fmt = "{:<12} {:<24} {:>4}  {:>8}  {:>8}  {:>6}"
-    print(fmt.format("Lang", "Name", "Tier", "Android", "Vue.js", "Total"))
-    print("-" * 70)
+    fmt = "{:<12} {:<24} {:>4}  {:>8}  {:>8}  {:>8}  {:>6}"
+    print(fmt.format("Lang", "Name", "Tier", "Android", "Vue.js", "Play", "Total"))
+    print("-" * 78)
 
     total_android = 0
     total_vuejs = 0
+    total_playstore = 0
     total_all = 0
 
     for r in results:
         android_str = str(r['android_missing']) if r['android_missing'] is not None else 'N/A'
         vuejs_str = str(r['vuejs_missing']) if r['vuejs_missing'] is not None else 'N/A'
+        playstore_str = str(r['playstore_missing']) if r['playstore_missing'] is not None else 'N/A'
 
         print(fmt.format(
             r['lang'], r['name'], r['tier'],
-            android_str, vuejs_str, r['total_missing'],
+            android_str, vuejs_str, playstore_str, r['total_missing'],
         ))
 
         total_android += r['android_missing'] or 0
         total_vuejs += r['vuejs_missing'] or 0
+        total_playstore += r['playstore_missing'] or 0
         total_all += r['total_missing']
 
-    print("-" * 70)
+    print("-" * 78)
     print(f"TOTAL: {len(results)} languages, {total_all} missing strings "
-          f"({total_android} Android + {total_vuejs} Vue.js)")
+          f"({total_android} Android + {total_vuejs} Vue.js + {total_playstore} Play Store)")
 
 
 if __name__ == '__main__':

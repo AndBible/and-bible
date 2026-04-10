@@ -1485,7 +1485,36 @@
   <string name="agent_max_iterations_summary">Număr maxim de iterații înainte de a întreba dacă se continuă (0 = nelimitat)</string>
   <string name="ask_model_before_run_title">Întreabă modelul înainte de rulare</string>
   <string name="ask_model_before_run_summary">Afișează un dialog de selectare a modelului înainte de executarea unui prompt (omis când promptul are o înlocuire explicită de model)</string>
+  <string name="custom_agent_system_prompt_title">Prompt de sistem al agentului</string>
+  <string name="custom_system_prompt_summary">Editarea nu este recomandată dacă nu știi ce faci</string>
+  <string name="custom_text_transform_system_prompt_title">Prompt de sistem pentru transformarea textului</string>
+  <string name="ai_advanced_category">Avansat</string>
+  <string name="custom_system_prompt_default">Implicit</string>
+  <string name="custom_system_prompt_custom">Personalizat</string>
+  <string name="reset_to_default">Resetează la implicit</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Istoric jurnal AI</string>
+  <string name="raw_log_history_summary">Vizualizați și gestionați jurnalele de conversații AI salvate</string>
+  <string name="raw_log_history_empty">Niciun jurnal salvat</string>
+  <string name="raw_log_delete_selected">Șterge selecția</string>
+  <string name="raw_log_delete_old">Șterge jurnalele vechi\u2026</string>
+  <string name="raw_log_delete_confirm">%d selectate</string>
+  <string name="raw_log_older_1_week">Mai vechi de 1 săptămână</string>
+  <string name="raw_log_older_1_month">Mai vechi de 1 lună</string>
+  <string name="raw_log_older_3_months">Mai vechi de 3 luni</string>
+  <string name="raw_log_delete_all">Șterge tot</string>
+  <string name="raw_log_item_tokens">%1$s intrare / %2$s ieșire</string>
+  <string name="raw_log_error_indicator">Eroare</string>
+  <string name="raw_log_retention_title">Ștergere automată jurnale vechi</string>
+  <string name="raw_log_retention_summary_days">După %d zile</string>
+  <string name="raw_log_retention_summary_disabled">Dezactivat (păstrează tot)</string>
+  <string name="send_ai_bug_report_title">Raportează eroare AI</string>
+  <string name="ai_bug_report_menu">Raportează eroare AI</string>
+  <string name="ai_bug_report_recommended_only">Raportarea erorilor este disponibilă doar pentru modelele furnizorilor recomandați</string>
+
   <string name="select_model_before_run_title">Selectează modelul</string>
+  <string name="set_default_model_for_prompt">Setează ca model implicit pentru acest prompt</string>
   <string name="prompt_max_iterations">Înlocuire număr maxim de iterații</string>
   <string name="prompt_max_iterations_hint">Lasă gol pentru valoarea globală implicită</string>
   <string name="prompt_max_iterations_description">Înlocuiește numărul maxim global de iterații pentru acest prompt. Gol = implicit global, 0 = nelimitat.</string>
@@ -1606,6 +1635,7 @@
   <string name="prompt_category_general">General</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Necategorizat</string>
+  <string name="prompt_category_favorites">Favorite</string>
   <string name="addon_prompt_badge">Supliment: %s</string>
   <string name="addon_prompt_notice">Această comandă provine din modulul supliment \"%s\" și nu poate fi modificată. Folosește „Copiază pentru personalizare" pentru a crea o copie editabilă.</string>
   <string name="new_category">Categorie nouă</string>
@@ -1744,6 +1774,8 @@
   <string name="tool_search_study_pads">Caută în notițele de studiu</string>
   <string name="tool_get_my_documents">Listează Documentele mele</string>
   <string name="tool_get_my_document_pages">Listează paginile Documentului meu</string>
+  <string name="tool_get_genbook_keys">Listează cheile cărților generale</string>
+  <string name="tool_get_genbook_content">Citește conținutul cărții generale</string>
   <string name="tool_create_my_document">Creează Documentul meu</string>
   <string name="tool_add_my_document_page">Adaugă pagină în Documentul meu</string>
   <string name="tool_edit_my_document_page">Modifică pagina Documentului meu</string>
@@ -1817,6 +1849,7 @@
   <string name="tool_log_bookmark_count">%d semne de carte</string>
   <string name="tool_log_my_document_count">%d documente</string>
   <string name="tool_log_my_document_page_count">%d pagini</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d chei</string>
   <string name="tool_log_window_count">%d ferestre</string>
   <string name="tool_log_window_copy">copiază</string>
   <string name="tool_log_window_minimized">minimizat</string>
@@ -1856,6 +1889,7 @@
   <string name="tool_category_labels">Etichete</string>
   <string name="tool_category_study_pads">Notițe de studiu</string>
   <string name="tool_category_my_documents">Documentele mele</string>
+  <string name="tool_category_general_books">Cărți generale</string>
   <string name="tool_category_windows">Ferestre</string>
   <string name="tool_category_read">Citire</string>
   <string name="tool_category_write">Scriere</string>

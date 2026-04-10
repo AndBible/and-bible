@@ -25,6 +25,7 @@ except ImportError:
     print("ERROR: PyYAML not installed. Run: pip install pyyaml", file=sys.stderr)
     sys.exit(1)
 
+
 def main():
     if len(sys.argv) < 2:
         print("Usage: find_missing.py LANG", file=sys.stderr)
@@ -150,14 +151,79 @@ def main():
                 val = base_yaml[k]
                 print(f"  {k}|||{val}")
 
+    # --- Play Store ---
+    print()
+    print("=" * 60)
+    playstore_base = paths['playstore_base']
+    playstore_target = paths['playstore_target']
+    missing_playstore = []
+
+    if playstore_target is None:
+        print(f"PLAY STORE: (no Play Store translations for '{lang}')")
+        print("=" * 60)
+    else:
+        print(f"PLAY STORE: {playstore_target}")
+        print("=" * 60)
+
+        if not os.path.exists(playstore_base):
+            print(f"ERROR: Base file not found: {playstore_base}", file=sys.stderr)
+            sys.exit(1)
+
+        with open(playstore_base) as f:
+            ps_base = yaml.safe_load(f) or {}
+        # Only translatable keys: those with non-empty values in base
+        ps_base_keys = {k: v for k, v in ps_base.items()
+                        if v is not None and str(v).strip()}
+
+        if os.path.exists(playstore_target):
+            with open(playstore_target) as f:
+                ps_target = yaml.safe_load(f) or {}
+        else:
+            ps_target = {}
+            print(f"  (target file does not exist — all keys missing)")
+
+        ps_filled = {k for k, v in ps_target.items()
+                     if v is not None and str(v).strip()}
+        missing_playstore = [k for k in ps_base_keys if k not in ps_filled]
+        extra_playstore = set(ps_target.keys()) - set(ps_base.keys())
+
+        print(f"  Base: {len(ps_base_keys)} translatable keys")
+        print(f"  Target filled: {len(ps_filled)}")
+        print(f"  Missing/empty: {len(missing_playstore)}")
+        print(f"  Extra (stale): {len(extra_playstore)}")
+
+        if extra_playstore:
+            print(f"\n  Stale keys (in target but not base):")
+            for k in sorted(extra_playstore):
+                print(f"    {k}")
+
+        if missing_playstore:
+            print(f"\n  Missing Play Store keys ({len(missing_playstore)}):")
+            print("  ---")
+            for k in missing_playstore:
+                val = str(ps_base_keys[k]).strip()
+                # Truncate long values for display
+                if len(val) > 80:
+                    val = val[:77] + '...'
+                print(f"  {k}|||{val}")
+
     # --- Summary ---
     print()
     print("=" * 60)
-    total_missing = len(missing_android) + len(missing_yaml) + len(empty_yaml)
+    total_missing = len(missing_android) + len(missing_yaml) + len(empty_yaml) + len(missing_playstore)
     if total_missing == 0:
         print(f"ALL TRANSLATIONS COMPLETE for '{lang}'")
     else:
-        print(f"TOTAL MISSING: {total_missing} ({len(missing_android)} Android, {len(missing_yaml)} Vue.js, {len(empty_yaml)} empty)")
+        parts = []
+        if missing_android:
+            parts.append(f"{len(missing_android)} Android")
+        if missing_yaml:
+            parts.append(f"{len(missing_yaml)} Vue.js")
+        if empty_yaml:
+            parts.append(f"{len(empty_yaml)} empty")
+        if missing_playstore:
+            parts.append(f"{len(missing_playstore)} Play Store")
+        print(f"TOTAL MISSING: {total_missing} ({', '.join(parts)})")
     print("=" * 60)
 
 if __name__ == '__main__':

@@ -681,7 +681,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="ask_restore_or_import">A(z) %s adatbázisa visszaállítható (a meglévő adatbázis törlődik és a kiválasztott töltődik be) vagy importálható (a kiválasztott adatbázis bekerül a meglévőbe). Mit szeretne tenni?</string>
   <string name="restore">Visszaállítás</string>
   <string name="import2">Importálás</string>
-  <string name="export_studypads_help">Az exportált Jegyzetlapokat (azaz Címkéket és Könyvjelzőket) tartalmazó fájl importálható a Főmenü -> Biztonsági mentés &amp; visszaállítás menüponton keresztül.</string>
+  <string name="export_studypads_help">Az exportált Jegyzetlapokat (azaz Címkéket és Könyvjelzőket) tartalmazó fájl importálható a Főmenü -&gt; Biztonsági mentés &amp; visszaállítás menüponton keresztül.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">„%1$s" és még %2$s Címke(k) / Jegyzetlap(ok), valamint %3$s Könyvjelző</string>
@@ -1433,7 +1433,36 @@ jelentse be az észlelt problémát</string>
   <string name="agent_max_iterations_summary">Maximális iterációszám folytatás kérdése előtt (0 = korlátlan)</string>
   <string name="ask_model_before_run_title">Modell kérdése futtatás előtt</string>
   <string name="ask_model_before_run_summary">Modellválasztó párbeszédablak megjelenítése prompt végrehajtása előtt (kihagyva, ha a prompthoz explicit modell van megadva)</string>
+  <string name="custom_agent_system_prompt_title">Ügynök rendszerprompt</string>
+  <string name="custom_system_prompt_summary">Szerkesztése nem javasolt, hacsak nem tudja, mit csinál</string>
+  <string name="custom_text_transform_system_prompt_title">Szövegátalakítás rendszerprompt</string>
+  <string name="ai_advanced_category">Speciális</string>
+  <string name="custom_system_prompt_default">Alapértelmezett</string>
+  <string name="custom_system_prompt_custom">Egyéni</string>
+  <string name="reset_to_default">Visszaállítás alapértelmezettre</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">AI naplóelőzmények</string>
+  <string name="raw_log_history_summary">Mentett AI-beszélgetési naplók megtekintése és kezelése</string>
+  <string name="raw_log_history_empty">Nincs mentett napló</string>
+  <string name="raw_log_delete_selected">Kijelöltek törlése</string>
+  <string name="raw_log_delete_old">Régi naplók törlése\u2026</string>
+  <string name="raw_log_delete_confirm">%d kijelölve</string>
+  <string name="raw_log_older_1_week">1 hétnél régebbi</string>
+  <string name="raw_log_older_1_month">1 hónapnál régebbi</string>
+  <string name="raw_log_older_3_months">3 hónapnál régebbi</string>
+  <string name="raw_log_delete_all">Összes törlése</string>
+  <string name="raw_log_item_tokens">%1$s be / %2$s ki</string>
+  <string name="raw_log_error_indicator">Hiba</string>
+  <string name="raw_log_retention_title">Régi naplók automatikus törlése</string>
+  <string name="raw_log_retention_summary_days">%d nap után</string>
+  <string name="raw_log_retention_summary_disabled">Letiltva (összes megőrzése)</string>
+  <string name="send_ai_bug_report_title">AI hiba bejelentése</string>
+  <string name="ai_bug_report_menu">AI hiba bejelentése</string>
+  <string name="ai_bug_report_recommended_only">A hibajelentés csak ajánlott szolgáltatói modellekhez érhető el</string>
+
   <string name="select_model_before_run_title">Válasszon modellt</string>
+  <string name="set_default_model_for_prompt">Beállítás alapértelmezett modellként ehhez a prompthoz</string>
   <string name="prompt_max_iterations">Max. iteráció felülbírálása</string>
   <string name="prompt_max_iterations_hint">Hagyja üresen a globális alapértelmezéshez</string>
   <string name="prompt_max_iterations_description">A globális max. iteráció felülbírálása ehhez a prompthoz. Üres = globális alapértelmezés, 0 = korlátlan.</string>
@@ -1554,6 +1583,7 @@ jelentse be az észlelt problémát</string>
   <string name="prompt_category_general">Általános</string>
   <string name="prompt_category_test">Teszt</string>
   <string name="prompt_category_uncategorized">Kategorizálatlan</string>
+  <string name="prompt_category_favorites">Kedvencek</string>
   <string name="addon_prompt_badge">Bővítmény: %s</string>
   <string name="addon_prompt_notice">Ez a parancs a(z) \"%s\" bővítménymodulból származik, és nem szerkeszthető. Szerkeszthető másolat létrehozásához használja a „Másolás testreszabáshoz" lehetőséget.</string>
   <string name="new_category">Új kategória</string>
@@ -1692,6 +1722,8 @@ jelentse be az észlelt problémát</string>
   <string name="tool_search_study_pads">Keresés a jegyzetlapokon</string>
   <string name="tool_get_my_documents">Saját dokumentumok listázása</string>
   <string name="tool_get_my_document_pages">Saját dokumentum oldalainak listázása</string>
+  <string name="tool_get_genbook_keys">Általános könyv kulcsainak listázása</string>
+  <string name="tool_get_genbook_content">Általános könyv tartalmának olvasása</string>
   <string name="tool_create_my_document">Saját dokumentum létrehozása</string>
   <string name="tool_add_my_document_page">Saját dokumentum oldalának hozzáadása</string>
   <string name="tool_edit_my_document_page">Saját dokumentum oldalának szerkesztése</string>
@@ -1765,6 +1797,7 @@ jelentse be az észlelt problémát</string>
   <string name="tool_log_bookmark_count">%d könyvjelző</string>
   <string name="tool_log_my_document_count">%d dokumentum</string>
   <string name="tool_log_my_document_page_count">%d oldal</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d kulcs</string>
   <string name="tool_log_window_count">%d ablak</string>
   <string name="tool_log_window_copy">másolat</string>
   <string name="tool_log_window_minimized">kis méretű</string>
@@ -1804,6 +1837,7 @@ jelentse be az észlelt problémát</string>
   <string name="tool_category_labels">Címkék</string>
   <string name="tool_category_study_pads">Jegyzetlapok</string>
   <string name="tool_category_my_documents">Saját dokumentumok</string>
+  <string name="tool_category_general_books">Általános könyvek</string>
   <string name="tool_category_windows">Ablakok</string>
   <string name="tool_category_read">Olvasás</string>
   <string name="tool_category_write">Írás</string>

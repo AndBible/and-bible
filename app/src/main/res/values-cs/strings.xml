@@ -1473,7 +1473,36 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="agent_max_iterations_summary">Maximální počet iterací před dotazem na pokračování (0 = neomezeno)</string>
   <string name="ask_model_before_run_title">Dotázat se na model před spuštěním</string>
   <string name="ask_model_before_run_summary">Zobrazit dialog výběru modelu před spuštěním výzvy (přeskočeno, pokud má výzva explicitní přepsání modelu)</string>
+  <string name="custom_agent_system_prompt_title">Systémový prompt agenta</string>
+  <string name="custom_system_prompt_summary">Úpravy se nedoporučují, pokud nevíte, co děláte</string>
+  <string name="custom_text_transform_system_prompt_title">Systémový prompt transformace textu</string>
+  <string name="ai_advanced_category">Pokročilé</string>
+  <string name="custom_system_prompt_default">Výchozí</string>
+  <string name="custom_system_prompt_custom">Vlastní</string>
+  <string name="reset_to_default">Resetovat na výchozí</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Historie protokolu AI</string>
+  <string name="raw_log_history_summary">Zobrazit a spravovat uložené protokoly konverzací AI</string>
+  <string name="raw_log_history_empty">Žádné uložené protokoly</string>
+  <string name="raw_log_delete_selected">Smazat vybrané</string>
+  <string name="raw_log_delete_old">Smazat staré protokoly\u2026</string>
+  <string name="raw_log_delete_confirm">%d vybráno</string>
+  <string name="raw_log_older_1_week">Starší než 1 týden</string>
+  <string name="raw_log_older_1_month">Starší než 1 měsíc</string>
+  <string name="raw_log_older_3_months">Starší než 3 měsíce</string>
+  <string name="raw_log_delete_all">Smazat vše</string>
+  <string name="raw_log_item_tokens">%1$s vstup / %2$s výstup</string>
+  <string name="raw_log_error_indicator">Chyba</string>
+  <string name="raw_log_retention_title">Automatické mazání starých protokolů</string>
+  <string name="raw_log_retention_summary_days">Po %d dnech</string>
+  <string name="raw_log_retention_summary_disabled">Zakázáno (ponechat vše)</string>
+  <string name="send_ai_bug_report_title">Nahlásit chybu AI</string>
+  <string name="ai_bug_report_menu">Nahlásit chybu AI</string>
+  <string name="ai_bug_report_recommended_only">Hlášení chyb je dostupné pouze pro doporučené modely poskytovatele</string>
+
   <string name="select_model_before_run_title">Vybrat model</string>
+  <string name="set_default_model_for_prompt">Nastavit jako výchozí model pro tento prompt</string>
   <string name="prompt_max_iterations">Přepsání maximálního počtu iterací</string>
   <string name="prompt_max_iterations_hint">Ponechte prázdné pro globální výchozí hodnotu</string>
   <string name="prompt_max_iterations_description">Přepsat globální maximální počet iterací pro tuto výzvu. Prázdné = globální výchozí, 0 = neomezeno.</string>
@@ -1594,6 +1623,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="prompt_category_general">Obecné</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Bez kategorie</string>
+  <string name="prompt_category_favorites">Oblíbené</string>
   <string name="addon_prompt_badge">Doplněk: %s</string>
   <string name="addon_prompt_notice">Tento prompt pochází z modulu doplňku \"%s\" a nelze ho upravovat. Použijte \"Kopírovat pro přizpůsobení\" a vytvořte upravitelnou kopii.</string>
   <string name="new_category">Nová kategorie</string>
@@ -1732,6 +1762,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tool_search_study_pads">Hledat ve studijních složkách</string>
   <string name="tool_get_my_documents">Zobrazit Mé dokumenty</string>
   <string name="tool_get_my_document_pages">Zobrazit stránky Mé dokumenty</string>
+  <string name="tool_get_genbook_keys">Zobrazit klíče obecné knihy</string>
+  <string name="tool_get_genbook_content">Číst obsah obecné knihy</string>
   <string name="tool_create_my_document">Vytvořit Můj dokument</string>
   <string name="tool_add_my_document_page">Přidat stránku do Mé dokumenty</string>
   <string name="tool_edit_my_document_page">Upravit stránku Mé dokumenty</string>
@@ -1805,6 +1837,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tool_log_bookmark_count">%d záložek</string>
   <string name="tool_log_my_document_count">%d dokumentů</string>
   <string name="tool_log_my_document_page_count">%d stránek</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d klíčů</string>
   <string name="tool_log_window_count">%d oken</string>
   <string name="tool_log_window_copy">kopie</string>
   <string name="tool_log_window_minimized">minimalizováno</string>
@@ -1844,6 +1877,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tool_category_labels">Štítky</string>
   <string name="tool_category_study_pads">Studijní složky</string>
   <string name="tool_category_my_documents">Moje dokumenty</string>
+  <string name="tool_category_general_books">Obecné knihy</string>
   <string name="tool_category_windows">Okna</string>
   <string name="tool_category_read">Číst</string>
   <string name="tool_category_write">Zapisovat</string>

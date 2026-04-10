@@ -48,6 +48,7 @@
   <string name="creating_index_for">Créer un index pour %s…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%1$s résultats dans %2$s</string>
+
     <!-- Tasks -->
   <string name="progress_status">Progression</string>
   <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
@@ -750,7 +751,8 @@ Le fichier est peut-être invalide.</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>
   <string name="error_page_too_large">La page est trop lourde pour être chargée</string>
   <string name="error_key_not_in_document">Aucune correspondance dans le document</string>
-  <string name="error_key_not_in_document2">%1$s n’a pas été trouvé dans le document %2$s.</string>  <string name="empty_list">Aucun élément à afficher</string>
+  <string name="error_key_not_in_document2">%1$s n’a pas été trouvé dans le document %2$s.</string>
+  <string name="empty_list">Aucun élément à afficher</string>
   <string name="error_skip">Sauter</string>
   <string name="bug_report_email_title">Envoyer un rapport de bogue par courriel</string>
   <string name="bug_report_email_text">Ensuite, veuillez sélectionner votre application de messagerie préférée (Gmail par exemple) pour envoyer le rapport à l’équipe de développeurs.</string>
@@ -1080,12 +1082,16 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="reset_something">Réinitialiser : %1$s</string>
   <string name="export">Exporter</string>
   <string name="csv_export_success">Le signet %d  à été exporté en CSV</string>
-  <string name="csv_import_success">Importation terminée : %1$dest crée, %2$d est mise à jour </string>  <string name="csv_import_errors">Importation terminée avec des erreurs : création de %1$d, mise à jour de %2$d, erreurs avec %3$d</string>  <string name="csv_import_failed">L\'importation du CSV a échoué : %s</string>
+  <string name="csv_import_success">Importation terminée : %1$dest crée, %2$d est mise à jour </string>
+  <string name="csv_import_errors">Importation terminée avec des erreurs : création de %1$d, mise à jour de %2$d, erreurs avec %3$d</string>
+  <string name="csv_import_failed">L\'importation du CSV a échoué : %s</string>
   <string name="csv_export_failed">L’exportation du CSV a échoué : %s</string>
   <string name="export_prompts_csv">Exporter les prompts en CSV</string>
   <string name="import_prompts_csv">Importer les prompts depuis CSV</string>
   <string name="prompts_csv_export_success">%d prompts exportés en CSV</string>
-  <string name="prompts_csv_import_success">Importation terminée : %1$d créé(s), %2$d mis à jour</string>  <string name="prompts_csv_import_errors">Importation terminée avec des erreurs : %1$d créé(s), %2$d mis à jour, %3$d erreur(s)</string>  <string name="prompts_csv_import_failed">Échec de l\'importation CSV : %s</string>
+  <string name="prompts_csv_import_success">Importation terminée : %1$d créé(s), %2$d mis à jour</string>
+  <string name="prompts_csv_import_errors">Importation terminée avec des erreurs : %1$d créé(s), %2$d mis à jour, %3$d erreur(s)</string>
+  <string name="prompts_csv_import_failed">Échec de l\'importation CSV : %s</string>
   <string name="prompts_csv_export_failed">Échec de l\'exportation CSV : %s</string>
   <string name="no_prompts_to_export">Aucun prompt utilisateur à exporter</string>
   <string name="csv_column_selection_title">Sélectionner les colonnes du CSV</string>
@@ -1439,7 +1445,36 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="agent_max_iterations_summary">Nombre maximum d\'itérations avant de demander de continuer (0 = illimité)</string>
   <string name="ask_model_before_run_title">Demander le modèle avant l\'exécution</string>
   <string name="ask_model_before_run_summary">Afficher une boîte de dialogue de sélection de modèle avant d\'exécuter une invite (ignoré si l\'invite a un modèle explicitement défini)</string>
+  <string name="custom_agent_system_prompt_title">Prompt système de l\'agent</string>
+  <string name="custom_system_prompt_summary">Modification déconseillée sauf si vous savez ce que vous faites</string>
+  <string name="custom_text_transform_system_prompt_title">Prompt système de transformation de texte</string>
+  <string name="ai_advanced_category">Avancé</string>
+  <string name="custom_system_prompt_default">Par défaut</string>
+  <string name="custom_system_prompt_custom">Personnalisé</string>
+  <string name="reset_to_default">Réinitialiser par défaut</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Historique des journaux IA</string>
+  <string name="raw_log_history_summary">Afficher et gérer les journaux de conversation IA enregistrés</string>
+  <string name="raw_log_history_empty">Aucun journal enregistré</string>
+  <string name="raw_log_delete_selected">Supprimer la sélection</string>
+  <string name="raw_log_delete_old">Supprimer les anciens journaux\u2026</string>
+  <string name="raw_log_delete_confirm">%d sélectionné(s)</string>
+  <string name="raw_log_older_1_week">Plus anciens qu\'une semaine</string>
+  <string name="raw_log_older_1_month">Plus anciens qu\'un mois</string>
+  <string name="raw_log_older_3_months">Plus anciens que 3 mois</string>
+  <string name="raw_log_delete_all">Tout supprimer</string>
+  <string name="raw_log_item_tokens">%1$s entrée / %2$s sortie</string>
+  <string name="raw_log_error_indicator">Erreur</string>
+  <string name="raw_log_retention_title">Suppression automatique des anciens journaux</string>
+  <string name="raw_log_retention_summary_days">Après %d jours</string>
+  <string name="raw_log_retention_summary_disabled">Désactivé (tout conserver)</string>
+  <string name="send_ai_bug_report_title">Signaler un bug IA</string>
+  <string name="ai_bug_report_menu">Signaler un bug IA</string>
+  <string name="ai_bug_report_recommended_only">Le signalement de bugs n\'est disponible que pour les modèles de fournisseurs recommandés</string>
+
   <string name="select_model_before_run_title">Sélectionner un modèle</string>
+  <string name="set_default_model_for_prompt">Définir comme modèle par défaut pour ce prompt</string>
   <string name="prompt_max_iterations">Limite max d\'itérations</string>
   <string name="prompt_max_iterations_hint">Laisser vide pour la valeur globale par défaut</string>
   <string name="prompt_max_iterations_description">Remplacer la limite max d\'itérations globale pour cette invite. Vide = valeur par défaut globale, 0 = illimité.</string>
@@ -1560,6 +1595,7 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="prompt_category_general">Général</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Non catégorisé</string>
+  <string name="prompt_category_favorites">Favoris</string>
   <string name="addon_prompt_badge">Module complémentaire : %s</string>
   <string name="addon_prompt_notice">Ce prompt provient du module complémentaire \"%s\" et ne peut pas être modifié. Utilisez « Copier pour personnaliser » pour créer une copie modifiable.</string>
   <string name="new_category">Nouvelle catégorie</string>
@@ -1698,6 +1734,8 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="tool_search_study_pads">Rechercher dans les blocs-notes</string>
   <string name="tool_get_my_documents">Lister Mes Documents</string>
   <string name="tool_get_my_document_pages">Lister les pages de Mon Document</string>
+  <string name="tool_get_genbook_keys">Lister les clés du livre général</string>
+  <string name="tool_get_genbook_content">Lire le contenu du livre général</string>
   <string name="tool_create_my_document">Créer Mon Document</string>
   <string name="tool_add_my_document_page">Ajouter une page à Mon Document</string>
   <string name="tool_edit_my_document_page">Modifier la page de Mon Document</string>
@@ -1771,6 +1809,7 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="tool_log_bookmark_count">%d signets</string>
   <string name="tool_log_my_document_count">%d documents</string>
   <string name="tool_log_my_document_page_count">%d pages</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d clés</string>
   <string name="tool_log_window_count">%d fenêtres</string>
   <string name="tool_log_window_copy">copie</string>
   <string name="tool_log_window_minimized">réduite</string>
@@ -1810,6 +1849,7 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="tool_category_labels">Étiquettes</string>
   <string name="tool_category_study_pads">Blocs-notes</string>
   <string name="tool_category_my_documents">Mes documents</string>
+  <string name="tool_category_general_books">Livres généraux</string>
   <string name="tool_category_windows">Fenêtres</string>
   <string name="tool_category_read">Lecture</string>
   <string name="tool_category_write">Écriture</string>

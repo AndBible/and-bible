@@ -48,6 +48,7 @@
   <string name="creating_index_for">Створення індексу для %s…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%1$s результати у %2$s</string>
+
     <!-- Tasks -->
   <string name="progress_status">Перебіг виконання</string>
   <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
@@ -766,7 +767,8 @@
   <string name="error_no_content">Немає вмісту для вибраного вірша</string>
   <string name="error_page_too_large">Сторінка завелика для завантаження</string>
   <string name="error_key_not_in_document">Не знайдено</string>
-  <string name="error_key_not_in_document2">%1$s не знайдено в ресурсі %2$s.</string>  <string name="empty_list">Немає елементів для відображення</string>
+  <string name="error_key_not_in_document2">%1$s не знайдено в ресурсі %2$s.</string>
+  <string name="empty_list">Немає елементів для відображення</string>
   <string name="error_skip">Пропустити</string>
   <string name="bug_report_email_title">Надіслати звіт про помилку електронною поштою</string>
   <string name="bug_report_email_text">Далі, виберіть бажану програму електронної пошти (наприклад, Gmail), щоб надіслати звіт команді розробників.</string>
@@ -1100,12 +1102,16 @@
   <string name="reset_something">Скинути: %1$s</string>
   <string name="export">Експортувати</string>
   <string name="csv_export_success">Експортовано %d закладок у CSV</string>
-  <string name="csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>  <string name="csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>  <string name="csv_import_failed">Імпорт CSV не вдався: %s</string>
+  <string name="csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>
+  <string name="csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>
+  <string name="csv_import_failed">Імпорт CSV не вдався: %s</string>
   <string name="csv_export_failed">Експорт CSV не вдався: %s</string>
   <string name="export_prompts_csv">Експортувати промпти у CSV</string>
   <string name="import_prompts_csv">Імпортувати промпти з CSV</string>
   <string name="prompts_csv_export_success">Експортовано %d промптів у CSV</string>
-  <string name="prompts_csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>  <string name="prompts_csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>  <string name="prompts_csv_import_failed">Імпорт CSV не вдався: %s</string>
+  <string name="prompts_csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>
+  <string name="prompts_csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>
+  <string name="prompts_csv_import_failed">Імпорт CSV не вдався: %s</string>
   <string name="prompts_csv_export_failed">Експорт CSV не вдався: %s</string>
   <string name="no_prompts_to_export">Немає користувацьких промптів для експорту</string>
   <string name="csv_column_selection_title">Вибрати стовпці CSV</string>
@@ -1458,7 +1464,36 @@
   <string name="agent_max_iterations_summary">Максимальна кількість ітерацій перед запитом на продовження (0 = необмежено)</string>
   <string name="ask_model_before_run_title">Запитувати модель перед запуском</string>
   <string name="ask_model_before_run_summary">Показувати діалог вибору моделі перед виконанням промпту (пропускається, якщо промпт має явне перевизначення моделі)</string>
+  <string name="custom_agent_system_prompt_title">Системний промпт агента</string>
+  <string name="custom_system_prompt_summary">Редагування не рекомендується, якщо ви не знаєте, що робите</string>
+  <string name="custom_text_transform_system_prompt_title">Системний промпт перетворення тексту</string>
+  <string name="ai_advanced_category">Розширені</string>
+  <string name="custom_system_prompt_default">За замовчуванням</string>
+  <string name="custom_system_prompt_custom">Власний</string>
+  <string name="reset_to_default">Скинути до стандартного</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Журнал ШІ</string>
+  <string name="raw_log_history_summary">Перегляд і керування збереженими журналами розмов ШІ</string>
+  <string name="raw_log_history_empty">Немає збережених журналів</string>
+  <string name="raw_log_delete_selected">Видалити вибране</string>
+  <string name="raw_log_delete_old">Видалити старі журнали\u2026</string>
+  <string name="raw_log_delete_confirm">%d вибрано</string>
+  <string name="raw_log_older_1_week">Старіші 1 тижня</string>
+  <string name="raw_log_older_1_month">Старіші 1 місяця</string>
+  <string name="raw_log_older_3_months">Старіші 3 місяців</string>
+  <string name="raw_log_delete_all">Видалити всі</string>
+  <string name="raw_log_item_tokens">%1$s вхід / %2$s вихід</string>
+  <string name="raw_log_error_indicator">Помилка</string>
+  <string name="raw_log_retention_title">Автовидалення старих журналів</string>
+  <string name="raw_log_retention_summary_days">Через %d днів</string>
+  <string name="raw_log_retention_summary_disabled">Вимкнено (зберігати всі)</string>
+  <string name="send_ai_bug_report_title">Повідомити про помилку ШІ</string>
+  <string name="ai_bug_report_menu">Повідомити про помилку ШІ</string>
+  <string name="ai_bug_report_recommended_only">Звітування про помилки доступне лише для рекомендованих моделей постачальника</string>
+
   <string name="select_model_before_run_title">Вибрати модель</string>
+  <string name="set_default_model_for_prompt">Встановити як модель за замовчуванням для цього промпту</string>
   <string name="prompt_max_iterations">Перевизначення макс. ітерацій</string>
   <string name="prompt_max_iterations_hint">Залиште порожнім для глобального значення за замовчуванням</string>
   <string name="prompt_max_iterations_description">Перевизначити глобальне максимальне число ітерацій для цього промпту. Порожньо = глобальне значення, 0 = необмежено.</string>
@@ -1579,6 +1614,7 @@
   <string name="prompt_category_general">Загальне</string>
   <string name="prompt_category_test">Тест</string>
   <string name="prompt_category_uncategorized">Без категорії</string>
+  <string name="prompt_category_favorites">Вибране</string>
   <string name="addon_prompt_badge">Доповнення: %s</string>
   <string name="addon_prompt_notice">Цей промпт із модуля доповнення «%s» і не може бути відредагований. Використайте «Скопіювати для налаштування», щоб створити редаговану копію.</string>
   <string name="new_category">Нова категорія</string>
@@ -1717,6 +1753,8 @@
   <string name="tool_search_study_pads">Шукати в блокнотах</string>
   <string name="tool_get_my_documents">Список моїх ресурсів</string>
   <string name="tool_get_my_document_pages">Список сторінок мого ресурсу</string>
+  <string name="tool_get_genbook_keys">Список ключів загальної книги</string>
+  <string name="tool_get_genbook_content">Читати вміст загальної книги</string>
   <string name="tool_create_my_document">Створити мій ресурс</string>
   <string name="tool_add_my_document_page">Додати сторінку до мого ресурсу</string>
   <string name="tool_edit_my_document_page">Змінити сторінку мого ресурсу</string>
@@ -1790,6 +1828,7 @@
   <string name="tool_log_bookmark_count">%d закладок</string>
   <string name="tool_log_my_document_count">%d ресурсів</string>
   <string name="tool_log_my_document_page_count">%d сторінок</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d ключів</string>
   <string name="tool_log_window_count">%d вікон</string>
   <string name="tool_log_window_copy">копія</string>
   <string name="tool_log_window_minimized">згорнуто</string>
@@ -1829,6 +1868,7 @@
   <string name="tool_category_labels">Мітки</string>
   <string name="tool_category_study_pads">Блокноти</string>
   <string name="tool_category_my_documents">Мої ресурси</string>
+  <string name="tool_category_general_books">Загальні книги</string>
   <string name="tool_category_windows">Вікна</string>
   <string name="tool_category_read">Читання</string>
   <string name="tool_category_write">Запис</string>

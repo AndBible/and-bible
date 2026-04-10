@@ -48,6 +48,7 @@
   <string name="creating_index_for">Creazione indice per %s…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%1$s risultati in %2$s</string>
+
     <!-- Tasks -->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Queste operazioni lunghe potrebbero interrompersi se passi ad un\'altra applicazione prima della fine.</string>
@@ -738,7 +739,8 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="error_no_content">Nessun contenuto per il versetto selezionato</string>
   <string name="error_page_too_large">La pagina è troppo grande per essere caricata</string>
   <string name="error_key_not_in_document">Non trovato nel documento</string>
-  <string name="error_key_not_in_document2">%1$s non trovato nel documento %2$s.</string>  <string name="empty_list">Niente da mostrare</string>
+  <string name="error_key_not_in_document2">%1$s non trovato nel documento %2$s.</string>
+  <string name="empty_list">Niente da mostrare</string>
   <string name="error_skip">Salta</string>
   <string name="bug_report_email_title">Invia segnalazione di errore via email</string>
   <string name="bug_report_email_text">Successivamente, seleziona l\'applicazione di posta elettronica preferita (ad esempio Gmail) per inviare la segnalazione al team di sviluppo.</string>
@@ -1056,12 +1058,16 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reset_something">Ripristina: %1$s</string>
   <string name="export">Esporta</string>
   <string name="csv_export_success">Esportati %d segnalibri in CSV</string>
-  <string name="csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>  <string name="csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
+  <string name="csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>
+  <string name="csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>
+  <string name="csv_import_failed">Importazione CSV fallita: %s</string>
   <string name="csv_export_failed">Esportazione CSV fallita: %s</string>
   <string name="export_prompts_csv">Esporta prompt in CSV</string>
   <string name="import_prompts_csv">Importa prompt da CSV</string>
   <string name="prompts_csv_export_success">%d prompt esportati in CSV</string>
-  <string name="prompts_csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>  <string name="prompts_csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>  <string name="prompts_csv_import_failed">Importazione CSV non riuscita: %s</string>
+  <string name="prompts_csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>
+  <string name="prompts_csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>
+  <string name="prompts_csv_import_failed">Importazione CSV non riuscita: %s</string>
   <string name="prompts_csv_export_failed">Esportazione CSV non riuscita: %s</string>
   <string name="no_prompts_to_export">Nessun prompt utente da esportare</string>
   <string name="csv_column_selection_title">Scelta colonne CSV</string>
@@ -1417,7 +1423,36 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="agent_max_iterations_summary">Iterazioni massime prima di chiedere di continuare (0 = illimitato)</string>
   <string name="ask_model_before_run_title">Chiedi modello prima dell\'esecuzione</string>
   <string name="ask_model_before_run_summary">Mostra una finestra di selezione del modello prima di eseguire un prompt (ignorato quando il prompt ha un\'impostazione esplicita del modello)</string>
+  <string name="custom_agent_system_prompt_title">Prompt di sistema dell\'agente</string>
+  <string name="custom_system_prompt_summary">Modifica non consigliata a meno che tu non sappia cosa stai facendo</string>
+  <string name="custom_text_transform_system_prompt_title">Prompt di sistema per trasformazione testo</string>
+  <string name="ai_advanced_category">Avanzate</string>
+  <string name="custom_system_prompt_default">Predefinito</string>
+  <string name="custom_system_prompt_custom">Personalizzato</string>
+  <string name="reset_to_default">Ripristina predefinito</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Cronologia log IA</string>
+  <string name="raw_log_history_summary">Visualizza e gestisci i log delle conversazioni IA salvate</string>
+  <string name="raw_log_history_empty">Nessun log salvato</string>
+  <string name="raw_log_delete_selected">Elimina selezionati</string>
+  <string name="raw_log_delete_old">Elimina log vecchi\u2026</string>
+  <string name="raw_log_delete_confirm">%d selezionati</string>
+  <string name="raw_log_older_1_week">Più vecchi di 1 settimana</string>
+  <string name="raw_log_older_1_month">Più vecchi di 1 mese</string>
+  <string name="raw_log_older_3_months">Più vecchi di 3 mesi</string>
+  <string name="raw_log_delete_all">Elimina tutti</string>
+  <string name="raw_log_item_tokens">%1$s in / %2$s out</string>
+  <string name="raw_log_error_indicator">Errore</string>
+  <string name="raw_log_retention_title">Eliminazione automatica log vecchi</string>
+  <string name="raw_log_retention_summary_days">Dopo %d giorni</string>
+  <string name="raw_log_retention_summary_disabled">Disabilitato (mantieni tutti)</string>
+  <string name="send_ai_bug_report_title">Segnala bug IA</string>
+  <string name="ai_bug_report_menu">Segnala bug IA</string>
+  <string name="ai_bug_report_recommended_only">La segnalazione bug è disponibile solo per i modelli dei fornitori consigliati</string>
+
   <string name="select_model_before_run_title">Seleziona modello</string>
+  <string name="set_default_model_for_prompt">Imposta come modello predefinito per questo prompt</string>
   <string name="prompt_max_iterations">Limite massimo iterazioni</string>
   <string name="prompt_max_iterations_hint">Lascia vuoto per il valore predefinito globale</string>
   <string name="prompt_max_iterations_description">Sostituisce il limite massimo di iterazioni globale per questo prompt. Vuoto = predefinito globale, 0 = illimitato.</string>
@@ -1538,6 +1573,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="prompt_category_general">Generale</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Non categorizzato</string>
+  <string name="prompt_category_favorites">Preferiti</string>
   <string name="addon_prompt_badge">Componente aggiuntivo: %s</string>
   <string name="addon_prompt_notice">Questo prompt proviene dal modulo aggiuntivo \"%s\" e non può essere modificato. Usa «Copia per personalizzare» per creare una copia modificabile.</string>
   <string name="new_category">Nuova categoria</string>
@@ -1676,6 +1712,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tool_search_study_pads">Cerca negli appunti di studio</string>
   <string name="tool_get_my_documents">Elenca I miei documenti</string>
   <string name="tool_get_my_document_pages">Elenca pagine I miei documenti</string>
+  <string name="tool_get_genbook_keys">Elenca chiavi libro generale</string>
+  <string name="tool_get_genbook_content">Leggi contenuto libro generale</string>
   <string name="tool_create_my_document">Crea documento personale</string>
   <string name="tool_add_my_document_page">Aggiungi pagina al documento personale</string>
   <string name="tool_edit_my_document_page">Modifica pagina del documento personale</string>
@@ -1749,6 +1787,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tool_log_bookmark_count">%d segnalibri</string>
   <string name="tool_log_my_document_count">%d documenti</string>
   <string name="tool_log_my_document_page_count">%d pagine</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d chiavi</string>
   <string name="tool_log_window_count">%d finestre</string>
   <string name="tool_log_window_copy">copia</string>
   <string name="tool_log_window_minimized">ridotta a icona</string>
@@ -1788,6 +1827,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tool_category_labels">Etichette</string>
   <string name="tool_category_study_pads">Appunti di studio</string>
   <string name="tool_category_my_documents">I miei documenti</string>
+  <string name="tool_category_general_books">Libri generali</string>
   <string name="tool_category_windows">Finestre</string>
   <string name="tool_category_read">Lettura</string>
   <string name="tool_category_write">Scrittura</string>
@@ -1893,5 +1933,4 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="scroll_helper_line_style_thick_solid">Linea spessa continua</string>
   <string name="prefs_page_buttons_title">Pulsanti scorrimento pagina</string>
   <string name="prefs_page_buttons_summary">Mostra pulsanti visibili pagina su/giù sullo schermo</string>
-
 </resources>

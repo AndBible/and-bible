@@ -40,9 +40,7 @@ referenceLink: Referans bağlantısını aç
 openFootnote: Dipnot aç
 noMyNotesTitle: Bu bölüm için Notlarım yok.
 noMyNotesDescription: Bir Kutsal Kitap üzerinde yer imleri oluşturarak başlayın. Yer imleri daha sonra burada görünecek ve bunlara kişisel notlarınızı ekleyebilirsiniz.
-
 emptyStudyPad: Boş çalışma defteri. Burada metin girişleri oluşturarak veya bu çalışma defterine karşılık gelen bir yer imi etiketi ile yer imleri oluşturarak bu çalışma defterine ekleme yapmaya başlayın.
-
 doYouWantToDeleteEntry: Bu çalışma defteri sililsin mi?
 removeStudyPadConfirmationTitle: Çalışma pedi kaldıralsın mı?
 dragHelp: Yeniden sıralamak için sürükleyin
@@ -62,7 +60,7 @@ verseCompare: Karşılaştır
 verseMemorize: "Ezberleyin<br>"
 verseNote: Not
 verseMyNotes: Notlarım
-verseParagraphBreak: ""
+verseParagraphBreak: Paragraf
 verseShareLong: Bu ayeti paylaş
 verseCompareLong: Ayet karşılaştırması
 verseMemorizeLong: "Kutsal Kitap ayetlerini ezberleyin<br>"
@@ -79,30 +77,30 @@ listenInLoop: Döngüde dinle
 verseNoteLong: Bir not yazın
 verseParagraphBreakLong: Paragraf sonu
 addBookmark: Yer imi
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Özel işaretçi simgesi seç
+bookmarkSettingsTitle: Yer imi ayarlarını yapılandır
+subtitlePlaceholder: Alt başlık metni
+customIconLabel: Özel simge
+editActionLabel: Düzenleme eylemi
+editActionModeLabel: Mod
+editActionModeNone: Hiçbiri
+editActionModeAppend: Metin ekle (sona)
+editActionModePrepend: Metin ekle (başa)
+editActionContentLabel: İçerik
+editActionContentPlaceholder: Belgeye eklenecek metni girin...
+experimentalFeatureTitle: Deneysel
+experimentalFeatureHelpTitle: Deneysel Özellikler Hakkında
+experimentalFeatureHelpContent: Deneysel özellikler, hâlâ geliştirme ve test aşamasında olan yeni yeteneklerdir. Mükemmel çalışmayabilirler ve gelecekteki uygulama sürümlerinde önemli ölçüde değişebilir veya kaldırılabilirler.
+insertParagraphBreak: Paragraf sonu ekle
+insertSubtitle: Alt başlık ekle
+xmlParseError: XML ayrıştırma hatası
+invalidTag: Geçersiz etiket
+invalidClosingTag: Geçersiz kapanış etiketi
+unmatchedClosingTag: Eşleşmeyen kapanış etiketi
+unclosedTag: Kapatılmamış etiket
+unknownError: Bilinmeyen hata
+wordBlur: Bulanıklaştır
+wordScramble: Karıştır
 wordType: Tür
 wordOrder: Sıra
 typeEverything: Tam kelimeleri yaz
