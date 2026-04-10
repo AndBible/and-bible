@@ -27,6 +27,8 @@ import net.bible.service.llm.tools.read.GetBookmarksWithLabelTool
 import net.bible.service.llm.tools.read.GetCommentariesTool
 import net.bible.service.llm.tools.read.GetDictionaryEntryTool
 import net.bible.service.llm.tools.read.GetInstalledDocumentsTool
+import net.bible.service.llm.tools.read.GetGenBookContentTool
+import net.bible.service.llm.tools.read.GetGenBookKeysTool
 import net.bible.service.llm.tools.read.GetMyDocumentPagesTool
 import net.bible.service.llm.tools.read.GetMyDocumentsTool
 import net.bible.service.llm.tools.read.GetStudyPadContentTool
@@ -100,6 +102,8 @@ object ToolRegistry {
         register(GetInstalledDocumentsTool)
         register(GetMyDocumentsTool)
         register(GetMyDocumentPagesTool)
+        register(GetGenBookKeysTool)
+        register(GetGenBookContentTool)
         register(GetWindowsTool)
 
         // Register write tools

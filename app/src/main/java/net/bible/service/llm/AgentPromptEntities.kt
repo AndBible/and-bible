@@ -42,6 +42,7 @@ enum class ToolCategory(val displayNameResId: Int) {
     LABELS(R.string.tool_category_labels),
     STUDY_PADS(R.string.tool_category_study_pads),
     MY_DOCUMENTS(R.string.tool_category_my_documents),
+    GENERAL_BOOKS(R.string.tool_category_general_books),
     WINDOWS(R.string.tool_category_windows),
 }
 
@@ -62,6 +63,8 @@ enum class AgentTool {
     GET_INSTALLED_DOCUMENTS,
     GET_MY_DOCUMENTS,
     GET_MY_DOCUMENT_PAGES,
+    GET_GENBOOK_KEYS,
+    GET_GENBOOK_CONTENT,
     GET_WINDOWS,
 
     // Write tools
