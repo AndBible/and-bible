@@ -44,6 +44,7 @@ import net.bible.android.view.activity.page.Selection
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
 import net.bible.service.llm.AgentPrompt
+import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.PromptContext
 import net.bible.service.llm.PromptRepository
 import net.bible.service.llm.agent.AgentForegroundService
@@ -263,7 +264,8 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             val displayNames = models.map { model ->
                 val providerName = providers[model.providerConfigId]?.displayName ?: "?"
                 val suffix = if (model.id == defaultModelId) " ★" else ""
-                "${model.modelId} — $providerName$suffix"
+                val prefix = if (LlmProvider.isModelSupported(model.modelId)) "✓ " else ""
+                "$prefix${model.modelId} — $providerName$suffix"
             }
 
             launch(Dispatchers.Main) {
@@ -383,7 +385,8 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             val displayNames = models.map { model ->
                 val providerName = providers[model.providerConfigId]?.displayName ?: "?"
                 val suffix = if (model.id == defaultModelId) " ★" else ""
-                "${model.modelId} — $providerName$suffix"
+                val prefix = if (LlmProvider.isModelSupported(model.modelId)) "✓ " else ""
+                "$prefix${model.modelId} — $providerName$suffix"
             }
 
             launch(Dispatchers.Main) {

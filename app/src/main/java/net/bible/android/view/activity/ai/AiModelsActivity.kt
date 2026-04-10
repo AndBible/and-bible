@@ -28,6 +28,7 @@ import net.bible.android.activity.databinding.SettingsActivityBinding
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.settings.PreferenceStore
 import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.LlmProvider
 
 class AiModelsActivity : ActivityBase() {
     private lateinit var binding: SettingsActivityBinding
@@ -110,9 +111,14 @@ class AiModelsFragment : AiSettingsFragmentBase() {
 
         for (model in allModels) {
             val provider = providerConfigs[model.providerConfigId]
+            val isSupported = LlmProvider.isModelSupported(model.modelId)
             val pref = Preference(requireContext()).apply {
                 key = "model_${model.id}"
-                title = if (model.id == defaultModelId) "★ ${model.modelId}" else model.modelId
+                title = buildString {
+                    if (model.id == defaultModelId) append("★ ")
+                    append(model.modelId)
+                    if (isSupported) append(" ✓")
+                }
                 icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_smart_toy_24)
                 summary = buildString {
                     append(provider?.displayName ?: "?")

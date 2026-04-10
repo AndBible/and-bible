@@ -1,0 +1,15 @@
+- Show ✓ badges for officially supported AI models with option to filter unsupported ones (c70b867d5)
+- Fix translate skill (1af7a89ce)
+- Fix Google Flash 3 model support (af764346c)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/

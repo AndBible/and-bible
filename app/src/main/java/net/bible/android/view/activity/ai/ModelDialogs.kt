@@ -47,12 +47,13 @@ import net.bible.service.llm.ModelPricing
  * Extracted to keep the fragment classes focused on preference setup.
  */
 
-/** Format a model name with pricing info for display, e.g. "claude-sonnet-4 ($3.00/$15.00)". */
+/** Format a model name with pricing info for display, e.g. "✓ claude-sonnet-4 ($3.00/$15.00)". */
 internal fun formatModelWithPricing(modelId: String, pricing: ModelPricing?): String {
-    if (pricing == null) return modelId
+    val prefix = if (LlmProvider.isModelSupported(modelId)) "✓ " else ""
+    if (pricing == null) return "$prefix$modelId"
     val input = LlmCostTracker.formatPriceCompact(pricing.inputPerMillion)
     val output = LlmCostTracker.formatPriceCompact(pricing.outputPerMillion)
-    return "$modelId ($input/$output)"
+    return "$prefix$modelId ($input/$output)"
 }
 
 /**
@@ -71,6 +72,10 @@ internal fun AiSettingsFragmentBase.showAddModelDialog(providerConfig: LlmProvid
     val availableModels = if (provider.supportsDynamicModels) {
         DynamicModelService.getCachedModels(provider.name) ?: enumModels
     } else enumModels
+
+    val hasUnsupportedModels = availableModels.any { !LlmProvider.isModelSupported(it.id) }
+    val hasSupportedModels = availableModels.any { LlmProvider.isModelSupported(it.id) }
+    var showUnsupported = !hasSupportedModels // default: show only supported if any exist
 
     // Category spinner (if models have "/" prefixes like OpenRouter)
     var categorySpinner: Spinner? = null
@@ -93,8 +98,9 @@ internal fun AiSettingsFragmentBase.showAddModelDialog(providerConfig: LlmProvid
     val modelIds = mutableListOf<String>()
 
     fun updateModelSpinner(category: String?) {
-        val filtered = if (category == null) availableModels
-        else availableModels.filter { it.category.equals(category, ignoreCase = true) }
+        val filtered = availableModels
+            .filter { category == null || it.category.equals(category, ignoreCase = true) }
+            .filter { showUnsupported || LlmProvider.isModelSupported(it.id) }
         val sorted = filtered.sortedBy { m ->
             m.pricing?.let { it.inputPerMillion + it.outputPerMillion } ?: Double.MAX_VALUE
         }
@@ -106,6 +112,22 @@ internal fun AiSettingsFragmentBase.showAddModelDialog(providerConfig: LlmProvid
             setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
     }
+    // "Show also unsupported" checkbox (only if both supported and unsupported models exist)
+    if (hasUnsupportedModels && hasSupportedModels) {
+        val unsupportedCheckBox = CheckBox(context).apply {
+            text = getString(R.string.show_also_unsupported_models)
+            isChecked = showUnsupported
+            setOnCheckedChangeListener { _, isChecked ->
+                showUnsupported = isChecked
+                val selectedCategory = categorySpinner?.let {
+                    if (it.selectedItemPosition == 0) null else it.selectedItem?.toString()?.lowercase()
+                }
+                updateModelSpinner(selectedCategory)
+            }
+        }
+        layout.addView(unsupportedCheckBox)
+    }
+
     updateModelSpinner(null)
     addLabeledField(layout, getString(R.string.llm_openrouter_model), modelSpinner)
 
@@ -223,6 +245,14 @@ internal fun AiSettingsFragmentBase.showEditModelDialog(model: LlmConfiguredMode
         setTextAppearance(android.R.style.TextAppearance_Small)
     }
     addLabeledField(layout, getString(R.string.llm_openrouter_model), modelIdView)
+
+    if (LlmProvider.isModelSupported(model.modelId)) {
+        val supportedView = TextView(context).apply {
+            text = getString(R.string.model_supported_badge)
+            setTextAppearance(android.R.style.TextAppearance_Small)
+        }
+        layout.addView(supportedView)
+    }
 
     // Pricing: read-only for known models, editable for custom
     val hasKnownPricing = LlmPricing.isKnownModel(model.modelId)

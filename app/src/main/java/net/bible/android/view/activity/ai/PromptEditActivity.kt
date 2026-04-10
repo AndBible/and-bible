@@ -49,6 +49,7 @@ import net.bible.service.llm.AgentTool
 import net.bible.service.llm.BuiltInPrompts
 import net.bible.service.llm.BuiltinPromptOverride
 import net.bible.service.llm.LlmCostTracker
+import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.ModelPricing
 import net.bible.service.llm.PromptCategory
 import net.bible.service.llm.PromptContext
@@ -737,7 +738,8 @@ class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
             val priceStr = if (pricing.inputPerMillion > 0 || pricing.outputPerMillion > 0) {
                 " (${LlmCostTracker.formatPriceCompact(pricing.inputPerMillion)}/${LlmCostTracker.formatPriceCompact(pricing.outputPerMillion)})"
             } else ""
-            displayEntries.add("${model.modelId} — $providerName$priceStr")
+            val prefix = if (LlmProvider.isModelSupported(model.modelId)) "✓ " else ""
+            displayEntries.add("$prefix${model.modelId} — $providerName$priceStr")
             entryValues.add(model.id.toString())
         }
 

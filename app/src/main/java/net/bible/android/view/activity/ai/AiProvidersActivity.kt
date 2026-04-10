@@ -30,8 +30,10 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -137,58 +139,90 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
     }
 
     private fun showAddProviderTypeDialog() {
+        val context = requireContext()
         val existingTypes = dao.all().map { it.providerType }.toSet()
-        val availableProviders = LlmProvider.entries.filter {
+        val allAvailableProviders = LlmProvider.entries.filter {
             it == LlmProvider.CUSTOM || it.name !in existingTypes
         }
 
         val items = mutableListOf<Pair<String, LlmProvider?>>()
-        for (tier in ProviderTier.entries) {
-            val inTier = availableProviders.filter { it.tier == tier }
-            if (inTier.isEmpty()) continue
-            if (tier == ProviderTier.RECOMMENDED) {
-                items.add(getString(R.string.ai_provider_tier_recommended) to null)
-            } else if (tier == ProviderTier.COMMUNITY) {
-                items.add(getString(R.string.ai_provider_tier_community) to null)
-            }
-            for (p in inTier) {
-                val name = if (p == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else p.displayName
-                items.add(name to p)
-            }
-        }
+        val listView = ListView(context)
 
-        val adapter = object : ArrayAdapter<String>(
-            requireContext(), android.R.layout.simple_list_item_1, items.map { it.first }
-        ) {
-            override fun isEnabled(position: Int) = items[position].second != null
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = super.getView(position, convertView, parent)
-                val tv = view as TextView
-                val textColorAttr = TypedValue()
-                if (items[position].second == null) {
-                    tv.setTypeface(null, Typeface.BOLD)
-                    context.theme.resolveAttribute(android.R.attr.textColorSecondary, textColorAttr, true)
-                    tv.setTextColor(context.getColor(textColorAttr.resourceId))
-                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
-                } else {
-                    tv.setTypeface(null, Typeface.NORMAL)
-                    context.theme.resolveAttribute(android.R.attr.textColorPrimary, textColorAttr, true)
-                    tv.setTextColor(context.getColor(textColorAttr.resourceId))
-                    tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+        fun buildItems(showUnsupported: Boolean) {
+            items.clear()
+            val filtered = if (showUnsupported) allAvailableProviders
+            else allAvailableProviders.filter { it.tier == ProviderTier.RECOMMENDED }
+            for (tier in ProviderTier.entries) {
+                val inTier = filtered.filter { it.tier == tier }
+                if (inTier.isEmpty()) continue
+                if (tier == ProviderTier.RECOMMENDED) {
+                    items.add(getString(R.string.ai_provider_tier_recommended) to null)
+                } else if (tier == ProviderTier.COMMUNITY) {
+                    items.add(getString(R.string.ai_provider_tier_community) to null)
                 }
-                return view
+                for (p in inTier) {
+                    val name = if (p == LlmProvider.CUSTOM) getString(R.string.llm_provider_custom) else p.displayName
+                    items.add(name to p)
+                }
             }
+
+            val adapter = object : ArrayAdapter<String>(
+                context, android.R.layout.simple_list_item_1, items.map { it.first }
+            ) {
+                override fun isEnabled(position: Int) = items[position].second != null
+                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                    val view = super.getView(position, convertView, parent)
+                    val tv = view as TextView
+                    val textColorAttr = TypedValue()
+                    if (items[position].second == null) {
+                        tv.setTypeface(null, Typeface.BOLD)
+                        context.theme.resolveAttribute(android.R.attr.textColorSecondary, textColorAttr, true)
+                        tv.setTextColor(context.getColor(textColorAttr.resourceId))
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+                    } else {
+                        tv.setTypeface(null, Typeface.NORMAL)
+                        context.theme.resolveAttribute(android.R.attr.textColorPrimary, textColorAttr, true)
+                        tv.setTextColor(context.getColor(textColorAttr.resourceId))
+                        tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                    }
+                    return view
+                }
+            }
+            listView.adapter = adapter
         }
 
-        AlertDialog.Builder(requireContext())
+        val hasUnsupported = allAvailableProviders.any { it.tier != ProviderTier.RECOMMENDED }
+
+        val layout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, 0)
+        }
+
+        if (hasUnsupported) {
+            val checkBox = CheckBox(context).apply {
+                text = getString(R.string.show_also_unsupported_providers)
+                isChecked = false
+                setOnCheckedChangeListener { _, isChecked -> buildItems(isChecked) }
+            }
+            layout.addView(checkBox)
+        }
+
+        layout.addView(listView)
+        buildItems(false)
+
+        val dialog = AlertDialog.Builder(context)
             .setTitle(R.string.ai_provider_select_type)
-            .setAdapter(adapter) { _, which ->
-                items[which].second?.let { provider ->
-                    showEditProviderDialog(null, provider)
-                }
-            }
+            .setView(layout)
             .setNegativeButton(R.string.cancel, null)
             .show()
+
+        listView.setOnItemClickListener { _, _, which, _ ->
+            items[which].second?.let { provider ->
+                dialog.dismiss()
+                showEditProviderDialog(null, provider)
+            }
+        }
     }
 
     private data class ProviderDialogFields(
