@@ -30,9 +30,12 @@ import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.DatabaseContainer
+import net.bible.service.llm.LlmPricing
 import net.bible.service.llm.LlmProvider
 import net.bible.service.llm.LlmRawLogRecord
+import net.bible.service.llm.LlmUsage
 import net.bible.service.llm.ProviderTier
+import net.bible.service.llm.agent.RawLlmLog
 import java.io.File
 import java.util.Date
 
@@ -75,6 +78,89 @@ object AiBugReport {
         val chooser = Intent.createChooser(emailIntent, activity.getString(R.string.send_ai_bug_report_title))
         chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         activity.awaitIntent(chooser)
+    }
+
+    /** Report from an in-memory RawLlmLog (active session). */
+    suspend fun reportAiBugFromRawLog(activity: ActivityBase, rawLog: RawLlmLog) {
+        if (rawLog.isEmpty()) return
+        val lastIteration = rawLog.usageByIteration.values.lastOrNull() ?: return
+        val providerType = resolveProviderType(lastIteration.configuredModelId)
+        if (!isReportAvailable(providerType)) return
+
+        val confirmed = Dialogs.simpleQuestion(
+            activity,
+            message = activity.getString(R.string.bug_report_email_text),
+            title = activity.getString(R.string.send_ai_bug_report_title),
+        )
+        if (!confirmed) return
+
+        val totalUsage = rawLog.usageByIteration.values.fold(LlmUsage()) { acc, d -> acc + d.usage }
+        val cost = LlmPricing.estimateCost(totalUsage, lastIteration.model, lastIteration.configuredModelId) ?: 0.0
+        val gzipped = RawLlmLog.gzipCompress(rawLog.format())
+
+        val logDir = File(SharedConstants.internalFilesDir, "/log")
+        logDir.mkdirs()
+        val logFile = File(logDir, "ai_raw_log.txt.gz")
+        logFile.outputStream().use { it.write(gzipped) }
+
+        val uri = FileProvider.getUriForFile(activity, BuildConfig.APPLICATION_ID + ".provider", logFile)
+        val model = lastIteration.model
+        val subject = "AI Bug Report v${CommonUtils.applicationVersionName}: $model"
+        val body = buildReportBodyFromRawLog(model, providerType, totalUsage, cost, rawLog.usageByIteration.size)
+
+        val emailIntent = Intent(Intent.ACTION_SEND).apply {
+            putExtra(Intent.EXTRA_STREAM, uri)
+            putExtra(Intent.EXTRA_SUBJECT, subject)
+            putExtra(Intent.EXTRA_TEXT, body)
+            putExtra(Intent.EXTRA_EMAIL, arrayOf("errors.andbible@gmail.com"))
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = "application/gzip"
+        }
+        val chooser = Intent.createChooser(emailIntent, activity.getString(R.string.send_ai_bug_report_title))
+        chooser.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        activity.awaitIntent(chooser)
+    }
+
+    private fun resolveProviderType(configuredModelId: IdType?): String {
+        if (configuredModelId == null) return ""
+        val db = DatabaseContainer.instance.aiSettingsDb
+        val model = db.llmConfiguredModelDao().getById(configuredModelId) ?: return ""
+        val provider = db.llmProviderConfigDao().getById(model.providerConfigId) ?: return ""
+        return provider.providerType
+    }
+
+    /** Resolve provider type from an in-memory RawLlmLog's iteration data. */
+    fun resolveProviderTypeFromRawLog(rawLog: RawLlmLog): String {
+        val configuredModelId = rawLog.usageByIteration.values.lastOrNull()?.configuredModelId ?: return ""
+        return resolveProviderType(configuredModelId)
+    }
+
+    private fun buildReportBodyFromRawLog(
+        model: String, providerType: String, usage: LlmUsage, cost: Double, iterationCount: Int
+    ): String {
+        val app = BibleApplication.application
+        return buildString {
+            appendLine("--- AI Bug Report ---")
+            appendLine()
+            appendLine("Please describe the issue:")
+            appendLine()
+            appendLine()
+            appendLine("--- Details ---")
+            appendLine("Model: $model")
+            appendLine("Provider: $providerType")
+            appendLine("Timestamp: ${TIMESTAMP_FORMAT.format(Date())}")
+            appendLine("Iterations: $iterationCount")
+            appendLine("Tokens: ${usage.inputTokens} in / ${usage.outputTokens} out")
+            if (cost > 0) appendLine("Estimated cost: \$%.4f".format(cost))
+            appendLine()
+            appendLine("--- Device ---")
+            appendLine("App: ${CommonUtils.applicationVersionName}")
+            appendLine("Android: ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT})")
+            appendLine("Device: ${Build.MANUFACTURER} ${Build.MODEL}")
+            appendLine("WebView: ${WebViewCompat.getCurrentWebViewPackage(app)?.versionName}")
+            appendLine()
+            appendLine("Attached: ai_raw_log.txt.gz (gzipped raw LLM conversation log)")
+        }
     }
 
     private fun buildReportBody(record: LlmRawLogRecord): String {

@@ -200,12 +200,18 @@ class RawLlmLogActivity : ActivityBase() {
             .setIcon(R.drawable.ic_baseline_share_24)
             .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
 
-        // Database mode: add delete and bug report menu items
+        // Bug report: available in both modes for RECOMMENDED tier models
         val record = logRecord
         if (record != null) {
+            // Database mode: delete + report
             menu.add(Menu.NONE, MENU_DELETE, Menu.NONE, R.string.delete)
             val reportItem = menu.add(Menu.NONE, MENU_REPORT_BUG, Menu.NONE, R.string.ai_bug_report_menu)
             reportItem.isEnabled = AiBugReport.isReportAvailable(record.providerType)
+        } else if (rawLog != null && rawLog!!.usageByIteration.isNotEmpty()) {
+            // In-memory mode: report only
+            val providerType = AiBugReport.resolveProviderTypeFromRawLog(rawLog!!)
+            val reportItem = menu.add(Menu.NONE, MENU_REPORT_BUG, Menu.NONE, R.string.ai_bug_report_menu)
+            reportItem.isEnabled = AiBugReport.isReportAvailable(providerType)
         }
 
         val typedValue = TypedValue()
@@ -248,9 +254,14 @@ class RawLlmLogActivity : ActivityBase() {
                 true
             }
             MENU_REPORT_BUG -> {
-                val record = logRecord ?: return true
                 lifecycleScope.launch {
-                    AiBugReport.reportAiBug(this@RawLlmLogActivity, record.id)
+                    val record = logRecord
+                    val log = rawLog
+                    if (record != null) {
+                        AiBugReport.reportAiBug(this@RawLlmLogActivity, record.id)
+                    } else if (log != null) {
+                        AiBugReport.reportAiBugFromRawLog(this@RawLlmLogActivity, log)
+                    }
                 }
                 true
             }
