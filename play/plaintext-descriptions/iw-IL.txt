@@ -20,7 +20,7 @@
  * פנקסי לימוד להוספת רשימות ומראי מקום בזמן האזנה לדרשות.
  * תוכניות קריאה: הצבת יעדים לקריאה בתנ"ך
  * ספרייה עצומה של מסמכים: תרגומי תנ"ך, פרשנויות, מילונים, מפות, ספרים נוצריים - 1500 מסמכים ב- 700 שפות, המופצים באופן חוקי ע"י Crosswire ומאגרי SWORD אחרים.
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more
+ * תמיכה מובנית בקבצי MyBible, MySword ו-EPUB מאפשרת לך להרחיב את הספרייה שלך עוד יותר.
 
 בואו וניצור יחד את אפליקציית הכתובים הטובה ביותר!
 
@@ -33,11 +33,11 @@ And Bible הוא פרוייקט קהילייתי בקוד פתוח. בפועל, 
 
 אם אתם מהנדסי או בודקי תוכנה מקצועיים, אנא שיקלו לתרום לפרוייקט. למידע נוסף בנושא, ראו https://git.io/JUnaj.
 
-Support by sponsoring development time!
+תמוך בפרוייקט על ידי רכישת זמן פיתוח!
 
-If you don't have time or skills for code contribution, you can support AndBible by sponsoring development time.
+אם אין לך זמן או יכולות לתרום לפרוייקט, תוכל לתמוך בו גם על ידי רכישת זמן עבודה של מפתח מקצועי.
 
-See sponsorship options here:: https://shop.andbible.org/
+ראה אפשרויות: https://shop.andbible.org/
 
 קישורים
 
