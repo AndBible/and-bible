@@ -137,6 +137,7 @@ def main():
 
     # --- 2. Parse existing target translations (before overwriting!) ---
     existing = {}
+    existing_string_arrays = {}  # name -> raw XML lines (for <string-array> preservation)
     try:
         target_tree = ET.parse(target_path)
         for e in target_tree.getroot():
@@ -146,6 +147,25 @@ def main():
                 start = text.index('>') + 1
                 end = text.rindex('</')
                 existing[name] = text[start:end]
+        # Also extract raw <string-array> blocks from target file
+        with open(target_path, 'r') as tf:
+            target_lines = tf.readlines()
+        ti = 0
+        while ti < len(target_lines):
+            tline = target_lines[ti].strip()
+            sa_match = re.match(r'<string-array\s+name="([^"]+)"', tline)
+            if sa_match:
+                sa_name = sa_match.group(1)
+                sa_block = []
+                while ti < len(target_lines):
+                    sa_block.append(target_lines[ti])
+                    if '</string-array>' in target_lines[ti]:
+                        break
+                    ti += 1
+                existing_string_arrays[sa_name] = sa_block
+            ti += 1
+        if existing_string_arrays:
+            print(f"Existing string-arrays preserved: {len(existing_string_arrays)}")
         print(f"Existing translations: {len(existing)}")
     except FileNotFoundError:
         print(f"Target file not found (creating new): {target_path}")
@@ -250,6 +270,20 @@ def main():
                     name, all_translations[name]))
                 emitted.add(name)
             i += 1
+            continue
+
+        # <string-array> — preserve from target if it exists
+        sa_match = re.match(r'\s*<string-array\s+name="([^"]+)"', stripped)
+        if sa_match:
+            sa_name = sa_match.group(1)
+            # Skip the <string-array> block in base
+            while i < len(base_lines) and '</string-array>' not in base_lines[i]:
+                i += 1
+            i += 1  # skip the closing </string-array> line
+            # Emit the target's version if it exists
+            if sa_name in existing_string_arrays:
+                for sa_line in existing_string_arrays[sa_name]:
+                    output_lines.append(sa_line)
             continue
 
         # Anything else — skip
