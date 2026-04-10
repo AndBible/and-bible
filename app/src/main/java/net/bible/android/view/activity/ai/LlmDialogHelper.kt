@@ -26,6 +26,8 @@ import android.widget.EditText
 import android.widget.ExpandableListView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.ArrayAdapter
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -245,8 +247,9 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
     }
 
     /**
-     * Show a dialog listing all configured models. The user picks one, then prompt execution
-     * proceeds with that model override.
+     * Show a dialog listing all configured models with an option to set the selected model
+     * as default for this prompt. The user picks one, then prompt execution proceeds with
+     * that model override.
      */
     private fun showModelSelectionDialog(prompt: AgentPrompt, selection: Selection, userSpecification: String?) {
         activity.lifecycleScope.launch(Dispatchers.IO) {
@@ -264,14 +267,41 @@ class LlmDialogHelper(private val activity: MainBibleActivity) {
             }
 
             launch(Dispatchers.Main) {
-                AlertDialog.Builder(activity)
+                val layout = LinearLayout(activity).apply {
+                    orientation = LinearLayout.VERTICAL
+                }
+                val listView = ListView(activity)
+                listView.adapter = ArrayAdapter(activity, android.R.layout.simple_list_item_1, displayNames)
+                val checkBox = CheckBox(activity).apply {
+                    setText(R.string.set_default_model_for_prompt)
+                    setPadding(48, 16, 48, 16)
+                }
+                layout.addView(listView)
+                layout.addView(checkBox)
+
+                val dialog = AlertDialog.Builder(activity)
                     .setTitle(R.string.select_model_before_run_title)
-                    .setItems(displayNames.toTypedArray()) { _, which ->
-                        val selectedModelId = models[which].id
-                        executePrompt(prompt, selection, userSpecification = userSpecification, modelOverrideId = selectedModelId)
-                    }
+                    .setView(layout)
                     .setNegativeButton(R.string.cancel, null)
                     .show()
+
+                listView.setOnItemClickListener { _, _, position, _ ->
+                    val selectedModelId = models[position].id
+                    if (checkBox.isChecked) {
+                        activity.lifecycleScope.launch(Dispatchers.IO) {
+                            val promptDao = DatabaseContainer.instance.aiSettingsDb.agentPromptDao()
+                            prompt.configuredModelId = selectedModelId
+                            promptDao.update(prompt)
+                        }
+                    }
+                    dialog.dismiss()
+                    executePrompt(
+                        prompt,
+                        selection,
+                        userSpecification = userSpecification,
+                        modelOverrideId = selectedModelId
+                    )
+                }
             }
         }
     }

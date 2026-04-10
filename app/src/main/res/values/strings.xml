@@ -1527,6 +1527,7 @@
     <string name="custom_system_prompt_custom">Custom</string>
     <string name="reset_to_default">Reset to default</string>
     <string name="select_model_before_run_title">Select model</string>
+    <string name="set_default_model_for_prompt">Set as default model for this prompt</string>
     <string name="prompt_max_iterations">Max iterations override</string>
     <string name="prompt_max_iterations_hint">Leave empty for global default</string>
     <string name="prompt_max_iterations_description">Override the global max iterations for this prompt. Empty = global default, 0 = unlimited.</string>
