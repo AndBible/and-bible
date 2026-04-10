@@ -1608,6 +1608,9 @@
     <string name="no_models_configured">No models configured</string>
     <string name="model_cache_creation_price">Cache creation price ($/Mtoken)</string>
     <string name="model_cache_read_price">Cache read price ($/Mtoken)</string>
+    <string name="model_supported_badge">✓ Supported</string>
+    <string name="show_also_unsupported_models">Show also unsupported models</string>
+    <string name="show_also_unsupported_providers">Show also unsupported providers</string>
 
     <!-- Easy Setup -->
     <string name="model_pricing_summary">%1$s in / %2$s out per Mtoken</string>

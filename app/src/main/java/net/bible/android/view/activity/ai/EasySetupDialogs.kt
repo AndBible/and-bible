@@ -65,7 +65,8 @@ internal fun AiSettingsFragmentBase.getRecommendedSetups() = listOf(
 internal fun AiSettingsFragmentBase.showEasySetupStep1() {
     val setups = getRecommendedSetups()
     val items = setups.map { setup ->
-        "${setup.provider.displayName} — ${setup.description}"
+        val base = "${setup.provider.displayName} — ${setup.description}"
+        if (setup.badge != null) "$base (${setup.badge})" else base
     }.toTypedArray()
 
     AlertDialog.Builder(requireContext())
