@@ -56,6 +56,16 @@
             android:textColor="?android:attr/textColorSecondary"
             android:textStyle="italic"
             android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/favoriteIcon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:padding="4dp"
+            android:layout_marginStart="8dp"
+            android:src="@drawable/ic_star_outline_24"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@null" />
     </LinearLayout>
 
     <TextView

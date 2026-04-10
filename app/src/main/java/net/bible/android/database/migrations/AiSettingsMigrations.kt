@@ -229,4 +229,8 @@ private val addCustomSystemPrompts = makeMigration(18..19) { db ->
     db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `customTextTransformationSystemPrompt` TEXT DEFAULT NULL")
 }
 
-val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts)
+private val addFavoritePrompts = makeMigration(19..20) { db ->
+    db.execSQL("ALTER TABLE `GlobalAiSettings` ADD COLUMN `favoritePrompts` TEXT NOT NULL DEFAULT ''")
+}
+
+val aiSettingsMigrations: Array<Migration> = arrayOf(addEditBeforeRun, addNoDocumentCreation, addGlobalAiSettingsAndUsage, setCommentaryTokenDefault, addHiddenBuiltInPrompts, addMaxIterations, addCommentaryDeselected, addConfiguredModels, raiseCommentaryTokenDefault, addAiLanguage, addAutoIncludeFields, addAskModelBeforeRun, addBibleOnly, addIsTextTransformation, addAiDisclaimerAccepted, addPromptCategories, addCategoryHidden, addCustomSystemPrompts, addFavoritePrompts)

@@ -243,6 +243,20 @@ object PromptRepository {
     fun isCategoryHidden(category: PromptCategory): Boolean =
         category.hidden || category.id in CommonUtils.aiSettings.hiddenBuiltInCategories
 
+    // --- Favorite operations ---
+
+    /** Sentinel ID for the virtual "Favorites" category used in prompt lists. */
+    val FAVORITES_CATEGORY_ID: IdType = IdType.fromString("ffffffff-ffff-ffff-ffff-ffffffffffff")
+
+    fun favoritePromptIds(): Set<IdType> = CommonUtils.aiSettings.favoritePrompts
+
+    fun isFavorite(id: IdType): Boolean = id in CommonUtils.aiSettings.favoritePrompts
+
+    fun toggleFavorite(id: IdType) {
+        val current = CommonUtils.aiSettings.favoritePrompts
+        CommonUtils.aiSettings.favoritePrompts = if (id in current) current - id else current + id
+    }
+
     /**
      * Returns prompts grouped by category for the given context.
      * Key null = uncategorized prompts. Hidden categories are excluded.

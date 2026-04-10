@@ -22,33 +22,40 @@
     android:orientation="horizontal"
     android:gravity="center_vertical"
     android:paddingStart="16dp"
-    android:paddingEnd="16dp"
-    android:paddingTop="6dp"
-    android:paddingBottom="6dp"
-    android:background="#18808080">
+    android:paddingEnd="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
 
-    <ImageView
-        android:id="@+id/expandIndicator"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginEnd="8dp"
-        android:src="@drawable/ic_arrow_drop_down_grey_24dp"
-        android:contentDescription="@null" />
-
-    <TextView
-        android:id="@+id/categoryName"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textStyle="bold" />
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/promptCount"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        <TextView
+            android:id="@+id/promptName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <TextView
+            android:id="@+id/promptDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="?android:attr/textColorSecondary"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/favoriteIcon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="4dp"
         android:layout_marginStart="8dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="?android:attr/textColorSecondary" />
+        android:src="@drawable/ic_star_outline_24"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@null" />
 
 </LinearLayout>

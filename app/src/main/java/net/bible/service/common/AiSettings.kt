@@ -104,6 +104,10 @@ object AiSettings {
         get() = getOrDefault().customTextTransformationSystemPrompt
         set(value) = update { copy(customTextTransformationSystemPrompt = value) }
 
+    var favoritePrompts: Set<IdType>
+        get() = getOrDefault().favoritePrompts
+        set(value) = update { copy(favoritePrompts = value) }
+
     /**
      * Language name for AI prompts (e.g. "suomi", "English", "Tagalog").
      * If aiLanguage is null, returns the app's display language.

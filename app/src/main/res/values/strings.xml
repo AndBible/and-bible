@@ -1647,6 +1647,7 @@
     <string name="prompt_category_general">General</string>
     <string name="prompt_category_test">Test</string>
     <string name="prompt_category_uncategorized">Uncategorized</string>
+    <string name="prompt_category_favorites">Favorites</string>
     <string name="addon_prompt_badge">Add-on: %s</string>
     <string name="addon_prompt_notice">This prompt is from add-on module \"%s\" and cannot be edited. Use \"Copy to customize\" to create an editable copy.</string>
     <string name="new_category">New category</string>

@@ -446,6 +446,7 @@ data class GlobalAiSettings(
     @ColumnInfo(defaultValue = "NULL") val customAgentSystemPrompt: String? = null,
     /** Custom system prompt for text transformation mode. null = use built-in default. */
     @ColumnInfo(defaultValue = "NULL") val customTextTransformationSystemPrompt: String? = null,
+    val favoritePrompts: Set<IdType> = emptySet(),
 ) {
     companion object {
         /** Distinct from GlobalTextDisplaySettings SINGLETON_ID (…0001) in WorkspaceDB. */
