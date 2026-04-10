@@ -48,6 +48,7 @@
   <string name="creating_index_for">%s için dizin yeniden oluşturuluyor…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%2$s içinde %1$s sonuç</string>
+
     <!-- Tasks -->
   <string name="progress_status">İlerleme</string>
   <string name="task_kill_warning">Bu işlem zaman alacaktır. Eğer uygulamadan çıkarsanız, işlem bitmeden sonlandırılabilir.</string>
@@ -704,7 +705,7 @@
   <string name="ask_restore_or_import">%s için veritabanı ya geri yüklenebilir (yani mevcut veritabanı kaldırılarak seçilen veritabanı yüklenir) ya da içe aktarılabilir (seçilen veritabanı mevcut veritabanına aktarılır). Ne yapmak istiyorsunuz?</string>
   <string name="restore">Yedekten geri yükle</string>
   <string name="import2">İçe aktarın</string>
-  <string name="export_studypads_help">Dışa aktarılan Çalışma Defterlerini (yani Etiketleri ve Yer İmlerini) içeren dosya Ana Menü -> Yedekle ve Geri Yükle aracılığıyla içe aktarılabilir.</string>
+  <string name="export_studypads_help">Dışa aktarılan Çalışma Defterlerini (yani Etiketleri ve Yer İmlerini) içeren dosya Ana Menü -&gt; Yedekle ve Geri Yükle aracılığıyla içe aktarılabilir.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" ve %2$s diğer Etiket(ler) / Çalışma Defteri ve %3$s Yer İmi</string>
@@ -775,7 +776,8 @@
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
   <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
   <string name="error_key_not_in_document">Belgede bulunmadı</string>
-  <string name="error_key_not_in_document2">%1$s,  %2$s belgesinde bulunamadı.</string>  <string name="empty_list">Öğe bulunmadı</string>
+  <string name="error_key_not_in_document2">%1$s,  %2$s belgesinde bulunamadı.</string>
+  <string name="empty_list">Öğe bulunmadı</string>
   <string name="error_skip">Atla</string>
   <string name="bug_report_email_title">E-posta yoluyla hata raporu gönderme</string>
   <string name="bug_report_email_text">Ardından, raporu geliştirici ekibine göndermek için lütfen tercih ettiğiniz e-posta uygulamasını (örneğin Gmail) seçin.</string>
@@ -1119,12 +1121,16 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="reset_something">Sıfırla: %1$s</string>
   <string name="export">Dışa aktar</string>
   <string name="csv_export_success">%d yer imi CSV\'ye dışa aktarıldı</string>
-  <string name="csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>
+  <string name="csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>
+  <string name="csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="export_prompts_csv">İstemleri CSV\'ye dışa aktar</string>
   <string name="import_prompts_csv">İstemleri CSV\'den içe aktar</string>
   <string name="prompts_csv_export_success">%d istem CSV\'ye dışa aktarıldı</string>
-  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
+  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>
+  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>
+  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
   <string name="prompts_csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="no_prompts_to_export">Dışa aktarılacak kullanıcı istemi yok</string>
   <string name="csv_column_selection_title">CSV Sütunlarını Seçin</string>
@@ -1480,7 +1486,36 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_max_iterations_summary">Devam etmeyi sormadan önce maksimum yineleme sayısı (0 = sınırsız)</string>
   <string name="ask_model_before_run_title">Çalıştırmadan önce model sor</string>
   <string name="ask_model_before_run_summary">Bir istem çalıştırılmadan önce model seçimi iletişim kutusunu göster (istemde açık bir model geçersiz kılma varsa atlanır)</string>
+  <string name="custom_agent_system_prompt_title">Ajan sistem istemi</string>
+  <string name="custom_system_prompt_summary">Ne yaptığınızı bilmiyorsanız düzenleme önerilmez</string>
+  <string name="custom_text_transform_system_prompt_title">Metin dönüşüm sistem istemi</string>
+  <string name="ai_advanced_category">Gelişmiş</string>
+  <string name="custom_system_prompt_default">Varsayılan</string>
+  <string name="custom_system_prompt_custom">Özel</string>
+  <string name="reset_to_default">Varsayılana sıfırla</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Yapay Zeka Günlük Geçmişi</string>
+  <string name="raw_log_history_summary">Kaydedilen yapay zeka konuşma günlüklerini görüntüle ve yönet</string>
+  <string name="raw_log_history_empty">Kaydedilmiş günlük yok</string>
+  <string name="raw_log_delete_selected">Seçilenleri sil</string>
+  <string name="raw_log_delete_old">Eski günlükleri sil\u2026</string>
+  <string name="raw_log_delete_confirm">%d seçildi</string>
+  <string name="raw_log_older_1_week">1 haftadan eski</string>
+  <string name="raw_log_older_1_month">1 aydan eski</string>
+  <string name="raw_log_older_3_months">3 aydan eski</string>
+  <string name="raw_log_delete_all">Tümünü sil</string>
+  <string name="raw_log_item_tokens">%1$s giriş / %2$s çıkış</string>
+  <string name="raw_log_error_indicator">Hata</string>
+  <string name="raw_log_retention_title">Eski günlükleri otomatik sil</string>
+  <string name="raw_log_retention_summary_days">%d günden sonra</string>
+  <string name="raw_log_retention_summary_disabled">Devre dışı (hepsini sakla)</string>
+  <string name="send_ai_bug_report_title">Yapay Zeka Hatası Bildir</string>
+  <string name="ai_bug_report_menu">Yapay zeka hatası bildir</string>
+  <string name="ai_bug_report_recommended_only">Hata bildirimi yalnızca önerilen sağlayıcı modelleri için kullanılabilir</string>
+
   <string name="select_model_before_run_title">Model seç</string>
+  <string name="set_default_model_for_prompt">Bu istem için varsayılan model olarak ayarla</string>
   <string name="prompt_max_iterations">Maks. yineleme geçersiz kılma</string>
   <string name="prompt_max_iterations_hint">Genel varsayılan için boş bırakın</string>
   <string name="prompt_max_iterations_description">Bu istem için genel maksimum yinelemeyi geçersiz kılın. Boş = genel varsayılan, 0 = sınırsız.</string>
@@ -1601,6 +1636,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="prompt_category_general">Genel</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Kategorisiz</string>
+  <string name="prompt_category_favorites">Favoriler</string>
   <string name="addon_prompt_badge">Eklenti: %s</string>
   <string name="addon_prompt_notice">Bu istem \"%s\" eklenti modülünden gelmektedir ve düzenlenemez. Düzenlenebilir bir kopya oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
   <string name="new_category">Yeni kategori</string>
@@ -1739,6 +1775,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tool_search_study_pads">Çalışma defterlerinde ara</string>
   <string name="tool_get_my_documents">Belgelerimi listele</string>
   <string name="tool_get_my_document_pages">Belge sayfalarımı listele</string>
+  <string name="tool_get_genbook_keys">Genel kitap anahtarlarını listele</string>
+  <string name="tool_get_genbook_content">Genel kitap içeriğini oku</string>
   <string name="tool_create_my_document">Belge oluştur</string>
   <string name="tool_add_my_document_page">Belge sayfası ekle</string>
   <string name="tool_edit_my_document_page">Belge sayfasını düzenle</string>
@@ -1812,6 +1850,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tool_log_bookmark_count">%d yer imi</string>
   <string name="tool_log_my_document_count">%d belge</string>
   <string name="tool_log_my_document_page_count">%d sayfa</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d anahtar</string>
   <string name="tool_log_window_count">%d pencere</string>
   <string name="tool_log_window_copy">kopya</string>
   <string name="tool_log_window_minimized">küçültüldü</string>
@@ -1851,6 +1890,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tool_category_labels">Etiketler</string>
   <string name="tool_category_study_pads">Çalışma Defterleri</string>
   <string name="tool_category_my_documents">Belgelerim</string>
+  <string name="tool_category_general_books">Genel Kitaplar</string>
   <string name="tool_category_windows">Pencereler</string>
   <string name="tool_category_read">Oku</string>
   <string name="tool_category_write">Yaz</string>

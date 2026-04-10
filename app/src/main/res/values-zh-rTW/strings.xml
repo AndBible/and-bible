@@ -48,6 +48,7 @@
   <string name="creating_index_for">正在為 %s 建立索引…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">在 %2$s 中找到 %1$s 個結果</string>
+
     <!-- Tasks -->
   <string name="progress_status">進度</string>
   <string name="task_kill_warning">請稍等！切換至其他程式會中止當前任務。</string>
@@ -695,7 +696,7 @@ http://www.heartlight.org 准予使用
   <string name="ask_restore_or_import">%s 的資料庫可以選擇還原（即刪除現有資料庫並載入所選資料庫）或匯入（將所選資料庫匯入現有資料庫）。請選擇操作？</string>
   <string name="restore">回復</string>
   <string name="import2">匯入</string>
-  <string name="export_studypads_help">包含已匯出學習筆記（即標籤和書籤）的檔案，可透過主選單 -> 備份與還原匯入。</string>
+  <string name="export_studypads_help">包含已匯出學習筆記（即標籤和書籤）的檔案，可透過主選單 -&gt; 備份與還原匯入。</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" 及其他 %2$s 個標籤／學習筆記和 %3$s 個書籤</string>
@@ -765,7 +766,8 @@ http://www.heartlight.org 准予使用
   <string name="error_no_content">選定經節沒有內容</string>
   <string name="error_page_too_large">頁面太大無法加載</string>
   <string name="error_key_not_in_document">文件內沒有發現</string>
-  <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>  <string name="empty_list">沒有可顯示項目</string>
+  <string name="error_key_not_in_document2">%1$s並沒有在文件%2$s中找到。</string>
+  <string name="empty_list">沒有可顯示項目</string>
   <string name="error_skip">暫停</string>
   <string name="bug_report_email_title">透過電郵發送問題回報</string>
   <string name="bug_report_email_text">然後，請選擇你想用的電郵程式 (例如Gmail)，將回報發送至開發團隊。</string>
@@ -1089,12 +1091,16 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="reset_something">重設：%1$s</string>
   <string name="export">匯出</string>
   <string name="csv_export_success">已將 %d 個書籤匯出為 CSV</string>
-  <string name="csv_import_success">匯入完成：已建立 %1$d 個，已更新 %2$d 個</string>  <string name="csv_import_errors">匯入完成但有錯誤：已建立 %1$d 個，已更新 %2$d 個，%3$d 個錯誤</string>  <string name="csv_import_failed">CSV 匯入失敗：%s</string>
+  <string name="csv_import_success">匯入完成：已建立 %1$d 個，已更新 %2$d 個</string>
+  <string name="csv_import_errors">匯入完成但有錯誤：已建立 %1$d 個，已更新 %2$d 個，%3$d 個錯誤</string>
+  <string name="csv_import_failed">CSV 匯入失敗：%s</string>
   <string name="csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="export_prompts_csv">匯出提示詞至 CSV</string>
   <string name="import_prompts_csv">從 CSV 匯入提示詞</string>
   <string name="prompts_csv_export_success">已將 %d 個提示詞匯出至 CSV</string>
-  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
+  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>
+  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>
+  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
   <string name="prompts_csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="no_prompts_to_export">沒有可匯出的使用者提示詞</string>
   <string name="csv_column_selection_title">選擇 CSV 欄位</string>
@@ -1445,7 +1451,36 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="agent_max_iterations_summary">詢問是否繼續前的最大迭代次數（0 = 不限）</string>
   <string name="ask_model_before_run_title">執行前詢問模型</string>
   <string name="ask_model_before_run_summary">執行提示詞前顯示模型選擇對話框（當提示詞有明確的模型指定時跳過）</string>
+  <string name="custom_agent_system_prompt_title">Agent 系統提示詞</string>
+  <string name="custom_system_prompt_summary">除非您了解自己的操作，否則不建議編輯</string>
+  <string name="custom_text_transform_system_prompt_title">文字轉換系統提示詞</string>
+  <string name="ai_advanced_category">進階</string>
+  <string name="custom_system_prompt_default">預設</string>
+  <string name="custom_system_prompt_custom">自訂</string>
+  <string name="reset_to_default">重設為預設值</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">AI 記錄歷史</string>
+  <string name="raw_log_history_summary">檢視並管理已儲存的 AI 對話記錄</string>
+  <string name="raw_log_history_empty">無已儲存的記錄</string>
+  <string name="raw_log_delete_selected">刪除已選取</string>
+  <string name="raw_log_delete_old">刪除舊記錄…</string>
+  <string name="raw_log_delete_confirm">已選取 %d 項</string>
+  <string name="raw_log_older_1_week">超過 1 週</string>
+  <string name="raw_log_older_1_month">超過 1 個月</string>
+  <string name="raw_log_older_3_months">超過 3 個月</string>
+  <string name="raw_log_delete_all">刪除全部</string>
+  <string name="raw_log_item_tokens">%1$s 輸入 / %2$s 輸出</string>
+  <string name="raw_log_error_indicator">錯誤</string>
+  <string name="raw_log_retention_title">自動刪除舊記錄</string>
+  <string name="raw_log_retention_summary_days">%d 天後</string>
+  <string name="raw_log_retention_summary_disabled">已停用（保留全部）</string>
+  <string name="send_ai_bug_report_title">回報 AI 錯誤</string>
+  <string name="ai_bug_report_menu">回報 AI 錯誤</string>
+  <string name="ai_bug_report_recommended_only">錯誤回報僅適用於建議的服務商模型</string>
+
   <string name="select_model_before_run_title">選擇模型</string>
+  <string name="set_default_model_for_prompt">設為此提示詞的預設模型</string>
   <string name="prompt_max_iterations">最大迭代次數覆蓋</string>
   <string name="prompt_max_iterations_hint">留空則使用全域預設值</string>
   <string name="prompt_max_iterations_description">覆蓋此提示詞的全域最大迭代次數。留空 = 全域預設，0 = 不限。</string>
@@ -1566,6 +1601,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="prompt_category_general">一般</string>
   <string name="prompt_category_test">測試</string>
   <string name="prompt_category_uncategorized">未分類</string>
+  <string name="prompt_category_favorites">我的最愛</string>
   <string name="addon_prompt_badge">附加元件：%s</string>
   <string name="addon_prompt_notice">此提示詞來自附加元件模組「%s」，無法編輯。請使用「複製以自定義」來建立可編輯的副本。</string>
   <string name="new_category">新建分類</string>
@@ -1704,6 +1740,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tool_search_study_pads">搜尋研讀本</string>
   <string name="tool_get_my_documents">列出我的文件</string>
   <string name="tool_get_my_document_pages">列出我的文件頁面</string>
+  <string name="tool_get_genbook_keys">列出一般書目索引鍵</string>
+  <string name="tool_get_genbook_content">讀取一般書目內容</string>
   <string name="tool_create_my_document">建立我的文件</string>
   <string name="tool_add_my_document_page">新增我的文件頁面</string>
   <string name="tool_edit_my_document_page">編輯我的文件頁面</string>
@@ -1777,6 +1815,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tool_log_bookmark_count">%d 個書籤</string>
   <string name="tool_log_my_document_count">%d 份文件</string>
   <string name="tool_log_my_document_page_count">%d 頁</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d 個索引鍵</string>
   <string name="tool_log_window_count">%d 個視窗</string>
   <string name="tool_log_window_copy">副本</string>
   <string name="tool_log_window_minimized">已最小化</string>
@@ -1816,6 +1855,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tool_category_labels">標籤</string>
   <string name="tool_category_study_pads">研讀本</string>
   <string name="tool_category_my_documents">我的文件</string>
+  <string name="tool_category_general_books">一般書目</string>
   <string name="tool_category_windows">視窗</string>
   <string name="tool_category_read">讀取</string>
   <string name="tool_category_write">寫入</string>

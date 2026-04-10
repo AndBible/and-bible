@@ -48,6 +48,7 @@
   <string name="creating_index_for">Indeksowanie: %s…</string>
     <!-- X results in module Y -->
   <string name="search_with_results2">%1$s wyników w %2$s</string>
+
     <!-- Tasks -->
   <string name="progress_status">Postęp</string>
   <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
@@ -732,7 +733,8 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>
   <string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string>
   <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
-  <string name="error_key_not_in_document2">Nie znaleziono „%1$s” w dokumencie: %2$s.</string>  <string name="empty_list">Brak elementów do wyświetlenia</string>
+  <string name="error_key_not_in_document2">Nie znaleziono „%1$s” w dokumencie: %2$s.</string>
+  <string name="empty_list">Brak elementów do wyświetlenia</string>
   <string name="error_skip">Pomiń</string>
   <string name="bug_report_email_title">Wyślij raport o błędach e-pocztą</string>
   <string name="bug_report_email_text">W następnym kroku wybierz preferowaną aplikację pocztową (np. Gmail), aby wysłać zgłoszenie do zespołu programistów.</string>
@@ -1027,12 +1029,16 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="reset_something">Resetuj: %1$s</string>
   <string name="export">Eksportuj</string>
   <string name="csv_export_success">Wyeksportowano %d zakładek do CSV</string>
-  <string name="csv_import_success">Zakończono import: %1$d nowych, %2$d zaktualizowanych</string>  <string name="csv_import_errors">Zakończono import z błędami: %1$d nowych, %2$d zaktualizowanych, %3$d błędów</string>  <string name="csv_import_failed">Nie udało się zaimportować CSV: %s</string>
+  <string name="csv_import_success">Zakończono import: %1$d nowych, %2$d zaktualizowanych</string>
+  <string name="csv_import_errors">Zakończono import z błędami: %1$d nowych, %2$d zaktualizowanych, %3$d błędów</string>
+  <string name="csv_import_failed">Nie udało się zaimportować CSV: %s</string>
   <string name="csv_export_failed">Nie udało się wyeksportować do CSV: %s</string>
   <string name="export_prompts_csv">Eksportuj prompty do CSV</string>
   <string name="import_prompts_csv">Importuj prompty z CSV</string>
   <string name="prompts_csv_export_success">Wyeksportowano %d promptów do CSV</string>
-  <string name="prompts_csv_import_success">Import zakończony: %1$d utworzono, %2$d zaktualizowano</string>  <string name="prompts_csv_import_errors">Import zakończony z błędami: %1$d utworzono, %2$d zaktualizowano, %3$d błędów</string>  <string name="prompts_csv_import_failed">Import CSV nie powiódł się: %s</string>
+  <string name="prompts_csv_import_success">Import zakończony: %1$d utworzono, %2$d zaktualizowano</string>
+  <string name="prompts_csv_import_errors">Import zakończony z błędami: %1$d utworzono, %2$d zaktualizowano, %3$d błędów</string>
+  <string name="prompts_csv_import_failed">Import CSV nie powiódł się: %s</string>
   <string name="prompts_csv_export_failed">Eksport CSV nie powiódł się: %s</string>
   <string name="no_prompts_to_export">Brak promptów użytkownika do eksportu</string>
   <string name="csv_column_selection_title">Wybierz kolumny pliku CSV</string>
@@ -1369,7 +1375,36 @@ Nie wyświetlaj tego ponownie</string>
   <string name="agent_max_iterations_summary">Maksymalna liczba iteracji przed pytaniem o kontynuację (0 = bez limitu)</string>
   <string name="ask_model_before_run_title">Pytaj o model przed uruchomieniem</string>
   <string name="ask_model_before_run_summary">Pokaż okno wyboru modelu przed wykonaniem promptu (pomijane, gdy prompt ma jawne nadpisanie modelu)</string>
+  <string name="custom_agent_system_prompt_title">Prompt systemowy agenta</string>
+  <string name="custom_system_prompt_summary">Edycja niezalecana, chyba że wiesz co robisz</string>
+  <string name="custom_text_transform_system_prompt_title">Prompt systemowy transformacji tekstu</string>
+  <string name="ai_advanced_category">Zaawansowane</string>
+  <string name="custom_system_prompt_default">Domyślny</string>
+  <string name="custom_system_prompt_custom">Własny</string>
+  <string name="reset_to_default">Przywróć domyślne</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Historia dziennika AI</string>
+  <string name="raw_log_history_summary">Przeglądaj i zarządzaj zapisanymi dziennikami rozmów AI</string>
+  <string name="raw_log_history_empty">Brak zapisanych dzienników</string>
+  <string name="raw_log_delete_selected">Usuń zaznaczone</string>
+  <string name="raw_log_delete_old">Usuń stare dzienniki\u2026</string>
+  <string name="raw_log_delete_confirm">%d zaznaczonych</string>
+  <string name="raw_log_older_1_week">Starsze niż 1 tydzień</string>
+  <string name="raw_log_older_1_month">Starsze niż 1 miesiąc</string>
+  <string name="raw_log_older_3_months">Starsze niż 3 miesiące</string>
+  <string name="raw_log_delete_all">Usuń wszystkie</string>
+  <string name="raw_log_item_tokens">%1$s wej. / %2$s wyj.</string>
+  <string name="raw_log_error_indicator">Błąd</string>
+  <string name="raw_log_retention_title">Automatyczne usuwanie starych dzienników</string>
+  <string name="raw_log_retention_summary_days">Po %d dniach</string>
+  <string name="raw_log_retention_summary_disabled">Wyłączone (zachowaj wszystkie)</string>
+  <string name="send_ai_bug_report_title">Zgłoś błąd AI</string>
+  <string name="ai_bug_report_menu">Zgłoś błąd AI</string>
+  <string name="ai_bug_report_recommended_only">Zgłaszanie błędów jest dostępne tylko dla zalecanych modeli dostawców</string>
+
   <string name="select_model_before_run_title">Wybierz model</string>
+  <string name="set_default_model_for_prompt">Ustaw jako domyślny model dla tego promptu</string>
   <string name="prompt_max_iterations">Nadpisanie maksymalnej liczby iteracji</string>
   <string name="prompt_max_iterations_hint">Pozostaw puste dla domyślnego globalnego</string>
   <string name="prompt_max_iterations_description">Nadpisz globalne maksimum iteracji dla tego promptu. Puste = domyślne globalne, 0 = bez ograniczeń.</string>
@@ -1490,6 +1525,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="prompt_category_general">Ogólne</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Bez kategorii</string>
+  <string name="prompt_category_favorites">Ulubione</string>
   <string name="addon_prompt_badge">Dodatek: %s</string>
   <string name="addon_prompt_notice">Ten prompt pochodzi z modułu dodatku „%s" i nie można go edytować. Użyj opcji „Kopiuj, aby dostosować", aby utworzyć edytowalną kopię.</string>
   <string name="new_category">Nowa kategoria</string>
@@ -1628,6 +1664,8 @@ Nie wyświetlaj tego ponownie</string>
   <string name="tool_search_study_pads">Szukaj w bloczkach notatek</string>
   <string name="tool_get_my_documents">Wylistuj Moje dokumenty</string>
   <string name="tool_get_my_document_pages">Wylistuj strony Moich dokumentów</string>
+  <string name="tool_get_genbook_keys">Wyświetl klucze książki ogólnej</string>
+  <string name="tool_get_genbook_content">Odczytaj zawartość książki ogólnej</string>
   <string name="tool_create_my_document">Utwórz Mój dokument</string>
   <string name="tool_add_my_document_page">Dodaj stronę Mojego dokumentu</string>
   <string name="tool_edit_my_document_page">Edytuj stronę Mojego dokumentu</string>
@@ -1701,6 +1739,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="tool_log_bookmark_count">%d zakładek</string>
   <string name="tool_log_my_document_count">%d dokumentów</string>
   <string name="tool_log_my_document_page_count">%d stron</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d kluczy</string>
   <string name="tool_log_window_count">%d okien</string>
   <string name="tool_log_window_copy">kopia</string>
   <string name="tool_log_window_minimized">zminimalizowane</string>
@@ -1740,6 +1779,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="tool_category_labels">Etykiety</string>
   <string name="tool_category_study_pads">Bloczki notatek</string>
   <string name="tool_category_my_documents">Moje dokumenty</string>
+  <string name="tool_category_general_books">Książki ogólne</string>
   <string name="tool_category_windows">Okna</string>
   <string name="tool_category_read">Czytaj</string>
   <string name="tool_category_write">Zapisz</string>
@@ -1845,8 +1885,4 @@ Nie wyświetlaj tego ponownie</string>
   <string name="scroll_helper_line_style_thick_solid">Gruba linia ciągła</string>
   <string name="prefs_page_buttons_title">Przyciski przewijania strony</string>
   <string name="prefs_page_buttons_summary">Pokaż widoczne przyciski przewijania w górę/dół na ekranie</string>
-
-  <!-- Additional translations -->
-  <string name="prefs_text_appearance_title">Wygląd</string>
-  <string name="prefs_text_display_settings_title">Formatowanie</string>
 </resources>

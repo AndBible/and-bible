@@ -10,7 +10,7 @@
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Εισάγετε κάρτα μνήμης και επαννεκινήστε την εφαρμογή</string>
 
-  <!-- Main menu -->
+    <!-- Main menu -->
   <string name="menu">Μενού</string>
   <string name="chooseBook">Εγγραφο</string>
   <string name="selectPassage">Εδάφιο</string>
@@ -27,14 +27,14 @@
   <string name="rate_application">Αξιολόγηση &amp; Επισκόπηση</string>
   <string name="chooce_document">Επιλογή εγγράφου</string>
 
-  <!-- Passage navigation -->
+    <!-- Passage navigation -->
   <string name="choosePassageBookName">Επιλογη βιβλίου</string>
   <string name="choosePassageChapterName">Επιλογη κεφαλαίου</string>
   <string name="choosePassageVerseName">Επιλογή στίχου</string>
   <string name="bible">Αγία Γραφή</string>
   <string name="deuterocanonical">Δευτεροκανονικά</string>
 
-  <!--  Search -->
+    <!--  Search -->
   <string name="search_index">Ευρετήριο αναζήτησης</string>
   <string name="index_creation_required">Ένα ευρετήριο είναι απαραίτητο για την αναζήτηση</string>
   <string name="create_index_for">Ένα ευρετήριο είναι απαραίτητο για την αναζήτηση. \n\nΔημιουργία ευρετηρίου για %s?</string>
@@ -46,14 +46,15 @@
   <string name="do_in_background">Συνέχεια στο παρασκήνιο</string>
   <string name="rebuild_index_button">Αναδόμηση</string>
   <string name="creating_index_for">Δημιουργία ευρετηρίου για %s...</string>
-  <!-- X results in module Y -->
+    <!-- X results in module Y -->
   <string name="search_with_results2">%1$s αποτελέσματα σε %2$s</string>
-  <!-- Tasks -->
+
+    <!-- Tasks -->
   <string name="progress_status">Πρόοδος</string>
   <string name="task_kill_warning">Αυτές οι μακροχρόνιες εργασίες λειτουργίας μπορεί να τερματίστουν αν μεταβείτε σε μια άλλη εφαρμογή πριν τελειώσουν.</string>
   <string name="no_tasks_running">Δεν υπάρχουν εργασίες υπό εκτέλεση.</string>
 
-  <!-- Search -->
+    <!-- Search -->
   <string name="search_words_group_prompt">Εύρεση στίχων</string>
   <string name="search_all_words">Όλες οι λέξεις</string>
   <string name="search_any_word">Κάθε λέξη</string>
@@ -68,17 +69,17 @@
   <string name="search_current_book">Επιλεγμένο βιβλίο</string>
   <string name="error_executing_search">Μη έγκυρο ερώτημα αναζήτησης</string>
   <string name="type_text_or_bible_reference">Γράψτε κείμενο ή βιβλική παραπομπή</string>
-  <!-- Open (bible reference X) -->
+    <!-- Open (bible reference X) -->
   <string name="go_to_ref">Άνοιξε %s</string>
-  <!-- Finx "(keywords x)", keywords based on text selection -->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
   <string name="search_what">Αναζήτηση \"%s\"</string>
-  <!-- Multi-translation search -->
+    <!-- Multi-translation search -->
   <string name="search_translations">Μεταφράσεις</string>
   <string name="choose_translations">Επιλέξτε μεταφράσεις…</string>
   <string name="multi_search_results">%1$d στίχοι σε %2$d μεταφράσεις</string>
   <string name="search_index_not_created">χωρίς ευρετήριο</string>
 
-  <!-- Preferences -->
+    <!-- Preferences -->
   <string name="prefs_show_verseno_title">Αριθμοί κεφαλαίων &amp; εδαφίων</string>
   <string name="prefs_show_verseno_summary">Εμφάνιση αριθμών κεφαλαίου και εδαφίων</string>
 
@@ -268,7 +269,7 @@
   <string name="create_bookmark">Δημιουργία νέου Σελιδοδείκτη</string>
   <string name="create_bookmark_with_a_note">Δημιουργία νέου Σελιδοδείκτη με σημείωση</string>
 
-  <!-- Colors preferences -->
+    <!-- Colors preferences -->
   <string name="prefs_text_colors_menutitle">Ρυθμίσεις χρωμάτων</string>
   <string name="window_color_settings_title">Ρυθμίσεις χρώματος παραθύρου</string>
   <string name="workspace_color_settings_title">Προκαθορισμένες ρυθμίσεις Χώρου Εργασίας</string>
@@ -287,7 +288,7 @@
   <string name="cpv_select">Επιλογή</string>
   <string name="cpv_transparency">Διαφάνεια</string>
 
-  <!-- Window -->
+    <!-- Window -->
   <string name="new_window">Νέο παράθυρο</string>
   <string name="windowClose">Κλείσιμο</string>
   <string name="windowMaximise">Μεγιστοποίηση</string>
@@ -302,19 +303,19 @@
   <string name="change_to_normal">Αλλαγή σε κανονικό παράθυρο</string>
   <string name="window_pin_mode">Καρφίτσωμα</string>
 
-  <!-- Notes screen -->
+    <!-- Notes screen -->
   <string name="no_chapter_notes">Δεν υπάρχουν σημειώσεις σε αυτό το κεφάλαιο</string>
   <string name="no_verse_notes">Δεν υπάρχουν σημειώσεις σε αυτόν τον στίχο</string>
   <string name="previous">Προηγούμενος</string>
   <string name="next">Επόμενος</string>
 
-  <!--  Strongs -->
+    <!--  Strongs -->
   <string name="strongs_not_installed">Παρακαλώ κατεβάστε τα Εβραϊκά και τα Ελληνικά Ισχυρές λεξικά</string>
   <string name="no_indexed_bible_with_strongs_ref">Πρέπει να κατεβάσετε Βίβλο που περιέχει αριθμούς Strong και να κατασκευαστεί το ευρετήριό της μέσω της Αναζήτησης</string>
   <string name="morph_robinson_not_installed">Παρακαλώ κατεβάστε το λεξικό «Μορφολογική Κώδικες Ανάλυσης του Ρόμπινσον»</string>
   <string name="go_to_downloads">Πήγαινε στις Λήψεις</string>
 
-  <!-- Module download -->
+    <!-- Module download -->
   <string name="download">Λήψη εγγράφων</string>
   <string name="redownload">Λήψη Εγγράφων ξανά</string>
   <string name="download_confirmation">Λήψη Βίβλου από το Internet?</string>
@@ -346,7 +347,7 @@
   <string name="failed_downloads_message">Τα ακόλουθα αρχεία δεν μπορούσαν να ληφθούν:\n\n%s\n\n</string>
   <string name="cant_delete_document">Αδυναμία διαγραφής εγγράφου.</string>
 
-  <!--  Install zip file -->
+    <!--  Install zip file -->
   <string name="install_zip">Φόρτωση Εγγράφων από αρχεία</string>
   <string name="install_zip_module">Εγκατάσταση Προσθέτου Βίβλου</string>
   <string name="install_zip_module_discrete">Εγκατάσταση Προσθέτου Αριθμομηχανής</string>
@@ -360,7 +361,7 @@
   <string name="could_not_overwrite_files">Δεν μπορούσαν να επανεγγραφούν αρχεία: %s. Εκτός από αυτό η εγκατάσταση ήταν επιτυχής.</string>
   <string name="install_do_you_want">Θέλετε να εγκαταστήσετε πρόσθετο (%s)?</string>
 
-  <!-- Daily Reading Plan -->
+    <!-- Daily Reading Plan -->
   <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
   <string name="reading_plans_plural">Σχέδια ανάγνωσης</string>
   <string name="rdg_plan_selector_title">Επιλέξτε ένα σχέδιο ανάγνωσης</string>
@@ -415,31 +416,31 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Ανάγνωση Βίβλου σε 2 χρόνια, διαβάζοντας την Καινή Διαθήκη και τους Ψαλμούς δύο φορές
 Ευγενική προσφορά του Wholesome Words, http://www.wholesomewords.org/, κατόπιν άδειας</string>
 
-  <!-- Document context menu -->
+    <!-- Document context menu -->
   <string name="delete">Διαγραφή</string>
   <string name="delete_index">Διαγραφή ευρετήριου αναζήτησης</string>
   <string name="about">Σχετικά με</string>
   <string name="delete_doc">Διαγραφή του %s?</string>
   <string name="delete_search_index_doc">Διαγραφή ευρετήριου του %s?</string>
 
-  <!-- Verse context menu -->
+    <!-- Verse context menu -->
   <string name="notes">Υποσημειώσεις και παραπομπές</string>
   <string name="share_verse">Κοινοποίηση...</string>
   <string name="share_verse_widget_title">Κοινοποίηση επιλογής</string>
   <string name="share_verse_subject_2">Ένας στίχος της Βίβλου σας κοινοποιήθηκε με χρήση %s.</string>
   <string name="compare_translations">Σύγκριση μεταφράσεων</string>
 
-  <!-- Link context menu -->
+    <!-- Link context menu -->
   <string name="open_link_in_this_window">Άνοιξε τον σύνδεσμο εδώ</string>
   <string name="open_link_in_new_window">Άνοιξε τον σύνδεσμο σε νέο παράθυρο</string>
   <string name="open_link_in_special_window">Άνοιξε τον σύνδεσμο σε ξεχωριστό παράθυρο</string>
 
-  <!-- Bookmarks -->
+    <!-- Bookmarks -->
   <string name="bookmarks_and_mynotes_title">Σελιδοδείκτες &amp; Οι Σημειώσεις μου</string>
   <string name="migrated_my_notes">Συχνωνευμένες Σημειώσεις Μου</string>
   <string name="bookmarks">Σελιδοδείκτες</string>
   <string name="bookmark_added">Ο σελιδοδείκτης προστέθηκε</string>
-  <!-- Bookmark / note labels -->
+    <!-- Bookmark / note labels -->
   <string name="labels">Ετικέτες</string>
   <string name="manage_labels">Διαχείρηση ετικετών</string>
   <string name="assign_labels">Εκχώρηση ετικετών</string>
@@ -475,34 +476,34 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 μετακινήσει τις τοποθεσίες των σελιδοδεικτών/σημειώσεων αυτών μέσα στο έγγραφο ή να τα εξαφανίσει τελείως.</string>
   <string name="bookmark_warning3">Θέλετε ακόμα να ενημερώσετε το πρόσθετο?</string>
   <string name="bookmark_warning4">Προτείνετε να κρατήσετε backup του προσθέτου πρίν το ενημερώσετε</string>
-  <!--  Sort orders used for Bookmarks and MyNotes -->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
   <string name="sort_by_date">Κατά ημερομηνία</string>
   <string name="sort_by_bible_book">Κατά βιβλίο</string>
   <string name="sort_by_alphabetical">Αλφαβητική σειρά</string>
-  <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
   <string name="filter_by_notes">Αναζήτηση σημειώσεων</string>
 
-  <!-- Dictionary -->
+    <!-- Dictionary -->
   <string name="dictionary">Λεξικό</string>
   <string name="search_dictionary_hint">Αναζήτηση λεξικού</string>
 
-  <!-- General Book -->
+    <!-- General Book -->
   <string name="general_book">Βιβλίο</string>
 
-  <!-- Speak -->
-  <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-  <!-- Speak - Bible -->
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
   <string name="one_chapter">%d κεφάλαιο</string>
   <string name="some_chapters">%d κεφάλαια</string>
   <string name="rest_of_book">Στο τέλος του βιβλίου</string>
-  <!-- Speak - Commentary -->
+    <!-- Speak - Commentary -->
   <string name="one_verse">%d στίχος</string>
   <string name="some_verses">%d στίχοι</string>
   <string name="rest_of_chapter">Στο τέλος του κεφαλαίου</string>
-  <!-- Speak - Dictionary and other -->
+    <!-- Speak - Dictionary and other -->
   <string name="one_page">%d σελίδα</string>
   <string name="some_pages">%d σελίδες</string>
-  <!-- Speak - Common -->
+    <!-- Speak - Common -->
   <string name="stop">Διακοπή</string>
   <string name="pause">Παύση</string>
   <string name="rewind">Επαναφορά</string>
@@ -511,7 +512,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="speak_queue">Σειρά αναμονής</string>
   <string name="speak_repeat">Επανάληψη</string>
 
-  <!-- Speak - Bible -->
+    <!-- Speak - Bible -->
   <string name="speak_speed_title">Ταχύτητα ακρόασης</string>
   <string name="speak_and_play_earcons_title">Ήχοι ομιλίας και αναπαραγωγής για</string>
   <string name="playback_settings_title">Ρυθμίσεις αναπαραγωγής</string>
@@ -555,20 +556,20 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 
   <string name="auto_assing_labels_help1">Εδώ μπορείτε να ρυθμίσετε ποιές ετικέτες εκχωρούνται αυτόματα στους σελιδοδείκτες που δημιουργείτε</string>
 
-  <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
   <string name="setting_scope">Ρυθμίστηκε %s</string>
   <string name="setting_scope_window">αυτό το παράθυρο</string>
   <string name="setting_scope_workspace">αυτός ο χώρος εργασίας</string>
 
   <string name="assing_labels_help1">Κάθε σελιδοδείκτης μπορεί να εκχωρηθεί με πολλαπλές ετικέτες</string>
-  <!-- param is bookmark icon -->
+    <!-- param is bookmark icon -->
   <string name="assing_labels_help2">Χρησιμοποίησε %sγια προσδορισμό εμφανιζόμενου χρώματος ετικέτας</string>
-  <!-- param is auto-assign label icon -->
+    <!-- param is auto-assign label icon -->
   <string name="assing_labels_help3">Πάτα το εικονίδιο %s για αυτόματη εκχώρηση αυτής της ετικέτας στους νέους σελιδοδείκτες</string>
-  <!-- param is heart icon -->
+    <!-- param is heart icon -->
   <string name="assing_labels_help4">Πάτα %sγια προσθήκη ετικέτας στα αγαπημένα σου για γρήγορη πρόσβαση</string>
 
-  <!-- param is refresh icon -->
+    <!-- param is refresh icon -->
   <string name="assing_labels_help5">Πάτα %sγια αναδιάταξη της λίστας βάση των επιλογών σου</string>
 
   <string name="global_text_options_help_title">Καθολικές επιλογές κειμένου</string>
@@ -579,12 +580,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="workspace_text_options_help2">Μπορείτε να τις προσπεράσετε αλλάζοντας τις ρυθμίσεις των επιμέρους παραθύρων</string>
 
   <string name="window_text_options_help_title">Επιλογές κειμένου παραθύρου</string>
-  <!-- Parameter is actual icon -->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει ανατεθεί από τις ρυθμίσεις χώρου εργασίας</string>
-  <!-- Parameter is actual icon -->
+    <!-- Parameter is actual icon -->
   <string name="window_text_options_help2">Το εικονίδιο %s υποδεικνύει ότι η ρύθμιση έχει αλλάξει για το συγκεκριμένο παράθυρο</string>
 
-  <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Το κουμπί %1$s επαναφέρει όλες αυτές τις ρυθμίσεις στις %2$s</string>
   <string name="reset_defaults">προκαθορισμένες τιμές</string>
   <string name="reset_workspace_defaults">προκαθορισμένες τιμές χώρου εργασίας</string>
@@ -606,6 +607,17 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 μπορείτε να έχετε διαφορετικές επιλογές αναπαραγωγής γι\'αυτά τα βιβλία,
 οπότε αυτές οι ρυθμίσεις αποθηκεύονται στους αντίστοιχους σελιδοδείκτες.</string>
 
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
 
   <string name="speak_book_changed">Το βιβλίο άλλαξε</string>
   <string name="speak_chapter_changed">Κεφάλαιο</string>
@@ -618,10 +630,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="verse_range_mode_disabled">
 Η λειτουργία επανάληψης αποσπάσματος διακόπηκε αυτόματα διότι η ακρόαση ξεκίνησε εκτός του διορισμένου εύρους στίχων</string>
 
-  <!-- User Notes -->
+    <!-- User Notes -->
   <string name="mynotes">Οι σημειώσεις μου</string>
 
-  <!-- Backup and restore -->
+    <!-- Backup and restore -->
   <string name="backup_backup_title">Που να δημιουργηθεί το αντίγραφο ασφαλείας?</string>
   <string name="backup_backup_message">Αντίγραφο ασφαλείας στο τηλέφωνο ή αλλού μέσω της Κοινοποίησης (email, Google Drive κλπ.)?</string>
   <string name="backup_phone_storage">Αποθηκευτικός χώρος τηλεφώνου</string>
@@ -637,13 +649,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="backup_document_info">Άγιες Γραφές, σχoλιασμοί, λεξικά, χάρτες κλπ.</string>
   <string name="backup_to">Αντίγραφο σε...</string>
   <string name="backup_restore_from">Επαναφορά από...</string>
-  <!-- Restore = overwrite existing. Import = merge into existing -->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Επαναφορά ή εισαγωγή από...</string>
   <string name="backup_restore">Επαναφορά</string>
   <string name="backup_restore2">Επαναφορά ή εισαγωγή</string>
   <string name="overwrite_something">Αντικατάσταση %s?</string>
 
-  <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
   <string name="restore_what">Τι θέλετε να επαναφέρετε?</string>
 
   <string name="restore_app_database">Επαναφορά βάσης δεδομένων εφαρμογής από...</string>
@@ -674,10 +686,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="import2">Εισαγωγή</string>
   <string name="export_studypads_help">Το αρχείο που περιέχει τα εξαγόμενα Μπλοκ μελέτης (π.χ. Ετικέτες  και Σελιδοδείκτες) μπορεί να εισαχθεί στο Κύριο Μενού -&gt; Αντίγραφο ασφαλείας και Επαναφορά.</string>
 
-  <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" και %2$s άλλη(ες) ετικέτα/(ες) / Μπλοκ Μελέτης και %3$s Σελιδοδείκτες</string>
 
-  <!-- About -->
+    <!-- About -->
   <string name="module_about_copyright">Copyright: %s</string>
   <string name="module_about_installed_version">Εγκατεστημένη έκδοση: %1$s (%2$s)</string>
   <string name="module_about_latest_version">Τελευταία έκδοση: %1$s (%2$s)</string>
@@ -685,7 +697,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="module_about_repository">Διακομιστής διαμοιρασμού: %s</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
 
-  <!-- Bug reporting -->
+    <!-- Bug reporting -->
   <string name="send_bug_report_title1">Αναφορά σφάλματος</string>
   <string name="send_feedback_title">Ανατροφοδότηση</string>
   <string name="send_bug_report_title">Ανατροφοδότηση / Αναφορά σφάλματος</string>
@@ -707,7 +719,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="bug_report_attachment_line_1">Επισυνάπτοντας τα αρχεία αυτά, βοηθάτε πολύ τους προγραμματιστές να διορθώσουν τα αναφερόμενα σφάλματα</string>
   <string name="report_bug_heading_4">Πληροφορίες συσκευής:</string>
 
-  <!-- Document types -->
+    <!-- Document types -->
   <string name="doc_type_all">Όλοι οι τύποι</string>
   <string name="doc_type_bible">Αγία Γραφή</string>
   <string name="doc_type_commentary">Σχόλια</string>
@@ -716,10 +728,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="doc_type_map">Χάρτης</string>
   <string name="doc_type_addons">Πρόσθετα</string>
 
-  <!-- Languages -->
+    <!-- Languages -->
   <string name="lang_default">Προεπιλογή</string>
 
-  <!-- General -->
+    <!-- General -->
   <string name="okay">OK</string>
   <string name="cancel">Ακύρωση</string>
   <string name="discard_changes_confirmation">Απόρριψη μη αποθηκευμένων αλλαγών;</string>
@@ -734,7 +746,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="watch_tutorial_video">Δείτε βίντεο καθοδήγησης (Αγγλικά)</string>
   <string name="verse_not_found">Δεν βρέθηκε ο στίχος</string>
 
-  <!-- Errors -->
+    <!-- Errors -->
   <string name="report_error">Αποστολή αναφοράς</string>
   <string name="error_occurred">Παρουσιάστηκε ένα σφάλμα</string>
   <string name="error_occurred_crash_last_time">Η εφαρμογή κατέρρευσε κατά την τελευταία χρήση της. Θα εκτιμούσαμε τη βοήθειά σας στην επίλυση του σφάλματος, αν μας στείλετε μια σχετική αναφορά.</string>
@@ -742,16 +754,17 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="error_no_content">Δεν υπάρχει περιεχόμενο για τον επιλεγμένο στίχο</string>
   <string name="error_page_too_large">Η σελίδα είναι πολύ μεγάλη για να φορτωθεί</string>
   <string name="error_key_not_in_document">Δεν βρέθηκε στο έγγραφο</string>
-  <string name="error_key_not_in_document2">%1$s δεν βρέθηκε στο έγγραφο %2$s.</string>  <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
+  <string name="error_key_not_in_document2">%1$s δεν βρέθηκε στο έγγραφο %2$s.</string>
+  <string name="empty_list">Δεν υπάρχουν στοιχεία για εμφάνιση</string>
   <string name="error_skip">Παράβλεψη</string>
   <string name="bug_report_email_title">Αποστολή αναφοράς σφάλματος μέσω email</string>
   <string name="bug_report_email_text">Ακολούθως, παρακαλώ επιλέξτε την προτιμώμενη εφαρμογή email (π.χ. Gmail) για να αποστείλετε την αναφορά στην ομάδα ανάπτυξης</string>
 
-  <!-- Notifications -->
+    <!-- Notifications -->
   <string name="notification_channel_tts_status">Κείμενο σε ομιλία</string>
   <string name="notification_channel_progress_status">Ενημέρωση κατάστασης προόδου κατεβάσματος εγγράφων κλπ.</string>
 
-  <!-- Workspaces -->
+    <!-- Workspaces -->
   <string name="new_workspace">Νέος</string>
   <string name="switch_to_workspace">Χώροι εργασίας</string>
   <string name="delete_workspace">Διαγραφή</string>
@@ -773,7 +786,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="workspace_dismiss">Απόρριψη</string>
   <string name="workspace_listing_with_current">%s (τρέχων)</string>
 
-  <!-- Beta notice -->
+    <!-- Beta notice -->
   <string name="beta_notice_title">Αυτή είναι μία δοκιμαστική έκδοση!</string>
   <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
@@ -793,10 +806,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="upgrade_video_message">Παρακαλώ δείτε βίντεο παρουσίασης των νέων λειτουργιών αυτής της έκδοσης (%s).</string>
   <string name="stable_notice_par1">Η νέα έκδοση %1$s του %2$s εγκαταστάθηκε επιτυχώς!</string>
 
-  <!-- History -->
+    <!-- History -->
   <string name="history_for">Ιστορικό (%1$s: Παράθυρο %2$d)</string>
 
-  <!-- Help -->
+    <!-- Help -->
   <string name="help_nav_title">Πλοήγηση</string>
   <string name="help_nav_text">Μεταφερθείτε στο επόμενο ή το προηγούμενο κεφάλαιο σύρωντας το δάκτυλο στην οθόνη.
 Διπλό χτύπημα στο Βιβλικό κείμενο για εναλλαγή σε πλήρη οθόνη
@@ -820,7 +833,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 Επιπρόσθετα με τους Σελιδοδείκτες, μπορούν να υπάρχουν ιδιόχειρες εισαγωγές κειμένου στο Σημειωματάριο.</string>
 
   <string name="help_search_title">Αναζήτηση</string>
-  <!-- TODO: to be removed -->
+    <!-- TODO: to be removed -->
   <string name="help_search_text">Το κείμενο αναζήτησης μπορεί να περιέχει ειδικούς χαρακτήρες όπως *, ?, AND, OR, NOT
 (δες \"Apache Lucene - Query Parser Syntax\" για περισσότερα)</string>
   <string name="help_search_text2">Το κείμενο αναζήτησης μπορεί να περιλαμβάνει ειδικούς χαρακτήρες όπως *, AND, OR, NOT</string>
@@ -849,17 +862,17 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 να έχετε βιβλικά έγγραφα πάντοτε ανοιχτά και να μετακινήστε γρήγορα μεταξύ των σχολίων και του
 υπολοίπου επιπλέον υλικού όταν μελετάτε τη Βίβλο.</string>
 
-  <!-- Welcome text -->
+    <!-- Welcome text -->
   <string name="redownload_documents">Γρήγορη επανάληψη μεταφόρτωσης</string>
   <string name="welcome_message">Ευχαριστούμε που κατεβάσατε το %s. Δεν υπάρχουν αυτή τη στιγμή εγκατεστημένα Βιβλικά κείμενα ή έγγραφα. Για να συνεχίσετε, παρακαλούμε εγκαταστήστε
 τουλάχιστον 1 έγγραφο κατεβάζοντάς το από το ίντερνετ, ή φορτώνοντάς το από ένα συμπιεσμένο αρχείο zip αντιγράφου
 ασφαλείας</string>
-  <!-- Supported file formats for documents -->
+    <!-- Supported file formats for documents -->
   <string name="supported_formats_title">Υποστηριζόμενες μορφοποιήσεις</string>
-  <!-- argument is app_name_andbible (AndBible). -->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Πρέπει να επιλέξεις το αρχείο που θέλεις να φορτώσεις στο %s.</string>
   <string name="supported_formats">Υποστηριζόμενες μορφές για φόρτωση εγγράφων από αρχείο: %s</string>
-  <!-- argument is app_name_andbible (AndBible). -->
+    <!-- argument is app_name_andbible (AndBible). -->
   <string name="format_zip">Αρχεία zip που περιέχουν πρόσθετo(α) Sword, ή αντίγραφα ασφαλείας εγγράφων (*.abmd), δημιουργημένα από %s</string>
   <string name="format_mysword">Έγγραφα MySword (*.mybible)</string>
   <string name="format_mybible">Έγγραφα MyBible (*.SQLite3)</string>
@@ -871,7 +884,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="redownload_message">
 Βρέθηκε μία λίστα προηγουμένων βιβλίων/εγγράφων. Πατήστε εδώ για να μεταφορτωθούν εύκολα πάλι.</string>
 
-  <!-- Uncategorized -->
+    <!-- Uncategorized -->
   <string name="close">Κλείσιμο</string>
   <string name="something_with_parenthesis">%1$s (%2$s)</string>
   <string name="first_time_help_do_not_show_again">Κατάλαβα</string>
@@ -959,7 +972,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="show_reference_at_front">Εμφανιση στην αρχή του στίχου</string>
   <string name="abbreviate_reference">Συντομογραφία παραπομπής</string>
   <string name="version_name">Όνομα έκδοσης</string>
-  <!-- meaning, bible version name -->
+    <!-- meaning, bible version name -->
   <string name="show_version_name">Εμφάνιση ονόματος έκδοσης</string>
   <string name="show_ellipsis">Εμφάνιση έλλειψης (...)</string>
   <string name="show_quotes">Εμφάνιση παραθέσεων</string>
@@ -970,7 +983,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="upgrading_database">Αναβάθμιση βάσης δεδομένων. Περιμένετε...</string>
   <string name="initializing_app">Προετοιμασία εφαρμογής....</string>
   <string name="show_notes">Εμφάνιση σημειώσεων</string>
-  <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
   <string name="old_webview">Το πακέτο Android Webview είναι παρωχημένο (%1$s). Χρειάζεται η αναβάθμισή του τουλάχιστον στην έκδοση %2$s για να χρησιμοποιηθεί το %3$s. Στις περισσότερες συσκευές γίνεται μέσω %4$s.</string>
   <string name="play">Google Play</string>
   <string name="proceed_anyway">Προχώρα παρ\'όλα αυτά</string>
@@ -981,13 +994,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="rate_message6">
 Πριν υποβάλλετε αρνητική αξιολόγηση, λάβετε υπόψη τα ακόλουθα:</string>
 
-  <!-- parameters are actions (file a bug, send email) -->
+    <!-- parameters are actions (file a bug, send email) -->
   <string name="rate_message1">
 Αν έχετε πρόβλημα με την εφαρμογή, παρακαλώ %1$s ή αλλιως %2$s</string>
-  <!-- param is "please report maintainers" -->
+    <!-- param is "please report maintainers" -->
   <string name="rate_message2">
 αν κάποιο κείμενο / Βιβλική μετάφραση έχουν πρόβλημα, %s.</string>
-  <!-- param is "please read what you can do" -->
+    <!-- param is "please read what you can do" -->
   <string name="rate_message3">
 Αν συγκεκριμένο κείμενο δεν είναι διαθέσιμο στην εφαρμογή, %s.</string>
   <string name="rate_message4">
@@ -1058,12 +1071,16 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="reset_something">Επαναφορά: %1$s</string>
   <string name="export">Εξαγωγή</string>
   <string name="csv_export_success">Έγινε εξαγωγή %d σελιδοδεικτών σε CSV</string>
-  <string name="csv_import_success">Εισαγωγή ολοκληρώθηκε: %1$dδημιουργήθηκε, %2$dενημερώθηκε</string>  <string name="csv_import_errors">Εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκε, %2$d ενημερώθηκε, %3$d σφάλματα</string>  <string name="csv_import_failed">Εισαγωγή του CSV απέτυχε: %s</string>
+  <string name="csv_import_success">Εισαγωγή ολοκληρώθηκε: %1$dδημιουργήθηκε, %2$dενημερώθηκε</string>
+  <string name="csv_import_errors">Εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκε, %2$d ενημερώθηκε, %3$d σφάλματα</string>
+  <string name="csv_import_failed">Εισαγωγή του CSV απέτυχε: %s</string>
   <string name="csv_export_failed">Εξαγωγή του CSV απέτυχε: %s</string>
   <string name="export_prompts_csv">Εξαγωγή εντολών σε CSV</string>
   <string name="import_prompts_csv">Εισαγωγή εντολών από CSV</string>
   <string name="prompts_csv_export_success">Εξαγωγή %d εντολών σε CSV</string>
-  <string name="prompts_csv_import_success">Η εισαγωγή ολοκληρώθηκε: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν</string>  <string name="prompts_csv_import_errors">Η εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν, %3$d σφάλματα</string>  <string name="prompts_csv_import_failed">Η εισαγωγή CSV απέτυχε: %s</string>
+  <string name="prompts_csv_import_success">Η εισαγωγή ολοκληρώθηκε: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν</string>
+  <string name="prompts_csv_import_errors">Η εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν, %3$d σφάλματα</string>
+  <string name="prompts_csv_import_failed">Η εισαγωγή CSV απέτυχε: %s</string>
   <string name="prompts_csv_export_failed">Η εξαγωγή CSV απέτυχε: %s</string>
   <string name="no_prompts_to_export">Δεν υπάρχουν εντολές χρήστη για εξαγωγή</string>
   <string name="csv_column_selection_title">Επιλογή στηλών CSV</string>
@@ -1077,24 +1094,24 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 
   <string name="export_bookmarks_csv">Εξαγωγή σελιδοδικτών ως %s</string>
 
-  <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
   <string name="osis_reference">Παραπομπή OSIS</string>
-  <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
   <string name="bible_reference">Βιβλική παραπομπή</string>
   <string name="document">Εγγραφο</string>
   <string name="book">Βιβλίο</string>
-  <!-- Chapter is the chapter number in the book, starting from 1 -->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
   <string name="chapter_start">Κεφάλαιο έναρξης</string>
-  <!-- Verse is the verse number in the chapter, starting from 1 -->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
   <string name="verse_start">Εδάφιο έναρξης</string>
   <string name="chapter_end">Κεφάλαιο τέλους</string>
   <string name="verse_end">Εδάφιο τέλους</string>
   <string name="id">Αναγνωριστικό</string>
-  <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
   <string name="ordinal_start">Έναρξη αρίθμησης</string>
   <string name="ordinal_end">Τέλος αρίθμησης</string>
   <string name="created_at">Δημιουργήθηκε στις:</string>
-  <!-- Offsets are used to indicate from which character a bookmark starts. -->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
   <string name="start_offset">Δείκτης έναρξης</string>
   <string name="end_offset">Δείκτης λήξης</string>
   <string name="custom_icon">Προσαρμοσμένο εικονίδιο</string>
@@ -1109,9 +1126,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="chooser_style_lists">Λίστες</string>
   <string name="chooser_select">Επιλογή %s</string>
   <string name="chooser_pref_reset">Μην επαναφέρεις το κεφάλαιο/στίχο στο 1 όταν ένα επιλεχθεί ένα βιβλίο/κεφάλαιο</string>
-  <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Συγγνώμη, αλλά έχουμε μόνο μερική μετάφραση τoυ περιβάλλοντος χρήστη στην γλώσσα %1$s. Αυτό διότι το %2$s αναπτύσσεται εξ\'ολοκλήρου από  εθελοντές. Αν θέλετε να βοηθήσετε στην μετάφραση, παρακαλώ δείτε %3$s.</string>
-  <!-- will be added to incomplete_translation as a link -->
+    <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">Οδηγίες για μεταφραστές</string>
   <string name="questions_title">Ερωτήσεις?</string>
   <string name="questions_title2">Θέλετε βοήθεια?</string>
@@ -1132,7 +1149,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="search_results_match">1 αντιστοιχία</string>
   <string name="progress_status_permission">Χρειάζεται η άδειά σας, για την εμφάνιση ειδοποιήσεων (κατάσταση μεταφόρτωσης, πρόοδος, κατάσταση ακρόασης)</string>
 
-  <!-- Discrete mode settings -->
+    <!-- Discrete mode settings -->
   <string name="app_name_calculator">Απλή Αριθμομηχανή</string>
   <string name="prefs_persecution_cat">Ρυθμίσεις για τους διωκόμενους</string>
   <string name="prefs_discrete_mode">Απόκρυψη θρησκευτικών συμβόλων</string>
@@ -1141,11 +1158,11 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prefs_calculator_pin">PIN Αριθμομηχανής</string>
   <string name="prefs_calculator_pin_desc">Κωδικός PIN για να εισέλθετε στην εφαρμογή όταν εμφανίζετε η Αριθμομηχανή.</string>
   <string name="calc_division_by_zero">Διαίρεση με μηδέν δεν επιτρέπεται</string>
-  <!-- Context: calculator. Wrong number format etc. -->
+    <!-- Context: calculator. Wrong number format etc. -->
   <string name="calc_wrong_format">Λάθος μορφή</string>
   <string name="calc_wrong_format_operand">Λάθος μορφή. Πράξη χωρίς καθόλου νούμερα?</string>
   <string name="prefs_persecuted_help">Διαβάστε αυτό πρώτα!</string>
-  <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
   <string name="prefs_persecuted_summary">Οδηγίες για τις ρυθμίσεις και πληροφορίες για την συγκεκριμένη ξεχωριστή έκδοση</string>
 
   <string name="calculator_par1">
@@ -1163,14 +1180,14 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="discrete_mode_link">
 Μπορείτε να κατεβάσετε την τελευταία έκδοση της ξεχωριστής έκδοσης από %s.</string>
 
-  <!-- Window synchronize groups -->
+    <!-- Window synchronize groups -->
   <string name="sync_group_submenu">Συγχρονισμός ομάδας</string>
   <string name="sync_group_n">Ομάδα %d</string>
   <string name="disable_sync">Απενεργοποίηση συγχρονισμού</string>
   <string name="open_in_window">Άνοιγμα αποτελεσμάτων σε ένα παράθυρο</string>
 
-  <!-- Custom repositories -->
-  <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
   <string name="custom_repositories">Αποθετήρια χρήστη</string>
   <string name="custom_repositories_empty_list_message">Δεν προσδιορίστηκαν αποθετήρια χρήστη</string>
   <string name="custom_repositories_create_button_label">Προσθήκη αποθετηρίου χρήστη</string>
@@ -1188,13 +1205,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="packages_dir">Κατάλογος πακέτων (αρχεία Zip)</string>
   <string name="warn_bad_document">Ειδοποίηση: Αυτό το έγγραφο μπορεί να είναι (τουλάχιστον εν μέρει) κακής τεχνικής ποιότητας.</string>
 
-  <!-- Open links in AndBible (Deep linking) -->
+    <!-- Open links in AndBible (Deep linking) -->
   <string name="open_bible_links_title">Άνοιξε συνδέσμους Βίβλων στο AndBible</string>
   <string name="open_bible_links_summary">Πατώντας συνδέσμους με υποστηριζόμενα URL Βίβλων από το AndBible, άνοιγμα με AndBible</string>
   <string name="copyReference">Αντιγραφή συνδέσμου στο πρόχειρο</string>
   <string name="reference_copied_to_clipboard">Παραπομπή αντιγράφτηκε στο πρόχειρο</string>
 
-  <!-- Device cloud synchronization -->
+    <!-- Device cloud synchronization -->
   <string name="prefs_sync_introduction_summary1">
 Επιλέξτε ποιά υπηρεσία cloud θα χρησιμοποιηθεί για τον συγχρονισμό πολλών συσκευών</string>
   <string name="prefs_sync_introduction_summary2">
@@ -1216,7 +1233,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="progress_sync_title">Πρόοδος Ανάγνωσης</string>
   <string name="progress_sync_contents">Απομνημονευμένοι στίχοι και αρχεία ανάγνωσης κεφαλαίων</string>
 
-  <!-- Reading Progress Activity -->
+    <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Πρόοδος Ανάγνωσης/Απομνημόνευσης</string>
   <string name="reading_progress_chapters_read">κεφάλαια που διαβάστηκαν</string>
   <string name="reading_progress_verses_memorized">απομνημονευμένοι στίχοι</string>
@@ -1262,7 +1279,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="sync_disabling">Απενεργοποίηση συγχρονισμου για %s προσωρινά</string>
   <string name="sync_update_app">Παρακαλώ αναβαθμίστε την εφαρμογή για συνέχιση συγχρονισμού.</string>
   <string name="sign_in_failed">Η είσοδος στο παρασκήνιο υπηρεσίας συγχρονισμού απέτυχε</string>
-  <!--  ... after restoring from backup file -->
+    <!--  ... after restoring from backup file -->
   <string name="disabling_sync">Απενεργοποίηση συγχρονισμού cloud. Ενεργοποιήστε το χειροκίνητα μετά την επαναφορά.</string>
   <string name="report">Αναφορά</string>
   <string name="sync_error">Σφάλμα κατα τον συγχρονισμο cloud</string>
@@ -1271,13 +1288,13 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="enable_sync">Ενεργοποίηση συγχρονισμού</string>
   <string name="last_updated">Τελευταία ανανέωση: %s</string>
 
-  <!-- MyBible/MySword module support -->
+    <!-- MyBible/MySword module support -->
   <string name="sqlite_cant_read">Αδυναμία ανάγνωσης αρχείου</string>
   <string name="sqlite_invalid_file">Άκυρο αρχείο προσθέτου ή όνομα αρχείου: %s</string>
   <string name="sqlite_cant_write">Αδυναμία (επαν)εγγραφής αρχείου</string>
   <string name="install_failed_reason">Εγκατάσταση προσθέτου απέτυχε για τον ακόλουθο λόγο: %s.</string>
 
-  <!-- Other / uncategorized -->
+    <!-- Other / uncategorized -->
   <string name="app_opened_elsewhere">Εφαρμογή ήδη ανοιχτή</string>
   <string name="open_here">Άνοιγμα εδώ</string>
   <string name="external_link">Εξωτερικός σύνδεσμος</string>
@@ -1349,7 +1366,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="memorize_view_list">Λίστα</string>
   <string name="memorize_view_overview">Επισκόπηση</string>
 
-  <!-- LLM Translation Settings -->
+    <!-- LLM Translation Settings -->
   <string name="llm_settings_title">Μετάφραση LLM</string>
   <string name="sync_settings_shortcut_summary">Συγχρονισμός δεδομένων μεταξύ συσκευών</string>
   <string name="llm_api_key_title">Κλειδί API</string>
@@ -1405,7 +1422,36 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_max_iterations_summary">Μέγιστες επαναλήψεις πριν ζητηθεί συνέχεια (0 = απεριόριστες)</string>
   <string name="ask_model_before_run_title">Ερώτηση μοντέλου πριν την εκτέλεση</string>
   <string name="ask_model_before_run_summary">Εμφάνιση διαλόγου επιλογής μοντέλου πριν την εκτέλεση εντολής (παραλείπεται όταν η εντολή έχει ρητή παράκαμψη μοντέλου)</string>
+  <string name="custom_agent_system_prompt_title">Εντολή συστήματος πράκτορα</string>
+  <string name="custom_system_prompt_summary">Δεν συνιστάται επεξεργασία εκτός αν γνωρίζετε τι κάνετε</string>
+  <string name="custom_text_transform_system_prompt_title">Εντολή συστήματος μετασχηματισμού κειμένου</string>
+  <string name="ai_advanced_category">Για προχωρημένους</string>
+  <string name="custom_system_prompt_default">Προεπιλογή</string>
+  <string name="custom_system_prompt_custom">Προσαρμοσμένη</string>
+  <string name="reset_to_default">Επαναφορά σε προεπιλογή</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Ιστορικό αρχείου καταγραφής ΑΙ</string>
+  <string name="raw_log_history_summary">Προβολή και διαχείριση αποθηκευμένων αρχείων καταγραφής συνομιλιών ΑΙ</string>
+  <string name="raw_log_history_empty">Δεν υπάρχουν αποθηκευμένα αρχεία καταγραφής</string>
+  <string name="raw_log_delete_selected">Διαγραφή επιλεγμένων</string>
+  <string name="raw_log_delete_old">Διαγραφή παλαιών αρχείων καταγραφής\u2026</string>
+  <string name="raw_log_delete_confirm">%d επιλεγμένα</string>
+  <string name="raw_log_older_1_week">Παλαιότερα από 1 εβδομάδα</string>
+  <string name="raw_log_older_1_month">Παλαιότερα από 1 μήνα</string>
+  <string name="raw_log_older_3_months">Παλαιότερα από 3 μήνες</string>
+  <string name="raw_log_delete_all">Διαγραφή όλων</string>
+  <string name="raw_log_item_tokens">%1$s εισαγωγή / %2$s εξαγωγή</string>
+  <string name="raw_log_error_indicator">Σφάλμα</string>
+  <string name="raw_log_retention_title">Αυτόματη διαγραφή παλαιών αρχείων</string>
+  <string name="raw_log_retention_summary_days">Μετά από %d ημέρες</string>
+  <string name="raw_log_retention_summary_disabled">Απενεργοποιημένο (διατήρηση όλων)</string>
+  <string name="send_ai_bug_report_title">Αναφορά σφάλματος ΑΙ</string>
+  <string name="ai_bug_report_menu">Αναφορά σφάλματος ΑΙ</string>
+  <string name="ai_bug_report_recommended_only">Η αναφορά σφαλμάτων είναι διαθέσιμη μόνο για προτεινόμενα μοντέλα παρόχων</string>
+
   <string name="select_model_before_run_title">Επιλογή μοντέλου</string>
+  <string name="set_default_model_for_prompt">Ορισμός ως προεπιλεγμένο μοντέλο για αυτή την εντολή</string>
   <string name="prompt_max_iterations">Παράκαμψη μέγιστων επαναλήψεων</string>
   <string name="prompt_max_iterations_hint">Αφήστε κενό για γενική προεπιλογή</string>
   <string name="prompt_max_iterations_description">Παράκαμψη των γενικών μέγιστων επαναλήψεων για αυτήν την εντολή. Κενό = γενική προεπιλογή, 0 = απεριόριστο.</string>
@@ -1413,7 +1459,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prompt_max_iterations_global_default">Γενική προεπιλογή (%d)</string>
   <string name="prompt_max_iterations_summary_with_value">Παράκαμψη των γενικών μέγιστων επαναλήψεων για αυτήν την εντολή. 0 = απεριόριστο.\nΤρέχουσα: %s</string>
 
-  <!-- Prompt Manager -->
+    <!-- Prompt Manager -->
   <string name="manage_prompts">Διαχείριση εντολών AI</string>
   <string name="manage_prompts_summary">Δημιουργία και επεξεργασία εντολών AI</string>
   <string name="ai_settings">Ρυθμίσεις AI</string>
@@ -1425,7 +1471,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_provider_tier_recommended">Προτεινόμενοι</string>
   <string name="ai_provider_tier_community">Άλλοι πάροχοι (μη δοκιμασμένοι)</string>
 
-  <!-- Multi-provider settings -->
+    <!-- Multi-provider settings -->
   <string name="ai_providers_models_category">Πάροχοι &amp; Μοντέλα</string>
   <string name="ai_providers_category">Πάροχοι</string>
   <string name="ai_providers_summary_none">Δεν έχουν ρυθμιστεί πάροχοι</string>
@@ -1452,7 +1498,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_openrouter_category">Κατηγορία</string>
   <string name="llm_openrouter_category_all">Όλα</string>
   <string name="llm_openrouter_model">Μοντέλο</string>
-  <!-- Configured models management -->
+    <!-- Configured models management -->
   <string name="ai_models_category">Μοντέλα</string>
   <string name="add_model">Προσθήκη μοντέλου</string>
   <string name="add_model_title">Προσθήκη μοντέλου</string>
@@ -1466,7 +1512,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="model_cache_creation_price">Τιμή δημιουργίας κρυφής μνήμης ($/Mtoken)</string>
   <string name="model_cache_read_price">Τιμή ανάγνωσης κρυφής μνήμης ($/Mtoken)</string>
 
-  <!-- Easy Setup -->
+    <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s εισ. / %2$s εξ. ανά Mtoken</string>
   <string name="easy_setup_free_tier">Δωρεάν βαθμίδα</string>
   <string name="unknown_error">Άγνωστο σφάλμα</string>
@@ -1485,7 +1531,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="easy_setup_anthropic_desc">Οικονομικό, εξαιρετική ποιότητα</string>
   <string name="easy_setup_openai_desc">Γνωστό, αξιόπιστο</string>
 
-  <!-- AI Disclaimer -->
+    <!-- AI Disclaimer -->
   <string name="ai_disclaimer_warning_title">Σημαντικό: Διαβάστε πριν χρησιμοποιήσετε τα εργαλεία AI</string>
   <string name="ai_disclaimer_warning_summary">Κίνδυνοι και ευθύνες χρήσης AI</string>
   <string name="ai_disclaimer_dialog_title">Εργαλεία AI — Σημαντικές πληροφορίες</string>
@@ -1526,6 +1572,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prompt_category_general">Γενικά</string>
   <string name="prompt_category_test">Δοκιμή</string>
   <string name="prompt_category_uncategorized">Χωρίς κατηγορία</string>
+  <string name="prompt_category_favorites">Αγαπημένα</string>
   <string name="addon_prompt_badge">Πρόσθετο: %s</string>
   <string name="addon_prompt_notice">Αυτή η εντολή προέρχεται από το πρόσθετο \"%s\" και δεν μπορεί να επεξεργαστεί. Χρησιμοποιήστε \"Αντιγραφή για προσαρμογή\" για να δημιουργήσετε ένα επεξεργάσιμο αντίγραφο.</string>
   <string name="new_category">Νέα κατηγορία</string>
@@ -1591,7 +1638,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_document_delete">Διαγραφή</string>
   <string name="ai_unknown_prompt">AI</string>
 
-  <!-- Default prompts -->
+    <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Μετάφραση στα %s</string>
   <string name="default_prompt_translate_to_ui_language">Μετάφραση στη γλώσσα διεπαφής</string>
   <string name="default_prompt_translate_to_ui_language_desc">Μεταφράζει το κείμενο του εγγράφου στη γλώσσα διεπαφής της εφαρμογής</string>
@@ -1633,7 +1680,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_prompt_hidden">Η εντολή αποκρύφθηκε</string>
   <string name="ai_prompts_restored">Οι κρυφές εντολές επαναφέρθηκαν</string>
 
-  <!-- Agent Tool Display Names -->
+    <!-- Agent Tool Display Names -->
   <string name="tool_create_bookmark">Δημιουργία σελιδοδείκτη</string>
   <string name="tool_add_bookmark_note">Προσθήκη σημείωσης σελιδοδείκτη</string>
   <string name="tool_update_bookmark_note">Ενημέρωση σημείωσης σελιδοδείκτη</string>
@@ -1664,6 +1711,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tool_search_study_pads">Αναζήτηση Χώρων Μελέτης</string>
   <string name="tool_get_my_documents">Λίστα Εγγράφων Μου</string>
   <string name="tool_get_my_document_pages">Λίστα σελίδων Εγγράφου Μου</string>
+  <string name="tool_get_genbook_keys">Λίστα κλειδιών γενικού βιβλίου</string>
+  <string name="tool_get_genbook_content">Ανάγνωση περιεχομένου γενικού βιβλίου</string>
   <string name="tool_create_my_document">Δημιουργία Εγγράφου Μου</string>
   <string name="tool_add_my_document_page">Προσθήκη σελίδας Εγγράφου Μου</string>
   <string name="tool_edit_my_document_page">Επεξεργασία σελίδας Εγγράφου Μου</string>
@@ -1673,12 +1722,12 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tool_manage_window">Διαχείριση παραθύρου</string>
   <string name="tool_set_window_document">Ορισμός εγγράφου παραθύρου</string>
 
-  <!-- Agent Permission Dialog -->
+    <!-- Agent Permission Dialog -->
   <string name="agent_permission_title">Δικαίωμα βοηθού</string>
   <string name="agent_permission_message">Ο βοηθός AI θέλει να χρησιμοποιήσει \"%1$s\":\n\n%2$s</string>
   <string name="agent_permission_message_with_action">Ο βοηθός AI θέλει να:\n\n%1$s</string>
 
-  <!-- Tool action descriptions for permission dialog -->
+    <!-- Tool action descriptions for permission dialog -->
   <string name="action_create_bookmark_at">Δημιουργία σελιδοδείκτη στο %1$s</string>
   <string name="action_create_bookmark_at_with_extras">Δημιουργία σελιδοδείκτη στο %1$s (%2$s)</string>
   <string name="action_with_note">με σημείωση</string>
@@ -1717,7 +1766,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="permission_always_allow_confirm">Είστε βέβαιοι ότι θέλετε να επιτρέψετε μόνιμα το \"%1$s\";</string>
   <string name="permission_always_allow_confirm_reset_hint">Μπορείτε να το επαναφέρετε στις Ρυθμίσεις AI.</string>
 
-  <!-- Agent Tool Permission Settings -->
+    <!-- Agent Tool Permission Settings -->
   <string name="manage_tool_permissions_title">Δικαιώματα εργαλείων</string>
   <string name="manage_tool_permissions_summary">Διαχείριση παρακάμψεων δικαιωμάτων ανά εργαλείο</string>
   <string name="commentary_max_response_title">Όριο μεγέθους απάντησης σχολίων</string>
@@ -1737,6 +1786,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tool_log_bookmark_count">%d σελιδοδείκτες</string>
   <string name="tool_log_my_document_count">%d έγγραφα</string>
   <string name="tool_log_my_document_page_count">%d σελίδες</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d κλειδιά</string>
   <string name="tool_log_window_count">%d παράθυρα</string>
   <string name="tool_log_window_copy">αντίγραφο</string>
   <string name="tool_log_window_minimized">ελαχιστοποιημένο</string>
@@ -1755,27 +1805,28 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="permission_option_always_deny">Πάντα απόρριψη</string>
   <string name="reset_all_permissions">Επαναφορά όλων</string>
 
-  <!-- Tool Info -->
+    <!-- Tool Info -->
   <string name="ai_available_tools">Διαθέσιμα εργαλεία</string>
   <string name="ai_read_tools">Εργαλεία Ανάγνωσης</string>
   <string name="ai_write_tools">Εργαλεία Εγγραφής</string>
 
-  <!-- Global Tool Permissions Activity -->
+    <!-- Global Tool Permissions Activity -->
   <string name="global_tool_permissions_title">Προεπιλεγμένες ρυθμίσεις εργαλείων</string>
 
-  <!-- Per-Prompt Tool Permissions -->
+    <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Δικαιώματα εργαλείων</string>
   <string name="prompt_tool_permissions_read_only">Δικαιώματα εργαλείων (μόνο ανάγνωση)</string>
   <string name="prompt_tool_permissions_description">Παράκαμψη δικαιωμάτων εργαλείων για αυτήν την εντολή</string>
   <string name="tool_section_read_tools">Εργαλεία ανάγνωσης</string>
   <string name="tool_section_write_tools">Εργαλεία εγγραφής</string>
 
-  <!-- Tool categories -->
+    <!-- Tool categories -->
   <string name="tool_category_bible_search">Αγία Γραφή &amp; Αναζήτηση</string>
   <string name="tool_category_bookmarks">Σελιδοδείκτες</string>
   <string name="tool_category_labels">Ετικέτες</string>
   <string name="tool_category_study_pads">Χώροι Μελέτης</string>
   <string name="tool_category_my_documents">Τα Έγγραφά Μου</string>
+  <string name="tool_category_general_books">Γενικά βιβλία</string>
   <string name="tool_category_windows">Παράθυρα</string>
   <string name="tool_category_read">Ανάγνωση</string>
   <string name="tool_category_write">Εγγραφή</string>
@@ -1787,19 +1838,19 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tool_option_default_allowed">Προεπιλογή (επιτρέπεται)</string>
   <string name="tool_option_default_denied">Προεπιλογή (απορρίπτεται)</string>
 
-  <!-- Per-Prompt Model Override -->
+    <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Μοντέλο</string>
   <string name="prompt_model_default">Προεπιλογή</string>
   <string name="prompt_model_custom">Προσαρμοσμένο</string>
   <string name="prompt_model_custom_hint">Εισαγάγετε όνομα μοντέλου</string>
 
-  <!-- LLM One Tap Actions -->
+    <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Επιλογή Ενέργειας AI</string>
   <string name="no_llm_prompts_configured">Δεν έχουν ρυθμιστεί εντολές AI για επιλογή στίχων</string>
   <string name="llm_prompt_executing">Εκτέλεση εντολής AI: %s</string>
   <string name="llm_actions">Ενέργειες AI</string>
 
-  <!-- Agent Log Widget -->
+    <!-- Agent Log Widget -->
   <string name="agent_log_expand">Ανάπτυξη/σύμπτυξη αρχείου καταγραφής βοηθού</string>
   <string name="agent_log_close">Κλείσιμο αρχείου καταγραφής βοηθού</string>
   <string name="agent_log_stop">Διακοπή AI</string>
@@ -1819,7 +1870,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_execution_completed">Η εκτέλεση του βοηθού AI ολοκληρώθηκε</string>
   <string name="agent_already_running">Ένας βοηθός AI εκτελείται ήδη. Παρακαλώ περιμένετε ή σταματήστε τον πρώτα.</string>
 
-  <!-- AI Agent Notifications -->
+    <!-- AI Agent Notifications -->
   <string name="ai_agent_notification_channel_name">Βοηθός AI</string>
   <string name="ai_agent_notification_running">Ο βοηθός AI εργάζεται…</string>
   <string name="ai_agent_notification_permission_needed">Ο βοηθός AI χρειάζεται την έγκρισή σας</string>
@@ -1829,7 +1880,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_agent_notification_error">Η εργασία AI απέτυχε</string>
   <string name="ai_agent_notification_cancel">Ακύρωση</string>
 
-  <!-- My Documents -->
+    <!-- My Documents -->
   <string name="my_documents_title">Τα Έγγραφά Μου</string>
   <string name="my_documents_empty">Δεν υπάρχουν ακόμη έγγραφα. Πατήστε + για δημιουργία.</string>
   <string name="my_document_new_name">Έγγραφο %d</string>
@@ -1882,4 +1933,3 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="prefs_page_buttons_title">Κουμπιά κύλισης σελίδας</string>
   <string name="prefs_page_buttons_summary">Εμφάνιση ορατών κουμπιών κύλισης σελίδας πάνω/κάτω στην οθόνη</string>
 </resources>
-
