@@ -1470,7 +1470,36 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="agent_max_iterations_summary">Maksimalus iteracijų skaičius prieš paklausiant tęsti (0 = neribota)</string>
   <string name="ask_model_before_run_title">Klausti modelio prieš vykdymą</string>
   <string name="ask_model_before_run_summary">Rodyti modelio pasirinkimo dialogą prieš vykdant užklausą (praleidžiama, kai užklausa turi aiškų modelio pasirinkimą)</string>
+  <string name="custom_agent_system_prompt_title">Agento sistemos raginimas</string>
+  <string name="custom_system_prompt_summary">Redaguoti nerekomenduojama, nebent žinote, ką darote</string>
+  <string name="custom_text_transform_system_prompt_title">Teksto transformacijos sistemos raginimas</string>
+  <string name="ai_advanced_category">Išplėstiniai</string>
+  <string name="custom_system_prompt_default">Numatytasis</string>
+  <string name="custom_system_prompt_custom">Pasirinktinis</string>
+  <string name="reset_to_default">Atstatyti į numatytąjį</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">DI žurnalo istorija</string>
+  <string name="raw_log_history_summary">Peržiūrėti ir tvarkyti išsaugotus DI pokalbių žurnalus</string>
+  <string name="raw_log_history_empty">Nėra išsaugotų žurnalų</string>
+  <string name="raw_log_delete_selected">Ištrinti pasirinktus</string>
+  <string name="raw_log_delete_old">Ištrinti senus žurnalus\u2026</string>
+  <string name="raw_log_delete_confirm">%d pasirinkta</string>
+  <string name="raw_log_older_1_week">Senesnių nei 1 savaitė</string>
+  <string name="raw_log_older_1_month">Senesnių nei 1 mėnuo</string>
+  <string name="raw_log_older_3_months">Senesnių nei 3 mėnesiai</string>
+  <string name="raw_log_delete_all">Ištrinti visus</string>
+  <string name="raw_log_item_tokens">%1$s įvestis / %2$s išvestis</string>
+  <string name="raw_log_error_indicator">Klaida</string>
+  <string name="raw_log_retention_title">Automatiškai trinti senus žurnalus</string>
+  <string name="raw_log_retention_summary_days">Po %d dienų</string>
+  <string name="raw_log_retention_summary_disabled">Išjungta (laikyti visus)</string>
+  <string name="send_ai_bug_report_title">Pranešti apie DI klaidą</string>
+  <string name="ai_bug_report_menu">Pranešti apie DI klaidą</string>
+  <string name="ai_bug_report_recommended_only">Klaidų pranešimai galimi tik rekomenduojamiems tiekėjų modeliams</string>
+
   <string name="select_model_before_run_title">Pasirinkti modelį</string>
+  <string name="set_default_model_for_prompt">Nustatyti kaip numatytąjį šio raginimo modelį</string>
   <string name="prompt_max_iterations">Maks. iteracijų perrašymas</string>
   <string name="prompt_max_iterations_hint">Palikite tuščią, kad naudoti numatytąjį</string>
   <string name="prompt_max_iterations_description">Perrašyti globalų maks. iteracijų skaičių šiai užklausai. Tuščia = globalus numatytasis, 0 = neribota.</string>
@@ -1591,6 +1620,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="prompt_category_general">Bendra</string>
   <string name="prompt_category_test">Testas</string>
   <string name="prompt_category_uncategorized">Nekategorizuota</string>
+  <string name="prompt_category_favorites">Mėgstamiausi</string>
   <string name="addon_prompt_badge">Priedas: %s</string>
   <string name="addon_prompt_notice">Šis raginimas yra iš priedo modulio \"%s\" ir negali būti taisomas. Naudokite „Kopijuoti ir tinkinti" norėdami sukurti taisomą kopiją.</string>
   <string name="new_category">Nauja kategorija</string>
@@ -1729,6 +1759,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tool_search_study_pads">Ieškoti užrašų knygelėse</string>
   <string name="tool_get_my_documents">Rodyti mano dokumentus</string>
   <string name="tool_get_my_document_pages">Rodyti mano dokumento puslapius</string>
+  <string name="tool_get_genbook_keys">Išvardyti bendrų knygų raktus</string>
+  <string name="tool_get_genbook_content">Skaityti bendros knygos turinį</string>
   <string name="tool_create_my_document">Sukurti mano dokumentą</string>
   <string name="tool_add_my_document_page">Pridėti mano dokumento puslapį</string>
   <string name="tool_edit_my_document_page">Redaguoti mano dokumento puslapį</string>
@@ -1802,6 +1834,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tool_log_bookmark_count">%d žymių</string>
   <string name="tool_log_my_document_count">%d dokumentų</string>
   <string name="tool_log_my_document_page_count">%d puslapių</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d raktų</string>
   <string name="tool_log_window_count">%d langų</string>
   <string name="tool_log_window_copy">kopija</string>
   <string name="tool_log_window_minimized">sumažintas</string>
@@ -1841,6 +1874,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tool_category_labels">Etiketės</string>
   <string name="tool_category_study_pads">Užrašų knygelės</string>
   <string name="tool_category_my_documents">Mano dokumentai</string>
+  <string name="tool_category_general_books">Bendros knygos</string>
   <string name="tool_category_windows">Langai</string>
   <string name="tool_category_read">Skaitymas</string>
   <string name="tool_category_write">Rašymas</string>

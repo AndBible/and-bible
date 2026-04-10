@@ -1442,7 +1442,36 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="agent_max_iterations_summary">Maksimum herhalings voor om voort te gaan gevra word (0 = onbeperk)</string>
   <string name="ask_model_before_run_title">Vra model voor uitvoering</string>
   <string name="ask_model_before_run_summary">Wys \'n modelkeusedialoog voor \'n opdrag uitgevoer word (oorgesla wanneer die opdrag \'n uitdruklike modeloorskrywing het)</string>
+  <string name="custom_agent_system_prompt_title">Agent-stelselopdrag</string>
+  <string name="custom_system_prompt_summary">Wysig nie aanbeveel tensy jy weet wat jy doen nie</string>
+  <string name="custom_text_transform_system_prompt_title">Teksomsettingstelselopdrag</string>
+  <string name="ai_advanced_category">Gevorderd</string>
+  <string name="custom_system_prompt_default">Verstek</string>
+  <string name="custom_system_prompt_custom">Gepasmaak</string>
+  <string name="reset_to_default">Herstel na verstek</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">KI-logboekgeskiedenis</string>
+  <string name="raw_log_history_summary">Bekyk en bestuur gestoorde KI-gespreklogboeke</string>
+  <string name="raw_log_history_empty">Geen gestoorde logboeke nie</string>
+  <string name="raw_log_delete_selected">Verwyder gekose</string>
+  <string name="raw_log_delete_old">Verwyder ou logboeke\u2026</string>
+  <string name="raw_log_delete_confirm">%d gekies</string>
+  <string name="raw_log_older_1_week">Ouer as 1 week</string>
+  <string name="raw_log_older_1_month">Ouer as 1 maand</string>
+  <string name="raw_log_older_3_months">Ouer as 3 maande</string>
+  <string name="raw_log_delete_all">Verwyder alles</string>
+  <string name="raw_log_item_tokens">%1$s in / %2$s uit</string>
+  <string name="raw_log_error_indicator">Fout</string>
+  <string name="raw_log_retention_title">Outomaties ou logboeke verwyder</string>
+  <string name="raw_log_retention_summary_days">Na %d dae</string>
+  <string name="raw_log_retention_summary_disabled">Gedeaktiveer (behou alles)</string>
+  <string name="send_ai_bug_report_title">Rapporteer KI-fout</string>
+  <string name="ai_bug_report_menu">Rapporteer KI-fout</string>
+  <string name="ai_bug_report_recommended_only">Foutrapportering is slegs beskikbaar vir aanbevole verskaffer-modelle</string>
+
   <string name="select_model_before_run_title">Kies model</string>
+  <string name="set_default_model_for_prompt">Stel as verstek model vir hierdie opdrag</string>
   <string name="prompt_max_iterations">Maks. herhalings-oorskrywing</string>
   <string name="prompt_max_iterations_hint">Laat leeg vir globale verstek</string>
   <string name="prompt_max_iterations_description">Oorskryf die globale maks. herhalings vir hierdie opdrag. Leeg = globale verstek, 0 = onbeperk.</string>
@@ -1563,6 +1592,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="prompt_category_general">Algemeen</string>
   <string name="prompt_category_test">Toets</string>
   <string name="prompt_category_uncategorized">Ongekategoriseer</string>
+  <string name="prompt_category_favorites">Gunsteling</string>
   <string name="addon_prompt_badge">Byvoeging: %s</string>
   <string name="addon_prompt_notice">Hierdie opdrag is van byvoegingmodule \"%s\" en kan nie gewysig word nie. Gebruik \"Kopieer om aan te pas\" om \'n wysigbare kopie te skep.</string>
   <string name="new_category">Nuwe kategorie</string>
@@ -1701,6 +1731,8 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="tool_search_study_pads">Soek studieblokkies</string>
   <string name="tool_get_my_documents">Lys My Dokumente</string>
   <string name="tool_get_my_document_pages">Lys My Dokumentbladsye</string>
+  <string name="tool_get_genbook_keys">Lys algemene boeksleutels</string>
+  <string name="tool_get_genbook_content">Lees algemene boekinhoud</string>
   <string name="tool_create_my_document">Skep My Dokument</string>
   <string name="tool_add_my_document_page">Voeg My Dokumentbladsy by</string>
   <string name="tool_edit_my_document_page">Wysig My Dokumentbladsy</string>
@@ -1774,6 +1806,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="tool_log_bookmark_count">%d boekmerke</string>
   <string name="tool_log_my_document_count">%d dokumente</string>
   <string name="tool_log_my_document_page_count">%d bladsye</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d sleutels</string>
   <string name="tool_log_window_count">%d vensters</string>
   <string name="tool_log_window_copy">kopie</string>
   <string name="tool_log_window_minimized">geminimeer</string>
@@ -1813,6 +1846,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="tool_category_labels">Etikette</string>
   <string name="tool_category_study_pads">Studieblokkies</string>
   <string name="tool_category_my_documents">My dokumente</string>
+  <string name="tool_category_general_books">Algemene Boeke</string>
   <string name="tool_category_windows">Vensters</string>
   <string name="tool_category_read">Lees</string>
   <string name="tool_category_write">Skryf</string>

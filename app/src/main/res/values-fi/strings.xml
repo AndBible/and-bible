@@ -606,11 +606,25 @@ kun nämä asetukset on talletettu niihin liittyviin kirjanmerkkeihin.</string>
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
+  <string-array name="speak_divinename_original">
+    <item>Herra</item>
+    <item>Jumala</item>
+    <item/>
+    <item/>
+    <item/>
+  </string-array>
     <!-- List of (max 5) words that we will replace those words listed in divinename_original.
 
          Please note that this is not translation but you need to think about what words need to be replaced
          in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
          in speak settings. -->
+  <string-array name="speak_divinename_replace">
+    <item>Jahve</item>
+    <item>Jahve</item>
+    <item/>
+    <item/>
+    <item/>
+  </string-array>
 
   <string name="speak_book_changed">Kirja vaihtui.</string>
   <string name="speak_chapter_changed">Luku</string>

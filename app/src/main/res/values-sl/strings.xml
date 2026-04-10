@@ -1463,7 +1463,36 @@ Tega sporočila ne prikaži več
   <string name="agent_max_iterations_summary">Največje število ponovitev, preden vpraša za nadaljevanje (0 = neomejeno)</string>
   <string name="ask_model_before_run_title">Vprašaj za model pred izvedbo</string>
   <string name="ask_model_before_run_summary">Prikaži pogovorno okno za izbiro modela pred izvajanjem poziva (preskočeno, ko ima poziv izrecno preglasitev modela)</string>
+  <string name="custom_agent_system_prompt_title">Sistemski poziv agenta</string>
+  <string name="custom_system_prompt_summary">Urejanje ni priporočljivo, razen če veste, kaj počnete</string>
+  <string name="custom_text_transform_system_prompt_title">Sistemski poziv za pretvorbo besedila</string>
+  <string name="ai_advanced_category">Napredno</string>
+  <string name="custom_system_prompt_default">Privzeto</string>
+  <string name="custom_system_prompt_custom">Po meri</string>
+  <string name="reset_to_default">Ponastavi na privzeto</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Zgodovina dnevnika AI</string>
+  <string name="raw_log_history_summary">Ogled in upravljanje shranjenih dnevnikov pogovorov z AI</string>
+  <string name="raw_log_history_empty">Ni shranjenih dnevnikov</string>
+  <string name="raw_log_delete_selected">Izbriši izbrano</string>
+  <string name="raw_log_delete_old">Izbriši stare dnevnike\u2026</string>
+  <string name="raw_log_delete_confirm">%d izbrano</string>
+  <string name="raw_log_older_1_week">Starejše od 1 tedna</string>
+  <string name="raw_log_older_1_month">Starejše od 1 meseca</string>
+  <string name="raw_log_older_3_months">Starejše od 3 mesecev</string>
+  <string name="raw_log_delete_all">Izbriši vse</string>
+  <string name="raw_log_item_tokens">%1$s vhod / %2$s izhod</string>
+  <string name="raw_log_error_indicator">Napaka</string>
+  <string name="raw_log_retention_title">Samodejno brisanje starih dnevnikov</string>
+  <string name="raw_log_retention_summary_days">Po %d dneh</string>
+  <string name="raw_log_retention_summary_disabled">Onemogočeno (ohrani vse)</string>
+  <string name="send_ai_bug_report_title">Poroči o napaki AI</string>
+  <string name="ai_bug_report_menu">Poroči o napaki AI</string>
+  <string name="ai_bug_report_recommended_only">Poročanje o napakah je na voljo samo za priporočene modele ponudnikov</string>
+
   <string name="select_model_before_run_title">Izberite model</string>
+  <string name="set_default_model_for_prompt">Nastavi kot privzeti model za ta poziv</string>
   <string name="prompt_max_iterations">Preglasitev največjega števila ponovitev</string>
   <string name="prompt_max_iterations_hint">Pustite prazno za globalno privzeto vrednost</string>
   <string name="prompt_max_iterations_description">Preglasi globalno največje število ponovitev za ta poziv. Prazno = globalna privzeta vrednost, 0 = neomejeno.</string>
@@ -1584,6 +1613,7 @@ Tega sporočila ne prikaži več
   <string name="prompt_category_general">Splošno</string>
   <string name="prompt_category_test">Test</string>
   <string name="prompt_category_uncategorized">Nekategorizirano</string>
+  <string name="prompt_category_favorites">Priljubljeni</string>
   <string name="addon_prompt_badge">Dodatek: %s</string>
   <string name="addon_prompt_notice">Ta poziv je iz dodatnega modula \"%s\" in ga ni mogoče urejati. Uporabi \"Kopiraj za prilagoditev\" za ustvarjanje urejevalne kopije.</string>
   <string name="new_category">Nova kategorija</string>
@@ -1722,6 +1752,8 @@ Tega sporočila ne prikaži več
   <string name="tool_search_study_pads">Išči po študijskih zaznamkih</string>
   <string name="tool_get_my_documents">Prikaži Moje dokumente</string>
   <string name="tool_get_my_document_pages">Prikaži strani Mojega dokumenta</string>
+  <string name="tool_get_genbook_keys">Prikaži ključe splošne knjige</string>
+  <string name="tool_get_genbook_content">Preberi vsebino splošne knjige</string>
   <string name="tool_create_my_document">Ustvari Moj dokument</string>
   <string name="tool_add_my_document_page">Dodaj stran Mojemu dokumentu</string>
   <string name="tool_edit_my_document_page">Uredi stran Mojega dokumenta</string>
@@ -1795,6 +1827,7 @@ Tega sporočila ne prikaži več
   <string name="tool_log_bookmark_count">%d zaznamkov</string>
   <string name="tool_log_my_document_count">%d dokumentov</string>
   <string name="tool_log_my_document_page_count">%d strani</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d ključev</string>
   <string name="tool_log_window_count">%d oken</string>
   <string name="tool_log_window_copy">kopiraj</string>
   <string name="tool_log_window_minimized">minimizirano</string>
@@ -1834,6 +1867,7 @@ Tega sporočila ne prikaži več
   <string name="tool_category_labels">Oznake</string>
   <string name="tool_category_study_pads">Študijski zaznamki</string>
   <string name="tool_category_my_documents">Moji dokumenti</string>
+  <string name="tool_category_general_books">Splošne knjige</string>
   <string name="tool_category_windows">Okna</string>
   <string name="tool_category_read">Branje</string>
   <string name="tool_category_write">Pisanje</string>

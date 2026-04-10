@@ -54,7 +54,7 @@ enum class LlmProvider(
     val supportsCacheControl: Boolean = false,
 ) {
     GEMINI("Google Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", listOf(
-        "gemini-3-flash" to p(0.50, 3.00, supported = true),
+        "gemini-3-flash-preview" to p(0.50, 3.00, supported = true),
         "gemini-3.1-pro-preview" to p(2.00, 12.00, 2.00, 0.20, supported = true),
         "gemini-2.5-pro" to p(1.25, 10.00, 1.25, 0.3125, supported = true),
         "gemini-2.5-flash" to p(0.15, 0.60, 0.15, 0.0375, supported = true),
