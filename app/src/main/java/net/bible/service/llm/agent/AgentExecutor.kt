@@ -374,7 +374,12 @@ class AgentExecutor(
         preResolved: LlmProcessingService.ResolvedProvider? = null
     ): Pair<ParsedResponse, LlmUsage> {
         Log.d(TAG, "Iteration $iteration: calling LLM API")
-        val apiResponse = LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders, preResolved)
+        val apiResponse = try {
+            LlmProcessingService.callLlmApiWithTools(messages, tools, llmConfig, extraHeaders, preResolved)
+        } catch (e: Exception) {
+            rawLlmLog?.addRawApiResponse(iteration, "ERROR: ${e.message}")
+            throw e
+        }
         rawLlmLog?.addRawApiResponse(iteration, apiResponse.responseBody)
         val parsed = adapter.parseResponse(apiResponse.responseBody)
         return Pair(parsed, apiResponse.usage)

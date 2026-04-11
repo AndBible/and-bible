@@ -37,7 +37,8 @@ val llmJson = Json { ignoreUnknownKeys = true; isLenient = true; encodeDefaults 
 data class ToolCall(
     val id: String,
     val tool: AgentTool,
-    val arguments: String
+    val arguments: String,
+    val thoughtSignature: String? = null
 ) {
     fun parseArguments(): JSONObject = if (arguments.isBlank()) {
         JSONObject()
@@ -195,12 +196,18 @@ class OpenAiApiAdapter(
             role = WireRole.ASSISTANT,
             content = if (content != null) JsonPrimitive(content) else JsonNull,
             toolCalls = toolCalls.map { tc ->
+                val extraContent = tc.thoughtSignature?.let { sig ->
+                    JsonObject(mapOf("google" to JsonObject(mapOf(
+                        "thought_signature" to JsonPrimitive(sig)
+                    ))))
+                }
                 OpenAiWireToolCall(
                     id = tc.id,
                     function = OpenAiWireFunction(
                         name = tc.tool.camelCaseName,
                         arguments = tc.arguments
-                    )
+                    ),
+                    extraContent = extraContent
                 )
             }
         )
@@ -225,7 +232,13 @@ class OpenAiApiAdapter(
                         Log.w("LlmApiAdapter", "Unknown tool name from LLM: ${tc.function.name}")
                         null
                     } else {
-                        ToolCall(tc.id, agentTool, tc.function.arguments)
+                        val thoughtSig = tc.extraContent
+                            ?.get("google")
+                            ?.let { it as? JsonObject }
+                            ?.get("thought_signature")
+                            ?.let { it as? JsonPrimitive }
+                            ?.content
+                        ToolCall(tc.id, agentTool, tc.function.arguments, thoughtSig)
                     }
                 }
             }
