@@ -55,7 +55,8 @@ data class OpenAiWireMessage(
 data class OpenAiWireToolCall(
     val id: String,
     val type: String = "function",
-    val function: OpenAiWireFunction
+    val function: OpenAiWireFunction,
+    @SerialName("extra_content") val extraContent: JsonObject? = null
 )
 
 @Serializable

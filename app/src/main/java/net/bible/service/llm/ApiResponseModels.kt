@@ -42,7 +42,8 @@ data class OpenAiMessage(
 data class OpenAiToolCall(
     val id: String,
     val type: String = "function",
-    val function: OpenAiFunction
+    val function: OpenAiFunction,
+    @SerialName("extra_content") val extraContent: JsonObject? = null
 )
 
 @Serializable
