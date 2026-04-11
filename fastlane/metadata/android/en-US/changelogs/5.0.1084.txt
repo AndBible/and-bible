@@ -1,0 +1,15 @@
+- Add supported model indicators and unsupported filter to AI settings UI (c70b867)
+- Fix Gemini 3 tool calling by preserving thought_signature (75841af)
+- Fix translate skill (1af7a89)
+
+5.0
+"What's new" video: https://youtu.be/bf33j4tLbxQ
+
+Highlights:
+- Support for EPUB electronic book format
+- Bookmarks for non-bible documents
+- Cloud synchronize (Google drive + NextCloud)
+- MyBible / MySword modules
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
