@@ -61,6 +61,7 @@ import net.bible.service.download.DownloadManager
 import net.bible.service.download.isPseudoBook
 import net.bible.service.sword.AndBibleAddonFilter
 import net.bible.service.sword.SwordDocumentFacade
+import net.bible.service.sword.isAndBibleCategory
 import org.crosswire.common.util.Language
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.BookCategory
@@ -445,7 +446,7 @@ abstract class DocumentSelectionBase(
                         for (doc in allDocuments) {
                             val filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]
                             if (filter.test(doc) &&
-                                (lang == null || doc.language == lang || doc.bookCategory == BookCategory.AND_BIBLE) &&
+                                (lang == null || doc.language == lang || doc.isAndBibleCategory) &&
                                 (osisIds == null || osisIds.contains(doc.osisID)) &&
                                 !doc.isBadDocument(badDocuments.value, BadDocumentAction.HIDE)
                             ) {
@@ -468,14 +469,17 @@ abstract class DocumentSelectionBase(
                                 { SwordDocumentFacade.getDocumentByInitials(it.initials) == null },
                                 { if (lang != null) !it.isRecommended(recommendedDocuments.value) else false },
                                 {
-                                    when (it.bookCategory) {
-                                        BookCategory.BIBLE -> 0
-                                        BookCategory.COMMENTARY -> 1
-                                        BookCategory.DICTIONARY -> 2
-                                        BookCategory.GENERAL_BOOK -> 4
-                                        BookCategory.MAPS -> 5
-                                        BookCategory.AND_BIBLE -> 6
-                                        else -> 7
+                                    if (it.isAndBibleCategory) {
+                                        6
+                                    } else {
+                                        when (it.bookCategory) {
+                                            BookCategory.BIBLE -> 0
+                                            BookCategory.COMMENTARY -> 1
+                                            BookCategory.DICTIONARY -> 2
+                                            BookCategory.GENERAL_BOOK -> 4
+                                            BookCategory.MAPS -> 5
+                                            else -> 7
+                                        }
                                     }
                                 },
                                 { it.abbreviation.lowercase(Locale(it.language.code)) }
@@ -644,7 +648,7 @@ abstract class DocumentSelectionBase(
 
     companion object {
         private val DOCUMENT_TYPE_SPINNER_FILTERS = arrayOf(
-            BookFilter { it.bookCategory != BookCategory.AND_BIBLE },
+            BookFilter { !it.isAndBibleCategory },
             BookFilter { it.bookCategory == BookCategory.BIBLE },
             BookFilter { it.bookCategory == BookCategory.COMMENTARY },
             BookFilter { it.bookCategory == BookCategory.DICTIONARY },
