@@ -90,6 +90,8 @@ private val re = Regex("[^a-zA-z0-9]")
 fun sanitizeModuleName(name: String): String = name.replace(re, "_")
 private fun parseMyBibleBoolean(value: String?): Boolean =
     value.equals("true", ignoreCase = true) || value == "1"
+internal const val WORDS_OF_CHRIST_MARKUP_QUERY =
+    "select 1 from verses where instr(text, '<J>') > 0 OR instr(text, '<j>') > 0 limit 1"
 
 class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
     constructor(sqliteFile: File, metadata: SwordBookMetaData): this(sqliteFile) {
@@ -167,10 +169,7 @@ class SqliteVerseBackendState(private val sqliteFile: File): OpenFileState {
                         }
                         false
                     }
-                    hasInfoFlag || db.rawQuery(
-                        "select 1 from verses where instr(lower(text), '<j>') > 0 limit 1",
-                        null
-                    ).use { it.moveToFirst() }
+                    hasInfoFlag || db.rawQuery(WORDS_OF_CHRIST_MARKUP_QUERY, null).use { it.moveToFirst() }
                 } catch (e: SQLiteException) {
                     Log.w(TAG, "Failed to detect WordsOfChrist support for ${db.path}", e)
                     false

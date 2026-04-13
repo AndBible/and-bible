@@ -17,11 +17,21 @@
 
 package net.bible.service.sword.mybible
 
+import android.database.sqlite.SQLiteDatabase
+import net.bible.android.TEST_SDK
+import net.bible.android.TestBibleApplication
 import org.hamcrest.CoreMatchers.containsString
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
+@RunWith(RobolectricTestRunner::class)
+@Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class MyBibleBookTest {
 
     @Test
@@ -51,5 +61,25 @@ class MyBibleBookTest {
         )
 
         assertThat(config, not(containsString("Feature=WordsOfChrist")))
+    }
+
+    @Test
+    fun `words of christ markup query should detect markup in sqlite rows`() {
+        assertTrue(hasWordsOfChristMarkup("plain text", "Jesus said <J>truly</J>"))
+        assertTrue(hasWordsOfChristMarkup("plain text", "Jesus said <j>truly</j>"))
+        assertFalse(hasWordsOfChristMarkup("plain text", "no markup here"))
+    }
+
+    private fun hasWordsOfChristMarkup(vararg verses: String): Boolean {
+        val db = SQLiteDatabase.create(null)
+        return try {
+            db.execSQL("create table verses(text text)")
+            for (verse in verses) {
+                db.execSQL("insert into verses(text) values (?)", arrayOf(verse))
+            }
+            db.rawQuery(WORDS_OF_CHRIST_MARKUP_QUERY, null).use { it.moveToFirst() }
+        } finally {
+            db.close()
+        }
     }
 }
