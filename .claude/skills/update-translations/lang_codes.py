@@ -35,6 +35,7 @@ LANGUAGES = {
     'in':        ('Indonesian',             2, 'in',       'in',       'id'),
     'it':        ('Italian',                1, 'it',       'it',       'it-IT'),
     'iw':        ('Hebrew',                 1, 'iw',       'he',       'iw-IL'),
+    'ja':        ('Japanese',               1, 'ja',       'ja',       'ja-JP'),
     'kk':        ('Kazakh',                 3, 'kk',       'kk',       'kk'),
     'ko':        ('Korean',                 1, 'ko',       'ko',       'ko-KR'),
     'lt':        ('Lithuanian',             2, 'lt',       'lt',       'lt'),

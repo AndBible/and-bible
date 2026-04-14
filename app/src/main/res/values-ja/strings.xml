@@ -1,0 +1,265 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<resources>
+
+
+    <!-- Main menu -->
+
+    <!-- Passage navigation -->
+
+    <!--  Search -->
+    <!-- X results in module Y -->
+
+    <!-- Tasks -->
+
+    <!-- Search -->
+    <!-- Open (bible reference X) -->
+    <!-- Finx "(keywords x)", keywords based on text selection -->
+    <!-- Multi-translation search -->
+
+    <!-- Preferences -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Colors preferences -->
+
+
+
+    <!-- Window -->
+
+    <!-- Notes screen -->
+
+    <!--  Strongs -->
+
+    <!-- Module download -->
+
+    <!--  Install zip file -->
+
+    <!-- Daily Reading Plan -->
+
+    <!-- Document context menu -->
+
+    <!-- Verse context menu -->
+
+    <!-- Link context menu -->
+
+    <!-- Bookmarks -->
+    <!-- Bookmark / note labels -->
+    <!--  Sort orders used for Bookmarks and MyNotes -->
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+
+    <!-- Dictionary -->
+
+    <!-- General Book -->
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
+    <!-- Speak - Commentary -->
+    <!-- Speak - Dictionary and other -->
+    <!-- Speak - Common -->
+
+    <!-- Speak - Bible -->
+
+
+
+
+
+
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+
+    <!-- param is bookmark icon -->
+    <!-- param is auto-assign label icon -->
+    <!-- param is heart icon -->
+
+    <!-- param is refresh icon -->
+
+
+
+    <!-- Parameter is actual icon -->
+    <!-- Parameter is actual icon -->
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+
+
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+
+
+
+    <!-- User Notes -->
+
+    <!-- Backup and restore -->
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+
+
+
+
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+
+    <!-- About -->
+
+    <!-- Bug reporting -->
+
+
+    <!-- Document types -->
+
+    <!-- Languages -->
+
+    <!-- General -->
+
+    <!-- Errors -->
+
+    <!-- Notifications -->
+
+    <!-- Workspaces -->
+
+    <!-- Beta notice -->
+
+
+
+    <!-- History -->
+
+    <!-- Help -->
+
+    <!-- TODO: to be removed -->
+
+    <!-- Welcome text -->
+    <!-- Supported file formats for documents -->
+    <!-- argument is app_name_andbible (AndBible). -->
+    <!-- argument is app_name_andbible (AndBible). -->
+
+    <!-- Uncategorized -->
+
+
+
+
+    <!-- meaning, bible version name -->
+
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+
+    <!-- parameters are actions (file a bug, send email) -->
+    <!-- param is "please report maintainers" -->
+    <!-- param is "please read what you can do" -->
+
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+    <!-- will be added to incomplete_translation as a link -->
+
+
+    <!-- Discrete mode settings -->
+    <!-- Context: calculator. Wrong number format etc. -->
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+
+
+    <!-- Window synchronize groups -->
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+
+
+    <!-- Open links in AndBible (Deep linking) -->
+
+    <!-- Device cloud synchronization -->
+
+    <!-- Reading Progress Activity -->
+
+    <!--  ... after restoring from backup file -->
+
+    <!-- MyBible/MySword module support -->
+
+    <!-- Other / uncategorized -->
+
+    <!-- LLM Translation Settings -->
+
+    <!-- Raw log history -->
+
+
+    <!-- Prompt Manager -->
+
+    <!-- Multi-provider settings -->
+
+    <!-- Configured models management -->
+
+    <!-- Easy Setup -->
+
+    <!-- AI Disclaimer -->
+
+
+    <!-- Default prompts -->
+
+    <!-- Agent Tool Display Names -->
+
+    <!-- Agent Permission Dialog -->
+
+    <!-- Tool action descriptions for permission dialog -->
+
+    <!-- Agent Tool Permission Settings -->
+
+    <!-- Tool Info -->
+
+    <!-- Global Tool Permissions Activity -->
+
+    <!-- Per-Prompt Tool Permissions -->
+
+    <!-- Tool categories -->
+
+    <!-- Per-Prompt Model Override -->
+
+    <!-- LLM One Tap Actions -->
+
+    <!-- Agent Log Widget -->
+
+    <!-- AI Agent Notifications -->
+
+    <!-- My Documents -->
+
+
+</resources>

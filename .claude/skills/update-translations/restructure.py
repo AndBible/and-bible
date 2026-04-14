@@ -302,6 +302,7 @@ def main():
     output_lines.append('</resources>\n')
 
     # --- 8. Write output ---
+    os.makedirs(os.path.dirname(target_path), exist_ok=True)
     with open(target_path, 'w') as f:
         f.writelines(output_lines)
 
