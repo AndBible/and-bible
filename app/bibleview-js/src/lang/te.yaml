@@ -1,9 +1,9 @@
 # Open in "My Notes" title. (just demonstrating developer note)
 bookmarks: బుక్ మార్క్‌స్
-bookmarksAndNotes: బుక్‌మార్క్‌లు & నా నోట్స్
+bookmarksAndNotes: "బుక్‌మార్క్‌లు & నా నోట్స్"
 openMyNotes: నా నోట్స్‌లో తెరవండి
-openStudyPad: స్టడీ ప్యాడ్‌లో తెరవండి (%s)
-noteText: ఫుట్ నోట్స్ (%s)
+openStudyPad: "స్టడీ ప్యాడ్‌లో తెరవండి (%s)"
+noteText: "ఫుట్ నోట్స్ (%s)"
 noteTextWithoutType: ఫుట్ నోట్స్
 crossReferenceText: క్రాస్ రిఫరెన్సెస్
 findAllOccurrences: అన్ని చోట్లలో కనుక్కోండి
@@ -13,36 +13,38 @@ warningTitle: హెచ్చరిక
 normalTitle: దయచేసి గమనించండి
 footnoteTypeStudy: అధ్యయనం
 footnoteTypeExplanation: వివరణ
-footnoteTypeVariant: "మార్పు "
+footnoteTypeVariant: మార్పు 
 footnoteTypeAlternative: ప్రత్యామ్నాయం
 footnoteTypeTranslation: అనువాదం
 clearLog: లోపాల లాగ్‌ను క్లియర్ చేయండి
 editTextPlaceholder: వచనాన్ని సవరించడానికి నొక్కండి
+myDocumentEdit: పేజీ సవరించు
+myDocumentEmptyPlaceholder: ఈ పేజీని సవరించడం ప్రారంభించడానికి తాకండి
 inputPlaceholder: ఇక్కడ వ్రాయండి
 inputReference: బైబిల్ రిఫరెన్సెస్ నమోదు చేయండి
 invalidReference: వచనం దొరకలేదు
-bookmarkAccurate: బుక్‌మార్క్ %s లో సృష్టించబడింది
+bookmarkAccurate: "బుక్‌మార్క్ %s లో సృష్టించబడింది"
 bookmarkInaccurate: "బుక్‌మార్క్ పుస్తక సమాచారం నిల్వ చేయబడలేదు, విషయము %s లో ప్రదర్శించబడుతుంది."
 defaultBook: డిఫాల్ట్ బైబిల్ పత్రం
 ok: ఒకె
 yes: "అవును"
-ambiguousSelection: "మీరు ఏ చర్య తీసుకోవాలనుకుంటున్నారు?"
+ambiguousSelection: మీరు ఏ చర్య తీసుకోవాలనుకుంటున్నారు?
 cancel: క్యాన్సిల్
-removeBookmarkConfirmationTitle: "బుక్‌మార్క్‌ని తీసివేయాలా?"
-removeBookmarkConfirmation: "మీరు ఖచ్చితంగా ఈ బుక్‌మార్క్‌ని తొలగించాలనుకుంటున్నారా?"
+removeBookmarkConfirmationTitle: బుక్‌మార్క్‌ని తీసివేయాలా?
+removeBookmarkConfirmation: మీరు ఖచ్చితంగా ఈ బుక్‌మార్క్‌ని తొలగించాలనుకుంటున్నారా?
 createdAt: "సృష్టించబడింది: %s"
 lastUpdatedOn: "చివరిగా నవీకరించబడింది: %s"
-strongsAndMorph: నిర్వచనం & పదనిర్మాణం
+strongsAndMorph: "నిర్వచనం & పదనిర్మాణం"
 externalLink: బాహ్య లింక్‌ని తెరవండి
 referenceLink: రిఫరెన్స్ లింక్‌ని తెరవండి
 openFootnote: ఫుట్‌నోట్ తెరవండి
 noMyNotesTitle: ఈ అధ్యాయానికి నా నోట్స్ లేవు.
-noMyNotesDescription: >
-  బైబిల్ పత్రంలో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ప్రారంభించండి. అప్పుడు బుక్‌మార్క్‌లు ఇక్కడ కనిపిస్తాయి మరియు మీరు వాటికి మీ వ్యక్తిగత "నోట్స్" గమనికలను జోడించవచ్చు. 
-emptyStudyPad: >
-  ఖాళీ స్టడీ ప్యాడ్. ఇక్కడ వచనం నమోదు "టెక్స్ట్ ఎంట్రీలను" సృష్టించడం ద్వారా లేదా ఈ స్టడీ ప్యాడ్‌తో సరిపోయే బుక్‌మార్క్ లేబుల్‌తో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ఈ స్టడీ ప్యాడ్‌కి జోడించడం ప్రారంభించండి.
-doYouWantToDeleteEntry: "ఈ స్టడీ ప్యాడ్ ఎంట్రీని తొలగించాలా?"
-removeStudyPadConfirmationTitle: "స్టడీ ప్యాడ్ ఎంట్రీని తీసివేయాలా?"
+noMyNotesDescription: "బైబిల్ పత్రంలో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ప్రారంభించండి. అప్పుడు బుక్‌మార్క్‌లు ఇక్కడ కనిపిస్తాయి మరియు మీరు వాటికి మీ వ్యక్తిగత \"నోట్స్\" గమనికలను జోడించవచ్చు. 
+"
+emptyStudyPad: "ఖాళీ స్టడీ ప్యాడ్. ఇక్కడ వచనం నమోదు \"టెక్స్ట్ ఎంట్రీలను\" సృష్టించడం ద్వారా లేదా ఈ స్టడీ ప్యాడ్‌తో సరిపోయే బుక్‌మార్క్ లేబుల్‌తో బుక్‌మార్క్‌లను సృష్టించడం ద్వారా ఈ స్టడీ ప్యాడ్‌కి జోడించడం ప్రారంభించండి.
+"
+doYouWantToDeleteEntry: ఈ స్టడీ ప్యాడ్ ఎంట్రీని తొలగించాలా?
+removeStudyPadConfirmationTitle: స్టడీ ప్యాడ్ ఎంట్రీని తీసివేయాలా?
 dragHelp: క్రమాన్ని మార్చడానికి లాగండి
 openAll: అన్ని రిఫరెన్సెస్ తెరవండి
 editBookmarkPlaceholder: ఈ బుక్‌మార్క్ కోసం నా నోట్స్ సవరించడానికి నొక్కండి
@@ -52,46 +54,69 @@ assignLabelsMenuEntry1: లేబుల్‌లను ఎంచుకోండ�
 favouriteLabels: ఇష్టమైన లేబుల్‌లు
 recentLabels: ఇటీవలి లేబుల్స్
 bookmarkLabels: లేబుల్‌లను బుక్‌మార్క్ చేయండి
-refParserHelp: దయచేసి ఆంగ్లంలో కాకుండా ఇతర భాషలలో రిఫరెన్సెస్ ఉపయోగించడానికి %s మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయండి.
+refParserHelp: "దయచేసి ఆంగ్లంలో కాకుండా ఇతర భాషలలో రిఫరెన్సెస్ ఉపయోగించడానికి %s మాడ్యూల్‌ని ఇన్‌స్టాల్ చేయండి."
 openDownloads: యాడ్-ఆన్ డౌన్‌లోడ్‌లకు వెళ్లండి
 verseShare: షేర్ చేయండి
 verseSpeak: మాట్లాడు
 verseCompare: సరిపోల్చండి
-verseMemorize: ""
+verseMemorize: కంఠస్థం
 verseNote: నోట్
 verseMyNotes: నా నోట్స్
-verseParagraphBreak: ""
+verseParagraphBreak: పేరా
 verseShareLong: ఈ వచనం షేర్ చేయండి
 verseCompareLong: వచనం సరిపోల్చండి
-verseMemorizeLong: ""
+verseMemorizeLong: బైబిలు వచనాలు కంఠస్థం చేయండి
+addMemorizationTarget: లక్ష్యం +
+addMemorizationTargetLong: కంఠస్థం లక్ష్యంగా నిర్ణయించండి
+removeMemorizationTarget: లక్ష్యం -
+removeMemorizationTargetLong: కంఠస్థం లక్ష్యాన్ని తొలగించు
+markAsMemorized: కంఠస్థమైనట్లు గుర్తించు
+markedAsMemorized: కంఠస్థమైంది
+removeFromTargets: లక్ష్యం -
+viewReadingProgress: చదవడం/కంఠస్థం ప్రోగ్రెస్
+viewReadingProgressSettings: చదవడం/కంఠస్థం సెట్టింగులు
+listenInLoop: లూప్‌లో వినండి
 verseNoteLong: ఒక నోట్ వ్రాయండి
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: పేరా విరామం
 addBookmark: బుక్మార్క్
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: రీసెట్
-peek: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: అనుకూల మార్కర్ చిహ్నం ఎంచుకోండి
+bookmarkSettingsTitle: బుక్‌మార్క్ సెట్టింగులు కాన్ఫిగర్ చేయండి
+subtitlePlaceholder: సబ్‌టైటిల్ వచనం
+customIconLabel: అనుకూల చిహ్నం
+editActionLabel: చర్య సవరించు
+editActionModeLabel: మోడ్
+editActionModeNone: ఏదీ లేదు
+editActionModeAppend: వచనం జతచేయండి
+editActionModePrepend: వచనం ముందు జతచేయండి
+editActionContentLabel: కంటెంట్
+editActionContentPlaceholder: పత్రానికి జోడించే వచనం నమోదు చేయండి...
+experimentalFeatureTitle: ప్రయోగాత్మక
+experimentalFeatureHelpTitle: ప్రయోగాత్మక సౌలభ్యాల గురించి
+experimentalFeatureHelpContent: ప్రయోగాత్మక సౌలభ్యాలు ఇంకా అభివృద్ధి చేయబడుతున్న మరియు పరీక్షించబడుతున్న కొత్త సామర్థ్యాలు. అవి పూర్తిగా పని చేయకపోవచ్చు మరియు భవిష్యత్ యాప్ వెర్షన్లలో గణనీయంగా మారవచ్చు లేదా తొలగించబడవచ్చు.
+insertParagraphBreak: పేరా విరామం చొప్పించండి
+insertSubtitle: సబ్‌టైటిల్ చొప్పించండి
+xmlParseError: XML పార్సింగ్ లోపం
+invalidTag: చెల్లని ట్యాగ్
+invalidClosingTag: చెల్లని క్లోజింగ్ ట్యాగ్
+unmatchedClosingTag: సరిపోలని క్లోజింగ్ ట్యాగ్
+unclosedTag: మూయని ట్యాగ్
+unknownError: తెలియని లోపం
+wordBlur: మసక
+wordScramble: కలపడం
+wordType: రకం
+wordOrder: క్రమం
+typeEverything: పూర్తి పదాలు టైప్ చేయండి
+tapToStartTyping: టైప్ చేయడం ప్రారంభించడానికి ఇక్కడ తాకండి
+wordVisibility: పద దృశ్యత
+wordVisibilityLight: తేలికగా
+wordVisibilityDim: మసకగా
+wordVisibilityHidden: దాచబడింది
+errorHeatmap: లోపం హీట్‌మ్యాప్
+hideUsedButtons: ఉపయోగించిన పద బటన్లను దాచు
 more: మరిన్ని
+llmAction: AI
+llmActionLong: AI చర్య
+aiDocumentRegenerate: పునర్జనరేట్ చేయండి
+aiDocumentDelete: తొలగించు
+aiGeneratedBy: "%s ద్వారా జనరేట్ చేయబడింది"
+aiGeneratedByWithModel: "%s (%s) ద్వారా జనరేట్ చేయబడింది"

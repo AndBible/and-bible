@@ -22,7 +22,7 @@ feature_02: "பல விவிலிய ஆய்வுகளை நடத்�
 feature_03: Strong's ஒருங்கிணைப்பு கிரேக்க மற்றும் எபிரேய பதங்களின் பகுப்பாய்வை எளிமையாக்குகின்றது
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
-  இணைக்கப்பட்ட விவிலிய குறுக்கு குறிப்புகள், அடிக்குறிப்புகள் மற்றும் ஆவணங்கள்; இணைப்பைத் தட்டுவதன் மூலம் குறுக்கு குறிப்புகள் மற்றும் அடிக்குறிப்புகளுக்குச் செல்லலாம்; இணைப்புகள் செய்யப்பட்ட விளக்க உரைகள் ({{commentary_examples}}), குறுக்கு-குறிப்பு களஞ்சியங்கள் ({{cross_reference_examles}}) மற்றும் பிறவற்றை பயன்படுத்தி விவிலியத்தை ஆழமாகப் படிக்கலாம்.
+  இணைக்கப்பட்ட விவிலிய குறுக்கு குறிப்புகள், அடிக்குறிப்புகள் மற்றும் ஆவணங்கள்; இணைப்பைத் தட்டுவதன் மூலம் குறுக்கு குறிப்புகள் மற்றும் அடிக்குறிப்புகளுக்குச் செல்லலாம்; இணைப்புகள் செய்யப்பட்ட விளக்க உரைகள் ({{commentary_examples}}), குறுக்கு-குறிப்பு களஞ்சியங்கள் ({{cross_reference_examples}}) மற்றும் பிறவற்றை பயன்படுத்தி விவிலியத்தை ஆழமாகப் படிக்கலாம்.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
 commentary_examples: "Gill, Matthew Henry etc. "
