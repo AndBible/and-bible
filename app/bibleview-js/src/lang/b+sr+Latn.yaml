@@ -2,8 +2,8 @@
 bookmarks: Obeleživači
 bookmarksAndNotes: Obeleživači i Moje Beleške
 openMyNotes: Otvori u Mojim Beleškama
-openStudyPad: Otvori u Radnoj Svesci (%s)
-noteText: Fusnote (%s)
+openStudyPad: "Otvori u Radnoj Svesci (%s)"
+noteText: "Fusnote (%s)"
 noteTextWithoutType: Fusnote
 crossReferenceText: Ukakrsne reference
 findAllOccurrences: Pronađi sva pojavljivanja
@@ -18,18 +18,20 @@ footnoteTypeAlternative: Alternativa
 footnoteTypeTranslation: Prevod
 clearLog: Očisti dnevnik grešaka
 editTextPlaceholder: Dodirni za uređivanje teksta
+myDocumentEdit: Uredi stranicu
+myDocumentEmptyPlaceholder: Dodirnite za početak uređivanja ove stranice
 inputPlaceholder: Napišite ovde
 inputReference: Unesite biblijsku referencu
 invalidReference: Stih nije pronađen
-bookmarkAccurate: Obeleživač je napravljen u %s
+bookmarkAccurate: "Obeleživač je napravljen u %s"
 bookmarkInaccurate: "Obeleživač detalja o knjizi nije ukladišten, sadržaj je prikazan u %s."
 defaultBook: Osnovni biblijski dokument
 ok: OK
 yes: "Da"
-ambiguousSelection: "Koju radnju želite da preduzmete?"
+ambiguousSelection: Koju radnju želite da preduzmete?
 cancel: Otkaži
-removeBookmarkConfirmationTitle: "Ukloni obeleživač?"
-removeBookmarkConfirmation: "Da li ste sigurni da želite da uklonite ovaj obeleživač?"
+removeBookmarkConfirmationTitle: Ukloni obeleživač?
+removeBookmarkConfirmation: Da li ste sigurni da želite da uklonite ovaj obeleživač?
 createdAt: "Napravljeno: %s"
 lastUpdatedOn: "Poslednji put ažurirano: %s"
 strongsAndMorph: Definicija i morfologija
@@ -37,12 +39,12 @@ externalLink: Otvori spoljašnji link
 referenceLink: Otvori link za referencu
 openFootnote: Otovri fusnotu
 noMyNotesTitle: Bez Moje Beleške za ovu glavu.
-noMyNotesDescription: >
-  Počnite kreiranjem obeleživača u biblijskom dokumentu. Obeleživači će zatim biti prikazani ovde i možete im dodati vaše lične beleške.
-emptyStudyPad: >
-  Radna Sveska je prazna. Krenite sa njenim popunjavanjem tako što ćete uneti ovde tekst ili kreiranjem obeleživača sa oznakom obeleživača koja odgovara ovoj radnoj svesci.
-doYouWantToDeleteEntry: "Izbrisati unos ove radne sveske?"
-removeStudyPadConfirmationTitle: "Ukloniti unos radne sveske?"
+noMyNotesDescription: Počnite kreiranjem obeleživača u biblijskom dokumentu. Obeleživači će zatim biti prikazani ovde i možete im dodati vaše lične beleške.
+
+emptyStudyPad: Radna Sveska je prazna. Krenite sa njenim popunjavanjem tako što ćete uneti ovde tekst ili kreiranjem obeleživača sa oznakom obeleživača koja odgovara ovoj radnoj svesci.
+
+doYouWantToDeleteEntry: Izbrisati unos ove radne sveske?
+removeStudyPadConfirmationTitle: Ukloniti unos radne sveske?
 dragHelp: Zadržite i povucite radi menjanja redosleda
 openAll: Otvori sve reference
 editBookmarkPlaceholder: Dodirnite radi uređivanja Moje Beleške za ovaj obeleživač
@@ -52,46 +54,69 @@ assignLabelsMenuEntry1: Izaberite ili uredite oznake...
 favouriteLabels: Omiljene Oznake
 recentLabels: Nedavne Oznake
 bookmarkLabels: Oznake obeleživača
-refParserHelp: Molimo instalirajte %s modul kako biste koristili reference u drugim jezicima mimo Engleskog.
+refParserHelp: "Molimo instalirajte %s modul kako biste koristili reference u drugim jezicima mimo Engleskog."
 openDownloads: Idite na Preuzimanje dodataka
 verseShare: Deli
 verseSpeak: Izgovori
 verseCompare: Uporedite
-verseMemorize: ""
+verseMemorize: Memorisanje
 verseNote: Beleška
 verseMyNotes: Moje beleške
-verseParagraphBreak: ""
+verseParagraphBreak: Pasus
 verseShareLong: Podeli ovaj stih
 verseCompareLong: Uporedi stih
-verseMemorizeLong: ""
+verseMemorizeLong: Memorišite biblijske stihove
+addMemorizationTarget: Cilj +
+addMemorizationTargetLong: Postavi kao cilj memorisanja
+removeMemorizationTarget: Cilj -
+removeMemorizationTargetLong: Ukloni cilj memorisanja
+markAsMemorized: Označi kao memorisano
+markedAsMemorized: Memorisano
+removeFromTargets: Cilj -
+viewReadingProgress: Napredak čitanja/memorisanja
+viewReadingProgressSettings: Podešavanja čitanja/memorisanja
+listenInLoop: Slušaj u petlji
 verseNoteLong: Napiši belešku
-verseParagraphBreakLong: ""
+verseParagraphBreakLong: Prelom pasusa
 addBookmark: Obeleživač
-selectCustomIconTitle: ""
-bookmarkSettingsTitle: ""
-subtitlePlaceholder: ""
-customIconLabel: ""
-editActionLabel: ""
-editActionModeLabel: ""
-editActionModeNone: ""
-editActionModeAppend: ""
-editActionModePrepend: ""
-editActionContentLabel: ""
-editActionContentPlaceholder: ""
-experimentalFeatureTitle: ""
-experimentalFeatureHelpTitle: ""
-experimentalFeatureHelpContent: ""
-insertParagraphBreak: ""
-insertSubtitle: ""
-xmlParseError: ""
-invalidTag: ""
-invalidClosingTag: ""
-unmatchedClosingTag: ""
-unclosedTag: ""
-unknownError: ""
-blur: ""
-reset: Povrati
-peek: ""
-wordBlur: ""
-wordScramble: ""
+selectCustomIconTitle: Izaberite prilagođenu ikonu markera
+bookmarkSettingsTitle: Konfiguriši podešavanja obeleživača
+subtitlePlaceholder: Tekst podnaslova
+customIconLabel: Prilagođena ikona
+editActionLabel: Radnja uređivanja
+editActionModeLabel: Režim
+editActionModeNone: Ništa
+editActionModeAppend: Dodaj tekst na kraj
+editActionModePrepend: Dodaj tekst na početak
+editActionContentLabel: Sadržaj
+editActionContentPlaceholder: Unesite tekst koji treba dodati dokumentu...
+experimentalFeatureTitle: Eksperimentalno
+experimentalFeatureHelpTitle: O eksperimentalnim funkcijama
+experimentalFeatureHelpContent: Eksperimentalne funkcije su nove mogućnosti koje su još uvek u razvoju i testiranju. Možda neće savršeno funkcionisati i mogu se značajno promeniti ili biti uklonjene u budućim verzijama aplikacije.
+insertParagraphBreak: Umetni prelom pasusa
+insertSubtitle: Umetni podnaslov
+xmlParseError: Greška parsiranja XML-a
+invalidTag: Nevalidna oznaka
+invalidClosingTag: Nevalidna zatvarajuća oznaka
+unmatchedClosingTag: Neusklađena zatvarajuća oznaka
+unclosedTag: Nezatvorena oznaka
+unknownError: Nepoznata greška
+wordBlur: Zamagljenost
+wordScramble: Mešanje
+wordType: Kucanje
+wordOrder: Redosled
+typeEverything: Upiši cele reči
+tapToStartTyping: Dodirnite ovde za početak kucanja
+wordVisibility: Vidljivost reči
+wordVisibilityLight: Svetlo
+wordVisibilityDim: Prigušeno
+wordVisibilityHidden: Skriveno
+errorHeatmap: Mapa grešaka
+hideUsedButtons: Sakrij korišćena dugmad reči
 more: Više
+llmAction: VI
+llmActionLong: VI radnja
+aiDocumentRegenerate: Regeneriši
+aiDocumentDelete: Obriši
+aiGeneratedBy: "Generisano od strane %s"
+aiGeneratedByWithModel: "Generisano od strane %s (%s)"

@@ -1,7 +1,7 @@
-# Long version of app name that will be displayed on Play Store. (max 50 characters)
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Bibelstudie"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: "Les Bibelen, studer bibelkommentarer og ordbøker i frakoblet modus."
+short_description: Les Bibelen, studer bibelkommentarer og ordbøker i frakoblet modus.
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Kraftig bibelstudie-verktøy
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -23,45 +23,46 @@ feature_04: >
   Lenkede kryssreferanser, fotnoter og dokumenter; hopp til kryssreferanser og fotnoter ved å klikke på en lenke; gjør dybdestudier av Skiftene ved å benytte hyperlenkede kommentarer ({{commentary_examples}}), kryssreferansesamlinger ({{cross_reference_examples}}) og andre ressurser.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: "Gill, Matthew Henry osv."
+commentary_examples: Gill, Matthew Henry osv.
 # Examples of cross-reference collections.
-cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
-feature_05: Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  Avansert tekst-til-tale med bokmerke-tale åpner for en strømlinjet bibellytte-opplevelse
 feature_06: Fleksibel søking
 feature_07: Avansert bokmerking og fokusmuligheter med personlige studienotater
-feature_09: >
-  Bibelleseplaner: sett mål for bibellesingen
+feature_09: "Bibelleseplaner: sett mål for bibellesingen"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
-  Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over {{total_documents}} moduler på over {{total_languages}} språk, fritt distribuert av Crosswire og andre SWORD pakkebrønner (repositories). 
-# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_11: >
-  Opprinnelsen til alle dokument er undersøkt for å sikre at de fritt kan distribueres, og tillatelse til distribusjon er gitt dersom opphavsrett gjelder. Dette er grunnen til at denne applikasjonen ikke inneholder bibeloversettelser som {{unavailable_documents}}.
+  Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over {{total_documents}} moduler på over {{total_languages}} språk, fritt distribuert av Crosswire og andre SWORD pakkebrønner (repositories).
+feature_10_1: >
+  Innebygd støtte for MyBible-, MySword- og EPUB-filer gjør at du kan utvide biblioteket ditt enda mer.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
 unavailable_documents: NO78/85 og NB88/07
 feature_12: >
   Frakoblet modus: du trenger bare være påkoblet internett når du skal laste ned moduler.
+# UNUSED
 feature_13: >
   Studiebrett for å skrive notater og bibelreferanser samtidig som man lytter til undervisning.
 subtitle_3: La oss bygge den beste Bibel-applikasjonen sammen!
 paragraph_3_1: >
   And Bibel er et åpen kildekode-prosjekt. I praksis betyr dette at hvem som helst med riktige kvalifikasjoner kan, og oppfordres til å bidra i prosjektet ved å:
-contr_1: "utvikle nye funksjoner,"
-contr_2: "teste nye funksjoner som ikke er utgitt enda,"
-contr_3: "holde oversettelse av brukergrensesnittet oppdatert, og"
-contr_4: "hjelpe til med å utvide modulbiblioteket ved å skaffe tillatelser fra rettighetshavere, eller ved å konvertere dokumenter til SWORD-format."
+contr_1: utvikle nye funksjoner,
+contr_2: teste nye funksjoner som ikke er utgitt enda,
+contr_3: holde oversettelse av brukergrensesnittet oppdatert, og
+contr_4: >
+  hjelpe til med å utvide modulbiblioteket ved å skaffe tillatelser fra rettighetshavere, eller ved å konvertere dokumenter til SWORD-format.
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: "Dersom du er en profesjonell programvareutvikler eller programvaretester, vennligst vurder å bidra i prosjektet. For mer informasjon om hvordan du kan bidra, vennligst besøk {{how_to_contribute_url}}."
+paragraph_4_1: >
+  Dersom du er en profesjonell programvareutvikler eller programvaretester, vennligst vurder å bidra i prosjektet. For mer informasjon om hvordan du kan bidra, vennligst besøk {{how_to_contribute_url}}.
 subtitle_4: Lenker
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: >
-  Hjemmeside: {{homepage_url}}
-link_2: >
-  Lik And Bible på Facebook: {{facebook_url}}
-link_3: >
-  Vår Youtube-kanal: {{youtube_url}}
-link_4: >
-  Ofte spurte spørsmål (FAQ): {{faq_url}}
-link_5: >
-  Prosjektsiden på Github: {{github_url}}
+link_1: "Hjemmeside: {{homepage_url}}"
+link_2: "Lik And Bible på Facebook: {{facebook_url}}"
+link_3: "Vår Youtube-kanal: {{youtube_url}}"
+link_4: "Ofte spurte spørsmål (FAQ): {{faq_url}}"
+link_5: "Prosjektsiden på Github: {{github_url}}"
+buy_title: Støtt ved å kjøpe utviklingstid!
+buy_1: >
+  Hvis du ikke har tid eller ferdigheter til å bidra til prosjektet, kan du også støtte prosjektet ved å kjøpe profesjonell utviklertid.
+buy_2: Se alternativer
