@@ -20,7 +20,7 @@ Applikasjonen har mange innsiktsfulle og originale finesser som gjør komplekse 
  * Studiebrett for å skrive notater og bibelreferanser samtidig som man lytter til undervisning.
  * Bibelleseplaner: sett mål for bibellesingen
  * Et stort bibliotek av moduler: Bibeloversettelser, teologiske bibelkommentarer, bibelordbøker, kart og kristne bøker som teller over 1500 moduler på over 700 språk, fritt distribuert av Crosswire og andre SWORD pakkebrønner (repositories).
- * Native support for MyBible, MySword and EPUB files enables you to extend your library even more
+ * Innebygd støtte for MyBible-, MySword- og EPUB-filer gjør at du kan utvide biblioteket ditt enda mer.
 
 La oss bygge den beste Bibel-applikasjonen sammen!
 
@@ -33,11 +33,11 @@ And Bibel er et åpen kildekode-prosjekt. I praksis betyr dette at hvem som hels
 
 Dersom du er en profesjonell programvareutvikler eller programvaretester, vennligst vurder å bidra i prosjektet. For mer informasjon om hvordan du kan bidra, vennligst besøk https://git.io/JUnaj.
 
-Support by sponsoring development time!
+Støtt ved å kjøpe utviklingstid!
 
-If you don't have time or skills for code contribution, you can support AndBible by sponsoring development time.
+Hvis du ikke har tid eller ferdigheter til å bidra til prosjektet, kan du også støtte prosjektet ved å kjøpe profesjonell utviklertid.
 
-See sponsorship options here:: https://shop.andbible.org/
+Se alternativer: https://shop.andbible.org/
 
 Lenker
 

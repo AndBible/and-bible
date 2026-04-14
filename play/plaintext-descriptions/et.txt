@@ -1,4 +1,4 @@
-<b>Võimas piibliuurimise tööriist</b>
+Võimas piibliuurimise tööriist
 
 "AndBible: Piibliuuring" on võimas, kuid lihtne kasutada, interneti ühenduseta piibliuurimise rakendus Androidile. Rakendus ei püüa olla lihtsalt piibliluger, vaid keskendub täiustatud tööriistaks olemisele põhjalikuks isiklikuks piibliuurimiseks.
 
@@ -6,7 +6,7 @@ Seda rakendust on arendanud piiblilugejad piiblilugejatele. Selle eesmärk on mu
 
 Mõned populaarsed piibli versioonid (paljudest saadaolevatest) on KJV, NASB, NET ja ka populaarsed kommentaarid nagu Matthew Henry ja John Gill.
 
-<b>Võimsad piibliuurimise funktsioonid</b>
+Võimsad piibliuurimise funktsioonid
 
 Rakendusel on palju originaalseid funktsioone, mis muudavad keeruka ja põhjaliku piibliuurimise kogemuse sujuvamaks kui kunagi varem. Olulisemad funktsioonid on järgmised:
 
@@ -22,7 +22,7 @@ Rakendusel on palju originaalseid funktsioone, mis muudavad keeruka ja põhjalik
  * Lai dokumentide kogu: piibli tõlked, teoloogilised kommentaarid, sõnaraamatud, kaardid ja kristlikud raamatud, kokku üle 1500 dokumendi üle 700 keeles, mida jagavad seaduslikult Crosswire ja teised SWORD hoidlad.
  * MyBible, MySword ja EPUB failide natiivne tugi võimaldab sul oma kogu veelgi laiendada.
 
-<b>Loome koos parima piiblirakenduse!</b>
+Loome koos parima piiblirakenduse!
 
 AndBible on avatud lähtekoodiga kogukonna projekt. Praktikas tähendab see, et igaüks, kellel on sobivad oskused, saab ja on julgustatud projektile kaasa aitama:
 
@@ -33,13 +33,13 @@ AndBible on avatud lähtekoodiga kogukonna projekt. Praktikas tähendab see, et 
 
 Kui oled professionaalne tarkvarainsener või testija, palun kaatle projektile panustamist. Lisateavet kaasa aitamise kohta leiad aadressilt https://git.io/JUnaj.
 
-<b>Toeta arendusaja ostmisega!</b>
+Toeta arendusaja ostmisega!
 
 Kui sul pole aega või oskusi projektile panustamiseks, saad projekti toetada ka professionaalse arendaja tööaja ostmisega.
 
 Vaata valikuid: https://shop.andbible.org/
 
-<b>Lingid</b>
+Lingid
 
  * Koduleht: https://andbible.org
  * Meeldi AndBible Facebookis: https://www.facebook.com/AndBible/
