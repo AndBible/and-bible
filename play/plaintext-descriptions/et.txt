@@ -1,0 +1,48 @@
+Võimas piibliuurimise tööriist
+
+"AndBible: Piibliuuring" on võimas, kuid lihtne kasutada, interneti ühenduseta piibliuurimise rakendus Androidile. Rakendus ei püüa olla lihtsalt piibliluger, vaid keskendub täiustatud tööriistaks olemisele põhjalikuks isiklikuks piibliuurimiseks.
+
+Seda rakendust on arendanud piiblilugejad piiblilugejatele. Selle eesmärk on muuta sinu piibliuuring mugavaks, põhjalikuks ja lõbusaks. Parim osa selles mittetulundusühinguprojektis on see, et see on avatud lähtekoodiga, täiesti tasuta ja ilma reklaamideta.
+
+Mõned populaarsed piibli versioonid (paljudest saadaolevatest) on KJV, NASB, NET ja ka populaarsed kommentaarid nagu Matthew Henry ja John Gill.
+
+Võimsad piibliuurimise funktsioonid
+
+Rakendusel on palju originaalseid funktsioone, mis muudavad keeruka ja põhjaliku piibliuurimise kogemuse sujuvamaks kui kunagi varem. Olulisemad funktsioonid on järgmised:
+
+ * Jagatud tekstivaated, mis võimaldavad tõlkeid võrrelda ja kommentaare konsulteerida
+ * Tööalad võimaldavad mitut piibliuurimise seadistust oma seadetega
+ * Strongi integreerimine võimaldab kreeka ja heebrea sõnade analüüsi
+ * Lingitud ristviited, allmärkused ja dokumendid; hüppa ristviidete ja allmärkuste juurde lihtsalt linki puudutades; tee põhjalik Pühakirja uuring lingitud kommentaaride (Gill, Matthew Henry jne.), ristviidete kogumike (Treasure of Scripture Knowledge, TSKe) ja teiste ressursside abil.
+ * Täiustatud tekst kõneks koos kõnelemise järjehoidjatega, mis võimaldab sujuvat piibli kuulamise kogemust
+ * Paindlik otsimine
+ * Täiustatud järjehoidja ja esiletõstmise funktsioonid koos isiklike uurimismärkmetega
+ * Uurimismärkmikud märkmete ja piibli viidete lisamiseks jutluste kuulamisel.
+ * Lugemiskavad: sea eesmärgid piibli lugemiseks
+ * Lai dokumentide kogu: piibli tõlked, teoloogilised kommentaarid, sõnaraamatud, kaardid ja kristlikud raamatud, kokku üle 1500 dokumendi üle 700 keeles, mida jagavad seaduslikult Crosswire ja teised SWORD hoidlad.
+ * MyBible, MySword ja EPUB failide natiivne tugi võimaldab sul oma kogu veelgi laiendada.
+
+Loome koos parima piiblirakenduse!
+
+AndBible on avatud lähtekoodiga kogukonna projekt. Praktikas tähendab see, et igaüks, kellel on sobivad oskused, saab ja on julgustatud projektile kaasa aitama:
+
+ * uute funktsioonide arendamine,
+ * veel avaldamata funktsioonide testimine,
+ * kasutajaliidese tõlgete ajakohane hoidmine ja
+ * moodulite kogu laiendamise abistamine autoriõiguse omajatelt lubade hankimise või dokumentide SWORD formaati teisendamise teel.
+
+Kui oled professionaalne tarkvarainsener või testija, palun kaatle projektile panustamist. Lisateavet kaasa aitamise kohta leiad aadressilt https://git.io/JUnaj.
+
+Toeta arendusaja ostmisega!
+
+Kui sul pole aega või oskusi projektile panustamiseks, saad projekti toetada ka professionaalse arendaja tööaja ostmisega.
+
+Vaata valikuid: https://shop.andbible.org/
+
+Lingid
+
+ * Koduleht: https://andbible.org
+ * Meeldi AndBible Facebookis: https://www.facebook.com/AndBible/
+ * Meie Youtube kanal: https://www.youtube.com/c/AndBible
+ * Korduma kippuvad küsimused: https://git.io/JJm8E
+ * Projektileht Githubis: https://github.com/AndBible/and-bible
