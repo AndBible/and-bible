@@ -1,54 +1,59 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
-title: ""
+title: "AndBible: 聖書研究"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: ""
+short_description: 聖書を読み、注解書や辞書を調べたり、オフラインで書籍を読めます。
 # Main (first) subtitle of the Play Store main (long) description text.
-subtitle_1: ""
+subtitle_1: 強力な聖書研究ツール
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-paragraph_1_1: ""
-paragraph_1_2: ""
+paragraph_1_1: >
+  「{{ title }}」は、Android向けの強力かつ使いやすいオフライン聖書研究アプリです。単なる聖書リーダーではなく、個人の深い聖書研究を支援する高度なツールを目指しています。
+paragraph_1_2: >
+  このアプリは聖書を読む人によって、聖書を読む人のために開発されました。聖書研究を便利で、深く、楽しいものにすることを目指しています。この非営利コミュニティプロジェクトの最大の特長は、オープンソースで完全無料、広告なしであることです。
 # You can also advertise here the best documents that are available in the app in your language.
-paragraph_1_3: ""
-subtitle_2: ""
-paragraph_2_1: ""
-feature_01: ""
-feature_02: ""
-feature_03: ""
+paragraph_1_3: 多数の聖書バージョンの中でも人気なのは、KJV、NASB、NETなどです。また、マシュー・ヘンリーやジョン・ギルなどの人気注解書も利用できます。
+subtitle_2: 充実した聖書研究機能
+paragraph_2_1: このアプリは多くの独自機能を備えており、複雑で深い聖書研究をこれまでになくスムーズに行えます。主な機能は以下のとおりです。
+feature_01: 翻訳の比較や注解書の参照を可能にする分割テキスト表示
+feature_02: ワークスペースで複数の聖書研究環境をそれぞれの設定で管理
+feature_03: ストロングのコンコーダンスでギリシャ語・ヘブライ語の単語分析
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
-feature_04: ""
+feature_04: >
+  相互参照・脚注・文書をリンク。タップするだけで相互参照や脚注にジャンプ。ハイパーリンク付き注解書（{{commentary_examples}}）、相互参照集（{{cross_reference_examples}}）などを使って聖書を深く研究できます。
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: ""
+commentary_examples: Gill、Matthew Henry など
 # Examples of cross-reference collections.
-cross_reference_examples: ""
-feature_05: ""
-feature_06: ""
-feature_07: ""
-feature_09: ""
+cross_reference_examples: Treasure of Scripture Knowledge、TSKe
+feature_05: スピークブックマーク付きの高度なテキスト読み上げで、快適な聖書リスニング体験
+feature_06: 柔軟な検索機能
+feature_07: 個人の学習ノート付きの高度なブックマークとハイライト機能
+feature_09: 読書プラン：聖書通読の目標を設定
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-feature_10: ""
-feature_10_1: ""
+feature_10: >
+  充実した文書ライブラリ：聖書翻訳、神学注解書、辞書、地図、キリスト教書籍など、{{total_languages}}以上の言語で{{total_documents}}以上の文書をCrosswireおよび他のSWORDリポジトリから合法的に配布。
+feature_10_1: MyBible、MySword、EPUBファイルのネイティブサポートにより、ライブラリをさらに拡張できます。
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ""
-feature_12: ""
+unavailable_documents: ESV、NIV、NKJV
+feature_12: オフライン対応：インターネットが必要なのは文書のダウンロード時のみ。
 # UNUSED
-feature_13: ""
-subtitle_3: ""
-paragraph_3_1: ""
-contr_1: ""
-contr_2: ""
-contr_3: ""
-contr_4: ""
+feature_13: 説教を聴きながらノートや聖書の参照を追加できるスタディパッド。
+subtitle_3: 一緒に最高の聖書アプリを作りましょう！
+paragraph_3_1: AndBibleはオープンソースのコミュニティプロジェクトです。つまり、適切なスキルを持つ方なら誰でも、以下の方法でプロジェクトへの貢献が歓迎されています。
+contr_1: 新機能の開発、
+contr_2: リリース前の機能のテスト、
+contr_3: ユーザーインターフェースの翻訳の維持・更新、
+contr_4: 著作権者から許可を取得したり、文書をSWORD形式に変換してモジュールライブラリの拡充を支援すること。
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: ""
-subtitle_4: ""
+paragraph_4_1: >
+  プロのソフトウェアエンジニアやテスターの方は、ぜひプロジェクトへの貢献をご検討ください。貢献方法の詳細については、{{how_to_contribute_url}} をご覧ください。
+subtitle_4: リンク
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: ""
-link_2: ""
-link_3: ""
-link_4: ""
-link_5: ""
-buy_title: ""
-buy_1: ""
-buy_2: ""
+link_1: ホームページ：{{homepage_url}}
+link_2: FacebookでAndBibleをフォロー：{{facebook_url}}
+link_3: YouTubeチャンネル：{{youtube_url}}
+link_4: よくある質問：{{faq_url}}
+link_5: GitHubプロジェクトページ：{{github_url}}
+buy_title: 開発時間の購入でサポートを！
+buy_1: プロジェクトへの貢献に時間やスキルがない場合でも、プロの開発者の作業時間を購入することでプロジェクトを支援できます。
+buy_2: 選択肢を見る
