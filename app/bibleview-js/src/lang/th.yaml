@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: ที่คั่นหน้า
+bookmarksAndNotes: ที่คั่นหน้าและบันทึกของฉัน
+openMyNotes: เปิดในบันทึกของฉัน
+openStudyPad: "เปิดในแผ่นบันทึกการศึกษา (%s)"
+noteText: "เชิงอรรถ (%s)"
+noteTextWithoutType: เชิงอรรถ
+crossReferenceText: การอ้างอิงข้าม
+findAllOccurrences: ค้นหาทุกตำแหน่ง
+reportError: รายงานข้อผิดพลาด
+errorTitle: เกิดข้อผิดพลาด
+warningTitle: คำเตือน
+normalTitle: โปรดทราบ
+footnoteTypeStudy: การศึกษา
+footnoteTypeExplanation: คำอธิบาย
+footnoteTypeVariant: รูปแบบอื่น
+footnoteTypeAlternative: ทางเลือก
+footnoteTypeTranslation: การแปล
+clearLog: ล้างบันทึกข้อผิดพลาด
+editTextPlaceholder: แตะเพื่อแก้ไขข้อความ
+myDocumentEdit: แก้ไขหน้า
+myDocumentEmptyPlaceholder: แตะเพื่อเริ่มแก้ไขหน้านี้
+inputPlaceholder: เขียนที่นี่
+inputReference: ป้อนข้อพระคัมภีร์
+invalidReference: ไม่พบข้อพระคัมภีร์
+bookmarkAccurate: "สร้างที่คั่นหน้าใน %s แล้ว"
+bookmarkInaccurate: "ไม่ได้บันทึกข้อมูลหนังสือของที่คั่นหน้า เนื้อหาแสดงใน %s"
+defaultBook: พระคัมภีร์เริ่มต้น
+ok: ตกลง
+yes: "ใช่"
+ambiguousSelection: คุณต้องการดำเนินการใด?
+cancel: ยกเลิก
+removeBookmarkConfirmationTitle: ลบที่คั่นหน้า?
+removeBookmarkConfirmation: คุณแน่ใจหรือไม่ว่าต้องการลบที่คั่นหน้านี้?
+createdAt: "สร้างเมื่อ: %s"
+lastUpdatedOn: "อัปเดตล่าสุด: %s"
+strongsAndMorph: คำจำกัดความและสัณฐานวิทยา
+externalLink: เปิดลิงก์ภายนอก
+referenceLink: เปิดลิงก์อ้างอิง
+openFootnote: เปิดเชิงอรรถ
+noMyNotesTitle: ไม่มีบันทึกของฉันสำหรับบทนี้
+noMyNotesDescription: เริ่มต้นด้วยการสร้างที่คั่นหน้าในพระคัมภีร์ ที่คั่นหน้าจะปรากฏที่นี่และคุณสามารถเพิ่มบันทึกส่วนตัวได้
+emptyStudyPad: แผ่นบันทึกการศึกษายังว่างเปล่า เริ่มต้นด้วยการเพิ่มข้อความหรือสร้างที่คั่นหน้าที่มีป้ายกำกับตรงกับแผ่นบันทึกนี้
+doYouWantToDeleteEntry: ลบรายการแผ่นบันทึกการศึกษานี้?
+removeStudyPadConfirmationTitle: ลบรายการแผ่นบันทึกการศึกษา?
+dragHelp: ลากเพื่อจัดเรียงใหม่
+openAll: เปิดการอ้างอิงทั้งหมด
+editBookmarkPlaceholder: แตะเพื่อแก้ไขบันทึกของฉันสำหรับที่คั่นหน้านี้
+onlyLabel: เฉพาะป้ายกำกับ
+wholeBookmark: ที่คั่นหน้าทั้งหมด
+assignLabelsMenuEntry1: เลือกหรือแก้ไขป้ายกำกับ…
+favouriteLabels: ป้ายกำกับโปรด
+recentLabels: ป้ายกำกับล่าสุด
+bookmarkLabels: ป้ายกำกับที่คั่นหน้า
+refParserHelp: "โปรดติดตั้งโมดูล %s เพื่อใช้การอ้างอิงในภาษาอื่นนอกจากภาษาอังกฤษ"
+openDownloads: ไปที่ดาวน์โหลดส่วนเสริม
+verseShare: แชร์
+verseSpeak: อ่านออกเสียง
+verseCompare: เปรียบเทียบ
+verseMemorize: ท่องจำ
+verseNote: บันทึก
+verseMyNotes: บันทึกของฉัน
+verseParagraphBreak: ย่อหน้า
+verseShareLong: แชร์ข้อพระคัมภีร์นี้
+verseCompareLong: เปรียบเทียบข้อพระคัมภีร์
+verseMemorizeLong: ท่องจำข้อพระคัมภีร์
+addMemorizationTarget: เป้าหมาย +
+addMemorizationTargetLong: ตั้งเป็นเป้าหมายการท่องจำ
+removeMemorizationTarget: เป้าหมาย -
+removeMemorizationTargetLong: ลบเป้าหมายการท่องจำ
+markAsMemorized: ทำเครื่องหมายว่าท่องจำแล้ว
+markedAsMemorized: ท่องจำแล้ว
+removeFromTargets: เป้าหมาย -
+viewReadingProgress: ความคืบหน้าการอ่าน/ท่องจำ
+viewReadingProgressSettings: การตั้งค่าการอ่าน/ท่องจำ
+listenInLoop: ฟังแบบวนซ้ำ
+verseNoteLong: เขียนบันทึก
+verseParagraphBreakLong: ขึ้นย่อหน้าใหม่
+addBookmark: ที่คั่นหน้า
+selectCustomIconTitle: เลือกไอคอนเครื่องหมายกำหนดเอง
+bookmarkSettingsTitle: ตั้งค่าที่คั่นหน้า
+subtitlePlaceholder: ข้อความคำบรรยาย
+customIconLabel: ไอคอนกำหนดเอง
+editActionLabel: การดำเนินการแก้ไข
+editActionModeLabel: โหมด
+editActionModeNone: ไม่มี
+editActionModeAppend: ต่อท้ายข้อความ
+editActionModePrepend: นำหน้าข้อความ
+editActionContentLabel: เนื้อหา
+editActionContentPlaceholder: ป้อนข้อความที่จะเพิ่มในเอกสาร...
+experimentalFeatureTitle: ทดลอง
+experimentalFeatureHelpTitle: เกี่ยวกับคุณลักษณะทดลอง
+experimentalFeatureHelpContent: คุณลักษณะทดลองเป็นความสามารถใหม่ที่ยังอยู่ระหว่างการพัฒนาและทดสอบ อาจทำงานไม่สมบูรณ์และอาจเปลี่ยนแปลงหรือถูกลบในเวอร์ชันอนาคต
+insertParagraphBreak: แทรกการขึ้นย่อหน้า
+insertSubtitle: แทรกคำบรรยาย
+xmlParseError: ข้อผิดพลาดการแยกวิเคราะห์ XML
+invalidTag: แท็กไม่ถูกต้อง
+invalidClosingTag: แท็กปิดไม่ถูกต้อง
+unmatchedClosingTag: แท็กปิดไม่มีคู่
+unclosedTag: แท็กที่ไม่ได้ปิด
+unknownError: ข้อผิดพลาดที่ไม่รู้จัก
+wordBlur: เบลอ
+wordScramble: สลับตัวอักษร
+wordType: พิมพ์
+wordOrder: ลำดับ
+typeEverything: พิมพ์คำทั้งหมด
+tapToStartTyping: แตะที่นี่เพื่อเริ่มพิมพ์
+wordVisibility: การมองเห็นคำ
+wordVisibilityLight: อ่อน
+wordVisibilityDim: มืด
+wordVisibilityHidden: ซ่อน
+errorHeatmap: แผนที่ความร้อนข้อผิดพลาด
+hideUsedButtons: ซ่อนปุ่มคำที่ใช้แล้ว
+more: เพิ่มเติม
+llmAction: AI
+llmActionLong: การดำเนินการ AI
+aiDocumentRegenerate: สร้างใหม่
+aiDocumentDelete: ลบ
+aiGeneratedBy: "สร้างโดย %s"
+aiGeneratedByWithModel: "สร้างโดย %s (%s)"

@@ -1,0 +1,1834 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<resources>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">การศึกษาพระคัมภีร์</string>
+  <string name="app_name_medium">การศึกษาพระคัมภีร์ (AndBible)</string>
+  <string name="app_name_long">AndBible: การศึกษาพระคัมภีร์</string>
+  <string name="project">โครงการโอเพนซอร์ส AndBible</string>
+
+  <string name="version_text">เวอร์ชัน %s</string>
+  <string name="no_sdcard_error">กรุณาใส่การ์ด SD แล้วรีสตาร์ทแอปพลิเคชัน</string>
+
+    <!-- Main menu -->
+  <string name="menu">เมนู</string>
+  <string name="chooseBook">เอกสาร</string>
+  <string name="selectPassage">ข้อความ</string>
+  <string name="search">ค้นหา</string>
+  <string name="settings">การตั้งค่าแอปพลิเคชัน</string>
+  <string name="history">ประวัติ</string>
+  <string name="speak">อ่านออกเสียง</string>
+  <string name="help">ความช่วยเหลือ</string>
+  <string name="information">ข้อมูล</string>
+  <string name="other">อื่นๆ</string>
+  <string name="contact">ติดต่อ</string>
+  <string name="help_and_tips">ความช่วยเหลือและเคล็ดลับ</string>
+  <string name="administration">การจัดการ</string>
+  <string name="rate_application">ให้คะแนนและรีวิว</string>
+  <string name="chooce_document">เลือกเอกสาร</string>
+
+    <!-- Passage navigation -->
+  <string name="choosePassageBookName">เลือกหนังสือ</string>
+  <string name="choosePassageChapterName">เลือกบท</string>
+  <string name="choosePassageVerseName">เลือกข้อ</string>
+  <string name="bible">พระคัมภีร์</string>
+  <string name="deuterocanonical">เฒ่าพันธสัญญาชั้นสอง</string>
+
+    <!--  Search -->
+  <string name="search_index">ดัชนีการค้นหา</string>
+  <string name="index_creation_required">จำเป็นต้องมีดัชนีเพื่อค้นหา</string>
+  <string name="create_index_for">จำเป็นต้องมีดัชนีเพื่อค้นหา \n\nสร้างดัชนีสำหรับ %s?</string>
+  <string name="rebuild_index_for">สร้างดัชนีใหม่สำหรับ %s?</string>
+  <string name="indexing_wait_msg">เมื่อการสร้างดัชนีเสร็จสิ้น ระบบจะนำคุณไปยังหน้าจอค้นหา</string>
+  <string name="index_create">สร้าง</string>
+  <string name="rebuild_index">สร้างดัชนีใหม่</string>
+  <string name="search_in">ค้นหาใน %s</string>
+  <string name="do_in_background">ดำเนินการต่อในเบื้องหลัง</string>
+  <string name="rebuild_index_button">สร้างใหม่</string>
+  <string name="creating_index_for">กำลังสร้างดัชนีสำหรับ %s…</string>
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s ผลลัพธ์ใน %2$s</string>
+
+    <!-- Tasks -->
+  <string name="progress_status">ความคืบหน้า</string>
+  <string name="task_kill_warning">งานที่ใช้เวลานานเหล่านี้อาจสิ้นสุดหากคุณสลับไปใช้แอปพลิเคชันอื่นก่อนที่จะเสร็จสิ้น</string>
+  <string name="no_tasks_running">ขณะนี้ไม่มีงานที่กำลังดำเนินการ</string>
+
+    <!-- Search -->
+  <string name="search_words_group_prompt">ค้นหาข้อพระคัมภีร์</string>
+  <string name="search_all_words">ทุกคำ</string>
+  <string name="search_any_word">คำใดคำหนึ่ง</string>
+  <string name="search_phrase">วลี</string>
+  <string name="search_fts_query">ไวยากรณ์คำค้นหาดิบ</string>
+  <string name="search_result_count">พบ %d รายการที่ตรงกัน</string>
+  <string name="search_showing_first">ผลลัพธ์มากเกินไป แสดงเฉพาะ %d รายการแรก</string>
+  <string name="search_bible_section_group_prompt">ค้นหาที่ไหน</string>
+  <string name="search_all_bible">พระคัมภีร์ทั้งหมด</string>
+  <string name="search_new_testament">พันธสัญญาใหม่</string>
+  <string name="search_old_testament">พันธสัญญาเดิม</string>
+  <string name="search_current_book">หนังสือปัจจุบัน</string>
+  <string name="error_executing_search">คำค้นหาไม่ถูกต้อง</string>
+  <string name="type_text_or_bible_reference">พิมพ์ข้อความหรืออ้างอิงพระคัมภีร์</string>
+    <!-- Open (bible reference X) -->
+  <string name="go_to_ref">เปิด %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <string name="search_what">ค้นหา \"%s\"</string>
+    <!-- Multi-translation search -->
+  <string name="search_translations">ฉบับแปล</string>
+  <string name="choose_translations">เลือกฉบับแปล…</string>
+  <string name="multi_search_results">%1$d ข้อใน %2$d ฉบับแปล</string>
+  <string name="search_index_not_created">ไม่มีดัชนี</string>
+
+    <!-- Preferences -->
+  <string name="prefs_show_verseno_title">เลขบทและข้อ</string>
+  <string name="prefs_show_verseno_summary">แสดงเลขบทและข้อ</string>
+
+  <string name="prefs_e_ink_mode_title">โหมดขาวดำ</string>
+  <string name="prefs_eink_mode_summary">ใช้แอปพลิเคชันในโหมดโมโนโครม (ไม่มีสี) เหมาะสำหรับอุปกรณ์ E-ink</string>
+  <string name="prefs_eink_settings_cat">การตั้งค่า E-ink</string>
+  <string name="prefs_eink_display_title">คุณสมบัติ E-ink</string>
+  <string name="prefs_eink_display_summary">เปิดใช้งานคุณสมบัติเฉพาะ E-ink (ปุ่มเลื่อนหน้า เส้นช่วยการเลื่อน)</string>
+
+  <string name="prefs_disable_animations_title">ปิดการใช้งานแอนิเมชัน</string>
+  <string name="prefs_disable_animations_summary">ปิดการใช้งานแอนิเมชันต่างๆ เช่น การเลื่อนแบบราบรื่น</string>
+
+  <string name="prefs_disable_click_to_edit_title">ปิดการแตะเพื่อแก้ไขในแผ่นบันทึกการศึกษา</string>
+  <string name="prefs_disable_click_to_edit_summary">ต้องใช้ปุ่มแก้ไขเพื่อแก้ไขบันทึกในแผ่นบันทึกการศึกษา</string>
+
+  <string name="prefs_notes_content_type_title">รูปแบบสำหรับบันทึกที่คั่นหน้าใหม่</string>
+  <string name="prefs_notes_content_type_summary">รูปแบบข้อความที่ใช้เมื่อสร้างบันทึกที่คั่นหน้าและรายการแผ่นบันทึกการศึกษาใหม่</string>
+  <string name="notes_content_type_html">ข้อความรูปแบบ (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
+  <string name="prefs_paragraph_spacing_title">ระยะห่างระหว่างย่อหน้า (%s มม.)</string>
+  <string name="prefs_paragraph_spacing_summary">ปรับระยะห่างระหว่างย่อหน้า</string>
+
+  <string name="prefs_show_verseno_title1">เลขข้อ</string>
+
+  <string name="prefs_show_chapter_no_title">เลขบท</string>
+  <string name="prefs_show_chapter_no_summary">แสดงเลขบท</string>
+
+  <string name="prefs_verse_per_line_summary">แสดงแต่ละข้อในบรรทัดแยกต่างหาก</string>
+  <string name="prefs_show_bookmarks_summary">ยกเลิกการเลือกเพื่อซ่อนที่คั่นหน้าทั้งหมด</string>
+
+  <string name="prefs_show_mynotes_summary">แสดงไอคอนในข้อที่มีบันทึกของฉัน</string>
+  <string name="prefs_show_notes_summary">แสดงเชิงอรรถและการอ้างอิงข้าม</string>
+  <string name="prefs_show_strongs_summary">ลิงก์ไปยังคำจำกัดความภาษากรีกและฮีบรู</string>
+  <string name="prefs_show_morphology_summary">แสดงสัณฐานวิทยาภาษากรีกของ Robinson</string>
+  <string name="prefs_section_title_summary">แสดงหัวข้อส่วนที่ไม่ใช่พระคัมภีร์</string>
+  <string name="prefs_red_letter_summary">แสดงพระวจนะของพระคริสต์ด้วยตัวอักษรสีแดง</string>
+  <string name="prefs_text_size_title">การตั้งค่าแบบอักษร</string>
+
+  <string name="prefs_verse_per_line_title">หนึ่งข้อต่อบรรทัด</string>
+  <string name="prefs_show_bookmarks_title">แสดงที่คั่นหน้า</string>
+  <string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกของฉัน</string>
+  <string name="prefs_show_footnotes_title">เชิงอรรถ</string>
+  <string name="prefs_show_xrefs_title">การอ้างอิงข้าม</string>
+  <string name="prefs_show_footnotes_summary">แสดงเชิงอรรถ หากมีในเอกสาร</string>
+  <string name="prefs_show_footnotes_inline_title">เชิงอรรถแบบอินไลน์</string>
+  <string name="prefs_show_footnotes_inline_summary">แสดงเชิงอรรถแบบอินไลน์กับข้อความแทนที่จะเป็นตัวจัดการที่คลิกได้</string>
+  <string name="prefs_show_xrefs_summary">แสดงการอ้างอิงข้าม หากมีในเอกสาร</string>
+
+  <string name="prefs_show_notes_title">เชิงอรรถและการอ้างอิงข้าม</string>
+  <string name="prefs_show_strongs_title">หมายเลข Strong\'s</string>
+  <string name="prefs_show_morphology_title">รหัสสัณฐานวิทยา</string>
+  <string name="prefs_non_strongs_word_italic_title">ทำคำที่เพิ่มเข้ามาเป็นตัวเอียง</string>
+  <string name="prefs_non_strongs_word_italic_summary">ทำคำที่ไม่มีหมายเลข Strong\'s เป็นตัวเอียง</string>
+  <string name="prefs_section_title_title">หัวข้อส่วน</string>
+  <string name="prefs_title_scroll_button_title">ปุ่มเลื่อนหัวข้อ</string>
+  <string name="prefs_title_scroll_button_summary">แสดงปุ่มเลื่อนไปด้านบนถัดจากหัวข้อส่วน</string>
+  <string name="prefs_red_letter_title">ตัวอักษรสีแดง</string>
+  <string name="prefs_infinite_scroll_title">การเลื่อนแบบไม่สิ้นสุด</string>
+  <string name="prefs_infinite_scroll_summary">โหลดเนื้อหาเพิ่มเติมโดยอัตโนมัติเมื่อเลื่อน</string>
+  <string name="prefs_mark_as_read_button_title">ปุ่มทำเครื่องหมายว่าอ่านแล้ว</string>
+  <string name="prefs_mark_as_read_button_summary">แสดงปุ่มที่ท้ายแต่ละบทเพื่อทำเครื่องหมายว่าอ่านแล้ว</string>
+  <string name="prefs_show_memorization_indicators_title">ตัวบ่งชี้การท่องจำ</string>
+  <string name="prefs_show_memorization_indicators_summary">แสดงตัวบ่งชี้ขอบสีสำหรับข้อที่ท่องจำแล้วและข้อเป้าหมาย</string>
+  <string name="prefs_auto_track_reading_title">ติดตามการอ่านอัตโนมัติ</string>
+  <string name="prefs_auto_track_reading_summary">ทำเครื่องหมายบทโดยอัตโนมัติว่าอ่านแล้วเมื่อคุณเลื่อนผ่าน</string>
+  <string name="prefs_tilt_to_scroll_title">เอียงเพื่อเลื่อน</string>
+
+  <string name="prefs_toolbar_button_action_title">การกระทำสำหรับปุ่มแถบเครื่องมือ</string>
+  <string name="prefs_toolbar_button_action_summary">การกระทำเมื่อกด/กดค้างปุ่มแถบเครื่องมือพระคัมภีร์หรือคำอธิบาย</string>
+  <string name="prefs_toolbar_button_action_default">กดเพื่อเปิดเมนู กดค้างเพื่อเปิดหน้าจอเอกสาร (ค่าเริ่มต้น)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">กดเพื่อเปิดเอกสารถัดไป กดค้างเพื่อเปิดเมนู</string>
+  <string name="prefs_toolbar_button_action_swap_activity">กดเพื่อเปิดเอกสารถัดไป กดค้างเพื่อเปิดหน้าจอเอกสาร</string>
+
+  <string name="prefs_night_mode_title">การสลับโหมดกลางคืน</string>
+  <string name="prefs_night_mode_summary">เลือกว่าจะสลับเป็นโหมดกลางคืนโดยอัตโนมัติ (หากอุปกรณ์รองรับ) ด้วยตนเอง หรือตามการตั้งค่าระบบ (Android 10 ขึ้นไป) การสลับด้วยตนเองสามารถทำได้จากเมนู 3 จุดในหน้าจอหลัก</string>
+  <string name="prefs_night_mode_manual">ด้วยตนเอง</string>
+  <string name="prefs_night_mode_automatic">อัตโนมัติ</string>
+  <string name="prefs_night_mode_system">ระบบ</string>
+  <string name="options_menu_night_mode">โหมดกลางคืน</string>
+
+  <string name="prefs_navigate_to_verse_title">นำทางไปยังข้อ</string>
+  <string name="prefs_navigate_to_verse_summary">เลือกข้อ (และบท) เมื่อเลือกตอน</string>
+  <string name="prefs_open_links_in_special_window_title">หน้าต่างลิงก์</string>
+  <string name="prefs_open_links_in_special_window_summary">เปิดลิงก์ในหน้าต่างพิเศษ เพื่อแสดงการอ้างอิงข้ามและ Strongs ได้รวดเร็วขึ้น</string>
+  <string name="prefs_text_size_sample_text">ข้อความตัวอย่าง</string>
+  <string name="prefs_screen_keep_on_title">เปิดหน้าจอค้างไว้</string>
+  <string name="prefs_screen_keep_on_summary">ป้องกันหน้าจอดับระหว่างใช้งานแอป</string>
+  <string name="prefs_interface_locale_title">ภาษาของแอปพลิเคชัน</string>
+  <string name="prefs_interface_locale_summary">เลือกภาษาส่วนติดต่อผู้ใช้แบบกำหนดเอง</string>
+  <string name="reset_fontsize">รีเซ็ต</string>
+
+  <string name="prefs_request_sdcard_permission_title">มีเอกสารที่ติดตั้งด้วยตนเอง</string>
+  <string name="prefs_request_sdcard_permission_summary">เปิดใช้งานเอกสารที่ติดตั้งด้วยตนเองจากโฟลเดอร์ jsword/sword ในพื้นที่จัดเก็บภายใน</string>
+
+  <string name="prefs_expand_footnotes_title">การอ้างอิงข้ามแบบอินไลน์</string>
+  <string name="prefs_expand_footnotes_summary">แสดงเนื้อหาการอ้างอิงข้ามแบบอินไลน์ภายในข้อความ แทนการเปิดกล่องโต้ตอบผ่านลิงก์</string>
+
+  <string name="all_text_options_window_menutitle">ตัวเลือกข้อความทั้งหมด</string>
+  <string name="text_options_window_menutitle">ตัวเลือกข้อความ</string>
+  <string name="auto_fullscreen">เต็มหน้าจออัตโนมัติเมื่อเลื่อน</string>
+  <string name="reversed_split_mode">โหมดแบ่งหน้าจอแบบกลับด้าน</string>
+
+  <string name="add_ellipsis">%s…</string>
+
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d มม.</string>
+  <string name="auto_fullscreen_summary">สลับไปยังโหมดเต็มหน้าจออัตโนมัติเมื่อเลื่อนข้อความ เคล็ดลับ: คุณสามารถสลับเป็นเต็มหน้าจอได้เสมอโดยแตะหน้าจอสองครั้ง</string>
+  <string name="prefs_margin_size_title">เปลี่ยนขนาดขอบ</string>
+  <string name="prefs_margin_size_mm_title">ขนาดขอบ (%1$d/%2$d/%3$d มม.)</string>
+  <string name="prefs_advanced_settings_cat">การตั้งค่าขั้นสูง</string>
+  <string name="prefs_features_cat">คุณสมบัติ</string>
+  <string name="prefs_display_customization_cat">รูปลักษณ์</string>
+  <string name="prefs_behavior_customization_cat">การทำงานของแอปพลิเคชัน</string>
+
+  <string name="prefs_margin_size_summary">ปรับขอบซ้ายและขวาของพื้นที่ข้อความ คุณยังสามารถปรับความกว้างสูงสุดของข้อความได้</string>
+  <string name="prefs_margin_size_summary_2">เคล็ดลับ: แตะที่พื้นที่ขอบเพื่อเลื่อนขึ้น/ลงหนึ่งหน้า</string>
+
+  <string name="prefs_text_colors_summary">ปรับสีข้อความ สีพื้นหลัง และเอฟเฟกต์สัญญาณรบกวน</string>
+  <string name="text_display_settings_activity_title">การตั้งค่าการแสดงข้อความ</string>
+  <string name="workspace_text_display_settings_title">ตัวเลือกข้อความ - %s</string>
+  <string name="window_text_display_settings_title">ตัวเลือกข้อความ - หน้าต่าง %d</string>
+  <string name="global_text_display_settings_title">ตัวเลือกข้อความสากล</string>
+  <string name="global_text_display_settings_summary">การตั้งค่าการแสดงข้อความเริ่มต้นสำหรับทุกพื้นที่ทำงาน</string>
+  <string name="parent_settings_category_title">การตั้งค่าต้นทาง</string>
+  <string name="workspace_text_options_link">ตัวเลือกข้อความพื้นที่ทำงาน — %s</string>
+  <string name="workspace_text_options_link_summary">แก้ไขการตั้งค่าการแสดงข้อความสำหรับพื้นที่ทำงานนี้</string>
+  <string name="global_text_options_link">ตัวเลือกข้อความสากล</string>
+  <string name="global_text_options_link_summary">แก้ไขการตั้งค่าการแสดงข้อความเริ่มต้นสำหรับทุกพื้นที่ทำงาน</string>
+  <string name="prefs_font_and_colors_title">แบบอักษร &amp; สี</string>
+  <string name="prefs_text_layout_title">การจัดวางข้อความ</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; สัณฐานวิทยา</string>
+  <string name="prefs_footnotes_and_xrefs_title">เชิงอรรถ &amp; การอ้างอิงข้าม</string>
+  <string name="prefs_verses_and_headings_title">ข้อพระคัมภีร์ &amp; หัวเรื่อง</string>
+  <string name="prefs_page_scrolling_title">การเลื่อนหน้า</string>
+
+  <string name="prefs_justify_title">จัดข้อความแบบ Justify</string>
+  <string name="prefs_justify_summary">จัดข้อความแบบ \'justify\' คือขอบซ้ายและขวาของข้อความอยู่ในแนวเดียวกัน</string>
+  <string name="pref_left_margin_label_mm">ขอบซ้าย (%d มม.)</string>
+  <string name="pref_right_margin_label_mm">ขอบขวา (%d มม.)</string>
+  <string name="pref_maximum_width_of_text_label_mm">ความกว้างสูงสุดของข้อความ (%d มม.)</string>
+  <string name="prefs_line_spacing_pt">ระยะบรรทัด %1.1f เท่า</string>
+  <string name="pref_font_family_label">ตระกูลแบบอักษร</string>
+  <string name="prefs_top_margin_title">ขอบบน</string>
+  <string name="prefs_top_margin_summary">เพิ่มขอบ (พร้อมการบ่งชี้ภาพ) ที่ด้านบนของหน้าต่างที่แสดงเอกสารพระคัมภีร์ พระคัมภีร์จะเลื่อนให้ข้อปัจจุบันเริ่มต้นใต้ขอบ</string>
+  <string name="prefs_hyphenation_title">การขีดคั่นคำ</string>
+  <string name="prefs_hyphenation_summary">ขีดคั่นคำอัตโนมัติ หากรองรับภาษานั้น</string>
+  <string name="prefs_line_spacing_pt_title">ระยะบรรทัด (%1.1f เท่า)</string>
+  <string name="line_spacing_title">ระยะบรรทัด</string>
+  <string name="line_spacing_summary">กำหนดช่องว่างระหว่างบรรทัด</string>
+  <string name="select_none">ไม่เลือกทั้งหมด</string>
+  <string name="reset_are_you_sure">คุณแน่ใจหรือไม่ว่าต้องการรีเซ็ตค่าทั้งหมดเหล่านี้?</string>
+  <string name="window_pinning_menutitle">การปักหมุดหน้าต่าง</string>
+  <string name="hide_window_buttons_title">ซ่อนปุ่มหน้าต่าง</string>
+  <string name="hide_window_buttons_summary">ปุ่มหน้าต่างที่แสดงทางด้านขวาของมุมมองพระคัมภีร์จะถูกซ่อน แถบนำทางหน้าต่างที่ด้านล่างยังคงแสดงอยู่ และคุณสามารถเปิดเมนูป็อปอัปหน้าต่างได้โดยกดค้าง</string>
+  <string name="hide_bible_reference_overlay_title">ซ่อนการอ้างอิงพระคัมภีร์แบบโปร่งแสง</string>
+  <string name="hide_bible_reference_overlay_summary">ไม่แสดงการอ้างอิงพระคัมภีร์แบบกึ่งโปร่งแสงเมื่อแอปอยู่ในโหมดเต็มหน้าจอ</string>
+
+  <string name="full_screen_hide_buttons_pref_title">ซ่อนแถบปุ่มหน้าต่างในโหมดเต็มหน้าจอ</string>
+  <string name="full_screen_hide_buttons_pref_summary">เมื่อสลับไปยังโหมดเต็มหน้าจอ ซ่อนแถบปุ่มหน้าต่างที่ด้านล่างของหน้าจออัตโนมัติ</string>
+
+  <string name="prefs_dictionaries_cat">พจนานุกรม</string>
+  <string name="choose_strongs_greek_dictionary_title">พจนานุกรมภาษากรีก Strongs</string>
+  <string name="choose_strongs_greek_dictionary_summary">เลือกพจนานุกรม Strongs สำหรับคำจำกัดความภาษากรีก</string>
+  <string name="choose_strongs_hebrew_dictionary_title">พจนานุกรมภาษาฮีบรู Strongs</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">เลือกพจนานุกรม Strongs สำหรับคำจำกัดความภาษาฮีบรู</string>
+  <string name="choose_strongs_greek_morphology_title">สัณฐานวิทยากรีก Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">เลือกพจนานุกรมสำหรับคำจำกัดความสัณฐานวิทยากรีก Robinson</string>
+  <string name="choose_word_lookup_dictionary_title">พจนานุกรมค้นหาคำ</string>
+  <string name="choose_word_lookup_dictionary_summary">เลือกพจนานุกรมสำหรับค้นหาคำ</string>
+  <string name="lookup_in_dictionary">ค้นหาในพจนานุกรม</string>
+  <string name="word_not_found_in_dictionaries">ไม่พบคำในพจนานุกรมใดๆ</string>
+
+  <string name="prefs_top_margin_title_mm">ขอบบน (%d มม.)</string>
+  <string name="font_size_title">ขนาดตัวอักษร</string>
+  <string name="font_size_title_pt">ขนาดตัวอักษร (%d pt)</string>
+  <string name="prefs_font_text_size_summary">ปรับขนาดตัวอักษรของข้อความหลัก</string>
+
+  <string name="pref_font_family_label_name">ตระกูลแบบอักษร (%s)</string>
+  <string name="prefs_font_family_summary">เปลี่ยนตระกูลแบบอักษร เคล็ดลับ: สามารถติดตั้งแบบอักษรเพิ่มเติมได้ผ่านดาวน์โหลดเอกสาร / ส่วนเสริม</string>
+
+  <string name="prefs_text_bookmarks_title">การตั้งค่าที่คั่นหน้า &amp; บันทึกของฉัน</string>
+  <string name="prefs_reading_and_memorization_title">การอ่านและการจดจำ</string>
+
+  <string name="prefs_enable_bluetooth_title">เปิดใช้งานปุ่มมีเดียบลูทูธ</string>
+  <string name="prefs_enable_bluetooth_summary">จัดการปุ่มมีเดียบลูทูธเพื่อเริ่ม/หยุดการอ่านออกเสียง</string>
+  <string name="create_bookmark">สร้างที่คั่นหน้าใหม่</string>
+  <string name="create_bookmark_with_a_note">สร้างที่คั่นหน้าใหม่พร้อมบันทึก</string>
+
+    <!-- Colors preferences -->
+  <string name="prefs_text_colors_menutitle">การตั้งค่าสี</string>
+  <string name="window_color_settings_title">การตั้งค่าสีหน้าต่าง</string>
+  <string name="workspace_color_settings_title">ค่าเริ่มต้นการตั้งค่าสีพื้นที่ทำงาน</string>
+
+  <string name="color_workspace">สีพื้นที่ทำงาน</string>
+  <string name="color_text">สีข้อความ</string>
+  <string name="color_background">สีพื้นหลัง</string>
+  <string name="colors_day_mode_title">โหมดกลางวัน</string>
+  <string name="colors_night_mode_title">โหมดกลางคืน</string>
+  <string name="prefs_noise_title">สัญญาณรบกวนพื้นหลัง</string>
+  <string name="prefs_noise_summary">การเพิ่มสัญญาณรบกวนให้พื้นหลังอาจทำให้สบายตามากขึ้น</string>
+
+  <string name="cpv_default_title">เลือกสี</string>
+  <string name="cpv_presets">ค่าที่กำหนดไว้</string>
+  <string name="cpv_custom">กำหนดเอง</string>
+  <string name="cpv_select">เลือก</string>
+  <string name="cpv_transparency">ความโปร่งแสง</string>
+
+    <!-- Window -->
+  <string name="new_window">หน้าต่างใหม่</string>
+  <string name="windowClose">ปิด</string>
+  <string name="windowMaximise">ขยายใหญ่สุด</string>
+  <string name="windowMinimise">ย่อเล็กสุด</string>
+  <string name="windowSynchronise">ซิงโครไนซ์</string>
+  <string name="move_window">ย้ายไปที่</string>
+  <string name="move_window_to_position2">ตำแหน่ง %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings">คัดลอกการตั้งค่าไปที่</string>
+  <string name="copy_settings_to_workspace">พื้นที่ทำงาน</string>
+  <string name="copy_settings_to_window">หน้าต่าง %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">ค่าเริ่มต้นสากล</string>
+  <string name="change_to_normal">เปลี่ยนเป็นหน้าต่างปกติ</string>
+  <string name="window_pin_mode">ปักหมุด</string>
+
+    <!-- Notes screen -->
+  <string name="no_chapter_notes">ไม่มีบันทึกในบทนี้</string>
+  <string name="no_verse_notes">ไม่มีบันทึกในข้อนี้</string>
+  <string name="previous">ก่อนหน้า</string>
+  <string name="next">ถัดไป</string>
+
+    <!--  Strongs -->
+  <string name="strongs_not_installed">โปรดดาวน์โหลดพจนานุกรมภาษาฮีบรูและกรีกของ Strong\'s</string>
+  <string name="no_indexed_bible_with_strongs_ref">คุณต้องดาวน์โหลดพระคัมภีร์ที่มีหมายเลข Strong\'s และสร้างดัชนีผ่านการค้นหา</string>
+  <string name="morph_robinson_not_installed">โปรดดาวน์โหลดพจนานุกรม \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="go_to_downloads">ไปที่ดาวน์โหลด</string>
+
+    <!-- Module download -->
+  <string name="download">ดาวน์โหลดเอกสาร</string>
+  <string name="redownload">ดาวน์โหลดเอกสารใหม่</string>
+  <string name="download_confirmation">ดาวน์โหลดพระคัมภีร์จากอินเทอร์เน็ต?</string>
+  <string name="download_source_last_updated">อัปเดตรายการเอกสารล่าสุด: %s</string>
+  <string name="download_refreshing_book_list">กำลังรีเฟรชรายการเอกสารจากเซิร์ฟเวอร์…</string>
+  <string name="download_source_message1">เอกสารดาวน์โหลดจากแหล่งต่อไปนี้:</string>
+  <string name="download_document_confirm_prefix">ดาวน์โหลด</string>
+  <string name="download_refresh_book_list_menu_item">รีเฟรช</string>
+  <string name="error_downloading">เกิดข้อผิดพลาดขณะดาวน์โหลด กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</string>
+  <string name="error_downloading_status">เซิร์ฟเวอร์ที่ให้บริการ %1$s ส่งคืนข้อผิดพลาดเนื่องจาก %2$s (%3$d)</string>
+  <string name="storage_space_warning">พื้นที่จัดเก็บในเครื่องไม่เพียงพอ</string>
+  <string name="too_many_jobs">มีงานที่กำลังทำงานอยู่มากเกินไป กรุณารอให้งานบางส่วนเสร็จสิ้นแล้วลองใหม่</string>
+  <string name="document_not_installed">กรุณาดาวน์โหลด \'%s\'</string>
+  <string name="free_text_search_documents">ค้นหา</string>
+  <string name="chooce_language_hint">ภาษา</string>
+  <string name="one_more_back_press">กดย้อนกลับอีกครั้งเพื่อปิดแอป</string>
+  <string name="document_filter_results">%d เอกสาร</string>
+  <string name="download_question_title">ต้องการดาวน์โหลดเอกสารหรือไม่?</string>
+  <string name="download_question_message">หากคุณอาศัยอยู่ในประเทศที่มีการข่มเหงทางศาสนา คุณอาจต้องระมัดระวังในการดาวน์โหลดสื่อคริสเตียนผ่านอินเทอร์เน็ต แต่ควรหาไฟล์ zip ของโมดูลในวิธีที่ปลอดภัยกว่าแล้วติดตั้งผ่าน "โหลดเอกสารจาก Zip" คุณแน่ใจว่าต้องการดาวน์โหลดหรือไม่? การดาวน์โหลดทั้งหมดจากเซิร์ฟเวอร์โมดูลนั้นเข้ารหัส (HTTPS)</string>
+  <string name="do_not_ask_again">ใช่ ไม่ต้องถามอีก</string>
+  <string name="recommended_document">แนะนำ!</string>
+  <string name="about_version_history">ประวัติเวอร์ชัน: %s</string>
+  <string name="download_errors">ข้อผิดพลาดในการดาวน์โหลด</string>
+  <string name="failed_repositories_message">ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์เอกสารต่อไปนี้: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">ไม่สามารถดาวน์โหลดไฟล์ต่อไปนี้:\n\n%s\n\n</string>
+  <string name="cant_delete_document">ไม่สามารถลบเอกสารนี้ได้</string>
+
+    <!--  Install zip file -->
+  <string name="install_zip">โหลดเอกสารจากไฟล์</string>
+  <string name="install_zip_module">ติดตั้งโมดูลพระคัมภีร์</string>
+  <string name="install_zip_module_discrete">ติดตั้งโมดูลเครื่องคิดเลข</string>
+  <string name="install_zip_successfull">ติดตั้งโมดูลสำเร็จแล้ว</string>
+  <string name="extracting_zip_file">กำลังแตกไฟล์ Zip…</string>
+  <string name="checking_zip_file">กำลังตรวจสอบไฟล์ที่ระบุ…</string>
+  <string name="invalid_module">ไฟล์ไม่มีโมดูล SWORD ที่ถูกต้อง</string>
+  <string name="install_zip_title">กรุณารอ กำลังโหลดโมดูลจากไฟล์</string>
+  <string name="overwrite_files">ไฟล์ต่อไปนี้มีอยู่แล้ว: %s เขียนทับ?</string>
+  <string name="overwrite_files_title">เขียนทับไฟล์?</string>
+  <string name="could_not_overwrite_files">ไม่สามารถเขียนทับไฟล์: %s นอกจากนั้นการติดตั้งสำเร็จแล้ว</string>
+  <string name="install_do_you_want">ต้องการติดตั้งโมดูล (%s) หรือไม่?</string>
+
+    <!-- Daily Reading Plan -->
+  <string name="rdg_plan_title">แผนการอ่าน</string>
+  <string name="reading_plans_plural">แผนการอ่าน</string>
+  <string name="rdg_plan_selector_title">เลือกแผนการอ่าน</string>
+  <string name="rdg_plan_day">วันที่ %s</string>
+  <string name="rdg_plan_set_start_date">ตั้งวันเริ่มต้น…</string>
+  <string name="set_current_day">ตั้งเป็นวันปัจจุบัน…</string>
+  <string name="msg_set_current_day_reading_plan">การดำเนินการนี้จะตั้งให้วันนี้เป็นวันปัจจุบันในแผน และทำเครื่องหมายว่าอ่านแล้วสำหรับทุกวันก่อนหน้า ดำเนินการต่อ?</string>
+  <string name="done">เสร็จสิ้น</string>
+  <string name="reset_plan_question">คุณแน่ใจว่าต้องการรีเซ็ตแผนนี้?</string>
+  <string name="import_reading_plan">นำเข้าแผนการอ่าน…</string>
+  <string name="import_reading_plan_error">เกิดข้อผิดพลาดในการนำเข้า</string>
+  <string name="import_reading_plan_error_duplicate">วันต่อไปนี้ซ้ำกัน: %s</string>
+  <string name="import_reading_plan_error_days">วันต่อไปนี้มีข้อผิดพลาด: %s</string>
+  <string name="import_reading_plan_anyway">นำเข้าต่อไป</string>
+  <string name="overwrite_reading_plan">ต้องการเขียนทับ %s หรือไม่?</string>
+  <string name="delete_reading_plan">ลบแผนนี้</string>
+  <string name="reading_plan_deleted">ลบแผนการอ่านแล้ว</string>
+  <string name="reading_plan_ships_with_ab">แผนการอ่านนี้มาพร้อมกับ %s</string>
+  <string name="confirm_delete_reading_plan">คุณแน่ใจว่าต้องการลบ %s พร้อมกับประวัติการอ่าน? คำแนะนำ: หากต้องการอัปเดตแผน คุณสามารถนำเข้าใหม่ด้วยชื่อไฟล์เดิม และประวัติจะยังคงอยู่</string>
+  <string name="plan_duplicate_user_plan">มีแผนการอ่านของผู้ใช้ใน sdcard jsword/readingplan ที่มีชื่อเดียวกับแผนภายใน จึงไม่สามารถแสดงที่นี่ กรุณาเปลี่ยนชื่อไฟล์เป็นชื่ออื่น โดยคงนามสกุลไฟล์เป็น .properties</string>
+  <string name="plan_name_y1ntpspr">NT สดุดี &amp; สุภาษิต ใน 1 ปี</string>
+  <string name="plan_description_y1ntpspr">ได้รับความอนุเคราะห์จาก HEARTLIGHT Internet Magazine, http://www.heartlight.org, ได้รับอนุญาต</string>
+  <string name="plan_name_y1ot1nt1_chronological">อ่านพระคัมภีร์ตามลำดับเหตุการณ์ใน 1 ปี</string>
+  <string name="plan_description_y1ot1nt1_chronological">แผนตามลำดับเหตุการณ์ในพระคัมภีร์ ลำดับเวลาเชิงลำดับเหตุการณ์เป็นค่าโดยประมาณ</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">อ่าน OT+NT พร้อมกันใน 1 ปี</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">อ่านพระคัมภีร์ใน 1 ปี โดยมีบท จาก OT และ NT ทุกวัน</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">อ่านพระคัมภีร์ใน 1 ปี</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">อ่านพระคัมภีร์ใน 1 ปี เริ่มจากปฐมกาล และจบที่วิวรณ์ โดยอ่าน OT ก่อน แล้วตามด้วย NT</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">แผน M\'Cheyne 1 ปี 4 บท/วัน</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">แผนนี้อิงตามระบบการอ่านของ M\'Cheyne มี 4 ตอนอ่านสำหรับใช้ทั้งในการอ่านในครอบครัวและส่วนตัว แต่ละวันมี สองตอนจาก OT หนึ่งตอนจาก NT และหนึ่งตอนจากสดุดีหรือพระกิตติคุณ ใน 1 ปี คุณจะอ่าน OT หนึ่งครั้ง และ NT กับสดุดีสองครั้ง</string>
+  <string name="plan_name_y1ot6nt4_profHorner">แผนการอ่าน 10 บท/วัน ของศ.ฮอร์เนอร์</string>
+  <string name="plan_description_y1ot6nt4_profHorner">ได้รับความอนุเคราะห์จาก ศ.ฮอร์เนอร์ ได้รับอนุญาต</string>
+  <string name="plan_name_y2ot1ntps2">อ่านพระคัมภีร์ใน 2 ปี NT+สดุดี 2 รอบ</string>
+  <string name="plan_description_y2ot1ntps2">อ่านพระคัมภีร์ใน 2 ปี โดยอ่าน NT และสดุดีสองครั้ง ได้รับความอนุเคราะห์จาก Wholesome Words, http://www.wholesomewords.org/, ได้รับอนุญาต</string>
+
+    <!-- Document context menu -->
+  <string name="delete">ลบ</string>
+  <string name="delete_index">ลบดัชนีค้นหา</string>
+  <string name="about">เกี่ยวกับ</string>
+  <string name="delete_doc">ลบ %s?</string>
+  <string name="delete_search_index_doc">ลบดัชนีของ %s?</string>
+
+    <!-- Verse context menu -->
+  <string name="notes">เชิงอรรถและอ้างอิง</string>
+  <string name="share_verse">แชร์…</string>
+  <string name="share_verse_widget_title">แชร์ส่วนที่เลือก</string>
+  <string name="share_verse_subject_2">ข้อพระคัมภีร์ถูกแชร์มาให้คุณโดยใช้ %s</string>
+  <string name="compare_translations">เปรียบเทียบฉบับแปล</string>
+
+    <!-- Link context menu -->
+  <string name="open_link_in_this_window">เปิดลิงก์ที่นี่</string>
+  <string name="open_link_in_new_window">เปิดลิงก์ในหน้าต่างใหม่</string>
+  <string name="open_link_in_special_window">เปิดลิงก์ในหน้าต่างพิเศษ</string>
+
+    <!-- Bookmarks -->
+  <string name="bookmarks_and_mynotes_title">ที่คั่นหน้า &amp; บันทึกของฉัน</string>
+  <string name="migrated_my_notes">โอนย้ายบันทึกของฉันแล้ว</string>
+  <string name="bookmarks">ที่คั่นหน้า</string>
+  <string name="bookmark_added">เพิ่มที่คั่นหน้าแล้ว</string>
+    <!-- Bookmark / note labels -->
+  <string name="labels">ป้ายกำกับ</string>
+  <string name="manage_labels">จัดการป้ายกำกับ</string>
+  <string name="assign_labels">กำหนดป้ายกำกับ</string>
+  <string name="new_item">ใหม่</string>
+  <string name="new_label">ป้ายกำกับใหม่</string>
+  <string name="label_name_prompt">ชื่อ</string>
+  <string name="label_unlabelled">ไม่มีป้ายกำกับ</string>
+  <string name="add_bookmark1">ที่คั่นหน้า</string>
+  <string name="add_bookmark2">ที่คั่นหน้าส่วนที่เลือก</string>
+  <string name="add_bookmark3">ส่วนที่เลือก</string>
+  <string name="add_bookmark_whole_verse">ที่คั่นหน้าข้อพระคัมภีร์</string>
+  <string name="add_bookmark_whole_verse1">ข้อพระคัมภีร์</string>
+  <string name="add_bookmark_whole_verse2">ข้อพระคัมภีร์ทั้งหมด</string>
+  <string name="add_whole_page_bookmark">เพิ่มที่คั่นหน้าสำหรับทั้งหน้า</string>
+  <string name="add_paragraph_break">ขึ้นย่อหน้าใหม่</string>
+  <string name="ai_label">AI</string>
+  <string name="remove_bookmark">ลบ</string>
+  <string name="bookmark_settings_hide_labels_title">ซ่อนป้ายกำกับที่ระบุ</string>
+  <string name="bookmark_settings_hide_labels_summary">ซ่อนที่คั่นหน้าที่มีป้ายกำกับที่ระบุ</string>
+  <string name="auto_assign_labels_title">การตั้งค่าป้ายกำกับ</string>
+  <string name="auto_assign_labels">กำหนดอัตโนมัติ &amp; ป้ายกำกับโปรด</string>
+  <string name="auto_assign_labels1">กำหนดป้ายกำกับอัตโนมัติสำหรับที่คั่นหน้าใหม่</string>
+  <string name="auto_assign_labels_primary">กำหนดเป็นหลักอัตโนมัติ</string>
+  <string name="label_color">สีป้ายกำกับ</string>
+  <string name="label_color_example">ตัวอย่าง</string>
+  <string name="marker_style">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าส่วนที่เลือก</string>
+  <string name="marker_style_whole_verse">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
+  <string name="hide_style">ซ่อนสำหรับที่คั่นหน้าส่วนที่เลือก</string>
+  <string name="hide_style_whole_verse">ซ่อนสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
+  <string name="bookmark_warning">มีที่คั่นหน้าและ/หรือบันทึกสำหรับเอกสารนี้</string>
+  <string name="bookmark_warning2">หากโครงสร้างเอกสารมีการเปลี่ยนแปลง การอัปเดตเอกสารนี้อาจทำให้ ตำแหน่งของที่คั่นหน้า/บันทึกเหล่านี้เคลื่อนไปในเอกสาร หรือหายไปโดยสิ้นเชิง</string>
+  <string name="bookmark_warning3">คุณยังต้องการอัปเดตโมดูลอยู่หรือไม่?</string>
+  <string name="bookmark_warning4">แนะนำให้สำรองข้อมูลโมดูลก่อนอัปเดต</string>
+    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <string name="sort_by_date">เรียงตามวันที่</string>
+  <string name="sort_by_bible_book">เรียงตามลำดับพระคัมภีร์</string>
+  <string name="sort_by_alphabetical">เรียงตามตัวอักษร</string>
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <string name="filter_by_notes">ค้นหาบันทึก</string>
+
+    <!-- Dictionary -->
+  <string name="dictionary">พจนานุกรม</string>
+  <string name="search_dictionary_hint">ค้นหาพจนานุกรม</string>
+
+    <!-- General Book -->
+  <string name="general_book">หนังสือ</string>
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
+  <string name="one_chapter">%d บท</string>
+  <string name="some_chapters">%d บท</string>
+  <string name="rest_of_book">จนถึงท้ายหนังสือ</string>
+    <!-- Speak - Commentary -->
+  <string name="one_verse">%d ข้อ</string>
+  <string name="some_verses">%d ข้อ</string>
+  <string name="rest_of_chapter">จนถึงท้ายบท</string>
+    <!-- Speak - Dictionary and other -->
+  <string name="one_page">%d หน้า</string>
+  <string name="some_pages">%d หน้า</string>
+    <!-- Speak - Common -->
+  <string name="stop">หยุด</string>
+  <string name="pause">พัก</string>
+  <string name="rewind">ย้อนกลับ</string>
+  <string name="forward">ไปข้างหน้า</string>
+  <string name="tts_lang_not_available">ไม่รองรับภาษานี้</string>
+  <string name="speak_queue">คิว</string>
+  <string name="speak_repeat">ทำซ้ำ</string>
+
+    <!-- Speak - Bible -->
+  <string name="speak_speed_title">ความเร็วในการอ่าน</string>
+  <string name="speak_and_play_earcons_title">อ่านและเล่นเสียงสัญลักษณ์สำหรับ</string>
+  <string name="playback_settings_title">การตั้งค่าการเล่น</string>
+  <string name="speak_settings_title">การตั้งค่าการอ่านทั่วไป</string>
+  <string name="speak_bookmarking_settings_title">การตั้งค่าที่คั่นหน้า</string>
+  <string name="speak_bookmarks_menu_title">อ่านจากที่คั่นหน้า</string>
+  <string name="speak_advanced_settings">การตั้งค่าขั้นสูง</string>
+  <string name="speak_sleep_timer_title">ตั้งเวลาหยุดอัตโนมัติ</string>
+
+  <string name="speak_no_books_available">ไม่มีหนังสือที่สามารถอ่านได้</string>
+  <string name="speak_general_error">ไม่สามารถเริ่มอ่านหนังสือเล่มนี้ได้</string>
+
+  <string name="repeat_passage">ทำซ้ำตอน</string>
+  <string name="set_repeat_passage_range">กำหนดช่วงตอนที่ต้องการทำซ้ำ</string>
+  <string name="speak_beginning_of_passage">เลือกจุดเริ่มต้นของตอน</string>
+  <string name="speak_ending_of_passage">เลือกจุดสิ้นสุดของตอน</string>
+  <string name="speak_verse_range_to_repeat">เลือกช่วงข้อพระคัมภีร์ที่ต้องการทำซ้ำ</string>
+  <string name="speak_ending_verse_must_be_later">ข้อสิ้นสุดต้องอยู่หลังข้อเริ่มต้น</string>
+
+  <string name="conf_speak_synchronize">ข้อความตามเสียง</string>
+  <string name="conf_speak_auto_bookmark">ที่คั่นหน้าอัตโนมัติ</string>
+  <string name="conf_save_playback_settings_to_bookmarks">บันทึกการตั้งค่าการเล่นไปยังที่คั่นหน้า</string>
+  <string name="conf_replace_divinename">แทนที่พระนามของพระเจ้าด้วย ยาห์เวห์</string>
+  <string name="conf_change_chapter">การเปลี่ยนบท</string>
+  <string name="conf_change_title">หัวเรื่อง</string>
+  <string name="conf_speak_footnotes">เชิงอรรถ</string>
+  <string name="conf_speak_sleep_timer">ตั้งเวลาหยุดอัตโนมัติ</string>
+
+  <string name="sleep_timer_title">เวลาหยุด (นาที)</string>
+  <string name="sleep_timer_set">ตั้งเวลาหยุดอัตโนมัติ ตั้งไว้: %d นาที</string>
+  <string name="sleep_timer_started">เริ่มตั้งเวลาหยุดอัตโนมัติ %d นาที</string>
+  <string name="sleep_timer_active_at">ตัวจับเวลาหยุด: เหลือ %s นาที</string>
+
+  <string name="speak_next">ถัดไป</string>
+  <string name="speak_previous">ก่อนหน้า</string>
+  <string name="widget_toggle_sleep_timer">เปิด/ปิดตัวจับเวลาหยุด</string>
+  <string name="widget_bookmark_helptext">ปุ่มลัดที่คั่นหน้าการอ่านจะปรากฏที่นี่</string>
+  <string name="speak_status_stopped">หยุดแล้ว</string>
+  <string name="speak_autobookmarking_disabled">ที่คั่นหน้าอัตโนมัติถูกปิดใช้งาน!</string>
+  <string name="system_speak_settings">เปิดการตั้งค่า TTS ของระบบ</string>
+
+  <string name="auto_assing_labels_help1">ที่นี่คุณสามารถปรับป้ายกำกับที่จะถูกกำหนดโดยอัตโนมัติให้กับที่คั่นหน้าที่คุณสร้าง</string>
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <string name="setting_scope">การตั้งค่านี้ใช้กับ %s</string>
+  <string name="setting_scope_window">หน้าต่างนี้</string>
+  <string name="setting_scope_workspace">พื้นที่ทำงานนี้</string>
+
+  <string name="assing_labels_help1">ที่คั่นหน้าแต่ละอันสามารถกำหนดป้ายกำกับได้หลายอัน</string>
+    <!-- param is bookmark icon -->
+  <string name="assing_labels_help2">ใช้ %s เพื่อระบุสีของป้ายกำกับที่แสดง</string>
+    <!-- param is auto-assign label icon -->
+  <string name="assing_labels_help3">แตะไอคอน %s เพื่อให้ป้ายกำกับนั้นถูกกำหนดโดยอัตโนมัติให้กับที่คั่นหน้าใหม่</string>
+    <!-- param is heart icon -->
+  <string name="assing_labels_help4">แตะ %s เพื่อเพิ่มป้ายกำกับในรายการโปรดสำหรับการเข้าถึงอย่างรวดเร็ว</string>
+
+    <!-- param is refresh icon -->
+  <string name="assing_labels_help5">แตะ %s เพื่อจัดเรียงรายการตามตัวเลือกของคุณ</string>
+
+  <string name="global_text_options_help_title">ตัวเลือกข้อความระดับทั่วไป</string>
+  <string name="global_text_options_help1">การตั้งค่าเริ่มต้นทั่วไปสำหรับพื้นที่ทำงานทั้งหมด แต่ละพื้นที่ทำงานสามารถกำหนดค่าของตนเองได้</string>
+
+  <string name="workspace_text_options_help_title">ตัวเลือกข้อความของพื้นที่ทำงาน</string>
+  <string name="workspace_text_options_help1">การตั้งค่าเหล่านี้กำหนดค่าเริ่มต้นสำหรับหน้าต่างทั้งหมดในพื้นที่ทำงาน การตั้งค่าที่สืบทอดจากค่าเริ่มต้นระดับทั่วไปจะมีการระบุไว้</string>
+  <string name="workspace_text_options_help2">คุณสามารถปรับเปลี่ยนได้โดยเปลี่ยนการตั้งค่าของแต่ละหน้าต่าง</string>
+
+  <string name="window_text_options_help_title">ตัวเลือกข้อความของหน้าต่าง</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help1">ไอคอน %s แสดงว่าการตั้งค่านี้มาจากการตั้งค่าพื้นที่ทำงาน</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help2">ไอคอน %s แสดงว่าการตั้งค่านี้ถูกเปลี่ยนแปลงสำหรับหน้าต่างนี้โดยเฉพาะ</string>
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <string name="text_options_reset_help">ใช้ปุ่ม %1$s เพื่อรีเซ็ตการตั้งค่าทั้งหมดกลับเป็น %2$s</string>
+  <string name="reset_defaults">ค่าเริ่มต้น</string>
+  <string name="reset_workspace_defaults">ค่าเริ่มต้นของพื้นที่ทำงาน</string>
+
+  <string name="speak_bookmark_help">วิธีใช้ที่คั่นหน้าการอ่าน</string>
+
+  <string name="speak_help_auto_bookmark">ที่คั่นหน้าการอ่านจะถูกเพิ่มโดยอัตโนมัติเมื่อหยุดพักหรือหยุดการอ่าน ที่คั่นหน้าที่สร้างอัตโนมัติจะถูกติดป้ายกำกับการอ่านพิเศษ หากคุณเริ่มจากที่คั่นหน้าการอ่าน ที่คั่นหน้าจะถูกย้ายไปยังข้อที่คุณ หยุดพักหรือหยุดในครั้งถัดไป เฉพาะป้ายกำกับการอ่านเท่านั้นที่จะถูกย้าย ป้ายกำกับอื่นๆ จะยังคงอยู่ที่เดิม</string>
+  <string name="speak_help_playback_settings">การตั้งค่าการเล่นพิเศษ (ภายใต้ \"การตั้งค่าการเล่น\" บนหน้าจออ่าน) จะถูกบันทึกไปยังที่คั่นหน้าการอ่านเมื่อเลือกการตั้งค่านี้ เมื่อคุณเริ่มอ่านจากที่คั่นหน้าการอ่าน การตั้งค่าการเล่นที่บันทึกไว้ จะถูกโหลดจากที่คั่นหน้า</string>
+  <string name="speak_help_playback_settings_example">ตัวอย่างเช่น หากคุณกำลังฟังปฐมกาลและโรมัน และ ต้องการฟังปฐมกาลด้วยความเร็วสูงโดยไม่มีการแจ้งเตือนการเปลี่ยนบท แต่ฟังโรมันด้วยความเร็วช้ากว่าพร้อมเสียงสัญลักษณ์เมื่อเปลี่ยนบท คุณ สามารถมีการตั้งค่าการเล่นที่แตกต่างกันสำหรับหนังสือเหล่านี้ เมื่อบันทึกการตั้งค่าเหล่านี้ไปยังที่คั่นหน้าที่สอดคล้องกัน</string>
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+
+  <string name="speak_book_changed">เปลี่ยนหนังสือแล้ว</string>
+  <string name="speak_chapter_changed">บท</string>
+  <string name="speak_first">ที่หนึ่ง</string>
+  <string name="speak_second">ที่สอง</string>
+  <string name="speak_third">ที่สาม</string>
+  <string name="speak_fourth">ที่สี่</string>
+  <string name="speak_fifth">ที่ห้า</string>
+
+  <string name="verse_range_mode_disabled">โหมดทำซ้ำตอนถูกปิดใช้งานโดยอัตโนมัติ เนื่องจาก การอ่านเริ่มต้นนอกช่วงข้อพระคัมภีร์ที่กำหนด</string>
+
+    <!-- User Notes -->
+  <string name="mynotes">บันทึกของฉัน</string>
+
+    <!-- Backup and restore -->
+  <string name="backup_backup_title">สำรองข้อมูลไปที่ไหน?</string>
+  <string name="backup_backup_message">สำรองข้อมูลไปยังโทรศัพท์หรือที่อื่นผ่านฟังก์ชันแชร์ (อีเมล, Google Drive เป็นต้น)?</string>
+  <string name="backup_phone_storage">ที่เก็บข้อมูลโทรศัพท์</string>
+  <string name="backup_and_restore">สำรองและกู้คืน</string>
+  <string name="backup_modules2">สำรองเอกสารไปยัง…</string>
+  <string name="backup_app_database2">สำรองฐานข้อมูลแอปไปยัง…</string>
+  <string name="backup_app2">สำรองแอป (ไฟล์ .apk) ไปยัง…</string>
+  <string name="backup_application">แอปพลิเคชัน</string>
+  <string name="backup_database">ฐานข้อมูล</string>
+  <string name="backup_documents">เอกสาร</string>
+  <string name="backup_application_info">ไฟล์แอปพลิเคชัน (.APK)</string>
+  <string name="backup_database_info">ที่คั่นหน้า ป้ายกำกับ บันทึก แผ่นบันทึกการศึกษา แผนการอ่าน พื้นที่ทำงาน เป็นต้น</string>
+  <string name="backup_document_info">พระคัมภีร์ คำอธิบาย พจนานุกรม แผนที่ เป็นต้น</string>
+  <string name="backup_to">สำรองข้อมูลไปยัง…</string>
+  <string name="backup_restore_from">กู้คืนจาก…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <string name="backup_restore_from2">กู้คืนหรือนำเข้าจาก…</string>
+  <string name="backup_restore">กู้คืน</string>
+  <string name="backup_restore2">กู้คืนหรือนำเข้า</string>
+  <string name="overwrite_something">เขียนทับ %s?</string>
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+  <string name="restore_what">คุณต้องการกู้คืนอะไร?</string>
+
+  <string name="restore_app_database">กู้คืนฐานข้อมูลแอปจาก…</string>
+  <string name="restore_database">กู้คืนไฟล์ฐานข้อมูล</string>
+  <string name="restore_confirmation">เขียนทับบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงาน?</string>
+  <string name="restore_success2">กู้คืนส่วนฐานข้อมูลที่เลือกสำเร็จ</string>
+  <string name="restore_success">กู้คืนบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
+  <string name="downloading_backup">กำลังดาวน์โหลดไฟล์สำรองข้อมูล…</string>
+  <string name="loading_backup">กำลังโหลดฐานข้อมูลจากข้อมูลสำรอง…</string>
+  <string name="backup_success2">สำรองบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
+  <string name="backup_modules_success">สำรองโมดูลที่เลือกสำเร็จ</string>
+
+  <string name="backup_modules_email_subject_2">สำรองโมดูล %s</string>
+  <string name="backup_modules_email_message_2">แนบมาคือข้อมูลสำรองโมดูล %1$s ของคุณ ซึ่งประกอบด้วยโมดูลต่อไปนี้: %2$s</string>
+
+  <string name="backup_email_subject_2">สำรองฐานข้อมูล %s</string>
+  <string name="backup_email_message_2">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้า บันทึก แผนการอ่าน และพื้นที่ทำงานแนบมาด้วย</string>
+
+  <string name="exported_studypads_subject">ส่งออกแผ่นบันทึกการศึกษา</string>
+  <string name="exported_studypads_message">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้าและบันทึกที่เกี่ยวข้องกับแผ่นบันทึกการศึกษาที่เลือกแนบมาด้วย</string>
+  <string name="restore_unsuccessfull">การกู้คืนฐานข้อมูลล้มเหลว อาจเป็นเพราะคุณระบุไฟล์ฐานข้อมูลที่ไม่ถูกต้อง</string>
+  <string name="restore_modules">กู้คืนเอกสารจาก…</string>
+  <string name="send_backup_file">ส่งไฟล์สำรองข้อมูล</string>
+  <string name="backup_modules_title">เลือกโมดูลที่ต้องการสำรอง</string>
+  <string name="install_zip_canceled">ยกเลิกการติดตั้งโมดูลแล้ว</string>
+  <string name="ask_restore_or_import">ฐานข้อมูลสำหรับ %s สามารถกู้คืน (ลบฐานข้อมูลที่มีอยู่และโหลดฐานข้อมูลที่เลือก) หรือนำเข้า (นำเข้าฐานข้อมูลที่เลือกเข้าสู่ฐานข้อมูลที่มีอยู่) คุณต้องการทำอะไร?</string>
+  <string name="restore">กู้คืน</string>
+  <string name="import2">นำเข้า</string>
+  <string name="export_studypads_help">ไฟล์ที่มีแผ่นบันทึกการศึกษาที่ส่งออก (ป้ายกำกับและที่คั่นหน้า) สามารถนำเข้าผ่านเมนูหลัก -> สำรองและกู้คืน</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" และ %2$s ป้ายกำกับ/แผ่นบันทึกการศึกษาอื่นๆ และ %3$s ที่คั่นหน้า</string>
+
+    <!-- About -->
+  <string name="module_about_copyright">ลิขสิทธิ์: %s</string>
+  <string name="module_about_installed_version">เวอร์ชันที่ติดตั้ง: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">เวอร์ชันล่าสุด: %1$s (%2$s)</string>
+  <string name="module_about_versification">การแบ่งข้อ: %s</string>
+  <string name="module_about_repository">เซิร์ฟเวอร์จัดจำหน่าย: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+
+    <!-- Bug reporting -->
+  <string name="send_bug_report_title1">รายงานข้อผิดพลาด</string>
+  <string name="send_feedback_title">ข้อเสนอแนะ</string>
+  <string name="send_bug_report_title">ข้อเสนอแนะ / รายงานข้อผิดพลาด</string>
+  <string name="report_bug_email_subject_3">[%1$s] รายงานข้อผิดพลาดสำหรับ %2$s %3$s</string>
+
+  <string name="report_bug_big_heading">กรุณาเขียนข้อเสนอแนะหรือรายงานข้อผิดพลาดเหนือบรรทัดนี้</string>
+  <string name="report_bug_heading1">คำแนะนำ:</string>
+  <string name="report_bug_line_1">โปรดบอกเราสั้นๆ ว่าคุณทำอะไร / เกิดอะไรขึ้นเมื่อปัญหาเกิดขึ้น</string>
+  <string name="report_bug_heading2">ตัวอย่าง:</string>
+  <string name="report_bug_instructions1">1. เปิดแอป</string>
+  <string name="report_bug_instructions2">2. คลิกเมนูหน้าต่าง</string>
+  <string name="report_bug_instructions3">-> แอปขัดข้อง</string>
+  <string name="report_bug_line_2">บางครั้งภาพหน้าจอที่ถ่ายด้วยตนเองก็มีประโยชน์ในการแก้ปัญหา</string>
+  <string name="report_bug_line_3">กรุณาใช้ฟังก์ชันนี้เพื่อรายงานทันทีที่สังเกตเห็นปัญหา</string>
+  <string name="report_bug_line_4">คุณยังสามารถใช้ฟังก์ชันนี้หลังจากเปิดแอป หลังจากแอปขัดข้อง</string>
+  <string name="report_bug_heading_3">ไฟล์แนบ:</string>
+  <string name="bug_report_logcat">ไฟล์บันทึกที่สร้างโดยแอปนี้ ไม่มีข้อมูลเกี่ยวกับแอปอื่นใด</string>
+  <string name="bug_report_screenshot">ภาพหน้าจอของแอปเมื่อแอปขัดข้อง หรือเมื่อสร้างรายงานข้อผิดพลาด</string>
+  <string name="bug_report_attachment_line_1">การแนบไฟล์เหล่านี้ช่วยนักพัฒนาแอปในการแก้ไขข้อผิดพลาดที่รายงานได้มาก</string>
+  <string name="report_bug_heading_4">ข้อมูลอุปกรณ์:</string>
+
+    <!-- Document types -->
+  <string name="doc_type_all">ทุกประเภท</string>
+  <string name="doc_type_bible">พระคัมภีร์</string>
+  <string name="doc_type_commentary">คำอธิบาย</string>
+  <string name="doc_type_dictionary">พจนานุกรม</string>
+  <string name="doc_type_book">หนังสือ</string>
+  <string name="doc_type_map">แผนที่</string>
+  <string name="doc_type_addons">ส่วนเสริม</string>
+
+    <!-- Languages -->
+  <string name="lang_default">ค่าเริ่มต้น</string>
+
+    <!-- General -->
+  <string name="okay">ตกลง</string>
+  <string name="cancel">ยกเลิก</string>
+  <string name="discard_changes_confirmation">ยกเลิกการเปลี่ยนแปลงที่ยังไม่ได้บันทึก?</string>
+  <string name="yes">ใช่</string>
+  <string name="no">ไม่</string>
+  <string name="error">ข้อผิดพลาด</string>
+  <string name="delete_generic">ลบ</string>
+  <string name="please_wait">กรุณารอ…</string>
+  <string name="all">ทั้งหมด</string>
+  <string name="edit">แก้ไข</string>
+  <string name="reset_generic">รีเซ็ต</string>
+  <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
+  <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
+
+    <!-- Errors -->
+  <string name="report_error">ส่งรายงาน</string>
+  <string name="error_occurred">เกิดข้อผิดพลาด</string>
+  <string name="error_occurred_crash_last_time">ครั้งที่แล้วที่คุณใช้แอปพลิเคชัน แอปขัดข้อง หากคุณส่งรายงานข้อผิดพลาดมาให้เรา จะช่วยให้เราแก้ไขปัญหาได้</string>
+  <string name="error_occurred_with_link">เกิดข้อผิดพลาด %s</string>
+  <string name="error_no_content">ไม่มีเนื้อหาสำหรับข้อพระคัมภีร์ที่เลือก</string>
+  <string name="error_page_too_large">หน้าใหญ่เกินไปที่จะโหลด</string>
+  <string name="error_key_not_in_document">ไม่พบในเอกสาร</string>
+  <string name="error_key_not_in_document2">ไม่พบ %1$s ในเอกสาร %2$s</string>
+  <string name="empty_list">ไม่มีรายการที่จะแสดง</string>
+  <string name="error_skip">ข้าม</string>
+  <string name="bug_report_email_title">ส่งรายงานข้อผิดพลาดทางอีเมล</string>
+  <string name="bug_report_email_text">ถัดไป กรุณาเลือกแอปอีเมลที่คุณต้องการ (เช่น Gmail) เพื่อส่งรายงานให้ทีมนักพัฒนา</string>
+
+    <!-- Notifications -->
+  <string name="notification_channel_tts_status">การอ่านข้อความเป็นเสียง</string>
+  <string name="notification_channel_progress_status">การแจ้งเตือนความคืบหน้าสำหรับการดาวน์โหลดเอกสาร ฯลฯ</string>
+
+    <!-- Workspaces -->
+  <string name="new_workspace">ใหม่</string>
+  <string name="switch_to_workspace">พื้นที่ทำงาน</string>
+  <string name="delete_workspace">ลบ</string>
+  <string name="new_copied_workspace">คัดลอกเป็นอันใหม่</string>
+  <string name="workspace_number">พื้นที่ทำงาน %d</string>
+  <string name="rename_workspace">เปลี่ยนชื่อ</string>
+  <string name="workspace_selector_title">เลือกพื้นที่ทำงาน</string>
+  <string name="workspace_settings">การตั้งค่า…</string>
+  <string name="give_name_workspace">ตั้งชื่อพื้นที่ทำงานใหม่</string>
+  <string name="save_and_exit">บันทึก</string>
+  <string name="workspace_save_changes">ใช้การเปลี่ยนแปลงกับพื้นที่ทำงาน?</string>
+  <string name="copy_of_workspace">สำเนาของ %s</string>
+  <string name="copy_workspace_settings">คัดลอกการตั้งค่า…</string>
+  <string name="copy_settings_title">คุณต้องการคัดลอกการตั้งค่าใด?</string>
+  <string name="select_all">เลือกทั้งหมด</string>
+  <string name="copy_settings_workspaces_title">คุณต้องการคัดลอกการตั้งค่าไปยังพื้นที่ทำงานใด?</string>
+  <string name="reset_settings">รีเซ็ต</string>
+  <string name="search_settings">ค้นหาการตั้งค่า</string>
+  <string name="workspace_dismiss">ปิด</string>
+  <string name="workspace_listing_with_current">%s (ปัจจุบัน)</string>
+
+    <!-- Beta notice -->
+  <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
+  <string name="beta_flag">ทดสอบ</string>
+  <string name="beta_notice_content_1">ในเวอร์ชันทดสอบ มีฟีเจอร์ใหม่ที่ยังไม่ได้ทดสอบอย่างครบถ้วน การใช้เวอร์ชันทดสอบอาจทำให้เกิดพฤติกรรมที่ไม่คาดคิด เช่น ข้อผิดพลาด แนะนำให้ผู้อ่านพระคัมภีร์ทั่วไปใช้เวอร์ชันเสถียรแทน</string>
+
+  <string name="beta_notice_content_2">ผู้ใช้เวอร์ชันทดสอบควรรายงานข้อผิดพลาดผ่าน Google Play หรือ (ควรทำ) ผ่าน %s</string>
+  <string name="beta_notice_content_3">หากคุณเป็นนักพัฒนา กรุณาช่วยส่ง การแก้ไขข้อผิดพลาดผ่าน %s ด้วยตนเอง :-)</string>
+  <string name="beta_notice_github_issues">Github issues</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">ปิด</string>
+  <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>
+
+  <string name="stable_notice_title">แอปพลิเคชันได้รับการอัปเกรดแล้ว!</string>
+  <string name="upgrade_video_message">กรุณาดูวิดีโอแนะนำฟีเจอร์ใหม่ของเวอร์ชันนี้ (%s)</string>
+  <string name="stable_notice_par1">ติดตั้งเวอร์ชันใหม่ %1$s ของ %2$s สำเร็จแล้ว!</string>
+
+    <!-- History -->
+  <string name="history_for">ประวัติ (%1$s: หน้าต่าง %2$d)</string>
+
+    <!-- Help -->
+  <string name="help_nav_title">การนำทาง</string>
+  <string name="help_nav_text">ไปยังบทถัดไปหรือก่อนหน้าโดยการปัดหน้าจอด้วยนิ้ว แตะสองครั้งที่ข้อความพระคัมภีร์เพื่อสลับโหมดเต็มจอ หน้าจอแยก (เรียกว่าหน้าต่าง) มีปุ่มเมนูที่มุมขวาบน ซึ่งช่วยให้คุณใช้ฟังก์ชันเฉพาะหน้าต่างและปรับแต่งรูปลักษณ์และพฤติกรรมของหน้าต่างได้</string>
+  <string name="help_contextmenus_title">เมนูบริบท</string>
+  <string name="help_contextmenus_text">การกดค้างจะเปิดเมนูบริบทหรือโหมดการกระทำในมุมมองต่างๆ กดค้างในมุมมองพระคัมภีร์เพื่อเปิดโหมดการกระทำสำหรับการกระทำที่ส่งผลต่อข้อปัจจุบัน กดค้างที่รายการเอกสารในมุมมองรายการของเลือกเอกสารหรือดาวน์โหลด เพื่อลบหรือดูข้อมูลเอกสาร กดค้างที่ที่คั่นหน้าในรายการที่คั่นหน้าเพื่อเพิ่มป้ายกำกับหรือลบที่คั่นหน้า กดค้างที่ลิงก์เพื่อเลือกว่าต้องการเปิดในหน้าต่างปัจจุบัน หน้าต่างใหม่ หรือหน้าต่างลิงก์พิเศษ</string>
+  <string name="help_bookmarks_title">ที่คั่นหน้า &amp; บันทึกของฉัน</string>
+  <string name="help_bookmarks_text">สร้างที่คั่นหน้าโดยการเลือกข้อความและเลือก \"ที่คั่นหน้า\" จาก เมนูป๊อปอัป คุณสามารถเพิ่มบันทึกส่วนตัวในที่คั่นหน้าใหม่โดยแตะที่ข้อความ ที่ถูกเน้นในมุมมองพระคัมภีร์ นอกจากนี้ยังมีเอกสารพิเศษ \"บันทึกของฉัน\" ในคำอธิบายที่ช่วยให้ คุณดูบันทึกในหน้าต่างแยกต่างหาก</string>
+  <string name="help_studypads_text">แผ่นบันทึกการศึกษาออกแบบมาเพื่อให้ง่ายต่อการเขียนบันทึกเทศน์ เตรียมเทศน์ หรือเขียน บันทึกการศึกษาพระคัมภีร์ส่วนตัวที่มีการอ้างอิงพระคัมภีร์หลายข้อ แผ่นบันทึกแต่ละแผ่นเชื่อมโยงกับป้ายกำกับที่คั่นหน้าหนึ่งใบ ที่คั่นหน้าทั้งหมดที่สร้างด้วยป้ายกำกับนั้นจะปรากฏในเอกสารแผ่นบันทึกโดยอัตโนมัติ นอกจากที่คั่นหน้าแล้ว ยังสามารถมีข้อความแบบกำหนดเองในแผ่นบันทึกการศึกษาได้</string>
+
+  <string name="help_search_title">ค้นหา</string>
+    <!-- TODO: to be removed -->
+  <string name="help_search_text">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, ?, AND, OR, NOT (ดู \"Apache Lucene - Query Parser Syntax\" สำหรับรายละเอียดเพิ่มเติม)</string>
+  <string name="help_search_text2">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, AND, OR, NOT</string>
+  <string name="help_search_details">กรุณาดู %s สำหรับรายละเอียดเพิ่มเติม</string>
+  <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
+  <string name="help_fts5">FTS5 Full-text Query Syntax</string>
+  <string name="help_workspaces_title">พื้นที่ทำงาน</string>
+  <string name="help_workspaces_text">พื้นที่ทำงานช่วยให้มีสภาพแวดล้อมการทำงานหลายอย่างที่ขึ้นอยู่กับบริบท ฟังก์ชันพื้นที่ทำงาน สามารถเข้าถึงได้ผ่านรายการพื้นที่ทำงานในเมนูตัวเลือก (มุมขวาบน) วิธีลัดในการเข้าถึงพื้นที่ทำงานคือ การปัดลงจากแถบเครื่องมือ คุณยังสามารถใช้การปัดซ้ายและปัดขวาบนแถบเครื่องมือเพื่อ สลับไปยังพื้นที่ทำงานก่อนหน้า / ถัดไป</string>
+  <string name="help_hidden_features_title">ทางลัดที่ซ่อนอยู่</string>
+  <string name="help_hidden_features_text">ปัดลงจากแถบเครื่องมือเพื่อแสดงตัวเลือกพื้นที่ทำงาน กดค้างที่ปุ่มหน้าต่างเพื่อย่อขนาดอย่างรวดเร็ว กดค้างที่ปุ่มแถบเครื่องมืออ่านออกเสียงเพื่อไปยังการตั้งค่าการอ่านออกเสียงอย่างรวดเร็ว กดค้างที่หัวข้อตำแหน่งข้อในแถบเครื่องมือเพื่อไปยังตัวเลือกเอกสาร กดค้างที่ปุ่มย้อนกลับเพื่อเข้าถึงรายการประวัติ</string>
+  <string name="help_window_pinning_title">การตรึงหน้าต่าง</string>
+  <string name="help_window_pinning_text">คุณสามารถเปิดใช้การตรึงหน้าต่างจากเมนูตัวเลือก (สามจุด มุมขวาบน) หากเปิดใช้การตรึงหน้าต่าง คุณสามารถแสดงหน้าต่างที่ตรึงหลายหน้าต่างในมุมมองพระคัมภีร์ได้ แต่มีเพียงหน้าต่างที่ไม่ตรึงเพียงหน้าต่างเดียว หน้าต่างที่ตรึงจะแสดงก่อน จากนั้น หน้าต่างที่ไม่ตรึง คุณอาจต้องการเปิดเอกสารพระคัมภีร์เป็นหน้าต่างที่ตรึง และ คำอธิบายและแผนที่ ฯลฯ เป็นหน้าต่างที่ไม่ตรึง จากนั้นคุณสามารถ เปิดเอกสารพระคัมภีร์ไว้เสมอ และสลับระหว่างคำอธิบายและ เนื้อหาเสริมอื่นๆ ได้อย่างรวดเร็วเมื่อศึกษาพระคัมภีร์</string>
+
+    <!-- Welcome text -->
+  <string name="redownload_documents">ดาวน์โหลดซ้ำอย่างรวดเร็ว</string>
+  <string name="welcome_message">ขอบคุณที่ดาวน์โหลด %s ขณะนี้ยังไม่ได้ติดตั้งพระคัมภีร์หรือเอกสารใด หากต้องการดำเนินการต่อ กรุณาติดตั้ง อย่างน้อย 1 เอกสารโดยการดาวน์โหลดจากอินเทอร์เน็ต หรือโหลดจากไฟล์สำรองข้อมูลเอกสารแบบ zip</string>
+    <!-- Supported file formats for documents -->
+  <string name="supported_formats_title">รูปแบบที่รองรับ</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="choose_file">คุณต้องเลือกไฟล์ที่ต้องการโหลดไปยัง %s</string>
+  <string name="supported_formats">รูปแบบที่รองรับสำหรับการโหลดเอกสารจากไฟล์: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="format_zip">ไฟล์ Zip ที่มีโมดูล Sword หรือไฟล์สำรองข้อมูลเอกสาร (*.abmd) ที่สร้างโดย %s</string>
+  <string name="format_mysword">เอกสาร MySword (*.mybible)</string>
+  <string name="format_mybible">เอกสาร MyBible (*.SQLite3)</string>
+  <string name="format_esword">เอกสาร e-Sword (*.bblx, *.bbli)</string>
+  <string name="format_epub">เอกสาร EPUB (*.epub)</string>
+  <string name="format_ttf">แบบอักษร TTF (*.ttf)</string>
+  <string name="format_csv_prompts">ส่วนเสริมคำสั่ง AI (*.csv)</string>
+  <string name="format_studypads">แผ่นบันทึกการศึกษาจากฐานข้อมูล AndBible (*.abdb)</string>
+  <string name="redownload_message">พบรายการหนังสือ/เอกสารก่อนหน้า คลิกด้านล่างเพื่อดาวน์โหลดอีกครั้งได้ง่ายๆ</string>
+
+    <!-- Uncategorized -->
+  <string name="close">ปิด</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
+  <string name="first_time_help_do_not_show_again">เข้าใจแล้ว</string>
+  <string name="first_time_help_show_next_time">แสดงอีกครั้งในครั้งถัดไป</string>
+
+  <string name="strongs_mode_title">เลือกโหมด Strong\'s</string>
+
+  <string name="download_dialog_message">ไม่สามารถดาวน์โหลดหนังสือต่อไปนี้:</string>
+  <string name="select_multiple">เลือกหลายรายการ</string>
+  <string name="journal_description">แผ่นบันทึกการศึกษาที่ผู้ใช้แก้ไขได้ พร้อมข้อความและที่คั่นหน้าแบบกำหนดเอง</string>
+  <string name="my_notes_description">บันทึกที่ผู้ใช้แก้ไขได้ ซึ่งแนบกับที่คั่นหน้า</string>
+  <string name="my_notes_abbreviation">บันทึกของฉัน</string>
+  <string name="studypad">แผ่นบันทึกการศึกษา</string>
+  <string name="studypads">แผ่นบันทึกการศึกษา</string>
+  <string name="multi_description">หลายข้ออ้างอิง</string>
+  <string name="multi_abbreviation">หลายรายการ</string>
+  <string name="compare_description">เปรียบเทียบฉบับแปล</string>
+  <string name="compare_abbreviation">เปรียบเทียบ</string>
+  <string name="compare">เปรียบเทียบ</string>
+  <string name="http_forbidden">ไม่มีสิทธิ์เข้าถึง</string>
+  <string name="http_not_found">ไม่พบ</string>
+  <string name="http_unknown">เกิดข้อผิดพลาดอื่น</string>
+  <string name="give_passphrase_for_module">เอกสาร %s ถูกเข้ารหัสและต้องใช้รหัสผ่านเพื่อปลดล็อก</string>
+  <string name="unlocking_failed">ปลดล็อกล้มเหลว รหัสผ่านไม่ถูกต้อง</string>
+  <string name="unlock_module">ตั้งรหัสผ่านโมดูล</string>
+  <string name="unlock_info">ข้อมูลการปลดล็อกโมดูลที่เข้ารหัส</string>
+  <string name="try_again_passphrase">รหัสผ่านไม่ถูกต้อง ลองอีกครั้งหรือไม่?</string>
+  <string name="show_unlock_info">ข้อมูลโมดูลและการปลดล็อก</string>
+
+  <string name="prefs_experimental_features_title">คุณสมบัติทดลอง</string>
+  <string name="prefs_experimental_features_summary">เลือกคุณสมบัติทดลองที่ต้องการเปิดใช้งาน คุณสมบัติเหล่านี้ยังอยู่ในระหว่างพัฒนาและอาจมีการเปลี่ยนแปลงหรือถูกลบออก</string>
+  <string name="experimental_feature_bookmark_edit_actions">การแก้ไขที่คั่นหน้า</string>
+  <string name="experimental_feature_add_paragraph_break">เพิ่มที่คั่นหน้าแบบขึ้นย่อหน้า</string>
+  <string name="experimental_feature_ai_features">คุณสมบัติ AI และเอกสารของฉัน</string>
+  <string name="experimental_feature_reading_and_memorization">ติดตามการอ่านและการจดจำ</string>
+  <string name="raw_llm_log_title">บันทึก LLM ดิบ</string>
+  <string name="raw_llm_log_empty">ไม่มีข้อมูลบันทึกดิบ</string>
+  <string name="raw_llm_log_copied">คัดลอกบันทึกไปยังคลิปบอร์ดแล้ว</string>
+  <string name="raw_llm_log_total">รวม: นำเข้า %1$s / ส่งออก %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">พรอมต์ระบบ</string>
+  <string name="raw_llm_log_entry_user">ข้อความผู้ใช้</string>
+  <string name="raw_llm_log_entry_assistant">การตอบสนองของผู้ช่วย</string>
+  <string name="raw_llm_log_entry_tool_call">การเรียกใช้เครื่องมือ: %s</string>
+  <string name="raw_llm_log_entry_tool_result">ผลลัพธ์เครื่องมือ [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">นิยามเครื่องมือ (%d เครื่องมือ)</string>
+  <string name="raw_llm_log_entry_api_response">การตอบสนอง API (รอบที่ %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s โทเค็น</string>
+  <string name="raw_llm_log_entry_usage">นำเข้า: %1$s / ส่งออก: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(ว่างเปล่า)</string>
+  <string name="raw_llm_log_entry_tool_desc">คำอธิบาย: %s</string>
+  <string name="raw_llm_log_entry_tool_params">พารามิเตอร์: %s</string>
+  <string name="agent_log_view_raw">ดูบันทึก LLM ดิบ</string>
+  <string name="agent_log_model_selector">เปลี่ยนโมเดลเริ่มต้น (ปัจจุบัน: %1$s)</string>
+  <string name="agent_log_model_not_configured">ยังไม่ได้ตั้งค่าโมเดล</string>
+  <string name="agent_log_select_model">เลือกโมเดลเริ่มต้น</string>
+  <string name="share">แชร์</string>
+  <string name="prefs_show_error_box_title">แสดงกล่องข้อผิดพลาด Javascript</string>
+  <string name="prefs_show_error_box_summary">มีประโยชน์สำหรับนักพัฒนาเมื่อดีบักข้อผิดพลาดฝั่ง Javascript ของ BibleView ซึ่งจะทำให้แอปทำงานช้าลง</string>
+  <string name="active_window_indicator_title">แสดงตัวบ่งชี้หน้าต่างที่ใช้งานอยู่</string>
+  <string name="active_window_indicator_summary">เน้นมุมหน้าต่างเพื่อช่วยระบุว่าหน้าต่างใดกำลังใช้งานอยู่</string>
+  <string name="app_licence_title">สัญญาอนุญาตโอเพนซอร์ส</string>
+
+  <string name="how_to_contribute">วิธีมีส่วนร่วม?</string>
+  <string name="confirm_delete_bookmarks">ต้องการลบที่คั่นหน้า %d รายการและบันทึกที่เกี่ยวข้องหรือไม่?</string>
+  <string name="confirm_delete_orphaned_bookmarks">ป้ายกำกับที่เลือกแนบกับที่คั่นหน้า %d รายการที่ไม่มีป้ายกำกับอื่น ต้องการลบที่คั่นหน้าเหล่านี้พร้อมกับป้ายกำกับหรือไม่?</string>
+  <string name="delete_label_and_bookmarks">ลบป้ายกำกับและที่คั่นหน้า</string>
+  <string name="delete_label_only">ลบเฉพาะป้ายกำกับ</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">แนะนำให้เพื่อน</string>
+  <string name="tell_friend_message1">ฉันอยากแนะนำ %s ให้คุณ</string>
+  <string name="tell_friend_message2">เป็นแอปศึกษาพระคัมภีร์แบบออฟไลน์ที่ทรงพลังและใช้งานง่ายสำหรับ Android</string>
+  <string name="tell_friend_message3">ติดตั้งได้จาก Play Store: %s</string>
+  <string name="tell_friend_message4">อ่านเพิ่มเติมและตัวเลือกการติดตั้งอื่น: %s</string>
+  <string name="share_verse_ok">แชร์ / คัดลอก</string>
+  <string name="web_search">ค้นหาเว็บ</string>
+  <string name="verse_action_copy">คัดลอก</string>
+  <string name="generic_share">แชร์</string>
+  <string name="share_verse_menu_title">แชร์ / คัดลอก…</string>
+  <string name="show_versenumbers">แสดงเลขข้อ</string>
+  <string name="show_full_verses">แสดงข้อพระคัมภีร์เต็ม</string>
+  <string name="show_selection_only">แสดงเฉพาะข้อความที่เลือก</string>
+  <string name="advertise_app">โปรโมตแอป</string>
+  <string name="verse_share_advertise">แชร์โดยใช้ %s</string>
+  <string name="show_reference">แสดงข้ออ้างอิง</string>
+  <string name="show_reference_at_front">แสดงที่ต้นข้อ</string>
+  <string name="abbreviate_reference">ย่อข้ออ้างอิง</string>
+  <string name="version_name">ชื่อฉบับ</string>
+    <!-- meaning, bible version name -->
+  <string name="show_version_name">รวมชื่อฉบับ</string>
+  <string name="show_ellipsis">แสดงจุดไข่ปลา (…)</string>
+  <string name="show_quotes">แสดงเครื่องหมายคำพูด</string>
+  <string name="separate_verses_with_newlines">คั่นข้อด้วยบรรทัดใหม่</string>
+
+  <string name="backup_button">สำรองข้อมูลและกู้คืน</string>
+  <string name="back_button">ย้อนกลับ</string>
+  <string name="upgrading_database">กำลังอัปเกรดฐานข้อมูล โปรดรอ…</string>
+  <string name="initializing_app">กำลังเริ่มต้นแอปพลิเคชัน…</string>
+  <string name="show_notes">แสดงบันทึก</string>
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <string name="old_webview">แพ็กเกจ Android WebView เก่าเกินไป (%1$s) คุณต้องอัปเกรดแพ็กเกจ Android WebView เป็นอย่างน้อยเวอร์ชัน %2$s เพื่อใช้ %3$s สำหรับอุปกรณ์ส่วนใหญ่สามารถทำได้ผ่าน %4$s</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">ดำเนินการต่อไป</string>
+  <string name="proceed">ดำเนินการ</string>
+  <string name="rate_title">การให้คะแนนและรีวิวแอป</string>
+  <string name="rate_message5">รีวิวเชิงบวกและละเอียดช่วยโครงการโอเพนซอร์ส AndBible ได้มาก ขอบคุณ!</string>
+  <string name="rate_message6">ก่อนเขียนรีวิวเชิงลบ โปรดพิจารณาสิ่งต่อไปนี้:</string>
+
+    <!-- parameters are actions (file a bug, send email) -->
+  <string name="rate_message1">หากมีปัญหากับแอป โปรด %1$s หรือ %2$s แทน</string>
+    <!-- param is "please report maintainers" -->
+  <string name="rate_message2">หากข้อความ / ฉบับแปลมีปัญหา %s</string>
+    <!-- param is "please read what you can do" -->
+  <string name="rate_message3">หากข้อความบางส่วนไม่มีในแอป %s</string>
+  <string name="rate_message4">นักพัฒนาแอปนี้ไม่รับผิดชอบในการดูแลเอกสาร</string>
+  <string name="bug_report">ส่งรายงานข้อผิดพลาด (จากเมนูหลัก)</string>
+  <string name="how_to_help">โปรดอ่านสิ่งที่คุณสามารถทำเพื่อช่วย</string>
+  <string name="send_email">ส่งอีเมลถึงนักพัฒนา</string>
+  <string name="proceed_google_play">ไปยัง Google Play</string>
+  <string name="text_maintainers">โปรดรายงานปัญหาให้ผู้ดูแลข้อความ</string>
+  <string name="does_not_exist_abbreviation">ไม่มีอยู่</string>
+  <string name="cant_change_wholeverse">ไม่สามารถปิดการทำเครื่องหมายทั้งข้อสำหรับที่คั่นหน้านี้</string>
+  <string name="whole_verse_turned_on">ที่คั่นหน้านี้ถูกทำเครื่องหมายสำหรับทั้งข้อแล้ว</string>
+  <string name="this_bookmark">ที่คั่นหน้านี้</string>
+  <string name="this_workspace">พื้นที่ทำงานนี้</string>
+  <string name="override_style">แทนที่รูปแบบ</string>
+  <string name="no_override_suffix">(ไม่มีการแทนที่)</string>
+  <string name="display_mode_highlight">เน้นสี</string>
+  <string name="display_mode_underline">ขีดเส้นใต้</string>
+  <string name="display_mode_marker">เฉพาะเครื่องหมาย</string>
+  <string name="display_mode_hidden">ซ่อน</string>
+  <string name="workspace_override_indicator">ป้ายกำกับนี้มีโหมดการแสดงผลเฉพาะพื้นที่ทำงาน</string>
+  <string name="primary_label">ป้ายกำกับหลัก</string>
+  <string name="highlight_entire_verse">เน้นสีทั้งข้อ</string>
+  <string name="favourite_label">ป้ายกำกับโปรด</string>
+  <string name="edit_label">แก้ไขป้ายกำกับ</string>
+  <string name="delete_label_confirmation">ต้องการลบป้ายกำกับที่คั่นหน้า \"%s\" หรือไม่? บันทึกแผ่นบันทึกการศึกษาที่เกี่ยวข้องทั้งหมดจะถูกลบด้วย</string>
+  <string name="bookmark_underline_style_arbitrary">รูปแบบขีดเส้นใต้สำหรับที่คั่นหน้าจากการเลือก</string>
+  <string name="bookmark_underline_style_whole_verse">รูปแบบขีดเส้นใต้สำหรับที่คั่นหน้าทั้งข้อ</string>
+  <string name="active_labels">ป้ายกำกับที่เลือก</string>
+  <string name="recent_labels">ป้ายกำกับล่าสุด</string>
+  <string name="other_labels">ป้ายกำกับอื่น</string>
+  <string name="book_menu_sort_row_opt">เรียงหนังสือในแนวนอน</string>
+  <string name="book_menu_group_by_category">จัดกลุ่มหนังสือตามหมวดหมู่</string>
+  <string name="book_menu_show_long_book_name">แสดงชื่อหนังสือแบบเต็ม</string>
+  <string name="book_menu_show_progress_bars">แสดงแถบความคืบหน้า</string>
+  <string name="reset_workspace_labels">ต้องการรีเซ็ตการตั้งค่ากำหนดอัตโนมัติและรายการโปรดสำหรับพื้นที่ทำงานนี้หรือไม่?</string>
+  <string name="reset_hide_labels">ต้องการรีเซ็ตการตั้งค่าการซ่อนป้ายกำกับที่ระบุหรือไม่?</string>
+  <string name="reorder">จัดเรียงใหม่</string>
+  <string name="system_items">การดำเนินการระบบ</string>
+  <string name="system_items1">เพิ่มเติม</string>
+  <string name="system_action2">การดำเนินการของ Android</string>
+  <string name="text_copied_to_clicpboard">คัดลอกข้อความไปยังคลิปบอร์ดแล้ว</string>
+  <string name="prefs_disable_two_step_bookmarking_title">การบันทึกที่คั่นหน้าแบบขั้นตอนเดียว</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">แสดงรายการ \"การเลือก\" และ \"ข้อ\" โดยตรงในเมนูการเลือกของพระคัมภีร์</string>
+  <string name="prefs_double_tap_to_fullscreen_title">แตะสองครั้งเพื่อเต็มหน้าจอ</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">เข้าสู่โหมดเต็มหน้าจอโดยแตะสองครั้งที่หน้าต่าง</string>
+  <string name="toggle_fullscreen">เต็มหน้าจอ</string>
+  <string name="exit_fullscreen">แตะหน้าจอสองครั้งเพื่อออกจากโหมดเต็มหน้าจอ</string>
+  <string name="reset_app_prefs">คุณต้องการรีเซ็ตการตั้งค่าแอปพลิเคชันส่วนกลางทั้งหมดที่แสดงในหน้าจอนี้ให้เป็นค่าเริ่มต้นหรือไม่?</string>
+  <string name="label_red">แดง</string>
+  <string name="label_green">เขียว</string>
+  <string name="label_blue">น้ำเงิน</string>
+  <string name="label_salvation">ความรอด</string>
+  <string name="label_underline">ขีดเส้นใต้</string>
+  <string name="import_menu">นำเข้าและส่งออก</string>
+  <string name="auto_backups_title">สำรองข้อมูลอัตโนมัติ</string>
+  <string name="backup_file_info">แอป v%1$d, %2$s</string>
+  <string name="reset_databases_title">รีเซ็ตฐานข้อมูล</string>
+  <string name="reset_databases_description">รีเซ็ตฐานข้อมูลแต่ละรายการให้กลับสู่สถานะว่างเปล่าเริ่มต้น การดำเนินการนี้ไม่สามารถยกเลิกได้</string>
+  <string name="last_crash_info_title">ข้อมูลการขัดข้องครั้งล่าสุด</string>
+  <string name="reset_database_confirm">การดำเนินการนี้จะลบข้อมูลทั้งหมดใน \"%1$s\" อย่างถาวรและรีเซ็ตให้กลับสู่สถานะเริ่มต้น การดำเนินการนี้ไม่สามารถยกเลิกได้\n\nคุณแน่ใจหรือไม่?</string>
+  <string name="reset_database_success">รีเซ็ตฐานข้อมูลสำเร็จแล้ว</string>
+  <string name="reset_something">รีเซ็ต: %1$s</string>
+  <string name="export">ส่งออก</string>
+  <string name="csv_export_success">ส่งออก %d ที่คั่นหน้าเป็น CSV แล้ว</string>
+  <string name="csv_import_success">นำเข้าเสร็จสมบูรณ์: สร้าง %1$d รายการ, อัปเดต %2$d รายการ</string>
+  <string name="csv_import_errors">นำเข้าเสร็จสมบูรณ์พร้อมข้อผิดพลาด: สร้าง %1$d รายการ, อัปเดต %2$d รายการ, ข้อผิดพลาด %3$d รายการ</string>
+  <string name="csv_import_failed">การนำเข้า CSV ล้มเหลว: %s</string>
+  <string name="csv_export_failed">การส่งออก CSV ล้มเหลว: %s</string>
+  <string name="export_prompts_csv">ส่งออกพรอมต์เป็น CSV</string>
+  <string name="import_prompts_csv">นำเข้าพรอมต์จาก CSV</string>
+  <string name="prompts_csv_export_success">ส่งออก %d พรอมต์เป็น CSV แล้ว</string>
+  <string name="prompts_csv_import_success">นำเข้าเสร็จสมบูรณ์: สร้าง %1$d รายการ, อัปเดต %2$d รายการ</string>
+  <string name="prompts_csv_import_errors">นำเข้าเสร็จสมบูรณ์พร้อมข้อผิดพลาด: สร้าง %1$d รายการ, อัปเดต %2$d รายการ, ข้อผิดพลาด %3$d รายการ</string>
+  <string name="prompts_csv_import_failed">การนำเข้า CSV ล้มเหลว: %s</string>
+  <string name="prompts_csv_export_failed">การส่งออก CSV ล้มเหลว: %s</string>
+  <string name="no_prompts_to_export">ไม่มีพรอมต์ของผู้ใช้สำหรับส่งออก</string>
+  <string name="csv_column_selection_title">เลือกคอลัมน์ CSV</string>
+  <string name="choose_csv_file">เลือกไฟล์ CSV สำหรับนำเข้า</string>
+  <string name="no_bookmarks_to_export">ไม่มีที่คั่นหน้าสำหรับส่งออก</string>
+  <string name="export_fileformat">ส่งออกเป็น %s</string>
+  <string name="export_something">ส่งออก %s</string>
+  <string name="import_items">นำเข้า %s</string>
+  <string name="import_from_db">นำเข้าจากไฟล์ฐานข้อมูลแอป</string>
+  <string name="import_error">การนำเข้าจากฐานข้อมูลแอปล้มเหลว ไฟล์ฐานข้อมูลอาจมีรูปแบบไม่ถูกต้องหรือสร้างจากเวอร์ชันเก่าของ %s</string>
+
+  <string name="export_bookmarks_csv">ส่งออกที่คั่นหน้าเป็น %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">การอ้างอิง OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">การอ้างอิงพระคัมภีร์</string>
+  <string name="document">เอกสาร</string>
+  <string name="book">หนังสือ</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">บทเริ่มต้น</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">ข้อเริ่มต้น</string>
+  <string name="chapter_end">บทสิ้นสุด</string>
+  <string name="verse_end">ข้อสิ้นสุด</string>
+  <string name="id">ตัวระบุ</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">ลำดับเริ่มต้น</string>
+  <string name="ordinal_end">ลำดับสิ้นสุด</string>
+  <string name="created_at">สร้างเมื่อ</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">ออฟเซ็ตเริ่มต้น</string>
+  <string name="end_offset">ออฟเซ็ตสิ้นสุด</string>
+  <string name="custom_icon">ไอคอนกำหนดเอง</string>
+  <string name="last_updated_at">อัปเดตล่าสุดเมื่อ</string>
+  <string name="bookmark_notes">บันทึกที่คั่นหน้า</string>
+
+  <string name="chooser_range">ช่วง</string>
+  <string name="chooser_jump">ข้ามไป</string>
+  <string name="chooser_OT_abbrev">พนต</string>
+  <string name="chooser_NT_abbrev">พนม</string>
+  <string name="chooser_style_grid">ตาราง</string>
+  <string name="chooser_style_lists">รายการ</string>
+  <string name="chooser_select">เลือก %s</string>
+  <string name="chooser_pref_reset">ไม่รีเซ็ตบท/ข้อเป็น 1 เมื่อเลือกหนังสือ/บท</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <string name="incomplete_translation">เราขออภัย แต่เรามีการแปลส่วนติดต่อผู้ใช้เพียงบางส่วนในภาษา %1$s นั่นเป็นเพราะ %2$s ได้รับการพัฒนาโดยอาสาสมัครทั้งหมด หากคุณสามารถช่วยแปล โปรดดู %3$s</string>
+    <!-- will be added to incomplete_translation as a link -->
+  <string name="instructions_for_translators">คำแนะนำสำหรับผู้แปล</string>
+  <string name="questions_title">มีคำถามหรือไม่?</string>
+  <string name="questions_title2">ต้องการความช่วยเหลือ?</string>
+  <string name="bookmark_style">รูปแบบที่คั่นหน้า</string>
+  <string name="added_to_bookmark">กำหนดให้ที่คั่นหน้านี้แล้ว</string>
+  <string name="strongs_off">ปิด</string>
+  <string name="strongs_links">ลิงก์</string>
+  <string name="strongs_text_and_links">ข้อความและลิงก์</string>
+  <string name="strongs_hidden_links">ลิงก์ที่ซ่อนอยู่</string>
+  <string name="verse_tip">หากต้องการเลือกข้อบางส่วนหรือหลายข้อ คุณสามารถกดค้างที่ข้อความพระคัมภีร์</string>
+
+  <string name="permission_required">ต้องการสิทธิ์</string>
+  <string name="labels_search_hint">ค้นหา</string>
+  <string name="search_mode_name_start">ชื่อ (จากต้น)</string>
+  <string name="search_mode_name_contains">ชื่อ (มีคำที่ค้นหา)</string>
+  <string name="search_mode_content">เนื้อหา</string>
+  <string name="search_results_matches">%d รายการที่ตรงกัน</string>
+  <string name="search_results_match">1 รายการที่ตรงกัน</string>
+  <string name="progress_status_permission">เพื่อแสดงการแจ้งเตือน (สถานะการดาวน์โหลด, การประมวลผล, สถานะการพูด) เราต้องการสิทธิ์ของคุณ</string>
+
+    <!-- Discrete mode settings -->
+  <string name="app_name_calculator">เครื่องคิดเลขอย่างง่าย</string>
+  <string name="prefs_persecution_cat">การตั้งค่าสำหรับผู้ถูกข่มเหง</string>
+  <string name="prefs_discrete_mode">ซ่อนสัญลักษณ์ทางศาสนา</string>
+  <string name="prefs_discrete_mode_desc">เปลี่ยนชื่อแอปเป็น \'เครื่องคิดเลข\' และแสดงไอคอนอื่นในตัวเปิดแอป</string>
+  <string name="prefs_show_calculator">เครื่องคิดเลข</string>
+  <string name="prefs_calculator_pin">PIN เครื่องคิดเลข</string>
+  <string name="prefs_calculator_pin_desc">รหัส PIN สำหรับเข้าใช้แอปเมื่อแสดงเครื่องคิดเลข</string>
+  <string name="calc_division_by_zero">ไม่อนุญาตให้หารด้วยศูนย์</string>
+    <!-- Context: calculator. Wrong number format etc. -->
+  <string name="calc_wrong_format">รูปแบบไม่ถูกต้อง</string>
+  <string name="calc_wrong_format_operand">รูปแบบไม่ถูกต้อง ตัวดำเนินการไม่มีตัวเลขหรือ?</string>
+  <string name="prefs_persecuted_help">อ่านสิ่งนี้ก่อน!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <string name="prefs_persecuted_summary">คำแนะนำสำหรับการตั้งค่าและข้อมูลเกี่ยวกับบิลด์แบบไม่เปิดเผย</string>
+
+  <string name="calculator_par1">ก่อนเข้าใช้แอป จะแสดงหน้าจอเครื่องคิดเลข</string>
+  <string name="calculator_par2">ในนั้น คุณสามารถคำนวณได้ตามปกติ และเมื่อต้องการเข้าใช้แอป เพียงพิมพ์รหัส PIN ของคุณ (ค่าเริ่มต้นคือ 1234) แล้วกดปุ่ม \"=\"</string>
+  <string name="calculator_par3">คุณสามารถตั้งรหัส PIN แบบกำหนดเองได้ผ่านการตั้งค่า \"PIN เครื่องคิดเลข\"</string>
+  <string name="discrete_mode_info_par1">คุณกำลังใช้แอปเวอร์ชันมาตรฐาน ซึ่งหมายความว่ายังสามารถเห็น ชื่อจริงและไอคอนของแอปในข้อมูลแอปได้</string>
+  <string name="discrete_mode_info_par2">เพื่อความปลอดภัยที่ดีขึ้นในสภาพแวดล้อมที่ถูกข่มเหง เราขอแนะนำอย่างยิ่งให้ใช้ เวอร์ชันไม่เปิดเผยของแอป ซึ่งจะแสดงเครื่องคิดเลขเสมอ แม้ว่าข้อมูลแอปจะถูกลบ</string>
+  <string name="discrete_mode_link">คุณสามารถดาวน์โหลดเวอร์ชันล่าสุดของเวอร์ชันไม่เปิดเผยได้จาก %s</string>
+
+    <!-- Window synchronize groups -->
+  <string name="sync_group_submenu">ซิงโครไนซ์กลุ่ม</string>
+  <string name="sync_group_n">กลุ่ม %d</string>
+  <string name="disable_sync">ปิดการซิงโครไนซ์</string>
+  <string name="open_in_window">เปิดผลลัพธ์ในหน้าต่าง</string>
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <string name="custom_repositories">ที่เก็บข้อมูลกำหนดเอง</string>
+  <string name="custom_repositories_empty_list_message">ไม่มีที่เก็บข้อมูลกำหนดเองที่กำหนดไว้</string>
+  <string name="custom_repositories_create_button_label">เพิ่มที่เก็บข้อมูลกำหนดเอง</string>
+  <string name="custom_repositories_info_button_label">ข้อมูล</string>
+  <string name="name_for_repository">ชื่อสำหรับที่เก็บข้อมูล</string>
+  <string name="repository_specification">URL ของที่เก็บข้อมูล</string>
+  <string name="delete_custom_repository">คุณต้องการลบที่เก็บข้อมูลกำหนดเอง %s หรือไม่?</string>
+  <string name="invalid_repository_not_saved">ข้อมูลที่เก็บข้อมูลไม่ถูกต้องและไม่ได้บันทึก</string>
+  <string name="custom_repositories_help1">หากต้องการเพิ่มที่เก็บข้อมูลกำหนดเองใหม่ พิมพ์หรือคัดลอก &amp; วาง URL ของที่เก็บข้อมูลกำหนดเองที่นี่</string>
+  <string name="custom_repositories_help2">คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับที่เก็บข้อมูลกำหนดเองได้ใน %s</string>
+  <string name="wiki_page">หน้า WIKI</string>
+  <string name="custom_repositories_help0">คุณสามารถติดตั้งเอกสารจากที่เก็บข้อมูลกำหนดเองภายนอกโดยการติดตั้งที่เก็บข้อมูลกำหนดเอง</string>
+  <string name="duplicate_custom_repository">ที่เก็บข้อมูลชื่อ %s มีอยู่แล้ว ไม่สามารถเพิ่มอีกรายการได้</string>
+
+  <string name="packages_dir">ไดเรกทอรีแพ็กเกจ (ไฟล์ Zip)</string>
+  <string name="warn_bad_document">คำเตือน: เอกสารนี้อาจมีคุณภาพทางเทคนิคที่ไม่ดี (อย่างน้อยบางส่วน)</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
+  <string name="open_bible_links_title">เปิดลิงก์พระคัมภีร์ใน AndBible</string>
+  <string name="open_bible_links_summary">เมื่อคลิกลิงก์ที่อ้างถึง URL พระคัมภีร์ที่ AndBible รองรับ ให้เปิดใน AndBible</string>
+  <string name="copyReference">คัดลอกลิงก์ไปยังคลิปบอร์ด</string>
+  <string name="reference_copied_to_clipboard">คัดลอกข้อมูลอ้างอิงแล้ว</string>
+
+    <!-- Device cloud synchronization -->
+  <string name="prefs_sync_introduction_summary1">เลือกบริการคลาวด์ที่ต้องการใช้เพื่อซิงโครไนซ์อุปกรณ์หลายเครื่อง</string>
+  <string name="prefs_sync_introduction_summary2">เมื่อใช้ Google Drive %s จะได้รับสิทธิ์เข้าถึงเฉพาะไฟล์ของแอปพลิเคชัน ไม่ใช่ไฟล์ส่วนตัวใดๆ</string>
+  <string name="restore_backup_sections">ต้องการกู้คืนส่วนใดของข้อมูลสำรอง?</string>
+  <string name="db_repositories">ที่เก็บข้อมูลและการตั้งค่าที่เกี่ยวข้อง</string>
+  <string name="db_bookmarks">ที่คั่นหน้า บันทึกของฉัน ป้ายกำกับ และแผ่นบันทึกการศึกษา</string>
+  <string name="synchronizing">กำลังซิงโครไนซ์…</string>
+  <string name="overrideBackup">พบฐานข้อมูลที่อุปกรณ์นี้ยังไม่ได้ซิงโครไนซ์อยู่ในคลาวด์ ฐานข้อมูลมี %s คุณต้องการทำอะไร?</string>
+  <string name="reading_plans_content">แผนการอ่านและสถานะของแผน</string>
+  <string name="bookmarks_contents">ที่คั่นหน้า ป้ายกำกับ และแผ่นบันทึกการศึกษา</string>
+  <string name="workspaces_contents">พื้นที่ทำงานและหน้าต่าง</string>
+  <string name="my_documents_contents">เอกสารของฉันและเนื้อหา</string>
+  <string name="ai_settings_sync_title">การตั้งค่า AI</string>
+  <string name="ai_settings_sync_contents">พรอมต์ AI และการกำหนดค่าผู้ให้บริการ</string>
+  <string name="progress_sync_title">ความก้าวหน้าในการอ่าน</string>
+  <string name="progress_sync_contents">ข้อพระคัมภีร์ที่จดจำและบันทึกการอ่านบท</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">ความก้าวหน้าการอ่าน/การจดจำ</string>
+  <string name="reading_progress_chapters_read">บทที่อ่านแล้ว</string>
+  <string name="reading_progress_verses_memorized">ข้อที่จดจำแล้ว</string>
+  <string name="reading_progress_active_days">วันที่ใช้งาน</string>
+  <string name="reading_progress_overall">อ่านพระคัมภีร์แล้ว %s%%</string>
+  <string name="reading_progress_bible_heatmap">ภาพรวมพระคัมภีร์</string>
+  <string name="reading_progress_old_testament">พันธสัญญาเดิม</string>
+  <string name="reading_progress_new_testament">พันธสัญญาใหม่</string>
+  <string name="reading_progress_calendar">กิจกรรมการอ่าน</string>
+  <string name="reading_progress_cycle">รอบที่ %d</string>
+  <string name="reading_progress_new_cycle">รอบใหม่</string>
+  <string name="reading_progress_new_cycle_confirm">เริ่มรอบการอ่านใหม่? ระบบจะเริ่มติดตามความก้าวหน้าจากต้นใหม่ โดยยังคงข้อมูลรอบก่อนหน้าไว้</string>
+  <string name="reading_progress_previous_cycle">รอบก่อนหน้า</string>
+  <string name="reading_progress_next_cycle">รอบถัดไป</string>
+
+  <string name="cloud_fetch_and_restore_initial">คัดลอกจากคลาวด์มายังอุปกรณ์นี้</string>
+  <string name="cloud_create_new">คัดลอกจากอุปกรณ์นี้ไปยังคลาวด์</string>
+  <string name="cloud_disable_sync">ยกเลิกและปิดใช้งานการซิงโครไนซ์</string>
+  <string name="cloud_sync_title">การซิงโครไนซ์อุปกรณ์</string>
+  <string name="reset_sync">ออกจากระบบ</string>
+  <string name="prefs_reset_sync_summary">ปิดใช้งานการซิงโครไนซ์และรีเซ็ตการตั้งค่าที่เกี่ยวข้อง</string>
+  <string name="sync_confirmation">คุณแน่ใจหรือไม่ว่าต้องการออกจากระบบและรีเซ็ตการซิงโครไนซ์?</string>
+  <string name="cloud_info">ข้อมูลคลาวด์</string>
+  <string name="cloud_info_summary">ข้อมูลในที่จัดเก็บคลาวด์: %s Mb</string>
+  <string name="sync_adapter">แบ็กเอนด์การซิงโครไนซ์</string>
+  <string name="sync_adapter_summary">ปัจจุบัน: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">การยืนยันตัวตนกับ %s</string>
+  <string name="auth_server_uri">URL เซิร์ฟเวอร์</string>
+  <string name="auth_username">ชื่อผู้ใช้</string>
+  <string name="auth_password">รหัสผ่าน</string>
+  <string name="auth_folder_path">เส้นทางโฟลเดอร์ซิงค์</string>
+  <string name="auth_folder_path_summary">โฟลเดอร์หลักสำหรับข้อมูลซิงค์ (ว่าง = รูท)</string>
+  <string name="auth_access_token">โทเคนการเข้าถึง</string>
+  <string name="synchronization_categories">หมวดหมู่การซิงโครไนซ์</string>
+  <string name="sync_general_settings">ข้อมูลและการตั้งค่าทั่วไป</string>
+  <string name="sync_introduction">บทนำ</string>
+  <string name="are_you_sure">คุณแน่ใจหรือไม่?</string>
+  <string name="are_you_sure_reset_local">การดำเนินการนี้จะรีเซ็ตฐานข้อมูลในเครื่องสำหรับ %s ด้วยเนื้อหาที่จัดเก็บอยู่ในบริการคลาวด์ปัจจุบัน</string>
+  <string name="are_you_sure_reset_cloud">การดำเนินการนี้จะรีเซ็ตฐานข้อมูลคลาวด์สำหรับ %s ด้วยเนื้อหาที่มีในอุปกรณ์นี้</string>
+  <string name="sync_cant_fetch">เวอร์ชันของฐานข้อมูลหรือไฟล์แพตช์ที่จัดเก็บในคลาวด์สูงกว่าที่แอปนี้รองรับ</string>
+  <string name="sync_disabling">ปิดใช้งานการซิงโครไนซ์สำหรับ %s ชั่วคราว</string>
+  <string name="sync_update_app">กรุณาอัปเดตแอปเพื่อดำเนินการซิงโครไนซ์ต่อ</string>
+  <string name="sign_in_failed">การเข้าสู่ระบบบริการแบ็กเอนด์การซิงโครไนซ์ล้มเหลว</string>
+    <!--  ... after restoring from backup file -->
+  <string name="disabling_sync">ปิดใช้งานการซิงโครไนซ์คลาวด์ คุณต้องเปิดใช้งานใหม่ด้วยตนเองหลังจากกู้คืนข้อมูล</string>
+  <string name="report">รายงาน</string>
+  <string name="sync_error">เกิดข้อผิดพลาดในการซิงโครไนซ์คลาวด์</string>
+  <string name="error_notification_channel_name">การแจ้งเตือนข้อผิดพลาด</string>
+  <string name="restore_from_cloud_description">หากคุณเปิดใช้งานการซิงโครไนซ์อุปกรณ์บนอุปกรณ์อื่น คุณสามารถเริ่มต้นโดยกู้คืนฐานข้อมูลจากคลาวด์</string>
+  <string name="enable_sync">เปิดใช้งานการซิงโครไนซ์</string>
+  <string name="last_updated">อัปเดตล่าสุด: %s</string>
+
+    <!-- MyBible/MySword module support -->
+  <string name="sqlite_cant_read">ไม่สามารถอ่านไฟล์ได้</string>
+  <string name="sqlite_invalid_file">ไฟล์โมดูลหรือชื่อไฟล์ไม่ถูกต้อง: %s</string>
+  <string name="sqlite_cant_write">ไม่สามารถ(เขียนทับ)ไฟล์ได้</string>
+  <string name="install_failed_reason">การติดตั้งโมดูลล้มเหลวด้วยเหตุผลต่อไปนี้: %s</string>
+
+    <!-- Other / uncategorized -->
+  <string name="app_opened_elsewhere">แอปเปิดอยู่ที่อื่น</string>
+  <string name="open_here">เปิดที่นี่</string>
+  <string name="external_link">ลิงก์ภายนอก</string>
+  <string name="external_link_question">การดำเนินการนี้จะเปิดลิงก์ภายนอก %s ในแอปเบราว์เซอร์ คุณต้องการดำเนินการต่อหรือไม่?</string>
+  <string name="nameless">ไม่ได้กำหนดชื่อ</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">การกระทำแบบแตะครั้งเดียว (พระคัมภีร์)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">การกระทำแบบแตะครั้งเดียว (อื่นๆ)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">เมื่อแตะข้อความ หน้าต่างการกระทำแบบแตะครั้งเดียวจะแสดงขึ้น ควรแสดงปุ่มการกระทำใดบ้าง?</string>
+  <string name="processing_epub">กำลังประมวลผล EPUB: %s</string>
+  <string name="buy_development">ซื้องานพัฒนา</string>
+  <string name="buy_development2">สนับสนุนโครงการ</string>
+  <string name="new_version_warning">เวอร์ชันใหม่กำลังจะเปิดตัวเร็วๆ นี้ วันที่คาดว่าจะเปิดตัวคือ %1$s ติดตามชมได้ที่ %2$s เพื่อค้นพบฟีเจอร์และการปรับปรุงใหม่ๆ</string>
+  <string name="new_version_trailer">วิดีโอตัวอย่าง</string>
+  <string name="new_version_warning2">หลังจากเปิดตัว เวอร์ชันนี้จะไม่ได้รับการบำรุงรักษา</string>
+  <string name="new_version_warning3">จะไม่ได้รับการแก้ไขบั๊กหรืออัปเดต</string>
+  <string name="new_version_warning4">หากคุณไม่ต้องการอัปเกรด กรุณาปิดใช้งาน \'การอัปเดตอัตโนมัติ\' ในร้านแอปของคุณ (Google Play / F-Droid เป็นต้น)</string>
+  <string name="dont_show">ไม่ต้องแสดงข้อความนี้อีก</string>
+  <string name="pref_font_size_multiplier_title">ตัวคูณขนาดแบบอักษร</string>
+  <string name="pref_font_size_multiplier_summary_1">คูณขนาดแบบอักษรของข้อความด้วยตัวเลขนี้</string>
+  <string name="pref_font_size_multiplier_summary_2">มีประโยชน์หากคุณมีอุปกรณ์ที่ซิงโครไนซ์ซึ่งใช้แบบอักษรขนาดใหญ่กว่า</string>
+  <string name="current_value">ค่าปัจจุบัน: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">การกระทำสำหรับท่าทางปัดซ้าย/ขวา</string>
+  <string name="prefs_bible_view_swipe_mode_summary">ท่าทางปัดซ้าย/ขวาสามารถใช้ไปยังหน้าถัดไป/บทถัดไป</string>
+  <string name="prefs_swipe_mode_chapter">บท</string>
+  <string name="prefs_swipe_mode_page">หน้า</string>
+  <string name="prefs_swipe_mode_none">ปิดใช้งาน</string>
+  <string name="prefs_volume_keys_scroll_title">ปุ่มระดับเสียงสำหรับเลื่อน</string>
+  <string name="prefs_volume_keys_scroll_summary">ใช้ปุ่มเพิ่ม/ลดระดับเสียงเพื่อเลื่อนข้อความพระคัมภีร์</string>
+  <string name="page_number_title">หมายเลขหน้าสัมพัทธ์</string>
+  <string name="page_number_summary">แสดงหมายเลขหน้าซ้อนทับ หมายเลขหน้าจะสัมพันธ์กับตำแหน่งเริ่มต้น</string>
+  <string name="select_custom_icon">เลือกไอคอนเครื่องหมายที่กำหนดเอง</string>
+  <string name="invalid_url_message">URL ที่คุณป้อนไม่ถูกต้อง กรุณาป้อน URL ที่ถูกต้อง (เช่น https://nextcloud.example.com)</string>
+  <string name="memorize_description">จดจำข้อพระคัมภีร์</string>
+  <string name="memorize_abbreviation">จดจำ</string>
+  <string name="add_memorization_target">ตั้งเป็นเป้าหมายการจดจำ</string>
+  <string name="memorize_memorized_passages">ข้อความที่จดจำแล้ว</string>
+  <string name="memorize_no_memorized_passages">ยังไม่มีข้อความที่จดจำ</string>
+  <string name="memorize_targets">เป้าหมายการจดจำ</string>
+  <string name="memorize_no_targets">ยังไม่ได้ตั้งเป้าหมายการจดจำ</string>
+  <string name="memorize_auto_mark">ทำเครื่องหมายว่าจดจำอัตโนมัติ</string>
+  <string name="memorize_auto_mark_summary">ทำเครื่องหมายข้อพระคัมภีร์ว่าจดจำแล้วโดยอัตโนมัติเมื่อทำแบบฝึกหัดสำเร็จ</string>
+  <string name="memorize_type_full_words">พิมพ์คำเต็ม</string>
+  <string name="memorize_type_full_words_summary">ต้องพิมพ์คำให้ครบถ้วน แทนที่จะพิมพ์แค่ตัวอักษรแรก</string>
+  <string name="memorize_word_visibility">การมองเห็นคำ</string>
+  <string name="memorize_word_visibility_summary">ความชัดเจนของคำที่ยังไม่ได้พิมพ์: เบาๆ มัว หรือซ่อนอยู่</string>
+  <string name="memorize_word_visibility_light">เบา</string>
+  <string name="memorize_word_visibility_dim">มัว</string>
+  <string name="memorize_word_visibility_hidden">ซ่อน</string>
+  <string name="memorize_error_heatmap">แผนที่ความร้อนข้อผิดพลาด</string>
+  <string name="memorize_error_heatmap_summary">เน้นคำที่มีข้อผิดพลาดมากกว่าด้วยสีแดงที่เข้มขึ้นเรื่อยๆ</string>
+  <string name="memorize_scramble_hide_used">ซ่อนปุ่มคำที่ใช้แล้ว</string>
+  <string name="memorize_scramble_hide_used_summary">ซ่อนปุ่มคำอย่างสมบูรณ์หลังจากวางถูกต้องในโหมดเรียงคำ</string>
+  <string name="reading_progress_settings">ความก้าวหน้าและการจดจำ</string>
+  <string name="reading_progress_settings_summary">การติดตามอัตโนมัติ การจดจำ และการตั้งค่าการฝึกพิมพ์</string>
+  <string name="memorize_confirm_unmark">ลบสถานะ \"จดจำแล้ว\" สำหรับ %s?</string>
+  <string name="memorize_confirm_remove_target">ลบเป้าหมายการจดจำ %s?</string>
+  <string name="memorize_tab_reading">การอ่าน</string>
+  <string name="memorize_tab_memorization">การจดจำ</string>
+  <string name="memorize_verses_memorized">จดจำแล้ว</string>
+  <string name="memorize_verses_target">เป้าหมาย</string>
+  <string name="memorize_show_more">แสดงอีก %d รายการ</string>
+  <string name="memorize_calendar">กิจกรรมการท่องจำ</string>
+  <string name="memorize_view_list">รายการ</string>
+  <string name="memorize_view_overview">ภาพรวม</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">การแปล AI</string>
+  <string name="sync_settings_shortcut_summary">ซิงโครไนซ์ข้อมูลระหว่างอุปกรณ์</string>
+  <string name="llm_api_key_title">คีย์ API</string>
+  <string name="llm_api_key_summary">คีย์ API ที่รองรับ OpenAI</string>
+  <string name="llm_provider_custom">กำหนดเอง (รองรับ OpenAI)</string>
+  <string name="llm_provider_title">ผู้ให้บริการ</string>
+  <string name="llm_provider_summary">เลือกผู้ให้บริการ AI ที่ต้องการ จุดปลาย API และโมเดลที่พร้อมใช้งานจะถูกกำหนดค่าโดยอัตโนมัติ</string>
+  <string name="llm_provider_current">ปัจจุบัน: %s</string>
+  <string name="llm_api_key_detected_provider">ผู้ให้บริการที่ตรวจพบ: %s</string>
+  <string name="ai_connection_category">การเชื่อมต่อ</string>
+  <string name="ai_model_category">โมเดล</string>
+  <string name="ai_behavior_category">พฤติกรรม</string>
+  <string name="ai_language_title">ภาษาที่ AI ตอบสนอง</string>
+  <string name="ai_language_summary">ภาษาที่ AI ใช้ในการตอบสนอง</string>
+  <string name="ai_language_app_default">ภาษาของแอป (%1$s)</string>
+  <string name="ai_language_custom">กำหนดเอง\u2026</string>
+  <string name="ai_language_custom_hint">ป้อนชื่อหรือรหัสภาษา</string>
+  <string name="ai_language_custom_example">เช่น suomi, Tagalog, en</string>
+  <string name="ai_usage_category">การใช้งาน</string>
+  <string name="llm_usage_summary_title">การใช้โทเคน</string>
+  <string name="llm_usage_summary_default">ไม่มีข้อมูลการใช้งาน</string>
+  <string name="llm_usage_summary_format">อินพุต: %1$d โทเคน | เอาต์พุต: %2$d โทเคน\nค่าใช้จ่ายโดยประมาณ: %3$s</string>
+  <string name="llm_reset_usage_title">รีเซ็ตข้อมูลการใช้งาน</string>
+  <string name="llm_reset_usage_summary">ล้างการติดตามโทเคนและค่าใช้จ่ายสะสม</string>
+  <string name="llm_reset_usage_confirm_title">รีเซ็ตข้อมูลการใช้งาน?</string>
+  <string name="llm_reset_usage_confirm_message">การดำเนินการนี้จะล้างข้อมูลการใช้งานสะสมทั้งหมด</string>
+  <string name="llm_custom_input_price_title">ราคาอินพุต ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">ค่าใช้จ่ายต่อล้านโทเคนอินพุตสำหรับโมเดลนี้</string>
+  <string name="llm_custom_output_price_title">ราคาเอาต์พุต ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">ค่าใช้จ่ายต่อล้านโทเคนเอาต์พุตสำหรับโมเดลนี้</string>
+  <string name="llm_cost_total">รวม: %1$s</string>
+  <string name="llm_endpoint_title">จุดปลาย API</string>
+  <string name="llm_endpoint_summary">URL พื้นฐานสำหรับ API</string>
+  <string name="llm_model_title">โมเดล</string>
+  <string name="llm_model_summary">รหัสโมเดล</string>
+  <string name="llm_custom_model">กำหนดเอง…</string>
+  <string name="llm_custom_model_dialog_title">โมเดลกำหนดเอง</string>
+  <string name="llm_custom_model_dialog_message">ป้อนรหัสโมเดล</string>
+  <string name="llm_rate_limited_retrying">ถูกจำกัดอัตรา กำลังลองใหม่ใน %1$ss\u2026</string>
+  <string name="llm_default_document_title">การตอบสนองของ AI</string>
+  <string name="llm_default_task_completed">งานเสร็จสิ้น</string>
+  <string name="llm_default_studypad_opened">เปิดแผ่นบันทึกการศึกษาแล้ว</string>
+  <string name="llm_parse_error">ไม่สามารถแยกวิเคราะห์การตอบสนองของ AI: %1$s</string>
+  <string name="llm_parse_error_no_choices">ไม่มีตัวเลือกในการตอบสนอง OpenAI</string>
+  <string name="llm_parse_error_openai">ไม่สามารถแยกวิเคราะห์การตอบสนอง OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">ไม่สามารถแยกวิเคราะห์การตอบสนอง Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">ไม่พบพรอมต์: %1$s</string>
+  <string name="llm_error_unknown">ข้อผิดพลาดที่ไม่ทราบสาเหตุ</string>
+  <string name="llm_error_max_iterations">ถึงจำนวนการทำซ้ำสูงสุด (%1$d) โดยไม่เสร็จสมบูรณ์</string>
+  <string name="llm_continue_iterations_title">ดำเนินการต่อ?</string>
+  <string name="llm_continue_iterations_message">AI ถึงขีดจำกัด %1$d การทำซ้ำโดยไม่เสร็จสมบูรณ์ ดำเนินการต่ออีก %2$d การทำซ้ำ?</string>
+  <string name="agent_max_iterations_title">การทำซ้ำสูงสุดของ Agent</string>
+  <string name="agent_max_iterations_summary">จำนวนการทำซ้ำสูงสุดก่อนถามว่าจะดำเนินการต่อหรือไม่ (0 = ไม่จำกัด)</string>
+  <string name="ask_model_before_run_title">ถามโมเดลก่อนเรียกใช้</string>
+  <string name="ask_model_before_run_summary">แสดงกล่องโต้ตอบเลือกโมเดลก่อนเรียกใช้พรอมต์ (ข้ามเมื่อพรอมต์มีการกำหนดโมเดลอย่างชัดเจน)</string>
+  <string name="custom_agent_system_prompt_title">พรอมต์ระบบของ Agent</string>
+  <string name="custom_system_prompt_summary">ไม่แนะนำให้แก้ไขหากไม่มีความรู้เพียงพอ</string>
+  <string name="custom_text_transform_system_prompt_title">พรอมต์ระบบสำหรับการแปลงข้อความ</string>
+  <string name="ai_advanced_category">ขั้นสูง</string>
+  <string name="custom_system_prompt_default">ค่าเริ่มต้น</string>
+  <string name="custom_system_prompt_custom">กำหนดเอง</string>
+  <string name="reset_to_default">รีเซ็ตเป็นค่าเริ่มต้น</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">ประวัติบันทึก AI</string>
+  <string name="raw_log_history_summary">ดูและจัดการบันทึกการสนทนา AI ที่บันทึกไว้</string>
+  <string name="raw_log_history_empty">ไม่มีบันทึกที่บันทึกไว้</string>
+  <string name="raw_log_delete_selected">ลบที่เลือก</string>
+  <string name="raw_log_delete_old">ลบบันทึกเก่า\u2026</string>
+  <string name="raw_log_delete_confirm">%d รายการที่เลือก</string>
+  <string name="raw_log_older_1_week">เก่ากว่า 1 สัปดาห์</string>
+  <string name="raw_log_older_1_month">เก่ากว่า 1 เดือน</string>
+  <string name="raw_log_older_3_months">เก่ากว่า 3 เดือน</string>
+  <string name="raw_log_delete_all">ลบทั้งหมด</string>
+  <string name="raw_log_item_tokens">%1$s เข้า / %2$s ออก</string>
+  <string name="raw_log_error_indicator">ข้อผิดพลาด</string>
+  <string name="raw_log_retention_title">ลบบันทึกเก่าอัตโนมัติ</string>
+  <string name="raw_log_retention_summary_days">หลังจาก %d วัน</string>
+  <string name="raw_log_retention_summary_disabled">ปิดใช้งาน (เก็บทั้งหมด)</string>
+  <string name="send_ai_bug_report_title">รายงานข้อบกพร่องของ AI</string>
+  <string name="ai_bug_report_menu">รายงานข้อบกพร่องของ AI</string>
+  <string name="ai_bug_report_recommended_only">การรายงานข้อบกพร่องใช้ได้เฉพาะกับโมเดลผู้ให้บริการที่แนะนำเท่านั้น</string>
+
+  <string name="select_model_before_run_title">เลือกโมเดล</string>
+  <string name="set_default_model_for_prompt">ตั้งเป็นโมเดลเริ่มต้นสำหรับพรอมต์นี้</string>
+  <string name="prompt_max_iterations">จำนวนการทำซ้ำสูงสุด (แทนที่ค่าหลัก)</string>
+  <string name="prompt_max_iterations_hint">ปล่อยว่างไว้สำหรับค่าเริ่มต้นส่วนกลาง</string>
+  <string name="prompt_max_iterations_description">แทนที่จำนวนการทำซ้ำสูงสุดส่วนกลางสำหรับพรอมต์นี้ ว่าง = ค่าเริ่มต้นส่วนกลาง, 0 = ไม่จำกัด</string>
+  <string name="prompt_max_iterations_unlimited">ไม่จำกัด</string>
+  <string name="prompt_max_iterations_global_default">ค่าเริ่มต้นส่วนกลาง (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">แทนที่จำนวนการทำซ้ำสูงสุดส่วนกลางสำหรับพรอมต์นี้ 0 = ไม่จำกัด\nปัจจุบัน: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">จัดการพรอมต์ AI</string>
+  <string name="manage_prompts_summary">สร้างและแก้ไขพรอมต์ AI</string>
+  <string name="ai_settings">การตั้งค่า AI</string>
+  <string name="ai_connection_settings">การตั้งค่าการเชื่อมต่อ</string>
+  <string name="ai_setup_title">กำหนดค่า AI</string>
+  <string name="ai_setup_description">AndBible สามารถใช้ AI เพื่อแปลข้อพระคัมภีร์ อธิบายข้อความ สร้างบทสรุป และอื่นๆ หากต้องการเริ่มต้น โปรดกำหนดค่าการเชื่อมต่อกับผู้ให้บริการ API ที่รองรับ OpenAI</string>
+  <string name="ai_configure_button">กำหนดค่าการเชื่อมต่อ</string>
+  <string name="ai_settings_shortcut_summary">การตั้งค่าการเชื่อมต่อ AI และพรอมต์</string>
+  <string name="ai_provider_tier_recommended">แนะนำ</string>
+  <string name="ai_provider_tier_community">ผู้ให้บริการอื่น (ยังไม่ผ่านการทดสอบ)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">ผู้ให้บริการและโมเดล</string>
+  <string name="ai_providers_category">ผู้ให้บริการ</string>
+  <string name="ai_providers_summary_none">ไม่มีผู้ให้บริการที่กำหนดค่า</string>
+  <string name="ai_models_summary_none">ไม่มีโมเดลที่กำหนดค่า</string>
+  <string name="ai_add_provider">เพิ่มผู้ให้บริการ</string>
+  <string name="ai_provider_edit">แก้ไข</string>
+  <string name="ai_provider_delete">ลบ</string>
+  <string name="ai_provider_delete_confirm">ลบผู้ให้บริการ \"%1$s\"? พรอมต์ที่ใช้ผู้ให้บริการนี้จะกลับไปใช้ค่าเริ่มต้น</string>
+  <string name="ai_provider_api_key_not_set">ยังไม่ได้ตั้งค่าคีย์ API</string>
+  <string name="ai_provider_select_type">เลือกประเภทผู้ให้บริการ</string>
+  <string name="ai_provider_name">ชื่อผู้ให้บริการ</string>
+  <string name="ai_provider_name_hint">ชื่อที่แสดงสำหรับผู้ให้บริการนี้</string>
+  <string name="ai_provider_api_key">คีย์ API</string>
+  <string name="ai_provider_endpoint">จุดปลาย API</string>
+  <string name="ai_provider_api_format">รูปแบบ API</string>
+  <string name="ai_provider_saved">บันทึกผู้ให้บริการแล้ว</string>
+  <string name="ai_provider_deleted">ลบผู้ให้บริการแล้ว</string>
+
+  <string name="llm_fetch_models_title">ดาวน์โหลดรายการโมเดล</string>
+  <string name="llm_fetch_models_message">ดาวน์โหลดรายการโมเดลที่พร้อมใช้งานจาก %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">ไม่ต้องถามอีก</string>
+  <string name="llm_fetch_models_success">โหลด %1$d โมเดลแล้ว</string>
+  <string name="llm_fetch_models_failed">ไม่สามารถดึงโมเดลได้</string>
+  <string name="llm_openrouter_category">หมวดหมู่</string>
+  <string name="llm_openrouter_category_all">ทั้งหมด</string>
+  <string name="llm_openrouter_model">โมเดล</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">โมเดล</string>
+  <string name="add_model">เพิ่มโมเดล</string>
+  <string name="add_model_title">เพิ่มโมเดล</string>
+  <string name="edit_model_title">แก้ไขโมเดล</string>
+  <string name="model_saved">บันทึกโมเดลแล้ว</string>
+  <string name="model_deleted">ลบโมเดลแล้ว</string>
+  <string name="model_delete_confirm">ลบโมเดล \"%1$s\"?</string>
+  <string name="model_set_default">ตั้งเป็นโมเดลเริ่มต้น</string>
+  <string name="model_select_provider">ผู้ให้บริการ</string>
+  <string name="no_models_configured">ยังไม่ได้กำหนดค่าโมเดล</string>
+  <string name="model_cache_creation_price">ราคาสร้างแคช ($/Mtoken)</string>
+  <string name="model_cache_read_price">ราคาอ่านแคช ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ รองรับแล้ว</string>
+  <string name="show_also_unsupported_models">แสดงโมเดลที่ไม่รองรับด้วย</string>
+  <string name="show_also_unsupported_providers">แสดงผู้ให้บริการที่ไม่รองรับด้วย</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s ขาเข้า / %2$s ขาออก ต่อ Mtoken</string>
+  <string name="easy_setup_free_tier">ฟรีเทียร์</string>
+  <string name="unknown_error">ข้อผิดพลาดที่ไม่รู้จัก</string>
+  <string name="easy_setup_title">ตั้งค่าด่วน</string>
+  <string name="easy_setup_pref_summary">ตั้งค่า AI กับผู้ให้บริการที่แนะนำในไม่กี่ขั้นตอน</string>
+  <string name="easy_setup_choose_provider">เลือกผู้ให้บริการเพื่อเริ่มต้น:</string>
+  <string name="easy_setup_enter_api_key">ป้อน API key ของคุณ</string>
+  <string name="easy_setup_api_key_instructions">รับ API key จาก:</string>
+  <string name="easy_setup_test_connection">ทดสอบการเชื่อมต่อ</string>
+  <string name="easy_setup_testing">กำลังทดสอบ…</string>
+  <string name="easy_setup_success">เชื่อมต่อสำเร็จ!</string>
+  <string name="easy_setup_failed">การเชื่อมต่อล้มเหลว: %1$s</string>
+  <string name="easy_setup_done_title">AI พร้อมใช้งานแล้ว!</string>
+  <string name="easy_setup_done_message">เลือกข้อความในพระคัมภีร์แล้วลองใช้ฟีเจอร์ AI คุณสามารถเพิ่มโมเดลและผู้ให้บริการเพิ่มเติมได้ในการตั้งค่า</string>
+  <string name="easy_setup_gemini_desc">มีฟรีเทียร์ คุณภาพดี</string>
+  <string name="easy_setup_anthropic_desc">ราคาประหยัด คุณภาพยอดเยี่ยม</string>
+  <string name="easy_setup_openai_desc">เป็นที่รู้จัก เชื่อถือได้</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">สำคัญ: อ่านก่อนใช้เครื่องมือ AI</string>
+  <string name="ai_disclaimer_warning_summary">ความเสี่ยงและความรับผิดชอบในการใช้ AI</string>
+  <string name="ai_disclaimer_dialog_title">เครื่องมือ AI — ข้อมูลสำคัญ</string>
+  <string name="ai_disclaimer_intro">เครื่องมือ AI สามารถเสริมประสบการณ์การศึกษาพระคัมภีร์ของคุณได้อย่างมาก และเปิดแนวทางใหม่ในการสัมผัสกับพระคัมภีร์</string>
+  <string name="ai_disclaimer_approach">AndBible ใช้ AI เป็นหลักเพื่อประมวลผลข้อความจากเอกสารที่คุณติดตั้ง ได้แก่ คำอธิบาย พจนานุกรม และโมดูลอื่น ๆ มากกว่าที่จะพึ่งพาข้อมูลการฝึกของโมเดลเอง</string>
+  <string name="ai_disclaimer_responsibility">อย่างไรก็ตาม เครื่องมือเหล่านี้ยังคงเป็นเครื่องมือที่ทรงพลัง และพลังอันยิ่งใหญ่มาพร้อมกับความรับผิดชอบอันใหญ่หลวง กรุณาคำนึงถึงสิ่งต่อไปนี้</string>
+  <string name="ai_disclaimer_point1">AI อาจเกิดข้อผิดพลาดได้ รวมถึง \"การสร้างข้อมูลเท็จ\" (การระบุข้อมูลที่ผิดหรือแต่งขึ้นอย่างมั่นใจ) อย่าเชื่อผลลัพธ์โดยไม่ตรวจสอบ</string>
+  <string name="ai_disclaimer_point2">การตอบสนองของ AI อาจสะท้อนอคติจากข้อมูลการฝึก อาจมีเจตนาทำให้เข้าใจผิด หรืออาจนำเสนอมุมมองทางเทววิทยาเฉพาะอย่างว่าเป็นกลางหรือครบถ้วน</string>
+  <string name="ai_disclaimer_point3">คุณมีความรับผิดชอบในการใช้เนื้อหาที่สร้างโดย AI เสมอ ตรวจสอบผลลัพธ์กับพระคัมภีร์ก่อนนำไปใช้</string>
+  <string name="ai_disclaimer_point4">AndBible มุ่งมั่นทำให้การตรวจสอบเป็นเรื่องง่าย (เช่น การอ้างอิงแหล่งที่มาอย่างแม่นยำในคำอธิบาย) แต่ความรับผิดชอบสูงสุดอยู่ที่คุณเสมอ</string>
+  <string name="ai_disclaimer_point5">\"จงทดสอบสิ่งทั้งปวง จงยึดไว้ซึ่งสิ่งที่ดี\" (1 เธสะโลนิกา 5:21)</string>
+  <string name="ai_disclaimer_point6">เครื่องมือเหล่านี้ไม่มีวิญญาณและไม่มีพระวิญญาณบริสุทธิ์ เป็นเพียงเครื่องมือประมวลผลข้อความ ไม่ใช่แนวทางฝ่ายจิตวิญญาณ ไม่เหมาะสำหรับการเตรียมคำเทศนา คำอุปสรรค์ หรือเนื้อหาทางจิตวิญญาณโดยตรง โดยไม่มีการกำกับดูแลจากมนุษย์ การอธิษฐาน และการไตร่ตรองอย่างรอบคอบ</string>
+  <string name="ai_disclaimer_point7">หากใช้อย่างชาญฉลาด เครื่องมือเหล่านี้เป็นประโยชน์แก่ผู้ใช้และกรณีการใช้งานหลายอย่าง แต่หากคุณไม่แน่ใจเกี่ยวกับการยอมรับความเสี่ยง การเลือกไม่ใช้งานก็เป็นทางเลือกที่ถูกต้องเช่นกัน</string>
+  <string name="ai_disclaimer_point8">ข้อมูลของคุณจะถูกส่งไปยังเซิร์ฟเวอร์ของผู้ให้บริการ AI ที่คุณเลือก การใช้ API key หมายความว่าคุณยอมรับข้อกำหนดและนโยบายความเป็นส่วนตัวของผู้ให้บริการนั้น โมเดลที่โฮสต์เองเป็นไปได้แต่ต้องใช้ความเชี่ยวชาญทางเทคนิคมากกว่า และอาจให้ผลลัพธ์ที่ไม่ดีเท่าโมเดลเชิงพาณิชย์</string>
+  <string name="ai_disclaimer_point9">ผู้ให้บริการ AI คิดค่าใช้จ่ายสำหรับการใช้งาน API การประมาณค่าใช้จ่ายที่แสดงใน AndBible เป็นเพียงค่าประมาณ โปรดตรวจสอบการเรียกเก็บเงินจากผู้ให้บริการของคุณสำหรับค่าใช้จ่ายจริง</string>
+  <string name="ai_disclaimer_accept_title">ยอมรับข้อกำหนด AI</string>
+  <string name="ai_disclaimer_accept_button">ฉันยอมรับและรับผิดชอบอย่างเต็มที่</string>
+
+  <string name="prompt_permission_mode">โหมดสิทธิ์</string>
+  <string name="prompt_permission_mode_description">ควบคุมเมื่อใดที่ต้องการการยืนยันจากผู้ใช้ก่อน AI ดำเนินการเขียน การตั้งค่าต่อเครื่องมือด้านล่างสามารถแทนที่สิ่งนี้สำหรับแต่ละเครื่องมือได้</string>
+  <string name="agent_permission_mode_summary">ควบคุมเมื่อใดที่ต้องการการยืนยันก่อนการดำเนินการเขียนของ AI</string>
+  <string name="prompt_permission_use_default">ใช้ค่าเริ่มต้น</string>
+  <string name="prompt_tab_prompt">พรอมต์</string>
+  <string name="prompt_tab_permissions">สิทธิ์</string>
+  <string name="prompt_tab_advanced">ขั้นสูง</string>
+  <string name="prompt_name">ชื่อ</string>
+  <string name="prompt_description">คำอธิบาย</string>
+  <string name="prompt_template">เทมเพลตพรอมต์</string>
+  <string name="prompt_show_in">แสดงใน</string>
+  <string name="prompt_context_verse_selection">การเลือกข้อพระคัมภีร์</string>
+  <string name="prompt_context_text_selection">การเลือกข้อความ</string>
+  <string name="prompt_context_window_menu">เมนูหน้าต่าง</string>
+  <string name="prompt_context_workspace_menu">เมนูพื้นที่ทำงาน</string>
+  <string name="prompt_context_note_editor">ตัวแก้ไขบันทึก</string>
+  <string name="prompt_bible_only">เฉพาะเอกสารพระคัมภีร์</string>
+  <string name="prompt_category_study">การศึกษา</string>
+  <string name="prompt_category_notes">บันทึก</string>
+  <string name="prompt_category_general">ทั่วไป</string>
+  <string name="prompt_category_test">ทดสอบ</string>
+  <string name="prompt_category_uncategorized">ไม่มีหมวดหมู่</string>
+  <string name="prompt_category_favorites">รายการโปรด</string>
+  <string name="addon_prompt_badge">ส่วนเสริม: %s</string>
+  <string name="addon_prompt_notice">พรอมต์นี้มาจากโมดูลส่วนเสริม \"%s\" และไม่สามารถแก้ไขได้ ใช้ \"คัดลอกเพื่อปรับแต่ง\" เพื่อสร้างสำเนาที่แก้ไขได้</string>
+  <string name="new_category">หมวดหมู่ใหม่</string>
+  <string name="new_category_name">ชื่อหมวดหมู่</string>
+  <string name="rename_category">เปลี่ยนชื่อ</string>
+  <string name="move_category_up">เลื่อนขึ้น</string>
+  <string name="move_category_down">เลื่อนลง</string>
+  <string name="hide_category">ซ่อนจากการกระทำ AI</string>
+  <string name="show_category">แสดงในการกระทำ AI</string>
+  <string name="hidden">ซ่อนอยู่</string>
+  <string name="delete_category">ลบหมวดหมู่</string>
+  <string name="delete_category_and_prompts">ลบหมวดหมู่และพรอมต์ทั้งหมด</string>
+  <string name="delete_category_keep_prompts">ย้ายพรอมต์ไปรูทและลบหมวดหมู่</string>
+  <string name="delete_category_confirm_title">ลบหมวดหมู่ \"%s\"?</string>
+  <string name="move_to_category">ย้ายไปหมวดหมู่…</string>
+  <string name="category_none">ไม่มีหมวดหมู่</string>
+  <string name="import_prompts_editable">นำเข้าเป็นพรอมต์ที่แก้ไขได้</string>
+  <string name="import_prompts_addon">ติดตั้งเป็นส่วนเสริม (อ่านอย่างเดียว)</string>
+  <string name="prompt_category">หมวดหมู่</string>
+  <string name="new_prompt">พรอมต์ใหม่</string>
+  <string name="permission_always_ask">ถามทุกครั้ง</string>
+  <string name="permission_ask_once_per_run">ถามครั้งเดียวต่อการเรียกใช้</string>
+  <string name="permission_allow_all">อนุญาตทั้งหมด</string>
+  <string name="permission_deny_all">ปฏิเสธทั้งหมด</string>
+  <string name="reset_all_ai_settings">รีเซ็ตการตั้งค่า AI ทั้งหมด</string>
+  <string name="reset_all_ai_settings_confirm_title">รีเซ็ตการตั้งค่า AI ทั้งหมด?</string>
+  <string name="reset_all_ai_settings_confirm_message">การดำเนินการนี้จะล้าง API key ผู้ให้บริการ endpoint โมเดล และรีเซ็ตพรอมต์ทั้งหมดกลับเป็นค่าเริ่มต้น ต้องการดำเนินการต่อหรือไม่?</string>
+  <string name="edit_prompt">แก้ไขพรอมต์</string>
+  <string name="built_in_prompt">ในตัว</string>
+  <string name="built_in_prompt_notice">นี่คือพรอมต์ในตัวและไม่สามารถแก้ไขได้ ใช้ \"คัดลอกเพื่อปรับแต่ง\" เพื่อสร้างสำเนาที่แก้ไขได้</string>
+  <string name="copy_to_customize">คัดลอกเพื่อปรับแต่ง</string>
+  <string name="prompt_copied">คัดลอกพรอมต์แล้ว</string>
+  <string name="delete_prompt_confirmation">ลบพรอมต์ \"%s\"?</string>
+  <string name="prompt_name_required">จำเป็นต้องมีชื่อพรอมต์</string>
+  <string name="prompt_template_required">จำเป็นต้องมีเทมเพลตพรอมต์</string>
+  <string name="prompt_edit_before_run">ระบุก่อนเรียกใช้</string>
+  <string name="prompt_edit_before_run_description">แสดงช่องข้อความสำหรับระบุงานก่อนเรียกใช้พรอมต์</string>
+  <string name="prompt_no_document_creation">ไม่สร้างเอกสาร</string>
+  <string name="prompt_no_document_creation_description">เมื่อเปิดใช้งาน AI จะไม่สร้างเอกสาร ผลลัพธ์จะแสดงเฉพาะในบันทึกกิจกรรม เหมาะสำหรับพรอมต์ที่เน้นการกระทำ (ที่คั่นหน้า ป้ายกำกับ การดำเนินการแผ่นบันทึกการศึกษา)</string>
+  <string name="prompt_auto_include_documents">รวมเอกสารที่ติดตั้งโดยอัตโนมัติ</string>
+  <string name="prompt_auto_include_documents_description">รวมรายการเอกสารที่ติดตั้งในบริบทพรอมต์โดยอัตโนมัติ ช่วยประหยัดการวนซ้ำของ AI</string>
+  <string name="prompt_auto_include_commentaries">รวมคำอธิบายโดยอัตโนมัติ</string>
+  <string name="prompt_auto_include_commentaries_description">ดึงและรวมรายการคำอธิบายสำหรับข้อพระคัมภีร์ที่เลือกโดยอัตโนมัติ ช่วยประหยัดการวนซ้ำของ AI</string>
+  <string name="prompt_is_text_transformation">การแปลงข้อความ</string>
+  <string name="prompt_is_text_transformation_description">ใช้พรอมต์ระบบแบบง่ายที่รักษาการจัดรูปแบบ (ลิงก์ หัวข้อ ตัวหนา/เอียง) ขณะแปลงเนื้อหาข้อความ ไม่ใช้เครื่องมือ เหมาะสำหรับพรอมต์การแปลและการแก้ไข</string>
+  <string name="llm_no_document_creation_intercepted">งานเสร็จสมบูรณ์ (ปิดการสร้างเอกสาร)</string>
+  <string name="llm_note_updated">อัปเดตบันทึกแล้ว</string>
+  <string name="specify_before_run_title">ระบุงาน</string>
+  <string name="specify_before_run_hint">อธิบายงานที่ต้องการ…</string>
+  <string name="prompt_cache_settings">การตั้งค่าแคช</string>
+  <string name="prompt_strict_context_matching">แคชขึ้นอยู่กับบริบท</string>
+  <string name="prompt_strict_context_matching_description">เมื่อเปิดใช้งาน แคชจะจับคู่เฉพาะเมื่อบริบททั้งหมด (เวอร์ชันพระคัมภีร์ ข้อความที่เลือก) เหมือนกัน เมื่อปิดใช้งาน แคชจะจับคู่เมื่อข้อพระคัมภีร์เหมือนกันโดยไม่คำนึงถึงเวอร์ชันพระคัมภีร์</string>
+  <string name="ai_document_delete_confirmation">ลบเอกสาร AI นี้?</string>
+  <string name="ai_document_deleted">ลบเอกสาร AI นี้แล้ว</string>
+  <string name="ai_document_regenerating">กำลังสร้างเอกสาร AI ใหม่…</string>
+  <string name="ai_document_regenerate_not_implemented">การสร้างใหม่จะพร้อมใช้งานในการอัปเดตครั้งถัดไป</string>
+  <string name="ai_regenerate_prompt_not_found">ไม่สามารถสร้างใหม่ได้: ไม่พบพรอมต์ต้นฉบับ อาจถูกลบไปแล้ว</string>
+  <string name="ai_document_regenerate">สร้างใหม่</string>
+  <string name="ai_regenerate_title">สร้างใหม่</string>
+  <string name="ai_regenerate_instructions_hint">คำแนะนำเพิ่มเติม (ไม่บังคับ)</string>
+  <string name="ai_regenerate_keep_previous">เก็บเวอร์ชันเดิมไว้</string>
+  <string name="ai_regenerate_fresh_run">เริ่มใหม่ (ไม่ใช้ผลลัพธ์เดิม)</string>
+  <string name="ai_document_delete">ลบ</string>
+  <string name="ai_unknown_prompt">AI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">แปลเป็น %s</string>
+  <string name="default_prompt_translate_to_ui_language">แปลเป็นภาษาของแอป</string>
+  <string name="default_prompt_translate_to_ui_language_desc">แปลข้อความในเอกสารเป็นภาษาที่ใช้ในอินเทอร์เฟซของแอป</string>
+  <string name="default_prompt_translate_to_english">แปลเป็นภาษาอังกฤษ</string>
+  <string name="default_prompt_translate_to_english_desc">แปลข้อความที่เลือกเป็นภาษาอังกฤษ</string>
+  <string name="default_prompt_summary">สรุปเนื้อหา</string>
+  <string name="default_prompt_summary_desc">สร้างบทสรุปกระชับของข้อความที่เลือก</string>
+  <string name="default_prompt_explain_verses">อธิบายข้อพระคัมภีร์</string>
+  <string name="default_prompt_explain_verses_desc">อธิบายความหมายและบริบทของข้อพระคัมภีร์ที่เลือก</string>
+  <string name="default_prompt_explain_verses_studypad">อธิบายข้อพระคัมภีร์ → แผ่นบันทึกการศึกษา</string>
+  <string name="default_prompt_explain_verses_studypad_desc">สร้างแผ่นบันทึกการศึกษาพร้อมคำอธิบายรายข้อและที่คั่นหน้า</string>
+  <string name="default_prompt_word_study">ศึกษาคำศัพท์</string>
+  <string name="default_prompt_word_study_desc">วิเคราะห์คำภาษาฮีบรู/กรีกต้นฉบับ</string>
+  <string name="default_prompt_strongs_annotation">ใส่หมายเลข Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">เพิ่มหมายเลข Strong\'s ให้กับพระคัมภีร์แปลใดก็ได้โดยใช้ KJV เป็นอ้างอิง</string>
+  <string name="default_prompt_cross_references">ข้อพระคัมภีร์อ้างอิง</string>
+  <string name="default_prompt_cross_references_desc">ค้นหาและอธิบายข้อพระคัมภีร์ที่เกี่ยวข้อง</string>
+  <string name="default_prompt_compare_translations">เปรียบเทียบฉบับแปล</string>
+  <string name="default_prompt_compare_translations_desc">แสดงการแปลข้อความในฉบับแปลต่างๆ ที่ติดตั้งไว้</string>
+  <string name="default_prompt_thematic_study">ศึกษาตามหัวข้อ</string>
+  <string name="default_prompt_thematic_study_desc">สร้างแผ่นบันทึกการศึกษาพร้อมข้อพระคัมภีร์และบันทึกในหัวข้อหลัก</string>
+  <string name="default_prompt_bookmark_annotate">ที่คั่นหน้า &amp; บันทึก</string>
+  <string name="default_prompt_bookmark_annotate_desc">สร้างที่คั่นหน้าพร้อมบันทึกการศึกษาที่สร้างโดย AI</string>
+  <string name="default_prompt_study_layout">เปิดรูปแบบการศึกษา</string>
+  <string name="default_prompt_study_layout_desc">เปิดหน้าต่างคำอธิบายและฉบับแปลคู่ขนานสำหรับการศึกษา</string>
+  <string name="default_prompt_workspace_assistant">ผู้ช่วยพื้นที่ทำงาน</string>
+  <string name="default_prompt_workspace_assistant_desc">จัดการหน้าต่าง: สร้าง ปิด จัดเรียง เปลี่ยนเอกสาร</string>
+  <string name="default_prompt_enhance_note">ปรับปรุงบันทึก</string>
+  <string name="default_prompt_enhance_note_desc">ปรับปรุงไวยากรณ์ ความชัดเจน และการอ่านของบันทึก</string>
+  <string name="default_prompt_ask_question">ถามคำถาม</string>
+  <string name="default_prompt_ask_question_desc">ถามคำถามใดก็ได้เกี่ยวกับข้อพระคัมภีร์ที่เลือก</string>
+  <string name="default_prompt_custom">คำสั่งกำหนดเอง</string>
+  <string name="default_prompt_custom_desc">เรียกใช้งานกำหนดเองกับข้อพระคัมภีร์ที่เลือก</string>
+  <string name="default_prompt_custom_template">ปฏิบัติตามคำสั่งของผู้ใช้สำหรับข้อพระคัมภีร์ที่เลือก</string>
+  <string name="copy">คัดลอก</string>
+  <string name="delete_prompt_confirm_message">คุณต้องการลบคำสั่งนี้ใช่หรือไม่?</string>
+  <string name="ai_hide_prompt">ซ่อน</string>
+  <string name="ai_restore_hidden_prompts">คืนค่าคำสั่งที่ซ่อนไว้</string>
+  <string name="ai_prompt_hidden">ซ่อนคำสั่งแล้ว</string>
+  <string name="ai_prompts_restored">คืนค่าคำสั่งที่ซ่อนไว้แล้ว</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">สร้างที่คั่นหน้า</string>
+  <string name="tool_add_bookmark_note">เพิ่มบันทึกในที่คั่นหน้า</string>
+  <string name="tool_update_bookmark_note">อัปเดตบันทึกในที่คั่นหน้า</string>
+  <string name="tool_create_label">สร้างป้ายกำกับ</string>
+  <string name="tool_add_label_to_bookmark">เพิ่มป้ายกำกับในที่คั่นหน้า</string>
+  <string name="tool_delete_bookmark">ลบที่คั่นหน้า</string>
+  <string name="tool_delete_label">ลบป้ายกำกับ</string>
+  <string name="tool_remove_label_from_bookmark">นำป้ายกำกับออกจากที่คั่นหน้า</string>
+  <string name="tool_add_study_pad_entry">เพิ่มรายการในแผ่นบันทึกการศึกษา</string>
+  <string name="tool_update_studypad_text_entry">อัปเดตรายการข้อความในแผ่นบันทึกการศึกษา</string>
+  <string name="tool_create_study_pad">สร้างแผ่นบันทึกการศึกษา</string>
+  <string name="action_update_studypad_text_entry">อัปเดตรายการข้อความในแผ่นบันทึกการศึกษา %1$s</string>
+  <string name="action_create_studypad">สร้างแผ่นบันทึกการศึกษา \"%1$s\" พร้อม %2$d รายการ</string>
+  <string name="tool_set_document_title">ตั้งชื่อเอกสาร</string>
+  <string name="tool_finish_with_study_pad">เปิดแผ่นบันทึกการศึกษา</string>
+  <string name="tool_finish_with_my_document_page">เปิดหน้าเอกสารของฉัน</string>
+  <string name="tool_finish_without_document">เสร็จสิ้นโดยไม่มีเอกสาร</string>
+  <string name="tool_get_verse_content">อ่านเนื้อหาข้อพระคัมภีร์</string>
+  <string name="tool_get_commentaries">อ่านคำอธิบาย</string>
+  <string name="tool_get_dictionary_entry">ค้นหารายการพจนานุกรม</string>
+  <string name="tool_search_bible">ค้นหาในพระคัมภีร์</string>
+  <string name="tool_search_by_strongs">ค้นหาด้วยหมายเลข Strong\'s</string>
+  <string name="tool_get_installed_documents">แสดงรายการเอกสารที่ติดตั้ง</string>
+  <string name="tool_get_all_labels">แสดงรายการป้ายกำกับทั้งหมด</string>
+  <string name="tool_get_bookmarks_for_verse">ดูที่คั่นหน้าของข้อพระคัมภีร์</string>
+  <string name="tool_get_bookmarks_with_label">ดูที่คั่นหน้าตามป้ายกำกับ</string>
+  <string name="tool_get_study_pad_content">อ่านเนื้อหาแผ่นบันทึกการศึกษา</string>
+  <string name="tool_search_study_pads">ค้นหาในแผ่นบันทึกการศึกษา</string>
+  <string name="tool_get_my_documents">แสดงรายการเอกสารของฉัน</string>
+  <string name="tool_get_my_document_pages">แสดงรายการหน้าเอกสารของฉัน</string>
+  <string name="tool_get_genbook_keys">แสดงรายการคีย์หนังสือทั่วไป</string>
+  <string name="tool_get_genbook_content">อ่านเนื้อหาหนังสือทั่วไป</string>
+  <string name="tool_create_my_document">สร้างเอกสารของฉัน</string>
+  <string name="tool_add_my_document_page">เพิ่มหน้าเอกสารของฉัน</string>
+  <string name="tool_edit_my_document_page">แก้ไขหน้าเอกสารของฉัน</string>
+  <string name="tool_delete_my_document_page">ลบหน้าเอกสารของฉัน</string>
+  <string name="tool_get_windows">แสดงรายการหน้าต่าง</string>
+  <string name="tool_create_window">สร้างหน้าต่าง</string>
+  <string name="tool_manage_window">จัดการหน้าต่าง</string>
+  <string name="tool_set_window_document">ตั้งค่าเอกสารในหน้าต่าง</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">สิทธิ์ของผู้ช่วย AI</string>
+  <string name="agent_permission_message">ผู้ช่วย AI ต้องการใช้ \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">ผู้ช่วย AI ต้องการ:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">สร้างที่คั่นหน้าที่ %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">สร้างที่คั่นหน้าที่ %1$s (%2$s)</string>
+  <string name="action_with_note">พร้อมบันทึก</string>
+  <string name="action_labels">ป้ายกำกับ: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">เพิ่มบันทึกในที่คั่นหน้าที่ %1$s</string>
+  <string name="action_update_note_on_bookmark_at">อัปเดตบันทึกในที่คั่นหน้าที่ %1$s</string>
+  <string name="action_create_label">สร้างป้ายกำกับ \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">เพิ่มป้ายกำกับ \"%1$s\" ในที่คั่นหน้าที่ %2$s</string>
+  <string name="action_delete_bookmark">ลบที่คั่นหน้าที่ %1$s</string>
+  <string name="action_delete_label">ลบป้ายกำกับ \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">นำป้ายกำกับ \"%1$s\" ออกจากที่คั่นหน้าที่ %2$s</string>
+  <string name="action_add_entry_to_studypad">เพิ่มรายการในแผ่นบันทึกการศึกษา \"%1$s\"</string>
+  <string name="action_create_my_document">สร้างเอกสารของฉัน: \"%1$s\"</string>
+  <string name="action_add_my_document_page">เพิ่มหน้า \"%1$s\" ในเอกสารของฉัน %2$s</string>
+  <string name="action_edit_my_document_page">แก้ไขหน้าเอกสารของฉัน: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">ลบหน้าเอกสารของฉัน: \"%1$s\"</string>
+  <string name="action_set_document_title">ตั้งชื่อเอกสาร: \"%1$s\"</string>
+  <string name="action_open_studypad">เปิดแผ่นบันทึกการศึกษา \"%1$s\"</string>
+  <string name="action_open_my_document_page">เปิดหน้าเอกสารของฉัน \"%1$s\"</string>
+  <string name="action_create_window">สร้างหน้าต่างใหม่</string>
+  <string name="action_create_window_with_doc">สร้างหน้าต่างพร้อม %1$s</string>
+  <string name="action_create_window_with_doc_and_key">สร้างหน้าต่างพร้อม %1$s ที่ %2$s</string>
+  <string name="action_close_window">ปิดหน้าต่าง (%1$s)</string>
+  <string name="action_minimize_window">ย่อหน้าต่าง (%1$s)</string>
+  <string name="action_restore_window">คืนค่าหน้าต่าง (%1$s)</string>
+  <string name="action_set_window_document">ตั้งค่า %1$s เป็น %2$s</string>
+  <string name="action_set_window_document_with_key">ตั้งค่า %1$s เป็น %2$s ที่ %3$s</string>
+  <string name="action_active_window">หน้าต่างที่ใช้งานอยู่</string>
+  <string name="action_finish">เสร็จสิ้น: \"%1$s\"</string>
+  <string name="permission_allow_once">อนุญาตครั้งเดียว</string>
+  <string name="permission_allow_for_session">อนุญาตสำหรับเซสชันนี้</string>
+  <string name="permission_allow_all_session">อนุญาตทุกเครื่องมือในเซสชันนี้</string>
+  <string name="permission_allow_always">อนุญาตเสมอ \"%1$s\"</string>
+  <string name="permission_deny">ปฏิเสธ</string>
+  <string name="permission_always_allow_confirm_title">อนุญาตเสมอ?</string>
+  <string name="permission_always_allow_confirm">คุณต้องการอนุญาต \"%1$s\" อย่างถาวรใช่หรือไม่?</string>
+  <string name="permission_always_allow_confirm_reset_hint">คุณสามารถรีเซ็ตค่านี้ได้ในการตั้งค่า AI</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">สิทธิ์การใช้เครื่องมือ</string>
+  <string name="manage_tool_permissions_summary">จัดการการตั้งค่าสิทธิ์แต่ละเครื่องมือ</string>
+  <string name="commentary_max_response_title">ขีดจำกัดขนาดการตอบกลับคำอธิบาย</string>
+  <string name="commentary_max_response_summary">แสดงกล่องโต้ตอบเลือกเมื่อการตอบกลับเกินขีดจำกัด</string>
+  <string name="commentary_max_response_no_limit">ไม่จำกัด</string>
+  <string name="commentary_max_response_value">~%s โทเคน</string>
+  <string name="commentary_max_response_dialog_title">กำหนดขนาดการตอบสนองสูงสุด (tokens)</string>
+  <string name="commentary_max_response_dialog_message">เมื่อ AI ดึงข้อมูลคำอธิบายพระคัมภีร์และการตอบสนองรวมเกินขีดจำกัด token นี้ กล่องโต้ตอบการเลือกจะให้คุณเลือกว่าจะส่งคำอธิบายใดไปยัง AI\n\n0 = ไม่จำกัด (ส่งคำอธิบายทั้งหมดโดยอัตโนมัติ)</string>
+  <string name="commentary_filter_dialog_title">การตอบสนองคำอธิบายมีขนาดใหญ่เกินไป</string>
+  <string name="commentary_filter_dialog_message">เกินขีดจำกัด token (~%s) ยกเลิกการเลือกคำอธิบายที่ไม่ต้องการส่งไปยัง AI\n\nคุณสามารถปรับขีดจำกัดนี้ได้ในการตั้งค่าการเชื่อมต่อ AI</string>
+  <string name="commentary_filter_total_tokens">ที่เลือก: ~%1$s / %2$s tokens</string>
+  <string name="tool_log_commentary_count">%d คำอธิบาย</string>
+  <string name="tool_log_label_count">%d ป้ายกำกับ</string>
+  <string name="tool_log_document_count">%d เอกสาร</string>
+  <string name="tool_log_study_pad_count">%d แผ่นบันทึกการศึกษา</string>
+  <string name="tool_log_search_results">%1$d/%2$d ผลลัพธ์</string>
+  <string name="tool_log_bookmark_count">%d ที่คั่นหน้า</string>
+  <string name="tool_log_my_document_count">%d เอกสาร</string>
+  <string name="tool_log_my_document_page_count">%d หน้า</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d คีย์</string>
+  <string name="tool_log_window_count">%d หน้าต่าง</string>
+  <string name="tool_log_window_copy">คัดลอก</string>
+  <string name="tool_log_window_minimized">ย่อเล็กสุด</string>
+  <string name="tool_log_window_removed">ลบแล้ว</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s tokens)</string>
+  <string name="ai_document_filter_title">การเข้าถึงเอกสาร</string>
+  <string name="ai_document_filter_summary">เลือกเอกสารที่ AI สามารถอ่านได้</string>
+  <string name="ai_document_filter_summary_count">ไม่รวม %d เอกสาร</string>
+  <string name="ai_document_filter_activity_title">การเข้าถึงเอกสารของ AI</string>
+  <string name="ai_document_excluded_error">เอกสารถูกยกเว้นโดยการตั้งค่าผู้ใช้: %s</string>
+  <string name="permission_status_default">ถาม (ค่าเริ่มต้น)</string>
+  <string name="permission_status_allowed">อนุญาตเสมอ</string>
+  <string name="permission_status_denied">ปฏิเสธเสมอ</string>
+  <string name="permission_option_default">ถามทุกครั้ง (ค่าเริ่มต้น)</string>
+  <string name="permission_option_always_allow">อนุญาตเสมอ</string>
+  <string name="permission_option_always_deny">ปฏิเสธเสมอ</string>
+  <string name="reset_all_permissions">รีเซ็ตทั้งหมด</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">เครื่องมือที่ใช้ได้</string>
+  <string name="ai_read_tools">เครื่องมืออ่าน</string>
+  <string name="ai_write_tools">เครื่องมือเขียน</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">การตั้งค่าเครื่องมือเริ่มต้น</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">สิทธิ์การใช้เครื่องมือ</string>
+  <string name="prompt_tool_permissions_read_only">สิทธิ์การใช้เครื่องมือ (อ่านอย่างเดียว)</string>
+  <string name="prompt_tool_permissions_description">แทนที่สิทธิ์เครื่องมือสำหรับพรอมต์นี้</string>
+  <string name="tool_section_read_tools">เครื่องมืออ่าน</string>
+  <string name="tool_section_write_tools">เครื่องมือเขียน</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">พระคัมภีร์ &amp; การค้นหา</string>
+  <string name="tool_category_bookmarks">ที่คั่นหน้า</string>
+  <string name="tool_category_labels">ป้ายกำกับ</string>
+  <string name="tool_category_study_pads">แผ่นบันทึกการศึกษา</string>
+  <string name="tool_category_my_documents">เอกสารของฉัน</string>
+  <string name="tool_category_general_books">หนังสือทั่วไป</string>
+  <string name="tool_category_windows">หน้าต่าง</string>
+  <string name="tool_category_read">อ่าน</string>
+  <string name="tool_category_write">เขียน</string>
+  <string name="expand_collapse">ขยาย/ยุบ</string>
+  <string name="tool_option_enabled">เปิดใช้งาน</string>
+  <string name="tool_option_disabled">ปิดใช้งาน</string>
+  <string name="tool_option_default_enabled">ค่าเริ่มต้น (เปิดใช้งาน)</string>
+  <string name="tool_option_default_disabled">ค่าเริ่มต้น (ปิดใช้งาน)</string>
+  <string name="tool_option_default_allowed">ค่าเริ่มต้น (อนุญาต)</string>
+  <string name="tool_option_default_denied">ค่าเริ่มต้น (ปฏิเสธ)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">โมเดล</string>
+  <string name="prompt_model_default">ค่าเริ่มต้น</string>
+  <string name="prompt_model_custom">กำหนดเอง</string>
+  <string name="prompt_model_custom_hint">ป้อนชื่อโมเดล</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">เลือกการดำเนินการ AI</string>
+  <string name="no_llm_prompts_configured">ไม่มีพรอมต์ AI ที่กำหนดค่าสำหรับการเลือกข้อพระคัมภีร์</string>
+  <string name="llm_prompt_executing">กำลังเรียกใช้พรอมต์ AI: %s</string>
+  <string name="llm_actions">การดำเนินการ AI</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">ขยาย/ยุบบันทึก agent</string>
+  <string name="agent_log_close">ปิดบันทึก agent</string>
+  <string name="agent_log_stop">หยุด AI</string>
+  <string name="agent_log_idle">ผู้ช่วย AI</string>
+  <string name="agent_log_running">AI กำลังทำงาน…</string>
+  <string name="agent_log_completed">เสร็จสิ้น</string>
+  <string name="agent_log_error">เกิดข้อผิดพลาด</string>
+  <string name="agent_log_executing">กำลังเรียกใช้: %s</string>
+  <string name="agent_log_iteration">รอบที่ %d</string>
+  <string name="agent_log_tool">เครื่องมือ: %s</string>
+  <string name="agent_log_tool_completed">เครื่องมือ %s เสร็จสิ้น</string>
+  <string name="agent_log_tool_failed">เครื่องมือ %s ล้มเหลว</string>
+  <string name="agent_log_response_received">ได้รับการตอบสนองแล้ว</string>
+  <string name="agent_log_saved">บันทึกแล้ว: %s</string>
+  <string name="agent_log_done">เสร็จ: %s</string>
+  <string name="agent_log_cancelled">ยกเลิกแล้ว</string>
+  <string name="agent_execution_completed">การทำงานของ agent เสร็จสิ้น</string>
+  <string name="agent_already_running">AI agent กำลังทำงานอยู่แล้ว กรุณารอหรือหยุดก่อน</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">AI Agent</string>
+  <string name="ai_agent_notification_running">AI agent กำลังทำงาน…</string>
+  <string name="ai_agent_notification_permission_needed">AI agent ต้องการการอนุมัติของคุณ</string>
+  <string name="ai_agent_notification_permission_tap">แตะเพื่อกลับไปที่ AndBible</string>
+  <string name="ai_agent_notification_completed">งาน AI เสร็จสิ้น</string>
+  <string name="ai_agent_notification_completed_tap">แตะเพื่อดูผลลัพธ์</string>
+  <string name="ai_agent_notification_error">งาน AI ล้มเหลว</string>
+  <string name="ai_agent_notification_cancel">ยกเลิก</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">เอกสารของฉัน</string>
+  <string name="my_documents_empty">ยังไม่มีเอกสาร แตะ + เพื่อสร้าง</string>
+  <string name="my_document_new_name">เอกสาร %d</string>
+  <string name="my_document_create_title">สร้างเอกสารใหม่</string>
+  <string name="my_document_rename_title">เปลี่ยนชื่อเอกสาร</string>
+  <string name="my_document_edit_description_title">แก้ไขคำอธิบาย</string>
+  <string name="my_document_delete_confirmation">ลบเอกสาร \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">ไม่สามารถลบเอกสาร AI ได้ในขณะที่มีหน้าอยู่ กรุณาลบหน้าก่อน</string>
+  <string name="my_document_save_changes">บันทึกการเปลี่ยนแปลง?</string>
+  <string name="my_document_no_description">ไม่มีคำอธิบาย</string>
+  <string name="my_document_rename">เปลี่ยนชื่อ</string>
+  <string name="my_document_edit_description">แก้ไขคำอธิบาย</string>
+  <string name="my_document_delete">ลบ</string>
+
+  <string name="my_document_pages_title">%s - หน้า</string>
+  <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
+  <string name="my_document_page_rename_title">เปลี่ยนชื่อหน้า</string>
+  <string name="my_document_page_delete_confirmation">ลบหน้า \"%s\"?</string>
+  <string name="my_document_page_rename">เปลี่ยนชื่อ</string>
+  <string name="my_document_page_delete">ลบ</string>
+  <string name="my_document_page_export">ส่งออก</string>
+  <string name="my_document_new_page_name">หน้า %1$d</string>
+  <string name="my_document_create_page_title">หน้าใหม่</string>
+  <string name="my_document_content_type_label">ประเภทเนื้อหา</string>
+  <string name="my_document_import_page">นำเข้า Markdown/HTML</string>
+  <string name="my_document_export_page">ส่งออกหน้า</string>
+  <string name="my_document_imported_page_name">นำเข้าแล้ว</string>
+  <string name="my_document_export_fallback_name">หน้า</string>
+  <string name="my_document_export_document">ส่งออกทุกหน้า</string>
+  <string name="my_document_import_document">นำเข้าไฟล์เป็นเอกสาร</string>
+  <string name="my_document_import_empty_selection">ไม่มีไฟล์ที่นำเข้าได้ถูกเลือก</string>
+  <string name="my_document_export_success">ส่งออกหน้าสำเร็จ</string>
+  <string name="ai_doc_choose_page">เลือกหน้าเอกสาร AI</string>
+  <string name="prefs_show_ai_doc_markers_title">แสดงเครื่องหมายเอกสาร AI</string>
+  <string name="prefs_show_ai_doc_markers_summary">แสดงไอคอนเครื่องหมายสำหรับหน้าเอกสารที่ AI สร้างและเชื่อมโยงกับข้อพระคัมภีร์</string>
+  <string name="prefs_show_ordinals_title">แสดงเลขลำดับ</string>
+  <string name="prefs_show_ordinals_summary">แสดงเครื่องหมายตำแหน่งลำดับในข้อความ</string>
+
+  <string name="prefs_page_scroll_amount_title">ปริมาณการเลื่อนหน้า</string>
+  <string name="prefs_page_scroll_amount_summary">ปริมาณการเลื่อนหน้าด้วยปุ่มเลื่อนขึ้น/ลง</string>
+  <string name="page_scroll_amount_dialog_title">ปริมาณการเลื่อนหน้า</string>
+  <string name="prefs_scroll_helper_lines_title">เส้นช่วยเลื่อน</string>
+  <string name="prefs_scroll_helper_lines_summary">แสดงเส้นแนวนอนที่ขอบเขตการเลื่อนหน้า</string>
+  <string name="prefs_scroll_helper_line_style_title">รูปแบบเส้นช่วยเลื่อน</string>
+  <string name="prefs_scroll_helper_line_style_summary">เลือกรูปแบบการแสดงผลของเส้นช่วยเลื่อน</string>
+  <string name="scroll_helper_line_style_dialog_title">รูปแบบเส้นช่วยเลื่อน</string>
+  <string name="scroll_helper_line_style_thin_dotted">เส้นบางจุด</string>
+  <string name="scroll_helper_line_style_thin_solid">เส้นบางทึบ</string>
+  <string name="scroll_helper_line_style_thick_solid">เส้นหนาทึบ</string>
+  <string name="prefs_page_buttons_title">ปุ่มเลื่อนหน้า</string>
+  <string name="prefs_page_buttons_summary">แสดงปุ่มเลื่อนขึ้น/ลงบนหน้าจอ</string>
+</resources>
