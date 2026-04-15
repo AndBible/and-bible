@@ -1,0 +1,48 @@
+<b>Kraftfuldt bibelstudieværktøj</b>
+
+"AndBible: Bibelstudium" er en kraftfuld, men nem at bruge, offline bibelstudieapp til Android. Appen sigter ikke blot mod at være en biblæser, men fokuserer på at være et avanceret værktøj til dybdegående personligt bibelstudium.
+
+Denne app er udviklet af bibelentusiaster, til bibelentusiaster. Den hjælper dig med at gøre dit bibelstudium bekvemt, dybdegående og sjovt. Det bedste ved dette non-profit fællesskabsprojekt er, at det er open source, helt gratis og reklamefrit.
+
+Nogle populære Bibeloversættelser (blandt de mange tilgængelige) er KJV, NASB, NET, samt populære kommentarer som Matthew Henry og John Gill.
+
+<b>Kraftfulde bibelstudieegenskaber</b>
+
+Appen har mange indsigtsfulde og originale funktioner, der gør et komplekst og dybdegående bibelstudium nemmere end nogensinde. De mest bemærkelsesværdige funktioner er:
+
+ * Delt tekstvisning til sammenligning af oversættelser og konsultation af kommentarer
+ * Arbejdsrum giver mulighed for flere bibelstudieopsætninger med egne indstillinger
+ * Strong's integration muliggør analyse af græske og hebraiske ord
+ * Koblede krydsreferencer, fodnoter og dokumenter; hop til krydsreferencer og fodnoter ved blot at trykke på et link; foretag dybdegående studium af Skriften ved hjælp af hyperlinks til kommentarer (Gill, Matthew Henry m.fl.), krydsreferencesamlinger (Treasure of Scripture Knowledge, TSKe) og andre ressourcer.
+ * Avanceret tekst-til-tale med tale-bogmærker for en jævn bibeloplevelse
+ * Fleksibel søgning
+ * Avancerede bogmærke- og fremhævningsfunktioner med personlige studienotater
+ * Studiepads til at tilføje noter og Bibelhenvisninger, mens du lytter til prædikener.
+ * Læseplaner: sæt mål for din Bibellæsning
+ * Stort dokumentbibliotek: Bibeloversættelser, teologiske kommentarer, ordbøger, kort og kristne bøger – i alt over 1500 dokumenter på over 700 sprog, lovligt distribueret af Crosswire og andre SWORD-arkiver.
+ * Indbygget understøttelse af MyBible, MySword og EPUB-filer giver dig mulighed for at udvide dit bibliotek endnu mere.
+
+<b>Lad os bygge den bedste Bibelapp sammen!</b>
+
+AndBible er et open source-fællesskabsprojekt. I praksis betyder det, at alle med de rette færdigheder kan – og opfordres til – at bidrage til projektet ved at:
+
+ * udvikle nye funktioner,
+ * teste endnu ikke udgivne funktioner,
+ * holde brugergrænsefladesoversættelser ajour, og
+ * hjælpe med at udvide modulbiblioteket ved at indhente tilladelser fra rettighedshavere eller ved at konvertere dokumenter til SWORD-format.
+
+Er du professionel softwareudvikler eller tester, er du velkommen til at bidrage til projektet. For mere information om, hvordan du bidrager, se https://git.io/JUnaj.
+
+<b>Støt projektet ved at købe udviklingstid!</b>
+
+Har du ikke tid eller færdigheder til at bidrage til projektet, kan du også støtte det ved at købe professionel udviklerarbejdstid.
+
+Se muligheder: https://shop.andbible.org/
+
+<b>Links</b>
+
+ * Hjemmeside: https://andbible.org
+ * Synd godt om AndBible på Facebook: https://www.facebook.com/AndBible/
+ * Vores YouTube-kanal: https://www.youtube.com/c/AndBible
+ * Ofte stillede spørgsmål: https://git.io/JJm8E
+ * Projektside på Github: https://github.com/AndBible/and-bible

@@ -1,0 +1,1834 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<resources>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">Học Kinh Thánh</string>
+  <string name="app_name_medium">Học Kinh Thánh (AndBible)</string>
+  <string name="app_name_long">AndBible: Học Kinh Thánh</string>
+  <string name="project">Dự án Mã nguồn Mở AndBible</string>
+
+  <string name="version_text">Phiên bản %s</string>
+  <string name="no_sdcard_error">Vui lòng lắp thẻ SD và khởi động lại ứng dụng.</string>
+
+    <!-- Main menu -->
+  <string name="menu">Menu</string>
+  <string name="chooseBook">Tài liệu</string>
+  <string name="selectPassage">Đoạn văn</string>
+  <string name="search">Tìm kiếm</string>
+  <string name="settings">Tùy chọn ứng dụng</string>
+  <string name="history">Lịch sử</string>
+  <string name="speak">Đọc</string>
+  <string name="help">Trợ giúp</string>
+  <string name="information">Thông tin</string>
+  <string name="other">Khác</string>
+  <string name="contact">Liên hệ</string>
+  <string name="help_and_tips">Trợ giúp &amp; mẹo</string>
+  <string name="administration">Quản trị</string>
+  <string name="rate_application">Đánh giá &amp; Nhận xét</string>
+  <string name="chooce_document">Chọn tài liệu</string>
+
+    <!-- Passage navigation -->
+  <string name="choosePassageBookName">Chọn sách</string>
+  <string name="choosePassageChapterName">Chọn chương</string>
+  <string name="choosePassageVerseName">Chọn câu</string>
+  <string name="bible">Kinh Thánh</string>
+  <string name="deuterocanonical">Ngụy Kinh</string>
+
+    <!--  Search -->
+  <string name="search_index">Chỉ mục tìm kiếm</string>
+  <string name="index_creation_required">Cần có chỉ mục để tìm kiếm.</string>
+  <string name="create_index_for">Cần có chỉ mục để tìm kiếm. \n\nTạo chỉ mục cho %s?</string>
+  <string name="rebuild_index_for">Tạo lại chỉ mục cho %s?</string>
+  <string name="indexing_wait_msg">Khi lập chỉ mục hoàn tất, bạn sẽ được chuyển đến màn hình tìm kiếm.</string>
+  <string name="index_create">Tạo</string>
+  <string name="rebuild_index">Tạo lại chỉ mục</string>
+  <string name="search_in">Tìm trong %s</string>
+  <string name="do_in_background">Tiếp tục trong nền</string>
+  <string name="rebuild_index_button">Tạo lại</string>
+  <string name="creating_index_for">Đang tạo chỉ mục cho %s…</string>
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s kết quả trong %2$s</string>
+
+    <!-- Tasks -->
+  <string name="progress_status">Tiến trình</string>
+  <string name="task_kill_warning">Các tác vụ đang chạy có thể bị kết thúc nếu bạn chuyển sang ứng dụng khác trước khi hoàn thành.</string>
+  <string name="no_tasks_running">Hiện không có tác vụ nào đang được thực thi.</string>
+
+    <!-- Search -->
+  <string name="search_words_group_prompt">Tìm câu Kinh Thánh</string>
+  <string name="search_all_words">Tất cả từ</string>
+  <string name="search_any_word">Bất kỳ từ nào</string>
+  <string name="search_phrase">Cụm từ</string>
+  <string name="search_fts_query">Cú pháp truy vấn thô</string>
+  <string name="search_result_count">Tìm thấy %d kết quả</string>
+  <string name="search_showing_first">Quá nhiều kết quả. Đang hiển thị %d kết quả đầu tiên</string>
+  <string name="search_bible_section_group_prompt">Tìm kiếm ở đâu</string>
+  <string name="search_all_bible">Toàn bộ Kinh Thánh</string>
+  <string name="search_new_testament">Tân Ước</string>
+  <string name="search_old_testament">Cựu Ước</string>
+  <string name="search_current_book">Sách hiện tại</string>
+  <string name="error_executing_search">Truy vấn tìm kiếm không hợp lệ</string>
+  <string name="type_text_or_bible_reference">Nhập văn bản hoặc tham chiếu Kinh Thánh</string>
+    <!-- Open (bible reference X) -->
+  <string name="go_to_ref">Mở %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <string name="search_what">Tìm \"%s\"</string>
+    <!-- Multi-translation search -->
+  <string name="search_translations">Bản dịch</string>
+  <string name="choose_translations">Chọn bản dịch…</string>
+  <string name="multi_search_results">%1$d câu trong %2$d bản dịch</string>
+  <string name="search_index_not_created">chưa có chỉ mục</string>
+
+    <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Số chương &amp; câu</string>
+  <string name="prefs_show_verseno_summary">Hiển thị số chương &amp; câu</string>
+
+  <string name="prefs_e_ink_mode_title">Chế độ đen &amp; trắng</string>
+  <string name="prefs_eink_mode_summary">Sử dụng ứng dụng ở chế độ đơn sắc (không màu), phù hợp hơn cho các thiết bị E-ink.</string>
+  <string name="prefs_eink_settings_cat">Cài đặt E-ink</string>
+  <string name="prefs_eink_display_title">Tính năng E-ink</string>
+  <string name="prefs_eink_display_summary">Bật các tính năng dành riêng cho E-ink (nút cuộn trang, đường kẻ hỗ trợ cuộn)</string>
+
+  <string name="prefs_disable_animations_title">Tắt hoạt ảnh</string>
+  <string name="prefs_disable_animations_summary">Tắt các hoạt ảnh như cuộn mượt.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Tắt chỉnh sửa bằng cách nhấn trong Sổ tay nghiên cứu</string>
+  <string name="prefs_disable_click_to_edit_summary">Yêu cầu sử dụng nút chỉnh sửa để chỉnh sửa ghi chú trong Sổ tay nghiên cứu.</string>
+
+  <string name="prefs_notes_content_type_title">Định dạng cho ghi chú đánh dấu mới</string>
+  <string name="prefs_notes_content_type_summary">Định dạng văn bản dùng khi tạo ghi chú đánh dấu mới và mục trong Sổ tay nghiên cứu</string>
+  <string name="notes_content_type_html">Văn bản có định dạng (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
+  <string name="prefs_paragraph_spacing_title">Khoảng cách đoạn văn (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Điều chỉnh khoảng cách giữa các đoạn văn.</string>
+
+  <string name="prefs_show_verseno_title1">Số câu</string>
+
+  <string name="prefs_show_chapter_no_title">Số chương</string>
+  <string name="prefs_show_chapter_no_summary">Hiển thị số chương</string>
+
+  <string name="prefs_verse_per_line_summary">Hiển thị mỗi câu trên một dòng riêng</string>
+  <string name="prefs_show_bookmarks_summary">Bỏ chọn để ẩn tất cả đánh dấu</string>
+
+  <string name="prefs_show_mynotes_summary">Hiển thị biểu tượng trong câu có Ghi chú của tôi</string>
+  <string name="prefs_show_notes_summary">Hiển thị chú thích và tham chiếu chéo</string>
+  <string name="prefs_show_strongs_summary">Liên kết đến định nghĩa tiếng Hy Lạp &amp; tiếng Hê-bơ-rơ</string>
+  <string name="prefs_show_morphology_summary">Hiển thị hình thái học tiếng Hy Lạp của Robinson</string>
+  <string name="prefs_section_title_summary">Hiển thị tiêu đề phần không thuộc kinh điển</string>
+  <string name="prefs_red_letter_summary">Hiển thị lời Chúa Giê-su bằng chữ đỏ</string>
+  <string name="prefs_text_size_title">Tùy chọn phông chữ</string>
+
+  <string name="prefs_verse_per_line_title">Mỗi câu một dòng</string>
+  <string name="prefs_show_bookmarks_title">Hiển thị đánh dấu</string>
+  <string name="prefs_show_mynotes_title">Hiển thị biểu tượng Ghi chú của tôi</string>
+  <string name="prefs_show_footnotes_title">Chú thích</string>
+  <string name="prefs_show_xrefs_title">Tham chiếu chéo</string>
+  <string name="prefs_show_footnotes_summary">Hiển thị chú thích nếu có trong tài liệu</string>
+  <string name="prefs_show_footnotes_inline_title">Chú thích nội tuyến</string>
+  <string name="prefs_show_footnotes_inline_summary">Hiển thị chú thích ngay trong văn bản thay vì dạng nút có thể nhấp</string>
+  <string name="prefs_show_xrefs_summary">Hiển thị tham chiếu chéo nếu có trong tài liệu</string>
+
+  <string name="prefs_show_notes_title">Chú thích và tham chiếu chéo</string>
+  <string name="prefs_show_strongs_title">Số Strong\'s</string>
+  <string name="prefs_show_morphology_title">Mã hình thái học</string>
+  <string name="prefs_non_strongs_word_italic_title">In nghiêng các từ được thêm vào</string>
+  <string name="prefs_non_strongs_word_italic_summary">In nghiêng các từ không có số Strong\'s</string>
+  <string name="prefs_section_title_title">Tiêu đề phần</string>
+  <string name="prefs_title_scroll_button_title">Nút cuộn tiêu đề</string>
+  <string name="prefs_title_scroll_button_summary">Hiển thị nút cuộn lên đầu bên cạnh tiêu đề phần</string>
+  <string name="prefs_red_letter_title">Chữ đỏ</string>
+  <string name="prefs_infinite_scroll_title">Cuộn vô tận</string>
+  <string name="prefs_infinite_scroll_summary">Tự động tải thêm nội dung khi cuộn</string>
+  <string name="prefs_mark_as_read_button_title">Nút đánh dấu đã đọc</string>
+  <string name="prefs_mark_as_read_button_summary">Hiển thị nút ở cuối mỗi chương để đánh dấu đã đọc</string>
+  <string name="prefs_show_memorization_indicators_title">Chỉ báo ghi nhớ</string>
+  <string name="prefs_show_memorization_indicators_summary">Hiển thị chỉ báo lề có màu cho các câu đã ghi nhớ và câu mục tiêu</string>
+  <string name="prefs_auto_track_reading_title">Tự động theo dõi việc đọc</string>
+  <string name="prefs_auto_track_reading_summary">Tự động đánh dấu các chương đã đọc khi bạn cuộn qua</string>
+  <string name="prefs_tilt_to_scroll_title">Nghiêng để cuộn</string>
+
+  <string name="prefs_toolbar_button_action_title">Hành động khi nhấn nút thanh công cụ</string>
+  <string name="prefs_toolbar_button_action_summary">Hành động thực hiện khi nhấn/nhấn giữ nút thanh công cụ Kinh Thánh hoặc Chú giải</string>
+  <string name="prefs_toolbar_button_action_default">Nhấn để mở menu, nhấn giữ để mở màn hình tài liệu (mặc định)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Nhấn để mở tài liệu tiếp theo, nhấn giữ để mở menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Nhấn để mở tài liệu tiếp theo, nhấn giữ để mở màn hình tài liệu</string>
+
+  <string name="prefs_night_mode_title">Chuyển đổi chế độ ban đêm</string>
+  <string name="prefs_night_mode_summary">Có thể tự động chuyển sang chế độ ban đêm (nếu thiết bị hỗ trợ), thủ công hoặc theo cài đặt hệ thống (Android 10+). Chuyển thủ công qua menu 3 chấm trên màn hình chính.</string>
+  <string name="prefs_night_mode_manual">Thủ công</string>
+  <string name="prefs_night_mode_automatic">Tự động</string>
+  <string name="prefs_night_mode_system">Hệ thống</string>
+  <string name="options_menu_night_mode">Chế độ ban đêm</string>
+
+  <string name="prefs_navigate_to_verse_title">Điều hướng đến câu</string>
+  <string name="prefs_navigate_to_verse_summary">Chọn câu (và chương) khi chọn một đoạn văn</string>
+  <string name="prefs_open_links_in_special_window_title">Cửa sổ liên kết</string>
+  <string name="prefs_open_links_in_special_window_summary">Mở liên kết trong cửa sổ đặc biệt để hiển thị nhanh hơn các tham chiếu chéo và Strong\'s</string>
+  <string name="prefs_text_size_sample_text">Văn bản mẫu</string>
+  <string name="prefs_screen_keep_on_title">Giữ màn hình sáng</string>
+  <string name="prefs_screen_keep_on_summary">Ngăn màn hình tắt khi đang sử dụng ứng dụng này</string>
+  <string name="prefs_interface_locale_title">Ngôn ngữ ứng dụng</string>
+  <string name="prefs_interface_locale_summary">Chọn ngôn ngữ giao diện người dùng tùy chỉnh</string>
+  <string name="reset_fontsize">Đặt lại</string>
+
+  <string name="prefs_request_sdcard_permission_title">Có tài liệu được cài đặt thủ công</string>
+  <string name="prefs_request_sdcard_permission_summary">Cho phép sử dụng các tài liệu được cài đặt thủ công từ thư mục jsword/sword trên bộ nhớ trong</string>
+
+  <string name="prefs_expand_footnotes_title">Tham chiếu chéo nội tuyến</string>
+  <string name="prefs_expand_footnotes_summary">Hiển thị nội dung tham chiếu chéo ngay trong văn bản, thay vì liên kết mở hộp thoại bật lên</string>
+
+  <string name="all_text_options_window_menutitle">Tất cả tùy chọn văn bản</string>
+  <string name="text_options_window_menutitle">Tùy chọn văn bản</string>
+  <string name="auto_fullscreen">Toàn màn hình khi cuộn</string>
+  <string name="reversed_split_mode">Chế độ chia đảo ngược</string>
+
+  <string name="add_ellipsis">%s…</string>
+
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Tự động chuyển sang toàn màn hình khi cuộn văn bản. Mẹo: bạn cũng có thể chuyển sang toàn màn hình bất cứ lúc nào bằng cách chạm đúp vào màn hình.</string>
+  <string name="prefs_margin_size_title">Thay đổi kích thước lề</string>
+  <string name="prefs_margin_size_mm_title">Kích thước lề (%1$d/%2$d/%3$d mm)</string>
+  <string name="prefs_advanced_settings_cat">Cài đặt nâng cao</string>
+  <string name="prefs_features_cat">Tính năng</string>
+  <string name="prefs_display_customization_cat">Giao diện &amp; cảm nhận</string>
+  <string name="prefs_behavior_customization_cat">Hành vi ứng dụng</string>
+
+  <string name="prefs_margin_size_summary">Điều chỉnh lề trái và phải của khung văn bản. Bạn cũng có thể điều chỉnh chiều rộng tối đa của văn bản.</string>
+  <string name="prefs_margin_size_summary_2">Mẹo: Bạn có thể chạm vào vùng lề để chuyển một trang lên / xuống.</string>
+
+  <string name="prefs_text_colors_summary">Điều chỉnh màu văn bản, màu nền và hiệu ứng nhiễu</string>
+  <string name="text_display_settings_activity_title">Cài đặt hiển thị văn bản</string>
+  <string name="workspace_text_display_settings_title">Tùy chọn văn bản - %s</string>
+  <string name="window_text_display_settings_title">Tùy chọn văn bản - Cửa sổ %d</string>
+  <string name="global_text_display_settings_title">Tùy chọn văn bản toàn cục</string>
+  <string name="global_text_display_settings_summary">Cài đặt hiển thị văn bản mặc định cho tất cả không gian làm việc</string>
+  <string name="parent_settings_category_title">Cài đặt cha</string>
+  <string name="workspace_text_options_link">Tùy chọn văn bản không gian làm việc — %s</string>
+  <string name="workspace_text_options_link_summary">Chỉnh sửa cài đặt hiển thị văn bản cho không gian làm việc này</string>
+  <string name="global_text_options_link">Tùy chọn văn bản toàn cục</string>
+  <string name="global_text_options_link_summary">Chỉnh sửa cài đặt hiển thị văn bản mặc định cho tất cả không gian làm việc</string>
+  <string name="prefs_font_and_colors_title">Phông chữ &amp; Màu sắc</string>
+  <string name="prefs_text_layout_title">Bố cục văn bản</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Hình thái học</string>
+  <string name="prefs_footnotes_and_xrefs_title">Chú thích &amp; Tham chiếu chéo</string>
+  <string name="prefs_verses_and_headings_title">Câu &amp; Tiêu đề</string>
+  <string name="prefs_page_scrolling_title">Cuộn trang</string>
+
+  <string name="prefs_justify_title">Căn đều văn bản</string>
+  <string name="prefs_justify_summary">Căn chỉnh văn bản theo kiểu \'justify\', nghĩa là lề trái và phải của văn bản đều thẳng hàng</string>
+  <string name="pref_left_margin_label_mm">Lề trái (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Lề phải (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Chiều rộng tối đa của văn bản (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Giãn dòng %1.1fx</string>
+  <string name="pref_font_family_label">Họ phông chữ</string>
+  <string name="prefs_top_margin_title">Lề trên</string>
+  <string name="prefs_top_margin_summary">Thêm lề (có chỉ báo trực quan) vào đầu cửa sổ chứa tài liệu Kinh Thánh. Kinh Thánh được cuộn để câu hiện tại bắt đầu bên dưới lề.</string>
+  <string name="prefs_hyphenation_title">Ngắt từ</string>
+  <string name="prefs_hyphenation_summary">Tự động ngắt từ nếu ngôn ngữ được hỗ trợ</string>
+  <string name="prefs_line_spacing_pt_title">Giãn dòng (%1.1fx)</string>
+  <string name="line_spacing_title">Giãn dòng</string>
+  <string name="line_spacing_summary">Đặt khoảng cách giữa các dòng</string>
+  <string name="select_none">Bỏ chọn tất cả</string>
+  <string name="reset_are_you_sure">Bạn có chắc muốn đặt lại tất cả các giá trị này không?</string>
+  <string name="window_pinning_menutitle">Ghim cửa sổ</string>
+  <string name="hide_window_buttons_title">Ẩn nút cửa sổ</string>
+  <string name="hide_window_buttons_summary">Các nút cửa sổ hiển thị ở bên phải của khung xem Kinh Thánh sẽ bị ẩn. Thanh điều hướng cửa sổ ở phía dưới vẫn hiển thị và bạn có thể mở menu bật lên của cửa sổ bằng cách nhấn giữ chúng.</string>
+  <string name="hide_bible_reference_overlay_title">Ẩn lớp phủ tham chiếu Kinh Thánh</string>
+  <string name="hide_bible_reference_overlay_summary">Không hiển thị lớp phủ tham chiếu Kinh Thánh bán trong suốt khi ứng dụng ở chế độ toàn màn hình</string>
+
+  <string name="full_screen_hide_buttons_pref_title">Ẩn thanh nút cửa sổ khi toàn màn hình</string>
+  <string name="full_screen_hide_buttons_pref_summary">Khi chuyển sang chế độ toàn màn hình, tự động ẩn thanh nút cửa sổ ở phía dưới màn hình</string>
+
+  <string name="prefs_dictionaries_cat">Từ điển</string>
+  <string name="choose_strongs_greek_dictionary_title">Từ điển Hy Lạp Strong\'s</string>
+  <string name="choose_strongs_greek_dictionary_summary">Chọn từ điển Strong\'s để tra định nghĩa từ tiếng Hy Lạp</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Từ điển Hê-bơ-rơ Strong\'s</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Chọn từ điển Strong\'s để tra định nghĩa từ tiếng Hê-bơ-rơ</string>
+  <string name="choose_strongs_greek_morphology_title">Hình thái học Hy Lạp Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">Chọn từ điển cho các định nghĩa hình thái học Hy Lạp Robinson</string>
+  <string name="choose_word_lookup_dictionary_title">Từ điển tra cứu từ</string>
+  <string name="choose_word_lookup_dictionary_summary">Chọn từ điển để tra cứu từ</string>
+  <string name="lookup_in_dictionary">Tra trong từ điển</string>
+  <string name="word_not_found_in_dictionaries">Không tìm thấy từ trong bất kỳ từ điển nào</string>
+
+  <string name="prefs_top_margin_title_mm">Lề trên (%d mm)</string>
+  <string name="font_size_title">Cỡ chữ</string>
+  <string name="font_size_title_pt">Cỡ chữ (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Điều chỉnh cỡ chữ của văn bản chính</string>
+
+  <string name="pref_font_family_label_name">Họ phông chữ (%s)</string>
+  <string name="prefs_font_family_summary">Thay đổi họ phông chữ. Mẹo: có thể cài đặt thêm phông chữ qua Tải xuống Tài liệu / Tiện ích bổ sung.</string>
+
+  <string name="prefs_text_bookmarks_title">Cài đặt Đánh dấu &amp; Ghi chú của tôi</string>
+  <string name="prefs_reading_and_memorization_title">Đọc &amp; Ghi nhớ</string>
+
+  <string name="prefs_enable_bluetooth_title">Bật nút phương tiện Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Xử lý các nút phương tiện Bluetooth để bắt đầu/dừng đọc.</string>
+  <string name="create_bookmark">Tạo đánh dấu mới</string>
+  <string name="create_bookmark_with_a_note">Tạo đánh dấu mới kèm ghi chú</string>
+
+    <!-- Colors preferences -->
+  <string name="prefs_text_colors_menutitle">Cài đặt màu sắc</string>
+  <string name="window_color_settings_title">Cài đặt màu cửa sổ</string>
+  <string name="workspace_color_settings_title">Giá trị mặc định cài đặt màu không gian làm việc</string>
+
+  <string name="color_workspace">Màu không gian làm việc</string>
+  <string name="color_text">Màu văn bản</string>
+  <string name="color_background">Màu nền</string>
+  <string name="colors_day_mode_title">Chế độ ban ngày</string>
+  <string name="colors_night_mode_title">Chế độ ban đêm</string>
+  <string name="prefs_noise_title">Nhiễu nền</string>
+  <string name="prefs_noise_summary">Thêm một chút nhiễu vào nền có thể làm cho mắt dễ chịu hơn.</string>
+
+  <string name="cpv_default_title">Chọn màu</string>
+  <string name="cpv_presets">Màu đặt sẵn</string>
+  <string name="cpv_custom">Tùy chỉnh</string>
+  <string name="cpv_select">Chọn</string>
+  <string name="cpv_transparency">Độ trong suốt</string>
+
+    <!-- Window -->
+  <string name="new_window">Cửa sổ mới</string>
+  <string name="windowClose">Đóng</string>
+  <string name="windowMaximise">Phóng to</string>
+  <string name="windowMinimise">Thu nhỏ</string>
+  <string name="windowSynchronise">Đồng bộ</string>
+  <string name="move_window">Chuyển đến</string>
+  <string name="move_window_to_position2">Vị trí %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings">Sao chép cài đặt đến</string>
+  <string name="copy_settings_to_workspace">Không gian làm việc</string>
+  <string name="copy_settings_to_window">Cửa sổ %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Giá trị mặc định toàn cục</string>
+  <string name="change_to_normal">Chuyển sang cửa sổ thông thường</string>
+  <string name="window_pin_mode">Ghim</string>
+
+    <!-- Notes screen -->
+  <string name="no_chapter_notes">Không có ghi chú nào trong chương này</string>
+  <string name="no_verse_notes">Không có ghi chú nào trong câu này</string>
+  <string name="previous">Trước</string>
+  <string name="next">Tiếp theo</string>
+
+    <!--  Strongs -->
+  <string name="strongs_not_installed">Vui lòng tải xuống từ điển Hê-bơ-rơ và Hy Lạp của Strong\'s</string>
+  <string name="no_indexed_bible_with_strongs_ref">Bạn phải tải xuống một bản Kinh Thánh có số Strong\'s và lập chỉ mục qua Tìm kiếm</string>
+  <string name="morph_robinson_not_installed">Vui lòng tải xuống từ điển \'Mã phân tích hình thái học Robinson\'</string>
+  <string name="go_to_downloads">Đến Tải xuống</string>
+
+    <!-- Module download -->
+  <string name="download">Tải xuống Tài liệu</string>
+  <string name="redownload">Tải lại Tài liệu</string>
+  <string name="download_confirmation">Tải Kinh Thánh từ Internet?</string>
+  <string name="download_source_last_updated">Danh sách tài liệu được cập nhật lần cuối: %s.</string>
+  <string name="download_refreshing_book_list">Đang làm mới danh sách tài liệu từ máy chủ…</string>
+  <string name="download_source_message1">Tài liệu được tải xuống từ các nguồn sau:</string>
+  <string name="download_document_confirm_prefix">Tải xuống</string>
+  <string name="download_refresh_book_list_menu_item">Làm mới</string>
+  <string name="error_downloading">Đã xảy ra lỗi khi tải xuống. Vui lòng kiểm tra kết nối internet của bạn.</string>
+  <string name="error_downloading_status">Máy chủ lưu trữ %1$s đã trả về lỗi do %2$s (%3$d).</string>
+  <string name="storage_space_warning">Không đủ dung lượng lưu trữ cục bộ.</string>
+  <string name="too_many_jobs">Có quá nhiều tác vụ đang chạy. Vui lòng chờ một số tác vụ hoàn thành rồi thử lại.</string>
+  <string name="document_not_installed">Vui lòng tải xuống \'%s\'</string>
+  <string name="free_text_search_documents">Tìm kiếm</string>
+  <string name="chooce_language_hint">Ngôn ngữ</string>
+  <string name="one_more_back_press">Nhấn Quay lại thêm một lần để đóng ứng dụng</string>
+  <string name="document_filter_results">%d tài liệu</string>
+  <string name="download_question_title">Bạn có muốn tiến hành tải tài liệu không?</string>
+  <string name="download_question_message">Nếu bạn sống ở một quốc gia bị ngăn cấm, bạn có thể cần thận trọng khi tải tài liệu Kitô giáo qua Internet. Thay vào đó, bạn nên lấy các tệp zip mô-đun một cách an toàn hơn và cài đặt chúng qua \"Tải Tài Liệu Từ Tệp Zip\". Bạn có chắc muốn tiếp tục tải xuống không? Tất cả các tải xuống từ máy chủ mô-đun đều được mã hóa (HTTPS).</string>
+  <string name="do_not_ask_again">Có, đừng hỏi thêm nữa</string>
+  <string name="recommended_document">Được khuyến nghị!</string>
+  <string name="about_version_history">Lịch sử phiên bản: %s</string>
+  <string name="download_errors">Lỗi tải xuống</string>
+  <string name="failed_repositories_message">Không thể kết nối đến máy chủ tài liệu sau: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Không thể tải xuống các tệp sau:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Không thể xóa tài liệu này.</string>
+
+    <!--  Install zip file -->
+  <string name="install_zip">Tải Tài Liệu Từ Tệp</string>
+  <string name="install_zip_module">Cài đặt Mô-đun Kinh Thánh</string>
+  <string name="install_zip_module_discrete">Cài đặt Mô-đun Máy Tính</string>
+  <string name="install_zip_successfull">Mô-đun đã được cài đặt thành công</string>
+  <string name="extracting_zip_file">Đang giải nén tệp Zip…</string>
+  <string name="checking_zip_file">Đang kiểm tra tệp đã cho…</string>
+  <string name="invalid_module">Tệp không chứa mô-đun SWORD hợp lệ</string>
+  <string name="install_zip_title">Vui lòng chờ. Đang tải mô-đun từ tệp.</string>
+  <string name="overwrite_files">Các tệp sau đã tồn tại: %s Ghi đè?</string>
+  <string name="overwrite_files_title">Ghi đè tệp?</string>
+  <string name="could_not_overwrite_files">Không thể ghi đè các tệp: %s. Ngoài ra, quá trình cài đặt đã thành công.</string>
+  <string name="install_do_you_want">Bạn có muốn cài đặt mô-đun (%s) không?</string>
+
+    <!-- Daily Reading Plan -->
+  <string name="rdg_plan_title">Kế Hoạch Đọc</string>
+  <string name="reading_plans_plural">Kế Hoạch Đọc</string>
+  <string name="rdg_plan_selector_title">Chọn Kế Hoạch Đọc</string>
+  <string name="rdg_plan_day">Ngày %s</string>
+  <string name="rdg_plan_set_start_date">Đặt Ngày Bắt Đầu…</string>
+  <string name="set_current_day">Đặt làm ngày hiện tại…</string>
+  <string name="msg_set_current_day_reading_plan">Thao tác này sẽ đặt hôm nay làm ngày hiện tại trong kế hoạch và đánh dấu tất cả các ngày trước là đã đọc. Tiếp tục?</string>
+  <string name="done">Hoàn thành</string>
+  <string name="reset_plan_question">Bạn có chắc muốn đặt lại kế hoạch này không?</string>
+  <string name="import_reading_plan">Nhập kế hoạch đọc…</string>
+  <string name="import_reading_plan_error">Lỗi khi nhập</string>
+  <string name="import_reading_plan_error_duplicate">Các ngày sau bị trùng lặp: %s</string>
+  <string name="import_reading_plan_error_days">Các ngày sau chứa lỗi: %s</string>
+  <string name="import_reading_plan_anyway">Nhập dù sao</string>
+  <string name="overwrite_reading_plan">Bạn có muốn ghi đè %s không?</string>
+  <string name="delete_reading_plan">Xóa kế hoạch này</string>
+  <string name="reading_plan_deleted">Kế hoạch đọc đã được xóa</string>
+  <string name="reading_plan_ships_with_ab">Kế hoạch đọc này được tích hợp sẵn với %s</string>
+  <string name="confirm_delete_reading_plan">Bạn có chắc muốn xóa %s cùng với lịch sử đọc của nó không? Gợi ý: nếu bạn cần cập nhật kế hoạch, bạn có thể nhập lại với cùng tên tệp và lịch sử đọc sẽ được giữ nguyên.</string>
+  <string name="plan_duplicate_user_plan">Có một kế hoạch đọc của người dùng trên thẻ nhớ jsword/readingplan có cùng tên với một kế hoạch nội bộ. Không thể liệt kê ở đây. Vui lòng đổi tên tệp thành tên khác, giữ nguyên phần mở rộng .properties</string>
+  <string name="plan_name_y1ntpspr">Tân Ước, Thi Thiên &amp; Châm Ngôn trong Một Năm</string>
+  <string name="plan_description_y1ntpspr">Courtesy of HEARTLIGHT Internet Magazine, http://www.heartlight.org, permission granted</string>
+  <string name="plan_name_y1ot1nt1_chronological">Biên Niên Sử 1 Năm qua Kinh Thánh</string>
+  <string name="plan_description_y1ot1nt1_chronological">Kế hoạch dựa trên các sự kiện theo thứ tự thời gian trong Kinh Thánh. Mốc thời gian biên niên là gần đúng.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">Kế Hoạch M\'Cheyne 1 Năm 4 Chương/Ngày</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">Đọc trọn Kinh Thánh trong 1 năm, với các chương trong Cựu Ước và Tân Ước mỗi ngày.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">Đọc Kinh Thánh 1 Năm</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">Đọc trọn Kinh Thánh trong 1 năm, bắt đầu từ Sáng Thế Ký và kết thúc ở Khải Huyền. Cựu Ước trước, rồi đến Tân Ước.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">Đọc Kinh Thánh Đồng Thời Cả Hai Giao Ước 1 Năm</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">Kế hoạch này dựa trên hệ thống đọc M\'Cheyne, với bốn bài đọc khác nhau dùng cho cả thờ phượng gia đình lẫn cá nhân. Mỗi ngày có hai đoạn từ Cựu Ước, một từ Tân Ước, và một từ Thi Thiên hoặc Phúc Âm. Trong một năm, bạn đọc Cựu Ước một lần và Tân Ước cùng Thi Thiên hai lần.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Kế Hoạch Đọc 10 Chương/Ngày của Giáo Sư Horner</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Courtesy of Prof. Horner, permission granted</string>
+  <string name="plan_name_y2ot1ntps2">Đọc Kinh Thánh 2 Năm, NT+TT hai lần</string>
+  <string name="plan_description_y2ot1ntps2">Đọc trọn Kinh Thánh trong 2 năm, đọc Tân Ước và Thi Thiên hai lần. Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted</string>
+
+    <!-- Document context menu -->
+  <string name="delete">Xóa</string>
+  <string name="delete_index">Xóa chỉ mục tìm kiếm</string>
+  <string name="about">Giới thiệu</string>
+  <string name="delete_doc">Xóa %s?</string>
+  <string name="delete_search_index_doc">Xóa chỉ mục của %s?</string>
+
+    <!-- Verse context menu -->
+  <string name="notes">Chú thích và tham chiếu</string>
+  <string name="share_verse">Chia sẻ…</string>
+  <string name="share_verse_widget_title">Chia sẻ lựa chọn</string>
+  <string name="share_verse_subject_2">Một câu Kinh Thánh đã được chia sẻ với bạn qua %s.</string>
+  <string name="compare_translations">So sánh các bản dịch</string>
+
+    <!-- Link context menu -->
+  <string name="open_link_in_this_window">Mở liên kết ở đây</string>
+  <string name="open_link_in_new_window">Mở liên kết trong cửa sổ mới</string>
+  <string name="open_link_in_special_window">Mở liên kết trong cửa sổ đặc biệt</string>
+
+    <!-- Bookmarks -->
+  <string name="bookmarks_and_mynotes_title">Đánh Dấu &amp; Ghi Chú Của Tôi</string>
+  <string name="migrated_my_notes">Đã di chuyển Ghi Chú Của Tôi</string>
+  <string name="bookmarks">Đánh dấu</string>
+  <string name="bookmark_added">Đã thêm đánh dấu</string>
+    <!-- Bookmark / note labels -->
+  <string name="labels">Nhãn</string>
+  <string name="manage_labels">Quản lý Nhãn</string>
+  <string name="assign_labels">Gán nhãn</string>
+  <string name="new_item">Mới</string>
+  <string name="new_label">Nhãn Mới</string>
+  <string name="label_name_prompt">Tên</string>
+  <string name="label_unlabelled">Chưa gán nhãn</string>
+  <string name="add_bookmark1">Đánh dấu</string>
+  <string name="add_bookmark2">Đánh Dấu Lựa Chọn</string>
+  <string name="add_bookmark3">Lựa chọn</string>
+  <string name="add_bookmark_whole_verse">Đánh Dấu Câu</string>
+  <string name="add_bookmark_whole_verse1">Các câu</string>
+  <string name="add_bookmark_whole_verse2">Toàn bộ câu</string>
+  <string name="add_whole_page_bookmark">Thêm đánh dấu cho toàn trang</string>
+  <string name="add_paragraph_break">Ngắt đoạn</string>
+  <string name="ai_label">AI</string>
+  <string name="remove_bookmark">Xóa</string>
+  <string name="bookmark_settings_hide_labels_title">Ẩn các nhãn đã chỉ định</string>
+  <string name="bookmark_settings_hide_labels_summary">Ẩn các đánh dấu được gán với nhãn đã chỉ định</string>
+  <string name="auto_assign_labels_title">Cài đặt nhãn</string>
+  <string name="auto_assign_labels">Tự động gán &amp; Nhãn yêu thích</string>
+  <string name="auto_assign_labels1">Tự động gán nhãn cho đánh dấu mới</string>
+  <string name="auto_assign_labels_primary">Tự động gán làm nhãn chính</string>
+  <string name="label_color">Màu nhãn</string>
+  <string name="label_color_example">Ví dụ</string>
+  <string name="marker_style">Chỉ hiển thị dấu cho đánh dấu lựa chọn</string>
+  <string name="marker_style_whole_verse">Chỉ hiển thị dấu cho đánh dấu toàn câu</string>
+  <string name="hide_style">Ẩn cho đánh dấu lựa chọn</string>
+  <string name="hide_style_whole_verse">Ẩn cho đánh dấu toàn câu</string>
+  <string name="bookmark_warning">Có các đánh dấu và/hoặc ghi chú cho tài liệu này.</string>
+  <string name="bookmark_warning2">Nếu cấu trúc tài liệu đã thay đổi, việc cập nhật tài liệu này có thể làm vị trí của các đánh dấu/ghi chú bị di chuyển bên trong tài liệu hoặc biến mất hoàn toàn.</string>
+  <string name="bookmark_warning3">Bạn vẫn muốn cập nhật mô-đun không?</string>
+  <string name="bookmark_warning4">Nên sao lưu mô-đun trước khi cập nhật.</string>
+    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <string name="sort_by_date">Thứ tự ngày</string>
+  <string name="sort_by_bible_book">Thứ tự Kinh Thánh</string>
+  <string name="sort_by_alphabetical">Thứ tự bảng chữ cái</string>
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <string name="filter_by_notes">Tìm kiếm ghi chú</string>
+
+    <!-- Dictionary -->
+  <string name="dictionary">Từ điển</string>
+  <string name="search_dictionary_hint">Tìm kiếm từ điển</string>
+
+    <!-- General Book -->
+  <string name="general_book">Sách</string>
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
+  <string name="one_chapter">%d chương</string>
+  <string name="some_chapters">%d chương</string>
+  <string name="rest_of_book">Đến cuối sách</string>
+    <!-- Speak - Commentary -->
+  <string name="one_verse">%d câu</string>
+  <string name="some_verses">%d câu</string>
+  <string name="rest_of_chapter">Đến cuối chương</string>
+    <!-- Speak - Dictionary and other -->
+  <string name="one_page">%d trang</string>
+  <string name="some_pages">%d trang</string>
+    <!-- Speak - Common -->
+  <string name="stop">Dừng</string>
+  <string name="pause">Tạm dừng</string>
+  <string name="rewind">Tua lại</string>
+  <string name="forward">Tiến tới</string>
+  <string name="tts_lang_not_available">Ngôn ngữ không khả dụng.</string>
+  <string name="speak_queue">Hàng chờ</string>
+  <string name="speak_repeat">Lặp lại</string>
+
+    <!-- Speak - Bible -->
+  <string name="speak_speed_title">Tốc độ đọc</string>
+  <string name="speak_and_play_earcons_title">Đọc và phát âm thanh earcon cho</string>
+  <string name="playback_settings_title">Cài đặt phát lại</string>
+  <string name="speak_settings_title">Cài đặt đọc chung</string>
+  <string name="speak_bookmarking_settings_title">Cài đặt đánh dấu</string>
+  <string name="speak_bookmarks_menu_title">Đọc từ đánh dấu</string>
+  <string name="speak_advanced_settings">Cài đặt nâng cao</string>
+  <string name="speak_sleep_timer_title">Hẹn giờ ngủ</string>
+
+  <string name="speak_no_books_available">Không có sách nào để đọc</string>
+  <string name="speak_general_error">Không thể bắt đầu đọc cuốn sách này</string>
+
+  <string name="repeat_passage">Lặp lại đoạn văn</string>
+  <string name="set_repeat_passage_range">Đặt phạm vi lặp lại đoạn văn</string>
+  <string name="speak_beginning_of_passage">Chọn đầu đoạn văn</string>
+  <string name="speak_ending_of_passage">Chọn cuối đoạn văn</string>
+  <string name="speak_verse_range_to_repeat">Chọn phạm vi câu để lặp lại</string>
+  <string name="speak_ending_verse_must_be_later">Câu kết thúc phải sau câu bắt đầu</string>
+
+  <string name="conf_speak_synchronize">Văn bản theo dõi lời đọc</string>
+  <string name="conf_speak_auto_bookmark">Tự động đánh dấu</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Lưu cài đặt phát lại vào đánh dấu</string>
+  <string name="conf_replace_divinename">Thay tên thần thánh bằng Yahweh</string>
+  <string name="conf_change_chapter">Thay đổi chương</string>
+  <string name="conf_change_title">Tiêu đề</string>
+  <string name="conf_speak_footnotes">Chú thích cuối trang</string>
+  <string name="conf_speak_sleep_timer">Đặt hẹn giờ ngủ</string>
+
+  <string name="sleep_timer_title">Thời gian ngủ (phút)</string>
+  <string name="sleep_timer_set">Đặt hẹn giờ ngủ. Đã đặt: %d phút</string>
+  <string name="sleep_timer_started">Đã bắt đầu hẹn giờ ngủ, %d phút</string>
+  <string name="sleep_timer_active_at">Hẹn giờ ngủ: còn %s phút.</string>
+
+  <string name="speak_next">Tiếp theo</string>
+  <string name="speak_previous">Trước đó</string>
+  <string name="widget_toggle_sleep_timer">Bật/tắt hẹn giờ ngủ</string>
+  <string name="widget_bookmark_helptext">Các nút tắt đánh dấu đọc sẽ xuất hiện ở đây.</string>
+  <string name="speak_status_stopped">đã dừng</string>
+  <string name="speak_autobookmarking_disabled">Tự động đánh dấu đã tắt!</string>
+  <string name="system_speak_settings">Mở cài đặt TTS hệ thống</string>
+
+  <string name="auto_assing_labels_help1">Tại đây bạn có thể điều chỉnh nhãn nào được tự động gán cho các đánh dấu bạn tạo.</string>
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <string name="setting_scope">Cài đặt này áp dụng cho %s.</string>
+  <string name="setting_scope_window">cửa sổ này</string>
+  <string name="setting_scope_workspace">không gian làm việc này</string>
+
+  <string name="assing_labels_help1">Mỗi đánh dấu có thể được gán nhiều nhãn.</string>
+    <!-- param is bookmark icon -->
+  <string name="assing_labels_help2">Dùng %s để chỉ định màu nhãn nào được hiển thị.</string>
+    <!-- param is auto-assign label icon -->
+  <string name="assing_labels_help3">Nhấn biểu tượng %s để nhãn đó được tự động gán cho đánh dấu mới.</string>
+    <!-- param is heart icon -->
+  <string name="assing_labels_help4">Nhấn %s để thêm nhãn vào danh sách yêu thích để truy cập nhanh.</string>
+
+    <!-- param is refresh icon -->
+  <string name="assing_labels_help5">Nhấn %s để sắp xếp lại danh sách theo lựa chọn của bạn.</string>
+
+  <string name="global_text_options_help_title">Tùy chọn văn bản toàn cục</string>
+  <string name="global_text_options_help1">Đây là các cài đặt mặc định toàn cục cho tất cả không gian làm việc. Mỗi không gian làm việc có thể ghi đè bằng cài đặt riêng.</string>
+
+  <string name="workspace_text_options_help_title">Tùy chọn văn bản không gian làm việc</string>
+  <string name="workspace_text_options_help1">Các cài đặt này xác định mặc định cho tất cả cửa sổ trong không gian làm việc. Các cài đặt kế thừa từ mặc định toàn cục được chỉ ra tương ứng.</string>
+  <string name="workspace_text_options_help2">Bạn có thể ghi đè bằng cách thay đổi cài đặt từng cửa sổ riêng lẻ.</string>
+
+  <string name="window_text_options_help_title">Tùy chọn văn bản cửa sổ</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help1">Biểu tượng %s cho biết cài đặt đến từ cài đặt không gian làm việc.</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help2">Biểu tượng %s cho biết cài đặt này đã được thay đổi cho cửa sổ cụ thể này.</string>
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <string name="text_options_reset_help">Dùng nút %1$s để đặt lại tất cả các cài đặt về %2$s.</string>
+  <string name="reset_defaults">giá trị mặc định</string>
+  <string name="reset_workspace_defaults">giá trị mặc định của không gian làm việc</string>
+
+  <string name="speak_bookmark_help">Trợ giúp đánh dấu đọc</string>
+
+  <string name="speak_help_auto_bookmark">Một đánh dấu đọc sẽ được tự động thêm khi tạm dừng hoặc dừng đọc. Các đánh dấu được tạo tự động được gán nhãn Đọc đặc biệt. Nếu bạn bắt đầu từ một đánh dấu đọc, đánh dấu sẽ được chuyển đến câu bạn dừng hoặc tạm dừng lần tiếp theo. Chỉ nhãn Đọc mới được chuyển, các nhãn khác sẽ không bị thay đổi.</string>
+  <string name="speak_help_playback_settings">Các cài đặt phát lại đặc biệt (trong \"Cài đặt phát lại\" trên màn hình Đọc) được lưu vào đánh dấu đọc khi chọn cài đặt này. Khi bạn tiếp tục đọc từ một đánh dấu đọc, các cài đặt phát lại đã lưu sẽ được tải từ đánh dấu.</string>
+  <string name="speak_help_playback_settings_example">Ví dụ, nếu bạn đang nghe Sáng thế ký và Rô-ma và muốn nghe Sáng thế ký được đọc nhanh mà không có thông báo thay đổi chương, nhưng nghe Rô-ma chậm hơn với âm thanh earcon khi thay đổi chương, thì bạn có thể có các cài đặt phát lại khác nhau cho các sách này, khi các cài đặt này được lưu vào các đánh dấu tương ứng.</string>
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+
+  <string name="speak_book_changed">Đã thay đổi sách.</string>
+  <string name="speak_chapter_changed">Chương</string>
+  <string name="speak_first">Thứ nhất</string>
+  <string name="speak_second">Thứ hai</string>
+  <string name="speak_third">Thứ ba</string>
+  <string name="speak_fourth">Thứ tư</string>
+  <string name="speak_fifth">Thứ năm</string>
+
+  <string name="verse_range_mode_disabled">Chế độ lặp đoạn văn đã bị tắt tự động vì đọc bắt đầu ngoài phạm vi câu đã xác định.</string>
+
+    <!-- User Notes -->
+  <string name="mynotes">Ghi chú của tôi</string>
+
+    <!-- Backup and restore -->
+  <string name="backup_backup_title">Sao lưu đến đâu?</string>
+  <string name="backup_backup_message">Sao lưu vào điện thoại hay nơi khác qua chức năng Chia sẻ (email, Google Drive, v.v.)?</string>
+  <string name="backup_phone_storage">Bộ nhớ điện thoại</string>
+  <string name="backup_and_restore">Sao lưu &amp; Khôi phục</string>
+  <string name="backup_modules2">Sao lưu tài liệu vào…</string>
+  <string name="backup_app_database2">Sao lưu cơ sở dữ liệu ứng dụng vào…</string>
+  <string name="backup_app2">Sao lưu ứng dụng (tệp .apk) vào…</string>
+  <string name="backup_application">Ứng dụng</string>
+  <string name="backup_database">Cơ sở dữ liệu</string>
+  <string name="backup_documents">Tài liệu</string>
+  <string name="backup_application_info">Tệp ứng dụng (.APK)</string>
+  <string name="backup_database_info">Đánh dấu, nhãn, ghi chú, sổ tay nghiên cứu, kế hoạch đọc, không gian làm việc, v.v.</string>
+  <string name="backup_document_info">Kinh Thánh, chú giải, từ điển, bản đồ, v.v.</string>
+  <string name="backup_to">Sao lưu vào…</string>
+  <string name="backup_restore_from">Khôi phục từ…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <string name="backup_restore_from2">Khôi phục hoặc nhập từ…</string>
+  <string name="backup_restore">Khôi phục</string>
+  <string name="backup_restore2">Khôi phục hoặc nhập</string>
+  <string name="overwrite_something">Ghi đè %s?</string>
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+  <string name="restore_what">Bạn muốn khôi phục gì?</string>
+
+  <string name="restore_app_database">Khôi phục cơ sở dữ liệu ứng dụng từ…</string>
+  <string name="restore_database">Khôi phục tệp cơ sở dữ liệu</string>
+  <string name="restore_confirmation">Ghi đè Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc?</string>
+  <string name="restore_success2">Các phần cơ sở dữ liệu đã chọn được khôi phục thành công</string>
+  <string name="restore_success">Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc đã được khôi phục thành công</string>
+  <string name="downloading_backup">Đang tải xuống tệp sao lưu…</string>
+  <string name="loading_backup">Đang tải cơ sở dữ liệu từ sao lưu…</string>
+  <string name="backup_success2">Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc đã được sao lưu thành công.</string>
+  <string name="backup_modules_success">Các mô-đun đã chọn được sao lưu thành công.</string>
+
+  <string name="backup_modules_email_subject_2">Sao lưu mô-đun %s</string>
+  <string name="backup_modules_email_message_2">Đính kèm là bản sao lưu mô-đun %1$s của bạn, chứa các mô-đun sau: %2$s</string>
+
+  <string name="backup_email_subject_2">Sao lưu cơ sở dữ liệu %s</string>
+  <string name="backup_email_message_2">Cơ sở dữ liệu %s của bạn chứa đánh dấu, ghi chú, kế hoạch đọc và không gian làm việc được đính kèm</string>
+
+  <string name="exported_studypads_subject">Sổ tay nghiên cứu đã xuất</string>
+  <string name="exported_studypads_message">Cơ sở dữ liệu %s của bạn chứa Đánh dấu và Ghi chú liên quan đến Sổ tay nghiên cứu đã chọn được đính kèm</string>
+  <string name="restore_unsuccessfull">Khôi phục cơ sở dữ liệu không thành công. Có thể bạn đã cung cấp tệp cơ sở dữ liệu không hợp lệ.</string>
+  <string name="restore_modules">Khôi phục tài liệu từ…</string>
+  <string name="send_backup_file">Gửi tệp sao lưu</string>
+  <string name="backup_modules_title">Chọn mô-đun nào để sao lưu</string>
+  <string name="install_zip_canceled">Đã hủy cài đặt mô-đun</string>
+  <string name="ask_restore_or_import">Cơ sở dữ liệu cho %s có thể được khôi phục (tức là xóa cơ sở dữ liệu hiện có và tải cơ sở dữ liệu đã chọn) hoặc nhập (nhập cơ sở dữ liệu đã chọn vào cơ sở dữ liệu hiện có). Bạn muốn làm gì?</string>
+  <string name="restore">Khôi phục</string>
+  <string name="import2">Nhập</string>
+  <string name="export_studypads_help">Tệp chứa Sổ tay nghiên cứu đã xuất (tức là Nhãn và Đánh dấu) có thể được nhập qua Menu chính -&gt; Sao lưu &amp; Khôi phục.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" và %2$s Nhãn/Sổ tay nghiên cứu khác và %3$s Đánh dấu</string>
+
+    <!-- About -->
+  <string name="module_about_copyright">Bản quyền: %s</string>
+  <string name="module_about_installed_version">Phiên bản đã cài đặt: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Phiên bản mới nhất: %1$s (%2$s)</string>
+  <string name="module_about_versification">Hệ thống phân đoạn: %s</string>
+  <string name="module_about_repository">Máy chủ phân phối: %s</string>
+  <string name="module_about_osisId">OSIS ID: %s</string>
+
+    <!-- Bug reporting -->
+  <string name="send_bug_report_title1">Báo cáo lỗi</string>
+  <string name="send_feedback_title">Phản hồi</string>
+  <string name="send_bug_report_title">Phản hồi / báo cáo lỗi</string>
+  <string name="report_bug_email_subject_3">[%1$s] Báo cáo lỗi cho %2$s %3$s</string>
+
+  <string name="report_bug_big_heading">VUI LÒNG VIẾT PHẢN HỒI HOẶC BÁO CÁO LỖI Ở TRÊN DÒNG NÀY</string>
+  <string name="report_bug_heading1">Hướng dẫn:</string>
+  <string name="report_bug_line_1">Hãy mô tả ngắn gọn bạn đã làm gì / điều gì đã xảy ra khi sự cố xảy ra.</string>
+  <string name="report_bug_heading2">Ví dụ:</string>
+  <string name="report_bug_instructions1">1. Mở ứng dụng</string>
+  <string name="report_bug_instructions2">2. Nhấn vào menu cửa sổ</string>
+  <string name="report_bug_instructions3">-&gt; Ứng dụng bị đóng đột ngột</string>
+  <string name="report_bug_line_2">Đôi khi các ảnh chụp màn hình thủ công cũng rất hữu ích trong việc giải quyết sự cố.</string>
+  <string name="report_bug_line_3">Vui lòng sử dụng chức năng này để báo cáo ngay khi bạn nhận thấy sự cố xảy ra.</string>
+  <string name="report_bug_line_4">Bạn cũng có thể sử dụng chức năng này sau khi mở ứng dụng, sau khi sự cố đóng đột ngột đã xảy ra.</string>
+  <string name="report_bug_heading_3">Tệp đính kèm:</string>
+  <string name="bug_report_logcat">Tệp nhật ký do ứng dụng này tạo ra. Không chứa thông tin về bất kỳ ứng dụng nào khác.</string>
+  <string name="bug_report_screenshot">Ảnh chụp màn hình ứng dụng khi xảy ra sự cố đóng đột ngột, hoặc khi báo cáo lỗi được tạo.</string>
+  <string name="bug_report_attachment_line_1">Việc đính kèm các tệp này giúp ích rất nhiều cho các nhà phát triển ứng dụng trong việc sửa lỗi được báo cáo.</string>
+  <string name="report_bug_heading_4">Thông tin thiết bị:</string>
+
+    <!-- Document types -->
+  <string name="doc_type_all">Tất cả các loại</string>
+  <string name="doc_type_bible">Kinh Thánh</string>
+  <string name="doc_type_commentary">Chú giải</string>
+  <string name="doc_type_dictionary">Từ điển</string>
+  <string name="doc_type_book">Sách</string>
+  <string name="doc_type_map">Bản đồ</string>
+  <string name="doc_type_addons">Tiện ích bổ sung</string>
+
+    <!-- Languages -->
+  <string name="lang_default">Mặc định</string>
+
+    <!-- General -->
+  <string name="okay">OK</string>
+  <string name="cancel">Hủy</string>
+  <string name="discard_changes_confirmation">Hủy bỏ các thay đổi chưa lưu?</string>
+  <string name="yes">Có</string>
+  <string name="no">Không</string>
+  <string name="error">Lỗi</string>
+  <string name="delete_generic">Xóa</string>
+  <string name="please_wait">Vui lòng chờ…</string>
+  <string name="all">Tất cả</string>
+  <string name="edit">Chỉnh sửa</string>
+  <string name="reset_generic">Đặt lại</string>
+  <string name="watch_tutorial_video">Xem video hướng dẫn (tiếng Anh)</string>
+  <string name="verse_not_found">Không tìm thấy câu</string>
+
+    <!-- Errors -->
+  <string name="report_error">Gửi báo cáo</string>
+  <string name="error_occurred">Đã xảy ra lỗi</string>
+  <string name="error_occurred_crash_last_time">Lần trước khi bạn sử dụng ứng dụng, nó đã bị đóng đột ngột. Để giúp chúng tôi sửa lỗi, chúng tôi rất mong bạn gửi báo cáo lỗi.</string>
+  <string name="error_occurred_with_link">Đã xảy ra lỗi. %s</string>
+  <string name="error_no_content">Không có nội dung cho câu đã chọn</string>
+  <string name="error_page_too_large">Trang quá lớn để tải</string>
+  <string name="error_key_not_in_document">Không tìm thấy trong tài liệu</string>
+  <string name="error_key_not_in_document2">%1$s không được tìm thấy trong tài liệu %2$s.</string>
+  <string name="empty_list">Không có mục nào để hiển thị</string>
+  <string name="error_skip">Bỏ qua</string>
+  <string name="bug_report_email_title">Gửi báo cáo lỗi qua email</string>
+  <string name="bug_report_email_text">Tiếp theo, vui lòng chọn ứng dụng email ưa thích của bạn (ví dụ: Gmail) để gửi báo cáo đến nhóm phát triển.</string>
+
+    <!-- Notifications -->
+  <string name="notification_channel_tts_status">Đọc văn bản</string>
+  <string name="notification_channel_progress_status">Thông báo tiến trình tải xuống tài liệu, v.v.</string>
+
+    <!-- Workspaces -->
+  <string name="new_workspace">Mới</string>
+  <string name="switch_to_workspace">Không gian làm việc</string>
+  <string name="delete_workspace">Xóa</string>
+  <string name="new_copied_workspace">Sao chép thành mới</string>
+  <string name="workspace_number">Không gian làm việc %d</string>
+  <string name="rename_workspace">Đổi tên</string>
+  <string name="workspace_selector_title">Chọn không gian làm việc</string>
+  <string name="workspace_settings">Cài đặt…</string>
+  <string name="give_name_workspace">Đặt tên cho không gian làm việc mới</string>
+  <string name="save_and_exit">Lưu</string>
+  <string name="workspace_save_changes">Áp dụng thay đổi cho các không gian làm việc?</string>
+  <string name="copy_of_workspace">Bản sao của %s</string>
+  <string name="copy_workspace_settings">Sao chép cài đặt…</string>
+  <string name="copy_settings_title">Bạn muốn sao chép cài đặt nào?</string>
+  <string name="select_all">Chọn tất cả</string>
+  <string name="copy_settings_workspaces_title">Bạn muốn sao chép cài đặt đến không gian làm việc nào?</string>
+  <string name="reset_settings">Đặt lại</string>
+  <string name="search_settings">Tìm kiếm cài đặt</string>
+  <string name="workspace_dismiss">Bỏ qua</string>
+  <string name="workspace_listing_with_current">%s (hiện tại)</string>
+
+    <!-- Beta notice -->
+  <string name="beta_notice_title">Đây là phiên bản beta!</string>
+  <string name="beta_flag">BETA</string>
+  <string name="beta_notice_content_1">Trong phiên bản beta, có các tính năng mới chưa được kiểm tra đầy đủ, do đó việc sử dụng beta có thể gây ra các hành vi không mong muốn, tức là lỗi. Khuyến nghị những người dùng Kinh Thánh thông thường nên sử dụng phiên bản ổn định.</string>
+
+  <string name="beta_notice_content_2">Người dùng beta được khuyến khích báo cáo lỗi qua Google Play hoặc (ưu tiên) qua %s.</string>
+  <string name="beta_notice_content_3">Nếu bạn là lập trình viên, hãy cân nhắc đóng góp bản sửa lỗi qua %s. :-)</string>
+  <string name="beta_notice_github_issues">Vấn đề trên Github</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Bỏ qua</string>
+  <string name="beta_notice_dismiss_until_update">Bỏ qua cho đến lần cập nhật tiếp theo</string>
+
+  <string name="stable_notice_title">Ứng dụng đã được nâng cấp!</string>
+  <string name="upgrade_video_message">Vui lòng xem video giới thiệu các tính năng mới của phiên bản này (%s).</string>
+  <string name="stable_notice_par1">Phiên bản mới %1$s của %2$s đã được cài đặt thành công!</string>
+
+    <!-- History -->
+  <string name="history_for">Lịch sử (%1$s: Cửa sổ %2$d)</string>
+
+    <!-- Help -->
+  <string name="help_nav_title">Điều hướng</string>
+  <string name="help_nav_text">Chuyển đến chương tiếp theo hoặc trước đó bằng cách vuốt màn hình bằng ngón tay. Nhấn đúp vào văn bản Kinh Thánh để bật/tắt chế độ toàn màn hình. Các màn hình chia đôi (còn gọi là cửa sổ) có nút menu ở góc trên bên phải, cho phép bạn sử dụng một số chức năng riêng của cửa sổ và tùy chỉnh giao diện và hành vi của cửa sổ.</string>
+  <string name="help_contextmenus_title">Menu ngữ cảnh</string>
+  <string name="help_contextmenus_text">Nhấn giữ sẽ mở menu ngữ cảnh hoặc chế độ hành động trong nhiều chế độ xem. Nhấn giữ trên chế độ xem Kinh Thánh để mở chế độ hành động cho các thao tác ảnh hưởng đến câu hiện tại. Nhấn giữ vào một mục tài liệu trong chế độ xem danh sách của Chọn tài liệu hoặc Tải xuống để xóa tài liệu hoặc xem thông tin. Nhấn giữ một đánh dấu trong danh sách đánh dấu để thêm nhãn hoặc xóa đánh dấu. Nhấn giữ các liên kết để chọn mở chúng trong cửa sổ hiện tại, cửa sổ mới hoặc cửa sổ liên kết đặc biệt.</string>
+  <string name="help_bookmarks_title">Đánh dấu &amp; Ghi chú của tôi</string>
+  <string name="help_bookmarks_text">Có thể tạo đánh dấu bằng cách chọn một số văn bản và chọn \"Đánh dấu\" từ menu bật lên. Bạn có thể thêm ghi chú tùy chỉnh vào đánh dấu mới bằng cách nhấn vào văn bản được đánh dấu nổi bật trong chế độ xem Kinh Thánh. Ngoài ra còn có tài liệu đặc biệt \"Ghi chú của tôi\" trong chú giải cho phép bạn xem ghi chú của mình trong một cửa sổ riêng.</string>
+  <string name="help_studypads_text">Sổ tay nghiên cứu được thiết kế để dễ dàng viết ghi chú bài giảng, chuẩn bị bài giảng hoặc chỉ ghi lại các ghi chú nghiên cứu Kinh Thánh cá nhân có nhiều tham chiếu Kinh Thánh. Mỗi sổ tay nghiên cứu được liên kết với một nhãn đánh dấu. Tất cả đánh dấu được tạo với nhãn tương ứng đó sẽ tự động xuất hiện trong tài liệu sổ tay nghiên cứu. Ngoài đánh dấu, còn có thể có các mục văn bản tùy chỉnh trong sổ tay nghiên cứu.</string>
+
+  <string name="help_search_title">Tìm kiếm</string>
+    <!-- TODO: to be removed -->
+  <string name="help_search_text">Văn bản tìm kiếm có thể bao gồm các ký tự đặc biệt như *, ?, AND, OR, NOT (xem \"Apache Lucene - Query Parser Syntax\" để biết thêm chi tiết)</string>
+  <string name="help_search_text2">Văn bản tìm kiếm có thể bao gồm các ký tự đặc biệt như *, AND, OR, NOT</string>
+  <string name="help_search_details">Vui lòng xem %s để biết thêm chi tiết.</string>
+  <string name="help_apache_lucene">Apache Lucene - Cú pháp trình phân tích cú pháp truy vấn</string>
+  <string name="help_fts5">Cú pháp truy vấn toàn văn bản FTS5</string>
+  <string name="help_workspaces_title">Không gian làm việc</string>
+  <string name="help_workspaces_text">Không gian làm việc cho phép có nhiều môi trường làm việc phụ thuộc vào ngữ cảnh. Các chức năng không gian làm việc có thể được truy cập qua mục Không gian làm việc trong menu tùy chọn (góc trên bên phải). Cách nhanh để truy cập không gian làm việc là vuốt xuống từ thanh công cụ. Bạn cũng có thể sử dụng thao tác vuốt trái và vuốt phải trên thanh công cụ để chuyển sang không gian làm việc trước / tiếp theo.</string>
+  <string name="help_hidden_features_title">Phím tắt ẩn</string>
+  <string name="help_hidden_features_text">Vuốt xuống từ thanh công cụ để hiển thị bộ chọn không gian làm việc. Nhấn giữ nút cửa sổ để thu nhỏ nhanh. Nhấn giữ nút đọc trên thanh công cụ để nhanh chóng vào cài đặt đọc. Nhấn giữ tiêu đề vị trí câu trên thanh công cụ để chuyển đến bộ chọn tài liệu. Nhấn giữ nút Quay lại để truy cập danh sách Lịch sử.</string>
+  <string name="help_window_pinning_title">Ghim cửa sổ</string>
+  <string name="help_window_pinning_text">Bạn có thể bật ghim cửa sổ từ menu tùy chọn (ba chấm, góc trên bên phải). Nếu ghim cửa sổ được bật, bạn có thể hiển thị nhiều cửa sổ được ghim trong chế độ xem Kinh Thánh, nhưng chỉ một cửa sổ không được ghim. Các cửa sổ được ghim hiển thị trước, sau đó là các cửa sổ không được ghim. Bạn có thể muốn mở các tài liệu Kinh Thánh dưới dạng cửa sổ được ghim, và chú giải, bản đồ, v.v. dưới dạng cửa sổ không được ghim. Khi đó bạn có thể luôn mở sẵn các tài liệu Kinh Thánh, và dễ dàng chuyển đổi giữa chú giải và các tài liệu bổ sung khác khi nghiên cứu Kinh Thánh.</string>
+
+    <!-- Welcome text -->
+  <string name="redownload_documents">Tải xuống nhanh</string>
+  <string name="welcome_message">Cảm ơn bạn đã tải xuống %s. Hiện tại chưa có Kinh Thánh hoặc tài liệu nào được cài đặt. Để tiếp tục, vui lòng cài đặt ít nhất 1 tài liệu bằng cách tải xuống từ internet, hoặc tải từ tệp sao lưu tài liệu zip.</string>
+    <!-- Supported file formats for documents -->
+  <string name="supported_formats_title">Các định dạng được hỗ trợ</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="choose_file">Bạn phải chọn tệp muốn tải vào %s.</string>
+  <string name="supported_formats">Các định dạng được hỗ trợ để tải tài liệu từ tệp: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="format_zip">Tệp Zip chứa (các) mô-đun Sword, hoặc tệp sao lưu tài liệu (*.abmd) được tạo bởi %s</string>
+  <string name="format_mysword">Tài liệu MySword (*.mybible)</string>
+  <string name="format_mybible">Tài liệu MyBible (*.SQLite3)</string>
+  <string name="format_esword">Tài liệu e-Sword (*.bblx, *.bbli)</string>
+  <string name="format_epub">Tài liệu EPUB (*.epub)</string>
+  <string name="format_ttf">Phông chữ TTF (*.ttf)</string>
+  <string name="format_csv_prompts">Tiện ích bổ sung lệnh AI (*.csv)</string>
+  <string name="format_studypads">Sổ tay nghiên cứu từ cơ sở dữ liệu AndBible (*.abdb)</string>
+  <string name="redownload_message">Đã tìm thấy danh sách sách/tài liệu trước đây. Nhấn bên dưới để dễ dàng tải xuống lại chúng.</string>
+
+    <!-- Uncategorized -->
+  <string name="close">Đóng</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
+  <string name="first_time_help_do_not_show_again">Tôi hiểu rồi</string>
+  <string name="first_time_help_show_next_time">Hiển thị lại lần sau</string>
+
+  <string name="strongs_mode_title">Chọn chế độ Strong\'s</string>
+
+  <string name="download_dialog_message">Không thể tải xuống các sách sau:</string>
+  <string name="select_multiple">Chọn nhiều</string>
+  <string name="journal_description">Sổ tay nghiên cứu có thể chỉnh sửa với văn bản tùy chỉnh và đánh dấu</string>
+  <string name="my_notes_description">Ghi chú có thể chỉnh sửa được đính kèm với đánh dấu</string>
+  <string name="my_notes_abbreviation">Ghi chú của tôi</string>
+  <string name="studypad">Sổ tay nghiên cứu</string>
+  <string name="studypads">Sổ tay nghiên cứu</string>
+  <string name="multi_description">Nhiều tham chiếu</string>
+  <string name="multi_abbreviation">Nhiều</string>
+  <string name="compare_description">So sánh các bản dịch</string>
+  <string name="compare_abbreviation">So sánh</string>
+  <string name="compare">So sánh</string>
+  <string name="http_forbidden">Bị cấm</string>
+  <string name="http_not_found">Không tìm thấy</string>
+  <string name="http_unknown">Lỗi khác</string>
+  <string name="give_passphrase_for_module">Tài liệu %s được mã hóa và cần mật khẩu để mở khóa</string>
+  <string name="unlocking_failed">Mở khóa thất bại, mật khẩu không hợp lệ</string>
+  <string name="unlock_module">Đặt mật khẩu mô-đun</string>
+  <string name="unlock_info">Thông tin mở khóa mô-đun được mã hóa</string>
+  <string name="try_again_passphrase">Mật khẩu không đúng, thử lại?</string>
+  <string name="show_unlock_info">Mô-đun &amp; thông tin mở khóa</string>
+
+  <string name="prefs_experimental_features_title">Tính năng thử nghiệm</string>
+  <string name="prefs_experimental_features_summary">Chọn tính năng thử nghiệm nào cần bật. Các tính năng này vẫn đang được phát triển và có thể thay đổi hoặc bị xóa</string>
+  <string name="experimental_feature_bookmark_edit_actions">Thao tác chỉnh sửa đánh dấu</string>
+  <string name="experimental_feature_add_paragraph_break">Thêm đánh dấu ngắt đoạn</string>
+  <string name="experimental_feature_ai_features">Tính năng AI &amp; Tài liệu của tôi</string>
+  <string name="experimental_feature_reading_and_memorization">Theo dõi việc đọc &amp; Ghi nhớ</string>
+  <string name="raw_llm_log_title">Nhật ký LLM thô</string>
+  <string name="raw_llm_log_empty">Không có dữ liệu nhật ký thô</string>
+  <string name="raw_llm_log_copied">Đã sao chép nhật ký vào bộ nhớ tạm</string>
+  <string name="raw_llm_log_total">Tổng cộng: vào %1$s / ra %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Lời nhắc hệ thống</string>
+  <string name="raw_llm_log_entry_user">Tin nhắn người dùng</string>
+  <string name="raw_llm_log_entry_assistant">Phản hồi trợ lý</string>
+  <string name="raw_llm_log_entry_tool_call">Gọi công cụ: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Kết quả công cụ [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Định nghĩa công cụ (%d công cụ)</string>
+  <string name="raw_llm_log_entry_api_response">Phản hồi API (lần lặp %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s token</string>
+  <string name="raw_llm_log_entry_usage">vào: %1$s / ra: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(trống)</string>
+  <string name="raw_llm_log_entry_tool_desc">Mô tả: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Tham số: %s</string>
+  <string name="agent_log_view_raw">Xem nhật ký LLM thô</string>
+  <string name="agent_log_model_selector">Thay đổi mô hình mặc định (hiện tại: %1$s)</string>
+  <string name="agent_log_model_not_configured">Chưa cấu hình mô hình</string>
+  <string name="agent_log_select_model">Chọn mô hình mặc định</string>
+  <string name="share">Chia sẻ</string>
+  <string name="prefs_show_error_box_title">Hiển thị hộp lỗi Javascript</string>
+  <string name="prefs_show_error_box_summary">Hữu ích cho nhà phát triển khi gỡ lỗi phía javascript BibleView. Điều này sẽ làm ứng dụng chậm hơn.</string>
+  <string name="active_window_indicator_title">Hiển thị chỉ báo cửa sổ đang hoạt động</string>
+  <string name="active_window_indicator_summary">Đánh dấu góc cửa sổ để nhận biết cửa sổ nào đang hoạt động</string>
+  <string name="app_licence_title">Giấy phép mã nguồn mở</string>
+
+  <string name="how_to_contribute">Cách đóng góp?</string>
+  <string name="confirm_delete_bookmarks">Bạn có muốn xóa %d đánh dấu và ghi chú của chúng không?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Nhãn đã chọn được gắn với %d đánh dấu không có nhãn nào khác. Bạn có muốn xóa các đánh dấu này cùng với nhãn không?</string>
+  <string name="delete_label_and_bookmarks">Xóa nhãn và đánh dấu</string>
+  <string name="delete_label_only">Chỉ xóa nhãn</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Giới thiệu cho bạn bè</string>
+  <string name="tell_friend_message1">Tôi muốn giới thiệu %s cho bạn.</string>
+  <string name="tell_friend_message2">Đây là ứng dụng nghiên cứu Kinh Thánh ngoại tuyến mạnh mẽ nhưng dễ sử dụng cho Android.</string>
+  <string name="tell_friend_message3">Cài đặt từ Play Store: %s</string>
+  <string name="tell_friend_message4">Đọc thêm &amp; các tùy chọn cài đặt khác: %s</string>
+  <string name="share_verse_ok">Chia sẻ / Sao chép</string>
+  <string name="web_search">Tìm kiếm web</string>
+  <string name="verse_action_copy">Sao chép</string>
+  <string name="generic_share">Chia sẻ</string>
+  <string name="share_verse_menu_title">Chia sẻ / sao chép…</string>
+  <string name="show_versenumbers">Hiển thị số câu</string>
+  <string name="show_full_verses">Hiển thị câu đầy đủ</string>
+  <string name="show_selection_only">Chỉ hiển thị văn bản đã chọn</string>
+  <string name="advertise_app">Quảng bá ứng dụng</string>
+  <string name="verse_share_advertise">Được chia sẻ bằng %s.</string>
+  <string name="show_reference">Hiển thị tham chiếu</string>
+  <string name="show_reference_at_front">Hiển thị trước câu</string>
+  <string name="abbreviate_reference">Viết tắt tham chiếu</string>
+  <string name="version_name">Tên phiên bản</string>
+    <!-- meaning, bible version name -->
+  <string name="show_version_name">Bao gồm tên phiên bản</string>
+  <string name="show_ellipsis">Hiển thị dấu chấm lửng (…)</string>
+  <string name="show_quotes">Hiển thị dấu ngoặc kép</string>
+  <string name="separate_verses_with_newlines">Phân cách các câu bằng dòng mới</string>
+
+  <string name="backup_button">Sao lưu &amp; Khôi phục</string>
+  <string name="back_button">Quay lại</string>
+  <string name="upgrading_database">Đang nâng cấp cơ sở dữ liệu. Vui lòng chờ…</string>
+  <string name="initializing_app">Đang khởi tạo ứng dụng…</string>
+  <string name="show_notes">Hiển thị ghi chú</string>
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <string name="old_webview">Gói Android WebView quá cũ (%1$s). Bạn cần nâng cấp gói Android WebView lên ít nhất phiên bản %2$s để sử dụng %3$s. Đối với hầu hết các thiết bị, có thể thực hiện qua %4$s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Tiếp tục dù sao</string>
+  <string name="proceed">Tiếp tục</string>
+  <string name="rate_title">Đánh giá và nhận xét ứng dụng</string>
+  <string name="rate_message5">Các đánh giá tích cực và chi tiết giúp ích rất nhiều cho Dự án Mã nguồn mở AndBible. Cảm ơn bạn!</string>
+  <string name="rate_message6">Trước khi viết đánh giá tiêu cực, vui lòng xem xét những điều sau:</string>
+
+    <!-- parameters are actions (file a bug, send email) -->
+  <string name="rate_message1">Nếu bạn gặp vấn đề với ứng dụng, vui lòng %1$s hoặc %2$s thay thế.</string>
+    <!-- param is "please report maintainers" -->
+  <string name="rate_message2">Nếu một văn bản / bản dịch Kinh Thánh có vấn đề, %s.</string>
+    <!-- param is "please read what you can do" -->
+  <string name="rate_message3">Nếu một văn bản cụ thể không có trong ứng dụng, %s.</string>
+  <string name="rate_message4">Các nhà phát triển ứng dụng này không chịu trách nhiệm duy trì tài liệu.</string>
+  <string name="bug_report">gửi báo cáo lỗi (từ Menu chính)</string>
+  <string name="how_to_help">vui lòng đọc những gì bạn có thể làm để giúp đỡ</string>
+  <string name="send_email">gửi email cho nhà phát triển</string>
+  <string name="proceed_google_play">Tiếp tục đến Google Play</string>
+  <string name="text_maintainers">vui lòng báo cáo vấn đề cho người duy trì văn bản</string>
+  <string name="does_not_exist_abbreviation">Không tồn tại</string>
+  <string name="cant_change_wholeverse">Không thể tắt đánh dấu toàn câu cho đánh dấu này</string>
+  <string name="whole_verse_turned_on">Đánh dấu hiện được đánh dấu cho toàn câu</string>
+  <string name="this_bookmark">Đánh dấu này</string>
+  <string name="this_workspace">Không gian làm việc này</string>
+  <string name="override_style">Ghi đè kiểu</string>
+  <string name="no_override_suffix">(không ghi đè)</string>
+  <string name="display_mode_highlight">Đánh dấu nổi bật</string>
+  <string name="display_mode_underline">Gạch chân</string>
+  <string name="display_mode_marker">Chỉ đánh dấu</string>
+  <string name="display_mode_hidden">Ẩn</string>
+  <string name="workspace_override_indicator">Nhãn này có chế độ hiển thị riêng cho không gian làm việc</string>
+  <string name="primary_label">Nhãn chính</string>
+  <string name="highlight_entire_verse">Đánh dấu nổi bật toàn câu</string>
+  <string name="favourite_label">Nhãn yêu thích</string>
+  <string name="edit_label">Chỉnh sửa nhãn</string>
+  <string name="delete_label_confirmation">Bạn có muốn xóa nhãn đánh dấu \"%s\"? Tất cả ghi chú Sổ tay nghiên cứu liên quan cũng sẽ bị xóa.</string>
+  <string name="bookmark_underline_style_arbitrary">Kiểu gạch chân cho đánh dấu theo vùng chọn</string>
+  <string name="bookmark_underline_style_whole_verse">Kiểu gạch chân cho đánh dấu toàn câu</string>
+  <string name="active_labels">Nhãn đã chọn</string>
+  <string name="recent_labels">Nhãn gần đây</string>
+  <string name="other_labels">Nhãn khác</string>
+  <string name="book_menu_sort_row_opt">Sắp xếp sách theo chiều ngang</string>
+  <string name="book_menu_group_by_category">Nhóm sách theo danh mục</string>
+  <string name="book_menu_show_long_book_name">Hiển thị tên sách đầy đủ</string>
+  <string name="book_menu_show_progress_bars">Hiển thị thanh tiến trình</string>
+  <string name="reset_workspace_labels">Bạn có muốn đặt lại cài đặt tự động gán và yêu thích cho không gian làm việc này không?</string>
+  <string name="reset_hide_labels">Bạn có muốn đặt lại cài đặt ẩn các nhãn đã chỉ định không?</string>
+  <string name="reorder">Sắp xếp lại</string>
+  <string name="system_items">Thao tác hệ thống</string>
+  <string name="system_items1">Thêm</string>
+  <string name="system_action2">Hành động Android</string>
+  <string name="text_copied_to_clicpboard">Đã sao chép văn bản vào khay nhớ tạm</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Đánh dấu một bước</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Hiển thị các mục \"Lựa chọn\" và \"Câu\" trực tiếp trong menu Lựa chọn của Kinh Thánh</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Nhấn đúp để toàn màn hình</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Vào chế độ toàn màn hình bằng cách nhấn đúp vào cửa sổ</string>
+  <string name="toggle_fullscreen">Toàn màn hình</string>
+  <string name="exit_fullscreen">Nhấn đúp màn hình để thoát toàn màn hình</string>
+  <string name="reset_app_prefs">Bạn có muốn đặt lại tất cả tùy chọn ứng dụng toàn cục được hiển thị trên màn hình này về giá trị mặc định không?</string>
+  <string name="label_red">Đỏ</string>
+  <string name="label_green">Xanh lá</string>
+  <string name="label_blue">Xanh dương</string>
+  <string name="label_salvation">Sự cứu rỗi</string>
+  <string name="label_underline">Gạch chân</string>
+  <string name="import_menu">Nhập &amp; Xuất</string>
+  <string name="auto_backups_title">Sao lưu tự động</string>
+  <string name="backup_file_info">Ứng dụng v%1$d, %2$s</string>
+  <string name="reset_databases_title">Đặt lại cơ sở dữ liệu</string>
+  <string name="reset_databases_description">Đặt lại từng cơ sở dữ liệu về trạng thái trống ban đầu. Không thể hoàn tác thao tác này.</string>
+  <string name="last_crash_info_title">Thông tin sự cố gần nhất</string>
+  <string name="reset_database_confirm">Thao tác này sẽ xóa vĩnh viễn tất cả dữ liệu trong \"%1$s\" và đặt lại về trạng thái ban đầu. Không thể hoàn tác.\n\nBạn có chắc chắn không?</string>
+  <string name="reset_database_success">Cơ sở dữ liệu đã được đặt lại thành công</string>
+  <string name="reset_something">Đặt lại: %1$s</string>
+  <string name="export">Xuất</string>
+  <string name="csv_export_success">Đã xuất %d đánh dấu sang CSV</string>
+  <string name="csv_import_success">Nhập hoàn tất: đã tạo %1$d, đã cập nhật %2$d</string>
+  <string name="csv_import_errors">Nhập hoàn tất với lỗi: đã tạo %1$d, đã cập nhật %2$d, %3$d lỗi</string>
+  <string name="csv_import_failed">Nhập CSV thất bại: %s</string>
+  <string name="csv_export_failed">Xuất CSV thất bại: %s</string>
+  <string name="export_prompts_csv">Xuất lời nhắc sang CSV</string>
+  <string name="import_prompts_csv">Nhập lời nhắc từ CSV</string>
+  <string name="prompts_csv_export_success">Đã xuất %d lời nhắc sang CSV</string>
+  <string name="prompts_csv_import_success">Nhập hoàn tất: đã tạo %1$d, đã cập nhật %2$d</string>
+  <string name="prompts_csv_import_errors">Nhập hoàn tất với lỗi: đã tạo %1$d, đã cập nhật %2$d, %3$d lỗi</string>
+  <string name="prompts_csv_import_failed">Nhập CSV thất bại: %s</string>
+  <string name="prompts_csv_export_failed">Xuất CSV thất bại: %s</string>
+  <string name="no_prompts_to_export">Không có lời nhắc người dùng để xuất</string>
+  <string name="csv_column_selection_title">Chọn cột CSV</string>
+  <string name="choose_csv_file">Chọn tệp CSV để nhập</string>
+  <string name="no_bookmarks_to_export">Không có đánh dấu nào để xuất</string>
+  <string name="export_fileformat">Xuất dưới dạng %s</string>
+  <string name="export_something">Xuất %s</string>
+  <string name="import_items">Nhập %s</string>
+  <string name="import_from_db">Nhập từ tệp cơ sở dữ liệu ứng dụng</string>
+  <string name="import_error">Nhập từ cơ sở dữ liệu ứng dụng thất bại. Tệp cơ sở dữ liệu có thể sai định dạng hoặc được tạo bằng phiên bản %s quá cũ.</string>
+
+  <string name="export_bookmarks_csv">Xuất Đánh dấu dưới dạng %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">Tham chiếu OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Tham chiếu Kinh Thánh</string>
+  <string name="document">Tài liệu</string>
+  <string name="book">Sách</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Chương bắt đầu</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Câu bắt đầu</string>
+  <string name="chapter_end">Chương kết thúc</string>
+  <string name="verse_end">Câu kết thúc</string>
+  <string name="id">Mã định danh</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Thứ tự bắt đầu</string>
+  <string name="ordinal_end">Thứ tự kết thúc</string>
+  <string name="created_at">Được tạo lúc</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Độ lệch bắt đầu</string>
+  <string name="end_offset">Độ lệch kết thúc</string>
+  <string name="custom_icon">Biểu tượng tùy chỉnh</string>
+  <string name="last_updated_at">Cập nhật lần cuối lúc</string>
+  <string name="bookmark_notes">Ghi chú đánh dấu</string>
+
+  <string name="chooser_range">Phạm vi</string>
+  <string name="chooser_jump">Chuyển đến</string>
+  <string name="chooser_OT_abbrev">CƯ</string>
+  <string name="chooser_NT_abbrev">TƯ</string>
+  <string name="chooser_style_grid">Lưới</string>
+  <string name="chooser_style_lists">Danh sách</string>
+  <string name="chooser_select">Chọn %s</string>
+  <string name="chooser_pref_reset">Không đặt lại chương/câu về 1 khi chọn sách/chương</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <string name="incomplete_translation">Chúng tôi xin lỗi, nhưng chúng tôi chỉ có bản dịch giao diện người dùng một phần bằng ngôn ngữ %1$s. Đó là vì %2$s được phát triển hoàn toàn bởi các tình nguyện viên. Nếu bạn có thể giúp dịch, vui lòng xem %3$s.</string>
+    <!-- will be added to incomplete_translation as a link -->
+  <string name="instructions_for_translators">hướng dẫn cho người dịch</string>
+  <string name="questions_title">Câu hỏi?</string>
+  <string name="questions_title2">Cần trợ giúp?</string>
+  <string name="bookmark_style">Kiểu đánh dấu</string>
+  <string name="added_to_bookmark">Được gán cho đánh dấu này</string>
+  <string name="strongs_off">Tắt</string>
+  <string name="strongs_links">Liên kết</string>
+  <string name="strongs_text_and_links">Văn bản và Liên kết</string>
+  <string name="strongs_hidden_links">Liên kết ẩn</string>
+  <string name="verse_tip">Để chọn một phần hoặc nhiều câu, bạn có thể nhấn giữ vào văn bản Kinh Thánh</string>
+
+  <string name="permission_required">Cần cấp quyền</string>
+  <string name="labels_search_hint">Tìm kiếm</string>
+  <string name="search_mode_name_start">Tên (từ đầu)</string>
+  <string name="search_mode_name_contains">Tên (chứa)</string>
+  <string name="search_mode_content">Nội dung</string>
+  <string name="search_results_matches">%d kết quả</string>
+  <string name="search_results_match">1 kết quả</string>
+  <string name="progress_status_permission">Để hiển thị thông báo (trạng thái tải xuống, xử lý, trạng thái đọc), chúng tôi cần quyền của bạn.</string>
+
+    <!-- Discrete mode settings -->
+  <string name="app_name_calculator">Máy tính đơn giản</string>
+  <string name="prefs_persecution_cat">Cài đặt cho những người bị bức hại</string>
+  <string name="prefs_discrete_mode">Ẩn biểu tượng tôn giáo</string>
+  <string name="prefs_discrete_mode_desc">Đổi tên ứng dụng thành \'Máy tính\' và hiển thị biểu tượng khác trong bộ khởi chạy.</string>
+  <string name="prefs_show_calculator">Máy tính</string>
+  <string name="prefs_calculator_pin">Mã PIN máy tính</string>
+  <string name="prefs_calculator_pin_desc">Mã PIN để vào ứng dụng khi màn hình máy tính được hiển thị.</string>
+  <string name="calc_division_by_zero">Không được phép chia cho không</string>
+    <!-- Context: calculator. Wrong number format etc. -->
+  <string name="calc_wrong_format">Sai định dạng</string>
+  <string name="calc_wrong_format_operand">Sai định dạng. Toán hạng không có số nào?</string>
+  <string name="prefs_persecuted_help">Đọc trước!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <string name="prefs_persecuted_summary">Hướng dẫn về cài đặt và thông tin về bản ẩn danh cụ thể.</string>
+
+  <string name="calculator_par1">Trước khi vào ứng dụng, màn hình máy tính được hiển thị.</string>
+  <string name="calculator_par2">Trong đó, bạn có thể thực hiện tính toán thông thường, và khi muốn vào ứng dụng, bạn chỉ cần nhập mã PIN (mặc định là 1234) rồi nhấn nút \"=\".</string>
+  <string name="calculator_par3">Bạn có thể đặt mã PIN tùy chỉnh trong cài đặt \"Mã PIN máy tính\".</string>
+  <string name="discrete_mode_info_par1">Bạn đang sử dụng phiên bản ứng dụng tiêu chuẩn, nghĩa là vẫn có thể thấy tên thật và biểu tượng của ứng dụng trong thông tin ứng dụng.</string>
+  <string name="discrete_mode_info_par2">Để tăng cường bảo mật trong môi trường bị bức hại, chúng tôi khuyến nghị sử dụng phiên bản ẩn danh của ứng dụng, luôn hiển thị máy tính, ngay cả khi dữ liệu ứng dụng bị xóa.</string>
+  <string name="discrete_mode_link">Bạn có thể tải xuống phiên bản ẩn danh mới nhất từ %s.</string>
+
+    <!-- Window synchronize groups -->
+  <string name="sync_group_submenu">Đồng bộ hóa nhóm</string>
+  <string name="sync_group_n">Nhóm %d</string>
+  <string name="disable_sync">Tắt đồng bộ hóa</string>
+  <string name="open_in_window">Mở kết quả trong cửa sổ</string>
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <string name="custom_repositories">Kho lưu trữ tùy chỉnh</string>
+  <string name="custom_repositories_empty_list_message">Chưa có kho lưu trữ tùy chỉnh nào được xác định</string>
+  <string name="custom_repositories_create_button_label">Thêm kho lưu trữ tùy chỉnh</string>
+  <string name="custom_repositories_info_button_label">Thông tin</string>
+  <string name="name_for_repository">Tên cho kho lưu trữ</string>
+  <string name="repository_specification">URL kho lưu trữ</string>
+  <string name="delete_custom_repository">Bạn có muốn xóa kho lưu trữ tùy chỉnh %s không?</string>
+  <string name="invalid_repository_not_saved">Thông số kho lưu trữ không hợp lệ và không được lưu.</string>
+  <string name="custom_repositories_help1">Để thêm kho lưu trữ tùy chỉnh mới, hãy nhập hoặc sao chép &amp; dán URL kho lưu trữ tùy chỉnh vào đây.</string>
+  <string name="custom_repositories_help2">Bạn có thể đọc thêm thông tin về kho lưu trữ tùy chỉnh tại %s.</string>
+  <string name="wiki_page">Trang WIKI</string>
+  <string name="custom_repositories_help0">Bạn có thể cài đặt tài liệu từ các kho lưu trữ tùy chỉnh bên ngoài bằng cách thêm kho lưu trữ tùy chỉnh.</string>
+  <string name="duplicate_custom_repository">Kho lưu trữ với tên %s đã tồn tại, không thể thêm kho lưu trữ khác.</string>
+
+  <string name="packages_dir">Thư mục gói (tệp Zip)</string>
+  <string name="warn_bad_document">Cảnh báo: Tài liệu này có thể có chất lượng kỹ thuật kém (ít nhất một phần).</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
+  <string name="open_bible_links_title">Mở liên kết Kinh Thánh trong AndBible</string>
+  <string name="open_bible_links_summary">Khi nhấp vào các liên kết tham chiếu đến URL Kinh Thánh được AndBible hỗ trợ, hãy mở chúng trong AndBible</string>
+  <string name="copyReference">Sao chép liên kết vào khay nhớ tạm</string>
+  <string name="reference_copied_to_clipboard">Đã sao chép tham chiếu vào bộ nhớ tạm</string>
+
+    <!-- Device cloud synchronization -->
+  <string name="prefs_sync_introduction_summary1">Chọn dịch vụ đám mây bạn muốn sử dụng để đồng bộ hóa nhiều thiết bị.</string>
+  <string name="prefs_sync_introduction_summary2">Khi sử dụng Google Drive, %s chỉ được cấp quyền truy cập vào các tệp ứng dụng, không phải tệp cá nhân.</string>
+  <string name="restore_backup_sections">Bạn muốn khôi phục phần sao lưu nào?</string>
+  <string name="db_repositories">Kho lưu trữ và các cài đặt liên quan</string>
+  <string name="db_bookmarks">Đánh dấu, Ghi chú của tôi, Nhãn và Sổ tay nghiên cứu</string>
+  <string name="synchronizing">Đang đồng bộ hóa…</string>
+  <string name="overrideBackup">Cơ sở dữ liệu hiện có mà thiết bị này chưa đồng bộ hóa được tìm thấy trên Cloud. Cơ sở dữ liệu chứa %s. Bạn muốn làm gì?</string>
+  <string name="reading_plans_content">Kế hoạch đọc và trạng thái của chúng</string>
+  <string name="bookmarks_contents">Đánh dấu, Nhãn và Sổ tay nghiên cứu</string>
+  <string name="workspaces_contents">Không gian làm việc và Cửa sổ</string>
+  <string name="my_documents_contents">Tài liệu của tôi và nội dung của chúng</string>
+  <string name="ai_settings_sync_title">Cài đặt AI</string>
+  <string name="ai_settings_sync_contents">Lời nhắc AI và cấu hình nhà cung cấp</string>
+  <string name="progress_sync_title">Tiến độ đọc</string>
+  <string name="progress_sync_contents">Câu đã thuộc lòng và hồ sơ đọc chương</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Tiến độ đọc/ghi nhớ</string>
+  <string name="reading_progress_chapters_read">chương đã đọc</string>
+  <string name="reading_progress_verses_memorized">câu đã thuộc lòng</string>
+  <string name="reading_progress_active_days">ngày hoạt động</string>
+  <string name="reading_progress_overall">%s%% Kinh Thánh đã đọc</string>
+  <string name="reading_progress_bible_heatmap">Tổng quan Kinh Thánh</string>
+  <string name="reading_progress_old_testament">Cựu Ước</string>
+  <string name="reading_progress_new_testament">Tân Ước</string>
+  <string name="reading_progress_calendar">Hoạt động đọc</string>
+  <string name="reading_progress_cycle">Chu kỳ %d</string>
+  <string name="reading_progress_new_cycle">Chu kỳ mới</string>
+  <string name="reading_progress_new_cycle_confirm">Bắt đầu chu kỳ đọc mới? Điều này sẽ bắt đầu theo dõi tiến độ của bạn từ đầu, trong khi vẫn giữ nguyên dữ liệu chu kỳ trước.</string>
+  <string name="reading_progress_previous_cycle">Chu kỳ trước</string>
+  <string name="reading_progress_next_cycle">Chu kỳ tiếp theo</string>
+
+  <string name="cloud_fetch_and_restore_initial">Sao chép từ Cloud sang thiết bị này</string>
+  <string name="cloud_create_new">Sao chép từ thiết bị này lên Cloud</string>
+  <string name="cloud_disable_sync">Hủy &amp; tắt đồng bộ hóa</string>
+  <string name="cloud_sync_title">Đồng bộ hóa thiết bị</string>
+  <string name="reset_sync">Đăng xuất</string>
+  <string name="prefs_reset_sync_summary">Tắt đồng bộ hóa và đặt lại các cài đặt liên quan.</string>
+  <string name="sync_confirmation">Bạn có chắc muốn đăng xuất và đặt lại đồng bộ hóa không?</string>
+  <string name="cloud_info">Thông tin Cloud</string>
+  <string name="cloud_info_summary">Dữ liệu trong bộ nhớ đám mây: %s Mb</string>
+  <string name="sync_adapter">Backend đồng bộ hóa</string>
+  <string name="sync_adapter_summary">Hiện tại: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Xác thực với %s</string>
+  <string name="auth_server_uri">URL máy chủ</string>
+  <string name="auth_username">Tên người dùng</string>
+  <string name="auth_password">Mật khẩu</string>
+  <string name="auth_folder_path">Đường dẫn thư mục đồng bộ</string>
+  <string name="auth_folder_path_summary">Thư mục cha cho dữ liệu đồng bộ (để trống = thư mục gốc)</string>
+  <string name="auth_access_token">Mã truy cập</string>
+  <string name="synchronization_categories">Danh mục đồng bộ hóa</string>
+  <string name="sync_general_settings">Thông tin &amp; cài đặt chung</string>
+  <string name="sync_introduction">Giới thiệu</string>
+  <string name="are_you_sure">Bạn có chắc không?</string>
+  <string name="are_you_sure_reset_local">Thao tác này sẽ đặt lại cơ sở dữ liệu cục bộ cho %s bằng nội dung hiện đang lưu trữ trong dịch vụ đám mây.</string>
+  <string name="are_you_sure_reset_cloud">Thao tác này sẽ đặt lại cơ sở dữ liệu đám mây cho %s bằng nội dung bạn có trên thiết bị này.</string>
+  <string name="sync_cant_fetch">Phiên bản cơ sở dữ liệu hoặc tệp vá lỗi lưu trữ trên Cloud cao hơn phiên bản được ứng dụng này hỗ trợ.</string>
+  <string name="sync_disabling">Đang tắt đồng bộ hóa cho %s trong thời gian này.</string>
+  <string name="sync_update_app">Vui lòng cập nhật ứng dụng để tiếp tục đồng bộ hóa.</string>
+  <string name="sign_in_failed">Đăng nhập vào dịch vụ backend đồng bộ hóa thất bại.</string>
+    <!--  ... after restoring from backup file -->
+  <string name="disabling_sync">Đang tắt đồng bộ hóa đám mây. Bạn phải bật lại thủ công sau khi khôi phục.</string>
+  <string name="report">Báo cáo</string>
+  <string name="sync_error">Đã xảy ra lỗi trong quá trình đồng bộ hóa Cloud</string>
+  <string name="error_notification_channel_name">Thông báo lỗi</string>
+  <string name="restore_from_cloud_description">Nếu bạn đã bật Đồng bộ hóa thiết bị trên một thiết bị khác, bạn có thể bắt đầu bằng cách khôi phục cơ sở dữ liệu từ Cloud.</string>
+  <string name="enable_sync">Bật đồng bộ hóa</string>
+  <string name="last_updated">Cập nhật lần cuối: %s</string>
+
+    <!-- MyBible/MySword module support -->
+  <string name="sqlite_cant_read">Không thể đọc tệp</string>
+  <string name="sqlite_invalid_file">Tệp module hoặc tên tệp không hợp lệ: %s</string>
+  <string name="sqlite_cant_write">Không thể ghi (hoặc ghi đè) tệp</string>
+  <string name="install_failed_reason">Cài đặt module thất bại vì lý do sau: %s.</string>
+
+    <!-- Other / uncategorized -->
+  <string name="app_opened_elsewhere">Ứng dụng đã mở ở nơi khác</string>
+  <string name="open_here">Mở tại đây</string>
+  <string name="external_link">Liên kết ngoài</string>
+  <string name="external_link_question">Thao tác này sẽ mở liên kết ngoài %s trong ứng dụng trình duyệt, bạn có muốn tiếp tục không?</string>
+  <string name="nameless">Chưa xác định tiêu đề</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Hành động một chạm (Kinh Thánh)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Hành động một chạm (Khác)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Khi nhấn vào văn bản, cửa sổ hành động một chạm sẽ xuất hiện. Nên hiển thị nút hành động nào?</string>
+  <string name="processing_epub">Đang xử lý EPUB: %s</string>
+  <string name="buy_development">Mua công việc phát triển</string>
+  <string name="buy_development2">Ủng hộ dự án</string>
+  <string name="new_version_warning">Một phiên bản mới sắp ra mắt. Ngày phát hành dự kiến là %1$s. Xem %2$s để khám phá các tính năng và cải tiến mới.</string>
+  <string name="new_version_trailer">video giới thiệu</string>
+  <string name="new_version_warning2">Sau khi phát hành, phiên bản này sẽ không còn được bảo trì.</string>
+  <string name="new_version_warning3">Phiên bản này sẽ không nhận được các bản vá lỗi hoặc cập nhật.</string>
+  <string name="new_version_warning4">Nếu bạn không muốn nâng cấp, vui lòng tắt \'Cập nhật tự động\' trong cửa hàng ứng dụng của bạn (Google Play / F-Droid, v.v.).</string>
+  <string name="dont_show">Đừng hiển thị thông báo này nữa</string>
+  <string name="pref_font_size_multiplier_title">Hệ số cỡ chữ</string>
+  <string name="pref_font_size_multiplier_summary_1">Nhân cỡ chữ văn bản với số này.</string>
+  <string name="pref_font_size_multiplier_summary_2">Hữu ích nếu bạn có thiết bị được đồng bộ hóa sử dụng với cỡ chữ lớn hơn.</string>
+  <string name="current_value">Giá trị hiện tại: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Hành động cho cử chỉ vuốt trái/phải</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Cử chỉ vuốt trái/phải có thể dùng để chuyển sang trang/chương tiếp theo.</string>
+  <string name="prefs_swipe_mode_chapter">Chương</string>
+  <string name="prefs_swipe_mode_page">Trang</string>
+  <string name="prefs_swipe_mode_none">Đã tắt</string>
+  <string name="prefs_volume_keys_scroll_title">Cuộn bằng nút âm lượng</string>
+  <string name="prefs_volume_keys_scroll_summary">Dùng nút tăng/giảm âm lượng để cuộn văn bản Kinh Thánh</string>
+  <string name="page_number_title">Số trang tương đối</string>
+  <string name="page_number_summary">Hiển thị lớp phủ số trang. Số trang tính từ vị trí bắt đầu.</string>
+  <string name="select_custom_icon">Chọn biểu tượng đánh dấu tùy chỉnh</string>
+  <string name="invalid_url_message">URL bạn nhập không hợp lệ. Vui lòng nhập URL hợp lệ (ví dụ: https://nextcloud.example.com)</string>
+  <string name="memorize_description">Thuộc lòng các câu Kinh Thánh</string>
+  <string name="memorize_abbreviation">Thuộc lòng</string>
+  <string name="add_memorization_target">Đặt làm mục tiêu thuộc lòng</string>
+  <string name="memorize_memorized_passages">Đoạn văn đã thuộc lòng</string>
+  <string name="memorize_no_memorized_passages">Chưa có đoạn văn nào được thuộc lòng</string>
+  <string name="memorize_targets">Mục tiêu thuộc lòng</string>
+  <string name="memorize_no_targets">Chưa đặt mục tiêu thuộc lòng nào</string>
+  <string name="memorize_auto_mark">Tự động đánh dấu đã thuộc lòng</string>
+  <string name="memorize_auto_mark_summary">Tự động đánh dấu câu là đã thuộc lòng khi hoàn thành bài tập</string>
+  <string name="memorize_type_full_words">Gõ toàn bộ từ</string>
+  <string name="memorize_type_full_words_summary">Yêu cầu gõ đầy đủ từ thay vì chỉ chữ cái đầu tiên</string>
+  <string name="memorize_word_visibility">Độ hiển thị từ</string>
+  <string name="memorize_word_visibility_summary">Mức độ hiển thị của các từ chưa gõ: gợi ý nhạt, mờ, hoặc ẩn hoàn toàn</string>
+  <string name="memorize_word_visibility_light">Nhạt</string>
+  <string name="memorize_word_visibility_dim">Mờ</string>
+  <string name="memorize_word_visibility_hidden">Ẩn</string>
+  <string name="memorize_error_heatmap">Bản đồ nhiệt lỗi</string>
+  <string name="memorize_error_heatmap_summary">Đánh dấu nổi bật các từ có nhiều lỗi bằng màu đỏ đậm dần</string>
+  <string name="memorize_scramble_hide_used">Ẩn nút từ đã dùng</string>
+  <string name="memorize_scramble_hide_used_summary">Ẩn hoàn toàn nút từ sau khi được đặt đúng vị trí trong chế độ sắp xếp từ</string>
+  <string name="reading_progress_settings">Tiến độ &amp; thuộc lòng</string>
+  <string name="reading_progress_settings_summary">Cài đặt tự động theo dõi, thuộc lòng và luyện gõ</string>
+  <string name="memorize_confirm_unmark">Xóa trạng thái đã thuộc lòng cho %s?</string>
+  <string name="memorize_confirm_remove_target">Xóa mục tiêu thuộc lòng %s?</string>
+  <string name="memorize_tab_reading">Đọc</string>
+  <string name="memorize_tab_memorization">Thuộc lòng</string>
+  <string name="memorize_verses_memorized">Đã thuộc lòng</string>
+  <string name="memorize_verses_target">Mục tiêu</string>
+  <string name="memorize_show_more">Hiển thị thêm %d</string>
+  <string name="memorize_calendar">Hoạt động ghi nhớ</string>
+  <string name="memorize_view_list">Danh sách</string>
+  <string name="memorize_view_overview">Tổng quan</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">Dịch thuật AI</string>
+  <string name="sync_settings_shortcut_summary">Đồng bộ hóa dữ liệu giữa các thiết bị</string>
+  <string name="llm_api_key_title">Khóa API</string>
+  <string name="llm_api_key_summary">Khóa API tương thích OpenAI</string>
+  <string name="llm_provider_custom">Tùy chỉnh (tương thích OpenAI)</string>
+  <string name="llm_provider_title">Nhà cung cấp</string>
+  <string name="llm_provider_summary">Chọn nhà cung cấp dịch vụ AI. Điểm cuối API và các mô hình khả dụng sẽ được cấu hình tự động.</string>
+  <string name="llm_provider_current">Hiện tại: %s</string>
+  <string name="llm_api_key_detected_provider">Nhà cung cấp được phát hiện: %s</string>
+  <string name="ai_connection_category">Kết nối</string>
+  <string name="ai_model_category">Mô hình</string>
+  <string name="ai_behavior_category">Hành vi</string>
+  <string name="ai_language_title">Ngôn ngữ phản hồi AI</string>
+  <string name="ai_language_summary">Ngôn ngữ AI dùng để phản hồi</string>
+  <string name="ai_language_app_default">Ngôn ngữ ứng dụng (%1$s)</string>
+  <string name="ai_language_custom">Tùy chỉnh\u2026</string>
+  <string name="ai_language_custom_hint">Nhập tên hoặc mã ngôn ngữ</string>
+  <string name="ai_language_custom_example">vd. suomi, Tagalog, en</string>
+  <string name="ai_usage_category">Mức sử dụng</string>
+  <string name="llm_usage_summary_title">Mức sử dụng token</string>
+  <string name="llm_usage_summary_default">Không có dữ liệu sử dụng</string>
+  <string name="llm_usage_summary_format">Đầu vào: %1$d token | Đầu ra: %2$d token\nChí phí ước tính: %3$s</string>
+  <string name="llm_reset_usage_title">Đặt lại dữ liệu sử dụng</string>
+  <string name="llm_reset_usage_summary">Xóa theo dõi tích lũy token và chi phí</string>
+  <string name="llm_reset_usage_confirm_title">Đặt lại dữ liệu sử dụng?</string>
+  <string name="llm_reset_usage_confirm_message">Thao tác này sẽ xóa tất cả dữ liệu sử dụng tích lũy.</string>
+  <string name="llm_custom_input_price_title">Giá đầu vào ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">Chi phí trên một triệu token đầu vào cho mô hình này</string>
+  <string name="llm_custom_output_price_title">Giá đầu ra ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">Chi phí trên một triệu token đầu ra cho mô hình này</string>
+  <string name="llm_cost_total">Tổng cộng: %1$s</string>
+  <string name="llm_endpoint_title">Điểm cuối API</string>
+  <string name="llm_endpoint_summary">URL cơ sở cho API</string>
+  <string name="llm_model_title">Mô hình</string>
+  <string name="llm_model_summary">ID mô hình</string>
+  <string name="llm_custom_model">Tùy chỉnh…</string>
+  <string name="llm_custom_model_dialog_title">Mô hình tùy chỉnh</string>
+  <string name="llm_custom_model_dialog_message">Nhập ID mô hình</string>
+  <string name="llm_rate_limited_retrying">Bị giới hạn tốc độ. Thử lại sau %1$s giây\u2026</string>
+  <string name="llm_default_document_title">Phản hồi AI</string>
+  <string name="llm_default_task_completed">Tác vụ đã hoàn thành</string>
+  <string name="llm_default_studypad_opened">Sổ tay nghiên cứu đã mở</string>
+  <string name="llm_parse_error">Không thể phân tích phản hồi AI: %1$s</string>
+  <string name="llm_parse_error_no_choices">Không có lựa chọn trong phản hồi OpenAI</string>
+  <string name="llm_parse_error_openai">Không thể phân tích phản hồi OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Không thể phân tích phản hồi Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Không tìm thấy lệnh nhắc: %1$s</string>
+  <string name="llm_error_unknown">Lỗi không xác định</string>
+  <string name="llm_error_max_iterations">Đã đạt số vòng lặp tối đa (%1$d) mà chưa hoàn thành</string>
+  <string name="llm_continue_iterations_title">Tiếp tục?</string>
+  <string name="llm_continue_iterations_message">Tác nhân AI đã đạt giới hạn %1$d vòng lặp mà chưa hoàn thành. Tiếp tục thêm %2$d vòng lặp nữa?</string>
+  <string name="agent_max_iterations_title">Số vòng lặp tối đa của tác nhân</string>
+  <string name="agent_max_iterations_summary">Số vòng lặp tối đa trước khi hỏi để tiếp tục (0 = không giới hạn)</string>
+  <string name="ask_model_before_run_title">Hỏi mô hình trước khi chạy</string>
+  <string name="ask_model_before_run_summary">Hiển thị hộp thoại chọn mô hình trước khi thực thi lệnh nhắc (bỏ qua khi lệnh nhắc có ghi đè mô hình rõ ràng)</string>
+  <string name="custom_agent_system_prompt_title">Lệnh hệ thống tác nhân</string>
+  <string name="custom_system_prompt_summary">Không khuyến nghị chỉnh sửa trừ khi bạn biết mình đang làm gì</string>
+  <string name="custom_text_transform_system_prompt_title">Lệnh hệ thống chuyển đổi văn bản</string>
+  <string name="ai_advanced_category">Nâng cao</string>
+  <string name="custom_system_prompt_default">Mặc định</string>
+  <string name="custom_system_prompt_custom">Tùy chỉnh</string>
+  <string name="reset_to_default">Đặt lại về mặc định</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Lịch sử nhật ký AI</string>
+  <string name="raw_log_history_summary">Xem và quản lý nhật ký cuộc trò chuyện AI đã lưu</string>
+  <string name="raw_log_history_empty">Không có nhật ký đã lưu</string>
+  <string name="raw_log_delete_selected">Xóa mục đã chọn</string>
+  <string name="raw_log_delete_old">Xóa nhật ký cũ\u2026</string>
+  <string name="raw_log_delete_confirm">%d đã chọn</string>
+  <string name="raw_log_older_1_week">Cũ hơn 1 tuần</string>
+  <string name="raw_log_older_1_month">Cũ hơn 1 tháng</string>
+  <string name="raw_log_older_3_months">Cũ hơn 3 tháng</string>
+  <string name="raw_log_delete_all">Xóa tất cả</string>
+  <string name="raw_log_item_tokens">%1$s vào / %2$s ra</string>
+  <string name="raw_log_error_indicator">Lỗi</string>
+  <string name="raw_log_retention_title">Tự động xóa nhật ký cũ</string>
+  <string name="raw_log_retention_summary_days">Sau %d ngày</string>
+  <string name="raw_log_retention_summary_disabled">Tắt (giữ tất cả)</string>
+  <string name="send_ai_bug_report_title">Báo cáo lỗi AI</string>
+  <string name="ai_bug_report_menu">Báo cáo lỗi AI</string>
+  <string name="ai_bug_report_recommended_only">Báo cáo lỗi chỉ khả dụng cho các mô hình nhà cung cấp được khuyến nghị</string>
+
+  <string name="select_model_before_run_title">Chọn mô hình</string>
+  <string name="set_default_model_for_prompt">Đặt làm mô hình mặc định cho lệnh nhắc này</string>
+  <string name="prompt_max_iterations">Ghi đè số vòng lặp tối đa</string>
+  <string name="prompt_max_iterations_hint">Để trống cho mặc định toàn cục</string>
+  <string name="prompt_max_iterations_description">Ghi đè số vòng lặp tối đa toàn cục cho lệnh nhắc này. Để trống = mặc định toàn cục, 0 = không giới hạn.</string>
+  <string name="prompt_max_iterations_unlimited">Không giới hạn</string>
+  <string name="prompt_max_iterations_global_default">Mặc định toàn cục (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Ghi đè số vòng lặp tối đa toàn cục cho lệnh nhắc này. 0 = không giới hạn.\nHiện tại: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Quản lý lệnh nhắc AI</string>
+  <string name="manage_prompts_summary">Tạo và chỉnh sửa lệnh nhắc AI</string>
+  <string name="ai_settings">Cài đặt AI</string>
+  <string name="ai_connection_settings">Cài đặt kết nối</string>
+  <string name="ai_setup_title">Cấu hình AI</string>
+  <string name="ai_setup_description">AndBible có thể dùng AI để dịch văn bản Kinh Thánh, giải thích câu, tạo tóm tắt và nhiều hơn nữa. Để bắt đầu, hãy cấu hình kết nối tới nhà cung cấp API tương thích OpenAI.</string>
+  <string name="ai_configure_button">Cấu hình kết nối</string>
+  <string name="ai_settings_shortcut_summary">Cài đặt kết nối AI và lệnh nhắc</string>
+  <string name="ai_provider_tier_recommended">Được khuyến nghị</string>
+  <string name="ai_provider_tier_community">Nhà cung cấp khác (chưa được kiểm tra)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Nhà cung cấp &amp; Mô hình</string>
+  <string name="ai_providers_category">Nhà cung cấp</string>
+  <string name="ai_providers_summary_none">Chưa có nhà cung cấp nào được cấu hình</string>
+  <string name="ai_models_summary_none">Chưa có mô hình nào được cấu hình</string>
+  <string name="ai_add_provider">Thêm nhà cung cấp</string>
+  <string name="ai_provider_edit">Chỉnh sửa</string>
+  <string name="ai_provider_delete">Xóa</string>
+  <string name="ai_provider_delete_confirm">Xóa nhà cung cấp \"%1$s\"? Các lệnh nhắc dùng nhà cung cấp này sẽ trở về mặc định.</string>
+  <string name="ai_provider_api_key_not_set">Chưa đặt khóa API</string>
+  <string name="ai_provider_select_type">Chọn loại nhà cung cấp</string>
+  <string name="ai_provider_name">Tên nhà cung cấp</string>
+  <string name="ai_provider_name_hint">Tên hiển thị cho nhà cung cấp này</string>
+  <string name="ai_provider_api_key">Khóa API</string>
+  <string name="ai_provider_endpoint">Điểm cuối API</string>
+  <string name="ai_provider_api_format">Định dạng API</string>
+  <string name="ai_provider_saved">Đã lưu nhà cung cấp</string>
+  <string name="ai_provider_deleted">Đã xóa nhà cung cấp</string>
+
+  <string name="llm_fetch_models_title">Tải danh sách mô hình</string>
+  <string name="llm_fetch_models_message">Tải danh sách mô hình khả dụng từ %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Không hỏi lại</string>
+  <string name="llm_fetch_models_success">Đã tải %1$d mô hình</string>
+  <string name="llm_fetch_models_failed">Không thể tải danh sách mô hình</string>
+  <string name="llm_openrouter_category">Danh mục</string>
+  <string name="llm_openrouter_category_all">Tất cả</string>
+  <string name="llm_openrouter_model">Mô hình</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Mô hình</string>
+  <string name="add_model">Thêm mô hình</string>
+  <string name="add_model_title">Thêm mô hình</string>
+  <string name="edit_model_title">Chỉnh sửa mô hình</string>
+  <string name="model_saved">Đã lưu mô hình</string>
+  <string name="model_deleted">Đã xóa mô hình</string>
+  <string name="model_delete_confirm">Xóa mô hình \"%1$s\"?</string>
+  <string name="model_set_default">Đặt làm mô hình mặc định</string>
+  <string name="model_select_provider">Nhà cung cấp</string>
+  <string name="no_models_configured">Chưa cấu hình mô hình nào</string>
+  <string name="model_cache_creation_price">Giá tạo bộ nhớ đệm ($/Mtoken)</string>
+  <string name="model_cache_read_price">Giá đọc bộ nhớ đệm ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Được hỗ trợ</string>
+  <string name="show_also_unsupported_models">Hiển thị cả mô hình không được hỗ trợ</string>
+  <string name="show_also_unsupported_providers">Hiển thị cả nhà cung cấp không được hỗ trợ</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s vào / %2$s ra mỗi Mtoken</string>
+  <string name="easy_setup_free_tier">Gói miễn phí</string>
+  <string name="unknown_error">Lỗi không xác định</string>
+  <string name="easy_setup_title">Cài đặt nhanh</string>
+  <string name="easy_setup_pref_summary">Thiết lập AI với nhà cung cấp được đề xuất trong vài bước</string>
+  <string name="easy_setup_choose_provider">Chọn nhà cung cấp để bắt đầu:</string>
+  <string name="easy_setup_enter_api_key">Nhập khóa API của bạn</string>
+  <string name="easy_setup_api_key_instructions">Lấy khóa API của bạn tại:</string>
+  <string name="easy_setup_test_connection">Kiểm tra kết nối</string>
+  <string name="easy_setup_testing">Đang kiểm tra…</string>
+  <string name="easy_setup_success">Kết nối thành công!</string>
+  <string name="easy_setup_failed">Kết nối thất bại: %1$s</string>
+  <string name="easy_setup_done_title">AI đã sẵn sàng!</string>
+  <string name="easy_setup_done_message">Chọn văn bản trong Kinh Thánh và thử các tính năng AI. Bạn có thể thêm nhiều mô hình và nhà cung cấp hơn trong cài đặt.</string>
+  <string name="easy_setup_gemini_desc">Có gói miễn phí, chất lượng tốt</string>
+  <string name="easy_setup_anthropic_desc">Giá cả phải chăng, chất lượng xuất sắc</string>
+  <string name="easy_setup_openai_desc">Nổi tiếng, đáng tin cậy</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Quan trọng: Đọc trước khi sử dụng công cụ AI</string>
+  <string name="ai_disclaimer_warning_summary">Rủi ro và trách nhiệm khi sử dụng AI</string>
+  <string name="ai_disclaimer_dialog_title">Công cụ AI — Thông tin quan trọng</string>
+  <string name="ai_disclaimer_intro">Các công cụ AI có thể làm phong phú thêm trải nghiệm nghiên cứu Kinh Thánh của bạn và mở ra những cách mới để tiếp cận Kinh Thánh.</string>
+  <string name="ai_disclaimer_approach">AndBible chủ yếu sử dụng AI để xử lý văn bản từ các tài liệu bạn đã cài đặt — chú giải, từ điển và các mô-đun khác — thay vì dựa vào dữ liệu huấn luyện của chính mô hình.</string>
+  <string name="ai_disclaimer_responsibility">Tuy nhiên, đây vẫn là những công cụ mạnh mẽ — và quyền năng lớn đi kèm trách nhiệm lớn. Xin hãy ghi nhớ những điều sau.</string>
+  <string name="ai_disclaimer_point1">AI có thể mắc sai lầm, bao gồm \"ảo giác\" (tự tin trình bày thông tin sai hoặc bịa đặt). Đừng bao giờ chấp nhận kết quả của AI một cách mù quáng.</string>
+  <string name="ai_disclaimer_point2">Phản hồi của AI có thể phản ánh sự thiên lệch từ dữ liệu huấn luyện, có thể gây hiểu nhầm có chủ ý, hoặc có thể trình bày một quan điểm thần học cụ thể như thể đó là quan điểm trung lập hoặc toàn diện.</string>
+  <string name="ai_disclaimer_point3">Bạn chịu trách nhiệm về cách sử dụng nội dung do AI tạo ra. Luôn xác minh kết quả với Kinh Thánh trước khi tin tưởng vào chúng.</string>
+  <string name="ai_disclaimer_point4">AndBible cố gắng giúp việc xác minh dễ dàng (ví dụ: trích dẫn nguồn chính xác trong chú giải), nhưng trách nhiệm cuối cùng luôn thuộc về bạn.</string>
+  <string name="ai_disclaimer_point5">\"Hãy thử nghiệm mọi sự; giữ lấy điều thiện.\" (1 Tê-sa-lô-ni-ca 5:21)</string>
+  <string name="ai_disclaimer_point6">Những công cụ này không có linh hồn và không có Đức Thánh Linh. Chúng là công cụ xử lý văn bản, không phải người hướng dẫn tâm linh. Chúng không phù hợp để trực tiếp chuẩn bị bài giảng, bài suy ngẫm, hay các nội dung tâm linh khác mà không có sự giám sát cẩn thận của con người, cầu nguyện và phân định.</string>
+  <string name="ai_disclaimer_point7">Được sử dụng khôn ngoan, chúng có thể mang lại lợi ích cho nhiều người dùng và trường hợp sử dụng. Nhưng nếu bạn không chắc về việc chấp nhận các rủi ro, việc chọn không sử dụng chúng cũng là một lựa chọn hoàn toàn hợp lệ.</string>
+  <string name="ai_disclaimer_point8">Dữ liệu của bạn được gửi đến máy chủ của nhà cung cấp AI mà bạn chọn. Bằng cách sử dụng khóa API, bạn chấp nhận các điều khoản và chính sách bảo mật của nhà cung cấp đó. Các mô hình tự lưu trữ là khả thi nhưng đòi hỏi nhiều kiến thức kỹ thuật hơn và có thể không cho kết quả tốt như các mô hình thương mại.</string>
+  <string name="ai_disclaimer_point9">Các nhà cung cấp AI tính phí sử dụng API. Ước tính chi phí hiển thị trong AndBible chỉ là xấp xỉ — hãy luôn kiểm tra hóa đơn của nhà cung cấp để biết chi phí thực tế.</string>
+  <string name="ai_disclaimer_accept_title">Chấp nhận tuyên bố từ chối trách nhiệm AI</string>
+  <string name="ai_disclaimer_accept_button">Tôi chấp nhận và chịu hoàn toàn trách nhiệm</string>
+
+  <string name="prompt_permission_mode">Chế độ quyền</string>
+  <string name="prompt_permission_mode_description">Kiểm soát khi nào cần xác nhận của người dùng trước khi AI thực hiện các thao tác ghi. Cài đặt từng công cụ bên dưới có thể ghi đè điều này cho từng công cụ riêng lẻ.</string>
+  <string name="agent_permission_mode_summary">Kiểm soát khi nào cần xác nhận của người dùng trước các thao tác ghi của AI</string>
+  <string name="prompt_permission_use_default">Dùng mặc định</string>
+  <string name="prompt_tab_prompt">Lệnh nhắc</string>
+  <string name="prompt_tab_permissions">Quyền</string>
+  <string name="prompt_tab_advanced">Nâng cao</string>
+  <string name="prompt_name">Tên</string>
+  <string name="prompt_description">Mô tả</string>
+  <string name="prompt_template">Mẫu lệnh nhắc</string>
+  <string name="prompt_show_in">Hiển thị trong</string>
+  <string name="prompt_context_verse_selection">Chọn câu</string>
+  <string name="prompt_context_text_selection">Chọn văn bản</string>
+  <string name="prompt_context_window_menu">Menu cửa sổ</string>
+  <string name="prompt_context_workspace_menu">Menu không gian làm việc</string>
+  <string name="prompt_context_note_editor">Trình chỉnh sửa ghi chú</string>
+  <string name="prompt_bible_only">Chỉ tài liệu Kinh Thánh</string>
+  <string name="prompt_category_study">Nghiên cứu</string>
+  <string name="prompt_category_notes">Ghi chú</string>
+  <string name="prompt_category_general">Chung</string>
+  <string name="prompt_category_test">Thử nghiệm</string>
+  <string name="prompt_category_uncategorized">Chưa phân loại</string>
+  <string name="prompt_category_favorites">Yêu thích</string>
+  <string name="addon_prompt_badge">Tiện ích: %s</string>
+  <string name="addon_prompt_notice">Lệnh nhắc này từ mô-đun tiện ích \"%s\" và không thể chỉnh sửa. Dùng \"Sao chép để tùy chỉnh\" để tạo bản sao có thể chỉnh sửa.</string>
+  <string name="new_category">Danh mục mới</string>
+  <string name="new_category_name">Tên danh mục</string>
+  <string name="rename_category">Đổi tên</string>
+  <string name="move_category_up">Di chuyển lên</string>
+  <string name="move_category_down">Di chuyển xuống</string>
+  <string name="hide_category">Ẩn khỏi hành động AI</string>
+  <string name="show_category">Hiển thị trong hành động AI</string>
+  <string name="hidden">ẩn</string>
+  <string name="delete_category">Xóa danh mục</string>
+  <string name="delete_category_and_prompts">Xóa danh mục và các lệnh nhắc</string>
+  <string name="delete_category_keep_prompts">Chuyển lệnh nhắc về gốc và xóa danh mục</string>
+  <string name="delete_category_confirm_title">Xóa danh mục \"%s\"?</string>
+  <string name="move_to_category">Chuyển vào danh mục…</string>
+  <string name="category_none">Không có danh mục</string>
+  <string name="import_prompts_editable">Nhập dưới dạng lệnh nhắc có thể chỉnh sửa</string>
+  <string name="import_prompts_addon">Cài đặt dưới dạng tiện ích (chỉ đọc)</string>
+  <string name="prompt_category">Danh mục</string>
+  <string name="new_prompt">Lệnh nhắc mới</string>
+  <string name="permission_always_ask">Luôn hỏi</string>
+  <string name="permission_ask_once_per_run">Hỏi một lần mỗi lần chạy</string>
+  <string name="permission_allow_all">Cho phép tất cả</string>
+  <string name="permission_deny_all">Từ chối tất cả</string>
+  <string name="reset_all_ai_settings">Đặt lại tất cả cài đặt AI</string>
+  <string name="reset_all_ai_settings_confirm_title">Đặt lại tất cả cài đặt AI?</string>
+  <string name="reset_all_ai_settings_confirm_message">Thao tác này sẽ xóa khóa API, nhà cung cấp, điểm cuối, mô hình và đặt lại tất cả lệnh nhắc về mặc định. Tiếp tục?</string>
+  <string name="edit_prompt">Chỉnh sửa lệnh nhắc</string>
+  <string name="built_in_prompt">Tích hợp sẵn</string>
+  <string name="built_in_prompt_notice">Đây là lệnh nhắc tích hợp sẵn và không thể chỉnh sửa. Dùng \"Sao chép để tùy chỉnh\" để tạo bản sao có thể chỉnh sửa.</string>
+  <string name="copy_to_customize">Sao chép để tùy chỉnh</string>
+  <string name="prompt_copied">Đã sao chép lệnh nhắc</string>
+  <string name="delete_prompt_confirmation">Xóa lệnh nhắc \"%s\"?</string>
+  <string name="prompt_name_required">Tên lệnh nhắc là bắt buộc</string>
+  <string name="prompt_template_required">Mẫu lệnh nhắc là bắt buộc</string>
+  <string name="prompt_edit_before_run">Chỉ định trước khi chạy</string>
+  <string name="prompt_edit_before_run_description">Hiển thị trường văn bản để chỉ định nhiệm vụ trước khi chạy lệnh nhắc</string>
+  <string name="prompt_no_document_creation">Không tạo tài liệu</string>
+  <string name="prompt_no_document_creation_description">Khi bật, AI sẽ không tạo tài liệu. Kết quả chỉ hiển thị trong nhật ký hoạt động. Hữu ích cho các lệnh nhắc chỉ thực hiện hành động (đánh dấu, nhãn, thao tác Sổ tay nghiên cứu).</string>
+  <string name="prompt_auto_include_documents">Tự động thêm tài liệu đã cài đặt</string>
+  <string name="prompt_auto_include_documents_description">Tự động thêm danh sách tài liệu đã cài đặt vào ngữ cảnh lệnh nhắc, tiết kiệm một lần lặp AI.</string>
+  <string name="prompt_auto_include_commentaries">Tự động thêm chú giải</string>
+  <string name="prompt_auto_include_commentaries_description">Tự động tìm nạp và thêm các mục chú giải cho các câu được chọn, tiết kiệm một lần lặp AI.</string>
+  <string name="prompt_is_text_transformation">Biến đổi văn bản</string>
+  <string name="prompt_is_text_transformation_description">Sử dụng lệnh hệ thống đơn giản hóa giữ nguyên định dạng (liên kết, tiêu đề, đậm/nghiêng) trong khi biến đổi nội dung văn bản. Không sử dụng công cụ. Lý tưởng cho các lệnh nhắc dịch thuật và chỉnh sửa.</string>
+  <string name="llm_no_document_creation_intercepted">Nhiệm vụ hoàn thành (đã tắt tạo tài liệu)</string>
+  <string name="llm_note_updated">Đã cập nhật ghi chú</string>
+  <string name="specify_before_run_title">Chỉ định nhiệm vụ</string>
+  <string name="specify_before_run_hint">Mô tả nhiệm vụ cụ thể…</string>
+  <string name="prompt_cache_settings">Cài đặt bộ nhớ đệm</string>
+  <string name="prompt_strict_context_matching">Bộ nhớ đệm phụ thuộc ngữ cảnh</string>
+  <string name="prompt_strict_context_matching_description">Khi bật, bộ nhớ đệm chỉ khớp khi tất cả ngữ cảnh (phiên bản Kinh Thánh, văn bản được chọn) giống nhau. Khi tắt, bộ nhớ đệm khớp khi các câu giống nhau bất kể phiên bản Kinh Thánh.</string>
+  <string name="ai_document_delete_confirmation">Xóa tài liệu AI này?</string>
+  <string name="ai_document_deleted">Tài liệu AI này đã được xóa.</string>
+  <string name="ai_document_regenerating">Đang tạo lại tài liệu AI…</string>
+  <string name="ai_document_regenerate_not_implemented">Chức năng tạo lại sẽ có trong bản cập nhật tương lai</string>
+  <string name="ai_regenerate_prompt_not_found">Không thể tạo lại: không tìm thấy lệnh nhắc gốc. Lệnh nhắc có thể đã bị xóa.</string>
+  <string name="ai_document_regenerate">Tạo lại</string>
+  <string name="ai_regenerate_title">Tạo lại</string>
+  <string name="ai_regenerate_instructions_hint">Hướng dẫn bổ sung (tùy chọn)</string>
+  <string name="ai_regenerate_keep_previous">Giữ phiên bản trước</string>
+  <string name="ai_regenerate_fresh_run">Chạy mới (bỏ qua kết quả trước)</string>
+  <string name="ai_document_delete">Xóa</string>
+  <string name="ai_unknown_prompt">AI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Dịch sang %s</string>
+  <string name="default_prompt_translate_to_ui_language">Dịch sang ngôn ngữ giao diện</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Dịch văn bản tài liệu sang ngôn ngữ giao diện ứng dụng</string>
+  <string name="default_prompt_translate_to_english">Dịch sang tiếng Anh</string>
+  <string name="default_prompt_translate_to_english_desc">Dịch văn bản được chọn sang tiếng Anh</string>
+  <string name="default_prompt_summary">Tóm tắt</string>
+  <string name="default_prompt_summary_desc">Tạo bản tóm tắt ngắn gọn của văn bản được chọn</string>
+  <string name="default_prompt_explain_verses">Giải thích các câu</string>
+  <string name="default_prompt_explain_verses_desc">Giải thích ý nghĩa và bối cảnh của các câu được chọn</string>
+  <string name="default_prompt_explain_verses_studypad">Giải thích các câu → Sổ tay nghiên cứu</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Tạo Sổ tay nghiên cứu với giải thích từng câu và đánh dấu</string>
+  <string name="default_prompt_word_study">Nghiên cứu từ ngữ</string>
+  <string name="default_prompt_word_study_desc">Phân tích các từ gốc tiếng Hê-bơ-rơ/Hy Lạp</string>
+  <string name="default_prompt_strongs_annotation">Chú thích số Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">Thêm số tra cứu Strong\'s cho bất kỳ bản dịch Kinh Thánh nào, sử dụng KJV làm tham chiếu</string>
+  <string name="default_prompt_cross_references">Tham chiếu chéo</string>
+  <string name="default_prompt_cross_references_desc">Tìm và giải thích các đoạn Kinh Thánh liên quan</string>
+  <string name="default_prompt_compare_translations">So sánh các bản dịch</string>
+  <string name="default_prompt_compare_translations_desc">Hiển thị cách các bản dịch đã cài đặt khác nhau diễn đạt văn bản</string>
+  <string name="default_prompt_thematic_study">Nghiên cứu chủ đề</string>
+  <string name="default_prompt_thematic_study_desc">Xây dựng Sổ tay nghiên cứu với các đoạn văn và ghi chú về chủ đề trung tâm</string>
+  <string name="default_prompt_bookmark_annotate">Đánh dấu &amp; chú thích</string>
+  <string name="default_prompt_bookmark_annotate_desc">Tạo đánh dấu với ghi chú nghiên cứu do AI tạo ra</string>
+  <string name="default_prompt_study_layout">Mở bố cục nghiên cứu</string>
+  <string name="default_prompt_study_layout_desc">Mở cửa sổ chú giải và bản dịch song song để nghiên cứu</string>
+  <string name="default_prompt_workspace_assistant">Trợ lý không gian làm việc</string>
+  <string name="default_prompt_workspace_assistant_desc">Quản lý cửa sổ: tạo, đóng, sắp xếp lại, thay đổi tài liệu</string>
+  <string name="default_prompt_enhance_note">Cải thiện ghi chú</string>
+  <string name="default_prompt_enhance_note_desc">Cải thiện ngữ pháp, sự rõ ràng và dễ đọc của ghi chú</string>
+  <string name="default_prompt_ask_question">Đặt câu hỏi</string>
+  <string name="default_prompt_ask_question_desc">Đặt bất kỳ câu hỏi nào về đoạn văn được chọn</string>
+  <string name="default_prompt_custom">Lệnh tùy chỉnh</string>
+  <string name="default_prompt_custom_desc">Thực hiện tác vụ tùy chỉnh trên đoạn văn được chọn</string>
+  <string name="default_prompt_custom_template">Thực hiện theo yêu cầu của người dùng cho đoạn Kinh Thánh được chọn.</string>
+  <string name="copy">Sao chép</string>
+  <string name="delete_prompt_confirm_message">Bạn có chắc muốn xóa lệnh này không?</string>
+  <string name="ai_hide_prompt">Ẩn</string>
+  <string name="ai_restore_hidden_prompts">Khôi phục các lệnh đã ẩn</string>
+  <string name="ai_prompt_hidden">Đã ẩn lệnh</string>
+  <string name="ai_prompts_restored">Đã khôi phục các lệnh ẩn</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Tạo đánh dấu</string>
+  <string name="tool_add_bookmark_note">Thêm ghi chú đánh dấu</string>
+  <string name="tool_update_bookmark_note">Cập nhật ghi chú đánh dấu</string>
+  <string name="tool_create_label">Tạo nhãn</string>
+  <string name="tool_add_label_to_bookmark">Thêm nhãn vào đánh dấu</string>
+  <string name="tool_delete_bookmark">Xóa đánh dấu</string>
+  <string name="tool_delete_label">Xóa nhãn</string>
+  <string name="tool_remove_label_from_bookmark">Xóa nhãn khỏi đánh dấu</string>
+  <string name="tool_add_study_pad_entry">Thêm mục vào sổ tay nghiên cứu</string>
+  <string name="tool_update_studypad_text_entry">Cập nhật mục văn bản sổ tay nghiên cứu</string>
+  <string name="tool_create_study_pad">Tạo sổ tay nghiên cứu</string>
+  <string name="action_update_studypad_text_entry">Cập nhật mục văn bản sổ tay nghiên cứu %1$s</string>
+  <string name="action_create_studypad">Tạo Sổ tay nghiên cứu \"%1$s\" với %2$d mục</string>
+  <string name="tool_set_document_title">Đặt tiêu đề tài liệu</string>
+  <string name="tool_finish_with_study_pad">Mở sổ tay nghiên cứu</string>
+  <string name="tool_finish_with_my_document_page">Mở trang Tài liệu của tôi</string>
+  <string name="tool_finish_without_document">Kết thúc không có tài liệu</string>
+  <string name="tool_get_verse_content">Đọc nội dung câu</string>
+  <string name="tool_get_commentaries">Đọc chú giải</string>
+  <string name="tool_get_dictionary_entry">Tra cứu mục từ điển</string>
+  <string name="tool_search_bible">Tìm kiếm Kinh Thánh</string>
+  <string name="tool_search_by_strongs">Tìm kiếm theo số Strong\'s</string>
+  <string name="tool_get_installed_documents">Liệt kê tài liệu đã cài đặt</string>
+  <string name="tool_get_all_labels">Liệt kê tất cả nhãn</string>
+  <string name="tool_get_bookmarks_for_verse">Lấy đánh dấu cho câu</string>
+  <string name="tool_get_bookmarks_with_label">Lấy đánh dấu theo nhãn</string>
+  <string name="tool_get_study_pad_content">Đọc nội dung sổ tay nghiên cứu</string>
+  <string name="tool_search_study_pads">Tìm kiếm trong sổ tay nghiên cứu</string>
+  <string name="tool_get_my_documents">Liệt kê Tài liệu của tôi</string>
+  <string name="tool_get_my_document_pages">Liệt kê trang Tài liệu của tôi</string>
+  <string name="tool_get_genbook_keys">Liệt kê khóa sách tổng hợp</string>
+  <string name="tool_get_genbook_content">Đọc nội dung sách tổng hợp</string>
+  <string name="tool_create_my_document">Tạo Tài liệu của tôi</string>
+  <string name="tool_add_my_document_page">Thêm trang Tài liệu của tôi</string>
+  <string name="tool_edit_my_document_page">Chỉnh sửa trang Tài liệu của tôi</string>
+  <string name="tool_delete_my_document_page">Xóa trang Tài liệu của tôi</string>
+  <string name="tool_get_windows">Liệt kê cửa sổ</string>
+  <string name="tool_create_window">Tạo cửa sổ</string>
+  <string name="tool_manage_window">Quản lý cửa sổ</string>
+  <string name="tool_set_window_document">Đặt tài liệu cửa sổ</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Quyền trợ lý AI</string>
+  <string name="agent_permission_message">Trợ lý AI muốn sử dụng \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">Trợ lý AI muốn:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Tạo đánh dấu tại %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Tạo đánh dấu tại %1$s (%2$s)</string>
+  <string name="action_with_note">có ghi chú</string>
+  <string name="action_labels">nhãn: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Thêm ghi chú vào đánh dấu tại %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Cập nhật ghi chú trong đánh dấu tại %1$s</string>
+  <string name="action_create_label">Tạo nhãn \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Thêm nhãn \"%1$s\" vào đánh dấu tại %2$s</string>
+  <string name="action_delete_bookmark">Xóa đánh dấu tại %1$s</string>
+  <string name="action_delete_label">Xóa nhãn \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Xóa nhãn \"%1$s\" khỏi đánh dấu tại %2$s</string>
+  <string name="action_add_entry_to_studypad">Thêm mục vào Sổ tay nghiên cứu \"%1$s\"</string>
+  <string name="action_create_my_document">Tạo Tài liệu của tôi: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Thêm trang \"%1$s\" vào Tài liệu của tôi %2$s</string>
+  <string name="action_edit_my_document_page">Chỉnh sửa trang Tài liệu của tôi: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Xóa trang Tài liệu của tôi: \"%1$s\"</string>
+  <string name="action_set_document_title">Đặt tiêu đề tài liệu: \"%1$s\"</string>
+  <string name="action_open_studypad">Mở Sổ tay nghiên cứu \"%1$s\"</string>
+  <string name="action_open_my_document_page">Mở trang Tài liệu của tôi \"%1$s\"</string>
+  <string name="action_create_window">Tạo cửa sổ mới</string>
+  <string name="action_create_window_with_doc">Tạo cửa sổ với %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Tạo cửa sổ với %1$s tại %2$s</string>
+  <string name="action_close_window">Đóng cửa sổ (%1$s)</string>
+  <string name="action_minimize_window">Thu nhỏ cửa sổ (%1$s)</string>
+  <string name="action_restore_window">Khôi phục cửa sổ (%1$s)</string>
+  <string name="action_set_window_document">Đặt %1$s thành %2$s</string>
+  <string name="action_set_window_document_with_key">Đặt %1$s thành %2$s tại %3$s</string>
+  <string name="action_active_window">cửa sổ đang hoạt động</string>
+  <string name="action_finish">Kết thúc: \"%1$s\"</string>
+  <string name="permission_allow_once">Cho phép một lần</string>
+  <string name="permission_allow_for_session">Cho phép trong phiên này</string>
+  <string name="permission_allow_all_session">Cho phép tất cả công cụ trong phiên này</string>
+  <string name="permission_allow_always">Luôn cho phép \"%1$s\"</string>
+  <string name="permission_deny">Từ chối</string>
+  <string name="permission_always_allow_confirm_title">Luôn cho phép?</string>
+  <string name="permission_always_allow_confirm">Bạn có chắc muốn cho phép vĩnh viễn \"%1$s\" không?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Bạn có thể đặt lại điều này trong Cài đặt AI.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Quyền công cụ</string>
+  <string name="manage_tool_permissions_summary">Quản lý ghi đè quyền từng công cụ</string>
+  <string name="commentary_max_response_title">Giới hạn kích thước phản hồi chú giải</string>
+  <string name="commentary_max_response_summary">Hiển thị hộp thoại chọn khi phản hồi vượt quá giới hạn</string>
+  <string name="commentary_max_response_no_limit">Không giới hạn</string>
+  <string name="commentary_max_response_value">~%s token</string>
+  <string name="commentary_max_response_dialog_title">Đặt kích thước phản hồi tối đa (token)</string>
+  <string name="commentary_max_response_dialog_message">Khi AI tìm kiếm chú giải và tổng phản hồi vượt quá giới hạn token này, một hộp thoại lựa chọn cho phép bạn chọn chú giải nào sẽ gửi đến AI.\n\n0 = không giới hạn (tất cả chú giải được gửi tự động).</string>
+  <string name="commentary_filter_dialog_title">Phản hồi chú giải quá lớn</string>
+  <string name="commentary_filter_dialog_message">Đã vượt giới hạn token (~%s). Bỏ chọn các chú giải bạn không muốn gửi đến AI.\n\nBạn có thể điều chỉnh giới hạn này trong cài đặt kết nối AI.</string>
+  <string name="commentary_filter_total_tokens">Đã chọn: ~%1$s / %2$s token</string>
+  <string name="tool_log_commentary_count">%d chú giải</string>
+  <string name="tool_log_label_count">%d nhãn</string>
+  <string name="tool_log_document_count">%d tài liệu</string>
+  <string name="tool_log_study_pad_count">%d sổ tay nghiên cứu</string>
+  <string name="tool_log_search_results">%1$d/%2$d kết quả</string>
+  <string name="tool_log_bookmark_count">%d đánh dấu</string>
+  <string name="tool_log_my_document_count">%d tài liệu</string>
+  <string name="tool_log_my_document_page_count">%d trang</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d khóa</string>
+  <string name="tool_log_window_count">%d cửa sổ</string>
+  <string name="tool_log_window_copy">sao chép</string>
+  <string name="tool_log_window_minimized">đã thu nhỏ</string>
+  <string name="tool_log_window_removed">đã xóa</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s token)</string>
+  <string name="ai_document_filter_title">Quyền truy cập tài liệu</string>
+  <string name="ai_document_filter_summary">Chọn tài liệu nào AI có thể đọc</string>
+  <string name="ai_document_filter_summary_count">%d tài liệu bị loại trừ</string>
+  <string name="ai_document_filter_activity_title">Quyền truy cập tài liệu của AI</string>
+  <string name="ai_document_excluded_error">Tài liệu bị loại trừ theo cài đặt người dùng: %s</string>
+  <string name="permission_status_default">Hỏi (mặc định)</string>
+  <string name="permission_status_allowed">Luôn cho phép</string>
+  <string name="permission_status_denied">Luôn từ chối</string>
+  <string name="permission_option_default">Hỏi mỗi lần (mặc định)</string>
+  <string name="permission_option_always_allow">Luôn cho phép</string>
+  <string name="permission_option_always_deny">Luôn từ chối</string>
+  <string name="reset_all_permissions">Đặt lại tất cả</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Công cụ có sẵn</string>
+  <string name="ai_read_tools">Công cụ đọc</string>
+  <string name="ai_write_tools">Công cụ ghi</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Cài đặt công cụ mặc định</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Quyền công cụ</string>
+  <string name="prompt_tool_permissions_read_only">Quyền công cụ (chỉ đọc)</string>
+  <string name="prompt_tool_permissions_description">Ghi đè quyền công cụ cho lệnh nhắc này</string>
+  <string name="tool_section_read_tools">Công cụ đọc</string>
+  <string name="tool_section_write_tools">Công cụ ghi</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Kinh Thánh &amp; Tìm kiếm</string>
+  <string name="tool_category_bookmarks">Đánh dấu</string>
+  <string name="tool_category_labels">Nhãn</string>
+  <string name="tool_category_study_pads">Sổ tay nghiên cứu</string>
+  <string name="tool_category_my_documents">Tài liệu của tôi</string>
+  <string name="tool_category_general_books">Sách tổng hợp</string>
+  <string name="tool_category_windows">Cửa sổ</string>
+  <string name="tool_category_read">Đọc</string>
+  <string name="tool_category_write">Ghi</string>
+  <string name="expand_collapse">Mở rộng/thu gọn</string>
+  <string name="tool_option_enabled">Đã bật</string>
+  <string name="tool_option_disabled">Đã tắt</string>
+  <string name="tool_option_default_enabled">Mặc định (đã bật)</string>
+  <string name="tool_option_default_disabled">Mặc định (đã tắt)</string>
+  <string name="tool_option_default_allowed">Mặc định (đã cho phép)</string>
+  <string name="tool_option_default_denied">Mặc định (đã từ chối)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Mô hình</string>
+  <string name="prompt_model_default">Mặc định</string>
+  <string name="prompt_model_custom">Tùy chỉnh</string>
+  <string name="prompt_model_custom_hint">Nhập tên mô hình</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Chọn hành động AI</string>
+  <string name="no_llm_prompts_configured">Không có lệnh nhắc AI nào được cấu hình cho lựa chọn câu</string>
+  <string name="llm_prompt_executing">Đang thực thi lệnh nhắc AI: %s</string>
+  <string name="llm_actions">Hành động AI</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Mở rộng/thu gọn nhật ký trợ lý</string>
+  <string name="agent_log_close">Đóng nhật ký trợ lý</string>
+  <string name="agent_log_stop">Dừng AI</string>
+  <string name="agent_log_idle">Trợ lý AI</string>
+  <string name="agent_log_running">AI đang xử lý…</string>
+  <string name="agent_log_completed">Đã hoàn thành</string>
+  <string name="agent_log_error">Đã xảy ra lỗi</string>
+  <string name="agent_log_executing">Đang thực thi: %s</string>
+  <string name="agent_log_iteration">Lần lặp %d</string>
+  <string name="agent_log_tool">Công cụ: %s</string>
+  <string name="agent_log_tool_completed">Công cụ %s đã hoàn thành</string>
+  <string name="agent_log_tool_failed">Công cụ %s thất bại</string>
+  <string name="agent_log_response_received">Đã nhận phản hồi</string>
+  <string name="agent_log_saved">Đã lưu: %s</string>
+  <string name="agent_log_done">Xong: %s</string>
+  <string name="agent_log_cancelled">Đã hủy</string>
+  <string name="agent_execution_completed">Trợ lý AI đã hoàn thành</string>
+  <string name="agent_already_running">Một trợ lý AI đang chạy. Vui lòng chờ hoặc dừng nó trước.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">Trợ lý AI</string>
+  <string name="ai_agent_notification_running">Trợ lý AI đang hoạt động…</string>
+  <string name="ai_agent_notification_permission_needed">Trợ lý AI cần sự chấp thuận của bạn</string>
+  <string name="ai_agent_notification_permission_tap">Nhấn để quay lại AndBible</string>
+  <string name="ai_agent_notification_completed">Tác vụ AI đã hoàn thành</string>
+  <string name="ai_agent_notification_completed_tap">Nhấn để xem kết quả</string>
+  <string name="ai_agent_notification_error">Tác vụ AI thất bại</string>
+  <string name="ai_agent_notification_cancel">Hủy</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Tài liệu của tôi</string>
+  <string name="my_documents_empty">Chưa có tài liệu nào. Nhấn + để tạo mới.</string>
+  <string name="my_document_new_name">Tài liệu %d</string>
+  <string name="my_document_create_title">Tạo tài liệu mới</string>
+  <string name="my_document_rename_title">Đổi tên tài liệu</string>
+  <string name="my_document_edit_description_title">Chỉnh sửa mô tả</string>
+  <string name="my_document_delete_confirmation">Xóa tài liệu \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">Không thể xóa tài liệu AI khi còn chứa trang. Hãy xóa các trang trước.</string>
+  <string name="my_document_save_changes">Lưu thay đổi?</string>
+  <string name="my_document_no_description">Không có mô tả</string>
+  <string name="my_document_rename">Đổi tên</string>
+  <string name="my_document_edit_description">Chỉnh sửa mô tả</string>
+  <string name="my_document_delete">Xóa</string>
+
+  <string name="my_document_pages_title">%s - Trang</string>
+  <string name="my_document_pages_empty">Tài liệu này chưa có trang nào.</string>
+  <string name="my_document_page_rename_title">Đổi tên trang</string>
+  <string name="my_document_page_delete_confirmation">Xóa trang \"%s\"?</string>
+  <string name="my_document_page_rename">Đổi tên</string>
+  <string name="my_document_page_delete">Xóa</string>
+  <string name="my_document_page_export">Xuất</string>
+  <string name="my_document_new_page_name">Trang %1$d</string>
+  <string name="my_document_create_page_title">Trang mới</string>
+  <string name="my_document_content_type_label">Loại nội dung</string>
+  <string name="my_document_import_page">Nhập Markdown/HTML</string>
+  <string name="my_document_export_page">Xuất trang</string>
+  <string name="my_document_imported_page_name">Đã nhập</string>
+  <string name="my_document_export_fallback_name">trang</string>
+  <string name="my_document_export_document">Xuất tất cả các trang</string>
+  <string name="my_document_import_document">Nhập tệp làm tài liệu</string>
+  <string name="my_document_import_empty_selection">Không có tệp nào có thể nhập được chọn</string>
+  <string name="my_document_export_success">Các trang đã được xuất thành công</string>
+  <string name="ai_doc_choose_page">Chọn trang tài liệu AI</string>
+  <string name="prefs_show_ai_doc_markers_title">Hiển thị đánh dấu tài liệu AI</string>
+  <string name="prefs_show_ai_doc_markers_summary">Hiển thị biểu tượng đánh dấu cho các trang tài liệu do AI tạo được liên kết với câu</string>
+  <string name="prefs_show_ordinals_title">Hiển thị số thứ tự</string>
+  <string name="prefs_show_ordinals_summary">Hiển thị đánh dấu vị trí thứ tự trong văn bản</string>
+
+  <string name="prefs_page_scroll_amount_title">Lượng cuộn trang</string>
+  <string name="prefs_page_scroll_amount_summary">Cuộn bao nhiêu trang khi nhấn cuộn lên/xuống</string>
+  <string name="page_scroll_amount_dialog_title">Lượng cuộn trang</string>
+  <string name="prefs_scroll_helper_lines_title">Đường hỗ trợ cuộn</string>
+  <string name="prefs_scroll_helper_lines_summary">Hiển thị các đường dẫn hướng nằm ngang tại ranh giới cuộn trang</string>
+  <string name="prefs_scroll_helper_line_style_title">Kiểu đường trợ giúp</string>
+  <string name="prefs_scroll_helper_line_style_summary">Chọn kiểu hiển thị của đường trợ giúp cuộn</string>
+  <string name="scroll_helper_line_style_dialog_title">Kiểu đường trợ giúp</string>
+  <string name="scroll_helper_line_style_thin_dotted">Đường chấm mỏng</string>
+  <string name="scroll_helper_line_style_thin_solid">Đường liền mỏng</string>
+  <string name="scroll_helper_line_style_thick_solid">Đường liền dày</string>
+  <string name="prefs_page_buttons_title">Nút cuộn trang</string>
+  <string name="prefs_page_buttons_summary">Hiển thị nút lên/xuống trang trên màn hình</string>
+</resources>

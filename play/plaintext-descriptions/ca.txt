@@ -1,0 +1,48 @@
+Potent eina d'estudi bíblic
+
+"AndBible: Estudi Bíblic" és una aplicació potent i fàcil d'usar per a l'estudi bíblic fora de línia per a Android. L'aplicació no pretén ser simplement un lector de la Bíblia, sinó que se centra en ser una eina avançada per fer un estudi bíblic personal en profunditat.
+
+Aquesta aplicació ha estat desenvolupada per lectors de la Bíblia, per a lectors de la Bíblia. L'objectiu és ajudar-vos a fer el vostre estudi bíblic còmode, profund i agradable. El millor d'aquest projecte comunitari sense ànim de lucre és que és de codi obert, completament gratuït i no conté anuncis.
+
+Algunes versions populars de la Bíblia (de les moltes disponibles) són KJV, NASB, NET, i també comentaris populars com Matthew Henry i John Gill.
+
+Potents funcions d'estudi bíblic
+
+L'aplicació té moltes funcions originals i reveladores que fan que una experiència d'estudi bíblic complex i profund sigui més fluida que mai. Les funcions més destacades són les següents:
+
+ * Vistes de text dividides que permeten comparar traduccions i consultar comentaris
+ * Els espais de treball permeten múltiples configuracions d'estudi bíblic amb els seus propis ajustos
+ * La integració dels Números de Strong permet l'anàlisi de paraules gregues i hebrees
+ * Referències creuades enllaçades, notes a peu de pàgina i documents; salteu a les referències creuades i notes a peu de pàgina simplement tocant un enllaç; feu un estudi en profunditat de les Escriptures utilitzant comentaris amb hipervincles (Gill, Matthew Henry, etc.), col·leccions de referències creuades (Treasure of Scripture Knowledge, TSKe) i altres recursos.
+ * Text a veu avançat amb marcadors de lectura, que permet una experiència d'escolta bíblica fluida
+ * Cerca flexible
+ * Funcions avançades de marcadors i destacats amb notes d'estudi personals
+ * Blocs d'estudi per afegir notes i referències bíbliques mentre escolteu sermons.
+ * Plans de lectura: establiu objectius per llegir la Bíblia
+ * Àmplia biblioteca de documents: traduccions de la Bíblia, comentaris teològics, diccionaris, mapes i llibres cristians, amb un total de més de 1500 documents en més de 700 idiomes, distribuïts legalment per Crosswire i altres repositoris SWORD.
+ * El suport natiu per a fitxers MyBible, MySword i EPUB us permet ampliar encara més la vostra biblioteca.
+
+Fem junts la millor aplicació bíblica!
+
+AndBible és un projecte comunitari de codi obert. En la pràctica, això significa que qualsevol persona amb les habilitats adequades pot, i és animada a, contribuir al projecte:
+
+ * desenvolupant noves funcions,
+ * provant funcions encara no publicades,
+ * mantenint les traduccions de la interfície d'usuari actualitzades, i
+ * ajudant a ampliar la biblioteca de mòduls obtenint permisos dels titulars dels drets d'autor o convertint documents al format SWORD.
+
+Si sou un enginyer de programari o provador professional, considereu contribuir al projecte. Per a més informació sobre com col·laborar, consulteu https://git.io/JUnaj.
+
+Doneu suport comprant temps de desenvolupament!
+
+Si no teniu temps ni habilitats per contribuir al projecte, també podeu donar suport al projecte comprant temps de treball de desenvolupadors professionals.
+
+Vegeu les opcions: https://shop.andbible.org/
+
+Enllaços
+
+ * Pàgina web: https://andbible.org
+ * Seguiu AndBible a Facebook: https://www.facebook.com/AndBible/
+ * El nostre canal de YouTube: https://www.youtube.com/c/AndBible
+ * Preguntes freqüents: https://git.io/JJm8E
+ * Pàgina del projecte a Github: https://github.com/AndBible/and-bible

@@ -43,13 +43,16 @@ CS = "<" + "!--"  # comment start - avoid literal for bash safety
 CE = "--" + ">"   # comment end
 
 
-def fix_double_escapes(value):
-    """Fix double-escaped XML entities that agents sometimes produce."""
+def fix_xml_entities(value):
+    """Fix double-escaped and bare XML entities that agents sometimes produce."""
+    # Fix double-escapes first (e.g. &amp;amp; → &amp;)
     value = value.replace('&amp;amp;', '&amp;')
     value = value.replace('&amp;lt;', '&lt;')
     value = value.replace('&amp;gt;', '&gt;')
     value = value.replace('&amp;apos;', '&apos;')
     value = value.replace('&amp;quot;', '&quot;')
+    # Fix bare ampersands (& not followed by a valid XML entity reference)
+    value = re.sub(r'&(?!(amp|lt|gt|apos|quot);|#)', '&amp;', value)
     return value
 
 
@@ -64,16 +67,23 @@ def load_translations_from_file(path):
     with open(path, 'r') as f:
         content = f.read()
 
+    # Fix bare ampersands before XML parsing so parser doesn't choke
+    content = re.sub(r'&(?!(amp|lt|gt|apos|quot);|#)', '&amp;', content)
+
     # First try XML parsing (handles multiline strings correctly)
     try:
         root = ET.fromstring('<resources>' + content + '</resources>')
         for elem in root.findall('string'):
             name = elem.get('name')
             if name:
-                text = (elem.text or '').strip()
+                # Use ET.tostring to preserve XML entities (&amp; &lt; etc.)
+                raw = ET.tostring(elem, encoding='unicode', method='xml')
+                start = raw.index('>') + 1
+                end = raw.rindex('</')
+                text = raw[start:end].strip()
                 # Collapse internal whitespace (multiline → single line)
                 text = re.sub(r'\s+', ' ', text)
-                translations[name] = fix_double_escapes(text)
+                translations[name] = fix_xml_entities(text)
         if translations:
             return translations
     except ET.ParseError:
@@ -84,7 +94,7 @@ def load_translations_from_file(path):
         line = line.strip()
         m = re.match(r'<string name="([^"]+)">(.*)</string>', line, re.DOTALL)
         if m:
-            translations[m.group(1)] = fix_double_escapes(m.group(2))
+            translations[m.group(1)] = fix_xml_entities(m.group(2))
     return translations
 
 
