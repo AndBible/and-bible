@@ -321,11 +321,11 @@ Languages are categorized by Claude Sonnet translation quality:
 
 | Tier | Quality | Count | Languages |
 |------|---------|-------|-----------|
-| 1 | Excellent | 25 | ar, bg, cs, de, el, es, fi, fr, hi, hr, hu, it, iw, ko, nl, pl, pt, pt-rBR, ro, ru, sv, tr, uk, zh-rCN, zh-rTW |
-| 2 | Good | 13 | af, b+sr+Latn, b+sr+RS, bn, eo, et, in, lt, nb, sk, sl, ta, te |
+| 1 | Excellent | 30 | ar, bg, ca, cs, da, de, el, es, fi, fr, hi, hr, hu, it, iw, ja, ko, nl, pl, pt, pt-rBR, ro, ru, sv, th, tr, uk, vi, zh-rCN, zh-rTW |
+| 2 | Good | 18 | af, b+sr+Latn, b+sr+RS, bn, eo, et, fil, in, lt, ms, nb, ne, sk, sl, sw, ta, te, ur |
 | 3 | Fair | 6 | az, kk, ml, my, uz, yue |
 
-**Default:** Tier 1 only (25 languages). Use `--tier 1,2` for tier 2 or `--all-tiers` for everything.
+**Default:** Tier 1 only (30 languages). Use `--tier 1,2` for tier 2 or `--all-tiers` for everything.
 
 ### Step 0: Clean tmp directories
 
