@@ -1511,6 +1511,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="no_models_configured">Δεν έχουν ρυθμιστεί μοντέλα</string>
   <string name="model_cache_creation_price">Τιμή δημιουργίας κρυφής μνήμης ($/Mtoken)</string>
   <string name="model_cache_read_price">Τιμή ανάγνωσης κρυφής μνήμης ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Υποστηρίζεται</string>
+  <string name="show_also_unsupported_models">Εμφάνιση και μη υποστηριζόμενων μοντέλων</string>
+  <string name="show_also_unsupported_providers">Εμφάνιση και μη υποστηριζόμενων παρόχων</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s εισ. / %2$s εξ. ανά Mtoken</string>

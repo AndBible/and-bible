@@ -1,0 +1,70 @@
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
+title: "AndBible: Studi Alkitab"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: Baca Alkitab, pelajari tafsiran atau kamus, atau baca buku secara offline.
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Alat Studi Alkitab yang Canggih
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" adalah aplikasi studi alkitab offline yang canggih namun mudah digunakan untuk Android. Aplikasi ini tidak bertujuan hanya sebagai pembaca alkitab biasa, tetapi berfokus menjadi alat canggih untuk melakukan studi alkitab pribadi yang mendalam.
+paragraph_1_2: >
+  Aplikasi ini dikembangkan oleh pembaca alkitab, untuk pembaca alkitab. Tujuannya adalah membantu Anda menjadikan studi alkitab lebih nyaman, mendalam, dan menyenangkan. Hal terbaik dari proyek komunitas nirlaba ini adalah bersifat open-source, sepenuhnya gratis, dan tidak mengandung iklan.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Beberapa versi alkitab populer (dari banyak yang tersedia) adalah KJV, NASB, NET, serta tafsiran populer seperti Matthew Henry dan John Gill.
+subtitle_2: Fitur Studi Alkitab yang Canggih
+paragraph_2_1: >
+  Aplikasi ini memiliki banyak fitur orisinal yang berwawasan luas, membuat pengalaman studi alkitab yang kompleks dan mendalam menjadi lebih mudah dari sebelumnya. Fitur-fitur yang paling menonjol adalah sebagai berikut:
+feature_01: >
+  Tampilan teks terpisah yang memungkinkan perbandingan terjemahan dan konsultasi tafsiran
+feature_02: >
+  Ruang kerja memungkinkan beberapa pengaturan studi alkitab dengan pengaturan masing-masing
+feature_03: Integrasi Strong memungkinkan analisis kata bahasa Yunani dan Ibrani
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  Referensi silang, catatan kaki, dan dokumen yang saling terhubung; beralih ke referensi silang dan catatan kaki hanya dengan mengetuk tautan; lakukan studi mendalam tentang Kitab Suci menggunakan tafsiran berhiperlink ({{commentary_examples}}), koleksi referensi silang ({{cross_reference_examples}}), dan sumber daya lainnya.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: Gill, Matthew Henry, dll.
+# Examples of cross-reference collections.
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: >
+  Teks ke ucapan canggih dengan penanda buku berbicara, menghadirkan pengalaman mendengarkan alkitab yang nyaman
+feature_06: Pencarian yang fleksibel
+feature_07: Fitur penanda buku & penyorotan canggih dengan catatan studi pribadi
+feature_09: "Rencana bacaan: tetapkan tujuan untuk membaca Alkitab"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Perpustakaan dokumen yang luas: terjemahan alkitab, tafsiran teologi, kamus, peta, dan buku-buku Kristen, dengan total lebih dari {{total_documents}} dokumen dalam lebih dari {{total_languages}} bahasa, didistribusikan secara legal oleh Crosswire dan repositori SWORD lainnya.
+feature_10_1: >
+  Dukungan asli untuk file MyBible, MySword, dan EPUB memungkinkan Anda memperluas perpustakaan lebih jauh.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV, NIV, dan NKJV
+feature_12: >
+  Offline: satu-satunya saat Anda memerlukan internet adalah untuk mengunduh dokumen.
+# UNUSED
+feature_13: >
+  Lembar studi untuk menambahkan catatan dan referensi alkitab saat mendengarkan khotbah.
+subtitle_3: Mari buat aplikasi alkitab terbaik bersama-sama!
+paragraph_3_1: >
+  AndBible adalah proyek komunitas open-source. Dalam praktiknya, ini berarti siapa saja dengan keahlian yang sesuai dapat, dan didorong untuk, berkontribusi pada proyek dengan cara:
+contr_1: mengembangkan fitur baru,
+contr_2: menguji fitur yang belum dirilis,
+contr_3: menjaga terjemahan antarmuka pengguna tetap terkini, dan
+contr_4: >
+  membantu memperluas perpustakaan modul dengan memperoleh izin dari pemegang hak cipta, atau dengan mengonversi dokumen ke format SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: >
+  Jika Anda adalah insinyur perangkat lunak atau penguji profesional, pertimbangkanlah untuk berkontribusi pada proyek ini. Untuk informasi lebih lanjut tentang cara berkontribusi, silakan lihat {{how_to_contribute_url}}.
+subtitle_4: Tautan
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: "Beranda: {{homepage_url}}"
+link_2: "Sukai AndBible di Facebook: {{facebook_url}}"
+link_3: "Saluran Youtube Kami: {{youtube_url}}"
+link_4: "Pertanyaan yang Sering Diajukan: {{faq_url}}"
+link_5: "Halaman proyek di Github: {{github_url}}"
+buy_title: Dukung dengan membeli waktu pengembangan!
+buy_1: >
+  Jika Anda tidak memiliki waktu atau keahlian untuk kontribusi proyek, Anda juga dapat mendukung proyek dengan membeli waktu kerja pengembang profesional.
+buy_2: Lihat pilihan

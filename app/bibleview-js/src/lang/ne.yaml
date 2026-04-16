@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: बुकमार्कहरू
+bookmarksAndNotes: बुकमार्क र मेरा टिप्पणीहरू
+openMyNotes: मेरा टिप्पणीहरूमा खोल्नुहोस्
+openStudyPad: "अध्ययन प्याडमा खोल्नुहोस् (%s)"
+noteText: "पादटिप्पणीहरू (%s)"
+noteTextWithoutType: पादटिप्पणीहरू
+crossReferenceText: अन्तरसन्दर्भहरू
+findAllOccurrences: सबै उपस्थितिहरू फेला पार्नुहोस्
+reportError: त्रुटि रिपोर्ट गर्नुहोस्
+errorTitle: त्रुटि भयो
+warningTitle: चेतावनी
+normalTitle: कृपया ध्यान दिनुहोस्
+footnoteTypeStudy: अध्ययन
+footnoteTypeExplanation: व्याख्या
+footnoteTypeVariant: भिन्नता
+footnoteTypeAlternative: विकल्प
+footnoteTypeTranslation: अनुवाद
+clearLog: त्रुटि लग खाली गर्नुहोस्
+editTextPlaceholder: पाठ सम्पादन गर्न ट्याप गर्नुहोस्
+myDocumentEdit: पृष्ठ सम्पादन गर्नुहोस्
+myDocumentEmptyPlaceholder: यो पृष्ठ सम्पादन सुरु गर्न ट्याप गर्नुहोस्
+inputPlaceholder: यहाँ लेख्नुहोस्
+inputReference: बाइबल सन्दर्भ प्रविष्ट गर्नुहोस्
+invalidReference: श्लोक फेला परेन
+bookmarkAccurate: "बुकमार्क %s मा बनाइयो"
+bookmarkInaccurate: "बुकमार्क पुस्तक जानकारी भण्डारण गरिएन, सामग्री %s मा देखाइन्छ।"
+defaultBook: पूर्वनिर्धारित बाइबल कागजात
+ok: ठीक छ
+yes: "हो"
+ambiguousSelection: तपाईं कुन कार्य गर्न चाहनुहुन्छ?
+cancel: रद्द गर्नुहोस्
+removeBookmarkConfirmationTitle: बुकमार्क हटाउने?
+removeBookmarkConfirmation: के तपाईं यो बुकमार्क हटाउन निश्चित हुनुहुन्छ?
+createdAt: "बनाइयो: %s"
+lastUpdatedOn: "अन्तिम अपडेट: %s"
+strongsAndMorph: परिभाषा र आकारशास्त्र
+externalLink: बाह्य लिङ्क खोल्नुहोस्
+referenceLink: सन्दर्भ लिङ्क खोल्नुहोस्
+openFootnote: पादटिप्पणी खोल्नुहोस्
+noMyNotesTitle: यस अध्यायको लागि मेरा टिप्पणीहरू छैनन्।
+noMyNotesDescription: बाइबल कागजातमा बुकमार्कहरू बनाएर सुरु गर्नुहोस्। बुकमार्कहरू यहाँ देखिनेछन् र तपाईं तिनीहरूमा आफ्नै टिप्पणीहरू थप्न सक्नुहुन्छ।
+emptyStudyPad: खाली अध्ययन प्याड। यहाँ पाठ प्रविष्टिहरू बनाएर वा यस अध्ययन प्याडसँग मिल्ने बुकमार्क लेबलसहित बुकमार्कहरू बनाएर यस अध्ययन प्याडमा थप्न सुरु गर्नुहोस्।
+doYouWantToDeleteEntry: यो अध्ययन प्याड प्रविष्टि मेट्ने?
+removeStudyPadConfirmationTitle: अध्ययन प्याड प्रविष्टि हटाउने?
+dragHelp: पुनः क्रमबद्ध गर्न तान्नुहोस्
+openAll: सबै सन्दर्भहरू खोल्नुहोस्
+editBookmarkPlaceholder: यो बुकमार्कको मेरा टिप्पणीहरू सम्पादन गर्न ट्याप गर्नुहोस्
+onlyLabel: केवल लेबल
+wholeBookmark: सम्पूर्ण बुकमार्क
+assignLabelsMenuEntry1: लेबलहरू चयन वा सम्पादन गर्नुहोस्…
+favouriteLabels: मनपर्ने लेबलहरू
+recentLabels: हालका लेबलहरू
+bookmarkLabels: बुकमार्क लेबलहरू
+refParserHelp: "अंग्रेजी बाहेक अन्य भाषाहरूमा सन्दर्भहरू प्रयोग गर्न कृपया %s module स्थापना गर्नुहोस्।"
+openDownloads: Add-on डाउनलोडमा जानुहोस्
+verseShare: साझा गर्नुहोस्
+verseSpeak: बोल्नुहोस्
+verseCompare: तुलना
+verseMemorize: कण्ठस्थ
+verseNote: टिप्पणी
+verseMyNotes: मेरा टिप्पणीहरू
+verseParagraphBreak: अनुच्छेद
+verseShareLong: यो श्लोक साझा गर्नुहोस्
+verseCompareLong: श्लोक तुलना गर्नुहोस्
+verseMemorizeLong: बाइबलका श्लोकहरू कण्ठस्थ गर्नुहोस्
+addMemorizationTarget: लक्ष्य +
+addMemorizationTargetLong: कण्ठस्थ लक्ष्यको रूपमा सेट गर्नुहोस्
+removeMemorizationTarget: लक्ष्य -
+removeMemorizationTargetLong: कण्ठस्थ लक्ष्य हटाउनुहोस्
+markAsMemorized: कण्ठस्थ चिन्ह लगाउनुहोस्
+markedAsMemorized: कण्ठस्थ गरियो
+removeFromTargets: लक्ष्य -
+viewReadingProgress: पठन/कण्ठस्थ प्रगति
+viewReadingProgressSettings: पठन/कण्ठस्थ सेटिङहरू
+listenInLoop: लूपमा सुन्नुहोस्
+verseNoteLong: टिप्पणी लेख्नुहोस्
+verseParagraphBreakLong: अनुच्छेद विराम
+addBookmark: बुकमार्क
+selectCustomIconTitle: कस्टम मार्कर आइकन चयन गर्नुहोस्
+bookmarkSettingsTitle: बुकमार्क सेटिङहरू कन्फिगर गर्नुहोस्
+subtitlePlaceholder: उपशीर्षक पाठ
+customIconLabel: कस्टम आइकन
+editActionLabel: कार्य सम्पादन गर्नुहोस्
+editActionModeLabel: मोड
+editActionModeNone: कुनै छैन
+editActionModeAppend: पाठ जोड्नुहोस्
+editActionModePrepend: पाठ अगाडि राख्नुहोस्
+editActionContentLabel: सामग्री
+editActionContentPlaceholder: कागजातमा थपिने पाठ प्रविष्ट गर्नुहोस्...
+experimentalFeatureTitle: प्रायोगिक
+experimentalFeatureHelpTitle: प्रायोगिक सुविधाहरूको बारेमा
+experimentalFeatureHelpContent: प्रायोगिक सुविधाहरू नयाँ क्षमताहरू हुन् जुन अझै विकास र परीक्षण गरिँदैछन्। तिनीहरू पूर्ण रूपमा काम नगर्न सक्छन् र भविष्यका अनुप्रयोग संस्करणहरूमा महत्त्वपूर्ण रूपमा परिवर्तन वा हटाउन सकिन्छन्।
+insertParagraphBreak: अनुच्छेद विराम सम्मिलित गर्नुहोस्
+insertSubtitle: उपशीर्षक सम्मिलित गर्नुहोस्
+xmlParseError: XML पार्सिङ त्रुटि
+invalidTag: अवैध ट्याग
+invalidClosingTag: अवैध बन्द ट्याग
+unmatchedClosingTag: नमिल्ने बन्द ट्याग
+unclosedTag: नबन्द ट्याग
+unknownError: अज्ञात त्रुटि
+wordBlur: धमिलो
+wordScramble: मिसाउनुहोस्
+wordType: टाइप
+wordOrder: क्रम
+typeEverything: पूर्ण शब्दहरू टाइप गर्नुहोस्
+tapToStartTyping: टाइप सुरु गर्न यहाँ ट्याप गर्नुहोस्
+wordVisibility: शब्द दृश्यता
+wordVisibilityLight: हल्का
+wordVisibilityDim: धमिलो
+wordVisibilityHidden: लुकेको
+errorHeatmap: त्रुटि हिटम्याप
+hideUsedButtons: प्रयोग भएका शब्द बटनहरू लुकाउनुहोस्
+more: थप
+llmAction: AI
+llmActionLong: AI कार्य
+aiDocumentRegenerate: पुनर्उत्पादन
+aiDocumentDelete: मेट्नुहोस्
+aiGeneratedBy: "%s द्वारा उत्पन्न"
+aiGeneratedByWithModel: "%s (%s) द्वारा उत्पन्न"

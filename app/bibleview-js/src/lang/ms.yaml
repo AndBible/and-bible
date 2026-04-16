@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Penanda buku
+bookmarksAndNotes: "Penanda Buku & Nota Saya"
+openMyNotes: Buka dalam Nota Saya
+openStudyPad: "Buka dalam Pad Kajian (%s)"
+noteText: "Nota kaki (%s)"
+noteTextWithoutType: Nota kaki
+crossReferenceText: Rujukan silang
+findAllOccurrences: Cari semua kejadian
+reportError: Laporkan ralat
+errorTitle: Ralat berlaku
+warningTitle: Amaran
+normalTitle: Sila ambil perhatian
+footnoteTypeStudy: Kajian
+footnoteTypeExplanation: Penerangan
+footnoteTypeVariant: Varian
+footnoteTypeAlternative: Alternatif
+footnoteTypeTranslation: Terjemahan
+clearLog: Kosongkan log ralat
+editTextPlaceholder: Ketuk untuk mengedit teks
+myDocumentEdit: Edit halaman
+myDocumentEmptyPlaceholder: Ketuk untuk mula mengedit halaman ini
+inputPlaceholder: Tulis di sini
+inputReference: Masukkan rujukan Alkitab
+invalidReference: Ayat tidak ditemui
+bookmarkAccurate: "Penanda buku dibuat dalam %s"
+bookmarkInaccurate: "Maklumat buku penanda buku tidak disimpan, kandungan dipaparkan dalam %s."
+defaultBook: dokumen Alkitab lalai
+ok: OK
+yes: "Ya"
+ambiguousSelection: Tindakan mana yang anda ingin ambil?
+cancel: Batal
+removeBookmarkConfirmationTitle: Buang penanda buku?
+removeBookmarkConfirmation: Adakah anda pasti ingin membuang penanda buku ini?
+createdAt: "Dibuat: %s"
+lastUpdatedOn: "Dikemas kini terakhir: %s"
+strongsAndMorph: "Definisi & Morfologi"
+externalLink: Buka pautan luaran
+referenceLink: Buka pautan rujukan
+openFootnote: Buka nota kaki
+noMyNotesTitle: Tiada Nota Saya untuk bab ini.
+noMyNotesDescription: Mulakan dengan membuat penanda buku dalam dokumen Alkitab. Penanda buku akan muncul di sini dan anda boleh menambah nota peribadi anda kepada mereka.
+emptyStudyPad: Pad kajian kosong. Mula menambah ke pad kajian ini dengan membuat entri teks di sini atau dengan membuat penanda buku dengan label penanda buku yang sepadan dengan pad kajian ini.
+doYouWantToDeleteEntry: Padamkan entri pad kajian ini?
+removeStudyPadConfirmationTitle: Buang entri pad kajian?
+dragHelp: Seret untuk menyusun semula
+openAll: Buka semua rujukan
+editBookmarkPlaceholder: Ketuk untuk mengedit Nota Saya untuk penanda buku ini
+onlyLabel: Label sahaja
+wholeBookmark: Keseluruhan penanda buku
+assignLabelsMenuEntry1: Pilih atau edit label...
+favouriteLabels: Label Kegemaran
+recentLabels: Label Terkini
+bookmarkLabels: Label penanda buku
+refParserHelp: "Sila pasang modul %s untuk menggunakan rujukan dalam bahasa selain Bahasa Inggeris."
+openDownloads: Pergi ke muat turun Add-on
+verseShare: Kongsi
+verseSpeak: Baca
+verseCompare: Bandingkan
+verseMemorize: Hafal
+verseNote: Nota
+verseMyNotes: Nota Saya
+verseParagraphBreak: Perenggan
+verseShareLong: Kongsi ayat ini
+verseCompareLong: Bandingkan ayat
+verseMemorizeLong: Hafal ayat Alkitab
+addMemorizationTarget: Matlamat +
+addMemorizationTargetLong: Tetapkan sebagai matlamat hafalan
+removeMemorizationTarget: Matlamat -
+removeMemorizationTargetLong: Buang matlamat hafalan
+markAsMemorized: Tandakan sebagai dihafal
+markedAsMemorized: Dihafal
+removeFromTargets: Matlamat -
+viewReadingProgress: Kemajuan Baca/Hafal
+viewReadingProgressSettings: Tetapan Baca/Hafal
+listenInLoop: Dengar dalam Gelung
+verseNoteLong: Tulis nota
+verseParagraphBreakLong: Pemisah perenggan
+addBookmark: Penanda buku
+selectCustomIconTitle: Pilih ikon penanda tersuai
+bookmarkSettingsTitle: Konfigurasi tetapan penanda buku
+subtitlePlaceholder: Teks sarikata
+customIconLabel: Ikon tersuai
+editActionLabel: Tindakan edit
+editActionModeLabel: Mod
+editActionModeNone: Tiada
+editActionModeAppend: Tambah teks di akhir
+editActionModePrepend: Tambah teks di awal
+editActionContentLabel: Kandungan
+editActionContentPlaceholder: Masukkan teks yang hendak ditambah ke dokumen...
+experimentalFeatureTitle: Eksperimental
+experimentalFeatureHelpTitle: Tentang Ciri Eksperimental
+experimentalFeatureHelpContent: Ciri eksperimental adalah keupayaan baharu yang masih dalam pembangunan dan pengujian. Ia mungkin tidak berfungsi dengan sempurna dan boleh berubah dengan ketara atau dibuang dalam versi aplikasi masa hadapan.
+insertParagraphBreak: Masukkan pemisah perenggan
+insertSubtitle: Masukkan sarikata
+xmlParseError: Ralat penghuraian XML
+invalidTag: Tag tidak sah
+invalidClosingTag: Tag penutup tidak sah
+unmatchedClosingTag: Tag penutup tidak sepadan
+unclosedTag: Tag tidak ditutup
+unknownError: Ralat tidak diketahui
+wordBlur: Kabur
+wordScramble: Acak
+wordType: Taip
+wordOrder: Susunan
+typeEverything: Taip perkataan penuh
+tapToStartTyping: Ketuk di sini untuk mula menaip
+wordVisibility: Keterlihatan perkataan
+wordVisibilityLight: Ringan
+wordVisibilityDim: Suram
+wordVisibilityHidden: Tersembunyi
+errorHeatmap: Peta haba ralat
+hideUsedButtons: Sembunyikan butang perkataan yang digunakan
+more: Lagi
+llmAction: AI
+llmActionLong: Tindakan AI
+aiDocumentRegenerate: Jana semula
+aiDocumentDelete: Padamkan
+aiGeneratedBy: "Dijana oleh %s"
+aiGeneratedByWithModel: "Dijana oleh %s (%s)"

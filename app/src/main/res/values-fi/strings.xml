@@ -1465,6 +1465,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="no_models_configured">Malleja ei ole määritetty</string>
   <string name="model_cache_creation_price">Välimuistin luontihinta ($/Mtoken)</string>
   <string name="model_cache_read_price">Välimuistin lukuhinta ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Tuettu</string>
+  <string name="show_also_unsupported_models">Näytä myös tukemattomat mallit</string>
+  <string name="show_also_unsupported_providers">Näytä myös tukemattomat palveluntarjoajat</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s sisään / %2$s ulos per Mtoken</string>

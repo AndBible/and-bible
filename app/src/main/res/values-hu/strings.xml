@@ -1522,6 +1522,9 @@ jelentse be az észlelt problémát</string>
   <string name="no_models_configured">Nincs konfigurált modell</string>
   <string name="model_cache_creation_price">Gyorsítótár-létrehozási ár ($/Mtoken)</string>
   <string name="model_cache_read_price">Gyorsítótár-olvasási ár ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Támogatott</string>
+  <string name="show_also_unsupported_models">Nem támogatott modellek megjelenítése is</string>
+  <string name="show_also_unsupported_providers">Nem támogatott szolgáltatók megjelenítése is</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s be / %2$s ki Mtoken-enként</string>

@@ -1,0 +1,1834 @@
+<?xml version='1.0' encoding='UTF-8'?>
+
+<resources>
+  <string name="app_name_andbible">AndBible</string>
+  <string name="app_name_short">Kajian Alkitab</string>
+  <string name="app_name_medium">Kajian Alkitab (AndBible)</string>
+  <string name="app_name_long">AndBible: Kajian Alkitab</string>
+  <string name="project">Projek Sumber Terbuka AndBible</string>
+
+  <string name="version_text">Versi %s</string>
+  <string name="no_sdcard_error">Sila masukkan kad SD dan mulakan semula aplikasi.</string>
+
+    <!-- Main menu -->
+  <string name="menu">Menu</string>
+  <string name="chooseBook">Dokumen</string>
+  <string name="selectPassage">Petikan</string>
+  <string name="search">Cari</string>
+  <string name="settings">Keutamaan aplikasi</string>
+  <string name="history">Sejarah</string>
+  <string name="speak">Baca</string>
+  <string name="help">Bantuan</string>
+  <string name="information">Maklumat</string>
+  <string name="other">Lain-lain</string>
+  <string name="contact">Hubungi</string>
+  <string name="help_and_tips">Bantuan &amp; petua</string>
+  <string name="administration">Pentadbiran</string>
+  <string name="rate_application">Nilaikan &amp; Ulas</string>
+  <string name="chooce_document">Pilih Dokumen</string>
+
+    <!-- Passage navigation -->
+  <string name="choosePassageBookName">Pilih Buku</string>
+  <string name="choosePassageChapterName">Pilih Bab</string>
+  <string name="choosePassageVerseName">Pilih Ayat</string>
+  <string name="bible">Alkitab</string>
+  <string name="deuterocanonical">Deuterokanonika</string>
+
+    <!--  Search -->
+  <string name="search_index">Indeks Carian</string>
+  <string name="index_creation_required">Indeks diperlukan untuk mencari.</string>
+  <string name="create_index_for">Indeks diperlukan untuk mencari. \n\nBuat indeks untuk %s?</string>
+  <string name="rebuild_index_for">Bina semula indeks untuk %s?</string>
+  <string name="indexing_wait_msg">Apabila pengindeksan selesai, anda akan dibawa ke skrin carian.</string>
+  <string name="index_create">Buat</string>
+  <string name="rebuild_index">Bina semula indeks</string>
+  <string name="search_in">Cari dalam %s</string>
+  <string name="do_in_background">Teruskan di latar belakang</string>
+  <string name="rebuild_index_button">Bina semula</string>
+  <string name="creating_index_for">Membuat indeks untuk %s…</string>
+    <!-- X results in module Y -->
+  <string name="search_with_results2">%1$s keputusan dalam %2$s</string>
+
+    <!-- Tasks -->
+  <string name="progress_status">Kemajuan</string>
+  <string name="task_kill_warning">Tugasan yang berjalan lama ini mungkin tamat jika anda beralih ke aplikasi lain sebelum ia selesai.</string>
+  <string name="no_tasks_running">Tiada tugasan yang sedang dilaksanakan.</string>
+
+    <!-- Search -->
+  <string name="search_words_group_prompt">Cari ayat</string>
+  <string name="search_all_words">Semua perkataan</string>
+  <string name="search_any_word">Mana-mana perkataan</string>
+  <string name="search_phrase">Frasa</string>
+  <string name="search_fts_query">Sintaks pertanyaan mentah</string>
+  <string name="search_result_count">%d padanan ditemui</string>
+  <string name="search_showing_first">Terlalu banyak padanan. Menunjukkan %d pertama</string>
+  <string name="search_bible_section_group_prompt">Cari Di</string>
+  <string name="search_all_bible">Seluruh Alkitab</string>
+  <string name="search_new_testament">Perjanjian Baharu</string>
+  <string name="search_old_testament">Perjanjian Lama</string>
+  <string name="search_current_book">Buku semasa</string>
+  <string name="error_executing_search">Pertanyaan carian tidak sah</string>
+  <string name="type_text_or_bible_reference">Taip teks atau rujukan Alkitab</string>
+    <!-- Open (bible reference X) -->
+  <string name="go_to_ref">Buka %s</string>
+    <!-- Finx "(keywords x)", keywords based on text selection -->
+  <string name="search_what">Cari \"%s\"</string>
+    <!-- Multi-translation search -->
+  <string name="search_translations">Terjemahan</string>
+  <string name="choose_translations">Pilih terjemahan…</string>
+  <string name="multi_search_results">%1$d ayat dalam %2$d terjemahan</string>
+  <string name="search_index_not_created">tiada indeks</string>
+
+    <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Nombor bab &amp; ayat</string>
+  <string name="prefs_show_verseno_summary">Tunjukkan nombor bab &amp; ayat</string>
+
+  <string name="prefs_e_ink_mode_title">Mod hitam &amp; putih</string>
+  <string name="prefs_eink_mode_summary">Gunakan aplikasi dalam mod monokrom (tanpa warna), menjadikannya lebih sesuai untuk peranti E-ink.</string>
+  <string name="prefs_eink_settings_cat">Tetapan E-ink</string>
+  <string name="prefs_eink_display_title">Ciri E-ink</string>
+  <string name="prefs_eink_display_summary">Aktifkan ciri khusus e-ink (butang tatal halaman, garisan pembantu tatal)</string>
+
+  <string name="prefs_disable_animations_title">Nyahdayakan animasi</string>
+  <string name="prefs_disable_animations_summary">Nyahdayakan pelbagai animasi seperti tatal lancar.</string>
+
+  <string name="prefs_disable_click_to_edit_title">Nyahdayakan klik-untuk-edit Pad Kajian</string>
+  <string name="prefs_disable_click_to_edit_summary">Memerlukan penggunaan butang edit untuk mengedit nota dalam Pad Kajian.</string>
+
+  <string name="prefs_notes_content_type_title">Format untuk nota penanda buku baharu</string>
+  <string name="prefs_notes_content_type_summary">Format teks yang digunakan semasa membuat nota penanda buku baharu dan entri Pad Kajian</string>
+  <string name="notes_content_type_html">Teks kaya (HTML)</string>
+  <string name="notes_content_type_markdown">Markdown</string>
+
+  <string name="prefs_paragraph_spacing_title">Jarak perenggan (%s mm)</string>
+  <string name="prefs_paragraph_spacing_summary">Laraskan ruang antara perenggan.</string>
+
+  <string name="prefs_show_verseno_title1">Nombor ayat</string>
+
+  <string name="prefs_show_chapter_no_title">Nombor bab</string>
+  <string name="prefs_show_chapter_no_summary">Tunjukkan nombor bab</string>
+
+  <string name="prefs_verse_per_line_summary">Tunjukkan setiap ayat pada baris berbeza</string>
+  <string name="prefs_show_bookmarks_summary">Nyahtanda untuk menyembunyikan semua penanda buku</string>
+
+  <string name="prefs_show_mynotes_summary">Tunjukkan ikon dalam ayat dengan Nota Saya</string>
+  <string name="prefs_show_notes_summary">Tunjukkan nota kaki dan rujukan silang</string>
+  <string name="prefs_show_strongs_summary">Pautan ke definisi Greek &amp; Ibrani</string>
+  <string name="prefs_show_morphology_summary">Tunjukkan morfologi Greek Robinson\'s</string>
+  <string name="prefs_section_title_summary">Tunjukkan tajuk bahagian bukan kanonik</string>
+  <string name="prefs_red_letter_summary">Tunjukkan perkataan Kristus dalam merah</string>
+  <string name="prefs_text_size_title">Keutamaan fon</string>
+
+  <string name="prefs_verse_per_line_title">Satu ayat setiap baris</string>
+  <string name="prefs_show_bookmarks_title">Tunjukkan penanda buku</string>
+  <string name="prefs_show_mynotes_title">Tunjukkan ikon Nota Saya</string>
+  <string name="prefs_show_footnotes_title">Nota kaki</string>
+  <string name="prefs_show_xrefs_title">Rujukan silang</string>
+  <string name="prefs_show_footnotes_summary">Tunjukkan nota kaki, jika tersedia dalam dokumen</string>
+  <string name="prefs_show_footnotes_inline_title">Nota kaki sebaris</string>
+  <string name="prefs_show_footnotes_inline_summary">Tunjukkan nota kaki sebaris dengan teks dan bukannya sebagai pemegang yang boleh diklik</string>
+  <string name="prefs_show_xrefs_summary">Tunjukkan rujukan silang, jika tersedia dalam dokumen</string>
+
+  <string name="prefs_show_notes_title">Nota kaki dan rujukan silang</string>
+  <string name="prefs_show_strongs_title">Nombor Strong\'s</string>
+  <string name="prefs_show_morphology_title">Kod morfologi</string>
+  <string name="prefs_non_strongs_word_italic_title">Italikkan perkataan tambahan</string>
+  <string name="prefs_non_strongs_word_italic_summary">Italikkan perkataan tanpa nombor Strong\'s</string>
+  <string name="prefs_section_title_title">Tajuk bahagian</string>
+  <string name="prefs_title_scroll_button_title">Butang tatal tajuk</string>
+  <string name="prefs_title_scroll_button_summary">Tunjukkan butang tatal-ke-atas di sebelah tajuk bahagian</string>
+  <string name="prefs_red_letter_title">Huruf Merah</string>
+  <string name="prefs_infinite_scroll_title">Tatal tanpa had</string>
+  <string name="prefs_infinite_scroll_summary">Muat kandungan lebih secara automatik semasa menatal</string>
+  <string name="prefs_mark_as_read_button_title">Butang tandakan sebagai dibaca</string>
+  <string name="prefs_mark_as_read_button_summary">Tunjukkan butang di hujung setiap bab untuk menandakannya sebagai dibaca</string>
+  <string name="prefs_show_memorization_indicators_title">Penunjuk hafalan</string>
+  <string name="prefs_show_memorization_indicators_summary">Tunjukkan penunjuk jidar berwarna untuk ayat yang dihafal dan ayat sasaran</string>
+  <string name="prefs_auto_track_reading_title">Jejak bacaan automatik</string>
+  <string name="prefs_auto_track_reading_summary">Tandakan bab sebagai dibaca secara automatik apabila anda menatal melaluinya</string>
+  <string name="prefs_tilt_to_scroll_title">Tilt untuk menatal</string>
+
+  <string name="prefs_toolbar_button_action_title">Tindakan untuk butang bar alat ditekan</string>
+  <string name="prefs_toolbar_button_action_summary">Tindakan yang diambil semasa menekan/menekan lama butang bar alat Alkitab atau Ulasan</string>
+  <string name="prefs_toolbar_button_action_default">Tekan untuk buka menu, tekan lama untuk skrin dokumen (lalai)</string>
+  <string name="prefs_toolbar_button_action_swap_menu">Tekan untuk buka dokumen berikutnya, tekan lama untuk buka menu</string>
+  <string name="prefs_toolbar_button_action_swap_activity">Tekan untuk buka dokumen berikutnya, tekan lama untuk skrin dokumen</string>
+
+  <string name="prefs_night_mode_title">Penukaran mod malam</string>
+  <string name="prefs_night_mode_summary">Sama ada untuk beralih ke mod malam secara automatik (jika peranti menyokong), secara manual atau melalui tetapan sistem (Android 10+). Penukaran manual boleh dilakukan dari menu opsyen 3-titik pada skrin utama.</string>
+  <string name="prefs_night_mode_manual">Manual</string>
+  <string name="prefs_night_mode_automatic">Automatik</string>
+  <string name="prefs_night_mode_system">Sistem</string>
+  <string name="options_menu_night_mode">Mod malam</string>
+
+  <string name="prefs_navigate_to_verse_title">Navigasi ke ayat</string>
+  <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) semasa memilih petikan</string>
+  <string name="prefs_open_links_in_special_window_title">Tetingkap pautan</string>
+  <string name="prefs_open_links_in_special_window_summary">Buka pautan dalam tetingkap khas, untuk paparan rujukan silang dan Strong\'s yang lebih pantas</string>
+  <string name="prefs_text_size_sample_text">Teks contoh</string>
+  <string name="prefs_screen_keep_on_title">Kekalkan skrin hidup</string>
+  <string name="prefs_screen_keep_on_summary">Elakkan skrin tidur semasa menggunakan aplikasi ini</string>
+  <string name="prefs_interface_locale_title">Bahasa aplikasi</string>
+  <string name="prefs_interface_locale_summary">Pilih bahasa antara muka pengguna tersuai</string>
+  <string name="reset_fontsize">Set semula</string>
+
+  <string name="prefs_request_sdcard_permission_title">Dokumen yang dipasang secara manual wujud</string>
+  <string name="prefs_request_sdcard_permission_summary">Aktifkan penggunaan dokumen yang dipasang secara manual dari folder jsword/sword pada storan dalaman</string>
+
+  <string name="prefs_expand_footnotes_title">Rujukan silang sebaris</string>
+  <string name="prefs_expand_footnotes_summary">Tunjukkan kandungan rujukan silang sebaris dalam teks, bukannya pautan yang membuka dialog pop timbul</string>
+
+  <string name="all_text_options_window_menutitle">Semua opsyen teks</string>
+  <string name="text_options_window_menutitle">Opsyen teks</string>
+  <string name="auto_fullscreen">Skrin penuh semasa menatal</string>
+  <string name="reversed_split_mode">Mod pisah terbalik</string>
+
+  <string name="add_ellipsis">%s…</string>
+
+  <string name="font_size_pt">%d pt</string>
+  <string name="value_mm">%d mm</string>
+  <string name="auto_fullscreen_summary">Beralih secara automatik ke skrin penuh semasa menatal teks. Petua: anda juga boleh beralih ke skrin penuh dengan mengetuk dua kali skrin.</string>
+  <string name="prefs_margin_size_title">Ubah saiz jidar</string>
+  <string name="prefs_margin_size_mm_title">Saiz jidar (%1$d/%2$d/%3$d mm)</string>
+  <string name="prefs_advanced_settings_cat">Tetapan lanjutan</string>
+  <string name="prefs_features_cat">Ciri-ciri</string>
+  <string name="prefs_display_customization_cat">Rupa &amp; nuansa</string>
+  <string name="prefs_behavior_customization_cat">Gelagat aplikasi</string>
+
+  <string name="prefs_margin_size_summary">Laraskan jidar kiri dan kanan paparan teks. Anda juga boleh laraskan lebar maksimum teks.</string>
+  <string name="prefs_margin_size_summary_2">Petua: Anda boleh ketuk kawasan jidar untuk melompat satu halaman ke atas / bawah.</string>
+
+  <string name="prefs_text_colors_summary">Laraskan warna teks dan latar belakang serta kesan hingar</string>
+  <string name="text_display_settings_activity_title">Tetapan paparan teks</string>
+  <string name="workspace_text_display_settings_title">Opsyen teks - %s</string>
+  <string name="window_text_display_settings_title">Opsyen teks - Tetingkap %d</string>
+  <string name="global_text_display_settings_title">Opsyen teks global</string>
+  <string name="global_text_display_settings_summary">Tetapan paparan teks lalai untuk semua ruang kerja</string>
+  <string name="parent_settings_category_title">Tetapan induk</string>
+  <string name="workspace_text_options_link">Opsyen teks ruang kerja — %s</string>
+  <string name="workspace_text_options_link_summary">Edit tetapan paparan teks untuk ruang kerja ini</string>
+  <string name="global_text_options_link">Opsyen teks global</string>
+  <string name="global_text_options_link_summary">Edit tetapan paparan teks lalai untuk semua ruang kerja</string>
+  <string name="prefs_font_and_colors_title">Fon &amp; Warna</string>
+  <string name="prefs_text_layout_title">Tataletak Teks</string>
+  <string name="prefs_strongs_and_morphology_title">Strong\'s &amp; Morfologi</string>
+  <string name="prefs_footnotes_and_xrefs_title">Nota Kaki &amp; Rujukan Silang</string>
+  <string name="prefs_verses_and_headings_title">Ayat &amp; Tajuk</string>
+  <string name="prefs_page_scrolling_title">Tatal Halaman</string>
+
+  <string name="prefs_justify_title">Rata kanan-kiri teks</string>
+  <string name="prefs_justify_summary">Ratakan teks dalam gaya \'justify\', bermaksud jidar kiri dan kanan teks adalah selari</string>
+  <string name="pref_left_margin_label_mm">Jidar kiri (%d mm)</string>
+  <string name="pref_right_margin_label_mm">Jidar kanan (%d mm)</string>
+  <string name="pref_maximum_width_of_text_label_mm">Lebar maksimum teks (%d mm)</string>
+  <string name="prefs_line_spacing_pt">Jarak baris %1.1fx</string>
+  <string name="pref_font_family_label">Keluarga fon</string>
+  <string name="prefs_top_margin_title">Jidar atas</string>
+  <string name="prefs_top_margin_summary">Tambah jidar (dengan petunjuk visual) ke bahagian atas tetingkap yang mengandungi dokumen Alkitab. Alkitab ditatal supaya ayat semasa bermula di bawah jidar.</string>
+  <string name="prefs_hyphenation_title">Pemotongan suku kata</string>
+  <string name="prefs_hyphenation_summary">Potong suku kata perkataan secara automatik, jika bahasa disokong</string>
+  <string name="prefs_line_spacing_pt_title">Jarak baris (%1.1fx)</string>
+  <string name="line_spacing_title">Jarak baris</string>
+  <string name="line_spacing_summary">Tetapkan ruang antara baris</string>
+  <string name="select_none">Pilih tiada</string>
+  <string name="reset_are_you_sure">Adakah anda pasti ingin menetapkan semula semua nilai ini?</string>
+  <string name="window_pinning_menutitle">Penepatan tetingkap</string>
+  <string name="hide_window_buttons_title">Sembunyikan butang tetingkap</string>
+  <string name="hide_window_buttons_summary">Butang tetingkap yang dipaparkan di sebelah kanan paparan Alkitab disembunyikan. Bar navigasi tetingkap di bahagian bawah masih dipaparkan dan anda boleh membuka menu pop timbul tetingkap dengan mengetuk lama.</string>
+  <string name="hide_bible_reference_overlay_title">Sembunyikan hamparan rujukan Alkitab</string>
+  <string name="hide_bible_reference_overlay_summary">Jangan tunjukkan hamparan rujukan Alkitab separa telus apabila aplikasi dalam mod skrin penuh</string>
+
+  <string name="full_screen_hide_buttons_pref_title">Sembunyikan bar butang tetingkap dalam skrin penuh</string>
+  <string name="full_screen_hide_buttons_pref_summary">Apabila beralih ke mod skrin penuh, sembunyikan secara automatik bar butang tetingkap yang berada di bahagian bawah skrin</string>
+
+  <string name="prefs_dictionaries_cat">Kamus</string>
+  <string name="choose_strongs_greek_dictionary_title">Kamus Greek Strong\'s</string>
+  <string name="choose_strongs_greek_dictionary_summary">Pilih kamus Strong\'s untuk definisi perkataan Greek</string>
+  <string name="choose_strongs_hebrew_dictionary_title">Kamus Ibrani Strong\'s</string>
+  <string name="choose_strongs_hebrew_dictionary_summary">Pilih kamus Strong\'s untuk definisi perkataan Ibrani</string>
+  <string name="choose_strongs_greek_morphology_title">Morfologi Greek Robinson</string>
+  <string name="choose_strongs_greek_morphology_summary">Pilih kamus untuk definisi morfologi Greek Robinson</string>
+  <string name="choose_word_lookup_dictionary_title">Kamus carian perkataan</string>
+  <string name="choose_word_lookup_dictionary_summary">Pilih kamus untuk mencari perkataan</string>
+  <string name="lookup_in_dictionary">Cari dalam kamus</string>
+  <string name="word_not_found_in_dictionaries">Perkataan tidak ditemui dalam mana-mana kamus</string>
+
+  <string name="prefs_top_margin_title_mm">Jidar atas (%d mm)</string>
+  <string name="font_size_title">Saiz fon</string>
+  <string name="font_size_title_pt">Saiz fon (%d pt)</string>
+  <string name="prefs_font_text_size_summary">Laraskan saiz fon teks utama</string>
+
+  <string name="pref_font_family_label_name">Keluarga fon (%s)</string>
+  <string name="prefs_font_family_summary">Tukar keluarga fon. Petua: lebih banyak fon boleh dipasang melalui Muat Turun Dokumen / Add-on.</string>
+
+  <string name="prefs_text_bookmarks_title">Tetapan Penanda Buku &amp; Nota Saya</string>
+  <string name="prefs_reading_and_memorization_title">Bacaan &amp; Hafalan</string>
+
+  <string name="prefs_enable_bluetooth_title">Aktifkan butang media Bluetooth</string>
+  <string name="prefs_enable_bluetooth_summary">Kendalikan butang media Bluetooth untuk memulakan/menghentikan pembacaan.</string>
+  <string name="create_bookmark">Buat Penanda Buku baharu</string>
+  <string name="create_bookmark_with_a_note">Buat Penanda Buku baharu dengan nota</string>
+
+    <!-- Colors preferences -->
+  <string name="prefs_text_colors_menutitle">Tetapan warna</string>
+  <string name="window_color_settings_title">Tetapan warna tetingkap</string>
+  <string name="workspace_color_settings_title">Lalai tetapan warna ruang kerja</string>
+
+  <string name="color_workspace">Warna ruang kerja</string>
+  <string name="color_text">Warna teks</string>
+  <string name="color_background">Warna latar belakang</string>
+  <string name="colors_day_mode_title">Mod siang</string>
+  <string name="colors_night_mode_title">Mod malam</string>
+  <string name="prefs_noise_title">Hingar latar belakang</string>
+  <string name="prefs_noise_summary">Menambah sedikit hingar pada latar belakang mungkin menjadikannya lebih selesa untuk mata.</string>
+
+  <string name="cpv_default_title">Pilih Warna</string>
+  <string name="cpv_presets">Prasetel</string>
+  <string name="cpv_custom">Tersuai</string>
+  <string name="cpv_select">Pilih</string>
+  <string name="cpv_transparency">Ketelusan</string>
+
+    <!-- Window -->
+  <string name="new_window">Tetingkap baharu</string>
+  <string name="windowClose">Tutup</string>
+  <string name="windowMaximise">Maksimumkan</string>
+  <string name="windowMinimise">Minimumkan</string>
+  <string name="windowSynchronise">Selaraskan</string>
+  <string name="move_window">Pindah ke</string>
+  <string name="move_window_to_position2">Kedudukan %1$d (%2$s:%3$s)</string>
+  <string name="copy_settings">Salin tetapan ke</string>
+  <string name="copy_settings_to_workspace">Ruang kerja</string>
+  <string name="copy_settings_to_window">Tetingkap %1$d (%2$s: %3$s)</string>
+  <string name="copy_settings_to_global">Lalai global</string>
+  <string name="change_to_normal">Tukar ke tetingkap biasa</string>
+  <string name="window_pin_mode">Tetap</string>
+
+    <!-- Notes screen -->
+  <string name="no_chapter_notes">Tiada nota wujud dalam bab ini</string>
+  <string name="no_verse_notes">Tiada nota wujud dalam ayat ini</string>
+  <string name="previous">Sebelumnya</string>
+  <string name="next">Seterusnya</string>
+
+    <!--  Strongs -->
+  <string name="strongs_not_installed">Sila muat turun kamus Ibrani dan Greek Strong\'s</string>
+  <string name="no_indexed_bible_with_strongs_ref">Anda perlu memuat turun Alkitab yang mengandungi nombor Strong\'s dan membina indeksnya melalui Carian</string>
+  <string name="morph_robinson_not_installed">Sila muat turun kamus \'Kod Analisis Morfologi Robinson\'s\'</string>
+  <string name="go_to_downloads">Pergi ke Muat Turun</string>
+
+    <!-- Module download -->
+  <string name="download">Muat Turun Dokumen</string>
+  <string name="redownload">Muat Turun Semula Dokumen</string>
+  <string name="download_confirmation">Muat turun Alkitab dari Internet?</string>
+  <string name="download_source_last_updated">Senarai dokumen dikemas kini terakhir: %s.</string>
+  <string name="download_refreshing_book_list">Menyegarkan senarai dokumen yang tersedia dari pelayan dokumen…</string>
+  <string name="download_source_message1">Dokumen dimuat turun dari sumber-sumber berikut:</string>
+  <string name="download_document_confirm_prefix">Muat turun</string>
+  <string name="download_refresh_book_list_menu_item">Segarkan</string>
+  <string name="error_downloading">Ralat berlaku semasa memuat turun. Sila semak sambungan internet anda.</string>
+  <string name="error_downloading_status">Pelayan yang mengehoskan %1$s mengembalikan ralat kerana %2$s (%3$d).</string>
+  <string name="storage_space_warning">Ruang storan tempatan tidak mencukupi.</string>
+  <string name="too_many_jobs">Terlalu banyak tugasan berjalan. Sila tunggu beberapa selesai dan cuba lagi.</string>
+  <string name="document_not_installed">Sila muat turun \'%s\'</string>
+  <string name="free_text_search_documents">Cari</string>
+  <string name="chooce_language_hint">Bahasa</string>
+  <string name="one_more_back_press">Tekan balik sekali lagi untuk menutup aplikasi</string>
+  <string name="document_filter_results">%d dokumen</string>
+  <string name="download_question_title">Adakah anda ingin meneruskan untuk memuat turun dokumen?</string>
+  <string name="download_question_message">Jika anda tinggal di negara yang menganiaya, anda mungkin perlu berhati-hati tentang memuat turun bahan kristian melalui Internet. Sebaliknya, anda mungkin ingin mendapatkan fail zip modul dengan lebih selamat dan memasangnya melalui \"Muat Dokumen Dari Zip\". Adakah anda pasti ingin meneruskan dengan memuat turun? Semua muat turun dari pelayan modul disulitkan (HTTPS).</string>
+  <string name="do_not_ask_again">Ya, jangan tanya lagi</string>
+  <string name="recommended_document">Disyorkan!</string>
+  <string name="about_version_history">Sejarah versi: %s</string>
+  <string name="download_errors">Ralat muat turun</string>
+  <string name="failed_repositories_message">Tidak dapat berhubung dengan pelayan dokumen berikut: \n\n%s\n\n</string>
+  <string name="failed_downloads_message">Fail-fail berikut tidak dapat dimuat turun:\n\n%s\n\n</string>
+  <string name="cant_delete_document">Dokumen ini tidak boleh dipadam.</string>
+
+    <!--  Install zip file -->
+  <string name="install_zip">Muat Dokumen Dari Fail</string>
+  <string name="install_zip_module">Pasang Modul Alkitab</string>
+  <string name="install_zip_module_discrete">Pasang Modul Kalkulator</string>
+  <string name="install_zip_successfull">Modul telah berjaya dipasang</string>
+  <string name="extracting_zip_file">Mengekstrak fail Zip sekarang…</string>
+  <string name="checking_zip_file">Memeriksa fail yang diberikan…</string>
+  <string name="invalid_module">Fail tidak mengandungi modul SWORD yang sah</string>
+  <string name="install_zip_title">Sila tunggu. Memuatkan modul dari fail.</string>
+  <string name="overwrite_files">Fail berikut sudah wujud: %s Timpa?</string>
+  <string name="overwrite_files_title">Timpa fail?</string>
+  <string name="could_not_overwrite_files">Tidak dapat menimpa fail: %s. Selain itu pemasangan berjaya.</string>
+  <string name="install_do_you_want">Adakah anda ingin memasang modul (%s)?</string>
+
+    <!-- Daily Reading Plan -->
+  <string name="rdg_plan_title">Rancangan Bacaan</string>
+  <string name="reading_plans_plural">Rancangan Bacaan</string>
+  <string name="rdg_plan_selector_title">Pilih Rancangan Bacaan</string>
+  <string name="rdg_plan_day">Hari %s</string>
+  <string name="rdg_plan_set_start_date">Tetapkan Tarikh Mula…</string>
+  <string name="set_current_day">Tetapkan sebagai hari semasa…</string>
+  <string name="msg_set_current_day_reading_plan">Ini akan menetapkan hari ini sebagai hari semasa dalam rancangan ini dan menandakan semua hari sebelumnya sebagai dibaca. Teruskan?</string>
+  <string name="done">Selesai</string>
+  <string name="reset_plan_question">Adakah anda pasti ingin menetapkan semula rancangan ini?</string>
+  <string name="import_reading_plan">Import rancangan bacaan…</string>
+  <string name="import_reading_plan_error">Ralat semasa import</string>
+  <string name="import_reading_plan_error_duplicate">Hari-hari berikut adalah pendua: %s</string>
+  <string name="import_reading_plan_error_days">Hari-hari berikut mengandungi ralat: %s</string>
+  <string name="import_reading_plan_anyway">Import juga</string>
+  <string name="overwrite_reading_plan">Adakah anda ingin menimpa %s?</string>
+  <string name="delete_reading_plan">Padamkan rancangan ini</string>
+  <string name="reading_plan_deleted">Rancangan bacaan telah dipadamkan</string>
+  <string name="reading_plan_ships_with_ab">Rancangan bacaan ini disertakan dengan %s</string>
+  <string name="confirm_delete_reading_plan">Adakah anda pasti ingin memadamkan %s berserta sejarah bacaannya? Petua: jika anda perlu mengemas kini rancangan, anda boleh mengimportnya semula dengan nama fail yang sama dan sejarah akan dikekalkan.</string>
+  <string name="plan_duplicate_user_plan">Terdapat rancangan bacaan pengguna dalam sdcard jsword/readingplan dengan nama yang sama seperti rancangan dalaman. Ia tidak dapat disenaraikan di sini. Sila namakan semula fail tersebut kepada nama lain, dengan mengekalkan sambungan fail sebagai .properties</string>
+  <string name="plan_name_y1ntpspr">PB, Mazmur &amp; Amsal Dalam Setahun</string>
+  <string name="plan_description_y1ntpspr">Ihsan HEARTLIGHT Internet Magazine, http://www.heartlight.org, kebenaran diberikan</string>
+  <string name="plan_name_y1ot1nt1_chronological">Kronologi 1 Tahun Melalui Alkitab</string>
+  <string name="plan_description_y1ot1nt1_chronological">Rancangan berdasarkan peristiwa kronologi dalam Alkitab. Garis masa kronologi adalah anggaran.</string>
+  <string name="plan_name_y1ot1nt1_OTandNT">1 Tahun PL+PB Serentak</string>
+  <string name="plan_description_y1ot1nt1_OTandNT">Baca Alkitab dalam 1 tahun, dengan bab dalam PL dan PB setiap hari.</string>
+  <string name="plan_name_y1ot1nt1_OTthenNT">1 Tahun Melalui Alkitab</string>
+  <string name="plan_description_y1ot1nt1_OTthenNT">Baca Alkitab dalam 1 tahun, bermula dari Kejadian dan berakhir di Wahyu. PL dahulu, kemudian PB.</string>
+  <string name="plan_name_y1ot1nt2_mcheyne">M\'Cheyne 1 Tahun 4 bab/hari</string>
+  <string name="plan_description_y1ot1nt2_mcheyne">Rancangan ini berdasarkan sistem bacaan M\'Cheyne, menampilkan empat bacaan berbeza untuk digunakan dalam ibadat keluarga dan peribadi. Setiap hari mempunyai dua petikan dari Perjanjian Lama, satu dari Perjanjian Baharu, dan satu dari Mazmur atau Injil. Dalam satu tahun, anda membaca Perjanjian Lama sekali dan Perjanjian Baharu dan Mazmur dua kali.</string>
+  <string name="plan_name_y1ot6nt4_profHorner">Rancangan Bacaan Prof. Horner 10 bab/hari</string>
+  <string name="plan_description_y1ot6nt4_profHorner">Ihsan Prof. Horner, kebenaran diberikan</string>
+  <string name="plan_name_y2ot1ntps2">2 Tahun Melalui Alkitab, PB+MZ dua kali</string>
+  <string name="plan_description_y2ot1ntps2">Baca Alkitab dalam 2 tahun, membaca PB dan Mazmur dua kali. Ihsan Wholesome Words, http://www.wholesomewords.org/, kebenaran diberikan</string>
+
+    <!-- Document context menu -->
+  <string name="delete">Padamkan</string>
+  <string name="delete_index">Padamkan indeks carian</string>
+  <string name="about">Tentang</string>
+  <string name="delete_doc">Padamkan %s?</string>
+  <string name="delete_search_index_doc">Padamkan indeks %s?</string>
+
+    <!-- Verse context menu -->
+  <string name="notes">Nota kaki dan rujukan</string>
+  <string name="share_verse">Kongsi…</string>
+  <string name="share_verse_widget_title">Kongsi pilihan</string>
+  <string name="share_verse_subject_2">Ayat Alkitab telah dikongsi dengan anda menggunakan %s.</string>
+  <string name="compare_translations">Bandingkan terjemahan</string>
+
+    <!-- Link context menu -->
+  <string name="open_link_in_this_window">Buka pautan di sini</string>
+  <string name="open_link_in_new_window">Buka pautan dalam tetingkap baharu</string>
+  <string name="open_link_in_special_window">Buka pautan dalam tetingkap khas</string>
+
+    <!-- Bookmarks -->
+  <string name="bookmarks_and_mynotes_title">Penanda Buku &amp; Nota Saya</string>
+  <string name="migrated_my_notes">Nota Saya yang dipindahkan</string>
+  <string name="bookmarks">Penanda buku</string>
+  <string name="bookmark_added">Penanda buku ditambah</string>
+    <!-- Bookmark / note labels -->
+  <string name="labels">Label</string>
+  <string name="manage_labels">Urus Label</string>
+  <string name="assign_labels">Tugaskan label</string>
+  <string name="new_item">Baharu</string>
+  <string name="new_label">Label Baharu</string>
+  <string name="label_name_prompt">Nama</string>
+  <string name="label_unlabelled">Tanpa label</string>
+  <string name="add_bookmark1">Penanda Buku</string>
+  <string name="add_bookmark2">Tandai Pilihan</string>
+  <string name="add_bookmark3">Pilihan</string>
+  <string name="add_bookmark_whole_verse">Tandai Ayat</string>
+  <string name="add_bookmark_whole_verse1">Ayat-ayat</string>
+  <string name="add_bookmark_whole_verse2">Ayat penuh</string>
+  <string name="add_whole_page_bookmark">Tambah penanda buku untuk keseluruhan halaman</string>
+  <string name="add_paragraph_break">Pemisah perenggan</string>
+  <string name="ai_label">AI</string>
+  <string name="remove_bookmark">Buang</string>
+  <string name="bookmark_settings_hide_labels_title">Sembunyikan label yang ditentukan</string>
+  <string name="bookmark_settings_hide_labels_summary">Sembunyikan penanda buku yang ditandai dengan label yang ditentukan</string>
+  <string name="auto_assign_labels_title">Tetapan label</string>
+  <string name="auto_assign_labels">Label auto-tugasan &amp; Kegemaran</string>
+  <string name="auto_assign_labels1">Auto-tugaskan label kepada penanda buku baharu</string>
+  <string name="auto_assign_labels_primary">Auto-tugaskan sebagai utama</string>
+  <string name="label_color">Warna label</string>
+  <string name="label_color_example">Contoh</string>
+  <string name="marker_style">Tunjukkan hanya penanda untuk penanda buku pilihan</string>
+  <string name="marker_style_whole_verse">Tunjukkan hanya penanda untuk penanda buku keseluruhan ayat</string>
+  <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
+  <string name="hide_style_whole_verse">Sembunyikan untuk penanda buku keseluruhan ayat</string>
+  <string name="bookmark_warning">Terdapat penanda buku dan/atau nota untuk dokumen ini.</string>
+  <string name="bookmark_warning2">Jika struktur dokumen telah berubah, mengemas kini dokumen ini boleh menyebabkan lokasi penanda buku/nota ini berpindah dalam dokumen atau hilang sepenuhnya.</string>
+  <string name="bookmark_warning3">Adakah anda masih ingin mengemas kini modul?</string>
+  <string name="bookmark_warning4">Adalah disyorkan agar anda membuat sandaran modul sebelum mengemas kini.</string>
+    <!--  Sort orders used for Bookmarks and MyNotes -->
+  <string name="sort_by_date">Susunan tarikh</string>
+  <string name="sort_by_bible_book">Susunan Alkitab</string>
+  <string name="sort_by_alphabetical">Susunan abjad</string>
+    <!-- notes = user notes ("My Notes") that are attached to bookmark -->
+  <string name="filter_by_notes">Cari nota</string>
+
+    <!-- Dictionary -->
+  <string name="dictionary">Kamus</string>
+  <string name="search_dictionary_hint">Cari kamus</string>
+
+    <!-- General Book -->
+  <string name="general_book">Buku</string>
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
+  <string name="one_chapter">%d bab</string>
+  <string name="some_chapters">%d bab</string>
+  <string name="rest_of_book">Hingga akhir buku</string>
+    <!-- Speak - Commentary -->
+  <string name="one_verse">%d ayat</string>
+  <string name="some_verses">%d ayat</string>
+  <string name="rest_of_chapter">Hingga akhir bab</string>
+    <!-- Speak - Dictionary and other -->
+  <string name="one_page">%d halaman</string>
+  <string name="some_pages">%d halaman</string>
+    <!-- Speak - Common -->
+  <string name="stop">Berhenti</string>
+  <string name="pause">Jeda</string>
+  <string name="rewind">Gulung balik</string>
+  <string name="forward">Maju ke hadapan</string>
+  <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
+  <string name="speak_queue">Giliran</string>
+  <string name="speak_repeat">Ulang</string>
+
+    <!-- Speak - Bible -->
+  <string name="speak_speed_title">Kelajuan baca</string>
+  <string name="speak_and_play_earcons_title">Baca dan mainkan bunyi earcon untuk</string>
+  <string name="playback_settings_title">Tetapan Main Balik</string>
+  <string name="speak_settings_title">Tetapan Baca Umum</string>
+  <string name="speak_bookmarking_settings_title">Tetapan Penanda Buku</string>
+  <string name="speak_bookmarks_menu_title">Baca dari penanda buku</string>
+  <string name="speak_advanced_settings">Tetapan Lanjutan</string>
+  <string name="speak_sleep_timer_title">Pemasa tidur</string>
+
+  <string name="speak_no_books_available">Tiada buku tersedia untuk dibaca</string>
+  <string name="speak_general_error">Pembacaan tidak dapat dimulakan untuk buku ini</string>
+
+  <string name="repeat_passage">Ulang petikan</string>
+  <string name="set_repeat_passage_range">Tetapkan julat petikan ulangan</string>
+  <string name="speak_beginning_of_passage">Pilih permulaan petikan</string>
+  <string name="speak_ending_of_passage">Pilih penghujung petikan</string>
+  <string name="speak_verse_range_to_repeat">Pilih julat ayat untuk diulang</string>
+  <string name="speak_ending_verse_must_be_later">Ayat penghujung mesti lebih lewat daripada ayat permulaan</string>
+
+  <string name="conf_speak_synchronize">Teks mengikut percakapan</string>
+  <string name="conf_speak_auto_bookmark">Penanda buku automatik</string>
+  <string name="conf_save_playback_settings_to_bookmarks">Simpan tetapan main balik ke penanda buku</string>
+  <string name="conf_replace_divinename">Gantikan nama ilahi dengan Yahweh</string>
+  <string name="conf_change_chapter">Perubahan bab</string>
+  <string name="conf_change_title">Tajuk</string>
+  <string name="conf_speak_footnotes">Nota kaki</string>
+  <string name="conf_speak_sleep_timer">Tetapkan pemasa tidur</string>
+
+  <string name="sleep_timer_title">Masa tidur dalam minit</string>
+  <string name="sleep_timer_set">Tetapkan pemasa tidur. Pemasa ditetapkan: %d minit</string>
+  <string name="sleep_timer_started">Pemasa tidur dimulakan, %d minit</string>
+  <string name="sleep_timer_active_at">Pemasa tidur: %s minit lagi.</string>
+
+  <string name="speak_next">Seterusnya</string>
+  <string name="speak_previous">Sebelumnya</string>
+  <string name="widget_toggle_sleep_timer">Togol pemasa tidur</string>
+  <string name="widget_bookmark_helptext">Butang pintasan penanda buku baca akan muncul di sini.</string>
+  <string name="speak_status_stopped">dihentikan</string>
+  <string name="speak_autobookmarking_disabled">Penanda buku automatik dinyahdayakan!</string>
+  <string name="system_speak_settings">Buka tetapan TTS sistem</string>
+
+  <string name="auto_assing_labels_help1">Di sini anda boleh melaraskan label mana yang ditugas secara automatik kepada penanda buku yang anda buat.</string>
+
+    <!-- parameter is ether setting_scope_window or setting_scope_workspace -->
+  <string name="setting_scope">Tetapan ini terpakai untuk %s.</string>
+  <string name="setting_scope_window">tetingkap ini</string>
+  <string name="setting_scope_workspace">ruang kerja ini</string>
+
+  <string name="assing_labels_help1">Setiap penanda buku boleh diberikan beberapa label.</string>
+    <!-- param is bookmark icon -->
+  <string name="assing_labels_help2">Gunakan %s untuk menentukan warna label mana yang ditunjukkan.</string>
+    <!-- param is auto-assign label icon -->
+  <string name="assing_labels_help3">Ketuk ikon %s untuk menugaskan label itu secara automatik kepada penanda buku baharu.</string>
+    <!-- param is heart icon -->
+  <string name="assing_labels_help4">Ketuk %s untuk menambah label ke senarai kegemaran anda untuk akses pantas.</string>
+
+    <!-- param is refresh icon -->
+  <string name="assing_labels_help5">Ketuk %s untuk menyusun semula senarai berdasarkan pilihan anda.</string>
+
+  <string name="global_text_options_help_title">Opsyen teks global</string>
+  <string name="global_text_options_help1">Ini adalah tetapan lalai global untuk semua ruang kerja. Setiap ruang kerja boleh mengatasi ini dengan tetapannya sendiri.</string>
+
+  <string name="workspace_text_options_help_title">Opsyen teks ruang kerja</string>
+  <string name="workspace_text_options_help1">Tetapan ini menentukan lalai untuk semua tetingkap ruang kerja. Tetapan yang diwarisi dari lalai global ditunjukkan dengan sewajarnya.</string>
+  <string name="workspace_text_options_help2">Anda boleh mengatasi ini dengan mengubah tetapan tetingkap individu.</string>
+
+  <string name="window_text_options_help_title">Opsyen teks tetingkap</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help1">Ikon %s menunjukkan bahawa tetapan berasal dari tetapan ruang kerja.</string>
+    <!-- Parameter is actual icon -->
+  <string name="window_text_options_help2">Ikon %s menunjukkan bahawa tetapan ini telah diubah untuk tetingkap khusus ini.</string>
+
+    <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
+  <string name="text_options_reset_help">Gunakan butang %1$s untuk menetapkan semula semua tetapan ini kembali ke %2$s.</string>
+  <string name="reset_defaults">nilai lalai</string>
+  <string name="reset_workspace_defaults">nilai lalai ruang kerja</string>
+
+  <string name="speak_bookmark_help">Bantuan penanda buku baca</string>
+
+  <string name="speak_help_auto_bookmark">Penanda buku Baca akan ditambahkan secara automatik apabila Baca dijeda atau dihentikan. Penanda buku yang dijana secara automatik dilabelkan dengan label Baca khas. Jika anda bermula dari penanda buku Baca, penanda buku akan dipindahkan ke ayat yang anda hentikan atau jeda pada kali berikutnya. Hanya label Baca akan dipindahkan, mana-mana label lain akan dibiarkan.</string>
+  <string name="speak_help_playback_settings">Tetapan main balik khas (di bawah \"Tetapan Main Balik\" pada skrin Baca) disimpan ke penanda buku Baca apabila tetapan ini dipilih. Apabila anda memulakan semula pembacaan dari penanda buku Baca, tetapan main balik yang disimpan dimuatkan dari penanda buku.</string>
+  <string name="speak_help_playback_settings_example">Contohnya jika anda mendengar Kejadian dan Roma dan ingin mendengar Kejadian dibaca dengan cepat tanpa pemberitahuan perubahan bab, tetapi Roma dengan lebih perlahan dengan bunyi earcon yang boleh didengar pada perubahan bab, maka anda boleh mempunyai tetapan main balik yang berbeza untuk buku-buku ini, apabila tetapan ini disimpan ke penanda buku yang sepadan.</string>
+
+    <!-- List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
+         if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+    <!-- List of (max 5) words that we will replace those words listed in divinename_original.
+
+         Please note that this is not translation but you need to think about what words need to be replaced
+         in your language. These will be used if "Replace divinename with Yahweh" feature is enabled
+         in speak settings. -->
+
+  <string name="speak_book_changed">Buku berubah.</string>
+  <string name="speak_chapter_changed">Bab</string>
+  <string name="speak_first">Pertama</string>
+  <string name="speak_second">Kedua</string>
+  <string name="speak_third">Ketiga</string>
+  <string name="speak_fourth">Keempat</string>
+  <string name="speak_fifth">Kelima</string>
+
+  <string name="verse_range_mode_disabled">Mod ulangan petikan telah dinyahdayakan secara automatik kerana pembacaan dimulakan di luar julat ayat yang ditakrifkan.</string>
+
+    <!-- User Notes -->
+  <string name="mynotes">Nota Saya</string>
+
+    <!-- Backup and restore -->
+  <string name="backup_backup_title">Sandaran ke mana?</string>
+  <string name="backup_backup_message">Sandaran ke telefon atau tempat lain melalui fungsi Kongsi (e-mel, Google Drive dll)?</string>
+  <string name="backup_phone_storage">Storan telefon</string>
+  <string name="backup_and_restore">Sandaran &amp; Pulih</string>
+  <string name="backup_modules2">Sandaran Dokumen ke…</string>
+  <string name="backup_app_database2">Sandaran pangkalan data aplikasi ke…</string>
+  <string name="backup_app2">Sandaran aplikasi (fail .apk) ke …</string>
+  <string name="backup_application">Aplikasi</string>
+  <string name="backup_database">Pangkalan Data</string>
+  <string name="backup_documents">Dokumen</string>
+  <string name="backup_application_info">Fail aplikasi (.APK)</string>
+  <string name="backup_database_info">Penanda buku, label, nota, pad kajian, rancangan bacaan, ruang kerja dll.</string>
+  <string name="backup_document_info">Alkitab, ulasan, kamus, peta dll.</string>
+  <string name="backup_to">Sandaran ke…</string>
+  <string name="backup_restore_from">Pulih dari…</string>
+    <!-- Restore = overwrite existing. Import = merge into existing -->
+  <string name="backup_restore_from2">Pulih atau Import dari…</string>
+  <string name="backup_restore">Pulih</string>
+  <string name="backup_restore2">Pulih atau Import</string>
+  <string name="overwrite_something">Timpa %s?</string>
+
+    <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
+  <string name="restore_what">Apa yang anda ingin pulihkan?</string>
+
+  <string name="restore_app_database">Pulih pangkalan data aplikasi dari…</string>
+  <string name="restore_database">Pulih Fail Pangkalan Data</string>
+  <string name="restore_confirmation">Timpa Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja?</string>
+  <string name="restore_success2">Bahagian pangkalan data yang dipilih berjaya dipulihkan</string>
+  <string name="restore_success">Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja berjaya dipulihkan</string>
+  <string name="downloading_backup">Memuat turun fail sandaran…</string>
+  <string name="loading_backup">Memuatkan pangkalan data dari sandaran…</string>
+  <string name="backup_success2">Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja berjaya disandarkan.</string>
+  <string name="backup_modules_success">Modul yang dipilih berjaya disandarkan.</string>
+
+  <string name="backup_modules_email_subject_2">Sandaran modul %s</string>
+  <string name="backup_modules_email_message_2">Terlampir adalah sandaran modul %1$s anda, yang mengandungi modul-modul berikut: %2$s</string>
+
+  <string name="backup_email_subject_2">Sandaran pangkalan data %s</string>
+  <string name="backup_email_message_2">Pangkalan data %s anda yang mengandungi penanda buku, nota, rancangan bacaan dan ruang kerja dilampirkan</string>
+
+  <string name="exported_studypads_subject">Pad Kajian yang Dieksport</string>
+  <string name="exported_studypads_message">Pangkalan data %s anda yang mengandungi Penanda Buku dan Nota berkaitan Pad Kajian yang dipilih dilampirkan</string>
+  <string name="restore_unsuccessfull">Pemulihan pangkalan data tidak berjaya. Mungkin anda memberikan fail pangkalan data yang tidak sah.</string>
+  <string name="restore_modules">Pulih Dokumen dari…</string>
+  <string name="send_backup_file">Hantar fail sandaran</string>
+  <string name="backup_modules_title">Pilih modul mana untuk disandarkan</string>
+  <string name="install_zip_canceled">Pemasangan modul dibatalkan</string>
+  <string name="ask_restore_or_import">Pangkalan data untuk %s boleh sama ada dipulihkan (iaitu pangkalan data sedia ada dibuang dan pangkalan data yang dipilih dimuatkan) atau diimport (pangkalan data yang dipilih diimport ke dalam pangkalan data sedia ada). Apa yang anda ingin lakukan?</string>
+  <string name="restore">Pulih</string>
+  <string name="import2">Import</string>
+  <string name="export_studypads_help">Fail yang mengandungi Pad Kajian yang dieksport (iaitu Label dan Penanda Buku) boleh diimport melalui Menu Utama -&gt; Sandaran &amp; Pulih.</string>
+
+    <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
+  <string name="bookmarks_db_stats">\"%1$s\" dan %2$s Label/StudyPad lain dan %3$s Penanda Buku</string>
+
+    <!-- About -->
+  <string name="module_about_copyright">Hak cipta: %s</string>
+  <string name="module_about_installed_version">Versi yang dipasang: %1$s (%2$s)</string>
+  <string name="module_about_latest_version">Versi terkini: %1$s (%2$s)</string>
+  <string name="module_about_versification">Versifikasi: %s</string>
+  <string name="module_about_repository">Pelayan pengedaran: %s</string>
+  <string name="module_about_osisId">ID OSIS: %s</string>
+
+    <!-- Bug reporting -->
+  <string name="send_bug_report_title1">Laporan pepijat</string>
+  <string name="send_feedback_title">Maklum balas</string>
+  <string name="send_bug_report_title">Maklum balas / laporan pepijat</string>
+  <string name="report_bug_email_subject_3">[%1$s] Laporan pepijat untuk %2$s %3$s</string>
+
+  <string name="report_bug_big_heading">SILA TULIS MAKLUM BALAS ATAU LAPORAN PEPIJAT ANDA DI ATAS BARIS INI</string>
+  <string name="report_bug_heading1">Arahan:</string>
+  <string name="report_bug_line_1">Ceritakan secara ringkas apa yang anda lakukan / apa yang berlaku ketika isu terjadi.</string>
+  <string name="report_bug_heading2">Contohnya:</string>
+  <string name="report_bug_instructions1">1. Membuka aplikasi</string>
+  <string name="report_bug_instructions2">2. Mengklik menu tetingkap</string>
+  <string name="report_bug_instructions3">-&gt; Ranap</string>
+  <string name="report_bug_line_2">Kadangkala tangkapan skrin yang diambil secara manual juga membantu dalam menyelesaikan isu.</string>
+  <string name="report_bug_line_3">Sila gunakan fungsi ini untuk melaporkan secepat mungkin setelah anda menyedari isu berlaku.</string>
+  <string name="report_bug_line_4">Anda juga boleh menggunakan fungsi ini selepas membuka aplikasi, selepas ranap berlaku.</string>
+  <string name="report_bug_heading_3">Lampiran:</string>
+  <string name="bug_report_logcat">Fail log yang dihasilkan oleh aplikasi ini. Ia tidak mengandungi maklumat tentang aplikasi lain.</string>
+  <string name="bug_report_screenshot">Tangkapan skrin aplikasi ketika ranap berlaku, atau ketika laporan pepijat dibuat.</string>
+  <string name="bug_report_attachment_line_1">Mempunyai fail-fail ini dilampirkan sangat membantu pembangun aplikasi dalam memperbaiki pepijat yang dilaporkan.</string>
+  <string name="report_bug_heading_4">Maklumat peranti:</string>
+
+    <!-- Document types -->
+  <string name="doc_type_all">Semua jenis</string>
+  <string name="doc_type_bible">Alkitab</string>
+  <string name="doc_type_commentary">Ulasan</string>
+  <string name="doc_type_dictionary">Kamus</string>
+  <string name="doc_type_book">Buku</string>
+  <string name="doc_type_map">Peta</string>
+  <string name="doc_type_addons">Add-on</string>
+
+    <!-- Languages -->
+  <string name="lang_default">Lalai</string>
+
+    <!-- General -->
+  <string name="okay">OK</string>
+  <string name="cancel">Batal</string>
+  <string name="discard_changes_confirmation">Buang perubahan yang belum disimpan?</string>
+  <string name="yes">Ya</string>
+  <string name="no">Tidak</string>
+  <string name="error">Ralat</string>
+  <string name="delete_generic">Padamkan</string>
+  <string name="please_wait">Sila tunggu…</string>
+  <string name="all">Semua</string>
+  <string name="edit">Edit</string>
+  <string name="reset_generic">Set semula</string>
+  <string name="watch_tutorial_video">Tonton video tutorial (Bahasa Inggeris)</string>
+  <string name="verse_not_found">Ayat tidak ditemui</string>
+
+    <!-- Errors -->
+  <string name="report_error">Hantar Laporan</string>
+  <string name="error_occurred">Ralat telah berlaku</string>
+  <string name="error_occurred_crash_last_time">Kali terakhir anda menggunakan aplikasi, ia ranap. Untuk membantu kami memperbaiki pepijat, kami amat menghargai jika anda menghantar laporan pepijat.</string>
+  <string name="error_occurred_with_link">Ralat telah berlaku. %s</string>
+  <string name="error_no_content">Tiada kandungan untuk ayat yang dipilih</string>
+  <string name="error_page_too_large">Halaman terlalu besar untuk dimuatkan</string>
+  <string name="error_key_not_in_document">Tidak ditemui dalam dokumen</string>
+  <string name="error_key_not_in_document2">%1$s tidak ditemui dalam dokumen %2$s.</string>
+  <string name="empty_list">Tiada item untuk dipaparkan</string>
+  <string name="error_skip">Langkau</string>
+  <string name="bug_report_email_title">Hantar laporan pepijat melalui e-mel</string>
+  <string name="bug_report_email_text">Seterusnya, sila pilih aplikasi e-mel pilihan anda (Gmail contohnya) untuk menghantar laporan kepada pasukan pembangun.</string>
+
+    <!-- Notifications -->
+  <string name="notification_channel_tts_status">Teks ke pertuturan</string>
+  <string name="notification_channel_progress_status">Pemberitahuan status kemajuan untuk muat turun dokumen dll.</string>
+
+    <!-- Workspaces -->
+  <string name="new_workspace">Baharu</string>
+  <string name="switch_to_workspace">Ruang Kerja</string>
+  <string name="delete_workspace">Buang</string>
+  <string name="new_copied_workspace">Salin sebagai baharu</string>
+  <string name="workspace_number">Ruang Kerja %d</string>
+  <string name="rename_workspace">Namakan semula</string>
+  <string name="workspace_selector_title">Pilih ruang kerja</string>
+  <string name="workspace_settings">Tetapan…</string>
+  <string name="give_name_workspace">Berikan nama untuk ruang kerja baharu</string>
+  <string name="save_and_exit">Simpan</string>
+  <string name="workspace_save_changes">Gunakan perubahan ke ruang kerja?</string>
+  <string name="copy_of_workspace">Salinan %s</string>
+  <string name="copy_workspace_settings">Salin tetapan…</string>
+  <string name="copy_settings_title">Tetapan mana yang anda ingin salin?</string>
+  <string name="select_all">Pilih semua</string>
+  <string name="copy_settings_workspaces_title">Ke ruang kerja mana anda ingin menyalin tetapan?</string>
+  <string name="reset_settings">Set semula</string>
+  <string name="search_settings">Cari tetapan</string>
+  <string name="workspace_dismiss">Tutup</string>
+  <string name="workspace_listing_with_current">%s (semasa)</string>
+
+    <!-- Beta notice -->
+  <string name="beta_notice_title">Ini adalah versi beta!</string>
+  <string name="beta_flag">BETA</string>
+  <string name="beta_notice_content_1">Dalam versi beta, terdapat ciri baharu yang belum diuji dengan betul, dan oleh itu menggunakan beta mungkin memperkenalkan gelagat yang tidak dijangka, iaitu pepijat. Adalah disyorkan bahawa pembaca Alkitab biasa menggunakan versi stabil sebaliknya.</string>
+
+  <string name="beta_notice_content_2">Pengguna beta digalakkan untuk melaporkan pepijat melalui Google Play atau (lebih baik) melalui %s.</string>
+  <string name="beta_notice_content_3">Jika anda pengaturcara, sila pertimbangkan untuk menyumbang pembaikan pepijat melalui %s sendiri. :-)</string>
+  <string name="beta_notice_github_issues">Isu Github</string>
+  <string name="beta_notice_github">Github</string>
+  <string name="beta_notice_dismiss">Tutup</string>
+  <string name="beta_notice_dismiss_until_update">Tutup sehingga kemas kini berikutnya</string>
+
+  <string name="stable_notice_title">Aplikasi telah dinaik taraf!</string>
+  <string name="upgrade_video_message">Sila lihat video yang menampilkan ciri baharu keluaran ini (%s).</string>
+  <string name="stable_notice_par1">Versi baharu %1$s dari %2$s telah berjaya dipasang!</string>
+
+    <!-- History -->
+  <string name="history_for">Sejarah (%1$s: Tetingkap %2$d)</string>
+
+    <!-- Help -->
+  <string name="help_nav_title">Navigasi</string>
+  <string name="help_nav_text">Pergi ke bab seterusnya atau sebelumnya dengan meleret skrin dengan jari anda. Ketuk dua kali teks Alkitab untuk togol mod skrin penuh. Skrin pisah (juga dipanggil tetingkap) mempunyai butang menu di sudut kanan atas, yang membolehkan anda menggunakan beberapa fungsi khusus tetingkap dan menyesuaikan rupa dan gelagat tetingkap.</string>
+  <string name="help_contextmenus_title">Menu Konteks</string>
+  <string name="help_contextmenus_text">Menekan lama membuka menu konteks atau mod tindakan dalam beberapa paparan. Tekan lama pada paparan Alkitab untuk membuka mod tindakan bagi tindakan yang mempengaruhi ayat semasa. Tekan lama pada item dokumen dalam paparan senarai Pilih Dokumen atau Muat Turun untuk memadamkan dokumen atau melihat maklumat. Tekan lama penanda buku dalam senarai penanda buku untuk menambah label atau memadamkan penanda buku. Tekan lama pautan untuk memilih sama ada anda ingin membukanya dalam tetingkap semasa, tetingkap baharu atau tetingkap pautan khas.</string>
+  <string name="help_bookmarks_title">Penanda Buku &amp; Nota Saya</string>
+  <string name="help_bookmarks_text">Penanda buku boleh dibuat dengan memilih beberapa teks dan memilih \"Tandai\" dari menu pop timbul. Anda boleh menambah nota tersuai ke penanda buku baharu dengan mengetuk teks yang kini diserlahkan dalam paparan Alkitab. Terdapat juga dokumen khas \"Nota Saya\" dalam ulasan yang membolehkan anda melihat nota anda dalam tetingkap berasingan.</string>
+  <string name="help_studypads_text">Pad kajian direka untuk memudahkan penulisan nota khotbah, persediaan khotbah atau hanya menulis nota kajian Alkitab peribadi yang mempunyai pelbagai rujukan Alkitab. Setiap pad kajian dikaitkan dengan satu label penanda buku. Semua Penanda Buku yang telah dibuat dengan label yang sepadan muncul secara automatik dalam dokumen pad kajian. Selain penanda buku, terdapat entri teks tersuai dalam pad kajian.</string>
+
+  <string name="help_search_title">Carian</string>
+    <!-- TODO: to be removed -->
+  <string name="help_search_text">Teks carian boleh merangkumi aksara khas seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Sintaks Parser Pertanyaan\" untuk maklumat lanjut)</string>
+  <string name="help_search_text2">Teks carian boleh merangkumi aksara khas seperti *, AND, OR, NOT</string>
+  <string name="help_search_details">Sila lihat %s untuk maklumat lanjut.</string>
+  <string name="help_apache_lucene">Apache Lucene - Sintaks Parser Pertanyaan</string>
+  <string name="help_fts5">Sintaks Pertanyaan Teks Penuh FTS5</string>
+  <string name="help_workspaces_title">Ruang Kerja</string>
+  <string name="help_workspaces_text">Ruang kerja membolehkan mempunyai pelbagai persekitaran kerja bergantung konteks. Fungsi ruang kerja boleh diakses melalui item Ruang Kerja dalam menu opsyen (sudut kanan atas). Cara pantas untuk mengakses ruang kerja adalah dengan isyarat leret bawah dari bar alat. Anda juga boleh menggunakan isyarat leret-kiri dan leret-kanan di atas bar alat untuk beralih ke ruang kerja sebelumnya / berikutnya.</string>
+  <string name="help_hidden_features_title">Pintasan tersembunyi</string>
+  <string name="help_hidden_features_text">Leret bawah dari bar alat untuk menunjukkan pemilih ruang kerja. Tekan lama butang tetingkap untuk minimumkan dengan cepat. Tekan lama butang bar alat baca untuk pergi ke tetapan baca dengan cepat. Tekan lama tajuk lokasi ayat dalam bar alat untuk melompat ke pemilih dokumen. Tekan lama butang Balik untuk mengakses senarai Sejarah.</string>
+  <string name="help_window_pinning_title">Penepatan tetingkap</string>
+  <string name="help_window_pinning_text">Anda boleh mengaktifkan penepatan tetingkap dari menu opsyen (tiga titik, sudut kanan atas). Jika penepatan tetingkap diaktifkan, anda boleh menunjukkan banyak tetingkap tetap pada paparan Alkitab, tetapi hanya satu tetingkap tidak tetap. Tetingkap tetap dipaparkan dahulu, kemudian tetingkap tidak tetap. Anda mungkin ingin membuka dokumen Alkitab sebagai tetingkap tetap, dan ulasan dan peta dll. sebagai tetingkap tidak tetap. Kemudian anda boleh dengan mudah sentiasa membuka dokumen Alkitab, dan beralih dengan cepat antara ulasan dan bahan tambahan lain semasa anda mengkaji Alkitab.</string>
+
+    <!-- Welcome text -->
+  <string name="redownload_documents">Muat Turun Semula Pantas</string>
+  <string name="welcome_message">Terima kasih kerana memuat turun %s. Kini tiada Alkitab atau dokumen yang dipasang. Untuk meneruskan, sila pasang sekurang-kurangnya 1 dokumen dengan memuat turun dari internet, atau dengan memuatkan dari fail zip sandaran dokumen.</string>
+    <!-- Supported file formats for documents -->
+  <string name="supported_formats_title">Format yang disokong</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="choose_file">Anda perlu memilih fail yang ingin anda muatkan ke %s.</string>
+  <string name="supported_formats">Format yang disokong untuk memuatkan dokumen dari fail: %s</string>
+    <!-- argument is app_name_andbible (AndBible). -->
+  <string name="format_zip">Fail Zip yang mengandungi modul Sword, atau fail sandaran dokumen (*.abmd) yang dibuat oleh %s</string>
+  <string name="format_mysword">Dokumen MySword (*.mybible)</string>
+  <string name="format_mybible">Dokumen MyBible (*.SQLite3)</string>
+  <string name="format_esword">Dokumen e-Sword (*.bblx, *.bbli)</string>
+  <string name="format_epub">Dokumen EPUB (*.epub)</string>
+  <string name="format_ttf">Fon TTF (*.ttf)</string>
+  <string name="format_csv_prompts">Add-on prompt AI (*.csv)</string>
+  <string name="format_studypads">Pad Kajian dari pangkalan data AndBible (*.abdb)</string>
+  <string name="redownload_message">Senarai buku/dokumen sebelumnya ditemui. Klik di bawah untuk memuat turunnya semula dengan mudah.</string>
+
+    <!-- Uncategorized -->
+  <string name="close">Tutup</string>
+  <string name="something_with_parenthesis">%1$s (%2$s)</string>
+  <string name="first_time_help_do_not_show_again">Saya faham</string>
+  <string name="first_time_help_show_next_time">Tunjukkan lagi kali depan</string>
+
+  <string name="strongs_mode_title">Pilih mod Strong\'s</string>
+
+  <string name="download_dialog_message">Buku-buku berikut tidak dapat dimuat turun:</string>
+  <string name="select_multiple">Pilih berbilang</string>
+  <string name="journal_description">Pad kajian boleh diedit pengguna dengan teks tersuai dan penanda buku</string>
+  <string name="my_notes_description">Nota boleh diedit pengguna yang dilampirkan pada penanda buku</string>
+  <string name="my_notes_abbreviation">Nota Saya</string>
+  <string name="studypad">Pad Kajian</string>
+  <string name="studypads">Pad Kajian</string>
+  <string name="multi_description">Pelbagai rujukan</string>
+  <string name="multi_abbreviation">Pelbagai</string>
+  <string name="compare_description">Bandingkan terjemahan</string>
+  <string name="compare_abbreviation">Bandingkan</string>
+  <string name="compare">Bandingkan</string>
+  <string name="http_forbidden">Dilarang</string>
+  <string name="http_not_found">Tidak ditemui</string>
+  <string name="http_unknown">Ralat lain</string>
+  <string name="give_passphrase_for_module">Dokumen %s disulitkan dan memerlukan kata laluan untuk dibuka</string>
+  <string name="unlocking_failed">Pembukaan kunci gagal, kata laluan tidak sah</string>
+  <string name="unlock_module">Tetapkan kata laluan modul</string>
+  <string name="unlock_info">Maklumat pembukaan kunci modul yang disulitkan</string>
+  <string name="try_again_passphrase">Kata laluan tidak berfungsi, cuba lagi?</string>
+  <string name="show_unlock_info">Modul &amp; maklumat pembukaan kunci</string>
+
+  <string name="prefs_experimental_features_title">Ciri eksperimental</string>
+  <string name="prefs_experimental_features_summary">Pilih ciri eksperimental mana yang hendak diaktifkan. Ciri-ciri ini masih dalam pembangunan dan mungkin berubah atau dibuang</string>
+  <string name="experimental_feature_bookmark_edit_actions">Tindakan edit penanda buku</string>
+  <string name="experimental_feature_add_paragraph_break">Tambah penanda buku pemisah perenggan</string>
+  <string name="experimental_feature_ai_features">Ciri AI &amp; Dokumen Saya</string>
+  <string name="experimental_feature_reading_and_memorization">Penjejakan bacaan &amp; Hafalan</string>
+  <string name="raw_llm_log_title">Log LLM Mentah</string>
+  <string name="raw_llm_log_empty">Tiada data log mentah tersedia</string>
+  <string name="raw_llm_log_copied">Log disalin ke papan klip</string>
+  <string name="raw_llm_log_total">Jumlah: masuk %1$s / keluar %2$s%3$s</string>
+  <string name="raw_llm_log_entry_system">Prompt sistem</string>
+  <string name="raw_llm_log_entry_user">Mesej pengguna</string>
+  <string name="raw_llm_log_entry_assistant">Respons pembantu</string>
+  <string name="raw_llm_log_entry_tool_call">Panggilan alat: %s</string>
+  <string name="raw_llm_log_entry_tool_result">Keputusan alat [%s]</string>
+  <string name="raw_llm_log_entry_tool_definitions">Definisi alat (%d alat)</string>
+  <string name="raw_llm_log_entry_api_response">Respons API (lelaran %d)</string>
+  <string name="raw_llm_log_entry_tokens">~%s token</string>
+  <string name="raw_llm_log_entry_usage">masuk: %1$s / keluar: %2$s%3$s</string>
+  <string name="raw_llm_log_entry_empty">(kosong)</string>
+  <string name="raw_llm_log_entry_tool_desc">Penerangan: %s</string>
+  <string name="raw_llm_log_entry_tool_params">Parameter: %s</string>
+  <string name="agent_log_view_raw">Lihat log LLM mentah</string>
+  <string name="agent_log_model_selector">Tukar model lalai (kini: %1$s)</string>
+  <string name="agent_log_model_not_configured">Tiada model dikonfigurasi</string>
+  <string name="agent_log_select_model">Pilih model lalai</string>
+  <string name="share">Kongsi</string>
+  <string name="prefs_show_error_box_title">Tunjukkan kotak ralat Javascript</string>
+  <string name="prefs_show_error_box_summary">Berguna untuk pembangun semasa menyahpepijat ralat sisi javascript BibleView. Ini akan menjadikan aplikasi lebih perlahan.</string>
+  <string name="active_window_indicator_title">Tunjukkan penunjuk tetingkap aktif</string>
+  <string name="active_window_indicator_summary">Serlahkan sudut tetingkap untuk membantu mengenali tetingkap mana yang aktif</string>
+  <string name="app_licence_title">Lesen Sumber Terbuka</string>
+
+  <string name="how_to_contribute">Bagaimana untuk menyumbang?</string>
+  <string name="confirm_delete_bookmarks">Adakah anda ingin membuang %d penanda buku dan notanya?</string>
+  <string name="confirm_delete_orphaned_bookmarks">Label yang dipilih dilampirkan pada %d penanda buku yang tidak mempunyai label lain. Adakah anda ingin memadamkan penanda buku ini bersama label?</string>
+  <string name="delete_label_and_bookmarks">Padamkan label dan penanda buku</string>
+  <string name="delete_label_only">Padamkan label sahaja</string>
+  <string name="module_size_megabytes">%.1f MB</string>
+  <string name="tell_friend_title">Cadangkan kepada rakan</string>
+  <string name="tell_friend_message1">Saya ingin mengesyorkan %s kepada anda.</string>
+  <string name="tell_friend_message2">Ini adalah aplikasi kajian Alkitab luar talian yang berkuasa namun mudah digunakan untuk Android.</string>
+  <string name="tell_friend_message3">Pasangnya dari Play Store: %s</string>
+  <string name="tell_friend_message4">Baca lagi &amp; lebih banyak pilihan pemasangan: %s</string>
+  <string name="share_verse_ok">Kongsi / Salin</string>
+  <string name="web_search">Carian web</string>
+  <string name="verse_action_copy">Salin</string>
+  <string name="generic_share">Kongsi</string>
+  <string name="share_verse_menu_title">Kongsi / salin…</string>
+  <string name="show_versenumbers">Tunjukkan nombor ayat</string>
+  <string name="show_full_verses">Tunjukkan ayat penuh</string>
+  <string name="show_selection_only">Tunjukkan teks yang dipilih sahaja</string>
+  <string name="advertise_app">Iklankan aplikasi</string>
+  <string name="verse_share_advertise">Dikongsi menggunakan %s.</string>
+  <string name="show_reference">Tunjukkan rujukan</string>
+  <string name="show_reference_at_front">Tunjukkan di hadapan ayat</string>
+  <string name="abbreviate_reference">Singkatkan rujukan</string>
+  <string name="version_name">Nama versi</string>
+    <!-- meaning, bible version name -->
+  <string name="show_version_name">Sertakan nama versi</string>
+  <string name="show_ellipsis">Tunjukkan elipsis (…)</string>
+  <string name="show_quotes">Tunjukkan petikan</string>
+  <string name="separate_verses_with_newlines">Pisahkan ayat dengan baris baharu</string>
+
+  <string name="backup_button">Sandaran &amp; Pulih</string>
+  <string name="back_button">Balik</string>
+  <string name="upgrading_database">Menaik taraf pangkalan data. Sila tunggu…</string>
+  <string name="initializing_app">Memulakan aplikasi…</string>
+  <string name="show_notes">Tunjukkan nota</string>
+    <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
+  <string name="old_webview">Pakej Android WebView terlalu lama (%1$s). Anda perlu menaik taraf pakej Android WebView anda ke sekurang-kurangnya versi %2$s untuk menggunakan %3$s. Untuk kebanyakan peranti ini boleh dilakukan melalui %4$s.</string>
+  <string name="play">Google Play</string>
+  <string name="proceed_anyway">Teruskan juga</string>
+  <string name="proceed">Teruskan</string>
+  <string name="rate_title">Menilai dan mengulas aplikasi</string>
+  <string name="rate_message5">Ulasan positif dan terperinci sangat membantu Projek Sumber Terbuka AndBible. Terima kasih!</string>
+  <string name="rate_message6">Sebelum menulis ulasan negatif, sila pertimbangkan perkara berikut:</string>
+
+    <!-- parameters are actions (file a bug, send email) -->
+  <string name="rate_message1">Jika ada masalah dengan aplikasi, sila %1$s atau %2$s sebaliknya.</string>
+    <!-- param is "please report maintainers" -->
+  <string name="rate_message2">Jika sesetengah teks / terjemahan Alkitab ada isu, %s.</string>
+    <!-- param is "please read what you can do" -->
+  <string name="rate_message3">Jika teks tertentu tidak tersedia dalam aplikasi, %s.</string>
+  <string name="rate_message4">Pembangun aplikasi ini tidak bertanggungjawab untuk menyelenggara dokumen.</string>
+  <string name="bug_report">hantar laporan pepijat (dari Menu Utama)</string>
+  <string name="how_to_help">sila baca apa yang anda boleh lakukan untuk membantu</string>
+  <string name="send_email">hantar e-mel kepada pembangun</string>
+  <string name="proceed_google_play">Teruskan ke Google Play</string>
+  <string name="text_maintainers">sila laporkan isu kepada penyelenggara teks</string>
+  <string name="does_not_exist_abbreviation">Tidak Wujud</string>
+  <string name="cant_change_wholeverse">Tidak dapat mematikan penandaan keseluruhan ayat untuk penanda buku ini</string>
+  <string name="whole_verse_turned_on">Penanda buku kini ditandai untuk keseluruhan ayat</string>
+  <string name="this_bookmark">Penanda buku ini</string>
+  <string name="this_workspace">Ruang kerja ini</string>
+  <string name="override_style">Ganti gaya</string>
+  <string name="no_override_suffix">(tiada gantian)</string>
+  <string name="display_mode_highlight">Serlah</string>
+  <string name="display_mode_underline">Garis bawah</string>
+  <string name="display_mode_marker">Penanda sahaja</string>
+  <string name="display_mode_hidden">Tersembunyi</string>
+  <string name="workspace_override_indicator">Label ini mempunyai mod paparan khusus ruang kerja</string>
+  <string name="primary_label">Label utama</string>
+  <string name="highlight_entire_verse">Serlahkan keseluruhan ayat</string>
+  <string name="favourite_label">Label kegemaran</string>
+  <string name="edit_label">Edit label</string>
+  <string name="delete_label_confirmation">Adakah anda ingin membuang label penanda buku \"%s\"? Juga semua nota Pad Kajian yang berkaitan akan dibuang.</string>
+  <string name="bookmark_underline_style_arbitrary">Gaya garis bawah untuk penanda buku pilihan</string>
+  <string name="bookmark_underline_style_whole_verse">Gaya garis bawah untuk penanda buku keseluruhan ayat</string>
+  <string name="active_labels">Label yang dipilih</string>
+  <string name="recent_labels">Label terkini</string>
+  <string name="other_labels">Label lain</string>
+  <string name="book_menu_sort_row_opt">Susun buku secara mendatar</string>
+  <string name="book_menu_group_by_category">Kumpulkan buku mengikut kategori</string>
+  <string name="book_menu_show_long_book_name">Tunjukkan nama buku panjang</string>
+  <string name="book_menu_show_progress_bars">Tunjukkan bar kemajuan</string>
+  <string name="reset_workspace_labels">Adakah anda ingin menetapkan semula tetapan auto-tugasan dan kegemaran untuk ruang kerja ini?</string>
+  <string name="reset_hide_labels">Adakah anda ingin menetapkan semula tetapan untuk menyembunyikan label yang ditentukan?</string>
+  <string name="reorder">Susun semula</string>
+  <string name="system_items">Tindakan sistem</string>
+  <string name="system_items1">Lagi</string>
+  <string name="system_action2">Tindakan Android</string>
+  <string name="text_copied_to_clicpboard">Teks disalin ke papan klip</string>
+  <string name="prefs_disable_two_step_bookmarking_title">Penanda buku satu langkah</string>
+  <string name="prefs_disable_two_step_bookmarking_summary">Tunjukkan item \"Pilihan\" dan \"Ayat\" terus dalam menu Pilihan paparan Alkitab</string>
+  <string name="prefs_double_tap_to_fullscreen_title">Ketuk dua kali untuk Skrin Penuh</string>
+  <string name="prefs_double_tap_to_fullscreen_summary">Masuk mod skrin penuh dengan mengetuk dua kali tetingkap</string>
+  <string name="toggle_fullscreen">Skrin penuh</string>
+  <string name="exit_fullscreen">Ketuk dua kali skrin untuk keluar skrin penuh</string>
+  <string name="reset_app_prefs">Adakah anda ingin menetapkan semula semua keutamaan aplikasi global yang dipaparkan pada skrin ini ke nilai lalainya?</string>
+  <string name="label_red">Merah</string>
+  <string name="label_green">Hijau</string>
+  <string name="label_blue">Biru</string>
+  <string name="label_salvation">Keselamatan</string>
+  <string name="label_underline">Garis bawah</string>
+  <string name="import_menu">Import &amp; Eksport</string>
+  <string name="auto_backups_title">Sandaran Auto</string>
+  <string name="backup_file_info">Aplikasi v%1$d, %2$s</string>
+  <string name="reset_databases_title">Set Semula Pangkalan Data</string>
+  <string name="reset_databases_description">Set semula pangkalan data individu ke keadaan kosong awalnya. Ini tidak boleh dibuat asal.</string>
+  <string name="last_crash_info_title">Maklumat ranap terakhir</string>
+  <string name="reset_database_confirm">Ini akan memadamkan secara kekal semua data dalam \"%1$s\" dan menetapkan semulanya ke keadaan awal. Ini tidak boleh dibuat asal.\n\nAdakah anda pasti?</string>
+  <string name="reset_database_success">Pangkalan data telah berjaya ditetapkan semula</string>
+  <string name="reset_something">Set semula: %1$s</string>
+  <string name="export">Eksport</string>
+  <string name="csv_export_success">Mengeksport %d penanda buku ke CSV</string>
+  <string name="csv_import_success">Import selesai: %1$d dibuat, %2$d dikemas kini</string>
+  <string name="csv_import_errors">Import selesai dengan ralat: %1$d dibuat, %2$d dikemas kini, %3$d ralat</string>
+  <string name="csv_import_failed">Import CSV gagal: %s</string>
+  <string name="csv_export_failed">Eksport CSV gagal: %s</string>
+  <string name="export_prompts_csv">Eksport prompt ke CSV</string>
+  <string name="import_prompts_csv">Import prompt dari CSV</string>
+  <string name="prompts_csv_export_success">Mengeksport %d prompt ke CSV</string>
+  <string name="prompts_csv_import_success">Import selesai: %1$d dibuat, %2$d dikemas kini</string>
+  <string name="prompts_csv_import_errors">Import selesai dengan ralat: %1$d dibuat, %2$d dikemas kini, %3$d ralat</string>
+  <string name="prompts_csv_import_failed">Import CSV gagal: %s</string>
+  <string name="prompts_csv_export_failed">Eksport CSV gagal: %s</string>
+  <string name="no_prompts_to_export">Tiada prompt pengguna untuk dieksport</string>
+  <string name="csv_column_selection_title">Pilih Lajur CSV</string>
+  <string name="choose_csv_file">Pilih fail CSV untuk diimport</string>
+  <string name="no_bookmarks_to_export">Tiada penanda buku tersedia untuk dieksport</string>
+  <string name="export_fileformat">Eksport sebagai %s</string>
+  <string name="export_something">Eksport %s</string>
+  <string name="import_items">Import %s</string>
+  <string name="import_from_db">Import dari fail Pangkalan Data Aplikasi</string>
+  <string name="import_error">Import dari Pangkalan Data Aplikasi gagal. Fail pangkalan data mungkin format yang salah atau dibuat dengan versi %s yang terlalu lama.</string>
+
+  <string name="export_bookmarks_csv">Eksport Penanda Buku sebagai %s</string>
+
+    <!-- OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3" -->
+  <string name="osis_reference">Rujukan OSIS</string>
+    <!-- Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3" -->
+  <string name="bible_reference">Rujukan Alkitab</string>
+  <string name="document">Dokumen</string>
+  <string name="book">Buku</string>
+    <!-- Chapter is the chapter number in the book, starting from 1 -->
+  <string name="chapter_start">Bab Mula</string>
+    <!-- Verse is the verse number in the chapter, starting from 1 -->
+  <string name="verse_start">Ayat Mula</string>
+  <string name="chapter_end">Bab Akhir</string>
+  <string name="verse_end">Ayat Akhir</string>
+  <string name="id">Pengecam</string>
+    <!-- Ordinals are running index of Bible verses in a bible document, starting from 0. -->
+  <string name="ordinal_start">Ordinal Mula</string>
+  <string name="ordinal_end">Ordinal Akhir</string>
+  <string name="created_at">Dibuat Pada</string>
+    <!-- Offsets are used to indicate from which character a bookmark starts. -->
+  <string name="start_offset">Ofset Mula</string>
+  <string name="end_offset">Ofset Akhir</string>
+  <string name="custom_icon">Ikon tersuai</string>
+  <string name="last_updated_at">Dikemas kini terakhir pada</string>
+  <string name="bookmark_notes">Nota penanda buku</string>
+
+  <string name="chooser_range">Julat</string>
+  <string name="chooser_jump">Lompat</string>
+  <string name="chooser_OT_abbrev">PL</string>
+  <string name="chooser_NT_abbrev">PB</string>
+  <string name="chooser_style_grid">Grid</string>
+  <string name="chooser_style_lists">Senarai</string>
+  <string name="chooser_select">Pilih %s</string>
+  <string name="chooser_pref_reset">Jangan tetapkan semula bab/ayat ke 1 apabila buku/bab dipilih</string>
+    <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
+  <string name="incomplete_translation">Kami meminta maaf, tetapi kami hanya mempunyai terjemahan antara muka pengguna separa dalam bahasa %1$s. Itu kerana %2$s dibangunkan sepenuhnya oleh sukarelawan. Jika anda boleh membantu dalam penterjemahan, sila lihat %3$s.</string>
+    <!-- will be added to incomplete_translation as a link -->
+  <string name="instructions_for_translators">arahan untuk penterjemah</string>
+  <string name="questions_title">Soalan?</string>
+  <string name="questions_title2">Perlukan bantuan?</string>
+  <string name="bookmark_style">Gaya penanda buku</string>
+  <string name="added_to_bookmark">Diberikan kepada penanda buku ini</string>
+  <string name="strongs_off">Mati</string>
+  <string name="strongs_links">Pautan</string>
+  <string name="strongs_text_and_links">Teks dan Pautan</string>
+  <string name="strongs_hidden_links">Pautan Tersembunyi</string>
+  <string name="verse_tip">Untuk memilih sebahagian atau banyak ayat, anda boleh menekan lama teks Alkitab</string>
+
+  <string name="permission_required">Kebenaran diperlukan</string>
+  <string name="labels_search_hint">Cari</string>
+  <string name="search_mode_name_start">Nama (dari permulaan)</string>
+  <string name="search_mode_name_contains">Nama (mengandungi)</string>
+  <string name="search_mode_content">Kandungan</string>
+  <string name="search_results_matches">%d padanan</string>
+  <string name="search_results_match">1 padanan</string>
+  <string name="progress_status_permission">Untuk menunjukkan pemberitahuan (status muat turun, pemprosesan, status baca), kami memerlukan kebenaran anda.</string>
+
+    <!-- Discrete mode settings -->
+  <string name="app_name_calculator">Kalkulator Mudah</string>
+  <string name="prefs_persecution_cat">Tetapan untuk mereka yang dianiaya</string>
+  <string name="prefs_discrete_mode">Sembunyikan simbol agama</string>
+  <string name="prefs_discrete_mode_desc">Namakan semula aplikasi kepada \'Kalkulator\' dan tunjukkan ikon berbeza dalam pelancar.</string>
+  <string name="prefs_show_calculator">Kalkulator</string>
+  <string name="prefs_calculator_pin">PIN Kalkulator</string>
+  <string name="prefs_calculator_pin_desc">Kod PIN untuk memasuki aplikasi apabila kalkulator ditunjukkan.</string>
+  <string name="calc_division_by_zero">Pembahagian dengan sifar tidak dibenarkan</string>
+    <!-- Context: calculator. Wrong number format etc. -->
+  <string name="calc_wrong_format">Format Salah</string>
+  <string name="calc_wrong_format_operand">Format Salah. Operan Tanpa nombor?</string>
+  <string name="prefs_persecuted_help">Baca ini dahulu!</string>
+    <!-- Gives sintructions about the settings (for discrete mode) and also information about another app version that is available to be downloaded, that is better suited for persecuted. -->
+  <string name="prefs_persecuted_summary">Arahan untuk tetapan dan maklumat tentang binaan diskrit tertentu.</string>
+
+  <string name="calculator_par1">Sebelum memasuki aplikasi, skrin kalkulator dipaparkan.</string>
+  <string name="calculator_par2">Di dalamnya, anda boleh melakukan kalkulus standard, dan apabila anda ingin memasuki aplikasi, anda hanya taip kod PIN anda (lalai adalah 1234) kemudian tekan butang "=".</string>
+  <string name="calculator_par3">Anda boleh menetapkan kod PIN tersuai melalui tetapan "PIN Kalkulator".</string>
+  <string name="discrete_mode_info_par1">Anda menggunakan versi aplikasi standard, yang bermakna masih mungkin untuk melihat nama sebenar dan ikon aplikasi dalam maklumat aplikasi.</string>
+  <string name="discrete_mode_info_par2">Untuk keselamatan yang lebih baik dalam persekitaran yang menganiaya, kami sangat mengesyorkan menggunakan versi diskrit aplikasi, yang sentiasa memaparkan kalkulator, walaupun data aplikasi dipadamkan.</string>
+  <string name="discrete_mode_link">Anda boleh memuat turun versi terkini versi diskrit dari %s.</string>
+
+    <!-- Window synchronize groups -->
+  <string name="sync_group_submenu">Selaraskan kumpulan</string>
+  <string name="sync_group_n">Kumpulan %d</string>
+  <string name="disable_sync">Nyahdayakan penyegerakan</string>
+  <string name="open_in_window">Buka keputusan dalam tetingkap</string>
+
+    <!-- Custom repositories -->
+    <!-- Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here. -->
+  <string name="custom_repositories">Repositori tersuai</string>
+  <string name="custom_repositories_empty_list_message">Tiada repositori tersuai ditakrifkan</string>
+  <string name="custom_repositories_create_button_label">Tambah Repositori Tersuai</string>
+  <string name="custom_repositories_info_button_label">Maklumat</string>
+  <string name="name_for_repository">Nama untuk repositori</string>
+  <string name="repository_specification">URL repositori</string>
+  <string name="delete_custom_repository">Adakah anda ingin membuang repositori tersuai %s?</string>
+  <string name="invalid_repository_not_saved">Spesifikasi repositori tidak sah dan ia tidak disimpan.</string>
+  <string name="custom_repositories_help1">Untuk menambah repositori tersuai baharu, taip atau salin &amp; tampal URL repositori tersuai di sini.</string>
+  <string name="custom_repositories_help2">Anda boleh membaca lebih banyak maklumat tentang repositori tersuai dalam %s.</string>
+  <string name="wiki_page">halaman WIKI</string>
+  <string name="custom_repositories_help0">Anda boleh memasang dokumen dari repositori tersuai luaran dengan memasang repositori tersuai.</string>
+  <string name="duplicate_custom_repository">Repositori dengan nama %s sudah wujud, tidak dapat menambah yang lain.</string>
+
+  <string name="packages_dir">Direktori pakej (fail Zip)</string>
+  <string name="warn_bad_document">Amaran: Dokumen ini mungkin (sekurang-kurangnya sebahagiannya) berkualiti teknikal yang buruk.</string>
+
+    <!-- Open links in AndBible (Deep linking) -->
+  <string name="open_bible_links_title">Buka pautan Alkitab dalam AndBible</string>
+  <string name="open_bible_links_summary">Apabila mengklik pautan yang merujuk URL Alkitab yang disokong AndBible, buka dalam AndBible</string>
+  <string name="copyReference">Salin pautan ke papan klip</string>
+  <string name="reference_copied_to_clipboard">Rujukan disalin ke papan klip</string>
+
+    <!-- Device cloud synchronization -->
+  <string name="prefs_sync_introduction_summary1">Pilih perkhidmatan awan bahagian belakang yang ingin anda gunakan untuk menyegerakkan pelbagai peranti.</string>
+  <string name="prefs_sync_introduction_summary2">Apabila menggunakan Google Drive, %s diberikan akses hanya kepada fail aplikasi, bukan fail peribadi.</string>
+  <string name="restore_backup_sections">Bahagian sandaran mana yang anda ingin pulihkan?</string>
+  <string name="db_repositories">Repositori dan tetapan berkaitan</string>
+  <string name="db_bookmarks">Penanda Buku, Nota Saya, Label dan Pad Kajian</string>
+  <string name="synchronizing">Menyegerakkan…</string>
+  <string name="overrideBackup">Pangkalan data sedia ada yang tidak disegerakkan dengan peranti ini ditemui dalam Awan. Pangkalan data mengandungi %s. Apa yang anda ingin lakukan?</string>
+  <string name="reading_plans_content">Rancangan bacaan dan statusnya</string>
+  <string name="bookmarks_contents">Penanda Buku, Label dan Pad Kajian</string>
+  <string name="workspaces_contents">Ruang Kerja dan Tetingkap</string>
+  <string name="my_documents_contents">Dokumen Saya dan kandungannya</string>
+  <string name="ai_settings_sync_title">Tetapan AI</string>
+  <string name="ai_settings_sync_contents">Prompt AI dan konfigurasi penyedia</string>
+  <string name="progress_sync_title">Kemajuan Bacaan</string>
+  <string name="progress_sync_contents">Ayat yang dihafal dan rekod bacaan bab</string>
+
+    <!-- Reading Progress Activity -->
+  <string name="reading_progress_title">Kemajuan Baca/Hafal</string>
+  <string name="reading_progress_chapters_read">bab dibaca</string>
+  <string name="reading_progress_verses_memorized">ayat dihafal</string>
+  <string name="reading_progress_active_days">hari aktif</string>
+  <string name="reading_progress_overall">%s%% Alkitab dibaca</string>
+  <string name="reading_progress_bible_heatmap">Gambaran Keseluruhan Alkitab</string>
+  <string name="reading_progress_old_testament">Perjanjian Lama</string>
+  <string name="reading_progress_new_testament">Perjanjian Baharu</string>
+  <string name="reading_progress_calendar">Aktiviti Bacaan</string>
+  <string name="reading_progress_cycle">Kitaran %d</string>
+  <string name="reading_progress_new_cycle">Kitaran Baharu</string>
+  <string name="reading_progress_new_cycle_confirm">Mulakan kitaran bacaan baharu? Ini akan mula menjejaki kemajuan anda dari awal, sambil mengekalkan data kitaran sebelumnya.</string>
+  <string name="reading_progress_previous_cycle">Kitaran sebelumnya</string>
+  <string name="reading_progress_next_cycle">Kitaran seterusnya</string>
+
+  <string name="cloud_fetch_and_restore_initial">Salin dari Awan ke peranti ini</string>
+  <string name="cloud_create_new">Salin dari peranti ini ke Awan</string>
+  <string name="cloud_disable_sync">Batal &amp; nyahdayakan penyegerakan</string>
+  <string name="cloud_sync_title">Penyegerakan peranti</string>
+  <string name="reset_sync">Log Keluar</string>
+  <string name="prefs_reset_sync_summary">Nyahdayakan penyegerakan dan tetapkan semula tetapan berkaitan.</string>
+  <string name="sync_confirmation">Adakah anda pasti ingin log keluar dan tetapkan semula penyegerakan?</string>
+  <string name="cloud_info">Maklumat awan</string>
+  <string name="cloud_info_summary">Data dalam storan awan: %s Mb</string>
+  <string name="sync_adapter">Bahagian Belakang Penyegerakan</string>
+  <string name="sync_adapter_summary">Semasa: %s</string>
+  <string name="adapters_google_drive">Google Drive</string>
+  <string name="adapters_next_cloud">Next Cloud</string>
+  <string name="auth_title">Pengesahan kepada %s</string>
+  <string name="auth_server_uri">URL pelayan</string>
+  <string name="auth_username">Nama pengguna</string>
+  <string name="auth_password">Kata laluan</string>
+  <string name="auth_folder_path">Laluan folder segerak</string>
+  <string name="auth_folder_path_summary">Folder induk untuk data segerak (kosong = akar)</string>
+  <string name="auth_access_token">Token akses</string>
+  <string name="synchronization_categories">Kategori penyegerakan</string>
+  <string name="sync_general_settings">Maklumat &amp; tetapan umum</string>
+  <string name="sync_introduction">Pengenalan</string>
+  <string name="are_you_sure">Adakah anda pasti?</string>
+  <string name="are_you_sure_reset_local">Ini akan menetapkan semula pangkalan data tempatan anda untuk %s dengan kandungan yang kini disimpan dalam perkhidmatan awan.</string>
+  <string name="are_you_sure_reset_cloud">Ini akan menetapkan semula pangkalan data awan anda untuk %s dengan kandungan yang anda miliki dalam peranti ini.</string>
+  <string name="sync_cant_fetch">Versi pangkalan data atau fail tampalan yang disimpan dalam Awan lebih tinggi daripada yang disokong oleh aplikasi ini.</string>
+  <string name="sync_disabling">Menyahdayakan penyegerakan untuk %s buat masa ini.</string>
+  <string name="sync_update_app">Sila kemas kini aplikasi untuk meneruskan penyegerakan.</string>
+  <string name="sign_in_failed">Log masuk ke perkhidmatan bahagian belakang penyegerakan gagal.</string>
+    <!--  ... after restoring from backup file -->
+  <string name="disabling_sync">Menyahdayakan penyegerakan awan. Anda perlu mengaktifkan semula secara manual selepas pemulihan.</string>
+  <string name="report">Lapor</string>
+  <string name="sync_error">Ralat berlaku dalam penyegerakan Awan</string>
+  <string name="error_notification_channel_name">Pemberitahuan ralat</string>
+  <string name="restore_from_cloud_description">Jika anda telah mengaktifkan Penyegerakan Peranti dalam peranti lain, anda boleh memulakan dengan memulihkan pangkalan data dari Awan.</string>
+  <string name="enable_sync">Aktifkan penyegerakan</string>
+  <string name="last_updated">Dikemas kini terakhir: %s</string>
+
+    <!-- MyBible/MySword module support -->
+  <string name="sqlite_cant_read">Tidak dapat membaca fail</string>
+  <string name="sqlite_invalid_file">Fail modul atau nama fail tidak sah: %s</string>
+  <string name="sqlite_cant_write">Tidak dapat menulis (menimpa) fail</string>
+  <string name="install_failed_reason">Pemasangan modul gagal kerana sebab berikut: %s.</string>
+
+    <!-- Other / uncategorized -->
+  <string name="app_opened_elsewhere">Aplikasi dibuka di tempat lain</string>
+  <string name="open_here">Buka di sini</string>
+  <string name="external_link">Pautan luaran</string>
+  <string name="external_link_question">Ini akan membuka pautan luaran %s dalam aplikasi penyemak imbas, adakah anda ingin meneruskan?</string>
+  <string name="nameless">Tajuk tidak ditakrifkan</string>
+  <string name="prefs_in_window_bible_bookmark_modal_buttons_title">Tindakan satu ketukan (Alkitab)</string>
+  <string name="prefs_in_window_gen_bookmark_modal_buttons_title">Tindakan satu ketukan (Lain-lain)</string>
+  <string name="prefs_in_window_bookmark_modal_buttons_description">Apabila teks diketuk, tetingkap tindakan satu ketukan dipaparkan. Butang tindakan mana yang perlu ditunjukkan?</string>
+  <string name="processing_epub">Memproses EPUB: %s</string>
+  <string name="buy_development">Beli masa pembangunan</string>
+  <string name="buy_development2">Sokong projek</string>
+  <string name="new_version_warning">Keluaran baharu akan datang tidak lama lagi. Tarikh keluaran yang dijangka ialah %1$s. Tonton %2$s kami untuk mengetahui ciri baharu dan penambahbaikan.</string>
+  <string name="new_version_trailer">video treler</string>
+  <string name="new_version_warning2">Selepas keluaran, versi ini tidak diselenggara.</string>
+  <string name="new_version_warning3">Ia tidak akan menerima pembaikan pepijat atau kemas kini.</string>
+  <string name="new_version_warning4">Jika anda tidak mahu menaik taraf, sila nyahdayakan \'Kemas Kini Automatik\' dalam kedai aplikasi anda (Google Play / F-Droid dll).</string>
+  <string name="dont_show">Jangan tunjukkan mesej ini lagi</string>
+  <string name="pref_font_size_multiplier_title">Pendarab saiz fon</string>
+  <string name="pref_font_size_multiplier_summary_1">Gandakan saiz fon teks dengan nombor ini.</string>
+  <string name="pref_font_size_multiplier_summary_2">Berguna jika anda mempunyai peranti yang disegerakkan yang digunakan dengan fon yang lebih besar.</string>
+  <string name="current_value">Nilai semasa: %s</string>
+  <string name="prefs_bible_view_swipe_mode_title">Tindakan untuk isyarat leret kiri / kanan</string>
+  <string name="prefs_bible_view_swipe_mode_summary">Isyarat leret kiri / kanan boleh digunakan untuk pergi ke halaman / bab seterusnya.</string>
+  <string name="prefs_swipe_mode_chapter">Bab</string>
+  <string name="prefs_swipe_mode_page">Halaman</string>
+  <string name="prefs_swipe_mode_none">Dinyahdayakan</string>
+  <string name="prefs_volume_keys_scroll_title">Butang kelantangan tatal</string>
+  <string name="prefs_volume_keys_scroll_summary">Gunakan kelantangan naik/turun untuk menatal teks Alkitab</string>
+  <string name="page_number_title">Nombor halaman relatif</string>
+  <string name="page_number_summary">Tunjukkan hamparan nombor halaman. Nombor halaman adalah relatif kepada kedudukan permulaan.</string>
+  <string name="select_custom_icon">Pilih ikon penanda tersuai</string>
+  <string name="invalid_url_message">URL yang anda masukkan tidak sah. Sila masukkan URL yang sah (cth., https://nextcloud.contoh.com)</string>
+  <string name="memorize_description">Hafal ayat Alkitab</string>
+  <string name="memorize_abbreviation">Hafal</string>
+  <string name="add_memorization_target">Tetapkan sebagai matlamat hafalan</string>
+  <string name="memorize_memorized_passages">Petikan yang dihafal</string>
+  <string name="memorize_no_memorized_passages">Belum ada petikan yang dihafal</string>
+  <string name="memorize_targets">Matlamat hafalan</string>
+  <string name="memorize_no_targets">Tiada matlamat hafalan ditetapkan</string>
+  <string name="memorize_auto_mark">Tandakan hafal secara automatik</string>
+  <string name="memorize_auto_mark_summary">Tandakan ayat sebagai dihafal secara automatik apabila latihan selesai</string>
+  <string name="memorize_type_full_words">Taip perkataan penuh</string>
+  <string name="memorize_type_full_words_summary">Memerlukan menaip perkataan lengkap dan bukannya hanya huruf pertama</string>
+  <string name="memorize_word_visibility">Keterlihatan perkataan</string>
+  <string name="memorize_word_visibility_summary">Seberapa kelihatan perkataan yang belum ditaip: petunjuk ringan, suram, atau tersembunyi sepenuhnya</string>
+  <string name="memorize_word_visibility_light">Ringan</string>
+  <string name="memorize_word_visibility_dim">Suram</string>
+  <string name="memorize_word_visibility_hidden">Tersembunyi</string>
+  <string name="memorize_error_heatmap">Peta haba ralat</string>
+  <string name="memorize_error_heatmap_summary">Serlahkan perkataan dengan lebih banyak ralat dalam merah yang lebih pekat secara progresif</string>
+  <string name="memorize_scramble_hide_used">Sembunyikan butang perkataan yang digunakan</string>
+  <string name="memorize_scramble_hide_used_summary">Sembunyikan butang perkataan sepenuhnya selepas ia diletakkan dengan betul dalam mod acak perkataan</string>
+  <string name="reading_progress_settings">Kemajuan &amp; hafalan</string>
+  <string name="reading_progress_settings_summary">Tetapan penjejakan automatik, hafalan, dan latihan menaip</string>
+  <string name="memorize_confirm_unmark">Buang status dihafal untuk %s?</string>
+  <string name="memorize_confirm_remove_target">Buang matlamat hafalan %s?</string>
+  <string name="memorize_tab_reading">Bacaan</string>
+  <string name="memorize_tab_memorization">Hafalan</string>
+  <string name="memorize_verses_memorized">Dihafal</string>
+  <string name="memorize_verses_target">Matlamat</string>
+  <string name="memorize_show_more">Tunjukkan %d lagi</string>
+  <string name="memorize_calendar">Aktiviti Hafalan</string>
+  <string name="memorize_view_list">Senarai</string>
+  <string name="memorize_view_overview">Gambaran keseluruhan</string>
+
+    <!-- LLM Translation Settings -->
+  <string name="llm_settings_title">Terjemahan LLM</string>
+  <string name="sync_settings_shortcut_summary">Segerakkan data antara peranti</string>
+  <string name="llm_api_key_title">Kunci API</string>
+  <string name="llm_api_key_summary">Kunci API yang serasi dengan OpenAI</string>
+  <string name="llm_provider_custom">Tersuai (serasi OpenAI)</string>
+  <string name="llm_provider_title">Penyedia</string>
+  <string name="llm_provider_summary">Pilih penyedia perkhidmatan AI yang hendak digunakan. Titik akhir API dan model yang tersedia akan dikonfigurasi secara automatik.</string>
+  <string name="llm_provider_current">Semasa: %s</string>
+  <string name="llm_api_key_detected_provider">Penyedia yang dikesan: %s</string>
+  <string name="ai_connection_category">Sambungan</string>
+  <string name="ai_model_category">Model</string>
+  <string name="ai_behavior_category">Gelagat</string>
+  <string name="ai_language_title">Bahasa respons AI</string>
+  <string name="ai_language_summary">Bahasa yang digunakan AI untuk respons</string>
+  <string name="ai_language_app_default">Bahasa aplikasi (%1$s)</string>
+  <string name="ai_language_custom">Tersuai\u2026</string>
+  <string name="ai_language_custom_hint">Masukkan nama atau kod bahasa</string>
+  <string name="ai_language_custom_example">cth. suomi, Tagalog, en</string>
+  <string name="ai_usage_category">Penggunaan</string>
+  <string name="llm_usage_summary_title">Penggunaan token</string>
+  <string name="llm_usage_summary_default">Tiada data penggunaan</string>
+  <string name="llm_usage_summary_format">Input: %1$d token | Output: %2$d token\nAnggaran kos: %3$s</string>
+  <string name="llm_reset_usage_title">Set semula data penggunaan</string>
+  <string name="llm_reset_usage_summary">Kosongkan penjejakan token dan kos kumulatif</string>
+  <string name="llm_reset_usage_confirm_title">Set semula data penggunaan?</string>
+  <string name="llm_reset_usage_confirm_message">Ini akan mengosongkan semua data penggunaan kumulatif.</string>
+  <string name="llm_custom_input_price_title">Harga input ($/Mtoken)</string>
+  <string name="llm_custom_input_price_summary">Kos per juta token input untuk model ini</string>
+  <string name="llm_custom_output_price_title">Harga output ($/Mtoken)</string>
+  <string name="llm_custom_output_price_summary">Kos per juta token output untuk model ini</string>
+  <string name="llm_cost_total">Jumlah: %1$s</string>
+  <string name="llm_endpoint_title">Titik Akhir API</string>
+  <string name="llm_endpoint_summary">URL asas untuk API</string>
+  <string name="llm_model_title">Model</string>
+  <string name="llm_model_summary">ID Model</string>
+  <string name="llm_custom_model">Tersuai…</string>
+  <string name="llm_custom_model_dialog_title">Model tersuai</string>
+  <string name="llm_custom_model_dialog_message">Masukkan ID model</string>
+  <string name="llm_rate_limited_retrying">Had kadar. Cuba semula dalam %1$ss\u2026</string>
+  <string name="llm_default_document_title">Respons AI</string>
+  <string name="llm_default_task_completed">Tugasan selesai</string>
+  <string name="llm_default_studypad_opened">Pad Kajian dibuka</string>
+  <string name="llm_parse_error">Gagal menghurai respons LLM: %1$s</string>
+  <string name="llm_parse_error_no_choices">Tiada pilihan dalam respons OpenAI</string>
+  <string name="llm_parse_error_openai">Gagal menghurai respons OpenAI: %1$s</string>
+  <string name="llm_parse_error_anthropic">Gagal menghurai respons Anthropic: %1$s</string>
+  <string name="llm_error_prompt_not_found">Prompt tidak ditemui: %1$s</string>
+  <string name="llm_error_unknown">Ralat tidak diketahui</string>
+  <string name="llm_error_max_iterations">Lelaran maksimum (%1$d) dicapai tanpa penyiapan</string>
+  <string name="llm_continue_iterations_title">Teruskan?</string>
+  <string name="llm_continue_iterations_message">Ejen AI telah mencapai had %1$d lelaran tanpa menyiapkan. Teruskan untuk %2$d lelaran lagi?</string>
+  <string name="agent_max_iterations_title">Lelaran ejen maksimum</string>
+  <string name="agent_max_iterations_summary">Lelaran maksimum sebelum meminta untuk meneruskan (0 = tanpa had)</string>
+  <string name="ask_model_before_run_title">Tanya model sebelum jalankan</string>
+  <string name="ask_model_before_run_summary">Tunjukkan dialog pemilihan model sebelum melaksanakan prompt (dilangkau apabila prompt mempunyai gantian model yang jelas)</string>
+  <string name="custom_agent_system_prompt_title">Prompt sistem ejen</string>
+  <string name="custom_system_prompt_summary">Pengeditan tidak disyorkan kecuali anda tahu apa yang anda lakukan</string>
+  <string name="custom_text_transform_system_prompt_title">Prompt sistem transformasi teks</string>
+  <string name="ai_advanced_category">Lanjutan</string>
+  <string name="custom_system_prompt_default">Lalai</string>
+  <string name="custom_system_prompt_custom">Tersuai</string>
+  <string name="reset_to_default">Set semula ke lalai</string>
+
+    <!-- Raw log history -->
+  <string name="raw_log_history_title">Sejarah Log AI</string>
+  <string name="raw_log_history_summary">Lihat dan urus log perbualan AI yang disimpan</string>
+  <string name="raw_log_history_empty">Tiada log yang disimpan</string>
+  <string name="raw_log_delete_selected">Padamkan yang dipilih</string>
+  <string name="raw_log_delete_old">Padamkan log lama\u2026</string>
+  <string name="raw_log_delete_confirm">%d dipilih</string>
+  <string name="raw_log_older_1_week">Lebih lama daripada 1 minggu</string>
+  <string name="raw_log_older_1_month">Lebih lama daripada 1 bulan</string>
+  <string name="raw_log_older_3_months">Lebih lama daripada 3 bulan</string>
+  <string name="raw_log_delete_all">Padamkan semua</string>
+  <string name="raw_log_item_tokens">%1$s masuk / %2$s keluar</string>
+  <string name="raw_log_error_indicator">Ralat</string>
+  <string name="raw_log_retention_title">Padam log lama secara automatik</string>
+  <string name="raw_log_retention_summary_days">Selepas %d hari</string>
+  <string name="raw_log_retention_summary_disabled">Dinyahdayakan (simpan semua)</string>
+  <string name="send_ai_bug_report_title">Laporkan Pepijat AI</string>
+  <string name="ai_bug_report_menu">Laporkan pepijat AI</string>
+  <string name="ai_bug_report_recommended_only">Pelaporan pepijat hanya tersedia untuk model penyedia yang disyorkan</string>
+
+  <string name="select_model_before_run_title">Pilih model</string>
+  <string name="set_default_model_for_prompt">Tetapkan sebagai model lalai untuk prompt ini</string>
+  <string name="prompt_max_iterations">Gantian lelaran maksimum</string>
+  <string name="prompt_max_iterations_hint">Biarkan kosong untuk lalai global</string>
+  <string name="prompt_max_iterations_description">Gantikan lelaran maksimum global untuk prompt ini. Kosong = lalai global, 0 = tanpa had.</string>
+  <string name="prompt_max_iterations_unlimited">Tanpa had</string>
+  <string name="prompt_max_iterations_global_default">Lalai global (%d)</string>
+  <string name="prompt_max_iterations_summary_with_value">Gantikan lelaran maksimum global untuk prompt ini. 0 = tanpa had.\nSemasa: %s</string>
+
+    <!-- Prompt Manager -->
+  <string name="manage_prompts">Urus Prompt AI</string>
+  <string name="manage_prompts_summary">Buat dan edit prompt AI</string>
+  <string name="ai_settings">Tetapan AI</string>
+  <string name="ai_connection_settings">Tetapan sambungan</string>
+  <string name="ai_setup_title">Konfigurasi AI</string>
+  <string name="ai_setup_description">AndBible boleh menggunakan AI untuk menterjemah teks Alkitab, menerangkan ayat, membuat ringkasan, dan banyak lagi. Untuk bermula, konfigurasikan sambungan ke penyedia API yang serasi dengan OpenAI.</string>
+  <string name="ai_configure_button">Konfigurasi Sambungan</string>
+  <string name="ai_settings_shortcut_summary">Tetapan sambungan AI dan prompt</string>
+  <string name="ai_provider_tier_recommended">Disyorkan</string>
+  <string name="ai_provider_tier_community">Penyedia lain (tidak diuji)</string>
+
+    <!-- Multi-provider settings -->
+  <string name="ai_providers_models_category">Penyedia &amp; Model</string>
+  <string name="ai_providers_category">Penyedia</string>
+  <string name="ai_providers_summary_none">Tiada penyedia dikonfigurasi</string>
+  <string name="ai_models_summary_none">Tiada model dikonfigurasi</string>
+  <string name="ai_add_provider">Tambah penyedia</string>
+  <string name="ai_provider_edit">Edit</string>
+  <string name="ai_provider_delete">Padamkan</string>
+  <string name="ai_provider_delete_confirm">Padamkan penyedia \"%1$s\"? Prompt yang menggunakan penyedia ini akan kembali ke lalai.</string>
+  <string name="ai_provider_api_key_not_set">Kunci API tidak ditetapkan</string>
+  <string name="ai_provider_select_type">Pilih jenis penyedia</string>
+  <string name="ai_provider_name">Nama penyedia</string>
+  <string name="ai_provider_name_hint">Nama paparan untuk penyedia ini</string>
+  <string name="ai_provider_api_key">Kunci API</string>
+  <string name="ai_provider_endpoint">Titik akhir API</string>
+  <string name="ai_provider_api_format">Format API</string>
+  <string name="ai_provider_saved">Penyedia disimpan</string>
+  <string name="ai_provider_deleted">Penyedia dipadamkan</string>
+
+  <string name="llm_fetch_models_title">Muat turun senarai model</string>
+  <string name="llm_fetch_models_message">Muat turun senarai model yang tersedia dari %1$s?</string>
+  <string name="llm_fetch_models_dont_ask">Jangan tanya lagi</string>
+  <string name="llm_fetch_models_success">Memuatkan %1$d model</string>
+  <string name="llm_fetch_models_failed">Gagal mendapatkan model</string>
+  <string name="llm_openrouter_category">Kategori</string>
+  <string name="llm_openrouter_category_all">Semua</string>
+  <string name="llm_openrouter_model">Model</string>
+    <!-- Configured models management -->
+  <string name="ai_models_category">Model</string>
+  <string name="add_model">Tambah model</string>
+  <string name="add_model_title">Tambah model</string>
+  <string name="edit_model_title">Edit model</string>
+  <string name="model_saved">Model disimpan</string>
+  <string name="model_deleted">Model dipadamkan</string>
+  <string name="model_delete_confirm">Padamkan model \"%1$s\"?</string>
+  <string name="model_set_default">Tetapkan sebagai model lalai</string>
+  <string name="model_select_provider">Penyedia</string>
+  <string name="no_models_configured">Tiada model dikonfigurasi</string>
+  <string name="model_cache_creation_price">Harga penciptaan cache ($/Mtoken)</string>
+  <string name="model_cache_read_price">Harga baca cache ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Disokong</string>
+  <string name="show_also_unsupported_models">Tunjukkan juga model yang tidak disokong</string>
+  <string name="show_also_unsupported_providers">Tunjukkan juga penyedia yang tidak disokong</string>
+
+    <!-- Easy Setup -->
+  <string name="model_pricing_summary">%1$s masuk / %2$s keluar per Mtoken</string>
+  <string name="easy_setup_free_tier">Peringkat percuma</string>
+  <string name="unknown_error">Ralat tidak diketahui</string>
+  <string name="easy_setup_title">Persediaan Pantas</string>
+  <string name="easy_setup_pref_summary">Sediakan AI dengan penyedia yang disyorkan dalam beberapa langkah</string>
+  <string name="easy_setup_choose_provider">Pilih penyedia untuk bermula:</string>
+  <string name="easy_setup_enter_api_key">Masukkan kunci API anda</string>
+  <string name="easy_setup_api_key_instructions">Dapatkan kunci API anda dari:</string>
+  <string name="easy_setup_test_connection">Uji sambungan</string>
+  <string name="easy_setup_testing">Menguji…</string>
+  <string name="easy_setup_success">Sambungan berjaya!</string>
+  <string name="easy_setup_failed">Sambungan gagal: %1$s</string>
+  <string name="easy_setup_done_title">AI sedia!</string>
+  <string name="easy_setup_done_message">Pilih teks dalam Alkitab dan cuba ciri AI. Anda boleh menambah lebih banyak model dan penyedia dalam tetapan.</string>
+  <string name="easy_setup_gemini_desc">Peringkat percuma tersedia, kualiti baik</string>
+  <string name="easy_setup_anthropic_desc">Berpatutan, kualiti cemerlang</string>
+  <string name="easy_setup_openai_desc">Terkenal, boleh dipercayai</string>
+
+    <!-- AI Disclaimer -->
+  <string name="ai_disclaimer_warning_title">Penting: Baca sebelum menggunakan alat AI</string>
+  <string name="ai_disclaimer_warning_summary">Risiko dan tanggungjawab menggunakan AI</string>
+  <string name="ai_disclaimer_dialog_title">Alat AI — Maklumat Penting</string>
+  <string name="ai_disclaimer_intro">Alat AI boleh sangat memperkayakan pengalaman kajian Alkitab anda dan membuka cara baharu untuk berinteraksi dengan Kitab Suci.</string>
+  <string name="ai_disclaimer_approach">AndBible terutamanya menggunakan AI untuk memproses teks dari dokumen yang anda pasang — ulasan, kamus, dan modul lain — dan bukannya bergantung pada data latihan model sendiri.</string>
+  <string name="ai_disclaimer_responsibility">Walau bagaimanapun, ia masih merupakan alat yang berkuasa — dan dengan kuasa yang besar datang tanggungjawab yang besar. Sila ingat perkara berikut.</string>
+  <string name="ai_disclaimer_point1">AI boleh membuat kesilapan, termasuk \"halusinasi\" (menyatakan maklumat palsu atau direka dengan yakin). Jangan menerima outputnya secara buta.</string>
+  <string name="ai_disclaimer_point2">Respons AI boleh mencerminkan kecenderungan dari data latihan mereka, mungkin mengelirukan dengan sengaja, atau mungkin membentangkan perspektif teologi tertentu seolah-olah ia neutral atau lengkap.</string>
+  <string name="ai_disclaimer_point3">Anda bertanggungjawab atas cara anda menggunakan kandungan yang dijana AI. Sentiasa sahkan hasilnya terhadap Kitab Suci sebelum bergantung padanya.</string>
+  <string name="ai_disclaimer_point4">AndBible berusaha untuk memudahkan pengesahan (cth. petikan sumber yang tepat dalam ulasan), tetapi tanggungjawab muktamad sentiasa terletak pada anda.</string>
+  <string name="ai_disclaimer_point5">\"Ujilah segala-galanya; peganglah yang baik.\" (1 Tesalonika 5:21)</string>
+  <string name="ai_disclaimer_point6">Alat-alat ini tidak mempunyai jiwa dan tidak ada Roh Kudus. Ia adalah alat pemprosesan teks, bukan panduan rohani. Ia tidak sesuai untuk menyediakan khotbah, renungan, atau kandungan rohani lain secara langsung tanpa pengawasan manusia yang teliti, doa, dan kebijaksanaan.</string>
+  <string name="ai_disclaimer_point7">Digunakan dengan bijak, ia boleh memberi manfaat kepada ramai pengguna dan kes penggunaan. Tetapi jika anda tidak pasti tentang menerima risiko, memilih untuk tidak menggunakannya juga merupakan pilihan yang sah sepenuhnya.</string>
+  <string name="ai_disclaimer_point8">Data anda dihantar ke pelayan penyedia AI yang anda pilih. Dengan menggunakan kunci API, anda menerima syarat dan dasar privasi penyedia tersebut. Model yang di-hos sendiri adalah mungkin tetapi memerlukan kepakaran teknikal yang lebih, dan mungkin tidak menghasilkan keputusan sebaik model komersial.</string>
+  <string name="ai_disclaimer_point9">Penyedia AI mengenakan bayaran untuk penggunaan API. Anggaran kos yang ditunjukkan dalam AndBible adalah anggaran — sentiasa semak pengebilan penyedia anda untuk caj sebenar.</string>
+  <string name="ai_disclaimer_accept_title">Terima Penafian AI</string>
+  <string name="ai_disclaimer_accept_button">Saya menerima dan mengambil tanggungjawab penuh</string>
+
+  <string name="prompt_permission_mode">Mod kebenaran</string>
+  <string name="prompt_permission_mode_description">Mengawal bila pengesahan pengguna diperlukan sebelum AI melakukan operasi tulis. Tetapan setiap alat di bawah boleh mengatasi ini untuk alat individu.</string>
+  <string name="agent_permission_mode_summary">Mengawal bila pengesahan pengguna diperlukan sebelum operasi tulis AI</string>
+  <string name="prompt_permission_use_default">Gunakan lalai</string>
+  <string name="prompt_tab_prompt">Prompt</string>
+  <string name="prompt_tab_permissions">Kebenaran</string>
+  <string name="prompt_tab_advanced">Lanjutan</string>
+  <string name="prompt_name">Nama</string>
+  <string name="prompt_description">Penerangan</string>
+  <string name="prompt_template">Templat prompt</string>
+  <string name="prompt_show_in">Tunjukkan dalam</string>
+  <string name="prompt_context_verse_selection">Pemilihan ayat</string>
+  <string name="prompt_context_text_selection">Pemilihan teks</string>
+  <string name="prompt_context_window_menu">Menu tetingkap</string>
+  <string name="prompt_context_workspace_menu">Menu ruang kerja</string>
+  <string name="prompt_context_note_editor">Editor nota</string>
+  <string name="prompt_bible_only">Dokumen Alkitab sahaja</string>
+  <string name="prompt_category_study">Kajian</string>
+  <string name="prompt_category_notes">Nota</string>
+  <string name="prompt_category_general">Umum</string>
+  <string name="prompt_category_test">Ujian</string>
+  <string name="prompt_category_uncategorized">Tanpa kategori</string>
+  <string name="prompt_category_favorites">Kegemaran</string>
+  <string name="addon_prompt_badge">Add-on: %s</string>
+  <string name="addon_prompt_notice">Prompt ini adalah dari modul add-on \"%s\" dan tidak boleh diedit. Gunakan \"Salin untuk disesuaikan\" untuk membuat salinan yang boleh diedit.</string>
+  <string name="new_category">Kategori baharu</string>
+  <string name="new_category_name">Nama kategori</string>
+  <string name="rename_category">Namakan semula</string>
+  <string name="move_category_up">Pindah ke atas</string>
+  <string name="move_category_down">Pindah ke bawah</string>
+  <string name="hide_category">Sembunyikan dari tindakan AI</string>
+  <string name="show_category">Tunjukkan dalam tindakan AI</string>
+  <string name="hidden">tersembunyi</string>
+  <string name="delete_category">Padamkan kategori</string>
+  <string name="delete_category_and_prompts">Padamkan kategori dan promptnya</string>
+  <string name="delete_category_keep_prompts">Pindahkan prompt ke akar dan padamkan kategori</string>
+  <string name="delete_category_confirm_title">Padamkan kategori \"%s\"?</string>
+  <string name="move_to_category">Pindah ke kategori…</string>
+  <string name="category_none">Tiada kategori</string>
+  <string name="import_prompts_editable">Import sebagai prompt boleh diedit</string>
+  <string name="import_prompts_addon">Pasang sebagai add-on (baca sahaja)</string>
+  <string name="prompt_category">Kategori</string>
+  <string name="new_prompt">Prompt baharu</string>
+  <string name="permission_always_ask">Tanya sentiasa</string>
+  <string name="permission_ask_once_per_run">Tanya sekali per jalankan</string>
+  <string name="permission_allow_all">Benarkan semua</string>
+  <string name="permission_deny_all">Tolak semua</string>
+  <string name="reset_all_ai_settings">Set semula semua tetapan AI</string>
+  <string name="reset_all_ai_settings_confirm_title">Set semula semua tetapan AI?</string>
+  <string name="reset_all_ai_settings_confirm_message">Ini akan mengosongkan kunci API, penyedia, titik akhir, model, dan menetapkan semula semua prompt ke lalai. Teruskan?</string>
+  <string name="edit_prompt">Edit prompt</string>
+  <string name="built_in_prompt">Terbina dalam</string>
+  <string name="built_in_prompt_notice">Ini adalah prompt terbina dalam dan tidak boleh diedit. Gunakan \"Salin untuk disesuaikan\" untuk membuat salinan yang boleh diedit.</string>
+  <string name="copy_to_customize">Salin untuk disesuaikan</string>
+  <string name="prompt_copied">Prompt disalin</string>
+  <string name="delete_prompt_confirmation">Padamkan prompt \"%s\"?</string>
+  <string name="prompt_name_required">Nama prompt diperlukan</string>
+  <string name="prompt_template_required">Templat prompt diperlukan</string>
+  <string name="prompt_edit_before_run">Tentukan sebelum jalankan</string>
+  <string name="prompt_edit_before_run_description">Tunjukkan medan teks untuk menentukan tugasan sebelum menjalankan prompt</string>
+  <string name="prompt_no_document_creation">Tiada penciptaan dokumen</string>
+  <string name="prompt_no_document_creation_description">Apabila diaktifkan, AI tidak akan membuat dokumen. Keputusan hanya ditunjukkan dalam log aktiviti. Berguna untuk prompt tindakan sahaja (penanda buku, label, operasi Pad Kajian).</string>
+  <string name="prompt_auto_include_documents">Auto-sertakan dokumen yang dipasang</string>
+  <string name="prompt_auto_include_documents_description">Sertakan secara automatik senarai dokumen yang dipasang dalam konteks prompt, menjimatkan satu lelaran AI.</string>
+  <string name="prompt_auto_include_commentaries">Auto-sertakan ulasan</string>
+  <string name="prompt_auto_include_commentaries_description">Dapatkan dan sertakan secara automatik entri ulasan untuk ayat yang dipilih, menjimatkan satu lelaran AI.</string>
+  <string name="prompt_is_text_transformation">Transformasi teks</string>
+  <string name="prompt_is_text_transformation_description">Menggunakan prompt sistem yang dipermudahkan yang mengekalkan pemformatan (pautan, tajuk, tebal/condong) sambil mengubah kandungan teks. Tiada alat digunakan. Sesuai untuk prompt terjemahan dan pengeditan.</string>
+  <string name="llm_no_document_creation_intercepted">Tugasan selesai (penciptaan dokumen dinyahdayakan)</string>
+  <string name="llm_note_updated">Nota dikemas kini</string>
+  <string name="specify_before_run_title">Tentukan tugasan</string>
+  <string name="specify_before_run_hint">Huraikan tugasan khusus…</string>
+  <string name="prompt_cache_settings">Tetapan cache</string>
+  <string name="prompt_strict_context_matching">Cache bergantung konteks</string>
+  <string name="prompt_strict_context_matching_description">Apabila diaktifkan, padanan cache hanya apabila semua konteks (versi Alkitab, teks yang dipilih) adalah sama. Apabila dinyahdayakan, padanan cache apabila ayat adalah sama tanpa mengira versi Alkitab.</string>
+  <string name="ai_document_delete_confirmation">Padamkan dokumen AI ini?</string>
+  <string name="ai_document_deleted">Dokumen AI ini telah dipadamkan.</string>
+  <string name="ai_document_regenerating">Menjana semula dokumen AI…</string>
+  <string name="ai_document_regenerate_not_implemented">Penjanaan semula akan tersedia dalam kemas kini masa hadapan</string>
+  <string name="ai_regenerate_prompt_not_found">Tidak dapat menjana semula: prompt asal tidak ditemui. Ia mungkin telah dipadamkan.</string>
+  <string name="ai_document_regenerate">Jana semula</string>
+  <string name="ai_regenerate_title">Jana semula</string>
+  <string name="ai_regenerate_instructions_hint">Arahan tambahan (opsional)</string>
+  <string name="ai_regenerate_keep_previous">Simpan versi sebelumnya</string>
+  <string name="ai_regenerate_fresh_run">Jalankan baharu (abaikan keputusan sebelumnya)</string>
+  <string name="ai_document_delete">Padamkan</string>
+  <string name="ai_unknown_prompt">AI</string>
+
+    <!-- Default prompts -->
+  <string name="default_prompt_translate_to_language">Terjemahkan ke %s</string>
+  <string name="default_prompt_translate_to_ui_language">Terjemahkan ke bahasa UI</string>
+  <string name="default_prompt_translate_to_ui_language_desc">Terjemahkan teks dokumen ke bahasa antara muka aplikasi</string>
+  <string name="default_prompt_translate_to_english">Terjemahkan ke Bahasa Inggeris</string>
+  <string name="default_prompt_translate_to_english_desc">Menterjemahkan teks yang dipilih ke Bahasa Inggeris</string>
+  <string name="default_prompt_summary">Ringkasan</string>
+  <string name="default_prompt_summary_desc">Mencipta ringkasan padat teks yang dipilih</string>
+  <string name="default_prompt_explain_verses">Terangkan ayat</string>
+  <string name="default_prompt_explain_verses_desc">Menerangkan maksud dan konteks ayat yang dipilih</string>
+  <string name="default_prompt_explain_verses_studypad">Terangkan ayat → Pad Kajian</string>
+  <string name="default_prompt_explain_verses_studypad_desc">Cipta Pad Kajian dengan penerangan ayat demi ayat dan penanda buku</string>
+  <string name="default_prompt_word_study">Kajian perkataan</string>
+  <string name="default_prompt_word_study_desc">Menganalisis perkataan asal Ibrani/Greek</string>
+  <string name="default_prompt_strongs_annotation">Anotasi nombor Strong\'s</string>
+  <string name="default_prompt_strongs_annotation_desc">Menambahkan nombor konkordans Strong\'s ke mana-mana terjemahan Alkitab menggunakan KJV sebagai rujukan</string>
+  <string name="default_prompt_cross_references">Rujukan silang</string>
+  <string name="default_prompt_cross_references_desc">Mencari dan menerangkan petikan Alkitab berkaitan</string>
+  <string name="default_prompt_compare_translations">Bandingkan terjemahan</string>
+  <string name="default_prompt_compare_translations_desc">Menunjukkan bagaimana terjemahan yang dipasang berbeza-beza dalam memaparkan teks</string>
+  <string name="default_prompt_thematic_study">Kajian tematik</string>
+  <string name="default_prompt_thematic_study_desc">Membina Pad Kajian dengan petikan dan nota tentang tema utama</string>
+  <string name="default_prompt_bookmark_annotate">Tandai &amp; anotasi</string>
+  <string name="default_prompt_bookmark_annotate_desc">Mencipta penanda buku dengan nota kajian yang dijana AI</string>
+  <string name="default_prompt_study_layout">Buka tataletak kajian</string>
+  <string name="default_prompt_study_layout_desc">Membuka tetingkap ulasan dan terjemahan selari untuk kajian</string>
+  <string name="default_prompt_workspace_assistant">Pembantu ruang kerja</string>
+  <string name="default_prompt_workspace_assistant_desc">Urus tetingkap: buat, tutup, susun semula, tukar dokumen</string>
+  <string name="default_prompt_enhance_note">Perkukuhkan nota</string>
+  <string name="default_prompt_enhance_note_desc">Memperbaiki tatabahasa, kejelasan, dan kebolehbacaan nota anda</string>
+  <string name="default_prompt_ask_question">Tanya soalan</string>
+  <string name="default_prompt_ask_question_desc">Tanya sebarang soalan tentang petikan yang dipilih</string>
+  <string name="default_prompt_custom">Prompt tersuai</string>
+  <string name="default_prompt_custom_desc">Jalankan tugasan tersuai pada petikan yang dipilih</string>
+  <string name="default_prompt_custom_template">Ikut spesifikasi tugasan pengguna untuk petikan Alkitab yang dipilih.</string>
+  <string name="copy">Salin</string>
+  <string name="delete_prompt_confirm_message">Adakah anda pasti ingin memadamkan prompt ini?</string>
+  <string name="ai_hide_prompt">Sembunyikan</string>
+  <string name="ai_restore_hidden_prompts">Pulihkan prompt yang disembunyikan</string>
+  <string name="ai_prompt_hidden">Prompt disembunyikan</string>
+  <string name="ai_prompts_restored">Prompt yang disembunyikan dipulihkan</string>
+
+    <!-- Agent Tool Display Names -->
+  <string name="tool_create_bookmark">Buat penanda buku</string>
+  <string name="tool_add_bookmark_note">Tambah nota penanda buku</string>
+  <string name="tool_update_bookmark_note">Kemas kini nota penanda buku</string>
+  <string name="tool_create_label">Buat label</string>
+  <string name="tool_add_label_to_bookmark">Tambah label ke penanda buku</string>
+  <string name="tool_delete_bookmark">Padamkan penanda buku</string>
+  <string name="tool_delete_label">Padamkan label</string>
+  <string name="tool_remove_label_from_bookmark">Buang label dari penanda buku</string>
+  <string name="tool_add_study_pad_entry">Tambah entri pad kajian</string>
+  <string name="tool_update_studypad_text_entry">Kemas kini entri teks pad kajian</string>
+  <string name="tool_create_study_pad">Buat pad kajian</string>
+  <string name="action_update_studypad_text_entry">Kemas kini entri teks pad kajian %1$s</string>
+  <string name="action_create_studypad">Buat Pad Kajian \"%1$s\" dengan %2$d item</string>
+  <string name="tool_set_document_title">Tetapkan tajuk dokumen</string>
+  <string name="tool_finish_with_study_pad">Buka pad kajian</string>
+  <string name="tool_finish_with_my_document_page">Buka halaman Dokumen Saya</string>
+  <string name="tool_finish_without_document">Selesai tanpa dokumen</string>
+  <string name="tool_get_verse_content">Baca kandungan ayat</string>
+  <string name="tool_get_commentaries">Baca ulasan</string>
+  <string name="tool_get_dictionary_entry">Cari entri kamus</string>
+  <string name="tool_search_bible">Cari Alkitab</string>
+  <string name="tool_search_by_strongs">Cari mengikut nombor Strong\'s</string>
+  <string name="tool_get_installed_documents">Senaraikan dokumen yang dipasang</string>
+  <string name="tool_get_all_labels">Senaraikan semua label</string>
+  <string name="tool_get_bookmarks_for_verse">Dapatkan penanda buku untuk ayat</string>
+  <string name="tool_get_bookmarks_with_label">Dapatkan penanda buku dengan label</string>
+  <string name="tool_get_study_pad_content">Baca kandungan pad kajian</string>
+  <string name="tool_search_study_pads">Cari pad kajian</string>
+  <string name="tool_get_my_documents">Senaraikan Dokumen Saya</string>
+  <string name="tool_get_my_document_pages">Senaraikan halaman Dokumen Saya</string>
+  <string name="tool_get_genbook_keys">Senaraikan kunci buku umum</string>
+  <string name="tool_get_genbook_content">Baca kandungan buku umum</string>
+  <string name="tool_create_my_document">Buat Dokumen Saya</string>
+  <string name="tool_add_my_document_page">Tambah halaman Dokumen Saya</string>
+  <string name="tool_edit_my_document_page">Edit halaman Dokumen Saya</string>
+  <string name="tool_delete_my_document_page">Padamkan halaman Dokumen Saya</string>
+  <string name="tool_get_windows">Senaraikan tetingkap</string>
+  <string name="tool_create_window">Buat tetingkap</string>
+  <string name="tool_manage_window">Urus tetingkap</string>
+  <string name="tool_set_window_document">Tetapkan dokumen tetingkap</string>
+
+    <!-- Agent Permission Dialog -->
+  <string name="agent_permission_title">Kebenaran Ejen</string>
+  <string name="agent_permission_message">Pembantu AI ingin menggunakan \"%1$s\":\n\n%2$s</string>
+  <string name="agent_permission_message_with_action">Pembantu AI ingin:\n\n%1$s</string>
+
+    <!-- Tool action descriptions for permission dialog -->
+  <string name="action_create_bookmark_at">Buat penanda buku di %1$s</string>
+  <string name="action_create_bookmark_at_with_extras">Buat penanda buku di %1$s (%2$s)</string>
+  <string name="action_with_note">dengan nota</string>
+  <string name="action_labels">label: %1$s</string>
+  <string name="action_add_note_to_bookmark_at">Tambah nota ke penanda buku di %1$s</string>
+  <string name="action_update_note_on_bookmark_at">Kemas kini nota pada penanda buku di %1$s</string>
+  <string name="action_create_label">Buat label \"%1$s\"</string>
+  <string name="action_add_label_to_bookmark">Tambah label \"%1$s\" ke penanda buku di %2$s</string>
+  <string name="action_delete_bookmark">Padamkan penanda buku di %1$s</string>
+  <string name="action_delete_label">Padamkan label \"%1$s\"</string>
+  <string name="action_remove_label_from_bookmark">Buang label \"%1$s\" dari penanda buku di %2$s</string>
+  <string name="action_add_entry_to_studypad">Tambah entri ke Pad Kajian \"%1$s\"</string>
+  <string name="action_create_my_document">Buat Dokumen Saya: \"%1$s\"</string>
+  <string name="action_add_my_document_page">Tambah halaman \"%1$s\" ke Dokumen Saya %2$s</string>
+  <string name="action_edit_my_document_page">Edit halaman Dokumen Saya: \"%1$s\"</string>
+  <string name="action_delete_my_document_page">Padamkan halaman Dokumen Saya: \"%1$s\"</string>
+  <string name="action_set_document_title">Tetapkan tajuk dokumen: \"%1$s\"</string>
+  <string name="action_open_studypad">Buka Pad Kajian \"%1$s\"</string>
+  <string name="action_open_my_document_page">Buka halaman Dokumen Saya \"%1$s\"</string>
+  <string name="action_create_window">Buat tetingkap baharu</string>
+  <string name="action_create_window_with_doc">Buat tetingkap dengan %1$s</string>
+  <string name="action_create_window_with_doc_and_key">Buat tetingkap dengan %1$s di %2$s</string>
+  <string name="action_close_window">Tutup tetingkap (%1$s)</string>
+  <string name="action_minimize_window">Minimumkan tetingkap (%1$s)</string>
+  <string name="action_restore_window">Pulihkan tetingkap (%1$s)</string>
+  <string name="action_set_window_document">Tetapkan %1$s kepada %2$s</string>
+  <string name="action_set_window_document_with_key">Tetapkan %1$s kepada %2$s di %3$s</string>
+  <string name="action_active_window">tetingkap aktif</string>
+  <string name="action_finish">Selesai: \"%1$s\"</string>
+  <string name="permission_allow_once">Benarkan sekali</string>
+  <string name="permission_allow_for_session">Benarkan untuk sesi ini</string>
+  <string name="permission_allow_all_session">Benarkan semua alat sesi ini</string>
+  <string name="permission_allow_always">Sentiasa benarkan \"%1$s\"</string>
+  <string name="permission_deny">Tolak</string>
+  <string name="permission_always_allow_confirm_title">Sentiasa benarkan?</string>
+  <string name="permission_always_allow_confirm">Adakah anda pasti ingin sentiasa membenarkan \"%1$s\" secara kekal?</string>
+  <string name="permission_always_allow_confirm_reset_hint">Anda boleh menetapkan semula ini dalam Tetapan AI.</string>
+
+    <!-- Agent Tool Permission Settings -->
+  <string name="manage_tool_permissions_title">Kebenaran alat</string>
+  <string name="manage_tool_permissions_summary">Urus gantian kebenaran setiap alat</string>
+  <string name="commentary_max_response_title">Had saiz respons ulasan</string>
+  <string name="commentary_max_response_summary">Tunjukkan dialog pemilihan apabila respons melebihi had</string>
+  <string name="commentary_max_response_no_limit">Tiada had</string>
+  <string name="commentary_max_response_value">~%s token</string>
+  <string name="commentary_max_response_dialog_title">Tetapkan saiz respons maksimum (token)</string>
+  <string name="commentary_max_response_dialog_message">Apabila AI mendapatkan ulasan dan jumlah respons melebihi had token ini, dialog pemilihan membolehkan anda memilih ulasan mana yang hendak dihantar ke AI.\n\n0 = tiada had (semua ulasan dihantar secara automatik).</string>
+  <string name="commentary_filter_dialog_title">Respons ulasan terlalu besar</string>
+  <string name="commentary_filter_dialog_message">Had token (~%s) dilampaui. Nyahtanda ulasan yang tidak mahu anda hantar ke AI.\n\nAnda boleh melaraskan had ini dalam tetapan Sambungan AI.</string>
+  <string name="commentary_filter_total_tokens">Dipilih: ~%1$s / %2$s token</string>
+  <string name="tool_log_commentary_count">%d ulasan</string>
+  <string name="tool_log_label_count">%d label</string>
+  <string name="tool_log_document_count">%d dokumen</string>
+  <string name="tool_log_study_pad_count">%d pad kajian</string>
+  <string name="tool_log_search_results">%1$d/%2$d keputusan</string>
+  <string name="tool_log_bookmark_count">%d penanda buku</string>
+  <string name="tool_log_my_document_count">%d dokumen</string>
+  <string name="tool_log_my_document_page_count">%d halaman</string>
+  <string name="tool_log_genbook_key_count">%1$d/%2$d kunci</string>
+  <string name="tool_log_window_count">%d tetingkap</string>
+  <string name="tool_log_window_copy">salin</string>
+  <string name="tool_log_window_minimized">diminimumkan</string>
+  <string name="tool_log_window_removed">dibuang</string>
+  <string name="commentary_filter_item">%1$s%2$s (~%3$s token)</string>
+  <string name="ai_document_filter_title">Akses dokumen</string>
+  <string name="ai_document_filter_summary">Pilih dokumen mana yang boleh dibaca AI</string>
+  <string name="ai_document_filter_summary_count">%d dokumen dikecualikan</string>
+  <string name="ai_document_filter_activity_title">Akses dokumen AI</string>
+  <string name="ai_document_excluded_error">Dokumen dikecualikan oleh tetapan pengguna: %s</string>
+  <string name="permission_status_default">Tanya (lalai)</string>
+  <string name="permission_status_allowed">Sentiasa dibenarkan</string>
+  <string name="permission_status_denied">Sentiasa ditolak</string>
+  <string name="permission_option_default">Tanya setiap kali (lalai)</string>
+  <string name="permission_option_always_allow">Sentiasa benarkan</string>
+  <string name="permission_option_always_deny">Sentiasa tolak</string>
+  <string name="reset_all_permissions">Set semula semua</string>
+
+    <!-- Tool Info -->
+  <string name="ai_available_tools">Alat yang tersedia</string>
+  <string name="ai_read_tools">Alat Baca</string>
+  <string name="ai_write_tools">Alat Tulis</string>
+
+    <!-- Global Tool Permissions Activity -->
+  <string name="global_tool_permissions_title">Tetapan alat lalai</string>
+
+    <!-- Per-Prompt Tool Permissions -->
+  <string name="prompt_tool_permissions">Kebenaran alat</string>
+  <string name="prompt_tool_permissions_read_only">Kebenaran alat (baca sahaja)</string>
+  <string name="prompt_tool_permissions_description">Gantikan kebenaran alat untuk prompt ini</string>
+  <string name="tool_section_read_tools">Alat baca</string>
+  <string name="tool_section_write_tools">Alat tulis</string>
+
+    <!-- Tool categories -->
+  <string name="tool_category_bible_search">Alkitab &amp; Carian</string>
+  <string name="tool_category_bookmarks">Penanda Buku</string>
+  <string name="tool_category_labels">Label</string>
+  <string name="tool_category_study_pads">Pad Kajian</string>
+  <string name="tool_category_my_documents">Dokumen Saya</string>
+  <string name="tool_category_general_books">Buku Umum</string>
+  <string name="tool_category_windows">Tetingkap</string>
+  <string name="tool_category_read">Baca</string>
+  <string name="tool_category_write">Tulis</string>
+  <string name="expand_collapse">Kembangkan/runtuhkan</string>
+  <string name="tool_option_enabled">Diaktifkan</string>
+  <string name="tool_option_disabled">Dinyahdayakan</string>
+  <string name="tool_option_default_enabled">Lalai (diaktifkan)</string>
+  <string name="tool_option_default_disabled">Lalai (dinyahdayakan)</string>
+  <string name="tool_option_default_allowed">Lalai (dibenarkan)</string>
+  <string name="tool_option_default_denied">Lalai (ditolak)</string>
+
+    <!-- Per-Prompt Model Override -->
+  <string name="prompt_model_override">Model</string>
+  <string name="prompt_model_default">Lalai</string>
+  <string name="prompt_model_custom">Tersuai</string>
+  <string name="prompt_model_custom_hint">Masukkan nama model</string>
+
+    <!-- LLM One Tap Actions -->
+  <string name="select_llm_prompt">Pilih Tindakan AI</string>
+  <string name="no_llm_prompts_configured">Tiada prompt AI dikonfigurasi untuk pemilihan ayat</string>
+  <string name="llm_prompt_executing">Melaksanakan prompt AI: %s</string>
+  <string name="llm_actions">Tindakan AI</string>
+
+    <!-- Agent Log Widget -->
+  <string name="agent_log_expand">Kembangkan/runtuhkan log ejen</string>
+  <string name="agent_log_close">Tutup log ejen</string>
+  <string name="agent_log_stop">Hentikan AI</string>
+  <string name="agent_log_idle">Pembantu AI</string>
+  <string name="agent_log_running">AI sedang bekerja…</string>
+  <string name="agent_log_completed">Selesai</string>
+  <string name="agent_log_error">Ralat berlaku</string>
+  <string name="agent_log_executing">Melaksanakan: %s</string>
+  <string name="agent_log_iteration">Lelaran %d</string>
+  <string name="agent_log_tool">Alat: %s</string>
+  <string name="agent_log_tool_completed">Alat %s selesai</string>
+  <string name="agent_log_tool_failed">Alat %s gagal</string>
+  <string name="agent_log_response_received">Respons diterima</string>
+  <string name="agent_log_saved">Disimpan: %s</string>
+  <string name="agent_log_done">Selesai: %s</string>
+  <string name="agent_log_cancelled">Dibatalkan</string>
+  <string name="agent_execution_completed">Pelaksanaan ejen selesai</string>
+  <string name="agent_already_running">Ejen AI sudah berjalan. Sila tunggu atau hentikannya dahulu.</string>
+
+    <!-- AI Agent Notifications -->
+  <string name="ai_agent_notification_channel_name">Ejen AI</string>
+  <string name="ai_agent_notification_running">Ejen AI sedang bekerja…</string>
+  <string name="ai_agent_notification_permission_needed">Ejen AI memerlukan kelulusan anda</string>
+  <string name="ai_agent_notification_permission_tap">Ketuk untuk kembali ke AndBible</string>
+  <string name="ai_agent_notification_completed">Tugasan AI selesai</string>
+  <string name="ai_agent_notification_completed_tap">Ketuk untuk melihat keputusan</string>
+  <string name="ai_agent_notification_error">Tugasan AI gagal</string>
+  <string name="ai_agent_notification_cancel">Batal</string>
+
+    <!-- My Documents -->
+  <string name="my_documents_title">Dokumen Saya</string>
+  <string name="my_documents_empty">Belum ada dokumen. Ketuk + untuk membuat satu.</string>
+  <string name="my_document_new_name">Dokumen %d</string>
+  <string name="my_document_create_title">Buat dokumen baharu</string>
+  <string name="my_document_rename_title">Namakan semula dokumen</string>
+  <string name="my_document_edit_description_title">Edit penerangan</string>
+  <string name="my_document_delete_confirmation">Padamkan dokumen \"%s\"?</string>
+  <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak boleh dipadamkan semasa ia mengandungi halaman. Padamkan halaman dahulu.</string>
+  <string name="my_document_save_changes">Simpan perubahan?</string>
+  <string name="my_document_no_description">Tiada penerangan</string>
+  <string name="my_document_rename">Namakan semula</string>
+  <string name="my_document_edit_description">Edit penerangan</string>
+  <string name="my_document_delete">Padamkan</string>
+
+  <string name="my_document_pages_title">%s - Halaman</string>
+  <string name="my_document_pages_empty">Tiada halaman dalam dokumen ini.</string>
+  <string name="my_document_page_rename_title">Namakan semula halaman</string>
+  <string name="my_document_page_delete_confirmation">Padamkan halaman \"%s\"?</string>
+  <string name="my_document_page_rename">Namakan semula</string>
+  <string name="my_document_page_delete">Padamkan</string>
+  <string name="my_document_page_export">Eksport</string>
+  <string name="my_document_new_page_name">Halaman %1$d</string>
+  <string name="my_document_create_page_title">Halaman baharu</string>
+  <string name="my_document_content_type_label">Jenis kandungan</string>
+  <string name="my_document_import_page">Import Markdown/HTML</string>
+  <string name="my_document_export_page">Eksport halaman</string>
+  <string name="my_document_imported_page_name">Diimport</string>
+  <string name="my_document_export_fallback_name">halaman</string>
+  <string name="my_document_export_document">Eksport semua halaman</string>
+  <string name="my_document_import_document">Import fail sebagai dokumen</string>
+  <string name="my_document_import_empty_selection">Tiada fail yang boleh diimport dipilih</string>
+  <string name="my_document_export_success">Halaman berjaya dieksport</string>
+  <string name="ai_doc_choose_page">Pilih halaman dokumen AI</string>
+  <string name="prefs_show_ai_doc_markers_title">Tunjukkan penanda dokumen AI</string>
+  <string name="prefs_show_ai_doc_markers_summary">Tunjukkan ikon penanda untuk halaman dokumen yang dijana AI yang dikaitkan dengan ayat</string>
+  <string name="prefs_show_ordinals_title">Tunjukkan nombor ordinal</string>
+  <string name="prefs_show_ordinals_summary">Tunjukkan penanda kedudukan ordinal dalam teks</string>
+
+  <string name="prefs_page_scroll_amount_title">Jumlah tatal halaman</string>
+  <string name="prefs_page_scroll_amount_summary">Berapa banyak halaman yang akan dital dengan halaman naik/turun</string>
+  <string name="page_scroll_amount_dialog_title">Jumlah tatal halaman</string>
+  <string name="prefs_scroll_helper_lines_title">Garisan pembantu tatal</string>
+  <string name="prefs_scroll_helper_lines_summary">Tunjukkan garisan panduan mendatar pada sempadan tatal halaman</string>
+  <string name="prefs_scroll_helper_line_style_title">Gaya garisan pembantu</string>
+  <string name="prefs_scroll_helper_line_style_summary">Pilih gaya visual garisan pembantu tatal</string>
+  <string name="scroll_helper_line_style_dialog_title">Gaya garisan pembantu</string>
+  <string name="scroll_helper_line_style_thin_dotted">Garisan bertitik nipis</string>
+  <string name="scroll_helper_line_style_thin_solid">Garisan padu nipis</string>
+  <string name="scroll_helper_line_style_thick_solid">Garisan padu tebal</string>
+  <string name="prefs_page_buttons_title">Butang tatal halaman</string>
+  <string name="prefs_page_buttons_summary">Tunjukkan butang halaman naik/turun yang kelihatan pada skrin</string>
+</resources>

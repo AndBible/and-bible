@@ -1,0 +1,48 @@
+Zana yenye nguvu ya Masomo ya Biblia
+
+"AndBible: Masomo ya Biblia" ni programu ya masomo ya Biblia ya nje ya mtandao yenye nguvu, lakini rahisi kutumia, kwa Android. Programu hailengi kuwa msomaji wa Biblia tu, bali inazingatia kuwa zana ya hali ya juu ya masomo ya kibinafsi ya kina ya Biblia.
+
+Programu hii inatengenezwa na wasomaji wa Biblia, kwa wasomaji wa Biblia. Inalenga kukusaidia kufanya masomo yako ya Biblia kuwa rahisi, ya kina na ya kufurahisha. Sehemu nzuri zaidi kuhusu mradi huu wa jumuiya usio wa faida ni kwamba ni wa chanzo huria, huru kabisa, na hauna matangazo.
+
+Matoleo machache maarufu ya Biblia (kati ya mengi yanayopatikana) ni KJV, NASB, NET, na pia maoni maarufu kama Matthew Henry na John Gill.
+
+Vipengele vyenye nguvu vya Masomo ya Biblia
+
+Programu ina vipengele vingi vya kuvutia na vya asili, ambavyo hufanya uzoefu wa masomo ya kina na wa kina wa Biblia kuwa laini zaidi kuliko hapo awali. Vipengele muhimu zaidi ni kama ifuatavyo:
+
+ * Maonyesho ya maandishi yaliyogawanywa yanayoruhusu kulinganisha tafsiri na kushauriana na maoni
+ * Maeneo ya kazi huruhusu usanidi mwingi wa masomo ya Biblia wenye mipangilio yake
+ * Muunganiko wa Strong's huruhusu uchambuzi wa maneno ya Kigiriki na Kiebrania
+ * Marejeleo ya msalaba, maelezo ya chini, na hati zilizounganishwa; ruka hadi marejeleo ya msalaba na maelezo ya chini kwa kugonga kiungo tu; fanya masomo ya kina ya Maandiko kwa kutumia maoni yaliyounganishwa (Gill, Matthew Henry n.k.), makusanyiko ya marejeleo ya msalaba (Hazina ya Maarifa ya Maandiko, TSKe) na rasilimali nyingine.
+ * Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia
+ * Utafutaji wa kubadilika
+ * Vipengele vya hali ya juu vya kuweka alamisho na kuangazia na maelezo ya kibinafsi ya masomo
+ * Daftari za Masomo kwa kuandika maelezo na marejeleo ya Biblia unapisikiliza mahubiri.
+ * Mipango ya kusoma: weka malengo ya kusoma Biblia
+ * Maktaba kubwa ya hati: tafsiri za Biblia, maoni ya kiteolojia, kamusi, ramani, na vitabu vya Kikristo, kwa jumla zaidi ya hati 1500 katika lugha zaidi ya 700, zinazosambazwa kisheria na Crosswire na hazina nyingine za SWORD.
+ * Msaada wa asili wa faili za MyBible, MySword na EPUB hukuruhusu kupanua maktaba yako zaidi.
+
+Hebu tuunde programu bora ya Biblia pamoja!
+
+AndBible ni mradi wa jumuiya wa chanzo huria. Kwa vitendo, hii inamaanisha kwamba mtu yeyote mwenye ujuzi unaofaa anaweza, na anahimizwa, kuchangia mradi kwa:
+
+ * kukuza vipengele vipya,
+ * kupima vipengele ambavyo bado havijatolewa,
+ * kusasisha tafsiri za kiolesura cha mtumiaji, na
+ * kusaidia kupanua maktaba ya moduli kwa kupata ruhusa kutoka kwa wamiliki wa hakimiliki, au kwa kubadilisha hati hadi umbizo la SWORD.
+
+Ikiwa wewe ni mhandisi wa programu au mpimaji wa kitaalamu, tafadhali fikiria kuchangia mradi. Kwa taarifa zaidi kuhusu jinsi ya kuchangia, tafadhali tazama https://git.io/JUnaj.
+
+Unga mkono kwa kununua muda wa ukuzaji!
+
+Ikiwa huna muda au ujuzi wa kuchangia mradi, unaweza pia kuunga mkono mradi kwa kununua muda wa kufanya kazi wa msanidi wa kitaalamu.
+
+Tazama chaguo: https://shop.andbible.org/
+
+Viungo
+
+ * Ukurasa wa nyumbani: https://andbible.org
+ * Penda AndBible kwenye Facebook: https://www.facebook.com/AndBible/
+ * Kituo chetu cha Youtube: https://www.youtube.com/c/AndBible
+ * Maswali Yanayoulizwa Mara kwa Mara: https://git.io/JJm8E
+ * Ukurasa wa mradi kwenye Github: https://github.com/AndBible/and-bible

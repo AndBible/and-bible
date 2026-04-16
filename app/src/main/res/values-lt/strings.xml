@@ -1559,6 +1559,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="no_models_configured">Nėra sukonfigūruotų modelių</string>
   <string name="model_cache_creation_price">Talpyklos kūrimo kaina ($/Mtoken)</string>
   <string name="model_cache_read_price">Talpyklos skaitymo kaina ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Palaikoma</string>
+  <string name="show_also_unsupported_models">Rodyti taip pat nepalaikomus modelius</string>
+  <string name="show_also_unsupported_providers">Rodyti taip pat nepalaikomus tiekėjus</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s įvestis / %2$s išvestis už Mtoken</string>

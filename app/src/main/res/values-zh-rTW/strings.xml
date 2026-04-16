@@ -1540,6 +1540,9 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="no_models_configured">未設定模型</string>
   <string name="model_cache_creation_price">快取建立價格（美元/百萬token）</string>
   <string name="model_cache_read_price">快取讀取價格（美元/百萬token）</string>
+  <string name="model_supported_badge">✓ 支援</string>
+  <string name="show_also_unsupported_models">同時顯示不支援的模型</string>
+  <string name="show_also_unsupported_providers">同時顯示不支援的服務商</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">輸入%1$s / 輸出%2$s（每百萬token）</string>

@@ -1574,6 +1574,9 @@
   <string name="no_models_configured">Niciun model configurat</string>
   <string name="model_cache_creation_price">Prețul creării memoriei cache ($/Mtoken)</string>
   <string name="model_cache_read_price">Prețul citirii din memoria cache ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Acceptat</string>
+  <string name="show_also_unsupported_models">Afișează și modelele neacceptate</string>
+  <string name="show_also_unsupported_providers">Afișează și furnizorii neacceptați</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s intrare / %2$s ieșire per Mtoken</string>

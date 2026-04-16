@@ -1534,6 +1534,9 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="no_models_configured">Aucun modèle configuré</string>
   <string name="model_cache_creation_price">Prix de création du cache ($/Mjeton)</string>
   <string name="model_cache_read_price">Prix de lecture du cache ($/Mjeton)</string>
+  <string name="model_supported_badge">✓ Pris en charge</string>
+  <string name="show_also_unsupported_models">Afficher aussi les modèles non pris en charge</string>
+  <string name="show_also_unsupported_providers">Afficher aussi les fournisseurs non pris en charge</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s en entrée / %2$s en sortie par Mjeton</string>

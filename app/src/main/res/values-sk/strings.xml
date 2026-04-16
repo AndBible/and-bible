@@ -1568,6 +1568,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="no_models_configured">Žiadne modely nie sú nastavené</string>
   <string name="model_cache_creation_price">Cena za vytvorenie vyrovnávacej pamäte ($/Mtoken)</string>
   <string name="model_cache_read_price">Cena za čítanie vyrovnávacej pamäte ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Podporovaný</string>
+  <string name="show_also_unsupported_models">Zobraziť aj nepodporované modely</string>
+  <string name="show_also_unsupported_providers">Zobraziť aj nepodporovaných poskytovateľov</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s vstup / %2$s výstup za Mtoken</string>

@@ -1512,6 +1512,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="no_models_configured">Nessun modello configurato</string>
   <string name="model_cache_creation_price">Prezzo creazione cache ($/Mtoken)</string>
   <string name="model_cache_read_price">Prezzo lettura cache ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Supportato</string>
+  <string name="show_also_unsupported_models">Mostra anche i modelli non supportati</string>
+  <string name="show_also_unsupported_providers">Mostra anche i fornitori non supportati</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s out per Mtoken</string>

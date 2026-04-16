@@ -1486,6 +1486,9 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="no_models_configured">Keine Modelle konfiguriert</string>
   <string name="model_cache_creation_price">Cache-Erstellungspreis ($/Mtoken)</string>
   <string name="model_cache_read_price">Cache-Lesepreis ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Unterstützt</string>
+  <string name="show_also_unsupported_models">Auch nicht unterstützte Modelle anzeigen</string>
+  <string name="show_also_unsupported_providers">Auch nicht unterstützte Anbieter anzeigen</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s ein / %2$s aus pro Mtoken</string>

@@ -686,7 +686,7 @@
   <string name="ask_restore_or_import">يمكن استعادة قاعدة بيانات %s (أي إزالة قاعدة البيانات الحالية وتحميل القاعدة المحددة) أو استيرادها (استيراد قاعدة البيانات المحددة في قاعدة البيانات الحالية). ماذا تريد أن تفعل؟</string>
   <string name="restore">إستعادة</string>
   <string name="import2">استيراد</string>
-  <string name="export_studypads_help">يمكن استيراد الملف المحتوي على لوحات الدراسة المُصدَّرة (أي التسميات والإشارات المرجعية) عبر القائمة الرئيسية -> النسخ الاحتياطي والاستعادة.</string>
+  <string name="export_studypads_help">يمكن استيراد الملف المحتوي على لوحات الدراسة المُصدَّرة (أي التسميات والإشارات المرجعية) عبر القائمة الرئيسية -&gt; النسخ الاحتياطي والاستعادة.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" و%2$s تسمية/لوحة دراسة أخرى و%3$s إشارة مرجعية</string>
@@ -711,7 +711,7 @@
   <string name="report_bug_heading2">على سبيل المثال:</string>
   <string name="report_bug_instructions1">1. فتح التطبيق</string>
   <string name="report_bug_instructions2">2. النقر فوق قائمة النافذة</string>
-  <string name="report_bug_instructions3">-> عطل</string>
+  <string name="report_bug_instructions3">-&gt; عطل</string>
   <string name="report_bug_line_2">أحيانًا تكون لقطات الشاشة التي يتم التقاطها يدويًا مفيدة أيضًا في حل المشكلات.</string>
   <string name="report_bug_line_3">الرجاء استخدام هذه الوظيفة للإبلاغ بمجرد ملاحظة حدوث مشكلة.</string>
   <string name="report_bug_line_4">يمكنك أيضاً استخدام هذه الخاصية بعد فتح التطبيق، بعد ان حدث العطل.
@@ -1486,6 +1486,9 @@
   <string name="no_models_configured">لم يتم تكوين نماذج</string>
   <string name="model_cache_creation_price">سعر إنشاء الذاكرة المؤقتة ($/مليون رمز)</string>
   <string name="model_cache_read_price">سعر قراءة الذاكرة المؤقتة ($/مليون رمز)</string>
+  <string name="model_supported_badge">✓ مدعوم</string>
+  <string name="show_also_unsupported_models">إظهار النماذج غير المدعومة أيضاً</string>
+  <string name="show_also_unsupported_providers">إظهار الموفرين غير المدعومين أيضاً</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s داخل / %2$s خارج لكل مليون رمز</string>

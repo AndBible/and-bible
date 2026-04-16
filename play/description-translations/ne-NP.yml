@@ -1,0 +1,66 @@
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
+title: "AndBible: बाइबल अध्ययन"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: >
+  बाइबल पढ्नुहोस्, टिप्पणीहरू अध्ययन गर्नुहोस्, र पुस्तकहरू अफलाइन पढ्नुहोस्।
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: शक्तिशाली बाइबल अध्ययन उपकरण
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" Android को लागि एक शक्तिशाली, तर प्रयोग गर्न सजिलो, अफलाइन बाइबल अध्ययन अनुप्रयोग हो। अनुप्रयोगको उद्देश्य केवल बाइबल पाठक बन्नु होइन, बरु गहन व्यक्तिगत बाइबल अध्ययन गर्नका लागि उन्नत उपकरण हुनु हो।
+paragraph_1_2: >
+  यो अनुप्रयोग बाइबल पाठकहरूले, बाइबल पाठकहरूको लागि विकास गरेका हुन्। यसको उद्देश्य तपाईंको बाइबल अध्ययनलाई सुविधाजनक, गहन र रमाइलो बनाउन मद्दत गर्नु हो। यस गैर-नाफामुखी सामुदायिक परियोजनाको सबैभन्दा राम्रो भाग यो हो कि यो खुला स्रोत, पूर्णतः निःशुल्क र विज्ञापन-मुक्त छ।
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  केही लोकप्रिय बाइबल संस्करणहरू (उपलब्ध धेरैमध्ये) KJV, NASB, NET, र Matthew Henry र John Gill जस्ता लोकप्रिय टिप्पणीहरू पनि हुन्।
+subtitle_2: शक्तिशाली बाइबल अध्ययन सुविधाहरू
+paragraph_2_1: >
+  अनुप्रयोगमा धेरै अन्तर्दृष्टिपूर्ण, मौलिक सुविधाहरू छन् जसले जटिल र गहन बाइबल अध्ययन अनुभवलाई पहिलेभन्दा सहज बनाउँछन्। सबैभन्दा उल्लेखनीय सुविधाहरू निम्नानुसार छन्:
+feature_01: अनुवादहरू तुलना गर्न र टिप्पणीहरू परामर्श गर्न विभाजित पाठ दृश्यहरू
+feature_02: कार्यक्षेत्रहरूले आफ्नै सेटिङसहित धेरै बाइबल अध्ययन सेटअपहरू अनुमति दिन्छन्
+feature_03: Strong's एकीकरणले ग्रीक र हिब्रू शब्द विश्लेषण सक्षम बनाउँछ
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  जोडिएका अन्तरसन्दर्भहरू, पादटिप्पणीहरू र कागजातहरू; लिङ्कमा ट्याप गरेर अन्तरसन्दर्भ र पादटिप्पणीहरूमा जानुहोस्; हाइपरलिङ्क गरिएका टिप्पणीहरू ({{commentary_examples}}), अन्तरसन्दर्भ संग्रहणहरू ({{cross_reference_examples}}) र अन्य स्रोतहरू प्रयोग गरेर धर्मग्रन्थको गहन अध्ययन गर्नुहोस्।
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: Gill, Matthew Henry आदि।
+# Examples of cross-reference collections.
+cross_reference_examples: Treasure of Scripture Knowledge, TSKe
+feature_05: बुकमार्कहरूसहित उन्नत पाठबाट भाषण, सहज बाइबल सुन्ने अनुभव सक्षम गर्दछ
+feature_06: लचिलो खोज
+feature_07: व्यक्तिगत अध्ययन टिप्पणीहरूसहित उन्नत बुकमार्किङ र हाइलाइटिङ सुविधाहरू
+feature_09: "पठन योजनाहरू: बाइबल पढ्नका लागि लक्ष्यहरू सेट गर्नुहोस्"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  कागजातहरूको विशाल पुस्तकालय: बाइबल अनुवादहरू, धर्मशास्त्रीय टिप्पणीहरू, शब्दकोशहरू, नक्साहरू, र ईसाई पुस्तकहरू, Crosswire र अन्य SWORD भण्डारहरूद्वारा कानूनी रूपमा वितरण गरिएका {{total_languages}} भन्दा बढी भाषाहरूमा {{total_documents}} भन्दा बढी कागजातहरू।
+feature_10_1: >
+  MyBible, MySword र EPUB फाइलहरूको मूल समर्थनले तपाईंको पुस्तकालय थप विस्तार गर्न सक्षम बनाउँछ।
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV, NIV र NKJV
+feature_12: "अफलाइन: कागजातहरू डाउनलोड गर्दा मात्र इन्टरनेट चाहिन्छ।"
+# UNUSED
+feature_13: धर्म प्रवचन सुन्दा टिप्पणीहरू र बाइबल सन्दर्भहरू थप्नका लागि अध्ययन प्याडहरू।
+subtitle_3: सँगै सर्वश्रेष्ठ बाइबल अनुप्रयोग बनाउँ!
+paragraph_3_1: >
+  AndBible एक खुला स्रोत सामुदायिक परियोजना हो। व्यवहारमा, यसको मतलब उपयुक्त सीप भएका जो कोहीले परियोजनामा योगदान गर्न सक्छन् र गर्न प्रोत्साहित गरिन्छन्:
+contr_1: नयाँ सुविधाहरू विकास गर्ने,
+contr_2: अझै जारी नगरिएका सुविधाहरू परीक्षण गर्ने,
+contr_3: प्रयोगकर्ता इन्टरफेस अनुवादहरू अद्यावधिक राख्ने, र
+contr_4: >
+  प्रतिलिपि अधिकार धारकहरूबाट अनुमति प्राप्त गरेर वा कागजातहरूलाई SWORD ढाँचामा रूपान्तरण गरेर module पुस्तकालय विस्तार गर्न मद्दत गर्ने।
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: >
+  यदि तपाईं पेशेवर सफ्टवेयर इन्जिनियर वा परीक्षक हुनुहुन्छ भने, कृपया परियोजनामा योगदान गर्न विचार गर्नुहोस्। योगदान कसरी गर्ने भन्ने थप जानकारीको लागि, कृपया {{how_to_contribute_url}} हेर्नुहोस्।
+subtitle_4: लिङ्कहरू
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: "मुख्यपृष्ठ: {{homepage_url}}"
+link_2: "Facebook मा AndBible लाई मन पराउनुहोस्: {{facebook_url}}"
+link_3: "हाम्रो Youtube च्यानल: {{youtube_url}}"
+link_4: "बारम्बार सोधिने प्रश्नहरू: {{faq_url}}"
+link_5: "Github मा परियोजना पृष्ठ: {{github_url}}"
+buy_title: विकास समय खरिद गरेर समर्थन गर्नुहोस्!
+buy_1: >
+  यदि तपाईंसँग परियोजना योगदानको लागि समय वा सीप छैन भने, पेशेवर विकासकर्ताको काम गर्ने समय खरिद गरेर पनि परियोजना समर्थन गर्न सक्नुहुन्छ।
+buy_2: विकल्पहरू हेर्नुहोस्

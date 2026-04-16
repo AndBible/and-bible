@@ -1521,6 +1521,9 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="no_models_configured">Geen modellen geconfigureerd</string>
   <string name="model_cache_creation_price">Cacheaanmaakprijs ($/Mtoken)</string>
   <string name="model_cache_read_price">Cachelezenprijs ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Ondersteund</string>
+  <string name="show_also_unsupported_models">Toon ook niet-ondersteunde modellen</string>
+  <string name="show_also_unsupported_providers">Toon ook niet-ondersteunde providers</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s uit per Mtoken</string>

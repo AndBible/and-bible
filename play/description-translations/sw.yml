@@ -1,0 +1,69 @@
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
+title: "AndBible: Masomo ya Biblia"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: Soma Biblia, masomo ya maoni au kamusi bila mtandao.
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: Zana yenye nguvu ya Masomo ya Biblia
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" ni programu ya masomo ya Biblia ya nje ya mtandao yenye nguvu, lakini rahisi kutumia, kwa Android. Programu hailengi kuwa msomaji wa Biblia tu, bali inazingatia kuwa zana ya hali ya juu ya masomo ya kibinafsi ya kina ya Biblia.
+paragraph_1_2: >
+  Programu hii inatengenezwa na wasomaji wa Biblia, kwa wasomaji wa Biblia. Inalenga kukusaidia kufanya masomo yako ya Biblia kuwa rahisi, ya kina na ya kufurahisha. Sehemu nzuri zaidi kuhusu mradi huu wa jumuiya usio wa faida ni kwamba ni wa chanzo huria, huru kabisa, na hauna matangazo.
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  Matoleo machache maarufu ya Biblia (kati ya mengi yanayopatikana) ni KJV, NASB, NET, na pia maoni maarufu kama Matthew Henry na John Gill.
+subtitle_2: Vipengele vyenye nguvu vya Masomo ya Biblia
+paragraph_2_1: >
+  Programu ina vipengele vingi vya kuvutia na vya asili, ambavyo hufanya uzoefu wa masomo ya kina na wa kina wa Biblia kuwa laini zaidi kuliko hapo awali. Vipengele muhimu zaidi ni kama ifuatavyo:
+feature_01: >
+  Maonyesho ya maandishi yaliyogawanywa yanayoruhusu kulinganisha tafsiri na kushauriana na maoni
+feature_02: Maeneo ya kazi huruhusu usanidi mwingi wa masomo ya Biblia wenye mipangilio yake
+feature_03: Muunganiko wa Strong's huruhusu uchambuzi wa maneno ya Kigiriki na Kiebrania
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  Marejeleo ya msalaba, maelezo ya chini, na hati zilizounganishwa; ruka hadi marejeleo ya msalaba na maelezo ya chini kwa kugonga kiungo tu; fanya masomo ya kina ya Maandiko kwa kutumia maoni yaliyounganishwa ({{commentary_examples}}), makusanyiko ya marejeleo ya msalaba ({{cross_reference_examples}}) na rasilimali nyingine.
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: Gill, Matthew Henry n.k.
+# Examples of cross-reference collections.
+cross_reference_examples: Hazina ya Maarifa ya Maandiko, TSKe
+feature_05: >
+  Maandishi-hadi-usemi wa hali ya juu wenye alamisho za kusoma, kuruhusu uzoefu laini wa kusikia Biblia
+feature_06: Utafutaji wa kubadilika
+feature_07: >
+  Vipengele vya hali ya juu vya kuweka alamisho na kuangazia na maelezo ya kibinafsi ya masomo
+feature_09: "Mipango ya kusoma: weka malengo ya kusoma Biblia"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  Maktaba kubwa ya hati: tafsiri za Biblia, maoni ya kiteolojia, kamusi, ramani, na vitabu vya Kikristo, kwa jumla zaidi ya hati {{total_documents}} katika lugha zaidi ya {{total_languages}}, zinazosambazwa kisheria na Crosswire na hazina nyingine za SWORD.
+feature_10_1: >
+  Msaada wa asili wa faili za MyBible, MySword na EPUB hukuruhusu kupanua maktaba yako zaidi.
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV, NIV na NKJV
+feature_12: "Nje ya mtandao: wakati pekee unahitaji mtandao ni kwa kupakua hati."
+# UNUSED
+feature_13: >
+  Daftari za Masomo kwa kuandika maelezo na marejeleo ya Biblia unapisikiliza mahubiri.
+subtitle_3: Hebu tuunde programu bora ya Biblia pamoja!
+paragraph_3_1: >
+  AndBible ni mradi wa jumuiya wa chanzo huria. Kwa vitendo, hii inamaanisha kwamba mtu yeyote mwenye ujuzi unaofaa anaweza, na anahimizwa, kuchangia mradi kwa:
+contr_1: kukuza vipengele vipya,
+contr_2: kupima vipengele ambavyo bado havijatolewa,
+contr_3: kusasisha tafsiri za kiolesura cha mtumiaji, na
+contr_4: >
+  kusaidia kupanua maktaba ya moduli kwa kupata ruhusa kutoka kwa wamiliki wa hakimiliki, au kwa kubadilisha hati hadi umbizo la SWORD.
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: >
+  Ikiwa wewe ni mhandisi wa programu au mpimaji wa kitaalamu, tafadhali fikiria kuchangia mradi. Kwa taarifa zaidi kuhusu jinsi ya kuchangia, tafadhali tazama {{how_to_contribute_url}}.
+subtitle_4: Viungo
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: "Ukurasa wa nyumbani: {{homepage_url}}"
+link_2: "Penda AndBible kwenye Facebook: {{facebook_url}}"
+link_3: "Kituo chetu cha Youtube: {{youtube_url}}"
+link_4: "Maswali Yanayoulizwa Mara kwa Mara: {{faq_url}}"
+link_5: "Ukurasa wa mradi kwenye Github: {{github_url}}"
+buy_title: Unga mkono kwa kununua muda wa ukuzaji!
+buy_1: >
+  Ikiwa huna muda au ujuzi wa kuchangia mradi, unaweza pia kuunga mkono mradi kwa kununua muda wa kufanya kazi wa msanidi wa kitaalamu.
+buy_2: Tazama chaguo

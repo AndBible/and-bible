@@ -1531,6 +1531,9 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="no_models_configured">未配置模型</string>
   <string name="model_cache_creation_price">缓存创建价格（美元/百万token）</string>
   <string name="model_cache_read_price">缓存读取价格（美元/百万token）</string>
+  <string name="model_supported_badge">✓ 支持</string>
+  <string name="show_also_unsupported_models">同时显示不支持的模型</string>
+  <string name="show_also_unsupported_providers">同时显示不支持的提供商</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">输入%1$s / 输出%2$s（每百万token）</string>

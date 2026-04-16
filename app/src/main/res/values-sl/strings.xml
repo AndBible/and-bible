@@ -1552,6 +1552,9 @@ Tega sporočila ne prikaži več
   <string name="no_models_configured">Noben model ni konfiguriran</string>
   <string name="model_cache_creation_price">Cena ustvarjanja predpomnilnika ($/Mžeton)</string>
   <string name="model_cache_read_price">Cena branja predpomnilnika ($/Mžeton)</string>
+  <string name="model_supported_badge">✓ Podprto</string>
+  <string name="show_also_unsupported_models">Prikaži tudi nepodprte modele</string>
+  <string name="show_also_unsupported_providers">Prikaži tudi nepodprte ponudnike</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s vhod / %2$s izhod na Mžeton</string>

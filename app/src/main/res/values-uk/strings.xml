@@ -1553,6 +1553,9 @@
   <string name="no_models_configured">Моделей не налаштовано</string>
   <string name="model_cache_creation_price">Ціна створення кешу ($/Мтокен)</string>
   <string name="model_cache_read_price">Ціна читання кешу ($/Мтокен)</string>
+  <string name="model_supported_badge">✓ Підтримується</string>
+  <string name="show_also_unsupported_models">Показати також непідтримувані моделі</string>
+  <string name="show_also_unsupported_providers">Показати також непідтримуваних постачальників</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s вхід / %2$s вихід за Мтокен</string>
