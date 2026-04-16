@@ -1,0 +1,67 @@
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
+title: "AndBible: بائبل مطالعہ"
+# Short promotional text, shown in Play Store (max 80 characters)
+short_description: بائبل پڑھیں، تفسیریں یا لغات مطالعہ کریں، یا آف لائن کتابیں پڑھیں۔
+# Main (first) subtitle of the Play Store main (long) description text.
+subtitle_1: طاقتور بائبل مطالعہ ٹول
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+paragraph_1_1: >
+  "{{ title }}" Android کے لیے ایک طاقتور، لیکن استعمال میں آسان، آف لائن بائبل مطالعہ ایپلیکیشن ہے۔ یہ ایپ محض ایک بائبل ریڈر بننے کا ارادہ نہیں رکھتی، بلکہ گہرے ذاتی بائبل مطالعہ کے لیے ایک جدید ٹول کے طور پر توجہ مرکوز کرتی ہے۔
+paragraph_1_2: >
+  یہ ایپلیکیشن بائبل قارئین نے بائبل قارئین کے لیے تیار کی ہے۔ اس کا مقصد آپ کے بائبل مطالعہ کو آسان، گہرا اور دلچسپ بنانے میں مدد کرنا ہے۔ اس غیر منافع بخش کمیونٹی پروجیکٹ کی سب سے اچھی بات یہ ہے کہ یہ اوپن سورس، مکمل طور پر مفت ہے اور اس میں کوئی اشتہار نہیں ہے۔
+# You can also advertise here the best documents that are available in the app in your language.
+paragraph_1_3: >
+  چند مشہور بائبل ورژن (دستیاب بہت سوں میں سے) KJV، NASB، NET ہیں، اور مشہور تفسیریں جیسے Matthew Henry اور John Gill بھی۔
+subtitle_2: طاقتور بائبل مطالعہ خصوصیات
+paragraph_2_1: >
+  ایپلیکیشن میں کئی بصیرت افروز، اصل خصوصیات ہیں جو پہلے سے کہیں زیادہ ہموار گہرا بائبل مطالعہ تجربہ فراہم کرتی ہیں۔ قابل ذکر خصوصیات درج ذیل ہیں:
+feature_01: >
+  تقسیم شدہ متن ویوز جو تراجم کا موازنہ اور تفسیروں سے مشورہ کرنے کی اجازت دیتے ہیں
+feature_02: ورک اسپیسز اپنی ترتیبات کے ساتھ متعدد بائبل مطالعہ سیٹ اپس کی اجازت دیتی ہیں
+feature_03: Strong's انضمام یونانی اور عبرانی لفظی تجزیے کی اجازت دیتا ہے
+# Please add variables marked with curly braces also in your translation untranslated, in correct places!
+feature_04: >
+  منسلک کراس حوالہ جات، حاشیے اور دستاویزات؛ لنک ٹیپ کر کے کراس حوالہ جات اور حاشیوں تک آسانی سے جائیں؛ ہائپر لنک شدہ تفسیروں ({{commentary_examples}})، کراس حوالہ مجموعوں ({{cross_reference_examples}}) اور دیگر وسائل استعمال کرتے ہوئے گہرا کتاب مقدس مطالعہ کریں۔
+# Examples of commentaries. You can add here also other commentaries of your language if they
+# are found in the app.
+commentary_examples: Gill، Matthew Henry وغیرہ
+# Examples of cross-reference collections.
+cross_reference_examples: Treasure of Scripture Knowledge، TSKe
+feature_05: >
+  Speak بک مارکس کے ساتھ جدید متن سے تقریر جو ہموار بائبل سننے کا تجربہ فراہم کرتی ہے
+feature_06: لچکدار تلاش
+feature_07: ذاتی مطالعہ نوٹس کے ساتھ جدید بک مارکنگ اور نمایاں کاری خصوصیات
+feature_09: "مطالعہ منصوبے: بائبل پڑھنے کے اہداف مقرر کریں"
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+feature_10: >
+  دستاویزات کی وسیع لائبریری: بائبل تراجم، الہیاتی تفسیریں، لغات، نقشے اور عیسائی کتابیں، مجموعی طور پر Crosswire اور دیگر SWORD ذخائر کی طرف سے قانونی طور پر تقسیم کردہ {{total_languages}} زبانوں میں {{total_documents}} سے زیادہ دستاویزات۔
+feature_10_1: >
+  MyBible، MySword اور EPUB فائلوں کی مقامی حمایت آپ کو اپنی لائبریری مزید بڑھانے کی اجازت دیتی ہے۔
+# In addition or in addition to the mentioned documents also some of the commercial/modern bible
+# versions / documents of your language that are not (yet) available in the app.
+unavailable_documents: ESV، NIV اور NKJV
+feature_12: "آف لائن: انٹرنیٹ کی ضرورت صرف دستاویزات ڈاؤنلوڈ کرنے کے وقت ہے۔"
+# UNUSED
+feature_13: خطبے سنتے ہوئے نوٹس اور بائبل حوالہ جات شامل کرنے کے لیے مطالعہ پیڈز۔
+subtitle_3: آئیں مل کر بہترین بائبل ایپ بنائیں!
+paragraph_3_1: >
+  AndBible ایک اوپن سورس کمیونٹی پروجیکٹ ہے۔ عملی طور پر اس کا مطلب ہے کہ مناسب مہارت رکھنے والا کوئی بھی شخص پروجیکٹ میں حصہ ڈال سکتا ہے اور اسے ترغیب دی جاتی ہے:
+contr_1: نئی خصوصیات تیار کرنا،
+contr_2: ابھی تک جاری نہ کی گئی خصوصیات جانچنا،
+contr_3: یوزر انٹرفیس ترجموں کو تازہ رکھنا، اور
+contr_4: >
+  کاپی رائٹ ہولڈرز سے اجازت حاصل کر کے یا دستاویزات کو SWORD شکل میں تبدیل کر کے ماڈیول لائبریری بڑھانے میں مدد کرنا۔
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+paragraph_4_1: >
+  اگر آپ پیشہ ور سافٹ ویئر انجینئر یا جانچنے والے ہیں تو براہ کرم پروجیکٹ میں حصہ ڈالنے پر غور کریں۔ حصہ ڈالنے کے طریقے کے بارے میں مزید معلومات کے لیے {{how_to_contribute_url}} دیکھیں۔
+subtitle_4: لنکس
+# Please add variables marked with curly braces also in your translated, untranslated, in correct places!
+link_1: "ہوم پیج: {{homepage_url}}"
+link_2: "Facebook پر AndBible کو پسند کریں: {{facebook_url}}"
+link_3: "ہمارا YouTube چینل: {{youtube_url}}"
+link_4: "اکثر پوچھے جانے والے سوالات: {{faq_url}}"
+link_5: "Github پر پروجیکٹ صفحہ: {{github_url}}"
+buy_title: ترقیاتی وقت خرید کر حمایت کریں!
+buy_1: >
+  اگر آپ کے پاس پروجیکٹ میں حصہ ڈالنے کا وقت یا مہارت نہیں ہے تو آپ پیشہ ور ڈویلپر کے کام کرنے کا وقت خرید کر بھی پروجیکٹ کی حمایت کر سکتے ہیں۔
+buy_2: اختیارات دیکھیں

@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: بک مارکس
+bookmarksAndNotes: بک مارکس اور میرے نوٹس
+openMyNotes: میرے نوٹس میں کھولیں
+openStudyPad: "مطالعہ پیڈ میں کھولیں (%s)"
+noteText: "حاشیے (%s)"
+noteTextWithoutType: حاشیے
+crossReferenceText: کراس حوالہ جات
+findAllOccurrences: تمام مثالیں تلاش کریں
+reportError: خرابی رپورٹ کریں
+errorTitle: خرابی پیش آئی
+warningTitle: تنبیہ
+normalTitle: براہ کرم نوٹ کریں
+footnoteTypeStudy: مطالعہ
+footnoteTypeExplanation: وضاحت
+footnoteTypeVariant: متبادل
+footnoteTypeAlternative: اور متبادل
+footnoteTypeTranslation: ترجمہ
+clearLog: خرابی لاگ صاف کریں
+editTextPlaceholder: متن ترمیم کرنے کے لیے ٹیپ کریں
+myDocumentEdit: صفحہ ترمیم کریں
+myDocumentEmptyPlaceholder: اس صفحے کو ترمیم شروع کرنے کے لیے ٹیپ کریں
+inputPlaceholder: یہاں لکھیں
+inputReference: بائبل حوالہ داخل کریں
+invalidReference: آیت نہیں ملی
+bookmarkAccurate: "بک مارک %s میں بنایا گیا"
+bookmarkInaccurate: "بک مارک کتاب کی معلومات محفوظ نہیں، مواد %s میں دکھایا جا رہا ہے۔"
+defaultBook: ڈیفالٹ بائبل دستاویز
+ok: ٹھیک ہے
+yes: "ہاں"
+ambiguousSelection: آپ کون سا عمل کرنا چاہتے ہیں؟
+cancel: منسوخ کریں
+removeBookmarkConfirmationTitle: بک مارک ہٹائیں؟
+removeBookmarkConfirmation: کیا آپ واقعی یہ بک مارک ہٹانا چاہتے ہیں؟
+createdAt: "بنایا گیا: %s"
+lastUpdatedOn: "آخری اپ ڈیٹ: %s"
+strongsAndMorph: تعریف اور صرف و نحو
+externalLink: بیرونی لنک کھولیں
+referenceLink: حوالہ لنک کھولیں
+openFootnote: حاشیہ کھولیں
+noMyNotesTitle: اس باب کے لیے کوئی میرے نوٹس نہیں۔
+noMyNotesDescription: بائبل دستاویز میں بک مارکس بنا کر شروع کریں۔ بک مارکس یہاں ظاہر ہوں گے اور آپ ان میں اپنے ذاتی نوٹس شامل کر سکتے ہیں۔
+emptyStudyPad: خالی مطالعہ پیڈ۔ یہاں متن اندراجات بنا کر یا اس مطالعہ پیڈ سے مطابق بک مارک لیبل کے ساتھ بک مارکس بنا کر اس میں شامل کرنا شروع کریں۔
+doYouWantToDeleteEntry: یہ مطالعہ پیڈ اندراج حذف کریں؟
+removeStudyPadConfirmationTitle: مطالعہ پیڈ اندراج ہٹائیں؟
+dragHelp: دوبارہ ترتیب کے لیے گھسیٹیں
+openAll: تمام حوالہ جات کھولیں
+editBookmarkPlaceholder: اس بک مارک کے لیے میرے نوٹس ترمیم کرنے کے لیے ٹیپ کریں
+onlyLabel: صرف لیبل
+wholeBookmark: پورا بک مارک
+assignLabelsMenuEntry1: لیبل منتخب یا ترمیم کریں…
+favouriteLabels: پسندیدہ لیبل
+recentLabels: حالیہ لیبل
+bookmarkLabels: بک مارک لیبل
+refParserHelp: "انگریزی کے علاوہ زبانوں میں حوالہ جات استعمال کرنے کے لیے %s ماڈیول انسٹال کریں۔"
+openDownloads: ایڈ-آن ڈاؤنلوڈز پر جائیں
+verseShare: شیئر کریں
+verseSpeak: بولیں
+verseCompare: موازنہ کریں
+verseMemorize: حفظ کریں
+verseNote: نوٹ
+verseMyNotes: میرے نوٹس
+verseParagraphBreak: پیراگراف
+verseShareLong: یہ آیت شیئر کریں
+verseCompareLong: آیت کا موازنہ کریں
+verseMemorizeLong: بائبل آیات حفظ کریں
+addMemorizationTarget: ہدف +
+addMemorizationTargetLong: حفظ کا ہدف بنائیں
+removeMemorizationTarget: ہدف -
+removeMemorizationTargetLong: حفظ کا ہدف ہٹائیں
+markAsMemorized: حفظ شدہ نشان لگائیں
+markedAsMemorized: حفظ شدہ
+removeFromTargets: ہدف -
+viewReadingProgress: پڑھنے/حفظ کی پیشرفت
+viewReadingProgressSettings: پڑھنے/حفظ کی ترتیبات
+listenInLoop: لوپ میں سنیں
+verseNoteLong: نوٹ لکھیں
+verseParagraphBreakLong: پیراگراف وقفہ
+addBookmark: بک مارک
+selectCustomIconTitle: کسٹم مارکر آئیکن منتخب کریں
+bookmarkSettingsTitle: بک مارک ترتیبات ترتیب دیں
+subtitlePlaceholder: ذیلی عنوان متن
+customIconLabel: کسٹم آئیکن
+editActionLabel: ایکشن ترمیم کریں
+editActionModeLabel: موڈ
+editActionModeNone: کوئی نہیں
+editActionModeAppend: متن شامل کریں
+editActionModePrepend: شروع میں متن شامل کریں
+editActionContentLabel: مواد
+editActionContentPlaceholder: دستاویز میں شامل کیا جانے والا متن داخل کریں...
+experimentalFeatureTitle: تجرباتی
+experimentalFeatureHelpTitle: تجرباتی خصوصیات کے بارے میں
+experimentalFeatureHelpContent: تجرباتی خصوصیات نئی صلاحیتیں ہیں جو ابھی تیار اور جانچی جا رہی ہیں۔ وہ بالکل کام نہ کریں اور آئندہ ایپ ورژنز میں نمایاں طور پر تبدیل یا ہٹائی جا سکتی ہیں۔
+insertParagraphBreak: پیراگراف وقفہ داخل کریں
+insertSubtitle: ذیلی عنوان داخل کریں
+xmlParseError: XML پارسنگ خرابی
+invalidTag: غلط ٹیگ
+invalidClosingTag: غلط بند ٹیگ
+unmatchedClosingTag: غیر مطابق بند ٹیگ
+unclosedTag: غیر بند ٹیگ
+unknownError: نامعلوم خرابی
+wordBlur: دھندلا
+wordScramble: ملا جلا
+wordType: ٹائپ
+wordOrder: ترتیب
+typeEverything: مکمل الفاظ ٹائپ کریں
+tapToStartTyping: ٹائپنگ شروع کرنے کے لیے یہاں ٹیپ کریں
+wordVisibility: لفظ کی نظر
+wordVisibilityLight: ہلکا
+wordVisibilityDim: مدھم
+wordVisibilityHidden: پوشیدہ
+errorHeatmap: خرابی ہیٹ میپ
+hideUsedButtons: استعمال شدہ لفظ بٹن چھپائیں
+more: مزید
+llmAction: AI
+llmActionLong: AI عمل
+aiDocumentRegenerate: دوبارہ بنائیں
+aiDocumentDelete: حذف کریں
+aiGeneratedBy: "%s کی طرف سے بنایا گیا"
+aiGeneratedByWithModel: "%s (%s) کی طرف سے بنایا گیا"

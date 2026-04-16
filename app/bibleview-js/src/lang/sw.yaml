@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Alamisho
+bookmarksAndNotes: Alamisho na Maelezo Yangu
+openMyNotes: Fungua katika Maelezo Yangu
+openStudyPad: "Fungua katika Daftari la Masomo (%s)"
+noteText: "Maelezo ya chini (%s)"
+noteTextWithoutType: Maelezo ya chini
+crossReferenceText: Marejeleo ya msalaba
+findAllOccurrences: Pata matukio yote
+reportError: Ripoti hitilafu
+errorTitle: Hitilafu imetokea
+warningTitle: Onyo
+normalTitle: Tafadhali kumbuka
+footnoteTypeStudy: Masomo
+footnoteTypeExplanation: Maelezo
+footnoteTypeVariant: Tofauti
+footnoteTypeAlternative: Mbadala
+footnoteTypeTranslation: Tafsiri
+clearLog: Futa kumbukumbu ya hitilafu
+editTextPlaceholder: Gonga kuhariri maandishi
+myDocumentEdit: Hariri ukurasa
+myDocumentEmptyPlaceholder: Gonga kuanza kuhariri ukurasa huu
+inputPlaceholder: Andika hapa
+inputReference: Ingiza rejeleo la Biblia
+invalidReference: Mstari haukupatikana
+bookmarkAccurate: "Alamisho iliundwa katika %s"
+bookmarkInaccurate: "Taarifa ya kitabu cha alamisho hazikuhifadhiwa, maudhui yanaonyeshwa katika %s."
+defaultBook: hati ya Biblia ya chaguo-msingi
+ok: Sawa
+yes: "Ndiyo"
+ambiguousSelection: Unataka kuchukua kitendo gani?
+cancel: Ghairi
+removeBookmarkConfirmationTitle: Ondoa alamisho?
+removeBookmarkConfirmation: Je, una uhakika unataka kuondoa alamisho hii?
+createdAt: "Iliundwa: %s"
+lastUpdatedOn: "Ilisasishwa mara ya mwisho: %s"
+strongsAndMorph: Ufafanuzi na Mofolojia
+externalLink: Fungua kiungo cha nje
+referenceLink: Fungua kiungo cha rejeleo
+openFootnote: Fungua maelezo ya chini
+noMyNotesTitle: Hakuna Maelezo Yangu kwa sura hii.
+noMyNotesDescription: Anza kwa kuunda alamisho katika hati ya Biblia. Alamisho zitaonekana hapa na unaweza kuongeza maelezo yako ya kibinafsi kwake.
+emptyStudyPad: Daftari la masomo tupu. Anza kuongeza kwenye daftari hili la masomo kwa kuunda maingizo ya maandishi hapa au kwa kuunda alamisho zenye lebo ya alamisho inayolingana na daftari hili la masomo.
+doYouWantToDeleteEntry: Futa maingizo haya ya daftari la masomo?
+removeStudyPadConfirmationTitle: Ondoa maingizo ya daftari la masomo?
+dragHelp: Buruta kupanga upya
+openAll: Fungua marejeleo yote
+editBookmarkPlaceholder: Gonga kuhariri Maelezo Yangu kwa alamisho hii
+onlyLabel: Lebo tu
+wholeBookmark: Alamisho yote
+assignLabelsMenuEntry1: Chagua au hariri lebo…
+favouriteLabels: Lebo za Kipendwa
+recentLabels: Lebo za Hivi Karibuni
+bookmarkLabels: Lebo za alamisho
+refParserHelp: "Tafadhali sanikisha moduli ya %s kutumia marejeleo katika lugha nyingine badala ya Kiingereza."
+openDownloads: Nenda kwa upakuaji wa Viongezi
+verseShare: Shiriki
+verseSpeak: Soma kwa sauti
+verseCompare: Linganisha
+verseMemorize: Kariri
+verseNote: Maelezo
+verseMyNotes: Maelezo Yangu
+verseParagraphBreak: Aya
+verseShareLong: Shiriki mstari huu
+verseCompareLong: Linganisha mstari
+verseMemorizeLong: Kariri mistari ya Biblia
+addMemorizationTarget: Lengo +
+addMemorizationTargetLong: Weka kama lengo la ukariri
+removeMemorizationTarget: Lengo -
+removeMemorizationTargetLong: Ondoa lengo la ukariri
+markAsMemorized: Weka alama kama iliyokaririwa
+markedAsMemorized: Imekaririwa
+removeFromTargets: Lengo -
+viewReadingProgress: Maendeleo ya Kusoma/Kukariri
+viewReadingProgressSettings: Mipangilio ya Kusoma/Kukariri
+listenInLoop: Sikiliza katika Mzunguko
+verseNoteLong: Andika maelezo
+verseParagraphBreakLong: Mapumziko ya aya
+addBookmark: Alamisho
+selectCustomIconTitle: Chagua ikoni ya alama maalum
+bookmarkSettingsTitle: Sanidi mipangilio ya alamisho
+subtitlePlaceholder: Maandishi ya kichwa kidogo
+customIconLabel: Ikoni maalum
+editActionLabel: Hariri kitendo
+editActionModeLabel: Hali
+editActionModeNone: Hakuna
+editActionModeAppend: Ongeza maandishi
+editActionModePrepend: Weka maandishi mbele
+editActionContentLabel: Maudhui
+editActionContentPlaceholder: Ingiza maandishi ya kuongezwa kwa hati...
+experimentalFeatureTitle: Majaribio
+experimentalFeatureHelpTitle: Kuhusu Vipengele vya Majaribio
+experimentalFeatureHelpContent: Vipengele vya majaribio ni uwezo mpya ambao bado unakuzwa na kupimwa. Huenda visifanye kazi vizuri na vinaweza kubadilika sana au kuondolewa katika matoleo ya baadaye ya programu.
+insertParagraphBreak: Ingiza mapumziko ya aya
+insertSubtitle: Ingiza kichwa kidogo
+xmlParseError: Hitilafu ya usindikaji wa XML
+invalidTag: Lebo si sahihi
+invalidClosingTag: Lebo ya kufunga si sahihi
+unmatchedClosingTag: Lebo ya kufunga haioani
+unclosedTag: Lebo haikufungwa
+unknownError: Hitilafu isiyojulikana
+wordBlur: Ficha
+wordScramble: Changanya
+wordType: Andika
+wordOrder: Mpangilio
+typeEverything: Andika maneno kamili
+tapToStartTyping: Gonga hapa kuanza kuandika
+wordVisibility: Mwonekano wa neno
+wordVisibilityLight: Mwanga
+wordVisibilityDim: Giza
+wordVisibilityHidden: Imefichwa
+errorHeatmap: Ramani ya joto ya makosa
+hideUsedButtons: Ficha vitufe vya neno vilivyotumika
+more: Zaidi
+llmAction: AI
+llmActionLong: Kitendo cha AI
+aiDocumentRegenerate: Zalisha upya
+aiDocumentDelete: Futa
+aiGeneratedBy: "Imeundwa na %s"
+aiGeneratedByWithModel: "Imeundwa na %s (%s)"

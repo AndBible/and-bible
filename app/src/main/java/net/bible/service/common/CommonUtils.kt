@@ -1516,7 +1516,7 @@ object CommonUtils : CommonUtilsBase() {
         // Transifex as of 6.12.2024 + ai-translated languages (10.4.2026)
         val goodLanguages = (
             "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW," +
-            "es,ta,cs,hu,nl,sr,te,pl,hr,bn,ko,ru,bg,ar,he,hi,et,nb,ja,th,vi,da,ca,in,eo").split(",")
+            "es,ta,cs,hu,nl,sr,te,pl,hr,bn,ko,ru,bg,ar,he,hi,et,nb,ja,th,vi,da,ca,in,eo,ms,sw,ur,ne").split(",")
 
         // 4.0 list:
 

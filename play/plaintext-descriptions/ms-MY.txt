@@ -1,0 +1,48 @@
+Alat Kajian Alkitab yang Berkuasa
+
+"AndBible: Kajian Alkitab" adalah aplikasi kajian Alkitab luar talian yang berkuasa namun mudah digunakan untuk Android. Aplikasi ini tidak bertujuan sebagai pembaca Alkitab semata-mata, tetapi menumpukan pada menjadi alat canggih untuk kajian Alkitab peribadi yang mendalam.
+
+Aplikasi ini dibangunkan oleh pembaca Alkitab, untuk pembaca Alkitab. Ia bertujuan membantu anda menjadikan kajian Alkitab anda mudah, mendalam, dan menyeronokkan. Bahagian terbaik tentang projek komuniti bukan untung ini ialah ia sumber terbuka, sepenuhnya percuma, dan tidak mengandungi iklan.
+
+Beberapa versi Alkitab popular (daripada banyak yang tersedia) ialah KJV, NASB, NET, dan juga ulasan popular seperti Matthew Henry dan John Gill.
+
+Ciri Kajian Alkitab yang Berkuasa
+
+Aplikasi ini mempunyai banyak ciri asli yang berwawasan, yang menjadikan pengalaman kajian Alkitab yang kompleks dan mendalam lebih lancar dari sebelumnya. Ciri-ciri yang paling ketara adalah seperti berikut:
+
+ * Paparan teks pisah yang membolehkan perbandingan terjemahan dan rujukan ulasan
+ * Ruang kerja membolehkan pelbagai persediaan kajian Alkitab dengan tetapan mereka sendiri
+ * Integrasi Strong's membolehkan analisis perkataan Greek dan Ibrani
+ * Rujukan silang, nota kaki, dan dokumen yang dipautkan; lompat ke rujukan silang dan nota kaki dengan hanya mengetuk pautan; lakukan kajian mendalam Kitab Suci menggunakan ulasan berhiperpautan (Gill, Matthew Henry dll.), koleksi rujukan silang (Treasure of Scripture Knowledge, TSKe) dan sumber lain.
+ * Teks ke pertuturan lanjutan dengan penanda buku baca, membolehkan pengalaman mendengar Alkitab yang lancar
+ * Carian yang fleksibel
+ * Ciri penanda buku &amp; penyerlahan lanjutan dengan nota kajian peribadi
+ * Pad Kajian untuk menambah nota dan rujukan Alkitab semasa mendengar khotbah.
+ * Rancangan bacaan: tetapkan matlamat untuk membaca Alkitab
+ * Perpustakaan dokumen yang luas: terjemahan Alkitab, ulasan teologi, kamus, peta, dan buku Kristian, berjumlah lebih 1500 dokumen dalam lebih 700 bahasa, diedarkan secara sah oleh Crosswire dan repositori SWORD lain.
+ * Sokongan asli untuk fail MyBible, MySword dan EPUB membolehkan anda meluaskan perpustakaan anda lebih lagi.
+
+Mari buat aplikasi Alkitab terbaik bersama-sama!
+
+AndBible adalah projek komuniti sumber terbuka. Pada praktiknya, ini bermakna sesiapa sahaja dengan kemahiran yang sesuai boleh, dan digalakkan untuk, menyumbang kepada projek dengan:
+
+ * membangunkan ciri baharu,
+ * menguji ciri yang belum dikeluarkan,
+ * mengemaskinikan terjemahan antara muka pengguna, dan
+ * membantu meluaskan perpustakaan modul dengan mendapatkan kebenaran dari pemegang hak cipta, atau dengan menukar dokumen ke format SWORD.
+
+Jika anda jurutera perisian atau penguji profesional, sila pertimbangkan untuk menyumbang kepada projek. Untuk maklumat lanjut tentang cara menyumbang, sila lihat https://git.io/JUnaj.
+
+Sokong dengan membeli masa pembangunan!
+
+Jika anda tidak mempunyai masa atau kemahiran untuk sumbangan projek, anda juga boleh menyokong projek dengan membeli masa kerja pembangun profesional.
+
+Lihat pilihan: https://shop.andbible.org/
+
+Pautan
+
+ * Laman utama: https://andbible.org
+ * Suka AndBible di Facebook: https://www.facebook.com/AndBible/
+ * Saluran Youtube kami: https://www.youtube.com/c/AndBible
+ * Soalan Lazim: https://git.io/JJm8E
+ * Halaman projek di Github: https://github.com/AndBible/and-bible
