@@ -678,7 +678,7 @@
   <string name="ask_restore_or_import">ניתן לשחזר את מסד הנתונים עבור %s (כלומר, מסד הנתונים הקיים מוסר והנבחר נטען) או לייבא אותו (מסד הנתונים הנבחר מיובא לתוך הקיים). מה ברצונך לעשות?</string>
   <string name="restore">שחזור</string>
   <string name="import2">ייבוא</string>
-  <string name="export_studypads_help">ניתן לייבא קובץ המכיל פנקסי לימוד שיוצאו (כלומר תוויות וסימניות) דרך תפריט ראשי -> גיבוי ושחזור.</string>
+  <string name="export_studypads_help">ניתן לייבא קובץ המכיל פנקסי לימוד שיוצאו (כלומר תוויות וסימניות) דרך תפריט ראשי -&gt; גיבוי ושחזור.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">"%1$s" ו-%2$s תוויות/פנקסי לימוד נוספים ו-%3$s סימניות</string>
@@ -1472,6 +1472,9 @@
   <string name="no_models_configured">לא הוגדרו מודלים</string>
   <string name="model_cache_creation_price">מחיר יצירת מטמון ($/מיליון טוקן)</string>
   <string name="model_cache_read_price">מחיר קריאת מטמון ($/מיליון טוקן)</string>
+  <string name="model_supported_badge">✓ נתמך</string>
+  <string name="show_also_unsupported_models">הצג גם מודלים שאינם נתמכים</string>
+  <string name="show_also_unsupported_providers">הצג גם ספקים שאינם נתמכים</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s קלט / %2$s פלט למיליון טוקן</string>

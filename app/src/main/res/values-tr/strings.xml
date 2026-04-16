@@ -1575,6 +1575,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="no_models_configured">Yapılandırılmış model yok</string>
   <string name="model_cache_creation_price">Önbellek oluşturma fiyatı ($/Mtoken)</string>
   <string name="model_cache_read_price">Önbellek okuma fiyatı ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Destekleniyor</string>
+  <string name="show_also_unsupported_models">Desteklenmeyen modelleri de göster</string>
+  <string name="show_also_unsupported_providers">Desteklenmeyen sağlayıcıları da göster</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s giriş / %2$s çıkış, Mtoken başına</string>

@@ -1571,6 +1571,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="no_models_configured">Inga modeller konfigurerade</string>
   <string name="model_cache_creation_price">Cache-skapandepris ($/Mtoken)</string>
   <string name="model_cache_read_price">Cache-läspris ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Stöds</string>
+  <string name="show_also_unsupported_models">Visa även modeller som inte stöds</string>
+  <string name="show_also_unsupported_providers">Visa även leverantörer som inte stöds</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s ut per Mtoken</string>

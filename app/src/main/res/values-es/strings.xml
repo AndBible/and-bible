@@ -1565,6 +1565,9 @@ Próximamente habrá un nuevo lanzamiento. La fecha de lanzamiento prevista es %
   <string name="no_models_configured">No hay modelos configurados</string>
   <string name="model_cache_creation_price">Precio de creación de caché ($/Mtoken)</string>
   <string name="model_cache_read_price">Precio de lectura de caché ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Compatible</string>
+  <string name="show_also_unsupported_models">Mostrar también modelos no compatibles</string>
+  <string name="show_also_unsupported_providers">Mostrar también proveedores no compatibles</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s entrada / %2$s salida por Mtoken</string>

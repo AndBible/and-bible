@@ -11,7 +11,7 @@ reportError: Prijavite napako
 errorTitle: Zgodila se je napaka
 warningTitle: Opozorilo
 normalTitle: Prosimo, upoštevajte
-footnoteTypeStudy: Študij 
+footnoteTypeStudy: Študij
 footnoteTypeExplanation: Pojasnilo
 footnoteTypeVariant: Različica
 footnoteTypeAlternative: Druga možnost
@@ -40,17 +40,15 @@ referenceLink: Odpri zunanjo povezavo
 openFootnote: Odpri zaznamek
 noMyNotesTitle: Za to poglavje ni Mojih opomb.
 noMyNotesDescription: Začnite z ustvarjanjem zaznamkov v biblijskem dokumentu. Nato se bodo tukaj prikazali zaznamki, vanje pa lahko dodate svoje osebne zapiske.
-
 emptyStudyPad: Prazna beležnica. Začnite dodajati na to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
-
-doYouWantToDeleteEntry: Želite izbrisati ta vnos v beležnici? 
+doYouWantToDeleteEntry: Želite izbrisati ta vnos v beležnici?
 removeStudyPadConfirmationTitle: Želite odstraniti vnos beležnice?
 dragHelp: Povlecite za prerazporeditev
 openAll: Odpri vse sklice
 editBookmarkPlaceholder: Dotaknite se, če želite urediti Moje opombe za ta zaznamek
 onlyLabel: Samo oznaka
 wholeBookmark: Celoten zaznamek
-assignLabelsMenuEntry1: Izberite ali uredite oznake... 
+assignLabelsMenuEntry1: Izberite ali uredite oznake...
 favouriteLabels: Priljubljene oznake
 recentLabels: Nedavne oznake
 bookmarkLabels: Oznake zaznamkov

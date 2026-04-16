@@ -1526,6 +1526,9 @@ Ne prikazuj ovu poruku ponovno.
   <string name="no_models_configured">Nema konfiguriranih modela</string>
   <string name="model_cache_creation_price">Cijena stvaranja predmemorije ($/Mtoken)</string>
   <string name="model_cache_read_price">Cijena čitanja predmemorije ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Podržano</string>
+  <string name="show_also_unsupported_models">Prikaži i nepodržane modele</string>
+  <string name="show_also_unsupported_providers">Prikaži i nepodržane davatelje usluge</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s ulaz / %2$s izlaz po Mtokenu</string>

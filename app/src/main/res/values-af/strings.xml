@@ -1531,6 +1531,9 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="no_models_configured">Geen modelle opgestel nie</string>
   <string name="model_cache_creation_price">Kasgewing-prys ($/Mtoken)</string>
   <string name="model_cache_read_price">Kaslees-prys ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Ondersteun</string>
+  <string name="show_also_unsupported_models">Wys ook nie-ondersteunde modelle</string>
+  <string name="show_also_unsupported_providers">Wys ook nie-ondersteunde verskaffers</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s uit per Mtoken</string>

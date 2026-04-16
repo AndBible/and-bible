@@ -1562,6 +1562,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="no_models_configured">Žádné modely nejsou nastaveny</string>
   <string name="model_cache_creation_price">Cena vytvoření cache ($/Mtoken)</string>
   <string name="model_cache_read_price">Cena čtení cache ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Podporováno</string>
+  <string name="show_also_unsupported_models">Zobrazit také nepodporované modely</string>
+  <string name="show_also_unsupported_providers">Zobrazit také nepodporované poskytovatele</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s vstup / %2$s výstup za Mtoken</string>

@@ -1464,6 +1464,9 @@ Nie wyświetlaj tego ponownie</string>
   <string name="no_models_configured">Brak skonfigurowanych modeli</string>
   <string name="model_cache_creation_price">Cena tworzenia pamięci podręcznej ($/Mtoken)</string>
   <string name="model_cache_read_price">Cena odczytu pamięci podręcznej ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ Obsługiwany</string>
+  <string name="show_also_unsupported_models">Pokaż również nieobsługiwane modele</string>
+  <string name="show_also_unsupported_providers">Pokaż również nieobsługiwanych dostawców</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s wejście / %2$s wyjście za Mtoken</string>

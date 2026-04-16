@@ -1570,6 +1570,9 @@
   <string name="no_models_configured">구성된 모델 없음</string>
   <string name="model_cache_creation_price">캐시 생성 가격 ($/Mtoken)</string>
   <string name="model_cache_read_price">캐시 읽기 가격 ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ 지원됨</string>
+  <string name="show_also_unsupported_models">지원되지 않는 모델도 표시</string>
+  <string name="show_also_unsupported_providers">지원되지 않는 공급자도 표시</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">Mtoken당 %1$s 입력 / %2$s 출력</string>

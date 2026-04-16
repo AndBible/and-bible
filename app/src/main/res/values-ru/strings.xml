@@ -1558,6 +1558,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="no_models_configured">Модели не настроены</string>
   <string name="model_cache_creation_price">Цена создания кэша ($/Mтокен)</string>
   <string name="model_cache_read_price">Цена чтения кэша ($/Mтокен)</string>
+  <string name="model_supported_badge">✓ Поддерживается</string>
+  <string name="show_also_unsupported_models">Показать также неподдерживаемые модели</string>
+  <string name="show_also_unsupported_providers">Показать также неподдерживаемых провайдеров</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s вх. / %2$s исх. за Mтокен</string>

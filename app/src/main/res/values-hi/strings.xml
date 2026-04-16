@@ -1528,6 +1528,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="no_models_configured">कोई मॉडल कॉन्फ़िगर नहीं है</string>
   <string name="model_cache_creation_price">कैश निर्माण मूल्य ($/Mtoken)</string>
   <string name="model_cache_read_price">कैश पढ़ने का मूल्य ($/Mtoken)</string>
+  <string name="model_supported_badge">✓ समर्थित</string>
+  <string name="show_also_unsupported_models">असमर्थित मॉडल भी दिखाएं</string>
+  <string name="show_also_unsupported_providers">असमर्थित प्रदाता भी दिखाएं</string>
 
     <!-- Easy Setup -->
   <string name="model_pricing_summary">%1$s in / %2$s out प्रति Mtoken</string>
