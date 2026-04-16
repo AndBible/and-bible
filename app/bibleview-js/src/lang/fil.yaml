@@ -1,0 +1,120 @@
+# Open in "My Notes" title. (just demonstrating developer note)
+bookmarks: Mga Bookmark
+bookmarksAndNotes: Mga Bookmark at My Notes
+openMyNotes: Buksan sa My Notes
+openStudyPad: "Buksan sa Study Pad (%s)"
+noteText: "Mga Talababa (%s)"
+noteTextWithoutType: Mga Talababa
+crossReferenceText: Mga Cross Reference
+findAllOccurrences: Hanapin ang lahat ng pagkakataon
+reportError: Mag-ulat ng error
+errorTitle: Nagkaroon ng error
+warningTitle: Babala
+normalTitle: Pakitandaan
+footnoteTypeStudy: Pag-aaral
+footnoteTypeExplanation: Paliwanag
+footnoteTypeVariant: Variant
+footnoteTypeAlternative: Alternatibo
+footnoteTypeTranslation: Pagsasalin
+clearLog: Burahin ang log ng error
+editTextPlaceholder: I-tap upang i-edit ang teksto
+myDocumentEdit: I-edit ang pahina
+myDocumentEmptyPlaceholder: I-tap upang simulan ang pag-edit ng pahinang ito
+inputPlaceholder: Sumulat dito
+inputReference: Ilagay ang sanggunian sa Bibliya
+invalidReference: Hindi nahanap ang talata
+bookmarkAccurate: "Ang bookmark ay nilikha sa %s"
+bookmarkInaccurate: "Hindi naimbak ang impormasyon ng aklat ng bookmark, ang nilalaman ay ipinapakita sa %s."
+defaultBook: default na dokumento ng Bibliya
+ok: OK
+yes: "Oo"
+ambiguousSelection: Anong aksyon ang nais mong gawin?
+cancel: Kanselahin
+removeBookmarkConfirmationTitle: Alisin ang bookmark?
+removeBookmarkConfirmation: Sigurado ka bang nais mong alisin ang bookmark na ito?
+createdAt: "Nilikha: %s"
+lastUpdatedOn: "Huling na-update: %s"
+strongsAndMorph: Kahulugan at Morpholohiya
+externalLink: Buksan ang external na link
+referenceLink: Buksan ang reference na link
+openFootnote: Buksan ang talababa
+noMyNotesTitle: Walang My Notes para sa kabanatang ito.
+noMyNotesDescription: Magsimula sa pamamagitan ng paglikha ng mga bookmark sa isang dokumento ng Bibliya. Ang mga bookmark ay lilitaw dito at maaari kang magdagdag ng iyong personal na mga tala sa kanila.
+emptyStudyPad: Walang laman ang study pad. Simulan ang pagdaragdag sa study pad na ito sa pamamagitan ng paglikha ng mga text entry dito o sa pamamagitan ng paglikha ng mga bookmark na may label ng bookmark na tumutugma sa study pad na ito.
+doYouWantToDeleteEntry: Tanggalin ang entry na ito sa study pad?
+removeStudyPadConfirmationTitle: Alisin ang entry sa study pad?
+dragHelp: I-drag upang muling ayusin
+openAll: Buksan ang lahat ng sanggunian
+editBookmarkPlaceholder: I-tap upang i-edit ang My Notes para sa bookmark na ito
+onlyLabel: Label lamang
+wholeBookmark: Buong bookmark
+assignLabelsMenuEntry1: Pumili o mag-edit ng mga label…
+favouriteLabels: Mga Paboritong Label
+recentLabels: Mga Kamakailang Label
+bookmarkLabels: Mga label ng bookmark
+refParserHelp: "Mangyaring i-install ang %s module upang gumamit ng mga sanggunian sa mga wika bukod sa Ingles."
+openDownloads: Pumunta sa mga pag-download ng Add-on
+verseShare: I-share
+verseSpeak: Magsalita
+verseCompare: Ihambing
+verseMemorize: Kabisahin
+verseNote: Tala
+verseMyNotes: My Notes
+verseParagraphBreak: Talata
+verseShareLong: I-share ang talatang ito
+verseCompareLong: Ihambing ang talata
+verseMemorizeLong: Kabisahin ang mga talata ng Bibliya
+addMemorizationTarget: Layunin +
+addMemorizationTargetLong: Itakda bilang layunin sa pagkabisa
+removeMemorizationTarget: Layunin -
+removeMemorizationTargetLong: Alisin ang layunin sa pagkabisa
+markAsMemorized: Markahan bilang nakabisa
+markedAsMemorized: Nakabisa na
+removeFromTargets: Layunin -
+viewReadingProgress: Progreso sa Pagbabasa/Pagkabisa
+viewReadingProgressSettings: Mga Setting ng Pagbabasa/Pagkabisa
+listenInLoop: Makinig sa Loop
+verseNoteLong: Sumulat ng tala
+verseParagraphBreakLong: Pahinga ng talata
+addBookmark: Bookmark
+selectCustomIconTitle: Pumili ng custom na icon ng marker
+bookmarkSettingsTitle: I-configure ang mga setting ng bookmark
+subtitlePlaceholder: Teksto ng subtitle
+customIconLabel: Custom na icon
+editActionLabel: Aksyon sa pag-edit
+editActionModeLabel: Mode
+editActionModeNone: Wala
+editActionModeAppend: Magdagdag ng teksto sa dulo
+editActionModePrepend: Magdagdag ng teksto sa simula
+editActionContentLabel: Nilalaman
+editActionContentPlaceholder: Ilagay ang teksto na idaragdag sa dokumento...
+experimentalFeatureTitle: Eksperimental
+experimentalFeatureHelpTitle: Tungkol sa Mga Eksperimental na Feature
+experimentalFeatureHelpContent: Ang mga eksperimental na feature ay mga bagong kakayahan na nasa proseso pa ng pagpapaunlad at pagsubok. Maaaring hindi sila gumana nang perpekto at maaaring magbago nang malaki o maalis sa mga susunod na bersyon ng app.
+insertParagraphBreak: Maglagay ng pahinga ng talata
+insertSubtitle: Maglagay ng subtitle
+xmlParseError: Error sa pag-parse ng XML
+invalidTag: Di-wastong tag
+invalidClosingTag: Di-wastong closing tag
+unmatchedClosingTag: Closing tag na walang katugma
+unclosedTag: Hindi saradong tag
+unknownError: Hindi kilalang error
+wordBlur: Blur
+wordScramble: Baguhin ang ayos
+wordType: I-type
+wordOrder: Pagkakasunod
+typeEverything: I-type ang buong mga salita
+tapToStartTyping: I-tap dito upang magsimulang mag-type
+wordVisibility: Visibility ng salita
+wordVisibilityLight: Maliwanag
+wordVisibilityDim: Madilim
+wordVisibilityHidden: Nakatago
+errorHeatmap: Heatmap ng error
+hideUsedButtons: Itago ang mga ginamit na button ng salita
+more: Higit pa
+llmAction: AI
+llmActionLong: Aksyon ng AI
+aiDocumentRegenerate: Muling buuin
+aiDocumentDelete: Tanggalin
+aiGeneratedBy: "Ginawa ng %s"
+aiGeneratedByWithModel: "Ginawa ng %s (%s)"

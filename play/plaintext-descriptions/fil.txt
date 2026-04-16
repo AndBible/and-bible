@@ -1,0 +1,48 @@
+Makapangyarihang Kagamitan sa Pag-aaral ng Bibliya
+
+Ang "AndBible: Pag-aaral ng Bibliya" ay isang makapangyarihan ngunit madaling gamitin na offline na app sa pag-aaral ng Bibliya para sa Android. Nakatuon ito sa pagiging advanced na kagamitan para sa malalim na personal na pag-aaral ng Bibliya.
+
+Binuo ng mga nagbabasa ng Bibliya, para sa mga nagbabasa ng Bibliya. Layunin nitong gawing maginhawa at malalim ang iyong pag-aaral. Open-source, ganap na libre, at walang advertisement.
+
+Ang ilang popular na bersyon ng Bibliya (sa maraming magagamit) ay ang KJV, NASB, NET, at pati na rin ang mga popular na komentaryo tulad ng Matthew Henry at John Gill.
+
+Mga Makapangyarihang Tampok sa Pag-aaral ng Bibliya
+
+Ang application ay may maraming natatangi at orihinal na tampok na nagpapadali ng kumplikado at malalim na karanasan sa pag-aaral ng Bibliya. Ang pinaka-kapansin-pansing mga tampok ay ang mga sumusunod:
+
+ * Mga split text view na nagbibigay-daan sa paghahambing ng mga salin at pagtukoy sa mga komentaryo
+ * Ang mga workspace ay nagpapahintulot ng maraming setup sa pag-aaral ng Bibliya na may sariling mga setting
+ * Ang integrasyon ng Strong's ay nagbibigay-daan sa pagsusuri ng mga salitang Griyego at Hebreo
+ * Mga naka-link na cross-reference, footnote, at dokumento; pumunta sa mga ito sa pamamagitan ng pag-tap ng link; gamitin ang mga komentaryo (Gill, Matthew Henry atbp.), cross-reference (Treasure of Scripture Knowledge, TSKe) at iba pang mapagkukunan.
+ * Advanced na text to speech na may mga speak bookmark, na nagbibigay ng maayos na karanasan sa pakikinig ng Bibliya
+ * Flexible na paghahanap
+ * Advanced na mga tampok sa pagba-bookmark at pag-highlight na may personal na mga tala sa pag-aaral
+ * Ang mga Study Pad para sa pagdaragdag ng mga tala at sanggunian sa Bibliya habang nakikinig sa mga sermon.
+ * Mga plano sa pagbabasa: magtakda ng mga layunin para sa pagbabasa ng Bibliya
+ * Malawak na aklatan ng mga dokumento: mga salin ng Bibliya, mga teolohikal na komentaryo, mga diksyonaryo, mga mapa, at mga Kristiyanong aklat, na kabuuang higit sa 1500 na dokumento sa mahigit 700 na wika, na legal na ipinamamahagi ng Crosswire at iba pang mga SWORD repository.
+ * Ang katutubong suporta para sa MyBible, MySword, at EPUB na mga file ay nagbibigay-daan sa iyo na palawakin pa ang iyong aklatan.
+
+Gumawa tayo ng pinakamahusay na Bible app nang magkasama!
+
+Ang AndBible ay isang open-source na proyektong pangkomunidad. Ang sinuman na may angkop na kakayahan ay maaaring mag-ambag sa pamamagitan ng:
+
+ * pagbuo ng mga bagong tampok,
+ * pagsubok ng mga tampok na hindi pa inilalabas,
+ * pagpapanatiling napapanahon ang mga pagsasalin ng user interface, at
+ * pagtulong na palawakin ang module library sa pamamagitan ng pagkuha ng pahintulot mula sa mga may-ari ng copyright, o sa pamamagitan ng pag-convert ng mga dokumento sa SWORD format.
+
+Kung ikaw ay software engineer o tester, isaalang-alang ang pag-ambag sa proyekto. Para sa impormasyon, tingnan ang https://git.io/JUnaj.
+
+Suportahan sa pamamagitan ng pagbili ng oras ng pag-unlad!
+
+Kung wala kang oras o kakayahan para sa mga kontribusyon sa proyekto, maaari ka ring suportahan ang proyekto sa pamamagitan ng pagbili ng propesyonal na oras ng trabaho ng developer.
+
+Tingnan ang mga opsyon: https://shop.andbible.org/
+
+Mga Link
+
+ * Homepage: https://andbible.org
+ * I-like ang AndBible sa Facebook: https://www.facebook.com/AndBible/
+ * Ang Aming Youtube Channel: https://www.youtube.com/c/AndBible
+ * Mga Madalas Itanong: https://git.io/JJm8E
+ * Pahina ng proyekto sa Github: https://github.com/AndBible/and-bible
