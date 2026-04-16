@@ -11,6 +11,10 @@ description: >
 
 Translate missing UI strings for AndBible — Android XML, Vue.js YAML, and Play Store descriptions — with consistent terminology, correct structure, and full validation. Supports single language or all languages at once.
 
+## Sandbox
+
+**All commands in this pipeline work within the default sandbox.** No `dangerouslyDisableSandbox` is needed. Every script reads/writes only within the repo directory (`.`), which the sandbox allows. Do NOT request sandbox bypass for any command in this workflow.
+
 ## When to Use
 
 - Adding or completing translations for a single language
@@ -211,7 +215,6 @@ The script:
 
 1. `Comments: N` — must be >0 (base has ~110 section comments). If 0, the script has a bug.
 2. `Strings: N` — must equal total translation count.
-3. Run `xmllint --noout` immediately.
 
 ### CRITICAL: Never use Bash for writing XML content
 
@@ -262,13 +265,9 @@ cd play && python3 compile_description.py && cd ..
 
 Compiles all Play Store YAML translations into `fastlane/metadata/android/` text files. Run this after all languages are updated. Warns about title > 30, short_description > 80, and full_description > 4000 chars.
 
-### Additional validation
+### Additional validation (only when Vue.js strings changed)
 
 ```bash
-# XML validation (redundant with validate.py but quick sanity check)
-xmllint --noout app/src/main/res/values-{lang}/strings.xml
-
-# Vue.js tests (if Vue.js strings changed)
 cd app/bibleview-js && npm run test:ci && npm run lint
 ```
 
@@ -309,10 +308,7 @@ SKILL=.claude/skills/update-translations
 7. python3 $SKILL/restructure_yaml.py XX tmp/translate-results/vuejs.yaml
 8. python3 $SKILL/restructure_playstore.py XX tmp/translate-results/XX_playstore.yml
 9. python3 $SKILL/validate.py XX
-10. xmllint --noout app/src/main/res/values-XX/strings.xml
-11. cd app/bibleview-js && npm run test:ci && npm run lint
-12. cd back to repo root!
-13. cd play && python3 compile_description.py && cd ..
+10. cd play && python3 compile_description.py && cd ..
 ```
 
 ## All Languages Workflow
@@ -368,6 +364,9 @@ For each language that needs work, dispatch a sub-agent using `model: "sonnet"`.
 ```
 You are translating AndBible UI strings to {LANGUAGE_NAME} ({LANG_CODE}).
 You MUST ONLY translate to {LANGUAGE_NAME}. Do not translate to any other language.
+
+IMPORTANT: All commands in this workflow run within the default sandbox.
+Do NOT use dangerouslyDisableSandbox for any command.
 
 SKILL=.claude/skills/update-translations
 
