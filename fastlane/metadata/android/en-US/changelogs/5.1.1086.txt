@@ -1,0 +1,11 @@
+- Added translations for Japanese (1,569 Android strings, 119 web keys) and 15+ additional languages including Filipino, Esperanto, Indonesian, Thai, Vietnamese, Catalan, Danish, and others; updated existing translations (c39126f, dbeccf2, 8994bc8, d3ee4db, and others)
+- Consolidated and removed 155+ unused/duplicate string resources across UI, settings, and AI features (82beaca, 80e038f, 3bebc4f, and others)
+
+5.1
+"What's new" video: TODO
+
+Highlights:
+- TODO
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
