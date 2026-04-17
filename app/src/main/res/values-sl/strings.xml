@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Novo okno</string>
-  <string name="windowClose">Zapri</string>
   <string name="windowMaximise">Maksimiraj</string>
   <string name="windowMinimise">Minimiraj</string>
   <string name="windowSynchronise">Sinhroniziraj</string>
@@ -725,7 +724,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="delete_workspace">Odstrani</string>
   <string name="new_copied_workspace">Kopiraj kot novo</string>
   <string name="workspace_number">Delovni prostor %d</string>
-  <string name="rename_workspace">Preimenuj</string>
+  <string name="rename">Preimenuj</string>
   <string name="workspace_selector_title">Izberi delovni prostor</string>
   <string name="workspace_settings">Nastavitve…</string>
   <string name="give_name_workspace">Ime novega delovnega prostora</string>
@@ -738,7 +737,7 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="copy_settings_workspaces_title">V katere delovne prostore želite kopirati nastavitve?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Nastavitve iskanja</string>
-  <string name="workspace_dismiss">Prekliči</string>
+  <string name="dismiss">Prekliči</string>
   <string name="workspace_listing_with_current">%s (trenuten)</string>
 
     <!-- Beta notice -->
@@ -756,7 +755,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         preko %s-a.  :-)</string>
   <string name="beta_notice_github_issues">Github izdaje</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Prekliči</string>
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
 
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
@@ -911,8 +909,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
   <string name="web_search">Spletno iskanje</string>
-  <string name="verse_action_copy">Kopiraj</string>
-  <string name="generic_share">Deli</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
   <string name="show_full_verses">Pokaži celotne vrstice</string>
@@ -929,7 +925,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="show_quotes">Prikaži citate</string>
   <string name="separate_verses_with_newlines">Vrstice loči z novimi vrsticami</string>
 
-  <string name="backup_button">Arhiv</string>
   <string name="initializing_app">Inicializacija aplikacije...</string>
   <string name="show_notes">Pokaži opombe</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1392,7 +1387,6 @@ Tega sporočila ne prikaži več
   <string name="ai_models_summary_none">Ni konfiguriranih modelov</string>
   <string name="ai_add_provider">Dodaj ponudnika</string>
   <string name="ai_provider_edit">Uredi</string>
-  <string name="ai_provider_delete">Izbriši</string>
   <string name="ai_provider_delete_confirm">Izbrisati ponudnika \"%1$s\"? Pozivi, ki uporabljajo tega ponudnika, se bodo vrnili na privzeto vrednost.</string>
   <string name="ai_provider_api_key_not_set">API ključ ni nastavljen</string>
   <string name="ai_provider_select_type">Izberite vrsto ponudnika</string>
@@ -1410,7 +1404,6 @@ Tega sporočila ne prikaži več
     <!-- Configured models management -->
   <string name="ai_models_category">Modeli</string>
   <string name="add_model">Dodaj model</string>
-  <string name="add_model_title">Dodaj model</string>
   <string name="edit_model_title">Uredi model</string>
   <string name="model_saved">Model shranjen</string>
   <string name="model_deleted">Model izbrisan</string>
@@ -1485,7 +1478,6 @@ Tega sporočila ne prikaži več
   <string name="addon_prompt_notice">Ta poziv je iz dodatnega modula \"%s\" in ga ni mogoče urejati. Uporabi \"Kopiraj za prilagoditev\" za ustvarjanje urejevalne kopije.</string>
   <string name="new_category">Nova kategorija</string>
   <string name="new_category_name">Ime kategorije</string>
-  <string name="rename_category">Preimenuj</string>
   <string name="move_category_up">Premakni navzgor</string>
   <string name="move_category_down">Premakni navzdol</string>
   <string name="hide_category">Skrij v dejanjih AI</string>
@@ -1771,22 +1763,16 @@ Tega sporočila ne prikaži več
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Ustvari nov dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
-  <string name="my_document_edit_description_title">Uredi opis</string>
   <string name="my_document_delete_confirmation">Izbrisati dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumentov AI ni mogoče izbrisati, dokler vsebuje strani. Najprej izbrišite strani.</string>
   <string name="my_document_save_changes">Shraniti spremembe?</string>
   <string name="my_document_no_description">Ni opisa</string>
-  <string name="my_document_rename">Preimenuj</string>
   <string name="my_document_edit_description">Uredi opis</string>
-  <string name="my_document_delete">Izbriši</string>
 
   <string name="my_document_pages_title">%s - Strani</string>
   <string name="my_document_pages_empty">V tem dokumentu ni strani.</string>
   <string name="my_document_page_rename_title">Preimenuj stran</string>
   <string name="my_document_page_delete_confirmation">Izbrisati stran \"%s\"?</string>
-  <string name="my_document_page_rename">Preimenuj</string>
-  <string name="my_document_page_delete">Izbriši</string>
-  <string name="my_document_page_export">Izvozi</string>
   <string name="my_document_new_page_name">Stran %1$d</string>
   <string name="my_document_create_page_title">Nova stran</string>
   <string name="my_document_content_type_label">Vrsta vsebine</string>
@@ -1806,12 +1792,10 @@ Tega sporočila ne prikaži več
 
   <string name="prefs_page_scroll_amount_title">Količina pomikanja strani</string>
   <string name="prefs_page_scroll_amount_summary">Koliko strani se premakne z pomikanjem navzgor/navzdol</string>
-  <string name="page_scroll_amount_dialog_title">Količina pomikanja strani</string>
   <string name="prefs_scroll_helper_lines_title">Pomožne črte pomikanja</string>
   <string name="prefs_scroll_helper_lines_summary">Prikaži vodoravne vodilne črte na mejah pomikanja strani</string>
   <string name="prefs_scroll_helper_line_style_title">Slog pomožne črte</string>
   <string name="prefs_scroll_helper_line_style_summary">Izberite vizualni slog pomožnih črt pomikanja</string>
-  <string name="scroll_helper_line_style_dialog_title">Slog pomožne črte</string>
   <string name="scroll_helper_line_style_thin_dotted">Tanka pikčasta črta</string>
   <string name="scroll_helper_line_style_thin_solid">Tanka polna črta</string>
   <string name="scroll_helper_line_style_thick_solid">Debela polna črta</string>

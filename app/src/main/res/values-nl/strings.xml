@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">Nieuw venster</string>
-  <string name="windowClose">Sluiten</string>
   <string name="windowMaximise">Maximaliseren</string>
   <string name="windowMinimise">Minimaliseren</string>
   <string name="windowSynchronise">Synchroniseren</string>
@@ -715,7 +714,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="delete_workspace">Verwijderen</string>
   <string name="new_copied_workspace">Kopiëren naar nieuw</string>
   <string name="workspace_number">Werkblad %d</string>
-  <string name="rename_workspace">Naam wijzigen</string>
+  <string name="rename">Naam wijzigen</string>
   <string name="workspace_selector_title">Selecteer werkblad</string>
   <string name="workspace_settings">Instellingen...</string>
   <string name="give_name_workspace">Geef naam voor nieuw werkblad</string>
@@ -728,7 +727,7 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="copy_settings_workspaces_title">Naar welke werkbladen wilt u de instellingen kopiëren?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Zoekinstellingen</string>
-  <string name="workspace_dismiss">Negeren</string>
+  <string name="dismiss">Negeren</string>
   <string name="workspace_listing_with_current">%s (huidig)</string>
 
     <!-- Beta notice -->
@@ -742,7 +741,6 @@ Beta gebruikers worden aangemoedigd om foutrapportages te sturen via Google Play
   <string name="beta_notice_content_3">Als je een programmeur bent, overweeg dan alsjeblieft om zelf foutoplossingen bij te dragen via %s. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Negeren</string>
   <string name="beta_notice_dismiss_until_update">Negeren tot volgende update</string>
 
   <string name="stable_notice_title">Applicatie is vernieuwd!</string>
@@ -891,8 +889,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="tell_friend_message4">Lees meer &amp; meer installatieopties: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="web_search">Webzoeken</string>
-  <string name="verse_action_copy">Kopiëren</string>
-  <string name="generic_share">Delen</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Versnummering laten zien</string>
   <string name="show_full_verses">Volledige verzen laten zien</string>
@@ -909,7 +905,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="show_quotes">Zie quotes</string>
   <string name="separate_verses_with_newlines">Verzen scheiden met nieuwe regels</string>
 
-  <string name="backup_button">Back-up maken</string>
   <string name="initializing_app">Bezig met starten...</string>
   <string name="show_notes">Notities tonen</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1364,7 +1359,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_models_summary_none">Geen modellen geconfigureerd</string>
   <string name="ai_add_provider">Provider toevoegen</string>
   <string name="ai_provider_edit">Bewerken</string>
-  <string name="ai_provider_delete">Verwijderen</string>
   <string name="ai_provider_delete_confirm">Provider \"%1$s\" verwijderen? Prompts die deze provider gebruiken, worden teruggezet naar de standaard.</string>
   <string name="ai_provider_api_key_not_set">API-sleutel niet ingesteld</string>
   <string name="ai_provider_select_type">Providertype selecteren</string>
@@ -1382,7 +1376,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
     <!-- Configured models management -->
   <string name="ai_models_category">Modellen</string>
   <string name="add_model">Model toevoegen</string>
-  <string name="add_model_title">Model toevoegen</string>
   <string name="edit_model_title">Model bewerken</string>
   <string name="model_saved">Model opgeslagen</string>
   <string name="model_deleted">Model verwijderd</string>
@@ -1457,7 +1450,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="addon_prompt_notice">Deze prompt is afkomstig van add-on-module \"%s\" en kan niet worden bewerkt. Gebruik \"Kopiëren om aan te passen\" om een bewerkbare kopie te maken.</string>
   <string name="new_category">Nieuwe categorie</string>
   <string name="new_category_name">Categorienaam</string>
-  <string name="rename_category">Naam wijzigen</string>
   <string name="move_category_up">Omhoog verplaatsen</string>
   <string name="move_category_down">Omlaag verplaatsen</string>
   <string name="hide_category">Verbergen in AI-acties</string>
@@ -1743,22 +1735,16 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Nieuw document aanmaken</string>
   <string name="my_document_rename_title">Document hernoemen</string>
-  <string name="my_document_edit_description_title">Beschrijving bewerken</string>
   <string name="my_document_delete_confirmation">Document \"%s\" verwijderen?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-documenten kunnen niet worden verwijderd zolang ze pagina\'s bevatten. Verwijder eerst de pagina\'s.</string>
   <string name="my_document_save_changes">Wijzigingen opslaan?</string>
   <string name="my_document_no_description">Geen beschrijving</string>
-  <string name="my_document_rename">Hernoemen</string>
   <string name="my_document_edit_description">Beschrijving bewerken</string>
-  <string name="my_document_delete">Verwijderen</string>
 
   <string name="my_document_pages_title">%s - Pagina\'s</string>
   <string name="my_document_pages_empty">Geen pagina\'s in dit document.</string>
   <string name="my_document_page_rename_title">Pagina hernoemen</string>
   <string name="my_document_page_delete_confirmation">Pagina \"%s\" verwijderen?</string>
-  <string name="my_document_page_rename">Hernoemen</string>
-  <string name="my_document_page_delete">Verwijderen</string>
-  <string name="my_document_page_export">Exporteren</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Nieuwe pagina</string>
   <string name="my_document_content_type_label">Inhoudstype</string>
@@ -1778,12 +1764,10 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
 
   <string name="prefs_page_scroll_amount_title">Pagina-scrolhoeveelheid</string>
   <string name="prefs_page_scroll_amount_summary">Hoeveel van de pagina er wordt gescrolld met pagina omhoog/omlaag</string>
-  <string name="page_scroll_amount_dialog_title">Pagina-scrolhoeveelheid</string>
   <string name="prefs_scroll_helper_lines_title">Scrolhulplijnen</string>
   <string name="prefs_scroll_helper_lines_summary">Horizontale hulplijnen tonen op pagina-scrolgrenzen</string>
   <string name="prefs_scroll_helper_line_style_title">Stijl hulplijn</string>
   <string name="prefs_scroll_helper_line_style_summary">De visuele stijl van scrolhulplijnen kiezen</string>
-  <string name="scroll_helper_line_style_dialog_title">Stijl hulplijn</string>
   <string name="scroll_helper_line_style_thin_dotted">Dunne stippellijn</string>
   <string name="scroll_helper_line_style_thin_solid">Dunne doorgetrokken lijn</string>
   <string name="scroll_helper_line_style_thick_solid">Dikke doorgetrokken lijn</string>

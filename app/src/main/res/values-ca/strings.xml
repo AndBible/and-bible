@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Finestra nova</string>
-  <string name="windowClose">Tanca</string>
   <string name="windowMaximise">Maximitza</string>
   <string name="windowMinimise">Minimitza</string>
   <string name="windowSynchronise">Sincronitza</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Elimina</string>
   <string name="new_copied_workspace">Copia com a nou</string>
   <string name="workspace_number">Espai de treball %d</string>
-  <string name="rename_workspace">Reanomena</string>
+  <string name="rename">Reanomena</string>
   <string name="workspace_selector_title">Selecciona l\'espai de treball</string>
   <string name="workspace_settings">Configuració…</string>
   <string name="give_name_workspace">Dóna un nom al nou espai de treball</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">A quins espais de treball vols copiar la configuració?</string>
   <string name="reset_settings">Restableix</string>
   <string name="search_settings">Cerca a la configuració</string>
-  <string name="workspace_dismiss">Descarta</string>
+  <string name="dismiss">Descarta</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Si ets programador, considera contribuir amb correccions d\'errors a través de %s tu mateix. :-)</string>
   <string name="beta_notice_github_issues">Problemes de Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Descarta</string>
   <string name="beta_notice_dismiss_until_update">Descarta fins a la pròxima actualització</string>
 
   <string name="stable_notice_title">L\'aplicació s\'ha actualitzat!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Llegeix més i més opcions d\'instal·lació: %s</string>
   <string name="share_verse_ok">Comparteix / Copia</string>
   <string name="web_search">Cerca al web</string>
-  <string name="verse_action_copy">Copia</string>
-  <string name="generic_share">Comparteix</string>
   <string name="share_verse_menu_title">Comparteix / copia…</string>
   <string name="show_versenumbers">Mostra els números de verset</string>
   <string name="show_full_verses">Mostra els versets sencers</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Mostra cometes</string>
   <string name="separate_verses_with_newlines">Separa els versets amb línies noves</string>
 
-  <string name="backup_button">Còpia de seguretat i restauració</string>
   <string name="initializing_app">Inicialitzant l\'aplicació…</string>
   <string name="show_notes">Mostra les notes</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Cap model configurat</string>
   <string name="ai_add_provider">Afegeix un proveïdor</string>
   <string name="ai_provider_edit">Edita</string>
-  <string name="ai_provider_delete">Suprimeix</string>
   <string name="ai_provider_delete_confirm">Vols suprimir el proveïdor «%1$s»? Els missatges que utilitzen aquest proveïdor tornaran al valor predeterminat.</string>
   <string name="ai_provider_api_key_not_set">Clau d\'API no establerta</string>
   <string name="ai_provider_select_type">Selecciona el tipus de proveïdor</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Models</string>
   <string name="add_model">Afegeix un model</string>
-  <string name="add_model_title">Afegeix model</string>
   <string name="edit_model_title">Edita model</string>
   <string name="model_saved">Model desat</string>
   <string name="model_deleted">Model suprimit</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Aquesta pregunta prové del mòdul complement \"%s\" i no es pot editar. Usa «Copia per personalitzar» per crear una còpia editable.</string>
   <string name="new_category">Nova categoria</string>
   <string name="new_category_name">Nom de la categoria</string>
-  <string name="rename_category">Reanomena</string>
   <string name="move_category_up">Mou amunt</string>
   <string name="move_category_down">Mou avall</string>
   <string name="hide_category">Amaga de les accions d\'IA</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Crea un document nou</string>
   <string name="my_document_rename_title">Reanomena el document</string>
-  <string name="my_document_edit_description_title">Edita la descripció</string>
   <string name="my_document_delete_confirmation">Suprimeix el document \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Els documents de la IA no es poden suprimir mentre contenen pàgines. Suprimeix primer les pàgines.</string>
   <string name="my_document_save_changes">Desa els canvis?</string>
   <string name="my_document_no_description">Sense descripció</string>
-  <string name="my_document_rename">Reanomena</string>
   <string name="my_document_edit_description">Edita la descripció</string>
-  <string name="my_document_delete">Suprimeix</string>
 
   <string name="my_document_pages_title">%s - Pàgines</string>
   <string name="my_document_pages_empty">No hi ha pàgines en aquest document.</string>
   <string name="my_document_page_rename_title">Reanomena la pàgina</string>
   <string name="my_document_page_delete_confirmation">Suprimeix la pàgina \"%s\"?</string>
-  <string name="my_document_page_rename">Reanomena</string>
-  <string name="my_document_page_delete">Suprimeix</string>
-  <string name="my_document_page_export">Exporta</string>
   <string name="my_document_new_page_name">Pàgina %1$d</string>
   <string name="my_document_create_page_title">Pàgina nova</string>
   <string name="my_document_content_type_label">Tipus de contingut</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Quantitat de desplaçament de pàgina</string>
   <string name="prefs_page_scroll_amount_summary">Quant de la pàgina es desplaça amb avançar/retrocedir pàgina</string>
-  <string name="page_scroll_amount_dialog_title">Quantitat de desplaçament de pàgina</string>
   <string name="prefs_scroll_helper_lines_title">Línies d\'ajuda de desplaçament</string>
   <string name="prefs_scroll_helper_lines_summary">Mostra línies guia horitzontals als límits de desplaçament de pàgina</string>
   <string name="prefs_scroll_helper_line_style_title">Estil de línia auxiliar</string>
   <string name="prefs_scroll_helper_line_style_summary">Tria l\'estil visual de les línies auxiliars de desplaçament</string>
-  <string name="scroll_helper_line_style_dialog_title">Estil de línia auxiliar</string>
   <string name="scroll_helper_line_style_thin_dotted">Línia de punts fina</string>
   <string name="scroll_helper_line_style_thin_solid">Línia contínua fina</string>
   <string name="scroll_helper_line_style_thick_solid">Línia contínua gruixuda</string>

@@ -91,7 +91,6 @@
   <string name="colors_night_mode_title">Mode malam</string>
   <!--Window-->
   <string name="new_window">Jendela baru</string>
-  <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Membesarkan</string>
   <string name="windowMinimise">Mengecilkan</string>
   <string name="windowSynchronise">Sinkronkan</string>
@@ -333,10 +332,10 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <!--Workspaces-->
   <string name="switch_to_workspace">Ruang Kerja</string>
   <string name="workspace_number">Ruang Kerja %d</string>
-  <string name="rename_workspace">Ganti nama</string>
+  <string name="rename">Ganti nama</string>
   <string name="save_and_exit">Simpan</string>
   <string name="reset_settings">Atur Ulang</string>
-  <string name="workspace_dismiss">Singkirkan</string>
+  <string name="dismiss">Singkirkan</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
   <string name="beta_notice_content_1">
@@ -348,7 +347,6 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="beta_notice_content_3">Jika Anda adalah seorang programmer, mohon mempertimbangkan untuk berkontribusi dalam memperbaiki bug melalui %s. :)</string>
   <string name="beta_notice_github_issues">Masalah-masalah Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Singkirkan</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>
   <!--History-->
   <!--Help-->
@@ -361,9 +359,7 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="close">Tutup</string>
   <string name="my_notes_abbreviation">Catatanku</string>
   <string name="compare_description">Bandingkan terjemahan</string>
-  <string name="verse_action_copy">Salin</string>
   <string name="show_versenumbers">Tampilkan nomor ayat</string>
-  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Uusi ikkuna</string>
-  <string name="windowClose">Sulje</string>
   <string name="windowMaximise">Suurenna</string>
   <string name="windowMinimise">Pienennä</string>
   <string name="windowSynchronise">Synkronoi</string>
@@ -721,7 +720,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="delete_workspace">Poista</string>
   <string name="new_copied_workspace">Kopioi uudeksi</string>
   <string name="workspace_number">Työtila %d</string>
-  <string name="rename_workspace">Nimeä uudelleen</string>
+  <string name="rename">Nimeä uudelleen</string>
   <string name="workspace_selector_title">Valitse työtila</string>
   <string name="workspace_settings">Asetukset…</string>
   <string name="give_name_workspace">Anna nimi uudelle työtilalle</string>
@@ -734,7 +733,7 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="copy_settings_workspaces_title">Mihin työtilaan haluat kopioida asetukset?</string>
   <string name="reset_settings">Tyhjennä</string>
   <string name="search_settings">Hakuasetukset</string>
-  <string name="workspace_dismiss">Hylkää</string>
+  <string name="dismiss">Hylkää</string>
   <string name="workspace_listing_with_current">%s (nykyinen)</string>
 
     <!-- Beta notice -->
@@ -749,7 +748,6 @@ Beta-käyttäjiä rohkaistaan raportoimaan bugeja joko Google Playn tai (mieluum
   <string name="beta_notice_content_3">Jos olet ohjelmoija, voisitko harkita bugien korjaamista itse Githubissa: %s. :-) </string>
   <string name="beta_notice_github_issues">Github tiketit</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Piilota</string>
   <string name="beta_notice_dismiss_until_update">Piilota seuraavaan päivitykseen asti</string>
 
   <string name="stable_notice_title">Sovellus on päivitetty!</string>
@@ -881,8 +879,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="tell_friend_message4">Lue lisää &amp; lisää asennusvaihtoehtoja: %s</string>
   <string name="share_verse_ok">Jaa / Kopioi</string>
   <string name="web_search">Haku internetistä</string>
-  <string name="verse_action_copy">Kopioi</string>
-  <string name="generic_share">Jaa</string>
   <string name="share_verse_menu_title">Jaa / kopioi…</string>
   <string name="show_versenumbers">Näytä jaenumerot</string>
   <string name="show_full_verses">Näytä kokonaiset jakeet</string>
@@ -899,7 +895,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="show_quotes">Näytä lainausmerkit</string>
   <string name="separate_verses_with_newlines">Erota jakeet rivinvaihdoilla</string>
 
-  <string name="backup_button">Varmuuskopioi tai palauta</string>
   <string name="initializing_app">Käynnistetään sovellusta…</string>
   <string name="show_notes">Näytä merkinnät</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1319,7 +1314,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_models_summary_none">Malleja ei ole määritetty</string>
   <string name="ai_add_provider">Lisää palveluntarjoaja</string>
   <string name="ai_provider_edit">Muokkaa</string>
-  <string name="ai_provider_delete">Poista</string>
   <string name="ai_provider_delete_confirm">Poistetaanko palveluntarjoaja \"%1$s\"? Tätä palveluntarjoajaa käyttävät kehotteet palautuvat oletusasetuksiin.</string>
   <string name="ai_provider_api_key_not_set">API-avainta ei ole asetettu</string>
   <string name="ai_provider_select_type">Valitse palveluntarjoajan tyyppi</string>
@@ -1337,7 +1331,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
     <!-- Configured models management -->
   <string name="ai_models_category">Mallit</string>
   <string name="add_model">Lisää malli</string>
-  <string name="add_model_title">Lisää malli</string>
   <string name="edit_model_title">Muokkaa mallia</string>
   <string name="model_saved">Malli tallennettu</string>
   <string name="model_deleted">Malli poistettu</string>
@@ -1412,7 +1405,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="addon_prompt_notice">Tämä kehote on lisäosamoduulista \"%s\" eikä sitä voi muokata. Käytä \"Kopioi muokattavaksi\" luodaksesi muokattavan kopion.</string>
   <string name="new_category">Uusi kategoria</string>
   <string name="new_category_name">Kategorian nimi</string>
-  <string name="rename_category">Nimeä uudelleen</string>
   <string name="move_category_up">Siirrä ylös</string>
   <string name="move_category_down">Siirrä alas</string>
   <string name="hide_category">Piilota tekoälytoiminnoista</string>
@@ -1698,22 +1690,16 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="my_document_new_name">Dokumentti %d</string>
   <string name="my_document_create_title">Luo uusi dokumentti</string>
   <string name="my_document_rename_title">Nimeä dokumentti uudelleen</string>
-  <string name="my_document_edit_description_title">Muokkaa kuvausta</string>
   <string name="my_document_delete_confirmation">Poistetaanko dokumentti \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Tekoälydokumenttia ei voi poistaa, kun se sisältää sivuja. Poista ensin sivut.</string>
   <string name="my_document_save_changes">Tallennetaanko muutokset?</string>
   <string name="my_document_no_description">Ei kuvausta</string>
-  <string name="my_document_rename">Nimeä uudelleen</string>
   <string name="my_document_edit_description">Muokkaa kuvausta</string>
-  <string name="my_document_delete">Poista</string>
 
   <string name="my_document_pages_title">%s - Sivut</string>
   <string name="my_document_pages_empty">Tässä dokumentissa ei ole sivuja.</string>
   <string name="my_document_page_rename_title">Nimeä sivu uudelleen</string>
   <string name="my_document_page_delete_confirmation">Poistetaanko sivu \"%s\"?</string>
-  <string name="my_document_page_rename">Nimeä uudelleen</string>
-  <string name="my_document_page_delete">Poista</string>
-  <string name="my_document_page_export">Vie</string>
   <string name="my_document_new_page_name">Sivu %1$d</string>
   <string name="my_document_create_page_title">Uusi sivu</string>
   <string name="my_document_content_type_label">Sisältötyyppi</string>
@@ -1733,12 +1719,10 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
 
   <string name="prefs_page_scroll_amount_title">Sivun vierityksen määrä</string>
   <string name="prefs_page_scroll_amount_summary">Kuinka paljon sivua vieritetään sivunvaihdolla</string>
-  <string name="page_scroll_amount_dialog_title">Sivun vierityksen määrä</string>
   <string name="prefs_scroll_helper_lines_title">Vierityksen apuviivat</string>
   <string name="prefs_scroll_helper_lines_summary">Näytä vaakasuuntaiset apuviivat sivunvaihdon rajoilla</string>
   <string name="prefs_scroll_helper_line_style_title">Apuviivan tyyli</string>
   <string name="prefs_scroll_helper_line_style_summary">Valitse vierityksen apuviivojen visuaalinen tyyli</string>
-  <string name="scroll_helper_line_style_dialog_title">Apuviivan tyyli</string>
   <string name="scroll_helper_line_style_thin_dotted">Ohut pisteviiva</string>
   <string name="scroll_helper_line_style_thin_solid">Ohut yhtenäinen viiva</string>
   <string name="scroll_helper_line_style_thick_solid">Paksu yhtenäinen viiva</string>

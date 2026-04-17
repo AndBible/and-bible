@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">새 창</string>
-  <string name="windowClose">닫기</string>
   <string name="windowMaximise">최대화</string>
   <string name="windowMinimise">최소화</string>
   <string name="windowSynchronise">동기화</string>
@@ -729,7 +728,7 @@
   <string name="delete_workspace">삭제</string>
   <string name="new_copied_workspace">새 파일로 복사</string>
   <string name="workspace_number">워크스페이스 %d</string>
-  <string name="rename_workspace">이름 바꾸기</string>
+  <string name="rename">이름 바꾸기</string>
   <string name="workspace_selector_title">워크스페이스 선택</string>
   <string name="workspace_settings">설정...</string>
   <string name="give_name_workspace">새 워크스페이스의 이름을 입력하세요</string>
@@ -742,7 +741,7 @@
   <string name="copy_settings_workspaces_title">설정을 어떤 워크스페이스로 복사할까요?</string>
   <string name="reset_settings">재설정</string>
   <string name="search_settings">검색 설정</string>
-  <string name="workspace_dismiss">취소</string>
+  <string name="dismiss">취소</string>
   <string name="workspace_listing_with_current">%s (현재)</string>
 
     <!-- Beta notice -->
@@ -761,7 +760,6 @@
         적극 추천합니다 :-)</string>
   <string name="beta_notice_github_issues">깃허브 이슈</string>
   <string name="beta_notice_github">깃허브</string>
-  <string name="beta_notice_dismiss">취소</string>
   <string name="beta_notice_dismiss_until_update">다음 업데이트 때까지 끄기</string>
 
   <string name="stable_notice_title">앱이 업그레이드되었습니다!</string>
@@ -927,8 +925,6 @@
   <string name="tell_friend_message4">더 많은 정보와 설치 옵션은 여기를 참고하세요. %s</string>
   <string name="share_verse_ok">공유 / 복사</string>
   <string name="web_search">웹 검색</string>
-  <string name="verse_action_copy">복사</string>
-  <string name="generic_share">공유</string>
   <string name="share_verse_menu_title">공유/복사하기</string>
   <string name="show_versenumbers">구절 번호 보기</string>
   <string name="show_full_verses">전체 구절 표시</string>
@@ -945,7 +941,6 @@
   <string name="show_quotes">따옴표 표시</string>
   <string name="separate_verses_with_newlines">줄 바꿈으로 구절 구분</string>
 
-  <string name="backup_button">백업</string>
   <string name="initializing_app">애플리케이션 초기 설정 중…</string>
   <string name="show_notes">노트 표시</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1411,7 +1406,6 @@
   <string name="ai_models_summary_none">구성된 모델 없음</string>
   <string name="ai_add_provider">공급자 추가</string>
   <string name="ai_provider_edit">편집</string>
-  <string name="ai_provider_delete">삭제</string>
   <string name="ai_provider_delete_confirm">공급자 \"%1$s\"를 삭제하시겠습니까? 이 공급자를 사용하는 프롬프트가 기본값으로 되돌아갑니다.</string>
   <string name="ai_provider_api_key_not_set">API 키가 설정되지 않았습니다</string>
   <string name="ai_provider_select_type">공급자 유형 선택</string>
@@ -1429,7 +1423,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">모델</string>
   <string name="add_model">모델 추가</string>
-  <string name="add_model_title">모델 추가</string>
   <string name="edit_model_title">모델 편집</string>
   <string name="model_saved">모델이 저장되었습니다</string>
   <string name="model_deleted">모델이 삭제되었습니다</string>
@@ -1504,7 +1497,6 @@
   <string name="addon_prompt_notice">이 프롬프트는 애드온 모듈 \"%s\"에서 제공된 것으로 편집할 수 없습니다. 편집 가능한 복사본을 만들려면 \"복사하여 커스터마이즈\"를 사용하십시오.</string>
   <string name="new_category">새 카테고리</string>
   <string name="new_category_name">카테고리 이름</string>
-  <string name="rename_category">이름 바꾸기</string>
   <string name="move_category_up">위로 이동</string>
   <string name="move_category_down">아래로 이동</string>
   <string name="hide_category">AI 작업에서 숨기기</string>
@@ -1790,22 +1782,16 @@
   <string name="my_document_new_name">문서 %d</string>
   <string name="my_document_create_title">새 문서 만들기</string>
   <string name="my_document_rename_title">문서 이름 바꾸기</string>
-  <string name="my_document_edit_description_title">설명 편집하다</string>
   <string name="my_document_delete_confirmation">문서 \"%s\"을(를) 삭제하시겠습니까?</string>
   <string name="my_document_cannot_delete_ai_documents">AI 문서는 페이지가 있는 동안에는 삭제할 수 없습니다. 먼저 페이지를 삭제하세요.</string>
   <string name="my_document_save_changes">변경 사항을 저장하시겠습니까?</string>
   <string name="my_document_no_description">설명 없음</string>
-  <string name="my_document_rename">이름 바꾸기</string>
   <string name="my_document_edit_description">설명 편집하다</string>
-  <string name="my_document_delete">삭제</string>
 
   <string name="my_document_pages_title">%s - 페이지</string>
   <string name="my_document_pages_empty">이 문서에 페이지가 없습니다.</string>
   <string name="my_document_page_rename_title">페이지 이름 바꾸기</string>
   <string name="my_document_page_delete_confirmation">페이지 \"%s\"을(를) 삭제하시겠습니까?</string>
-  <string name="my_document_page_rename">이름 바꾸기</string>
-  <string name="my_document_page_delete">삭제</string>
-  <string name="my_document_page_export">내보내기</string>
   <string name="my_document_new_page_name">페이지 %1$d</string>
   <string name="my_document_create_page_title">새 페이지</string>
   <string name="my_document_content_type_label">콘텐츠 유형</string>
@@ -1825,12 +1811,10 @@
 
   <string name="prefs_page_scroll_amount_title">페이지 스크롤 양</string>
   <string name="prefs_page_scroll_amount_summary">페이지 위/아래로 스크롤할 양</string>
-  <string name="page_scroll_amount_dialog_title">페이지 스크롤 양</string>
   <string name="prefs_scroll_helper_lines_title">스크롤 보조선</string>
   <string name="prefs_scroll_helper_lines_summary">페이지 스크롤 경계에 수평 안내선 표시</string>
   <string name="prefs_scroll_helper_line_style_title">보조선 스타일</string>
   <string name="prefs_scroll_helper_line_style_summary">스크롤 보조선의 시각적 스타일 선택</string>
-  <string name="scroll_helper_line_style_dialog_title">보조선 스타일</string>
   <string name="scroll_helper_line_style_thin_dotted">얇은 점선</string>
   <string name="scroll_helper_line_style_thin_solid">얇은 실선</string>
   <string name="scroll_helper_line_style_thick_solid">굵은 실선</string>

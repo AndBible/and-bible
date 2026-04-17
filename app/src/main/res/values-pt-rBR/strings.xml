@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">Nova janela</string>
-  <string name="windowClose">Fechar</string>
   <string name="windowMaximise">Maximizar</string>
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
@@ -716,7 +715,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="delete_workspace">Excluir</string>
   <string name="new_copied_workspace">Copiar como novo</string>
   <string name="workspace_number">Área de trabalho%d</string>
-  <string name="rename_workspace">Renomear</string>
+  <string name="rename">Renomear</string>
   <string name="workspace_selector_title">Selecionar área de trabalho</string>
   <string name="workspace_settings">Configurações</string>
   <string name="give_name_workspace">Dê nome a área de trabalho</string>
@@ -729,7 +728,7 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="copy_settings_workspaces_title">Para que área de trabalho quer copiar as configurações?</string>
   <string name="reset_settings">Redefinir</string>
   <string name="search_settings">Configurações de pesquisa</string>
-  <string name="workspace_dismiss">Dispensar</string>
+  <string name="dismiss">Dispensar</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
 
     <!-- Beta notice -->
@@ -746,7 +745,6 @@ Os utilizadores de versões beta são incentivados a relatar bugs via Google Pla
 através de %s você mesmo. :-)</string>
   <string name="beta_notice_github_issues">Problemas relativos a Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Dispensar</string>
   <string name="beta_notice_dismiss_until_update">Dispensado até a próxima atualização</string>
 
   <string name="stable_notice_title">O aplicativo o foi atualizado!</string>
@@ -902,8 +900,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
   <string name="share_verse_ok">Compartilhar / Copiar</string>
   <string name="web_search">Pesquisa na Web</string>
-  <string name="verse_action_copy">Copiar</string>
-  <string name="generic_share">Compartilhar</string>
   <string name="share_verse_menu_title">Compartilhar / copiar...</string>
   <string name="show_versenumbers">Mostrar números dos versículos</string>
   <string name="show_full_verses">Mostrar versículos completos</string>
@@ -920,7 +916,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_quotes">Mostrar citações</string>
   <string name="separate_verses_with_newlines">Separar versículos com quebras de linha</string>
 
-  <string name="backup_button">Cópia de segurança</string>
   <string name="initializing_app">Inicializando o aplicativo</string>
   <string name="show_notes">Mostrar notas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1368,7 +1363,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="ai_models_summary_none">Nenhum modelo configurado</string>
   <string name="ai_add_provider">Adicionar provedor</string>
   <string name="ai_provider_edit">Editar</string>
-  <string name="ai_provider_delete">Excluir</string>
   <string name="ai_provider_delete_confirm">Excluir provedor \"%1$s\"? Os prompts que usam este provedor voltarão ao padrão.</string>
   <string name="ai_provider_api_key_not_set">Chave de API não definida</string>
   <string name="ai_provider_select_type">Selecionar tipo de provedor</string>
@@ -1386,7 +1380,6 @@ O banco de dados contém %s. O que você quer fazer?
     <!-- Configured models management -->
   <string name="ai_models_category">Modelos</string>
   <string name="add_model">Adicionar modelo</string>
-  <string name="add_model_title">Adicionar modelo</string>
   <string name="edit_model_title">Editar modelo</string>
   <string name="model_saved">Modelo salvo</string>
   <string name="model_deleted">Modelo excluído</string>
@@ -1461,7 +1454,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="addon_prompt_notice">Este prompt é do módulo complemento \"%s\" e não pode ser editado. Use \"Copiar para personalizar\" para criar uma cópia editável.</string>
   <string name="new_category">Nova categoria</string>
   <string name="new_category_name">Nome da categoria</string>
-  <string name="rename_category">Renomear</string>
   <string name="move_category_up">Mover para cima</string>
   <string name="move_category_down">Mover para baixo</string>
   <string name="hide_category">Ocultar das ações de IA</string>
@@ -1747,22 +1739,16 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="my_document_new_name">Documento %d</string>
   <string name="my_document_create_title">Criar novo documento</string>
   <string name="my_document_rename_title">Renomear documento</string>
-  <string name="my_document_edit_description_title">Editar descrição</string>
   <string name="my_document_delete_confirmation">Excluir documento \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Documentos de IA não podem ser excluídos enquanto contiverem páginas. Exclua as páginas primeiro.</string>
   <string name="my_document_save_changes">Salvar alterações?</string>
   <string name="my_document_no_description">Sem descrição</string>
-  <string name="my_document_rename">Renomear</string>
   <string name="my_document_edit_description">Editar descrição</string>
-  <string name="my_document_delete">Excluir</string>
 
   <string name="my_document_pages_title">%s - Páginas</string>
   <string name="my_document_pages_empty">Nenhuma página neste documento.</string>
   <string name="my_document_page_rename_title">Renomear página</string>
   <string name="my_document_page_delete_confirmation">Excluir página \"%s\"?</string>
-  <string name="my_document_page_rename">Renomear</string>
-  <string name="my_document_page_delete">Excluir</string>
-  <string name="my_document_page_export">Exportar</string>
   <string name="my_document_new_page_name">Página %1$d</string>
   <string name="my_document_create_page_title">Nova página</string>
   <string name="my_document_content_type_label">Tipo de conteúdo</string>
@@ -1782,12 +1768,10 @@ O banco de dados contém %s. O que você quer fazer?
 
   <string name="prefs_page_scroll_amount_title">Quantidade de rolagem da página</string>
   <string name="prefs_page_scroll_amount_summary">Quanto da página rolar com página acima/abaixo</string>
-  <string name="page_scroll_amount_dialog_title">Quantidade de rolagem da página</string>
   <string name="prefs_scroll_helper_lines_title">Linhas guia de rolagem</string>
   <string name="prefs_scroll_helper_lines_summary">Mostrar linhas guia horizontais nos limites de rolagem da página</string>
   <string name="prefs_scroll_helper_line_style_title">Estilo da linha guia</string>
   <string name="prefs_scroll_helper_line_style_summary">Escolher o estilo visual das linhas guia de rolagem</string>
-  <string name="scroll_helper_line_style_dialog_title">Estilo da linha guia</string>
   <string name="scroll_helper_line_style_thin_dotted">Linha pontilhada fina</string>
   <string name="scroll_helper_line_style_thin_solid">Linha contínua fina</string>
   <string name="scroll_helper_line_style_thick_solid">Linha contínua grossa</string>

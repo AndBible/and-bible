@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">Новое окно</string>
-  <string name="windowClose">Закрыть</string>
   <string name="windowMaximise">Развернуть</string>
   <string name="windowMinimise">Свернуть</string>
   <string name="windowSynchronise">Синхронизировать</string>
@@ -727,7 +726,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="delete_workspace">Удалить</string>
   <string name="new_copied_workspace">Копировать как новую</string>
   <string name="workspace_number">Рабочая область %d</string>
-  <string name="rename_workspace">Переименовать</string>
+  <string name="rename">Переименовать</string>
   <string name="workspace_selector_title">Выбрать рабочую область</string>
   <string name="workspace_settings">Настройки...</string>
   <string name="give_name_workspace">Дайте название новой рабочей области</string>
@@ -740,7 +739,7 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="copy_settings_workspaces_title">В какие рабочие области вы хотите скопировать настройки?</string>
   <string name="reset_settings">Сбросить</string>
   <string name="search_settings">Настройки поиска</string>
-  <string name="workspace_dismiss">Отклонить</string>
+  <string name="dismiss">Отклонить</string>
   <string name="workspace_listing_with_current">%s (текущий)</string>
 
     <!-- Beta notice -->
@@ -759,7 +758,6 @@ http://www.heartlight.org, разрешение предоставлено
 сами внести исправления ошибки через %s :-)</string>
   <string name="beta_notice_github_issues">Github вопросы</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Отклонить</string>
   <string name="beta_notice_dismiss_until_update">Отклонить до следующего обновления</string>
 
   <string name="stable_notice_title">Приложение обновлено!</string>
@@ -916,8 +914,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="tell_friend_message4">Подробнее и дополнительные варианты установки: %s</string>
   <string name="share_verse_ok">Поделиться / Копировать</string>
   <string name="web_search">Поиск в интернете</string>
-  <string name="verse_action_copy">Копировать</string>
-  <string name="generic_share">Поделиться</string>
   <string name="share_verse_menu_title">Поделиться / копировать…</string>
   <string name="show_versenumbers">Показать номера стихов</string>
   <string name="show_full_verses">Показать полные стихи</string>
@@ -934,7 +930,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="show_quotes">Показать цитаты</string>
   <string name="separate_verses_with_newlines">Разделять стихи новыми строками</string>
 
-  <string name="backup_button">Резервное копирование</string>
   <string name="initializing_app">Инициализация приложения…</string>
   <string name="show_notes">Показать заметки</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1400,7 +1395,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ai_models_summary_none">Модели не настроены</string>
   <string name="ai_add_provider">Добавить провайдер</string>
   <string name="ai_provider_edit">Изменить</string>
-  <string name="ai_provider_delete">Удалить</string>
   <string name="ai_provider_delete_confirm">Удалить провайдер \"%1$s\"? Промпты, использующие этого провайдера, вернутся к значению по умолчанию.</string>
   <string name="ai_provider_api_key_not_set">API-ключ не задан</string>
   <string name="ai_provider_select_type">Выберите тип провайдера</string>
@@ -1418,7 +1412,6 @@ http://www.heartlight.org, разрешение предоставлено
     <!-- Configured models management -->
   <string name="ai_models_category">Модели</string>
   <string name="add_model">Добавить модель</string>
-  <string name="add_model_title">Добавить модель</string>
   <string name="edit_model_title">Изменить модель</string>
   <string name="model_saved">Модель сохранена</string>
   <string name="model_deleted">Модель удалена</string>
@@ -1493,7 +1486,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="addon_prompt_notice">Этот промпт из модуля дополнения \"%s\" и не может быть изменён. Используйте «Копировать для настройки», чтобы создать редактируемую копию.</string>
   <string name="new_category">Новая категория</string>
   <string name="new_category_name">Название категории</string>
-  <string name="rename_category">Переименовать</string>
   <string name="move_category_up">Переместить вверх</string>
   <string name="move_category_down">Переместить вниз</string>
   <string name="hide_category">Скрыть из действий ИИ</string>
@@ -1779,22 +1771,16 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Создать новый документ</string>
   <string name="my_document_rename_title">Переименовать документ</string>
-  <string name="my_document_edit_description_title">Изменить описание</string>
   <string name="my_document_delete_confirmation">Удалить документ \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-документы нельзя удалить, пока они содержат страницы. Сначала удалите страницы.</string>
   <string name="my_document_save_changes">Сохранить изменения?</string>
   <string name="my_document_no_description">Нет описания</string>
-  <string name="my_document_rename">Переименовать</string>
   <string name="my_document_edit_description">Изменить описание</string>
-  <string name="my_document_delete">Удалить</string>
 
   <string name="my_document_pages_title">%s — Страницы</string>
   <string name="my_document_pages_empty">В этом документе нет страниц.</string>
   <string name="my_document_page_rename_title">Переименовать страницу</string>
   <string name="my_document_page_delete_confirmation">Удалить страницу \"%s\"?</string>
-  <string name="my_document_page_rename">Переименовать</string>
-  <string name="my_document_page_delete">Удалить</string>
-  <string name="my_document_page_export">Экспорт</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Новая страница</string>
   <string name="my_document_content_type_label">Тип содержимого</string>
@@ -1814,12 +1800,10 @@ http://www.heartlight.org, разрешение предоставлено
 
   <string name="prefs_page_scroll_amount_title">Величина прокрутки страницы</string>
   <string name="prefs_page_scroll_amount_summary">Насколько прокручивать страницу при нажатии кнопок вверх/вниз</string>
-  <string name="page_scroll_amount_dialog_title">Величина прокрутки страницы</string>
   <string name="prefs_scroll_helper_lines_title">Вспомогательные линии прокрутки</string>
   <string name="prefs_scroll_helper_lines_summary">Показывать горизонтальные направляющие линии на границах прокрутки страницы</string>
   <string name="prefs_scroll_helper_line_style_title">Стиль вспомогательных линий</string>
   <string name="prefs_scroll_helper_line_style_summary">Выберите визуальный стиль вспомогательных линий прокрутки</string>
-  <string name="scroll_helper_line_style_dialog_title">Стиль вспомогательных линий</string>
   <string name="scroll_helper_line_style_thin_dotted">Тонкая пунктирная линия</string>
   <string name="scroll_helper_line_style_thin_solid">Тонкая сплошная линия</string>
   <string name="scroll_helper_line_style_thick_solid">Толстая сплошная линия</string>

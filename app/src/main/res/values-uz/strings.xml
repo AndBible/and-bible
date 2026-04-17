@@ -86,7 +86,6 @@
   <string name="colors_night_mode_title">Tungi ko\'rinish</string>
   <!--Window-->
   <string name="new_window">Yangi oyna</string>
-  <string name="windowClose">Yoping</string>
   <string name="windowMaximise">Maksimallashtirmoq</string>
   <string name="windowMinimise">Kamaytirish</string>
   <string name="windowSynchronise">Sinxronlashtiring</string>
@@ -266,7 +265,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="notification_channel_tts_status">Matnni gapirish</string>
   <string name="notification_channel_progress_status">Faylni yuklash progresi haqida ma\'lumot va boshqalar</string>
   <!--Workspaces-->
-  <string name="rename_workspace">Ismni o\'zgartir</string>
+  <string name="rename">Ismni o\'zgartir</string>
   <string name="save_and_exit">Saqla</string>
   <string name="reset_settings">Ilk holatga qaytarish</string>
   <!--Beta notice-->
@@ -280,9 +279,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="close">Yoping</string>
   <string name="my_notes_abbreviation">Mening Eslatmalarim</string>
   <string name="compare_description">Tarjimalarni taqqosla</string>
-  <string name="verse_action_copy">Nusxa</string>
   <string name="show_versenumbers">Oyat raqamlarini ko\'rsatish</string>
-  <string name="backup_button">Rezerv nusxa</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Tetingkap baharu</string>
-  <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Maksimumkan</string>
   <string name="windowMinimise">Minimumkan</string>
   <string name="windowSynchronise">Selaraskan</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Buang</string>
   <string name="new_copied_workspace">Salin sebagai baharu</string>
   <string name="workspace_number">Ruang Kerja %d</string>
-  <string name="rename_workspace">Namakan semula</string>
+  <string name="rename">Namakan semula</string>
   <string name="workspace_selector_title">Pilih ruang kerja</string>
   <string name="workspace_settings">Tetapan…</string>
   <string name="give_name_workspace">Berikan nama untuk ruang kerja baharu</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">Ke ruang kerja mana anda ingin menyalin tetapan?</string>
   <string name="reset_settings">Set semula</string>
   <string name="search_settings">Cari tetapan</string>
-  <string name="workspace_dismiss">Tutup</string>
+  <string name="dismiss">Tutup</string>
   <string name="workspace_listing_with_current">%s (semasa)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Jika anda pengaturcara, sila pertimbangkan untuk menyumbang pembaikan pepijat melalui %s sendiri. :-)</string>
   <string name="beta_notice_github_issues">Isu Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Tutup</string>
   <string name="beta_notice_dismiss_until_update">Tutup sehingga kemas kini berikutnya</string>
 
   <string name="stable_notice_title">Aplikasi telah dinaik taraf!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Baca lagi &amp; lebih banyak pilihan pemasangan: %s</string>
   <string name="share_verse_ok">Kongsi / Salin</string>
   <string name="web_search">Carian web</string>
-  <string name="verse_action_copy">Salin</string>
-  <string name="generic_share">Kongsi</string>
   <string name="share_verse_menu_title">Kongsi / salin…</string>
   <string name="show_versenumbers">Tunjukkan nombor ayat</string>
   <string name="show_full_verses">Tunjukkan ayat penuh</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Tunjukkan petikan</string>
   <string name="separate_verses_with_newlines">Pisahkan ayat dengan baris baharu</string>
 
-  <string name="backup_button">Sandaran &amp; Pulih</string>
   <string name="initializing_app">Memulakan aplikasi…</string>
   <string name="show_notes">Tunjukkan nota</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Tiada model dikonfigurasi</string>
   <string name="ai_add_provider">Tambah penyedia</string>
   <string name="ai_provider_edit">Edit</string>
-  <string name="ai_provider_delete">Padamkan</string>
   <string name="ai_provider_delete_confirm">Padamkan penyedia \"%1$s\"? Prompt yang menggunakan penyedia ini akan kembali ke lalai.</string>
   <string name="ai_provider_api_key_not_set">Kunci API tidak ditetapkan</string>
   <string name="ai_provider_select_type">Pilih jenis penyedia</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Model</string>
   <string name="add_model">Tambah model</string>
-  <string name="add_model_title">Tambah model</string>
   <string name="edit_model_title">Edit model</string>
   <string name="model_saved">Model disimpan</string>
   <string name="model_deleted">Model dipadamkan</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Prompt ini adalah dari modul add-on \"%s\" dan tidak boleh diedit. Gunakan \"Salin untuk disesuaikan\" untuk membuat salinan yang boleh diedit.</string>
   <string name="new_category">Kategori baharu</string>
   <string name="new_category_name">Nama kategori</string>
-  <string name="rename_category">Namakan semula</string>
   <string name="move_category_up">Pindah ke atas</string>
   <string name="move_category_down">Pindah ke bawah</string>
   <string name="hide_category">Sembunyikan dari tindakan AI</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Dokumen %d</string>
   <string name="my_document_create_title">Buat dokumen baharu</string>
   <string name="my_document_rename_title">Namakan semula dokumen</string>
-  <string name="my_document_edit_description_title">Edit penerangan</string>
   <string name="my_document_delete_confirmation">Padamkan dokumen \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak boleh dipadamkan semasa ia mengandungi halaman. Padamkan halaman dahulu.</string>
   <string name="my_document_save_changes">Simpan perubahan?</string>
   <string name="my_document_no_description">Tiada penerangan</string>
-  <string name="my_document_rename">Namakan semula</string>
   <string name="my_document_edit_description">Edit penerangan</string>
-  <string name="my_document_delete">Padamkan</string>
 
   <string name="my_document_pages_title">%s - Halaman</string>
   <string name="my_document_pages_empty">Tiada halaman dalam dokumen ini.</string>
   <string name="my_document_page_rename_title">Namakan semula halaman</string>
   <string name="my_document_page_delete_confirmation">Padamkan halaman \"%s\"?</string>
-  <string name="my_document_page_rename">Namakan semula</string>
-  <string name="my_document_page_delete">Padamkan</string>
-  <string name="my_document_page_export">Eksport</string>
   <string name="my_document_new_page_name">Halaman %1$d</string>
   <string name="my_document_create_page_title">Halaman baharu</string>
   <string name="my_document_content_type_label">Jenis kandungan</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Jumlah tatal halaman</string>
   <string name="prefs_page_scroll_amount_summary">Berapa banyak halaman yang akan dital dengan halaman naik/turun</string>
-  <string name="page_scroll_amount_dialog_title">Jumlah tatal halaman</string>
   <string name="prefs_scroll_helper_lines_title">Garisan pembantu tatal</string>
   <string name="prefs_scroll_helper_lines_summary">Tunjukkan garisan panduan mendatar pada sempadan tatal halaman</string>
   <string name="prefs_scroll_helper_line_style_title">Gaya garisan pembantu</string>
   <string name="prefs_scroll_helper_line_style_summary">Pilih gaya visual garisan pembantu tatal</string>
-  <string name="scroll_helper_line_style_dialog_title">Gaya garisan pembantu</string>
   <string name="scroll_helper_line_style_thin_dotted">Garisan bertitik nipis</string>
   <string name="scroll_helper_line_style_thin_solid">Garisan padu nipis</string>
   <string name="scroll_helper_line_style_thick_solid">Garisan padu tebal</string>

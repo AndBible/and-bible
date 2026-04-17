@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nouvelle fenêtre</string>
-  <string name="windowClose">Fermer</string>
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
   <string name="windowSynchronise">Synchroniser</string>
@@ -707,7 +706,7 @@ Le fichier est peut-être invalide.</string>
   <string name="delete_workspace">Supprimer</string>
   <string name="new_copied_workspace">Copier comme un nouveau</string>
   <string name="workspace_number">Espace %d</string>
-  <string name="rename_workspace">Renommer</string>
+  <string name="rename">Renommer</string>
   <string name="workspace_selector_title">Sélection d’espace</string>
   <string name="workspace_settings">Paramètres...</string>
   <string name="give_name_workspace">Donner un nom au nouvel espace</string>
@@ -720,7 +719,7 @@ Le fichier est peut-être invalide.</string>
   <string name="copy_settings_workspaces_title">Sur quels espaces voulez-vous appliquer les paramètres ?</string>
   <string name="reset_settings">Réinitialiser</string>
   <string name="search_settings">Paramètres de recherche</string>
-  <string name="workspace_dismiss">Ignorer</string>
+  <string name="dismiss">Ignorer</string>
   <string name="workspace_listing_with_current">%s (courant)</string>
 
     <!-- Beta notice -->
@@ -735,7 +734,6 @@ Les bêta-testeurs sont invités à rapporter les bogues via Google Play ou via 
   <string name="beta_notice_content_3">Si vous êtes développeur, merci d\'envisager de contribuer vous-mêmes aux corrections de bogues sur %s :)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Ignorer</string>
   <string name="beta_notice_dismiss_until_update">Ignorer jusqu\'à la prochaine mise à jour</string>
 
   <string name="stable_notice_title">L’application a été mise à jour !</string>
@@ -896,8 +894,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="tell_friend_message4">Lire davantage &amp; plus d’options d’installation: %s</string>
   <string name="share_verse_ok">Partager / copier</string>
   <string name="web_search">Recherche sur le web</string>
-  <string name="verse_action_copy">Copier</string>
-  <string name="generic_share">Partager</string>
   <string name="share_verse_menu_title">Partager / copier...</string>
   <string name="show_versenumbers">Afficher les numéros de verset</string>
   <string name="show_full_verses">Afficher tous les versets</string>
@@ -914,7 +910,6 @@ documents supplémentaires lorsque vous étudiez la Bible.</string>
   <string name="show_quotes">Montrer les citations</string>
   <string name="separate_verses_with_newlines">Séparer les versets par des sauts de ligne</string>
 
-  <string name="backup_button">Sauvegarde</string>
   <string name="initializing_app">Initialisation de l’application…</string>
   <string name="show_notes">Montrer les notes</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1377,7 +1372,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_models_summary_none">Aucun modèle configuré</string>
   <string name="ai_add_provider">Ajouter un fournisseur</string>
   <string name="ai_provider_edit">Modifier</string>
-  <string name="ai_provider_delete">Supprimer</string>
   <string name="ai_provider_delete_confirm">Supprimer le fournisseur \"%1$s\" ? Les invites utilisant ce fournisseur reviendront au fournisseur par défaut.</string>
   <string name="ai_provider_api_key_not_set">Clé API non définie</string>
   <string name="ai_provider_select_type">Sélectionner le type de fournisseur</string>
@@ -1395,7 +1389,6 @@ La base de données contient %s. Que voulez-vous faire ?
     <!-- Configured models management -->
   <string name="ai_models_category">Modèles</string>
   <string name="add_model">Ajouter un modèle</string>
-  <string name="add_model_title">Ajouter un modèle</string>
   <string name="edit_model_title">Modifier le modèle</string>
   <string name="model_saved">Modèle enregistré</string>
   <string name="model_deleted">Modèle supprimé</string>
@@ -1470,7 +1463,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="addon_prompt_notice">Ce prompt provient du module complémentaire \"%s\" et ne peut pas être modifié. Utilisez « Copier pour personnaliser » pour créer une copie modifiable.</string>
   <string name="new_category">Nouvelle catégorie</string>
   <string name="new_category_name">Nom de la catégorie</string>
-  <string name="rename_category">Renommer</string>
   <string name="move_category_up">Déplacer vers le haut</string>
   <string name="move_category_down">Déplacer vers le bas</string>
   <string name="hide_category">Masquer des actions IA</string>
@@ -1756,22 +1748,16 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Créer un nouveau document</string>
   <string name="my_document_rename_title">Renommer le document</string>
-  <string name="my_document_edit_description_title">Modifier la description</string>
   <string name="my_document_delete_confirmation">Supprimer le document \"%s\" ?</string>
   <string name="my_document_cannot_delete_ai_documents">Les documents AI ne peuvent pas être supprimés tant qu\'ils contiennent des pages. Supprimez d\'abord les pages.</string>
   <string name="my_document_save_changes">Enregistrer les modifications ?</string>
   <string name="my_document_no_description">Aucune description</string>
-  <string name="my_document_rename">Renommer</string>
   <string name="my_document_edit_description">Modifier la description</string>
-  <string name="my_document_delete">Supprimer</string>
 
   <string name="my_document_pages_title">%s - Pages</string>
   <string name="my_document_pages_empty">Aucune page dans ce document.</string>
   <string name="my_document_page_rename_title">Renommer la page</string>
   <string name="my_document_page_delete_confirmation">Supprimer la page \"%s\" ?</string>
-  <string name="my_document_page_rename">Renommer</string>
-  <string name="my_document_page_delete">Supprimer</string>
-  <string name="my_document_page_export">Exporter</string>
   <string name="my_document_new_page_name">Page %1$d</string>
   <string name="my_document_create_page_title">Nouvelle page</string>
   <string name="my_document_content_type_label">Type de contenu</string>
@@ -1791,12 +1777,10 @@ La base de données contient %s. Que voulez-vous faire ?
 
   <string name="prefs_page_scroll_amount_title">Quantité de défilement par page</string>
   <string name="prefs_page_scroll_amount_summary">Quelle portion de la page faire défiler avec page haut/bas</string>
-  <string name="page_scroll_amount_dialog_title">Quantité de défilement par page</string>
   <string name="prefs_scroll_helper_lines_title">Lignes d\'aide au défilement</string>
   <string name="prefs_scroll_helper_lines_summary">Afficher des lignes de repère horizontales aux limites de défilement par page</string>
   <string name="prefs_scroll_helper_line_style_title">Style des lignes d\'aide</string>
   <string name="prefs_scroll_helper_line_style_summary">Choisir le style visuel des lignes d\'aide au défilement</string>
-  <string name="scroll_helper_line_style_dialog_title">Style des lignes d\'aide</string>
   <string name="scroll_helper_line_style_thin_dotted">Ligne fine pointillée</string>
   <string name="scroll_helper_line_style_thin_solid">Ligne fine continue</string>
   <string name="scroll_helper_line_style_thick_solid">Ligne épaisse continue</string>

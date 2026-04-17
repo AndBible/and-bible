@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">புது சாரளம்</string>
-  <string name="windowClose">மூடு</string>
   <string name="windowMaximise">விரி</string>
   <string name="windowMinimise">சுருக்கு</string>
   <string name="windowSynchronise">ஒத்திசைவு</string>
@@ -743,7 +742,7 @@
   <string name="delete_workspace">நீக்குக</string>
   <string name="new_copied_workspace">புதியதாக நகலெடு</string>
   <string name="workspace_number">பணியிடம் %d</string>
-  <string name="rename_workspace">மறுபெயரிடு</string>
+  <string name="rename">மறுபெயரிடு</string>
   <string name="workspace_selector_title">பணியிடங்களை தேர்வு செய்க</string>
   <string name="workspace_settings">அமைப்புகள்...</string>
   <string name="give_name_workspace">புதிய பணியிடத்திற்கு பெயரிடுக</string>
@@ -756,7 +755,7 @@
   <string name="copy_settings_workspaces_title">எந்தப் பணியிடங்களுக்கு அமைப்புகளை நகலெடுக்க வேண்டும்?</string>
   <string name="reset_settings">மீட்டமை</string>
   <string name="search_settings">தேடல் அமைப்புகள்</string>
-  <string name="workspace_dismiss">நிராகரி</string>
+  <string name="dismiss">நிராகரி</string>
   <string name="workspace_listing_with_current">%s (தற்போதையது)</string>
 
     <!-- Beta notice -->
@@ -775,7 +774,6 @@
         %s வழியாக பிழைகளை திருத்த உதவலாம். :-)</string>
   <string name="beta_notice_github_issues">கிட்ஹப் சிக்கல்கள்</string>
   <string name="beta_notice_github">கிட்ஹப்</string>
-  <string name="beta_notice_dismiss">நிராகரி</string>
   <string name="beta_notice_dismiss_until_update">அடுத்த புதுப்பிப்பு வரை நிராகரிக்கவும்</string>
 
   <string name="stable_notice_title">செயலி புதுப்பிக்கப்பட்டது!</string>
@@ -941,8 +939,6 @@
   <string name="tell_friend_message4">மேலும் அறிய &amp; பிற நிறுவல் முறைகள்: %s</string>
   <string name="share_verse_ok">பகிர் / நகல் எடு</string>
   <string name="web_search">வலை தேடல்</string>
-  <string name="verse_action_copy">நகலெடு </string>
-  <string name="generic_share">பகிர்</string>
   <string name="share_verse_menu_title">பகிர் / நகல் எடு...</string>
   <string name="show_versenumbers">வசன எண்களை காட்டு</string>
   <string name="show_full_verses">முழு வசனத்தையும் காட்டு</string>
@@ -959,7 +955,6 @@
   <string name="show_quotes">இரட்டை மேற்கோள் கூறி காட்டு</string>
   <string name="separate_verses_with_newlines">வசனங்களை புதிய வரிகளால் பிரி</string>
 
-  <string name="backup_button">காப்பு நகல் எடு</string>
   <string name="initializing_app">செயலி தொடங்குகிறது....</string>
   <string name="show_notes">குறிப்புகளை காட்டு</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1425,7 +1420,6 @@
   <string name="ai_models_summary_none">மாடல்கள் கட்டமைக்கப்படவில்லை</string>
   <string name="ai_add_provider">வழங்குனர் சேர்</string>
   <string name="ai_provider_edit">திருத்து</string>
-  <string name="ai_provider_delete">நீக்கு</string>
   <string name="ai_provider_delete_confirm">வழங்குனர் \"%1$s\"-ஐ நீக்கவா? இந்த வழங்குனரை பயன்படுத்தும் வரைவுகள் இயல்புநிலைக்கு திரும்பும்.</string>
   <string name="ai_provider_api_key_not_set">API திறவு அமைக்கப்படவில்லை</string>
   <string name="ai_provider_select_type">வழங்குனர் வகையை தேர்வு செய்க</string>
@@ -1443,7 +1437,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">மாடல்கள்</string>
   <string name="add_model">மாடல் சேர்</string>
-  <string name="add_model_title">மாடல் சேர்</string>
   <string name="edit_model_title">மாடலை திருத்து</string>
   <string name="model_saved">மாடல் சேமிக்கப்பட்டது</string>
   <string name="model_deleted">மாடல் நீக்கப்பட்டது</string>
@@ -1518,7 +1511,6 @@
   <string name="addon_prompt_notice">இந்த வரைவு \"%s\" துணை நிரல் தொகுதியிலிருந்து வந்தது, திருத்த முடியாது. திருத்தக்கூடிய நகல் உருவாக்க "தனிப்பயனாக்க நகலெடு" பயன்படுத்தவும்.</string>
   <string name="new_category">புதிய வகை</string>
   <string name="new_category_name">வகை பெயர்</string>
-  <string name="rename_category">மறுபெயரிடு</string>
   <string name="move_category_up">மேலே நகர்த்து</string>
   <string name="move_category_down">கீழே நகர்த்து</string>
   <string name="hide_category">AI செயல்களிலிருந்து மறை</string>
@@ -1804,22 +1796,16 @@
   <string name="my_document_new_name">ஆவணம் %d</string>
   <string name="my_document_create_title">புதிய ஆவணம் உருவாக்கு</string>
   <string name="my_document_rename_title">ஆவணத்தை மறுபெயரிடு</string>
-  <string name="my_document_edit_description_title">விவரத்தை திருத்து</string>
   <string name="my_document_delete_confirmation">\"%s\" ஆவணத்தை நீக்கவா?</string>
   <string name="my_document_cannot_delete_ai_documents">பக்கங்கள் இருக்கும் போது AI ஆவணங்களை நீக்க முடியாது. முதலில் பக்கங்களை நீக்கவும்.</string>
   <string name="my_document_save_changes">மாற்றங்களை சேமிக்கவா?</string>
   <string name="my_document_no_description">விவரம் இல்லை</string>
-  <string name="my_document_rename">மறுபெயரிடு</string>
   <string name="my_document_edit_description">விவரத்தை திருத்து</string>
-  <string name="my_document_delete">நீக்கு</string>
 
   <string name="my_document_pages_title">%s - பக்கங்கள்</string>
   <string name="my_document_pages_empty">இந்த ஆவணத்தில் பக்கங்கள் இல்லை.</string>
   <string name="my_document_page_rename_title">பக்கத்தை மறுபெயரிடு</string>
   <string name="my_document_page_delete_confirmation">\"%s\" பக்கத்தை நீக்கவா?</string>
-  <string name="my_document_page_rename">மறுபெயரிடு</string>
-  <string name="my_document_page_delete">நீக்கு</string>
-  <string name="my_document_page_export">ஏற்றுமதி</string>
   <string name="my_document_new_page_name">பக்கம் %1$d</string>
   <string name="my_document_create_page_title">புதிய பக்கம்</string>
   <string name="my_document_content_type_label">உள்ளடக்க வகை</string>
@@ -1839,12 +1825,10 @@
 
   <string name="prefs_page_scroll_amount_title">பக்க உருட்டல் அளவு</string>
   <string name="prefs_page_scroll_amount_summary">பக்கம் மேலே/கீழே செல்லும்போது எவ்வளவு உருட்டல்</string>
-  <string name="page_scroll_amount_dialog_title">பக்க உருட்டல் அளவு</string>
   <string name="prefs_scroll_helper_lines_title">உருட்டல் உதவி கோடுகள்</string>
   <string name="prefs_scroll_helper_lines_summary">பக்க உருட்டல் வரம்புகளில் கிடைமட்ட வழிகாட்டு கோடுகளை காட்டு</string>
   <string name="prefs_scroll_helper_line_style_title">உதவி கோடு வடிவம்</string>
   <string name="prefs_scroll_helper_line_style_summary">உருட்டல் உதவி கோடுகளின் காட்சி வடிவத்தை தேர்வு செய்க</string>
-  <string name="scroll_helper_line_style_dialog_title">உதவி கோடு வடிவம்</string>
   <string name="scroll_helper_line_style_thin_dotted">மெல்லிய புள்ளி கோடு</string>
   <string name="scroll_helper_line_style_thin_solid">மெல்லிய திட கோடு</string>
   <string name="scroll_helper_line_style_thick_solid">தடிமனான திட கோடு</string>

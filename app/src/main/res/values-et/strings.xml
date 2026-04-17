@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Uus aken</string>
-  <string name="windowClose">Sulge</string>
   <string name="windowMaximise">Maksimeeri</string>
   <string name="windowMinimise">Minimeeri</string>
   <string name="windowSynchronise">Sünkrooni</string>
@@ -732,7 +731,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="delete_workspace">Eemalda</string>
   <string name="new_copied_workspace">Kopeeri uuena</string>
   <string name="workspace_number">Tööala %d</string>
-  <string name="rename_workspace">Nimeta ümber</string>
+  <string name="rename">Nimeta ümber</string>
   <string name="workspace_selector_title">Vali tööala</string>
   <string name="workspace_settings">Seaded...</string>
   <string name="give_name_workspace">Uue tööala nimi</string>
@@ -745,7 +744,7 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="copy_settings_workspaces_title">Millisele tööalale seaded kopeerida?</string>
   <string name="reset_settings">Nulli</string>
   <string name="search_settings">Otsingu seaded</string>
-  <string name="workspace_dismiss">Eira</string>
+  <string name="dismiss">Eira</string>
   <string name="workspace_listing_with_current">%s (praegune)</string>
 
     <!-- Beta notice -->
@@ -760,7 +759,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="beta_notice_content_3">Kui sa oled programmeerija, siis kaalu kaasa aidata parandades tarkvaravigu ise läbi veebilehe %s. :-)</string>
   <string name="beta_notice_github_issues">Githubi probleemid</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Eira</string>
   <string name="beta_notice_dismiss_until_update">Unusta kuni uue versioonini</string>
 
   <string name="stable_notice_title">Rakendus on uuendatud!</string>
@@ -884,8 +882,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="tell_friend_message4">Loe lähemalt ja vaata paigalduse valikuid: %s</string>
   <string name="share_verse_ok">Jaga / Kopeeri</string>
   <string name="web_search">Veebiotsing</string>
-  <string name="verse_action_copy">Kopeeri</string>
-  <string name="generic_share">Jaga</string>
   <string name="share_verse_menu_title">Jaga / Kopeeri...</string>
   <string name="show_versenumbers">Näita salminumbreid</string>
   <string name="show_full_verses">Näita terveid salme</string>
@@ -902,7 +898,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
   <string name="show_quotes">Näita tsitaate</string>
   <string name="separate_verses_with_newlines">Jäta värsside vahele reavahe</string>
 
-  <string name="backup_button">Varukoopia</string>
   <string name="initializing_app">Rakenduse käivitamine...</string>
   <string name="show_notes">Näita märkmeid</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1344,7 +1339,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="ai_models_summary_none">Mudeleid pole seadistatud</string>
   <string name="ai_add_provider">Lisa teenusepakkuja</string>
   <string name="ai_provider_edit">Muuda</string>
-  <string name="ai_provider_delete">Kustuta</string>
   <string name="ai_provider_delete_confirm">Kustuta teenusepakkuja \"%1$s\"? Seda teenusepakkujat kasutavad käsud lähevad tagasi vaikimisi.</string>
   <string name="ai_provider_api_key_not_set">API võti on seadmata</string>
   <string name="ai_provider_select_type">Vali teenusepakkuja tüüp</string>
@@ -1362,7 +1356,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Mudelid</string>
   <string name="add_model">Lisa mudel</string>
-  <string name="add_model_title">Lisa mudel</string>
   <string name="edit_model_title">Muuda mudelit</string>
   <string name="model_saved">Mudel salvestatud</string>
   <string name="model_deleted">Mudel kustutatud</string>
@@ -1437,7 +1430,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="addon_prompt_notice">See käsk on lisandmoodulist \"%s\" ja seda ei saa muuta. Kasuta \"Kopeeri kohandamiseks\", et luua muudetav koopia.</string>
   <string name="new_category">Uus kategooria</string>
   <string name="new_category_name">Kategooria nimi</string>
-  <string name="rename_category">Nimeta ümber</string>
   <string name="move_category_up">Liiguta üles</string>
   <string name="move_category_down">Liiguta alla</string>
   <string name="hide_category">Peida AI toimingutest</string>
@@ -1723,22 +1715,16 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Loo uus dokument</string>
   <string name="my_document_rename_title">Nimeta dokument ümber</string>
-  <string name="my_document_edit_description_title">Muuda kirjeldust</string>
   <string name="my_document_delete_confirmation">Kustutada dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI dokumente ei saa kustutada, kui need sisaldavad lehti. Kustuta esmalt lehed.</string>
   <string name="my_document_save_changes">Salvestada muudatused?</string>
   <string name="my_document_no_description">Kirjeldus puudub</string>
-  <string name="my_document_rename">Nimeta ümber</string>
   <string name="my_document_edit_description">Muuda kirjeldust</string>
-  <string name="my_document_delete">Kustuta</string>
 
   <string name="my_document_pages_title">%s - Lehed</string>
   <string name="my_document_pages_empty">Selles dokumendis pole lehti.</string>
   <string name="my_document_page_rename_title">Nimeta leht ümber</string>
   <string name="my_document_page_delete_confirmation">Kustutada leht \"%s\"?</string>
-  <string name="my_document_page_rename">Nimeta ümber</string>
-  <string name="my_document_page_delete">Kustuta</string>
-  <string name="my_document_page_export">Ekspordi</string>
   <string name="my_document_new_page_name">Leht %1$d</string>
   <string name="my_document_create_page_title">Uus leht</string>
   <string name="my_document_content_type_label">Sisu tüüp</string>
@@ -1758,12 +1744,10 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
 
   <string name="prefs_page_scroll_amount_title">Lehekülje kerimise suurus</string>
   <string name="prefs_page_scroll_amount_summary">Kui palju lehekülge keritakse lehekülje üles/alla kerimisega</string>
-  <string name="page_scroll_amount_dialog_title">Lehekülje kerimise suurus</string>
   <string name="prefs_scroll_helper_lines_title">Kerimise abijooned</string>
   <string name="prefs_scroll_helper_lines_summary">Näita horisontaalseid juhendjooni lehekülje kerimise piiridel</string>
   <string name="prefs_scroll_helper_line_style_title">Abijoone stiil</string>
   <string name="prefs_scroll_helper_line_style_summary">Vali kerimise abijoonte visuaalne stiil</string>
-  <string name="scroll_helper_line_style_dialog_title">Abijoone stiil</string>
   <string name="scroll_helper_line_style_thin_dotted">Õhuke punktiirjoon</string>
   <string name="scroll_helper_line_style_thin_solid">Õhuke pidevjoon</string>
   <string name="scroll_helper_line_style_thick_solid">Paks pidevjoon</string>

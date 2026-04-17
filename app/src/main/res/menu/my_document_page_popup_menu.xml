@@ -19,12 +19,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/renamePage"
-        android:title="@string/my_document_page_rename"
+        android:title="@string/rename"
         />
     <item android:id="@+id/exportPage"
-        android:title="@string/my_document_page_export"
+        android:title="@string/export"
         />
     <item android:id="@+id/deletePage"
-        android:title="@string/my_document_page_delete"
+        android:title="@string/delete"
         />
 </menu>

@@ -90,7 +90,6 @@
   <string name="colors_night_mode_title">Qaranlıq rejimi</string>
   <!--Window-->
   <string name="new_window">Yeni pəncərə</string>
-  <string name="windowClose">Bağla</string>
   <string name="windowMaximise">Böyüt</string>
   <string name="windowMinimise">Kiçilt</string>
   <string name="windowSynchronise">Sinxronlaşdır</string>
@@ -271,7 +270,7 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="notification_channel_tts_status">Danışıq üçün mətn</string>
   <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
   <!--Workspaces-->
-  <string name="rename_workspace">Yenidən adlandır</string>
+  <string name="rename">Yenidən adlandır</string>
   <string name="save_and_exit">Yaddaşa vur</string>
   <string name="reset_settings">Sıfırdan başla</string>
   <!--Beta notice-->
@@ -285,9 +284,7 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="close">Bağla</string>
   <string name="my_notes_abbreviation">Qeydlərim</string>
   <string name="compare_description">Tərcümələri qarşılaşdır</string>
-  <string name="verse_action_copy">Kopyala</string>
   <string name="show_versenumbers">Ayə nömrələri göstərilir</string>
-  <string name="backup_button">Kopyala</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

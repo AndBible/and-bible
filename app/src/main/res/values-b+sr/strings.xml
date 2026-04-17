@@ -211,7 +211,6 @@
   <string name="prefs_noise_summary">Додавање мало шума на позадину може бити угодније за очи.</string>
   <!--Window-->
   <string name="new_window">Нови прозор</string>
-  <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Максимизирај</string>
   <string name="windowMinimise">Минимизирај</string>
   <string name="windowSynchronise">Усклади</string>
@@ -322,7 +321,6 @@
   <string name="delete_search_index_doc">Обрисати индекс од %s?</string>
   <!--Verse context menu-->
   <string name="notes">Фусноте и референце</string>
-  <string name="verse_action_copy">Копирај</string>
   <string name="share_verse">Дели...</string>
   <string name="compare_translations">Упореди преводе</string>
   <!--Link context menu-->
@@ -548,7 +546,7 @@
   <string name="delete_workspace">Уклони</string>
   <string name="new_copied_workspace">Прекопирај као ново</string>
   <string name="workspace_number">Радна површ %d</string>
-  <string name="rename_workspace">Преименуј</string>
+  <string name="rename">Преименуј</string>
   <string name="workspace_selector_title">Изабери радну површ</string>
   <string name="workspace_settings">Поставке...</string>
   <string name="give_name_workspace">Додели име за нову радну површ</string>
@@ -560,7 +558,7 @@
   <string name="select_all">Обележи све</string>
   <string name="copy_settings_workspaces_title">На коју радну површ желите ископирати поставке?</string>
   <string name="reset_settings">Ресет</string>
-  <string name="workspace_dismiss">Откажи</string>
+  <string name="dismiss">Откажи</string>
   <string name="workspace_listing_with_current">%s (тренутно)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ово је бета верзија!</string>
@@ -577,7 +575,6 @@
         разрешавању грешака путем %s . :-)</string>
   <string name="beta_notice_github_issues">Гитхаб проблеми</string>
   <string name="beta_notice_github">Гитхаб</string>
-  <string name="beta_notice_dismiss">Откажи</string>
   <string name="beta_notice_dismiss_until_update">Склони до следећег ажурирања</string>
   <!--History-->
   <string name="history_for">Историја (%s: Прозор %d)</string>

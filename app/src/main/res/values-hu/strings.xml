@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Új ablak</string>
-  <string name="windowClose">Bezárás</string>
   <string name="windowMaximise">Teljes képernyő</string>
   <string name="windowMinimise">Minimalizálás</string>
   <string name="windowSynchronise">Együtt mozgat</string>
@@ -709,7 +708,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="delete_workspace">Törlés</string>
   <string name="new_copied_workspace">Másolás újként</string>
   <string name="workspace_number">%d. munkamenet</string>
-  <string name="rename_workspace">Átnevezés</string>
+  <string name="rename">Átnevezés</string>
   <string name="workspace_selector_title">Munkamenet kiválasztása</string>
   <string name="workspace_settings">Beállítások…</string>
   <string name="give_name_workspace">Munkamenet elnevezése</string>
@@ -722,7 +721,7 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="copy_settings_workspaces_title">Melyik munkamenetbe másolja a beállításokat?</string>
   <string name="reset_settings">Visszaállítás</string>
   <string name="search_settings">Keresési beállítások</string>
-  <string name="workspace_dismiss">Elvetés</string>
+  <string name="dismiss">Elvetés</string>
   <string name="workspace_listing_with_current">%s (jelenlegi)</string>
 
     <!-- Beta notice -->
@@ -738,7 +737,6 @@ A béta felhasználókat kifejezetten kérjük a hibák bejelentésére Google P
   <string name="beta_notice_content_3">Ha ért a programozáshoz, gondolja meg nem tudna-e hibajavítást készíteni %s-on :-)</string>
   <string name="beta_notice_github_issues">GitHub issues</string>
   <string name="beta_notice_github">GitHub</string>
-  <string name="beta_notice_dismiss">Elvetés</string>
   <string name="beta_notice_dismiss_until_update">Elvetés a következő frissítésig</string>
 
   <string name="stable_notice_title">Az alkalmazás frissült!</string>
@@ -894,8 +892,6 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="tell_friend_message4">További infók és telepítési lehetőségek: %s</string>
   <string name="share_verse_ok">Megosztás / másolás</string>
   <string name="web_search">Keresés a neten</string>
-  <string name="verse_action_copy">Másolás</string>
-  <string name="generic_share">Megosztás</string>
   <string name="share_verse_menu_title">Megosztás / másolás…</string>
   <string name="show_versenumbers">Versszámozás megjelenítése</string>
   <string name="show_full_verses">Teljes versek mutatása</string>
@@ -912,7 +908,6 @@ A korábban telepített könyvek/dokumentumok listája elérhető.  Kattintson a
   <string name="show_quotes">Idézések mutatása</string>
   <string name="separate_verses_with_newlines">Versek elválasztása sortörésekkel</string>
 
-  <string name="backup_button">Biztonsági mentés</string>
   <string name="initializing_app">Alkalmazás inicializálása…</string>
   <string name="show_notes">Jegyzetek megjelenítése</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1367,7 +1362,6 @@ jelentse be az észlelt problémát</string>
   <string name="ai_models_summary_none">Nincs konfigurált modell</string>
   <string name="ai_add_provider">Szolgáltató hozzáadása</string>
   <string name="ai_provider_edit">Szerkesztés</string>
-  <string name="ai_provider_delete">Törlés</string>
   <string name="ai_provider_delete_confirm">Törli a(z) \"%1$s\" szolgáltatót? A szolgáltatót használó promptok visszaállnak az alapértelmezetthez.</string>
   <string name="ai_provider_api_key_not_set">Az API-kulcs nincs beállítva</string>
   <string name="ai_provider_select_type">Válasszon szolgáltatótípust</string>
@@ -1385,7 +1379,6 @@ jelentse be az észlelt problémát</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modellek</string>
   <string name="add_model">Modell hozzáadása</string>
-  <string name="add_model_title">Modell hozzáadása</string>
   <string name="edit_model_title">Modell szerkesztése</string>
   <string name="model_saved">Modell mentve</string>
   <string name="model_deleted">Modell törölve</string>
@@ -1460,7 +1453,6 @@ jelentse be az észlelt problémát</string>
   <string name="addon_prompt_notice">Ez a parancs a(z) \"%s\" bővítménymodulból származik, és nem szerkeszthető. Szerkeszthető másolat létrehozásához használja a „Másolás testreszabáshoz" lehetőséget.</string>
   <string name="new_category">Új kategória</string>
   <string name="new_category_name">Kategória neve</string>
-  <string name="rename_category">Átnevezés</string>
   <string name="move_category_up">Mozgatás felfelé</string>
   <string name="move_category_down">Mozgatás lefelé</string>
   <string name="hide_category">Elrejtés az AI-műveletek közül</string>
@@ -1746,22 +1738,16 @@ jelentse be az észlelt problémát</string>
   <string name="my_document_new_name">%d. dokumentum</string>
   <string name="my_document_create_title">Új dokumentum létrehozása</string>
   <string name="my_document_rename_title">Dokumentum átnevezése</string>
-  <string name="my_document_edit_description_title">Leírás szerkesztése</string>
   <string name="my_document_delete_confirmation">Törli a(z) \"%s\" dokumentumot?</string>
   <string name="my_document_cannot_delete_ai_documents">Az AI dokumentumok nem törölhetők, amíg oldalakat tartalmaznak. Először törölje az oldalakat.</string>
   <string name="my_document_save_changes">Menti a módosításokat?</string>
   <string name="my_document_no_description">Nincs leírás</string>
-  <string name="my_document_rename">Átnevezés</string>
   <string name="my_document_edit_description">Leírás szerkesztése</string>
-  <string name="my_document_delete">Törlés</string>
 
   <string name="my_document_pages_title">%s – Oldalak</string>
   <string name="my_document_pages_empty">Nincsenek oldalak ebben a dokumentumban.</string>
   <string name="my_document_page_rename_title">Oldal átnevezése</string>
   <string name="my_document_page_delete_confirmation">Törli a(z) \"%s\" oldalt?</string>
-  <string name="my_document_page_rename">Átnevezés</string>
-  <string name="my_document_page_delete">Törlés</string>
-  <string name="my_document_page_export">Exportálás</string>
   <string name="my_document_new_page_name">%1$d. oldal</string>
   <string name="my_document_create_page_title">Új oldal</string>
   <string name="my_document_content_type_label">Tartalomtípus</string>
@@ -1781,12 +1767,10 @@ jelentse be az észlelt problémát</string>
 
   <string name="prefs_page_scroll_amount_title">Lapozás mértéke</string>
   <string name="prefs_page_scroll_amount_summary">Mennyit gördüljön az oldal felfelé/lefelé lapozáskor</string>
-  <string name="page_scroll_amount_dialog_title">Lapozás mértéke</string>
   <string name="prefs_scroll_helper_lines_title">Segédvonalak görgetéshez</string>
   <string name="prefs_scroll_helper_lines_summary">Vízszintes útmutatóvonalak megjelenítése a lapozási határokon</string>
   <string name="prefs_scroll_helper_line_style_title">Segédvonal stílusa</string>
   <string name="prefs_scroll_helper_line_style_summary">A görgetési segédvonalak vizuális stílusának kiválasztása</string>
-  <string name="scroll_helper_line_style_dialog_title">Segédvonal stílusa</string>
   <string name="scroll_helper_line_style_thin_dotted">Vékony pontozott vonal</string>
   <string name="scroll_helper_line_style_thin_solid">Vékony folytonos vonal</string>
   <string name="scroll_helper_line_style_thick_solid">Vastag folytonos vonal</string>

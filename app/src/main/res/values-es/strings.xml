@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Nueva ventana</string>
-  <string name="windowClose">Cerrar</string>
   <string name="windowMaximise">Maximizar</string>
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
@@ -726,7 +725,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="delete_workspace">Eliminar</string>
   <string name="new_copied_workspace">Copia como nuevo</string>
   <string name="workspace_number">Espacio %d</string>
-  <string name="rename_workspace">Renombrar</string>
+  <string name="rename">Renombrar</string>
   <string name="workspace_selector_title">Seleccionar espacio</string>
   <string name="workspace_settings">Ajustes...</string>
   <string name="give_name_workspace">Dale un nombre para nuevo espacio</string>
@@ -739,7 +738,7 @@ cuando los ajustes se guardan en los correspondientes marcadores.</string>
   <string name="copy_settings_workspaces_title">¿En qué espacios desea copiar la ajustes?</string>
   <string name="reset_settings">Resetea</string>
   <string name="search_settings">Ajustes de búsqueda</string>
-  <string name="workspace_dismiss">Descartar</string>
+  <string name="dismiss">Descartar</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
 
     <!-- Beta notice -->
@@ -757,7 +756,6 @@ Se alienta a los usuarios beta a informar errores a través de Google Play o (pr
 a través de %s usted mismo. :-)</string>
   <string name="beta_notice_github_issues">Github propuestas</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Descartar</string>
   <string name="beta_notice_dismiss_until_update">Descartar hasta la próxima actualización</string>
 
   <string name="stable_notice_title">¡Se ha actualizado la aplicación!</string>
@@ -923,8 +921,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="tell_friend_message4">Leer más y otras opciones de instalación: %s</string>
   <string name="share_verse_ok">Compartir / Copia</string>
   <string name="web_search">Búsqueda web</string>
-  <string name="verse_action_copy">Copiar</string>
-  <string name="generic_share">Compartir</string>
   <string name="share_verse_menu_title">Compartir / copia…</string>
   <string name="show_versenumbers">Mostrar números de verso</string>
   <string name="show_full_verses">Mostrar los versículos completos</string>
@@ -941,7 +937,6 @@ Se encontró una lista de libros / documentos anteriores. Haga clic a continuaci
   <string name="show_quotes">Mostrar comillas</string>
   <string name="separate_verses_with_newlines">Separa los versos con saltos de línea.</string>
 
-  <string name="backup_button">Copia de seguridad</string>
   <string name="initializing_app">Inicializando la aplicación…</string>
   <string name="show_notes">Mostrar notas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1407,7 +1402,6 @@ informe los problemas a los mantenedores de texto
   <string name="ai_models_summary_none">No hay modelos configurados</string>
   <string name="ai_add_provider">Agregar proveedor</string>
   <string name="ai_provider_edit">Editar</string>
-  <string name="ai_provider_delete">Eliminar</string>
   <string name="ai_provider_delete_confirm">¿Eliminar el proveedor \"%1$s\"? Las indicaciones que usen este proveedor volverán al predeterminado.</string>
   <string name="ai_provider_api_key_not_set">Clave API no configurada</string>
   <string name="ai_provider_select_type">Seleccionar tipo de proveedor</string>
@@ -1425,7 +1419,6 @@ informe los problemas a los mantenedores de texto
     <!-- Configured models management -->
   <string name="ai_models_category">Modelos</string>
   <string name="add_model">Agregar modelo</string>
-  <string name="add_model_title">Agregar modelo</string>
   <string name="edit_model_title">Editar modelo</string>
   <string name="model_saved">Modelo guardado</string>
   <string name="model_deleted">Modelo eliminado</string>
@@ -1500,7 +1493,6 @@ informe los problemas a los mantenedores de texto
   <string name="addon_prompt_notice">Esta indicación es del módulo complementario \"%s\" y no se puede editar. Usa \"Copiar para personalizar\" para crear una copia editable.</string>
   <string name="new_category">Nueva categoría</string>
   <string name="new_category_name">Nombre de la categoría</string>
-  <string name="rename_category">Renombrar</string>
   <string name="move_category_up">Mover arriba</string>
   <string name="move_category_down">Mover abajo</string>
   <string name="hide_category">Ocultar de las acciones de IA</string>
@@ -1786,22 +1778,16 @@ informe los problemas a los mantenedores de texto
   <string name="my_document_new_name">Documento %d</string>
   <string name="my_document_create_title">Crear nuevo documento</string>
   <string name="my_document_rename_title">Renombrar documento</string>
-  <string name="my_document_edit_description_title">Editar descripción</string>
   <string name="my_document_delete_confirmation">¿Eliminar el documento \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Los documentos de IA no se pueden eliminar mientras contengan páginas. Elimina primero las páginas.</string>
   <string name="my_document_save_changes">¿Guardar cambios?</string>
   <string name="my_document_no_description">Sin descripción</string>
-  <string name="my_document_rename">Renombrar</string>
   <string name="my_document_edit_description">Editar descripción</string>
-  <string name="my_document_delete">Eliminar</string>
 
   <string name="my_document_pages_title">%s - Páginas</string>
   <string name="my_document_pages_empty">No hay páginas en este documento.</string>
   <string name="my_document_page_rename_title">Renombrar página</string>
   <string name="my_document_page_delete_confirmation">¿Eliminar la página \"%s\"?</string>
-  <string name="my_document_page_rename">Renombrar</string>
-  <string name="my_document_page_delete">Eliminar</string>
-  <string name="my_document_page_export">Exportar</string>
   <string name="my_document_new_page_name">Página %1$d</string>
   <string name="my_document_create_page_title">Nueva página</string>
   <string name="my_document_content_type_label">Tipo de contenido</string>
@@ -1821,12 +1807,10 @@ informe los problemas a los mantenedores de texto
 
   <string name="prefs_page_scroll_amount_title">Cantidad de desplazamiento de página</string>
   <string name="prefs_page_scroll_amount_summary">Cuánto desplazar la página con avance/retroceso de página</string>
-  <string name="page_scroll_amount_dialog_title">Cantidad de desplazamiento de página</string>
   <string name="prefs_scroll_helper_lines_title">Líneas guía de desplazamiento</string>
   <string name="prefs_scroll_helper_lines_summary">Mostrar líneas guía horizontales en los límites del desplazamiento de página</string>
   <string name="prefs_scroll_helper_line_style_title">Estilo de línea guía</string>
   <string name="prefs_scroll_helper_line_style_summary">Elegir el estilo visual de las líneas guía de desplazamiento</string>
-  <string name="scroll_helper_line_style_dialog_title">Estilo de línea guía</string>
   <string name="scroll_helper_line_style_thin_dotted">Línea punteada fina</string>
   <string name="scroll_helper_line_style_thin_solid">Línea continua fina</string>
   <string name="scroll_helper_line_style_thick_solid">Línea continua gruesa</string>

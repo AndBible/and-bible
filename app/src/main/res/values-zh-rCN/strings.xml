@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">新视窗</string>
-  <string name="windowClose">关闭</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
@@ -726,7 +725,7 @@ http://www.heartlight.org 准予使用
   <string name="delete_workspace">移除</string>
   <string name="new_copied_workspace">建立复本</string>
   <string name="workspace_number">工作检视%d</string>
-  <string name="rename_workspace">重新命名</string>
+  <string name="rename">重新命名</string>
   <string name="workspace_selector_title">选择工作检视</string>
   <string name="workspace_settings">设定...</string>
   <string name="give_name_workspace">命名予新工作检视</string>
@@ -739,7 +738,7 @@ http://www.heartlight.org 准予使用
   <string name="copy_settings_workspaces_title">复制设定至哪个工作检视？</string>
   <string name="reset_settings">重设</string>
   <string name="search_settings">搜索设置</string>
-  <string name="workspace_dismiss">取消</string>
+  <string name="dismiss">取消</string>
   <string name="workspace_listing_with_current">%s(当前)</string>
 
     <!-- Beta notice -->
@@ -755,7 +754,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="beta_notice_content_3">如果你是程式员，请考虑透过 %s 参与除错。 :-)</string>
   <string name="beta_notice_github_issues">Github问题</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">关闭</string>
   <string name="beta_notice_dismiss_until_update">关闭至下一次更新</string>
 
   <string name="stable_notice_title">程式已更新！</string>
@@ -907,8 +905,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="tell_friend_message4">阅读更多及更多安装选项：%s</string>
   <string name="share_verse_ok">分享 / 复制</string>
   <string name="web_search">网络搜索</string>
-  <string name="verse_action_copy">复制</string>
-  <string name="generic_share">分享</string>
   <string name="share_verse_menu_title">分享 / 复制...</string>
   <string name="show_versenumbers">显示节数</string>
   <string name="show_full_verses">显原完整经文</string>
@@ -925,7 +921,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="show_quotes">显示引号</string>
   <string name="separate_verses_with_newlines">用换行符分隔经文</string>
 
-  <string name="backup_button">备份</string>
   <string name="initializing_app">正在启动应用...</string>
   <string name="show_notes">显示笔记</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1378,7 +1373,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="ai_models_summary_none">未配置模型</string>
   <string name="ai_add_provider">添加提供商</string>
   <string name="ai_provider_edit">编辑</string>
-  <string name="ai_provider_delete">删除</string>
   <string name="ai_provider_delete_confirm">删除提供商"%1$s"？使用此提供商的提示词将恢复为默认。</string>
   <string name="ai_provider_api_key_not_set">未设置API密钥</string>
   <string name="ai_provider_select_type">选择提供商类型</string>
@@ -1396,7 +1390,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
     <!-- Configured models management -->
   <string name="ai_models_category">模型</string>
   <string name="add_model">添加模型</string>
-  <string name="add_model_title">添加模型</string>
   <string name="edit_model_title">编辑模型</string>
   <string name="model_saved">模型已保存</string>
   <string name="model_deleted">模型已删除</string>
@@ -1471,7 +1464,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="addon_prompt_notice">此提示词来自附加模块"%s"，无法编辑。请使用"复制以自定义"创建可编辑副本。</string>
   <string name="new_category">新建类别</string>
   <string name="new_category_name">类别名称</string>
-  <string name="rename_category">重命名</string>
   <string name="move_category_up">上移</string>
   <string name="move_category_down">下移</string>
   <string name="hide_category">从AI操作中隐藏</string>
@@ -1757,22 +1749,16 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="my_document_new_name">文档 %d</string>
   <string name="my_document_create_title">新建文档</string>
   <string name="my_document_rename_title">重命名文档</string>
-  <string name="my_document_edit_description_title">编辑描述</string>
   <string name="my_document_delete_confirmation">删除文档"%s"？</string>
   <string name="my_document_cannot_delete_ai_documents">AI 文档包含页面时无法删除。请先删除其中的页面。</string>
   <string name="my_document_save_changes">保存更改？</string>
   <string name="my_document_no_description">无描述</string>
-  <string name="my_document_rename">重命名</string>
   <string name="my_document_edit_description">编辑描述</string>
-  <string name="my_document_delete">删除</string>
 
   <string name="my_document_pages_title">%s - 页面</string>
   <string name="my_document_pages_empty">此文档中没有页面。</string>
   <string name="my_document_page_rename_title">重命名页面</string>
   <string name="my_document_page_delete_confirmation">删除页面"%s"？</string>
-  <string name="my_document_page_rename">重命名</string>
-  <string name="my_document_page_delete">删除</string>
-  <string name="my_document_page_export">导出</string>
   <string name="my_document_new_page_name">第 %1$d 页</string>
   <string name="my_document_create_page_title">新建页面</string>
   <string name="my_document_content_type_label">内容类型</string>
@@ -1792,12 +1778,10 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 
   <string name="prefs_page_scroll_amount_title">翻页滚动幅度</string>
   <string name="prefs_page_scroll_amount_summary">向上/向下翻页时滚动的页面比例</string>
-  <string name="page_scroll_amount_dialog_title">翻页滚动幅度</string>
   <string name="prefs_scroll_helper_lines_title">滚动辅助线</string>
   <string name="prefs_scroll_helper_lines_summary">在翻页边界处显示水平参考线</string>
   <string name="prefs_scroll_helper_line_style_title">辅助线样式</string>
   <string name="prefs_scroll_helper_line_style_summary">选择滚动辅助线的视觉样式</string>
-  <string name="scroll_helper_line_style_dialog_title">辅助线样式</string>
   <string name="scroll_helper_line_style_thin_dotted">细虚线</string>
   <string name="scroll_helper_line_style_thin_solid">细实线</string>
   <string name="scroll_helper_line_style_thick_solid">粗实线</string>

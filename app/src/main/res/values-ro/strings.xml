@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Fereastră nouă</string>
-  <string name="windowClose">Închide</string>
   <string name="windowMaximise">Maximizează</string>
   <string name="windowMinimise">Minimizează</string>
   <string name="windowSynchronise">Sincronizează</string>
@@ -732,7 +731,7 @@
   <string name="delete_workspace">Elimină</string>
   <string name="new_copied_workspace">Copiază ca nou</string>
   <string name="workspace_number">Spațiul %d</string>
-  <string name="rename_workspace">Redenumește</string>
+  <string name="rename">Redenumește</string>
   <string name="workspace_selector_title">Alege spațiul de studiu</string>
   <string name="workspace_settings">Reglări…</string>
   <string name="give_name_workspace">Dă un nume spațiului de studiu</string>
@@ -745,7 +744,7 @@
   <string name="copy_settings_workspaces_title">În ce spații de studiu vrei să copiezi reglările?</string>
   <string name="reset_settings">Restabilește</string>
   <string name="search_settings">Reglări căutare</string>
-  <string name="workspace_dismiss">Ignoră</string>
+  <string name="dismiss">Ignoră</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
 
     <!-- Beta notice -->
@@ -764,7 +763,6 @@
         de erori prin intermediul %s. :-)</string>
   <string name="beta_notice_github_issues">Mesaje de eroare pe Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Ignoră</string>
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>
 
   <string name="stable_notice_title">Aplicația a fost actualizată!</string>
@@ -931,8 +929,6 @@
   <string name="tell_friend_message4">Alte informații și opțiuni de instalare: %s</string>
   <string name="share_verse_ok">Trimite/Copiază</string>
   <string name="web_search">Caută în internet</string>
-  <string name="verse_action_copy">Copiază</string>
-  <string name="generic_share">Trimite</string>
   <string name="share_verse_menu_title">Trimite/Copiază…</string>
   <string name="show_versenumbers">Arată numerele versetelor</string>
   <string name="show_full_verses">Arată versete întregi</string>
@@ -949,7 +945,6 @@
   <string name="show_quotes">Arată ghilimele</string>
   <string name="separate_verses_with_newlines">Separă cu rânduri noi versetele</string>
 
-  <string name="backup_button">Copie de rezervă</string>
   <string name="initializing_app">Se inițializează aplicația…</string>
   <string name="show_notes">Arată notițele</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1415,7 +1410,6 @@
   <string name="ai_models_summary_none">Niciun model configurat</string>
   <string name="ai_add_provider">Adaugă furnizor</string>
   <string name="ai_provider_edit">Modifică</string>
-  <string name="ai_provider_delete">Șterge</string>
   <string name="ai_provider_delete_confirm">Ștergi furnizorul \"%1$s\"? Prompturile care folosesc acest furnizor vor reveni la cel implicit.</string>
   <string name="ai_provider_api_key_not_set">Cheia API nu este setată</string>
   <string name="ai_provider_select_type">Selectează tipul furnizorului</string>
@@ -1433,7 +1427,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Modele</string>
   <string name="add_model">Adaugă model</string>
-  <string name="add_model_title">Adaugă model</string>
   <string name="edit_model_title">Modifică modelul</string>
   <string name="model_saved">Model salvat</string>
   <string name="model_deleted">Model șters</string>
@@ -1508,7 +1501,6 @@
   <string name="addon_prompt_notice">Această comandă provine din modulul supliment \"%s\" și nu poate fi modificată. Folosește „Copiază pentru personalizare" pentru a crea o copie editabilă.</string>
   <string name="new_category">Categorie nouă</string>
   <string name="new_category_name">Numele categoriei</string>
-  <string name="rename_category">Redenumește</string>
   <string name="move_category_up">Mută în sus</string>
   <string name="move_category_down">Mută în jos</string>
   <string name="hide_category">Ascunde din acțiunile AI</string>
@@ -1794,22 +1786,16 @@
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Creează document nou</string>
   <string name="my_document_rename_title">Redenumește documentul</string>
-  <string name="my_document_edit_description_title">Modifică descrierea</string>
   <string name="my_document_delete_confirmation">Șterge documentul \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Documentele AI nu pot fi șterse cât timp conțin pagini. Ștergeți mai întâi paginile.</string>
   <string name="my_document_save_changes">Salvați modificările?</string>
   <string name="my_document_no_description">Fără descriere</string>
-  <string name="my_document_rename">Redenumește</string>
   <string name="my_document_edit_description">Modifică descrierea</string>
-  <string name="my_document_delete">Șterge</string>
 
   <string name="my_document_pages_title">%s - Pagini</string>
   <string name="my_document_pages_empty">Nicio pagină în acest document.</string>
   <string name="my_document_page_rename_title">Redenumește pagina</string>
   <string name="my_document_page_delete_confirmation">Șterge pagina \"%s\"?</string>
-  <string name="my_document_page_rename">Redenumește</string>
-  <string name="my_document_page_delete">Șterge</string>
-  <string name="my_document_page_export">Exportă</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Pagină nouă</string>
   <string name="my_document_content_type_label">Tip de conținut</string>
@@ -1829,12 +1815,10 @@
 
   <string name="prefs_page_scroll_amount_title">Cantitate derulare pagină</string>
   <string name="prefs_page_scroll_amount_summary">Cât din pagină să fie derulată la pagina sus/jos</string>
-  <string name="page_scroll_amount_dialog_title">Cantitate derulare pagină</string>
   <string name="prefs_scroll_helper_lines_title">Linii ajutătoare de derulare</string>
   <string name="prefs_scroll_helper_lines_summary">Afișează linii de ghidaj orizontale la limitele de derulare ale paginii</string>
   <string name="prefs_scroll_helper_line_style_title">Stil linie ajutătoare</string>
   <string name="prefs_scroll_helper_line_style_summary">Alege stilul vizual al liniilor ajutătoare de derulare</string>
-  <string name="scroll_helper_line_style_dialog_title">Stil linie ajutătoare</string>
   <string name="scroll_helper_line_style_thin_dotted">Linie subțire punctată</string>
   <string name="scroll_helper_line_style_thin_solid">Linie subțire continuă</string>
   <string name="scroll_helper_line_style_thick_solid">Linie groasă continuă</string>

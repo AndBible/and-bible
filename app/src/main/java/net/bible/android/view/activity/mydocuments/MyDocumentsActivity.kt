@@ -365,7 +365,7 @@ class MyDocumentsActivity : ActivityBase() {
                     }
                     .setView(descEdit)
                     .setNegativeButton(R.string.cancel, null)
-                    .setTitle(getString(R.string.my_document_edit_description_title))
+                    .setTitle(getString(R.string.my_document_edit_description))
                     .create()
                     .show()
             }

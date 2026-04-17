@@ -23,7 +23,7 @@
         />
 
     <item android:id="@+id/renameWorkspace"
-        android:title="@string/rename_workspace"
+        android:title="@string/rename"
         />
     <item android:id="@+id/cloneWorkspace"
         android:title="@string/new_copied_workspace"

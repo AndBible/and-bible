@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nyt vindue</string>
-  <string name="windowClose">Luk</string>
   <string name="windowMaximise">Maksimér</string>
   <string name="windowMinimise">Minimér</string>
   <string name="windowSynchronise">Synkronisér</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Fjern</string>
   <string name="new_copied_workspace">Kopiér som ny</string>
   <string name="workspace_number">Arbejdsområde %d</string>
-  <string name="rename_workspace">Omdøb</string>
+  <string name="rename">Omdøb</string>
   <string name="workspace_selector_title">Vælg arbejdsområde</string>
   <string name="workspace_settings">Indstillinger…</string>
   <string name="give_name_workspace">Giv navn til nyt arbejdsområde</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">Til hvilke arbejdsområder vil du kopiere indstillinger?</string>
   <string name="reset_settings">Nulstil</string>
   <string name="search_settings">Søg i indstillinger</string>
-  <string name="workspace_dismiss">Luk</string>
+  <string name="dismiss">Luk</string>
   <string name="workspace_listing_with_current">%s (nuværende)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Hvis du er programmør, overvej venligst at bidrage med fejlrettelser via %s selv. :-)</string>
   <string name="beta_notice_github_issues">Github-problemer</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Luk</string>
   <string name="beta_notice_dismiss_until_update">Luk indtil næste opdatering</string>
 
   <string name="stable_notice_title">Applikationen er blevet opgraderet!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Læs mere og flere installationsmuligheder: %s</string>
   <string name="share_verse_ok">Del / Kopiér</string>
   <string name="web_search">Websøgning</string>
-  <string name="verse_action_copy">Kopiér</string>
-  <string name="generic_share">Del</string>
   <string name="share_verse_menu_title">Del / kopiér…</string>
   <string name="show_versenumbers">Vis versnumre</string>
   <string name="show_full_verses">Vis hele vers</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Vis anførselstegn</string>
   <string name="separate_verses_with_newlines">Adskil vers med linjeskift</string>
 
-  <string name="backup_button">Sikkerhedskopi og gendan</string>
   <string name="initializing_app">Initialiserer applikation…</string>
   <string name="show_notes">Vis noter</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Ingen modeller konfigureret</string>
   <string name="ai_add_provider">Tilføj udbyder</string>
   <string name="ai_provider_edit">Redigér</string>
-  <string name="ai_provider_delete">Slet</string>
   <string name="ai_provider_delete_confirm">Slet udbyder \"%1$s\"? Prompts der bruger denne udbyder vender tilbage til standard.</string>
   <string name="ai_provider_api_key_not_set">API-nøgle ikke angivet</string>
   <string name="ai_provider_select_type">Vælg udbydertype</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Tilføj model</string>
-  <string name="add_model_title">Tilføj model</string>
   <string name="edit_model_title">Redigér model</string>
   <string name="model_saved">Model gemt</string>
   <string name="model_deleted">Model slettet</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Denne prompt er fra tilføjelsesmodulet \"%s\" og kan ikke redigeres. Brug \"Kopiér til tilpasning\" for at oprette en redigerbar kopi.</string>
   <string name="new_category">Ny kategori</string>
   <string name="new_category_name">Kategorinavn</string>
-  <string name="rename_category">Omdøb</string>
   <string name="move_category_up">Flyt op</string>
   <string name="move_category_down">Flyt ned</string>
   <string name="hide_category">Skjul fra AI-handlinger</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Opret nyt dokument</string>
   <string name="my_document_rename_title">Omdøb dokument</string>
-  <string name="my_document_edit_description_title">Redigér beskrivelse</string>
   <string name="my_document_delete_confirmation">Slet dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokumenter kan ikke slettes, så længe de indeholder sider. Slet siderne først.</string>
   <string name="my_document_save_changes">Gem ændringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
-  <string name="my_document_rename">Omdøb</string>
   <string name="my_document_edit_description">Redigér beskrivelse</string>
-  <string name="my_document_delete">Slet</string>
 
   <string name="my_document_pages_title">%s - Sider</string>
   <string name="my_document_pages_empty">Ingen sider i dette dokument.</string>
   <string name="my_document_page_rename_title">Omdøb side</string>
   <string name="my_document_page_delete_confirmation">Slet side \"%s\"?</string>
-  <string name="my_document_page_rename">Omdøb</string>
-  <string name="my_document_page_delete">Slet</string>
-  <string name="my_document_page_export">Eksportér</string>
   <string name="my_document_new_page_name">Side %1$d</string>
   <string name="my_document_create_page_title">Ny side</string>
   <string name="my_document_content_type_label">Indholdstype</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Sidescrullmængde</string>
   <string name="prefs_page_scroll_amount_summary">Hvor meget af siden der rulles ved side op/ned</string>
-  <string name="page_scroll_amount_dialog_title">Sidescrullmængde</string>
   <string name="prefs_scroll_helper_lines_title">Rullehjælpelinjer</string>
   <string name="prefs_scroll_helper_lines_summary">Vis vandrette hjælpelinjer ved sideskiftgrænser</string>
   <string name="prefs_scroll_helper_line_style_title">Hjælpelinjestil</string>
   <string name="prefs_scroll_helper_line_style_summary">Vælg den visuelle stil for rullehjælpelinjer</string>
-  <string name="scroll_helper_line_style_dialog_title">Hjælpelinjestil</string>
   <string name="scroll_helper_line_style_thin_dotted">Tynd stiplet linje</string>
   <string name="scroll_helper_line_style_thin_solid">Tynd hel linje</string>
   <string name="scroll_helper_line_style_thick_solid">Tyk hel linje</string>

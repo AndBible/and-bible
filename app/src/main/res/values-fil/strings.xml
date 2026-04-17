@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Bagong window</string>
-  <string name="windowClose">Isara</string>
   <string name="windowMaximise">I-maximize</string>
   <string name="windowMinimise">I-minimize</string>
   <string name="windowSynchronise">I-synchronize</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Alisin</string>
   <string name="new_copied_workspace">Kopyahin bilang bago</string>
   <string name="workspace_number">Workspace %d</string>
-  <string name="rename_workspace">Palitan ng pangalan</string>
+  <string name="rename">Palitan ng pangalan</string>
   <string name="workspace_selector_title">Pumili ng workspace</string>
   <string name="workspace_settings">Mga Setting…</string>
   <string name="give_name_workspace">Magbigay ng pangalan para sa bagong workspace</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">Sa aling mga workspace mo gustong kopyahin ang mga setting?</string>
   <string name="reset_settings">I-reset</string>
   <string name="search_settings">Hanapin ang mga setting</string>
-  <string name="workspace_dismiss">Isara</string>
+  <string name="dismiss">Isara</string>
   <string name="workspace_listing_with_current">%s (kasalukuyan)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Kung ikaw ay programmer, pakiisaalang-alang ang pag-aambag ng mga pag-aayos ng bug sa pamamagitan ng %s mismo. :-)</string>
   <string name="beta_notice_github_issues">Mga Github issue</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Isara</string>
   <string name="beta_notice_dismiss_until_update">Isara hanggang sa susunod na update</string>
 
   <string name="stable_notice_title">Na-upgrade na ang application!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Magbasa pa at higit pang mga pagpipilian sa pag-install: %s</string>
   <string name="share_verse_ok">I-share / Kopyahin</string>
   <string name="web_search">Paghahanap sa web</string>
-  <string name="verse_action_copy">Kopyahin</string>
-  <string name="generic_share">I-share</string>
   <string name="share_verse_menu_title">I-share / kopyahin…</string>
   <string name="show_versenumbers">Ipakita ang mga bilang ng talata</string>
   <string name="show_full_verses">Ipakita ang buong mga talata</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Ipakita ang mga panipi</string>
   <string name="separate_verses_with_newlines">Paghiwalayin ang mga talata ng mga bagong linya</string>
 
-  <string name="backup_button">Backup at I-restore</string>
   <string name="initializing_app">Sinisimulan ang application…</string>
   <string name="show_notes">Ipakita ang mga tala</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Walang na-configure na modelo</string>
   <string name="ai_add_provider">Magdagdag ng provider</string>
   <string name="ai_provider_edit">I-edit</string>
-  <string name="ai_provider_delete">Tanggalin</string>
   <string name="ai_provider_delete_confirm">Tanggalin ang provider na \"%1$s\"? Ang mga prompt na gumagamit ng provider na ito ay babalik sa default.</string>
   <string name="ai_provider_api_key_not_set">Hindi nakatakda ang API key</string>
   <string name="ai_provider_select_type">Pumili ng uri ng provider</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Mga Modelo</string>
   <string name="add_model">Magdagdag ng modelo</string>
-  <string name="add_model_title">Magdagdag ng modelo</string>
   <string name="edit_model_title">I-edit ang modelo</string>
   <string name="model_saved">Nai-save ang modelo</string>
   <string name="model_deleted">Natanggal ang modelo</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Ang prompt na ito ay mula sa add-on na modyul na \"%s\" at hindi maaaring i-edit. Gamitin ang \"Kopyahin para i-customize\" upang gumawa ng maaaring i-edit na kopya.</string>
   <string name="new_category">Bagong kategorya</string>
   <string name="new_category_name">Pangalan ng kategorya</string>
-  <string name="rename_category">Palitan ng pangalan</string>
   <string name="move_category_up">Ilipat pataas</string>
   <string name="move_category_down">Ilipat pababa</string>
   <string name="hide_category">Itago mula sa mga AI action</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Dokumento %d</string>
   <string name="my_document_create_title">Lumikha ng bagong dokumento</string>
   <string name="my_document_rename_title">Palitan ang pangalan ng dokumento</string>
-  <string name="my_document_edit_description_title">I-edit ang paglalarawan</string>
   <string name="my_document_delete_confirmation">Tanggalin ang dokumentong \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Hindi matatanggal ang Mga AI Document habang mayroon itong mga pahina. Tanggalin muna ang mga pahina.</string>
   <string name="my_document_save_changes">I-save ang mga pagbabago?</string>
   <string name="my_document_no_description">Walang paglalarawan</string>
-  <string name="my_document_rename">Palitan ang pangalan</string>
   <string name="my_document_edit_description">I-edit ang paglalarawan</string>
-  <string name="my_document_delete">Tanggalin</string>
 
   <string name="my_document_pages_title">%s - Mga Pahina</string>
   <string name="my_document_pages_empty">Walang pahina sa dokumentong ito.</string>
   <string name="my_document_page_rename_title">Palitan ang pangalan ng pahina</string>
   <string name="my_document_page_delete_confirmation">Tanggalin ang pahinang \"%s\"?</string>
-  <string name="my_document_page_rename">Palitan ang pangalan</string>
-  <string name="my_document_page_delete">Tanggalin</string>
-  <string name="my_document_page_export">I-export</string>
   <string name="my_document_new_page_name">Pahina %1$d</string>
   <string name="my_document_create_page_title">Bagong pahina</string>
   <string name="my_document_content_type_label">Uri ng nilalaman</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Dami ng page scroll</string>
   <string name="prefs_page_scroll_amount_summary">Gaano karami ng pahina ang i-scroll sa page up/down</string>
-  <string name="page_scroll_amount_dialog_title">Dami ng page scroll</string>
   <string name="prefs_scroll_helper_lines_title">Mga linya ng scroll helper</string>
   <string name="prefs_scroll_helper_lines_summary">Magpakita ng mga pahalang na gabay na linya sa mga hangganan ng pag-scroll ng pahina</string>
   <string name="prefs_scroll_helper_line_style_title">Estilo ng gabay na linya</string>
   <string name="prefs_scroll_helper_line_style_summary">Piliin ang visual na estilo ng mga linya ng scroll helper</string>
-  <string name="scroll_helper_line_style_dialog_title">Estilo ng gabay na linya</string>
   <string name="scroll_helper_line_style_thin_dotted">Manipis na tuldok-tuldok na linya</string>
   <string name="scroll_helper_line_style_thin_solid">Manipis na solidong linya</string>
   <string name="scroll_helper_line_style_thick_solid">Makapal na solidong linya</string>

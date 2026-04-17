@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">新しいウィンドウ</string>
-  <string name="windowClose">閉じる</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同期</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">削除</string>
   <string name="new_copied_workspace">新規としてコピー</string>
   <string name="workspace_number">ワークスペース %d</string>
-  <string name="rename_workspace">名前を変更</string>
+  <string name="rename">名前を変更</string>
   <string name="workspace_selector_title">ワークスペースを選択</string>
   <string name="workspace_settings">設定…</string>
   <string name="give_name_workspace">新しいワークスペースの名前を入力してください</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">どのワークスペースに設定をコピーしますか？</string>
   <string name="reset_settings">リセット</string>
   <string name="search_settings">設定を検索</string>
-  <string name="workspace_dismiss">閉じる</string>
+  <string name="dismiss">閉じる</string>
   <string name="workspace_listing_with_current">%s（現在）</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">プログラマーの方は、%s でバグ修正のコントリビューションをご検討ください。:-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">閉じる</string>
   <string name="beta_notice_dismiss_until_update">次のアップデートまで閉じる</string>
 
   <string name="stable_notice_title">アプリケーションがアップグレードされました！</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">詳細とその他のインストール方法: %s</string>
   <string name="share_verse_ok">共有 / コピー</string>
   <string name="web_search">ウェブ検索</string>
-  <string name="verse_action_copy">コピー</string>
-  <string name="generic_share">共有</string>
   <string name="share_verse_menu_title">共有 / コピー…</string>
   <string name="show_versenumbers">節番号を表示</string>
   <string name="show_full_verses">全文を表示</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">引用符を表示</string>
   <string name="separate_verses_with_newlines">節を改行で区切る</string>
 
-  <string name="backup_button">バックアップと復元</string>
   <string name="initializing_app">アプリを初期化中…</string>
   <string name="show_notes">ノートを表示</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">モデルが設定されていません</string>
   <string name="ai_add_provider">プロバイダーを追加</string>
   <string name="ai_provider_edit">編集</string>
-  <string name="ai_provider_delete">削除</string>
   <string name="ai_provider_delete_confirm">プロバイダー「%1$s」を削除しますか？このプロバイダーを使用しているプロンプトはデフォルトに戻ります。</string>
   <string name="ai_provider_api_key_not_set">APIキーが設定されていません</string>
   <string name="ai_provider_select_type">プロバイダーの種類を選択</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">モデル</string>
   <string name="add_model">モデルを追加</string>
-  <string name="add_model_title">モデルを追加</string>
   <string name="edit_model_title">モデルを編集</string>
   <string name="model_saved">モデルを保存しました</string>
   <string name="model_deleted">モデルを削除しました</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">このプロンプトはアドオンモジュール「%s」からのものであり、編集できません。編集可能なコピーを作成するには「カスタマイズのためにコピー」を使用してください。</string>
   <string name="new_category">新しいカテゴリ</string>
   <string name="new_category_name">カテゴリ名</string>
-  <string name="rename_category">名前を変更</string>
   <string name="move_category_up">上に移動</string>
   <string name="move_category_down">下に移動</string>
   <string name="hide_category">AIアクションから非表示</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">ドキュメント %d</string>
   <string name="my_document_create_title">新しいドキュメントを作成</string>
   <string name="my_document_rename_title">ドキュメント名を変更</string>
-  <string name="my_document_edit_description_title">説明を編集</string>
   <string name="my_document_delete_confirmation">ドキュメント\"%s\"を削除しますか？</string>
   <string name="my_document_cannot_delete_ai_documents">AIドキュメントにページが含まれている間は削除できません。先にページを削除してください。</string>
   <string name="my_document_save_changes">変更を保存しますか？</string>
   <string name="my_document_no_description">説明なし</string>
-  <string name="my_document_rename">名前を変更</string>
   <string name="my_document_edit_description">説明を編集</string>
-  <string name="my_document_delete">削除</string>
 
   <string name="my_document_pages_title">%s - ページ</string>
   <string name="my_document_pages_empty">このドキュメントにページはありません。</string>
   <string name="my_document_page_rename_title">ページ名を変更</string>
   <string name="my_document_page_delete_confirmation">ページ\"%s\"を削除しますか？</string>
-  <string name="my_document_page_rename">名前を変更</string>
-  <string name="my_document_page_delete">削除</string>
-  <string name="my_document_page_export">エクスポート</string>
   <string name="my_document_new_page_name">ページ %1$d</string>
   <string name="my_document_create_page_title">新しいページ</string>
   <string name="my_document_content_type_label">コンテンツの種類</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">ページスクロール量</string>
   <string name="prefs_page_scroll_amount_summary">ページアップ/ダウン時のスクロール量</string>
-  <string name="page_scroll_amount_dialog_title">ページスクロール量</string>
   <string name="prefs_scroll_helper_lines_title">スクロールヘルパーライン</string>
   <string name="prefs_scroll_helper_lines_summary">ページスクロール境界に水平ガイドラインを表示します</string>
   <string name="prefs_scroll_helper_line_style_title">ヘルパーラインのスタイル</string>
   <string name="prefs_scroll_helper_line_style_summary">スクロールヘルパーラインの表示スタイルを選択します</string>
-  <string name="scroll_helper_line_style_dialog_title">ヘルパーラインのスタイル</string>
   <string name="scroll_helper_line_style_thin_dotted">細い点線</string>
   <string name="scroll_helper_line_style_thin_solid">細い実線</string>
   <string name="scroll_helper_line_style_thick_solid">太い実線</string>

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Cửa sổ mới</string>
-  <string name="windowClose">Đóng</string>
   <string name="windowMaximise">Phóng to</string>
   <string name="windowMinimise">Thu nhỏ</string>
   <string name="windowSynchronise">Đồng bộ</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Xóa</string>
   <string name="new_copied_workspace">Sao chép thành mới</string>
   <string name="workspace_number">Không gian làm việc %d</string>
-  <string name="rename_workspace">Đổi tên</string>
+  <string name="rename">Đổi tên</string>
   <string name="workspace_selector_title">Chọn không gian làm việc</string>
   <string name="workspace_settings">Cài đặt…</string>
   <string name="give_name_workspace">Đặt tên cho không gian làm việc mới</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">Bạn muốn sao chép cài đặt đến không gian làm việc nào?</string>
   <string name="reset_settings">Đặt lại</string>
   <string name="search_settings">Tìm kiếm cài đặt</string>
-  <string name="workspace_dismiss">Bỏ qua</string>
+  <string name="dismiss">Bỏ qua</string>
   <string name="workspace_listing_with_current">%s (hiện tại)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Nếu bạn là lập trình viên, hãy cân nhắc đóng góp bản sửa lỗi qua %s. :-)</string>
   <string name="beta_notice_github_issues">Vấn đề trên Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Bỏ qua</string>
   <string name="beta_notice_dismiss_until_update">Bỏ qua cho đến lần cập nhật tiếp theo</string>
 
   <string name="stable_notice_title">Ứng dụng đã được nâng cấp!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Đọc thêm &amp; các tùy chọn cài đặt khác: %s</string>
   <string name="share_verse_ok">Chia sẻ / Sao chép</string>
   <string name="web_search">Tìm kiếm web</string>
-  <string name="verse_action_copy">Sao chép</string>
-  <string name="generic_share">Chia sẻ</string>
   <string name="share_verse_menu_title">Chia sẻ / sao chép…</string>
   <string name="show_versenumbers">Hiển thị số câu</string>
   <string name="show_full_verses">Hiển thị câu đầy đủ</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Hiển thị dấu ngoặc kép</string>
   <string name="separate_verses_with_newlines">Phân cách các câu bằng dòng mới</string>
 
-  <string name="backup_button">Sao lưu &amp; Khôi phục</string>
   <string name="initializing_app">Đang khởi tạo ứng dụng…</string>
   <string name="show_notes">Hiển thị ghi chú</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Chưa có mô hình nào được cấu hình</string>
   <string name="ai_add_provider">Thêm nhà cung cấp</string>
   <string name="ai_provider_edit">Chỉnh sửa</string>
-  <string name="ai_provider_delete">Xóa</string>
   <string name="ai_provider_delete_confirm">Xóa nhà cung cấp \"%1$s\"? Các lệnh nhắc dùng nhà cung cấp này sẽ trở về mặc định.</string>
   <string name="ai_provider_api_key_not_set">Chưa đặt khóa API</string>
   <string name="ai_provider_select_type">Chọn loại nhà cung cấp</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Mô hình</string>
   <string name="add_model">Thêm mô hình</string>
-  <string name="add_model_title">Thêm mô hình</string>
   <string name="edit_model_title">Chỉnh sửa mô hình</string>
   <string name="model_saved">Đã lưu mô hình</string>
   <string name="model_deleted">Đã xóa mô hình</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Lệnh nhắc này từ mô-đun tiện ích \"%s\" và không thể chỉnh sửa. Dùng \"Sao chép để tùy chỉnh\" để tạo bản sao có thể chỉnh sửa.</string>
   <string name="new_category">Danh mục mới</string>
   <string name="new_category_name">Tên danh mục</string>
-  <string name="rename_category">Đổi tên</string>
   <string name="move_category_up">Di chuyển lên</string>
   <string name="move_category_down">Di chuyển xuống</string>
   <string name="hide_category">Ẩn khỏi hành động AI</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Tài liệu %d</string>
   <string name="my_document_create_title">Tạo tài liệu mới</string>
   <string name="my_document_rename_title">Đổi tên tài liệu</string>
-  <string name="my_document_edit_description_title">Chỉnh sửa mô tả</string>
   <string name="my_document_delete_confirmation">Xóa tài liệu \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Không thể xóa tài liệu AI khi còn chứa trang. Hãy xóa các trang trước.</string>
   <string name="my_document_save_changes">Lưu thay đổi?</string>
   <string name="my_document_no_description">Không có mô tả</string>
-  <string name="my_document_rename">Đổi tên</string>
   <string name="my_document_edit_description">Chỉnh sửa mô tả</string>
-  <string name="my_document_delete">Xóa</string>
 
   <string name="my_document_pages_title">%s - Trang</string>
   <string name="my_document_pages_empty">Tài liệu này chưa có trang nào.</string>
   <string name="my_document_page_rename_title">Đổi tên trang</string>
   <string name="my_document_page_delete_confirmation">Xóa trang \"%s\"?</string>
-  <string name="my_document_page_rename">Đổi tên</string>
-  <string name="my_document_page_delete">Xóa</string>
-  <string name="my_document_page_export">Xuất</string>
   <string name="my_document_new_page_name">Trang %1$d</string>
   <string name="my_document_create_page_title">Trang mới</string>
   <string name="my_document_content_type_label">Loại nội dung</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Lượng cuộn trang</string>
   <string name="prefs_page_scroll_amount_summary">Cuộn bao nhiêu trang khi nhấn cuộn lên/xuống</string>
-  <string name="page_scroll_amount_dialog_title">Lượng cuộn trang</string>
   <string name="prefs_scroll_helper_lines_title">Đường hỗ trợ cuộn</string>
   <string name="prefs_scroll_helper_lines_summary">Hiển thị các đường dẫn hướng nằm ngang tại ranh giới cuộn trang</string>
   <string name="prefs_scroll_helper_line_style_title">Kiểu đường trợ giúp</string>
   <string name="prefs_scroll_helper_line_style_summary">Chọn kiểu hiển thị của đường trợ giúp cuộn</string>
-  <string name="scroll_helper_line_style_dialog_title">Kiểu đường trợ giúp</string>
   <string name="scroll_helper_line_style_thin_dotted">Đường chấm mỏng</string>
   <string name="scroll_helper_line_style_thin_solid">Đường liền mỏng</string>
   <string name="scroll_helper_line_style_thick_solid">Đường liền dày</string>

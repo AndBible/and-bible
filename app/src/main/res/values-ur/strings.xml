@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">نئی ونڈو</string>
-  <string name="windowClose">بند کریں</string>
   <string name="windowMaximise">بڑا کریں</string>
   <string name="windowMinimise">چھوٹا کریں</string>
   <string name="windowSynchronise">ہم آہنگ کریں</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">ہٹائیں</string>
   <string name="new_copied_workspace">نئی کاپی بنائیں</string>
   <string name="workspace_number">ورک اسپیس %d</string>
-  <string name="rename_workspace">نام بدلیں</string>
+  <string name="rename">نام بدلیں</string>
   <string name="workspace_selector_title">ورک اسپیس منتخب کریں</string>
   <string name="workspace_settings">ترتیبات…</string>
   <string name="give_name_workspace">نئی ورک اسپیس کا نام دیں</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">آپ کس ورک اسپیس میں ترتیبات کاپی کرنا چاہتے ہیں؟</string>
   <string name="reset_settings">ری سیٹ کریں</string>
   <string name="search_settings">ترتیبات تلاش کریں</string>
-  <string name="workspace_dismiss">مسترد کریں</string>
+  <string name="dismiss">مسترد کریں</string>
   <string name="workspace_listing_with_current">%s (موجودہ)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">اگر آپ پروگرامر ہیں تو براہ کرم %s کے ذریعے خود بگ فکس میں حصہ ڈالنے پر غور کریں۔ :-)</string>
   <string name="beta_notice_github_issues">Github مسائل</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">مسترد کریں</string>
   <string name="beta_notice_dismiss_until_update">اگلی اپ ڈیٹ تک مسترد کریں</string>
 
   <string name="stable_notice_title">ایپلیکیشن اپ گریڈ ہو گئی!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">مزید پڑھیں اور انسٹال کے اختیارات: %s</string>
   <string name="share_verse_ok">شیئر / کاپی کریں</string>
   <string name="web_search">ویب تلاش</string>
-  <string name="verse_action_copy">کاپی کریں</string>
-  <string name="generic_share">شیئر کریں</string>
   <string name="share_verse_menu_title">شیئر / کاپی کریں…</string>
   <string name="show_versenumbers">آیت نمبر دکھائیں</string>
   <string name="show_full_verses">مکمل آیات دکھائیں</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">اقتباس دکھائیں</string>
   <string name="separate_verses_with_newlines">آیات کو نئی لائنوں سے الگ کریں</string>
 
-  <string name="backup_button">بیک اپ اور بحالی</string>
   <string name="initializing_app">ایپلیکیشن شروع ہو رہی ہے…</string>
   <string name="show_notes">نوٹس دکھائیں</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">کوئی ماڈل ترتیب نہیں دیا گیا</string>
   <string name="ai_add_provider">فراہم کنندہ شامل کریں</string>
   <string name="ai_provider_edit">ترمیم کریں</string>
-  <string name="ai_provider_delete">حذف کریں</string>
   <string name="ai_provider_delete_confirm">فراہم کنندہ \"%1$s\" حذف کریں؟ اس فراہم کنندہ کو استعمال کرنے والے پرامپٹس ڈیفالٹ پر واپس آ جائیں گے۔</string>
   <string name="ai_provider_api_key_not_set">API کلید سیٹ نہیں</string>
   <string name="ai_provider_select_type">فراہم کنندہ کی قسم منتخب کریں</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">ماڈل</string>
   <string name="add_model">ماڈل شامل کریں</string>
-  <string name="add_model_title">ماڈل شامل کریں</string>
   <string name="edit_model_title">ماڈل ترمیم کریں</string>
   <string name="model_saved">ماڈل محفوظ ہو گیا</string>
   <string name="model_deleted">ماڈل حذف ہو گیا</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">یہ پرامپٹ ایڈ-آن ماڈیول \"%s\" سے ہے اور ترمیم نہیں کیا جا سکتا۔ قابل ترمیم کاپی بنانے کے لیے \"کسٹمائز کرنے کے لیے کاپی کریں\" استعمال کریں۔</string>
   <string name="new_category">نیا زمرہ</string>
   <string name="new_category_name">زمرے کا نام</string>
-  <string name="rename_category">نام بدلیں</string>
   <string name="move_category_up">اوپر منتقل کریں</string>
   <string name="move_category_down">نیچے منتقل کریں</string>
   <string name="hide_category">AI اعمال سے چھپائیں</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">دستاویز %d</string>
   <string name="my_document_create_title">نئی دستاویز بنائیں</string>
   <string name="my_document_rename_title">دستاویز کا نام بدلیں</string>
-  <string name="my_document_edit_description_title">تفصیل ترمیم کریں</string>
   <string name="my_document_delete_confirmation">دستاویز \"%s\" حذف کریں؟</string>
   <string name="my_document_cannot_delete_ai_documents">AI دستاویزات کو حذف نہیں کیا جا سکتا جب تک صفحات موجود ہوں۔ پہلے صفحات حذف کریں۔</string>
   <string name="my_document_save_changes">تبدیلیاں محفوظ کریں؟</string>
   <string name="my_document_no_description">کوئی تفصیل نہیں</string>
-  <string name="my_document_rename">نام بدلیں</string>
   <string name="my_document_edit_description">تفصیل ترمیم کریں</string>
-  <string name="my_document_delete">حذف کریں</string>
 
   <string name="my_document_pages_title">%s - صفحات</string>
   <string name="my_document_pages_empty">اس دستاویز میں کوئی صفحہ نہیں۔</string>
   <string name="my_document_page_rename_title">صفحے کا نام بدلیں</string>
   <string name="my_document_page_delete_confirmation">صفحہ \"%s\" حذف کریں؟</string>
-  <string name="my_document_page_rename">نام بدلیں</string>
-  <string name="my_document_page_delete">حذف کریں</string>
-  <string name="my_document_page_export">برآمد کریں</string>
   <string name="my_document_new_page_name">صفحہ %1$d</string>
   <string name="my_document_create_page_title">نیا صفحہ</string>
   <string name="my_document_content_type_label">مواد کی قسم</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">صفحہ اسکرول مقدار</string>
   <string name="prefs_page_scroll_amount_summary">صفحہ اوپر/نیچے کے ساتھ کتنا اسکرول کرنا ہے</string>
-  <string name="page_scroll_amount_dialog_title">صفحہ اسکرول مقدار</string>
   <string name="prefs_scroll_helper_lines_title">اسکرول معاون لائنیں</string>
   <string name="prefs_scroll_helper_lines_summary">صفحہ اسکرول حدود پر افقی رہنما لائنیں دکھائیں</string>
   <string name="prefs_scroll_helper_line_style_title">معاون لائن انداز</string>
   <string name="prefs_scroll_helper_line_style_summary">اسکرول معاون لائنوں کا بصری انداز منتخب کریں</string>
-  <string name="scroll_helper_line_style_dialog_title">معاون لائن انداز</string>
   <string name="scroll_helper_line_style_thin_dotted">پتلی نقطہ دار لائن</string>
   <string name="scroll_helper_line_style_thin_solid">پتلی ٹھوس لائن</string>
   <string name="scroll_helper_line_style_thick_solid">موٹی ٹھوس لائن</string>

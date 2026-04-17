@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Yeni pencere</string>
-  <string name="windowClose">Kapat</string>
   <string name="windowMaximise">Büyüt</string>
   <string name="windowMinimise">Küçült</string>
   <string name="windowSynchronise">Senkronize et</string>
@@ -732,7 +731,7 @@
   <string name="delete_workspace">Kaldır</string>
   <string name="new_copied_workspace">Yeni olarak kopyala</string>
   <string name="workspace_number">Çalışma Alanı %d</string>
-  <string name="rename_workspace">Yeniden Adlandır</string>
+  <string name="rename">Yeniden Adlandır</string>
   <string name="workspace_selector_title">Çalışma Alanı Seç</string>
   <string name="workspace_settings">Ayarlar…</string>
   <string name="give_name_workspace">Yeni çalışma alanı için isim ver</string>
@@ -745,7 +744,7 @@
   <string name="copy_settings_workspaces_title">Ayarlar hangi çalışma alanıya kopyalansın?</string>
   <string name="reset_settings">Sıfırla</string>
   <string name="search_settings">Arama ayarları</string>
-  <string name="workspace_dismiss">Yok say</string>
+  <string name="dismiss">Yok say</string>
   <string name="workspace_listing_with_current">%s (aktif)</string>
 
     <!-- Beta notice -->
@@ -764,7 +763,6 @@
 katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_github_issues">Github sorun listesi</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Yok say</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
 
   <string name="stable_notice_title">Uygulama güncellendi!</string>
@@ -931,8 +929,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tell_friend_message4">Devamını oku ve daha fazla yükleme seçenekleri: %s </string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="web_search">Web araması</string>
-  <string name="verse_action_copy">Kopyala</string>
-  <string name="generic_share">Paylaş</string>
   <string name="share_verse_menu_title">Paylaş / kopyala…</string>
   <string name="show_versenumbers">Ayet numarıları göster</string>
   <string name="show_full_verses">Ayetlerin tamamını göster</string>
@@ -949,7 +945,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="show_quotes">Alıntıları göster</string>
   <string name="separate_verses_with_newlines">Ayetleri yeni satırlarla ayır</string>
 
-  <string name="backup_button">Yedekle</string>
   <string name="initializing_app">Uygulama başlatılıyor…</string>
   <string name="show_notes">Notları göster</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1415,7 +1410,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_models_summary_none">Yapılandırılmış model yok</string>
   <string name="ai_add_provider">Sağlayıcı ekle</string>
   <string name="ai_provider_edit">Düzenle</string>
-  <string name="ai_provider_delete">Sil</string>
   <string name="ai_provider_delete_confirm">\"%1$s\" sağlayıcısı silinsin mi? Bu sağlayıcıyı kullanan istemler varsayılana dönecek.</string>
   <string name="ai_provider_api_key_not_set">API anahtarı ayarlanmamış</string>
   <string name="ai_provider_select_type">Sağlayıcı türünü seçin</string>
@@ -1433,7 +1427,6 @@ katkıda bulunmayı düşünün. :-)</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Model ekle</string>
-  <string name="add_model_title">Model ekle</string>
   <string name="edit_model_title">Modeli düzenle</string>
   <string name="model_saved">Model kaydedildi</string>
   <string name="model_deleted">Model silindi</string>
@@ -1508,7 +1501,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="addon_prompt_notice">Bu istem \"%s\" eklenti modülünden gelmektedir ve düzenlenemez. Düzenlenebilir bir kopya oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
   <string name="new_category">Yeni kategori</string>
   <string name="new_category_name">Kategori adı</string>
-  <string name="rename_category">Yeniden adlandır</string>
   <string name="move_category_up">Yukarı taşı</string>
   <string name="move_category_down">Aşağı taşı</string>
   <string name="hide_category">Yapay Zeka eylemlerinden gizle</string>
@@ -1794,22 +1786,16 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="my_document_new_name">Belge %d</string>
   <string name="my_document_create_title">Yeni belge oluştur</string>
   <string name="my_document_rename_title">Belgeyi yeniden adlandır</string>
-  <string name="my_document_edit_description_title">Açıklamayı düzenle</string>
   <string name="my_document_delete_confirmation">"%s" belgesi silinsin mi?</string>
   <string name="my_document_cannot_delete_ai_documents">AI Belgeleri, sayfa içerdiği sürece silinemez. Önce sayfaları silin.</string>
   <string name="my_document_save_changes">Değişiklikler kaydedilsin mi?</string>
   <string name="my_document_no_description">Açıklama yok</string>
-  <string name="my_document_rename">Yeniden adlandır</string>
   <string name="my_document_edit_description">Açıklamayı düzenle</string>
-  <string name="my_document_delete">Sil</string>
 
   <string name="my_document_pages_title">%s - Sayfalar</string>
   <string name="my_document_pages_empty">Bu belgede sayfa yok.</string>
   <string name="my_document_page_rename_title">Sayfayı yeniden adlandır</string>
   <string name="my_document_page_delete_confirmation">"%s" sayfası silinsin mi?</string>
-  <string name="my_document_page_rename">Yeniden adlandır</string>
-  <string name="my_document_page_delete">Sil</string>
-  <string name="my_document_page_export">Dışa aktar</string>
   <string name="my_document_new_page_name">Sayfa %1$d</string>
   <string name="my_document_create_page_title">Yeni sayfa</string>
   <string name="my_document_content_type_label">İçerik türü</string>
@@ -1829,12 +1815,10 @@ katkıda bulunmayı düşünün. :-)</string>
 
   <string name="prefs_page_scroll_amount_title">Sayfa kaydırma miktarı</string>
   <string name="prefs_page_scroll_amount_summary">Sayfa yukarı/aşağı ile sayfanın ne kadarının kaydırılacağı</string>
-  <string name="page_scroll_amount_dialog_title">Sayfa kaydırma miktarı</string>
   <string name="prefs_scroll_helper_lines_title">Kaydırma kılavuz çizgileri</string>
   <string name="prefs_scroll_helper_lines_summary">Sayfa kaydırma sınırlarında yatay kılavuz çizgilerini göster</string>
   <string name="prefs_scroll_helper_line_style_title">Kılavuz çizgi stili</string>
   <string name="prefs_scroll_helper_line_style_summary">Kaydırma kılavuz çizgilerinin görsel stilini seçin</string>
-  <string name="scroll_helper_line_style_dialog_title">Kılavuz çizgi stili</string>
   <string name="scroll_helper_line_style_thin_dotted">İnce noktalı çizgi</string>
   <string name="scroll_helper_line_style_thin_solid">İnce düz çizgi</string>
   <string name="scroll_helper_line_style_thick_solid">Kalın düz çizgi</string>

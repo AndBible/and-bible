@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nova fenestro</string>
-  <string name="windowClose">Fermi</string>
   <string name="windowMaximise">Maksimumigi</string>
   <string name="windowMinimise">Kaŝi</string>
   <string name="windowSynchronise">Samtempigi</string>
@@ -711,7 +710,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="delete_workspace">Forigi</string>
   <string name="new_copied_workspace">Duobligi</string>
   <string name="workspace_number">Laborspaco %d</string>
-  <string name="rename_workspace">Alinomi</string>
+  <string name="rename">Alinomi</string>
   <string name="workspace_selector_title">Elekti laborspacon</string>
   <string name="workspace_settings">Agordoj…</string>
   <string name="give_name_workspace">Enigu nomon por la nova laborspaco</string>
@@ -724,7 +723,7 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="copy_settings_workspaces_title">Al kiuj laborspacoj vi volas kopii agordojn?</string>
   <string name="reset_settings">Reagordi</string>
   <string name="search_settings">Serĉaj agordoj</string>
-  <string name="workspace_dismiss">Rezigni</string>
+  <string name="dismiss">Rezigni</string>
   <string name="workspace_listing_with_current">%s (elektita)</string>
 
     <!-- Beta notice -->
@@ -737,7 +736,6 @@ Beta-uzantoj bonvolu raporti erarojn per Google Play aŭ (prefere) per %s.</stri
   <string name="beta_notice_content_3">Se vi estas programisto, bonvolu konsideri mem ripari erarojn per %s. :-)</string>
   <string name="beta_notice_github_issues">erar‑spurilo ĉe GitHub</string>
   <string name="beta_notice_github">GitHub</string>
-  <string name="beta_notice_dismiss">Ignori</string>
   <string name="beta_notice_dismiss_until_update">Ignori ĝis la sekva ĝisdatigo</string>
 
   <string name="stable_notice_title">Aplikaĵo estis ĝisdatigita!</string>
@@ -877,8 +875,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="tell_friend_message4">Pliaj informoj (en la angla) troviĝas ĉe: %s</string>
   <string name="share_verse_ok">Kunhavigi / kopii</string>
   <string name="web_search">Serĉi en interreto</string>
-  <string name="verse_action_copy">Kopii</string>
-  <string name="generic_share">Kunhavigi</string>
   <string name="share_verse_menu_title">Kunhavigi / kopii…</string>
   <string name="show_versenumbers">Montri numerojn de versoj</string>
   <string name="show_full_verses">Montri plenajn versojn</string>
@@ -895,7 +891,6 @@ Trovis liston de antaŭe instalitaj libroj/dokumentoj. Frapetu suben por reelŝu
   <string name="show_quotes">Montri citilojn</string>
   <string name="separate_verses_with_newlines">Disigi versojn per novaj linioj</string>
 
-  <string name="backup_button">Konservi</string>
   <string name="initializing_app">Ekigado de aplikaĵo…</string>
   <string name="show_notes">Montri notojn</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1337,7 +1332,6 @@ Ne montri tion ĉi denove</string>
   <string name="ai_models_summary_none">Neniu modelo agordita</string>
   <string name="ai_add_provider">Aldoni provizanton</string>
   <string name="ai_provider_edit">Redakti</string>
-  <string name="ai_provider_delete">Forigi</string>
   <string name="ai_provider_delete_confirm">Forigi provizanton \"%1$s\"? Demandoj uzantaj ĉi tiun provizanton revenos al la defaŭlto.</string>
   <string name="ai_provider_api_key_not_set">API-ŝlosilo ne agordita</string>
   <string name="ai_provider_select_type">Elektu provizanttipo</string>
@@ -1355,7 +1349,6 @@ Ne montri tion ĉi denove</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeloj</string>
   <string name="add_model">Aldoni modelon</string>
-  <string name="add_model_title">Aldoni modelon</string>
   <string name="edit_model_title">Redakti modelon</string>
   <string name="model_saved">Modelo konservita</string>
   <string name="model_deleted">Modelo forigita</string>
@@ -1430,7 +1423,6 @@ Ne montri tion ĉi denove</string>
   <string name="addon_prompt_notice">Ĉi tiu demando estas el aldonaĵmodulo \"%s\" kaj ne povas esti redaktita. Uzu \"Kopii por agordi\" por krei redakteblan kopion.</string>
   <string name="new_category">Nova kategorio</string>
   <string name="new_category_name">Kategoria nomo</string>
-  <string name="rename_category">Renomi</string>
   <string name="move_category_up">Movi supren</string>
   <string name="move_category_down">Movi malsupren</string>
   <string name="hide_category">Kaŝi el AI-agoj</string>
@@ -1716,22 +1708,16 @@ Ne montri tion ĉi denove</string>
   <string name="my_document_new_name">Dokumento %d</string>
   <string name="my_document_create_title">Krei novan dokumenton</string>
   <string name="my_document_rename_title">Renomi dokumenton</string>
-  <string name="my_document_edit_description_title">Redakti priskribon</string>
   <string name="my_document_delete_confirmation">Forigi dokumenton \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-Dokumentojn ne eblas forigi dum ili enhavas paĝojn. Unue forigu la paĝojn.</string>
   <string name="my_document_save_changes">Konservi ŝanĝojn?</string>
   <string name="my_document_no_description">Sen priskribo</string>
-  <string name="my_document_rename">Renomi</string>
   <string name="my_document_edit_description">Redakti priskribon</string>
-  <string name="my_document_delete">Forigi</string>
 
   <string name="my_document_pages_title">%s - Paĝoj</string>
   <string name="my_document_pages_empty">Neniuj paĝoj en tiu ĉi dokumento.</string>
   <string name="my_document_page_rename_title">Renomi paĝon</string>
   <string name="my_document_page_delete_confirmation">Forigi paĝon \"%s\"?</string>
-  <string name="my_document_page_rename">Renomi</string>
-  <string name="my_document_page_delete">Forigi</string>
-  <string name="my_document_page_export">Elporti</string>
   <string name="my_document_new_page_name">Paĝo %1$d</string>
   <string name="my_document_create_page_title">Nova paĝo</string>
   <string name="my_document_content_type_label">Enhavtipo</string>
@@ -1751,12 +1737,10 @@ Ne montri tion ĉi denove</string>
 
   <string name="prefs_page_scroll_amount_title">Paĝa rulumkvanto</string>
   <string name="prefs_page_scroll_amount_summary">Kiom de la paĝo rulumi per paĝo-supren/malsupren</string>
-  <string name="page_scroll_amount_dialog_title">Paĝa rulumkvanto</string>
   <string name="prefs_scroll_helper_lines_title">Rulumo-helpaj linioj</string>
   <string name="prefs_scroll_helper_lines_summary">Montri horizontajn gvidliniojn ĉe paĝa ruluma limo</string>
   <string name="prefs_scroll_helper_line_style_title">Helplinia stilo</string>
   <string name="prefs_scroll_helper_line_style_summary">Elekti la vidan stilon de rulumo-helpaj linioj</string>
-  <string name="scroll_helper_line_style_dialog_title">Helplinia stilo</string>
   <string name="scroll_helper_line_style_thin_dotted">Maldika punktita linio</string>
   <string name="scroll_helper_line_style_thin_solid">Maldika kontinua linio</string>
   <string name="scroll_helper_line_style_thick_solid">Dika kontinua linio</string>

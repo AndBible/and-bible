@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Jendela baru</string>
-  <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Membesarkan</string>
   <string name="windowMinimise">Mengecilkan</string>
   <string name="windowSynchronise">Sinkronkan</string>
@@ -723,7 +722,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="delete_workspace">Hapus ruang kerja ini</string>
   <string name="new_copied_workspace">Salin ruang kerja ini sebagai baru</string>
   <string name="workspace_number">Ruang Kerja %d</string>
-  <string name="rename_workspace">Ganti nama ruang kerja ...</string>
+  <string name="rename">Ganti nama ruang kerja ...</string>
   <string name="workspace_selector_title">Pilih ruang kerja</string>
   <string name="workspace_settings">Pengaturan…</string>
   <string name="give_name_workspace">Beri nama untuk ruang kerja baru</string>
@@ -736,7 +735,7 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="copy_settings_workspaces_title">Ke ruang kerja mana Anda ingin menyalin pengaturan?</string>
   <string name="reset_settings">Atur ulang</string>
   <string name="search_settings">Pengaturan pencarian</string>
-  <string name="workspace_dismiss">Tutup</string>
+  <string name="dismiss">Tutup</string>
   <string name="workspace_listing_with_current">%s (saat ini)</string>
 
     <!-- Beta notice -->
@@ -751,7 +750,6 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="beta_notice_content_3">Jika Anda adalah seorang programmer, mohon mempertimbangkan untuk berkontribusi dalam memperbaiki bug melalui %s. :)</string>
   <string name="beta_notice_github_issues">Masalah-masalah Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Singkirkan</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>
 
   <string name="stable_notice_title">Aplikasi telah diperbarui!</string>
@@ -882,8 +880,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="tell_friend_message4">Baca lebih lanjut &amp; opsi instalasi lainnya: %s</string>
   <string name="share_verse_ok">Bagikan / Salin</string>
   <string name="web_search">Pencarian web</string>
-  <string name="verse_action_copy">Salin</string>
-  <string name="generic_share">Bagikan</string>
   <string name="share_verse_menu_title">Bagikan / salin…</string>
   <string name="show_versenumbers">Tampilkan nomor ayat</string>
   <string name="show_full_verses">Tampilkan ayat lengkap</string>
@@ -900,7 +896,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="show_quotes">Tampilkan tanda kutip</string>
   <string name="separate_verses_with_newlines">Pisahkan ayat dengan baris baru</string>
 
-  <string name="backup_button">Cadangkan &amp; Pulihkan</string>
   <string name="initializing_app">Menginisialisasi aplikasi…</string>
   <string name="show_notes">Tampilkan catatan</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1320,7 +1315,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_models_summary_none">Tidak ada model yang dikonfigurasi</string>
   <string name="ai_add_provider">Tambah penyedia</string>
   <string name="ai_provider_edit">Edit</string>
-  <string name="ai_provider_delete">Hapus</string>
   <string name="ai_provider_delete_confirm">Hapus penyedia \"%1$s\"? Prompt yang menggunakan penyedia ini akan kembali ke default.</string>
   <string name="ai_provider_api_key_not_set">Kunci API belum diatur</string>
   <string name="ai_provider_select_type">Pilih tipe penyedia</string>
@@ -1338,7 +1332,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
     <!-- Configured models management -->
   <string name="ai_models_category">Model</string>
   <string name="add_model">Tambah model</string>
-  <string name="add_model_title">Tambah model</string>
   <string name="edit_model_title">Edit model</string>
   <string name="model_saved">Model disimpan</string>
   <string name="model_deleted">Model dihapus</string>
@@ -1413,7 +1406,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="addon_prompt_notice">Prompt ini berasal dari modul add-on \"%s\" dan tidak dapat diedit. Gunakan \"Salin untuk dikustomisasi\" untuk membuat salinan yang dapat diedit.</string>
   <string name="new_category">Kategori baru</string>
   <string name="new_category_name">Nama kategori</string>
-  <string name="rename_category">Ubah nama</string>
   <string name="move_category_up">Pindah ke atas</string>
   <string name="move_category_down">Pindah ke bawah</string>
   <string name="hide_category">Sembunyikan dari tindakan AI</string>
@@ -1699,22 +1691,16 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="my_document_new_name">Dokumen %d</string>
   <string name="my_document_create_title">Buat dokumen baru</string>
   <string name="my_document_rename_title">Ganti nama dokumen</string>
-  <string name="my_document_edit_description_title">Edit deskripsi</string>
   <string name="my_document_delete_confirmation">Hapus dokumen \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak dapat dihapus selama masih berisi halaman. Hapus halaman terlebih dahulu.</string>
   <string name="my_document_save_changes">Simpan perubahan?</string>
   <string name="my_document_no_description">Tidak ada deskripsi</string>
-  <string name="my_document_rename">Ganti nama</string>
   <string name="my_document_edit_description">Edit deskripsi</string>
-  <string name="my_document_delete">Hapus</string>
 
   <string name="my_document_pages_title">%s - Halaman</string>
   <string name="my_document_pages_empty">Tidak ada halaman dalam dokumen ini.</string>
   <string name="my_document_page_rename_title">Ganti nama halaman</string>
   <string name="my_document_page_delete_confirmation">Hapus halaman \"%s\"?</string>
-  <string name="my_document_page_rename">Ganti nama</string>
-  <string name="my_document_page_delete">Hapus</string>
-  <string name="my_document_page_export">Ekspor</string>
   <string name="my_document_new_page_name">Halaman %1$d</string>
   <string name="my_document_create_page_title">Halaman baru</string>
   <string name="my_document_content_type_label">Jenis konten</string>
@@ -1734,12 +1720,10 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
 
   <string name="prefs_page_scroll_amount_title">Jumlah gulir halaman</string>
   <string name="prefs_page_scroll_amount_summary">Seberapa banyak halaman yang digulir saat menekan naik/turun halaman</string>
-  <string name="page_scroll_amount_dialog_title">Jumlah gulir halaman</string>
   <string name="prefs_scroll_helper_lines_title">Garis panduan gulir</string>
   <string name="prefs_scroll_helper_lines_summary">Tampilkan garis panduan horizontal di batas gulir halaman</string>
   <string name="prefs_scroll_helper_line_style_title">Gaya garis panduan</string>
   <string name="prefs_scroll_helper_line_style_summary">Pilih gaya tampilan garis panduan gulir</string>
-  <string name="scroll_helper_line_style_dialog_title">Gaya garis panduan</string>
   <string name="scroll_helper_line_style_thin_dotted">Garis tipis putus-putus</string>
   <string name="scroll_helper_line_style_thin_solid">Garis tipis solid</string>
   <string name="scroll_helper_line_style_thick_solid">Garis tebal solid</string>

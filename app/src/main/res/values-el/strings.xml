@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Νέο παράθυρο</string>
-  <string name="windowClose">Κλείσιμο</string>
   <string name="windowMaximise">Μεγιστοποίηση</string>
   <string name="windowMinimise">Ελαχιστοποίηση</string>
   <string name="windowSynchronise">Συγχρονισμός</string>
@@ -711,7 +710,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="delete_workspace">Διαγραφή</string>
   <string name="new_copied_workspace">Αντιγραφή ως νέος</string>
   <string name="workspace_number">Χώρος εργασίας %d</string>
-  <string name="rename_workspace">Μετονομασία</string>
+  <string name="rename">Μετονομασία</string>
   <string name="workspace_selector_title">Επιλογή χώρου εργασίας</string>
   <string name="workspace_settings">Ρυθμίσεις...</string>
   <string name="give_name_workspace">Δώσε όνομα νέου χώρου εργασίας</string>
@@ -724,7 +723,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="copy_settings_workspaces_title">Σε ποιούς χώρους να αντιγραφούν οι ρυθμίσεις?</string>
   <string name="reset_settings">Επαναφορά</string>
   <string name="search_settings">Ρυθμίσεις αναζήτησης</string>
-  <string name="workspace_dismiss">Απόρριψη</string>
+  <string name="dismiss">Απόρριψη</string>
   <string name="workspace_listing_with_current">%s (τρέχων)</string>
 
     <!-- Beta notice -->
@@ -739,7 +738,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="beta_notice_content_3">Αν είστε προγραμματιστής, παρακαλώ συμβάλλετε με διορθώσεις σφαλμάτων μέσω %s εσείς οι ίδιοι :-)</string>
   <string name="beta_notice_github_issues">Προβλήματα του Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Απόρριψη</string>
   <string name="beta_notice_dismiss_until_update">Απόρριψη ως την επόμενη ενημέρωση</string>
 
   <string name="stable_notice_title">H εφαρμογή αναβαθμίστηκε!</string>
@@ -895,8 +893,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="tell_friend_message4">Διαβάστε περισσότερα &amp; περισσότερες επιλογές εγκατάστασης: %s</string>
   <string name="share_verse_ok">Κοινοποίηση / Αντιγραφή</string>
   <string name="web_search">Αναζήτηση web</string>
-  <string name="verse_action_copy">Αντιγραφή</string>
-  <string name="generic_share">Κοινοποίηση</string>
   <string name="share_verse_menu_title">Κοινοποίηση / αντιγραφή...</string>
   <string name="show_versenumbers">Εμφάνιση αριθμών στίχου</string>
   <string name="show_full_verses">Εμφάνιση ολόκληρων στίχων</string>
@@ -913,7 +909,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="show_quotes">Εμφάνιση παραθέσεων</string>
   <string name="separate_verses_with_newlines">Διαχωρίστε τα εδάφια σε νέες γραμμές</string>
 
-  <string name="backup_button">Δημιουργία αντιγράφων ασφαλείας</string>
   <string name="initializing_app">Προετοιμασία εφαρμογής....</string>
   <string name="show_notes">Εμφάνιση σημειώσεων</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1358,7 +1353,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_models_summary_none">Δεν έχουν ρυθμιστεί μοντέλα</string>
   <string name="ai_add_provider">Προσθήκη παρόχου</string>
   <string name="ai_provider_edit">Επεξεργασία</string>
-  <string name="ai_provider_delete">Διαγραφή</string>
   <string name="ai_provider_delete_confirm">Διαγραφή παρόχου \"%1$s\"; Οι εντολές που χρησιμοποιούν αυτόν τον πάροχο θα επιστρέψουν στον προεπιλεγμένο.</string>
   <string name="ai_provider_api_key_not_set">Το κλειδί API δεν έχει οριστεί</string>
   <string name="ai_provider_select_type">Επιλογή τύπου παρόχου</string>
@@ -1376,7 +1370,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Μοντέλα</string>
   <string name="add_model">Προσθήκη μοντέλου</string>
-  <string name="add_model_title">Προσθήκη μοντέλου</string>
   <string name="edit_model_title">Επεξεργασία μοντέλου</string>
   <string name="model_saved">Το μοντέλο αποθηκεύτηκε</string>
   <string name="model_deleted">Το μοντέλο διαγράφηκε</string>
@@ -1451,7 +1444,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="addon_prompt_notice">Αυτή η εντολή προέρχεται από το πρόσθετο \"%s\" και δεν μπορεί να επεξεργαστεί. Χρησιμοποιήστε \"Αντιγραφή για προσαρμογή\" για να δημιουργήσετε ένα επεξεργάσιμο αντίγραφο.</string>
   <string name="new_category">Νέα κατηγορία</string>
   <string name="new_category_name">Όνομα κατηγορίας</string>
-  <string name="rename_category">Μετονομασία</string>
   <string name="move_category_up">Μετακίνηση πάνω</string>
   <string name="move_category_down">Μετακίνηση κάτω</string>
   <string name="hide_category">Απόκρυψη από ενέργειες AI</string>
@@ -1737,22 +1729,16 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="my_document_new_name">Έγγραφο %d</string>
   <string name="my_document_create_title">Δημιουργία νέου εγγράφου</string>
   <string name="my_document_rename_title">Μετονομασία εγγράφου</string>
-  <string name="my_document_edit_description_title">Επεξεργασία περιγραφής</string>
   <string name="my_document_delete_confirmation">Διαγραφή εγγράφου \"%s\";</string>
   <string name="my_document_cannot_delete_ai_documents">Τα έγγραφα AI δεν μπορούν να διαγραφούν ενώ περιέχουν σελίδες. Διαγράψτε πρώτα τις σελίδες.</string>
   <string name="my_document_save_changes">Αποθήκευση αλλαγών;</string>
   <string name="my_document_no_description">Χωρίς περιγραφή</string>
-  <string name="my_document_rename">Μετονομασία</string>
   <string name="my_document_edit_description">Επεξεργασία περιγραφής</string>
-  <string name="my_document_delete">Διαγραφή</string>
 
   <string name="my_document_pages_title">%s - Σελίδες</string>
   <string name="my_document_pages_empty">Δεν υπάρχουν σελίδες σε αυτό το έγγραφο.</string>
   <string name="my_document_page_rename_title">Μετονομασία σελίδας</string>
   <string name="my_document_page_delete_confirmation">Διαγραφή σελίδας \"%s\";</string>
-  <string name="my_document_page_rename">Μετονομασία</string>
-  <string name="my_document_page_delete">Διαγραφή</string>
-  <string name="my_document_page_export">Εξαγωγή</string>
   <string name="my_document_new_page_name">Σελίδα %1$d</string>
   <string name="my_document_create_page_title">Νέα σελίδα</string>
   <string name="my_document_content_type_label">Τύπος περιεχομένου</string>
@@ -1772,12 +1758,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 
   <string name="prefs_page_scroll_amount_title">Ποσότητα κύλισης σελίδας</string>
   <string name="prefs_page_scroll_amount_summary">Πόσο μέρος της σελίδας να κυλιστεί με τα κουμπιά πάνω/κάτω</string>
-  <string name="page_scroll_amount_dialog_title">Ποσότητα κύλισης σελίδας</string>
   <string name="prefs_scroll_helper_lines_title">Βοηθητικές γραμμές κύλισης</string>
   <string name="prefs_scroll_helper_lines_summary">Εμφάνιση οριζόντιων βοηθητικών γραμμών στα όρια κύλισης σελίδας</string>
   <string name="prefs_scroll_helper_line_style_title">Στυλ βοηθητικών γραμμών</string>
   <string name="prefs_scroll_helper_line_style_summary">Επιλέξτε το οπτικό στυλ των βοηθητικών γραμμών κύλισης</string>
-  <string name="scroll_helper_line_style_dialog_title">Στυλ βοηθητικής γραμμής</string>
   <string name="scroll_helper_line_style_thin_dotted">Λεπτή διακεκομμένη γραμμή</string>
   <string name="scroll_helper_line_style_thin_solid">Λεπτή συνεχής γραμμή</string>
   <string name="scroll_helper_line_style_thick_solid">Παχιά συνεχής γραμμή</string>

@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Nové okno</string>
-  <string name="windowClose">Zatvoriť</string>
   <string name="windowMaximise">Maximalizovať</string>
   <string name="windowMinimise">Skryť</string>
   <string name="windowSynchronise">Synchronizovať</string>
@@ -728,7 +727,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="delete_workspace">Odstrániť</string>
   <string name="new_copied_workspace">Skopírovať ako nové</string>
   <string name="workspace_number">Pracovná plocha %d</string>
-  <string name="rename_workspace">Premenovať</string>
+  <string name="rename">Premenovať</string>
   <string name="workspace_selector_title">Výber pracovnej plochy</string>
   <string name="workspace_settings">Nastavenia…</string>
   <string name="give_name_workspace">Zadajte názov pre novú pracovnú plochu</string>
@@ -741,7 +740,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="copy_settings_workspaces_title">Do ktorých pracovných plôch chcete skopírovať nastavenia?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Nastavenia hľadania</string>
-  <string name="workspace_dismiss">Odmietnuť</string>
+  <string name="dismiss">Odmietnuť</string>
   <string name="workspace_listing_with_current">%s (aktuálne)</string>
 
     <!-- Beta notice -->
@@ -760,7 +759,6 @@ Režim opakovania bol vypnutý, pretože
         k chybe prostredníctvom %s . :-)</string>
   <string name="beta_notice_github_issues">Github hlásenia chýb</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Odmietnuť</string>
   <string name="beta_notice_dismiss_until_update">Odmietnuť do ďalšej aktualizácie </string>
 
   <string name="stable_notice_title">Aplikácia bola aktualizovaná!</string>
@@ -927,8 +925,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="tell_friend_message4">Viac informácii a možností inštalácie na %s</string>
   <string name="share_verse_ok">Zdielať / kopírovať</string>
   <string name="web_search">Webové hľadanie</string>
-  <string name="verse_action_copy">Kopírovať</string>
-  <string name="generic_share">Zdielať</string>
   <string name="share_verse_menu_title">Zdielať / kopírovať…</string>
   <string name="show_versenumbers">Zobraziť čísla veršov</string>
   <string name="show_full_verses">Zobraziť celé verše</string>
@@ -945,7 +941,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="show_quotes">Zobraziť úvodzovky</string>
   <string name="separate_verses_with_newlines">Oddeliť verše novými riadkami</string>
 
-  <string name="backup_button">Záloha</string>
   <string name="initializing_app">Inicializácia aplikácie…</string>
   <string name="show_notes">Zobraziť poznámky</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1410,7 +1405,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="ai_models_summary_none">Žiadne modely nie sú nastavené</string>
   <string name="ai_add_provider">Pridať poskytovateľa</string>
   <string name="ai_provider_edit">Upraviť</string>
-  <string name="ai_provider_delete">Vymazať</string>
   <string name="ai_provider_delete_confirm">Vymazať poskytovateľa \"%1$s\"? Prompty využívajúce tohto poskytovateľa sa vrátia na predvolené.</string>
   <string name="ai_provider_api_key_not_set">API kľúč nie je nastavený</string>
   <string name="ai_provider_select_type">Vybrať typ poskytovateľa</string>
@@ -1428,7 +1422,6 @@ Režim opakovania bol vypnutý, pretože
     <!-- Configured models management -->
   <string name="ai_models_category">Modely</string>
   <string name="add_model">Pridať model</string>
-  <string name="add_model_title">Pridať model</string>
   <string name="edit_model_title">Upraviť model</string>
   <string name="model_saved">Model uložený</string>
   <string name="model_deleted">Model vymazaný</string>
@@ -1503,7 +1496,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="addon_prompt_notice">Tento prompt pochádza z doplnkového modulu „%s" a nedá sa upravovať. Použite „Kopírovať na úpravu" na vytvorenie upraviteľnej kópie.</string>
   <string name="new_category">Nová kategória</string>
   <string name="new_category_name">Názov kategórie</string>
-  <string name="rename_category">Premenovať</string>
   <string name="move_category_up">Presunúť nahor</string>
   <string name="move_category_down">Presunúť nadol</string>
   <string name="hide_category">Skryť z akcií AI</string>
@@ -1789,22 +1781,16 @@ Režim opakovania bol vypnutý, pretože
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Vytvoriť nový dokument</string>
   <string name="my_document_rename_title">Premenovať dokument</string>
-  <string name="my_document_edit_description_title">Upraviť popis</string>
   <string name="my_document_delete_confirmation">Vymazať dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nie je možné vymazať, pokiaľ obsahujú stránky. Najprv vymažte stránky.</string>
   <string name="my_document_save_changes">Uložiť zmeny?</string>
   <string name="my_document_no_description">Bez popisu</string>
-  <string name="my_document_rename">Premenovať</string>
   <string name="my_document_edit_description">Upraviť popis</string>
-  <string name="my_document_delete">Vymazať</string>
 
   <string name="my_document_pages_title">%s – Stránky</string>
   <string name="my_document_pages_empty">Tento dokument neobsahuje žiadne stránky.</string>
   <string name="my_document_page_rename_title">Premenovať stránku</string>
   <string name="my_document_page_delete_confirmation">Vymazať stránku \"%s\"?</string>
-  <string name="my_document_page_rename">Premenovať</string>
-  <string name="my_document_page_delete">Vymazať</string>
-  <string name="my_document_page_export">Export</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
@@ -1824,12 +1810,10 @@ Režim opakovania bol vypnutý, pretože
 
   <string name="prefs_page_scroll_amount_title">Množstvo posúvania stránky</string>
   <string name="prefs_page_scroll_amount_summary">Koľko stránky sa posunie pri posúvaní nahor/nadol</string>
-  <string name="page_scroll_amount_dialog_title">Množstvo posúvania stránky</string>
   <string name="prefs_scroll_helper_lines_title">Pomocné čiary posúvania</string>
   <string name="prefs_scroll_helper_lines_summary">Zobraziť vodorovné vodiace čiary na hraniciach posúvania stránky</string>
   <string name="prefs_scroll_helper_line_style_title">Štýl pomocnej čiary</string>
   <string name="prefs_scroll_helper_line_style_summary">Zvoliť vizuálny štýl pomocných čiar posúvania</string>
-  <string name="scroll_helper_line_style_dialog_title">Štýl pomocnej čiary</string>
   <string name="scroll_helper_line_style_thin_dotted">Tenká bodkovaná čiara</string>
   <string name="scroll_helper_line_style_thin_solid">Tenká plná čiara</string>
   <string name="scroll_helper_line_style_thick_solid">Hrubá plná čiara</string>

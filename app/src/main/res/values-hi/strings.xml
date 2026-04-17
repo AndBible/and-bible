@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window"> नयी विंडो</string>
-  <string name="windowClose"> बंद करे</string>
   <string name="windowMaximise"> अधिकतम</string>
   <string name="windowMinimise"> छोटा करे</string>
   <string name="windowSynchronise"> ताल मेल बनाए</string>
@@ -723,7 +722,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="delete_workspace"> हटाना</string>
   <string name="new_copied_workspace"> नए के रूप में कॉपी करें</string>
   <string name="workspace_number"> कार्यक्षेत्र %d</string>
-  <string name="rename_workspace">नाम बदले</string>
+  <string name="rename">नाम बदले</string>
   <string name="workspace_selector_title">कार्यक्षेत्र चुने</string>
   <string name="workspace_settings">सेटिंग्स...</string>
   <string name="give_name_workspace">नए कार्यक्षेत्र के लिए नाम दें</string>
@@ -736,7 +735,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="copy_settings_workspaces_title"> आप किन कार्यक्षेत्रों में सेटिंग्स कॉपी करना चाहते हैं?</string>
   <string name="reset_settings">रिसेट</string>
   <string name="search_settings">खोज सेटिंग्स</string>
-  <string name="workspace_dismiss">खारिज करें</string>
+  <string name="dismiss">खारिज करें</string>
   <string name="workspace_listing_with_current">%s (वर्तमान)</string>
 
     <!-- Beta notice -->
@@ -755,7 +754,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
  फिक्स में योगदान देने पर विचार करें। :-)</string>
   <string name="beta_notice_github_issues">गिटहब के मुद्दे</string>
   <string name="beta_notice_github"> गिटहब</string>
-  <string name="beta_notice_dismiss">खारिज करें</string>
   <string name="beta_notice_dismiss_until_update">अगले अद्यतन तक खारिज करे</string>
 
   <string name="stable_notice_title">एप्लिकेशन को अपग्रेड कर दिया गया है!</string>
@@ -922,8 +920,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="tell_friend_message4">और पढ़ें &amp; अधिक स्थापना विकल्प: %s</string>
   <string name="share_verse_ok">शेयर / कॉपी</string>
   <string name="web_search">वेब खोज</string>
-  <string name="verse_action_copy"> कॉपी</string>
-  <string name="generic_share">शेयर</string>
   <string name="share_verse_menu_title">शेयर / कॉपी...</string>
   <string name="show_versenumbers">छंद के संख्या दिखाएं</string>
   <string name="show_full_verses">पूर्ण छंद दिखाएं</string>
@@ -940,7 +936,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="show_quotes">उद्धरण चिह्न दिखाएं</string>
   <string name="separate_verses_with_newlines">नई लाइनों से छंद अलग करें</string>
 
-  <string name="backup_button">बैकअप</string>
   <string name="initializing_app">एप्लिकेशन शुरू किया जा रहा है…</string>
   <string name="show_notes">नोट्स दिखाएं</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1378,7 +1373,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_models_summary_none">कोई मॉडल कॉन्फ़िगर नहीं है</string>
   <string name="ai_add_provider">प्रदाता जोड़ें</string>
   <string name="ai_provider_edit">संपादित करें</string>
-  <string name="ai_provider_delete">हटाएं</string>
   <string name="ai_provider_delete_confirm">प्रदाता \"%1$s\" हटाएं? इस प्रदाता का उपयोग करने वाले प्रॉम्प्ट डिफ़ॉल्ट पर वापस आ जाएंगे।</string>
   <string name="ai_provider_api_key_not_set">API key सेट नहीं है</string>
   <string name="ai_provider_select_type">प्रदाता प्रकार चुनें</string>
@@ -1396,7 +1390,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
     <!-- Configured models management -->
   <string name="ai_models_category">मॉडल</string>
   <string name="add_model">मॉडल जोड़ें</string>
-  <string name="add_model_title">मॉडल जोड़ें</string>
   <string name="edit_model_title">मॉडल संपादित करें</string>
   <string name="model_saved">मॉडल सहेजा गया</string>
   <string name="model_deleted">मॉडल हटाया गया</string>
@@ -1471,7 +1464,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="addon_prompt_notice">यह प्रॉम्प्ट ऐड-ऑन मॉड्यूल \"%s\" से है और संपादित नहीं किया जा सकता। एक संपादन योग्य कॉपी बनाने के लिए \"कस्टमाइज़ करने के लिए कॉपी करें\" का उपयोग करें।</string>
   <string name="new_category">नई श्रेणी</string>
   <string name="new_category_name">श्रेणी नाम</string>
-  <string name="rename_category">नाम बदलें</string>
   <string name="move_category_up">ऊपर ले जाएं</string>
   <string name="move_category_down">नीचे ले जाएं</string>
   <string name="hide_category">AI क्रियाओं से छुपाएं</string>
@@ -1757,22 +1749,16 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="my_document_new_name">दस्तावेज़ %d</string>
   <string name="my_document_create_title">नया दस्तावेज़ बनाएं</string>
   <string name="my_document_rename_title">दस्तावेज़ का नाम बदलें</string>
-  <string name="my_document_edit_description_title">विवरण संपादित करें</string>
   <string name="my_document_delete_confirmation">दस्तावेज़ \"%s\" हटाएं?</string>
   <string name="my_document_cannot_delete_ai_documents">AI दस्तावेज़ों को तब तक हटाया नहीं जा सकता जब तक उनमें पेज हों। पहले पेज हटाएं।</string>
   <string name="my_document_save_changes">बदलाव सहेजें?</string>
   <string name="my_document_no_description">कोई विवरण नहीं</string>
-  <string name="my_document_rename">नाम बदलें</string>
   <string name="my_document_edit_description">विवरण संपादित करें</string>
-  <string name="my_document_delete">हटाएं</string>
 
   <string name="my_document_pages_title">%s - पेज</string>
   <string name="my_document_pages_empty">इस दस्तावेज़ में कोई पेज नहीं है।</string>
   <string name="my_document_page_rename_title">पेज का नाम बदलें</string>
   <string name="my_document_page_delete_confirmation">पेज \"%s\" हटाएं?</string>
-  <string name="my_document_page_rename">नाम बदलें</string>
-  <string name="my_document_page_delete">हटाएं</string>
-  <string name="my_document_page_export">निर्यात</string>
   <string name="my_document_new_page_name">पेज %1$d</string>
   <string name="my_document_create_page_title">नया पेज</string>
   <string name="my_document_content_type_label">सामग्री प्रकार</string>
@@ -1792,12 +1778,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 
   <string name="prefs_page_scroll_amount_title">पेज स्क्रॉल मात्रा</string>
   <string name="prefs_page_scroll_amount_summary">पेज ऊपर/नीचे के साथ पेज का कितना हिस्सा स्क्रॉल करें</string>
-  <string name="page_scroll_amount_dialog_title">पेज स्क्रॉल मात्रा</string>
   <string name="prefs_scroll_helper_lines_title">स्क्रॉल सहायक रेखाएं</string>
   <string name="prefs_scroll_helper_lines_summary">पेज स्क्रॉल सीमाओं पर क्षैतिज गाइड लाइनें दिखाएं</string>
   <string name="prefs_scroll_helper_line_style_title">सहायक रेखा शैली</string>
   <string name="prefs_scroll_helper_line_style_summary">स्क्रॉल सहायक रेखाओं की दृश्य शैली चुनें</string>
-  <string name="scroll_helper_line_style_dialog_title">सहायक रेखा शैली</string>
   <string name="scroll_helper_line_style_thin_dotted">पतली बिंदीदार रेखा</string>
   <string name="scroll_helper_line_style_thin_solid">पतली ठोस रेखा</string>
   <string name="scroll_helper_line_style_thick_solid">मोटी ठोस रेखा</string>

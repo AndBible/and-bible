@@ -252,7 +252,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
             .setNegativeButton(R.string.cancel, null)
             .apply {
                 if (!isNew) {
-                    setNeutralButton(R.string.ai_provider_delete) { dlg, _ ->
+                    setNeutralButton(R.string.delete) { dlg, _ ->
                         dlg.dismiss()
                         confirmDeleteProvider(config)
                     }
@@ -378,7 +378,7 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
 
     private fun confirmDeleteProvider(config: LlmProviderConfig) {
         AlertDialog.Builder(requireContext())
-            .setTitle(R.string.ai_provider_delete)
+            .setTitle(R.string.delete)
             .setMessage(getString(R.string.ai_provider_delete_confirm, config.displayName))
             .setPositiveButton(R.string.yes) { _, _ ->
                 lifecycleScope.launch {

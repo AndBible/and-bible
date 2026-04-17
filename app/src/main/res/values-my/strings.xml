@@ -174,7 +174,6 @@
   <string name="prefs_noise_summary">နောက်ခံကို ဝေဝါးမှုအနည်းငယ်ထည့်သွင်းခြင်းဖြင့် မျက်စိအတွက် ပိုပြီးသက်တောင့်သက်သာ ဖြစ်စေနိုင်ပါသည်။ </string>
   <!--Window-->
   <string name="new_window">ဝင်းဒိုးအသစ်</string>
-  <string name="windowClose">ပိတ်ပါ</string>
   <string name="windowMaximise">အကြီးချဲ့ပါ</string>
   <string name="windowMinimise">ချုံ့ပါ</string>
   <string name="windowSynchronise">ထပ်တူကျအောင်ပြုပါ</string>
@@ -512,7 +511,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="delete_workspace">ဖယ်ရှားပါ</string>
   <string name="new_copied_workspace">အသစ် ကော်ပီကူးပါ</string>
   <string name="workspace_number">အလုပ်ခွင် %d</string>
-  <string name="rename_workspace">အမည်အသစ်ပေးပါ</string>
+  <string name="rename">အမည်အသစ်ပေးပါ</string>
   <string name="workspace_selector_title">အလုပ်ခွင် ရွေးချယ်ပါ</string>
   <string name="workspace_settings">ဆက်တင်များ...</string>
   <string name="give_name_workspace">အလုပ်ခွင်အသစ်အတွက် အမည်ပေးပါ</string>
@@ -524,7 +523,7 @@ Internal plan နှင့် အမည်တူသည့် sdcard Jsword/readi
   <string name="select_all">အားလုံးကို ရွေးချယ်ပါ</string>
   <string name="copy_settings_workspaces_title">မည်သည့်အလုပ်ခွင်များသို့ ဆက်တင်များကို ကော်ပီကူးလိုသနည်း။ </string>
   <string name="reset_settings">ပြန်လည်သတ်မှတ်ပါ</string>
-  <string name="workspace_dismiss">ပယ်ချပါ</string>
+  <string name="dismiss">ပယ်ချပါ</string>
   <string name="workspace_listing_with_current">%s (လက်ရှိ)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">beta ဗားရှင်းဖြစ်သည်။ </string>
@@ -538,7 +537,6 @@ Beta ဗားရှင်းတွင် စနစ်တကျမစမ်း�
         သင်ကိုယ်တိုင် %s မှ ပြုပြင်ပါ။ :-)</string>
   <string name="beta_notice_github_issues">Github ပြဿနာများ</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">ပယ်ချပါ</string>
   <string name="beta_notice_dismiss_until_update">နောက် အပ်ပ်ဒိတ် မတိုင်မီအထိ ပယ်ချပါ</string>
   <string name="stable_notice_title">အက်ပ်ပလီကေးရှင်းကို အဆင့်မြှင့်တင်ပြီးပါပြီ။</string>
   <string name="upgrade_video_message">ဤအသစ်ထုတ်ထားသည့် (%s)၏ အသွင်အပြင်အသစ်များကို တင်ထားသည့် ဗီဒီကိုအသစ်ကို ကျေးဇူးပြုပြီး ကြည့်ပါ။ </string>
@@ -611,8 +609,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="tell_friend_message3">Play Store မှထည့်သွင်းအသုံးပြုပါ။ %s</string>
   <string name="tell_friend_message4">အခြား &amp; များကိုလည်းဖတ်ပါ; အခြား ထည့်သွင်းရသည့် ရွေးချယ်စရာများ: %s</string>
   <string name="share_verse_ok">ဝေမျှပါ / ကော်ပီကူးပါ</string>
-  <string name="verse_action_copy">ကော်ပီကူးပါ</string>
-  <string name="generic_share">မျှဝေပါ</string>
   <string name="share_verse_menu_title">ဝေမျှပါ / ကော်ပီကူးပါ ... </string>
   <string name="show_versenumbers">အခန်းငယ် နံပါတ်များကိုပြပါ</string>
   <string name="show_full_verses">အခန်းငယ်များကို အပြည့်ပြပါ / အခန်းငယ်အားလုံးကို ပြပါ။ </string>
@@ -621,7 +617,6 @@ open context menu သို့မဟုတ် action mode ကိုကြာက�
   <string name="abbreviate_reference">ကိုးကားချက် အတိုကောက်</string>
   <string name="version_name">ဗားရှင်း အမည်</string>
   <!--meaning, bible version name-->
-  <string name="backup_button">အရန်ဖိုင်</string>
   <string name="initializing_app">အက်ပလီကေးရှင်းကို စတင်ခြင်း... </string>
   <string name="show_notes">မှတ်စုများကို ပြပါ</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->

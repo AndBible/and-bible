@@ -187,7 +187,6 @@
   <string name="prefs_noise_summary">在背景增加噪點或會另視覺上更舒服</string>
   <!--Window-->
   <string name="new_window">新視窗</string>
-  <string name="windowClose">關閉</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
@@ -582,7 +581,7 @@ http://www.heartlight.org 准予使用
   <string name="delete_workspace">移除</string>
   <string name="new_copied_workspace">建立複本</string>
   <string name="workspace_number">工作區 %d</string>
-  <string name="rename_workspace">重新命名</string>
+  <string name="rename">重新命名</string>
   <string name="workspace_selector_title">選擇工作區</string>
   <string name="workspace_settings">設定...</string>
   <string name="give_name_workspace">命名予新工作區</string>
@@ -594,7 +593,7 @@ http://www.heartlight.org 准予使用
   <string name="select_all">全選</string>
   <string name="copy_settings_workspaces_title">複製設定至哪個工作區？</string>
   <string name="reset_settings">重設</string>
-  <string name="workspace_dismiss">取消</string>
+  <string name="dismiss">取消</string>
   <string name="workspace_listing_with_current">%s(現時)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">這是beta版本！</string>
@@ -608,7 +607,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="beta_notice_content_3">如果你是程式員，請考慮透過 %s 參與除錯。 :-)</string>
   <string name="beta_notice_github_issues">Github問題</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">關閉</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
   <string name="stable_notice_title">程式已更新！</string>
   <string name="upgrade_video_message">請參看影片以觀看此版本的新功能 (%s)。</string>
@@ -710,8 +708,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tell_friend_message3">在 Play Store 中安裝：%s</string>
   <string name="tell_friend_message4">閱讀更多及更多安裝選項：%s</string>
   <string name="share_verse_ok">分享 / 複製</string>
-  <string name="verse_action_copy">複製</string>
-  <string name="generic_share">分享</string>
   <string name="share_verse_menu_title">分享 / 複製...</string>
   <string name="show_versenumbers">顯示節數</string>
   <string name="show_full_verses">顯原完整經文</string>
@@ -726,7 +722,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="show_version_name">加入版本名稱</string>
   <string name="show_ellipsis">顯示省略號 (...)</string>
   <string name="show_quotes">顯示引號</string>
-  <string name="backup_button">備份</string>
   <string name="initializing_app">正在啟動程式...</string>
   <string name="show_notes">顯示筆記</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->

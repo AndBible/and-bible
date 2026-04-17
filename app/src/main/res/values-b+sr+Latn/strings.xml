@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Novi prozor</string>
-  <string name="windowClose">Zatvori</string>
   <string name="windowMaximise">Maksimiziraj</string>
   <string name="windowMinimise">Minimiziraj</string>
   <string name="windowSynchronise">Uskladi</string>
@@ -743,7 +742,7 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="delete_workspace">Ukloni</string>
   <string name="new_copied_workspace">Prekopiraj kao novo</string>
   <string name="workspace_number">Radna površ %d</string>
-  <string name="rename_workspace">Preimenuj</string>
+  <string name="rename">Preimenuj</string>
   <string name="workspace_selector_title">Izaberi radnu površ</string>
   <string name="workspace_settings">Postavke...</string>
   <string name="give_name_workspace">Dodeli ime za novu radnu površ</string>
@@ -756,7 +755,7 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="copy_settings_workspaces_title">Na koju radnu površ želite iskopirati postavke?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Podešavanja pretrage</string>
-  <string name="workspace_dismiss">Otkaži</string>
+  <string name="dismiss">Otkaži</string>
   <string name="workspace_listing_with_current">%s (trenutno)</string>
 
     <!-- Beta notice -->
@@ -775,7 +774,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
         razrešavanju grešaka putem %s . :-)</string>
   <string name="beta_notice_github_issues">Githab problemi</string>
   <string name="beta_notice_github">Githab</string>
-  <string name="beta_notice_dismiss">Otkaži</string>
   <string name="beta_notice_dismiss_until_update">Skloni do sledećeg ažuriranja</string>
 
   <string name="stable_notice_title">Aplikacija je ažurirana!</string>
@@ -936,8 +934,6 @@ Spisak prethodnih knjiga/dokumenata je pronađena. Pritisnite ispod kako biste i
   <string name="tell_friend_message4">Pročitajte više &amp; više instalacionih opcija: %s</string>
   <string name="share_verse_ok">Podeli / Kopiraj</string>
   <string name="web_search">Pretraga na webu</string>
-  <string name="verse_action_copy">Kopiraj</string>
-  <string name="generic_share">Deli</string>
   <string name="share_verse_menu_title">Podeli / kopiraj...</string>
   <string name="show_versenumbers">Prikaži brojeve stihova</string>
   <string name="show_full_verses">Prikaži cele stihove</string>
@@ -954,7 +950,6 @@ Spisak prethodnih knjiga/dokumenata je pronađena. Pritisnite ispod kako biste i
   <string name="show_quotes">Prikaži citate</string>
   <string name="separate_verses_with_newlines">Odvoji stihove novim redovima</string>
 
-  <string name="backup_button">Rezervna kopija</string>
   <string name="initializing_app">Inicijalizacija aplikacije...</string>
   <string name="show_notes">Pokaži beleške</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1399,7 +1394,6 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="ai_models_summary_none">Nije konfigurisan nijedan model</string>
   <string name="ai_add_provider">Dodaj pružaoca</string>
   <string name="ai_provider_edit">Uredi</string>
-  <string name="ai_provider_delete">Obriši</string>
   <string name="ai_provider_delete_confirm">Obrisati pružaoca \"%1$s\"? Upiti koji koriste ovog pružaoca vratiće se na podrazumevani.</string>
   <string name="ai_provider_api_key_not_set">API ključ nije postavljen</string>
   <string name="ai_provider_select_type">Izaberite vrstu pružaoca</string>
@@ -1417,7 +1411,6 @@ Nemojte više prikazivati ovu poruku ponovo</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeli</string>
   <string name="add_model">Dodaj model</string>
-  <string name="add_model_title">Dodaj model</string>
   <string name="edit_model_title">Uredi model</string>
   <string name="model_saved">Model sačuvan</string>
   <string name="model_deleted">Model obrisan</string>
@@ -1492,7 +1485,6 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="addon_prompt_notice">Ovaj upit je iz modula dodatka \"%s\" i ne može se uređivati. Koristite „Kopiraj za prilagođavanje" da kreirate uređujuću kopiju.</string>
   <string name="new_category">Nova kategorija</string>
   <string name="new_category_name">Naziv kategorije</string>
-  <string name="rename_category">Preimenuj</string>
   <string name="move_category_up">Pomeri gore</string>
   <string name="move_category_down">Pomeri dole</string>
   <string name="hide_category">Sakrij iz VI radnji</string>
@@ -1778,22 +1770,16 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Kreiraj novi dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
-  <string name="my_document_edit_description_title">Uredi opis</string>
   <string name="my_document_delete_confirmation">Obrisati dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">VI dokumenti se ne mogu obrisati dok sadrže stranice. Najpre obrišite stranice.</string>
   <string name="my_document_save_changes">Sačuvati izmene?</string>
   <string name="my_document_no_description">Bez opisa</string>
-  <string name="my_document_rename">Preimenuj</string>
   <string name="my_document_edit_description">Uredi opis</string>
-  <string name="my_document_delete">Obriši</string>
 
   <string name="my_document_pages_title">%s - Stranice</string>
   <string name="my_document_pages_empty">Nema stranica u ovom dokumentu.</string>
   <string name="my_document_page_rename_title">Preimenuj stranicu</string>
   <string name="my_document_page_delete_confirmation">Obrisati stranicu \"%s\"?</string>
-  <string name="my_document_page_rename">Preimenuj</string>
-  <string name="my_document_page_delete">Obriši</string>
-  <string name="my_document_page_export">Izvezi</string>
   <string name="my_document_new_page_name">Stranica %1$d</string>
   <string name="my_document_create_page_title">Nova stranica</string>
   <string name="my_document_content_type_label">Vrsta sadržaja</string>
@@ -1813,12 +1799,10 @@ Nemojte više prikazivati ovu poruku ponovo</string>
 
   <string name="prefs_page_scroll_amount_title">Količina listanja stranice</string>
   <string name="prefs_page_scroll_amount_summary">Koliko stranice listati sa listanjem gore/dole</string>
-  <string name="page_scroll_amount_dialog_title">Količina listanja stranice</string>
   <string name="prefs_scroll_helper_lines_title">Pomoćne linije za listanje</string>
   <string name="prefs_scroll_helper_lines_summary">Prikaži horizontalne vodilice na granicama listanja stranica</string>
   <string name="prefs_scroll_helper_line_style_title">Stil pomoćne linije</string>
   <string name="prefs_scroll_helper_line_style_summary">Izaberite vizuelni stil pomoćnih linija za listanje</string>
-  <string name="scroll_helper_line_style_dialog_title">Stil pomoćne linije</string>
   <string name="scroll_helper_line_style_thin_dotted">Tanka tačkasta linija</string>
   <string name="scroll_helper_line_style_thin_solid">Tanka puna linija</string>
   <string name="scroll_helper_line_style_thick_solid">Debela puna linija</string>

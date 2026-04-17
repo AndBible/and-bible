@@ -280,7 +280,6 @@
 
     <!-- Window -->
   <string name="new_window">חלון חדש</string>
-  <string name="windowClose">סגור</string>
   <string name="windowMaximise">הגדל</string>
   <string name="windowMinimise">הקטן</string>
   <string name="windowSynchronise">סנכרון</string>
@@ -707,7 +706,7 @@
   <string name="delete_workspace">הסרה</string>
   <string name="new_copied_workspace">העתק כחדש</string>
   <string name="workspace_number">סביבת עבודה %d</string>
-  <string name="rename_workspace">שינוי שם</string>
+  <string name="rename">שינוי שם</string>
   <string name="workspace_selector_title">בחירת סביבת עבודה</string>
   <string name="workspace_settings">הגדרות...</string>
   <string name="give_name_workspace">בחירת שם לסביבה החדשה</string>
@@ -720,7 +719,7 @@
   <string name="copy_settings_workspaces_title">לאיזו סביבת עבודה להעתיק את ההגדרות?</string>
   <string name="reset_settings">איפוס</string>
   <string name="search_settings">הגדרות חיפוש</string>
-  <string name="workspace_dismiss">התעלם</string>
+  <string name="dismiss">התעלם</string>
   <string name="workspace_listing_with_current">%s (נוכחי)</string>
 
     <!-- Beta notice -->
@@ -738,7 +737,6 @@
   <string name="beta_notice_content_3">אם אתה מתכנת, אולי תוכל לעזור לנו לפתור באגים כאן %s  בעצמך :-)</string>
   <string name="beta_notice_github_issues">נושאי Github </string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">התעלם</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
 
   <string name="stable_notice_title">האפליקציה עברה שדרוג!</string>
@@ -876,8 +874,6 @@
   <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
   <string name="web_search">חיפוש ברשת</string>
-  <string name="verse_action_copy">העתק</string>
-  <string name="generic_share">שתף</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
   <string name="show_versenumbers">הצג מספרי פסוקים</string>
   <string name="show_full_verses">הצג פסוקים מלאים</string>
@@ -894,7 +890,6 @@
   <string name="show_quotes">הצג ציטוטים</string>
   <string name="separate_verses_with_newlines">הפרד פסוקים בשורות חדשות</string>
 
-  <string name="backup_button">גיבוי</string>
   <string name="initializing_app">מאתחל את היישום</string>
   <string name="show_notes">הצג הערות</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1325,7 +1320,6 @@
   <string name="ai_models_summary_none">לא הוגדרו מודלים</string>
   <string name="ai_add_provider">הוסף ספק</string>
   <string name="ai_provider_edit">ערוך</string>
-  <string name="ai_provider_delete">מחק</string>
   <string name="ai_provider_delete_confirm">למחוק ספק \"%1$s\"? הנחיות המשתמשות בספק זה יחזרו לברירת המחדל.</string>
   <string name="ai_provider_api_key_not_set">מפתח API לא הוגדר</string>
   <string name="ai_provider_select_type">בחר סוג ספק</string>
@@ -1343,7 +1337,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">מודלים</string>
   <string name="add_model">הוסף מודל</string>
-  <string name="add_model_title">הוסף מודל</string>
   <string name="edit_model_title">ערוך מודל</string>
   <string name="model_saved">המודל נשמר</string>
   <string name="model_deleted">המודל נמחק</string>
@@ -1418,7 +1411,6 @@
   <string name="addon_prompt_notice">הנחיה זו היא ממודול תוסף \"%s\" ולא ניתן לערוך אותה. השתמש ב"העתק להתאמה" כדי ליצור עותק ניתן לעריכה.</string>
   <string name="new_category">קטגוריה חדשה</string>
   <string name="new_category_name">שם קטגוריה</string>
-  <string name="rename_category">שינוי שם</string>
   <string name="move_category_up">הזז למעלה</string>
   <string name="move_category_down">הזז למטה</string>
   <string name="hide_category">הסתר מפעולות בינה מלאכותית</string>
@@ -1704,22 +1696,16 @@
   <string name="my_document_new_name">מסמך %d</string>
   <string name="my_document_create_title">צור מסמך חדש</string>
   <string name="my_document_rename_title">שנה שם מסמך</string>
-  <string name="my_document_edit_description_title">ערוך תיאור</string>
   <string name="my_document_delete_confirmation">למחוק מסמך \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">לא ניתן למחוק מסמכי בינה מלאכותית כשהם מכילים עמודים. מחק את העמודים תחילה.</string>
   <string name="my_document_save_changes">לשמור שינויים?</string>
   <string name="my_document_no_description">אין תיאור</string>
-  <string name="my_document_rename">שנה שם</string>
   <string name="my_document_edit_description">ערוך תיאור</string>
-  <string name="my_document_delete">מחק</string>
 
   <string name="my_document_pages_title">%s - עמודים</string>
   <string name="my_document_pages_empty">אין עמודים במסמך זה.</string>
   <string name="my_document_page_rename_title">שנה שם עמוד</string>
   <string name="my_document_page_delete_confirmation">למחוק עמוד \"%s\"?</string>
-  <string name="my_document_page_rename">שנה שם</string>
-  <string name="my_document_page_delete">מחק</string>
-  <string name="my_document_page_export">יצא</string>
   <string name="my_document_new_page_name">עמוד %1$d</string>
   <string name="my_document_create_page_title">עמוד חדש</string>
   <string name="my_document_content_type_label">סוג תוכן</string>
@@ -1739,12 +1725,10 @@
 
   <string name="prefs_page_scroll_amount_title">כמות גלילת עמוד</string>
   <string name="prefs_page_scroll_amount_summary">כמה מהעמוד לגלול עם עמוד למעלה/למטה</string>
-  <string name="page_scroll_amount_dialog_title">כמות גלילת עמוד</string>
   <string name="prefs_scroll_helper_lines_title">קווי עזר לגלילה</string>
   <string name="prefs_scroll_helper_lines_summary">הצג קווים מנחים אופקיים בגבולות גלילת עמוד</string>
   <string name="prefs_scroll_helper_line_style_title">סגנון קו עזר</string>
   <string name="prefs_scroll_helper_line_style_summary">בחר את הסגנון החזותי של קווי עזר הגלילה</string>
-  <string name="scroll_helper_line_style_dialog_title">סגנון קו עזר</string>
   <string name="scroll_helper_line_style_thin_dotted">קו מנוקד דק</string>
   <string name="scroll_helper_line_style_thin_solid">קו רציף דק</string>
   <string name="scroll_helper_line_style_thick_solid">קו רציף עבה</string>

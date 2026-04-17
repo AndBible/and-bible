@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Nytt fönster</string>
-  <string name="windowClose">Stäng</string>
   <string name="windowMaximise">Maximera</string>
   <string name="windowMinimise">Minimera</string>
   <string name="windowSynchronise">Synkronisera</string>
@@ -730,7 +729,7 @@ i GT och NT varje dag.
   <string name="delete_workspace">Radera</string>
   <string name="new_copied_workspace">Kopiera som ny</string>
   <string name="workspace_number">Arbetsyta %d</string>
-  <string name="rename_workspace">Byt namn</string>
+  <string name="rename">Byt namn</string>
   <string name="workspace_selector_title">Välj arbetsyta</string>
   <string name="workspace_settings">Inställningar...</string>
   <string name="give_name_workspace">Ge ett namn till arbetsytan</string>
@@ -743,7 +742,7 @@ i GT och NT varje dag.
   <string name="copy_settings_workspaces_title">Till vilka arbetsytor vill du kopiera inställningarna?</string>
   <string name="reset_settings">Återställ</string>
   <string name="search_settings">Sökinställningar</string>
-  <string name="workspace_dismiss">Avböj</string>
+  <string name="dismiss">Avböj</string>
   <string name="workspace_listing_with_current">%s (nuvarande)</string>
 
     <!-- Beta notice -->
@@ -762,7 +761,6 @@ i GT och NT varje dag.
         själv bidra med buggfixar på %s :-)</string>
   <string name="beta_notice_github_issues">Github problem</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Avböj</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
 
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
@@ -929,8 +927,6 @@ i GT och NT varje dag.
   <string name="tell_friend_message4">Läs mer &amp; fler installationsalternativ: %s</string>
   <string name="share_verse_ok">Dela/kopiera</string>
   <string name="web_search">Webbsökning</string>
-  <string name="verse_action_copy">Kopiera</string>
-  <string name="generic_share">Dela</string>
   <string name="share_verse_menu_title">Dela/kopiera...</string>
   <string name="show_versenumbers">Visa versnummer</string>
   <string name="show_full_verses">Visa fullständiga verser</string>
@@ -947,7 +943,6 @@ i GT och NT varje dag.
   <string name="show_quotes">Visa citattecken</string>
   <string name="separate_verses_with_newlines">Separera verser med radbrytningar</string>
 
-  <string name="backup_button">Säkerhetskopiera</string>
   <string name="initializing_app">Läser in app...</string>
   <string name="show_notes">Visa anteckningar</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1412,7 +1407,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_models_summary_none">Inga modeller konfigurerade</string>
   <string name="ai_add_provider">Lägg till leverantör</string>
   <string name="ai_provider_edit">Redigera</string>
-  <string name="ai_provider_delete">Radera</string>
   <string name="ai_provider_delete_confirm">Radera leverantören \"%1$s\"? Promptar som använder denna leverantör återgår till standardvärdet.</string>
   <string name="ai_provider_api_key_not_set">API-nyckel ej angiven</string>
   <string name="ai_provider_select_type">Välj leverantörstyp</string>
@@ -1430,7 +1424,6 @@ vänligen rapportera problemen till dem som underhåller texten
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Lägg till modell</string>
-  <string name="add_model_title">Lägg till modell</string>
   <string name="edit_model_title">Redigera modell</string>
   <string name="model_saved">Modell sparad</string>
   <string name="model_deleted">Modell borttagen</string>
@@ -1505,7 +1498,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="addon_prompt_notice">Den här prompten kommer från tilläggsmodulen \"%s\" och kan inte redigeras. Använd \"Kopiera för att anpassa\" för att skapa en redigerbar kopia.</string>
   <string name="new_category">Ny kategori</string>
   <string name="new_category_name">Kategorinamn</string>
-  <string name="rename_category">Byt namn</string>
   <string name="move_category_up">Flytta upp</string>
   <string name="move_category_down">Flytta ned</string>
   <string name="hide_category">Dölj från AI-åtgärder</string>
@@ -1791,22 +1783,16 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Skapa nytt dokument</string>
   <string name="my_document_rename_title">Byt namn på dokument</string>
-  <string name="my_document_edit_description_title">Redigera beskrivning</string>
   <string name="my_document_delete_confirmation">Ta bort dokumentet \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokument kan inte tas bort medan det innehåller sidor. Ta bort sidorna först.</string>
   <string name="my_document_save_changes">Spara ändringar?</string>
   <string name="my_document_no_description">Ingen beskrivning</string>
-  <string name="my_document_rename">Byt namn</string>
   <string name="my_document_edit_description">Redigera beskrivning</string>
-  <string name="my_document_delete">Ta bort</string>
 
   <string name="my_document_pages_title">%s - Sidor</string>
   <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_page_rename_title">Byt namn på sida</string>
   <string name="my_document_page_delete_confirmation">Ta bort sidan \"%s\"?</string>
-  <string name="my_document_page_rename">Byt namn</string>
-  <string name="my_document_page_delete">Ta bort</string>
-  <string name="my_document_page_export">Exportera</string>
   <string name="my_document_new_page_name">Sida %1$d</string>
   <string name="my_document_create_page_title">Ny sida</string>
   <string name="my_document_content_type_label">Innehållstyp</string>
@@ -1826,12 +1812,10 @@ vänligen rapportera problemen till dem som underhåller texten
 
   <string name="prefs_page_scroll_amount_title">Sidrullningsmängd</string>
   <string name="prefs_page_scroll_amount_summary">Hur stor del av sidan som scrollas med sidupp/ned</string>
-  <string name="page_scroll_amount_dialog_title">Sidrullningsmängd</string>
   <string name="prefs_scroll_helper_lines_title">Rullningshjälpslinjer</string>
   <string name="prefs_scroll_helper_lines_summary">Visa horisontella guidelinjer vid sidrullningsgränser</string>
   <string name="prefs_scroll_helper_line_style_title">Hjälplinjestil</string>
   <string name="prefs_scroll_helper_line_style_summary">Välj visuell stil för rullningshjälpslinjer</string>
-  <string name="scroll_helper_line_style_dialog_title">Hjälplinjestil</string>
   <string name="scroll_helper_line_style_thin_dotted">Tunn prickad linje</string>
   <string name="scroll_helper_line_style_thin_solid">Tunn heldragen linje</string>
   <string name="scroll_helper_line_style_thick_solid">Tjock heldragen linje</string>

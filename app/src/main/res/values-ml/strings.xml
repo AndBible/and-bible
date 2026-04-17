@@ -82,7 +82,6 @@
   <string name="colors_night_mode_title">രാത്രി രീതി</string>
   <!--Window-->
   <string name="new_window">പുതിയ ജാലകം</string>
-  <string name="windowClose">അടക്കുക</string>
   <string name="windowMaximise">വലുതാക്കുക</string>
   <string name="windowMinimise">ചെറുതാക്കുക</string>
   <string name="windowSynchronise">ഒരുപോലെയാക്കുക</string>
@@ -227,7 +226,7 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
   <!--Workspaces-->
-  <string name="rename_workspace">പേര് മാറ്റുക</string>
+  <string name="rename">പേര് മാറ്റുക</string>
   <string name="save_and_exit">സൂക്ഷിക്കു</string>
   <string name="reset_settings">പുനഃരാരംഭിക്കൂ</string>
   <!--Beta notice-->
@@ -238,9 +237,7 @@
   <string name="close">അടക്കുക</string>
   <string name="my_notes_abbreviation">എന്റെ കുറിപ്പുകൾ</string>
   <string name="compare_description">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
-  <string name="verse_action_copy">കോപ്പി</string>
   <string name="show_versenumbers">വാക്യങ്ങളുടെ അക്കങ്ങൾ കാണിക്കുക</string>
-  <string name="backup_button">സംരക്ഷിക്കൂ</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

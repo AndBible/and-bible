@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">नयाँ विन्डो</string>
-  <string name="windowClose">बन्द गर्नुहोस्</string>
   <string name="windowMaximise">अधिकतम गर्नुहोस्</string>
   <string name="windowMinimise">न्यूनतम गर्नुहोस्</string>
   <string name="windowSynchronise">समन्वय गर्नुहोस्</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">हटाउनुहोस्</string>
   <string name="new_copied_workspace">नयाँको रूपमा प्रतिलिपि</string>
   <string name="workspace_number">कार्यक्षेत्र %d</string>
-  <string name="rename_workspace">नाम बदल्नुहोस्</string>
+  <string name="rename">नाम बदल्नुहोस्</string>
   <string name="workspace_selector_title">कार्यक्षेत्र चयन गर्नुहोस्</string>
   <string name="workspace_settings">सेटिङहरू…</string>
   <string name="give_name_workspace">नयाँ कार्यक्षेत्रको लागि नाम दिनुहोस्</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">तपाईं कुन कार्यक्षेत्रहरूमा सेटिङहरू प्रतिलिपि गर्न चाहनुहुन्छ?</string>
   <string name="reset_settings">रिसेट</string>
   <string name="search_settings">सेटिङहरू खोज्नुहोस्</string>
-  <string name="workspace_dismiss">खारेज गर्नुहोस्</string>
+  <string name="dismiss">खारेज गर्नुहोस्</string>
   <string name="workspace_listing_with_current">%s (हालको)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">यदि तपाईं प्रोग्रामर हुनुहुन्छ भने, कृपया %s मार्फत आफैं बग सुधार गर्न सोच्नुहोस्। :-)</string>
   <string name="beta_notice_github_issues">Github समस्याहरू</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">खारेज गर्नुहोस्</string>
   <string name="beta_notice_dismiss_until_update">अर्को अपडेटसम्म खारेज गर्नुहोस्</string>
 
   <string name="stable_notice_title">अनुप्रयोग अपग्रेड गरियो!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">थप पढ्नुहोस् र थप स्थापना विकल्पहरू: %s</string>
   <string name="share_verse_ok">साझा / प्रतिलिपि</string>
   <string name="web_search">वेब खोज</string>
-  <string name="verse_action_copy">प्रतिलिपि</string>
-  <string name="generic_share">साझा गर्नुहोस्</string>
   <string name="share_verse_menu_title">साझा / प्रतिलिपि…</string>
   <string name="show_versenumbers">श्लोक नम्बरहरू देखाउनुहोस्</string>
   <string name="show_full_verses">पूर्ण श्लोकहरू देखाउनुहोस्</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">उद्धरणहरू देखाउनुहोस्</string>
   <string name="separate_verses_with_newlines">श्लोकहरू नयाँ रेखाहरूसँग छुट्याउनुहोस्</string>
 
-  <string name="backup_button">ब्याकअप र पुनर्स्थापना</string>
   <string name="initializing_app">अनुप्रयोग प्रारम्भ गर्दैछ…</string>
   <string name="show_notes">टिप्पणीहरू देखाउनुहोस्</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">कुनै मोडलहरू कन्फिगर गरिएका छैनन्</string>
   <string name="ai_add_provider">प्रदायक थप्नुहोस्</string>
   <string name="ai_provider_edit">सम्पादन</string>
-  <string name="ai_provider_delete">मेट्नुहोस्</string>
   <string name="ai_provider_delete_confirm">प्रदायक \"%1$s\" मेट्ने? यो प्रदायक प्रयोग गर्ने प्रम्प्टहरू पूर्वनिर्धारितमा फर्कनेछन्।</string>
   <string name="ai_provider_api_key_not_set">API कुञ्जी सेट गरिएको छैन</string>
   <string name="ai_provider_select_type">प्रदायक प्रकार चयन गर्नुहोस्</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">मोडलहरू</string>
   <string name="add_model">मोडल थप्नुहोस्</string>
-  <string name="add_model_title">मोडल थप्नुहोस्</string>
   <string name="edit_model_title">मोडल सम्पादन गर्नुहोस्</string>
   <string name="model_saved">मोडल सुरक्षित गरियो</string>
   <string name="model_deleted">मोडल मेटियो</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">यो प्रम्प्ट add-on module \"%s\" बाट हो र सम्पादन गर्न सकिँदैन। सम्पादन योग्य प्रतिलिपि बनाउन \"अनुकूलन गर्न प्रतिलिपि\" प्रयोग गर्नुहोस्।</string>
   <string name="new_category">नयाँ श्रेणी</string>
   <string name="new_category_name">श्रेणीको नाम</string>
-  <string name="rename_category">नाम बदल्नुहोस्</string>
   <string name="move_category_up">माथि सार्नुहोस्</string>
   <string name="move_category_down">तल सार्नुहोस्</string>
   <string name="hide_category">AI कार्यहरूबाट लुकाउनुहोस्</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">कागजात %d</string>
   <string name="my_document_create_title">नयाँ कागजात बनाउनुहोस्</string>
   <string name="my_document_rename_title">कागजातको नाम बदल्नुहोस्</string>
-  <string name="my_document_edit_description_title">विवरण सम्पादन गर्नुहोस्</string>
   <string name="my_document_delete_confirmation">कागजात \"%s\" मेट्ने?</string>
   <string name="my_document_cannot_delete_ai_documents">AI कागजातहरूमा पृष्ठहरू हुँदासम्म मेट्न सकिँदैन। पहिले पृष्ठहरू मेट्नुहोस्।</string>
   <string name="my_document_save_changes">परिवर्तनहरू सुरक्षित गर्ने?</string>
   <string name="my_document_no_description">कुनै विवरण छैन</string>
-  <string name="my_document_rename">नाम बदल्नुहोस्</string>
   <string name="my_document_edit_description">विवरण सम्पादन गर्नुहोस्</string>
-  <string name="my_document_delete">मेट्नुहोस्</string>
 
   <string name="my_document_pages_title">%s - पृष्ठहरू</string>
   <string name="my_document_pages_empty">यो कागजातमा कुनै पृष्ठहरू छैनन्।</string>
   <string name="my_document_page_rename_title">पृष्ठको नाम बदल्नुहोस्</string>
   <string name="my_document_page_delete_confirmation">पृष्ठ \"%s\" मेट्ने?</string>
-  <string name="my_document_page_rename">नाम बदल्नुहोस्</string>
-  <string name="my_document_page_delete">मेट्नुहोस्</string>
-  <string name="my_document_page_export">निर्यात</string>
   <string name="my_document_new_page_name">पृष्ठ %1$d</string>
   <string name="my_document_create_page_title">नयाँ पृष्ठ</string>
   <string name="my_document_content_type_label">सामग्री प्रकार</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">पृष्ठ स्क्रोल मात्रा</string>
   <string name="prefs_page_scroll_amount_summary">पृष्ठ माथि/तलसँग पृष्ठको कति भाग स्क्रोल गर्ने</string>
-  <string name="page_scroll_amount_dialog_title">पृष्ठ स्क्रोल मात्रा</string>
   <string name="prefs_scroll_helper_lines_title">स्क्रोल सहायक रेखाहरू</string>
   <string name="prefs_scroll_helper_lines_summary">पृष्ठ स्क्रोल सीमाहरूमा तेर्सो गाइड रेखाहरू देखाउनुहोस्</string>
   <string name="prefs_scroll_helper_line_style_title">सहायक रेखाको शैली</string>
   <string name="prefs_scroll_helper_line_style_summary">स्क्रोल सहायक रेखाहरूको दृश्य शैली छान्नुहोस्</string>
-  <string name="scroll_helper_line_style_dialog_title">सहायक रेखाको शैली</string>
   <string name="scroll_helper_line_style_thin_dotted">पातलो बिन्दुयुक्त रेखा</string>
   <string name="scroll_helper_line_style_thin_solid">पातलो ठोस रेखा</string>
   <string name="scroll_helper_line_style_thick_solid">मोटो ठोस रेखा</string>

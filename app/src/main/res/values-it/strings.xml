@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nuova finestra</string>
-  <string name="windowClose">Chiudi</string>
   <string name="windowMaximise">Massimizza</string>
   <string name="windowMinimise">Minimizza</string>
   <string name="windowSynchronise">Sincronizza</string>
@@ -696,7 +695,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="delete_workspace">Rimuovi</string>
   <string name="new_copied_workspace">Copia come nuovo</string>
   <string name="workspace_number">Lavoro %d</string>
-  <string name="rename_workspace">Rinomina</string>
+  <string name="rename">Rinomina</string>
   <string name="workspace_selector_title">Seleziona gli spazi di lavoro</string>
   <string name="workspace_settings">Impostazioni…</string>
   <string name="give_name_workspace">Dai un nome al nuovo spazio di lavoro</string>
@@ -709,7 +708,7 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="copy_settings_workspaces_title">In quali spazi di lavoro vuoi copiare le impostazioni?</string>
   <string name="reset_settings">Ripristina</string>
   <string name="search_settings">Impostazioni di ricerca</string>
-  <string name="workspace_dismiss">Abbandona</string>
+  <string name="dismiss">Abbandona</string>
   <string name="workspace_listing_with_current">%s (corrente)</string>
 
     <!-- Beta notice -->
@@ -722,7 +721,6 @@ Gli utenti beta sono incoraggiati a segnalare bug tramite Google Play o (preferi
   <string name="beta_notice_content_3">Se sei un programmatore, prendi in considerazione la possibilità di contribuire con dei bug fix tramite %s :-)</string>
   <string name="beta_notice_github_issues">Problemi Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Chiudi</string>
   <string name="beta_notice_dismiss_until_update">Ignora fino al prossimo aggiornamento</string>
 
   <string name="stable_notice_title">L\'applicazione è stata aggiornata!</string>
@@ -870,8 +868,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="tell_friend_message4">Altre informazioni e opzioni di installazione: %s</string>
   <string name="share_verse_ok">Condividi / Copia</string>
   <string name="web_search">Ricerca web</string>
-  <string name="verse_action_copy">Copia</string>
-  <string name="generic_share">Condividi</string>
   <string name="share_verse_menu_title">Condividi / copia...</string>
   <string name="show_versenumbers">Mostra i numeri dei versetti</string>
   <string name="show_full_verses">Mostra i versetti completi</string>
@@ -888,7 +884,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="show_quotes">Mostra virgolette</string>
   <string name="separate_verses_with_newlines">Separa i versi con nuove righe</string>
 
-  <string name="backup_button">Backup</string>
   <string name="initializing_app">Inizializzo l\'applicazione...</string>
   <string name="show_notes">Mostra annotazioni</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1354,7 +1349,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="ai_models_summary_none">Nessun modello configurato</string>
   <string name="ai_add_provider">Aggiungi fornitore</string>
   <string name="ai_provider_edit">Modifica</string>
-  <string name="ai_provider_delete">Elimina</string>
   <string name="ai_provider_delete_confirm">Eliminare il fornitore \"%1$s\"? I prompt che utilizzano questo fornitore torneranno a quello predefinito.</string>
   <string name="ai_provider_api_key_not_set">Chiave API non impostata</string>
   <string name="ai_provider_select_type">Seleziona tipo di fornitore</string>
@@ -1372,7 +1366,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     <!-- Configured models management -->
   <string name="ai_models_category">Modelli</string>
   <string name="add_model">Aggiungi modello</string>
-  <string name="add_model_title">Aggiungi modello</string>
   <string name="edit_model_title">Modifica modello</string>
   <string name="model_saved">Modello salvato</string>
   <string name="model_deleted">Modello eliminato</string>
@@ -1447,7 +1440,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="addon_prompt_notice">Questo prompt proviene dal modulo aggiuntivo \"%s\" e non può essere modificato. Usa «Copia per personalizzare» per creare una copia modificabile.</string>
   <string name="new_category">Nuova categoria</string>
   <string name="new_category_name">Nome categoria</string>
-  <string name="rename_category">Rinomina</string>
   <string name="move_category_up">Sposta su</string>
   <string name="move_category_down">Sposta giù</string>
   <string name="hide_category">Nascondi dalle azioni IA</string>
@@ -1733,22 +1725,16 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="my_document_new_name">Documento %d</string>
   <string name="my_document_create_title">Crea nuovo documento</string>
   <string name="my_document_rename_title">Rinomina documento</string>
-  <string name="my_document_edit_description_title">Modifica descrizione</string>
   <string name="my_document_delete_confirmation">Eliminare il documento \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">I documenti IA non possono essere eliminati finché contengono pagine. Elimina prima le pagine.</string>
   <string name="my_document_save_changes">Salvare le modifiche?</string>
   <string name="my_document_no_description">Nessuna descrizione</string>
-  <string name="my_document_rename">Rinomina</string>
   <string name="my_document_edit_description">Modifica descrizione</string>
-  <string name="my_document_delete">Elimina</string>
 
   <string name="my_document_pages_title">%s - Pagine</string>
   <string name="my_document_pages_empty">Nessuna pagina in questo documento.</string>
   <string name="my_document_page_rename_title">Rinomina pagina</string>
   <string name="my_document_page_delete_confirmation">Eliminare la pagina \"%s\"?</string>
-  <string name="my_document_page_rename">Rinomina</string>
-  <string name="my_document_page_delete">Elimina</string>
-  <string name="my_document_page_export">Esporta</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Nuova pagina</string>
   <string name="my_document_content_type_label">Tipo di contenuto</string>
@@ -1768,12 +1754,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
 
   <string name="prefs_page_scroll_amount_title">Quantità scorrimento pagina</string>
   <string name="prefs_page_scroll_amount_summary">Quanto della pagina scorrere con pagina su/giù</string>
-  <string name="page_scroll_amount_dialog_title">Quantità scorrimento pagina</string>
   <string name="prefs_scroll_helper_lines_title">Linee guida scorrimento</string>
   <string name="prefs_scroll_helper_lines_summary">Mostra linee guida orizzontali ai limiti di scorrimento pagina</string>
   <string name="prefs_scroll_helper_line_style_title">Stile linea guida</string>
   <string name="prefs_scroll_helper_line_style_summary">Scegli lo stile visivo delle linee guida di scorrimento</string>
-  <string name="scroll_helper_line_style_dialog_title">Stile linea guida</string>
   <string name="scroll_helper_line_style_thin_dotted">Linea sottile punteggiata</string>
   <string name="scroll_helper_line_style_thin_solid">Linea sottile continua</string>
   <string name="scroll_helper_line_style_thick_solid">Linea spessa continua</string>

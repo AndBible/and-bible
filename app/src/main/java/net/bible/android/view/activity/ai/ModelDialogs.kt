@@ -192,7 +192,7 @@ internal fun AiSettingsFragmentBase.showAddModelDialog(providerConfig: LlmProvid
     onModelSelected()
 
     AlertDialog.Builder(context)
-        .setTitle(R.string.add_model_title)
+        .setTitle(R.string.add_model)
         .setView(scrollView)
         .setPositiveButton(R.string.okay) { _, _ ->
             val pos = modelSpinner.selectedItemPosition
@@ -309,7 +309,7 @@ internal fun AiSettingsFragmentBase.showEditModelDialog(model: LlmConfiguredMode
             }
         }
         .setNegativeButton(R.string.cancel, null)
-        .setNeutralButton(R.string.ai_provider_delete) { _, _ ->
+        .setNeutralButton(R.string.delete) { _, _ ->
             confirmDeleteModel(model) {
                 refreshAll()
                 onDone()
@@ -320,7 +320,7 @@ internal fun AiSettingsFragmentBase.showEditModelDialog(model: LlmConfiguredMode
 
 internal fun AiSettingsFragmentBase.confirmDeleteModel(model: LlmConfiguredModel, onDone: () -> Unit) {
     AlertDialog.Builder(requireContext())
-        .setTitle(R.string.ai_provider_delete)
+        .setTitle(R.string.delete)
         .setMessage(getString(R.string.model_delete_confirm, model.displayName))
         .setPositiveButton(R.string.yes) { _, _ ->
             lifecycleScope.launch {

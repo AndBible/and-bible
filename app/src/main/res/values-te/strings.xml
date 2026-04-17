@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">కొత్త విండో</string>
-  <string name="windowClose">మూసివేయండి</string>
   <string name="windowMaximise">గరిష్టీకరించు</string>
   <string name="windowMinimise">తగ్గించు</string>
   <string name="windowSynchronise">సమకాలీకరించు</string>
@@ -732,7 +731,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="delete_workspace">తొలగించు</string>
   <string name="new_copied_workspace">కొత్తదిగా కాపీ చేయండి</string>
   <string name="workspace_number">కార్యస్థలం %d</string>
-  <string name="rename_workspace">మరొక పేరు పెట్టడం</string>
+  <string name="rename">మరొక పేరు పెట్టడం</string>
   <string name="workspace_selector_title">కార్యస్థలాన్ని ఎంచుకోండి</string>
   <string name="workspace_settings">సెట్టింగ్‌లు...</string>
   <string name="give_name_workspace">కొత్త కార్యస్థలానికి పేరు ఇవ్వండి</string>
@@ -745,7 +744,7 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="copy_settings_workspaces_title">మీరు ఏ కార్యస్థలాలకు సెట్టింగ్‌లను కాపీ చేయాలనుకుంటున్నారు?</string>
   <string name="reset_settings">మళ్లీ సెట్ చేయడం</string>
   <string name="search_settings">శోధన సెట్టింగులు</string>
-  <string name="workspace_dismiss">రద్దు చేయండి</string>
+  <string name="dismiss">రద్దు చేయండి</string>
   <string name="workspace_listing_with_current">%s (ప్రస్తుతం)</string>
 
     <!-- Beta notice -->
@@ -760,7 +759,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="beta_notice_content_3">మీరు ప్రోగ్రామర్ అయితే, దయచేసి మీరే %s ద్వారా బగ్ పరిష్కారాలను అందించడాన్ని పరిగణించండి. :-)</string>
   <string name="beta_notice_github_issues">Github సమస్యలు</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">రద్దు చేయండి</string>
   <string name="beta_notice_dismiss_until_update">తదుపరి నవీకరణ వరకు తీసివేయండి</string>
 
   <string name="stable_notice_title">అప్లికేషన్ అప్‌గ్రేడ్ చేయబడింది!</string>
@@ -918,8 +916,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="tell_friend_message4">%s మరింత చదవండి &amp; మరిన్ని ఇన్‌స్టాల్ ఎంపికలు:</string>
   <string name="share_verse_ok">భాగస్వామ్యం / కాపీ</string>
   <string name="web_search">వెబ్ శోధన</string>
-  <string name="verse_action_copy">కాపి</string>
-  <string name="generic_share">షేర్ చేయండి</string>
   <string name="share_verse_menu_title">భాగస్వామ్యం / కాపీ...</string>
   <string name="show_versenumbers">వచనాల సంఖ్యను చూపాలి</string>
   <string name="show_full_verses">పూర్తి వచనాలు చూపించు</string>
@@ -936,7 +932,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="show_quotes">కోట్‌లను చూపించు</string>
   <string name="separate_verses_with_newlines">వచనాలను కొత్త లైన్లతో వేరు చేయండి</string>
 
-  <string name="backup_button">బ్యాకప్</string>
   <string name="initializing_app">అప్లికేషన్‌ను ప్రారంభిస్తోంది...</string>
   <string name="show_notes">గమనికలను \"నోట్స్\" చూపించు</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1392,7 +1387,6 @@ Don\'t show this message again
   <string name="ai_models_summary_none">మోడళ్లు కాన్ఫిగర్ చేయబడలేదు</string>
   <string name="ai_add_provider">ప్రొవైడర్ జోడించు</string>
   <string name="ai_provider_edit">సవరించు</string>
-  <string name="ai_provider_delete">తొలగించు</string>
   <string name="ai_provider_delete_confirm">ప్రొవైడర్ \"%1$s\" తొలగించాలా? ఈ ప్రొవైడర్ ఉపయోగించే ప్రాంప్ట్‌లు డిఫాల్ట్‌కు తిరిగి వస్తాయి.</string>
   <string name="ai_provider_api_key_not_set">API కీ సెట్ చేయబడలేదు</string>
   <string name="ai_provider_select_type">ప్రొవైడర్ రకం ఎంచుకోండి</string>
@@ -1410,7 +1404,6 @@ Don\'t show this message again
     <!-- Configured models management -->
   <string name="ai_models_category">మోడళ్లు</string>
   <string name="add_model">మోడల్ జోడించు</string>
-  <string name="add_model_title">మోడల్ జోడించు</string>
   <string name="edit_model_title">మోడల్ సవరించు</string>
   <string name="model_saved">మోడల్ సేవ్ చేయబడింది</string>
   <string name="model_deleted">మోడల్ తొలగించబడింది</string>
@@ -1485,7 +1478,6 @@ Don\'t show this message again
   <string name="addon_prompt_notice">ఈ ప్రాంప్ట్ యాడ్-ఆన్ మాడ్యూల్ \"%s\" నుండి వచ్చింది మరియు సవరించలేరు. సవరించదగిన కాపీ సృష్టించడానికి \"అనుకూలీకరించడానికి కాపీ చేయండి\" ఉపయోగించండి.</string>
   <string name="new_category">కొత్త వర్గం</string>
   <string name="new_category_name">వర్గం పేరు</string>
-  <string name="rename_category">పేరు మార్చండి</string>
   <string name="move_category_up">పైకి తరలించు</string>
   <string name="move_category_down">కిందికి తరలించు</string>
   <string name="hide_category">AI చర్యల నుండి దాచు</string>
@@ -1771,22 +1763,16 @@ Don\'t show this message again
   <string name="my_document_new_name">పత్రం %d</string>
   <string name="my_document_create_title">కొత్త పత్రం సృష్టించు</string>
   <string name="my_document_rename_title">పత్రం పేరు మార్చు</string>
-  <string name="my_document_edit_description_title">వివరణ సవరించు</string>
   <string name="my_document_delete_confirmation">పత్రం \"%s\" తొలగించాలా?</string>
   <string name="my_document_cannot_delete_ai_documents">AI పత్రాల్లో పేజీలు ఉన్నప్పుడు తొలగించలేరు. ముందు పేజీలు తొలగించండి.</string>
   <string name="my_document_save_changes">మార్పులు సేవ్ చేయాలా?</string>
   <string name="my_document_no_description">వివరణ లేదు</string>
-  <string name="my_document_rename">పేరు మార్చు</string>
   <string name="my_document_edit_description">వివరణ సవరించు</string>
-  <string name="my_document_delete">తొలగించు</string>
 
   <string name="my_document_pages_title">%s - పేజీలు</string>
   <string name="my_document_pages_empty">ఈ పత్రంలో పేజీలు లేవు.</string>
   <string name="my_document_page_rename_title">పేజీ పేరు మార్చు</string>
   <string name="my_document_page_delete_confirmation">పేజీ \"%s\" తొలగించాలా?</string>
-  <string name="my_document_page_rename">పేరు మార్చు</string>
-  <string name="my_document_page_delete">తొలగించు</string>
-  <string name="my_document_page_export">ఎగుమతి</string>
   <string name="my_document_new_page_name">పేజీ %1$d</string>
   <string name="my_document_create_page_title">కొత్త పేజీ</string>
   <string name="my_document_content_type_label">కంటెంట్ రకం</string>
@@ -1806,12 +1792,10 @@ Don\'t show this message again
 
   <string name="prefs_page_scroll_amount_title">పేజీ స్క్రోల్ మొత్తం</string>
   <string name="prefs_page_scroll_amount_summary">పేజీ పైకి/కిందికి తో ఎంత పేజీ స్క్రోల్ చేయాలి</string>
-  <string name="page_scroll_amount_dialog_title">పేజీ స్క్రోల్ మొత్తం</string>
   <string name="prefs_scroll_helper_lines_title">స్క్రోల్ సహాయ రేఖలు</string>
   <string name="prefs_scroll_helper_lines_summary">పేజీ స్క్రోల్ సరిహద్దుల వద్ద అడ్డు గైడ్ రేఖలు చూపించు</string>
   <string name="prefs_scroll_helper_line_style_title">సహాయ రేఖ శైలి</string>
   <string name="prefs_scroll_helper_line_style_summary">స్క్రోల్ సహాయ రేఖల దృశ్య శైలి ఎంచుకోండి</string>
-  <string name="scroll_helper_line_style_dialog_title">సహాయ రేఖ శైలి</string>
   <string name="scroll_helper_line_style_thin_dotted">సన్నని చుక్కల రేఖ</string>
   <string name="scroll_helper_line_style_thin_solid">సన్నని ఘన రేఖ</string>
   <string name="scroll_helper_line_style_thick_solid">మందమైన ఘన రేఖ</string>

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Neues Fenster</string>
-  <string name="windowClose">Schließen</string>
   <string name="windowMaximise">Maximiere</string>
   <string name="windowMinimise">Minimiere</string>
   <string name="windowSynchronise">Synchronisierung</string>
@@ -697,7 +696,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="delete_workspace">Entfernen</string>
   <string name="new_copied_workspace">Als neu kopieren</string>
   <string name="workspace_number">Arbeitsbereich %d </string>
-  <string name="rename_workspace">Umbenennen</string>
+  <string name="rename">Umbenennen</string>
   <string name="workspace_selector_title">Arbeitsbereich auswählen</string>
   <string name="workspace_settings">Einstellungen...</string>
   <string name="give_name_workspace">Geben Sie dem neuen Arbeitsbereich einen Namen</string>
@@ -710,7 +709,7 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="copy_settings_workspaces_title">Auf welchen Arbeitsbereich wollen Sie die Einstellungen kopieren?</string>
   <string name="reset_settings">Zurücksetzen</string>
   <string name="search_settings">Sucheinstellungen</string>
-  <string name="workspace_dismiss">Verwerfen</string>
+  <string name="dismiss">Verwerfen</string>
   <string name="workspace_listing_with_current">%s (aktuell)</string>
 
     <!-- Beta notice -->
@@ -725,7 +724,6 @@ Benutzer der Beta-Version werden gebeten, Fehler über Google Play oder (bevorzu
   <string name="beta_notice_content_3">Wenn Sie Programmierer sind, wäre es schön, wenn Sie über %s selbst Fehlerbereinigungen beitragen könnten ;-)</string>
   <string name="beta_notice_github_issues">Fehlermeldungen auf Github </string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Verwerfen</string>
   <string name="beta_notice_dismiss_until_update">Bis zum nächsten Update verwerfen</string>
 
   <string name="stable_notice_title">Die Applikation hat ein Upgrade erhalten! </string>
@@ -871,8 +869,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="tell_friend_message4">Weitere Info &amp; Installationsoptionen: %s</string>
   <string name="share_verse_ok">Teilen/Kopieren</string>
   <string name="web_search">Websuche</string>
-  <string name="verse_action_copy">Kopieren</string>
-  <string name="generic_share">Teilen</string>
   <string name="share_verse_menu_title">Teilen/Kopieren...</string>
   <string name="show_versenumbers">Zeige Versnummern</string>
   <string name="show_full_verses">Zeige die ganzen Verse</string>
@@ -889,7 +885,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="show_quotes">Zitate anzeigen</string>
   <string name="separate_verses_with_newlines">Verse durch Zeilenumbruch separieren</string>
 
-  <string name="backup_button">Backup</string>
   <string name="initializing_app">Programm wird gestartet...</string>
   <string name="show_notes">Notizen anzeigen</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1335,7 +1330,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="ai_models_summary_none">Keine Modelle konfiguriert</string>
   <string name="ai_add_provider">Anbieter hinzufügen</string>
   <string name="ai_provider_edit">Bearbeiten</string>
-  <string name="ai_provider_delete">Löschen</string>
   <string name="ai_provider_delete_confirm">Anbieter \"%1$s\" löschen? Prompts, die diesen Anbieter verwenden, werden auf den Standard zurückgesetzt.</string>
   <string name="ai_provider_api_key_not_set">API-Schlüssel nicht festgelegt</string>
   <string name="ai_provider_select_type">Anbietertyp auswählen</string>
@@ -1353,7 +1347,6 @@ Diese Nachricht nicht mehr anzeigen</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modelle</string>
   <string name="add_model">Modell hinzufügen</string>
-  <string name="add_model_title">Modell hinzufügen</string>
   <string name="edit_model_title">Modell bearbeiten</string>
   <string name="model_saved">Modell gespeichert</string>
   <string name="model_deleted">Modell gelöscht</string>
@@ -1428,7 +1421,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="addon_prompt_notice">Dieser Prompt stammt aus dem Add-on-Modul \"%s\" und kann nicht bearbeitet werden. Verwenden Sie \"Zum Anpassen kopieren\", um eine bearbeitbare Kopie zu erstellen.</string>
   <string name="new_category">Neue Kategorie</string>
   <string name="new_category_name">Kategoriename</string>
-  <string name="rename_category">Umbenennen</string>
   <string name="move_category_up">Nach oben verschieben</string>
   <string name="move_category_down">Nach unten verschieben</string>
   <string name="hide_category">Aus KI-Aktionen ausblenden</string>
@@ -1714,22 +1706,16 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Neues Dokument erstellen</string>
   <string name="my_document_rename_title">Dokument umbenennen</string>
-  <string name="my_document_edit_description_title">Beschreibung bearbeiten</string>
   <string name="my_document_delete_confirmation">Dokument \"%s\" löschen?</string>
   <string name="my_document_cannot_delete_ai_documents">KI-Dokumente können nicht gelöscht werden, solange sie Seiten enthalten. Bitte zuerst die Seiten löschen.</string>
   <string name="my_document_save_changes">Änderungen speichern?</string>
   <string name="my_document_no_description">Keine Beschreibung</string>
-  <string name="my_document_rename">Umbenennen</string>
   <string name="my_document_edit_description">Beschreibung bearbeiten</string>
-  <string name="my_document_delete">Löschen</string>
 
   <string name="my_document_pages_title">%s - Seiten</string>
   <string name="my_document_pages_empty">Keine Seiten in diesem Dokument.</string>
   <string name="my_document_page_rename_title">Seite umbenennen</string>
   <string name="my_document_page_delete_confirmation">Seite \"%s\" löschen?</string>
-  <string name="my_document_page_rename">Umbenennen</string>
-  <string name="my_document_page_delete">Löschen</string>
-  <string name="my_document_page_export">Exportieren</string>
   <string name="my_document_new_page_name">Seite %1$d</string>
   <string name="my_document_create_page_title">Neue Seite</string>
   <string name="my_document_content_type_label">Inhaltstyp</string>
@@ -1749,12 +1735,10 @@ Diese Nachricht nicht mehr anzeigen</string>
 
   <string name="prefs_page_scroll_amount_title">Seitenscrolling-Betrag</string>
   <string name="prefs_page_scroll_amount_summary">Wie viel der Seite beim Seite-hoch/runter-Scrollen gescrollt wird</string>
-  <string name="page_scroll_amount_dialog_title">Seitenscrolling-Betrag</string>
   <string name="prefs_scroll_helper_lines_title">Scroll-Hilfslinien</string>
   <string name="prefs_scroll_helper_lines_summary">Horizontale Führungslinien an den Seitenscrolling-Grenzen anzeigen</string>
   <string name="prefs_scroll_helper_line_style_title">Hilfslinienstil</string>
   <string name="prefs_scroll_helper_line_style_summary">Visuellen Stil der Scroll-Hilfslinien auswählen</string>
-  <string name="scroll_helper_line_style_dialog_title">Hilfslinienstil</string>
   <string name="scroll_helper_line_style_thin_dotted">Dünne gepunktete Linie</string>
   <string name="scroll_helper_line_style_thin_solid">Dünne durchgezogene Linie</string>
   <string name="scroll_helper_line_style_thick_solid">Dicke durchgezogene Linie</string>

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nové okno</string>
-  <string name="windowClose">Zavřít</string>
   <string name="windowMaximise">Maximalizovat</string>
   <string name="windowMinimise">Minimalizovat</string>
   <string name="windowSynchronise">Synchronizovat</string>
@@ -724,7 +723,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="delete_workspace">Odstranit</string>
   <string name="new_copied_workspace">Naklonovat</string>
   <string name="workspace_number">Pracovní plocha %d</string>
-  <string name="rename_workspace">Přejmenovat</string>
+  <string name="rename">Přejmenovat</string>
   <string name="workspace_selector_title">Výběr pracovní plochy</string>
   <string name="workspace_settings">Nastavení…</string>
   <string name="give_name_workspace">Název nové pracovní plochy</string>
@@ -737,7 +736,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="copy_settings_workspaces_title">Do které pracovní plochy kopírovat nastavení?</string>
   <string name="reset_settings">Resetovat</string>
   <string name="search_settings">Nastavení hledání</string>
-  <string name="workspace_dismiss">Odejít</string>
+  <string name="dismiss">Odejít</string>
   <string name="workspace_listing_with_current">%s (aktuální)</string>
 
     <!-- Beta notice -->
@@ -756,7 +755,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         přes %s. :-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Odejít</string>
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
 
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
@@ -920,8 +918,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
   <string name="web_search">Hledat na webu</string>
-  <string name="verse_action_copy">Kopírovat</string>
-  <string name="generic_share">Sdílet</string>
   <string name="share_verse_menu_title">Sdílet / kopírovat…</string>
   <string name="show_versenumbers">Ukázat čísla veršů</string>
   <string name="show_full_verses">Zobrazit celé verše</string>
@@ -938,7 +934,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="show_quotes">Zobrazit uvozovky</string>
   <string name="separate_verses_with_newlines">Oddělit verše novými řádky</string>
 
-  <string name="backup_button">Záloha</string>
   <string name="initializing_app">Příprava spuštění…</string>
   <string name="show_notes">Zobrazit poznámky</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1404,7 +1399,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_models_summary_none">Žádné modely nejsou nakonfigurovány</string>
   <string name="ai_add_provider">Přidat poskytovatele</string>
   <string name="ai_provider_edit">Upravit</string>
-  <string name="ai_provider_delete">Smazat</string>
   <string name="ai_provider_delete_confirm">Smazat poskytovatele \"%1$s\"? Výzvy používající tohoto poskytovatele se vrátí na výchozí hodnotu.</string>
   <string name="ai_provider_api_key_not_set">API klíč není nastaven</string>
   <string name="ai_provider_select_type">Vybrat typ poskytovatele</string>
@@ -1422,7 +1416,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
     <!-- Configured models management -->
   <string name="ai_models_category">Modely</string>
   <string name="add_model">Přidat model</string>
-  <string name="add_model_title">Přidat model</string>
   <string name="edit_model_title">Upravit model</string>
   <string name="model_saved">Model uložen</string>
   <string name="model_deleted">Model smazán</string>
@@ -1497,7 +1490,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="addon_prompt_notice">Tento prompt pochází z modulu doplňku \"%s\" a nelze ho upravovat. Použijte \"Kopírovat pro přizpůsobení\" a vytvořte upravitelnou kopii.</string>
   <string name="new_category">Nová kategorie</string>
   <string name="new_category_name">Název kategorie</string>
-  <string name="rename_category">Přejmenovat</string>
   <string name="move_category_up">Přesunout nahoru</string>
   <string name="move_category_down">Přesunout dolů</string>
   <string name="hide_category">Skrýt z akcí AI</string>
@@ -1783,22 +1775,16 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Vytvořit nový dokument</string>
   <string name="my_document_rename_title">Přejmenovat dokument</string>
-  <string name="my_document_edit_description_title">Upravit popis</string>
   <string name="my_document_delete_confirmation">Smazat dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nelze smazat, pokud obsahují stránky. Nejprve smažte stránky.</string>
   <string name="my_document_save_changes">Uložit změny?</string>
   <string name="my_document_no_description">Bez popisu</string>
-  <string name="my_document_rename">Přejmenovat</string>
   <string name="my_document_edit_description">Upravit popis</string>
-  <string name="my_document_delete">Smazat</string>
 
   <string name="my_document_pages_title">%s – Stránky</string>
   <string name="my_document_pages_empty">V tomto dokumentu nejsou žádné stránky.</string>
   <string name="my_document_page_rename_title">Přejmenovat stránku</string>
   <string name="my_document_page_delete_confirmation">Smazat stránku \"%s\"?</string>
-  <string name="my_document_page_rename">Přejmenovat</string>
-  <string name="my_document_page_delete">Smazat</string>
-  <string name="my_document_page_export">Exportovat</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
@@ -1818,12 +1804,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
   <string name="prefs_page_scroll_amount_title">Množství posuvu stránky</string>
   <string name="prefs_page_scroll_amount_summary">O kolik se stránka posune při posuvu nahoru/dolů</string>
-  <string name="page_scroll_amount_dialog_title">Množství posuvu stránky</string>
   <string name="prefs_scroll_helper_lines_title">Pomocné čáry posuvu</string>
   <string name="prefs_scroll_helper_lines_summary">Zobrazit vodorovné vodítka na hranicích posuvu stránky</string>
   <string name="prefs_scroll_helper_line_style_title">Styl pomocné čáry</string>
   <string name="prefs_scroll_helper_line_style_summary">Vybrat vizuální styl pomocných čar posuvu</string>
-  <string name="scroll_helper_line_style_dialog_title">Styl pomocné čáry</string>
   <string name="scroll_helper_line_style_thin_dotted">Tenká tečkovaná čára</string>
   <string name="scroll_helper_line_style_thin_solid">Tenká plná čára</string>
   <string name="scroll_helper_line_style_thick_solid">Silná plná čára</string>

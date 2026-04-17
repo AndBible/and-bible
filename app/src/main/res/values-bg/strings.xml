@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Нов прозорец</string>
-  <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Уголеми</string>
   <string name="windowMinimise">Смали</string>
   <string name="windowSynchronise">Синхронизирай</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Премахни</string>
   <string name="new_copied_workspace">Копирай като ново</string>
   <string name="workspace_number">Работно пространство %d</string>
-  <string name="rename_workspace">Преименуване</string>
+  <string name="rename">Преименуване</string>
   <string name="workspace_selector_title">Изберете работно пространство</string>
   <string name="workspace_settings">Настройки…</string>
   <string name="give_name_workspace">Въведете име за новото работно пространство</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">В кои работни пространства искате да копирате настройките?</string>
   <string name="reset_settings">Изчистване</string>
   <string name="search_settings">Търси настройки</string>
-  <string name="workspace_dismiss">Затвори</string>
+  <string name="dismiss">Затвори</string>
   <string name="workspace_listing_with_current">%s (текущо)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Ако сте програмист, моля, обмислете да допринесете с поправки на грешки чрез %s сами. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Затвори</string>
   <string name="beta_notice_dismiss_until_update">Затвори до следващата актуализация</string>
 
   <string name="stable_notice_title">Приложението е актуализирано!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Прочети повече и повече опции за инсталиране: %s</string>
   <string name="share_verse_ok">Сподели / Копирай</string>
   <string name="web_search">Търсене в мрежата</string>
-  <string name="verse_action_copy">Копирай</string>
-  <string name="generic_share">Сподели</string>
   <string name="share_verse_menu_title">Сподели / копирай…</string>
   <string name="show_versenumbers">Покажи номерата на стиховете.</string>
   <string name="show_full_verses">Показвай пълни стихове</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Показвай кавички</string>
   <string name="separate_verses_with_newlines">Разделяй стихове с нови редове</string>
 
-  <string name="backup_button">Резервно копие</string>
   <string name="initializing_app">Инициализиране на приложението…</string>
   <string name="show_notes">Показвай бележки</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Няма конфигурирани модели</string>
   <string name="ai_add_provider">Добави доставчик</string>
   <string name="ai_provider_edit">Редактирай</string>
-  <string name="ai_provider_delete">Изтрий</string>
   <string name="ai_provider_delete_confirm">Изтрий доставчика \"%1$s\"? Подканите, използващи този доставчик, ще се върнат към стандартния.</string>
   <string name="ai_provider_api_key_not_set">API ключът не е зададен</string>
   <string name="ai_provider_select_type">Избери тип доставчик</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Модели</string>
   <string name="add_model">Добави модел</string>
-  <string name="add_model_title">Добави модел</string>
   <string name="edit_model_title">Редактирай модел</string>
   <string name="model_saved">Моделът е запазен</string>
   <string name="model_deleted">Моделът е изтрит</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Тази подсказка е от добавъчен модул \"%s\" и не може да се редактира. Използвайте „Копирай за персонализиране", за да създадете редактируемо копие.</string>
   <string name="new_category">Нова категория</string>
   <string name="new_category_name">Наименование на категория</string>
-  <string name="rename_category">Преименувай</string>
   <string name="move_category_up">Премести нагоре</string>
   <string name="move_category_down">Премести надолу</string>
   <string name="hide_category">Скрий от AI действия</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Създай нов документ</string>
   <string name="my_document_rename_title">Преименувай документ</string>
-  <string name="my_document_edit_description_title">Редактирай описание</string>
   <string name="my_document_delete_confirmation">Изтрий документа \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI документите не могат да бъдат изтрити, докато съдържат страници. Изтрийте първо страниците.</string>
   <string name="my_document_save_changes">Запази промените?</string>
   <string name="my_document_no_description">Няма описание</string>
-  <string name="my_document_rename">Преименувай</string>
   <string name="my_document_edit_description">Редактирай описание</string>
-  <string name="my_document_delete">Изтрий</string>
 
   <string name="my_document_pages_title">%s – Страници</string>
   <string name="my_document_pages_empty">Няма страници в този документ.</string>
   <string name="my_document_page_rename_title">Преименувай страница</string>
   <string name="my_document_page_delete_confirmation">Изтрий страницата \"%s\"?</string>
-  <string name="my_document_page_rename">Преименувай</string>
-  <string name="my_document_page_delete">Изтрий</string>
-  <string name="my_document_page_export">Експортирай</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Тип съдържание</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Количество превъртане на страница</string>
   <string name="prefs_page_scroll_amount_summary">Колко от страницата да се превърта при страница нагоре/надолу</string>
-  <string name="page_scroll_amount_dialog_title">Количество превъртане на страница</string>
   <string name="prefs_scroll_helper_lines_title">Помощни линии за превъртане</string>
   <string name="prefs_scroll_helper_lines_summary">Показвай хоризонтални ориентировъчни линии на границите при превъртане на страница</string>
   <string name="prefs_scroll_helper_line_style_title">Стил на помощната линия</string>
   <string name="prefs_scroll_helper_line_style_summary">Избери визуалния стил на помощните линии за превъртане</string>
-  <string name="scroll_helper_line_style_dialog_title">Стил на помощната линия</string>
   <string name="scroll_helper_line_style_thin_dotted">Тънка пунктирана линия</string>
   <string name="scroll_helper_line_style_thin_solid">Тънка непрекъсната линия</string>
   <string name="scroll_helper_line_style_thick_solid">Дебела непрекъсната линия</string>

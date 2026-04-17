@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">Нове вікно</string>
-  <string name="windowClose">Закрити</string>
   <string name="windowMaximise">Розгорнути</string>
   <string name="windowMinimise">Згорнути</string>
   <string name="windowSynchronise">Синхронізувати</string>
@@ -723,7 +722,7 @@
   <string name="delete_workspace">Видалити</string>
   <string name="new_copied_workspace">Скопіювати як нову</string>
   <string name="workspace_number">Робоча область %d</string>
-  <string name="rename_workspace">Перейменувати</string>
+  <string name="rename">Перейменувати</string>
   <string name="workspace_selector_title">Вибрати робочу область</string>
   <string name="workspace_settings">Налаштування...</string>
   <string name="give_name_workspace">Укажіть назву для нової робочої області</string>
@@ -736,7 +735,7 @@
   <string name="copy_settings_workspaces_title">В яку робочу область скопіювати налаштування?</string>
   <string name="reset_settings">Скинути</string>
   <string name="search_settings">Налаштування пошуку</string>
-  <string name="workspace_dismiss">Відхилити</string>
+  <string name="dismiss">Відхилити</string>
   <string name="workspace_listing_with_current">%s (поточн.)</string>
 
     <!-- Beta notice -->
@@ -755,7 +754,6 @@
         помилок через %s самим. :-)</string>
   <string name="beta_notice_github_issues">Проблеми з Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Відхилити</string>
   <string name="beta_notice_dismiss_until_update">Відхилити до наступного оновлення</string>
 
   <string name="stable_notice_title">Додаток оновлено!</string>
@@ -914,8 +912,6 @@
   <string name="tell_friend_message4">Детальніше та більше варіантів встановлення: %s</string>
   <string name="share_verse_ok">Поділитися / скопіювати</string>
   <string name="web_search">Пошук в інтернеті</string>
-  <string name="verse_action_copy">Скопіювати</string>
-  <string name="generic_share">Поділитись</string>
   <string name="share_verse_menu_title">Поділитися / скопіювати...</string>
   <string name="show_versenumbers">Показати номери віршів</string>
   <string name="show_full_verses">Показати повні вірші</string>
@@ -932,7 +928,6 @@
   <string name="show_quotes">Показати цитати</string>
   <string name="separate_verses_with_newlines">Розділяти вірші новими рядками</string>
 
-  <string name="backup_button">Резервне копіювання</string>
   <string name="initializing_app">Ініціалізація програми...</string>
   <string name="show_notes">Показати нотатки</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1395,7 +1390,6 @@
   <string name="ai_models_summary_none">Моделей не налаштовано</string>
   <string name="ai_add_provider">Додати постачальника</string>
   <string name="ai_provider_edit">Змінити</string>
-  <string name="ai_provider_delete">Видалити</string>
   <string name="ai_provider_delete_confirm">Видалити постачальника \"%1$s\"? Промпти, що використовують цього постачальника, повернуться до стандартного.</string>
   <string name="ai_provider_api_key_not_set">Ключ API не встановлено</string>
   <string name="ai_provider_select_type">Виберіть тип постачальника</string>
@@ -1413,7 +1407,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Моделі</string>
   <string name="add_model">Додати модель</string>
-  <string name="add_model_title">Додати модель</string>
   <string name="edit_model_title">Змінити модель</string>
   <string name="model_saved">Модель збережено</string>
   <string name="model_deleted">Модель видалено</string>
@@ -1488,7 +1481,6 @@
   <string name="addon_prompt_notice">Цей промпт із модуля доповнення «%s» і не може бути відредагований. Використайте «Скопіювати для налаштування», щоб створити редаговану копію.</string>
   <string name="new_category">Нова категорія</string>
   <string name="new_category_name">Назва категорії</string>
-  <string name="rename_category">Перейменувати</string>
   <string name="move_category_up">Перемістити вгору</string>
   <string name="move_category_down">Перемістити вниз</string>
   <string name="hide_category">Приховати з дій ШІ</string>
@@ -1774,22 +1766,16 @@
   <string name="my_document_new_name">Ресурс %d</string>
   <string name="my_document_create_title">Створити новий ресурс</string>
   <string name="my_document_rename_title">Перейменувати ресурс</string>
-  <string name="my_document_edit_description_title">Змінити опис</string>
   <string name="my_document_delete_confirmation">Видалити ресурс \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Ресурси ШІ не можна видалити, якщо вони містять сторінки. Спочатку видаліть сторінки.</string>
   <string name="my_document_save_changes">Зберегти зміни?</string>
   <string name="my_document_no_description">Немає опису</string>
-  <string name="my_document_rename">Перейменувати</string>
   <string name="my_document_edit_description">Змінити опис</string>
-  <string name="my_document_delete">Видалити</string>
 
   <string name="my_document_pages_title">%s - Сторінки</string>
   <string name="my_document_pages_empty">У цьому ресурсі немає сторінок.</string>
   <string name="my_document_page_rename_title">Перейменувати сторінку</string>
   <string name="my_document_page_delete_confirmation">Видалити сторінку \"%s\"?</string>
-  <string name="my_document_page_rename">Перейменувати</string>
-  <string name="my_document_page_delete">Видалити</string>
-  <string name="my_document_page_export">Експортувати</string>
   <string name="my_document_new_page_name">Сторінка %1$d</string>
   <string name="my_document_create_page_title">Нова сторінка</string>
   <string name="my_document_content_type_label">Тип вмісту</string>
@@ -1809,12 +1795,10 @@
 
   <string name="prefs_page_scroll_amount_title">Розмір прокручування сторінки</string>
   <string name="prefs_page_scroll_amount_summary">Наскільки прокручувати сторінку кнопками вгору/вниз</string>
-  <string name="page_scroll_amount_dialog_title">Розмір прокручування сторінки</string>
   <string name="prefs_scroll_helper_lines_title">Допоміжні лінії прокручування</string>
   <string name="prefs_scroll_helper_lines_summary">Показувати горизонтальні напрямні лінії на межах прокручування сторінки</string>
   <string name="prefs_scroll_helper_line_style_title">Стиль допоміжної лінії</string>
   <string name="prefs_scroll_helper_line_style_summary">Виберіть візуальний стиль допоміжних ліній прокручування</string>
-  <string name="scroll_helper_line_style_dialog_title">Стиль допоміжної лінії</string>
   <string name="scroll_helper_line_style_thin_dotted">Тонка пунктирна лінія</string>
   <string name="scroll_helper_line_style_thin_solid">Тонка суцільна лінія</string>
   <string name="scroll_helper_line_style_thick_solid">Товста суцільна лінія</string>

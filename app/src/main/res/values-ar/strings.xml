@@ -277,7 +277,6 @@
 
     <!-- Window -->
   <string name="new_window">نافذة جديدة</string>
-  <string name="windowClose">إغلاق</string>
   <string name="windowMaximise">تكبير</string>
   <string name="windowMinimise">تصغير</string>
   <string name="windowSynchronise">مزامنة</string>
@@ -713,7 +712,7 @@
   <string name="delete_workspace">إزالة</string>
   <string name="new_copied_workspace">نسخ كجديد</string>
   <string name="workspace_number">مساحة العمل %d</string>
-  <string name="rename_workspace">إعادة تسمية</string>
+  <string name="rename">إعادة تسمية</string>
   <string name="workspace_selector_title">تحديد مساحة العمل</string>
   <string name="workspace_settings">الإعدادات...</string>
   <string name="give_name_workspace">إمنح اسماً لمساحة عمل جديدة</string>
@@ -726,7 +725,7 @@
   <string name="copy_settings_workspaces_title">لأيّ مساحة عمل ترغب في نسخ الإعداد؟</string>
   <string name="reset_settings">اعادة تهيئة</string>
   <string name="search_settings">إعدادات البحث</string>
-  <string name="workspace_dismiss">استبعاد</string>
+  <string name="dismiss">استبعاد</string>
   <string name="workspace_listing_with_current">%s (الحالية)</string>
 
     <!-- Beta notice -->
@@ -744,7 +743,6 @@
         الخطأ عبر %s بنفسك :-)</string>
   <string name="beta_notice_github_issues">مشاكل Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">استبعاد</string>
   <string name="beta_notice_dismiss_until_update">استبعاد حتى التحديث القادم</string>
 
   <string name="stable_notice_title">لقد تم ترقية التطبيق!</string>
@@ -874,8 +872,6 @@
   <string name="tell_friend_message4">اقرأ المزيد وخيارات التثبيت الإضافية: %s</string>
   <string name="share_verse_ok">مشاركة / نسخ</string>
   <string name="web_search">البحث على الإنترنت</string>
-  <string name="verse_action_copy">نسخ</string>
-  <string name="generic_share">مشاركة</string>
   <string name="share_verse_menu_title">مشاركة / نسخ...</string>
   <string name="show_versenumbers">أظهر رقم الآية</string>
   <string name="show_full_verses">عرض آيات كاملة</string>
@@ -892,7 +888,6 @@
   <string name="show_quotes">إظهار علامات الاقتباس</string>
   <string name="separate_verses_with_newlines">فصل الآيات بأسطر جديدة</string>
 
-  <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
   <string name="initializing_app">جارٍ تهيئة التطبيق...</string>
   <string name="show_notes">عرض الملاحظات</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1336,7 +1331,6 @@
   <string name="ai_models_summary_none">لم يتم تكوين نماذج</string>
   <string name="ai_add_provider">إضافة موفر</string>
   <string name="ai_provider_edit">تعديل</string>
-  <string name="ai_provider_delete">حذف</string>
   <string name="ai_provider_delete_confirm">حذف الموفر \"%1$s\"؟ ستعود الموجّهات التي تستخدم هذا الموفر إلى الافتراضي.</string>
   <string name="ai_provider_api_key_not_set">لم يتم تعيين مفتاح API</string>
   <string name="ai_provider_select_type">اختر نوع الموفر</string>
@@ -1354,7 +1348,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">النماذج</string>
   <string name="add_model">إضافة نموذج</string>
-  <string name="add_model_title">إضافة نموذج</string>
   <string name="edit_model_title">تعديل نموذج</string>
   <string name="model_saved">تم حفظ النموذج</string>
   <string name="model_deleted">تم حذف النموذج</string>
@@ -1429,7 +1422,6 @@
   <string name="addon_prompt_notice">هذا الموجّه من وحدة إضافة \"%s\" ولا يمكن تعديله. استخدم "نسخ للتخصيص" لإنشاء نسخة قابلة للتعديل.</string>
   <string name="new_category">فئة جديدة</string>
   <string name="new_category_name">اسم الفئة</string>
-  <string name="rename_category">إعادة التسمية</string>
   <string name="move_category_up">تحريك للأعلى</string>
   <string name="move_category_down">تحريك للأسفل</string>
   <string name="hide_category">إخفاء من إجراءات الذكاء الاصطناعي</string>
@@ -1715,22 +1707,16 @@
   <string name="my_document_new_name">مستند %d</string>
   <string name="my_document_create_title">إنشاء مستند جديد</string>
   <string name="my_document_rename_title">إعادة تسمية المستند</string>
-  <string name="my_document_edit_description_title">تعديل الوصف</string>
   <string name="my_document_delete_confirmation">حذف المستند \"%s\"؟</string>
   <string name="my_document_cannot_delete_ai_documents">لا يمكن حذف مستندات الذكاء الاصطناعي بينما تحتوي على صفحات. احذف الصفحات أولاً.</string>
   <string name="my_document_save_changes">حفظ التغييرات؟</string>
   <string name="my_document_no_description">بدون وصف</string>
-  <string name="my_document_rename">إعادة التسمية</string>
   <string name="my_document_edit_description">تعديل الوصف</string>
-  <string name="my_document_delete">حذف</string>
 
   <string name="my_document_pages_title">%s - الصفحات</string>
   <string name="my_document_pages_empty">لا توجد صفحات في هذا المستند.</string>
   <string name="my_document_page_rename_title">إعادة تسمية الصفحة</string>
   <string name="my_document_page_delete_confirmation">حذف الصفحة \"%s\"؟</string>
-  <string name="my_document_page_rename">إعادة التسمية</string>
-  <string name="my_document_page_delete">حذف</string>
-  <string name="my_document_page_export">تصدير</string>
   <string name="my_document_new_page_name">صفحة %1$d</string>
   <string name="my_document_create_page_title">صفحة جديدة</string>
   <string name="my_document_content_type_label">نوع المحتوى</string>
@@ -1750,12 +1736,10 @@
 
   <string name="prefs_page_scroll_amount_title">مقدار تمرير الصفحة</string>
   <string name="prefs_page_scroll_amount_summary">مقدار تمرير الصفحة عند الضغط على أعلى/أسفل الصفحة</string>
-  <string name="page_scroll_amount_dialog_title">مقدار تمرير الصفحة</string>
   <string name="prefs_scroll_helper_lines_title">خطوط مساعدة التمرير</string>
   <string name="prefs_scroll_helper_lines_summary">عرض خطوط توجيه أفقية عند حدود تمرير الصفحة</string>
   <string name="prefs_scroll_helper_line_style_title">نمط خط المساعدة</string>
   <string name="prefs_scroll_helper_line_style_summary">اختر النمط المرئي لخطوط مساعدة التمرير</string>
-  <string name="scroll_helper_line_style_dialog_title">نمط خط المساعدة</string>
   <string name="scroll_helper_line_style_thin_dotted">خط منقط رفيع</string>
   <string name="scroll_helper_line_style_thin_solid">خط صلب رفيع</string>
   <string name="scroll_helper_line_style_thick_solid">خط صلب سميك</string>

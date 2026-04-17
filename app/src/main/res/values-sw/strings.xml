@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Dirisha jipya</string>
-  <string name="windowClose">Funga</string>
   <string name="windowMaximise">Panua</string>
   <string name="windowMinimise">Punguza</string>
   <string name="windowSynchronise">Sawazisha</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">Ondoa</string>
   <string name="new_copied_workspace">Nakili kama mpya</string>
   <string name="workspace_number">Eneo la Kazi %d</string>
-  <string name="rename_workspace">Badilisha jina</string>
+  <string name="rename">Badilisha jina</string>
   <string name="workspace_selector_title">Chagua eneo la kazi</string>
   <string name="workspace_settings">Mipangilio…</string>
   <string name="give_name_workspace">Toa jina kwa eneo jipya la kazi</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">Unataka kunakili mipangilio kwa maeneo gani ya kazi?</string>
   <string name="reset_settings">Weka upya</string>
   <string name="search_settings">Tafuta mipangilio</string>
-  <string name="workspace_dismiss">Ondoa</string>
+  <string name="dismiss">Ondoa</string>
   <string name="workspace_listing_with_current">%s (ya sasa)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">Ikiwa wewe ni mprogramu, tafadhali fikiria kuchangia marekebisho ya hitilafu kupitia %s mwenyewe. :-)</string>
   <string name="beta_notice_github_issues">Masuala ya Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Ondoa</string>
   <string name="beta_notice_dismiss_until_update">Ondoa hadi sasasho linalofuata</string>
 
   <string name="stable_notice_title">Programu imeboreshwa!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">Soma zaidi na chaguo zaidi za usanikishaji: %s</string>
   <string name="share_verse_ok">Shiriki / Nakili</string>
   <string name="web_search">Utafutaji wa wavuti</string>
-  <string name="verse_action_copy">Nakili</string>
-  <string name="generic_share">Shiriki</string>
   <string name="share_verse_menu_title">Shiriki / nakili…</string>
   <string name="show_versenumbers">Onyesha nambari za mistari</string>
   <string name="show_full_verses">Onyesha mistari kamili</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">Onyesha alama za nukuu</string>
   <string name="separate_verses_with_newlines">Tenganisha mistari kwa mistari mipya</string>
 
-  <string name="backup_button">Hifadhi na Urejesho</string>
   <string name="initializing_app">Inaanzisha programu…</string>
   <string name="show_notes">Onyesha maelezo</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">Hakuna mifano iliyowekwa</string>
   <string name="ai_add_provider">Ongeza mtoa huduma</string>
   <string name="ai_provider_edit">Hariri</string>
-  <string name="ai_provider_delete">Futa</string>
   <string name="ai_provider_delete_confirm">Futa mtoa huduma \"%1$s\"? Maagizo yanayotumia mtoa huduma huu yatarejea kwa chaguo-msingi.</string>
   <string name="ai_provider_api_key_not_set">Ufunguo wa API haujawekwa</string>
   <string name="ai_provider_select_type">Chagua aina ya mtoa huduma</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Mifano</string>
   <string name="add_model">Ongeza mfano</string>
-  <string name="add_model_title">Ongeza mfano</string>
   <string name="edit_model_title">Hariri mfano</string>
   <string name="model_saved">Mfano umehifadhiwa</string>
   <string name="model_deleted">Mfano umefutwa</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">Agizo hili linatoka kwa moduli ya kiongezi \"%s\" na haliwezi kuhaririwa. Tumia \"Nakili kubinafsisha\" kuunda nakili inayoweza kuhaririwa.</string>
   <string name="new_category">Kitengo kipya</string>
   <string name="new_category_name">Jina la kitengo</string>
-  <string name="rename_category">Badilisha jina</string>
   <string name="move_category_up">Hamia juu</string>
   <string name="move_category_down">Hamia chini</string>
   <string name="hide_category">Ficha kutoka vitendo vya AI</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">Hati %d</string>
   <string name="my_document_create_title">Unda hati mpya</string>
   <string name="my_document_rename_title">Badilisha jina la hati</string>
-  <string name="my_document_edit_description_title">Hariri maelezo</string>
   <string name="my_document_delete_confirmation">Futa hati \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Hati za AI haziwezi kufutwa wakati zina kurasa. Futa kurasa kwanza.</string>
   <string name="my_document_save_changes">Hifadhi mabadiliko?</string>
   <string name="my_document_no_description">Hakuna maelezo</string>
-  <string name="my_document_rename">Badilisha jina</string>
   <string name="my_document_edit_description">Hariri maelezo</string>
-  <string name="my_document_delete">Futa</string>
 
   <string name="my_document_pages_title">%s - Kurasa</string>
   <string name="my_document_pages_empty">Hakuna kurasa katika hati hii.</string>
   <string name="my_document_page_rename_title">Badilisha jina la ukurasa</string>
   <string name="my_document_page_delete_confirmation">Futa ukurasa \"%s\"?</string>
-  <string name="my_document_page_rename">Badilisha jina</string>
-  <string name="my_document_page_delete">Futa</string>
-  <string name="my_document_page_export">Safirisha</string>
   <string name="my_document_new_page_name">Ukurasa %1$d</string>
   <string name="my_document_create_page_title">Ukurasa mpya</string>
   <string name="my_document_content_type_label">Aina ya maudhui</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">Kiasi cha kusogeza ukurasa</string>
   <string name="prefs_page_scroll_amount_summary">Kiasi cha ukurasa cha kusogeza na ukurasa juu/chini</string>
-  <string name="page_scroll_amount_dialog_title">Kiasi cha kusogeza ukurasa</string>
   <string name="prefs_scroll_helper_lines_title">Mistari ya msaada wa kusogeza</string>
   <string name="prefs_scroll_helper_lines_summary">Onyesha mistari ya mwongozo ya usawa kwenye mipaka ya kusogeza ukurasa</string>
   <string name="prefs_scroll_helper_line_style_title">Mtindo wa mstari wa msaada</string>
   <string name="prefs_scroll_helper_line_style_summary">Chagua mtindo wa kuona wa mistari ya msaada wa kusogeza</string>
-  <string name="scroll_helper_line_style_dialog_title">Mtindo wa mstari wa msaada</string>
   <string name="scroll_helper_line_style_thin_dotted">Mstari mwembamba wenye nukta</string>
   <string name="scroll_helper_line_style_thin_solid">Mstari mwembamba imara</string>
   <string name="scroll_helper_line_style_thick_solid">Mstari mnene imara</string>

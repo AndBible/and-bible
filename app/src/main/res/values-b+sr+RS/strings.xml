@@ -278,7 +278,6 @@
 
     <!-- Window -->
   <string name="new_window">Нови прозор</string>
-  <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Максимизирај</string>
   <string name="windowMinimise">Минимизирај</string>
   <string name="windowSynchronise">Усклади</string>
@@ -744,7 +743,7 @@
   <string name="delete_workspace">Уклони</string>
   <string name="new_copied_workspace">Прекопирај као ново</string>
   <string name="workspace_number">Радна површ %d</string>
-  <string name="rename_workspace">Преименуј</string>
+  <string name="rename">Преименуј</string>
   <string name="workspace_selector_title">Изабери радну површ</string>
   <string name="workspace_settings">Поставке...</string>
   <string name="give_name_workspace">Додели име за нову радну површ</string>
@@ -757,7 +756,7 @@
   <string name="copy_settings_workspaces_title">На коју радну површ желите ископирати поставке?</string>
   <string name="reset_settings">Ресет</string>
   <string name="search_settings">Подешавања претраге</string>
-  <string name="workspace_dismiss">Откажи</string>
+  <string name="dismiss">Откажи</string>
   <string name="workspace_listing_with_current">%s (тренутно)</string>
 
     <!-- Beta notice -->
@@ -776,7 +775,6 @@
         разрешавању грешака путем %s . :-)</string>
   <string name="beta_notice_github_issues">Гитхаб проблеми</string>
   <string name="beta_notice_github">Гитхаб</string>
-  <string name="beta_notice_dismiss">Откажи</string>
   <string name="beta_notice_dismiss_until_update">Склони до следећег ажурирања</string>
 
   <string name="stable_notice_title">Апликација је ажурирана!</string>
@@ -938,8 +936,6 @@
   <string name="tell_friend_message4">Прочитајте више &amp; више инсталационих опција: %s</string>
   <string name="share_verse_ok">Подели / Копирај</string>
   <string name="web_search">Претрага на вебу</string>
-  <string name="verse_action_copy">Копирај</string>
-  <string name="generic_share">Дели</string>
   <string name="share_verse_menu_title">Подели / копирај...</string>
   <string name="show_versenumbers">Прикажи бројеве стихова</string>
   <string name="show_full_verses">Покажите целе стихове</string>
@@ -956,7 +952,6 @@
   <string name="show_quotes">Прикажи цитате</string>
   <string name="separate_verses_with_newlines">Одвоји стихове новим редовима</string>
 
-  <string name="backup_button">Резервна копија</string>
   <string name="initializing_app">Иницијализација апликације...</string>
   <string name="show_notes">Покажи белешке</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1401,7 +1396,6 @@
   <string name="ai_models_summary_none">Нису конфигурисани модели</string>
   <string name="ai_add_provider">Додај провајдера</string>
   <string name="ai_provider_edit">Уреди</string>
-  <string name="ai_provider_delete">Обриши</string>
   <string name="ai_provider_delete_confirm">Обрисати провајдера \"%1$s\"? Упити који користе овог провајдера ће се вратити на подразумеваног.</string>
   <string name="ai_provider_api_key_not_set">API кључ није постављен</string>
   <string name="ai_provider_select_type">Изабери врсту провајдера</string>
@@ -1419,7 +1413,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">Модели</string>
   <string name="add_model">Додај модел</string>
-  <string name="add_model_title">Додај модел</string>
   <string name="edit_model_title">Уреди модел</string>
   <string name="model_saved">Модел сачуван</string>
   <string name="model_deleted">Модел обрисан</string>
@@ -1494,7 +1487,6 @@
   <string name="addon_prompt_notice">Овај упит је из додатног модула \"%s\" и не може се уређивати. Употреби „Копирај за прилагођавање" да направиш уређујућу копију.</string>
   <string name="new_category">Нова категорија</string>
   <string name="new_category_name">Назив категорије</string>
-  <string name="rename_category">Преименуј</string>
   <string name="move_category_up">Помери горе</string>
   <string name="move_category_down">Помери доле</string>
   <string name="hide_category">Сакриј из АИ радњи</string>
@@ -1780,22 +1772,16 @@
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Направи нови документ</string>
   <string name="my_document_rename_title">Преименуј документ</string>
-  <string name="my_document_edit_description_title">Уреди опис</string>
   <string name="my_document_delete_confirmation">Обрисати документ „%s"?</string>
   <string name="my_document_cannot_delete_ai_documents">АИ документи не могу бити обрисани док садрже странице. Прво обриши странице.</string>
   <string name="my_document_save_changes">Сачувати измене?</string>
   <string name="my_document_no_description">Нема описа</string>
-  <string name="my_document_rename">Преименуј</string>
   <string name="my_document_edit_description">Уреди опис</string>
-  <string name="my_document_delete">Обриши</string>
 
   <string name="my_document_pages_title">%s — Странице</string>
   <string name="my_document_pages_empty">Нема страница у овом документу.</string>
   <string name="my_document_page_rename_title">Преименуј страницу</string>
   <string name="my_document_page_delete_confirmation">Обрисати страницу „%s"?</string>
-  <string name="my_document_page_rename">Преименуј</string>
-  <string name="my_document_page_delete">Обриши</string>
-  <string name="my_document_page_export">Извези</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Врста садржаја</string>
@@ -1815,12 +1801,10 @@
 
   <string name="prefs_page_scroll_amount_title">Количина скроловања странице</string>
   <string name="prefs_page_scroll_amount_summary">Колико странице скроловати при скроловању горе/доле</string>
-  <string name="page_scroll_amount_dialog_title">Количина скроловања странице</string>
   <string name="prefs_scroll_helper_lines_title">Линије помагача за скроловање</string>
   <string name="prefs_scroll_helper_lines_summary">Прикажи хоризонталне водиљне линије на границама скроловања страница</string>
   <string name="prefs_scroll_helper_line_style_title">Стил линије помагача</string>
   <string name="prefs_scroll_helper_line_style_summary">Изабери визуелни стил линија помагача за скроловање</string>
-  <string name="scroll_helper_line_style_dialog_title">Стил линије помагача</string>
   <string name="scroll_helper_line_style_thin_dotted">Танка тачкаста линија</string>
   <string name="scroll_helper_line_style_thin_solid">Танка пуна линија</string>
   <string name="scroll_helper_line_style_thick_solid">Дебела пуна линија</string>

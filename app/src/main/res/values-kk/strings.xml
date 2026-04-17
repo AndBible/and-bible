@@ -188,7 +188,6 @@
   <string name="prefs_noise_summary">Артқы аясына біраз шу қосу арқылы көзге көбірек ыңғайлы етілуі мүмкін.</string>
   <!--Window-->
   <string name="new_window">Жаңа терезе</string>
-  <string name="windowClose">Жабу</string>
   <string name="windowMaximise">Шегіне дейін ұлғайту</string>
   <string name="windowMinimise">Шегіне дейін азайту</string>
   <string name="windowSynchronise">Үйлестіру</string>
@@ -562,7 +561,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="delete_workspace">Жою</string>
   <string name="new_copied_workspace">Жаңа ретінде көшіру</string>
   <string name="workspace_number">Жұмыс кеңістігі %d</string>
-  <string name="rename_workspace">Атын өзгерту</string>
+  <string name="rename">Атын өзгерту</string>
   <string name="workspace_selector_title">Жұмыс кеңістігін таңдаңыз</string>
   <string name="workspace_settings">Параметрлер...</string>
   <string name="give_name_workspace">Жаңа жұмыс кеңістігіне атауын беріңіз</string>
@@ -574,7 +573,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="select_all">Барлығын таңдаңыз</string>
   <string name="copy_settings_workspaces_title">Қай жұмыс кеңістігіне параметрлерді көшіргіңіз келеді?</string>
   <string name="reset_settings">Қайта бастау</string>
-  <string name="workspace_dismiss">Босату</string>
+  <string name="dismiss">Босату</string>
   <string name="workspace_listing_with_current">%s (қазіргі)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Бұл бета версиясы!</string>
@@ -586,7 +585,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="beta_notice_content_3">Егер сіз программист болсаңыз, қателерді түзетуге көмектесуді %s өзіңіз арқылы қарастырыңыз. :-)</string>
   <string name="beta_notice_github_issues">Github мәселелері</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Босату</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>
   <string name="stable_notice_title">Қолданба жаңартылды!</string>
   <string name="upgrade_video_message">Өтінеміз, Осы шығарылымның жаңа мүмкіндіктері бар бейнені қараңыз(%s).</string>
@@ -686,8 +684,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="tell_friend_message3">Оны Play Store-дан орнату: %s</string>
   <string name="tell_friend_message4">Толығырақ оқу және қосымшаның тағы параметрлері: %s</string>
   <string name="share_verse_ok">Бөлісу / Көшіру</string>
-  <string name="verse_action_copy">Көшіріңіз</string>
-  <string name="generic_share">Бөлісу</string>
   <string name="share_verse_menu_title">Бөлісу / Көшіру</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="show_full_verses">Аяттарды толық көрсету</string>
@@ -702,7 +698,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="show_version_name">Нұсқа атауын қосыңыз</string>
   <string name="show_ellipsis">Эллипсті көрсету (…)</string>
   <string name="show_quotes">Дәйексөздерді көрсету</string>
-  <string name="backup_button">Сақтық көшірме</string>
   <string name="initializing_app">Қолданбаны бастаңыз....</string>
   <string name="show_notes">Жазбаларды көрсету</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->

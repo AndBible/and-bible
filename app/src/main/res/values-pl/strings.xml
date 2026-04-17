@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Nowe okno</string>
-  <string name="windowClose">Zamknij</string>
   <string name="windowMaximise">Maksymalizuj</string>
   <string name="windowMinimise">Minimalizuj</string>
   <string name="windowSynchronise">Synchronizuj</string>
@@ -692,7 +691,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="delete_workspace">Usuń</string>
   <string name="new_copied_workspace">Duplikuj</string>
   <string name="workspace_number">Obszar roboczy %d</string>
-  <string name="rename_workspace">Zmień nazwę</string>
+  <string name="rename">Zmień nazwę</string>
   <string name="workspace_selector_title">Wybierz obszar roboczy</string>
   <string name="workspace_settings">Ustawienia…</string>
   <string name="give_name_workspace">Wprowadź nazwę dla obszaru roboczego</string>
@@ -705,7 +704,7 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="copy_settings_workspaces_title">Dla których obszarów roboczych chcesz skopiować ustawienia?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Ustawienia wyszukiwania</string>
-  <string name="workspace_dismiss">Anuluj</string>
+  <string name="dismiss">Anuluj</string>
   <string name="workspace_listing_with_current">%s (obecny)</string>
 
     <!-- Beta notice -->
@@ -718,7 +717,6 @@ Użytkownicy wersji beta proszeni są o zgłaszanie błędów przez sklep Google
   <string name="beta_notice_content_3">Jeżeli jesteś programistą, proszę rozważyć naprawienie błędów samemu (%s). :-)</string>
   <string name="beta_notice_github_issues">system śledzenia błędów na GitHubie</string>
   <string name="beta_notice_github">GitHub</string>
-  <string name="beta_notice_dismiss">Ignoruj</string>
   <string name="beta_notice_dismiss_until_update">Nie pokazuj do następnej aktualizacji</string>
 
   <string name="stable_notice_title">Nowa wersja aplikacji!</string>
@@ -856,8 +854,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="tell_friend_message4">Więcej informacji (w j. angielskim) znajdziesz na stronie: %s</string>
   <string name="share_verse_ok">Udostępnij / kopiuj</string>
   <string name="web_search">Szukaj w internecie</string>
-  <string name="verse_action_copy">Kopiuj</string>
-  <string name="generic_share">Udostępnij</string>
   <string name="share_verse_menu_title">Udostępnij / kopiuj…</string>
   <string name="show_versenumbers">Wyświetl numery wersetów</string>
   <string name="show_full_verses">Wyświetl pełne wersety</string>
@@ -874,7 +870,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="show_quotes">Wstaw cudzysłowy</string>
   <string name="separate_verses_with_newlines">Oddziel wersety nowymi liniami</string>
 
-  <string name="backup_button">Zapisz</string>
   <string name="initializing_app">Uruchamianie aplikacji…</string>
   <string name="show_notes">Wyświetl notatki</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1314,7 +1309,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="ai_models_summary_none">Nie skonfigurowano żadnych modeli</string>
   <string name="ai_add_provider">Dodaj dostawcę</string>
   <string name="ai_provider_edit">Edytuj</string>
-  <string name="ai_provider_delete">Usuń</string>
   <string name="ai_provider_delete_confirm">Usunąć dostawcę „%1$s"? Prompty używające tego dostawcy powrócą do domyślnego.</string>
   <string name="ai_provider_api_key_not_set">Klucz API nie jest ustawiony</string>
   <string name="ai_provider_select_type">Wybierz typ dostawcy</string>
@@ -1332,7 +1326,6 @@ Nie wyświetlaj tego ponownie</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modele</string>
   <string name="add_model">Dodaj model</string>
-  <string name="add_model_title">Dodaj model</string>
   <string name="edit_model_title">Edytuj model</string>
   <string name="model_saved">Model zapisany</string>
   <string name="model_deleted">Model usunięty</string>
@@ -1407,7 +1400,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="addon_prompt_notice">Ten prompt pochodzi z modułu dodatku „%s" i nie można go edytować. Użyj opcji „Kopiuj, aby dostosować", aby utworzyć edytowalną kopię.</string>
   <string name="new_category">Nowa kategoria</string>
   <string name="new_category_name">Nazwa kategorii</string>
-  <string name="rename_category">Zmień nazwę</string>
   <string name="move_category_up">Przesuń w górę</string>
   <string name="move_category_down">Przesuń w dół</string>
   <string name="hide_category">Ukryj w akcjach AI</string>
@@ -1693,22 +1685,16 @@ Nie wyświetlaj tego ponownie</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Utwórz nowy dokument</string>
   <string name="my_document_rename_title">Zmień nazwę dokumentu</string>
-  <string name="my_document_edit_description_title">Edytuj opis</string>
   <string name="my_document_delete_confirmation">Usunąć dokument „%s"?</string>
   <string name="my_document_cannot_delete_ai_documents">Nie można usunąć dokumentów AI, gdy zawierają strony. Najpierw usuń strony.</string>
   <string name="my_document_save_changes">Zapisać zmiany?</string>
   <string name="my_document_no_description">Brak opisu</string>
-  <string name="my_document_rename">Zmień nazwę</string>
   <string name="my_document_edit_description">Edytuj opis</string>
-  <string name="my_document_delete">Usuń</string>
 
   <string name="my_document_pages_title">%s - Strony</string>
   <string name="my_document_pages_empty">Brak stron w tym dokumencie.</string>
   <string name="my_document_page_rename_title">Zmień nazwę strony</string>
   <string name="my_document_page_delete_confirmation">Usunąć stronę „%s"?</string>
-  <string name="my_document_page_rename">Zmień nazwę</string>
-  <string name="my_document_page_delete">Usuń</string>
-  <string name="my_document_page_export">Eksportuj</string>
   <string name="my_document_new_page_name">Strona %1$d</string>
   <string name="my_document_create_page_title">Nowa strona</string>
   <string name="my_document_content_type_label">Typ zawartości</string>
@@ -1728,12 +1714,10 @@ Nie wyświetlaj tego ponownie</string>
 
   <string name="prefs_page_scroll_amount_title">Ilość przewijania strony</string>
   <string name="prefs_page_scroll_amount_summary">Jak dużą część strony przewijać przy użyciu przycisków strony w górę/dół</string>
-  <string name="page_scroll_amount_dialog_title">Ilość przewijania strony</string>
   <string name="prefs_scroll_helper_lines_title">Linie pomocnicze przewijania</string>
   <string name="prefs_scroll_helper_lines_summary">Pokaż poziome linie prowadzące na granicach przewijania strony</string>
   <string name="prefs_scroll_helper_line_style_title">Styl linii pomocniczych</string>
   <string name="prefs_scroll_helper_line_style_summary">Wybierz styl wizualny linii pomocniczych przewijania</string>
-  <string name="scroll_helper_line_style_dialog_title">Styl linii pomocniczej</string>
   <string name="scroll_helper_line_style_thin_dotted">Cienka linia kropkowana</string>
   <string name="scroll_helper_line_style_thin_solid">Cienka linia ciągła</string>
   <string name="scroll_helper_line_style_thick_solid">Gruba linia ciągła</string>

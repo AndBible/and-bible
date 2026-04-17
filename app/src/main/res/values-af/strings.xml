@@ -278,7 +278,6 @@ Woordafbreking</string>
 
     <!-- Window -->
   <string name="new_window">Nuwe venster</string>
-  <string name="windowClose">Maak Toe</string>
   <string name="windowMaximise">Vermeeder</string>
   <string name="windowMinimise">Verminder</string>
   <string name="windowSynchronise">Sinchroniseer</string>
@@ -721,7 +720,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="delete_workspace">Verwyder</string>
   <string name="new_copied_workspace">Kopieer as nuut</string>
   <string name="workspace_number">Werkruimte %d</string>
-  <string name="rename_workspace">Hernoem</string>
+  <string name="rename">Hernoem</string>
   <string name="workspace_selector_title">Kies werkruimte</string>
   <string name="workspace_settings">Instellings ...</string>
   <string name="give_name_workspace">Gee naam vir nuwe werkruimte</string>
@@ -734,7 +733,7 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="copy_settings_workspaces_title">Na watter werkruimtes wil u instellings kopieer?</string>
   <string name="reset_settings">Herstel</string>
   <string name="search_settings">Soek instellings</string>
-  <string name="workspace_dismiss">Verdaag</string>
+  <string name="dismiss">Verdaag</string>
   <string name="workspace_listing_with_current">%s(huidige)</string>
 
     <!-- Beta notice -->
@@ -754,7 +753,6 @@ Beta-gebruikers word aangemoedig om foute te rapporteer via Google Play of
  </string>
   <string name="beta_notice_github_issues">Github kwessies</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Los</string>
   <string name="beta_notice_dismiss_until_update">Los tot volgende opdatering</string>
 
   <string name="stable_notice_title">Die aansoek is opgegradeer!</string>
@@ -914,8 +912,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="tell_friend_message4">Lees meer &amp; meer installeer opsies: %s</string>
   <string name="share_verse_ok">Deel / Kopieer</string>
   <string name="web_search">Web soektog </string>
-  <string name="verse_action_copy">Kopieër</string>
-  <string name="generic_share">Deel</string>
   <string name="share_verse_menu_title">Deel / Kopieer...</string>
   <string name="show_versenumbers">Wys vers nommers</string>
   <string name="show_full_verses">Wys volledige verse</string>
@@ -932,7 +928,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="show_quotes">Wys aanhalings </string>
   <string name="separate_verses_with_newlines">Skei verse met nuwe reëls</string>
 
-  <string name="backup_button">Rugsteun</string>
   <string name="initializing_app">Inisialiseer tans die program…</string>
   <string name="show_notes">Wys notas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1377,7 +1372,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_models_summary_none">Geen modelle opgestel nie</string>
   <string name="ai_add_provider">Voeg verskaffer by</string>
   <string name="ai_provider_edit">Wysig</string>
-  <string name="ai_provider_delete">Skrap</string>
   <string name="ai_provider_delete_confirm">Skrap verskaffer \"%1$s\"? Opdragte wat hierdie verskaffer gebruik, sal na die verstek terugkeer.</string>
   <string name="ai_provider_api_key_not_set">API-sleutel nie gestel nie</string>
   <string name="ai_provider_select_type">Kies verskaffer-tipe</string>
@@ -1395,7 +1389,6 @@ Moenie hierdie boodskap weer wys nie</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modelle</string>
   <string name="add_model">Voeg model by</string>
-  <string name="add_model_title">Voeg model by</string>
   <string name="edit_model_title">Wysig model</string>
   <string name="model_saved">Model gebêre</string>
   <string name="model_deleted">Model geskrap</string>
@@ -1470,7 +1463,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="addon_prompt_notice">Hierdie opdrag is van byvoegingmodule \"%s\" en kan nie gewysig word nie. Gebruik \"Kopieer om aan te pas\" om \'n wysigbare kopie te skep.</string>
   <string name="new_category">Nuwe kategorie</string>
   <string name="new_category_name">Kategorienaam</string>
-  <string name="rename_category">Hernoem</string>
   <string name="move_category_up">Skuif op</string>
   <string name="move_category_down">Skuif af</string>
   <string name="hide_category">Verberg uit KI-aksies</string>
@@ -1756,22 +1748,16 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Skep nuwe dokument</string>
   <string name="my_document_rename_title">Hernoem dokument</string>
-  <string name="my_document_edit_description_title">Wysig beskrywing</string>
   <string name="my_document_delete_confirmation">Verwyder dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">KI-dokumente kan nie verwyder word terwyl dit bladsye bevat nie. Verwyder eers die bladsye.</string>
   <string name="my_document_save_changes">Wysigings bêre?</string>
   <string name="my_document_no_description">Geen beskrywing</string>
-  <string name="my_document_rename">Hernoem</string>
   <string name="my_document_edit_description">Wysig beskrywing</string>
-  <string name="my_document_delete">Verwyder</string>
 
   <string name="my_document_pages_title">%s - Bladsye</string>
   <string name="my_document_pages_empty">Geen bladsye in hierdie dokument nie.</string>
   <string name="my_document_page_rename_title">Hernoem bladsy</string>
   <string name="my_document_page_delete_confirmation">Verwyder bladsy \"%s\"?</string>
-  <string name="my_document_page_rename">Hernoem</string>
-  <string name="my_document_page_delete">Verwyder</string>
-  <string name="my_document_page_export">Uitvoer</string>
   <string name="my_document_new_page_name">Bladsy %1$d</string>
   <string name="my_document_create_page_title">Nuwe bladsy</string>
   <string name="my_document_content_type_label">Inhoudstipe</string>
@@ -1791,12 +1777,10 @@ Moenie hierdie boodskap weer wys nie</string>
 
   <string name="prefs_page_scroll_amount_title">Bladsyrolhoeveelheid</string>
   <string name="prefs_page_scroll_amount_summary">Hoeveel van die bladsy om met bladsy op/af te rol</string>
-  <string name="page_scroll_amount_dialog_title">Bladsyrolhoeveelheid</string>
   <string name="prefs_scroll_helper_lines_title">Rolhulplyne</string>
   <string name="prefs_scroll_helper_lines_summary">Wys horisontale gidslyne by bladsyrolgrense</string>
   <string name="prefs_scroll_helper_line_style_title">Hulplynstyl</string>
   <string name="prefs_scroll_helper_line_style_summary">Kies die visuele styl van rolhulplyne</string>
-  <string name="scroll_helper_line_style_dialog_title">Hulplynstyl</string>
   <string name="scroll_helper_line_style_thin_dotted">Dun gestippelde lyn</string>
   <string name="scroll_helper_line_style_thin_solid">Dun soliede lyn</string>
   <string name="scroll_helper_line_style_thick_solid">Dik soliede lyn</string>

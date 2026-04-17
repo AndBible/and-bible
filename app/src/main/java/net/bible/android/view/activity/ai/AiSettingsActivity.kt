@@ -493,10 +493,10 @@ class AiSettingsActivity : ActivityBase() {
             return
         }
 
-        items.add(getString(R.string.rename_category) to {
+        items.add(getString(R.string.rename) to {
             val editText = EditText(this).apply { setText(category.name) }
             AlertDialog.Builder(this)
-                .setTitle(R.string.rename_category)
+                .setTitle(R.string.rename)
                 .setView(editText)
                 .setPositiveButton(R.string.okay) { _, _ ->
                     val newName = editText.text.toString().trim()

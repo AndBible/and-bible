@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">Naujas langas</string>
-  <string name="windowClose">Užverti</string>
   <string name="windowMaximise">Išskleisti</string>
   <string name="windowMinimise">Suskleisti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
@@ -723,7 +722,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="delete_workspace">Šalinti</string>
   <string name="new_copied_workspace">Kopijuoti kaip naują</string>
   <string name="workspace_number">Darbo sritis %d</string>
-  <string name="rename_workspace">Pervadinti</string>
+  <string name="rename">Pervadinti</string>
   <string name="workspace_selector_title">Pasirinkite darbo sritį</string>
   <string name="workspace_settings">Nustatymai…</string>
   <string name="give_name_workspace">Suteikite pavadinimą naujai darbo sričiai</string>
@@ -736,7 +735,7 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="copy_settings_workspaces_title">Į kurias darbo sritis norite kopijuoti nustatymus?</string>
   <string name="reset_settings">Atstatyti</string>
   <string name="search_settings">Paieškos nustatymai</string>
-  <string name="workspace_dismiss">Atšaukti</string>
+  <string name="dismiss">Atšaukti</string>
   <string name="workspace_listing_with_current">%s (dabartinė)</string>
 
     <!-- Beta notice -->
@@ -756,7 +755,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
         pateikti klaidų pataisymus per %s. :-)</string>
   <string name="beta_notice_github_issues">Github klaidų pranešimus</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Atmesti</string>
   <string name="beta_notice_dismiss_until_update">Atmesti iki kito atnaujinimo</string>
 
   <string name="stable_notice_title">Programėlė atnaujinta!</string>
@@ -917,8 +915,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="tell_friend_message4">Sužinok daugiau apie programėlę ir kaip ją įsidiegti: %s</string>
   <string name="share_verse_ok">Bendrinti / Kopijuoti</string>
   <string name="web_search">Paieška internete</string>
-  <string name="verse_action_copy">Kopijuoti</string>
-  <string name="generic_share">Dalintis</string>
   <string name="share_verse_menu_title">Bendrinti / kopijuoti…</string>
   <string name="show_versenumbers">Rodyti eilučių numerius</string>
   <string name="show_full_verses">Rodyti pilnas eilutes</string>
@@ -935,7 +931,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="show_quotes">Rodyti kabutes</string>
   <string name="separate_verses_with_newlines">Eilutes skirti naujomis eilutėmis</string>
 
-  <string name="backup_button">Atsarginė kopija</string>
   <string name="initializing_app">Inicijuojama programėlė…</string>
   <string name="show_notes">Rodyti pastabas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1402,7 +1397,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="ai_models_summary_none">Modeliai nesukonfigūruoti</string>
   <string name="ai_add_provider">Pridėti tiekėją</string>
   <string name="ai_provider_edit">Redaguoti</string>
-  <string name="ai_provider_delete">Ištrinti</string>
   <string name="ai_provider_delete_confirm">Ištrinti tiekėją „%1$s"? Užklausos, naudojančios šį tiekėją, grįš prie numatytojo.</string>
   <string name="ai_provider_api_key_not_set">API raktas nenustatytas</string>
   <string name="ai_provider_select_type">Pasirinkti tiekėjo tipą</string>
@@ -1420,7 +1414,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
     <!-- Configured models management -->
   <string name="ai_models_category">Modeliai</string>
   <string name="add_model">Pridėti modelį</string>
-  <string name="add_model_title">Pridėti modelį</string>
   <string name="edit_model_title">Taisyti modelį</string>
   <string name="model_saved">Modelis išsaugotas</string>
   <string name="model_deleted">Modelis ištrintas</string>
@@ -1495,7 +1488,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="addon_prompt_notice">Šis raginimas yra iš priedo modulio \"%s\" ir negali būti taisomas. Naudokite „Kopijuoti ir tinkinti" norėdami sukurti taisomą kopiją.</string>
   <string name="new_category">Nauja kategorija</string>
   <string name="new_category_name">Kategorijos pavadinimas</string>
-  <string name="rename_category">Pervadinti</string>
   <string name="move_category_up">Perkelti aukštyn</string>
   <string name="move_category_down">Perkelti žemyn</string>
   <string name="hide_category">Slėpti DI veiksmuose</string>
@@ -1781,22 +1773,16 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="my_document_new_name">Dokumentas %d</string>
   <string name="my_document_create_title">Kurti naują dokumentą</string>
   <string name="my_document_rename_title">Pervadinti dokumentą</string>
-  <string name="my_document_edit_description_title">Redaguoti aprašymą</string>
   <string name="my_document_delete_confirmation">Ištrinti dokumentą \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">DI dokumentų negalima ištrinti, kol juose yra puslapių. Pirmiausia ištrinkite puslapius.</string>
   <string name="my_document_save_changes">Išsaugoti pakeitimus?</string>
   <string name="my_document_no_description">Nėra aprašymo</string>
-  <string name="my_document_rename">Pervadinti</string>
   <string name="my_document_edit_description">Redaguoti aprašymą</string>
-  <string name="my_document_delete">Ištrinti</string>
 
   <string name="my_document_pages_title">%s – puslapiai</string>
   <string name="my_document_pages_empty">Šiame dokumente nėra puslapių.</string>
   <string name="my_document_page_rename_title">Pervadinti puslapį</string>
   <string name="my_document_page_delete_confirmation">Ištrinti puslapį \"%s\"?</string>
-  <string name="my_document_page_rename">Pervadinti</string>
-  <string name="my_document_page_delete">Ištrinti</string>
-  <string name="my_document_page_export">Eksportuoti</string>
   <string name="my_document_new_page_name">Puslapis %1$d</string>
   <string name="my_document_create_page_title">Naujas puslapis</string>
   <string name="my_document_content_type_label">Turinio tipas</string>
@@ -1816,12 +1802,10 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
 
   <string name="prefs_page_scroll_amount_title">Puslapio slinkties kiekis</string>
   <string name="prefs_page_scroll_amount_summary">Kiek puslapio slinkti spaudžiant puslapį aukštyn / žemyn</string>
-  <string name="page_scroll_amount_dialog_title">Puslapio slinkimo kiekis</string>
   <string name="prefs_scroll_helper_lines_title">Slinkimo pagalbinės linijos</string>
   <string name="prefs_scroll_helper_lines_summary">Rodyti horizontalias gaires puslapio slinkimo ribose</string>
   <string name="prefs_scroll_helper_line_style_title">Pagalbinės linijos stilius</string>
   <string name="prefs_scroll_helper_line_style_summary">Pasirinkite slinkimo pagalbinių linijų vaizdinį stilių</string>
-  <string name="scroll_helper_line_style_dialog_title">Pagalbinės linijos stilius</string>
   <string name="scroll_helper_line_style_thin_dotted">Plona taškinė linija</string>
   <string name="scroll_helper_line_style_thin_solid">Plona ištisinė linija</string>
   <string name="scroll_helper_line_style_thick_solid">Stora ištisinė linija</string>

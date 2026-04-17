@@ -100,7 +100,7 @@ object ErrorReportControl {
                         }
                     }
                     if (report) {
-                        dlgBuilder.setNegativeButton(R.string.backup_button) { _, _ -> it.resume(ErrorDialogResult.BACKUP) }
+                        dlgBuilder.setNegativeButton(R.string.backup_and_restore) { _, _ -> it.resume(ErrorDialogResult.BACKUP) }
                         dlgBuilder.setPositiveButton(R.string.report_error) { _, _ -> it.resume(ErrorDialogResult.REPORT) }
                         dlgBuilder.setNeutralButton(R.string.error_skip) { _, _ -> it.resume(ErrorDialogResult.CANCEL) }
                     }

@@ -276,7 +276,6 @@
 
     <!-- Window -->
   <string name="new_window">หน้าต่างใหม่</string>
-  <string name="windowClose">ปิด</string>
   <string name="windowMaximise">ขยายใหญ่สุด</string>
   <string name="windowMinimise">ย่อเล็กสุด</string>
   <string name="windowSynchronise">ซิงโครไนซ์</string>
@@ -677,7 +676,7 @@
   <string name="delete_workspace">ลบ</string>
   <string name="new_copied_workspace">คัดลอกเป็นอันใหม่</string>
   <string name="workspace_number">พื้นที่ทำงาน %d</string>
-  <string name="rename_workspace">เปลี่ยนชื่อ</string>
+  <string name="rename">เปลี่ยนชื่อ</string>
   <string name="workspace_selector_title">เลือกพื้นที่ทำงาน</string>
   <string name="workspace_settings">การตั้งค่า…</string>
   <string name="give_name_workspace">ตั้งชื่อพื้นที่ทำงานใหม่</string>
@@ -690,7 +689,7 @@
   <string name="copy_settings_workspaces_title">คุณต้องการคัดลอกการตั้งค่าไปยังพื้นที่ทำงานใด?</string>
   <string name="reset_settings">รีเซ็ต</string>
   <string name="search_settings">ค้นหาการตั้งค่า</string>
-  <string name="workspace_dismiss">ปิด</string>
+  <string name="dismiss">ปิด</string>
   <string name="workspace_listing_with_current">%s (ปัจจุบัน)</string>
 
     <!-- Beta notice -->
@@ -701,7 +700,6 @@
   <string name="beta_notice_content_3">หากคุณเป็นนักพัฒนา กรุณาช่วยส่ง การแก้ไขข้อผิดพลาดผ่าน %s ด้วยตนเอง :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">ปิด</string>
   <string name="beta_notice_dismiss_until_update">ปิดจนกว่าจะอัปเดตครั้งถัดไป</string>
 
   <string name="stable_notice_title">แอปพลิเคชันได้รับการอัปเกรดแล้ว!</string>
@@ -825,8 +823,6 @@
   <string name="tell_friend_message4">อ่านเพิ่มเติมและตัวเลือกการติดตั้งอื่น: %s</string>
   <string name="share_verse_ok">แชร์ / คัดลอก</string>
   <string name="web_search">ค้นหาเว็บ</string>
-  <string name="verse_action_copy">คัดลอก</string>
-  <string name="generic_share">แชร์</string>
   <string name="share_verse_menu_title">แชร์ / คัดลอก…</string>
   <string name="show_versenumbers">แสดงเลขข้อ</string>
   <string name="show_full_verses">แสดงข้อพระคัมภีร์เต็ม</string>
@@ -843,7 +839,6 @@
   <string name="show_quotes">แสดงเครื่องหมายคำพูด</string>
   <string name="separate_verses_with_newlines">คั่นข้อด้วยบรรทัดใหม่</string>
 
-  <string name="backup_button">สำรองข้อมูลและกู้คืน</string>
   <string name="initializing_app">กำลังเริ่มต้นแอปพลิเคชัน…</string>
   <string name="show_notes">แสดงบันทึก</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1263,7 +1258,6 @@
   <string name="ai_models_summary_none">ไม่มีโมเดลที่กำหนดค่า</string>
   <string name="ai_add_provider">เพิ่มผู้ให้บริการ</string>
   <string name="ai_provider_edit">แก้ไข</string>
-  <string name="ai_provider_delete">ลบ</string>
   <string name="ai_provider_delete_confirm">ลบผู้ให้บริการ \"%1$s\"? พรอมต์ที่ใช้ผู้ให้บริการนี้จะกลับไปใช้ค่าเริ่มต้น</string>
   <string name="ai_provider_api_key_not_set">ยังไม่ได้ตั้งค่าคีย์ API</string>
   <string name="ai_provider_select_type">เลือกประเภทผู้ให้บริการ</string>
@@ -1281,7 +1275,6 @@
     <!-- Configured models management -->
   <string name="ai_models_category">โมเดล</string>
   <string name="add_model">เพิ่มโมเดล</string>
-  <string name="add_model_title">เพิ่มโมเดล</string>
   <string name="edit_model_title">แก้ไขโมเดล</string>
   <string name="model_saved">บันทึกโมเดลแล้ว</string>
   <string name="model_deleted">ลบโมเดลแล้ว</string>
@@ -1356,7 +1349,6 @@
   <string name="addon_prompt_notice">พรอมต์นี้มาจากโมดูลส่วนเสริม \"%s\" และไม่สามารถแก้ไขได้ ใช้ \"คัดลอกเพื่อปรับแต่ง\" เพื่อสร้างสำเนาที่แก้ไขได้</string>
   <string name="new_category">หมวดหมู่ใหม่</string>
   <string name="new_category_name">ชื่อหมวดหมู่</string>
-  <string name="rename_category">เปลี่ยนชื่อ</string>
   <string name="move_category_up">เลื่อนขึ้น</string>
   <string name="move_category_down">เลื่อนลง</string>
   <string name="hide_category">ซ่อนจากการกระทำ AI</string>
@@ -1642,22 +1634,16 @@
   <string name="my_document_new_name">เอกสาร %d</string>
   <string name="my_document_create_title">สร้างเอกสารใหม่</string>
   <string name="my_document_rename_title">เปลี่ยนชื่อเอกสาร</string>
-  <string name="my_document_edit_description_title">แก้ไขคำอธิบาย</string>
   <string name="my_document_delete_confirmation">ลบเอกสาร \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">ไม่สามารถลบเอกสาร AI ได้ในขณะที่มีหน้าอยู่ กรุณาลบหน้าก่อน</string>
   <string name="my_document_save_changes">บันทึกการเปลี่ยนแปลง?</string>
   <string name="my_document_no_description">ไม่มีคำอธิบาย</string>
-  <string name="my_document_rename">เปลี่ยนชื่อ</string>
   <string name="my_document_edit_description">แก้ไขคำอธิบาย</string>
-  <string name="my_document_delete">ลบ</string>
 
   <string name="my_document_pages_title">%s - หน้า</string>
   <string name="my_document_pages_empty">ไม่มีหน้าในเอกสารนี้</string>
   <string name="my_document_page_rename_title">เปลี่ยนชื่อหน้า</string>
   <string name="my_document_page_delete_confirmation">ลบหน้า \"%s\"?</string>
-  <string name="my_document_page_rename">เปลี่ยนชื่อ</string>
-  <string name="my_document_page_delete">ลบ</string>
-  <string name="my_document_page_export">ส่งออก</string>
   <string name="my_document_new_page_name">หน้า %1$d</string>
   <string name="my_document_create_page_title">หน้าใหม่</string>
   <string name="my_document_content_type_label">ประเภทเนื้อหา</string>
@@ -1677,12 +1663,10 @@
 
   <string name="prefs_page_scroll_amount_title">ปริมาณการเลื่อนหน้า</string>
   <string name="prefs_page_scroll_amount_summary">ปริมาณการเลื่อนหน้าด้วยปุ่มเลื่อนขึ้น/ลง</string>
-  <string name="page_scroll_amount_dialog_title">ปริมาณการเลื่อนหน้า</string>
   <string name="prefs_scroll_helper_lines_title">เส้นช่วยเลื่อน</string>
   <string name="prefs_scroll_helper_lines_summary">แสดงเส้นแนวนอนที่ขอบเขตการเลื่อนหน้า</string>
   <string name="prefs_scroll_helper_line_style_title">รูปแบบเส้นช่วยเลื่อน</string>
   <string name="prefs_scroll_helper_line_style_summary">เลือกรูปแบบการแสดงผลของเส้นช่วยเลื่อน</string>
-  <string name="scroll_helper_line_style_dialog_title">รูปแบบเส้นช่วยเลื่อน</string>
   <string name="scroll_helper_line_style_thin_dotted">เส้นบางจุด</string>
   <string name="scroll_helper_line_style_thin_solid">เส้นบางทึบ</string>
   <string name="scroll_helper_line_style_thick_solid">เส้นหนาทึบ</string>

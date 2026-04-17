@@ -280,7 +280,6 @@
 
     <!-- Window -->
   <string name="new_window">নিউ উইন্ডো </string>
-  <string name="windowClose">বন্ধ করুন </string>
   <string name="windowMaximise">সর্বাধিক</string>
   <string name="windowMinimise">কমান</string>
   <string name="windowSynchronise">সিংক্রোনাইজ</string>
@@ -731,7 +730,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="delete_workspace">অপসারণ</string>
   <string name="new_copied_workspace">নতুন হিসাবে অনুলিপি করুন</string>
   <string name="workspace_number">কর্মক্ষেত্র%d </string>
-  <string name="rename_workspace">পুনরায় নামকরণ</string>
+  <string name="rename">পুনরায় নামকরণ</string>
   <string name="workspace_selector_title">কর্মক্ষেত্র নির্বাচন করুন</string>
   <string name="workspace_settings">সেটিংস......</string>
   <string name="give_name_workspace">নতুন কর্মক্ষেত্রের জন্য নাম দিন</string>
@@ -744,7 +743,7 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="copy_settings_workspaces_title">আপনি কোন কর্মক্ষেত্রে সেটিংস অনুলিপি করতে চান?</string>
   <string name="reset_settings">রিসেট</string>
   <string name="search_settings">অনুসন্ধান সেটিংস</string>
-  <string name="workspace_dismiss">খারিজ করুন </string>
+  <string name="dismiss">খারিজ করুন </string>
   <string name="workspace_listing_with_current">%s (বর্তমান) </string>
 
     <!-- Beta notice -->
@@ -761,7 +760,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
 নিজের মাধ্যমে  %s ঠিক করে নিন। :-)</string>
   <string name="beta_notice_github_issues">গিথুব ইস্যু</string>
   <string name="beta_notice_github">গিথুব </string>
-  <string name="beta_notice_dismiss">খারিজ করুন </string>
   <string name="beta_notice_dismiss_until_update">পরবর্তী আপডেট হওয়া পর্যন্ত খারিজ করুন</string>
 
   <string name="stable_notice_title">আবেদন আপগ্রেড করা হয়েছে!</string>
@@ -914,8 +912,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="tell_friend_message4">আরও পড়ুন &amp; আরো ইনস্টল বিকল্প:%s</string>
   <string name="share_verse_ok">শেয়ার/কপি করুন</string>
   <string name="web_search">ওয়েব অনুসন্ধান</string>
-  <string name="verse_action_copy">কপি</string>
-  <string name="generic_share">ভাগ / শেয়ার </string>
   <string name="share_verse_menu_title">শেয়ার/কপি...</string>
   <string name="show_versenumbers">পদ সংখ্যাগুলি দেখান</string>
   <string name="show_full_verses">সম্পূর্ণ পদ দেখান</string>
@@ -932,7 +928,6 @@ http://www.heartlight.org, অনুমতি প্রদান করা হ�
   <string name="show_quotes">উদ্ধৃতি দেখান</string>
   <string name="separate_verses_with_newlines">নতুন লাইন দিয়ে পদ আলাদা করুন</string>
 
-  <string name="backup_button">ব্যাকআপ</string>
   <string name="initializing_app">আবেদন শুরু করা হচ্ছে...</string>
   <string name="show_notes">নোট দেখান</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1376,7 +1371,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="ai_models_summary_none">কোনো মডেল কনফিগার করা হয়নি</string>
   <string name="ai_add_provider">প্রদানকারী যোগ করুন</string>
   <string name="ai_provider_edit">সম্পাদনা</string>
-  <string name="ai_provider_delete">মুছুন</string>
   <string name="ai_provider_delete_confirm">প্রদানকারী \"%1$s\" মুছবেন? এই প্রদানকারী ব্যবহার করা প্রম্পটগুলি ডিফল্টে ফিরে যাবে।</string>
   <string name="ai_provider_api_key_not_set">API কী সেট করা হয়নি</string>
   <string name="ai_provider_select_type">প্রদানকারীর ধরন নির্বাচন করুন</string>
@@ -1394,7 +1388,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
     <!-- Configured models management -->
   <string name="ai_models_category">মডেল</string>
   <string name="add_model">মডেল যোগ করুন</string>
-  <string name="add_model_title">মডেল যোগ করুন</string>
   <string name="edit_model_title">মডেল সম্পাদনা করুন</string>
   <string name="model_saved">মডেল সংরক্ষিত হয়েছে</string>
   <string name="model_deleted">মডেল মুছে ফেলা হয়েছে</string>
@@ -1469,7 +1462,6 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="addon_prompt_notice">এই প্রম্পটটি অ্যাড-অন মডিউল \"%s\" থেকে এবং সম্পাদনা করা যাবে না। সম্পাদনযোগ্য কপি তৈরি করতে \"কাস্টমাইজ করতে কপি করুন\" ব্যবহার করুন।</string>
   <string name="new_category">নতুন বিভাগ</string>
   <string name="new_category_name">বিভাগের নাম</string>
-  <string name="rename_category">পুনরায় নামকরণ</string>
   <string name="move_category_up">উপরে সরান</string>
   <string name="move_category_down">নিচে সরান</string>
   <string name="hide_category">AI অ্যাকশন থেকে লুকান</string>
@@ -1755,22 +1747,16 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
   <string name="my_document_new_name">নথি %d</string>
   <string name="my_document_create_title">নতুন নথি তৈরি করুন</string>
   <string name="my_document_rename_title">নথি পুনরায় নামকরণ করুন</string>
-  <string name="my_document_edit_description_title">বিবরণ সম্পাদনা করুন</string>
   <string name="my_document_delete_confirmation">নথি \"%s\" মুছবেন?</string>
   <string name="my_document_cannot_delete_ai_documents">AI নথিতে পৃষ্ঠা থাকা অবস্থায় মুছে ফেলা যাবে না। প্রথমে পৃষ্ঠাগুলি মুছুন।</string>
   <string name="my_document_save_changes">পরিবর্তন সংরক্ষণ করবেন?</string>
   <string name="my_document_no_description">কোনো বিবরণ নেই</string>
-  <string name="my_document_rename">পুনরায় নামকরণ</string>
   <string name="my_document_edit_description">বিবরণ সম্পাদনা করুন</string>
-  <string name="my_document_delete">মুছুন</string>
 
   <string name="my_document_pages_title">%s - পৃষ্ঠাসমূহ</string>
   <string name="my_document_pages_empty">এই নথিতে কোনো পৃষ্ঠা নেই।</string>
   <string name="my_document_page_rename_title">পৃষ্ঠা পুনরায় নামকরণ করুন</string>
   <string name="my_document_page_delete_confirmation">পৃষ্ঠা \"%s\" মুছবেন?</string>
-  <string name="my_document_page_rename">পুনরায় নামকরণ</string>
-  <string name="my_document_page_delete">মুছুন</string>
-  <string name="my_document_page_export">রপ্তানি</string>
   <string name="my_document_new_page_name">পৃষ্ঠা %1$d</string>
   <string name="my_document_create_page_title">নতুন পৃষ্ঠা</string>
   <string name="my_document_content_type_label">বিষয়বস্তুর ধরন</string>
@@ -1790,12 +1776,10 @@ Google ড্রাইভ ব্যবহার করার সময়, %sশ
 
   <string name="prefs_page_scroll_amount_title">পৃষ্ঠা স্ক্রোলের পরিমাণ</string>
   <string name="prefs_page_scroll_amount_summary">পেজ আপ/ডাউনে কতটুকু স্ক্রোল হবে</string>
-  <string name="page_scroll_amount_dialog_title">পৃষ্ঠা স্ক্রোলের পরিমাণ</string>
   <string name="prefs_scroll_helper_lines_title">স্ক্রোল সহায়ক রেখা</string>
   <string name="prefs_scroll_helper_lines_summary">পৃষ্ঠা স্ক্রোল সীমানায় অনুভূমিক গাইড রেখা দেখান</string>
   <string name="prefs_scroll_helper_line_style_title">সহায়ক রেখার স্টাইল</string>
   <string name="prefs_scroll_helper_line_style_summary">স্ক্রোল সহায়ক রেখার ভিজ্যুয়াল স্টাইল বেছে নিন</string>
-  <string name="scroll_helper_line_style_dialog_title">সহায়ক রেখার স্টাইল</string>
   <string name="scroll_helper_line_style_thin_dotted">পাতলা বিন্দুযুক্ত রেখা</string>
   <string name="scroll_helper_line_style_thin_solid">পাতলা কঠিন রেখা</string>
   <string name="scroll_helper_line_style_thick_solid">মোটা কঠিন রেখা</string>
