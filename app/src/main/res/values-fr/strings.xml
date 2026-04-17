@@ -598,7 +598,6 @@ La répétition automatique de passage a été automatiquement désactivée car 
   <string name="backup_restore_from">Restaurer de...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restaurer ou importer depuis…</string>
-  <string name="backup_restore">Restaurer</string>
   <string name="backup_restore2">Restaurer ou importer</string>
   <string name="overwrite_something">Écraser %s ?</string>
 
@@ -772,8 +771,6 @@ En plus des signets, un bloc-note peut contenir des entrées de texte personnali
 
   <string name="help_search_title">Rechercher</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">La recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND, OR, NOT
- (voir \"Apache Lucene - Query Parser Syntax\" pour plus de détails)</string>
   <string name="help_search_text2">Le texte recherché peut inclure des caractères spéciaux tels que *, AND, OR, NOT.</string>
   <string name="help_search_details">Veillez voir %s pour plus de détails.</string>
   <string name="help_apache_lucene">Apache Lucene - Syntaxe de l’analyseur de requêtes</string>
@@ -1528,7 +1525,6 @@ La base de données contient %s. Que voulez-vous faire ?
   <string name="ai_regenerate_instructions_hint">Instructions supplémentaires (facultatif)</string>
   <string name="ai_regenerate_keep_previous">Conserver la version précédente</string>
   <string name="ai_regenerate_fresh_run">Nouvelle exécution (ignorer le résultat précédent)</string>
-  <string name="ai_document_delete">Supprimer</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

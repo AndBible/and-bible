@@ -569,7 +569,6 @@
   <string name="backup_restore_from">سے بحال کریں…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">بحال یا درآمد کریں…</string>
-  <string name="backup_restore">بحال کریں</string>
   <string name="backup_restore2">بحال یا درآمد کریں</string>
   <string name="overwrite_something">%s اوور رائٹ کریں؟</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">تلاش</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">تلاش متن میں خصوصی کردار جیسے *, ?, AND, OR, NOT شامل ہو سکتے ہیں (مزید تفصیل کے لیے \"Apache Lucene - Query Parser Syntax\" دیکھیں)</string>
   <string name="help_search_text2">تلاش متن میں خصوصی کردار جیسے *, AND, OR, NOT شامل ہو سکتے ہیں</string>
   <string name="help_search_details">مزید تفصیل کے لیے %s دیکھیں۔</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">اضافی ہدایات (اختیاری)</string>
   <string name="ai_regenerate_keep_previous">پچھلا ورژن رکھیں</string>
   <string name="ai_regenerate_fresh_run">نئی شروعات (پچھلا نتیجہ نظر انداز کریں)</string>
-  <string name="ai_document_delete">حذف کریں</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

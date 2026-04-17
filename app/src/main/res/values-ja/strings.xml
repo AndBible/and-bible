@@ -569,7 +569,6 @@
   <string name="backup_restore_from">復元元…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">復元またはインポート元…</string>
-  <string name="backup_restore">復元</string>
   <string name="backup_restore2">復元またはインポート</string>
   <string name="overwrite_something">%s を上書きしますか？</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">検索</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">検索テキストには *, ?, AND, OR, NOT などの特殊文字を使用できます （詳細は「Apache Lucene - Query Parser Syntax」を参照してください）</string>
   <string name="help_search_text2">検索テキストには *, AND, OR, NOT などの特殊文字を使用できます</string>
   <string name="help_search_details">詳細については %s をご参照ください。</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">追加の指示（任意）</string>
   <string name="ai_regenerate_keep_previous">以前のバージョンを保持</string>
   <string name="ai_regenerate_fresh_run">新規実行（以前の結果を無視）</string>
-  <string name="ai_document_delete">削除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

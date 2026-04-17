@@ -588,7 +588,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_restore_from">Ripristina da…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Ripristina o Importa da…</string>
-  <string name="backup_restore">Ripristina</string>
   <string name="backup_restore2">Ripristina o Importa</string>
   <string name="overwrite_something">Sovrascrivere %s?</string>
 
@@ -752,9 +751,6 @@ Gli Appunti di studio sono progettati per facilitare la scrittura di appunti per
 
   <string name="help_search_title">Ricerca</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Il testo di ricerca può includere caratteri speciali come *,?, AND, OR, NOT
-  (vedi \"Apache Lucene - Sintassi del parser di query\" per maggiori dettagli)
-</string>
   <string name="help_search_text2">Il testo della ricerca può includere caratteri speciali come *, AND, OR, NOT</string>
   <string name="help_search_details">Vedi %s per ulteriori dettagli.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintassi del parser di query</string>
@@ -1506,7 +1502,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="ai_regenerate_instructions_hint">Istruzioni aggiuntive (facoltativo)</string>
   <string name="ai_regenerate_keep_previous">Mantieni versione precedente</string>
   <string name="ai_regenerate_fresh_run">Esecuzione nuova (ignora risultato precedente)</string>
-  <string name="ai_document_delete">Elimina</string>
   <string name="ai_unknown_prompt">IA</string>
 
     <!-- Default prompts -->

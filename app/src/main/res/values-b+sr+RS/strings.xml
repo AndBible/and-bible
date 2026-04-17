@@ -636,7 +636,6 @@
   <string name="backup_restore_from">Вратити из...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Врати или увези из…</string>
-  <string name="backup_restore">Повратити</string>
   <string name="backup_restore2">Врати или увези</string>
   <string name="overwrite_something">Преписати %s?</string>
 
@@ -814,9 +813,6 @@
 
   <string name="help_search_title">Претрага</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Текст за претрагу може садржати посебне знаке као *, ?, AND, OR, NOT
-        (за више детаља погледајте \"Апачи Lucene - Query Parser синтакса\")
-    </string>
   <string name="help_search_text2">Текст претраге може садржати специјалне знакове попут *, И, ИЛИ, НЕ</string>
   <string name="help_search_details">Погледајте %s за више детаља.</string>
   <string name="help_apache_lucene">Apache Lucene — Синтакса парсера упита</string>
@@ -1553,7 +1549,6 @@
   <string name="ai_regenerate_instructions_hint">Додатне инструкције (опционо)</string>
   <string name="ai_regenerate_keep_previous">Задржи претходну верзију</string>
   <string name="ai_regenerate_fresh_run">Свеже покретање (игнориши претходни резултат)</string>
-  <string name="ai_document_delete">Обриши</string>
   <string name="ai_unknown_prompt">АИ</string>
 
     <!-- Default prompts -->

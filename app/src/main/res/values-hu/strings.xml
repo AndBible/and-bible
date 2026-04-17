@@ -601,7 +601,6 @@ mert a felolvasást a meghatározott szakaszon kívül kezdte.</string>
   <string name="backup_restore_from">Visszaállítás innen...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Visszaállítás vagy importálás forrásból…</string>
-  <string name="backup_restore">Visszaállítás</string>
   <string name="backup_restore2">Visszaállítás vagy importálás</string>
   <string name="overwrite_something">Felülírja ezt: %s?</string>
 
@@ -775,8 +774,6 @@ A könyvjelzők mellett egyéni szövegbejegyzések is hozzáadhatók a jegyzetl
 
   <string name="help_search_title">Keresés</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">A keresési kifejezés spciális karaktereket és kifejezéseket is tartalmazhat, például: \", ?, AND, OR, NOT
-(további információkért keresse az \"Apache Lucence - Query Parser\" szintaxisát)</string>
   <string name="help_search_text2">A keresett szöveg tartalmazhat speciális karaktereket, például *, AND, OR, NOT</string>
   <string name="help_search_details">További részletekért lásd: %s.</string>
   <string name="help_apache_lucene">Apache Lucene - Lekérdezési szintaxis</string>
@@ -1518,7 +1515,6 @@ jelentse be az észlelt problémát</string>
   <string name="ai_regenerate_instructions_hint">További utasítások (nem kötelező)</string>
   <string name="ai_regenerate_keep_previous">Előző verzió megtartása</string>
   <string name="ai_regenerate_fresh_run">Friss futtatás (előző eredmény figyelmen kívül hagyása)</string>
-  <string name="ai_document_delete">Törlés</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

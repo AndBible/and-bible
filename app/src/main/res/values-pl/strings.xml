@@ -584,7 +584,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_restore_from">Przywróć z kopii zapasowej…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Przywróć lub importuj z…</string>
-  <string name="backup_restore">Przywróć</string>
   <string name="backup_restore2">Przywróć lub importuj</string>
   <string name="overwrite_something">Czy nadpisać %s?</string>
 
@@ -746,8 +745,6 @@ Bloczki notatek mają na celu ułatwić pisanie kazań lub tworzenie osobistych 
 
   <string name="help_search_title">Wyszukiwanie</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Szukany tekst może zawierać specjalne znaki takie jak: *, ?, AND, OR, NOT
-(więcej informacji w „Apache Lucene - Query Parser Syntax”)</string>
   <string name="help_search_text2">Wyszukiwana fraza może zawierać operatory specjalne takie jak: *, AND, OR, NOT.</string>
   <string name="help_search_details">Zajrzyj do %s, aby dowiedzieć się więcej.</string>
   <string name="help_apache_lucene">składni wyszukiwania Apache Lucene</string>
@@ -1465,7 +1462,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="ai_regenerate_instructions_hint">Dodatkowe instrukcje (opcjonalnie)</string>
   <string name="ai_regenerate_keep_previous">Zachowaj poprzednią wersję</string>
   <string name="ai_regenerate_fresh_run">Nowe uruchomienie (ignoruj poprzedni wynik)</string>
-  <string name="ai_document_delete">Usuń</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

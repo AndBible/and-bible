@@ -355,8 +355,6 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="help_nav_title">Navigasi</string>
   <string name="help_contextmenus_title">Menu konteks</string>
   <string name="help_search_title">Pencarian</string>
-  <string name="help_search_text">Pencarian teks dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT
-(lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelasan lebih lanjut)</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <!--Welcome text-->
   <!--Uncategorized-->

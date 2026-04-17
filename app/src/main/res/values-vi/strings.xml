@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Khôi phục từ…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Khôi phục hoặc nhập từ…</string>
-  <string name="backup_restore">Khôi phục</string>
   <string name="backup_restore2">Khôi phục hoặc nhập</string>
   <string name="overwrite_something">Ghi đè %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Tìm kiếm</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Văn bản tìm kiếm có thể bao gồm các ký tự đặc biệt như *, ?, AND, OR, NOT (xem \"Apache Lucene - Query Parser Syntax\" để biết thêm chi tiết)</string>
   <string name="help_search_text2">Văn bản tìm kiếm có thể bao gồm các ký tự đặc biệt như *, AND, OR, NOT</string>
   <string name="help_search_details">Vui lòng xem %s để biết thêm chi tiết.</string>
   <string name="help_apache_lucene">Apache Lucene - Cú pháp trình phân tích cú pháp truy vấn</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Hướng dẫn bổ sung (tùy chọn)</string>
   <string name="ai_regenerate_keep_previous">Giữ phiên bản trước</string>
   <string name="ai_regenerate_fresh_run">Chạy mới (bỏ qua kết quả trước)</string>
-  <string name="ai_document_delete">Xóa</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

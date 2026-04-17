@@ -634,7 +634,6 @@
   <string name="backup_restore_from">.... இல் இருந்து மீட்டமை</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">மீட்டமை அல்லது இறக்குமதி செய்…</string>
-  <string name="backup_restore">மீட்டமை</string>
   <string name="backup_restore2">மீட்டமை அல்லது இறக்குமதி</string>
   <string name="overwrite_something">%s-ஐ மேலெழுதவா?</string>
 
@@ -815,8 +814,6 @@
 
   <string name="help_search_title">தேடல்</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">தேடும்போது *, ?, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளைப் பயன்படுத்தலாம்.
-        (மேலதிக தகவல்களுக்கு \"Apache Lucene - Query Parser Syntax\" ஐ காண்க)</string>
   <string name="help_search_text2">தேடல் உரையில் *, AND, OR, NOT போன்ற சிறப்பு எழுத்துகளை சேர்க்கலாம்</string>
   <string name="help_search_details">மேலும் விவரங்களுக்கு %s பார்க்கவும்.</string>
   <string name="help_apache_lucene">Apache Lucene - வினவல் தொடரியல்</string>
@@ -1576,7 +1573,6 @@
   <string name="ai_regenerate_instructions_hint">கூடுதல் வழிமுறைகள் (விரும்பினால்)</string>
   <string name="ai_regenerate_keep_previous">முந்தைய பதிப்பை வை</string>
   <string name="ai_regenerate_fresh_run">புதிய இயக்கம் (முந்தைய முடிவை புறக்கணி)</string>
-  <string name="ai_document_delete">நீக்கு</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

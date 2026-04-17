@@ -608,7 +608,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_restore_from">Restauração de cópia de segurança de ...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restaurar ou importar de...</string>
-  <string name="backup_restore">Restaurar</string>
   <string name="backup_restore2">Restaurar ou Importar</string>
   <string name="overwrite_something">Sobrescreverr %s?</string>
 
@@ -783,8 +782,6 @@ Os Estudos são projetados para tornar mais fácil escrever notas de sermões, p
 
   <string name="help_search_title">Pesquisar</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
-(consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
   <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, E, OU, NÃO</string>
   <string name="help_search_details">Para mais detalhes, ver %s.</string>
   <string name="help_apache_lucene">Sintaxe de consulta simples - Apache Lucene</string>
@@ -1519,7 +1516,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="ai_regenerate_instructions_hint">Instruções adicionais (opcional)</string>
   <string name="ai_regenerate_keep_previous">Manter versão anterior</string>
   <string name="ai_regenerate_fresh_run">Execução nova (ignorar resultado anterior)</string>
-  <string name="ai_document_delete">Excluir</string>
   <string name="ai_unknown_prompt">IA</string>
 
     <!-- Default prompts -->

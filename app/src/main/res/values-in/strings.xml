@@ -615,7 +615,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="backup_restore_from">Pulihkan dari…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Pulihkan atau Impor dari…</string>
-  <string name="backup_restore">Pulihkan dari...</string>
   <string name="backup_restore2">Pulihkan atau Impor</string>
   <string name="overwrite_something">Timpa %s?</string>
 
@@ -780,8 +779,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
 
   <string name="help_search_title">Pencarian</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Pencarian teks dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT
-(lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelasan lebih lanjut)</string>
   <string name="help_search_text2">Teks pencarian dapat menyertakan karakter khusus seperti *, AND, OR, NOT</string>
   <string name="help_search_details">Silakan lihat %s untuk detail lebih lanjut.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksis Parser Kueri</string>
@@ -1471,7 +1468,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_regenerate_instructions_hint">Instruksi tambahan (opsional)</string>
   <string name="ai_regenerate_keep_previous">Pertahankan versi sebelumnya</string>
   <string name="ai_regenerate_fresh_run">Jalankan baru (abaikan hasil sebelumnya)</string>
-  <string name="ai_document_delete">Hapus</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

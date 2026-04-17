@@ -478,7 +478,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_to">Сақтық көшірме жасау…</string>
   <string name="backup_restore_from">Қалпына келтіру…</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
-  <string name="backup_restore">Қалпына келтіру</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">Дерекқор Файлды Қалпына келтіріңіз</string>
   <string name="restore_confirmation">Менің жазбаларым, бетбелгілерім, оқу планшеттерді, оқитын жоспарларымды және жұмыс кеңістіктерімді қайта жазу керек па?</string>
@@ -617,8 +616,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 </string>
   <string name="help_search_title">Іздеу</string>
   <!--TODO: to be removed-->
-  <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
-(толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
   <string name="help_workspaces_title">Жұмыс кеңістіктері</string>
   <string name="help_workspaces_text">
 Жұмыс кеңістігі бірнеше контекстке тәуелді жұмыс ортасын құруға рұқсат береді.

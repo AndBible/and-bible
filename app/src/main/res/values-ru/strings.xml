@@ -619,7 +619,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_restore_from">Восстановить из…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Восстановить или Импортировать из...</string>
-  <string name="backup_restore">Восстановить</string>
   <string name="backup_restore2">Восстановить или Импортировать</string>
   <string name="overwrite_something">Перезаписать %s?</string>
 
@@ -796,8 +795,6 @@ http://www.heartlight.org, разрешение предоставлено
 
   <string name="help_search_title">Поиск</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Текст поиска может содержать специальные символы, такие как *, ?, AND, OR, NOT
-(см. \"Apache Lucene - Query Parser Syntax\" для более подробной информации)</string>
   <string name="help_search_text2">Строка поиска может включать спецсимволы, такие как *, AND, OR, NOT</string>
   <string name="help_search_details">Пожалуйста смотрите подробности в %s.</string>
   <string name="help_apache_lucene">Apache Lucene — синтаксис парсера запросов</string>
@@ -1551,7 +1548,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="ai_regenerate_instructions_hint">Дополнительные инструкции (необязательно)</string>
   <string name="ai_regenerate_keep_previous">Сохранить предыдущую версию</string>
   <string name="ai_regenerate_fresh_run">Новый запуск (игнорировать предыдущий результат)</string>
-  <string name="ai_document_delete">Удалить</string>
   <string name="ai_unknown_prompt">ИИ</string>
 
     <!-- Default prompts -->

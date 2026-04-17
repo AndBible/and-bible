@@ -604,7 +604,6 @@
   <string name="backup_restore_from">استعادة من...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">استعادة أو استيراد من…</string>
-  <string name="backup_restore">إستعادة</string>
   <string name="backup_restore2">استعادة أو استيراد</string>
   <string name="overwrite_something">الكتابة فوق %s؟</string>
 
@@ -770,9 +769,6 @@
 
   <string name="help_search_title">بحث</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT
-        (انظر الى \"Apache Lucene - Query Parser Syntax\" لتفاصيل أكثر) 
-    </string>
   <string name="help_search_text2">البحث النصي يمكن أن يتضمن محارف خاصة مثل *، ?, AND، OR، NOT</string>
   <string name="help_search_details">الرجاء النظر إلى %s من أجل تفاصيل أكثر.</string>
   <string name="help_apache_lucene">Apache Lucene - صيغة محلل الاستعلام</string>
@@ -1488,7 +1484,6 @@
   <string name="ai_regenerate_instructions_hint">تعليمات إضافية (اختياري)</string>
   <string name="ai_regenerate_keep_previous">الاحتفاظ بالإصدار السابق</string>
   <string name="ai_regenerate_fresh_run">تشغيل جديد (تجاهل النتيجة السابقة)</string>
-  <string name="ai_document_delete">حذف</string>
   <string name="ai_unknown_prompt">الذكاء الاصطناعي</string>
 
     <!-- Default prompts -->

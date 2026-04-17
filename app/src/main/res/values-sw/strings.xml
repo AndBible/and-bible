@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Rejesha kutoka…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Rejesha au Ingiza kutoka…</string>
-  <string name="backup_restore">Rejesha</string>
   <string name="backup_restore2">Rejesha au Ingiza</string>
   <string name="overwrite_something">Andika juu ya %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Utafutaji</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Maandishi ya utafutaji yanaweza kuhifadhi wahusika maalum kama *, ?, AND, OR, NOT (tazama "Apache Lucene - Sintaksia ya Uchambuzi wa Hoja" kwa maelezo zaidi)</string>
   <string name="help_search_text2">Maandishi ya utafutaji yanaweza kuhifadhi wahusika maalum kama *, AND, OR, NOT</string>
   <string name="help_search_details">Tafadhali tazama %s kwa maelezo zaidi.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksia ya Uchambuzi wa Hoja</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Maelekezo ya ziada (si lazima)</string>
   <string name="ai_regenerate_keep_previous">Hifadhi toleo la awali</string>
   <string name="ai_regenerate_fresh_run">Utekelezaji mpya (puuza matokeo ya awali)</string>
-  <string name="ai_document_delete">Futa</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

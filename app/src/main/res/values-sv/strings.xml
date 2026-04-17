@@ -621,7 +621,6 @@ i GT och NT varje dag.
   <string name="backup_restore_from">Återställ från...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Återställ eller importera från...</string>
-  <string name="backup_restore">Återställ</string>
   <string name="backup_restore2">Återställ eller importera</string>
   <string name="overwrite_something">Skriv över %s?</string>
 
@@ -803,9 +802,6 @@ i GT och NT varje dag.
 
   <string name="help_search_title">Sök</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Söktexten kan innehålla specialtecken som *, ?, AND, OR, NOT
-        (se \"Apache Lucene - Query Parser Syntax\" för mer info)
-    </string>
   <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
   <string name="help_search_details">Se %s for för mer information.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1564,7 +1560,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_regenerate_instructions_hint">Ytterligare instruktioner (valfritt)</string>
   <string name="ai_regenerate_keep_previous">Behåll tidigare version</string>
   <string name="ai_regenerate_fresh_run">Ny körning (ignorera tidigare resultat)</string>
-  <string name="ai_document_delete">Radera</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

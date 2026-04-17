@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Gendan fra…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Gendan eller importér fra…</string>
-  <string name="backup_restore">Gendan</string>
   <string name="backup_restore2">Gendan eller importér</string>
   <string name="overwrite_something">Overskriv %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Søg</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Søgeteksten kan indeholde specialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene - Query Parser Syntax\" for flere detaljer)</string>
   <string name="help_search_text2">Søgeteksten kan indeholde specialtegn som *, AND, OR, NOT</string>
   <string name="help_search_details">Se venligst %s for flere detaljer.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Yderligere instruktioner (valgfrit)</string>
   <string name="ai_regenerate_keep_previous">Behold tidligere version</string>
   <string name="ai_regenerate_fresh_run">Ny kørsel (ignorer tidligere resultat)</string>
-  <string name="ai_document_delete">Slet</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

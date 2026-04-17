@@ -599,7 +599,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="backup_restore_from">Gjenopprett fra…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Gjenopprett eller importer fra…</string>
-  <string name="backup_restore">Gjenopprett</string>
   <string name="backup_restore2">Gjenopprett eller importer</string>
   <string name="overwrite_something">Overskrive %s?</string>
 
@@ -763,9 +762,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
 
   <string name="help_search_title">Søk</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Tekstsøk kan inneholde spesialtegn som *, ?, AND, OR, NOT
-        (se \"Apache Lucene - Query Parser Syntax\" for mer informasjon)
-    </string>
   <string name="help_search_text2">Søketekst kan inneholde spesialtegn som *, OG, ELLER, IKKE</string>
   <string name="help_search_details">Se %s for mer informasjon.</string>
   <string name="help_apache_lucene">Apache Lucene - Spørringsparsersyntaks</string>
@@ -1474,7 +1470,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ai_regenerate_instructions_hint">Tilleggsinstruksjoner (valgfritt)</string>
   <string name="ai_regenerate_keep_previous">Behold forrige versjon</string>
   <string name="ai_regenerate_fresh_run">Ny kjøring (ignorer tidligere resultat)</string>
-  <string name="ai_document_delete">Slett</string>
   <string name="ai_unknown_prompt">KI</string>
 
     <!-- Default prompts -->

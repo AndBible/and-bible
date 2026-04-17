@@ -569,7 +569,6 @@
   <string name="backup_restore_from">กู้คืนจาก…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">กู้คืนหรือนำเข้าจาก…</string>
-  <string name="backup_restore">กู้คืน</string>
   <string name="backup_restore2">กู้คืนหรือนำเข้า</string>
   <string name="overwrite_something">เขียนทับ %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">ค้นหา</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, ?, AND, OR, NOT (ดู \"Apache Lucene - Query Parser Syntax\" สำหรับรายละเอียดเพิ่มเติม)</string>
   <string name="help_search_text2">ข้อความค้นหาสามารถใช้อักขระพิเศษเช่น *, AND, OR, NOT</string>
   <string name="help_search_details">กรุณาดู %s สำหรับรายละเอียดเพิ่มเติม</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">คำแนะนำเพิ่มเติม (ไม่บังคับ)</string>
   <string name="ai_regenerate_keep_previous">เก็บเวอร์ชันเดิมไว้</string>
   <string name="ai_regenerate_fresh_run">เริ่มใหม่ (ไม่ใช้ผลลัพธ์เดิม)</string>
-  <string name="ai_document_delete">ลบ</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

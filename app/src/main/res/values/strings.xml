@@ -658,7 +658,6 @@
     <string name="backup_restore_from">Restore from…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
     <string name="backup_restore_from2">Restore or Import from…</string>
-    <string name="backup_restore">Restore</string>
     <string name="backup_restore2">Restore or Import</string>
     <string name="overwrite_something">Overwrite %s?</string>
 
@@ -840,9 +839,6 @@
 
     <string name="help_search_title">Search</string>
     <!-- TODO: to be removed -->
-    <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-        (see "Apache Lucene - Query Parser Syntax" for more details)
-    </string>
     <string name="help_search_text2">Search text can include special characters like *, AND, OR, NOT</string>
     <string name="help_search_details">Please see %s for more details.</string>
     <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1602,7 +1598,6 @@
     <string name="ai_regenerate_instructions_hint">Additional instructions (optional)</string>
     <string name="ai_regenerate_keep_previous">Keep previous version</string>
     <string name="ai_regenerate_fresh_run">Fresh run (ignore previous result)</string>
-    <string name="ai_document_delete">Delete</string>
     <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

@@ -613,7 +613,6 @@ puhe aloitettiin määrätyn jaejakson ulkopuolelta.</string>
   <string name="backup_restore_from">Palauta varmuuskopiosta…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Palauta tai tuo ...</string>
-  <string name="backup_restore">Palauta</string>
   <string name="backup_restore2">Palauta tai tuo</string>
   <string name="overwrite_something">Ylikirjoita %s?</string>
 
@@ -772,7 +771,6 @@ Pitkä painallus avaa kontekstivalikon tai toimintotilan useissa näkymissä. Pi
 
   <string name="help_search_title">Etsi</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Tekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)</string>
   <string name="help_search_text2">Etsittävä teksti voi sisältää erikoismerkkejä kuten *, AND, OR, NOT</string>
   <string name="help_search_details">Katso lisätietoja: %s</string>
   <string name="help_apache_lucene">Apache Lucene kyselysyntaksi</string>
@@ -1469,7 +1467,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_regenerate_instructions_hint">Lisäohjeet (valinnainen)</string>
   <string name="ai_regenerate_keep_previous">Säilytä aiempi versio</string>
   <string name="ai_regenerate_fresh_run">Uusi ajo (ohita aiempi tulos)</string>
-  <string name="ai_document_delete">Poista</string>
   <string name="ai_unknown_prompt">Tekoäly</string>
 
     <!-- Default prompts -->

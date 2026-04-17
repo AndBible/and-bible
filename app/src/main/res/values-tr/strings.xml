@@ -623,7 +623,6 @@
   <string name="backup_restore_from">Geri yükle kaynağı…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Geri yükle veya İçe aktar…</string>
-  <string name="backup_restore">Yedekten geri yükle</string>
   <string name="backup_restore2">Geri Yükle veya İçe Aktar</string>
   <string name="overwrite_something">%s üzerine yaz?</string>
 
@@ -805,10 +804,6 @@ katkıda bulunmayı düşünün. :-)</string>
 
   <string name="help_search_title">Arama</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">
-    Arama metni *, ?, AND, OR, NOT gibi özel karakterler içerebilir
-    (Daha fazla bilgi için \"Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi\" bölümüne bakın)
-  </string>
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
   <string name="help_apache_lucene">Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi</string>
@@ -1568,7 +1563,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_regenerate_instructions_hint">Ek talimatlar (isteğe bağlı)</string>
   <string name="ai_regenerate_keep_previous">Önceki sürümü koru</string>
   <string name="ai_regenerate_fresh_run">Yeni çalıştırma (önceki sonucu yoksay)</string>
-  <string name="ai_document_delete">Sil</string>
   <string name="ai_unknown_prompt">Yapay Zeka</string>
 
     <!-- Default prompts -->

@@ -619,7 +619,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="backup_restore_from">Obnoviť z…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Obnoviť alebo importovať z…</string>
-  <string name="backup_restore">Obnoviť</string>
   <string name="backup_restore2">Obnoviť alebo importovať</string>
   <string name="overwrite_something">Prepísať%s?</string>
 
@@ -801,8 +800,6 @@ Režim opakovania bol vypnutý, pretože
 
   <string name="help_search_title">Hľadať</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Vyhľadávaný text môže obsahovať aj špeciálne znaky ako *,?, AND, OR, NOT
-(viď \"Apache Lucene - Query Parser Syntax\" pre viac detailov)</string>
   <string name="help_search_text2">Hľadaný text môže obsahovať špeciálne znaky ako *, AND, OR, NOT</string>
   <string name="help_search_details">Ďalšie podrobnosti nájdete v%s.</string>
   <string name="help_apache_lucene">Syntax analyzátora dopytov – Apache Lucene</string>
@@ -1561,7 +1558,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="ai_regenerate_instructions_hint">Ďalšie pokyny (voliteľné)</string>
   <string name="ai_regenerate_keep_previous">Zachovať predchádzajúcu verziu</string>
   <string name="ai_regenerate_fresh_run">Nové spustenie (ignorovať predchádzajúci výsledok)</string>
-  <string name="ai_document_delete">Vymazať</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Restaura des de…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restaura o importa des de…</string>
-  <string name="backup_restore">Restaura</string>
   <string name="backup_restore2">Restaura o importa</string>
   <string name="overwrite_something">Vols sobreescriure %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Cerca</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">El text de cerca pot incloure caràcters especials com *, ?, AND, OR, NOT (consulta "Apache Lucene - Query Parser Syntax" per a més detalls)</string>
   <string name="help_search_text2">El text de cerca pot incloure caràcters especials com *, AND, OR, NOT</string>
   <string name="help_search_details">Consulta %s per a més detalls.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Instruccions addicionals (opcional)</string>
   <string name="ai_regenerate_keep_previous">Conserva la versió anterior</string>
   <string name="ai_regenerate_fresh_run">Execució nova (ignora el resultat anterior)</string>
-  <string name="ai_document_delete">Suprimeix</string>
   <string name="ai_unknown_prompt">IA</string>
 
     <!-- Default prompts -->

@@ -612,7 +612,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_restore_from">Herstel vanaf ...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Herstel of voer in vanaf ... </string>
-  <string name="backup_restore">Herstel</string>
   <string name="backup_restore2">Herstel of voer in</string>
   <string name="overwrite_something">Oorskryf %s? </string>
 
@@ -791,8 +790,6 @@ Benewens boekmerke, kan daar persoonlike teksinskrywings in \'n studieblok wees.
 
   <string name="help_search_title">Soek</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Soek teks kan spesiale karakters insluit soos *,?, AND, OR, NOT
-(sien \"Apache Lucene - Query Parser Syntax\" vir meer besonderhede)</string>
   <string name="help_search_text2">Soek teks kan spesiale karakters insluit soos *, AND, OR, NOT</string>
   <string name="help_search_details">Sien asseblief %s vir meer besonderhede.</string>
   <string name="help_apache_lucene">Apache Lucene - Navraag Parser Sintaks</string>
@@ -1528,7 +1525,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_regenerate_instructions_hint">Bykomende instruksies (opsioneel)</string>
   <string name="ai_regenerate_keep_previous">Behou vorige weergawe</string>
   <string name="ai_regenerate_fresh_run">Vars uitvoer (ignoreer vorige resultaat)</string>
-  <string name="ai_document_delete">Verwyder</string>
   <string name="ai_unknown_prompt">KI</string>
 
     <!-- Default prompts -->

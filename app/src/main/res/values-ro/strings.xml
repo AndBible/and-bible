@@ -623,7 +623,6 @@
   <string name="backup_restore_from">Recuperează din…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Recuperează sau importă din…</string>
-  <string name="backup_restore">Recuperează</string>
   <string name="backup_restore2">Recuperează sau importă</string>
   <string name="overwrite_something">Înlocuiești %s?</string>
 
@@ -805,9 +804,6 @@
 
   <string name="help_search_title">Caută</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Textul de căutat poate include caractere speciale, cum ar fi *, ?, AND, OR, NOT
-        (vezi „Apache Lucene - Query Parser Syntax” pentru detalii)
-    </string>
   <string name="help_search_text2">Căutarea textului poate include caractere speciale precum *, AND, OR, NOT</string>
   <string name="help_search_details">A se vedea %s pentru mai multe detalii.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaxa analizorului de căutare</string>
@@ -1567,7 +1563,6 @@
   <string name="ai_regenerate_instructions_hint">Instrucțiuni suplimentare (opțional)</string>
   <string name="ai_regenerate_keep_previous">Păstrează versiunea anterioară</string>
   <string name="ai_regenerate_fresh_run">Rulare nouă (ignoră rezultatul anterior)</string>
-  <string name="ai_document_delete">Șterge</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

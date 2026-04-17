@@ -620,7 +620,6 @@
   <string name="backup_restore_from">복원 위치…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">복원 또는 가져오기 위치…</string>
-  <string name="backup_restore">복원</string>
   <string name="backup_restore2">복원 또는 가져오기</string>
   <string name="overwrite_something">%s을(를) 덮어쓰시겠습니까?</string>
 
@@ -801,9 +800,6 @@
 
   <string name="help_search_title">검색</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">검색 텍스트에는 *, ?, AND, OR, NOT과 같은 특수 문자를 포함할 수 있습니다
-        (자세한 내용은 "Apache Lucene - Query Parser Syntax"를 참조하세요)
-    </string>
   <string name="help_search_text2">검색 텍스트에는 *, AND, OR, NOT 같은 특수 문자를 포함할 수 있습니다</string>
   <string name="help_search_details">자세한 내용은 %s를 참조하세요.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1563,7 +1559,6 @@
   <string name="ai_regenerate_instructions_hint">추가 지시 사항 (선택 사항)</string>
   <string name="ai_regenerate_keep_previous">이전 버전 유지</string>
   <string name="ai_regenerate_fresh_run">새로 실행 (이전 결과 무시)</string>
-  <string name="ai_document_delete">삭제</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

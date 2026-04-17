@@ -607,7 +607,6 @@ Herhaal passage modus was automatisch uitgezet doordat spreken was gestart buite
   <string name="backup_restore_from">Herstel van...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Herstellen of importeren van...</string>
-  <string name="backup_restore">Herstellen</string>
   <string name="backup_restore2">Herstellen of Importeren</string>
   <string name="overwrite_something">Overschrijf %s?</string>
 
@@ -777,9 +776,6 @@ Naast bladwijzers is het ook mogelijk om losse teksten in een studiemap op te ne
 
   <string name="help_search_title">Zoeken</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">De zoekopdracht mag speciale tekens bevatten, zoals *, ?, AND, OR, NOT
-        (lees \"Apache Lucene - Query Parser Syntax\" voor meer informatie hierover)
-    </string>
   <string name="help_search_text2">Zoekterm mag speciale tekens bevatten, zoals *, AND, OR, NOT</string>
   <string name="help_search_details">Zie %s voor meer details.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1516,7 +1512,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_regenerate_instructions_hint">Aanvullende instructies (optioneel)</string>
   <string name="ai_regenerate_keep_previous">Vorige versie bewaren</string>
   <string name="ai_regenerate_fresh_run">Nieuwe uitvoering (vorig resultaat negeren)</string>
-  <string name="ai_document_delete">Verwijderen</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

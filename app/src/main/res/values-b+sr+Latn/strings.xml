@@ -635,7 +635,6 @@ dovesti do trajnog gubitka ovih obeleživača/beleški ili pak pomeranja njihovi
   <string name="backup_restore_from">Vratiti iz...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Vrati ili uvezi iz…</string>
-  <string name="backup_restore">Povratiti</string>
   <string name="backup_restore2">Vrati ili uvezi</string>
   <string name="overwrite_something">Prepiši %s?</string>
 
@@ -813,9 +812,6 @@ Pored obeleživača, moguće je i ubaciti tekst po volji u radnoj svesci.</strin
 
   <string name="help_search_title">Pretraga</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Tekst za pretragu može sadržati posebne znake kao *, ?, AND, OR, NOT
-        (za više detalja pogledajte \"Apači Lucene - Query Parser sintaksa\")
-    </string>
   <string name="help_search_text2">Tekst pretrage može da sadrži specijalne znakove poput *, AND, OR, NOT</string>
   <string name="help_search_details">Pogledajte %s za više detalja.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksa upita parsera</string>
@@ -1551,7 +1547,6 @@ Nemojte više prikazivati ovu poruku ponovo</string>
   <string name="ai_regenerate_instructions_hint">Dodatne instrukcije (opcionalno)</string>
   <string name="ai_regenerate_keep_previous">Čuvaj prethodnu verziju</string>
   <string name="ai_regenerate_fresh_run">Svеže pokretanje (ignoriši prethodni rezultat)</string>
-  <string name="ai_document_delete">Obriši</string>
   <string name="ai_unknown_prompt">VI</string>
 
     <!-- Default prompts -->

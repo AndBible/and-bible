@@ -616,7 +616,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_restore_from">Obnovit z...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Obnova nebo import z...</string>
-  <string name="backup_restore">Obnovit</string>
   <string name="backup_restore2">Obnova nebo import</string>
   <string name="overwrite_something">Přepsat %s?</string>
 
@@ -796,9 +795,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
   <string name="help_search_title">Hledat</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
-        (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
-</string>
   <string name="help_search_text2">Vyhledávací dotaz může obsahovat speciální znaky a slova jako *, ?, ~, AND, OR, NOT</string>
   <string name="help_search_details">Pro více detailů viz. %s .</string>
   <string name="help_apache_lucene">Apache Lucene - formát vyhledávacího dotazu</string>
@@ -1556,7 +1552,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_regenerate_instructions_hint">Další pokyny (volitelné)</string>
   <string name="ai_regenerate_keep_previous">Zachovat předchozí verzi</string>
   <string name="ai_regenerate_fresh_run">Nové spuštění (ignorovat předchozí výsledek)</string>
-  <string name="ai_document_delete">Smazat</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

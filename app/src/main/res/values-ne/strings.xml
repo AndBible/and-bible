@@ -569,7 +569,6 @@
   <string name="backup_restore_from">यहाँबाट पुनर्स्थापना गर्नुहोस्…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">यहाँबाट पुनर्स्थापना वा आयात गर्नुहोस्…</string>
-  <string name="backup_restore">पुनर्स्थापना</string>
   <string name="backup_restore2">पुनर्स्थापना वा आयात</string>
   <string name="overwrite_something">%s ओभरराइट गर्ने?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">खोज</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">खोज पाठमा *, ?, AND, OR, NOT जस्ता विशेष वर्णहरू समावेश गर्न सकिन्छ (थप विवरणको लागि \"Apache Lucene - Query Parser Syntax\" हेर्नुहोस्)</string>
   <string name="help_search_text2">खोज पाठमा *, AND, OR, NOT जस्ता विशेष वर्णहरू समावेश गर्न सकिन्छ</string>
   <string name="help_search_details">थप विवरणको लागि कृपया %s हेर्नुहोस्।</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">थप निर्देशनहरू (वैकल्पिक)</string>
   <string name="ai_regenerate_keep_previous">अघिल्लो संस्करण राख्नुहोस्</string>
   <string name="ai_regenerate_fresh_run">नयाँ रन (अघिल्लो परिणाम बेवास्ता गर्नुहोस्)</string>
-  <string name="ai_document_delete">मेट्नुहोस्</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

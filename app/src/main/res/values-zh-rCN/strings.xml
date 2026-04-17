@@ -618,7 +618,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_restore_from">从备份恢复...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Geri yükle veya İçe aktar…</string>
-  <string name="backup_restore">恢复</string>
   <string name="backup_restore2">Geri Yükle veya İçe Aktar</string>
   <string name="overwrite_something">%s üzerine yaz?</string>
 
@@ -789,8 +788,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
 
   <string name="help_search_title">搜寻</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">搜寻字词可以加入特殊字符如 * , ?, AND, OR, NOT
-(有关详细信息请参「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
   <string name="help_apache_lucene">Apache Lucene - 查询解析器语法</string>
@@ -1529,7 +1526,6 @@ Beta用家请透过 %s 、或Google Play回报错误。</string>
   <string name="ai_regenerate_instructions_hint">附加说明（可选）</string>
   <string name="ai_regenerate_keep_previous">保留上一个版本</string>
   <string name="ai_regenerate_fresh_run">全新运行（忽略上次结果）</string>
-  <string name="ai_document_delete">删除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

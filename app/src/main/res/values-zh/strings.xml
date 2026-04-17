@@ -501,7 +501,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_to">備份至...</string>
   <string name="backup_restore_from">回復至...</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
-  <string name="backup_restore">回復</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
   <string name="restore_database">回復資料庫檔案</string>
   <string name="restore_confirmation">覆寫我的筆記、書籤、研習筆記、讀經計劃及工作區嗎？</string>
@@ -641,8 +640,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 </string>
   <string name="help_search_title">搜尋</string>
   <!--TODO: to be removed-->
-  <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
-(有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_workspaces_title">工作區</string>
   <string name="help_workspaces_text">
 工作區可讓你打開數個工作環境。

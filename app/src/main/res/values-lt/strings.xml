@@ -614,7 +614,6 @@ galite šioms knygoms turėti skirtingus garsinio atkūrimo nustatymus.</string>
   <string name="backup_restore_from">Atkurti iš…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Atkurti arba importuoti iš...</string>
-  <string name="backup_restore">Atstatyti</string>
   <string name="backup_restore2">Atkurti arba importuoti</string>
   <string name="overwrite_something">Perrašyti %s?</string>
 
@@ -795,8 +794,6 @@ Naujai žymei pridėti pastabas galite Biblijos rodinyje paspaudę ant paryškin
 
   <string name="help_search_title">Paieška</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Paieškos tekste gali būti specialūs simboliai, tokie kaip *, ?, AND, OR, NOT
-(Išsamios informacijos ieškokite „Apache Lucene - Query Parser Syntax“)</string>
   <string name="help_search_text2">Ieškomame tekste gali būti ypatingi simboliai, pvz.: *, AND, OR, NOT</string>
   <string name="help_search_details">Išsamesnei informacijai, žiūrėkite %s.</string>
   <string name="help_apache_lucene">Apache Lucene - Užklausų analizatoriaus sintaksė</string>
@@ -1553,7 +1550,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="ai_regenerate_instructions_hint">Papildomos instrukcijos (nebūtina)</string>
   <string name="ai_regenerate_keep_previous">Palikti ankstesnę versiją</string>
   <string name="ai_regenerate_fresh_run">Naujas paleidimas (ignoruoti ankstesnį rezultatą)</string>
-  <string name="ai_document_delete">Ištrinti</string>
   <string name="ai_unknown_prompt">DI</string>
 
     <!-- Default prompts -->

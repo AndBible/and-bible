@@ -614,7 +614,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="backup_restore_from">इससे पुनर्स्थापित करें…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">इससे पुनर्स्थापित या आयात करें…</string>
-  <string name="backup_restore">बैकअप से नवीकरण</string>
   <string name="backup_restore2">पुनर्स्थापित या आयात करें</string>
   <string name="overwrite_something">%s ओवरराइट करें?</string>
 
@@ -796,9 +795,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 
   <string name="help_search_title"> खोज</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text"> खोज पाठ में *,?,AND,OR,NOT जैसे विशेष वर्ण शामिल हो सकते हैं
-(अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\"  देखें)
-</string>
   <string name="help_search_text2">खोज टेक्स्ट में विशेष वर्ण जैसे *, AND, OR, NOT शामिल हो सकते हैं</string>
   <string name="help_search_details">अधिक जानकारी के लिए कृपया %s देखें।</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1530,7 +1526,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_regenerate_instructions_hint">अतिरिक्त निर्देश (वैकल्पिक)</string>
   <string name="ai_regenerate_keep_previous">पिछला संस्करण रखें</string>
   <string name="ai_regenerate_fresh_run">नया रन (पिछला परिणाम अनदेखा करें)</string>
-  <string name="ai_document_delete">हटाएं</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

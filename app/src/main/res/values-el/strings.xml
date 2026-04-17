@@ -603,7 +603,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="backup_restore_from">Επαναφορά από...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Επαναφορά ή εισαγωγή από...</string>
-  <string name="backup_restore">Επαναφορά</string>
   <string name="backup_restore2">Επαναφορά ή εισαγωγή</string>
   <string name="overwrite_something">Αντικατάσταση %s?</string>
 
@@ -775,8 +774,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 
   <string name="help_search_title">Αναζήτηση</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Το κείμενο αναζήτησης μπορεί να περιέχει ειδικούς χαρακτήρες όπως *, ?, AND, OR, NOT
-(δες \"Apache Lucene - Query Parser Syntax\" για περισσότερα)</string>
   <string name="help_search_text2">Το κείμενο αναζήτησης μπορεί να περιλαμβάνει ειδικούς χαρακτήρες όπως *, AND, OR, NOT</string>
   <string name="help_search_details">Παρακαλώ δείτε %s για περισσότερες λεπτομέρειες</string>
   <string name="help_apache_lucene">Apache Lucene - Σύνταξη αναλυτή ερωτήματος</string>
@@ -1509,7 +1506,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_regenerate_instructions_hint">Πρόσθετες οδηγίες (προαιρετικό)</string>
   <string name="ai_regenerate_keep_previous">Διατήρηση προηγούμενης έκδοσης</string>
   <string name="ai_regenerate_fresh_run">Νέα εκτέλεση (αγνόηση προηγούμενου αποτελέσματος)</string>
-  <string name="ai_document_delete">Διαγραφή</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

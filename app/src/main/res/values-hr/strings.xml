@@ -610,7 +610,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="backup_restore_from">Vratiti iz...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Vratiti ili uvesti iz...</string>
-  <string name="backup_restore">Vratiti</string>
   <string name="backup_restore2">Vratiti ili uvesti</string>
   <string name="overwrite_something">Prepisati %s?</string>
 
@@ -784,9 +783,6 @@ Pored straničnika, moguće je i unijeti tekst po želji u radnoj bilježnici.</
 
   <string name="help_search_title">Pretraži</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Tekst za pretraživanje može sadržavati posebne znakove kao *, ?, AND, OR, NOT
-        (za više detalja pogledajte Apache Lucene - Query Parser Syntax)
-    </string>
   <string name="help_search_text2">Tekst za pretraživanje može sadržavati posebne znakove kao *, AND, OR, NOT</string>
   <string name="help_search_details">Molimo pogledajte %s za više detalja.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1521,7 +1517,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="ai_regenerate_instructions_hint">Dodatne upute (neobavezno)</string>
   <string name="ai_regenerate_keep_previous">Zadrži prethodnu verziju</string>
   <string name="ai_regenerate_fresh_run">Novo pokretanje (zanemari prethodni rezultat)</string>
-  <string name="ai_document_delete">Obriši</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

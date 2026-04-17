@@ -589,7 +589,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_restore_from">Wiederherstellen von...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Wiederherstellen oder importieren von...</string>
-  <string name="backup_restore">Wiederherstellen</string>
   <string name="backup_restore2">Wiederherstellung oder Import</string>
   <string name="overwrite_something">Überschreiben von %s?</string>
 
@@ -759,7 +758,6 @@ Neben Lesezeichen können auch andere Einträge händisch hinzugefügt werden.</
 
   <string name="help_search_title">Suche</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Suchtext kann Spezialzeichen wie *,?, AND, OR, NOT enthalten (siehe \"Apache Lucene - Query Parser Syntax für mehr Informationen)</string>
   <string name="help_search_text2">Der Suchtext kann Sonderzeichen wie *, AND, OR, NOT enthalten</string>
   <string name="help_search_details">Siehe %s für mehr Details.</string>
   <string name="help_apache_lucene">Apache Lucene - Abfrage-Analyse-Syntax</string>
@@ -1485,7 +1483,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="ai_regenerate_instructions_hint">Zusätzliche Anweisungen (optional)</string>
   <string name="ai_regenerate_keep_previous">Vorherige Version behalten</string>
   <string name="ai_regenerate_fresh_run">Neuer Durchlauf (vorheriges Ergebnis ignorieren)</string>
-  <string name="ai_document_delete">Löschen</string>
   <string name="ai_unknown_prompt">KI</string>
 
     <!-- Default prompts -->

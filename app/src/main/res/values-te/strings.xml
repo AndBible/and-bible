@@ -624,7 +624,6 @@ http://www.heartlight.org, అనుమతి మంజూరు చేయబడ
   <string name="backup_restore_from">దీని నుండి పునరుద్ధరించు…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">నుండి పునరుద్ధరించు లేదా దిగుమతి చేయండి…</string>
-  <string name="backup_restore">పునరుద్ధరించు</string>
   <string name="backup_restore2">పునరుద్ధరించు లేదా దిగుమతి చేయండి</string>
   <string name="overwrite_something">%s ఓవర్‌రైట్ చేయాలా?</string>
 
@@ -797,8 +796,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
 
   <string name="help_search_title">వెతకండి</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">శోధన వచనంలో *, ?, AND, OR, NOT వంటి ప్రత్యేక అక్షరాలు ఉండవచ్చు
-(మరిన్ని వివరాల కోసం \"Apache Lucene - Query Parser Syntax\" చూడండి)</string>
   <string name="help_search_text2">శోధన వచనంలో *, AND, OR, NOT వంటి ప్రత్యేక అక్షరాలు ఉండవచ్చు</string>
   <string name="help_search_details">దయచేసి మరిన్ని వివరాల కోసం %s చూడండి.</string>
   <string name="help_apache_lucene">అపాచీ లూసీన్ - క్వెరీ పార్సర్ సింటాక్స్</string>
@@ -1543,7 +1540,6 @@ Don\'t show this message again
   <string name="ai_regenerate_instructions_hint">అదనపు సూచనలు (ఐచ్ఛికం)</string>
   <string name="ai_regenerate_keep_previous">మునుపటి వెర్షన్ ఉంచండి</string>
   <string name="ai_regenerate_fresh_run">తాజా రన్ (మునుపటి ఫలితాన్ని విస్మరించండి)</string>
-  <string name="ai_document_delete">తొలగించు</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

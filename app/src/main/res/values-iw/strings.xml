@@ -599,7 +599,6 @@
   <string name="backup_restore_from">שחזור גיבוי מ...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">שחזור או ייבוא מ...</string>
-  <string name="backup_restore">שחזור</string>
   <string name="backup_restore2">שחזור או ייבוא</string>
   <string name="overwrite_something">לדרוס את %s?</string>
 
@@ -767,9 +766,6 @@
 
   <string name="help_search_title">חיפוש</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">חיפוש טקסט יכול לכלול סימנים מיוחדים כגון  *, ?, AND, OR, NOT
-        (קרא את \"Apache Lucene - Query Parser Syntax\" למידע נוסף [באנגלית[))
-    </string>
   <string name="help_search_text2">טקסט החיפוש יכול לכלול תווים מיוחדים כמו *, AND, OR, NOT</string>
   <string name="help_search_details">ראה %s לפרטים נוספים.</string>
   <string name="help_apache_lucene">Apache Lucene - תחביר מנתח שאילתות</string>
@@ -1477,7 +1473,6 @@
   <string name="ai_regenerate_instructions_hint">הוראות נוספות (אופציונלי)</string>
   <string name="ai_regenerate_keep_previous">שמור גרסה קודמת</string>
   <string name="ai_regenerate_fresh_run">הרצה חדשה (התעלם מתוצאה קודמת)</string>
-  <string name="ai_document_delete">מחק</string>
   <string name="ai_unknown_prompt">בינה מלאכותית</string>
 
     <!-- Default prompts -->

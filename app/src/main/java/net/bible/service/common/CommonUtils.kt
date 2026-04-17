@@ -1048,7 +1048,7 @@ object CommonUtils : CommonUtilsBase() {
             HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo),
             HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist), // beta video
             HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text),
+            HelpItem(R.string.help_search_title, R.string.help_search_text2),
             HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {

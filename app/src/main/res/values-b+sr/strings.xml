@@ -44,9 +44,6 @@
         Контекст мени Управљача Обележивача дозвољава да обележивачи буду груписани употребом налепница.
     </string>
   <string name="help_search_title">Претрага</string>
-  <string name="help_search_text">Текст за претрагу може садржати посебне знаке као *, ?, AND, OR, NOT
-        (за више детаља погледајте \"Апачи Lucene - Query Parser синтакса\")
-    </string>
   <string name="help_workspaces_title">Радне површи</string>
   <string name="help_workspaces_text">
         Радна површина даје могућност постојања више контекстуалних радних окружења. Функцијама радних површина

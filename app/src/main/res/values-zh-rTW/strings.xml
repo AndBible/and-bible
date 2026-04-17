@@ -615,7 +615,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_restore_from">回復至...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">從…還原或匯入</string>
-  <string name="backup_restore">回復</string>
   <string name="backup_restore2">還原或匯入</string>
   <string name="overwrite_something">覆寫 %s？</string>
 
@@ -786,8 +785,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 
   <string name="help_search_title">搜尋</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
-(有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_search_text2">搜尋文字可包含特殊字元，如 *、AND、OR、NOT</string>
   <string name="help_search_details">詳情請參閱 %s。</string>
   <string name="help_apache_lucene">Apache Lucene - 查詢解析器語法</string>
@@ -1535,7 +1532,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_regenerate_instructions_hint">附加說明（可選）</string>
   <string name="ai_regenerate_keep_previous">保留上一個版本</string>
   <string name="ai_regenerate_fresh_run">全新執行（忽略上次結果）</string>
-  <string name="ai_document_delete">刪除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

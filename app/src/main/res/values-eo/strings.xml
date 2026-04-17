@@ -603,7 +603,6 @@ Reĝimo “ripeti alineon” estas malaktiva, ĉar parolo startis ekster de difi
   <string name="backup_restore_from">Restarigi el…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restarigi aŭ enporti el…</string>
-  <string name="backup_restore">Restarigi</string>
   <string name="backup_restore2">Restarigi aŭ enporti</string>
   <string name="overwrite_something">Ĉu anstataŭigi %s?</string>
 
@@ -767,8 +766,6 @@ Notblokoj estas destinitaj por fari notojn pri predikoj, prepari predikojn aŭ p
 
   <string name="help_search_title">Serĉi</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Serĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT
- (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj)</string>
   <string name="help_search_text2">La serĉata teksto povas enhavi specialajn operatorojn kiel: *, AND, OR, NOT.</string>
   <string name="help_search_details">Legu la %s por pli da detaloj.</string>
   <string name="help_apache_lucene">serĉan sintakson de Apache Lucene</string>
@@ -1488,7 +1485,6 @@ Ne montri tion ĉi denove</string>
   <string name="ai_regenerate_instructions_hint">Kromaj instrukcioj (nedeviga)</string>
   <string name="ai_regenerate_keep_previous">Konservi antaŭan version</string>
   <string name="ai_regenerate_fresh_run">Nova rulo (ignori antaŭan rezulton)</string>
-  <string name="ai_document_delete">Forigi</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

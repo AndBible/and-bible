@@ -624,7 +624,6 @@ Wholesome Words\'i (http://www.wholesomewords.org) lahkusest juurdepääsuluba t
   <string name="backup_restore_from">Taasta...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Taasta või impordi failist...</string>
-  <string name="backup_restore">Taasta</string>
   <string name="backup_restore2">Taasta või impordi</string>
   <string name="overwrite_something">Kas kirjutada %s üle?</string>
 
@@ -782,9 +781,6 @@ Beta kasutajatel on soovituslik esitada veateateid läbi Google Play või (eelis
 
   <string name="help_search_title">Otsing</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Otsingutekstis võib olla ka erimärke nagu *, ?, AND, OR, NOT
-        (Vaata lisainfot dokumendist \"Apache Lucene - Query Parser Syntax\")
-    </string>
   <string name="help_search_text2">Otsingutekstis võib olla ka erimärke nagu *, AND, OR, NOT</string>
   <string name="help_search_details">Vaata lisainfoks %s.</string>
   <string name="help_apache_lucene">Apache Lucene - päringu parseri süntaks</string>
@@ -1496,7 +1492,6 @@ Enne rakendusse sisenemist näidatakse kalkulaatori ekraani.</string>
   <string name="ai_regenerate_instructions_hint">Lisajuhised (valikuline)</string>
   <string name="ai_regenerate_keep_previous">Hoia eelmine versioon</string>
   <string name="ai_regenerate_fresh_run">Uus käivitus (ignoreeri eelmist tulemust)</string>
-  <string name="ai_document_delete">Kustuta</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

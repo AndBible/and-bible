@@ -280,8 +280,6 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="help_nav_title">Naviqasiya</string>
   <string name="help_contextmenus_title">Menyuların Mündəricatı</string>
   <string name="help_search_title">Axtarış</string>
-  <string name="help_search_text">Axtarış edilən mətnə növbəti kimi xüsusi işarələr daxil etmək mümkündür: *, ?, VƏ, VƏ YA, YOX
-(daha çox məlumat üçün \"Apache Luchene - Query Parser Syntax\"-ə baxın). </string>
   <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Bağla</string>

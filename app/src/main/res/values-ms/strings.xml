@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Pulih dari…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Pulih atau Import dari…</string>
-  <string name="backup_restore">Pulih</string>
   <string name="backup_restore2">Pulih atau Import</string>
   <string name="overwrite_something">Timpa %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Carian</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Teks carian boleh merangkumi aksara khas seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Sintaks Parser Pertanyaan\" untuk maklumat lanjut)</string>
   <string name="help_search_text2">Teks carian boleh merangkumi aksara khas seperti *, AND, OR, NOT</string>
   <string name="help_search_details">Sila lihat %s untuk maklumat lanjut.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaks Parser Pertanyaan</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Arahan tambahan (opsional)</string>
   <string name="ai_regenerate_keep_previous">Simpan versi sebelumnya</string>
   <string name="ai_regenerate_fresh_run">Jalankan baharu (abaikan keputusan sebelumnya)</string>
-  <string name="ai_document_delete">Padamkan</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

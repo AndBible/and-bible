@@ -569,7 +569,6 @@
   <string name="backup_restore_from">I-restore mula sa…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">I-restore o Mag-import mula sa…</string>
-  <string name="backup_restore">I-restore</string>
   <string name="backup_restore2">I-restore o Mag-import</string>
   <string name="overwrite_something">I-overwrite ang %s?</string>
 
@@ -723,7 +722,6 @@
 
   <string name="help_search_title">Paghahanap</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Ang teksto ng paghahanap ay maaaring magsama ng mga espesyal na karakter tulad ng *, ?, AND, OR, NOT (tingnan ang "Apache Lucene - Query Parser Syntax" para sa higit pang detalye)</string>
   <string name="help_search_text2">Ang teksto ng paghahanap ay maaaring magsama ng mga espesyal na karakter tulad ng *, AND, OR, NOT</string>
   <string name="help_search_details">Pakitingnan ang %s para sa higit pang detalye.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -1413,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Karagdagang mga tagubilin (opsyonal)</string>
   <string name="ai_regenerate_keep_previous">Panatilihin ang nakaraang bersyon</string>
   <string name="ai_regenerate_fresh_run">Bagong pagpapatakbo (huwag pansinin ang nakaraang resulta)</string>
-  <string name="ai_document_delete">Tanggalin</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

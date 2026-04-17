@@ -617,7 +617,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_restore_from">Obnovi iz…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Obnovi ali uvozi iz ...</string>
-  <string name="backup_restore">Povrni iz arhiva</string>
   <string name="backup_restore2">Obnovi ali uvozi iz</string>
   <string name="overwrite_something">Prepišem %s?</string>
 
@@ -792,10 +791,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
 
   <string name="help_search_title">Iskanje</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">
-Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
-        (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").
-    </string>
   <string name="help_search_text2">Iskalno besedilo lahko vključuje posebne znake, kot so *, AND, OR, NOT</string>
   <string name="help_search_details">Za več podrobnosti glejte  %s.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksa razčlenjevalnika poizvedb</string>
@@ -1545,7 +1540,6 @@ Tega sporočila ne prikaži več
   <string name="ai_regenerate_instructions_hint">Dodatna navodila (neobvezno)</string>
   <string name="ai_regenerate_keep_previous">Ohrani prejšnjo različico</string>
   <string name="ai_regenerate_fresh_run">Svež zagon (prezri prejšnji rezultat)</string>
-  <string name="ai_document_delete">Izbriši</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->

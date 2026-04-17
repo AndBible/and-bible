@@ -569,7 +569,6 @@
   <string name="backup_restore_from">Възстанови от…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Възстанови или импортирай от…</string>
-  <string name="backup_restore">Възстанови</string>
   <string name="backup_restore2">Възстанови или импортирай</string>
   <string name="overwrite_something">Презаписване на %s?</string>
 
@@ -723,9 +722,6 @@
 
   <string name="help_search_title">Търси</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Текстът за търсене може да включва специални знаци като *, ?, AND, OR, NOT
-        (виж документацията на \"Apache Lucene - Query Parser Syntax\")
-    </string>
   <string name="help_search_text2">Търсеният текст може да включва специални символи като *, AND, OR, NOT</string>
   <string name="help_search_details">Моля, вижте %s за повече подробности.</string>
   <string name="help_apache_lucene">Apache Lucene — синтаксис на заявките за търсене</string>
@@ -1415,7 +1411,6 @@
   <string name="ai_regenerate_instructions_hint">Допълнителни инструкции (незадължително)</string>
   <string name="ai_regenerate_keep_previous">Запази предишната версия</string>
   <string name="ai_regenerate_fresh_run">Ново стартиране (игнорирай предишния резултат)</string>
-  <string name="ai_document_delete">Изтрий</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
