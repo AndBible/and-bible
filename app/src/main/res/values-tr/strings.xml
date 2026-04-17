@@ -1049,10 +1049,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="export_prompts_csv">İstemleri CSV\'ye dışa aktar</string>
   <string name="import_prompts_csv">İstemleri CSV\'den içe aktar</string>
   <string name="prompts_csv_export_success">%d istem CSV\'ye dışa aktarıldı</string>
-  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>
-  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>
-  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
-  <string name="prompts_csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="no_prompts_to_export">Dışa aktarılacak kullanıcı istemi yok</string>
   <string name="csv_column_selection_title">CSV Sütunlarını Seçin</string>
   <string name="no_bookmarks_to_export">Dışa aktarılacak yer imi yok</string>

@@ -1021,10 +1021,6 @@ Google Play এ এগিয়ে যান</string>
   <string name="export_prompts_csv">প্রম্পট CSV-তে রপ্তানি করুন</string>
   <string name="import_prompts_csv">CSV থেকে প্রম্পট আমদানি করুন</string>
   <string name="prompts_csv_export_success">%d প্রম্পট CSV-তে রপ্তানি হয়েছে</string>
-  <string name="prompts_csv_import_success">আমদানি সম্পন্ন: %1$d তৈরি, %2$d আপডেট</string>
-  <string name="prompts_csv_import_errors">ত্রুটিসহ আমদানি সম্পন্ন: %1$d তৈরি, %2$d আপডেট, %3$d ত্রুটি</string>
-  <string name="prompts_csv_import_failed">CSV আমদানি ব্যর্থ হয়েছে: %s</string>
-  <string name="prompts_csv_export_failed">CSV রপ্তানি ব্যর্থ হয়েছে: %s</string>
   <string name="no_prompts_to_export">রপ্তানির জন্য কোনো ব্যবহারকারী প্রম্পট নেই</string>
   <string name="csv_column_selection_title">CSV কলাম নির্বাচন করুন</string>
   <string name="no_bookmarks_to_export">রপ্তানির জন্য কোনো বুকমার্ক নেই</string>

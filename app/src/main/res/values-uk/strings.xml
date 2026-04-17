@@ -1032,10 +1032,6 @@
   <string name="export_prompts_csv">Експортувати промпти у CSV</string>
   <string name="import_prompts_csv">Імпортувати промпти з CSV</string>
   <string name="prompts_csv_export_success">Експортовано %d промптів у CSV</string>
-  <string name="prompts_csv_import_success">Імпорт завершено: %1$d створено, %2$d оновлено</string>
-  <string name="prompts_csv_import_errors">Імпорт завершено з помилками: %1$d створено, %2$d оновлено, %3$d помилок</string>
-  <string name="prompts_csv_import_failed">Імпорт CSV не вдався: %s</string>
-  <string name="prompts_csv_export_failed">Експорт CSV не вдався: %s</string>
   <string name="no_prompts_to_export">Немає користувацьких промптів для експорту</string>
   <string name="csv_column_selection_title">Вибрати стовпці CSV</string>
   <string name="no_bookmarks_to_export">Немає закладок для експорту</string>

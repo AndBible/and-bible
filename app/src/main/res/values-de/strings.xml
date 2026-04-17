@@ -979,10 +979,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="export_prompts_csv">Prompts als CSV exportieren</string>
   <string name="import_prompts_csv">Prompts aus CSV importieren</string>
   <string name="prompts_csv_export_success">%d Prompts als CSV exportiert</string>
-  <string name="prompts_csv_import_success">Import abgeschlossen: %1$d erstellt, %2$d aktualisiert</string>
-  <string name="prompts_csv_import_errors">Import mit Fehlern abgeschlossen: %1$d erstellt, %2$d aktualisiert, %3$d Fehler</string>
-  <string name="prompts_csv_import_failed">CSV-Import fehlgeschlagen: %s</string>
-  <string name="prompts_csv_export_failed">CSV-Export fehlgeschlagen: %s</string>
   <string name="no_prompts_to_export">Keine Benutzer-Prompts zum Exportieren</string>
   <string name="csv_column_selection_title">CSV-Spalten auswählen</string>
   <string name="no_bookmarks_to_export">Keine Lesezeichen für den Export verfügbar</string>

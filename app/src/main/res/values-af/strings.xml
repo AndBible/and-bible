@@ -1021,10 +1021,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="export_prompts_csv">Voer aanwysings na CSV uit</string>
   <string name="import_prompts_csv">Invoer aanwysings vanaf CSV</string>
   <string name="prompts_csv_export_success">%d aanwysings na CSV uitgevoer</string>
-  <string name="prompts_csv_import_success">Invoer voltooi: %1$d geskep, %2$d bygewerk</string>
-  <string name="prompts_csv_import_errors">Invoer voltooi met foute: %1$d geskep, %2$d bygewerk, %3$d foute</string>
-  <string name="prompts_csv_import_failed">CSV-invoer het misluk: %s</string>
-  <string name="prompts_csv_export_failed">CSV-uitvoer het misluk: %s</string>
   <string name="no_prompts_to_export">Geen gebruikersaanwysings om uit te voer nie</string>
   <string name="csv_column_selection_title">Kies CSV-kolomme</string>
   <string name="no_bookmarks_to_export">Geen boekmerke beskikbaar om uit te voer nie</string>

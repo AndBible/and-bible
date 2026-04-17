@@ -984,10 +984,6 @@ raportu ĝin al prizorganto de modulo</string>
   <string name="export_prompts_csv">Elporti sugestojn al CSV</string>
   <string name="import_prompts_csv">Enporti sugestojn el CSV</string>
   <string name="prompts_csv_export_success">Elporitaj %d sugestoj al CSV</string>
-  <string name="prompts_csv_import_success">Enportado kompletigita: %1$d kreita, %2$d ĝisdatigita</string>
-  <string name="prompts_csv_import_errors">Enportado kompletigita kun eraroj: %1$d kreita, %2$d ĝisdatigita, %3$d eraroj</string>
-  <string name="prompts_csv_import_failed">CSV-enportado fiaskis: %s</string>
-  <string name="prompts_csv_export_failed">CSV-elportado fiaskis: %s</string>
   <string name="no_prompts_to_export">Neniaj uzantaj sugestoj por elporti</string>
   <string name="csv_column_selection_title">Elekti kolumnojn por CSV</string>
   <string name="no_bookmarks_to_export">Neniu disponebla legosigno por elporti</string>

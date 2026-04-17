@@ -1084,10 +1084,6 @@
     <string name="export_prompts_csv">Export prompts to CSV</string>
     <string name="import_prompts_csv">Import prompts from CSV</string>
     <string name="prompts_csv_export_success">Exported %d prompts to CSV</string>
-    <string name="prompts_csv_import_success">Import completed: %1$d created, %2$d updated</string>
-    <string name="prompts_csv_import_errors">Import completed with errors: %1$d created, %2$d updated, %3$d errors</string>
-    <string name="prompts_csv_import_failed">CSV import failed: %s</string>
-    <string name="prompts_csv_export_failed">CSV export failed: %s</string>
     <string name="no_prompts_to_export">No user prompts to export</string>
     <string name="csv_column_selection_title">Select CSV Columns</string>
     <string name="no_bookmarks_to_export">No bookmarks available to export</string>

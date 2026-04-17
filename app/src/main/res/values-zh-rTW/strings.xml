@@ -1022,10 +1022,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="export_prompts_csv">匯出提示詞至 CSV</string>
   <string name="import_prompts_csv">從 CSV 匯入提示詞</string>
   <string name="prompts_csv_export_success">已將 %d 個提示詞匯出至 CSV</string>
-  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>
-  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>
-  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
-  <string name="prompts_csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="no_prompts_to_export">沒有可匯出的使用者提示詞</string>
   <string name="csv_column_selection_title">選擇 CSV 欄位</string>
   <string name="no_bookmarks_to_export">沒有可匯出的書籤</string>

@@ -1049,10 +1049,6 @@
   <string name="export_prompts_csv">Exportă prompturi în CSV</string>
   <string name="import_prompts_csv">Importă prompturi din CSV</string>
   <string name="prompts_csv_export_success">%d prompturi exportate în CSV</string>
-  <string name="prompts_csv_import_success">Import finalizat: %1$d create, %2$d actualizate</string>
-  <string name="prompts_csv_import_errors">Import finalizat cu erori: %1$d create, %2$d actualizate, %3$d erori</string>
-  <string name="prompts_csv_import_failed">Import CSV eșuat: %s</string>
-  <string name="prompts_csv_export_failed">Export CSV eșuat: %s</string>
   <string name="no_prompts_to_export">Nu există prompturi de utilizator de exportat</string>
   <string name="csv_column_selection_title">Alege coloanele CSV</string>
   <string name="no_bookmarks_to_export">Niciun semn de carte de exportat</string>

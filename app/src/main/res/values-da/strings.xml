@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Eksportér prompter til CSV</string>
   <string name="import_prompts_csv">Importér prompter fra CSV</string>
   <string name="prompts_csv_export_success">Eksporterede %d prompter til CSV</string>
-  <string name="prompts_csv_import_success">Import fuldført: %1$d oprettet, %2$d opdateret</string>
-  <string name="prompts_csv_import_errors">Import fuldført med fejl: %1$d oprettet, %2$d opdateret, %3$d fejl</string>
-  <string name="prompts_csv_import_failed">CSV-import mislykkedes: %s</string>
-  <string name="prompts_csv_export_failed">CSV-eksport mislykkedes: %s</string>
   <string name="no_prompts_to_export">Ingen brugerpromptere at eksportere</string>
   <string name="csv_column_selection_title">Vælg CSV-kolonner</string>
   <string name="no_bookmarks_to_export">Ingen bogmærker til eksport</string>

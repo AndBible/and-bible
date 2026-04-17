@@ -1028,10 +1028,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="export_prompts_csv">Izvozi pozive v CSV</string>
   <string name="import_prompts_csv">Uvozi pozive iz CSV</string>
   <string name="prompts_csv_export_success">Izvoženih %d pozivov v CSV</string>
-  <string name="prompts_csv_import_success">Uvoz končan: %1$d ustvarjenih, %2$d posodobljenih</string>
-  <string name="prompts_csv_import_errors">Uvoz končan z napakami: %1$d ustvarjenih, %2$d posodobljenih, %3$d napak</string>
-  <string name="prompts_csv_import_failed">Uvoz CSV ni uspel: %s</string>
-  <string name="prompts_csv_export_failed">Izvoz CSV ni uspel: %s</string>
   <string name="no_prompts_to_export">Ni uporabniških pozivov za izvoz</string>
   <string name="csv_column_selection_title">Izberite CSV stolpce</string>
   <string name="no_bookmarks_to_export">Za izvoz ni na voljo nobenih zaznamkov</string>

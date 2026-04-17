@@ -1045,10 +1045,6 @@
   <string name="export_prompts_csv">Извези упите у CSV</string>
   <string name="import_prompts_csv">Увези упите из CSV</string>
   <string name="prompts_csv_export_success">Извезено %d упита у CSV</string>
-  <string name="prompts_csv_import_success">Увоз завршен: %1$d креирано, %2$d ажурирано</string>
-  <string name="prompts_csv_import_errors">Увоз завршен са грешкама: %1$d креирано, %2$d ажурирано, %3$d грешака</string>
-  <string name="prompts_csv_import_failed">CSV увоз упита није успео: %s</string>
-  <string name="prompts_csv_export_failed">CSV извоз упита није успео: %s</string>
   <string name="no_prompts_to_export">Нема корисничких упита за извоз</string>
   <string name="csv_column_selection_title">Изабери CSV колоне</string>
   <string name="no_bookmarks_to_export">Нема обележивача за извоз</string>

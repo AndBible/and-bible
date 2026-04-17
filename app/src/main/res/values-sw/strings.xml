@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Safirisha maagizo kwenye CSV</string>
   <string name="import_prompts_csv">Ingiza maagizo kutoka kwa CSV</string>
   <string name="prompts_csv_export_success">Maagizo %d yamessafirisha kwenye CSV</string>
-  <string name="prompts_csv_import_success">Uingizaji umekamilika: %1$d yaliundwa, %2$d yalisasishwa</string>
-  <string name="prompts_csv_import_errors">Uingizaji umekamilika na hitilafu: %1$d yaliundwa, %2$d yalisasishwa, hitilafu %3$d</string>
-  <string name="prompts_csv_import_failed">Uingizaji wa CSV umeshindwa: %s</string>
-  <string name="prompts_csv_export_failed">Usafirishaji wa CSV umeshindwa: %s</string>
   <string name="no_prompts_to_export">Hakuna maagizo ya mtumiaji ya kusafirisha</string>
   <string name="csv_column_selection_title">Chagua Safu wima za CSV</string>
   <string name="no_bookmarks_to_export">Hakuna alamisho zinazopatikana kwa usafirishaji</string>

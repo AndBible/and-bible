@@ -1002,10 +1002,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="export_prompts_csv">Εξαγωγή εντολών σε CSV</string>
   <string name="import_prompts_csv">Εισαγωγή εντολών από CSV</string>
   <string name="prompts_csv_export_success">Εξαγωγή %d εντολών σε CSV</string>
-  <string name="prompts_csv_import_success">Η εισαγωγή ολοκληρώθηκε: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν</string>
-  <string name="prompts_csv_import_errors">Η εισαγωγή ολοκληρώθηκε με σφάλματα: %1$d δημιουργήθηκαν, %2$d ενημερώθηκαν, %3$d σφάλματα</string>
-  <string name="prompts_csv_import_failed">Η εισαγωγή CSV απέτυχε: %s</string>
-  <string name="prompts_csv_export_failed">Η εξαγωγή CSV απέτυχε: %s</string>
   <string name="no_prompts_to_export">Δεν υπάρχουν εντολές χρήστη για εξαγωγή</string>
   <string name="csv_column_selection_title">Επιλογή στηλών CSV</string>
   <string name="no_bookmarks_to_export">Δεν υπάρχουν διαθέσιμοι σελιδοδείκτες για εξαγωγή</string>

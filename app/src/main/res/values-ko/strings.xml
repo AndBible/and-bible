@@ -1045,10 +1045,6 @@
   <string name="export_prompts_csv">프롬프트를 CSV로 내보내기</string>
   <string name="import_prompts_csv">CSV에서 프롬프트 가져오기</string>
   <string name="prompts_csv_export_success">%d개의 프롬프트를 CSV로 내보냈습니다</string>
-  <string name="prompts_csv_import_success">가져오기 완료: %1$d개 생성, %2$d개 업데이트</string>
-  <string name="prompts_csv_import_errors">오류가 있는 가져오기 완료: %1$d개 생성, %2$d개 업데이트, %3$d개 오류</string>
-  <string name="prompts_csv_import_failed">CSV 가져오기 실패: %s</string>
-  <string name="prompts_csv_export_failed">CSV 내보내기 실패: %s</string>
   <string name="no_prompts_to_export">내보낼 사용자 프롬프트가 없습니다</string>
   <string name="csv_column_selection_title">CSV 열 선택</string>
   <string name="no_bookmarks_to_export">내보낼 북마크가 없습니다</string>

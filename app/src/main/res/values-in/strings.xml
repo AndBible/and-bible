@@ -978,10 +978,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="export_prompts_csv">Ekspor prompt ke CSV</string>
   <string name="import_prompts_csv">Impor prompt dari CSV</string>
   <string name="prompts_csv_export_success">%d prompt diekspor ke CSV</string>
-  <string name="prompts_csv_import_success">Impor selesai: %1$d dibuat, %2$d diperbarui</string>
-  <string name="prompts_csv_import_errors">Impor selesai dengan kesalahan: %1$d dibuat, %2$d diperbarui, %3$d kesalahan</string>
-  <string name="prompts_csv_import_failed">Impor CSV gagal: %s</string>
-  <string name="prompts_csv_export_failed">Ekspor CSV gagal: %s</string>
   <string name="no_prompts_to_export">Tidak ada prompt pengguna untuk diekspor</string>
   <string name="csv_column_selection_title">Pilih Kolom CSV</string>
   <string name="no_bookmarks_to_export">Tidak ada penanda buku yang tersedia untuk diekspor</string>

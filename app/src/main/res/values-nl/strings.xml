@@ -1007,10 +1007,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="export_prompts_csv">Prompts exporteren naar CSV</string>
   <string name="import_prompts_csv">Prompts importeren uit CSV</string>
   <string name="prompts_csv_export_success">%d prompts geëxporteerd naar CSV</string>
-  <string name="prompts_csv_import_success">Import voltooid: %1$d aangemaakt, %2$d bijgewerkt</string>
-  <string name="prompts_csv_import_errors">Import voltooid met fouten: %1$d aangemaakt, %2$d bijgewerkt, %3$d fouten</string>
-  <string name="prompts_csv_import_failed">CSV-import mislukt: %s</string>
-  <string name="prompts_csv_export_failed">CSV-export mislukt: %s</string>
   <string name="no_prompts_to_export">Geen gebruikersprompts om te exporteren</string>
   <string name="csv_column_selection_title">CSV-kolommen selecteren</string>
   <string name="no_bookmarks_to_export">Geen bladwijzers beschikbaar om te exporteren</string>

@@ -1009,10 +1009,6 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="export_prompts_csv">Exportar prompts para CSV</string>
   <string name="import_prompts_csv">Importar prompts de CSV</string>
   <string name="prompts_csv_export_success">%d prompts exportados para CSV</string>
-  <string name="prompts_csv_import_success">Importação concluída: %1$d criados, %2$d atualizados</string>
-  <string name="prompts_csv_import_errors">Importação concluída com erros: %1$d criados, %2$d atualizados, %3$d erros</string>
-  <string name="prompts_csv_import_failed">Falha na importação de CSV: %s</string>
-  <string name="prompts_csv_export_failed">Falha na exportação de CSV: %s</string>
   <string name="no_prompts_to_export">Sem prompts de utilizador para exportar</string>
   <string name="csv_column_selection_title">Selecione Colunas CSV</string>
   <string name="no_bookmarks_to_export">Não há marcadores disponíveis para exportar</string>

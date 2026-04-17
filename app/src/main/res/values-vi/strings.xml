@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Xuất lời nhắc sang CSV</string>
   <string name="import_prompts_csv">Nhập lời nhắc từ CSV</string>
   <string name="prompts_csv_export_success">Đã xuất %d lời nhắc sang CSV</string>
-  <string name="prompts_csv_import_success">Nhập hoàn tất: đã tạo %1$d, đã cập nhật %2$d</string>
-  <string name="prompts_csv_import_errors">Nhập hoàn tất với lỗi: đã tạo %1$d, đã cập nhật %2$d, %3$d lỗi</string>
-  <string name="prompts_csv_import_failed">Nhập CSV thất bại: %s</string>
-  <string name="prompts_csv_export_failed">Xuất CSV thất bại: %s</string>
   <string name="no_prompts_to_export">Không có lời nhắc người dùng để xuất</string>
   <string name="csv_column_selection_title">Chọn cột CSV</string>
   <string name="no_bookmarks_to_export">Không có đánh dấu nào để xuất</string>

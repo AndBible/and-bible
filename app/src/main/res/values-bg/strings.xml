@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Експортирай подкани в CSV</string>
   <string name="import_prompts_csv">Импортирай подкани от CSV</string>
   <string name="prompts_csv_export_success">Експортирани %d подкани в CSV</string>
-  <string name="prompts_csv_import_success">Импортирането завърши: %1$d създадени, %2$d актуализирани</string>
-  <string name="prompts_csv_import_errors">Импортирането завърши с грешки: %1$d създадени, %2$d актуализирани, %3$d грешки</string>
-  <string name="prompts_csv_import_failed">Импортирането от CSV не бе успешно: %s</string>
-  <string name="prompts_csv_export_failed">Експортирането в CSV не бе успешно: %s</string>
   <string name="no_prompts_to_export">Няма потребителски подкани за експортиране</string>
   <string name="csv_column_selection_title">Избор на колони за CSV</string>
   <string name="no_bookmarks_to_export">Няма налични отметки за експортиране</string>

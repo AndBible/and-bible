@@ -999,10 +999,6 @@ Positiivsed ja põhjalikud arvustused aitavad väga palju AndBibel\'i avatud lä
   <string name="export_prompts_csv">Ekspordi käsud CSV-faili</string>
   <string name="import_prompts_csv">Impordi käsud CSV-failist</string>
   <string name="prompts_csv_export_success">Eksporditi %d käsku CSV-faili</string>
-  <string name="prompts_csv_import_success">Import lõpetatud: %1$d loodud, %2$d uuendatud</string>
-  <string name="prompts_csv_import_errors">Import lõpetatud vigadega: %1$d loodud, %2$d uuendatud, %3$d viga</string>
-  <string name="prompts_csv_import_failed">CSV import ebaõnnestus: %s</string>
-  <string name="prompts_csv_export_failed">CSV eksport ebaõnnestus: %s</string>
   <string name="no_prompts_to_export">Kasutaja käske pole eksportimiseks</string>
   <string name="csv_column_selection_title">Vali CSV faili veerud</string>
   <string name="no_bookmarks_to_export">Pole järjehoidjaid mida eksportida</string>

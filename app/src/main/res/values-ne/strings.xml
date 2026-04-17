@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">प्रम्प्टहरू CSV मा निर्यात गर्नुहोस्</string>
   <string name="import_prompts_csv">CSV बाट प्रम्प्टहरू आयात गर्नुहोस्</string>
   <string name="prompts_csv_export_success">%d प्रम्प्टहरू निर्यात गरियो</string>
-  <string name="prompts_csv_import_success">आयात सम्पन्न: %1$d बनाइयो, %2$d अपडेट गरियो</string>
-  <string name="prompts_csv_import_errors">त्रुटिहरूसहित आयात सम्पन्न: %1$d बनाइयो, %2$d अपडेट गरियो, %3$d त्रुटिहरू</string>
-  <string name="prompts_csv_import_failed">CSV आयात असफल भयो: %s</string>
-  <string name="prompts_csv_export_failed">CSV निर्यात असफल भयो: %s</string>
   <string name="no_prompts_to_export">निर्यात गर्नका लागि कुनै प्रयोगकर्ता प्रम्प्टहरू छैनन्</string>
   <string name="csv_column_selection_title">CSV स्तम्भहरू चयन गर्नुहोस्</string>
   <string name="no_bookmarks_to_export">निर्यात गर्नका लागि कुनै बुकमार्कहरू उपलब्ध छैनन्</string>

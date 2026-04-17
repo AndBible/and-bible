@@ -1012,10 +1012,6 @@ Si un texte particulier n’est pas disponible dans l’application, %s.
   <string name="export_prompts_csv">Exporter les prompts en CSV</string>
   <string name="import_prompts_csv">Importer les prompts depuis CSV</string>
   <string name="prompts_csv_export_success">%d prompts exportés en CSV</string>
-  <string name="prompts_csv_import_success">Importation terminée : %1$d créé(s), %2$d mis à jour</string>
-  <string name="prompts_csv_import_errors">Importation terminée avec des erreurs : %1$d créé(s), %2$d mis à jour, %3$d erreur(s)</string>
-  <string name="prompts_csv_import_failed">Échec de l\'importation CSV : %s</string>
-  <string name="prompts_csv_export_failed">Échec de l\'exportation CSV : %s</string>
   <string name="no_prompts_to_export">Aucun prompt utilisateur à exporter</string>
   <string name="csv_column_selection_title">Sélectionner les colonnes du CSV</string>
   <string name="no_bookmarks_to_export">Pas de signets disponible pour être exporté</string>

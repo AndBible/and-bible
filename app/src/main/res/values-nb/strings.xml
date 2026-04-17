@@ -980,10 +980,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="export_prompts_csv">Eksporter prompter til CSV</string>
   <string name="import_prompts_csv">Importer prompter fra CSV</string>
   <string name="prompts_csv_export_success">Eksporterte %d prompter til CSV</string>
-  <string name="prompts_csv_import_success">Import fullført: %1$d opprettet, %2$d oppdatert</string>
-  <string name="prompts_csv_import_errors">Import fullført med feil: %1$d opprettet, %2$d oppdatert, %3$d feil</string>
-  <string name="prompts_csv_import_failed">CSV-import mislyktes: %s</string>
-  <string name="prompts_csv_export_failed">CSV-eksport mislyktes: %s</string>
   <string name="no_prompts_to_export">Ingen brukerprompter å eksportere</string>
   <string name="csv_column_selection_title">Velg CSV-kolonner</string>
   <string name="no_bookmarks_to_export">Ingen bokmerker tilgjengelig for eksport</string>

@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Exporta indicacions a CSV</string>
   <string name="import_prompts_csv">Importa indicacions des de CSV</string>
   <string name="prompts_csv_export_success">S\'han exportat %d indicacions a CSV</string>
-  <string name="prompts_csv_import_success">Importació completada: %1$d creades, %2$d actualitzades</string>
-  <string name="prompts_csv_import_errors">Importació completada amb errors: %1$d creades, %2$d actualitzades, %3$d errors</string>
-  <string name="prompts_csv_import_failed">La importació CSV ha fallat: %s</string>
-  <string name="prompts_csv_export_failed">L\'exportació CSV ha fallat: %s</string>
   <string name="no_prompts_to_export">No hi ha indicacions d\'usuari per exportar</string>
   <string name="csv_column_selection_title">Selecciona les columnes CSV</string>
   <string name="no_bookmarks_to_export">No hi ha marcadors disponibles per exportar</string>

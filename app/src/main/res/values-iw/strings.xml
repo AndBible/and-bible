@@ -981,10 +981,6 @@
   <string name="export_prompts_csv">יצא הנחיות ל-CSV</string>
   <string name="import_prompts_csv">ייבא הנחיות מ-CSV</string>
   <string name="prompts_csv_export_success">יוצאו %d הנחיות ל-CSV</string>
-  <string name="prompts_csv_import_success">הייבוא הושלם: %1$d נוצרו, %2$d עודכנו</string>
-  <string name="prompts_csv_import_errors">הייבוא הושלם עם שגיאות: %1$d נוצרו, %2$d עודכנו, %3$d שגיאות</string>
-  <string name="prompts_csv_import_failed">ייבוא CSV נכשל: %s</string>
-  <string name="prompts_csv_export_failed">יצוא CSV נכשל: %s</string>
   <string name="no_prompts_to_export">אין הנחיות משתמש לייצוא</string>
   <string name="csv_column_selection_title">בחר עמודות CSV</string>
   <string name="no_bookmarks_to_export">אין סימניות זמינות לייצוא</string>

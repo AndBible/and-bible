@@ -1026,10 +1026,6 @@ Google Play లేదా (ప్రాధాన్యంగా) %s ద్వా�
   <string name="export_prompts_csv">ప్రాంప్ట్‌లను CSV కు ఎగుమతి చేయండి</string>
   <string name="import_prompts_csv">CSV నుండి ప్రాంప్ట్‌లను దిగుమతి చేయండి</string>
   <string name="prompts_csv_export_success">%d ప్రాంప్ట్‌లు ఎగుమతి చేయబడ్డాయి</string>
-  <string name="prompts_csv_import_success">దిగుమతి పూర్తయింది: %1$d సృష్టించబడ్డాయి, %2$d నవీకరించబడ్డాయి</string>
-  <string name="prompts_csv_import_errors">లోపాలతో దిగుమతి పూర్తయింది: %1$d సృష్టించబడ్డాయి, %2$d నవీకరించబడ్డాయి, %3$d లోపాలు</string>
-  <string name="prompts_csv_import_failed">CSV దిగుమతి విఫలమైంది: %s</string>
-  <string name="prompts_csv_export_failed">CSV ఎగుమతి విఫలమైంది: %s</string>
   <string name="no_prompts_to_export">ఎగుమతి చేయడానికి యూజర్ ప్రాంప్ట్‌లు లేవు</string>
   <string name="csv_column_selection_title">CSV కాలమ్‌లు ఎంచుకోండి</string>
   <string name="no_bookmarks_to_export">ఎగుమతి చేయడానికి బుక్‌మార్క్‌లు అందుబాటులో లేవు</string>

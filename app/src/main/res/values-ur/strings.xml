@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">پرامپٹس CSV میں برآمد کریں</string>
   <string name="import_prompts_csv">CSV سے پرامپٹس درآمد کریں</string>
   <string name="prompts_csv_export_success">%d پرامپٹس برآمد ہوئے</string>
-  <string name="prompts_csv_import_success">درآمد مکمل: %1$d بنائے گئے، %2$d اپ ڈیٹ ہوئے</string>
-  <string name="prompts_csv_import_errors">خرابیوں کے ساتھ درآمد مکمل: %1$d بنائے گئے، %2$d اپ ڈیٹ ہوئے، %3$d خرابیاں</string>
-  <string name="prompts_csv_import_failed">CSV درآمد ناکام: %s</string>
-  <string name="prompts_csv_export_failed">CSV برآمد ناکام: %s</string>
   <string name="no_prompts_to_export">برآمد کرنے کے لیے کوئی صارف پرامپٹ نہیں</string>
   <string name="csv_column_selection_title">CSV کالم منتخب کریں</string>
   <string name="no_bookmarks_to_export">برآمد کے لیے کوئی بک مارک دستیاب نہیں</string>

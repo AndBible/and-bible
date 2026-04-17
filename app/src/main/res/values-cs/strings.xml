@@ -1038,10 +1038,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="export_prompts_csv">Exportovat prompty do CSV</string>
   <string name="import_prompts_csv">Importovat prompty z CSV</string>
   <string name="prompts_csv_export_success">Exportováno %d promptů do CSV</string>
-  <string name="prompts_csv_import_success">Import dokončen: %1$d vytvořeno, %2$d aktualizováno</string>
-  <string name="prompts_csv_import_errors">Import dokončen s chybami: %1$d vytvořeno, %2$d aktualizováno, %3$d chyb</string>
-  <string name="prompts_csv_import_failed">Import CSV selhal: %s</string>
-  <string name="prompts_csv_export_failed">Export CSV selhal: %s</string>
   <string name="no_prompts_to_export">Žádné uživatelské prompty k exportu</string>
   <string name="csv_column_selection_title">Vybrav CSV sloupce</string>
   <string name="no_bookmarks_to_export">Žádné záložky k exportu</string>

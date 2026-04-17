@@ -1013,10 +1013,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="export_prompts_csv">Izvezi upite u CSV</string>
   <string name="import_prompts_csv">Uvezi upite iz CSV-a</string>
   <string name="prompts_csv_export_success">Izvezeno %d upita u CSV</string>
-  <string name="prompts_csv_import_success">Uvoz završen: %1$d stvoreno, %2$d ažurirano</string>
-  <string name="prompts_csv_import_errors">Uvoz završen s pogreškama: %1$d stvoreno, %2$d ažurirano, %3$d pogrešaka</string>
-  <string name="prompts_csv_import_failed">CSV uvoz nije uspio: %s</string>
-  <string name="prompts_csv_export_failed">CSV izvoz nije uspio: %s</string>
   <string name="no_prompts_to_export">Nema korisničkih upita za izvoz</string>
   <string name="csv_column_selection_title">Odaberi stupce CSV-a</string>
   <string name="no_bookmarks_to_export">Nema dostupnih straničnika za izvoz</string>

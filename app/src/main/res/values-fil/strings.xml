@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">I-export ang mga prompt sa CSV</string>
   <string name="import_prompts_csv">Mag-import ng mga prompt mula sa CSV</string>
   <string name="prompts_csv_export_success">Na-export ang %d prompt sa CSV</string>
-  <string name="prompts_csv_import_success">Natapos ang import: %1$d nilikha, %2$d na-update</string>
-  <string name="prompts_csv_import_errors">Natapos ang import na may mga error: %1$d nilikha, %2$d na-update, %3$d mga error</string>
-  <string name="prompts_csv_import_failed">Nabigo ang pag-import ng CSV: %s</string>
-  <string name="prompts_csv_export_failed">Nabigo ang pag-export ng CSV: %s</string>
   <string name="no_prompts_to_export">Walang mga prompt ng gumagamit na ie-export</string>
   <string name="csv_column_selection_title">Pumili ng Mga Hanay ng CSV</string>
   <string name="no_bookmarks_to_export">Walang mga bookmark na available na ie-export</string>

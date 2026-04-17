@@ -1036,10 +1036,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="export_prompts_csv">प्रॉम्प्ट CSV में निर्यात करें</string>
   <string name="import_prompts_csv">CSV से प्रॉम्प्ट आयात करें</string>
   <string name="prompts_csv_export_success">%d प्रॉम्प्ट CSV में निर्यात किए गए</string>
-  <string name="prompts_csv_import_success">आयात पूर्ण: %1$d बनाए गए, %2$d अपडेट किए गए</string>
-  <string name="prompts_csv_import_errors">त्रुटियों के साथ आयात पूर्ण: %1$d बनाए गए, %2$d अपडेट किए गए, %3$d त्रुटियां</string>
-  <string name="prompts_csv_import_failed">CSV आयात विफल: %s</string>
-  <string name="prompts_csv_export_failed">CSV निर्यात विफल: %s</string>
   <string name="no_prompts_to_export">निर्यात करने के लिए कोई उपयोगकर्ता प्रॉम्प्ट नहीं है</string>
   <string name="csv_column_selection_title">CSV कॉलम चुनें</string>
   <string name="no_bookmarks_to_export">निर्यात करने के लिए कोई बुकमार्क उपलब्ध नहीं है</string>

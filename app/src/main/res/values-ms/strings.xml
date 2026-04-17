@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">Eksport prompt ke CSV</string>
   <string name="import_prompts_csv">Import prompt dari CSV</string>
   <string name="prompts_csv_export_success">Mengeksport %d prompt ke CSV</string>
-  <string name="prompts_csv_import_success">Import selesai: %1$d dibuat, %2$d dikemas kini</string>
-  <string name="prompts_csv_import_errors">Import selesai dengan ralat: %1$d dibuat, %2$d dikemas kini, %3$d ralat</string>
-  <string name="prompts_csv_import_failed">Import CSV gagal: %s</string>
-  <string name="prompts_csv_export_failed">Eksport CSV gagal: %s</string>
   <string name="no_prompts_to_export">Tiada prompt pengguna untuk dieksport</string>
   <string name="csv_column_selection_title">Pilih Lajur CSV</string>
   <string name="no_bookmarks_to_export">Tiada penanda buku tersedia untuk dieksport</string>

@@ -328,7 +328,7 @@ class AiSettingsActivity : ActivityBase() {
             Log.e(TAG, "Error exporting prompts to CSV", e)
             ErrorReportControl.showErrorDialog(
                 this,
-                getString(R.string.prompts_csv_export_failed, e.message),
+                getString(R.string.csv_export_failed, e.message),
                 exception = e
             )
         }
@@ -369,7 +369,7 @@ class AiSettingsActivity : ActivityBase() {
             Log.e(TAG, "Error importing prompts from CSV", e)
             ErrorReportControl.showErrorDialog(
                 this,
-                getString(R.string.prompts_csv_import_failed, e.message),
+                getString(R.string.csv_import_failed, e.message),
                 exception = e
             )
         }
@@ -384,7 +384,7 @@ class AiSettingsActivity : ActivityBase() {
 
         if (importResult.errors > 0) {
             val message =
-                getString(R.string.prompts_csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
+                getString(R.string.csv_import_errors, importResult.created, importResult.updated, importResult.errors) +
                     "\n\n" + importResult.errorMessages.take(5).joinToString("\n") +
                     if (importResult.errorMessages.size > 5) "\n..." else ""
 
@@ -396,7 +396,7 @@ class AiSettingsActivity : ActivityBase() {
         } else {
             Toast.makeText(
                 this,
-                getString(R.string.prompts_csv_import_success, importResult.created, importResult.updated),
+                getString(R.string.csv_import_success, importResult.created, importResult.updated),
                 Toast.LENGTH_SHORT
             ).show()
         }

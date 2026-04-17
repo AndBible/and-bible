@@ -1034,10 +1034,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="export_prompts_csv">Экспортировать подсказки в CSV</string>
   <string name="import_prompts_csv">Импортировать подсказки из CSV</string>
   <string name="prompts_csv_export_success">Экспортировано %d подсказок в CSV</string>
-  <string name="prompts_csv_import_success">Импорт завершён: создано %1$d, обновлено %2$d</string>
-  <string name="prompts_csv_import_errors">Импорт завершён с ошибками: создано %1$d, обновлено %2$d, ошибок %3$d</string>
-  <string name="prompts_csv_import_failed">Ошибка импорта CSV: %s</string>
-  <string name="prompts_csv_export_failed">Ошибка экспорта CSV: %s</string>
   <string name="no_prompts_to_export">Нет пользовательских подсказок для экспорта</string>
   <string name="csv_column_selection_title">Выбрать столбцы CSV</string>
   <string name="no_bookmarks_to_export">Нет закладок для экспорта</string>

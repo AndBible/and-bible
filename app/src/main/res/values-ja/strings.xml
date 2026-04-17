@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">プロンプトをCSVにエクスポート</string>
   <string name="import_prompts_csv">CSVからプロンプトをインポート</string>
   <string name="prompts_csv_export_success">%d 件のプロンプトをCSVにエクスポートしました</string>
-  <string name="prompts_csv_import_success">インポート完了: %1$d 件作成、%2$d 件更新</string>
-  <string name="prompts_csv_import_errors">エラーありでインポート完了: %1$d 件作成、%2$d 件更新、%3$d 件エラー</string>
-  <string name="prompts_csv_import_failed">CSVインポートに失敗しました: %s</string>
-  <string name="prompts_csv_export_failed">CSVエクスポートに失敗しました: %s</string>
   <string name="no_prompts_to_export">エクスポートするユーザープロンプトがありません</string>
   <string name="csv_column_selection_title">CSVの列を選択</string>
   <string name="no_bookmarks_to_export">エクスポートできるブックマークがありません</string>

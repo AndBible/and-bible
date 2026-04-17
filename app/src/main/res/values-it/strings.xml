@@ -988,10 +988,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="export_prompts_csv">Esporta prompt in CSV</string>
   <string name="import_prompts_csv">Importa prompt da CSV</string>
   <string name="prompts_csv_export_success">%d prompt esportati in CSV</string>
-  <string name="prompts_csv_import_success">Importazione completata: %1$d creati, %2$d aggiornati</string>
-  <string name="prompts_csv_import_errors">Importazione completata con errori: %1$d creati, %2$d aggiornati, %3$d errori</string>
-  <string name="prompts_csv_import_failed">Importazione CSV non riuscita: %s</string>
-  <string name="prompts_csv_export_failed">Esportazione CSV non riuscita: %s</string>
   <string name="no_prompts_to_export">Nessun prompt utente da esportare</string>
   <string name="csv_column_selection_title">Scelta colonne CSV</string>
   <string name="no_bookmarks_to_export">Non sono disponibili segnalibri da esportare</string>

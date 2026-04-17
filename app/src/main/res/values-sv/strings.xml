@@ -1047,10 +1047,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="export_prompts_csv">Exportera prompter till CSV</string>
   <string name="import_prompts_csv">Importera prompter från CSV</string>
   <string name="prompts_csv_export_success">Exporterade %d promptar till CSV</string>
-  <string name="prompts_csv_import_success">Import slutförd: %1$d skapade, %2$d uppdaterade</string>
-  <string name="prompts_csv_import_errors">Import slutförd med fel: %1$d skapade, %2$d uppdaterade, %3$d fel</string>
-  <string name="prompts_csv_import_failed">CSV-import misslyckades: %s</string>
-  <string name="prompts_csv_export_failed">CSV-export misslyckades: %s</string>
   <string name="no_prompts_to_export">Inga användarpromptar att exportera</string>
   <string name="csv_column_selection_title">Välj kolumner för CSV-filen</string>
   <string name="no_bookmarks_to_export">Inga bokmärken tillgängliga för export</string>

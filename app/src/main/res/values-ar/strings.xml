@@ -989,10 +989,6 @@
   <string name="export_prompts_csv">تصدير الموجّهات بتنسيق CSV</string>
   <string name="import_prompts_csv">استيراد الموجّهات من CSV</string>
   <string name="prompts_csv_export_success">تم تصدير %d موجّه بتنسيق CSV</string>
-  <string name="prompts_csv_import_success">اكتمل الاستيراد: تم إنشاء %1$d وتحديث %2$d</string>
-  <string name="prompts_csv_import_errors">اكتمل الاستيراد مع وجود أخطاء: تم إنشاء %1$d وتحديث %2$d وحدث %3$d خطأ</string>
-  <string name="prompts_csv_import_failed">فشل استيراد CSV: %s</string>
-  <string name="prompts_csv_export_failed">فشل تصدير CSV: %s</string>
   <string name="no_prompts_to_export">لا توجد موجّهات مستخدم للتصدير</string>
   <string name="csv_column_selection_title">اختر أعمدة CSV</string>
   <string name="no_bookmarks_to_export">لا توجد إشارات مرجعية للتصدير</string>

@@ -1041,10 +1041,6 @@ informe los problemas a los mantenedores de texto
   <string name="export_prompts_csv">Exportar indicaciones a CSV</string>
   <string name="import_prompts_csv">Importar indicaciones desde CSV</string>
   <string name="prompts_csv_export_success">Se exportaron %d indicaciones a CSV</string>
-  <string name="prompts_csv_import_success">Importación completada: %1$d creadas, %2$d actualizadas</string>
-  <string name="prompts_csv_import_errors">Importación completada con errores: %1$d creadas, %2$d actualizadas, %3$d errores</string>
-  <string name="prompts_csv_import_failed">Error al importar CSV: %s</string>
-  <string name="prompts_csv_export_failed">Error al exportar CSV: %s</string>
   <string name="no_prompts_to_export">No hay indicaciones de usuario para exportar</string>
   <string name="csv_column_selection_title">Seleccionar columnas CSV</string>
   <string name="no_bookmarks_to_export">No hay marcadores disponibles para exportar</string>

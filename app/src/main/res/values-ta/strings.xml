@@ -1059,10 +1059,6 @@
   <string name="export_prompts_csv">வரைவுகளை CSV-க்கு ஏற்றுமதி செய்</string>
   <string name="import_prompts_csv">CSV-லிருந்து வரைவுகளை இறக்குமதி செய்</string>
   <string name="prompts_csv_export_success">%d வரைவுகளை CSV-க்கு ஏற்றுமதி செய்தது</string>
-  <string name="prompts_csv_import_success">இறக்குமதி முடிந்தது: %1$d உருவாக்கப்பட்டது, %2$d புதுப்பிக்கப்பட்டது</string>
-  <string name="prompts_csv_import_errors">பிழைகளுடன் இறக்குமதி முடிந்தது: %1$d உருவாக்கப்பட்டது, %2$d புதுப்பிக்கப்பட்டது, %3$d பிழைகள்</string>
-  <string name="prompts_csv_import_failed">CSV இறக்குமதி தோல்வியடைந்தது: %s</string>
-  <string name="prompts_csv_export_failed">CSV ஏற்றுமதி தோல்வியடைந்தது: %s</string>
   <string name="no_prompts_to_export">ஏற்றுமதி செய்ய பயனர் வரைவுகள் இல்லை</string>
   <string name="csv_column_selection_title">CSV நெடுவரிசைகளை தேர்வு செய்க</string>
   <string name="no_bookmarks_to_export">ஏற்றுமதி செய்ய புக்மார்க்குகள் இல்லை</string>

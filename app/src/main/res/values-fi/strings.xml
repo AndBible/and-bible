@@ -977,10 +977,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="export_prompts_csv">Vie kehotteet CSV-tiedostoon</string>
   <string name="import_prompts_csv">Tuo kehotteet CSV-tiedostosta</string>
   <string name="prompts_csv_export_success">Vietiin %d kehotetta CSV-tiedostoon</string>
-  <string name="prompts_csv_import_success">Tuonti valmistui: %1$d luotu, %2$d päivitetty</string>
-  <string name="prompts_csv_import_errors">Tuonti valmistui virhein: %1$d luotu, %2$d päivitetty, %3$d virhettä</string>
-  <string name="prompts_csv_import_failed">CSV-tuonti epäonnistui: %s</string>
-  <string name="prompts_csv_export_failed">CSV-vienti epäonnistui: %s</string>
   <string name="no_prompts_to_export">Ei käyttäjän kehotteita vietäväksi</string>
   <string name="csv_column_selection_title">Valitse CSV:n sarakkeet</string>
   <string name="no_bookmarks_to_export">Ei kirjanmerkkejä vietäväksi</string>

@@ -921,10 +921,6 @@
   <string name="export_prompts_csv">ส่งออกพรอมต์เป็น CSV</string>
   <string name="import_prompts_csv">นำเข้าพรอมต์จาก CSV</string>
   <string name="prompts_csv_export_success">ส่งออก %d พรอมต์เป็น CSV แล้ว</string>
-  <string name="prompts_csv_import_success">นำเข้าเสร็จสมบูรณ์: สร้าง %1$d รายการ, อัปเดต %2$d รายการ</string>
-  <string name="prompts_csv_import_errors">นำเข้าเสร็จสมบูรณ์พร้อมข้อผิดพลาด: สร้าง %1$d รายการ, อัปเดต %2$d รายการ, ข้อผิดพลาด %3$d รายการ</string>
-  <string name="prompts_csv_import_failed">การนำเข้า CSV ล้มเหลว: %s</string>
-  <string name="prompts_csv_export_failed">การส่งออก CSV ล้มเหลว: %s</string>
   <string name="no_prompts_to_export">ไม่มีพรอมต์ของผู้ใช้สำหรับส่งออก</string>
   <string name="csv_column_selection_title">เลือกคอลัมน์ CSV</string>
   <string name="no_bookmarks_to_export">ไม่มีที่คั่นหน้าสำหรับส่งออก</string>
