@@ -506,7 +506,7 @@
     <string name="speak_settings_title">General Speak Settings</string>
     <string name="speak_bookmarking_settings_title">Bookmarking Settings</string>
     <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
-    <string name="speak_advanced_settings">Advanced Settings</string>
+    <string name="speak_advanced_settings">Advanced settings</string>
     <string name="speak_sleep_timer_title">Sleep timer</string>
 
     <string name="speak_no_books_available">No books available to speak</string>
@@ -1410,7 +1410,7 @@
     <string name="raw_log_retention_title">Auto-delete old logs</string>
     <string name="raw_log_retention_summary_days">After %d days</string>
     <string name="raw_log_retention_summary_disabled">Disabled (keep all)</string>
-    <string name="send_ai_bug_report_title">Report AI Bug</string>
+    <string name="send_ai_bug_report_title">Report AI bug</string>
     <string name="ai_bug_report_menu">Report AI bug</string>
 
     <string name="select_model_before_run_title">Select model</string>
