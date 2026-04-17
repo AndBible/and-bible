@@ -83,7 +83,13 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_vietnamese">vi: Tiếng Việt (Vietnamese)</string>
 	<string name="lang_chinese_traditional">zh-TW: 中文 (繁體) (Chinese, traditional)</string>
 	<string name="lang_chinese_simplified">zh-CN: 中文 (简体) (Chinese, simplified)</string>
+	<string name="lang_catalan">ca: Català</string>
 	<string name="lang_cantonese">yue: 廣東話 (Cantonese)</string>
+	<string name="lang_danish">da: Dansk</string>
+	<string name="lang_filipino">fil: Filipino</string>
+	<string name="lang_malay">ms: Bahasa Melayu (Malay)</string>
+	<string name="lang_nepali">ne: नेपाली (Nepali)</string>
+	<string name="lang_urdu">ur: اردو (Urdu)</string>
 
     <!-- Speak -->
     <plurals name="num_chapters">
