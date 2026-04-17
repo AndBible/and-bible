@@ -57,11 +57,9 @@
   <string name="search_current_book">Seçilmiş kitabda</string>
   <string name="error_executing_search">Axtarılan mətn tapılmadı</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title1">Ayə nömrələri</string>
   <string name="prefs_verse_per_line_summary">Hər ayə təzə bir sətirdə göstərilir</string>
   <string name="prefs_show_bookmarks_summary">Bütün əlfəcinləri qizlət</string>
   <string name="prefs_show_mynotes_summary">Haqqında qeyd yazdığım ayələri nişanlarla müəyyən et</string>
-  <string name="prefs_show_notes_summary">Kitabının kənarlarında edilən qeydlər</string>
   <string name="prefs_show_strongs_summary">Yunanca ve Yəhudicə sözlərin tanımlarına əlaqələr göstərilir</string>
   <string name="prefs_show_morphology_summary">Robinsonun Yunanca morfolojik qısaltmaları göstərilir</string>
   <string name="prefs_section_title_summary">Əsl mətində tapılmayan başlıqlar göstərilir</string>
@@ -70,7 +68,6 @@
   <string name="prefs_show_bookmarks_title">Nişanlı yerləri göstər</string>
   <string name="prefs_show_mynotes_title">Qeydlərin nişanlarını göstər</string>
   <string name="prefs_show_footnotes_title">Qeydlər</string>
-  <string name="prefs_show_notes_title">Haşiyə</string>
   <string name="prefs_show_strongs_title">Stronqun rəqəmləri</string>
   <string name="prefs_show_morphology_title">Morfoloji kodlar</string>
   <string name="prefs_section_title_title">Hissə başlıqları</string>
@@ -98,18 +95,13 @@
   <string name="windowMinimise">Kiçilt</string>
   <string name="windowSynchronise">Sinxronlaşdır</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Bu hissəyə aid qeyd tapılmadı</string>
-  <string name="no_verse_notes">Bu ayəyə aid qeyd tapılmadı</string>
   <string name="previous">Əvvəlki</string>
   <string name="next">Sonrakı</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Zəhmət olmazsa Strongs Yunanca və Yəhudicə lüğətlərini yükləyin</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong nömrələri daxil olan bir Müqəddəs Kitab çeviricisini və ona aid indeksi yükləməyiniz lazımdır. İndekslər Axtarış səhifəsindən yüklənilir.</string>
-  <string name="morph_robinson_not_installed">Zəhmət olmazsa \'Robinson\'s Morphological Analysis Codes\' lüğətini yükləyin</string>
   <!--Module download-->
   <string name="download">Sənəd yüklə</string>
   <string name="download_document_confirm_prefix">Yüklə</string>
-  <string name="download_refresh_book_list_menu_item">Yenilən</string>
   <string name="storage_space_warning">Yerli anbar kafi deyil</string>
   <string name="document_not_installed">Zəhmət olmazsa \'%s\' sənədini yükləyin</string>
   <string name="free_text_search_documents">Axtarış</string>
@@ -139,10 +131,8 @@
   <string name="open_link_in_special_window">Linki xüsusi pəncərədə aç</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nişanlı yerlər (Əlfəcinlər)</string>
-  <string name="bookmark_added">Əlfəcini yükləndi</string>
   <string name="assign_labels">Etiketlə</string>
   <string name="new_item">Yeni</string>
-  <string name="new_label">Təzə etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlənməmiş</string>
   <!--can be removed-->
@@ -160,11 +150,9 @@
   <!--Speak - Bible-->
   <string name="one_chapter">%d hissə</string>
   <string name="some_chapters">%d hissə</string>
-  <string name="rest_of_book">Kitabın sonuna qədər</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d ayə</string>
   <string name="some_verses">%d ayə</string>
-  <string name="rest_of_chapter">Hissənin sonuna qədər</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d səhifə</string>
   <string name="some_pages">%d səhifə</string>
@@ -174,8 +162,6 @@
   <string name="rewind">Geri qayıt</string>
   <string name="forward">İrəli get</string>
   <string name="tts_lang_not_available">Dil tapılmadı</string>
-  <string name="speak_queue">Sıra</string>
-  <string name="speak_repeat">Təkrar</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Danışıq sürəti</string>
   <string name="speak_and_play_earcons_title">üçün earcon səslərini söyləmək və yazmaq</string>
@@ -219,7 +205,6 @@
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="speak_bookmark_help">Danışıq əlfəçinə aid yardım</string>
   <string name="speak_help_auto_bookmark">
 Danışıq dayandırılsa pauza və ya dayanma halında danışıq əlfəçini avtomatik əlavə olunacaq. 
 Avtomatik yaranmış əlfəçinlər xüsusi Danışıq nişanı ilə qeyd olunur.
@@ -272,9 +257,7 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="yes">Bəli</string>
   <string name="no">Xeyr</string>
   <string name="error">Xəta</string>
-  <string name="delete_generic">Sil</string>
   <string name="all">Hamısı</string>
-  <string name="edit">Düzəliş edin</string>
   <string name="reset_generic">Sıfırdan başla</string>
   <string name="watch_tutorial_video">Təlim videosuna baxın (İngiliscə)</string>
   <!--Errors-->
@@ -288,7 +271,6 @@ Danışıq əlfəçinindən başlayaraq danışığı davam edəndə qeyd olunmu
   <string name="notification_channel_tts_status">Danışıq üçün mətn</string>
   <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
   <!--Workspaces-->
-  <string name="new_workspace">Yeni</string>
   <string name="rename_workspace">Yenidən adlandır</string>
   <string name="save_and_exit">Yaddaşa vur</string>
   <string name="reset_settings">Sıfırdan başla</string>

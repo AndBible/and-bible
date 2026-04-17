@@ -5,7 +5,6 @@
   <string name="app_name_short">Studium Biblii</string>
   <string name="app_name_medium">Studium Biblii (AndBible)</string>
   <string name="app_name_long">AndBible: Studium Biblii</string>
-  <string name="project">Otwartoźródłowy projekt AndBible</string>
 
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić aplikację.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Tekst sformatowany (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Odstęp między akapitami (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Dostosuj odstęp między akapitami.</string>
 
-  <string name="prefs_show_verseno_title1">Numery wersetów</string>
 
-  <string name="prefs_show_chapter_no_title">Numery rozdziałów</string>
-  <string name="prefs_show_chapter_no_summary">Wyświetl numery rozdziałów</string>
 
   <string name="prefs_verse_per_line_summary">Wyświetl każdy werset w osobnej linii</string>
   <string name="prefs_show_bookmarks_summary">Odznacz, aby ukryć wszystkie zakładki</string>
 
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
-  <string name="prefs_show_notes_summary">Wyświetl przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_summary">Odnośniki do terminów z greki i hebrajskiego</string>
   <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona</string>
   <string name="prefs_section_title_summary">Wyświetl niekanoniczne tytuły sekcji</string>
   <string name="prefs_red_letter_summary">Wyświetl słowa Chrystusa na czerwono</string>
-  <string name="prefs_text_size_title">Ustawienia czcionek</string>
 
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_show_bookmarks_title">Pokaż zakładki</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Pokaż przypisy wbudowane w tekst zamiast jako klikalne uchwyty</string>
   <string name="prefs_show_xrefs_summary">Wyświetl odsyłacze wewnętrzne (jeżeli obecne w dokumencie)</string>
 
-  <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_title">Numeracja Stronga</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>
   <string name="prefs_non_strongs_word_italic_title">Kursywuj dodane słowa</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">Rozmycie tła</string>
   <string name="prefs_noise_summary">Dodaj trochę rozmycia tła, aby było ono bardziej komfortowe dla Twoich oczu.</string>
 
-  <string name="cpv_default_title">Wybierz kolor</string>
-  <string name="cpv_presets">Schematy</string>
-  <string name="cpv_custom">Własny</string>
-  <string name="cpv_select">Wybierz</string>
-  <string name="cpv_transparency">Przezroczystość</string>
 
     <!-- Window -->
   <string name="new_window">Nowe okno</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">Przypnij</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
-  <string name="no_verse_notes">Brak przypisów dla tego wersetu</string>
   <string name="previous">Poprzedni</string>
   <string name="next">Następny</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Stronga</string>
   <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie utworzyć indeks w oknie „Szukaj”</string>
-  <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
-  <string name="go_to_downloads">Otwórz pobierania</string>
 
     <!-- Module download -->
   <string name="download">Pobierz dokumenty</string>
   <string name="redownload">Ponownie pobierz dokumenty</string>
-  <string name="download_confirmation">Czy pobrać dokumentu z Internetu?</string>
   <string name="download_source_last_updated">Ostatnia aktualizacja listy dokumentów: %s.</string>
   <string name="download_refreshing_book_list">Aktualizacja listy dostępnych dokumentów z serwerów…</string>
   <string name="download_source_message1">Pobieranie dokumentów z następujących źródeł:</string>
   <string name="download_document_confirm_prefix">Pobieranie</string>
-  <string name="download_refresh_book_list_menu_item">Odśwież</string>
   <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź swoje połączenie internetowe.</string>
   <string name="error_downloading_status">Serwer zawierający plik %1$s zwrócił błąd: %2$s (%3$d).</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
@@ -368,16 +347,6 @@
   <string name="done">Gotowe</string>
   <string name="reset_plan_question">Czy na pewno chcesz rozpocząć ten plan od nowa?</string>
   <string name="import_reading_plan">Importowanie planu czytania…</string>
-  <string name="import_reading_plan_error">Błąd podczas importowania</string>
-  <string name="import_reading_plan_error_duplicate">Następujące dni były zduplikowane: %s</string>
-  <string name="import_reading_plan_error_days">Następujące dni zawierały błędy: %s</string>
-  <string name="import_reading_plan_anyway">Importuj mimo wszystko</string>
-  <string name="overwrite_reading_plan">Czy nadpisać plan czytania %s?</string>
-  <string name="delete_reading_plan">Usuń ten plan</string>
-  <string name="reading_plan_deleted">Plan czytania został usunięty</string>
-  <string name="reading_plan_ships_with_ab">Ten plan czytania jest dostarczany z %s</string>
-  <string name="confirm_delete_reading_plan">
-Czy na pewno chcesz usunąć plan czytania %s wraz z historią czytania? Porada: jeżeli chcesz zaktualizować ten plan, zaimportuj go ponownie z tą samą nazwą, a historia planu zostanie zachowana.</string>
   <string name="plan_duplicate_user_plan">
 Istnieje plan czytania użytkownika w katalogu „jsword/readingplan” na karcie SD o tej samej nazwie co plan wewnętrzny, Nie można go tutaj wyświetlić. Prosimy zmienić nazwę pliku, pozostawiając jego rozszerzenie „.properties”.</string>
   <string name="plan_name_y1ntpspr">NT, Psalmy i Księga Przysłów w rok</string>
@@ -415,7 +384,6 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="notes">Przypisy i odsyłacze</string>
   <string name="share_verse">Udostępnij…</string>
   <string name="share_verse_widget_title">Udostępnij fragment</string>
-  <string name="share_verse_subject_2">Werset z Biblii przesłany z aplikacji %s.</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
 
     <!-- Link context menu -->
@@ -427,33 +395,26 @@ Dzięki uprzejmości Wholesome Words, https://www.wholesomewords.org/, za ich zg
   <string name="bookmarks_and_mynotes_title">Zakładki i notatki</string>
   <string name="migrated_my_notes">Zaimportowane notatki</string>
   <string name="bookmarks">Zakładki</string>
-  <string name="bookmark_added">Dodano zakładkę</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etykiety</string>
   <string name="manage_labels">Zarządzaj etykietami</string>
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_item">Nowa</string>
-  <string name="new_label">Nowa etykieta</string>
   <string name="label_name_prompt">Nazwa</string>
   <string name="label_unlabelled">Nieoznaczony</string>
   <string name="add_bookmark1">Zakładka</string>
-  <string name="add_bookmark2">Zakładka (fragment)</string>
   <string name="add_bookmark3">Fragment</string>
   <string name="add_bookmark_whole_verse">Zakładka (wersety)</string>
   <string name="add_bookmark_whole_verse1">Wersety</string>
-  <string name="add_bookmark_whole_verse2">Pełne wersety</string>
   <string name="add_whole_page_bookmark">Dodaj zakładkę dla całej strony</string>
   <string name="add_paragraph_break">Dodaj nową linię</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Usuń</string>
   <string name="bookmark_settings_hide_labels_title">Ukryj wybrane etykiety</string>
   <string name="bookmark_settings_hide_labels_summary">Ukryj zakładki oznaczone określonymi etykietami</string>
   <string name="auto_assign_labels_title">Ustawienia etykiet</string>
   <string name="auto_assign_labels">Automatycznie przypisuj etykietę</string>
   <string name="auto_assign_labels1">Automatycznie przypisuj etykietę do nowych zakładek</string>
   <string name="auto_assign_labels_primary">Przypisuj jako główną</string>
-  <string name="label_color">Kolor etykiety</string>
-  <string name="label_color_example">Przykład</string>
   <string name="marker_style">Tylko wyświetl znacznik dla zakładek typu „fragment”</string>
   <string name="marker_style_whole_verse">Tylko wyświetl znacznik dla zakładek typu „całe wersety”</string>
   <string name="hide_style">Ukryj zakładki typu „fragment”</string>
@@ -482,11 +443,9 @@ Jeżeli struktura dokumentu uległa zmianie, jego aktualizacja może spowodować
     <!-- Speak - Bible -->
   <string name="one_chapter">%d rozdział</string>
   <string name="some_chapters">%d rozdziałów</string>
-  <string name="rest_of_book">Do końca księgi</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d werset</string>
   <string name="some_verses">%d wersetów</string>
-  <string name="rest_of_chapter">Do końca rozdziału</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d strona</string>
   <string name="some_pages">%d stron</string>
@@ -496,8 +455,6 @@ Jeżeli struktura dokumentu uległa zmianie, jego aktualizacja może spowodować
   <string name="rewind">Przewiń wstecz</string>
   <string name="forward">Przewiń w przód</string>
   <string name="tts_lang_not_available">Język niedostępny.</string>
-  <string name="speak_queue">Kolejka</string>
-  <string name="speak_repeat">Powtórz</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Tempo mowy</string>
@@ -570,14 +527,12 @@ Jeżeli struktura dokumentu uległa zmianie, jego aktualizacja może spowodować
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Ikona %s oznacza, że wybrane ustawienie jest dziedziczone po ustawieniu obszaru roboczego.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Ikona %s oznacza, że wybrane ustawienie zostało zmienione dla tego okna.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Użyj przycisku %1$s, aby przywrócić wszystkie te ustawienia do %2$s.</string>
   <string name="reset_defaults">wartości domyślnych</string>
   <string name="reset_workspace_defaults">wartości domyślnych tego obszaru roboczego</string>
 
-  <string name="speak_bookmark_help">Pomoc zakładek czytania</string>
 
   <string name="speak_help_auto_bookmark">
 Zakładki czytania są tworzone automatycznie przy wstrzymaniu/zatrzymaniu odtwarzania. Automatycznie tworzone zakładki są oznaczane specjalną etykietą. Kiedy rozpoczniesz odtwarzanie od zakładki, zakładka ta przesunie się do wersetu na którym wstrzymasz/zatrzymasz odtwarzanie. Tylko głosowe zakładki czytania ulegną przesunięciu, wszystkie inne zakładki pozostaną niezmienione.</string>
@@ -618,7 +573,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="backup_phone_storage">Pamięć wewnętrzna</string>
   <string name="backup_and_restore">Kopia zapasowa</string>
   <string name="backup_modules2">Utwórz kopię zapasową dokumentów…</string>
-  <string name="backup_app_database2">Utwórz kopię zapasową bazy danych…</string>
   <string name="backup_app2">Utwórz kopię zapasową aplikacji (plik .apk)…</string>
   <string name="backup_application">aplikację</string>
   <string name="backup_database">bazę danych</string>
@@ -635,12 +589,9 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="overwrite_something">Czy nadpisać %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Co przywrócić?</string>
 
-  <string name="restore_app_database">Przywróć bazę danych z…</string>
   <string name="restore_database">Plik bazy danych</string>
   <string name="restore_confirmation">Czy nadpisać notatki, zakładki, bloczki notatek, plany czytania i obszary robocze?</string>
-  <string name="restore_success2">Pomyślnie przywrócono wybrane części bazy danych</string>
   <string name="restore_success">Pomyślnie przywrócono notatki, zakładki, bloczki notatek, plany czytania i obszary robocze</string>
   <string name="downloading_backup">Pobieranie pliku kopii zapasowej…</string>
   <string name="loading_backup">Wczytywanie bazy danych z kopii zapasowej…</string>
@@ -656,14 +607,12 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="exported_studypads_subject">Wyeksportowane bloczki notatek</string>
   <string name="exported_studypads_message">W załączniku znajduje się baza danych aplikacji %s zawierająca zakładki i notatki wybranego bloczku notatek</string>
   <string name="restore_unsuccessfull">Nie udało się przywrócić bazy danych z kopii zapasowej. Prawdopodobnie plik jest uszkodzony.</string>
-  <string name="restore_modules">Przywróć dokumenty z…</string>
   <string name="send_backup_file">Wyślij plik kopii zapasowej</string>
   <string name="backup_modules_title">Wybór modułów do kopii zapasowej</string>
   <string name="install_zip_canceled">Przerwano instalację modułu</string>
   <string name="ask_restore_or_import">Baza danych zawierająca %s może zostać przywrócona (istniejąca baza danych zostanie usunięta i zastąpiona wybieraną) lub zaimportowana (wybierana baza danych zostanie połączona z istniejącą). Co chcesz zrobić?</string>
   <string name="restore">Przywróć</string>
   <string name="import2">Importuj</string>
-  <string name="export_studypads_help">Pliki zawierające wyeksportowane bloczki notatek (np. etykiety i zakładki) można zaimportować wybierając „Kopia zapasowa” z menu głównego aplikacji.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">„%1$s” i %2$s innych etykiet / bloczków notatek i %3$s zakładek</string>
@@ -677,8 +626,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Raport o błędzie</string>
-  <string name="send_feedback_title">Opinia</string>
   <string name="send_bug_report_title">Zgłoś błąd / wyślij opinię</string>
   <string name="report_bug_email_subject_3">[%1$s] Zgłoszenie błędu aplikacji %2$s %3$s</string>
 
@@ -717,10 +664,8 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="yes">Tak</string>
   <string name="no">Nie</string>
   <string name="error">Błąd</string>
-  <string name="delete_generic">Usuń</string>
   <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
-  <string name="edit">Edytuj</string>
   <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Obejrzyj filmik instruktażowy (po angielsku)</string>
   <string name="verse_not_found">Nie znaleziono wersetu</string>
@@ -744,7 +689,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
   <string name="notification_channel_progress_status">Powiadomienie postępu stanu pobierań, itp.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Nowy</string>
   <string name="switch_to_workspace">Obszary robocze</string>
   <string name="delete_workspace">Usuń</string>
   <string name="new_copied_workspace">Duplikuj</string>
@@ -767,7 +711,6 @@ Tryb „powtórz rozdział” został automatycznie wyłączony, ponieważ rozpo
 
     <!-- Beta notice -->
   <string name="beta_notice_title">To jest wersja beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Wersja beta zawiera funkcje, które nie zostały jeszcze wystarczająco przetestowane, więc podczas korzystania z niej mogą wystąpić błędy. Zaleca się, aby zwykli czytacze Pisma Świętego używali wersji stabilnej aplikacji.</string>
 
@@ -827,7 +770,6 @@ Możesz aktywować przypinanie okien poprzez menu opcji (trzy kropki w prawym g�
   <string name="redownload_documents">Szybkie ponowne pobieranie</string>
   <string name="welcome_message">Dziękujemy za instalację aplikacji %s. Obecnie nie jest zainstalowana żadna wersja Biblii lub inny dokument. Aby kontynuować, pobierz co najmniej 1 dokument z internetu bądź załaduj go z pliku .zip.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Wspierane formaty plików</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Wybierz plik do załadowania w aplikację %s.</string>
   <string name="supported_formats">Wspieranymi typami plików są: %s.</string>
@@ -852,7 +794,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="strongs_mode_title">Tryb numeracji Stronga</string>
 
   <string name="download_dialog_message">Nie udało się pobrać następujących książek:</string>
-  <string name="select_multiple">Wybór wielu</string>
   <string name="journal_description">Edytowalne bloczki notatek z własnym tekstem i zakładkami</string>
   <string name="my_notes_description">Edytowalne notatki dołączane do zakładek</string>
   <string name="my_notes_abbreviation">Moje notatki</string>
@@ -867,7 +808,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="http_not_found">nie znaleziono</string>
   <string name="http_unknown">inny błąd</string>
   <string name="give_passphrase_for_module">Dokument %s jest zaszyfrowany i wymaga hasła do otwarcia</string>
-  <string name="unlocking_failed">Nie udało się odblokować: błędne hasło</string>
   <string name="unlock_module">Ustaw hasło modułu</string>
   <string name="unlock_info">Informacja o szyfrowanych modułach</string>
   <string name="try_again_passphrase">Błędne hasło, czy spróbować ponownie?</string>
@@ -938,8 +878,6 @@ Znaleziono listę poprzednio zainstalowanych książek/dokumentów. Stuknij, aby
   <string name="separate_verses_with_newlines">Oddziel wersety nowymi liniami</string>
 
   <string name="backup_button">Zapisz</string>
-  <string name="back_button">Cofnij</string>
-  <string name="upgrading_database">Aktualizacja bazy danych. Proszę czekać…</string>
   <string name="initializing_app">Uruchamianie aplikacji…</string>
   <string name="show_notes">Wyświetl notatki</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -973,7 +911,6 @@ wysłać e-list do programistów</string>
 Otwórz sklep Play</string>
   <string name="text_maintainers">
 zgłoś go do opiekuna tego modułu</string>
-  <string name="does_not_exist_abbreviation">Nie istnieje</string>
   <string name="cant_change_wholeverse">Dla tej zakładki musi być zaznaczony cały werset</string>
   <string name="whole_verse_turned_on">Cały werset został oznaczony jako zakładka</string>
   <string name="this_bookmark">Ta zakładka</string>
@@ -986,7 +923,6 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="display_mode_hidden">Ukryty</string>
   <string name="workspace_override_indicator">Ta etykieta ma tryb wyświetlania specyficzny dla obszaru roboczego</string>
   <string name="primary_label">Główna etykieta</string>
-  <string name="highlight_entire_verse">Wyróżnij cały werset</string>
   <string name="favourite_label">Ulubiona etykieta</string>
   <string name="edit_label">Edytuj etykietę</string>
   <string name="delete_label_confirmation">Czy usunąć etykietę zakładek „%s”? Wszystkie powiązane notatki w bloczku notatek zostaną usunięte.</string>
@@ -1004,7 +940,6 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="reorder">Zmień kolejność</string>
   <string name="system_items">Akcje systemowe</string>
   <string name="system_items1">Więcej</string>
-  <string name="system_action2">Akcje Androida</string>
   <string name="text_copied_to_clicpboard">Skopiowano tekst do schowka</string>
   <string name="prefs_disable_two_step_bookmarking_title">Dodawanie zakładek pojedynczym stuknięciem</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Wyświetl elementy „fragment” i „wersety” zamiast rozwijanego menu „zakładka”.</string>
@@ -1018,7 +953,6 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="label_blue">Niebieski</string>
   <string name="label_salvation">Zbawienie</string>
   <string name="label_underline">Podkreślony</string>
-  <string name="import_menu">Importuj / eksportuj</string>
   <string name="auto_backups_title">Automatyczne kopie zapasowe</string>
   <string name="backup_file_info">Aplik. v%1$d, %2$s</string>
   <string name="reset_databases_title">Resetuj bazy danych</string>
@@ -1042,12 +976,10 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="prompts_csv_export_failed">Eksport CSV nie powiódł się: %s</string>
   <string name="no_prompts_to_export">Brak promptów użytkownika do eksportu</string>
   <string name="csv_column_selection_title">Wybierz kolumny pliku CSV</string>
-  <string name="choose_csv_file">Wybierz plik CSV do importu</string>
   <string name="no_bookmarks_to_export">Brak dostępnych zakładek do eksportu</string>
   <string name="export_fileformat">Eksportuj jako %s</string>
   <string name="export_something">Eksportuj %s</string>
   <string name="import_items">Importuj %s</string>
-  <string name="import_from_db">Importuj z pliku bazy danych aplikacji</string>
   <string name="import_error">Nie udało się zaimportować z bazy danych aplikacji. Plik bazy danych może być w złym formacie bądź być utworzony przez bardzo starą wersję aplikacji %s.</string>
 
   <string name="export_bookmarks_csv">Eksportuj zakładki jako %s</string>
@@ -1076,23 +1008,13 @@ zgłoś go do opiekuna tego modułu</string>
   <string name="last_updated_at">Data modyfikacji</string>
   <string name="bookmark_notes">Notatka zakładki</string>
 
-  <string name="chooser_range">Zakres</string>
-  <string name="chooser_jump">Przeskocz</string>
-  <string name="chooser_OT_abbrev">ST</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Siatka</string>
-  <string name="chooser_style_lists">Listy</string>
-  <string name="chooser_select">Wybierz %s</string>
-  <string name="chooser_pref_reset">Nie ustawiaj rozdziału/wersetu na 1. podczas wyboru księgi/rozdziału</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Niestety interfejs aplikacji został tylko częściowo przetłumaczony na język %1$s. Aplikacja %2$s jest rozwijana tylko i wyłącznie przez wolontariuszy. Jeżeli chciał(a)byś pomóc tłumaczyć interfejs programu, zapoznaj się z %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instrukcją tłumaczeń</string>
   <string name="questions_title">Czy masz pytanie?</string>
-  <string name="questions_title2">Czy potrzebujesz pomocy?</string>
   <string name="bookmark_style">Styl zakładek</string>
   <string name="added_to_bookmark">Przypisano do tej zakładki</string>
-  <string name="strongs_off">Nie pokazuj</string>
   <string name="strongs_links">Odnośniki</string>
   <string name="strongs_text_and_links">Teksty i odnośniki</string>
   <string name="strongs_hidden_links">Ukryte odnośniki</string>
@@ -1137,7 +1059,6 @@ Dla zwiększenia bezpieczeństwa w prześladującym otoczeniu, rekomendujemy kor
 Najnowszą dyskretną wersję aplikacji możesz pobrać ze strony %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Synchronizuj grupę</string>
   <string name="sync_group_n">Grupa %d</string>
   <string name="disable_sync">Wyłącz synchronizację</string>
   <string name="open_in_window">Otwórz wyniki w oknie</string>
@@ -1148,10 +1069,8 @@ Najnowszą dyskretną wersję aplikacji możesz pobrać ze strony %s.</string>
   <string name="custom_repositories_empty_list_message">Brak zdefiniowanych własnych repozytoriów</string>
   <string name="custom_repositories_create_button_label">Dodaj własne repozytorium</string>
   <string name="custom_repositories_info_button_label">Informacje</string>
-  <string name="name_for_repository">Nazwa repozytorium</string>
   <string name="repository_specification">Adres repozytorium</string>
   <string name="delete_custom_repository">Czy usunąć własne repozytorium %s?</string>
-  <string name="invalid_repository_not_saved">Repozytorium nie zostało zapisane, ponieważ jego parametry są nieprawidłowe.</string>
   <string name="custom_repositories_help1">Aby dodać nowe własne repozytorium, wpisz lub kopiuj i wklej tutaj jego adres.</string>
   <string name="custom_repositories_help2">Więcej informacji o własnych repozytoriach znajduje się na %s.</string>
   <string name="wiki_page">stronie wiki</string>
@@ -1190,7 +1109,6 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Postęp czytania/zapamiętywania</string>
   <string name="reading_progress_chapters_read">przeczytane rozdziały</string>
-  <string name="reading_progress_verses_memorized">zapamiętane wersety</string>
   <string name="reading_progress_active_days">aktywne dni</string>
   <string name="reading_progress_overall">%s%% Biblii przeczytane</string>
   <string name="reading_progress_bible_heatmap">Przegląd Biblii</string>
@@ -1216,13 +1134,11 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
   <string name="sync_adapter_summary">Obecna: %s</string>
   <string name="adapters_google_drive">Dysk Google</string>
   <string name="adapters_next_cloud">Nextcloud</string>
-  <string name="auth_title">Autoryzacja do %s</string>
   <string name="auth_server_uri">Adres serwera</string>
   <string name="auth_username">Nazwa użytkownika</string>
   <string name="auth_password">Hasło</string>
   <string name="auth_folder_path">Ścieżka folderu synchronizacji</string>
   <string name="auth_folder_path_summary">Folder nadrzędny dla danych synchronizacji (puste = katalog główny)</string>
-  <string name="auth_access_token">Żeton dostępu</string>
   <string name="synchronization_categories">Kategorie synchronizacji</string>
   <string name="sync_general_settings">Informacje i ustawienia</string>
   <string name="sync_introduction">Wprowadzenie</string>
@@ -1238,8 +1154,6 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
   <string name="report">Zgłoś</string>
   <string name="sync_error">Wystąpił błąd podczas synchronizacji z chmurą.</string>
   <string name="error_notification_channel_name">Raporty błędów</string>
-  <string name="restore_from_cloud_description">Jeżeli masz włączoną synchronizację z chmurą na innym urządzeniu, możesz przywrócić bazę danych z chmury.</string>
-  <string name="enable_sync">Włącz synchronizację</string>
   <string name="last_updated">Zmodyfikowano: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1260,15 +1174,6 @@ W chmurze znajduje się baza danych, która nie jest zsynchronizowana z tym urz�
   <string name="processing_epub">Przetwarzanie pliku EPUB: %s</string>
   <string name="buy_development">Wesprzyj programistę</string>
   <string name="buy_development2">Wspomóż projekt</string>
-  <string name="new_version_warning">
-Nadchodzi nowa wersja aplikacji. Przewidywana data wydania to %1$s. Obejrzyj %2$s, aby odkryć nowe funkcje i ulepszenia.</string>
-  <string name="new_version_trailer">zajawkę</string>
-  <string name="new_version_warning2">
-Po wydaniu nowej wersji, ta wersja nie będzie już wspierana.</string>
-  <string name="new_version_warning3">
-Nie zostaną wydane poprawki błędów i aktualizacje.</string>
-  <string name="new_version_warning4">
-Jeżeli nie chcesz przejść na nowszą wersję, wyłącz automatyczne aktualizacje w używanym sklepie z aplikacjami (Google Play, F-Droid,…).</string>
   <string name="dont_show">
 Nie wyświetlaj tego ponownie</string>
   <string name="pref_font_size_multiplier_title">Mnożnik rozmiaru czcionki</string>
@@ -1288,7 +1193,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="invalid_url_message">Wprowadzony URL jest nieprawidłowy. Wprowadź prawidłowy adres URL (n.p. https://nextcloud.example.com)</string>
   <string name="memorize_description">Ucz się wersetów biblijnych na pamięć</string>
   <string name="memorize_abbreviation">Nauka na pamięć</string>
-  <string name="add_memorization_target">Ustaw jako cel do zapamiętania</string>
   <string name="memorize_memorized_passages">Zapamiętane fragmenty</string>
   <string name="memorize_no_memorized_passages">Brak zapamiętanych fragmentów</string>
   <string name="memorize_targets">Cele zapamiętywania</string>

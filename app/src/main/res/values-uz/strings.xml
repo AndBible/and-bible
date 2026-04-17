@@ -57,10 +57,8 @@
   <string name="search_current_book">Mazkur kitob</string>
   <string name="error_executing_search">Noto\'g\'ri qidiruv iborasi</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title1">Oyat raqamlari</string>
   <string name="prefs_verse_per_line_summary">Har bir oyatni boshqa qatorda ko\'rsatish</string>
   <string name="prefs_show_mynotes_summary">Eslatma bor oyatlarda belgini ko\'rsat</string>
-  <string name="prefs_show_notes_summary">Snoska va ssilkalarni ko\'rsat</string>
   <string name="prefs_show_strongs_summary">Yunon &amp; Yahudiy tillaridagi izohlarni ulash</string>
   <string name="prefs_show_morphology_summary">Robinsonning Yunon morfologiyasini ko\'rsat</string>
   <string name="prefs_section_title_summary">Kanonga kirmagan bo\'lim sarlavhalarini ko\'rsat</string>
@@ -69,7 +67,6 @@
   <string name="prefs_show_bookmarks_title">Xatcho\'plarni ko\'rsat</string>
   <string name="prefs_show_mynotes_title">Eslatmam belgisini ko\'rsat</string>
   <string name="prefs_show_footnotes_title">Izohlar</string>
-  <string name="prefs_show_notes_title">Snoska va ssilkalar</string>
   <string name="prefs_show_morphology_title">Morfologik shiriflar</string>
   <string name="prefs_section_title_title">Bo\'lim sarlavhalari</string>
   <string name="prefs_red_letter_title">Qizil rangli harf</string>
@@ -94,18 +91,13 @@
   <string name="windowMinimise">Kamaytirish</string>
   <string name="windowSynchronise">Sinxronlashtiring</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Bu bobda eslatmalar mavjud emas</string>
-  <string name="no_verse_notes">Bu oyatda eslatmalar mavjud emas</string>
   <string name="previous">Oldingi</string>
   <string name="next">Keyingi</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Iltimos, Strongning Yahudiy va Yunon lug\'atlarini yuklab oling</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong raqamlari mavjud Muqaddas Kitobni yuklab olishingiz va Qidiruv katagi orqali uning indekslarini yuklab olishingiz kerak</string>
-  <string name="morph_robinson_not_installed">Iltimos, \'Robinsonning Morfologik Tahlil\' lug\'atini yuklab oling</string>
   <!--Module download-->
   <string name="download">Fayllarni yuklab oling</string>
   <string name="download_document_confirm_prefix">Yuklab oling</string>
-  <string name="download_refresh_book_list_menu_item">Yangila</string>
   <string name="storage_space_warning">Xotirada yetarli joy qo\'q.</string>
   <string name="document_not_installed">Iltimos, \'%s\' yuklab oling</string>
   <string name="free_text_search_documents">Qidiruv</string>
@@ -135,10 +127,8 @@
   <string name="open_link_in_special_window">Linkni maxsus oynada ochish</string>
   <!--Bookmarks-->
   <string name="bookmarks">Xatcho\'plar</string>
-  <string name="bookmark_added">Xatcho\'p qo\'yildi</string>
   <string name="assign_labels">Belgi qo\'ymoq</string>
   <string name="new_item">Yangi</string>
-  <string name="new_label">Yangi belgi</string>
   <string name="label_name_prompt">Ism</string>
   <string name="label_unlabelled">Belgilanmagan</string>
   <!--can be removed-->
@@ -156,11 +146,9 @@
   <!--Speak - Bible-->
   <string name="one_chapter">%d bob</string>
   <string name="some_chapters">%d boblar</string>
-  <string name="rest_of_book">Kitobning oxiriga</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d oyat</string>
   <string name="some_verses">%d oyatlar</string>
-  <string name="rest_of_chapter">Bobning oxiriga</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d bet</string>
   <string name="some_pages">%d betlar</string>
@@ -170,8 +158,6 @@
   <string name="rewind">Boshiga qaytar</string>
   <string name="forward">Oldinga</string>
   <string name="tts_lang_not_available">Bu til mavjud emas</string>
-  <string name="speak_queue">Navbat</string>
-  <string name="speak_repeat">Takrorla</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Gapirish tezligi</string>
   <string name="playback_settings_title">Multimediya Sozlamalari</string>
@@ -213,7 +199,6 @@
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="speak_bookmark_help">Xatcho\'plarni gapirish haqida ma\'lumot</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -267,9 +252,7 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="yes">Ha</string>
   <string name="no">Yo\'q</string>
   <string name="error">Xato</string>
-  <string name="delete_generic">O\'chir</string>
   <string name="all">Hammasi</string>
-  <string name="edit">Tahrirlash</string>
   <string name="reset_generic">Ilk holatga qaytarish</string>
   <string name="watch_tutorial_video">Videodarsni tomosha qilish (Ingliz tilida)</string>
   <!--Errors-->
@@ -283,7 +266,6 @@ gapirish oyatlar chegarasidan tashqarida boshlandi.
   <string name="notification_channel_tts_status">Matnni gapirish</string>
   <string name="notification_channel_progress_status">Faylni yuklash progresi haqida ma\'lumot va boshqalar</string>
   <!--Workspaces-->
-  <string name="new_workspace">Yangi</string>
   <string name="rename_workspace">Ismni o\'zgartir</string>
   <string name="save_and_exit">Saqla</string>
   <string name="reset_settings">Ilk holatga qaytarish</string>

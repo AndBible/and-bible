@@ -5,7 +5,6 @@
   <string name="app_name_short">성경 공부</string>
   <string name="app_name_medium">성경 연구 (AndBible)</string>
   <string name="app_name_long">AndBible: 성경 공부</string>
-  <string name="project">AndBible 오픈 소스 프로젝트</string>
 
   <string name="version_text">버전 %s</string>
   <string name="no_sdcard_error">SD 카드를 넣고 어플리케이션을 다시 시작하세요.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">서식 있는 텍스트 (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">문단 간격 (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">문단 간의 공간을 조절합니다.</string>
 
-  <string name="prefs_show_verseno_title1">절 번호</string>
 
-  <string name="prefs_show_chapter_no_title">장 번호</string>
-  <string name="prefs_show_chapter_no_summary">장 번호 보이기</string>
 
   <string name="prefs_verse_per_line_summary">한 절을 한 줄에 표시</string>
   <string name="prefs_show_bookmarks_summary">선택 해제하여 모든 책갈피를 숨기기</string>
 
   <string name="prefs_show_mynotes_summary">각 절에 내 노트 아이콘 보이기</string>
-  <string name="prefs_show_notes_summary">각주와 상호 참조 보기</string>
   <string name="prefs_show_strongs_summary">링크 - 그리스어 및 히브리어 정의</string>
   <string name="prefs_show_morphology_summary">Robinson\'s Greek Morphology 보기</string>
   <string name="prefs_section_title_summary">비정규 섹션 제목보기</string>
   <string name="prefs_red_letter_summary">예수님 말씀에 적색 강조 추가</string>
-  <string name="prefs_text_size_title">글꼴 설정</string>
 
   <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
   <string name="prefs_show_bookmarks_title">즐겨찾기 보기</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">각주를 클릭 가능한 핸들 대신 텍스트 내에 인라인으로 표시</string>
   <string name="prefs_show_xrefs_summary">상호 참조 보기, 문서에 사용 가능한 상호 참조가 있는 경우</string>
 
-  <string name="prefs_show_notes_title">각주와 상호 참조</string>
   <string name="prefs_show_strongs_title">스트롱 넘버</string>
   <string name="prefs_show_morphology_title">형태학의 코드</string>
   <string name="prefs_non_strongs_word_italic_title">추가된 단어 기울임꼴</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">배경 노이즈</string>
   <string name="prefs_noise_summary">배경에 노이즈를 더하면 눈에 편안하게 보일 수 있습니다</string>
 
-  <string name="cpv_default_title">색 선택</string>
-  <string name="cpv_presets">프리셋</string>
-  <string name="cpv_custom">커스텀</string>
-  <string name="cpv_select">선택</string>
-  <string name="cpv_transparency">투명도</string>
 
     <!-- Window -->
   <string name="new_window">새 창</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">고정하기</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">이 장에 저장된 노트가 없습니다</string>
-  <string name="no_verse_notes">이 절에 저장된 노트가 없습니다.</string>
   <string name="previous">이전</string>
   <string name="next">다음</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">스트롱 히브리어 및 그리어스어 사전을 다운로드 하세요</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong\'s 번호가 포함된 성경을 다운로드하고 검색을 통해 색인을 빌드해야 합니다</string>
-  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
-  <string name="go_to_downloads">다운로드로 이동</string>
 
     <!-- Module download -->
   <string name="download">문서 다운로드</string>
   <string name="redownload">문서 다시 다운로드</string>
-  <string name="download_confirmation">인터넷에서 성경을 다운로드할까요?</string>
   <string name="download_source_last_updated">문서 목록 최근 업데이트: %s.</string>
   <string name="download_refreshing_book_list">문서 서버에서 사용 가능한 문서의 목록을 갱신중...</string>
   <string name="download_source_message1">문서를 다음 소스에서 다운로드했습니다:</string>
   <string name="download_document_confirm_prefix">다운로드</string>
-  <string name="download_refresh_book_list_menu_item">새로고침</string>
   <string name="error_downloading">다운로드 중 문제가 발생했습니다. 인터넷 연결을 확인하세요.</string>
   <string name="error_downloading_status">%1$s를 호스팅하는 서버에서 %2$s (%3$d)로 인해 오류가 발생했습니다.</string>
   <string name="storage_space_warning">저장 공간 부족</string>
@@ -372,19 +351,6 @@
   <string name="done">완료</string>
   <string name="reset_plan_question">이 계획을 초기화하기 원하시나요?</string>
   <string name="import_reading_plan">읽기 계획 불러들이기...</string>
-  <string name="import_reading_plan_error">불러들이기 에러</string>
-  <string name="import_reading_plan_error_duplicate">다음 날들은 중복입니다: %s</string>
-  <string name="import_reading_plan_error_days">다음 날들에 에러가 있습니다: %s</string>
-  <string name="import_reading_plan_anyway">그래도 불러들이기</string>
-  <string name="overwrite_reading_plan">%s을 덮어쓸까요?</string>
-  <string name="delete_reading_plan">이 계획 삭제</string>
-  <string name="reading_plan_deleted">읽기 계획이 삭제되었습니다</string>
-  <string name="reading_plan_ships_with_ab">이 읽기 계획은 %s을 포함합니다.</string>
-  <string name="confirm_delete_reading_plan">
-         %s을(를) 읽은 히스토리와 함께 삭제하시겠습니까?
-        힌트: 계획을 업데이트하려면 같은 파일 이름으로 다시 가져오기하면 됩니다
-        그러면 읽은 히스토리가 보존됩니다.
-    </string>
   <string name="plan_duplicate_user_plan">
         사용자 읽기 계획이 SD 카드에 있습니다
         내부 계획과 같은 이름의 jsword/readingplan 이 있습니다. 여기에는 나타나지 않습니다.
@@ -436,7 +402,6 @@
   <string name="notes">각주 및 참고 문헌</string>
   <string name="share_verse">공유...</string>
   <string name="share_verse_widget_title">선택을 공유</string>
-  <string name="share_verse_subject_2">성경 구절을 %s(으)로 공유하였습니다.</string>
   <string name="compare_translations">번역을 비교</string>
 
     <!-- Link context menu -->
@@ -448,33 +413,26 @@
   <string name="bookmarks_and_mynotes_title">북마크와 내 노트</string>
   <string name="migrated_my_notes">내 노트 이전함</string>
   <string name="bookmarks">즐겨찾기</string>
-  <string name="bookmark_added">추가된 즐겨찾기</string>
     <!-- Bookmark / note labels -->
   <string name="labels">레이블</string>
   <string name="manage_labels">레이블 관리</string>
   <string name="assign_labels">할당 레이블</string>
   <string name="new_item">새로운</string>
-  <string name="new_label">새 분류</string>
   <string name="label_name_prompt">이름</string>
   <string name="label_unlabelled">미분류</string>
   <string name="add_bookmark1">북마크</string>
-  <string name="add_bookmark2">북마크 선택</string>
   <string name="add_bookmark3">선택</string>
   <string name="add_bookmark_whole_verse">구절 북마크</string>
   <string name="add_bookmark_whole_verse1">구절</string>
-  <string name="add_bookmark_whole_verse2">모든 구절</string>
   <string name="add_whole_page_bookmark">전체 페이지에 북마크 추가</string>
   <string name="add_paragraph_break">단락 나누기</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">삭제</string>
   <string name="bookmark_settings_hide_labels_title">특정 레이블 숨기기</string>
   <string name="bookmark_settings_hide_labels_summary">특정한 레이블로 표시된 북마크 숨기기</string>
   <string name="auto_assign_labels_title">레이블 설정</string>
   <string name="auto_assign_labels">자동 지정과 즐겨찾기 레이블</string>
   <string name="auto_assign_labels1">레이블을 새로운 북마크에 자동으로 지정</string>
   <string name="auto_assign_labels_primary">Primary로 자동 지정</string>
-  <string name="label_color">레이블 색</string>
-  <string name="label_color_example">예</string>
   <string name="marker_style">선택 북마크에는 마커만 표시</string>
   <string name="marker_style_whole_verse">전체 구절 북마크에는 마커만 표시</string>
   <string name="hide_style">선택 북마크에 대해 숨김</string>
@@ -505,11 +463,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d개의 장</string>
   <string name="some_chapters">%d개의 장</string>
-  <string name="rest_of_book">책을 끝내기까지</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d개의 구절</string>
   <string name="some_verses">%d개의 구절</string>
-  <string name="rest_of_chapter">장 종료하려면</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d 개의 페이지</string>
   <string name="some_pages">%d 개의 페이지들</string>
@@ -519,8 +475,6 @@
   <string name="rewind">되감기</string>
   <string name="forward">앞으로</string>
   <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
-  <string name="speak_queue">대기열</string>
-  <string name="speak_repeat">반복</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">읽기 속도</string>
@@ -593,14 +547,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s 아이콘은 이 설정이 워크스페이스 설정에서 온 것을 나타냅니다.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s 아이콘은 이 설정이 이 윈도우에 대해 변경되었음을 나타냅니다.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">이 모든 설정을 %2$s로 초기화하려면 %1$s 버튼을 사용하세요.</string>
   <string name="reset_defaults">기본 값</string>
   <string name="reset_workspace_defaults">워크플레이스 기본 값</string>
 
-  <string name="speak_bookmark_help">북마크 읽기 도움말</string>
 
   <string name="speak_help_auto_bookmark">
         말하기를 일시 중지하거나 중지하면 Speak 북마크가 자동으로 추가됩니다.
@@ -657,7 +609,6 @@
   <string name="backup_phone_storage">폰 저장소</string>
   <string name="backup_and_restore">백업과 복원</string>
   <string name="backup_modules2">문서 백업 위치…</string>
-  <string name="backup_app_database2">앱 데이터베이스 백업 위치…</string>
   <string name="backup_app2">앱 백업 (.apk 파일) 위치…</string>
   <string name="backup_application">애플리케이션</string>
   <string name="backup_database">데이터베이스</string>
@@ -674,12 +625,9 @@
   <string name="overwrite_something">%s을(를) 덮어쓰시겠습니까?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">무엇을 복원할까요?</string>
 
-  <string name="restore_app_database">앱 데이터베이스를 다음에서 복원...</string>
   <string name="restore_database">데이터베이스 파일 복원</string>
   <string name="restore_confirmation">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스를 덮어쓸까요?</string>
-  <string name="restore_success2">선택한 데이터베이스 섹션이 성공적으로 복원되었습니다</string>
   <string name="restore_success">내 노트, 북마크, 스터디 패드, 읽기 계획, 워크플레이스 복원 성공</string>
   <string name="downloading_backup">백업 파일 다운로드 중…</string>
   <string name="loading_backup">백업에서 데이터베이스 읽는 중...</string>
@@ -695,14 +643,12 @@
   <string name="exported_studypads_subject">내보낸 StudyPad(들)</string>
   <string name="exported_studypads_message">선택한 StudyPad와 관련된 즐겨찾기 및 노트가 포함된 %s 데이터베이스가 첨부되어 있습니다</string>
   <string name="restore_unsuccessfull">데이터 복원이 실파했습니다. 아마 잘못된 데이터베이스 파일을 선택한 것 같습니다.</string>
-  <string name="restore_modules">다음에서 문서 복원...</string>
   <string name="send_backup_file">백업 파일 보내기</string>
   <string name="backup_modules_title">어떤 모듈을 백업할지 선택</string>
   <string name="install_zip_canceled">모듈 설치가 취소됨</string>
   <string name="ask_restore_or_import">%s의 데이터베이스를 복원(기존 데이터베이스를 제거하고 선택한 데이터베이스를 로드)하거나 가져오기(선택한 데이터베이스를 기존 데이터베이스로 가져오기)할 수 있습니다. 어떻게 하시겠습니까?</string>
   <string name="restore">복원</string>
   <string name="import2">가져오기</string>
-  <string name="export_studypads_help">내보낸 StudyPad(즉, 레이블 및 즐겨찾기)가 포함된 파일은 메인 메뉴 -&gt; 백업 &amp; 복원을 통해 가져올 수 있습니다.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" 및 %2$s개의 다른 레이블 / StudyPad와 %3$s개의 즐겨찾기</string>
@@ -716,8 +662,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">버그 리포트</string>
-  <string name="send_feedback_title">피드백</string>
   <string name="send_bug_report_title">피드백 / 버그 리포트</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s 버그 리포트</string>
 
@@ -757,10 +701,8 @@
   <string name="yes">네</string>
   <string name="no">없음</string>
   <string name="error">오류</string>
-  <string name="delete_generic">삭제</string>
   <string name="please_wait">기다려 주세요...</string>
   <string name="all">전체</string>
-  <string name="edit">편집하다</string>
   <string name="reset_generic">재설정</string>
   <string name="watch_tutorial_video">튜토리얼 비디오를 봐 주세요 (영어)</string>
   <string name="verse_not_found">절이 없음</string>
@@ -784,7 +726,6 @@
   <string name="notification_channel_progress_status">문서 다운로드 등의 진행 상황 알림</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">새로운</string>
   <string name="switch_to_workspace">워크스페이스</string>
   <string name="delete_workspace">삭제</string>
   <string name="new_copied_workspace">새 파일로 복사</string>
@@ -807,7 +748,6 @@
 
     <!-- Beta notice -->
   <string name="beta_notice_title">이것은 베타 버전입니다!</string>
-  <string name="beta_flag">베타</string>
   <string name="beta_notice_content_1">
         베타 버전에는 아직 충분히 테스트되지 않은 새로운 기능들이 있어,
         예상치 못한 동작, 즉 버그가 발생할 수 있습니다.
@@ -901,7 +841,6 @@
         바랍니다.
     </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">지원되는 형식</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">%s에 불러올 파일을 선택해야 합니다. </string>
   <string name="supported_formats">파일에서 문서를 불러오기 위해 지원되는 형식: %s</string>
@@ -927,7 +866,6 @@
   <string name="strongs_mode_title">스트롱 코드 모드 선택</string>
 
   <string name="download_dialog_message">다음 책은 다운로드할 수 없습니다:</string>
-  <string name="select_multiple">여러 개 선택</string>
   <string name="journal_description">사용자 편집 가능한 스터디 패드(사용자 지정 텍스트 및 즐겨찾기 포함)</string>
   <string name="my_notes_description">즐겨찾기에 첨부된 사용자 편집 가능한 내 참고들</string>
   <string name="my_notes_abbreviation">내 참고들</string>
@@ -942,7 +880,6 @@
   <string name="http_not_found">찾을 수 없음</string>
   <string name="http_unknown">기타 오류</string>
   <string name="give_passphrase_for_module">%s 문서는 암호화되었으며 해제하기 위해서는 비밀번호가 필요합니다</string>
-  <string name="unlocking_failed">잠금 해제 실패 (유효하지 않은 비밀번호)</string>
   <string name="unlock_module">모듈 비밀번호 지정</string>
   <string name="unlock_info">암호화된 모듈 잠금 해제 정보</string>
   <string name="try_again_passphrase">비밀번호가 맞지 않습니다. 재시도해 보시겠어요?</string>
@@ -1013,8 +950,6 @@
   <string name="separate_verses_with_newlines">줄 바꿈으로 구절 구분</string>
 
   <string name="backup_button">백업</string>
-  <string name="back_button">뒤로</string>
-  <string name="upgrading_database">데이터베이스를 업그레이드하고 있습니다. 잠시만 기다리세요…</string>
   <string name="initializing_app">애플리케이션 초기 설정 중…</string>
   <string name="show_notes">노트 표시</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1060,7 +995,6 @@
   <string name="text_maintainers">
        텍스트 유지 관리자에게 문제를 보고해 주세요
     </string>
-  <string name="does_not_exist_abbreviation">존재하지 않음</string>
   <string name="cant_change_wholeverse">이 북마크에 대한 전체 구절 표시를 끌 수 없습니다</string>
   <string name="whole_verse_turned_on">북마크가 이제 전체 구절로 표시되었습니다</string>
   <string name="this_bookmark">이 북마크</string>
@@ -1073,7 +1007,6 @@
   <string name="display_mode_hidden">숨김</string>
   <string name="workspace_override_indicator">이 레이블에는 워크스페이스별 표시 모드가 있습니다</string>
   <string name="primary_label">기본 레이블</string>
-  <string name="highlight_entire_verse">전체 구절 강조 표시</string>
   <string name="favourite_label">즐겨찾기 레이블</string>
   <string name="edit_label">레이블 편집</string>
   <string name="delete_label_confirmation">북마크 레이블 \"%s\"를 삭제하시겠습니까? 연결된 모든 스터디 패드 노트도 함께 삭제됩니다.</string>
@@ -1091,7 +1024,6 @@
   <string name="reorder">재정렬</string>
   <string name="system_items">시스템 작업</string>
   <string name="system_items1">기타</string>
-  <string name="system_action2">Android 작업</string>
   <string name="text_copied_to_clicpboard">클립보드에 텍스트 복사됨</string>
   <string name="prefs_disable_two_step_bookmarking_title">한 단계 북마크</string>
   <string name="prefs_disable_two_step_bookmarking_summary">성경 보기 선택 메뉴에 \"선택\" 및 \"구절\" 항목을 직접 표시</string>
@@ -1105,7 +1037,6 @@
   <string name="label_blue">파란색</string>
   <string name="label_salvation">구원</string>
   <string name="label_underline">밑줄</string>
-  <string name="import_menu">가져오기 및 내보내기</string>
   <string name="auto_backups_title">자동 백업</string>
   <string name="backup_file_info">앱 v%1$d, %2$s</string>
   <string name="reset_databases_title">데이터베이스 재설정</string>
@@ -1129,12 +1060,10 @@
   <string name="prompts_csv_export_failed">CSV 내보내기 실패: %s</string>
   <string name="no_prompts_to_export">내보낼 사용자 프롬프트가 없습니다</string>
   <string name="csv_column_selection_title">CSV 열 선택</string>
-  <string name="choose_csv_file">가져올 CSV 파일을 선택하세요</string>
   <string name="no_bookmarks_to_export">내보낼 북마크가 없습니다</string>
   <string name="export_fileformat">%s 형식으로 내보내기</string>
   <string name="export_something">%s 내보내기</string>
   <string name="import_items">%s 불러오기</string>
-  <string name="import_from_db">앱 데이터베이스 파일에서 가져오기</string>
   <string name="import_error">앱 데이터베이스에서 가져오기에 실패했습니다. 데이터베이스 파일이 잘못된 형식이거나 너무 오래된 버전의 %s로 만들어진 것일 수 있습니다.</string>
 
   <string name="export_bookmarks_csv">북마크를 %s로 내보내기</string>
@@ -1163,23 +1092,13 @@
   <string name="last_updated_at">마지막 업데이트</string>
   <string name="bookmark_notes">북마크 노트</string>
 
-  <string name="chooser_range">범위</string>
-  <string name="chooser_jump">이동</string>
-  <string name="chooser_OT_abbrev">구약</string>
-  <string name="chooser_NT_abbrev">신약</string>
-  <string name="chooser_style_grid">격자</string>
-  <string name="chooser_style_lists">목록</string>
-  <string name="chooser_select">%s 선택</string>
-  <string name="chooser_pref_reset">책/장 선택 시 장/구절을 1로 재설정하지 않기</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">죄송합니다. %1$s 언어의 사용자 인터페이스 번역이 부분적으로만 제공됩니다. %2$s은(는) 전적으로 자원봉사자들에 의해 개발되기 때문입니다. 번역에 도움을 주실 수 있다면 %3$s를 참고해 주세요.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">번역가를 위한 지침</string>
   <string name="questions_title">질문이 있나요?</string>
-  <string name="questions_title2">도움이 필요하신가요?</string>
   <string name="bookmark_style">북마크 스타일</string>
   <string name="added_to_bookmark">이 북마크에 할당됨</string>
-  <string name="strongs_off">끄기</string>
   <string name="strongs_links">링크</string>
   <string name="strongs_text_and_links">텍스트 및 링크</string>
   <string name="strongs_hidden_links">숨겨진 링크</string>
@@ -1233,7 +1152,6 @@
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">그룹 동기화</string>
   <string name="sync_group_n">그룹 %d</string>
   <string name="disable_sync">동기화 비활성화</string>
   <string name="open_in_window">창에서 결과 열기</string>
@@ -1244,10 +1162,8 @@
   <string name="custom_repositories_empty_list_message">정의된 사용자 지정 저장소가 없습니다</string>
   <string name="custom_repositories_create_button_label">사용자 지정 저장소 추가</string>
   <string name="custom_repositories_info_button_label">정보</string>
-  <string name="name_for_repository">저장소 이름</string>
   <string name="repository_specification">저장소 URL</string>
   <string name="delete_custom_repository">사용자 지정 저장소 %s를 제거하시겠습니까?</string>
-  <string name="invalid_repository_not_saved">저장소 사양이 유효하지 않아 저장되지 않았습니다.</string>
   <string name="custom_repositories_help1">새 사용자 지정 저장소를 추가하려면 사용자 지정 저장소 URL을 여기에 입력하거나 복사하여 붙여넣으세요.</string>
   <string name="custom_repositories_help2">사용자 지정 저장소에 대한 자세한 정보는 %s에서 확인할 수 있습니다.</string>
   <string name="wiki_page">WIKI 페이지</string>
@@ -1290,7 +1206,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">읽기/암기 진행</string>
   <string name="reading_progress_chapters_read">장 읽음</string>
-  <string name="reading_progress_verses_memorized">구절 암기</string>
   <string name="reading_progress_active_days">활동일</string>
   <string name="reading_progress_overall">성경의 %s%% 읽음</string>
   <string name="reading_progress_bible_heatmap">성경 개요</string>
@@ -1316,13 +1231,11 @@
   <string name="sync_adapter_summary">현재: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">%s 인증</string>
   <string name="auth_server_uri">서버 URL</string>
   <string name="auth_username">사용자 이름</string>
   <string name="auth_password">비밀번호</string>
   <string name="auth_folder_path">동기화 폴더 경로</string>
   <string name="auth_folder_path_summary">동기화 데이터의 상위 폴더 (비어 있으면 루트)</string>
-  <string name="auth_access_token">액세스 토큰</string>
   <string name="synchronization_categories">동기화 카테고리</string>
   <string name="sync_general_settings">정보 및 일반 설정</string>
   <string name="sync_introduction">소개</string>
@@ -1338,8 +1251,6 @@
   <string name="report">보고</string>
   <string name="sync_error">클라우드 동기화에서 오류가 발생했습니다</string>
   <string name="error_notification_channel_name">오류 알림</string>
-  <string name="restore_from_cloud_description">다른 기기에서 기기 동기화가 활성화된 경우 클라우드에서 데이터베이스를 복원하여 시작할 수 있습니다.</string>
-  <string name="enable_sync">동기화 활성화</string>
   <string name="last_updated">최근 업데이트: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1360,20 +1271,6 @@
   <string name="processing_epub">EPUB 처리 중: %s</string>
   <string name="buy_development">개발 작업 구매</string>
   <string name="buy_development2">프로젝트 지원</string>
-  <string name="new_version_warning">
-        새 릴리즈가 곧 출시됩니다. 예상 출시일은 %1$s입니다.
-        새로운 기능과 개선 사항을 확인하려면 %2$s를 시청하세요.
-    </string>
-  <string name="new_version_trailer">예고 영상</string>
-  <string name="new_version_warning2">
-        출시 후 이 버전은 유지 관리되지 않습니다.
-    </string>
-  <string name="new_version_warning3">
-        버그 수정이나 업데이트가 제공되지 않습니다.
-    </string>
-  <string name="new_version_warning4">
-        업그레이드를 원하지 않으면, 앱 스토어(Google Play / F-Droid 등)에서 \'자동 업데이트\'를 비활성화하세요.
-    </string>
   <string name="dont_show">
         이 메시지를 다시 표시하지 않기
     </string>
@@ -1394,7 +1291,6 @@
   <string name="invalid_url_message">입력한 URL이 잘못되었습니다. 유효한 URL을 입력하세요 (예: https://nextcloud.example.com)</string>
   <string name="memorize_description">성경 구절 암송</string>
   <string name="memorize_abbreviation">암송</string>
-  <string name="add_memorization_target">암송 목표로 설정</string>
   <string name="memorize_memorized_passages">암송한 구절</string>
   <string name="memorize_no_memorized_passages">아직 암송한 구절이 없습니다</string>
   <string name="memorize_targets">암송 목표</string>

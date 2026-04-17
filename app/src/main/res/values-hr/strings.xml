@@ -5,7 +5,6 @@
   <string name="app_name_short">Biblija Studij</string>
   <string name="app_name_medium">Biblija Studij (AndBible)</string>
   <string name="app_name_long">AndBible: Biblija Studij</string>
-  <string name="project">AndBible projekt otvorenog koda</string>
 
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Molimo umetnite SD karticu i ponovno pokrenite aplikaciju.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Obogaćeni tekst (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Razmak između odlomaka (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Prilagodi razmak između odlomaka.</string>
 
-  <string name="prefs_show_verseno_title1">Brojevi redaka</string>
 
-  <string name="prefs_show_chapter_no_title">Brojevi poglavlja</string>
-  <string name="prefs_show_chapter_no_summary">Prikaži brojeve poglavlja</string>
 
   <string name="prefs_verse_per_line_summary">Prikaži svaki redak zasebno</string>
   <string name="prefs_show_bookmarks_summary">Otkvači da se sakriju svi straničnici</string>
 
   <string name="prefs_show_mynotes_summary">Prikaži ikonu u redcima sa Mojom bilješkom</string>
-  <string name="prefs_show_notes_summary">Prikaži fusnote i unakrsne reference</string>
   <string name="prefs_show_strongs_summary">Poveznice na grčke i hebrejske definicije</string>
   <string name="prefs_show_morphology_summary">Prikaži Robinsonovu grčku morfologiju</string>
   <string name="prefs_section_title_summary">Prikaži nekanonske naslove odjeljaka</string>
   <string name="prefs_red_letter_summary">Prikaži Kristove riječi crvenom bojom</string>
-  <string name="prefs_text_size_title">Veličina teksta</string>
 
   <string name="prefs_verse_per_line_title">Jedan redak po liniji</string>
   <string name="prefs_show_bookmarks_title">Prikaži straničnike</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Prikaži fusnote ugrađene u tekst umjesto kao klikabilne oznake</string>
   <string name="prefs_show_xrefs_summary">Prikaži reference, ako su dostupne u dokumentu</string>
 
-  <string name="prefs_show_notes_title">Fusnote i unakrsne reference</string>
   <string name="prefs_show_strongs_title">Strongovi brojevi</string>
   <string name="prefs_show_morphology_title">Morfološki kodovi</string>
   <string name="prefs_non_strongs_word_italic_title">Stavljanje dodanih riječi u kurziv</string>
@@ -283,11 +274,6 @@
   <string name="prefs_noise_title">Pozadinski šum</string>
   <string name="prefs_noise_summary">Dodavanje malo šuma na pozadinu može biti ugodnije za oči</string>
 
-  <string name="cpv_default_title">Odaberi boju</string>
-  <string name="cpv_presets">Unaprijed definirano</string>
-  <string name="cpv_custom">Prilagođeno</string>
-  <string name="cpv_select">Odaberi</string>
-  <string name="cpv_transparency">Providnost</string>
 
     <!-- Window -->
   <string name="new_window">Novi prozor</string>
@@ -305,26 +291,19 @@
   <string name="window_pin_mode">Prikvači</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Ne postoje bilješke u ovom poglavlju</string>
-  <string name="no_verse_notes">Ne postoje bilješke za trenutni redak</string>
   <string name="previous">Prethodno</string>
   <string name="next">Dalje</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Molimo preuzmite Strongov hebrejski i grčki rječnik</string>
   <string name="no_indexed_bible_with_strongs_ref">Morate preuzeti Bibliju koja sadrži Strongove brojeve i preuzeti popis putem pretraživanja</string>
-  <string name="morph_robinson_not_installed">Molimo preuzmite rječnik Kodovi Robinsonove Morfološke Analize</string>
-  <string name="go_to_downloads">Idi na Preuzimanja</string>
 
     <!-- Module download -->
   <string name="download">Preuzimanje dokumenata</string>
   <string name="redownload">Ponovno preuzimanje dokumenata</string>
-  <string name="download_confirmation">Preuzimanje Biblije s interneta?</string>
   <string name="download_source_last_updated">Lista dokumenata je posljedni put ažurirana: %s.</string>
   <string name="download_refreshing_book_list">Osvježavam listu dostupnih dokumenata sa dokument-poslužitelja...</string>
   <string name="download_source_message1">Dokumenit se preuzimaju sa sljedećih izvora:</string>
   <string name="download_document_confirm_prefix">Preuzmi</string>
-  <string name="download_refresh_book_list_menu_item">Osvježi</string>
   <string name="error_downloading">Pogreška tijekom preuzimanja. Provjerite vezu sa internetom</string>
   <string name="error_downloading_status">Domaćin poslužitelj %1$s je naišao na pogrešku uslijed %2$s(%3$d)</string>
   <string name="storage_space_warning">Nedovoljno prostora za pohranu.</string>
@@ -373,17 +352,6 @@ Sva preuzimanja modula kroz repozitorij su šifrirana (HTTPS)</string>
   <string name="done">Gotovo</string>
   <string name="reset_plan_question">Jeste li sigurni da želite poništiti ovaj plan?</string>
   <string name="import_reading_plan">Uvezite plan čitanja...</string>
-  <string name="import_reading_plan_error">Pogreška prilikom uvoza</string>
-  <string name="import_reading_plan_error_duplicate">Sljedeći dani su duplicirani: %s</string>
-  <string name="import_reading_plan_error_days">Sljedeći dani sadrže pogreške: %s</string>
-  <string name="import_reading_plan_anyway">Nastavite sa uvezivanjem</string>
-  <string name="overwrite_reading_plan">Želite li prepisati %s?</string>
-  <string name="delete_reading_plan">Obrišite ovaj plan</string>
-  <string name="reading_plan_deleted">Plan čitanja je izbrisan</string>
-  <string name="reading_plan_ships_with_ab">Ovaj plan čitanja dolazi sa %s</string>
-  <string name="confirm_delete_reading_plan">
-Jeste li sigurni da želite li izbrisati %s sa svom njegovom povijesti čitanja?
-Savjet: ukoliko želite ažurirati plan onda ga možete slobodno uvesti ponovno sa istim nazivom datoteke i bit će Vam spremljena povijest.</string>
   <string name="plan_duplicate_user_plan">
     Na SD kartici postoji plan čitanja
         jsword/readingplan sa istim imenom kao i interni plan. Ne može biti ovdje prikazan.
@@ -429,7 +397,6 @@ Ljubaznošću Heartlight internet magazina,
   <string name="notes">Fusnote i reference</string>
   <string name="share_verse">Dijeli...</string>
   <string name="share_verse_widget_title">Dijelite odabrano</string>
-  <string name="share_verse_subject_2">Redak Biblije je podijeljen sa vama koristeći %s.</string>
   <string name="compare_translations">Usporedi prijevode</string>
 
     <!-- Link context menu -->
@@ -441,33 +408,26 @@ Ljubaznošću Heartlight internet magazina,
   <string name="bookmarks_and_mynotes_title">Straničnici i Moje bilješke</string>
   <string name="migrated_my_notes">Prebačene Moje bilješke</string>
   <string name="bookmarks">Straničnik</string>
-  <string name="bookmark_added">Straničnik dodan</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Oznake</string>
   <string name="manage_labels">Upravljaj oznakama</string>
   <string name="assign_labels">Dodijeli oznake</string>
   <string name="new_item">Novi</string>
-  <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Ime</string>
   <string name="label_unlabelled">Neoznačeno</string>
   <string name="add_bookmark1">Straničnik</string>
-  <string name="add_bookmark2">Odabir Straničnika</string>
   <string name="add_bookmark3">Odabir</string>
   <string name="add_bookmark_whole_verse">Obilježi redak</string>
   <string name="add_bookmark_whole_verse1">Redci</string>
-  <string name="add_bookmark_whole_verse2">Cijeli redci</string>
   <string name="add_whole_page_bookmark">Dodaj straničnik za cijelu stranicu</string>
   <string name="add_paragraph_break">Prijelom odlomka</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Ukloni</string>
   <string name="bookmark_settings_hide_labels_title">Sakrij naznačene oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Sakrijte straničnike koji su označeni posebnom oznakom</string>
   <string name="auto_assign_labels_title">Postavke oznaka</string>
   <string name="auto_assign_labels">Automatski dodijeli &amp; omiljene oznake</string>
   <string name="auto_assign_labels1">Automatski dodijeli oznaku novim straničnicima</string>
   <string name="auto_assign_labels_primary">Automatski dodijeli kao glavnu</string>
-  <string name="label_color">Boja oznake</string>
-  <string name="label_color_example">Primjer</string>
   <string name="marker_style">Prikaži samo marker za odabir straničnika</string>
   <string name="marker_style_whole_verse">Prikaži samo marker za straničnike cijelih redaka</string>
   <string name="hide_style">Sakrij za odabir straničnika</string>
@@ -497,11 +457,9 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
     <!-- Speak - Bible -->
   <string name="one_chapter">%d poglavlje</string>
   <string name="some_chapters">%d poglavlja</string>
-  <string name="rest_of_book">Na kraj knjige</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d redak</string>
   <string name="some_verses">%d redaka</string>
-  <string name="rest_of_chapter">Na kraj poglavlja</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d stranica</string>
   <string name="some_pages">%d stranica</string>
@@ -511,8 +469,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="rewind">Premotaj unatrag</string>
   <string name="forward">Premotaj unaprijed</string>
   <string name="tts_lang_not_available">Jezik nije dostupan.</string>
-  <string name="speak_queue">Red</string>
-  <string name="speak_repeat">Ponovi</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Brzina izgovora</string>
@@ -585,14 +541,12 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ikona označava da je podešavanje vezano za postavke radnog prostora.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s ikona označava da je ovo podešavanje promijenjeno baš za ovaj prozor.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Koristite %1$s gumb kako biste poništili sve postavke natrag na %2$s</string>
   <string name="reset_defaults">zadane vrijednosti.</string>
   <string name="reset_workspace_defaults">Zadane vrijednosti radnog prostora</string>
 
-  <string name="speak_bookmark_help">Pomoć za straničnike izgovora</string>
 
   <string name="speak_help_auto_bookmark">
         Govorni straničnik će biti automatski dodan kada je izgovaranje pauzirano ili zaustavljeno.
@@ -645,7 +599,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="backup_phone_storage">Pohrana uređaja</string>
   <string name="backup_and_restore">Sigurnosna kopija i vraćanje</string>
   <string name="backup_modules2">Sigurnosna kopija dokumenata na...</string>
-  <string name="backup_app_database2">Napravi sigurnosnu kopiju aplikacije na ...</string>
   <string name="backup_app2">Napravi sigurnosnu kopiju aplikacije (.apk fajl) na...</string>
   <string name="backup_application">Aplikacija</string>
   <string name="backup_database">Baza podataka</string>
@@ -662,12 +615,9 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="overwrite_something">Prepisati %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Što želite vratiti?</string>
 
-  <string name="restore_app_database">Vrati bazu podataka aplikacije sa...</string>
   <string name="restore_database">Vrati datoteku sa bazom podataka</string>
   <string name="restore_confirmation">Prepiši moje bilješke, straničnike, radne bilježnice, planove čitanja i radne površine?</string>
-  <string name="restore_success2">Odabrani dijelovi iz baze podataka uspješno su vraćeni</string>
   <string name="restore_success">Moje bilješke, straničnici, radne bilježnice, planovi čitanja i radne površine uspješno su vraćeni</string>
   <string name="downloading_backup">Preuzimanje sigurnosne kopije datoteke je u tijeku..</string>
   <string name="loading_backup">Učitavanje baze podataka iz sigurnosne kopije...</string>
@@ -683,14 +633,12 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="exported_studypads_subject">Izvezena radna(e) bilježnica(e)</string>
   <string name="exported_studypads_message">Vaša %s baza podataka koja sadrži  straničnike i bilješke vezane uz odabrane radne bilježnice je priložena</string>
   <string name="restore_unsuccessfull">Vraćanje baze podataka je bilo neuspješno. Možda ste dali neodgovarajuću datoteku</string>
-  <string name="restore_modules">Vrati dokumente sa...</string>
   <string name="send_backup_file">Pošalji datoteku sigurnosne kopije</string>
   <string name="backup_modules_title">Odaberi module za rezervnu kopiju</string>
   <string name="install_zip_canceled">Instalacija modula otkazana</string>
   <string name="ask_restore_or_import">Baza podataka za %s može se vratiti (tj. postojeća baza podataka se uklanja i odabrana baza podataka se učitava) ili uvesti (odabrana baza podataka se uvozi u postojeću bazu podataka). Što želite učiniti?</string>
   <string name="restore">Vratiti</string>
   <string name="import2">Uvezi</string>
-  <string name="export_studypads_help">Datoteka koja sadrži izvezene radne bilježnice (tj. oznake i straničnike) može se uvesti preko glavnog izbornika -&gt; sigurnosna kopija &amp; vratiti</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">%1$s i %2$s drugih oznaka / radne(e) bilježnica/(e) i %3$s straničnici</string>
@@ -704,8 +652,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Prijavite pogrešku</string>
-  <string name="send_feedback_title">Povratne informacije</string>
   <string name="send_bug_report_title">Povratne informacije / prijavite pogrešku</string>
   <string name="report_bug_email_subject_3">[%1$s] Prijavite pogrešku za %2$s %3$s</string>
 
@@ -744,10 +690,8 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="yes">Da</string>
   <string name="no">Ne</string>
   <string name="error">Pogreška</string>
-  <string name="delete_generic">Obriši</string>
   <string name="please_wait">Molimo pričekajte...</string>
   <string name="all">Sve</string>
-  <string name="edit">Uredi</string>
   <string name="reset_generic">Poništi</string>
   <string name="watch_tutorial_video">Pogledajte video sa uputstvima (na engleskom)</string>
   <string name="verse_not_found">Redak nije pronađen</string>
@@ -771,7 +715,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
   <string name="notification_channel_progress_status">Obavijest o statusu napretka za preuzimanje dokumenata i sl.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Novi</string>
   <string name="switch_to_workspace">Radne površine</string>
   <string name="delete_workspace">Ukloni</string>
   <string name="new_copied_workspace">Prekopiraj kao novo</string>
@@ -794,7 +737,6 @@ dovesti do trajnog gubitka ovih straničnika/bilješki ili pak pomjeranja njihov
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Ovo je beta verzija!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         U beta izdanju, postoje nove mogućnosti koje nisu temeljito testirane,
         i stoga upotreba beta izdanja može uvesti neočekivano ponašanje, tj. pogreške.
@@ -879,7 +821,6 @@ biblijske dokumente uvijek otvorene i brzo se prebacivati sa komentara i
 barem jedan dokument preuzimanjem sa interneta ili učitavanjem rezervnih kopija
 iz zip datoteke.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Podržani formati</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Morate odabrati datoteku koju želite učitati u %s</string>
   <string name="supported_formats">Podržani formati za učitavanje dokumenata iz datoteke: %s</string>
@@ -904,7 +845,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="strongs_mode_title">Odaberi Strongs način</string>
 
   <string name="download_dialog_message">Sljedeće knjige ne mogu biti preuzete</string>
-  <string name="select_multiple">Odaberi više</string>
   <string name="journal_description">Korisničko-uređivačke Radne bilježnice sa tekstovima i straničnicima po volji</string>
   <string name="my_notes_description">Korisničko-uređivačke bilješke priložene straničnicima</string>
   <string name="my_notes_abbreviation">Moje bilješke</string>
@@ -919,7 +859,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="http_not_found">Nije pronađeno</string>
   <string name="http_unknown">Druga pogreška</string>
   <string name="give_passphrase_for_module">Dokument %s je šifriran i zahtijeva lozinku radi otključavanja</string>
-  <string name="unlocking_failed">Otključavanje neuspješno, pogrešna lozinka</string>
   <string name="unlock_module">Postavi modul lozinke</string>
   <string name="unlock_info">Informacije o šifriranom modulu otključavanja</string>
   <string name="try_again_passphrase">Lozinka nije urodila plodom, pokušajte ponovno?</string>
@@ -990,8 +929,6 @@ Spisak prethodnih knjiga/dokumenata je pronađen. Dodirnite ispod kako biste ih 
   <string name="separate_verses_with_newlines">Odvoji retke novim recima</string>
 
   <string name="backup_button">Sigurnosna kopija</string>
-  <string name="back_button">Natrag</string>
-  <string name="upgrading_database">Nadogradnja baze podataka. Molimo pričekajte...</string>
   <string name="initializing_app">Inicijalizacija aplikacije...</string>
   <string name="show_notes">Prikaži bilješke</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1026,7 +963,6 @@ pošaljite e-poštu programerima</string>
 Nastavite ka Google play</string>
   <string name="text_maintainers">
 molimo prijavite problem održavateljima tekstova</string>
-  <string name="does_not_exist_abbreviation">Ne postoji</string>
   <string name="cant_change_wholeverse">Nije moguće isključiti obilježavanje cijelog retka za ovaj straničnik</string>
   <string name="whole_verse_turned_on">Straničnik je sada obilježen za cijeli redak</string>
   <string name="this_bookmark">Ovaj straničnik</string>
@@ -1039,7 +975,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="display_mode_hidden">Skriveno</string>
   <string name="workspace_override_indicator">Ova oznaka ima način prikaza specifičan za radnu površinu</string>
   <string name="primary_label">Glavna oznaka</string>
-  <string name="highlight_entire_verse">Istakni cijeli redak</string>
   <string name="favourite_label">Omiljena oznaka</string>
   <string name="edit_label">Uredi oznaku</string>
   <string name="delete_label_confirmation">Želite li ukloniti oznaku straničnika %s? Također, sve povezane bilješke radne bilježnice bit će uklonjene.</string>
@@ -1057,7 +992,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="reorder">Ponovno preuredi</string>
   <string name="system_items">Sustavne radnje</string>
   <string name="system_items1">Više</string>
-  <string name="system_action2">Android radnje</string>
   <string name="text_copied_to_clicpboard">Tekst je kopiran u međuspremnik</string>
   <string name="prefs_disable_two_step_bookmarking_title">Straničnikanje u jednom koraku</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Prikaži stavke iz Odabir i Redci direktno u selekcijski izbornik biblijskog prozora</string>
@@ -1071,7 +1005,6 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="label_blue">Plava</string>
   <string name="label_salvation">Spasenje</string>
   <string name="label_underline">Podcrtaj</string>
-  <string name="import_menu">Uvezi &amp; Izvezi</string>
   <string name="auto_backups_title">Automatske sigurnosne kopije</string>
   <string name="backup_file_info">Aplikacija v%1$d, %2$s</string>
   <string name="reset_databases_title">Poništi baze podataka</string>
@@ -1095,12 +1028,10 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="prompts_csv_export_failed">CSV izvoz nije uspio: %s</string>
   <string name="no_prompts_to_export">Nema korisničkih upita za izvoz</string>
   <string name="csv_column_selection_title">Odaberi stupce CSV-a</string>
-  <string name="choose_csv_file">Odaberi CSV datoteku za uvoz</string>
   <string name="no_bookmarks_to_export">Nema dostupnih straničnika za izvoz</string>
   <string name="export_fileformat">Izvezi kao %s</string>
   <string name="export_something">Izvezi %s</string>
   <string name="import_items">Uvezi %s</string>
-  <string name="import_from_db">Uvezi iz baze podataka aplikacije</string>
   <string name="import_error">Uvoz iz baze podataka aplikacije neuspješan. Možda je datoteka baze podataka pogrešnog formata ili je napravljen prestarom verzijom %s.</string>
 
   <string name="export_bookmarks_csv">Izvezi straničnike kao %s</string>
@@ -1129,23 +1060,13 @@ molimo prijavite problem održavateljima tekstova</string>
   <string name="last_updated_at">Zadnje ažurirano</string>
   <string name="bookmark_notes">Bilješke straničnika</string>
 
-  <string name="chooser_range">Opseg</string>
-  <string name="chooser_jump">Idi na</string>
-  <string name="chooser_OT_abbrev">SZ</string>
-  <string name="chooser_NT_abbrev">NZ</string>
-  <string name="chooser_style_grid">Mreža</string>
-  <string name="chooser_style_lists">Spisi</string>
-  <string name="chooser_select">Odaberi %s</string>
-  <string name="chooser_pref_reset">Nemoj poništiti poglavlje/redak na 1 kada je knjiga/poglavlje izabrana/o</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Žao nam je, ali imamo samo djelomičan prijevod korisničkog sučelja na jezik %1$s. To je zato što su %2$s u potpunosti razvili volonteri. Ako možete da pomognete u prijevodu, pogledajte %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">uputstva za prevoditelje</string>
   <string name="questions_title">Imate li pitanja?</string>
-  <string name="questions_title2">Treba li Vam pomoć?</string>
   <string name="bookmark_style">Stil straničnika</string>
   <string name="added_to_bookmark">Dodijeljen ovom straničniku</string>
-  <string name="strongs_off">Isključeno</string>
   <string name="strongs_links">Poveznice</string>
   <string name="strongs_text_and_links">Tekst i poveznice</string>
   <string name="strongs_hidden_links">Skrivene poveznice</string>
@@ -1192,7 +1113,6 @@ verziju aplikacije, koja se uvijek prikazuje kao kalkulator, čak i kada su poda
 Možete preuzeti najnovije izdanje diskretne verzije sa %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Uskladi grupu</string>
   <string name="sync_group_n">Grupa %d</string>
   <string name="disable_sync">Onemogući usklađivanje</string>
   <string name="open_in_window">Otvori rezultate u prozoru</string>
@@ -1203,10 +1123,8 @@ Možete preuzeti najnovije izdanje diskretne verzije sa %s.</string>
   <string name="custom_repositories_empty_list_message">Nema definiranih prilagođenih repozitorija </string>
   <string name="custom_repositories_create_button_label">Dodaj Prilagođeni repozitorij</string>
   <string name="custom_repositories_info_button_label">Informacije</string>
-  <string name="name_for_repository">Imenuj repozitorij</string>
   <string name="repository_specification">URL repozitorija</string>
   <string name="delete_custom_repository">Želite li ukloniti prilagođeni repozitorij %s?</string>
-  <string name="invalid_repository_not_saved">Specifikacije repozitorija su neispravne, stoga nije sačuvan.</string>
   <string name="custom_repositories_help1">Kako biste dodali novi prilagođeni repozitorij, upišite ili kopirajte i zalijepite URL prilagođenog repozitorija ovdje.</string>
   <string name="custom_repositories_help2">Više o prilagođenim repozitorijima možete pročitati na %s.</string>
   <string name="wiki_page">Viki stranica</string>
@@ -1246,7 +1164,6 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Napredak čitanja/pamćenja</string>
   <string name="reading_progress_chapters_read">pročitanih poglavlja</string>
-  <string name="reading_progress_verses_memorized">zapamćenih redaka</string>
   <string name="reading_progress_active_days">aktivnih dana</string>
   <string name="reading_progress_overall">%s%% Biblije pročitano</string>
   <string name="reading_progress_bible_heatmap">Pregled Biblije</string>
@@ -1272,13 +1189,11 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="sync_adapter_summary">Trenutni: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Autorizacija %s</string>
   <string name="auth_server_uri">URL poslužitelja</string>
   <string name="auth_username">Korisničko ime</string>
   <string name="auth_password">Lozinka</string>
   <string name="auth_folder_path">Putanja mape za usklađivanje</string>
   <string name="auth_folder_path_summary">Nadređena mapa za podatke usklađivanja (prazno = korijenski direktorij)</string>
-  <string name="auth_access_token">Pristupni token</string>
   <string name="synchronization_categories">Kategorije usklađivanja</string>
   <string name="sync_general_settings">Informacije &amp; opće postavke</string>
   <string name="sync_introduction">Uvod</string>
@@ -1294,8 +1209,6 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="report">Prijava</string>
   <string name="sync_error">Došlo je do pogreške tijekom usklađivanja u oblaku</string>
   <string name="error_notification_channel_name">Obaviještenja o pogreškama</string>
-  <string name="restore_from_cloud_description">Ukoliko imate uključenu opciju usklađivanja na drugom uređaju, možete započeti sa vraćanjem baze podataka sa oblaka.</string>
-  <string name="enable_sync">Omogući usklađivanje</string>
   <string name="last_updated">Posljednji put ažurirano: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1316,20 +1229,6 @@ Baza podataka sadrži %s. Kako želite postupiti?</string>
   <string name="processing_epub">Procesiranje EPUB: %s</string>
   <string name="buy_development">Kupite razvojni rad</string>
   <string name="buy_development2">Podržite projekt</string>
-  <string name="new_version_warning">
-        Novo izdanje uskoro dolazi. Očekivani datum izlaska je %1$s. Pratite našu
-        %2$s kako biste otkrili nove funkcije i poboljšanja.
-    </string>
-  <string name="new_version_trailer">Najava filma</string>
-  <string name="new_version_warning2">
-        Nakon izlaska, trenutna verzija neće više biti održavana.
-    </string>
-  <string name="new_version_warning3">
-        Neće dobivati ažuriranja niti zakrpe za greške.
-    </string>
-  <string name="new_version_warning4">
-        Ukoliko ne želite da nadogradite, molimo onemogućite automatska ažuriranja u Vašoj trgovini aplikacija (Google Play / F-Droid, itd.).
-    </string>
   <string name="dont_show">
 Ne prikazuj ovu poruku ponovno.
       </string>
@@ -1350,7 +1249,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="invalid_url_message">Uneseni URL nije valjan. Unesite valjani URL (npr. https://nextcloud.example.com)</string>
   <string name="memorize_description">Pamćenje biblijskih redaka</string>
   <string name="memorize_abbreviation">Pamćenje</string>
-  <string name="add_memorization_target">Postavi kao cilj pamćenja</string>
   <string name="memorize_memorized_passages">Zapamćeni odlomci</string>
   <string name="memorize_no_memorized_passages">Još nema zapamćenih odlomaka</string>
   <string name="memorize_targets">Ciljevi pamćenja</string>

@@ -5,7 +5,6 @@
   <string name="app_name_short">Studi Biblici</string>
   <string name="app_name_medium">Studi Biblici (AndBible)</string>
   <string name="app_name_long">AndBible: Studi Biblici</string>
-  <string name="project">AndBible progetto open source</string>
 
   <string name="version_text">Versione %s</string>
   <string name="no_sdcard_error">Inserisci una scheda SD e riavvia l\'applicazione.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Testo formattato (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Spaziatura paragrafo (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Regola la spaziatura tra i paragrafi.</string>
 
-  <string name="prefs_show_verseno_title1">Numeri dei versetti</string>
 
-  <string name="prefs_show_chapter_no_title">Numeri di capitolo</string>
-  <string name="prefs_show_chapter_no_summary">Mostra i numeri di capitolo</string>
 
   <string name="prefs_verse_per_line_summary">Mostra ciascun versetto su una riga diversa</string>
   <string name="prefs_show_bookmarks_summary">Deseleziona per nascondere tutti i segnalibri</string>
 
   <string name="prefs_show_mynotes_summary">Mostra l\'icona nei versetti con Le mie note</string>
-  <string name="prefs_show_notes_summary">Mostra note a piè di pagina e riferimenti incrociati</string>
   <string name="prefs_show_strongs_summary">Collegamenti alle definizioni in greco ed ebraico</string>
   <string name="prefs_show_morphology_summary">Mostra la morfologia greca di Robinson</string>
   <string name="prefs_section_title_summary">Mostra i titoli delle sezioni non canoniche</string>
   <string name="prefs_red_letter_summary">Mostra le parole di Cristo in rosso</string>
-  <string name="prefs_text_size_title">Impostazioni del carattere</string>
 
   <string name="prefs_verse_per_line_title">Un versetto per riga</string>
   <string name="prefs_show_bookmarks_title">Mostra le icone del segnalibro</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Mostra le note a piè di pagina integrate nel testo invece di icone cliccabili</string>
   <string name="prefs_show_xrefs_summary">Mostra i riferimenti incrociati, se sono disponibili nel documento</string>
 
-  <string name="prefs_show_notes_title">Note e riferimenti incrociati</string>
   <string name="prefs_show_strongs_title">Numeri di Strong</string>
   <string name="prefs_show_morphology_title">Codici morfologici</string>
   <string name="prefs_non_strongs_word_italic_title">Corsivo per le parole aggiunte</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">Rumore di sottofondo</string>
   <string name="prefs_noise_summary">Aggiungere del rumore allo sfondo può rendere più confortevole la lettura.</string>
 
-  <string name="cpv_default_title">Seleziona un colore</string>
-  <string name="cpv_presets">Preimpostazioni</string>
-  <string name="cpv_custom">Personalizzato</string>
-  <string name="cpv_select">Seleziona</string>
-  <string name="cpv_transparency">Trasparenza</string>
 
     <!-- Window -->
   <string name="new_window">Nuova finestra</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">Fissa</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Non esistono appunti su questo capitolo</string>
-  <string name="no_verse_notes">Non esistono appunti su questo versetto</string>
   <string name="previous">Precedente</string>
   <string name="next">Successivo</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Scarica il dizionario ebraico e greco di Strong </string>
   <string name="no_indexed_bible_with_strongs_ref">Devi scaricare una Bibbia che contenga i numeri Strong e generarne l\'indice in Ricerca</string>
-  <string name="morph_robinson_not_installed">Scarica il dizionario dei codici di analisi morfologica di Robinson</string>
-  <string name="go_to_downloads">Vai ai Download</string>
 
     <!-- Module download -->
   <string name="download">Scarica documenti</string>
   <string name="redownload">Riscarica documenti</string>
-  <string name="download_confirmation">Scaricare una Bibbia da Internet?</string>
   <string name="download_source_last_updated">Ultimo aggiornamento dell\'elenco documenti: %s.</string>
   <string name="download_refreshing_book_list">Aggiornamento della lista dei documenti disponibili...</string>
   <string name="download_source_message1">I documenti vengono scaricati dalle seguenti fonti:</string>
   <string name="download_document_confirm_prefix">Scarica</string>
-  <string name="download_refresh_book_list_menu_item">Aggiorna</string>
   <string name="error_downloading">Si è verificato un errore durante lo scaricamento. Controlla la connessione a internet.</string>
   <string name="error_downloading_status">Il server che ha %1$s segnala un errore dovuto a %2$s (%3$d).</string>
   <string name="storage_space_warning">Non hai abbastanza spazio di memoria locale.</string>
@@ -368,18 +347,6 @@
   <string name="done">Fatto</string>
   <string name="reset_plan_question">Sei sicuro di voler ripristinare questo piano?</string>
   <string name="import_reading_plan">Importa piano di lettura...</string>
-  <string name="import_reading_plan_error">Errore di importazione</string>
-  <string name="import_reading_plan_error_duplicate">I seguenti giorni sono duplicati: %s</string>
-  <string name="import_reading_plan_error_days">I seguenti giorni contengono errori: %s</string>
-  <string name="import_reading_plan_anyway">Importa lo stesso</string>
-  <string name="overwrite_reading_plan">Vuoi sovrascrivere %s?</string>
-  <string name="delete_reading_plan">Elimina questo piano</string>
-  <string name="reading_plan_deleted">Il piano di lettura è stato cancellato</string>
-  <string name="reading_plan_ships_with_ab">Questo piano di lettura contiene %s</string>
-  <string name="confirm_delete_reading_plan">
-Sei sicuro di voler eliminare %s e la sua cronologia di lettura?
-Suggerimento: se hai bisogno di aggiornare il piano puoi semplicemente importarlo di nuovo con lo stesso nome file e così la cronologia verrà conservata.
-    </string>
   <string name="plan_duplicate_user_plan">
 C\'è un piano di lettura dell\'utente nella sdcard in jsword/readingplan con lo stesso nome di un piano interno. Non può essere elencato qui. Rinomina il file con un nome diverso, ma lasciandogli l\'estensione .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmi e Proverbi in un anno</string>
@@ -415,7 +382,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="notes">Note e referenze</string>
   <string name="share_verse">Condividere…</string>
   <string name="share_verse_widget_title">Condividi selezione</string>
-  <string name="share_verse_subject_2">Un versetto della Bibbia è stato condiviso con te usando %s.</string>
   <string name="compare_translations">Confronta le traduzioni</string>
 
     <!-- Link context menu -->
@@ -427,33 +393,26 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="bookmarks_and_mynotes_title">Segnalibri e Annotazioni</string>
   <string name="migrated_my_notes">Migrazione di Annotazioni</string>
   <string name="bookmarks">Segnalibri</string>
-  <string name="bookmark_added">Segnalibro aggiunto</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etichette</string>
   <string name="manage_labels">Gestisci etichette</string>
   <string name="assign_labels">Assegna le etichette</string>
   <string name="new_item">Nuovo</string>
-  <string name="new_label">Nuova etichetta</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Senza etichetta</string>
   <string name="add_bookmark1">Segnalibro</string>
-  <string name="add_bookmark2">Aggiungi segnalibro</string>
   <string name="add_bookmark3">Selezione</string>
   <string name="add_bookmark_whole_verse">Segnalibro su verso</string>
   <string name="add_bookmark_whole_verse1">Versetti</string>
-  <string name="add_bookmark_whole_verse2">Versetti completi</string>
   <string name="add_whole_page_bookmark">Aggiungi segnalibro per l\'intera pagina</string>
   <string name="add_paragraph_break">Interruzione di paragrafo</string>
   <string name="ai_label">IA</string>
-  <string name="remove_bookmark">Rimuovi</string>
   <string name="bookmark_settings_hide_labels_title">Nascondi le etichette specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Nascondi i segnalibri che sono marcati con le etichette specificate</string>
   <string name="auto_assign_labels_title">Impostazioni etichette</string>
   <string name="auto_assign_labels">Auto-assegna &amp; Etichette preferiti</string>
   <string name="auto_assign_labels1">Auto-assegna a nuovi segnalibri</string>
   <string name="auto_assign_labels_primary">Auto-assegna come principale</string>
-  <string name="label_color">Colore dell\'etichetta</string>
-  <string name="label_color_example">Esempio</string>
   <string name="marker_style">Evidenzia solo i segnalibri di selezione</string>
   <string name="marker_style_whole_verse">Evidenzia solo i segnalibri di versi interi</string>
   <string name="hide_style">Nascondi per i segnalibri della selezione</string>
@@ -484,11 +443,9 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
     <!-- Speak - Bible -->
   <string name="one_chapter">%d Capitolo</string>
   <string name="some_chapters">%d capitoli</string>
-  <string name="rest_of_book">Alla fine del libro</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d versetto</string>
   <string name="some_verses">%d versetti</string>
-  <string name="rest_of_chapter">Alla fine del capitolo</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d pagina</string>
   <string name="some_pages">%d pagine</string>
@@ -498,8 +455,6 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
   <string name="rewind">Riavvolgere</string>
   <string name="forward">Avanti</string>
   <string name="tts_lang_not_available">La lingua non è disponibile.</string>
-  <string name="speak_queue">Coda</string>
-  <string name="speak_repeat">Ripeti</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Velocità del testo parlato</string>
@@ -572,14 +527,12 @@ Leggi la Bibbia in 2 anni, leggendo due volte NT e Salmi. Per gentile concession
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">L\'icona %s indica che l\'impostazione deriva da quelle dello spazio di lavoro.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">L\'icona %s indica che questa impostazione è stata cambiata per questa specifica finestra.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Usa %1$s per reimpostare tutte queste impostazioni ai %2$s.</string>
   <string name="reset_defaults">valori predefiniti</string>
   <string name="reset_workspace_defaults">valori predefiniti dello spazio di lavoro</string>
 
-  <string name="speak_bookmark_help">Aiuto per segnalibri audio</string>
 
   <string name="speak_help_auto_bookmark">
 Un segnalibro Audio verrà aggiunto automaticamente quando Parla/Audio viene messo in pausa o interrotto. I segnalibri generati automaticamente sono etichettati con l\'etichetta speciale Audio. Se inizi da un segnalibro di Audio, il segnalibro verrà spostato nel versetto stesso interrompere o mettere in pausa alla prossima volta. Verranno spostate solo le etichette Audio, tutte le altre etichette saranno lasciate solo.</string>
@@ -624,7 +577,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="backup_phone_storage">Memoria del telefono</string>
   <string name="backup_and_restore">Backup e ripristino</string>
   <string name="backup_modules2">Backup dei documenti su...</string>
-  <string name="backup_app_database2">Esegui backup del database su…</string>
   <string name="backup_app2">Esegui backup dell\'app (file .apk) su…</string>
   <string name="backup_application">Applicazione</string>
   <string name="backup_database">Database</string>
@@ -641,12 +593,9 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="overwrite_something">Sovrascrivere %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Cosa vuoi ripristinare?</string>
 
-  <string name="restore_app_database">Ripristina il database dell\'app da...</string>
   <string name="restore_database">Ripristina il file del database</string>
   <string name="restore_confirmation">Sovrascrivere le Annotazioni, i Segnalibri, gli Appunti di studio, i Piani di lettura e gli Spazi di lavoro?</string>
-  <string name="restore_success2">Le sezioni del database indicate sono state ripristinate</string>
   <string name="restore_success">Eseguito con successo il ripristino di Annotazioni, Segnalibri, Appunti di studio, Piani di lettura e Spazi di lavoro</string>
   <string name="downloading_backup">Scaricamento file di backup…</string>
   <string name="loading_backup">Carico il database dal backup...</string>
@@ -662,14 +611,12 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="exported_studypads_subject">Appunti di studio esportati</string>
   <string name="exported_studypads_message">Il tuo database %s contenente Segnalibri e Note relativi agli Appunti di studio selezionati è stato allegato</string>
   <string name="restore_unsuccessfull">Il ripristino del database non ha avuto esito positivo. Forse hai fornito un file di database non valido.</string>
-  <string name="restore_modules">Ripristina documenti da...</string>
   <string name="send_backup_file">Invia un file di backup</string>
   <string name="backup_modules_title">Seleziona i moduli di cui eseguire il backup</string>
   <string name="install_zip_canceled">Installazione del modulo annullata</string>
   <string name="ask_restore_or_import">Il database per %s può essere ripristinato (andando a sostituire quello esistente) oppure importato (il database selezionato verrà importato in quello esistente). Cosa vuoi fare?</string>
   <string name="restore">Ripristina</string>
   <string name="import2">Importa</string>
-  <string name="export_studypads_help">Il file contenente gli Appunti di studio esportati (cioè Etichette e Segnalibri) può essere importato andando in Menu Principale -&gt; Backup e ripristino.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" e %2$s altre Etichette / Appunti di studio e %3$s Segnalibri</string>
@@ -683,8 +630,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Segnala un problema</string>
-  <string name="send_feedback_title">Feedback</string>
   <string name="send_bug_report_title">Segnala un problema</string>
   <string name="report_bug_email_subject_3">[%1$s] Segnalazione errori per %2$s %3$s</string>
 
@@ -723,10 +668,8 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="yes">Si</string>
   <string name="no">No</string>
   <string name="error">Errore </string>
-  <string name="delete_generic">Cancella</string>
   <string name="please_wait">Attendi…</string>
   <string name="all">Tutto</string>
-  <string name="edit">Modifica</string>
   <string name="reset_generic">Ripristina</string>
   <string name="watch_tutorial_video">Guarda il video tutorial (inglese)</string>
   <string name="verse_not_found">Versetto non trovato</string>
@@ -750,7 +693,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
   <string name="notification_channel_progress_status">Notifica dello stato di avanzamento per lo scaricamento di documenti ecc.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Nuovo</string>
   <string name="switch_to_workspace">Spazi di lavoro</string>
   <string name="delete_workspace">Rimuovi</string>
   <string name="new_copied_workspace">Copia come nuovo</string>
@@ -773,7 +715,6 @@ La ripetizione del passaggio è stata disattivata automaticamente perché il dia
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Questa è la versione beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Nella versione beta, ci sono nuove funzionalità che non sono ancora state testate del tutto, e quindi l\'uso della beta potrebbe introdurre comportamenti imprevisti o bug. Si consiglia ai normali lettori di utilizzare la versione stabile.</string>
 
@@ -843,7 +784,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="welcome_message">Grazie per aver scaricato %s. Al momento non hai Bibbie o documenti installati. Per continuare, per favore installa almeno 1 documento scaricandolo da internet, oppure caricandolo da un backup su file zip.
     </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Formati supportati</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">È necessario scegliere il file da caricare su %s. </string>
   <string name="supported_formats">Formati supportati per il caricamento di documenti da file: %s</string>
@@ -869,7 +809,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="strongs_mode_title">Scegli una modalità Strong</string>
 
   <string name="download_dialog_message">Non è stato possibile scaricare i seguenti libri:</string>
-  <string name="select_multiple">Selezione multipla</string>
   <string name="journal_description">Appunti di studio modificabili con testo e segnalibri personali</string>
   <string name="my_notes_description">Annotazioni modificabili allegate ai segnalibri</string>
   <string name="my_notes_abbreviation">Annotazioni</string>
@@ -884,7 +823,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="http_not_found">Non trovato</string>
   <string name="http_unknown">Altro errore</string>
   <string name="give_passphrase_for_module">Il documento %s è cifrato e necessita di una password per essere sbloccato</string>
-  <string name="unlocking_failed">Sblocco fallito, password non valida</string>
   <string name="unlock_module">Imposta la password del modulo</string>
   <string name="unlock_info">Info sullo sblocco del modulo cifrato</string>
   <string name="try_again_passphrase">La password non ha funzionato, vuoi riprovare?</string>
@@ -955,8 +893,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="separate_verses_with_newlines">Separa i versi con nuove righe</string>
 
   <string name="backup_button">Backup</string>
-  <string name="back_button">Indietro</string>
-  <string name="upgrading_database">Sto aggiornando il database. Attendi...</string>
   <string name="initializing_app">Inizializzo l\'applicazione...</string>
   <string name="show_notes">Mostra annotazioni</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1002,7 +938,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="text_maintainers">
        segnala i problemi a chi si occupa della manutenzione dei testi
     </string>
-  <string name="does_not_exist_abbreviation">Non esiste</string>
   <string name="cant_change_wholeverse">Impossibile disattivare la selezione dell\'intero versetto per questo segnalibro</string>
   <string name="whole_verse_turned_on">Segnalibro impostato per l\'intero versetto</string>
   <string name="this_bookmark">Questo segnalibro</string>
@@ -1015,7 +950,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="display_mode_hidden">Nascosto</string>
   <string name="workspace_override_indicator">Questa etichetta ha una modalità di visualizzazione specifica per lo spazio di lavoro</string>
   <string name="primary_label">Etichetta principale</string>
-  <string name="highlight_entire_verse">Evidenzia l\'intero versetto</string>
   <string name="favourite_label">Etichetta preferita</string>
   <string name="edit_label">Modifica etichetta</string>
   <string name="delete_label_confirmation">Vuoi rimuovere l\'etichetta di segnalibro \"%s\"? Anche tutti gli Appunti di studio ad essa associati verranno rimossi.</string>
@@ -1033,7 +967,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="reorder">Riordina</string>
   <string name="system_items">Azioni di sistema</string>
   <string name="system_items1">Di più</string>
-  <string name="system_action2">Azioni di Android</string>
   <string name="text_copied_to_clicpboard">Testo copiato negli appunti</string>
   <string name="prefs_disable_two_step_bookmarking_title">Segnalibro rapido</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Mostra gli elementi \"Selezione\" e \"Versetti\" direttamente nella vista Bibbia del menù Selezione</string>
@@ -1047,7 +980,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="label_blue">Blu</string>
   <string name="label_salvation">Salvezza</string>
   <string name="label_underline">Sottolinea</string>
-  <string name="import_menu">Importa &amp; esporta</string>
   <string name="auto_backups_title">Backup automatici</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Ripristina database</string>
@@ -1071,12 +1003,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="prompts_csv_export_failed">Esportazione CSV non riuscita: %s</string>
   <string name="no_prompts_to_export">Nessun prompt utente da esportare</string>
   <string name="csv_column_selection_title">Scelta colonne CSV</string>
-  <string name="choose_csv_file">Scegli le colonne CSV da importare</string>
   <string name="no_bookmarks_to_export">Non sono disponibili segnalibri da esportare</string>
   <string name="export_fileformat">Esporta come %s</string>
   <string name="export_something">Esporta %s</string>
   <string name="import_items">Importa %s</string>
-  <string name="import_from_db">Importa dal database dell\'applicazione</string>
   <string name="import_error">L\'importazione del database dell\'app non è riuscita. Il file di database potrebbe essere in un formato sbagliato o creato da una versione troppo vecchia di %s.</string>
 
   <string name="export_bookmarks_csv">Esporta segnalibri come %s</string>
@@ -1105,23 +1035,13 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="last_updated_at">Ultimo aggiornamento il</string>
   <string name="bookmark_notes">Note dei segnalibri</string>
 
-  <string name="chooser_range">Intervallo</string>
-  <string name="chooser_jump">Salta</string>
-  <string name="chooser_OT_abbrev">AT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Griglia</string>
-  <string name="chooser_style_lists">Elenchi</string>
-  <string name="chooser_select">Seleziona %s</string>
-  <string name="chooser_pref_reset">Non reimpostare il capitolo/versetto a 1 quando un libro o capitolo viene selezionato</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Spiacente, abbiamo solo una traduzione parziale dell\'interfaccia nella lingua %1$s. Questo perché %2$s è sviluppato interamente da volontari. Se puoi aiutarci nelle traduzioni, per favore vedi %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">istruzioni per i traduttori</string>
   <string name="questions_title">Domande?</string>
-  <string name="questions_title2">Serve aiuto?</string>
   <string name="bookmark_style">Stile dei segnalibri</string>
   <string name="added_to_bookmark">Assegnato a questo segnalibro</string>
-  <string name="strongs_off">Spento</string>
   <string name="strongs_links">Collegamenti</string>
   <string name="strongs_text_and_links">Testo e collegamenti</string>
   <string name="strongs_hidden_links">Collegamenti Nascosti</string>
@@ -1175,7 +1095,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sincronizza gruppo</string>
   <string name="sync_group_n">Gruppo %d</string>
   <string name="disable_sync">Disattiva sincronizzazione</string>
   <string name="open_in_window">Apri risultati in una finestra</string>
@@ -1186,10 +1105,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="custom_repositories_empty_list_message">Nessun repository personalizzato definito</string>
   <string name="custom_repositories_create_button_label">Aggiungi Repository Personalizzato</string>
   <string name="custom_repositories_info_button_label">Informazioni</string>
-  <string name="name_for_repository">Nome del repository</string>
   <string name="repository_specification">URL del repository</string>
   <string name="delete_custom_repository">Vuoi eliminare il repository personalizzato %s?</string>
-  <string name="invalid_repository_not_saved">Il repository specificato non era valido e non è stato salvato.</string>
   <string name="custom_repositories_help1">Per aggiungere un nuovo repository personalizzato, digita o copia &amp; incolla qui l\'URL del repository.</string>
   <string name="custom_repositories_help2">Puoi leggere ulteriori informazioni sui repository personalizzati su %s.</string>
   <string name="wiki_page">Pagina WIKI</string>
@@ -1232,7 +1149,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Progresso lettura/memorizzazione</string>
   <string name="reading_progress_chapters_read">capitoli letti</string>
-  <string name="reading_progress_verses_memorized">versetti memorizzati</string>
   <string name="reading_progress_active_days">giorni attivi</string>
   <string name="reading_progress_overall">%s%% della Bibbia letta</string>
   <string name="reading_progress_bible_heatmap">Panoramica Bibbia</string>
@@ -1258,13 +1174,11 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="sync_adapter_summary">Attuale: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Autenticazione a %s</string>
   <string name="auth_server_uri">URL del server</string>
   <string name="auth_username">Nome utente</string>
   <string name="auth_password">Password</string>
   <string name="auth_folder_path">Percorso cartella di sincronizzazione</string>
   <string name="auth_folder_path_summary">Cartella principale per i dati di sincronizzazione (vuoto = radice)</string>
-  <string name="auth_access_token">Token di accesso</string>
   <string name="synchronization_categories">Categorie di sincronizzazione</string>
   <string name="sync_general_settings">Info &amp; impostazioni generali</string>
   <string name="sync_introduction">Introduzione</string>
@@ -1280,8 +1194,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="report">Segnala</string>
   <string name="sync_error">Errore nella sincronizzazione del Cloud</string>
   <string name="error_notification_channel_name">Notifiche di errore</string>
-  <string name="restore_from_cloud_description">Se la sincronizzazione del dispositivo è attivata in un altro dispositivo, è possibile iniziare a ripristinare il database dal Cloud.</string>
-  <string name="enable_sync">Attiva sincronizzazione</string>
   <string name="last_updated">Ultimo aggiornamento: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1302,20 +1214,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="processing_epub">Elaborazione EPUB: %s</string>
   <string name="buy_development">Acquista lavoro di sviluppo</string>
   <string name="buy_development2">Sostenere il progetto</string>
-  <string name="new_version_warning">
-        Una nuova versione è in arrivo. La data di uscita prevista è %1$s. Guarda il nostro
-        %2$s per scoprire nuove caratteristiche e miglioramenti.
-    </string>
-  <string name="new_version_trailer">video promo</string>
-  <string name="new_version_warning2">
-        Dopo il rilascio, questa versione non verrà più mantenuta.
-    </string>
-  <string name="new_version_warning3">
-        Non riceverà correzioni di bug o aggiornamenti.
-    </string>
-  <string name="new_version_warning4">
-        Se non desideri eseguire l\'aggiornamento, disattiva \"Aggiornamenti automatici\" nel tuo app store (Google Play / F-Droid etc).
-    </string>
   <string name="dont_show">
         Non mostrare più questo messaggio
     </string>
@@ -1336,7 +1234,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="invalid_url_message">L\'URL inserito non è valido. Inserisci un URL valido (ad esempio, https://nextcloud.example.com)</string>
   <string name="memorize_description">Memorizza versi della Bibbia</string>
   <string name="memorize_abbreviation">Memorizza</string>
-  <string name="add_memorization_target">Imposta come obiettivo di memorizzazione</string>
   <string name="memorize_memorized_passages">Brani memorizzati</string>
   <string name="memorize_no_memorized_passages">Nessun brano memorizzato ancora</string>
   <string name="memorize_targets">Obiettivi di memorizzazione</string>

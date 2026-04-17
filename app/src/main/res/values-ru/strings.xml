@@ -5,7 +5,6 @@
   <string name="app_name_short">Изучение Библии</string>
   <string name="app_name_medium">Изучение Библии (AndBible) </string>
   <string name="app_name_long">AndBible: Изучение Библии</string>
-  <string name="project">AndBible Проект с открытым исходным кодом</string>
 
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD-карту и перезапустите приложение.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Форматированный текст (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Интервал между абзацами (%s мм)</string>
-  <string name="prefs_paragraph_spacing_summary">Отрегулировать расстояние между абзацами.</string>
 
-  <string name="prefs_show_verseno_title1">Нумерация стихов</string>
 
-  <string name="prefs_show_chapter_no_title">Номера глав</string>
-  <string name="prefs_show_chapter_no_summary">Показать номера глав</string>
 
   <string name="prefs_verse_per_line_summary">Показать каждый стих на отдельной строке</string>
   <string name="prefs_show_bookmarks_summary">Снять галочку, чтобы скрыть все закладки</string>
 
   <string name="prefs_show_mynotes_summary">Показать значок в стихах с Моей Заметкой</string>
-  <string name="prefs_show_notes_summary">Показать сноски и перекрестные ссылки</string>
   <string name="prefs_show_strongs_summary">Ссылки на греческие и еврейские определения</string>
   <string name="prefs_show_morphology_summary">Показать греческую морфологию Робинсона</string>
   <string name="prefs_section_title_summary">Показать неканонические заголовки разделов</string>
   <string name="prefs_red_letter_summary">Показать слова Христа красным шрифтом</string>
-  <string name="prefs_text_size_title">Настройки шрифта</string>
 
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_show_bookmarks_title">Показать закладки</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Показывать примечания непосредственно в тексте, а не в виде интерактивных значков</string>
   <string name="prefs_show_xrefs_summary">Показать перекрестные ссылки, если они есть в документе</string>
 
-  <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_strongs_title">Номера Стронга</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
   <string name="prefs_non_strongs_word_italic_title">Курсив для добавленных слов</string>
@@ -283,11 +274,6 @@
   <string name="prefs_noise_title">Фоновый шум</string>
   <string name="prefs_noise_summary">Добавление некоторого шума к фону может сделать его более удобным для глаз.</string>
 
-  <string name="cpv_default_title">Выберите цвет</string>
-  <string name="cpv_presets">Предустановки</string>
-  <string name="cpv_custom">Пользовательский</string>
-  <string name="cpv_select">Выбрать</string>
-  <string name="cpv_transparency">Прозрачность</string>
 
     <!-- Window -->
   <string name="new_window">Новое окно</string>
@@ -305,26 +291,19 @@
   <string name="window_pin_mode">Прикрепить</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">В этой главе нет заметок.</string>
-  <string name="no_verse_notes">В этом стихе нет заметок.</string>
   <string name="previous">Назад</string>
   <string name="next">Вперед</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
   <string name="no_indexed_bible_with_strongs_ref">Вам необходимо загрузить модуль Библии, содержащий номера Стронга, а затем индексировать его посредством Поиска&lt;br&gt;</string>
-  <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'.</string>
-  <string name="go_to_downloads">Перейти к Загрузке</string>
 
     <!-- Module download -->
   <string name="download">Скачать ресурсы</string>
   <string name="redownload">Повторно скачать ресурсы</string>
-  <string name="download_confirmation">Скачать Библию из интернета?</string>
   <string name="download_source_last_updated">Списки ресурсов обновлялись последний раз: %s.</string>
   <string name="download_refreshing_book_list">Обновление списка доступных ресурсов с серверов ресурсов…</string>
   <string name="download_source_message1">Ресурсы скачиваются из следующих источников:</string>
   <string name="download_document_confirm_prefix">Скачать</string>
-  <string name="download_refresh_book_list_menu_item">Обновить</string>
   <string name="error_downloading">Произошла ошибка при загрузке. Пожалуйста, проверьте подключение к интернету.</string>
   <string name="error_downloading_status">Сервер, на котором размещен %1$s возвратил ошибку из-за %2$s (%3$d).</string>
   <string name="storage_space_warning">Недостаточно места на устройсве.</string>
@@ -373,19 +352,6 @@
   <string name="done">Готово</string>
   <string name="reset_plan_question">Вы уверены, что хотите сбросить этот план?</string>
   <string name="import_reading_plan">Импортировать план чтения…</string>
-  <string name="import_reading_plan_error">Ошибка импорта</string>
-  <string name="import_reading_plan_error_duplicate">Следующие дни повторяются: %s</string>
-  <string name="import_reading_plan_error_days">Следующие дни содержат ошибки: %s</string>
-  <string name="import_reading_plan_anyway">Все равно импортировать</string>
-  <string name="overwrite_reading_plan">Вы хотите перезаписать %s?</string>
-  <string name="delete_reading_plan">Удалить этот план</string>
-  <string name="reading_plan_deleted">План чтения удален</string>
-  <string name="reading_plan_ships_with_ab">Этот план чтения поставляется с %s</string>
-  <string name="confirm_delete_reading_plan">
-        Вы уверены, что хотите удалить %s вместе с ним историю чтения?
-        Подсказка: если вам нужно обновить план, вы можете просто импортировать его снова с тем же именем файла
-        и история будет сохранена..
-    </string>
   <string name="plan_duplicate_user_plan">
         В SDCard есть план чтения jsword/readingplan
  с тем же именем, что и внутренний план. Невозможно перечислить здесь.
@@ -436,7 +402,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="notes">Заметки и ссылки</string>
   <string name="share_verse">Поделиться...</string>
   <string name="share_verse_widget_title">Поделиться выделенным текстом</string>
-  <string name="share_verse_subject_2">Библейский стих был отправлен вам с помощью %s.</string>
   <string name="compare_translations">Сравнить переводы</string>
 
     <!-- Link context menu -->
@@ -448,33 +413,26 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="bookmarks_and_mynotes_title">Закладки и мои заметки</string>
   <string name="migrated_my_notes">Мои заметки перенесены</string>
   <string name="bookmarks">Закладки</string>
-  <string name="bookmark_added">Закладка добавлена</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Метки</string>
   <string name="manage_labels">Управление ярлыками</string>
   <string name="assign_labels">Прикрепить ярлыки</string>
   <string name="new_item">Новый</string>
-  <string name="new_label">Новый ярлык</string>
   <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Без ярлыка</string>
   <string name="add_bookmark1">Закладка</string>
-  <string name="add_bookmark2">Добавить в закладку выделенный фрагмент</string>
   <string name="add_bookmark3">Выделение</string>
   <string name="add_bookmark_whole_verse">Стих закладки</string>
   <string name="add_bookmark_whole_verse1">Стихи</string>
-  <string name="add_bookmark_whole_verse2">Полные стихи</string>
   <string name="add_whole_page_bookmark">Добавить закладку для всей страницы</string>
   <string name="add_paragraph_break">Разрыв абзаца</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Удалить</string>
   <string name="bookmark_settings_hide_labels_title">Скрыть указанные метки</string>
   <string name="bookmark_settings_hide_labels_summary">Скрыть закладки, отмеченные указанными ярлыками</string>
   <string name="auto_assign_labels_title">Настройки ярлыка</string>
   <string name="auto_assign_labels">Автоматическое назначение и любимые якрлыки</string>
   <string name="auto_assign_labels1">Автоматически назначать ярлык новым закладкам</string>
   <string name="auto_assign_labels_primary">Автоматически назначать основным</string>
-  <string name="label_color">Цвет ярлыка</string>
-  <string name="label_color_example">Пример</string>
   <string name="marker_style">Показывать только маркер для выделенных закладок</string>
   <string name="marker_style_whole_verse">Показывать только маркер для закладок всего стиха</string>
   <string name="hide_style">Скрыть для закладок выделения</string>
@@ -505,11 +463,9 @@ http://www.heartlight.org, разрешение предоставлено
     <!-- Speak - Bible -->
   <string name="one_chapter">%d главы</string>
   <string name="some_chapters">%d глав</string>
-  <string name="rest_of_book">в конец книги</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d стихов</string>
   <string name="some_verses">%d стихов</string>
-  <string name="rest_of_chapter">в конец главы</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d страниц</string>
   <string name="some_pages">%d страниц</string>
@@ -519,8 +475,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="rewind">Назад</string>
   <string name="forward">Вперед</string>
   <string name="tts_lang_not_available">Язык не установлен</string>
-  <string name="speak_queue">По порядку</string>
-  <string name="speak_repeat">Повторить</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Скорость речи</string>
@@ -593,14 +547,12 @@ http://www.heartlight.org, разрешение предоставлено
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s значок указывает, что параметр взят из настроек рабочей области.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s значок указывает, что этот параметр был изменен для этого конкретного окна.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Используйте %1$s кнопку, чтобы сбросить все эти настройки обратно на %2$s.</string>
   <string name="reset_defaults">значения по умолчанию</string>
   <string name="reset_workspace_defaults">значения по умолчанию для рабочей области</string>
 
-  <string name="speak_bookmark_help">Помощь по закладкам прослушивания</string>
 
   <string name="speak_help_auto_bookmark">
 Закладка будет автоматически добавлена, когда прослушивание (при-)остановлено.
@@ -656,7 +608,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="backup_phone_storage">Память телефона</string>
   <string name="backup_and_restore">Бэкап &amp; Восстановление</string>
   <string name="backup_modules2">Резервное копирование документов на...</string>
-  <string name="backup_app_database2">Резервное копирование базы данных приложения в…</string>
   <string name="backup_app2">Создать резервную копию приложения (файл .apk) в…</string>
   <string name="backup_application">Приложение</string>
   <string name="backup_database">База данных</string>
@@ -673,12 +624,9 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="overwrite_something">Перезаписать %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Что вы хотите восстановить?</string>
 
-  <string name="restore_app_database">Восстановить базу данных приложения из…</string>
   <string name="restore_database">Восстановить файл базы данных</string>
   <string name="restore_confirmation">Перезаписать Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области?</string>
-  <string name="restore_success2">Выбранные разделы базы данных успешно восстановлены</string>
   <string name="restore_success">Мои заметки, Закладки, Блокноты, Планы чтения и Рабочие области успешно восстановлены.</string>
   <string name="downloading_backup">Загрузка файла резервной копии…</string>
   <string name="loading_backup">Загрузка базы данных из резервной копии...</string>
@@ -694,14 +642,12 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="exported_studypads_subject">Экспортированный Блокнот(ы)</string>
   <string name="exported_studypads_message">Прикреплен %sвашей базы данных, содержащий Закладки и Заметки, относящиеся к выбранным Блокнотам</string>
   <string name="restore_unsuccessfull">Восстановление базы данных не удалось. Возможно, вы указали неверный файл базы данных.</string>
-  <string name="restore_modules">Восстановить документы из…</string>
   <string name="send_backup_file">Отправить файл резервной копии</string>
   <string name="backup_modules_title">Выберите модули для резервного копирования</string>
   <string name="install_zip_canceled">Установка модуля отменена</string>
   <string name="ask_restore_or_import">База данных для %sможет быть либо восстановлена (т.е. существующая база данных удаляется и загружается выбранная база данных), либо импортирована (выбранная база данных импортируется в существующую). Что Вы хотите сделать?</string>
   <string name="restore">Восстановить</string>
   <string name="import2">Импортировать</string>
-  <string name="export_studypads_help">Файл с экспортированными блокнотами (т.е. метками и закладками) можно импортировать через Главное меню -&gt; Резервное копирование &amp; Восстановление.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">«%1$s» и %2$s других меток / блокнотов и %3$s закладок</string>
@@ -715,8 +661,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Отчет об ошибке</string>
-  <string name="send_feedback_title">Отзыв</string>
   <string name="send_bug_report_title">Отзыв / отчет об ошибке</string>
   <string name="report_bug_email_subject_3">[%1$s] Отчет об ошибке для %2$s %3$s</string>
 
@@ -755,10 +699,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="yes">Да</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
-  <string name="delete_generic">Удалить</string>
   <string name="please_wait">Пожалуйста, подождите…</string>
   <string name="all">Все</string>
-  <string name="edit">Правка</string>
   <string name="reset_generic">Сброс настроек</string>
   <string name="watch_tutorial_video">Просмотреть обучающее видео (на англ.)</string>
   <string name="verse_not_found">Стих не найден</string>
@@ -782,7 +724,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Новая</string>
   <string name="switch_to_workspace">Рабочие области</string>
   <string name="delete_workspace">Удалить</string>
   <string name="new_copied_workspace">Копировать как новую</string>
@@ -805,7 +746,6 @@ http://www.heartlight.org, разрешение предоставлено
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Это бета-версия!</string>
-  <string name="beta_flag">БЕТА</string>
   <string name="beta_notice_content_1">
         В бета-версии есть новые функции, которые еще не были должным образом протестированы,
 и, следовательно, использование бета-версии может привести к неожиданному поведению, то есть к ошибкам.
@@ -889,7 +829,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="redownload_documents">Быстрая повторная загрузка</string>
   <string name="welcome_message">Спасибо за скачивание проложения %s. В настоящее время Библии, ресурсы не установлены. Чтобы продолжить, установите хотя бы 1 ресурс, загрузив его из Интернета или загрузив из резервной копии документа в zip-архиве.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Поддерживаемые форматы</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Вам нужно выбрать файл, который вы хотите загрузить в %s.</string>
   <string name="supported_formats">Поддерживаемые форматы загрузки документов из файла: %s</string>
@@ -915,7 +854,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="strongs_mode_title">Выберите режим Стронга</string>
 
   <string name="download_dialog_message">Не удалось загрузить следующие книги:</string>
-  <string name="select_multiple">Выбрать несколько</string>
   <string name="journal_description">Редактируемые пользователем блокноты с настраиваемым текстом и закладками</string>
   <string name="my_notes_description">Редактируемые пользователем заметки, прикрепленные к закладкам</string>
   <string name="my_notes_abbreviation">Мои заметки</string>
@@ -930,7 +868,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="http_not_found">Не найдено</string>
   <string name="http_unknown">Другая ошибка</string>
   <string name="give_passphrase_for_module">Документ %s зашифрован, для разблокировки требуется парольная фраза.</string>
-  <string name="unlocking_failed">Не удалось разблокировать, неверная парольная фраза</string>
   <string name="unlock_module">Установить парольную фразу модуля</string>
   <string name="unlock_info">Информация о разблокировке зашифрованного модуля</string>
   <string name="try_again_passphrase">Парольная фраза не сработала, попробовать еще раз?</string>
@@ -1001,8 +938,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="separate_verses_with_newlines">Разделять стихи новыми строками</string>
 
   <string name="backup_button">Резервное копирование</string>
-  <string name="back_button">Назад</string>
-  <string name="upgrading_database">Обновление базы данных. Пожалуйста, подождите…</string>
   <string name="initializing_app">Инициализация приложения…</string>
   <string name="show_notes">Показать заметки</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1048,7 +983,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="text_maintainers">
        пожалуйста, сообщайте о проблемах разработчикам текста
     </string>
-  <string name="does_not_exist_abbreviation">Нету</string>
   <string name="cant_change_wholeverse">Невозможно отключить выделение всего стиха для этой закладки</string>
   <string name="whole_verse_turned_on">Закладка теперь выделена для всего стиха</string>
   <string name="this_bookmark">Эта закладка</string>
@@ -1061,7 +995,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="display_mode_hidden">Скрытый</string>
   <string name="workspace_override_indicator">У этой метки есть режим отображения для конкретной рабочей области</string>
   <string name="primary_label">Первичный ярлык</string>
-  <string name="highlight_entire_verse">Выделите стих целиком</string>
   <string name="favourite_label">Любимый ярлык</string>
   <string name="edit_label">Изменить ярлык</string>
   <string name="delete_label_confirmation">Вы хотите удалить ярлык закладки \"%s\"? Также будут удалены все связанные записи в блокноте.</string>
@@ -1079,7 +1012,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="reorder">Изменение порядка</string>
   <string name="system_items">Системные действия</string>
   <string name="system_items1">Еще</string>
-  <string name="system_action2">Действия Android</string>
   <string name="text_copied_to_clicpboard">Текст скопирован в буфер обмена</string>
   <string name="prefs_disable_two_step_bookmarking_title">Одношаговое создание закладок</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Показывать элементы «Выделение» и «Стихи» непосредственно в меню Выделение в режиме просмотра Библии</string>
@@ -1093,7 +1025,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="label_blue">Синий</string>
   <string name="label_salvation">Спасение</string>
   <string name="label_underline">Подчеркивание</string>
-  <string name="import_menu">Импорт и экспорт</string>
   <string name="auto_backups_title">Автоматическое резервное копирование</string>
   <string name="backup_file_info">Приложение v%1$d, %2$s</string>
   <string name="reset_databases_title">Сбросить базы данных</string>
@@ -1117,12 +1048,10 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="prompts_csv_export_failed">Ошибка экспорта CSV: %s</string>
   <string name="no_prompts_to_export">Нет пользовательских подсказок для экспорта</string>
   <string name="csv_column_selection_title">Выбрать столбцы CSV</string>
-  <string name="choose_csv_file">Выбрать CSV-файл для импорта</string>
   <string name="no_bookmarks_to_export">Нет закладок для экспорта</string>
   <string name="export_fileformat">Экспорт как %s</string>
   <string name="export_something">Экспортировать %s</string>
   <string name="import_items">Импорт как %s</string>
-  <string name="import_from_db">Импорт из файла базы данных приложения</string>
   <string name="import_error">Не удалось выполнить импорт из базы данных приложения. Файл базы данных может иметь неправильный формат или создан слишком старой версии %s.</string>
 
   <string name="export_bookmarks_csv">Экспортировать закладки как %s</string>
@@ -1151,23 +1080,13 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="last_updated_at">Последнее обновление</string>
   <string name="bookmark_notes">Заметки к закладке</string>
 
-  <string name="chooser_range">Диапазон</string>
-  <string name="chooser_jump">Перейти </string>
-  <string name="chooser_OT_abbrev">СЗ</string>
-  <string name="chooser_NT_abbrev">НЗ</string>
-  <string name="chooser_style_grid">Сетка</string>
-  <string name="chooser_style_lists">Списки</string>
-  <string name="chooser_select">Выбрать %s</string>
-  <string name="chooser_pref_reset">Не сбрасывать главу/стих на 1, когда выбрана книга/глава</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Мы сожалеем, но у нас есть только частичный перевод пользовательского интерфейса на %1$s языке. Это потому, что %2$s полностью разработана волонтерами. Если вы можете помочь с переводом, смотрите %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">инструкции для переводчиков</string>
   <string name="questions_title">Вопросы?</string>
-  <string name="questions_title2">Нужна помощь?</string>
   <string name="bookmark_style">Стиль закладки</string>
   <string name="added_to_bookmark">Назначено к этой закладке</string>
-  <string name="strongs_off">Выкл.</string>
   <string name="strongs_links">Ссылки</string>
   <string name="strongs_text_and_links">Текст и ссылки</string>
   <string name="strongs_hidden_links">Скрытые Ссылки</string>
@@ -1221,7 +1140,6 @@ http://www.heartlight.org, разрешение предоставлено
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Синхронизировать группу</string>
   <string name="sync_group_n">Группа %d</string>
   <string name="disable_sync">Отключить синхронизацию</string>
   <string name="open_in_window">Открыть результаты в окне</string>
@@ -1232,10 +1150,8 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="custom_repositories_empty_list_message">Личные репозитории не определены</string>
   <string name="custom_repositories_create_button_label">Добавить личный репозиторий</string>
   <string name="custom_repositories_info_button_label">Информация</string>
-  <string name="name_for_repository">Имя репозитория</string>
   <string name="repository_specification">URL-адрес репозитория</string>
   <string name="delete_custom_repository">Вы хотите удалить личный репозиторий %s?</string>
-  <string name="invalid_repository_not_saved">Спецификация репозитория недействительна и не сохранена.</string>
   <string name="custom_repositories_help1">Чтобы добавить новый личный репозиторий, введите или скопируйте и вставьте здесь URL-адрес личного репозитория.</string>
   <string name="custom_repositories_help2">Дополнительную информацию о личных репозиториях можно прочитать в разделе %s.</string>
   <string name="wiki_page">ВИКИ-страница</string>
@@ -1278,7 +1194,6 @@ http://www.heartlight.org, разрешение предоставлено
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Прогресс чтения/заучивания</string>
   <string name="reading_progress_chapters_read">прочитано глав</string>
-  <string name="reading_progress_verses_memorized">заучено стихов</string>
   <string name="reading_progress_active_days">активных дней</string>
   <string name="reading_progress_overall">%s%% Библии прочитано</string>
   <string name="reading_progress_bible_heatmap">Обзор Библии</string>
@@ -1304,13 +1219,11 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="sync_adapter_summary">Текущее: %s</string>
   <string name="adapters_google_drive">Гугл Диск</string>
   <string name="adapters_next_cloud">Следующее облако</string>
-  <string name="auth_title">Аутентификация для %s</string>
   <string name="auth_server_uri">URL сервера</string>
   <string name="auth_username">Имя пользователя</string>
   <string name="auth_password">Пароль</string>
   <string name="auth_folder_path">Путь к папке синхронизации</string>
   <string name="auth_folder_path_summary">Родительская папка для данных синхронизации (пусто = корень)</string>
-  <string name="auth_access_token">Токен доступа</string>
   <string name="synchronization_categories">Категории синхронизации</string>
   <string name="sync_general_settings">Информация и общие настройки</string>
   <string name="sync_introduction">Введение</string>
@@ -1326,8 +1239,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="report">Отчет</string>
   <string name="sync_error">Произошла ошибка при синхронизации с облаком.</string>
   <string name="error_notification_channel_name">Уведомления об ошибках</string>
-  <string name="restore_from_cloud_description">Если на другом устройстве включена синхронизация устройств, вы можете начать с восстановления базы данных из облака.</string>
-  <string name="enable_sync">Включить синхронизацию</string>
   <string name="last_updated">Последнее обновление: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1348,20 +1259,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="processing_epub">Обработка EPUB: %s</string>
   <string name="buy_development">Купить работу по разработке </string>
   <string name="buy_development2">Поддержать проект</string>
-  <string name="new_version_warning">
-        Скоро выйдет новый выпуск. Предполагаемая дата выпуска %1$s. Смотрите наш
-%2$s, чтобы открыть для себя новые функции и улучшения.
-    </string>
-  <string name="new_version_trailer">трейлер видео</string>
-  <string name="new_version_warning2">
-        После выпуска эта версия не поддерживается.
-    </string>
-  <string name="new_version_warning3">
-        Оно не будет получать исправления ошибок или обновления.
-    </string>
-  <string name="new_version_warning4">
-       Если вы не хотите обновления, отключите «Автоматическое обновление» в своем магазине приложений (Google Play / F-Droid и т. д.).
-    </string>
   <string name="dont_show">
         Больше не показывать это сообщение
     </string>
@@ -1382,7 +1279,6 @@ http://www.heartlight.org, разрешение предоставлено
   <string name="invalid_url_message">Введённый URL недействителен. Введите корректный URL (например, https://nextcloud.example.com)</string>
   <string name="memorize_description">Заучивать стихи Библии</string>
   <string name="memorize_abbreviation">Заучивать</string>
-  <string name="add_memorization_target">Установить как цель заучивания</string>
   <string name="memorize_memorized_passages">Заученные отрывки</string>
   <string name="memorize_no_memorized_passages">Заученных отрывков пока нет</string>
   <string name="memorize_targets">Цели заучивания</string>

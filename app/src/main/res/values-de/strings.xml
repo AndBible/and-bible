@@ -5,7 +5,6 @@
   <string name="app_name_short">Bibel+</string>
   <string name="app_name_medium">Bibel+ (AndBible)</string>
   <string name="app_name_long">AndBible: Bibel+</string>
-  <string name="project">AndBible Open Source Project</string>
 
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Bitte setzen Sie eine SD-Karte ein und starten das Programm neu.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Rich Text (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Absatzabstand (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Absatzabstand anpassen.</string>
 
-  <string name="prefs_show_verseno_title1">Versnummer</string>
 
-  <string name="prefs_show_chapter_no_title">Kapitelnummerierung</string>
-  <string name="prefs_show_chapter_no_summary">Kapitelnummern ein- oder ausblenden</string>
 
   <string name="prefs_verse_per_line_summary">Jeden Vers in einer neuen Zeile anzeigen</string>
   <string name="prefs_show_bookmarks_summary">Abwählen, um alle Lesezeichen zu verbergen</string>
 
   <string name="prefs_show_mynotes_summary">Symbol in Versen mit eigenen Notizen anzeigen</string>
-  <string name="prefs_show_notes_summary">Fußnoten und Querverweise anzeigen</string>
   <string name="prefs_show_strongs_summary">Verknüpfungen zu griechischen &amp; hebräischen Definitionen</string>
   <string name="prefs_show_morphology_summary">Griechische Morphologie nach Robinson anzeigen</string>
   <string name="prefs_section_title_summary">Außerkanonische Abschnittstitel anzeigen</string>
   <string name="prefs_red_letter_summary">Worte Christi in roter Farbe anzeigen</string>
-  <string name="prefs_text_size_title">Schriftarteinstellungen</string>
 
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Fußnoten inline im Text anzeigen statt als anklickbare Symbole</string>
   <string name="prefs_show_xrefs_summary">Querverweise anzeigen, sofern im Dokument vorhanden</string>
 
-  <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
   <string name="prefs_show_strongs_title">Strong-Nummern</string>
   <string name="prefs_show_morphology_title">Morphologie anzeigen</string>
   <string name="prefs_non_strongs_word_italic_title">Hinzugefügte Wörter kursiv darstellen</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">Hintergrundrauschen</string>
   <string name="prefs_noise_summary">Etwas Bildschirmrauschen im Hintergrund kann das Lesen für die Augen angenehmer machen.</string>
 
-  <string name="cpv_default_title">Farbe auswählen</string>
-  <string name="cpv_presets">Voreinstellungen</string>
-  <string name="cpv_custom">Benutzerdefiniert</string>
-  <string name="cpv_select">Auswählen</string>
-  <string name="cpv_transparency">Transparenz</string>
 
     <!-- Window -->
   <string name="new_window">Neues Fenster</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">Fixieren</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
-  <string name="no_verse_notes">Keine Anmerkungen zu diesem Vers</string>
   <string name="previous">Zurück</string>
   <string name="next">Vorwärts</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
   <string name="no_indexed_bible_with_strongs_ref">Du musst eine Bibelübersetzung mit inkludierten Strong-Nummern herunterladen und im Suchmenü die Indizierung durchführen</string>
-  <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
-  <string name="go_to_downloads">Gehe zu Downloads</string>
 
     <!-- Module download -->
   <string name="download">Module herunterladen</string>
   <string name="redownload">Dokumente neu herunterladen</string>
-  <string name="download_confirmation">Soll eine Bibel aus dem Internet heruntergeladen werden?</string>
   <string name="download_source_last_updated">letztes Update der Dokumentenliste: %s.</string>
   <string name="download_refreshing_book_list">Auffrischen der Liste erhältlicher Dokumente von den Dokumentservern...</string>
   <string name="download_source_message1">Dokumente werden von folgenden Quellen heruntergeladen:</string>
   <string name="download_document_confirm_prefix">Download</string>
-  <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Während des Herunterladens ist ein Fehler aufgetreten. Bitte überprüfe deine Internetverbindung.</string>
   <string name="error_downloading_status">Der Server auf dem %1$s liegt, hat wegen %2$s (%3$d) einen Fehler gemeldet.</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
@@ -372,18 +351,6 @@ Alle Dokumente werden verschlüsselt von den Servern übertragen (über HTTPS).<
   <string name="done">Fertig</string>
   <string name="reset_plan_question">Sind Sie sicher, dass Sie diesen Leseplan zurücksetzen wollen?</string>
   <string name="import_reading_plan">Leseplan importieren...</string>
-  <string name="import_reading_plan_error">Fehler beim Importieren</string>
-  <string name="import_reading_plan_error_duplicate">Die folgenden Tage waren doppelt vorhanden: %s</string>
-  <string name="import_reading_plan_error_days">Die folgenden Tage waren fehlerhaft: %s</string>
-  <string name="import_reading_plan_anyway">Trotzdem importieren</string>
-  <string name="overwrite_reading_plan">Möchtest du %s überschreiben?</string>
-  <string name="delete_reading_plan">Diesen Leseplan löschen</string>
-  <string name="reading_plan_deleted">Der Leseplan wurde gelöscht</string>
-  <string name="reading_plan_ships_with_ab">Dieser Leseplan wird mit %sgeliefert</string>
-  <string name="confirm_delete_reading_plan">
-        Bist du sicher, dass du %s zusammen mit der Lesechronik löschen willst?
-Hinweis: wenn du den Plan auffrischen möchtest, kannst du ihn einfach mit dem gleichen Dateinamen importieren, und die Lesechronik bleibt erhalten.
-    </string>
   <string name="plan_duplicate_user_plan">
 Es gibt einen benutzerdefinierten Leseplan in sdcard
 jsword/readingplan, der denselben Namen wie ein vordefinierter Leseplan hat. Darum kann er hier nicht angezeigt werden. Bitte benennen Sie den Plan um, ohne die Endung .properties zu ändern.</string>
@@ -420,7 +387,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="notes">Fußnoten und Querverweise</string>
   <string name="share_verse">Teilen...</string>
   <string name="share_verse_widget_title">Auswahl teilen</string>
-  <string name="share_verse_subject_2">Ein Bibelvers wurde mit Ihnen über %s geteilt.</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
 
     <!-- Link context menu -->
@@ -432,33 +398,26 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="bookmarks_and_mynotes_title">Lesezeichen &amp; eigene Notizen</string>
   <string name="migrated_my_notes">Eigene Notizen wurden migriert</string>
   <string name="bookmarks">Lesezeichen</string>
-  <string name="bookmark_added">Lesezeichen hinzugefügt</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Kategorien</string>
   <string name="manage_labels">Kategorien verwalten</string>
   <string name="assign_labels">Kategorie auswählen</string>
   <string name="new_item">Neu</string>
-  <string name="new_label">Neue Kategorie</string>
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
   <string name="add_bookmark1">Lesezeichen</string>
-  <string name="add_bookmark2">Lesezeichenauswahl</string>
   <string name="add_bookmark3">Auswahl</string>
   <string name="add_bookmark_whole_verse">Lesezeichen f. Vers</string>
   <string name="add_bookmark_whole_verse1">Verse</string>
-  <string name="add_bookmark_whole_verse2">Ganzen Vers als Lesezeichen speichern</string>
   <string name="add_whole_page_bookmark">Lesezeichen für die gesamte Seite hinzufügen</string>
   <string name="add_paragraph_break">Absatzumbruch</string>
   <string name="ai_label">KI</string>
-  <string name="remove_bookmark">Entfernen</string>
   <string name="bookmark_settings_hide_labels_title">Bestimmte Kategorien verbergen</string>
   <string name="bookmark_settings_hide_labels_summary">Lesezeichen aus gekennzeichenten Kategorien verbergen</string>
   <string name="auto_assign_labels_title">Einstellungen für Kategorien</string>
   <string name="auto_assign_labels">Lesezeichen-Kategorie automatisch zuweisen</string>
   <string name="auto_assign_labels1">Kategorie neuen Lesezeichen automatisch zuweisen</string>
   <string name="auto_assign_labels_primary">Automatisch als Primärgruppe zuweisen</string>
-  <string name="label_color">Label color</string>
-  <string name="label_color_example">Beispiel</string>
   <string name="marker_style">Zeige nur Markierung für Auswahl-Lesezeichen</string>
   <string name="marker_style_whole_verse">Zeige nur Markierung für Lesezeichen ganzer Verse</string>
   <string name="hide_style">Bei Auswahl-Lesezeichen verstecken</string>
@@ -489,11 +448,9 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
     <!-- Speak - Bible -->
   <string name="one_chapter">Kapitel %d</string>
   <string name="some_chapters">%d Kapitel</string>
-  <string name="rest_of_book">Bis zum Buchende</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">Vers %d</string>
   <string name="some_verses">%d Verse</string>
-  <string name="rest_of_chapter">Bis zum Kapitelende</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">Seite %d</string>
   <string name="some_pages">%d Seiten</string>
@@ -503,8 +460,6 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
   <string name="rewind">Zurück</string>
   <string name="forward">Vorwärts</string>
   <string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
-  <string name="speak_queue">An Wiedergabe anhängen</string>
-  <string name="speak_repeat">Wiedergabe wiederholen</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Sprachgeschwindigkeit</string>
@@ -577,14 +532,12 @@ Die ganze Bibel in 2 Jahren durchlesen, dabei das NT und die Psalmen zwei Mal. M
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s zeigt an, dass die Einstellungen von den Arbeitsbereichseinstellungen stammen.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s zeigt an, dass diese Einstellungen für dieses spezielle Fenster angepasst wurden.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Verwende %1$s, um sämtliche Einstellungen auf %2$s zurückzusetzen.</string>
   <string name="reset_defaults">Standardwerte</string>
   <string name="reset_workspace_defaults">Standardeinstellungen f. d. Arbeitsbereich</string>
 
-  <string name="speak_bookmark_help">Sprachhilfe</string>
 
   <string name="speak_help_auto_bookmark">
 Ein Sprachlesezeichen wird automatisch hinzugefügt, wenn die Vorlesefunktion pausiert oder angehalten wird. Automatische Lesezeichen erhalten die Spezialmarkierung. Wenn die Vorlesefunktion an einem Sprachlesezeichen gestartet wird, wird das Lesezeichen automatisch an den Ort verschoben, an dem die Wiedergabe pausiert oder gestoppt wird. Nur Sprachlesezeichen werden verschoben, alle anderen Lesezeichen bleiben unberührt.</string>
@@ -625,7 +578,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="backup_phone_storage">Handyspeicher</string>
   <string name="backup_and_restore">Sicherung &amp; Wiederherstellung</string>
   <string name="backup_modules2">Dokumente sichern nach...</string>
-  <string name="backup_app_database2">Sicherungsdatenbank sichern nach...</string>
   <string name="backup_app2">Sichern der App-Datei (.apk) nach...</string>
   <string name="backup_application">Anwendung</string>
   <string name="backup_database">Datenbank</string>
@@ -642,12 +594,9 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="overwrite_something">Überschreiben von %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Was möchtest du wiederherstellen?</string>
 
-  <string name="restore_app_database">Wiederherstellen der Datenbank von...</string>
   <string name="restore_database">Wiederherstellen der Datenbankdatei</string>
   <string name="restore_confirmation">Überschreiben von eigenen Notizen, Lesezeichen, Studienmappen, Leseplänen und Arbeitsräumen?</string>
-  <string name="restore_success2">Ausgewählte Datenbankabschnitte erfolgreich wiederhergestellt</string>
   <string name="restore_success">Eigene Notizen, Lesezeichen, Studienmappen, Lesezeichen und Arbeitsbereiche erfolgreich wiederhergestellt</string>
   <string name="downloading_backup">Sicherungsdatei wird heruntergeladen</string>
   <string name="loading_backup">Lade die Datenbank aus der Sicherung...</string>
@@ -663,14 +612,12 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="exported_studypads_subject">Exportierte Studienmappe(n)</string>
   <string name="exported_studypads_message">Ihre %s-Datenbank mit Lesezeichen und Notizen zu den ausgewählten StudyPads ist angehängt</string>
   <string name="restore_unsuccessfull">Die Wiederherstellung der Datenbank ist fehlgeschlagen. Evtl. wurde eine falsche Datei angegeben.</string>
-  <string name="restore_modules">Dokumente wiederherstellen von...</string>
   <string name="send_backup_file">Sende Backup</string>
   <string name="backup_modules_title">Zu sichernde Module auswählen</string>
   <string name="install_zip_canceled">Modulinstallation abgebrochen</string>
   <string name="ask_restore_or_import">Die Datenbank für %s kann entweder wiederhergestellt (d. h. die vorhandene Datenbank wird entfernt und die ausgewählte Datenbank wird geladen) oder importiert (die ausgewählte Datenbank wird in die vorhandene Datenbank importiert) werden. Was möchten Sie tun?</string>
   <string name="restore">Wiederherstellen</string>
   <string name="import2">Import</string>
-  <string name="export_studypads_help">Dateien mit exportierten StudyPads (d.h. Etiketten und Lesezeichen) können über Hauptmenü -&amp;gt; Sichern &amp;amp Wiederherstellen importiert werden.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" und %2$s andere Label(s) / Studienmappe/(n) und %3$s Lesezeichen</string>
@@ -684,8 +631,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Fehlerbericht</string>
-  <string name="send_feedback_title">Rückmeldung</string>
   <string name="send_bug_report_title">Rückmeldung / Fehlermeldung</string>
   <string name="report_bug_email_subject_3">[%1$s] Fehlermeldung für %2$s %3$s</string>
 
@@ -724,10 +669,8 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="yes">Ja</string>
   <string name="no">Nein</string>
   <string name="error">Fehler</string>
-  <string name="delete_generic">Löschen</string>
   <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
-  <string name="edit">Bearbeiten</string>
   <string name="reset_generic">Zurücksetzen</string>
   <string name="watch_tutorial_video">Tutorial ansehen (auf Englisch)</string>
   <string name="verse_not_found">Vers wurde nicht gefunden</string>
@@ -751,7 +694,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
   <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Neu</string>
   <string name="switch_to_workspace">Arbeitsbereiche</string>
   <string name="delete_workspace">Entfernen</string>
   <string name="new_copied_workspace">Als neu kopieren</string>
@@ -774,7 +716,6 @@ Der Wiederholungsmodus wurde automatisch deaktivert, da das Vorlesen außerhalb 
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Das ist eine Beta-Version!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 In Beta-Versionen gibt es Funktionen, die noch nicht ausreichend getestet wurden.
 Daher können Beta-Versionen unerwartetes Verhalten aufweisen, wie z.B. Fehler.
@@ -843,7 +784,6 @@ Wenn die Fensterverankerung aktiviert ist, können mehrere verankerte Fenster an
   <string name="redownload_documents">Schneller erneuter Download</string>
   <string name="welcome_message">Danke für das Herunterladen von%s. Zur Zeit sind keine Bibeln oder andere Dokumente installiert. Um fortzufahren, installiere bitte mindestens ein Dokument aus dem Internet oder aus einer Sicherungsdatei.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Unterstützte Formate</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Du hast die Datei ausgewählt, die du nach %s laden willst.</string>
   <string name="supported_formats">Unterstützte Formate zum Laden von Dokumenten aus einer Datei: %s</string>
@@ -868,7 +808,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="strongs_mode_title">Strong-Modus auswählen</string>
 
   <string name="download_dialog_message">Die folgenden Bücher konnten nicht heruntergeladen werden:</string>
-  <string name="select_multiple">Mehrfachauswahl</string>
   <string name="journal_description">Bearbeitbare Studienmappen mit benutzerdefiniertem Text und Lesezeichen</string>
   <string name="my_notes_description">Benutzereigene editierbare Notizen als Anhang zu Lesezeichen</string>
   <string name="my_notes_abbreviation">Eigene Notizen</string>
@@ -883,7 +822,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="http_not_found">Nicht gefunden</string>
   <string name="http_unknown">Anderer Fehler</string>
   <string name="give_passphrase_for_module">Dokument %s ist verschlüsselt und benötigt eine Passphrase zum Entschlüsseln</string>
-  <string name="unlocking_failed">Entschlüsselung fehlgeschlagen, fehlerhaftes Passwort</string>
   <string name="unlock_module">Modulpasswort festlegen</string>
   <string name="unlock_info">Information zum Entschlüsseln des Moduls</string>
   <string name="try_again_passphrase">Passwort fehlerhaft, neu probieren?</string>
@@ -954,8 +892,6 @@ Eine Liste von vorherigen Büchern/Dokumenten wurde gefunden. Unten klicken, um 
   <string name="separate_verses_with_newlines">Verse durch Zeilenumbruch separieren</string>
 
   <string name="backup_button">Backup</string>
-  <string name="back_button">Zurück</string>
-  <string name="upgrading_database">Datenbank wird erneuert. Bitte warten...</string>
   <string name="initializing_app">Programm wird gestartet...</string>
   <string name="show_notes">Notizen anzeigen</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -991,7 +927,6 @@ E-Mail an die Entwickler senden</string>
 Weiter zu Google Play</string>
   <string name="text_maintainers">
 Bitte informiere die Textmaintainer über Probleme</string>
-  <string name="does_not_exist_abbreviation">Nicht vorhanden</string>
   <string name="cant_change_wholeverse">Für dieses Lesezeichen kann die Markierung des ganzen Verses nicht abgeschalten werden</string>
   <string name="whole_verse_turned_on">Das Lesezeichen ist nun für den den ganzen Vers </string>
   <string name="this_bookmark">Dieses Lesezeichen</string>
@@ -1004,7 +939,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="display_mode_hidden">Ausgeblendet</string>
   <string name="workspace_override_indicator">Diese Kategorie hat einen arbeitsbereichsspezifischen Anzeigemodus</string>
   <string name="primary_label">Primärkategorie</string>
-  <string name="highlight_entire_verse">Den ganzen Vers hervorheben</string>
   <string name="favourite_label">Lieblingskategorie</string>
   <string name="edit_label">Kategorie bearbeiten</string>
   <string name="delete_label_confirmation">Möchtest du die Lesezeichenkategorie \"%s\" entfernen? Alle zugewiesenen Studienmappen werden ebenfalls entfernt.</string>
@@ -1022,7 +956,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="reorder">Neu sortieren</string>
   <string name="system_items">Systemaktionen</string>
   <string name="system_items1">Mehr</string>
-  <string name="system_action2">Android-Aktionen</string>
   <string name="text_copied_to_clicpboard">Text wurde in die Zwischenablage eingefügt</string>
   <string name="prefs_disable_two_step_bookmarking_title">direktes Hinzufügen zu Lesezeichen</string>
   <string name="prefs_disable_two_step_bookmarking_summary">\"Auswahl\" und \"Verse\" direkt im Auswahlmenü der Bibelansicht anzeigen</string>
@@ -1036,7 +969,6 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="label_blue">Blau</string>
   <string name="label_salvation">Errettung</string>
   <string name="label_underline">Unterstreichung</string>
-  <string name="import_menu">Import &amp; Export</string>
   <string name="auto_backups_title">Automatische Sicherungen</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Datenbanken zurücksetzen</string>
@@ -1060,12 +992,10 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="prompts_csv_export_failed">CSV-Export fehlgeschlagen: %s</string>
   <string name="no_prompts_to_export">Keine Benutzer-Prompts zum Exportieren</string>
   <string name="csv_column_selection_title">CSV-Spalten auswählen</string>
-  <string name="choose_csv_file">Wähle die CSV-Datei für den Import aus</string>
   <string name="no_bookmarks_to_export">Keine Lesezeichen für den Export verfügbar</string>
   <string name="export_fileformat">Exportiere als %s</string>
   <string name="export_something">Export %s</string>
   <string name="import_items">Importiere %s</string>
-  <string name="import_from_db">Importiere von der Datenbankdatei der Applikation</string>
   <string name="import_error">Das Importieren von der Datenbankdatei ist fehlgeschlagen. Evtl war die Datei im falschen Format oder wurde mit einer zu alten Version von %s erstellt.</string>
 
   <string name="export_bookmarks_csv">Exportiere Lesezeichen als %s</string>
@@ -1094,23 +1024,13 @@ Bitte informiere die Textmaintainer über Probleme</string>
   <string name="last_updated_at">Zuletzt aktualisiert:</string>
   <string name="bookmark_notes">Lesezeichen-Notizen</string>
 
-  <string name="chooser_range">Bereich</string>
-  <string name="chooser_jump">Gehe zu</string>
-  <string name="chooser_OT_abbrev">AT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Raster</string>
-  <string name="chooser_style_lists">Listen</string>
-  <string name="chooser_select">Auswahl %s</string>
-  <string name="chooser_pref_reset">Kapitel und Vers nach Auswahl eines Buches oder Kapitels nicht auf 1 zurücksetzen</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Es tut uns leid, aber die Benutzeroberfläche in %1$s wurde nur unvollständig übersetzt. Das liegt daran, dass %2$s vollständig von Freiwilligen entwickelt wird. Wenn du bei der Übersetzung helfen möchtest, siehe %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">Anweisungen für Übersetzer</string>
   <string name="questions_title">Fragen?</string>
-  <string name="questions_title2">Brauchst du Hilfe?</string>
   <string name="bookmark_style">Lesezeichenstil</string>
   <string name="added_to_bookmark">Diesem Lesezeichen zugewiesen</string>
-  <string name="strongs_off">Aus</string>
   <string name="strongs_links">Verweise</string>
   <string name="strongs_text_and_links">Text und Verweise</string>
   <string name="strongs_hidden_links">Verborgene Verknüpfungen</string>
@@ -1158,7 +1078,6 @@ den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
   <string name="discrete_mode_link">Du kannst die neueste Version der verstecken Version von %s herunterladen.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Gruppe abgleichen</string>
   <string name="sync_group_n">Gruppe %d</string>
   <string name="disable_sync">Synchronisation abschalten</string>
   <string name="open_in_window">Ergebnisse in einem Fenster öffnen</string>
@@ -1169,10 +1088,8 @@ den echten Namen und das Anwendungssymbol in der Anwendungsinfo zu sehen.
   <string name="custom_repositories_empty_list_message">Keine benutzerdefinierten Quellen festgelegt</string>
   <string name="custom_repositories_create_button_label">Benutzerdefinierte Quelle hinzufügen</string>
   <string name="custom_repositories_info_button_label">Information</string>
-  <string name="name_for_repository">Name der Quelle</string>
   <string name="repository_specification">URL der Quelle</string>
   <string name="delete_custom_repository">Möchtest du die benutzerdefinierte Quelle %s entfernen?</string>
-  <string name="invalid_repository_not_saved">Quellenangabe ungültig. Es wurde nichts gespeichert.</string>
   <string name="custom_repositories_help1">Um eine neue benutzerdefinierte Quelle anzulegen, gib die URL der Quelle hier ein.</string>
   <string name="custom_repositories_help2">Du kannst in %s mehr über benutzerdefinierte Quellen nachlesen.</string>
   <string name="wiki_page">WIKI Seite</string>
@@ -1212,7 +1129,6 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Lese-/Gedächtnisfortschritt</string>
   <string name="reading_progress_chapters_read">gelesene Kapitel</string>
-  <string name="reading_progress_verses_memorized">auswendig gelernte Verse</string>
   <string name="reading_progress_active_days">aktive Tage</string>
   <string name="reading_progress_overall">%s%% der Bibel gelesen</string>
   <string name="reading_progress_bible_heatmap">Bibelübersicht</string>
@@ -1238,13 +1154,11 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="sync_adapter_summary">Zur Zeit: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Authentifizierung für %s</string>
   <string name="auth_server_uri">Serveradresse</string>
   <string name="auth_username">Benutzer</string>
   <string name="auth_password">Passwort</string>
   <string name="auth_folder_path">Synchronisierungsordnerpfad</string>
   <string name="auth_folder_path_summary">Übergeordneter Ordner für Synchronisierungsdaten (leer = Stammverzeichnis)</string>
-  <string name="auth_access_token">Access token</string>
   <string name="synchronization_categories">Synchronisationskategorien</string>
   <string name="sync_general_settings">Info &amp; allgemeine Einstellungen</string>
   <string name="sync_introduction">Einführung</string>
@@ -1260,8 +1174,6 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="report">Bericht</string>
   <string name="sync_error">Fehler bei der Synchronisation mit der Cloud</string>
   <string name="error_notification_channel_name">Fehlermeldungen</string>
-  <string name="restore_from_cloud_description">Wenn du die Synchronisation auf einem anderen Gerät aktiviert hast, kannst du damit beginnen, die Datenbank aus der Cloud auf dein Gerät herunterzuladen.</string>
-  <string name="enable_sync">Synchronisation einschalten</string>
   <string name="last_updated">Zuletzt aktualisiert: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1282,15 +1194,6 @@ Die Datenbank enthält %s. Was möchtest du tun?</string>
   <string name="processing_epub">Processing EPUB: %s</string>
   <string name="buy_development">Entwicklungsarbeit finanzieren</string>
   <string name="buy_development2">Projekt unterstützen</string>
-  <string name="new_version_warning">
-Eine neue Version wird demnächst erscheinen. Der voraussichtliche Termin ist %1$s.  Schau auf %2$s vorbei um neue Features und Verbesserungen zu entdecken.</string>
-  <string name="new_version_trailer">Trailervideo</string>
-  <string name="new_version_warning2">
-Nach der Neuveröffentlichung wird diese Version nicht länger unterstützt.</string>
-  <string name="new_version_warning3">
-Es wird keine Fehlerbehebungen oder Updates mehr erhalten.</string>
-  <string name="new_version_warning4">
-Wenn du nicht updaten möchtest, deaktiviere bitte die automatische Aktualisierung in deinem App-Store (Google Play, F-Droid etc.).</string>
   <string name="dont_show">
 Diese Nachricht nicht mehr anzeigen</string>
   <string name="pref_font_size_multiplier_title">Schriftgrößenvervielfachung</string>
@@ -1310,7 +1213,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="invalid_url_message">Die von Ihnen eingegebene URL ist ungültig. Bitte geben Sie eine gültige URL ein (z. B. https://nextcloud.example.com).</string>
   <string name="memorize_description">Bibelverse auswendig lernen</string>
   <string name="memorize_abbreviation">Auswendig lernen</string>
-  <string name="add_memorization_target">Als Auswendiglernziel festlegen</string>
   <string name="memorize_memorized_passages">Auswendig gelernte Abschnitte</string>
   <string name="memorize_no_memorized_passages">Noch keine auswendig gelernten Abschnitte</string>
   <string name="memorize_targets">Auswendiglernziele</string>

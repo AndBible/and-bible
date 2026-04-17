@@ -5,7 +5,6 @@
   <string name="app_name_short">Học Kinh Thánh</string>
   <string name="app_name_medium">Học Kinh Thánh (AndBible)</string>
   <string name="app_name_long">AndBible: Học Kinh Thánh</string>
-  <string name="project">Dự án Mã nguồn Mở AndBible</string>
 
   <string name="version_text">Phiên bản %s</string>
   <string name="no_sdcard_error">Vui lòng lắp thẻ SD và khởi động lại ứng dụng.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Văn bản có định dạng (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Khoảng cách đoạn văn (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Điều chỉnh khoảng cách giữa các đoạn văn.</string>
 
-  <string name="prefs_show_verseno_title1">Số câu</string>
 
-  <string name="prefs_show_chapter_no_title">Số chương</string>
-  <string name="prefs_show_chapter_no_summary">Hiển thị số chương</string>
 
   <string name="prefs_verse_per_line_summary">Hiển thị mỗi câu trên một dòng riêng</string>
   <string name="prefs_show_bookmarks_summary">Bỏ chọn để ẩn tất cả đánh dấu</string>
 
   <string name="prefs_show_mynotes_summary">Hiển thị biểu tượng trong câu có Ghi chú của tôi</string>
-  <string name="prefs_show_notes_summary">Hiển thị chú thích và tham chiếu chéo</string>
   <string name="prefs_show_strongs_summary">Liên kết đến định nghĩa tiếng Hy Lạp &amp; tiếng Hê-bơ-rơ</string>
   <string name="prefs_show_morphology_summary">Hiển thị hình thái học tiếng Hy Lạp của Robinson</string>
   <string name="prefs_section_title_summary">Hiển thị tiêu đề phần không thuộc kinh điển</string>
   <string name="prefs_red_letter_summary">Hiển thị lời Chúa Giê-su bằng chữ đỏ</string>
-  <string name="prefs_text_size_title">Tùy chọn phông chữ</string>
 
   <string name="prefs_verse_per_line_title">Mỗi câu một dòng</string>
   <string name="prefs_show_bookmarks_title">Hiển thị đánh dấu</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Hiển thị chú thích ngay trong văn bản thay vì dạng nút có thể nhấp</string>
   <string name="prefs_show_xrefs_summary">Hiển thị tham chiếu chéo nếu có trong tài liệu</string>
 
-  <string name="prefs_show_notes_title">Chú thích và tham chiếu chéo</string>
   <string name="prefs_show_strongs_title">Số Strong\'s</string>
   <string name="prefs_show_morphology_title">Mã hình thái học</string>
   <string name="prefs_non_strongs_word_italic_title">In nghiêng các từ được thêm vào</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">Nhiễu nền</string>
   <string name="prefs_noise_summary">Thêm một chút nhiễu vào nền có thể làm cho mắt dễ chịu hơn.</string>
 
-  <string name="cpv_default_title">Chọn màu</string>
-  <string name="cpv_presets">Màu đặt sẵn</string>
-  <string name="cpv_custom">Tùy chỉnh</string>
-  <string name="cpv_select">Chọn</string>
-  <string name="cpv_transparency">Độ trong suốt</string>
 
     <!-- Window -->
   <string name="new_window">Cửa sổ mới</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">Ghim</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Không có ghi chú nào trong chương này</string>
-  <string name="no_verse_notes">Không có ghi chú nào trong câu này</string>
   <string name="previous">Trước</string>
   <string name="next">Tiếp theo</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Vui lòng tải xuống từ điển Hê-bơ-rơ và Hy Lạp của Strong\'s</string>
   <string name="no_indexed_bible_with_strongs_ref">Bạn phải tải xuống một bản Kinh Thánh có số Strong\'s và lập chỉ mục qua Tìm kiếm</string>
-  <string name="morph_robinson_not_installed">Vui lòng tải xuống từ điển \'Mã phân tích hình thái học Robinson\'</string>
-  <string name="go_to_downloads">Đến Tải xuống</string>
 
     <!-- Module download -->
   <string name="download">Tải xuống Tài liệu</string>
   <string name="redownload">Tải lại Tài liệu</string>
-  <string name="download_confirmation">Tải Kinh Thánh từ Internet?</string>
   <string name="download_source_last_updated">Danh sách tài liệu được cập nhật lần cuối: %s.</string>
   <string name="download_refreshing_book_list">Đang làm mới danh sách tài liệu từ máy chủ…</string>
   <string name="download_source_message1">Tài liệu được tải xuống từ các nguồn sau:</string>
   <string name="download_document_confirm_prefix">Tải xuống</string>
-  <string name="download_refresh_book_list_menu_item">Làm mới</string>
   <string name="error_downloading">Đã xảy ra lỗi khi tải xuống. Vui lòng kiểm tra kết nối internet của bạn.</string>
   <string name="error_downloading_status">Máy chủ lưu trữ %1$s đã trả về lỗi do %2$s (%3$d).</string>
   <string name="storage_space_warning">Không đủ dung lượng lưu trữ cục bộ.</string>
@@ -368,15 +347,6 @@
   <string name="done">Hoàn thành</string>
   <string name="reset_plan_question">Bạn có chắc muốn đặt lại kế hoạch này không?</string>
   <string name="import_reading_plan">Nhập kế hoạch đọc…</string>
-  <string name="import_reading_plan_error">Lỗi khi nhập</string>
-  <string name="import_reading_plan_error_duplicate">Các ngày sau bị trùng lặp: %s</string>
-  <string name="import_reading_plan_error_days">Các ngày sau chứa lỗi: %s</string>
-  <string name="import_reading_plan_anyway">Nhập dù sao</string>
-  <string name="overwrite_reading_plan">Bạn có muốn ghi đè %s không?</string>
-  <string name="delete_reading_plan">Xóa kế hoạch này</string>
-  <string name="reading_plan_deleted">Kế hoạch đọc đã được xóa</string>
-  <string name="reading_plan_ships_with_ab">Kế hoạch đọc này được tích hợp sẵn với %s</string>
-  <string name="confirm_delete_reading_plan">Bạn có chắc muốn xóa %s cùng với lịch sử đọc của nó không? Gợi ý: nếu bạn cần cập nhật kế hoạch, bạn có thể nhập lại với cùng tên tệp và lịch sử đọc sẽ được giữ nguyên.</string>
   <string name="plan_duplicate_user_plan">Có một kế hoạch đọc của người dùng trên thẻ nhớ jsword/readingplan có cùng tên với một kế hoạch nội bộ. Không thể liệt kê ở đây. Vui lòng đổi tên tệp thành tên khác, giữ nguyên phần mở rộng .properties</string>
   <string name="plan_name_y1ntpspr">Tân Ước, Thi Thiên &amp; Châm Ngôn trong Một Năm</string>
   <string name="plan_description_y1ntpspr">Courtesy of HEARTLIGHT Internet Magazine, http://www.heartlight.org, permission granted</string>
@@ -404,7 +374,6 @@
   <string name="notes">Chú thích và tham chiếu</string>
   <string name="share_verse">Chia sẻ…</string>
   <string name="share_verse_widget_title">Chia sẻ lựa chọn</string>
-  <string name="share_verse_subject_2">Một câu Kinh Thánh đã được chia sẻ với bạn qua %s.</string>
   <string name="compare_translations">So sánh các bản dịch</string>
 
     <!-- Link context menu -->
@@ -416,33 +385,26 @@
   <string name="bookmarks_and_mynotes_title">Đánh Dấu &amp; Ghi Chú Của Tôi</string>
   <string name="migrated_my_notes">Đã di chuyển Ghi Chú Của Tôi</string>
   <string name="bookmarks">Đánh dấu</string>
-  <string name="bookmark_added">Đã thêm đánh dấu</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Nhãn</string>
   <string name="manage_labels">Quản lý Nhãn</string>
   <string name="assign_labels">Gán nhãn</string>
   <string name="new_item">Mới</string>
-  <string name="new_label">Nhãn Mới</string>
   <string name="label_name_prompt">Tên</string>
   <string name="label_unlabelled">Chưa gán nhãn</string>
   <string name="add_bookmark1">Đánh dấu</string>
-  <string name="add_bookmark2">Đánh Dấu Lựa Chọn</string>
   <string name="add_bookmark3">Lựa chọn</string>
   <string name="add_bookmark_whole_verse">Đánh Dấu Câu</string>
   <string name="add_bookmark_whole_verse1">Các câu</string>
-  <string name="add_bookmark_whole_verse2">Toàn bộ câu</string>
   <string name="add_whole_page_bookmark">Thêm đánh dấu cho toàn trang</string>
   <string name="add_paragraph_break">Ngắt đoạn</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Xóa</string>
   <string name="bookmark_settings_hide_labels_title">Ẩn các nhãn đã chỉ định</string>
   <string name="bookmark_settings_hide_labels_summary">Ẩn các đánh dấu được gán với nhãn đã chỉ định</string>
   <string name="auto_assign_labels_title">Cài đặt nhãn</string>
   <string name="auto_assign_labels">Tự động gán &amp; Nhãn yêu thích</string>
   <string name="auto_assign_labels1">Tự động gán nhãn cho đánh dấu mới</string>
   <string name="auto_assign_labels_primary">Tự động gán làm nhãn chính</string>
-  <string name="label_color">Màu nhãn</string>
-  <string name="label_color_example">Ví dụ</string>
   <string name="marker_style">Chỉ hiển thị dấu cho đánh dấu lựa chọn</string>
   <string name="marker_style_whole_verse">Chỉ hiển thị dấu cho đánh dấu toàn câu</string>
   <string name="hide_style">Ẩn cho đánh dấu lựa chọn</string>
@@ -470,11 +432,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d chương</string>
   <string name="some_chapters">%d chương</string>
-  <string name="rest_of_book">Đến cuối sách</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d câu</string>
   <string name="some_verses">%d câu</string>
-  <string name="rest_of_chapter">Đến cuối chương</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d trang</string>
   <string name="some_pages">%d trang</string>
@@ -484,8 +444,6 @@
   <string name="rewind">Tua lại</string>
   <string name="forward">Tiến tới</string>
   <string name="tts_lang_not_available">Ngôn ngữ không khả dụng.</string>
-  <string name="speak_queue">Hàng chờ</string>
-  <string name="speak_repeat">Lặp lại</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Tốc độ đọc</string>
@@ -558,14 +516,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Biểu tượng %s cho biết cài đặt đến từ cài đặt không gian làm việc.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Biểu tượng %s cho biết cài đặt này đã được thay đổi cho cửa sổ cụ thể này.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Dùng nút %1$s để đặt lại tất cả các cài đặt về %2$s.</string>
   <string name="reset_defaults">giá trị mặc định</string>
   <string name="reset_workspace_defaults">giá trị mặc định của không gian làm việc</string>
 
-  <string name="speak_bookmark_help">Trợ giúp đánh dấu đọc</string>
 
   <string name="speak_help_auto_bookmark">Một đánh dấu đọc sẽ được tự động thêm khi tạm dừng hoặc dừng đọc. Các đánh dấu được tạo tự động được gán nhãn Đọc đặc biệt. Nếu bạn bắt đầu từ một đánh dấu đọc, đánh dấu sẽ được chuyển đến câu bạn dừng hoặc tạm dừng lần tiếp theo. Chỉ nhãn Đọc mới được chuyển, các nhãn khác sẽ không bị thay đổi.</string>
   <string name="speak_help_playback_settings">Các cài đặt phát lại đặc biệt (trong \"Cài đặt phát lại\" trên màn hình Đọc) được lưu vào đánh dấu đọc khi chọn cài đặt này. Khi bạn tiếp tục đọc từ một đánh dấu đọc, các cài đặt phát lại đã lưu sẽ được tải từ đánh dấu.</string>
@@ -602,7 +558,6 @@
   <string name="backup_phone_storage">Bộ nhớ điện thoại</string>
   <string name="backup_and_restore">Sao lưu &amp; Khôi phục</string>
   <string name="backup_modules2">Sao lưu tài liệu vào…</string>
-  <string name="backup_app_database2">Sao lưu cơ sở dữ liệu ứng dụng vào…</string>
   <string name="backup_app2">Sao lưu ứng dụng (tệp .apk) vào…</string>
   <string name="backup_application">Ứng dụng</string>
   <string name="backup_database">Cơ sở dữ liệu</string>
@@ -619,12 +574,9 @@
   <string name="overwrite_something">Ghi đè %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Bạn muốn khôi phục gì?</string>
 
-  <string name="restore_app_database">Khôi phục cơ sở dữ liệu ứng dụng từ…</string>
   <string name="restore_database">Khôi phục tệp cơ sở dữ liệu</string>
   <string name="restore_confirmation">Ghi đè Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc?</string>
-  <string name="restore_success2">Các phần cơ sở dữ liệu đã chọn được khôi phục thành công</string>
   <string name="restore_success">Ghi chú của tôi, Đánh dấu, Sổ tay nghiên cứu, Kế hoạch đọc và Không gian làm việc đã được khôi phục thành công</string>
   <string name="downloading_backup">Đang tải xuống tệp sao lưu…</string>
   <string name="loading_backup">Đang tải cơ sở dữ liệu từ sao lưu…</string>
@@ -640,14 +592,12 @@
   <string name="exported_studypads_subject">Sổ tay nghiên cứu đã xuất</string>
   <string name="exported_studypads_message">Cơ sở dữ liệu %s của bạn chứa Đánh dấu và Ghi chú liên quan đến Sổ tay nghiên cứu đã chọn được đính kèm</string>
   <string name="restore_unsuccessfull">Khôi phục cơ sở dữ liệu không thành công. Có thể bạn đã cung cấp tệp cơ sở dữ liệu không hợp lệ.</string>
-  <string name="restore_modules">Khôi phục tài liệu từ…</string>
   <string name="send_backup_file">Gửi tệp sao lưu</string>
   <string name="backup_modules_title">Chọn mô-đun nào để sao lưu</string>
   <string name="install_zip_canceled">Đã hủy cài đặt mô-đun</string>
   <string name="ask_restore_or_import">Cơ sở dữ liệu cho %s có thể được khôi phục (tức là xóa cơ sở dữ liệu hiện có và tải cơ sở dữ liệu đã chọn) hoặc nhập (nhập cơ sở dữ liệu đã chọn vào cơ sở dữ liệu hiện có). Bạn muốn làm gì?</string>
   <string name="restore">Khôi phục</string>
   <string name="import2">Nhập</string>
-  <string name="export_studypads_help">Tệp chứa Sổ tay nghiên cứu đã xuất (tức là Nhãn và Đánh dấu) có thể được nhập qua Menu chính -&gt; Sao lưu &amp; Khôi phục.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" và %2$s Nhãn/Sổ tay nghiên cứu khác và %3$s Đánh dấu</string>
@@ -661,8 +611,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Báo cáo lỗi</string>
-  <string name="send_feedback_title">Phản hồi</string>
   <string name="send_bug_report_title">Phản hồi / báo cáo lỗi</string>
   <string name="report_bug_email_subject_3">[%1$s] Báo cáo lỗi cho %2$s %3$s</string>
 
@@ -701,10 +649,8 @@
   <string name="yes">Có</string>
   <string name="no">Không</string>
   <string name="error">Lỗi</string>
-  <string name="delete_generic">Xóa</string>
   <string name="please_wait">Vui lòng chờ…</string>
   <string name="all">Tất cả</string>
-  <string name="edit">Chỉnh sửa</string>
   <string name="reset_generic">Đặt lại</string>
   <string name="watch_tutorial_video">Xem video hướng dẫn (tiếng Anh)</string>
   <string name="verse_not_found">Không tìm thấy câu</string>
@@ -728,7 +674,6 @@
   <string name="notification_channel_progress_status">Thông báo tiến trình tải xuống tài liệu, v.v.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Mới</string>
   <string name="switch_to_workspace">Không gian làm việc</string>
   <string name="delete_workspace">Xóa</string>
   <string name="new_copied_workspace">Sao chép thành mới</string>
@@ -751,7 +696,6 @@
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Đây là phiên bản beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">Trong phiên bản beta, có các tính năng mới chưa được kiểm tra đầy đủ, do đó việc sử dụng beta có thể gây ra các hành vi không mong muốn, tức là lỗi. Khuyến nghị những người dùng Kinh Thánh thông thường nên sử dụng phiên bản ổn định.</string>
 
   <string name="beta_notice_content_2">Người dùng beta được khuyến khích báo cáo lỗi qua Google Play hoặc (ưu tiên) qua %s.</string>
@@ -795,7 +739,6 @@
   <string name="redownload_documents">Tải xuống nhanh</string>
   <string name="welcome_message">Cảm ơn bạn đã tải xuống %s. Hiện tại chưa có Kinh Thánh hoặc tài liệu nào được cài đặt. Để tiếp tục, vui lòng cài đặt ít nhất 1 tài liệu bằng cách tải xuống từ internet, hoặc tải từ tệp sao lưu tài liệu zip.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Các định dạng được hỗ trợ</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Bạn phải chọn tệp muốn tải vào %s.</string>
   <string name="supported_formats">Các định dạng được hỗ trợ để tải tài liệu từ tệp: %s</string>
@@ -819,7 +762,6 @@
   <string name="strongs_mode_title">Chọn chế độ Strong\'s</string>
 
   <string name="download_dialog_message">Không thể tải xuống các sách sau:</string>
-  <string name="select_multiple">Chọn nhiều</string>
   <string name="journal_description">Sổ tay nghiên cứu có thể chỉnh sửa với văn bản tùy chỉnh và đánh dấu</string>
   <string name="my_notes_description">Ghi chú có thể chỉnh sửa được đính kèm với đánh dấu</string>
   <string name="my_notes_abbreviation">Ghi chú của tôi</string>
@@ -834,7 +776,6 @@
   <string name="http_not_found">Không tìm thấy</string>
   <string name="http_unknown">Lỗi khác</string>
   <string name="give_passphrase_for_module">Tài liệu %s được mã hóa và cần mật khẩu để mở khóa</string>
-  <string name="unlocking_failed">Mở khóa thất bại, mật khẩu không hợp lệ</string>
   <string name="unlock_module">Đặt mật khẩu mô-đun</string>
   <string name="unlock_info">Thông tin mở khóa mô-đun được mã hóa</string>
   <string name="try_again_passphrase">Mật khẩu không đúng, thử lại?</string>
@@ -905,8 +846,6 @@
   <string name="separate_verses_with_newlines">Phân cách các câu bằng dòng mới</string>
 
   <string name="backup_button">Sao lưu &amp; Khôi phục</string>
-  <string name="back_button">Quay lại</string>
-  <string name="upgrading_database">Đang nâng cấp cơ sở dữ liệu. Vui lòng chờ…</string>
   <string name="initializing_app">Đang khởi tạo ứng dụng…</string>
   <string name="show_notes">Hiển thị ghi chú</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -930,7 +869,6 @@
   <string name="send_email">gửi email cho nhà phát triển</string>
   <string name="proceed_google_play">Tiếp tục đến Google Play</string>
   <string name="text_maintainers">vui lòng báo cáo vấn đề cho người duy trì văn bản</string>
-  <string name="does_not_exist_abbreviation">Không tồn tại</string>
   <string name="cant_change_wholeverse">Không thể tắt đánh dấu toàn câu cho đánh dấu này</string>
   <string name="whole_verse_turned_on">Đánh dấu hiện được đánh dấu cho toàn câu</string>
   <string name="this_bookmark">Đánh dấu này</string>
@@ -943,7 +881,6 @@
   <string name="display_mode_hidden">Ẩn</string>
   <string name="workspace_override_indicator">Nhãn này có chế độ hiển thị riêng cho không gian làm việc</string>
   <string name="primary_label">Nhãn chính</string>
-  <string name="highlight_entire_verse">Đánh dấu nổi bật toàn câu</string>
   <string name="favourite_label">Nhãn yêu thích</string>
   <string name="edit_label">Chỉnh sửa nhãn</string>
   <string name="delete_label_confirmation">Bạn có muốn xóa nhãn đánh dấu \"%s\"? Tất cả ghi chú Sổ tay nghiên cứu liên quan cũng sẽ bị xóa.</string>
@@ -961,7 +898,6 @@
   <string name="reorder">Sắp xếp lại</string>
   <string name="system_items">Thao tác hệ thống</string>
   <string name="system_items1">Thêm</string>
-  <string name="system_action2">Hành động Android</string>
   <string name="text_copied_to_clicpboard">Đã sao chép văn bản vào khay nhớ tạm</string>
   <string name="prefs_disable_two_step_bookmarking_title">Đánh dấu một bước</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Hiển thị các mục \"Lựa chọn\" và \"Câu\" trực tiếp trong menu Lựa chọn của Kinh Thánh</string>
@@ -975,7 +911,6 @@
   <string name="label_blue">Xanh dương</string>
   <string name="label_salvation">Sự cứu rỗi</string>
   <string name="label_underline">Gạch chân</string>
-  <string name="import_menu">Nhập &amp; Xuất</string>
   <string name="auto_backups_title">Sao lưu tự động</string>
   <string name="backup_file_info">Ứng dụng v%1$d, %2$s</string>
   <string name="reset_databases_title">Đặt lại cơ sở dữ liệu</string>
@@ -999,12 +934,10 @@
   <string name="prompts_csv_export_failed">Xuất CSV thất bại: %s</string>
   <string name="no_prompts_to_export">Không có lời nhắc người dùng để xuất</string>
   <string name="csv_column_selection_title">Chọn cột CSV</string>
-  <string name="choose_csv_file">Chọn tệp CSV để nhập</string>
   <string name="no_bookmarks_to_export">Không có đánh dấu nào để xuất</string>
   <string name="export_fileformat">Xuất dưới dạng %s</string>
   <string name="export_something">Xuất %s</string>
   <string name="import_items">Nhập %s</string>
-  <string name="import_from_db">Nhập từ tệp cơ sở dữ liệu ứng dụng</string>
   <string name="import_error">Nhập từ cơ sở dữ liệu ứng dụng thất bại. Tệp cơ sở dữ liệu có thể sai định dạng hoặc được tạo bằng phiên bản %s quá cũ.</string>
 
   <string name="export_bookmarks_csv">Xuất Đánh dấu dưới dạng %s</string>
@@ -1033,23 +966,13 @@
   <string name="last_updated_at">Cập nhật lần cuối lúc</string>
   <string name="bookmark_notes">Ghi chú đánh dấu</string>
 
-  <string name="chooser_range">Phạm vi</string>
-  <string name="chooser_jump">Chuyển đến</string>
-  <string name="chooser_OT_abbrev">CƯ</string>
-  <string name="chooser_NT_abbrev">TƯ</string>
-  <string name="chooser_style_grid">Lưới</string>
-  <string name="chooser_style_lists">Danh sách</string>
-  <string name="chooser_select">Chọn %s</string>
-  <string name="chooser_pref_reset">Không đặt lại chương/câu về 1 khi chọn sách/chương</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Chúng tôi xin lỗi, nhưng chúng tôi chỉ có bản dịch giao diện người dùng một phần bằng ngôn ngữ %1$s. Đó là vì %2$s được phát triển hoàn toàn bởi các tình nguyện viên. Nếu bạn có thể giúp dịch, vui lòng xem %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">hướng dẫn cho người dịch</string>
   <string name="questions_title">Câu hỏi?</string>
-  <string name="questions_title2">Cần trợ giúp?</string>
   <string name="bookmark_style">Kiểu đánh dấu</string>
   <string name="added_to_bookmark">Được gán cho đánh dấu này</string>
-  <string name="strongs_off">Tắt</string>
   <string name="strongs_links">Liên kết</string>
   <string name="strongs_text_and_links">Văn bản và Liên kết</string>
   <string name="strongs_hidden_links">Liên kết ẩn</string>
@@ -1088,7 +1011,6 @@
   <string name="discrete_mode_link">Bạn có thể tải xuống phiên bản ẩn danh mới nhất từ %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Đồng bộ hóa nhóm</string>
   <string name="sync_group_n">Nhóm %d</string>
   <string name="disable_sync">Tắt đồng bộ hóa</string>
   <string name="open_in_window">Mở kết quả trong cửa sổ</string>
@@ -1099,10 +1021,8 @@
   <string name="custom_repositories_empty_list_message">Chưa có kho lưu trữ tùy chỉnh nào được xác định</string>
   <string name="custom_repositories_create_button_label">Thêm kho lưu trữ tùy chỉnh</string>
   <string name="custom_repositories_info_button_label">Thông tin</string>
-  <string name="name_for_repository">Tên cho kho lưu trữ</string>
   <string name="repository_specification">URL kho lưu trữ</string>
   <string name="delete_custom_repository">Bạn có muốn xóa kho lưu trữ tùy chỉnh %s không?</string>
-  <string name="invalid_repository_not_saved">Thông số kho lưu trữ không hợp lệ và không được lưu.</string>
   <string name="custom_repositories_help1">Để thêm kho lưu trữ tùy chỉnh mới, hãy nhập hoặc sao chép &amp; dán URL kho lưu trữ tùy chỉnh vào đây.</string>
   <string name="custom_repositories_help2">Bạn có thể đọc thêm thông tin về kho lưu trữ tùy chỉnh tại %s.</string>
   <string name="wiki_page">Trang WIKI</string>
@@ -1138,7 +1058,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Tiến độ đọc/ghi nhớ</string>
   <string name="reading_progress_chapters_read">chương đã đọc</string>
-  <string name="reading_progress_verses_memorized">câu đã thuộc lòng</string>
   <string name="reading_progress_active_days">ngày hoạt động</string>
   <string name="reading_progress_overall">%s%% Kinh Thánh đã đọc</string>
   <string name="reading_progress_bible_heatmap">Tổng quan Kinh Thánh</string>
@@ -1164,13 +1083,11 @@
   <string name="sync_adapter_summary">Hiện tại: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Xác thực với %s</string>
   <string name="auth_server_uri">URL máy chủ</string>
   <string name="auth_username">Tên người dùng</string>
   <string name="auth_password">Mật khẩu</string>
   <string name="auth_folder_path">Đường dẫn thư mục đồng bộ</string>
   <string name="auth_folder_path_summary">Thư mục cha cho dữ liệu đồng bộ (để trống = thư mục gốc)</string>
-  <string name="auth_access_token">Mã truy cập</string>
   <string name="synchronization_categories">Danh mục đồng bộ hóa</string>
   <string name="sync_general_settings">Thông tin &amp; cài đặt chung</string>
   <string name="sync_introduction">Giới thiệu</string>
@@ -1186,8 +1103,6 @@
   <string name="report">Báo cáo</string>
   <string name="sync_error">Đã xảy ra lỗi trong quá trình đồng bộ hóa Cloud</string>
   <string name="error_notification_channel_name">Thông báo lỗi</string>
-  <string name="restore_from_cloud_description">Nếu bạn đã bật Đồng bộ hóa thiết bị trên một thiết bị khác, bạn có thể bắt đầu bằng cách khôi phục cơ sở dữ liệu từ Cloud.</string>
-  <string name="enable_sync">Bật đồng bộ hóa</string>
   <string name="last_updated">Cập nhật lần cuối: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1208,11 +1123,6 @@
   <string name="processing_epub">Đang xử lý EPUB: %s</string>
   <string name="buy_development">Mua công việc phát triển</string>
   <string name="buy_development2">Ủng hộ dự án</string>
-  <string name="new_version_warning">Một phiên bản mới sắp ra mắt. Ngày phát hành dự kiến là %1$s. Xem %2$s để khám phá các tính năng và cải tiến mới.</string>
-  <string name="new_version_trailer">video giới thiệu</string>
-  <string name="new_version_warning2">Sau khi phát hành, phiên bản này sẽ không còn được bảo trì.</string>
-  <string name="new_version_warning3">Phiên bản này sẽ không nhận được các bản vá lỗi hoặc cập nhật.</string>
-  <string name="new_version_warning4">Nếu bạn không muốn nâng cấp, vui lòng tắt \'Cập nhật tự động\' trong cửa hàng ứng dụng của bạn (Google Play / F-Droid, v.v.).</string>
   <string name="dont_show">Đừng hiển thị thông báo này nữa</string>
   <string name="pref_font_size_multiplier_title">Hệ số cỡ chữ</string>
   <string name="pref_font_size_multiplier_summary_1">Nhân cỡ chữ văn bản với số này.</string>
@@ -1231,7 +1141,6 @@
   <string name="invalid_url_message">URL bạn nhập không hợp lệ. Vui lòng nhập URL hợp lệ (ví dụ: https://nextcloud.example.com)</string>
   <string name="memorize_description">Thuộc lòng các câu Kinh Thánh</string>
   <string name="memorize_abbreviation">Thuộc lòng</string>
-  <string name="add_memorization_target">Đặt làm mục tiêu thuộc lòng</string>
   <string name="memorize_memorized_passages">Đoạn văn đã thuộc lòng</string>
   <string name="memorize_no_memorized_passages">Chưa có đoạn văn nào được thuộc lòng</string>
   <string name="memorize_targets">Mục tiêu thuộc lòng</string>

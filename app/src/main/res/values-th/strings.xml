@@ -5,7 +5,6 @@
   <string name="app_name_short">การศึกษาพระคัมภีร์</string>
   <string name="app_name_medium">การศึกษาพระคัมภีร์ (AndBible)</string>
   <string name="app_name_long">AndBible: การศึกษาพระคัมภีร์</string>
-  <string name="project">โครงการโอเพนซอร์ส AndBible</string>
 
   <string name="version_text">เวอร์ชัน %s</string>
   <string name="no_sdcard_error">กรุณาใส่การ์ด SD แล้วรีสตาร์ทแอปพลิเคชัน</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">ข้อความรูปแบบ (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">ระยะห่างระหว่างย่อหน้า (%s มม.)</string>
-  <string name="prefs_paragraph_spacing_summary">ปรับระยะห่างระหว่างย่อหน้า</string>
 
-  <string name="prefs_show_verseno_title1">เลขข้อ</string>
 
-  <string name="prefs_show_chapter_no_title">เลขบท</string>
-  <string name="prefs_show_chapter_no_summary">แสดงเลขบท</string>
 
   <string name="prefs_verse_per_line_summary">แสดงแต่ละข้อในบรรทัดแยกต่างหาก</string>
   <string name="prefs_show_bookmarks_summary">ยกเลิกการเลือกเพื่อซ่อนที่คั่นหน้าทั้งหมด</string>
 
   <string name="prefs_show_mynotes_summary">แสดงไอคอนในข้อที่มีบันทึกของฉัน</string>
-  <string name="prefs_show_notes_summary">แสดงเชิงอรรถและการอ้างอิงข้าม</string>
   <string name="prefs_show_strongs_summary">ลิงก์ไปยังคำจำกัดความภาษากรีกและฮีบรู</string>
   <string name="prefs_show_morphology_summary">แสดงสัณฐานวิทยาภาษากรีกของ Robinson</string>
   <string name="prefs_section_title_summary">แสดงหัวข้อส่วนที่ไม่ใช่พระคัมภีร์</string>
   <string name="prefs_red_letter_summary">แสดงพระวจนะของพระคริสต์ด้วยตัวอักษรสีแดง</string>
-  <string name="prefs_text_size_title">การตั้งค่าแบบอักษร</string>
 
   <string name="prefs_verse_per_line_title">หนึ่งข้อต่อบรรทัด</string>
   <string name="prefs_show_bookmarks_title">แสดงที่คั่นหน้า</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">แสดงเชิงอรรถแบบอินไลน์กับข้อความแทนที่จะเป็นตัวจัดการที่คลิกได้</string>
   <string name="prefs_show_xrefs_summary">แสดงการอ้างอิงข้าม หากมีในเอกสาร</string>
 
-  <string name="prefs_show_notes_title">เชิงอรรถและการอ้างอิงข้าม</string>
   <string name="prefs_show_strongs_title">หมายเลข Strong\'s</string>
   <string name="prefs_show_morphology_title">รหัสสัณฐานวิทยา</string>
   <string name="prefs_non_strongs_word_italic_title">ทำคำที่เพิ่มเข้ามาเป็นตัวเอียง</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">สัญญาณรบกวนพื้นหลัง</string>
   <string name="prefs_noise_summary">การเพิ่มสัญญาณรบกวนให้พื้นหลังอาจทำให้สบายตามากขึ้น</string>
 
-  <string name="cpv_default_title">เลือกสี</string>
-  <string name="cpv_presets">ค่าที่กำหนดไว้</string>
-  <string name="cpv_custom">กำหนดเอง</string>
-  <string name="cpv_select">เลือก</string>
-  <string name="cpv_transparency">ความโปร่งแสง</string>
 
     <!-- Window -->
   <string name="new_window">หน้าต่างใหม่</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">ปักหมุด</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">ไม่มีบันทึกในบทนี้</string>
-  <string name="no_verse_notes">ไม่มีบันทึกในข้อนี้</string>
   <string name="previous">ก่อนหน้า</string>
   <string name="next">ถัดไป</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">โปรดดาวน์โหลดพจนานุกรมภาษาฮีบรูและกรีกของ Strong\'s</string>
   <string name="no_indexed_bible_with_strongs_ref">คุณต้องดาวน์โหลดพระคัมภีร์ที่มีหมายเลข Strong\'s และสร้างดัชนีผ่านการค้นหา</string>
-  <string name="morph_robinson_not_installed">โปรดดาวน์โหลดพจนานุกรม \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">ไปที่ดาวน์โหลด</string>
 
     <!-- Module download -->
   <string name="download">ดาวน์โหลดเอกสาร</string>
   <string name="redownload">ดาวน์โหลดเอกสารใหม่</string>
-  <string name="download_confirmation">ดาวน์โหลดพระคัมภีร์จากอินเทอร์เน็ต?</string>
   <string name="download_source_last_updated">อัปเดตรายการเอกสารล่าสุด: %s</string>
   <string name="download_refreshing_book_list">กำลังรีเฟรชรายการเอกสารจากเซิร์ฟเวอร์…</string>
   <string name="download_source_message1">เอกสารดาวน์โหลดจากแหล่งต่อไปนี้:</string>
   <string name="download_document_confirm_prefix">ดาวน์โหลด</string>
-  <string name="download_refresh_book_list_menu_item">รีเฟรช</string>
   <string name="error_downloading">เกิดข้อผิดพลาดขณะดาวน์โหลด กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</string>
   <string name="error_downloading_status">เซิร์ฟเวอร์ที่ให้บริการ %1$s ส่งคืนข้อผิดพลาดเนื่องจาก %2$s (%3$d)</string>
   <string name="storage_space_warning">พื้นที่จัดเก็บในเครื่องไม่เพียงพอ</string>
@@ -368,15 +347,6 @@
   <string name="done">เสร็จสิ้น</string>
   <string name="reset_plan_question">คุณแน่ใจว่าต้องการรีเซ็ตแผนนี้?</string>
   <string name="import_reading_plan">นำเข้าแผนการอ่าน…</string>
-  <string name="import_reading_plan_error">เกิดข้อผิดพลาดในการนำเข้า</string>
-  <string name="import_reading_plan_error_duplicate">วันต่อไปนี้ซ้ำกัน: %s</string>
-  <string name="import_reading_plan_error_days">วันต่อไปนี้มีข้อผิดพลาด: %s</string>
-  <string name="import_reading_plan_anyway">นำเข้าต่อไป</string>
-  <string name="overwrite_reading_plan">ต้องการเขียนทับ %s หรือไม่?</string>
-  <string name="delete_reading_plan">ลบแผนนี้</string>
-  <string name="reading_plan_deleted">ลบแผนการอ่านแล้ว</string>
-  <string name="reading_plan_ships_with_ab">แผนการอ่านนี้มาพร้อมกับ %s</string>
-  <string name="confirm_delete_reading_plan">คุณแน่ใจว่าต้องการลบ %s พร้อมกับประวัติการอ่าน? คำแนะนำ: หากต้องการอัปเดตแผน คุณสามารถนำเข้าใหม่ด้วยชื่อไฟล์เดิม และประวัติจะยังคงอยู่</string>
   <string name="plan_duplicate_user_plan">มีแผนการอ่านของผู้ใช้ใน sdcard jsword/readingplan ที่มีชื่อเดียวกับแผนภายใน จึงไม่สามารถแสดงที่นี่ กรุณาเปลี่ยนชื่อไฟล์เป็นชื่ออื่น โดยคงนามสกุลไฟล์เป็น .properties</string>
   <string name="plan_name_y1ntpspr">NT สดุดี &amp; สุภาษิต ใน 1 ปี</string>
   <string name="plan_description_y1ntpspr">ได้รับความอนุเคราะห์จาก HEARTLIGHT Internet Magazine, http://www.heartlight.org, ได้รับอนุญาต</string>
@@ -404,7 +374,6 @@
   <string name="notes">เชิงอรรถและอ้างอิง</string>
   <string name="share_verse">แชร์…</string>
   <string name="share_verse_widget_title">แชร์ส่วนที่เลือก</string>
-  <string name="share_verse_subject_2">ข้อพระคัมภีร์ถูกแชร์มาให้คุณโดยใช้ %s</string>
   <string name="compare_translations">เปรียบเทียบฉบับแปล</string>
 
     <!-- Link context menu -->
@@ -416,33 +385,26 @@
   <string name="bookmarks_and_mynotes_title">ที่คั่นหน้า &amp; บันทึกของฉัน</string>
   <string name="migrated_my_notes">โอนย้ายบันทึกของฉันแล้ว</string>
   <string name="bookmarks">ที่คั่นหน้า</string>
-  <string name="bookmark_added">เพิ่มที่คั่นหน้าแล้ว</string>
     <!-- Bookmark / note labels -->
   <string name="labels">ป้ายกำกับ</string>
   <string name="manage_labels">จัดการป้ายกำกับ</string>
   <string name="assign_labels">กำหนดป้ายกำกับ</string>
   <string name="new_item">ใหม่</string>
-  <string name="new_label">ป้ายกำกับใหม่</string>
   <string name="label_name_prompt">ชื่อ</string>
   <string name="label_unlabelled">ไม่มีป้ายกำกับ</string>
   <string name="add_bookmark1">ที่คั่นหน้า</string>
-  <string name="add_bookmark2">ที่คั่นหน้าส่วนที่เลือก</string>
   <string name="add_bookmark3">ส่วนที่เลือก</string>
   <string name="add_bookmark_whole_verse">ที่คั่นหน้าข้อพระคัมภีร์</string>
   <string name="add_bookmark_whole_verse1">ข้อพระคัมภีร์</string>
-  <string name="add_bookmark_whole_verse2">ข้อพระคัมภีร์ทั้งหมด</string>
   <string name="add_whole_page_bookmark">เพิ่มที่คั่นหน้าสำหรับทั้งหน้า</string>
   <string name="add_paragraph_break">ขึ้นย่อหน้าใหม่</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">ลบ</string>
   <string name="bookmark_settings_hide_labels_title">ซ่อนป้ายกำกับที่ระบุ</string>
   <string name="bookmark_settings_hide_labels_summary">ซ่อนที่คั่นหน้าที่มีป้ายกำกับที่ระบุ</string>
   <string name="auto_assign_labels_title">การตั้งค่าป้ายกำกับ</string>
   <string name="auto_assign_labels">กำหนดอัตโนมัติ &amp; ป้ายกำกับโปรด</string>
   <string name="auto_assign_labels1">กำหนดป้ายกำกับอัตโนมัติสำหรับที่คั่นหน้าใหม่</string>
   <string name="auto_assign_labels_primary">กำหนดเป็นหลักอัตโนมัติ</string>
-  <string name="label_color">สีป้ายกำกับ</string>
-  <string name="label_color_example">ตัวอย่าง</string>
   <string name="marker_style">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าส่วนที่เลือก</string>
   <string name="marker_style_whole_verse">แสดงเฉพาะเครื่องหมายสำหรับที่คั่นหน้าข้อพระคัมภีร์ทั้งหมด</string>
   <string name="hide_style">ซ่อนสำหรับที่คั่นหน้าส่วนที่เลือก</string>
@@ -470,11 +432,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d บท</string>
   <string name="some_chapters">%d บท</string>
-  <string name="rest_of_book">จนถึงท้ายหนังสือ</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d ข้อ</string>
   <string name="some_verses">%d ข้อ</string>
-  <string name="rest_of_chapter">จนถึงท้ายบท</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d หน้า</string>
   <string name="some_pages">%d หน้า</string>
@@ -484,8 +444,6 @@
   <string name="rewind">ย้อนกลับ</string>
   <string name="forward">ไปข้างหน้า</string>
   <string name="tts_lang_not_available">ไม่รองรับภาษานี้</string>
-  <string name="speak_queue">คิว</string>
-  <string name="speak_repeat">ทำซ้ำ</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">ความเร็วในการอ่าน</string>
@@ -558,14 +516,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">ไอคอน %s แสดงว่าการตั้งค่านี้มาจากการตั้งค่าพื้นที่ทำงาน</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">ไอคอน %s แสดงว่าการตั้งค่านี้ถูกเปลี่ยนแปลงสำหรับหน้าต่างนี้โดยเฉพาะ</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">ใช้ปุ่ม %1$s เพื่อรีเซ็ตการตั้งค่าทั้งหมดกลับเป็น %2$s</string>
   <string name="reset_defaults">ค่าเริ่มต้น</string>
   <string name="reset_workspace_defaults">ค่าเริ่มต้นของพื้นที่ทำงาน</string>
 
-  <string name="speak_bookmark_help">วิธีใช้ที่คั่นหน้าการอ่าน</string>
 
   <string name="speak_help_auto_bookmark">ที่คั่นหน้าการอ่านจะถูกเพิ่มโดยอัตโนมัติเมื่อหยุดพักหรือหยุดการอ่าน ที่คั่นหน้าที่สร้างอัตโนมัติจะถูกติดป้ายกำกับการอ่านพิเศษ หากคุณเริ่มจากที่คั่นหน้าการอ่าน ที่คั่นหน้าจะถูกย้ายไปยังข้อที่คุณ หยุดพักหรือหยุดในครั้งถัดไป เฉพาะป้ายกำกับการอ่านเท่านั้นที่จะถูกย้าย ป้ายกำกับอื่นๆ จะยังคงอยู่ที่เดิม</string>
   <string name="speak_help_playback_settings">การตั้งค่าการเล่นพิเศษ (ภายใต้ \"การตั้งค่าการเล่น\" บนหน้าจออ่าน) จะถูกบันทึกไปยังที่คั่นหน้าการอ่านเมื่อเลือกการตั้งค่านี้ เมื่อคุณเริ่มอ่านจากที่คั่นหน้าการอ่าน การตั้งค่าการเล่นที่บันทึกไว้ จะถูกโหลดจากที่คั่นหน้า</string>
@@ -602,7 +558,6 @@
   <string name="backup_phone_storage">ที่เก็บข้อมูลโทรศัพท์</string>
   <string name="backup_and_restore">สำรองและกู้คืน</string>
   <string name="backup_modules2">สำรองเอกสารไปยัง…</string>
-  <string name="backup_app_database2">สำรองฐานข้อมูลแอปไปยัง…</string>
   <string name="backup_app2">สำรองแอป (ไฟล์ .apk) ไปยัง…</string>
   <string name="backup_application">แอปพลิเคชัน</string>
   <string name="backup_database">ฐานข้อมูล</string>
@@ -619,12 +574,9 @@
   <string name="overwrite_something">เขียนทับ %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">คุณต้องการกู้คืนอะไร?</string>
 
-  <string name="restore_app_database">กู้คืนฐานข้อมูลแอปจาก…</string>
   <string name="restore_database">กู้คืนไฟล์ฐานข้อมูล</string>
   <string name="restore_confirmation">เขียนทับบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงาน?</string>
-  <string name="restore_success2">กู้คืนส่วนฐานข้อมูลที่เลือกสำเร็จ</string>
   <string name="restore_success">กู้คืนบันทึกของฉัน ที่คั่นหน้า แผ่นบันทึกการศึกษา แผนการอ่าน และพื้นที่ทำงานสำเร็จ</string>
   <string name="downloading_backup">กำลังดาวน์โหลดไฟล์สำรองข้อมูล…</string>
   <string name="loading_backup">กำลังโหลดฐานข้อมูลจากข้อมูลสำรอง…</string>
@@ -640,14 +592,12 @@
   <string name="exported_studypads_subject">ส่งออกแผ่นบันทึกการศึกษา</string>
   <string name="exported_studypads_message">ฐานข้อมูล %s ของคุณที่มีที่คั่นหน้าและบันทึกที่เกี่ยวข้องกับแผ่นบันทึกการศึกษาที่เลือกแนบมาด้วย</string>
   <string name="restore_unsuccessfull">การกู้คืนฐานข้อมูลล้มเหลว อาจเป็นเพราะคุณระบุไฟล์ฐานข้อมูลที่ไม่ถูกต้อง</string>
-  <string name="restore_modules">กู้คืนเอกสารจาก…</string>
   <string name="send_backup_file">ส่งไฟล์สำรองข้อมูล</string>
   <string name="backup_modules_title">เลือกโมดูลที่ต้องการสำรอง</string>
   <string name="install_zip_canceled">ยกเลิกการติดตั้งโมดูลแล้ว</string>
   <string name="ask_restore_or_import">ฐานข้อมูลสำหรับ %s สามารถกู้คืน (ลบฐานข้อมูลที่มีอยู่และโหลดฐานข้อมูลที่เลือก) หรือนำเข้า (นำเข้าฐานข้อมูลที่เลือกเข้าสู่ฐานข้อมูลที่มีอยู่) คุณต้องการทำอะไร?</string>
   <string name="restore">กู้คืน</string>
   <string name="import2">นำเข้า</string>
-  <string name="export_studypads_help">ไฟล์ที่มีแผ่นบันทึกการศึกษาที่ส่งออก (ป้ายกำกับและที่คั่นหน้า) สามารถนำเข้าผ่านเมนูหลัก -> สำรองและกู้คืน</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" และ %2$s ป้ายกำกับ/แผ่นบันทึกการศึกษาอื่นๆ และ %3$s ที่คั่นหน้า</string>
@@ -661,8 +611,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">รายงานข้อผิดพลาด</string>
-  <string name="send_feedback_title">ข้อเสนอแนะ</string>
   <string name="send_bug_report_title">ข้อเสนอแนะ / รายงานข้อผิดพลาด</string>
   <string name="report_bug_email_subject_3">[%1$s] รายงานข้อผิดพลาดสำหรับ %2$s %3$s</string>
 
@@ -701,10 +649,8 @@
   <string name="yes">ใช่</string>
   <string name="no">ไม่</string>
   <string name="error">ข้อผิดพลาด</string>
-  <string name="delete_generic">ลบ</string>
   <string name="please_wait">กรุณารอ…</string>
   <string name="all">ทั้งหมด</string>
-  <string name="edit">แก้ไข</string>
   <string name="reset_generic">รีเซ็ต</string>
   <string name="watch_tutorial_video">ดูวิดีโอสอนการใช้งาน (ภาษาอังกฤษ)</string>
   <string name="verse_not_found">ไม่พบข้อพระคัมภีร์</string>
@@ -728,7 +674,6 @@
   <string name="notification_channel_progress_status">การแจ้งเตือนความคืบหน้าสำหรับการดาวน์โหลดเอกสาร ฯลฯ</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">ใหม่</string>
   <string name="switch_to_workspace">พื้นที่ทำงาน</string>
   <string name="delete_workspace">ลบ</string>
   <string name="new_copied_workspace">คัดลอกเป็นอันใหม่</string>
@@ -751,7 +696,6 @@
 
     <!-- Beta notice -->
   <string name="beta_notice_title">นี่คือเวอร์ชันทดสอบ!</string>
-  <string name="beta_flag">ทดสอบ</string>
   <string name="beta_notice_content_1">ในเวอร์ชันทดสอบ มีฟีเจอร์ใหม่ที่ยังไม่ได้ทดสอบอย่างครบถ้วน การใช้เวอร์ชันทดสอบอาจทำให้เกิดพฤติกรรมที่ไม่คาดคิด เช่น ข้อผิดพลาด แนะนำให้ผู้อ่านพระคัมภีร์ทั่วไปใช้เวอร์ชันเสถียรแทน</string>
 
   <string name="beta_notice_content_2">ผู้ใช้เวอร์ชันทดสอบควรรายงานข้อผิดพลาดผ่าน Google Play หรือ (ควรทำ) ผ่าน %s</string>
@@ -795,7 +739,6 @@
   <string name="redownload_documents">ดาวน์โหลดซ้ำอย่างรวดเร็ว</string>
   <string name="welcome_message">ขอบคุณที่ดาวน์โหลด %s ขณะนี้ยังไม่ได้ติดตั้งพระคัมภีร์หรือเอกสารใด หากต้องการดำเนินการต่อ กรุณาติดตั้ง อย่างน้อย 1 เอกสารโดยการดาวน์โหลดจากอินเทอร์เน็ต หรือโหลดจากไฟล์สำรองข้อมูลเอกสารแบบ zip</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">รูปแบบที่รองรับ</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">คุณต้องเลือกไฟล์ที่ต้องการโหลดไปยัง %s</string>
   <string name="supported_formats">รูปแบบที่รองรับสำหรับการโหลดเอกสารจากไฟล์: %s</string>
@@ -819,7 +762,6 @@
   <string name="strongs_mode_title">เลือกโหมด Strong\'s</string>
 
   <string name="download_dialog_message">ไม่สามารถดาวน์โหลดหนังสือต่อไปนี้:</string>
-  <string name="select_multiple">เลือกหลายรายการ</string>
   <string name="journal_description">แผ่นบันทึกการศึกษาที่ผู้ใช้แก้ไขได้ พร้อมข้อความและที่คั่นหน้าแบบกำหนดเอง</string>
   <string name="my_notes_description">บันทึกที่ผู้ใช้แก้ไขได้ ซึ่งแนบกับที่คั่นหน้า</string>
   <string name="my_notes_abbreviation">บันทึกของฉัน</string>
@@ -834,7 +776,6 @@
   <string name="http_not_found">ไม่พบ</string>
   <string name="http_unknown">เกิดข้อผิดพลาดอื่น</string>
   <string name="give_passphrase_for_module">เอกสาร %s ถูกเข้ารหัสและต้องใช้รหัสผ่านเพื่อปลดล็อก</string>
-  <string name="unlocking_failed">ปลดล็อกล้มเหลว รหัสผ่านไม่ถูกต้อง</string>
   <string name="unlock_module">ตั้งรหัสผ่านโมดูล</string>
   <string name="unlock_info">ข้อมูลการปลดล็อกโมดูลที่เข้ารหัส</string>
   <string name="try_again_passphrase">รหัสผ่านไม่ถูกต้อง ลองอีกครั้งหรือไม่?</string>
@@ -905,8 +846,6 @@
   <string name="separate_verses_with_newlines">คั่นข้อด้วยบรรทัดใหม่</string>
 
   <string name="backup_button">สำรองข้อมูลและกู้คืน</string>
-  <string name="back_button">ย้อนกลับ</string>
-  <string name="upgrading_database">กำลังอัปเกรดฐานข้อมูล โปรดรอ…</string>
   <string name="initializing_app">กำลังเริ่มต้นแอปพลิเคชัน…</string>
   <string name="show_notes">แสดงบันทึก</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -930,7 +869,6 @@
   <string name="send_email">ส่งอีเมลถึงนักพัฒนา</string>
   <string name="proceed_google_play">ไปยัง Google Play</string>
   <string name="text_maintainers">โปรดรายงานปัญหาให้ผู้ดูแลข้อความ</string>
-  <string name="does_not_exist_abbreviation">ไม่มีอยู่</string>
   <string name="cant_change_wholeverse">ไม่สามารถปิดการทำเครื่องหมายทั้งข้อสำหรับที่คั่นหน้านี้</string>
   <string name="whole_verse_turned_on">ที่คั่นหน้านี้ถูกทำเครื่องหมายสำหรับทั้งข้อแล้ว</string>
   <string name="this_bookmark">ที่คั่นหน้านี้</string>
@@ -943,7 +881,6 @@
   <string name="display_mode_hidden">ซ่อน</string>
   <string name="workspace_override_indicator">ป้ายกำกับนี้มีโหมดการแสดงผลเฉพาะพื้นที่ทำงาน</string>
   <string name="primary_label">ป้ายกำกับหลัก</string>
-  <string name="highlight_entire_verse">เน้นสีทั้งข้อ</string>
   <string name="favourite_label">ป้ายกำกับโปรด</string>
   <string name="edit_label">แก้ไขป้ายกำกับ</string>
   <string name="delete_label_confirmation">ต้องการลบป้ายกำกับที่คั่นหน้า \"%s\" หรือไม่? บันทึกแผ่นบันทึกการศึกษาที่เกี่ยวข้องทั้งหมดจะถูกลบด้วย</string>
@@ -961,7 +898,6 @@
   <string name="reorder">จัดเรียงใหม่</string>
   <string name="system_items">การดำเนินการระบบ</string>
   <string name="system_items1">เพิ่มเติม</string>
-  <string name="system_action2">การดำเนินการของ Android</string>
   <string name="text_copied_to_clicpboard">คัดลอกข้อความไปยังคลิปบอร์ดแล้ว</string>
   <string name="prefs_disable_two_step_bookmarking_title">การบันทึกที่คั่นหน้าแบบขั้นตอนเดียว</string>
   <string name="prefs_disable_two_step_bookmarking_summary">แสดงรายการ \"การเลือก\" และ \"ข้อ\" โดยตรงในเมนูการเลือกของพระคัมภีร์</string>
@@ -975,7 +911,6 @@
   <string name="label_blue">น้ำเงิน</string>
   <string name="label_salvation">ความรอด</string>
   <string name="label_underline">ขีดเส้นใต้</string>
-  <string name="import_menu">นำเข้าและส่งออก</string>
   <string name="auto_backups_title">สำรองข้อมูลอัตโนมัติ</string>
   <string name="backup_file_info">แอป v%1$d, %2$s</string>
   <string name="reset_databases_title">รีเซ็ตฐานข้อมูล</string>
@@ -999,12 +934,10 @@
   <string name="prompts_csv_export_failed">การส่งออก CSV ล้มเหลว: %s</string>
   <string name="no_prompts_to_export">ไม่มีพรอมต์ของผู้ใช้สำหรับส่งออก</string>
   <string name="csv_column_selection_title">เลือกคอลัมน์ CSV</string>
-  <string name="choose_csv_file">เลือกไฟล์ CSV สำหรับนำเข้า</string>
   <string name="no_bookmarks_to_export">ไม่มีที่คั่นหน้าสำหรับส่งออก</string>
   <string name="export_fileformat">ส่งออกเป็น %s</string>
   <string name="export_something">ส่งออก %s</string>
   <string name="import_items">นำเข้า %s</string>
-  <string name="import_from_db">นำเข้าจากไฟล์ฐานข้อมูลแอป</string>
   <string name="import_error">การนำเข้าจากฐานข้อมูลแอปล้มเหลว ไฟล์ฐานข้อมูลอาจมีรูปแบบไม่ถูกต้องหรือสร้างจากเวอร์ชันเก่าของ %s</string>
 
   <string name="export_bookmarks_csv">ส่งออกที่คั่นหน้าเป็น %s</string>
@@ -1033,23 +966,13 @@
   <string name="last_updated_at">อัปเดตล่าสุดเมื่อ</string>
   <string name="bookmark_notes">บันทึกที่คั่นหน้า</string>
 
-  <string name="chooser_range">ช่วง</string>
-  <string name="chooser_jump">ข้ามไป</string>
-  <string name="chooser_OT_abbrev">พนต</string>
-  <string name="chooser_NT_abbrev">พนม</string>
-  <string name="chooser_style_grid">ตาราง</string>
-  <string name="chooser_style_lists">รายการ</string>
-  <string name="chooser_select">เลือก %s</string>
-  <string name="chooser_pref_reset">ไม่รีเซ็ตบท/ข้อเป็น 1 เมื่อเลือกหนังสือ/บท</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">เราขออภัย แต่เรามีการแปลส่วนติดต่อผู้ใช้เพียงบางส่วนในภาษา %1$s นั่นเป็นเพราะ %2$s ได้รับการพัฒนาโดยอาสาสมัครทั้งหมด หากคุณสามารถช่วยแปล โปรดดู %3$s</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">คำแนะนำสำหรับผู้แปล</string>
   <string name="questions_title">มีคำถามหรือไม่?</string>
-  <string name="questions_title2">ต้องการความช่วยเหลือ?</string>
   <string name="bookmark_style">รูปแบบที่คั่นหน้า</string>
   <string name="added_to_bookmark">กำหนดให้ที่คั่นหน้านี้แล้ว</string>
-  <string name="strongs_off">ปิด</string>
   <string name="strongs_links">ลิงก์</string>
   <string name="strongs_text_and_links">ข้อความและลิงก์</string>
   <string name="strongs_hidden_links">ลิงก์ที่ซ่อนอยู่</string>
@@ -1088,7 +1011,6 @@
   <string name="discrete_mode_link">คุณสามารถดาวน์โหลดเวอร์ชันล่าสุดของเวอร์ชันไม่เปิดเผยได้จาก %s</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">ซิงโครไนซ์กลุ่ม</string>
   <string name="sync_group_n">กลุ่ม %d</string>
   <string name="disable_sync">ปิดการซิงโครไนซ์</string>
   <string name="open_in_window">เปิดผลลัพธ์ในหน้าต่าง</string>
@@ -1099,10 +1021,8 @@
   <string name="custom_repositories_empty_list_message">ไม่มีที่เก็บข้อมูลกำหนดเองที่กำหนดไว้</string>
   <string name="custom_repositories_create_button_label">เพิ่มที่เก็บข้อมูลกำหนดเอง</string>
   <string name="custom_repositories_info_button_label">ข้อมูล</string>
-  <string name="name_for_repository">ชื่อสำหรับที่เก็บข้อมูล</string>
   <string name="repository_specification">URL ของที่เก็บข้อมูล</string>
   <string name="delete_custom_repository">คุณต้องการลบที่เก็บข้อมูลกำหนดเอง %s หรือไม่?</string>
-  <string name="invalid_repository_not_saved">ข้อมูลที่เก็บข้อมูลไม่ถูกต้องและไม่ได้บันทึก</string>
   <string name="custom_repositories_help1">หากต้องการเพิ่มที่เก็บข้อมูลกำหนดเองใหม่ พิมพ์หรือคัดลอก &amp; วาง URL ของที่เก็บข้อมูลกำหนดเองที่นี่</string>
   <string name="custom_repositories_help2">คุณสามารถอ่านข้อมูลเพิ่มเติมเกี่ยวกับที่เก็บข้อมูลกำหนดเองได้ใน %s</string>
   <string name="wiki_page">หน้า WIKI</string>
@@ -1138,7 +1058,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">ความก้าวหน้าการอ่าน/การจดจำ</string>
   <string name="reading_progress_chapters_read">บทที่อ่านแล้ว</string>
-  <string name="reading_progress_verses_memorized">ข้อที่จดจำแล้ว</string>
   <string name="reading_progress_active_days">วันที่ใช้งาน</string>
   <string name="reading_progress_overall">อ่านพระคัมภีร์แล้ว %s%%</string>
   <string name="reading_progress_bible_heatmap">ภาพรวมพระคัมภีร์</string>
@@ -1164,13 +1083,11 @@
   <string name="sync_adapter_summary">ปัจจุบัน: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">การยืนยันตัวตนกับ %s</string>
   <string name="auth_server_uri">URL เซิร์ฟเวอร์</string>
   <string name="auth_username">ชื่อผู้ใช้</string>
   <string name="auth_password">รหัสผ่าน</string>
   <string name="auth_folder_path">เส้นทางโฟลเดอร์ซิงค์</string>
   <string name="auth_folder_path_summary">โฟลเดอร์หลักสำหรับข้อมูลซิงค์ (ว่าง = รูท)</string>
-  <string name="auth_access_token">โทเคนการเข้าถึง</string>
   <string name="synchronization_categories">หมวดหมู่การซิงโครไนซ์</string>
   <string name="sync_general_settings">ข้อมูลและการตั้งค่าทั่วไป</string>
   <string name="sync_introduction">บทนำ</string>
@@ -1186,8 +1103,6 @@
   <string name="report">รายงาน</string>
   <string name="sync_error">เกิดข้อผิดพลาดในการซิงโครไนซ์คลาวด์</string>
   <string name="error_notification_channel_name">การแจ้งเตือนข้อผิดพลาด</string>
-  <string name="restore_from_cloud_description">หากคุณเปิดใช้งานการซิงโครไนซ์อุปกรณ์บนอุปกรณ์อื่น คุณสามารถเริ่มต้นโดยกู้คืนฐานข้อมูลจากคลาวด์</string>
-  <string name="enable_sync">เปิดใช้งานการซิงโครไนซ์</string>
   <string name="last_updated">อัปเดตล่าสุด: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1208,11 +1123,6 @@
   <string name="processing_epub">กำลังประมวลผล EPUB: %s</string>
   <string name="buy_development">ซื้องานพัฒนา</string>
   <string name="buy_development2">สนับสนุนโครงการ</string>
-  <string name="new_version_warning">เวอร์ชันใหม่กำลังจะเปิดตัวเร็วๆ นี้ วันที่คาดว่าจะเปิดตัวคือ %1$s ติดตามชมได้ที่ %2$s เพื่อค้นพบฟีเจอร์และการปรับปรุงใหม่ๆ</string>
-  <string name="new_version_trailer">วิดีโอตัวอย่าง</string>
-  <string name="new_version_warning2">หลังจากเปิดตัว เวอร์ชันนี้จะไม่ได้รับการบำรุงรักษา</string>
-  <string name="new_version_warning3">จะไม่ได้รับการแก้ไขบั๊กหรืออัปเดต</string>
-  <string name="new_version_warning4">หากคุณไม่ต้องการอัปเกรด กรุณาปิดใช้งาน \'การอัปเดตอัตโนมัติ\' ในร้านแอปของคุณ (Google Play / F-Droid เป็นต้น)</string>
   <string name="dont_show">ไม่ต้องแสดงข้อความนี้อีก</string>
   <string name="pref_font_size_multiplier_title">ตัวคูณขนาดแบบอักษร</string>
   <string name="pref_font_size_multiplier_summary_1">คูณขนาดแบบอักษรของข้อความด้วยตัวเลขนี้</string>
@@ -1231,7 +1141,6 @@
   <string name="invalid_url_message">URL ที่คุณป้อนไม่ถูกต้อง กรุณาป้อน URL ที่ถูกต้อง (เช่น https://nextcloud.example.com)</string>
   <string name="memorize_description">จดจำข้อพระคัมภีร์</string>
   <string name="memorize_abbreviation">จดจำ</string>
-  <string name="add_memorization_target">ตั้งเป็นเป้าหมายการจดจำ</string>
   <string name="memorize_memorized_passages">ข้อความที่จดจำแล้ว</string>
   <string name="memorize_no_memorized_passages">ยังไม่มีข้อความที่จดจำ</string>
   <string name="memorize_targets">เป้าหมายการจดจำ</string>

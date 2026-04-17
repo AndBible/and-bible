@@ -5,7 +5,6 @@
   <string name="app_name_short">Bybel Studie</string>
   <string name="app_name_medium">Bybel Studie (AndBible)</string>
   <string name="app_name_long">AndBible: Bybel Studie</string>
-  <string name="project">AndBible Oop Bron Projek </string>
 
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Ryk teks (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Paragraaf spasiëring (%smm)</string>
-  <string name="prefs_paragraph_spacing_summary">Verstel spasie tussen paragrawe.</string>
 
-  <string name="prefs_show_verseno_title1">Vers nommers</string>
 
-  <string name="prefs_show_chapter_no_title">Hoofstuk getalle</string>
-  <string name="prefs_show_chapter_no_summary">Wys hoofstuk nommers</string>
 
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n ander lyn</string>
   <string name="prefs_show_bookmarks_summary">Onmerk om alle boekmerke te verberg</string>
 
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My nota</string>
-  <string name="prefs_show_notes_summary">Wys voetnotas en kruisverwysings</string>
   <string name="prefs_show_strongs_summary">Skakels na Griekse |&amp;  Hebreeus definisies</string>
   <string name="prefs_show_morphology_summary">Wys Robinson se Griekse morfologie</string>
   <string name="prefs_section_title_summary">Wys nie-kanonieke seksietitels</string>
   <string name="prefs_red_letter_summary">Wys woorde van Christus in rooi</string>
-  <string name="prefs_text_size_title">Skrif voorkeure</string>
 
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Wys voet notas inlyn met die teks in plaas van as klikbare handvatsels</string>
   <string name="prefs_show_xrefs_summary">Wys kruisverwysings, as hulle in die dokument beskikbaar is</string>
 
-  <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
   <string name="prefs_show_strongs_title">Strong\'s getalle</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
   <string name="prefs_non_strongs_word_italic_title">Kursiveer bygevoegde woorde</string>
@@ -284,11 +275,6 @@ Woordafbreking</string>
   <string name="prefs_noise_title">Agtergrond kleur</string>
   <string name="prefs_noise_summary">Voeg \'n bietjie geraas by agtergrond dit mag dalk dit beter maak vir jou oë.</string>
 
-  <string name="cpv_default_title">Kies \'n kleur</string>
-  <string name="cpv_presets">Voorafbepaalde</string>
-  <string name="cpv_custom">Gebruik</string>
-  <string name="cpv_select">Kies</string>
-  <string name="cpv_transparency">Deursigtigheid</string>
 
     <!-- Window -->
   <string name="new_window">Nuwe venster</string>
@@ -306,26 +292,19 @@ Woordafbreking</string>
   <string name="window_pin_mode">Speld</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Daar is geen notas vir hierdie hoofstuk nie</string>
-  <string name="no_verse_notes">Daar is geen notas ​​vir hierdie vers nie</string>
   <string name="previous">Vorige</string>
   <string name="next">Volgende</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Laai asseblief Strong\'s Hebreeuse en Griekse woordeboeke af</string>
   <string name="no_indexed_bible_with_strongs_ref">U moet \'n Bybel aflaai wat Strong se getalle bevat en die indeks daarvan bou via Soek</string>
-  <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
-  <string name="go_to_downloads">Gaan na Aflaaie</string>
 
     <!-- Module download -->
   <string name="download">Laai Dokumente af</string>
   <string name="redownload">Herlaai Dokumente</string>
-  <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
   <string name="download_source_last_updated">Dokument lyste laas opgedateer: %s</string>
   <string name="download_refreshing_book_list">Verfris lys beskikbare dokumente van dokument bedieners...</string>
   <string name="download_source_message1">Dokumente word van die volgende bronne afgelaai:</string>
   <string name="download_document_confirm_prefix">Laai af</string>
-  <string name="download_refresh_book_list_menu_item">Hernu</string>
   <string name="error_downloading">\'n Fout het voorgekom terwyl dit afgelaai is. Kontroleer asseblief jou internetverbinding.</string>
   <string name="error_downloading_status">Die bediener wat gasheer is %1$s het \'n fout teruggegee as gevolg van %2$s (%3$d).</string>
   <string name="storage_space_warning">Onvoldoende lokale stoorplek.</string>
@@ -374,19 +353,6 @@ Alle aflaaie vanaf module-bewaarplekke is ge-enkripteer (HTTPS).</string>
   <string name="done">Klaar</string>
   <string name="reset_plan_question">Is u seker dat u hierdie plan wil terugstel?</string>
   <string name="import_reading_plan">Voer leesplan in... </string>
-  <string name="import_reading_plan_error">Fout met invoer</string>
-  <string name="import_reading_plan_error_duplicate">Die volgende dae het \'n duplikaat: %s</string>
-  <string name="import_reading_plan_error_days">Die volgende dae bevat foute: %s</string>
-  <string name="import_reading_plan_anyway">Voer in elk geval in</string>
-  <string name="overwrite_reading_plan">Wil jy oorskryf %s?</string>
-  <string name="delete_reading_plan">Skrap hierdie plan</string>
-  <string name="reading_plan_deleted">Die leesplan is geskrap</string>
-  <string name="reading_plan_ships_with_ab">Hierdie leesplan word voorsien met %s</string>
-  <string name="confirm_delete_reading_plan">
-        Is jy seker dat jy will dit verwyder %s saam met sy lees geskiedenis?
-        Wenk: as jy die plan moet bywerk, kan jy dit net weer met dieselfde lêernaam invoer
-        en die geskiedenis sal bewaar word.
-    </string>
   <string name="plan_duplicate_user_plan">
 Daar is \'n gebruikers leesplan in sdcard
 jsword / leesplan met dieselfde naam as \'n interne plan. Dit kan nie hier gelys word nie.
@@ -436,7 +402,6 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="notes">Voetnotas en verwysings</string>
   <string name="share_verse">Deel...</string>
   <string name="share_verse_widget_title">Deel seleksie</string>
-  <string name="share_verse_subject_2">\'n Bybel vers is gedeel met wat jy gebruik %s.</string>
   <string name="compare_translations">Vergelyk vertalings</string>
 
     <!-- Link context menu -->
@@ -448,33 +413,26 @@ Met vergunning van Wholesome Words, http://www.wholesomewords.org/, toestemming 
   <string name="bookmarks_and_mynotes_title">Boekmerke &amp; My Notas</string>
   <string name="migrated_my_notes">Migreer my notas</string>
   <string name="bookmarks">Boekmerke</string>
-  <string name="bookmark_added">Boekmerk bygevoeg</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etikette</string>
   <string name="manage_labels">Bestuur Etikette</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_item">Nuut</string>
-  <string name="new_label">Nuwe etiket</string>
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
   <string name="add_bookmark1">Boekmerke</string>
-  <string name="add_bookmark2">Boekmerk Seleksie</string>
   <string name="add_bookmark3">Seleksie</string>
   <string name="add_bookmark_whole_verse">Boekmerk Vers</string>
   <string name="add_bookmark_whole_verse1">Verse</string>
-  <string name="add_bookmark_whole_verse2">Volle verse</string>
   <string name="add_whole_page_bookmark">Voeg boekmerk vir hele bladsy by</string>
   <string name="add_paragraph_break">Paragraafbreuk</string>
   <string name="ai_label">KI</string>
-  <string name="remove_bookmark">Verwyder</string>
   <string name="bookmark_settings_hide_labels_title">Versteek gespesifiseerde etikette</string>
   <string name="bookmark_settings_hide_labels_summary">Versteek boekmerke wat met gespesifiseerde etiket(e) gemerk is</string>
   <string name="auto_assign_labels_title">Etiketteer instellings</string>
   <string name="auto_assign_labels">Outo-toewys &amp; Gunsteling etikette</string>
   <string name="auto_assign_labels1">Outo-toewys etiket aan nuwe boekmerke</string>
   <string name="auto_assign_labels_primary">Outo-toewys as primêre</string>
-  <string name="label_color">Etiketteer kleur</string>
-  <string name="label_color_example">Voorbeeld</string>
   <string name="marker_style">Wys slegs merker vir boekmerke seleksie</string>
   <string name="marker_style_whole_verse">Wys slegs merker vir hele vers van boekmerke</string>
   <string name="hide_style">Versteek vir seleksie boekmerke</string>
@@ -504,11 +462,9 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
     <!-- Speak - Bible -->
   <string name="one_chapter">%d hoofstuk</string>
   <string name="some_chapters">%d hoofstukke</string>
-  <string name="rest_of_book">Gaan na die einde van die boek</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d verse</string>
-  <string name="rest_of_chapter">Gaan na die einde van hoofstuk</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d bladsy</string>
   <string name="some_pages">%d bladsye</string>
@@ -518,8 +474,6 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
   <string name="rewind">Terugwen</string>
   <string name="forward">Vorentoe</string>
   <string name="tts_lang_not_available">Taal is nie beskikbaar nie.</string>
-  <string name="speak_queue">Lys</string>
-  <string name="speak_repeat">Herhaal</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Praat spoed</string>
@@ -592,14 +546,12 @@ dat die liggings van hierdie boekmerke/notas beweeg binne die dokument of verdwy
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ikoon dui aan dat die instelling van die werkruimte-instellings kom.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%sikoon dui aan dat hierdie instelling vir hierdie spesifieke venster verander is.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Gebruik %1$s knoppie om al hierdie instellings terug te stel na %2$s.</string>
   <string name="reset_defaults">Staande waardes</string>
   <string name="reset_workspace_defaults">werkruimte staande waardes</string>
 
-  <string name="speak_bookmark_help">Praat Boekmeke hulp</string>
 
   <string name="speak_help_auto_bookmark">
 \'n Praat boekmerk sal outomaties bygevoeg word wanneer Praat geplaas of gestop word. 
@@ -649,7 +601,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="backup_phone_storage">Foon berging</string>
   <string name="backup_and_restore">Rugsteun &amp; herstel</string>
   <string name="backup_modules2">Rugsteun dokumente na ...</string>
-  <string name="backup_app_database2">Rugsteun program databasis na...</string>
   <string name="backup_app2">Rugsteun toep (.apk-lêer) na …</string>
   <string name="backup_application">Toep</string>
   <string name="backup_database">Databasis</string>
@@ -666,12 +617,9 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="overwrite_something">Oorskryf %s? </string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Wat wil jy herstel?</string>
 
-  <string name="restore_app_database">Rugsteun toep databasis vanaf ...</string>
   <string name="restore_database">Rugsteun databasis leer ...</string>
   <string name="restore_confirmation">Herskryf My notas, boekmerke, studie blokkies, lees planne en werkruimtes?</string>
-  <string name="restore_success2">Geselekteerde databasis afdelings is suksesvol herstel</string>
   <string name="restore_success">My Notas, Boekmerke, Studie blokkies, Lees planne en Werkruimtes suksesvol herstel</string>
   <string name="downloading_backup">Laai rugsteunlêer af ... </string>
   <string name="loading_backup">Laai databasis vanaf rugsteun ...</string>
@@ -688,14 +636,12 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="exported_studypads_message">Jou %s databasis wat Boekmerke en Notas bevat, wat verband hou met geselekteerde StudyPads is aangeheg</string>
   <string name="restore_unsuccessfull">Die herstel van die databasis was onsuksesvol. Miskien het jy \'n ongeldige databasis lêer gegee.
  </string>
-  <string name="restore_modules">Herstel dokumente vanaf ...</string>
   <string name="send_backup_file">Stuur \'n rugsteunlêer</string>
   <string name="backup_modules_title">Kies watter modules om te rugsteun</string>
   <string name="install_zip_canceled">Module installasie gekanselleer</string>
   <string name="ask_restore_or_import">Databasis vir %s kan óf herstel word (d.w.s. bestaande databasis word verwyder en geselekteerde databasis word gelaai) of ingevoer (geselekteerde databasis word in bestaande databasis ingevoer). Wat wil jy doen?</string>
   <string name="restore">Herstel</string>
   <string name="import2">Invoer</string>
-  <string name="export_studypads_help">Lêer wat uitgevoerde Studiebloke bevat (dws etikette en boekmerke) kan ingevoer word via hoofkieslys -&gt; rugsteun en herstel.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" and %2$s ander etiket(te) / studieblad(e) en %3$s Boekmerke</string>
@@ -709,8 +655,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Fout verslag</string>
-  <string name="send_feedback_title">Terugvoer</string>
   <string name="send_bug_report_title">Terugvoer / fout verslag</string>
   <string name="report_bug_email_subject_3">[%1$s] Fout verslag vir %2$s %3$s</string>
 
@@ -749,10 +693,8 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="yes">Ja</string>
   <string name="no">Nee</string>
   <string name="error">Fout</string>
-  <string name="delete_generic">Verwyder</string>
   <string name="please_wait">Wag Asseblief...</string>
   <string name="all">Alles</string>
-  <string name="edit">Wysig</string>
   <string name="reset_generic">Herstel</string>
   <string name="watch_tutorial_video">Kyk tutoriaal video (Engels)</string>
   <string name="verse_not_found">Vers nie gevind</string>
@@ -776,7 +718,6 @@ praat buite die omskrewe versreeks begin het.</string>
   <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Nuut</string>
   <string name="switch_to_workspace">Werkspasies</string>
   <string name="delete_workspace">Verwyder</string>
   <string name="new_copied_workspace">Kopieer as nuut</string>
@@ -799,7 +740,6 @@ praat buite die omskrewe versreeks begin het.</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Dit is \'n beta weergawe!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 In die beta-weergawe is daar nuwe funksies wat nog nie behoorlik getoets is nie,
 en dus gebruik van beta kan onverwagte gedrag veroorsaak, dit wil sê foute.
@@ -888,7 +828,6 @@ ander ekstra materiaal as jy die bybel bestudeer.</string>
 Ten minste 1 dokument deur van die internet af te laai, of deur \'n zip lêer dokument te laai
 Rugsteun.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Ondersteunde formate </string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Jy moet die lêer kies waarna jy dit wil laai %s.</string>
   <string name="supported_formats">Ondersteunde formate vir die laai van dokumente vanaf \'n lêer: %s</string>
@@ -913,7 +852,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="strongs_mode_title">Kies strong modus</string>
 
   <string name="download_dialog_message">Die volgende boeke kon nie afgelaai word nie:</string>
-  <string name="select_multiple">Kies veelvuldige</string>
   <string name="journal_description">Gebruiker-redigeerbare studie blokkies met persoonlike teks en boekmerke</string>
   <string name="my_notes_description">Gebruiker-redigeerbare notas verbonde aan boekmerke</string>
   <string name="my_notes_abbreviation">My Notas</string>
@@ -928,7 +866,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="http_not_found">Nie gevind nie</string>
   <string name="http_unknown">Ander fout</string>
   <string name="give_passphrase_for_module">Dokument %s is geïnkripteer en moet met wagfrase ontsluit wor</string>
-  <string name="unlocking_failed">Ontsluiting het misluk, ongeldige wagfrase</string>
   <string name="unlock_module">Stel module wagfrase</string>
   <string name="unlock_info">Geënkripteerde module ontsluitings inligting</string>
   <string name="try_again_passphrase">Wagfrase het nie gewerk nie. Probeer weer?</string>
@@ -999,8 +936,6 @@ n Lys van vorige boeke/dokumente is gevind. Klik hieronder om dit maklik weer af
   <string name="separate_verses_with_newlines">Skei verse met nuwe reëls</string>
 
   <string name="backup_button">Rugsteun</string>
-  <string name="back_button">Terug</string>
-  <string name="upgrading_database">Opgradering van databasis. Wag asseblief...</string>
   <string name="initializing_app">Inisialiseer tans die program…</string>
   <string name="show_notes">Wys notas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1035,7 +970,6 @@ stuur e-pos aan ontwikkelaars</string>
 Gaan voort na Google Play</string>
   <string name="text_maintainers">
 rapporteer asseblief kwessies aan tekshandhaar</string>
-  <string name="does_not_exist_abbreviation">Bestaan ​​nie</string>
   <string name="cant_change_wholeverse">Kan nie hele vers merking vir hierdie boekmerk afskakel nie</string>
   <string name="whole_verse_turned_on">Boekmerk is nou gemerk vir hele vers</string>
   <string name="this_bookmark">Hierdie boekmerk</string>
@@ -1048,7 +982,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="display_mode_hidden">Verborge</string>
   <string name="workspace_override_indicator">Hierdie etiket het \'n werkspasie-spesifieke vertoonmodus</string>
   <string name="primary_label">Primêre etiket</string>
-  <string name="highlight_entire_verse">Lig die hele vers uit</string>
   <string name="favourite_label">Gunsteling etiket</string>
   <string name="edit_label">Wysig etiket</string>
   <string name="delete_label_confirmation">Wil jy die boekmerk  etiket  verwyder \"%s\"? Ook alle verwante Studiebloknotas sal verwyder word.</string>
@@ -1066,7 +999,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="reorder">Herbestelling</string>
   <string name="system_items">Stelsel aksies</string>
   <string name="system_items1">Meer</string>
-  <string name="system_action2">Android aksies</string>
   <string name="text_copied_to_clicpboard">Teks na knipbord gekopieer</string>
   <string name="prefs_disable_two_step_bookmarking_title">Een-stap boekmerk</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Wys \'Seleksie\' en \'Verse\' items direk in Bybel beskouings keurings kieslys</string>
@@ -1080,7 +1012,6 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="label_blue">Blou</string>
   <string name="label_salvation">Redding</string>
   <string name="label_underline">Onderlyn</string>
-  <string name="import_menu">Invoer &amp; Uitvoer</string>
   <string name="auto_backups_title">Outomatiese rugsteune</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Herstel databasisse</string>
@@ -1104,12 +1035,10 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="prompts_csv_export_failed">CSV-uitvoer het misluk: %s</string>
   <string name="no_prompts_to_export">Geen gebruikersaanwysings om uit te voer nie</string>
   <string name="csv_column_selection_title">Kies CSV-kolomme</string>
-  <string name="choose_csv_file">Kies CSV-lêer om in te voer</string>
   <string name="no_bookmarks_to_export">Geen boekmerke beskikbaar om uit te voer nie</string>
   <string name="export_fileformat">Voer uit as %s</string>
   <string name="export_something">Uitvoer %s</string>
   <string name="import_items">Invoer %s</string>
-  <string name="import_from_db">Voer in uit Program databasis lêer</string>
   <string name="import_error">Invoer vanaf Program databasis het misluk. Databasis lêer kan verkeerde formaat wees of gemaak word met te ou weergawe van %s.</string>
 
   <string name="export_bookmarks_csv">Voer boekmerke as %s uit</string>
@@ -1138,23 +1067,13 @@ rapporteer asseblief kwessies aan tekshandhaar</string>
   <string name="last_updated_at">Laas opgedateer op</string>
   <string name="bookmark_notes">Boekmerk notas</string>
 
-  <string name="chooser_range">Reeks</string>
-  <string name="chooser_jump">Spring</string>
-  <string name="chooser_OT_abbrev">OT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Rooster</string>
-  <string name="chooser_style_lists">Lyste</string>
-  <string name="chooser_select">Kies %s</string>
-  <string name="chooser_pref_reset">Moenie hoofstuk/vers na 1 terugstel wanneer boek/hoofstuk gekies word nie</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Ons is jammer, maar ons het slegs gedeeltelike vertaling van gebruikerskoppelvlak in %1$sse taal. Dit is omdat %2$s dit geheel en al deur vrywilligers ontwikkel is. As jy kan help met die vertaling, sien asseblief %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instruksies vir vertalers</string>
   <string name="questions_title">Vrae?</string>
-  <string name="questions_title2">Het jy hulp nodig?</string>
   <string name="bookmark_style">Boekmerk styl</string>
   <string name="added_to_bookmark">Toegewys aan hierdie boekmerk</string>
-  <string name="strongs_off">Af</string>
   <string name="strongs_links">Skakels</string>
   <string name="strongs_text_and_links">Teks en Skakels</string>
   <string name="strongs_hidden_links">Versteekte skakels</string>
@@ -1202,7 +1121,6 @@ van die toep, wat altyd \'n sakrekenaar sal vertoon, selfs al is die toep data u
 Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sinkroniseer groep</string>
   <string name="sync_group_n">Groep %d</string>
   <string name="disable_sync">Deaktiveer sinchroniseer</string>
   <string name="open_in_window">Maak resultate in \'n venster oop</string>
@@ -1213,10 +1131,8 @@ Jy kan die nuutste weergawe van diskrete weergawe aflaai vanaf %s.</string>
   <string name="custom_repositories_empty_list_message">Geen pasgemaakte bewaarplekke word gedefinieer nie</string>
   <string name="custom_repositories_create_button_label">Voeg Pasgemaakte Bewaarplek by</string>
   <string name="custom_repositories_info_button_label">Inligting</string>
-  <string name="name_for_repository">Naam vir die bewaarplek</string>
   <string name="repository_specification">URL van bewaarplek </string>
   <string name="delete_custom_repository">Wil jy persoonlike bewaarplek verwyder %s?</string>
-  <string name="invalid_repository_not_saved">Bewaarspesifikasie was ongeldig en dit is nie gestoor nie.</string>
   <string name="custom_repositories_help1">Om \'n nuwe pasgemaakte bewaarplek by te voeg, tik of kopieer en plak pasgemaakte bewaarplek-URL hier.</string>
   <string name="custom_repositories_help2">Jy kan meer inligting oor persoonlike bewaarplekke in lees by %s.</string>
   <string name="wiki_page">WIKI bladsy</string>
@@ -1256,7 +1172,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Lees/Geheuevoortgang</string>
   <string name="reading_progress_chapters_read">hoofstukke gelees</string>
-  <string name="reading_progress_verses_memorized">verse gememoriseer</string>
   <string name="reading_progress_active_days">aktiewe dae</string>
   <string name="reading_progress_overall">%s%% van Bybel gelees</string>
   <string name="reading_progress_bible_heatmap">Bybel-oorsig</string>
@@ -1282,13 +1197,11 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="sync_adapter_summary">Huidige: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Volgende Cloud</string>
-  <string name="auth_title">Verifikasie aan %s</string>
   <string name="auth_server_uri">Bediener-URL</string>
   <string name="auth_username">Gebruiker naam</string>
   <string name="auth_password">Wagwoord</string>
   <string name="auth_folder_path">Sinkroniseer-vouerpad</string>
   <string name="auth_folder_path_summary">Bouervouer vir sinkroniseer-data (leeg = wortel)</string>
-  <string name="auth_access_token">Toegang teken </string>
   <string name="synchronization_categories">Sinchronisasie kategorieë</string>
   <string name="sync_general_settings">Inligting &amp; algemene instellings</string>
   <string name="sync_introduction">Inleiding</string>
@@ -1304,8 +1217,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="report">Verslag</string>
   <string name="sync_error">Fout het voorgekom in Clud sinchronisasie</string>
   <string name="error_notification_channel_name">Fout kennisgewings </string>
-  <string name="restore_from_cloud_description">As u Toestel sinchronisasie op \'n ander toestel geaktiveer het, kan u begin deur die databasis vanaf Cloud te herstel.</string>
-  <string name="enable_sync">Aktiveer sinchronisasie </string>
   <string name="last_updated">Laas opgedateer: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1326,16 +1237,6 @@ Databasis bevat  %s. Wat wil jy doen?</string>
   <string name="processing_epub">Verwerking EPUB: %s</string>
   <string name="buy_development">Koop ontwikkelings werk </string>
   <string name="buy_development2">Ondersteun projek </string>
-  <string name="new_version_warning">
-\'n Nuwe vrystelling kom binnekort. Die verwagte vrystellingsdatum is %1$s.   Kyk na ons
-%2$s om nuwe kenmerke en verbeterings te ontdek.</string>
-  <string name="new_version_trailer">lokprent video </string>
-  <string name="new_version_warning2">
-Na vrystelling word hierdie weergawe nie onderhou nie.</string>
-  <string name="new_version_warning3">
-Dit sal nie foutoplossings of opdaterings ontvang nie</string>
-  <string name="new_version_warning4">
-As jy nie wil opgradeer nie, deaktiveer asseblief \'Outomatiese opdaterings\' in jou toepassingwinkel (Google Play / F-Droid ens.).</string>
   <string name="dont_show">
 Moenie hierdie boodskap weer wys nie</string>
   <string name="pref_font_size_multiplier_title">Lettertipe-grootte vermenigvuldiger</string>
@@ -1355,7 +1256,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="invalid_url_message">Die URL wat jy ingevoer het is ongeldig. Voer asseblief \'n geldige URL in (bv. https://nextcloud.example.com)</string>
   <string name="memorize_description">Memoriseer Bybel verse</string>
   <string name="memorize_abbreviation">Memoriseer</string>
-  <string name="add_memorization_target">Stel as memoriseerdoelwit</string>
   <string name="memorize_memorized_passages">Gememoriseerde gedeeltes</string>
   <string name="memorize_no_memorized_passages">Nog geen gememoriseerde gedeeltes nie</string>
   <string name="memorize_targets">Memoriseerdoelwitte</string>

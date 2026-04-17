@@ -5,7 +5,6 @@
   <string name="app_name_short">Kajian Alkitab</string>
   <string name="app_name_medium">Kajian Alkitab (AndBible)</string>
   <string name="app_name_long">AndBible: Kajian Alkitab</string>
-  <string name="project">Projek Sumber Terbuka AndBible</string>
 
   <string name="version_text">Versi %s</string>
   <string name="no_sdcard_error">Sila masukkan kad SD dan mulakan semula aplikasi.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Teks kaya (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Jarak perenggan (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Laraskan ruang antara perenggan.</string>
 
-  <string name="prefs_show_verseno_title1">Nombor ayat</string>
 
-  <string name="prefs_show_chapter_no_title">Nombor bab</string>
-  <string name="prefs_show_chapter_no_summary">Tunjukkan nombor bab</string>
 
   <string name="prefs_verse_per_line_summary">Tunjukkan setiap ayat pada baris berbeza</string>
   <string name="prefs_show_bookmarks_summary">Nyahtanda untuk menyembunyikan semua penanda buku</string>
 
   <string name="prefs_show_mynotes_summary">Tunjukkan ikon dalam ayat dengan Nota Saya</string>
-  <string name="prefs_show_notes_summary">Tunjukkan nota kaki dan rujukan silang</string>
   <string name="prefs_show_strongs_summary">Pautan ke definisi Greek &amp; Ibrani</string>
   <string name="prefs_show_morphology_summary">Tunjukkan morfologi Greek Robinson\'s</string>
   <string name="prefs_section_title_summary">Tunjukkan tajuk bahagian bukan kanonik</string>
   <string name="prefs_red_letter_summary">Tunjukkan perkataan Kristus dalam merah</string>
-  <string name="prefs_text_size_title">Keutamaan fon</string>
 
   <string name="prefs_verse_per_line_title">Satu ayat setiap baris</string>
   <string name="prefs_show_bookmarks_title">Tunjukkan penanda buku</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Tunjukkan nota kaki sebaris dengan teks dan bukannya sebagai pemegang yang boleh diklik</string>
   <string name="prefs_show_xrefs_summary">Tunjukkan rujukan silang, jika tersedia dalam dokumen</string>
 
-  <string name="prefs_show_notes_title">Nota kaki dan rujukan silang</string>
   <string name="prefs_show_strongs_title">Nombor Strong\'s</string>
   <string name="prefs_show_morphology_title">Kod morfologi</string>
   <string name="prefs_non_strongs_word_italic_title">Italikkan perkataan tambahan</string>
@@ -282,11 +273,6 @@
   <string name="prefs_noise_title">Hingar latar belakang</string>
   <string name="prefs_noise_summary">Menambah sedikit hingar pada latar belakang mungkin menjadikannya lebih selesa untuk mata.</string>
 
-  <string name="cpv_default_title">Pilih Warna</string>
-  <string name="cpv_presets">Prasetel</string>
-  <string name="cpv_custom">Tersuai</string>
-  <string name="cpv_select">Pilih</string>
-  <string name="cpv_transparency">Ketelusan</string>
 
     <!-- Window -->
   <string name="new_window">Tetingkap baharu</string>
@@ -304,26 +290,19 @@
   <string name="window_pin_mode">Tetap</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Tiada nota wujud dalam bab ini</string>
-  <string name="no_verse_notes">Tiada nota wujud dalam ayat ini</string>
   <string name="previous">Sebelumnya</string>
   <string name="next">Seterusnya</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Sila muat turun kamus Ibrani dan Greek Strong\'s</string>
   <string name="no_indexed_bible_with_strongs_ref">Anda perlu memuat turun Alkitab yang mengandungi nombor Strong\'s dan membina indeksnya melalui Carian</string>
-  <string name="morph_robinson_not_installed">Sila muat turun kamus \'Kod Analisis Morfologi Robinson\'s\'</string>
-  <string name="go_to_downloads">Pergi ke Muat Turun</string>
 
     <!-- Module download -->
   <string name="download">Muat Turun Dokumen</string>
   <string name="redownload">Muat Turun Semula Dokumen</string>
-  <string name="download_confirmation">Muat turun Alkitab dari Internet?</string>
   <string name="download_source_last_updated">Senarai dokumen dikemas kini terakhir: %s.</string>
   <string name="download_refreshing_book_list">Menyegarkan senarai dokumen yang tersedia dari pelayan dokumen…</string>
   <string name="download_source_message1">Dokumen dimuat turun dari sumber-sumber berikut:</string>
   <string name="download_document_confirm_prefix">Muat turun</string>
-  <string name="download_refresh_book_list_menu_item">Segarkan</string>
   <string name="error_downloading">Ralat berlaku semasa memuat turun. Sila semak sambungan internet anda.</string>
   <string name="error_downloading_status">Pelayan yang mengehoskan %1$s mengembalikan ralat kerana %2$s (%3$d).</string>
   <string name="storage_space_warning">Ruang storan tempatan tidak mencukupi.</string>
@@ -368,15 +347,6 @@
   <string name="done">Selesai</string>
   <string name="reset_plan_question">Adakah anda pasti ingin menetapkan semula rancangan ini?</string>
   <string name="import_reading_plan">Import rancangan bacaan…</string>
-  <string name="import_reading_plan_error">Ralat semasa import</string>
-  <string name="import_reading_plan_error_duplicate">Hari-hari berikut adalah pendua: %s</string>
-  <string name="import_reading_plan_error_days">Hari-hari berikut mengandungi ralat: %s</string>
-  <string name="import_reading_plan_anyway">Import juga</string>
-  <string name="overwrite_reading_plan">Adakah anda ingin menimpa %s?</string>
-  <string name="delete_reading_plan">Padamkan rancangan ini</string>
-  <string name="reading_plan_deleted">Rancangan bacaan telah dipadamkan</string>
-  <string name="reading_plan_ships_with_ab">Rancangan bacaan ini disertakan dengan %s</string>
-  <string name="confirm_delete_reading_plan">Adakah anda pasti ingin memadamkan %s berserta sejarah bacaannya? Petua: jika anda perlu mengemas kini rancangan, anda boleh mengimportnya semula dengan nama fail yang sama dan sejarah akan dikekalkan.</string>
   <string name="plan_duplicate_user_plan">Terdapat rancangan bacaan pengguna dalam sdcard jsword/readingplan dengan nama yang sama seperti rancangan dalaman. Ia tidak dapat disenaraikan di sini. Sila namakan semula fail tersebut kepada nama lain, dengan mengekalkan sambungan fail sebagai .properties</string>
   <string name="plan_name_y1ntpspr">PB, Mazmur &amp; Amsal Dalam Setahun</string>
   <string name="plan_description_y1ntpspr">Ihsan HEARTLIGHT Internet Magazine, http://www.heartlight.org, kebenaran diberikan</string>
@@ -404,7 +374,6 @@
   <string name="notes">Nota kaki dan rujukan</string>
   <string name="share_verse">Kongsi…</string>
   <string name="share_verse_widget_title">Kongsi pilihan</string>
-  <string name="share_verse_subject_2">Ayat Alkitab telah dikongsi dengan anda menggunakan %s.</string>
   <string name="compare_translations">Bandingkan terjemahan</string>
 
     <!-- Link context menu -->
@@ -416,33 +385,26 @@
   <string name="bookmarks_and_mynotes_title">Penanda Buku &amp; Nota Saya</string>
   <string name="migrated_my_notes">Nota Saya yang dipindahkan</string>
   <string name="bookmarks">Penanda buku</string>
-  <string name="bookmark_added">Penanda buku ditambah</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Label</string>
   <string name="manage_labels">Urus Label</string>
   <string name="assign_labels">Tugaskan label</string>
   <string name="new_item">Baharu</string>
-  <string name="new_label">Label Baharu</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
   <string name="add_bookmark1">Penanda Buku</string>
-  <string name="add_bookmark2">Tandai Pilihan</string>
   <string name="add_bookmark3">Pilihan</string>
   <string name="add_bookmark_whole_verse">Tandai Ayat</string>
   <string name="add_bookmark_whole_verse1">Ayat-ayat</string>
-  <string name="add_bookmark_whole_verse2">Ayat penuh</string>
   <string name="add_whole_page_bookmark">Tambah penanda buku untuk keseluruhan halaman</string>
   <string name="add_paragraph_break">Pemisah perenggan</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Buang</string>
   <string name="bookmark_settings_hide_labels_title">Sembunyikan label yang ditentukan</string>
   <string name="bookmark_settings_hide_labels_summary">Sembunyikan penanda buku yang ditandai dengan label yang ditentukan</string>
   <string name="auto_assign_labels_title">Tetapan label</string>
   <string name="auto_assign_labels">Label auto-tugasan &amp; Kegemaran</string>
   <string name="auto_assign_labels1">Auto-tugaskan label kepada penanda buku baharu</string>
   <string name="auto_assign_labels_primary">Auto-tugaskan sebagai utama</string>
-  <string name="label_color">Warna label</string>
-  <string name="label_color_example">Contoh</string>
   <string name="marker_style">Tunjukkan hanya penanda untuk penanda buku pilihan</string>
   <string name="marker_style_whole_verse">Tunjukkan hanya penanda untuk penanda buku keseluruhan ayat</string>
   <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
@@ -470,11 +432,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d bab</string>
   <string name="some_chapters">%d bab</string>
-  <string name="rest_of_book">Hingga akhir buku</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d ayat</string>
   <string name="some_verses">%d ayat</string>
-  <string name="rest_of_chapter">Hingga akhir bab</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d halaman</string>
   <string name="some_pages">%d halaman</string>
@@ -484,8 +444,6 @@
   <string name="rewind">Gulung balik</string>
   <string name="forward">Maju ke hadapan</string>
   <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
-  <string name="speak_queue">Giliran</string>
-  <string name="speak_repeat">Ulang</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Kelajuan baca</string>
@@ -558,14 +516,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Ikon %s menunjukkan bahawa tetapan berasal dari tetapan ruang kerja.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Ikon %s menunjukkan bahawa tetapan ini telah diubah untuk tetingkap khusus ini.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Gunakan butang %1$s untuk menetapkan semula semua tetapan ini kembali ke %2$s.</string>
   <string name="reset_defaults">nilai lalai</string>
   <string name="reset_workspace_defaults">nilai lalai ruang kerja</string>
 
-  <string name="speak_bookmark_help">Bantuan penanda buku baca</string>
 
   <string name="speak_help_auto_bookmark">Penanda buku Baca akan ditambahkan secara automatik apabila Baca dijeda atau dihentikan. Penanda buku yang dijana secara automatik dilabelkan dengan label Baca khas. Jika anda bermula dari penanda buku Baca, penanda buku akan dipindahkan ke ayat yang anda hentikan atau jeda pada kali berikutnya. Hanya label Baca akan dipindahkan, mana-mana label lain akan dibiarkan.</string>
   <string name="speak_help_playback_settings">Tetapan main balik khas (di bawah \"Tetapan Main Balik\" pada skrin Baca) disimpan ke penanda buku Baca apabila tetapan ini dipilih. Apabila anda memulakan semula pembacaan dari penanda buku Baca, tetapan main balik yang disimpan dimuatkan dari penanda buku.</string>
@@ -602,7 +558,6 @@
   <string name="backup_phone_storage">Storan telefon</string>
   <string name="backup_and_restore">Sandaran &amp; Pulih</string>
   <string name="backup_modules2">Sandaran Dokumen ke…</string>
-  <string name="backup_app_database2">Sandaran pangkalan data aplikasi ke…</string>
   <string name="backup_app2">Sandaran aplikasi (fail .apk) ke …</string>
   <string name="backup_application">Aplikasi</string>
   <string name="backup_database">Pangkalan Data</string>
@@ -619,12 +574,9 @@
   <string name="overwrite_something">Timpa %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Apa yang anda ingin pulihkan?</string>
 
-  <string name="restore_app_database">Pulih pangkalan data aplikasi dari…</string>
   <string name="restore_database">Pulih Fail Pangkalan Data</string>
   <string name="restore_confirmation">Timpa Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja?</string>
-  <string name="restore_success2">Bahagian pangkalan data yang dipilih berjaya dipulihkan</string>
   <string name="restore_success">Nota Saya, Penanda Buku, Pad Kajian, Rancangan Bacaan dan Ruang Kerja berjaya dipulihkan</string>
   <string name="downloading_backup">Memuat turun fail sandaran…</string>
   <string name="loading_backup">Memuatkan pangkalan data dari sandaran…</string>
@@ -640,14 +592,12 @@
   <string name="exported_studypads_subject">Pad Kajian yang Dieksport</string>
   <string name="exported_studypads_message">Pangkalan data %s anda yang mengandungi Penanda Buku dan Nota berkaitan Pad Kajian yang dipilih dilampirkan</string>
   <string name="restore_unsuccessfull">Pemulihan pangkalan data tidak berjaya. Mungkin anda memberikan fail pangkalan data yang tidak sah.</string>
-  <string name="restore_modules">Pulih Dokumen dari…</string>
   <string name="send_backup_file">Hantar fail sandaran</string>
   <string name="backup_modules_title">Pilih modul mana untuk disandarkan</string>
   <string name="install_zip_canceled">Pemasangan modul dibatalkan</string>
   <string name="ask_restore_or_import">Pangkalan data untuk %s boleh sama ada dipulihkan (iaitu pangkalan data sedia ada dibuang dan pangkalan data yang dipilih dimuatkan) atau diimport (pangkalan data yang dipilih diimport ke dalam pangkalan data sedia ada). Apa yang anda ingin lakukan?</string>
   <string name="restore">Pulih</string>
   <string name="import2">Import</string>
-  <string name="export_studypads_help">Fail yang mengandungi Pad Kajian yang dieksport (iaitu Label dan Penanda Buku) boleh diimport melalui Menu Utama -&gt; Sandaran &amp; Pulih.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" dan %2$s Label/StudyPad lain dan %3$s Penanda Buku</string>
@@ -661,8 +611,6 @@
   <string name="module_about_osisId">ID OSIS: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Laporan pepijat</string>
-  <string name="send_feedback_title">Maklum balas</string>
   <string name="send_bug_report_title">Maklum balas / laporan pepijat</string>
   <string name="report_bug_email_subject_3">[%1$s] Laporan pepijat untuk %2$s %3$s</string>
 
@@ -701,10 +649,8 @@
   <string name="yes">Ya</string>
   <string name="no">Tidak</string>
   <string name="error">Ralat</string>
-  <string name="delete_generic">Padamkan</string>
   <string name="please_wait">Sila tunggu…</string>
   <string name="all">Semua</string>
-  <string name="edit">Edit</string>
   <string name="reset_generic">Set semula</string>
   <string name="watch_tutorial_video">Tonton video tutorial (Bahasa Inggeris)</string>
   <string name="verse_not_found">Ayat tidak ditemui</string>
@@ -728,7 +674,6 @@
   <string name="notification_channel_progress_status">Pemberitahuan status kemajuan untuk muat turun dokumen dll.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Baharu</string>
   <string name="switch_to_workspace">Ruang Kerja</string>
   <string name="delete_workspace">Buang</string>
   <string name="new_copied_workspace">Salin sebagai baharu</string>
@@ -751,7 +696,6 @@
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">Dalam versi beta, terdapat ciri baharu yang belum diuji dengan betul, dan oleh itu menggunakan beta mungkin memperkenalkan gelagat yang tidak dijangka, iaitu pepijat. Adalah disyorkan bahawa pembaca Alkitab biasa menggunakan versi stabil sebaliknya.</string>
 
   <string name="beta_notice_content_2">Pengguna beta digalakkan untuk melaporkan pepijat melalui Google Play atau (lebih baik) melalui %s.</string>
@@ -795,7 +739,6 @@
   <string name="redownload_documents">Muat Turun Semula Pantas</string>
   <string name="welcome_message">Terima kasih kerana memuat turun %s. Kini tiada Alkitab atau dokumen yang dipasang. Untuk meneruskan, sila pasang sekurang-kurangnya 1 dokumen dengan memuat turun dari internet, atau dengan memuatkan dari fail zip sandaran dokumen.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Format yang disokong</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Anda perlu memilih fail yang ingin anda muatkan ke %s.</string>
   <string name="supported_formats">Format yang disokong untuk memuatkan dokumen dari fail: %s</string>
@@ -819,7 +762,6 @@
   <string name="strongs_mode_title">Pilih mod Strong\'s</string>
 
   <string name="download_dialog_message">Buku-buku berikut tidak dapat dimuat turun:</string>
-  <string name="select_multiple">Pilih berbilang</string>
   <string name="journal_description">Pad kajian boleh diedit pengguna dengan teks tersuai dan penanda buku</string>
   <string name="my_notes_description">Nota boleh diedit pengguna yang dilampirkan pada penanda buku</string>
   <string name="my_notes_abbreviation">Nota Saya</string>
@@ -834,7 +776,6 @@
   <string name="http_not_found">Tidak ditemui</string>
   <string name="http_unknown">Ralat lain</string>
   <string name="give_passphrase_for_module">Dokumen %s disulitkan dan memerlukan kata laluan untuk dibuka</string>
-  <string name="unlocking_failed">Pembukaan kunci gagal, kata laluan tidak sah</string>
   <string name="unlock_module">Tetapkan kata laluan modul</string>
   <string name="unlock_info">Maklumat pembukaan kunci modul yang disulitkan</string>
   <string name="try_again_passphrase">Kata laluan tidak berfungsi, cuba lagi?</string>
@@ -905,8 +846,6 @@
   <string name="separate_verses_with_newlines">Pisahkan ayat dengan baris baharu</string>
 
   <string name="backup_button">Sandaran &amp; Pulih</string>
-  <string name="back_button">Balik</string>
-  <string name="upgrading_database">Menaik taraf pangkalan data. Sila tunggu…</string>
   <string name="initializing_app">Memulakan aplikasi…</string>
   <string name="show_notes">Tunjukkan nota</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -930,7 +869,6 @@
   <string name="send_email">hantar e-mel kepada pembangun</string>
   <string name="proceed_google_play">Teruskan ke Google Play</string>
   <string name="text_maintainers">sila laporkan isu kepada penyelenggara teks</string>
-  <string name="does_not_exist_abbreviation">Tidak Wujud</string>
   <string name="cant_change_wholeverse">Tidak dapat mematikan penandaan keseluruhan ayat untuk penanda buku ini</string>
   <string name="whole_verse_turned_on">Penanda buku kini ditandai untuk keseluruhan ayat</string>
   <string name="this_bookmark">Penanda buku ini</string>
@@ -943,7 +881,6 @@
   <string name="display_mode_hidden">Tersembunyi</string>
   <string name="workspace_override_indicator">Label ini mempunyai mod paparan khusus ruang kerja</string>
   <string name="primary_label">Label utama</string>
-  <string name="highlight_entire_verse">Serlahkan keseluruhan ayat</string>
   <string name="favourite_label">Label kegemaran</string>
   <string name="edit_label">Edit label</string>
   <string name="delete_label_confirmation">Adakah anda ingin membuang label penanda buku \"%s\"? Juga semua nota Pad Kajian yang berkaitan akan dibuang.</string>
@@ -961,7 +898,6 @@
   <string name="reorder">Susun semula</string>
   <string name="system_items">Tindakan sistem</string>
   <string name="system_items1">Lagi</string>
-  <string name="system_action2">Tindakan Android</string>
   <string name="text_copied_to_clicpboard">Teks disalin ke papan klip</string>
   <string name="prefs_disable_two_step_bookmarking_title">Penanda buku satu langkah</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Tunjukkan item \"Pilihan\" dan \"Ayat\" terus dalam menu Pilihan paparan Alkitab</string>
@@ -975,7 +911,6 @@
   <string name="label_blue">Biru</string>
   <string name="label_salvation">Keselamatan</string>
   <string name="label_underline">Garis bawah</string>
-  <string name="import_menu">Import &amp; Eksport</string>
   <string name="auto_backups_title">Sandaran Auto</string>
   <string name="backup_file_info">Aplikasi v%1$d, %2$s</string>
   <string name="reset_databases_title">Set Semula Pangkalan Data</string>
@@ -999,12 +934,10 @@
   <string name="prompts_csv_export_failed">Eksport CSV gagal: %s</string>
   <string name="no_prompts_to_export">Tiada prompt pengguna untuk dieksport</string>
   <string name="csv_column_selection_title">Pilih Lajur CSV</string>
-  <string name="choose_csv_file">Pilih fail CSV untuk diimport</string>
   <string name="no_bookmarks_to_export">Tiada penanda buku tersedia untuk dieksport</string>
   <string name="export_fileformat">Eksport sebagai %s</string>
   <string name="export_something">Eksport %s</string>
   <string name="import_items">Import %s</string>
-  <string name="import_from_db">Import dari fail Pangkalan Data Aplikasi</string>
   <string name="import_error">Import dari Pangkalan Data Aplikasi gagal. Fail pangkalan data mungkin format yang salah atau dibuat dengan versi %s yang terlalu lama.</string>
 
   <string name="export_bookmarks_csv">Eksport Penanda Buku sebagai %s</string>
@@ -1033,23 +966,13 @@
   <string name="last_updated_at">Dikemas kini terakhir pada</string>
   <string name="bookmark_notes">Nota penanda buku</string>
 
-  <string name="chooser_range">Julat</string>
-  <string name="chooser_jump">Lompat</string>
-  <string name="chooser_OT_abbrev">PL</string>
-  <string name="chooser_NT_abbrev">PB</string>
-  <string name="chooser_style_grid">Grid</string>
-  <string name="chooser_style_lists">Senarai</string>
-  <string name="chooser_select">Pilih %s</string>
-  <string name="chooser_pref_reset">Jangan tetapkan semula bab/ayat ke 1 apabila buku/bab dipilih</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Kami meminta maaf, tetapi kami hanya mempunyai terjemahan antara muka pengguna separa dalam bahasa %1$s. Itu kerana %2$s dibangunkan sepenuhnya oleh sukarelawan. Jika anda boleh membantu dalam penterjemahan, sila lihat %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">arahan untuk penterjemah</string>
   <string name="questions_title">Soalan?</string>
-  <string name="questions_title2">Perlukan bantuan?</string>
   <string name="bookmark_style">Gaya penanda buku</string>
   <string name="added_to_bookmark">Diberikan kepada penanda buku ini</string>
-  <string name="strongs_off">Mati</string>
   <string name="strongs_links">Pautan</string>
   <string name="strongs_text_and_links">Teks dan Pautan</string>
   <string name="strongs_hidden_links">Pautan Tersembunyi</string>
@@ -1088,7 +1011,6 @@
   <string name="discrete_mode_link">Anda boleh memuat turun versi terkini versi diskrit dari %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Selaraskan kumpulan</string>
   <string name="sync_group_n">Kumpulan %d</string>
   <string name="disable_sync">Nyahdayakan penyegerakan</string>
   <string name="open_in_window">Buka keputusan dalam tetingkap</string>
@@ -1099,10 +1021,8 @@
   <string name="custom_repositories_empty_list_message">Tiada repositori tersuai ditakrifkan</string>
   <string name="custom_repositories_create_button_label">Tambah Repositori Tersuai</string>
   <string name="custom_repositories_info_button_label">Maklumat</string>
-  <string name="name_for_repository">Nama untuk repositori</string>
   <string name="repository_specification">URL repositori</string>
   <string name="delete_custom_repository">Adakah anda ingin membuang repositori tersuai %s?</string>
-  <string name="invalid_repository_not_saved">Spesifikasi repositori tidak sah dan ia tidak disimpan.</string>
   <string name="custom_repositories_help1">Untuk menambah repositori tersuai baharu, taip atau salin &amp; tampal URL repositori tersuai di sini.</string>
   <string name="custom_repositories_help2">Anda boleh membaca lebih banyak maklumat tentang repositori tersuai dalam %s.</string>
   <string name="wiki_page">halaman WIKI</string>
@@ -1138,7 +1058,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Kemajuan Baca/Hafal</string>
   <string name="reading_progress_chapters_read">bab dibaca</string>
-  <string name="reading_progress_verses_memorized">ayat dihafal</string>
   <string name="reading_progress_active_days">hari aktif</string>
   <string name="reading_progress_overall">%s%% Alkitab dibaca</string>
   <string name="reading_progress_bible_heatmap">Gambaran Keseluruhan Alkitab</string>
@@ -1164,13 +1083,11 @@
   <string name="sync_adapter_summary">Semasa: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Pengesahan kepada %s</string>
   <string name="auth_server_uri">URL pelayan</string>
   <string name="auth_username">Nama pengguna</string>
   <string name="auth_password">Kata laluan</string>
   <string name="auth_folder_path">Laluan folder segerak</string>
   <string name="auth_folder_path_summary">Folder induk untuk data segerak (kosong = akar)</string>
-  <string name="auth_access_token">Token akses</string>
   <string name="synchronization_categories">Kategori penyegerakan</string>
   <string name="sync_general_settings">Maklumat &amp; tetapan umum</string>
   <string name="sync_introduction">Pengenalan</string>
@@ -1186,8 +1103,6 @@
   <string name="report">Lapor</string>
   <string name="sync_error">Ralat berlaku dalam penyegerakan Awan</string>
   <string name="error_notification_channel_name">Pemberitahuan ralat</string>
-  <string name="restore_from_cloud_description">Jika anda telah mengaktifkan Penyegerakan Peranti dalam peranti lain, anda boleh memulakan dengan memulihkan pangkalan data dari Awan.</string>
-  <string name="enable_sync">Aktifkan penyegerakan</string>
   <string name="last_updated">Dikemas kini terakhir: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1208,11 +1123,6 @@
   <string name="processing_epub">Memproses EPUB: %s</string>
   <string name="buy_development">Beli masa pembangunan</string>
   <string name="buy_development2">Sokong projek</string>
-  <string name="new_version_warning">Keluaran baharu akan datang tidak lama lagi. Tarikh keluaran yang dijangka ialah %1$s. Tonton %2$s kami untuk mengetahui ciri baharu dan penambahbaikan.</string>
-  <string name="new_version_trailer">video treler</string>
-  <string name="new_version_warning2">Selepas keluaran, versi ini tidak diselenggara.</string>
-  <string name="new_version_warning3">Ia tidak akan menerima pembaikan pepijat atau kemas kini.</string>
-  <string name="new_version_warning4">Jika anda tidak mahu menaik taraf, sila nyahdayakan \'Kemas Kini Automatik\' dalam kedai aplikasi anda (Google Play / F-Droid dll).</string>
   <string name="dont_show">Jangan tunjukkan mesej ini lagi</string>
   <string name="pref_font_size_multiplier_title">Pendarab saiz fon</string>
   <string name="pref_font_size_multiplier_summary_1">Gandakan saiz fon teks dengan nombor ini.</string>
@@ -1231,7 +1141,6 @@
   <string name="invalid_url_message">URL yang anda masukkan tidak sah. Sila masukkan URL yang sah (cth., https://nextcloud.contoh.com)</string>
   <string name="memorize_description">Hafal ayat Alkitab</string>
   <string name="memorize_abbreviation">Hafal</string>
-  <string name="add_memorization_target">Tetapkan sebagai matlamat hafalan</string>
   <string name="memorize_memorized_passages">Petikan yang dihafal</string>
   <string name="memorize_no_memorized_passages">Belum ada petikan yang dihafal</string>
   <string name="memorize_targets">Matlamat hafalan</string>

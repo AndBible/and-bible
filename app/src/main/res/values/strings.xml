@@ -25,7 +25,6 @@
     <string name="app_name_short">Bible Study</string>
     <string name="app_name_medium">Bible Study (AndBible)</string>
     <string name="app_name_long">AndBible: Bible Study</string>
-    <string name="project">AndBible Open Source Project</string>
 
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and restart application.</string>
@@ -120,24 +119,17 @@
     <string name="notes_content_type_html">Rich text (HTML)</string>
     <string name="notes_content_type_markdown">Markdown</string>
 
-    <string name="prefs_paragraph_spacing_title">Paragraph spacing (%s mm)</string>
-    <string name="prefs_paragraph_spacing_summary">Adjust space between paragraphs.</string>
 
-    <string name="prefs_show_verseno_title1">Verse numbers</string>
 
-    <string name="prefs_show_chapter_no_title">Chapter numbers</string>
-    <string name="prefs_show_chapter_no_summary">Show chapter numbers</string>
 
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
 
     <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
-    <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
     <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
     <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
     <string name="prefs_section_title_summary">Show non-canonical section titles</string>
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
-    <string name="prefs_text_size_title">Font preferences</string>
 
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_show_bookmarks_title">Show bookmarks</string>
@@ -149,7 +141,6 @@
     <string name="prefs_show_footnotes_inline_summary">Show footnotes inline with the text instead of as clickable handles</string>
     <string name="prefs_show_xrefs_summary">Show cross references, if they are available in the document</string>
 
-    <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_strongs_title">Strong\'s numbers</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
     <string name="prefs_non_strongs_word_italic_title">Italicize added words</string>
@@ -304,11 +295,6 @@
     <string name="prefs_noise_title">Background noise</string>
     <string name="prefs_noise_summary">Adding some noise to background might make it more comfortable to eyes. </string>
 
-    <string name="cpv_default_title">Select a Color</string>
-    <string name="cpv_presets">Presets</string>
-    <string name="cpv_custom">Custom</string>
-    <string name="cpv_select">Select</string>
-    <string name="cpv_transparency">Transparency</string>
 
     <!-- Window -->
     <string name="new_window">New window</string>
@@ -326,26 +312,19 @@
     <string name="window_pin_mode">Pin</string>
 
     <!-- Notes screen -->
-    <string name="no_chapter_notes">No notes exist in this chapter</string>
-    <string name="no_verse_notes">No notes exist in this verse</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 
     <!--  Strongs -->
-    <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and build its index via Search</string>
-    <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
-    <string name="go_to_downloads">Go to Downloads</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="redownload">Redownload Documents</string>
-    <string name="download_confirmation">Download a Bible from the Internet?</string>
     <string name="download_source_last_updated">Document lists last updated: %s.</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents from document servers…</string>
     <string name="download_source_message1">Documents are downloaded from the following sources:</string>
     <string name="download_document_confirm_prefix">Download</string>
-    <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred while downloading.  Please check your internet connection.</string>
     <string name="error_downloading_status">The server which hosts %1$s returned an error due to %2$s (%3$d).</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
@@ -395,19 +374,6 @@
     <string name="done">Done</string>
     <string name="reset_plan_question">Are you sure you want to reset this plan?</string>
     <string name="import_reading_plan">Import reading plan…</string>
-    <string name="import_reading_plan_error">Error on import</string>
-    <string name="import_reading_plan_error_duplicate">The following days were duplicate: %s</string>
-    <string name="import_reading_plan_error_days">The following days contained errors: %s</string>
-    <string name="import_reading_plan_anyway">Import anyway</string>
-    <string name="overwrite_reading_plan">Do you want to overwrite %s?</string>
-    <string name="delete_reading_plan">Delete this plan</string>
-    <string name="reading_plan_deleted">The reading plan has been deleted</string>
-    <string name="reading_plan_ships_with_ab">This reading plan ships with %s</string>
-    <string name="confirm_delete_reading_plan">
-        Are you sure you want to delete %s along with it\'s reading history?
-        Hint: if you need to update the plan then you can just import it again with the same filename
-        and the history will be preserved.
-    </string>
     <string name="plan_duplicate_user_plan">
         There is a user reading plan in sdcard
         jsword/readingplan with the same name as an internal plan. It can not be listed here.
@@ -459,7 +425,6 @@
     <string name="notes">Footnotes and references</string>
     <string name="share_verse">Share…</string>
     <string name="share_verse_widget_title">Share selection</string>
-    <string name="share_verse_subject_2">A Bible verse has been shared with you using %s.</string>
     <string name="compare_translations">Compare translations</string>
 
     <!-- Link context menu -->
@@ -471,33 +436,27 @@
     <string name="bookmarks_and_mynotes_title">Bookmarks &amp; My Notes</string>
     <string name="migrated_my_notes">Migrated My Notes</string>
     <string name="bookmarks">Bookmarks</string>
-    <string name="bookmark_added">Bookmark added</string>
     <!-- Bookmark / note labels -->
     <string name="labels">Labels</string>
     <string name="manage_labels">Manage Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_item">New</string>
-    <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="add_bookmark1">Bookmark</string>
-    <string name="add_bookmark2">Bookmark Selection</string>
     <string name="add_bookmark3">Selection</string>
     <string name="add_bookmark_whole_verse">Bookmark Verse</string>
     <string name="add_bookmark_whole_verse1">Verses</string>
-    <string name="add_bookmark_whole_verse2">Full verses</string>
     <string name="add_whole_page_bookmark">Add bookmark for whole page</string>
     <string name="add_paragraph_break">Paragraph break</string>
     <string name="ai_label">AI</string>
-    <string name="remove_bookmark">Remove</string>
     <string name="bookmark_settings_hide_labels_title">Hide specified labels</string>
     <string name="bookmark_settings_hide_labels_summary">Hide bookmarks that are marked with specified label(s)</string>
     <string name="auto_assign_labels_title">Label settings</string>
     <string name="auto_assign_labels">Auto-assign &amp; Favourite labels</string>
     <string name="auto_assign_labels1">Auto-assign label to new bookmarks</string>
     <string name="auto_assign_labels_primary">Auto-assign as primary</string>
-    <string name="label_color">Label color</string>  <!-- can be removed -->
-    <string name="label_color_example">Example</string>
+  <!-- can be removed -->
     <string name="marker_style">Show only marker for selection bookmarks</string>
     <string name="marker_style_whole_verse">Show only marker for whole verse bookmarks</string>
     <string name="hide_style">Hide for selection bookmarks</string>
@@ -528,11 +487,9 @@
     <!-- Speak - Bible -->
     <string name="one_chapter">%d chapter</string>
     <string name="some_chapters">%d chapters</string>
-    <string name="rest_of_book">To end of book</string>
     <!-- Speak - Commentary -->
     <string name="one_verse">%d verse</string>
     <string name="some_verses">%d verses</string>
-    <string name="rest_of_chapter">To end of chapter</string>
     <!-- Speak - Dictionary and other -->
     <string name="one_page">%d page</string>
     <string name="some_pages">%d pages</string>
@@ -542,8 +499,6 @@
     <string name="rewind">Rewind</string>
     <string name="forward">Forward</string>
     <string name="tts_lang_not_available">Language is not available.</string>
-    <string name="speak_queue">Queue</string>
-    <string name="speak_repeat">Repeat</string>
 
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>
@@ -616,14 +571,12 @@
     <!-- Parameter is actual icon -->
     <string name="window_text_options_help1">%s icon indicates that the setting comes from the workspace settings.</string>
     <!-- Parameter is actual icon -->
-    <string name="window_text_options_help2">%s icon indicates that this setting has been changed for this specific window.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
     <string name="text_options_reset_help">Use %1$s button to reset all these settings back to %2$s.</string>
     <string name="reset_defaults">default values</string>
     <string name="reset_workspace_defaults">workspace default values</string>
 
-    <string name="speak_bookmark_help">Speak bookmark help</string>
 
     <string name="speak_help_auto_bookmark">
         A Speak bookmark will be automatically added when Speak is paused or stopped.
@@ -694,7 +647,6 @@
     <string name="backup_phone_storage">Phone storage</string>
     <string name="backup_and_restore">Backup &amp; Restore</string>
     <string name="backup_modules2">Backup Documents to…</string>
-    <string name="backup_app_database2">Backup app database to…</string>
     <string name="backup_app2">Backup app (.apk file) to …</string>
     <string name="backup_application">Application</string>
     <string name="backup_database">Database</string>
@@ -711,12 +663,9 @@
     <string name="overwrite_something">Overwrite %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-    <string name="restore_what">What do you want to restore?</string>
 
-    <string name="restore_app_database">Restore app database from…</string>
     <string name="restore_database">Restore Database File</string>
     <string name="restore_confirmation">Overwrite My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces?</string>
-    <string name="restore_success2">Selected database sections restored successfully</string>
     <string name="restore_success">My Notes, Bookmarks, Study Pads, Reading Plans and Workspaces restored successfully</string>
     <string name="downloading_backup">Downloading backup file…</string>
     <string name="loading_backup">Loading database from backup…</string>
@@ -732,14 +681,12 @@
     <string name="exported_studypads_subject">Exported StudyPad(s)</string>
     <string name="exported_studypads_message">Your %s database containing Bookmarks and Notes related to selected StudyPads is attached</string>
     <string name="restore_unsuccessfull">Restoring database was unsuccessful. Perhaps you gave invalid database file.</string>
-    <string name="restore_modules">Restore Documents from…</string>
     <string name="send_backup_file">Send a backup file</string>
     <string name="backup_modules_title">Select which modules to backup</string>
     <string name="install_zip_canceled">Module install cancelled</string>
     <string name="ask_restore_or_import">Database for %s can be either restored (i.e. existing database is removed and selected database is loaded) or imported (selected database is imported into existing database). What do you want to do?</string>
     <string name="restore">Restore</string>
     <string name="import2">Import</string>
-    <string name="export_studypads_help">File containing exported StudyPads (i.e Labels and Bookmarks) can be imported via Main Menu -> Backup &amp; Restore.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
     <string name="bookmarks_db_stats">\"%1$s\" and %2$s other Label(s) / StudyPad/(s) and %3$s Bookmarks</string>
@@ -753,8 +700,6 @@
     <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-    <string name="send_bug_report_title1">Bug report</string>
-    <string name="send_feedback_title">Feedback</string>
     <string name="send_bug_report_title">Feedback / bug report</string>
     <string name="report_bug_email_subject_3">[%1$s] Bug report for %2$s %3$s</string>
 
@@ -794,10 +739,8 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="error">Error</string>
-    <string name="delete_generic">Delete</string>
     <string name="please_wait">Please wait…</string>
     <string name="all">All</string>
-    <string name="edit">Edit</string>
     <string name="reset_generic">Reset</string>
     <string name="watch_tutorial_video">Watch tutorial video (English)</string>
     <string name="verse_not_found">Verse not found</string>
@@ -821,7 +764,6 @@
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
 
     <!-- Workspaces -->
-    <string name="new_workspace">New</string>
     <string name="switch_to_workspace">Workspaces</string>
     <string name="delete_workspace">Remove</string>
     <string name="new_copied_workspace">Copy as new</string>
@@ -844,7 +786,6 @@
 
     <!-- Beta notice -->
     <string name="beta_notice_title">This is beta version!</string>
-    <string name="beta_flag">BETA</string>
     <string name="beta_notice_content_1">
         In beta version, there are new features that are not yet properly tested,
         and thus using beta might introduce unexpected behavior, i.e. bugs.
@@ -939,7 +880,6 @@
         backup.
     </string>
     <!-- Supported file formats for documents -->
-    <string name="supported_formats_title">Supported formats</string>
     <!-- argument is app_name_andbible (AndBible). -->
     <string name="choose_file">You have to choose the file that you want to load to %s. </string>
     <string name="supported_formats">Supported formats for loading documents from a file: %s</string>
@@ -965,7 +905,6 @@
     <string name="strongs_mode_title">Choose strongs mode</string>
 
     <string name="download_dialog_message">The following books could not be downloaded:</string>
-    <string name="select_multiple">Select multiple</string>
     <string name="journal_description">User-editable study pads with custom text and bookmarks</string>
     <string name="my_notes_description">User-editable notes attached to bookmarks</string>
     <string name="my_notes_abbreviation">My Notes</string>
@@ -980,7 +919,6 @@
     <string name="http_not_found">Not found</string>
     <string name="http_unknown">Other error</string>
     <string name="give_passphrase_for_module">Document %s is encrypted and needs passphrase to be unlocked</string>
-    <string name="unlocking_failed">Unlocking failed, invalid passphrase</string>
     <string name="unlock_module">Set module passphrase</string>
     <string name="unlock_info">Encrypted module unlock info</string>
     <string name="try_again_passphrase">Passphrase did not work, try again?</string>
@@ -1051,8 +989,6 @@
     <string name="separate_verses_with_newlines">Separate verses with newlines</string>
 
     <string name="backup_button">Backup &amp; Restore</string>
-    <string name="back_button">Back</string>
-    <string name="upgrading_database">Upgrading database. Please wait…</string>
     <string name="initializing_app">Initializing application…</string>
     <string name="show_notes">Show notes</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1098,7 +1034,6 @@
     <string name="text_maintainers">
        please report issues to text maintainers
     </string>
-    <string name="does_not_exist_abbreviation">Does Not Exist</string>
     <string name="cant_change_wholeverse">Can\'t turn off whole verse marking for this bookmark</string>
     <string name="whole_verse_turned_on">Bookmark is now marked for whole verse</string>
     <string name="this_bookmark">This bookmark</string>
@@ -1111,7 +1046,6 @@
     <string name="display_mode_hidden">Hidden</string>
     <string name="workspace_override_indicator">This label has workspace-specific display mode</string>
     <string name="primary_label">Primary label</string>
-    <string name="highlight_entire_verse">Highlight entire verse</string>
     <string name="favourite_label">Favourite label</string>
     <string name="edit_label">Edit label</string>
     <string name="delete_label_confirmation">Do you want to remove bookmark label "%s"? Also all associated Study Pad notes will be removed.</string>
@@ -1129,7 +1063,6 @@
     <string name="reorder">Re-order</string>
     <string name="system_items">System actions</string>
     <string name="system_items1">More</string>
-    <string name="system_action2">Android actions</string>
     <string name="text_copied_to_clicpboard">Text copied to clipboard</string>
     <string name="prefs_disable_two_step_bookmarking_title">One-step bookmarking</string>
     <string name="prefs_disable_two_step_bookmarking_summary">Show \"Selection\" and \"Verses\" items directly in Bible view Selection menu</string>
@@ -1143,7 +1076,6 @@
     <string name="label_blue">Blue</string>
     <string name="label_salvation">Salvation</string>
     <string name="label_underline">Underline</string>
-    <string name="import_menu">Import &amp; Export</string>
     <string name="auto_backups_title">Auto-Backups</string>
     <string name="backup_file_info">App v%1$d, %2$s</string>
     <string name="reset_databases_title">Reset Databases</string>
@@ -1167,12 +1099,10 @@
     <string name="prompts_csv_export_failed">CSV export failed: %s</string>
     <string name="no_prompts_to_export">No user prompts to export</string>
     <string name="csv_column_selection_title">Select CSV Columns</string>
-    <string name="choose_csv_file">Choose CSV file to import</string>
     <string name="no_bookmarks_to_export">No bookmarks available to export</string>
     <string name="export_fileformat">Export as %s</string>
     <string name="export_something">Export %s</string>
     <string name="import_items">Import %s</string>
-    <string name="import_from_db">Import from App Database file</string>
     <string name="import_error">Importing from App Database failed. Database file could be wrong format or made with too old version of %s.</string>
 
     <string name="export_bookmarks_csv">Export Bookmarks as %s</string>
@@ -1201,23 +1131,13 @@
     <string name="last_updated_at">Last updated at</string>
     <string name="bookmark_notes">Bookmark notes</string>
 
-    <string name="chooser_range">Range</string>
-    <string name="chooser_jump">Jump</string>
-    <string name="chooser_OT_abbrev">OT</string>
-    <string name="chooser_NT_abbrev">NT</string>
-    <string name="chooser_style_grid">Grid</string>
-    <string name="chooser_style_lists">Lists</string>
-    <string name="chooser_select">Select %s</string>
-    <string name="chooser_pref_reset">Do not reset chapter/verse to 1 when book/chapter is selected</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
     <string name="incomplete_translation">We are sorry, but we have only partial user interface translation in %1$s language. That is because %2$s is entirely developed by volunteers. If you can help in translating, please see %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
     <string name="instructions_for_translators">instructions for translators</string>
     <string name="questions_title">Questions?</string>
-    <string name="questions_title2">Need help?</string>
     <string name="bookmark_style">Bookmark style</string>
     <string name="added_to_bookmark">Assigned to this bookmark</string>
-    <string name="strongs_off">Off</string>
     <string name="strongs_links">Links</string>
     <string name="strongs_text_and_links">Text and Links</string>
     <string name="strongs_hidden_links">Hidden Links</string>
@@ -1271,7 +1191,6 @@
     </string>
 
     <!-- Window synchronize groups -->
-    <string name="sync_group_submenu">Synchronize group</string>
     <string name="sync_group_n">Group %d</string>
     <string name="disable_sync">Disable synchronize</string>
     <string name="open_in_window">Open results in a window</string>
@@ -1282,10 +1201,8 @@
     <string name="custom_repositories_empty_list_message">No custom repositories are defined</string>
     <string name="custom_repositories_create_button_label">Add Custom Repository</string>
     <string name="custom_repositories_info_button_label">Information</string>
-    <string name="name_for_repository">Name for the repository</string>
     <string name="repository_specification">Repository URL</string>
     <string name="delete_custom_repository">Do you want to remove custom repository %s?</string>
-    <string name="invalid_repository_not_saved">Repository specification was invalid and it was not saved.</string>
     <string name="custom_repositories_help1">To add a new custom repository, type or copy &amp; paste custom repository URL here.</string>
     <string name="custom_repositories_help2">You can read more information about custom repositories in %s.</string>
     <string name="wiki_page">WIKI page</string>
@@ -1328,7 +1245,6 @@
     <!-- Reading Progress Activity -->
     <string name="reading_progress_title">Read/Memory Progress</string>
     <string name="reading_progress_chapters_read">chapters read</string>
-    <string name="reading_progress_verses_memorized">verses memorized</string>
     <string name="reading_progress_active_days">active days</string>
     <string name="reading_progress_overall">%s%% of Bible read</string>
     <string name="reading_progress_bible_heatmap">Bible Overview</string>
@@ -1354,13 +1270,11 @@
     <string name="sync_adapter_summary">Current: %s</string>
     <string name="adapters_google_drive">Google Drive</string>
     <string name="adapters_next_cloud">Next Cloud</string>
-    <string name="auth_title">Authentication to %s</string>
     <string name="auth_server_uri">Server URL</string>
     <string name="auth_username">User name</string>
     <string name="auth_password">Password</string>
     <string name="auth_folder_path">Sync folder path</string>
     <string name="auth_folder_path_summary">Parent folder for sync data (empty = root)</string>
-    <string name="auth_access_token">Access token</string>
     <string name="synchronization_categories">Synchronization categories</string>
     <string name="sync_general_settings">Info &amp; general settings</string>
     <string name="sync_introduction">Introduction</string>
@@ -1376,8 +1290,6 @@
     <string name="report">Report</string>
     <string name="sync_error">Error occurred in Cloud synchronization</string>
     <string name="error_notification_channel_name">Error notifications</string>
-    <string name="restore_from_cloud_description">If you have Device Synchronization enabled in another device, you can start by restoring database from Cloud.</string>
-    <string name="enable_sync">Enable synchronization</string>
     <string name="last_updated">Last updated: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1398,20 +1310,6 @@
     <string name="processing_epub">Processing EPUB: %s</string>
     <string name="buy_development">Buy development work</string>
     <string name="buy_development2">Support project</string>
-    <string name="new_version_warning">
-        A new release is coming soon. The anticipated release date is %1$s. Watch our
-        %2$s to discover new features and improvements.
-    </string>
-    <string name="new_version_trailer">trailer video</string>
-    <string name="new_version_warning2">
-        After release, this version is not maintained.
-    </string>
-    <string name="new_version_warning3">
-        It will not receive bug fixes or updates.
-    </string>
-    <string name="new_version_warning4">
-        If you don\'t want to upgrade, please disable \'Automatic Updates\' in your app store (Google Play / F-Droid etc).
-    </string>
     <string name="dont_show">
         Don\'t show this message again
     </string>
@@ -1432,7 +1330,6 @@
     <string name="invalid_url_message">The URL you entered is invalid. Please enter a valid URL (e.g., https://nextcloud.example.com)</string>
     <string name="memorize_description">Memorize Bible verses</string>
     <string name="memorize_abbreviation">Memorize</string>
-    <string name="add_memorization_target">Set as memorization goal</string>
     <string name="memorize_memorized_passages">Memorized passages</string>
     <string name="memorize_no_memorized_passages">No memorized passages yet</string>
     <string name="memorize_targets">Memorization goals</string>

@@ -5,7 +5,6 @@
   <string name="app_name_short">دراسة الكتاب المقدس</string>
   <string name="app_name_medium">دراسة الكتاب المقدس (AndBible)</string>
   <string name="app_name_long">دراسة الكتاب المقدس :AndBible</string>
-  <string name="project">مشروع AndBible مفتوح المصدر</string>
 
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة وإعادة تشغيل التطبيق.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">نص منسق (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">تباعد الفقرات (%s مم)</string>
-  <string name="prefs_paragraph_spacing_summary">تعديل المسافة بين الاجزاء</string>
 
-  <string name="prefs_show_verseno_title1">رقم الآية</string>
 
-  <string name="prefs_show_chapter_no_title">رقم السفر</string>
-  <string name="prefs_show_chapter_no_summary">اظهر رقم السفر</string>
 
   <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
   <string name="prefs_show_bookmarks_summary">الغي التحديد لاخفاء كل علامات التبويب</string>
 
   <string name="prefs_show_mynotes_summary">إظهار علامة ملاحظاتي في الآيات </string>
-  <string name="prefs_show_notes_summary">اظهر التذييل و المراجع </string>
   <string name="prefs_show_strongs_summary">روابط وصل للتعريفات اليونانية و العبرية</string>
   <string name="prefs_show_morphology_summary">أظهر رموز روبنسون اليونانية</string>
   <string name="prefs_section_title_summary">أظهر عناوين المقاطع الغير قانونية</string>
   <string name="prefs_red_letter_summary">اظهار كلةم السيد المسيح بخط احمر</string>
-  <string name="prefs_text_size_title">تفضيلات الخط</string>
 
   <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
   <string name="prefs_show_bookmarks_title">اظهار علامات التبويب</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">عرض الحواشي مضمّنة مع النص بدلاً من عرضها كمقابض قابلة للنقر</string>
   <string name="prefs_show_xrefs_summary">إظهار المراجع التبادلية، إذا كانت متوفرة في المستند</string>
 
-  <string name="prefs_show_notes_title">التذييل و x-ref</string>
   <string name="prefs_show_strongs_title">أعداد سترونج</string>
   <string name="prefs_show_morphology_title">رموز التشكيل (المورفولوجية)</string>
   <string name="prefs_non_strongs_word_italic_title">إمالة الكلمات المضافة</string>
@@ -283,11 +274,6 @@
   <string name="prefs_noise_title">تشويش الخلفية</string>
   <string name="prefs_noise_summary">قد تؤدي إضافة بعض التشويش إلى الخلفية إلى جعلها أكثر راحة للعيون.</string>
 
-  <string name="cpv_default_title">تحديد لون</string>
-  <string name="cpv_presets">المسبقة</string>
-  <string name="cpv_custom">مخصص</string>
-  <string name="cpv_select">تحديد</string>
-  <string name="cpv_transparency">الشفافية</string>
 
     <!-- Window -->
   <string name="new_window">نافذة جديدة</string>
@@ -305,26 +291,19 @@
   <string name="window_pin_mode">تثبيت</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">لا يوجد ملاحظات في الاصحاح</string>
-  <string name="no_verse_notes">لا يوجد ملاحظات للآية</string>
   <string name="previous">السابق</string>
   <string name="next">التالي</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">تحميل معجم القوة للغة العبرية و اليونانية</string>
   <string name="no_indexed_bible_with_strongs_ref">يجب عليك تنزيل كتاب مقدس يحتوي على أرقام Strong وإنشاء فهرس لها عبر البحث</string>
-  <string name="morph_robinson_not_installed">برجاء تحميل فهرس روبنسون التحليلي.</string>
-  <string name="go_to_downloads">الانتقال إلى التنزيلات</string>
 
     <!-- Module download -->
   <string name="download">تحميل المستندات</string>
   <string name="redownload">إعادة تنزيل المستندات</string>
-  <string name="download_confirmation">تنزيل كتاب مقدس من الإنترنت؟</string>
   <string name="download_source_last_updated">آخر تحديث لقوائم المستندات: %s.</string>
   <string name="download_refreshing_book_list">جارٍ تحديث قائمة المستندات المتاحة من خوادم المستندات...</string>
   <string name="download_source_message1">تنزيل المستندات من المصادر التالية:</string>
   <string name="download_document_confirm_prefix">تحميل</string>
-  <string name="download_refresh_book_list_menu_item">اعادة تحديث (refresh)</string>
   <string name="error_downloading">حدث خطأ أثناء التنزيل. الرجاء التحقق من اتصال الانترنت الخاص بك.</string>
   <string name="error_downloading_status">الخادم الذي يستضيف %1$s أعاد خطأ بسبب %2$s (%3$d).</string>
   <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
@@ -373,19 +352,6 @@
   <string name="done">تم</string>
   <string name="reset_plan_question">هل أنت متأكد أنك تريد إعادة تعيين هذه الخطة؟</string>
   <string name="import_reading_plan">استيراد خطة قراءة…</string>
-  <string name="import_reading_plan_error">خطأ في الاستيراد</string>
-  <string name="import_reading_plan_error_duplicate">الأيام التالية مكررة: %s</string>
-  <string name="import_reading_plan_error_days">الأيام التالية احتوت على أخطاء: %s</string>
-  <string name="import_reading_plan_anyway">استيراد على أي حال</string>
-  <string name="overwrite_reading_plan">هل تريد الكتابة فوق %s؟</string>
-  <string name="delete_reading_plan">حذف هذه الخطة</string>
-  <string name="reading_plan_deleted">تم حذف خطة القراءة</string>
-  <string name="reading_plan_ships_with_ab">تأتي خطة القراءة هذه مع %s</string>
-  <string name="confirm_delete_reading_plan">
-        هل انت متأكد انك تريد حذف %s بالإضافة لسجل قراءتها ؟
-        تلميح: إن اردت تعديل الخطة فيمكنك إعادة استيرادها فحسب مع نفس اسم الملف
-        والسجل سيتم سيتم حفظه
-    </string>
   <string name="plan_duplicate_user_plan">
        يوجد خطة قراءة للمستخدم على كرت الذاكرة
        jsword/readingplan مع نفس الاسم الخاص بالخطة المضمنة. لا يمكن اظهارها هنا.
@@ -426,7 +392,6 @@
   <string name="notes">التذييل و المراجع</string>
   <string name="share_verse">مشاركة...</string>
   <string name="share_verse_widget_title">مشاركة التحديد</string>
-  <string name="share_verse_subject_2">تم مشاركتك بآية من الكتاب المقدس باستخدام %s.</string>
   <string name="compare_translations">مقارنة الترجمات</string>
 
     <!-- Link context menu -->
@@ -438,33 +403,26 @@
   <string name="bookmarks_and_mynotes_title">الإشارات المرجعية وملاحظاتي</string>
   <string name="migrated_my_notes">ترحيل ملاحظاتي</string>
   <string name="bookmarks">إشارات مرجعية</string>
-  <string name="bookmark_added">تم أضافة أشارة مرجعية</string>
     <!-- Bookmark / note labels -->
   <string name="labels">تسميات</string>
   <string name="manage_labels">إدارة الملصقات</string>
   <string name="assign_labels">تعيين التسميات</string>
   <string name="new_item">جديد</string>
-  <string name="new_label">تسمية جديدة</string>
   <string name="label_name_prompt">اسم</string>
   <string name="label_unlabelled">غير مسمى</string>
   <string name="add_bookmark1">إشارة مرجعية</string>
-  <string name="add_bookmark2">تحديد الإشارة المرجعية</string>
   <string name="add_bookmark3">تحديد</string>
   <string name="add_bookmark_whole_verse">إشارة مرجعية للآية</string>
   <string name="add_bookmark_whole_verse1">آيات</string>
-  <string name="add_bookmark_whole_verse2">آيات كاملة</string>
   <string name="add_whole_page_bookmark">إضافة إشارة مرجعية للصفحة كاملة</string>
   <string name="add_paragraph_break">فاصل فقرة</string>
   <string name="ai_label">الذكاء الاصطناعي</string>
-  <string name="remove_bookmark">إزالة</string>
   <string name="bookmark_settings_hide_labels_title">إخفاء ملصقات محددة</string>
   <string name="bookmark_settings_hide_labels_summary">إخفاء الإشارات المرجعية التي تم تمييزها بعلامة ملصق(ملصقات) محددة</string>
   <string name="auto_assign_labels_title">إعدادات الملصقات</string>
   <string name="auto_assign_labels">التعيين التلقائي و الملصقات المفضلة</string>
   <string name="auto_assign_labels1">عيّن ملصق تلقائياً لعلامة مرجعية جديدة</string>
   <string name="auto_assign_labels_primary">التعيين التلقائي كأساسي</string>
-  <string name="label_color">لون الملصق</string>
-  <string name="label_color_example">مثال</string>
   <string name="marker_style">إظهار العلامة فقط للإشارات المرجعية للتحديد</string>
   <string name="marker_style_whole_verse">إظهار العلامة فقط للإشارات المرجعية للآية كاملة</string>
   <string name="hide_style">إخفاء للإشارات المرجعية للتحديد</string>
@@ -495,11 +453,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d إصحاح</string>
   <string name="some_chapters">%d إصحاحات</string>
-  <string name="rest_of_book">إلى نهاية السفر</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d آية</string>
   <string name="some_verses">%d آيات</string>
-  <string name="rest_of_chapter">إلى نهاية الإصحاح</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d صفحة</string>
   <string name="some_pages">%d صفحات</string>
@@ -509,8 +465,6 @@
   <string name="rewind">إعادة</string>
   <string name="forward">تقديم للأمام</string>
   <string name="tts_lang_not_available">اللغة غير متاحة</string>
-  <string name="speak_queue">بانتظام</string>
-  <string name="speak_repeat">تكرار</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">سرعة التحدث</string>
@@ -583,14 +537,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s رمز يشير إلى أن الإعداد آتٍ من إعدادات مساخة العمل.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s رمز يشير إلى أن الإعداد قد تم تغييره من أجل هذه النافذة.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">استخدم زر %1$s لإعادة تعيين كل هذه الإعدادات مجدداً إلى %2$s.</string>
   <string name="reset_defaults">القيم الافتراضية</string>
   <string name="reset_workspace_defaults">القيم الافتراضية لمساحة العمل</string>
 
-  <string name="speak_bookmark_help">نطق تعليمات الإشارة المرجعية</string>
 
   <string name="speak_help_auto_bookmark">
 ستتم إضافة إشارة \"النطق\" تلقائيًا عند إيقاف \"التحدث\" مؤقتًا أو إيقافه.
@@ -641,7 +593,6 @@
   <string name="backup_phone_storage">ذاكرة الهاتف</string>
   <string name="backup_and_restore">النسخ الاحتياطي و الاستعادة</string>
   <string name="backup_modules2">نسخ المستندات احتياطياً إلى...</string>
-  <string name="backup_app_database2">نسخ احتياطي لقاعدة بيانات التطبيق إلى...</string>
   <string name="backup_app2">قم بنسخ احتياطي للتطبيق (ملف .apk) إلى...</string>
   <string name="backup_application">تطبيق</string>
   <string name="backup_database">قاعدة البيانات</string>
@@ -658,12 +609,9 @@
   <string name="overwrite_something">الكتابة فوق %s؟</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">ماذا تريد أن تستعيد؟</string>
 
-  <string name="restore_app_database">استعادة قاعدة بيانات التطبيق من...</string>
   <string name="restore_database">استعادة ملف قاعدة البيانات</string>
   <string name="restore_confirmation">الكتابة فوق ملاحظاتي، والإشارات المرجعية، واللوحات الدراسية، وخطط القراءة ومساحات العمل؟</string>
-  <string name="restore_success2">أجزاء قواعد البيانات المحددة تم استعادتها بنجاح</string>
   <string name="restore_success">تمت استعادة ملاحظاتي والإشارات المرجعية واللوحات الدراسية وخطط القراءة ومساحات العمل الخاصة بي بنجاح</string>
   <string name="downloading_backup">تحميل ملف النسخة الاحتياطية...</string>
   <string name="loading_backup">تحميل قاعدة البيانات من النسخة الاحتياطية...</string>
@@ -679,14 +627,12 @@
   <string name="exported_studypads_subject">لوحات الدراسة المُصدَّرة</string>
   <string name="exported_studypads_message">قاعدة البيانات %s المحتوية على الإشارات المرجعية والملاحظات المتعلقة بلوحات الدراسة المحددة مرفقة</string>
   <string name="restore_unsuccessfull">استعادة قاعدة البيانات فشل. ربما أدخلت ملف قاعدة بيانات غير صالح.</string>
-  <string name="restore_modules">استعادة المستندات من...</string>
   <string name="send_backup_file">إرسال ملف النسخة الاحتياطية</string>
   <string name="backup_modules_title">حدد الوحدات لنسخها احتياطياً.</string>
   <string name="install_zip_canceled">تثبيت الوحدة تم إلغائه.</string>
   <string name="ask_restore_or_import">يمكن استعادة قاعدة بيانات %s (أي إزالة قاعدة البيانات الحالية وتحميل القاعدة المحددة) أو استيرادها (استيراد قاعدة البيانات المحددة في قاعدة البيانات الحالية). ماذا تريد أن تفعل؟</string>
   <string name="restore">إستعادة</string>
   <string name="import2">استيراد</string>
-  <string name="export_studypads_help">يمكن استيراد الملف المحتوي على لوحات الدراسة المُصدَّرة (أي التسميات والإشارات المرجعية) عبر القائمة الرئيسية -&gt; النسخ الاحتياطي والاستعادة.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" و%2$s تسمية/لوحة دراسة أخرى و%3$s إشارة مرجعية</string>
@@ -700,8 +646,6 @@
   <string name="module_about_osisId">معرّف OSIS: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">تقرير الأخطاء</string>
-  <string name="send_feedback_title">تعليق</string>
   <string name="send_bug_report_title">تقرير التعليقات / الأخطاء</string>
   <string name="report_bug_email_subject_3">[%1$s] تقرير خطأ لـ %2$s %3$s</string>
 
@@ -741,10 +685,8 @@
   <string name="yes">نعم</string>
   <string name="no">لا</string>
   <string name="error">خطأ</string>
-  <string name="delete_generic">الغاء (حذف)</string>
   <string name="please_wait">برجاء الانتظار...</string>
   <string name="all">الكل</string>
-  <string name="edit">تحرير</string>
   <string name="reset_generic">اعادة تهيئة</string>
   <string name="watch_tutorial_video">شاهد فيديو تعليمي (بالإنجليزية)</string>
   <string name="verse_not_found">الآية غير موجودة</string>
@@ -768,7 +710,6 @@
   <string name="notification_channel_progress_status">إشعار حالة التقدم لتنزيل المستندات وما إلى ذلك.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">جديد</string>
   <string name="switch_to_workspace">مساحات العمل</string>
   <string name="delete_workspace">إزالة</string>
   <string name="new_copied_workspace">نسخ كجديد</string>
@@ -791,7 +732,6 @@
 
     <!-- Beta notice -->
   <string name="beta_notice_title">هذه نسخة تجريبية!</string>
-  <string name="beta_flag">تجريبي</string>
   <string name="beta_notice_content_1">
         في النسخة التجريبية، يوجد ميّزات لم يتم اختبارها جيداً بعد.
         و بالتالي استخدام النسخة التجريبية قد يقدم سلوك غير متوقع، كالاخطاء مثلاً.
@@ -848,7 +788,6 @@
   <string name="redownload_documents">إعادة تنزيل سريعة</string>
   <string name="welcome_message">شكراً لتنزيل %s. لا توجد حالياً أي أسفار أو مستندات مثبّتة. للمتابعة، يرجى تثبيت مستند واحد على الأقل عن طريق التنزيل من الإنترنت، أو التحميل من ملف نسخة احتياطية مضغوط.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">الصيغ المدعومة</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">عليك أن تختار الملف الذي تريد تحميله إلى %s. </string>
   <string name="supported_formats">الأنواع المدعومة لتحميل المستندات من الملف: %s</string>
@@ -874,7 +813,6 @@
   <string name="strongs_mode_title">اختر وضع strongs</string>
 
   <string name="download_dialog_message">تعذر تحميل الملفات للتالية:</string>
-  <string name="select_multiple">تحديد متعدد</string>
   <string name="journal_description">لوحات دراسية قابلة للتعديل من قبل المستخدم مع نصوص مخصصة وعلامات مرجعية</string>
   <string name="my_notes_description">ملاحظات قابلة للتحرير من قبل المستخدم مرفقة مع الإشارات المرجعية </string>
   <string name="my_notes_abbreviation">ملاحظاتي</string>
@@ -889,7 +827,6 @@
   <string name="http_not_found">غير موجود</string>
   <string name="http_unknown">خطأ آخر</string>
   <string name="give_passphrase_for_module">المستند %s مشفر و يحتاج لكلمة مرور ليتم فتحه</string>
-  <string name="unlocking_failed">فشل إلغاء القفل ، عبارة مرور غير صالحة</string>
   <string name="unlock_module">حدد كلمة مرور للوحدة</string>
   <string name="unlock_info">معلومات فتح الوحدة المشفرة</string>
   <string name="try_again_passphrase">كلمة المرور لم تعمل، جرب مجدداً؟</string>
@@ -960,8 +897,6 @@
   <string name="separate_verses_with_newlines">فصل الآيات بأسطر جديدة</string>
 
   <string name="backup_button">عمل نسخة احتياطية للرجوع</string>
-  <string name="back_button">رجوع</string>
-  <string name="upgrading_database">ترقية قاعدة البيانات. برجاء الانتظار…</string>
   <string name="initializing_app">جارٍ تهيئة التطبيق...</string>
   <string name="show_notes">عرض الملاحظات</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1004,7 +939,6 @@
     </string>
   <string name="text_maintainers">
 الرجاء الإبلاغ عن المشكلات إلى المشرفين على النص</string>
-  <string name="does_not_exist_abbreviation">غير موجود</string>
   <string name="cant_change_wholeverse">لا يمكن إيقاف تمييز الآية كاملة لهذه الإشارة المرجعية</string>
   <string name="whole_verse_turned_on">تم وضع علامة مرجعية الآن على الآية بأكملها</string>
   <string name="this_bookmark">هذه الإشارة المرجعية</string>
@@ -1017,7 +951,6 @@
   <string name="display_mode_hidden">مخفي</string>
   <string name="workspace_override_indicator">هذه التسمية لها وضع عرض خاص بمساحة العمل</string>
   <string name="primary_label">ملصق أساسي</string>
-  <string name="highlight_entire_verse">تمييز الآية بأكملها</string>
   <string name="favourite_label">ملصق مفضل</string>
   <string name="edit_label">تحرير ملصق</string>
   <string name="delete_label_confirmation">هل تريد إزالة تسمية الإشارة المرجعية "%s"؟ ستُزال أيضاً جميع ملاحظات لوحة الدراسة المرتبطة بها.</string>
@@ -1035,7 +968,6 @@
   <string name="reorder">إعادة ترتيب</string>
   <string name="system_items">إجراءات النظام</string>
   <string name="system_items1">المزيد</string>
-  <string name="system_action2">إجراءات اندرويد</string>
   <string name="text_copied_to_clicpboard">تم نسخ النص إلى الحافظة</string>
   <string name="prefs_disable_two_step_bookmarking_title">الإشارة المرجعية بخطوة واحدة</string>
   <string name="prefs_disable_two_step_bookmarking_summary">إظهار عناصر "التحديد" و"الآيات" مباشرةً في قائمة التحديد بمشهد الكتاب المقدس</string>
@@ -1049,7 +981,6 @@
   <string name="label_blue">أزرق</string>
   <string name="label_salvation">الخلاص</string>
   <string name="label_underline">ضع خطاً تحت</string>
-  <string name="import_menu">استيراد وتصدير</string>
   <string name="auto_backups_title">النسخ الاحتياطي التلقائي</string>
   <string name="backup_file_info">التطبيق الإصدار %1$d، %2$s</string>
   <string name="reset_databases_title">إعادة تعيين قواعد البيانات</string>
@@ -1073,12 +1004,10 @@
   <string name="prompts_csv_export_failed">فشل تصدير CSV: %s</string>
   <string name="no_prompts_to_export">لا توجد موجّهات مستخدم للتصدير</string>
   <string name="csv_column_selection_title">اختر أعمدة CSV</string>
-  <string name="choose_csv_file">اختر ملف CSV للاستيراد</string>
   <string name="no_bookmarks_to_export">لا توجد إشارات مرجعية للتصدير</string>
   <string name="export_fileformat">تصدير بتنسيق %s</string>
   <string name="export_something">تصدير %s</string>
   <string name="import_items">استيراد %s</string>
-  <string name="import_from_db">استيراد من ملف قاعدة بيانات تطبيق</string>
   <string name="import_error">فشل الاستيراد من قاعدة بيانات التطبيق. قد يكون ملف قاعدة البيانات بتنسيق خاطئ أو تم إنشاؤه بإصدار قديم جداً من %s.</string>
 
   <string name="export_bookmarks_csv">تصدير الإشارات المرجعية بتنسيق %s</string>
@@ -1107,23 +1036,13 @@
   <string name="last_updated_at">آخر تحديث</string>
   <string name="bookmark_notes">ملاحظات الإشارة المرجعية</string>
 
-  <string name="chooser_range">النطاق</string>
-  <string name="chooser_jump">قفز</string>
-  <string name="chooser_OT_abbrev">OT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">شبكة</string>
-  <string name="chooser_style_lists">القوائم</string>
-  <string name="chooser_select">تحديد %s</string>
-  <string name="chooser_pref_reset">لا تعيد ضبط الإصحاح / الآية إلى 1 عند اختيار السفر / الفصل</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">نعتذر، لدينا ترجمة جزئية فقط لواجهة المستخدم باللغة %1$s. وذلك لأن %2$s يُطوَّر بالكامل من قِبل متطوعين. إذا كان بإمكانك المساعدة في الترجمة، يرجى مراجعة %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">تعليمات للمترجمين</string>
   <string name="questions_title">أسئلة؟</string>
-  <string name="questions_title2">تحتاج مساعدة؟</string>
   <string name="bookmark_style">نمط الإشارة المرجعية</string>
   <string name="added_to_bookmark">مخصص لهذه الإشارة المرجعية</string>
-  <string name="strongs_off">إيقاف</string>
   <string name="strongs_links">الروابط</string>
   <string name="strongs_text_and_links">النص والروابط</string>
   <string name="strongs_hidden_links">روابط مخفية</string>
@@ -1162,7 +1081,6 @@
   <string name="discrete_mode_link">يمكنك تنزيل أحدث إصدار من الإصدار المنفصل من %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">مجموعة المزامنة</string>
   <string name="sync_group_n">المجموعة %d</string>
   <string name="disable_sync">إيقاف المزامنة</string>
   <string name="open_in_window">افتح النتائج في نافذة</string>
@@ -1173,10 +1091,8 @@
   <string name="custom_repositories_empty_list_message">لا يوجد مستودعات مخصصة معرفة</string>
   <string name="custom_repositories_create_button_label">أضف مستودعات مخصصة</string>
   <string name="custom_repositories_info_button_label">معلومات</string>
-  <string name="name_for_repository">اسم للمستودع</string>
   <string name="repository_specification">رابط URL للمستودع</string>
   <string name="delete_custom_repository">هل تريد إزالة المستودع المخصص %s؟</string>
-  <string name="invalid_repository_not_saved">مواصفات المستودع غير صالحة ولم يتم حفظها.</string>
   <string name="custom_repositories_help1">لإضافة مستودع مخصص جديد، اكتب أو انسخ و الصق رابط المستودع هنا.</string>
   <string name="custom_repositories_help2">يمكنك قراءة المزيد من المعلومات عن المستودعات المخصصة في %s.</string>
   <string name="wiki_page">صفحة WIKI</string>
@@ -1217,7 +1133,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">تقدم القراءة والحفظ</string>
   <string name="reading_progress_chapters_read">فصول مقروءة</string>
-  <string name="reading_progress_verses_memorized">آيات محفوظة</string>
   <string name="reading_progress_active_days">أيام نشطة</string>
   <string name="reading_progress_overall">%s%% من الكتاب المقدس تمت قراءته</string>
   <string name="reading_progress_bible_heatmap">نظرة عامة على الكتاب المقدس</string>
@@ -1243,13 +1158,11 @@
   <string name="sync_adapter_summary">الحالي: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">المصادقة على %s</string>
   <string name="auth_server_uri">عنوان URL للخادم</string>
   <string name="auth_username">اسم المستخدم</string>
   <string name="auth_password">كلمة المرور</string>
   <string name="auth_folder_path">مسار مجلد المزامنة</string>
   <string name="auth_folder_path_summary">المجلد الرئيسي لبيانات المزامنة (فارغ = الجذر)</string>
-  <string name="auth_access_token">رمز الوصول</string>
   <string name="synchronization_categories">فئات المزامنة</string>
   <string name="sync_general_settings">المعلومات والإعدادات العامة</string>
   <string name="sync_introduction">مقدمة</string>
@@ -1265,8 +1178,6 @@
   <string name="report">تقرير</string>
   <string name="sync_error">حدث خطأ في المزامنة السحابية</string>
   <string name="error_notification_channel_name">إشعارات الأخطاء</string>
-  <string name="restore_from_cloud_description">اذا كانت مزامنة الأجهزة لديك مفعلة على جهاز آخر، يمكنك البدء باستعادة قاعدة البيانات من السحابة.</string>
-  <string name="enable_sync">تفعيل المزامنة</string>
   <string name="last_updated">آخر تحديث: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1287,11 +1198,6 @@
   <string name="processing_epub">معالجة EPUB: %s</string>
   <string name="buy_development">شراء عمل التطوير</string>
   <string name="buy_development2">دعم المشروع</string>
-  <string name="new_version_warning">إصدار جديد قادم قريباً. التاريخ المتوقع للإصدار هو %1$s. تابع %2$s لاكتشاف الميزات والتحسينات الجديدة.</string>
-  <string name="new_version_trailer">فيديو تشويقي</string>
-  <string name="new_version_warning2">بعد الإصدار، لن يُصان هذا الإصدار.</string>
-  <string name="new_version_warning3">لن يتلقى إصلاحات للأخطاء أو تحديثات.</string>
-  <string name="new_version_warning4">إذا كنت لا تريد الترقية، يرجى تعطيل \'التحديثات التلقائية\' في متجر التطبيقات (Google Play / F-Droid إلخ).</string>
   <string name="dont_show">لا تُظهر هذه الرسالة مجدداً</string>
   <string name="pref_font_size_multiplier_title">مضاعف حجم الخط</string>
   <string name="pref_font_size_multiplier_summary_1">ضرب أحجام خطوط النص بهذا الرقم.</string>
@@ -1310,7 +1216,6 @@
   <string name="invalid_url_message">عنوان URL الذي أدخلته غير صالح. يرجى إدخال عنوان URL صالح (مثل https://nextcloud.example.com)</string>
   <string name="memorize_description">حفظ آيات الكتاب المقدس</string>
   <string name="memorize_abbreviation">حفظ</string>
-  <string name="add_memorization_target">تعيين كهدف للحفظ</string>
   <string name="memorize_memorized_passages">المقاطع المحفوظة</string>
   <string name="memorize_no_memorized_passages">لا توجد مقاطع محفوظة بعد</string>
   <string name="memorize_targets">أهداف الحفظ</string>

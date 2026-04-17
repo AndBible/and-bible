@@ -57,10 +57,8 @@
   <string name="search_current_book">ഈ പുസ്തകം</string>
   <string name="error_executing_search">അസാധുവായ അന്വേഷണം</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title1">വാക്യങ്ങളുടെ അക്കങ്ങൾ</string>
   <string name="prefs_verse_per_line_summary">ഒരോ വാക്യങ്ങളും വ്യത്യസ്ത വരികളിൽ കാണിക്കുക</string>
   <string name="prefs_show_mynotes_summary">എന്റെ കുറിപ്പിൽ വാക്യത്തോടൊപ്പം ഐക്കോൺ കാണിക്കുക</string>
-  <string name="prefs_show_notes_summary">അടിക്കുറിപ്പും അനുയോജ്യ ഭാഗങ്ങളും കാണിക്കുക</string>
   <string name="prefs_show_strongs_summary">ഗ്രീക്കും ഹീബ്രുവും വ്യാഖ്യാനം നല്കുന്ന കണ്ണികൾ</string>
   <string name="prefs_show_morphology_summary">റോബിൻസണ്ണിന്റെ ഗ്രീക്ക് മോർഫോളജി കാണിക്കുക</string>
   <string name="prefs_section_title_summary">കാനോനിൽ ഉൾപെടാത്ത ശീർഷകം തലക്കെട്ട് കാണിക്കുക</string>
@@ -68,7 +66,6 @@
   <string name="prefs_verse_per_line_title">ഒരു വരിയിൽ ഒരു വാക്യം വീതം</string>
   <string name="prefs_show_mynotes_title">എന്റെ കുറിപ്പ് ഐക്കോൺ കാണിക്കുക</string>
   <string name="prefs_show_footnotes_title">അടിക്കുറിപ്പുകൾ</string>
-  <string name="prefs_show_notes_title">അടിക്കുറിപ്പും മറ്റു ഫലകങ്ങളും</string>
   <string name="prefs_show_morphology_title">മോർഫോളജി കോഡ്</string>
   <string name="prefs_section_title_title">ശീർഷകം തലക്കെട്ട്</string>
   <string name="prefs_red_letter_title">ചുവന്ന അക്ഷരം</string>
@@ -90,18 +87,13 @@
   <string name="windowMinimise">ചെറുതാക്കുക</string>
   <string name="windowSynchronise">ഒരുപോലെയാക്കുക</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">ഈ അധ്യായത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
-  <string name="no_verse_notes">ഈ വാക്യത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
   <string name="previous">മുൻപുള്ള</string>
   <string name="next">അടുത്ത</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">ദയവായി സ്ടോങ്ങ്സിന്റെ ഹീബ്രുവും, ഗ്രീക്കും നിഘണ്ടുകൾ ഡൌൺലോഡ് ചെയ്യുക</string>
   <string name="no_indexed_bible_with_strongs_ref">സ്ടോങ്ങ്സ് നംബറുള്ള വേദപുസ്തകം ഡൌൺലോഡ് ചെയ്ത ശേഷം, ഇതിന്റെ പട്ടിക, \"സേർച്ച്\"  വഴി ഡൌൺലോഡ് ചെയ്യുക</string>
-  <string name="morph_robinson_not_installed">ദയവായി \"റോബിൻസണ്ണിന്റെ മോർഫോളജിക്കൽ അപഗ്രഥന കോഡിന്റെ നിഘണ്ടു\" ഡൌൺലോഡ് ചെയ്യുക</string>
   <!--Module download-->
   <string name="download">ഡോക്കുമെന്റ് ഡൌൺലോഡ് ചെയ്യുക</string>
   <string name="download_document_confirm_prefix">ഡൌൺലോഡ് </string>
-  <string name="download_refresh_book_list_menu_item">പുതുക്കുക</string>
   <string name="storage_space_warning">കംപ്യൂട്ടറിൽ സ്ഥലം അപര്യാപ്തം</string>
   <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
   <!--Install zip file-->
@@ -125,10 +117,8 @@
   <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">പുസ്തകസൂചിക</string>
-  <string name="bookmark_added">പുസ്തകസൂചിക  ചേർത്തു</string>
   <string name="assign_labels">ശീർഷകം നിർണ്ണയിക്കുക</string>
   <string name="new_item">പുതിയ</string>
-  <string name="new_label">പുതിയ ശീർഷകം </string>
   <string name="label_name_prompt">പേര്</string>
   <string name="label_unlabelled">ശീർഷകം ഇല്ലാത്തത്</string>
   <!--can be removed-->
@@ -146,11 +136,9 @@
   <!--Speak - Bible-->
   <string name="one_chapter">%d അധ്യായം</string>
   <string name="some_chapters">%d അധ്യായങ്ങൾ</string>
-  <string name="rest_of_book">പുസ്തക അവസാനം</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d വാക്യം</string>
   <string name="some_verses">%d വാക്യങ്ങൾ</string>
-  <string name="rest_of_chapter">അധ്യായ അവസാനം</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d പുറം</string>
   <string name="some_pages">%d പുറങ്ങൾ</string>
@@ -160,8 +148,6 @@
   <string name="rewind">പുറകിലേക്കുപോകൂ</string>
   <string name="forward">മുമ്പിലേക്കു പോകൂ</string>
   <string name="tts_lang_not_available">ഈ ഭാഷ ലഭ്യമല്ല</string>
-  <string name="speak_queue">നിര </string>
-  <string name="speak_repeat">ആവർത്തിക്കുക</string>
   <!--Speak - Bible-->
   <string name="repeat_passage">ഖണ്ഡിക ആവർത്തിക്കുക</string>
   <string name="set_repeat_passage_range">ആവർത്തിക്കേണ്ട ഖണ്ഡിക പരിധി നിശ്ചയിക്കുക</string>
@@ -187,7 +173,6 @@
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="speak_bookmark_help">സംസാരിക്കുക അടയാളങ്ങൾ സഹായം</string>
   <!--List of (max 5) words that will be searched and replaced by their counterpart in divinename_replace
          if they are found in <divineName> tag in the document (i.e. LORD etc, in capital letters).
 
@@ -229,9 +214,7 @@
   <string name="yes">അതെ</string>
   <string name="no">അല്ല</string>
   <string name="error">തെറ്റ്</string>
-  <string name="delete_generic">നീക്കി കളയുക</string>
   <string name="all">എല്ലാം</string>
-  <string name="edit">തിരുത്തുക</string>
   <string name="reset_generic">പുനഃരാരംഭിക്കൂ</string>
   <string name="watch_tutorial_video">ടൂട്ടോറിയൽ വീഡിയോ കാണുക (ഇംഗ്ലീഷ്)</string>
   <!--Errors-->
@@ -244,7 +227,6 @@
   <!--Notifications-->
   <string name="notification_channel_tts_status">ടെക്സ്റ്റ് സംഭാഷണമാക്കുക</string>
   <!--Workspaces-->
-  <string name="new_workspace">പുതിയ</string>
   <string name="rename_workspace">പേര് മാറ്റുക</string>
   <string name="save_and_exit">സൂക്ഷിക്കു</string>
   <string name="reset_settings">പുനഃരാരംഭിക്കൂ</string>
