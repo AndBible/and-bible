@@ -143,7 +143,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
             AlertDialog.Builder(context).apply {
                 val layout = ShareWidget(context, null, selection)
                 setView(layout)
-                setPositiveButton(R.string.generic_share) { _, _ ->
+                setPositiveButton(R.string.share) { _, _ ->
 
                     val emailIntent = Intent(Intent.ACTION_SEND).apply {
                         putExtra(Intent.EXTRA_TEXT, layout.bindings.preview.text)
@@ -156,7 +156,7 @@ class ShareWidget(context: Context, attributeSet: AttributeSet?, val selection: 
                 }
                 setCancelable(true)
                 setNeutralButton(R.string.cancel, null)
-                setNegativeButton(R.string.verse_action_copy) { _, _ ->
+                setNegativeButton(R.string.copy) { _, _ ->
                     val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                     val clip = ClipData.newPlainText(selection.verseRange?.name, layout.bindings.preview.text)
                     clipboard.setPrimaryClip(clip)

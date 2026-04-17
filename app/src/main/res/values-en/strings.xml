@@ -137,9 +137,6 @@ provides easy access to manipulate and customize the window.</string>
         Long press links to choose if you want to open them in the current window, new window or special links window.
     </string>
   <!--TODO: to be removed-->
-  <string name="help_search_text">Search text can include special characters like *, ?, AND, OR, NOT
-        (see \"Apache Lucene - Query Parser Syntax\" for more details)
-    </string>
   <string name="help_workspaces_text">
 Workspaces allow having multiple working environments. Workspace functions can be accessed via the Workspaces item in the options menu (top-right corner). A quick way to access workspaces is by a swipe-down gesture from the Bible reference text in the toolbar. You may also use swipe-left and swipe-right gestures over the Bible reference text in the toolbar to switch to previous or next workspace.  </string>
   <string name="help_hidden_features_text">

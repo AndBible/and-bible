@@ -5,7 +5,6 @@
   <string name="app_name_short">研經工具</string>
   <string name="app_name_medium">研經工具 (AndBible)</string>
   <string name="app_name_long">AndBible: 研經工具</string>
-  <string name="project">AndBible 開源計劃</string>
 
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入SD Card及重新開始程式</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">富文字（HTML）</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">段落距離 (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">調整段落之間距離。</string>
 
-  <string name="prefs_show_verseno_title1">節數</string>
 
-  <string name="prefs_show_chapter_no_title">章數</string>
-  <string name="prefs_show_chapter_no_summary">顯示章數</string>
 
   <string name="prefs_verse_per_line_summary">在不同行顯示每一節</string>
   <string name="prefs_show_bookmarks_summary">取消剔選以隱藏所有書籤</string>
 
   <string name="prefs_show_mynotes_summary">在經文中顯示我的筆記圖示</string>
-  <string name="prefs_show_notes_summary">顯示註腳及交叉對照</string>
   <string name="prefs_show_strongs_summary">連結希臘文及希伯來文定義</string>
   <string name="prefs_show_morphology_summary">顯示Robinson\'s希臘文詞形工具</string>
   <string name="prefs_section_title_summary">顯示非正典章節標題</string>
   <string name="prefs_red_letter_summary">以紅字顯示基督的話</string>
-  <string name="prefs_text_size_title">字型偏好</string>
 
   <string name="prefs_verse_per_line_title">每行一節</string>
   <string name="prefs_show_bookmarks_title">顯示書籤圖示</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">將註腳以內嵌方式顯示在正文中，而非作為可點擊的標註</string>
   <string name="prefs_show_xrefs_summary">如有的話，在文件中顯示交叉對照</string>
 
-  <string name="prefs_show_notes_title">註腳及交叉對照</string>
   <string name="prefs_show_strongs_title">Strong\'s原文編號</string>
   <string name="prefs_show_morphology_title">顯示詞形碼</string>
   <string name="prefs_non_strongs_word_italic_title">斜體顯示補充詞語</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">背景雜訊</string>
   <string name="prefs_noise_summary">在背景增加噪點或會另視覺上更舒服</string>
 
-  <string name="cpv_default_title">選擇顏色</string>
-  <string name="cpv_presets">預設</string>
-  <string name="cpv_custom">自訂</string>
-  <string name="cpv_select">選擇</string>
-  <string name="cpv_transparency">透明度</string>
 
     <!-- Window -->
   <string name="new_window">新視窗</string>
-  <string name="windowClose">關閉</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同步</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">釘選</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">本章沒有備注</string>
-  <string name="no_verse_notes">本節沒有備注</string>
   <string name="previous">上一頁</string>
   <string name="next">下一頁</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">請下載Strong\'s希伯來文和希臘文字典</string>
   <string name="no_indexed_bible_with_strongs_ref">你須下載具有Strong\'s編碼的聖經及於搜尋中建立索引</string>
-  <string name="morph_robinson_not_installed">請下載 Robinson\'s 詞形分析碼的字典</string>
-  <string name="go_to_downloads">移至下載</string>
 
     <!-- Module download -->
   <string name="download">下載文件</string>
   <string name="redownload">重新下載文件</string>
-  <string name="download_confirmation">從互聯網上下載聖經嗎？</string>
   <string name="download_source_last_updated">文件列表最後更新：%s</string>
   <string name="download_refreshing_book_list">正在更新文件列表...</string>
   <string name="download_source_message1">文件來自以下來源：</string>
   <string name="download_document_confirm_prefix">下載</string>
-  <string name="download_refresh_book_list_menu_item">更新</string>
   <string name="error_downloading">下載時出錯。請檢查你的連線。</string>
   <string name="error_downloading_status">提供 %1$s 的伺服器由於 %2$s (%3$d) 出錯。</string>
   <string name="storage_space_warning">SD卡儲存空間不足</string>
@@ -373,18 +351,6 @@
   <string name="done">完成</string>
   <string name="reset_plan_question">你確定要重設這計劃嗎？</string>
   <string name="import_reading_plan">匯入讀經計劃...</string>
-  <string name="import_reading_plan_error">匯入時出錯</string>
-  <string name="import_reading_plan_error_duplicate">此日子重複了：%s</string>
-  <string name="import_reading_plan_error_days">此日子出錯：%s</string>
-  <string name="import_reading_plan_anyway">忽略並匯入</string>
-  <string name="overwrite_reading_plan">你確定要覆寫%s嗎？</string>
-  <string name="delete_reading_plan">刪除此計劃</string>
-  <string name="reading_plan_deleted">此讀經計劃已刪除</string>
-  <string name="reading_plan_ships_with_ab">此讀經計劃隨%s一起提供</string>
-  <string name="confirm_delete_reading_plan">
-你確定要刪除%s及閱讀歷史嗎？
-提示：如果你需更新計劃，你只需以相同的檔案名稱，匯入其覆蓋舊有計劃，以保存閱讀歷史。
-</string>
   <string name="plan_duplicate_user_plan">
 SD卡中有使用者jsword/readingplan的讀經計劃
 它與內部讀經計劃名稱相同，不能在此列舉。
@@ -436,7 +402,6 @@ http://www.heartlight.org 准予使用
   <string name="notes">注腳及參考</string>
   <string name="share_verse">分享...</string>
   <string name="share_verse_widget_title">分享選取部份</string>
-  <string name="share_verse_subject_2">透過 %s 和你分享聖經經文</string>
   <string name="compare_translations">譯本比較</string>
 
     <!-- Link context menu -->
@@ -448,33 +413,26 @@ http://www.heartlight.org 准予使用
   <string name="bookmarks_and_mynotes_title">書籤及我的筆記</string>
   <string name="migrated_my_notes">合併我的筆記</string>
   <string name="bookmarks">書籤</string>
-  <string name="bookmark_added">書籤已保存</string>
     <!-- Bookmark / note labels -->
   <string name="labels">標籤</string>
   <string name="manage_labels">管理標籤</string>
   <string name="assign_labels">分配標籤</string>
   <string name="new_item">建立</string>
-  <string name="new_label">新標籤</string>
   <string name="label_name_prompt">標籤名稱</string>
   <string name="label_unlabelled">未有標籤</string>
   <string name="add_bookmark1">書籤</string>
-  <string name="add_bookmark2">將選取部份標記書籤</string>
   <string name="add_bookmark3">選取</string>
   <string name="add_bookmark_whole_verse">將經文標記書籤</string>
   <string name="add_bookmark_whole_verse1">經文</string>
-  <string name="add_bookmark_whole_verse2">完整經文</string>
   <string name="add_whole_page_bookmark">為整頁新增書籤</string>
   <string name="add_paragraph_break">段落分隔符</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">移除</string>
   <string name="bookmark_settings_hide_labels_title">隱藏特定標籤</string>
   <string name="bookmark_settings_hide_labels_summary">隱藏特定書籤</string>
   <string name="auto_assign_labels_title">標籤設定</string>
   <string name="auto_assign_labels">自動分配及最愛標籤</string>
   <string name="auto_assign_labels1">自動將標記至新書籤</string>
   <string name="auto_assign_labels_primary">自動分配為主要</string>
-  <string name="label_color">標籤顏色</string>
-  <string name="label_color_example">例子</string>
   <string name="marker_style">只顯示選中書籤的標記</string>
   <string name="marker_style_whole_verse">只顯示整節書籤的標記</string>
   <string name="hide_style">隱藏選中書籤的標記</string>
@@ -504,11 +462,9 @@ http://www.heartlight.org 准予使用
     <!-- Speak - Bible -->
   <string name="one_chapter">第%d章</string>
   <string name="some_chapters">%d 章</string>
-  <string name="rest_of_book">到書卷末</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">第 %d節</string>
   <string name="some_verses">共%d節</string>
-  <string name="rest_of_chapter">到章節末</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">第 %d頁</string>
   <string name="some_pages">共%d頁</string>
@@ -518,8 +474,6 @@ http://www.heartlight.org 准予使用
   <string name="rewind">倒帶</string>
   <string name="forward">快進</string>
   <string name="tts_lang_not_available">不支持此語言</string>
-  <string name="speak_queue">隊列</string>
-  <string name="speak_repeat">重複</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">朗讀速度</string>
@@ -592,14 +546,12 @@ http://www.heartlight.org 准予使用
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s 圖示標示此設定是來自工作區設定</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s 圖示標示此設定已被更改至此視窗</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">以 %1$s 按鈕重設所有設定至 %2$s。</string>
   <string name="reset_defaults">預設數值</string>
   <string name="reset_workspace_defaults">工作區預設數值</string>
 
-  <string name="speak_bookmark_help">朗讀書籤說明</string>
 
   <string name="speak_help_auto_bookmark">
 當暫停或停止朗讀時，將自動加入朗讀書籤。
@@ -651,7 +603,6 @@ http://www.heartlight.org 准予使用
   <string name="backup_phone_storage">手機空間</string>
   <string name="backup_and_restore">備份及回復</string>
   <string name="backup_modules2">備份文件至...</string>
-  <string name="backup_app_database2">備份程式資料庫至...</string>
   <string name="backup_app2">備份程式 (.apk file) 至...</string>
   <string name="backup_application">應用程式</string>
   <string name="backup_database">資料庫</string>
@@ -663,17 +614,13 @@ http://www.heartlight.org 准予使用
   <string name="backup_restore_from">回復至...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">從…還原或匯入</string>
-  <string name="backup_restore">回復</string>
   <string name="backup_restore2">還原或匯入</string>
   <string name="overwrite_something">覆寫 %s？</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">你想回復什麼？</string>
 
-  <string name="restore_app_database">回復程式資料庫來源</string>
   <string name="restore_database">回復資料庫檔案</string>
   <string name="restore_confirmation">覆寫我的筆記、書籤、研習筆記、讀經計劃及工作區嗎？</string>
-  <string name="restore_success2">選取的資料庫已成功回復</string>
   <string name="restore_success">成功回復我的筆記、書籤、研習筆記、讀經計劃及工作區</string>
   <string name="downloading_backup">正在下載備份檔案...</string>
   <string name="loading_backup">正在從備份載入資料庫</string>
@@ -689,14 +636,12 @@ http://www.heartlight.org 准予使用
   <string name="exported_studypads_subject">已匯出的學習筆記</string>
   <string name="exported_studypads_message">您的 %s 資料庫（包含所選學習筆記相關的書籤和筆記）已附加</string>
   <string name="restore_unsuccessfull">未能回復資料庫。或許你的資料庫檔案無效。</string>
-  <string name="restore_modules">回復文件</string>
   <string name="send_backup_file">傳送備份檔案</string>
   <string name="backup_modules_title">選擇備份模組</string>
   <string name="install_zip_canceled">模組安裝已取消</string>
   <string name="ask_restore_or_import">%s 的資料庫可以選擇還原（即刪除現有資料庫並載入所選資料庫）或匯入（將所選資料庫匯入現有資料庫）。請選擇操作？</string>
   <string name="restore">回復</string>
   <string name="import2">匯入</string>
-  <string name="export_studypads_help">包含已匯出學習筆記（即標籤和書籤）的檔案，可透過主選單 -&gt; 備份與還原匯入。</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" 及其他 %2$s 個標籤／學習筆記和 %3$s 個書籤</string>
@@ -710,8 +655,6 @@ http://www.heartlight.org 准予使用
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">回報錯誤</string>
-  <string name="send_feedback_title">意見</string>
   <string name="send_bug_report_title">意見或回報錯誤</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s 的問題回報</string>
 
@@ -750,10 +693,8 @@ http://www.heartlight.org 准予使用
   <string name="yes">是</string>
   <string name="no">否</string>
   <string name="error">錯誤</string>
-  <string name="delete_generic">刪除</string>
   <string name="please_wait">請稍候...</string>
   <string name="all">全部</string>
-  <string name="edit">編輯</string>
   <string name="reset_generic">重設</string>
   <string name="watch_tutorial_video">觀看示範影片 (英文)</string>
   <string name="verse_not_found">找不到節</string>
@@ -777,12 +718,11 @@ http://www.heartlight.org 准予使用
   <string name="notification_channel_progress_status">文件下載等的進度狀態通知</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">建立</string>
   <string name="switch_to_workspace">工作區</string>
   <string name="delete_workspace">移除</string>
   <string name="new_copied_workspace">建立複本</string>
   <string name="workspace_number">工作區 %d</string>
-  <string name="rename_workspace">重新命名</string>
+  <string name="rename">重新命名</string>
   <string name="workspace_selector_title">選擇工作區</string>
   <string name="workspace_settings">設定...</string>
   <string name="give_name_workspace">命名予新工作區</string>
@@ -795,12 +735,11 @@ http://www.heartlight.org 准予使用
   <string name="copy_settings_workspaces_title">複製設定至哪個工作區？</string>
   <string name="reset_settings">重設</string>
   <string name="search_settings">搜尋設定</string>
-  <string name="workspace_dismiss">取消</string>
+  <string name="dismiss">取消</string>
   <string name="workspace_listing_with_current">%s(現時)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">這是beta版本！</string>
-  <string name="beta_flag">測試版</string>
   <string name="beta_notice_content_1">
 在Beta版本中，有些功能尚未完全測試，
 因此或會導致預料以外的狀況。
@@ -812,7 +751,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="beta_notice_content_3">如果你是程式員，請考慮透過 %s 參與除錯。 :-)</string>
   <string name="beta_notice_github_issues">Github問題</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">關閉</string>
   <string name="beta_notice_dismiss_until_update">關閉至下一次更新</string>
 
   <string name="stable_notice_title">程式已更新！</string>
@@ -845,8 +783,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 
   <string name="help_search_title">搜尋</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">搜尋字詞可以加入特殊字符如 * , ?, AND, OR, NOT
-(有關詳細信息請參「Apache Lucene - Query Parser Syntax」)</string>
   <string name="help_search_text2">搜尋文字可包含特殊字元，如 *、AND、OR、NOT</string>
   <string name="help_search_details">詳情請參閱 %s。</string>
   <string name="help_apache_lucene">Apache Lucene - 查詢解析器語法</string>
@@ -876,7 +812,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="redownload_documents">快速重新下載</string>
   <string name="welcome_message">感謝你下載 %s。現時並未有下載聖經或文件。請下載至少一份文件，或從Zip備份檔案匯入。</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">支援的格式</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">您需要選擇載入到 %s 的檔案。</string>
   <string name="supported_formats">支援載入文件的檔案格式：%s</string>
@@ -902,7 +837,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="strongs_mode_title">還擇Strong\'s模式</string>
 
   <string name="download_dialog_message">以下的書本無發下載：</string>
-  <string name="select_multiple">選擇多個</string>
   <string name="journal_description">使用者可自行編輯研習筆記及標記書籤</string>
   <string name="my_notes_description">書籤已附帶使用者的筆記</string>
   <string name="my_notes_abbreviation">筆記列表</string>
@@ -917,7 +851,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="http_not_found">沒有找到</string>
   <string name="http_unknown">其他錯誤</string>
   <string name="give_passphrase_for_module">%s 文件已加密，需要密碼解鎖。</string>
-  <string name="unlocking_failed">密碼錯誤，解鎖失敗</string>
   <string name="unlock_module">設定模組密碼</string>
   <string name="unlock_info">加密模組解鎖資訊</string>
   <string name="try_again_passphrase">密碼無效，要再試嗎？</string>
@@ -969,8 +902,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="tell_friend_message4">閱讀更多及更多安裝選項：%s</string>
   <string name="share_verse_ok">分享 / 複製</string>
   <string name="web_search">網路搜尋</string>
-  <string name="verse_action_copy">複製</string>
-  <string name="generic_share">分享</string>
   <string name="share_verse_menu_title">分享 / 複製...</string>
   <string name="show_versenumbers">顯示節數</string>
   <string name="show_full_verses">顯原完整經文</string>
@@ -987,9 +918,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="show_quotes">顯示引號</string>
   <string name="separate_verses_with_newlines">以換行符分隔經文</string>
 
-  <string name="backup_button">備份</string>
-  <string name="back_button">返回</string>
-  <string name="upgrading_database">正升級資料庫。請稍候...</string>
   <string name="initializing_app">正在啟動程式...</string>
   <string name="show_notes">顯示筆記</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1035,7 +963,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="text_maintainers">
        請回報問題至文本的維護者
     </string>
-  <string name="does_not_exist_abbreviation">不存在</string>
   <string name="cant_change_wholeverse">無法在此書籤關閉全節標示</string>
   <string name="whole_verse_turned_on">整節經文已標記書籤</string>
   <string name="this_bookmark">此書籤</string>
@@ -1048,7 +975,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="display_mode_hidden">隱藏</string>
   <string name="workspace_override_indicator">此標籤具有特定工作區的顯示模式</string>
   <string name="primary_label">主標籤</string>
-  <string name="highlight_entire_verse">醒目提示全節</string>
   <string name="favourite_label">最愛標籤</string>
   <string name="edit_label">編輯標籤</string>
   <string name="delete_label_confirmation">你希望移除書籤「%s」嗎？對應的研習筆記亦會被移除。</string>
@@ -1066,7 +992,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="reorder">重新排列</string>
   <string name="system_items">系統行動</string>
   <string name="system_items1">更多</string>
-  <string name="system_action2">Android 行動</string>
   <string name="text_copied_to_clicpboard">文字已複製至剪貼簿</string>
   <string name="prefs_disable_two_step_bookmarking_title">一鍵標籤書籤</string>
   <string name="prefs_disable_two_step_bookmarking_summary">直接在聖經檢視選取選單顯示 \"選取\" 及 \"節\"</string>
@@ -1080,7 +1005,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="label_blue">藍色</string>
   <string name="label_salvation">救恩</string>
   <string name="label_underline">底線</string>
-  <string name="import_menu">匯入及匯出</string>
   <string name="auto_backups_title">自動備份</string>
   <string name="backup_file_info">應用程式版本 %1$d，%2$s</string>
   <string name="reset_databases_title">重設資料庫</string>
@@ -1098,18 +1022,12 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="export_prompts_csv">匯出提示詞至 CSV</string>
   <string name="import_prompts_csv">從 CSV 匯入提示詞</string>
   <string name="prompts_csv_export_success">已將 %d 個提示詞匯出至 CSV</string>
-  <string name="prompts_csv_import_success">匯入完成：已建立 %1$d 筆，已更新 %2$d 筆</string>
-  <string name="prompts_csv_import_errors">匯入完成（含錯誤）：已建立 %1$d 筆，已更新 %2$d 筆，%3$d 筆錯誤</string>
-  <string name="prompts_csv_import_failed">CSV 匯入失敗：%s</string>
-  <string name="prompts_csv_export_failed">CSV 匯出失敗：%s</string>
   <string name="no_prompts_to_export">沒有可匯出的使用者提示詞</string>
   <string name="csv_column_selection_title">選擇 CSV 欄位</string>
-  <string name="choose_csv_file">選擇要匯入的 CSV 檔案</string>
   <string name="no_bookmarks_to_export">沒有可匯出的書籤</string>
   <string name="export_fileformat">以%s匯出</string>
   <string name="export_something">匯出 %s</string>
   <string name="import_items">以%s匯入</string>
-  <string name="import_from_db">從程式資料庫檔案匯入</string>
   <string name="import_error">從程式資料庫匯入失敗。資料庫檔案版本或許太舊，或者是從太舊的%s建立。</string>
 
   <string name="export_bookmarks_csv">將書籤匯出為 %s</string>
@@ -1138,23 +1056,13 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="last_updated_at">最後更新時間</string>
   <string name="bookmark_notes">書籤備註</string>
 
-  <string name="chooser_range">範圍</string>
-  <string name="chooser_jump">跳轉</string>
-  <string name="chooser_OT_abbrev">舊約</string>
-  <string name="chooser_NT_abbrev">新約</string>
-  <string name="chooser_style_grid">方格</string>
-  <string name="chooser_style_lists">表列</string>
-  <string name="chooser_select">選擇%s</string>
-  <string name="chooser_pref_reset">選取書卷/章時，不要把章/節重設為1</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">十分抱歉，%1$s只完成部份程式介面翻譯。這是因為%2$s完全是義務開發及翻譯。如果你想參與協助，請參見%3$s。</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">給翻譯者的指示</string>
   <string name="questions_title">問題？</string>
-  <string name="questions_title2">需要幫助？</string>
   <string name="bookmark_style">書籤樣式</string>
   <string name="added_to_bookmark">分配至此書籤</string>
-  <string name="strongs_off">關閉</string>
   <string name="strongs_links">連結</string>
   <string name="strongs_text_and_links">文字及連結</string>
   <string name="strongs_hidden_links">隱藏連結</string>
@@ -1204,7 +1112,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">同步小組</string>
   <string name="sync_group_n">小組 %d</string>
   <string name="disable_sync">停用同步</string>
   <string name="open_in_window">在視窗中打開結果</string>
@@ -1215,10 +1122,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="custom_repositories_empty_list_message">未定義自訂儲存庫</string>
   <string name="custom_repositories_create_button_label">新增自訂儲存庫</string>
   <string name="custom_repositories_info_button_label">資訊</string>
-  <string name="name_for_repository">儲存庫名稱</string>
   <string name="repository_specification">儲存庫URL</string>
   <string name="delete_custom_repository">你想刪除自訂儲存庫%s嗎？</string>
-  <string name="invalid_repository_not_saved">儲存庫設定無效，未能儲存。</string>
   <string name="custom_repositories_help1">請在此輸入或貼上自訂儲存庫URL，以新增自訂儲存庫。</string>
   <string name="custom_repositories_help2">在%s可以閱讀更多有關自訂儲存庫的資訊。</string>
   <string name="wiki_page">WIKI頁面</string>
@@ -1261,7 +1166,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">閱讀／記憶進度</string>
   <string name="reading_progress_chapters_read">已讀章節</string>
-  <string name="reading_progress_verses_memorized">已記憶經文</string>
   <string name="reading_progress_active_days">活躍天數</string>
   <string name="reading_progress_overall">已讀聖經的 %s%%</string>
   <string name="reading_progress_bible_heatmap">聖經總覽</string>
@@ -1287,13 +1191,11 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="sync_adapter_summary">現時：%s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">下一個雲端</string>
-  <string name="auth_title">認證 %s</string>
   <string name="auth_server_uri">伺服器位址</string>
   <string name="auth_username">用戶名稱</string>
   <string name="auth_password">密碼</string>
   <string name="auth_folder_path">同步資料夾路徑</string>
   <string name="auth_folder_path_summary">同步資料的上層資料夾（空白 = 根目錄）</string>
-  <string name="auth_access_token">Access token</string>
   <string name="synchronization_categories">同步類別</string>
   <string name="sync_general_settings">資訊及一般設定</string>
   <string name="sync_introduction">簡介</string>
@@ -1309,8 +1211,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="report">回報</string>
   <string name="sync_error">雲端同步時發生錯誤</string>
   <string name="error_notification_channel_name">錯誤通知</string>
-  <string name="restore_from_cloud_description">如果在另一裝置上已啟用同步功能，你可以先從雲端回復資料庫。</string>
-  <string name="enable_sync">啟用同步功能</string>
   <string name="last_updated">最後更新：%s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1331,19 +1231,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="processing_epub">正在處理 EPUB: %s</string>
   <string name="buy_development">支持開發工作</string>
   <string name="buy_development2">支持項目</string>
-  <string name="new_version_warning">
-新版本即將發佈。預計發佈日期為 %1$s。
-請收看 %2$s 了解新功能及改進。
-</string>
-  <string name="new_version_trailer">預告影片</string>
-  <string name="new_version_warning2">
-發佈新版本後，此版本將終止維護。
-</string>
-  <string name="new_version_warning3">
-舊版本將不再會有修補或更新。</string>
-  <string name="new_version_warning4">
-如果你不想升級到新版本，請在你的應用程式商店（Google Play / F-Droid等）關閉「自動更新」。
-</string>
   <string name="dont_show">
 不再顯示此訊息
 </string>
@@ -1364,7 +1251,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="invalid_url_message">您輸入的網址無效。請輸入有效的網址（例如：https://nextcloud.example.com）</string>
   <string name="memorize_description">記憶聖經經文</string>
   <string name="memorize_abbreviation">記憶</string>
-  <string name="add_memorization_target">設為記憶目標</string>
   <string name="memorize_memorized_passages">已記憶段落</string>
   <string name="memorize_no_memorized_passages">暫無已記憶的段落</string>
   <string name="memorize_targets">記憶目標</string>
@@ -1396,17 +1282,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="memorize_view_overview">總覽</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM 翻譯</string>
   <string name="sync_settings_shortcut_summary">在裝置之間同步資料</string>
-  <string name="llm_api_key_title">API 金鑰</string>
-  <string name="llm_api_key_summary">相容 OpenAI 的 API 金鑰</string>
   <string name="llm_provider_custom">自訂（相容 OpenAI）</string>
-  <string name="llm_provider_title">服務商</string>
-  <string name="llm_provider_summary">選擇使用哪個 AI 服務商。API 端點和可用模型將自動配置。</string>
-  <string name="llm_provider_current">目前：%s</string>
-  <string name="llm_api_key_detected_provider">偵測到的服務商：%s</string>
-  <string name="ai_connection_category">連線</string>
-  <string name="ai_model_category">模型</string>
   <string name="ai_behavior_category">行為</string>
   <string name="ai_language_title">AI 回應語言</string>
   <string name="ai_language_summary">AI 用於回應的語言</string>
@@ -1423,16 +1300,9 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_reset_usage_confirm_title">重置用量資料？</string>
   <string name="llm_reset_usage_confirm_message">這將清除所有累計用量資料。</string>
   <string name="llm_custom_input_price_title">輸入價格（$/百萬 token）</string>
-  <string name="llm_custom_input_price_summary">該模型每百萬輸入 token 的費用</string>
   <string name="llm_custom_output_price_title">輸出價格（$/百萬token）</string>
-  <string name="llm_custom_output_price_summary">此模型每百萬輸出token的費用</string>
   <string name="llm_cost_total">總計：%1$s</string>
-  <string name="llm_endpoint_title">API端點</string>
-  <string name="llm_endpoint_summary">API的基礎URL</string>
-  <string name="llm_model_title">模型</string>
-  <string name="llm_model_summary">模型ID</string>
   <string name="llm_custom_model">自訂…</string>
-  <string name="llm_custom_model_dialog_title">自訂模型</string>
   <string name="llm_custom_model_dialog_message">輸入模型ID</string>
   <string name="llm_rate_limited_retrying">已達速率限制。%1$s秒後重試…</string>
   <string name="llm_default_document_title">AI回應</string>
@@ -1442,7 +1312,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_parse_error_no_choices">OpenAI回應中沒有候選項</string>
   <string name="llm_parse_error_openai">解析OpenAI回應失敗：%1$s</string>
   <string name="llm_parse_error_anthropic">解析Anthropic回應失敗：%1$s</string>
-  <string name="llm_error_prompt_not_found">未找到提示詞：%1$s</string>
   <string name="llm_error_unknown">未知錯誤</string>
   <string name="llm_error_max_iterations">已達最大迭代次數（%1$d），未能完成</string>
   <string name="llm_continue_iterations_title">繼續？</string>
@@ -1477,7 +1346,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="raw_log_retention_summary_disabled">已停用（保留全部）</string>
   <string name="send_ai_bug_report_title">回報 AI 錯誤</string>
   <string name="ai_bug_report_menu">回報 AI 錯誤</string>
-  <string name="ai_bug_report_recommended_only">錯誤回報僅適用於建議的服務商模型</string>
 
   <string name="select_model_before_run_title">選擇模型</string>
   <string name="set_default_model_for_prompt">設為此提示詞的預設模型</string>
@@ -1507,7 +1375,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_models_summary_none">未設定模型</string>
   <string name="ai_add_provider">新增提供商</string>
   <string name="ai_provider_edit">編輯</string>
-  <string name="ai_provider_delete">刪除</string>
   <string name="ai_provider_delete_confirm">刪除提供商「%1$s」？使用此提供商的提示詞將恢復為預設。</string>
   <string name="ai_provider_api_key_not_set">未設定API金鑰</string>
   <string name="ai_provider_select_type">選擇提供商類型</string>
@@ -1519,27 +1386,18 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_provider_saved">提供商已儲存</string>
   <string name="ai_provider_deleted">提供商已刪除</string>
 
-  <string name="llm_fetch_models_title">下載模型清單</string>
-  <string name="llm_fetch_models_message">從%1$s下載可用模型清單？</string>
-  <string name="llm_fetch_models_dont_ask">不再詢問</string>
-  <string name="llm_fetch_models_success">已載入%1$d個模型</string>
-  <string name="llm_fetch_models_failed">獲取模型失敗</string>
   <string name="llm_openrouter_category">類別</string>
   <string name="llm_openrouter_category_all">全部</string>
   <string name="llm_openrouter_model">模型</string>
     <!-- Configured models management -->
   <string name="ai_models_category">模型</string>
   <string name="add_model">新增模型</string>
-  <string name="add_model_title">新增模型</string>
   <string name="edit_model_title">編輯模型</string>
   <string name="model_saved">模型已儲存</string>
   <string name="model_deleted">模型已刪除</string>
   <string name="model_delete_confirm">刪除模型「%1$s」？</string>
   <string name="model_set_default">設為預設模型</string>
   <string name="model_select_provider">提供商</string>
-  <string name="no_models_configured">未設定模型</string>
-  <string name="model_cache_creation_price">快取建立價格（美元/百萬token）</string>
-  <string name="model_cache_read_price">快取讀取價格（美元/百萬token）</string>
   <string name="model_supported_badge">✓ 支援</string>
   <string name="show_also_unsupported_models">同時顯示不支援的模型</string>
   <string name="show_also_unsupported_providers">同時顯示不支援的服務商</string>
@@ -1550,7 +1408,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="unknown_error">未知錯誤</string>
   <string name="easy_setup_title">快速設定</string>
   <string name="easy_setup_pref_summary">透過推薦提供商幾步完成AI設定</string>
-  <string name="easy_setup_choose_provider">選擇一個提供商開始：</string>
   <string name="easy_setup_enter_api_key">輸入您的API金鑰</string>
   <string name="easy_setup_api_key_instructions">從以下地址取得API金鑰：</string>
   <string name="easy_setup_test_connection">測試連線</string>
@@ -1609,7 +1466,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="addon_prompt_notice">此提示詞來自附加元件模組「%s」，無法編輯。請使用「複製以自定義」來建立可編輯的副本。</string>
   <string name="new_category">新建分類</string>
   <string name="new_category_name">分類名稱</string>
-  <string name="rename_category">重新命名</string>
   <string name="move_category_up">向上移動</string>
   <string name="move_category_down">向下移動</string>
   <string name="hide_category">從AI操作中隱藏</string>
@@ -1654,28 +1510,22 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_note_updated">筆記已更新</string>
   <string name="specify_before_run_title">指定任務</string>
   <string name="specify_before_run_hint">描述具體任務…</string>
-  <string name="prompt_cache_settings">快取設定</string>
   <string name="prompt_strict_context_matching">內容相關快取</string>
   <string name="prompt_strict_context_matching_description">啟用後，僅在所有內容（聖經版本、所選文字）相同時才符合快取。停用後，無論聖經版本如何，只要經文相同即符合快取。</string>
   <string name="ai_document_delete_confirmation">刪除此AI文件？</string>
-  <string name="ai_document_deleted">此AI文件已被刪除。</string>
   <string name="ai_document_regenerating">正在重新產生AI文件…</string>
-  <string name="ai_document_regenerate_not_implemented">重新產生功能將在未來版本中提供</string>
   <string name="ai_regenerate_prompt_not_found">無法重新產生：未找到原始提示詞，可能已被刪除。</string>
   <string name="ai_document_regenerate">重新產生</string>
   <string name="ai_regenerate_title">重新產生</string>
   <string name="ai_regenerate_instructions_hint">附加說明（可選）</string>
   <string name="ai_regenerate_keep_previous">保留上一個版本</string>
   <string name="ai_regenerate_fresh_run">全新執行（忽略上次結果）</string>
-  <string name="ai_document_delete">刪除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">翻譯為%s</string>
   <string name="default_prompt_translate_to_ui_language">翻譯為介面語言</string>
   <string name="default_prompt_translate_to_ui_language_desc">將文件文字翻譯為應用程式介面語言</string>
-  <string name="default_prompt_translate_to_english">翻譯為英語</string>
-  <string name="default_prompt_translate_to_english_desc">將所選文字翻譯為英語</string>
   <string name="default_prompt_summary">摘要</string>
   <string name="default_prompt_summary_desc">建立所選文字的簡明摘要</string>
   <string name="default_prompt_explain_verses">解釋經文</string>
@@ -1684,8 +1534,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="default_prompt_explain_verses_studypad_desc">建立包含逐節解釋和書籤的學習筆記</string>
   <string name="default_prompt_word_study">詞語研究</string>
   <string name="default_prompt_word_study_desc">分析原文希伯來語/希臘語詞彙</string>
-  <string name="default_prompt_strongs_annotation">司壯編號標注</string>
-  <string name="default_prompt_strongs_annotation_desc">以KJV為參考，為任意聖經譯本新增司壯經文彙編編號</string>
   <string name="default_prompt_cross_references">交叉參考</string>
   <string name="default_prompt_cross_references_desc">尋找並解釋相關聖經段落</string>
   <string name="default_prompt_compare_translations">比較譯本</string>
@@ -1828,11 +1676,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_document_filter_summary">選擇 AI 可以讀取的文件</string>
   <string name="ai_document_filter_summary_count">已排除 %d 份文件</string>
   <string name="ai_document_filter_activity_title">AI 文件存取</string>
-  <string name="ai_document_excluded_error">文件已被使用者設定排除：%s</string>
   <string name="permission_status_default">詢問（預設）</string>
-  <string name="permission_status_allowed">永遠允許</string>
-  <string name="permission_status_denied">永遠拒絕</string>
-  <string name="permission_option_default">每次詢問（預設）</string>
   <string name="permission_option_always_allow">永遠允許</string>
   <string name="permission_option_always_deny">永遠拒絕</string>
   <string name="reset_all_permissions">全部重設</string>
@@ -1847,10 +1691,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">工具權限</string>
-  <string name="prompt_tool_permissions_read_only">工具權限（唯讀）</string>
-  <string name="prompt_tool_permissions_description">覆寫此提示的工具權限</string>
-  <string name="tool_section_read_tools">讀取工具</string>
-  <string name="tool_section_write_tools">寫入工具</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">聖經與搜尋</string>
@@ -1873,13 +1713,9 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">模型</string>
   <string name="prompt_model_default">預設</string>
-  <string name="prompt_model_custom">自訂</string>
-  <string name="prompt_model_custom_hint">輸入模型名稱</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">選擇 AI 操作</string>
-  <string name="no_llm_prompts_configured">未為經文選取設定 AI 提示</string>
-  <string name="llm_prompt_executing">正在執行 AI 提示：%s</string>
   <string name="llm_actions">AI 操作</string>
 
     <!-- Agent Log Widget -->
@@ -1887,9 +1723,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="agent_log_close">關閉代理日誌</string>
   <string name="agent_log_stop">停止 AI</string>
   <string name="agent_log_idle">AI 助理</string>
-  <string name="agent_log_running">AI 正在運作中…</string>
   <string name="agent_log_completed">已完成</string>
-  <string name="agent_log_error">發生錯誤</string>
   <string name="agent_log_executing">正在執行：%s</string>
   <string name="agent_log_iteration">第 %d 次迭代</string>
   <string name="agent_log_tool">工具：%s</string>
@@ -1899,7 +1733,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="agent_log_saved">已儲存：%s</string>
   <string name="agent_log_done">完成：%s</string>
   <string name="agent_log_cancelled">已取消</string>
-  <string name="agent_execution_completed">AI 代理執行已完成</string>
   <string name="agent_already_running">AI 代理已在執行中，請稍候或先將其停止。</string>
 
     <!-- AI Agent Notifications -->
@@ -1918,22 +1751,16 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="my_document_new_name">文件 %d</string>
   <string name="my_document_create_title">新增文件</string>
   <string name="my_document_rename_title">重新命名文件</string>
-  <string name="my_document_edit_description_title">編輯描述</string>
   <string name="my_document_delete_confirmation">刪除文件「%s」？</string>
   <string name="my_document_cannot_delete_ai_documents">AI 文件包含頁面時無法刪除。請先刪除其中的頁面。</string>
   <string name="my_document_save_changes">儲存變更？</string>
   <string name="my_document_no_description">無描述</string>
-  <string name="my_document_rename">重新命名</string>
   <string name="my_document_edit_description">編輯描述</string>
-  <string name="my_document_delete">刪除</string>
 
   <string name="my_document_pages_title">%s - 頁面</string>
   <string name="my_document_pages_empty">此文件中沒有頁面。</string>
   <string name="my_document_page_rename_title">重新命名頁面</string>
   <string name="my_document_page_delete_confirmation">刪除頁面「%s」？</string>
-  <string name="my_document_page_rename">重新命名</string>
-  <string name="my_document_page_delete">刪除</string>
-  <string name="my_document_page_export">匯出</string>
   <string name="my_document_new_page_name">第 %1$d 頁</string>
   <string name="my_document_create_page_title">新增頁面</string>
   <string name="my_document_content_type_label">內容類型</string>
@@ -1953,12 +1780,10 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 
   <string name="prefs_page_scroll_amount_title">翻頁捲動幅度</string>
   <string name="prefs_page_scroll_amount_summary">向上／向下翻頁時捲動的頁面比例</string>
-  <string name="page_scroll_amount_dialog_title">翻頁捲動幅度</string>
   <string name="prefs_scroll_helper_lines_title">捲動輔助線</string>
   <string name="prefs_scroll_helper_lines_summary">在翻頁邊界處顯示水平參考線</string>
   <string name="prefs_scroll_helper_line_style_title">輔助線樣式</string>
   <string name="prefs_scroll_helper_line_style_summary">選擇捲動輔助線的視覺樣式</string>
-  <string name="scroll_helper_line_style_dialog_title">輔助線樣式</string>
   <string name="scroll_helper_line_style_thin_dotted">細虛線</string>
   <string name="scroll_helper_line_style_thin_solid">細實線</string>
   <string name="scroll_helper_line_style_thick_solid">粗實線</string>

@@ -7,7 +7,6 @@
   <string name="app_name_long">לתנ\"ך, :AndBible
 
 </string>
-  <string name="project">פרוייקט הקוד הפתוח AndBible</string>
 
   <string name="version_text">גרסה %s</string>
   <string name="no_sdcard_error">אנא הכנס כרטיס זכרון והפעל מחדש את המכשיר</string>
@@ -102,24 +101,17 @@
   <string name="notes_content_type_html">טקסט עשיר (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">מרווח פסקאות (%s מ\"מ)</string>
-  <string name="prefs_paragraph_spacing_summary">הגדרות מרווח בין פסקאות</string>
 
-  <string name="prefs_show_verseno_title1">מספרי פסוקים</string>
 
-  <string name="prefs_show_chapter_no_title">מספרי פרקים</string>
-  <string name="prefs_show_chapter_no_summary">הצגת מספרים פרקים</string>
 
   <string name="prefs_verse_per_line_summary">הצג כל פסוק בשורה חדשה</string>
   <string name="prefs_show_bookmarks_summary">בטל סימון כדי להסתיר את כל הסימניות</string>
 
   <string name="prefs_show_mynotes_summary">הצגת אייקון ליד פסוקים שכתבתי להם פתקית</string>
-  <string name="prefs_show_notes_summary">הצג הערות שוליים ומראי מקום</string>
   <string name="prefs_show_strongs_summary">קישורים לעברית ויוונית</string>
   <string name="prefs_show_morphology_summary">הצגת יוונית של רובינסון</string>
   <string name="prefs_section_title_summary">הצג כותרות נושאיות (אינן חלק מהטקסט המקורי)</string>
   <string name="prefs_red_letter_summary">הצג את דברי המשיח באדום</string>
-  <string name="prefs_text_size_title">הגדרות גופן</string>
 
   <string name="prefs_verse_per_line_title">כל פסוק בשורה נפרדת</string>
   <string name="prefs_show_bookmarks_title">הצג סימניות</string>
@@ -131,7 +123,6 @@
   <string name="prefs_show_footnotes_inline_summary">הצג הערות שוליים בתוך הטקסט במקום כסמנים הניתנים להקשה</string>
   <string name="prefs_show_xrefs_summary">הצגת מראי מקום, אם קיימים למסמך זה</string>
 
-  <string name="prefs_show_notes_title">הערות</string>
   <string name="prefs_show_strongs_title">מספור STRONG</string>
   <string name="prefs_show_morphology_title">סימנים מורפולוגיים</string>
   <string name="prefs_non_strongs_word_italic_title">הטה מילים שנוספו</string>
@@ -286,15 +277,9 @@
   <string name="prefs_noise_title">רעש רקע</string>
   <string name="prefs_noise_summary">הוספת רעש לרקע עשויה להיות נוחה יותר לקריאה.</string>
 
-  <string name="cpv_default_title">בחירת צבע</string>
-  <string name="cpv_presets">פריסטים (הגדרות קבועות מראש)</string>
-  <string name="cpv_custom">מיוחד</string>
-  <string name="cpv_select">בחירה</string>
-  <string name="cpv_transparency">שקיפות</string>
 
     <!-- Window -->
   <string name="new_window">חלון חדש</string>
-  <string name="windowClose">סגור</string>
   <string name="windowMaximise">הגדל</string>
   <string name="windowMinimise">הקטן</string>
   <string name="windowSynchronise">סנכרון</string>
@@ -308,26 +293,19 @@
   <string name="window_pin_mode">נעיצה</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">אין הערות לפרק זה</string>
-  <string name="no_verse_notes">אין הערות לפסוק זה</string>
   <string name="previous">אחורה</string>
   <string name="next">קדימה</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">אנא הורד מילוני Strong לעברית ויוונית</string>
   <string name="no_indexed_bible_with_strongs_ref">יש להוריד תנ\"ך הכולל מספרי סטרונג וליצור אינדקס עבורו בעזרת \"חיפוש\"</string>
-  <string name="morph_robinson_not_installed">נא להוריד את המילון \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">לך להורדות</string>
 
     <!-- Module download -->
   <string name="download">הורדת טקסטים</string>
   <string name="redownload">הורדה חוזרת של מסמכים</string>
-  <string name="download_confirmation">האם להוריד מהאינטרנט?</string>
   <string name="download_source_last_updated">רשימת המסמכים עודכנה לאחרונה: %s.</string>
   <string name="download_refreshing_book_list">מעדכן רשימת מסמכים משרתי המסמכים...</string>
   <string name="download_source_message1">ניתן להוריד מסמכים מהמקורות הבאים:</string>
   <string name="download_document_confirm_prefix">הורדה</string>
-  <string name="download_refresh_book_list_menu_item">רענון</string>
   <string name="error_downloading">אירעה תקלה בזמן ההורדה. נא לבדוק את החיבור לאינטרנט.</string>
   <string name="error_downloading_status">השרת המארח את %1$s החזיר שגיאה בשל %2$s (%3$d).</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
@@ -372,16 +350,6 @@
   <string name="done">סיום</string>
   <string name="reset_plan_question">בטוח שאתה רוצה לאפס את התוכנית?</string>
   <string name="import_reading_plan">ייבוא תוכנית קריאה...</string>
-  <string name="import_reading_plan_error">שגיאה בייבוא</string>
-  <string name="import_reading_plan_error_duplicate">הימים האלו שוכפלו: %s</string>
-  <string name="import_reading_plan_error_days">הימים האלו מכילים שגיאות: %s</string>
-  <string name="import_reading_plan_anyway">ייבא בכל זאת</string>
-  <string name="overwrite_reading_plan">האם לדרוס את %s?</string>
-  <string name="delete_reading_plan">מחיקת תוכנית זו</string>
-  <string name="reading_plan_deleted">תוכנית הקריאה נמחקה</string>
-  <string name="reading_plan_ships_with_ab">תוכנית קריאה זו מופצת עם: %s</string>
-  <string name="confirm_delete_reading_plan">
-בטוח למחוק את \"%s\", כולל היסטוריית הקריאה שלה? בשביל לעדכן את התוכנית, ניתן לטעון אותה שוב עם אותו שם קובץ, והיסטוריית הקריאה תישמר.</string>
   <string name="plan_duplicate_user_plan">
         ישנה תוכנית קריאה בכרטיס הזכרון
         jsword/readingplan באותו השם כמו התחוכנית הפנימית, ולכן לא ניתן להציג אותה.
@@ -429,7 +397,6 @@
   <string name="notes">הערות שוליים ומראי מקום</string>
   <string name="share_verse">שתף...</string>
   <string name="share_verse_widget_title">שיתוף הקטע המסומן</string>
-  <string name="share_verse_subject_2">קיבלת קטע מהכתובים %s.</string>
   <string name="compare_translations">השוואת תרגומים</string>
 
     <!-- Link context menu -->
@@ -441,33 +408,26 @@
   <string name="bookmarks_and_mynotes_title">סימניות וההערות שלי</string>
   <string name="migrated_my_notes">ההערות שלי שולבו</string>
   <string name="bookmarks">סימניות</string>
-  <string name="bookmark_added">הסימניה נוספה</string>
     <!-- Bookmark / note labels -->
   <string name="labels">תוויות</string>
   <string name="manage_labels">ניהול תגיות</string>
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_item">חדש</string>
-  <string name="new_label">תווית חדשה</string>
   <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
   <string name="add_bookmark1">סימניה</string>
-  <string name="add_bookmark2">בחירת סימניות</string>
   <string name="add_bookmark3">בחירה</string>
   <string name="add_bookmark_whole_verse">סימניה לפסוק</string>
   <string name="add_bookmark_whole_verse1">פסוקים</string>
-  <string name="add_bookmark_whole_verse2">פסוקים מלאים</string>
   <string name="add_whole_page_bookmark">הוסף סימניה לכל העמוד</string>
   <string name="add_paragraph_break">מעבר פסקה</string>
   <string name="ai_label">בינה מלאכותית</string>
-  <string name="remove_bookmark">הסרה</string>
   <string name="bookmark_settings_hide_labels_title">הסתרת תגיות ספציפיות</string>
   <string name="bookmark_settings_hide_labels_summary">הסתר סימניות המסומנות עם התגיות המצויינות</string>
   <string name="auto_assign_labels_title">הגדרות תגיות</string>
   <string name="auto_assign_labels">השמה אוטומטית ותגיות מועדפות</string>
   <string name="auto_assign_labels1">הוסף את התוית באופן אוטומטי לסימניות חדשות</string>
   <string name="auto_assign_labels_primary">הוסף באופן אוטומטי כראשית</string>
-  <string name="label_color">צבע תגית</string>
-  <string name="label_color_example">דוגמה</string>
   <string name="marker_style">הצג רק סמן עבור סימניות בחירה</string>
   <string name="marker_style_whole_verse">הצג רק סמן עבור סימניות פסוק שלם</string>
   <string name="hide_style">הסתר עבור סימניות בחירה</string>
@@ -495,11 +455,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">פרק %d</string>
   <string name="some_chapters">%d פרקים</string>
-  <string name="rest_of_book">לסוף הספר</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">פסוק %d</string>
   <string name="some_verses">%d פסוקים</string>
-  <string name="rest_of_chapter">לסוף הפרק</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">עמוד %d</string>
   <string name="some_pages">%d עמודים</string>
@@ -509,8 +467,6 @@
   <string name="rewind">אחורה</string>
   <string name="forward">קדימה</string>
   <string name="tts_lang_not_available">שפה זו אינה זמינה.</string>
-  <string name="speak_queue">תור</string>
-  <string name="speak_repeat">חזור שנית</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">מהירות הקראה</string>
@@ -583,14 +539,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">האייקון \"%s\" מציין שהבחירה מגיעה מהגדרות מסך העבודה.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">האייקון  \"%s\" מציין שההגדרה שונתה עבור חלון מסויים זה.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">השתמש בכפתור %1$s כדי לאפס את כל ההגדרות חזרה ל-%2$s.</string>
   <string name="reset_defaults">ערכי ברירת מחדל</string>
   <string name="reset_workspace_defaults">ערכי ברירת מחדל של סביבת העבודה</string>
 
-  <string name="speak_bookmark_help">עזרה לגבי סימניית השמעה</string>
 
   <string name="speak_help_auto_bookmark">
 סימניית השמעה תיתוסף אוטומטית כשההשמעה נעצרת או מופסקת.
@@ -633,7 +587,6 @@
   <string name="backup_phone_storage">אחסון המכשיר</string>
   <string name="backup_and_restore">גיבוי ושחזור</string>
   <string name="backup_modules2">גיבוי מסמכים ל....</string>
-  <string name="backup_app_database2">גיבוי מסד הנתונים של האפליקציה אל...</string>
   <string name="backup_app2">שמירת האפליקציה (קובץ apk) אל...</string>
   <string name="backup_application">יישום</string>
   <string name="backup_database">מסד נתונים</string>
@@ -645,17 +598,13 @@
   <string name="backup_restore_from">שחזור גיבוי מ...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">שחזור או ייבוא מ...</string>
-  <string name="backup_restore">שחזור</string>
   <string name="backup_restore2">שחזור או ייבוא</string>
   <string name="overwrite_something">לדרוס את %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">מה לשחזר?</string>
 
-  <string name="restore_app_database">שחזר את מסד נתוני היישום מתוך...</string>
   <string name="restore_database">שחזור קובץ מסד נתונים</string>
   <string name="restore_confirmation">שחזור ידרוס את כל הנתונים הבאים: הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה, מסכי עבודה. האם לשחזר?</string>
-  <string name="restore_success2">קטעי מסד הנתונים שנבחרו שוחזרו בהצלחה</string>
   <string name="restore_success">הערות אישיות, סימניות, פנקסי לימוד, תוכניות קריאה ומסכי עבודה שוחזרו בהצלחה.</string>
   <string name="downloading_backup">מוריד קובץ גיבוי...</string>
   <string name="loading_backup">טוען נתונים מהגיבוי....</string>
@@ -671,14 +620,12 @@
   <string name="exported_studypads_subject">פנקסי לימוד שיוצאו</string>
   <string name="exported_studypads_message">מסד הנתונים %s שלך המכיל סימניות והערות הקשורות לפנקסי הלימוד שנבחרו מצורף</string>
   <string name="restore_unsuccessfull">שחזור הגיבוי נכשל. ייתכן שקובץ הגיבוי פגום.</string>
-  <string name="restore_modules">שחזור מסמכים מ....</string>
   <string name="send_backup_file">שליחת קובץ גיבוי</string>
   <string name="backup_modules_title">בחירת מודולים לגיבוי</string>
   <string name="install_zip_canceled">התקנת המודול בוטלה</string>
   <string name="ask_restore_or_import">ניתן לשחזר את מסד הנתונים עבור %s (כלומר, מסד הנתונים הקיים מוסר והנבחר נטען) או לייבא אותו (מסד הנתונים הנבחר מיובא לתוך הקיים). מה ברצונך לעשות?</string>
   <string name="restore">שחזור</string>
   <string name="import2">ייבוא</string>
-  <string name="export_studypads_help">ניתן לייבא קובץ המכיל פנקסי לימוד שיוצאו (כלומר תוויות וסימניות) דרך תפריט ראשי -&gt; גיבוי ושחזור.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">"%1$s" ו-%2$s תוויות/פנקסי לימוד נוספים ו-%3$s סימניות</string>
@@ -692,8 +639,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">דווח שגיאה</string>
-  <string name="send_feedback_title">משוב</string>
   <string name="send_bug_report_title">משוב / דווח שגיאה</string>
   <string name="report_bug_email_subject_3">[%1$s] דווח תקלה אודות %2$s %3$s</string>
 
@@ -732,10 +677,8 @@
   <string name="yes">כן</string>
   <string name="no">לא</string>
   <string name="error">שגיאה</string>
-  <string name="delete_generic">מחיקה</string>
   <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
-  <string name="edit">עריכה</string>
   <string name="reset_generic">איפוס</string>
   <string name="watch_tutorial_video">צפייה בסרטון הדרכה (באנגלית)</string>
   <string name="verse_not_found">הפסוק לא נמצא</string>
@@ -759,12 +702,11 @@
   <string name="notification_channel_progress_status">להציג התראות עבור תהליכים רצים, למשל הורדות</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">חדש</string>
   <string name="switch_to_workspace">סביבות עבודה</string>
   <string name="delete_workspace">הסרה</string>
   <string name="new_copied_workspace">העתק כחדש</string>
   <string name="workspace_number">סביבת עבודה %d</string>
-  <string name="rename_workspace">שינוי שם</string>
+  <string name="rename">שינוי שם</string>
   <string name="workspace_selector_title">בחירת סביבת עבודה</string>
   <string name="workspace_settings">הגדרות...</string>
   <string name="give_name_workspace">בחירת שם לסביבה החדשה</string>
@@ -777,12 +719,11 @@
   <string name="copy_settings_workspaces_title">לאיזו סביבת עבודה להעתיק את ההגדרות?</string>
   <string name="reset_settings">איפוס</string>
   <string name="search_settings">הגדרות חיפוש</string>
-  <string name="workspace_dismiss">התעלם</string>
+  <string name="dismiss">התעלם</string>
   <string name="workspace_listing_with_current">%s (נוכחי)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">זו גרסת בטא !</string>
-  <string name="beta_flag">בטא</string>
   <string name="beta_notice_content_1">
         בגרסת הבטא, ישנן אפשרויות חדשות שלא נבדקו כהלכה,
         ועלולים לקרות דברים מוזרים, כמו באגים.
@@ -796,7 +737,6 @@
   <string name="beta_notice_content_3">אם אתה מתכנת, אולי תוכל לעזור לנו לפתור באגים כאן %s  בעצמך :-)</string>
   <string name="beta_notice_github_issues">נושאי Github </string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">התעלם</string>
   <string name="beta_notice_dismiss_until_update">התעלם עד לעדכון הבא</string>
 
   <string name="stable_notice_title">האפליקציה עברה שדרוג!</string>
@@ -824,9 +764,6 @@
 
   <string name="help_search_title">חיפוש</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">חיפוש טקסט יכול לכלול סימנים מיוחדים כגון  *, ?, AND, OR, NOT
-        (קרא את \"Apache Lucene - Query Parser Syntax\" למידע נוסף [באנגלית[))
-    </string>
   <string name="help_search_text2">טקסט החיפוש יכול לכלול תווים מיוחדים כמו *, AND, OR, NOT</string>
   <string name="help_search_details">ראה %s לפרטים נוספים.</string>
   <string name="help_apache_lucene">Apache Lucene - תחביר מנתח שאילתות</string>
@@ -849,7 +786,6 @@
   <string name="redownload_documents">הורדה מהירה</string>
   <string name="welcome_message">תודה על הורדת %s. לא מותקנים כרגע תנ\"כים או מסמכים אחרים. כדי להמשיך, נא להתקין לפחות מסמך אחד, ע\"י הורדה מהאינטרנט, או טעינה מקובץ ZIP/גיבוי מסמכים.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">פורמטים נתמכים</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">אתה צריך לבחור את הקובץ כדי לטעון אותו אל %s. </string>
   <string name="supported_formats">פורמטים נתמכים לטעינת מסמכים מקובץ: %s</string>
@@ -873,7 +809,6 @@
   <string name="strongs_mode_title">בחירת מצב סטרונג</string>
 
   <string name="download_dialog_message">הספרים הבאים לא הורדו:</string>
-  <string name="select_multiple">לבחור כמה</string>
   <string name="journal_description">פנקסי לימוד ניתנים-לעריכה עם טקסט וסימניות</string>
   <string name="my_notes_description">הערות ניתנות-לעריכה מצורפות לסימניות</string>
   <string name="my_notes_abbreviation">הערות אישיות</string>
@@ -888,7 +823,6 @@
   <string name="http_not_found">לא נמצא</string>
   <string name="http_unknown">שגיאה אחרת</string>
   <string name="give_passphrase_for_module">המסמך %s מוצפן ונדרשת סיסמה לפתיחתו</string>
-  <string name="unlocking_failed">הפתיחה נכשלה, סיסמה לא תקינה</string>
   <string name="unlock_module">קביעת סיסמה למסמך</string>
   <string name="unlock_info">מידע לפתיחת מסמך מוצפן</string>
   <string name="try_again_passphrase">הסיסמה לא עבדה, לנסות שוב?</string>
@@ -940,8 +874,6 @@
   <string name="tell_friend_message4">לקריאה נוספת ואפשרויות התקנה נוספות: %s</string>
   <string name="share_verse_ok">שיתוף / העתקה</string>
   <string name="web_search">חיפוש ברשת</string>
-  <string name="verse_action_copy">העתק</string>
-  <string name="generic_share">שתף</string>
   <string name="share_verse_menu_title">שיתוף / העתקה ...</string>
   <string name="show_versenumbers">הצג מספרי פסוקים</string>
   <string name="show_full_verses">הצג פסוקים מלאים</string>
@@ -958,9 +890,6 @@
   <string name="show_quotes">הצג ציטוטים</string>
   <string name="separate_verses_with_newlines">הפרד פסוקים בשורות חדשות</string>
 
-  <string name="backup_button">גיבוי</string>
-  <string name="back_button">חזרה</string>
-  <string name="upgrading_database">מעדכן את מסד הנתונים. אנא המתן...</string>
   <string name="initializing_app">מאתחל את היישום</string>
   <string name="show_notes">הצג הערות</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -993,7 +922,6 @@
 להמשיך אל Google Play</string>
   <string name="text_maintainers">
 אנא דווחו על בעיות אל המתחזקים של הטקסט/מסמך/תנ\"ך</string>
-  <string name="does_not_exist_abbreviation">אינו קיים</string>
   <string name="cant_change_wholeverse">אי אפשר לבטל סימון פסוק שלם עבור סימנייה זו</string>
   <string name="whole_verse_turned_on">הסימנייה היא כעת עבור פסוק שלם</string>
   <string name="this_bookmark">סימניה זו</string>
@@ -1006,7 +934,6 @@
   <string name="display_mode_hidden">מוסתר</string>
   <string name="workspace_override_indicator">לתווית זו יש מצב תצוגה ייחודי לסביבת עבודה</string>
   <string name="primary_label">תגית ראשית</string>
-  <string name="highlight_entire_verse">הדגשת הפסוק כולו</string>
   <string name="favourite_label">תגית מועדפת</string>
   <string name="edit_label">עריכת תגית</string>
   <string name="delete_label_confirmation">האם ברצונך למחוק את התווית \"%s\"? בנוסף, יימחקו כל רשימות פנקסי הלימוד המקושרים אליה.</string>
@@ -1024,7 +951,6 @@
   <string name="reorder">סידור מחדש</string>
   <string name="system_items">פעולות מערכת</string>
   <string name="system_items1">עוד</string>
-  <string name="system_action2">פעולות אנדרואיד</string>
   <string name="text_copied_to_clicpboard">הטקסט הועתק</string>
   <string name="prefs_disable_two_step_bookmarking_title">סימניה מהירה</string>
   <string name="prefs_disable_two_step_bookmarking_summary">הצגת אפשרויות \"בחירה\" ו\"פסוקים\" בתפריט הנפתח ע\"י לחיצה ארוכה על הטקסט. אפשרויות אלה יוצרות במהירות סימניות - הראשונה עבור החלק הנבחר, השניה עבור פסוקים שלמים.</string>
@@ -1038,7 +964,6 @@
   <string name="label_blue">כחול</string>
   <string name="label_salvation">ישועה</string>
   <string name="label_underline">קו תחתי</string>
-  <string name="import_menu">ייבוא וייצוא</string>
   <string name="auto_backups_title">גיבויים אוטומטיים</string>
   <string name="backup_file_info">אפליקציה v%1$d, %2$s</string>
   <string name="reset_databases_title">איפוס מסדי נתונים</string>
@@ -1056,18 +981,12 @@
   <string name="export_prompts_csv">יצא הנחיות ל-CSV</string>
   <string name="import_prompts_csv">ייבא הנחיות מ-CSV</string>
   <string name="prompts_csv_export_success">יוצאו %d הנחיות ל-CSV</string>
-  <string name="prompts_csv_import_success">הייבוא הושלם: %1$d נוצרו, %2$d עודכנו</string>
-  <string name="prompts_csv_import_errors">הייבוא הושלם עם שגיאות: %1$d נוצרו, %2$d עודכנו, %3$d שגיאות</string>
-  <string name="prompts_csv_import_failed">ייבוא CSV נכשל: %s</string>
-  <string name="prompts_csv_export_failed">יצוא CSV נכשל: %s</string>
   <string name="no_prompts_to_export">אין הנחיות משתמש לייצוא</string>
   <string name="csv_column_selection_title">בחר עמודות CSV</string>
-  <string name="choose_csv_file">בחר קובץ CSV לייבוא</string>
   <string name="no_bookmarks_to_export">אין סימניות זמינות לייצוא</string>
   <string name="export_fileformat">ייצוא כ %s</string>
   <string name="export_something">יצוא %s</string>
   <string name="import_items">ייבוא %s</string>
-  <string name="import_from_db">טעינה מקובץ גיבוי של מסד נתוני היישום</string>
   <string name="import_error">נכשלה טעינת נתונים מקובץ מסד נתוני היישום. ייתכן שהקובץ בפורמט לא תקין או נשמר ע\"י גרסה ישנה מדי של %s.</string>
 
   <string name="export_bookmarks_csv">יצא סימניות כ-%s</string>
@@ -1096,23 +1015,13 @@
   <string name="last_updated_at">עודכן לאחרונה ב-</string>
   <string name="bookmark_notes">הערות סימניה</string>
 
-  <string name="chooser_range">טווח</string>
-  <string name="chooser_jump">עבור אל</string>
-  <string name="chooser_OT_abbrev">התנ\"ך</string>
-  <string name="chooser_NT_abbrev">הברית החדשה</string>
-  <string name="chooser_style_grid">תצוגת רשת</string>
-  <string name="chooser_style_lists">רשימו</string>
-  <string name="chooser_select">בחירת %s</string>
-  <string name="chooser_pref_reset">לא לאפס פרק/פסוק ל 1 כשבוחרים ספר/פרק</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">מצטערים, אך ממשק המשתמש תורגם באופן חלקי בלבד לשפה %1$s. הסיבה היא ש-%2$s מפותח לחלוטין על ידי מתנדבים. אם תוכל לסייע בתרגום, ראה %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">הוראות למתרגמים</string>
   <string name="questions_title">שאלות?</string>
-  <string name="questions_title2">צריך עזרה?</string>
   <string name="bookmark_style">סגנון סימניה</string>
   <string name="added_to_bookmark">צרף לסימניה זו</string>
-  <string name="strongs_off">מכובה</string>
   <string name="strongs_links">קישורים</string>
   <string name="strongs_text_and_links">טקסט וקישורים</string>
   <string name="strongs_hidden_links">קישורים מוסתרים</string>
@@ -1151,7 +1060,6 @@
   <string name="discrete_mode_link">ניתן להוריד את הגרסה הדיסקרטית העדכנית מ-%s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">סנכרן קבוצה</string>
   <string name="sync_group_n">קבוצה %d</string>
   <string name="disable_sync">בטל סנכרון</string>
   <string name="open_in_window">הצג תוצאות בחלון</string>
@@ -1162,10 +1070,8 @@
   <string name="custom_repositories_empty_list_message">אין מקורות מיוחדים</string>
   <string name="custom_repositories_create_button_label">הוספת מאגר מיוחד</string>
   <string name="custom_repositories_info_button_label">מידע</string>
-  <string name="name_for_repository">שם המאגר</string>
   <string name="repository_specification">URL של המקור</string>
   <string name="delete_custom_repository">האם להסיר את המאגר %s?</string>
-  <string name="invalid_repository_not_saved">מפרט המאגר לא תקין ולא נשמר.</string>
   <string name="custom_repositories_help1">כדי להוסיף מאגר מותאם אישית חדש, הקלד או הדבק את כתובת ה-URL של המאגר כאן.</string>
   <string name="custom_repositories_help2">ניתן לקרוא מידע נוסף על מאגרים מותאמים אישית ב-%s.</string>
   <string name="wiki_page">עמוד וויקי</string>
@@ -1201,7 +1107,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">התקדמות קריאה/שינון</string>
   <string name="reading_progress_chapters_read">פרקים שנקראו</string>
-  <string name="reading_progress_verses_memorized">פסוקים שנשננו</string>
   <string name="reading_progress_active_days">ימים פעילים</string>
   <string name="reading_progress_overall">%s%% מהתנ"ך נקרא</string>
   <string name="reading_progress_bible_heatmap">סקירת תנ"ך</string>
@@ -1227,13 +1132,11 @@
   <string name="sync_adapter_summary">נוכחי: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">הזדהות אל %s</string>
   <string name="auth_server_uri">כתובת השרת</string>
   <string name="auth_username">שם משתמש</string>
   <string name="auth_password">סיסמה</string>
   <string name="auth_folder_path">נתיב תיקיית סנכרון</string>
   <string name="auth_folder_path_summary">תיקיית אב לנתוני הסנכרון (ריק = שורש)</string>
-  <string name="auth_access_token">טוקן</string>
   <string name="synchronization_categories">קטגוריות לסנכרון</string>
   <string name="sync_general_settings">מידע והגדרות כלליות</string>
   <string name="sync_introduction">הקדמה</string>
@@ -1249,8 +1152,6 @@
   <string name="report">דוח</string>
   <string name="sync_error">שגיאה בסנכרון לענן</string>
   <string name="error_notification_channel_name">הודעות שגיאה</string>
-  <string name="restore_from_cloud_description">אם יש לך סנכרון מכשיר מופעל במכשיר אחר, ניתן להתחיל בשחזור מסד הנתונים מהענן.</string>
-  <string name="enable_sync">אפשר סנכרון</string>
   <string name="last_updated">עודכן לאחרונה: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1271,11 +1172,6 @@
   <string name="processing_epub">מעבד EPUB: %s</string>
   <string name="buy_development">רכישת עבודת פיתוח</string>
   <string name="buy_development2">תמיכה בפרוייקט</string>
-  <string name="new_version_warning">גרסה חדשה עומדת לצאת בקרוב. תאריך ההשקה המשוער הוא %1$s. עקוב אחר ה-%2$s שלנו לגילוי תכונות ושיפורים חדשים.</string>
-  <string name="new_version_trailer">סרטון קדימון</string>
-  <string name="new_version_warning2">לאחר ההשקה, גרסה זו אינה נתמכת.</string>
-  <string name="new_version_warning3">היא לא תקבל תיקוני באגים או עדכונים.</string>
-  <string name="new_version_warning4">אם אינך רוצה לשדרג, אנא השבת \'עדכונים אוטומטיים\' בחנות האפליקציות שלך (Google Play / F-Droid וכו\').</string>
   <string name="dont_show">
         אל תציג שוב את ההודעה הזו
     </string>
@@ -1296,7 +1192,6 @@
   <string name="invalid_url_message">הכתובת שהזנת אינה תקינה. יש להזין כתובת תקינה (לדוגמא: https://nextcloud.example.com)</string>
   <string name="memorize_description">שינון פסוקים</string>
   <string name="memorize_abbreviation">שינון</string>
-  <string name="add_memorization_target">הגדר כיעד שינון</string>
   <string name="memorize_memorized_passages">קטעים שנשננו</string>
   <string name="memorize_no_memorized_passages">אין קטעים שנשננו עדיין</string>
   <string name="memorize_targets">יעדי שינון</string>
@@ -1328,17 +1223,8 @@
   <string name="memorize_view_overview">סקירה כללית</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">תרגום LLM</string>
   <string name="sync_settings_shortcut_summary">סנכרן נתונים בין מכשירים</string>
-  <string name="llm_api_key_title">מפתח API</string>
-  <string name="llm_api_key_summary">מפתח API תואם OpenAI</string>
   <string name="llm_provider_custom">מותאם אישית (תואם OpenAI)</string>
-  <string name="llm_provider_title">ספק</string>
-  <string name="llm_provider_summary">בחר איזה ספק שירות בינה מלאכותית להשתמש. נקודת הקצה של ה-API והמודלים הזמינים יוגדרו אוטומטית.</string>
-  <string name="llm_provider_current">נוכחי: %s</string>
-  <string name="llm_api_key_detected_provider">ספק שזוהה: %s</string>
-  <string name="ai_connection_category">חיבור</string>
-  <string name="ai_model_category">מודל</string>
   <string name="ai_behavior_category">התנהגות</string>
   <string name="ai_language_title">שפת תגובות בינה מלאכותית</string>
   <string name="ai_language_summary">שפה בה הבינה המלאכותית משתמשת לתגובות</string>
@@ -1355,16 +1241,9 @@
   <string name="llm_reset_usage_confirm_title">לאפס נתוני שימוש?</string>
   <string name="llm_reset_usage_confirm_message">פעולה זו תמחק את כל נתוני השימוש המצטברים.</string>
   <string name="llm_custom_input_price_title">מחיר קלט ($/מיליון טוקן)</string>
-  <string name="llm_custom_input_price_summary">עלות למיליון טוקני קלט עבור מודל זה</string>
   <string name="llm_custom_output_price_title">מחיר פלט ($/מיליון טוקן)</string>
-  <string name="llm_custom_output_price_summary">עלות למיליון טוקני פלט עבור מודל זה</string>
   <string name="llm_cost_total">סה"כ: %1$s</string>
-  <string name="llm_endpoint_title">נקודת קצה API</string>
-  <string name="llm_endpoint_summary">כתובת URL בסיס עבור ה-API</string>
-  <string name="llm_model_title">מודל</string>
-  <string name="llm_model_summary">מזהה מודל</string>
   <string name="llm_custom_model">מותאם אישית…</string>
-  <string name="llm_custom_model_dialog_title">מודל מותאם אישית</string>
   <string name="llm_custom_model_dialog_message">הכנס את מזהה המודל</string>
   <string name="llm_rate_limited_retrying">הגבלת קצב. מנסה שוב בעוד %1$s שניות\u2026</string>
   <string name="llm_default_document_title">תגובת בינה מלאכותית</string>
@@ -1374,7 +1253,6 @@
   <string name="llm_parse_error_no_choices">אין בחירות בתגובת OpenAI</string>
   <string name="llm_parse_error_openai">נכשל בניתוח תגובת OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">נכשל בניתוח תגובת Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">הנחיה לא נמצאה: %1$s</string>
   <string name="llm_error_unknown">שגיאה לא ידועה</string>
   <string name="llm_error_max_iterations">הגיע למקסימום איטרציות (%1$d) ללא השלמה</string>
   <string name="llm_continue_iterations_title">להמשיך?</string>
@@ -1409,7 +1287,6 @@
   <string name="raw_log_retention_summary_disabled">מושבת (שמור הכל)</string>
   <string name="send_ai_bug_report_title">דווח על באג בבינה מלאכותית</string>
   <string name="ai_bug_report_menu">דווח על באג בבינה מלאכותית</string>
-  <string name="ai_bug_report_recommended_only">דיווח באגים זמין רק עבור מודלי ספק מומלצים</string>
 
   <string name="select_model_before_run_title">בחר מודל</string>
   <string name="set_default_model_for_prompt">הגדר כמודל ברירת מחדל להנחיה זו</string>
@@ -1439,7 +1316,6 @@
   <string name="ai_models_summary_none">לא הוגדרו מודלים</string>
   <string name="ai_add_provider">הוסף ספק</string>
   <string name="ai_provider_edit">ערוך</string>
-  <string name="ai_provider_delete">מחק</string>
   <string name="ai_provider_delete_confirm">למחוק ספק \"%1$s\"? הנחיות המשתמשות בספק זה יחזרו לברירת המחדל.</string>
   <string name="ai_provider_api_key_not_set">מפתח API לא הוגדר</string>
   <string name="ai_provider_select_type">בחר סוג ספק</string>
@@ -1451,27 +1327,18 @@
   <string name="ai_provider_saved">הספק נשמר</string>
   <string name="ai_provider_deleted">הספק נמחק</string>
 
-  <string name="llm_fetch_models_title">הורד רשימת מודלים</string>
-  <string name="llm_fetch_models_message">להוריד את רשימת המודלים הזמינים מ-%1$s?</string>
-  <string name="llm_fetch_models_dont_ask">אל תשאל שוב</string>
-  <string name="llm_fetch_models_success">נטענו %1$d מודלים</string>
-  <string name="llm_fetch_models_failed">נכשל בהבאת מודלים</string>
   <string name="llm_openrouter_category">קטגוריה</string>
   <string name="llm_openrouter_category_all">הכל</string>
   <string name="llm_openrouter_model">מודל</string>
     <!-- Configured models management -->
   <string name="ai_models_category">מודלים</string>
   <string name="add_model">הוסף מודל</string>
-  <string name="add_model_title">הוסף מודל</string>
   <string name="edit_model_title">ערוך מודל</string>
   <string name="model_saved">המודל נשמר</string>
   <string name="model_deleted">המודל נמחק</string>
   <string name="model_delete_confirm">למחוק מודל \"%1$s\"?</string>
   <string name="model_set_default">הגדר כמודל ברירת מחדל</string>
   <string name="model_select_provider">ספק</string>
-  <string name="no_models_configured">לא הוגדרו מודלים</string>
-  <string name="model_cache_creation_price">מחיר יצירת מטמון ($/מיליון טוקן)</string>
-  <string name="model_cache_read_price">מחיר קריאת מטמון ($/מיליון טוקן)</string>
   <string name="model_supported_badge">✓ נתמך</string>
   <string name="show_also_unsupported_models">הצג גם מודלים שאינם נתמכים</string>
   <string name="show_also_unsupported_providers">הצג גם ספקים שאינם נתמכים</string>
@@ -1482,7 +1349,6 @@
   <string name="unknown_error">שגיאה לא ידועה</string>
   <string name="easy_setup_title">הגדרה מהירה</string>
   <string name="easy_setup_pref_summary">הגדר בינה מלאכותית עם ספק מומלץ בכמה שלבים</string>
-  <string name="easy_setup_choose_provider">בחר ספק להתחלה:</string>
   <string name="easy_setup_enter_api_key">הכנס את מפתח ה-API שלך</string>
   <string name="easy_setup_api_key_instructions">קבל את מפתח ה-API שלך מ:</string>
   <string name="easy_setup_test_connection">בדוק חיבור</string>
@@ -1541,7 +1407,6 @@
   <string name="addon_prompt_notice">הנחיה זו היא ממודול תוסף \"%s\" ולא ניתן לערוך אותה. השתמש ב"העתק להתאמה" כדי ליצור עותק ניתן לעריכה.</string>
   <string name="new_category">קטגוריה חדשה</string>
   <string name="new_category_name">שם קטגוריה</string>
-  <string name="rename_category">שינוי שם</string>
   <string name="move_category_up">הזז למעלה</string>
   <string name="move_category_down">הזז למטה</string>
   <string name="hide_category">הסתר מפעולות בינה מלאכותית</string>
@@ -1586,28 +1451,22 @@
   <string name="llm_note_updated">ההערה עודכנה</string>
   <string name="specify_before_run_title">ציין משימה</string>
   <string name="specify_before_run_hint">תאר את המשימה הספציפית…</string>
-  <string name="prompt_cache_settings">הגדרות מטמון</string>
   <string name="prompt_strict_context_matching">מטמון תלוי הקשר</string>
   <string name="prompt_strict_context_matching_description">כשמופעל, המטמון תואם רק כאשר כל ההקשר (גרסת תנ"ך, טקסט שנבחר) זהה. כשמושבת, המטמון תואם כשהפסוקים זהים ללא תלות בגרסת התנ"ך.</string>
   <string name="ai_document_delete_confirmation">למחוק מסמך בינה מלאכותית זה?</string>
-  <string name="ai_document_deleted">מסמך בינה מלאכותית זה נמחק.</string>
   <string name="ai_document_regenerating">מחדש מסמך בינה מלאכותית…</string>
-  <string name="ai_document_regenerate_not_implemented">חידוש יהיה זמין בעדכון עתידי</string>
   <string name="ai_regenerate_prompt_not_found">לא ניתן לחדש: ההנחיה המקורית לא נמצאה. ייתכן שנמחקה.</string>
   <string name="ai_document_regenerate">חדש</string>
   <string name="ai_regenerate_title">חידוש</string>
   <string name="ai_regenerate_instructions_hint">הוראות נוספות (אופציונלי)</string>
   <string name="ai_regenerate_keep_previous">שמור גרסה קודמת</string>
   <string name="ai_regenerate_fresh_run">הרצה חדשה (התעלם מתוצאה קודמת)</string>
-  <string name="ai_document_delete">מחק</string>
   <string name="ai_unknown_prompt">בינה מלאכותית</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">תרגם ל-%s</string>
   <string name="default_prompt_translate_to_ui_language">תרגם לשפת ממשק</string>
   <string name="default_prompt_translate_to_ui_language_desc">מתרגם טקסט מסמך לשפת ממשק האפליקציה</string>
-  <string name="default_prompt_translate_to_english">תרגם לאנגלית</string>
-  <string name="default_prompt_translate_to_english_desc">מתרגם טקסט שנבחר לאנגלית</string>
   <string name="default_prompt_summary">סיכום</string>
   <string name="default_prompt_summary_desc">יוצר סיכום תמציתי של הטקסט שנבחר</string>
   <string name="default_prompt_explain_verses">הסבר פסוקים</string>
@@ -1616,8 +1475,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">יצור פנקס לימוד עם הסבר פסוק אחר פסוק וסימניות</string>
   <string name="default_prompt_word_study">לימוד מילים</string>
   <string name="default_prompt_word_study_desc">מנתח מילים מקוריות בעברית/יוונית</string>
-  <string name="default_prompt_strongs_annotation">הוספת מספרי Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">מוסיף מספרי קונקורדנציה של Strong\'s לכל תרגום תנ"כי תוך שימוש ב-KJV כהפניה</string>
   <string name="default_prompt_cross_references">מראי מקום</string>
   <string name="default_prompt_cross_references_desc">מוצא ומסביר מקטעי תנ"ך קשורים</string>
   <string name="default_prompt_compare_translations">השווה תרגומים</string>
@@ -1760,11 +1617,7 @@
   <string name="ai_document_filter_summary">בחר אילו מסמכים הבינה המלאכותית יכולה לקרוא</string>
   <string name="ai_document_filter_summary_count">%d מסמכים מוחרגים</string>
   <string name="ai_document_filter_activity_title">גישת בינה מלאכותית למסמכים</string>
-  <string name="ai_document_excluded_error">מסמך מוחרג על ידי הגדרות המשתמש: %s</string>
   <string name="permission_status_default">שאל (ברירת מחדל)</string>
-  <string name="permission_status_allowed">תמיד מותר</string>
-  <string name="permission_status_denied">תמיד נדחה</string>
-  <string name="permission_option_default">שאל בכל פעם (ברירת מחדל)</string>
   <string name="permission_option_always_allow">תמיד אפשר</string>
   <string name="permission_option_always_deny">תמיד דחה</string>
   <string name="reset_all_permissions">אפס הכל</string>
@@ -1779,10 +1632,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">הרשאות כלים</string>
-  <string name="prompt_tool_permissions_read_only">הרשאות כלים (לקריאה בלבד)</string>
-  <string name="prompt_tool_permissions_description">עקוף הרשאות כלים להנחיה זו</string>
-  <string name="tool_section_read_tools">כלי קריאה</string>
-  <string name="tool_section_write_tools">כלי כתיבה</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">תנ"ך וחיפוש</string>
@@ -1805,13 +1654,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">מודל</string>
   <string name="prompt_model_default">ברירת מחדל</string>
-  <string name="prompt_model_custom">מותאם אישית</string>
-  <string name="prompt_model_custom_hint">הכנס שם מודל</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">בחר פעולת בינה מלאכותית</string>
-  <string name="no_llm_prompts_configured">לא הוגדרו הנחיות בינה מלאכותית לבחירת פסוק</string>
-  <string name="llm_prompt_executing">מפעיל הנחיית בינה מלאכותית: %s</string>
   <string name="llm_actions">פעולות בינה מלאכותית</string>
 
     <!-- Agent Log Widget -->
@@ -1819,9 +1664,7 @@
   <string name="agent_log_close">סגור יומן סוכן</string>
   <string name="agent_log_stop">עצור בינה מלאכותית</string>
   <string name="agent_log_idle">עוזר בינה מלאכותית</string>
-  <string name="agent_log_running">הבינה המלאכותית עובדת…</string>
   <string name="agent_log_completed">הושלם</string>
-  <string name="agent_log_error">אירעה שגיאה</string>
   <string name="agent_log_executing">מבצע: %s</string>
   <string name="agent_log_iteration">איטרציה %d</string>
   <string name="agent_log_tool">כלי: %s</string>
@@ -1831,7 +1674,6 @@
   <string name="agent_log_saved">נשמר: %s</string>
   <string name="agent_log_done">סיים: %s</string>
   <string name="agent_log_cancelled">בוטל</string>
-  <string name="agent_execution_completed">ביצוע הסוכן הושלם</string>
   <string name="agent_already_running">סוכן בינה מלאכותית כבר פועל. אנא המתן או עצור אותו תחילה.</string>
 
     <!-- AI Agent Notifications -->
@@ -1850,22 +1692,16 @@
   <string name="my_document_new_name">מסמך %d</string>
   <string name="my_document_create_title">צור מסמך חדש</string>
   <string name="my_document_rename_title">שנה שם מסמך</string>
-  <string name="my_document_edit_description_title">ערוך תיאור</string>
   <string name="my_document_delete_confirmation">למחוק מסמך \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">לא ניתן למחוק מסמכי בינה מלאכותית כשהם מכילים עמודים. מחק את העמודים תחילה.</string>
   <string name="my_document_save_changes">לשמור שינויים?</string>
   <string name="my_document_no_description">אין תיאור</string>
-  <string name="my_document_rename">שנה שם</string>
   <string name="my_document_edit_description">ערוך תיאור</string>
-  <string name="my_document_delete">מחק</string>
 
   <string name="my_document_pages_title">%s - עמודים</string>
   <string name="my_document_pages_empty">אין עמודים במסמך זה.</string>
   <string name="my_document_page_rename_title">שנה שם עמוד</string>
   <string name="my_document_page_delete_confirmation">למחוק עמוד \"%s\"?</string>
-  <string name="my_document_page_rename">שנה שם</string>
-  <string name="my_document_page_delete">מחק</string>
-  <string name="my_document_page_export">יצא</string>
   <string name="my_document_new_page_name">עמוד %1$d</string>
   <string name="my_document_create_page_title">עמוד חדש</string>
   <string name="my_document_content_type_label">סוג תוכן</string>
@@ -1885,12 +1721,10 @@
 
   <string name="prefs_page_scroll_amount_title">כמות גלילת עמוד</string>
   <string name="prefs_page_scroll_amount_summary">כמה מהעמוד לגלול עם עמוד למעלה/למטה</string>
-  <string name="page_scroll_amount_dialog_title">כמות גלילת עמוד</string>
   <string name="prefs_scroll_helper_lines_title">קווי עזר לגלילה</string>
   <string name="prefs_scroll_helper_lines_summary">הצג קווים מנחים אופקיים בגבולות גלילת עמוד</string>
   <string name="prefs_scroll_helper_line_style_title">סגנון קו עזר</string>
   <string name="prefs_scroll_helper_line_style_summary">בחר את הסגנון החזותי של קווי עזר הגלילה</string>
-  <string name="scroll_helper_line_style_dialog_title">סגנון קו עזר</string>
   <string name="scroll_helper_line_style_thin_dotted">קו מנוקד דק</string>
   <string name="scroll_helper_line_style_thin_solid">קו רציף דק</string>
   <string name="scroll_helper_line_style_thick_solid">קו רציף עבה</string>

@@ -5,7 +5,6 @@
   <string name="app_name_short">Studi Alkitab</string>
   <string name="app_name_medium">Studi Alkitab (AndBible)</string>
   <string name="app_name_long">AndBible: Studi Alkitab</string>
-  <string name="project">Proyek Sumber Terbuka AndBible</string>
 
   <string name="version_text">Versi %s</string>
   <string name="no_sdcard_error">Silahkan masukkan kartu SD dan mulai And Bible lagi.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Teks kaya (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Jarak paragraf (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Atur jarak antar paragraf.</string>
 
-  <string name="prefs_show_verseno_title1">Nomor ayat</string>
 
-  <string name="prefs_show_chapter_no_title">Nomor pasal</string>
-  <string name="prefs_show_chapter_no_summary">Tampilkan nomor pasal</string>
 
   <string name="prefs_verse_per_line_summary">Tampilkan setiap ayat pada baris yang berbeda</string>
   <string name="prefs_show_bookmarks_summary">Hapus centang untuk menyembunyikan semua penanda buku</string>
 
   <string name="prefs_show_mynotes_summary">Tampilkan ikon pada ayat yang memiliki Catatanku</string>
-  <string name="prefs_show_notes_summary">Tampilkan catatan kaki dan referensi silang</string>
   <string name="prefs_show_strongs_summary">Tautan ke definisi bahasa Yunani &amp; Ibrani</string>
   <string name="prefs_show_morphology_summary">Tampilkan morfologi bahasa Yunani Robinson\'s</string>
   <string name="prefs_section_title_summary">Tampilkan judul perikop non-kanonik</string>
   <string name="prefs_red_letter_summary">Tampilkan perkataan Kristus dalam huruf merah</string>
-  <string name="prefs_text_size_title">Ukuran huruf</string>
 
   <string name="prefs_verse_per_line_title">Satu ayat per baris</string>
   <string name="prefs_show_bookmarks_title">Tampilkan penanda buku</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Tampilkan catatan kaki sebaris dalam teks alih-alih sebagai tautan yang dapat diklik</string>
   <string name="prefs_show_xrefs_summary">Tampilkan referensi silang, jika tersedia dalam dokumen</string>
 
-  <string name="prefs_show_notes_title">Catatan kaki dan referensi silang</string>
   <string name="prefs_show_strongs_title">Nomor Strong</string>
   <string name="prefs_show_morphology_title">Kode-kode morfologi</string>
   <string name="prefs_non_strongs_word_italic_title">Cetak miring kata-kata tambahan</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">Kebisingan latar belakang</string>
   <string name="prefs_noise_summary">Menambahkan sedikit kebisingan pada latar belakang mungkin membuat mata lebih nyaman.</string>
 
-  <string name="cpv_default_title">Pilih Warna</string>
-  <string name="cpv_presets">Prasetel</string>
-  <string name="cpv_custom">Kustom</string>
-  <string name="cpv_select">Pilih</string>
-  <string name="cpv_transparency">Transparansi</string>
 
     <!-- Window -->
   <string name="new_window">Jendela baru</string>
-  <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Membesarkan</string>
   <string name="windowMinimise">Mengecilkan</string>
   <string name="windowSynchronise">Sinkronkan</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">Sematkan</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Tidak ada catatan dalam pasal ini</string>
-  <string name="no_verse_notes">Tidak ada catatan dalam ayat ini</string>
   <string name="previous">Sebelumnya</string>
   <string name="next">Berikutnya</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Silahkan download kamus Strong Ibrani dan Yunani</string>
   <string name="no_indexed_bible_with_strongs_ref">Anda harus mengunduh Alkitab berisi nomor Strong dan unduh indeksnya melalui Penelusuran/Pencarian</string>
-  <string name="morph_robinson_not_installed">Silahkan mengunduh kamus \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">Buka Unduhan</string>
 
     <!-- Module download -->
   <string name="download">Unduh Dokumen</string>
   <string name="redownload">Unduh Ulang Dokumen</string>
-  <string name="download_confirmation">Unduh Alkitab dari internet?</string>
   <string name="download_source_last_updated">Daftar dokumen terakhir diperbarui: %s.</string>
   <string name="download_refreshing_book_list">Refresh daftar dokumen yang tersedia</string>
   <string name="download_source_message1">Dokumen diunduh dari sumber berikut:</string>
   <string name="download_document_confirm_prefix">Unduh</string>
-  <string name="download_refresh_book_list_menu_item">Refresh</string>
   <string name="error_downloading">Terjadi kesalahan saat mengunduh. Silakan periksa koneksi internet Anda.</string>
   <string name="error_downloading_status">Server yang menjadi tuan rumah %1$s mengembalikan kesalahan karena %2$s (%3$d).</string>
   <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
@@ -368,15 +346,6 @@
   <string name="done">Selesai</string>
   <string name="reset_plan_question">Apakah Anda yakin ingin mengatur ulang rencana ini?</string>
   <string name="import_reading_plan">Impor rencana bacaan…</string>
-  <string name="import_reading_plan_error">Kesalahan saat impor</string>
-  <string name="import_reading_plan_error_duplicate">Hari berikut merupakan duplikat: %s</string>
-  <string name="import_reading_plan_error_days">Hari berikut mengandung kesalahan: %s</string>
-  <string name="import_reading_plan_anyway">Impor saja</string>
-  <string name="overwrite_reading_plan">Apakah Anda ingin menimpa %s?</string>
-  <string name="delete_reading_plan">Hapus rencana ini</string>
-  <string name="reading_plan_deleted">Rencana bacaan telah dihapus</string>
-  <string name="reading_plan_ships_with_ab">Rencana bacaan ini disertakan bersama %s</string>
-  <string name="confirm_delete_reading_plan">Apakah Anda yakin ingin menghapus %s beserta riwayat bacaannya? Tips: jika Anda perlu memperbarui rencana, Anda cukup mengimpornya lagi dengan nama file yang sama dan riwayat akan tetap tersimpan.</string>
   <string name="plan_duplicate_user_plan">
  Terdapat rencana bacaan pengguna di SD card
  jsword/readingplan dengan nama yang sama dengan rencana internal. Tidak dapat didaftarkan di sini.
@@ -421,7 +390,6 @@
   <string name="notes">Catatan kaki dan referensi</string>
   <string name="share_verse">Share ...</string>
   <string name="share_verse_widget_title">Bagikan pilihan</string>
-  <string name="share_verse_subject_2">Sebuah ayat Alkitab telah dibagikan kepada Anda menggunakan %s.</string>
   <string name="compare_translations">Bandingkan terjemahan</string>
 
     <!-- Link context menu -->
@@ -433,33 +401,26 @@
   <string name="bookmarks_and_mynotes_title">Penanda Buku &amp; Catatanku</string>
   <string name="migrated_my_notes">Catatanku yang dipindahkan</string>
   <string name="bookmarks">Penanda Buku</string>
-  <string name="bookmark_added">Penanda buku ditambahkan</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Label</string>
   <string name="manage_labels">Atur Label Penanda Buku</string>
   <string name="assign_labels">Tetapkan label</string>
   <string name="new_item">Baru</string>
-  <string name="new_label">Label Baru</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
   <string name="add_bookmark1">Penanda Buku</string>
-  <string name="add_bookmark2">Penanda Buku Pilihan</string>
   <string name="add_bookmark3">Pilihan</string>
   <string name="add_bookmark_whole_verse">Tandai Ayat</string>
   <string name="add_bookmark_whole_verse1">Ayat-ayat</string>
-  <string name="add_bookmark_whole_verse2">Ayat lengkap</string>
   <string name="add_whole_page_bookmark">Tambah penanda buku untuk seluruh halaman</string>
   <string name="add_paragraph_break">Pemisah paragraf</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Hapus</string>
   <string name="bookmark_settings_hide_labels_title">Sembunyikan label tertentu</string>
   <string name="bookmark_settings_hide_labels_summary">Sembunyikan penanda buku yang ditandai dengan label tertentu</string>
   <string name="auto_assign_labels_title">Pengaturan label</string>
   <string name="auto_assign_labels">Label otomatis &amp; Favorit</string>
   <string name="auto_assign_labels1">Tetapkan label otomatis ke penanda buku baru</string>
   <string name="auto_assign_labels_primary">Tetapkan otomatis sebagai primer</string>
-  <string name="label_color">Warna label</string>
-  <string name="label_color_example">Contoh</string>
   <string name="marker_style">Tampilkan hanya penanda untuk penanda buku pilihan</string>
   <string name="marker_style_whole_verse">Tampilkan hanya penanda untuk penanda buku seluruh ayat</string>
   <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
@@ -487,11 +448,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d pasal</string>
   <string name="some_chapters">%d pasal-pasal</string>
-  <string name="rest_of_book">Ke akhir buku</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d ayat</string>
   <string name="some_verses">%d ayat-ayat</string>
-  <string name="rest_of_chapter">Ke akhir pasal</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d halaman</string>
   <string name="some_pages">%d halaman-halaman</string>
@@ -501,8 +460,6 @@
   <string name="rewind">Mundur</string>
   <string name="forward">Maju</string>
   <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
-  <string name="speak_queue">Antrian</string>
-  <string name="speak_repeat">Ulangi</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Kecepatan berbicara</string>
@@ -575,14 +532,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Ikon %s menunjukkan bahwa pengaturan berasal dari pengaturan ruang kerja.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Ikon %s menunjukkan bahwa pengaturan ini telah diubah untuk jendela tertentu ini.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Gunakan tombol %1$s untuk mengatur ulang semua pengaturan ini kembali ke %2$s.</string>
   <string name="reset_defaults">nilai default</string>
   <string name="reset_workspace_defaults">nilai default ruang kerja</string>
 
-  <string name="speak_bookmark_help">Bantuan untuk penanda buku Bicara</string>
 
   <string name="speak_help_auto_bookmark">
  Penanda buku Bicara akan ditambahkan secara otomatis ketika Bicara dijeda atau dihentikan.
@@ -648,7 +603,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="backup_phone_storage">Penyimpanan ponsel</string>
   <string name="backup_and_restore">Cadangkan &amp; Pulihkan</string>
   <string name="backup_modules2">Cadangkan Dokumen ke…</string>
-  <string name="backup_app_database2">Cadangkan database aplikasi ke…</string>
   <string name="backup_app2">Cadangkan aplikasi (file .apk) ke…</string>
   <string name="backup_application">Aplikasi</string>
   <string name="backup_database">Database</string>
@@ -660,17 +614,13 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="backup_restore_from">Pulihkan dari…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Pulihkan atau Impor dari…</string>
-  <string name="backup_restore">Pulihkan dari...</string>
   <string name="backup_restore2">Pulihkan atau Impor</string>
   <string name="overwrite_something">Timpa %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Apa yang ingin Anda pulihkan?</string>
 
-  <string name="restore_app_database">Pulihkan database aplikasi dari…</string>
   <string name="restore_database">Pulihkan File Database</string>
   <string name="restore_confirmation">Timpa Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja</string>
-  <string name="restore_success2">Bagian database yang dipilih berhasil dipulihkan</string>
   <string name="restore_success">Catatanku, Penanda Buku, Rencana Bacaan, dan Ruang Kerja berhasil dipulihkan</string>
   <string name="downloading_backup">Mengunduh file cadangan…</string>
   <string name="loading_backup">Memuat basis data dari cadangan...</string>
@@ -686,14 +636,12 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="exported_studypads_subject">Lembar Studi yang Diekspor</string>
   <string name="exported_studypads_message">Database %s Anda yang berisi Penanda Buku dan Catatan terkait Lembar Studi yang dipilih terlampir</string>
   <string name="restore_unsuccessfull">Pemulihan basis data tidak berhasil. Mungkin terdapat kesalahan pada file basis data yang diberikan.</string>
-  <string name="restore_modules">Pulihkan Dokumen dari…</string>
   <string name="send_backup_file">Kirim file cadangan</string>
   <string name="backup_modules_title">Pilih modul yang akan dicadangkan</string>
   <string name="install_zip_canceled">Instalasi modul dibatalkan</string>
   <string name="ask_restore_or_import">Database untuk %s dapat dipulihkan (yaitu database yang ada dihapus dan database yang dipilih dimuat) atau diimpor (database yang dipilih diimpor ke database yang ada). Apa yang ingin Anda lakukan?</string>
   <string name="restore">Pulihkan</string>
   <string name="import2">Impor</string>
-  <string name="export_studypads_help">File yang berisi Lembar Studi yang diekspor (yaitu Label dan Penanda Buku) dapat diimpor melalui Menu Utama -&gt; Cadangan &amp; Pemulihan.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" dan %2$s Label / Lembar Studi lainnya dan %3$s Penanda Buku</string>
@@ -707,8 +655,6 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="module_about_osisId">ID OSIS: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Laporan bug</string>
-  <string name="send_feedback_title">Masukan</string>
   <string name="send_bug_report_title">Masukan / laporan bug</string>
   <string name="report_bug_email_subject_3">[%1$s] Laporan bug untuk %2$s %3$s</string>
 
@@ -747,10 +693,8 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
   <string name="error">Salah</string>
-  <string name="delete_generic">Hapus</string>
   <string name="please_wait">Silahkan tunggu...</string>
   <string name="all">Semua</string>
-  <string name="edit">Edit</string>
   <string name="reset_generic">Atur ulang</string>
   <string name="watch_tutorial_video">Lihat video tutorial (dalam bahasa Inggris)</string>
   <string name="verse_not_found">Ayat tidak dapat ditemukan</string>
@@ -774,12 +718,11 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="notification_channel_progress_status">Notifikasi status perkembangan untuk pengunduhan dokumen dll.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Ruang Kerja baru</string>
   <string name="switch_to_workspace">Pindah ke ruang kerja...</string>
   <string name="delete_workspace">Hapus ruang kerja ini</string>
   <string name="new_copied_workspace">Salin ruang kerja ini sebagai baru</string>
   <string name="workspace_number">Ruang Kerja %d</string>
-  <string name="rename_workspace">Ganti nama ruang kerja ...</string>
+  <string name="rename">Ganti nama ruang kerja ...</string>
   <string name="workspace_selector_title">Pilih ruang kerja</string>
   <string name="workspace_settings">Pengaturan…</string>
   <string name="give_name_workspace">Beri nama untuk ruang kerja baru</string>
@@ -792,12 +735,11 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="copy_settings_workspaces_title">Ke ruang kerja mana Anda ingin menyalin pengaturan?</string>
   <string name="reset_settings">Atur ulang</string>
   <string name="search_settings">Pengaturan pencarian</string>
-  <string name="workspace_dismiss">Tutup</string>
+  <string name="dismiss">Tutup</string>
   <string name="workspace_listing_with_current">%s (saat ini)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Dalam versi beta, terdapat beberapa fitur-fitur baru yang belum diuji dengan benar,
  dengan demikian menggunakan versi beta dapat mengakibatkan perilaku yang tidak diduga, yaitu bug.
@@ -808,7 +750,6 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="beta_notice_content_3">Jika Anda adalah seorang programmer, mohon mempertimbangkan untuk berkontribusi dalam memperbaiki bug melalui %s. :)</string>
   <string name="beta_notice_github_issues">Masalah-masalah Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Singkirkan</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>
 
   <string name="stable_notice_title">Aplikasi telah diperbarui!</string>
@@ -836,8 +777,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
 
   <string name="help_search_title">Pencarian</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Pencarian teks dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT
-(lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelasan lebih lanjut)</string>
   <string name="help_search_text2">Teks pencarian dapat menyertakan karakter khusus seperti *, AND, OR, NOT</string>
   <string name="help_search_details">Silakan lihat %s untuk detail lebih lanjut.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksis Parser Kueri</string>
@@ -853,7 +792,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="redownload_documents">Unduh Ulang Cepat</string>
   <string name="welcome_message">Terima kasih telah mengunduh %s. Saat ini tidak ada Alkitab atau dokumen yang terpasang. Untuk melanjutkan, silakan pasang setidaknya 1 dokumen dengan mengunduh dari internet, atau dengan memuat dari file cadangan dokumen zip.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Format yang didukung</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Anda harus memilih file yang ingin Anda muat ke %s.</string>
   <string name="supported_formats">Format yang didukung untuk memuat dokumen dari file: %s</string>
@@ -877,7 +815,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="strongs_mode_title">Pilih mode Strong</string>
 
   <string name="download_dialog_message">Kitab-kitab berikut tidak dapat diunduh:</string>
-  <string name="select_multiple">Pilih beberapa</string>
   <string name="journal_description">Lembar studi yang dapat diedit pengguna dengan teks khusus dan penanda buku</string>
   <string name="my_notes_description">Catatan yang dapat diedit pengguna yang dilampirkan pada penanda buku</string>
   <string name="my_notes_abbreviation">Catatanku</string>
@@ -892,7 +829,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="http_not_found">Tidak ditemukan</string>
   <string name="http_unknown">Kesalahan lain</string>
   <string name="give_passphrase_for_module">Dokumen %s dienkripsi dan memerlukan kata sandi untuk dibuka</string>
-  <string name="unlocking_failed">Pembukaan kunci gagal, kata sandi tidak valid</string>
   <string name="unlock_module">Atur kata sandi modul</string>
   <string name="unlock_info">Info pembukaan kunci modul terenkripsi</string>
   <string name="try_again_passphrase">Kata sandi tidak berhasil, coba lagi?</string>
@@ -944,8 +880,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="tell_friend_message4">Baca lebih lanjut &amp; opsi instalasi lainnya: %s</string>
   <string name="share_verse_ok">Bagikan / Salin</string>
   <string name="web_search">Pencarian web</string>
-  <string name="verse_action_copy">Salin</string>
-  <string name="generic_share">Bagikan</string>
   <string name="share_verse_menu_title">Bagikan / salin…</string>
   <string name="show_versenumbers">Tampilkan nomor ayat</string>
   <string name="show_full_verses">Tampilkan ayat lengkap</string>
@@ -962,9 +896,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="show_quotes">Tampilkan tanda kutip</string>
   <string name="separate_verses_with_newlines">Pisahkan ayat dengan baris baru</string>
 
-  <string name="backup_button">Cadangkan &amp; Pulihkan</string>
-  <string name="back_button">Kembali</string>
-  <string name="upgrading_database">Memperbarui basis data. Harap tunggu…</string>
   <string name="initializing_app">Menginisialisasi aplikasi…</string>
   <string name="show_notes">Tampilkan catatan</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -988,7 +919,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="send_email">kirim email ke pengembang</string>
   <string name="proceed_google_play">Lanjutkan ke Google Play</string>
   <string name="text_maintainers">laporkan masalah ke pemelihara teks</string>
-  <string name="does_not_exist_abbreviation">Tidak Ada</string>
   <string name="cant_change_wholeverse">Tidak dapat menonaktifkan penandaan seluruh ayat untuk penanda buku ini</string>
   <string name="whole_verse_turned_on">Penanda buku sekarang ditandai untuk seluruh ayat</string>
   <string name="this_bookmark">Penanda buku ini</string>
@@ -1001,7 +931,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="display_mode_hidden">Tersembunyi</string>
   <string name="workspace_override_indicator">Label ini memiliki mode tampilan khusus ruang kerja</string>
   <string name="primary_label">Label utama</string>
-  <string name="highlight_entire_verse">Sorot seluruh ayat</string>
   <string name="favourite_label">Label favorit</string>
   <string name="edit_label">Edit label</string>
   <string name="delete_label_confirmation">Apakah Anda ingin menghapus label penanda buku \"%s\"? Semua catatan Lembar Studi yang terkait juga akan dihapus.</string>
@@ -1019,7 +948,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="reorder">Susun Ulang</string>
   <string name="system_items">Tindakan sistem</string>
   <string name="system_items1">Lainnya</string>
-  <string name="system_action2">Tindakan Android</string>
   <string name="text_copied_to_clicpboard">Teks disalin ke papan klip</string>
   <string name="prefs_disable_two_step_bookmarking_title">Penandaan buku satu langkah</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Tampilkan item \"Seleksi\" dan \"Ayat\" langsung di menu Seleksi tampilan Alkitab</string>
@@ -1033,7 +961,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="label_blue">Biru</string>
   <string name="label_salvation">Keselamatan</string>
   <string name="label_underline">Garis bawah</string>
-  <string name="import_menu">Impor &amp; Ekspor</string>
   <string name="auto_backups_title">Cadangan Otomatis</string>
   <string name="backup_file_info">Aplikasi v%1$d, %2$s</string>
   <string name="reset_databases_title">Atur Ulang Basis Data</string>
@@ -1051,18 +978,12 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="export_prompts_csv">Ekspor prompt ke CSV</string>
   <string name="import_prompts_csv">Impor prompt dari CSV</string>
   <string name="prompts_csv_export_success">%d prompt diekspor ke CSV</string>
-  <string name="prompts_csv_import_success">Impor selesai: %1$d dibuat, %2$d diperbarui</string>
-  <string name="prompts_csv_import_errors">Impor selesai dengan kesalahan: %1$d dibuat, %2$d diperbarui, %3$d kesalahan</string>
-  <string name="prompts_csv_import_failed">Impor CSV gagal: %s</string>
-  <string name="prompts_csv_export_failed">Ekspor CSV gagal: %s</string>
   <string name="no_prompts_to_export">Tidak ada prompt pengguna untuk diekspor</string>
   <string name="csv_column_selection_title">Pilih Kolom CSV</string>
-  <string name="choose_csv_file">Pilih file CSV untuk diimpor</string>
   <string name="no_bookmarks_to_export">Tidak ada penanda buku yang tersedia untuk diekspor</string>
   <string name="export_fileformat">Ekspor sebagai %s</string>
   <string name="export_something">Ekspor %s</string>
   <string name="import_items">Impor %s</string>
-  <string name="import_from_db">Impor dari file Basis Data Aplikasi</string>
   <string name="import_error">Mengimpor dari Basis Data Aplikasi gagal. File basis data mungkin berformat salah atau dibuat dengan versi %s yang terlalu lama.</string>
 
   <string name="export_bookmarks_csv">Ekspor Penanda Buku sebagai %s</string>
@@ -1091,23 +1012,13 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="last_updated_at">Terakhir diperbarui pada</string>
   <string name="bookmark_notes">Catatan penanda buku</string>
 
-  <string name="chooser_range">Rentang</string>
-  <string name="chooser_jump">Lompat</string>
-  <string name="chooser_OT_abbrev">PL</string>
-  <string name="chooser_NT_abbrev">PB</string>
-  <string name="chooser_style_grid">Kisi</string>
-  <string name="chooser_style_lists">Daftar</string>
-  <string name="chooser_select">Pilih %s</string>
-  <string name="chooser_pref_reset">Jangan atur ulang pasal/ayat ke 1 saat kitab/pasal dipilih</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Mohon maaf, kami hanya memiliki terjemahan antarmuka pengguna sebagian dalam bahasa %1$s. Hal ini karena %2$s sepenuhnya dikembangkan oleh sukarelawan. Jika Anda dapat membantu dalam penerjemahan, silakan lihat %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">petunjuk bagi penerjemah</string>
   <string name="questions_title">Ada pertanyaan?</string>
-  <string name="questions_title2">Butuh bantuan?</string>
   <string name="bookmark_style">Gaya penanda buku</string>
   <string name="added_to_bookmark">Ditambahkan ke penanda buku ini</string>
-  <string name="strongs_off">Nonaktif</string>
   <string name="strongs_links">Tautan</string>
   <string name="strongs_text_and_links">Teks dan Tautan</string>
   <string name="strongs_hidden_links">Tautan Tersembunyi</string>
@@ -1146,7 +1057,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="discrete_mode_link">Anda dapat mengunduh versi terbaru dari versi tersembunyi dari %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sinkronkan grup</string>
   <string name="sync_group_n">Grup %d</string>
   <string name="disable_sync">Nonaktifkan sinkronisasi</string>
   <string name="open_in_window">Buka hasil di jendela</string>
@@ -1157,10 +1067,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="custom_repositories_empty_list_message">Tidak ada repositori kustom yang ditentukan</string>
   <string name="custom_repositories_create_button_label">Tambah Repositori Kustom</string>
   <string name="custom_repositories_info_button_label">Informasi</string>
-  <string name="name_for_repository">Nama untuk repositori</string>
   <string name="repository_specification">URL Repositori</string>
   <string name="delete_custom_repository">Apakah Anda ingin menghapus repositori kustom %s?</string>
-  <string name="invalid_repository_not_saved">Spesifikasi repositori tidak valid dan tidak disimpan.</string>
   <string name="custom_repositories_help1">Untuk menambahkan repositori kustom baru, ketik atau salin &amp; tempel URL repositori kustom di sini.</string>
   <string name="custom_repositories_help2">Anda dapat membaca informasi lebih lanjut tentang repositori kustom di %s.</string>
   <string name="wiki_page">Halaman WIKI</string>
@@ -1196,7 +1104,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Progres Baca/Hafalan</string>
   <string name="reading_progress_chapters_read">pasal dibaca</string>
-  <string name="reading_progress_verses_memorized">ayat dihafal</string>
   <string name="reading_progress_active_days">hari aktif</string>
   <string name="reading_progress_overall">%s%% Alkitab telah dibaca</string>
   <string name="reading_progress_bible_heatmap">Ikhtisar Alkitab</string>
@@ -1222,13 +1129,11 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="sync_adapter_summary">Saat ini: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Autentikasi ke %s</string>
   <string name="auth_server_uri">URL server</string>
   <string name="auth_username">Nama pengguna</string>
   <string name="auth_password">Kata sandi</string>
   <string name="auth_folder_path">Jalur folder sinkronisasi</string>
   <string name="auth_folder_path_summary">Folder induk untuk data sinkronisasi (kosong = root)</string>
-  <string name="auth_access_token">Token akses</string>
   <string name="synchronization_categories">Kategori sinkronisasi</string>
   <string name="sync_general_settings">Info &amp; pengaturan umum</string>
   <string name="sync_introduction">Pengantar</string>
@@ -1244,8 +1149,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="report">Laporan</string>
   <string name="sync_error">Terjadi kesalahan dalam sinkronisasi Cloud</string>
   <string name="error_notification_channel_name">Notifikasi kesalahan</string>
-  <string name="restore_from_cloud_description">Jika Anda mengaktifkan Sinkronisasi Perangkat di perangkat lain, Anda dapat memulai dengan memulihkan database dari Cloud.</string>
-  <string name="enable_sync">Aktifkan sinkronisasi</string>
   <string name="last_updated">Terakhir diperbarui: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1266,11 +1169,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="processing_epub">Memproses EPUB: %s</string>
   <string name="buy_development">Beli pekerjaan pengembangan</string>
   <string name="buy_development2">Dukung proyek</string>
-  <string name="new_version_warning">Rilis baru akan segera hadir. Tanggal rilis yang diantisipasi adalah %1$s. Tonton %2$s kami untuk menemukan fitur dan peningkatan baru.</string>
-  <string name="new_version_trailer">video trailer</string>
-  <string name="new_version_warning2">Setelah rilis, versi ini tidak lagi dipertahankan.</string>
-  <string name="new_version_warning3">Versi ini tidak akan menerima perbaikan bug atau pembaruan.</string>
-  <string name="new_version_warning4">Jika Anda tidak ingin melakukan upgrade, harap nonaktifkan \'Pembaruan Otomatis\' di toko aplikasi Anda (Google Play / F-Droid dll).</string>
   <string name="dont_show">Jangan tampilkan pesan ini lagi</string>
   <string name="pref_font_size_multiplier_title">Pengali ukuran font</string>
   <string name="pref_font_size_multiplier_summary_1">Kalikan ukuran font teks dengan angka ini.</string>
@@ -1289,7 +1187,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="invalid_url_message">URL yang Anda masukkan tidak valid. Harap masukkan URL yang valid (mis., https://nextcloud.example.com)</string>
   <string name="memorize_description">Hafal ayat-ayat Alkitab</string>
   <string name="memorize_abbreviation">Hafalan</string>
-  <string name="add_memorization_target">Tetapkan sebagai tujuan hafalan</string>
   <string name="memorize_memorized_passages">Bagian yang dihafal</string>
   <string name="memorize_no_memorized_passages">Belum ada bagian yang dihafal</string>
   <string name="memorize_targets">Tujuan hafalan</string>
@@ -1321,17 +1218,8 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="memorize_view_overview">Ikhtisar</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Terjemahan AI</string>
   <string name="sync_settings_shortcut_summary">Sinkronkan data antar perangkat</string>
-  <string name="llm_api_key_title">Kunci API</string>
-  <string name="llm_api_key_summary">Kunci API yang kompatibel dengan OpenAI</string>
   <string name="llm_provider_custom">Kustom (kompatibel OpenAI)</string>
-  <string name="llm_provider_title">Penyedia</string>
-  <string name="llm_provider_summary">Pilih penyedia layanan AI yang akan digunakan. Titik akhir API dan model yang tersedia akan dikonfigurasi secara otomatis.</string>
-  <string name="llm_provider_current">Saat ini: %s</string>
-  <string name="llm_api_key_detected_provider">Penyedia terdeteksi: %s</string>
-  <string name="ai_connection_category">Koneksi</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Perilaku</string>
   <string name="ai_language_title">Bahasa respons AI</string>
   <string name="ai_language_summary">Bahasa yang digunakan AI untuk respons</string>
@@ -1348,16 +1236,9 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="llm_reset_usage_confirm_title">Setel ulang data penggunaan?</string>
   <string name="llm_reset_usage_confirm_message">Ini akan menghapus semua data penggunaan kumulatif.</string>
   <string name="llm_custom_input_price_title">Harga masukan ($/Juta token)</string>
-  <string name="llm_custom_input_price_summary">Biaya per satu juta token masukan untuk model ini</string>
   <string name="llm_custom_output_price_title">Harga keluaran ($/Juta token)</string>
-  <string name="llm_custom_output_price_summary">Biaya per satu juta token keluaran untuk model ini</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Titik Akhir API</string>
-  <string name="llm_endpoint_summary">URL dasar untuk API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID model</string>
   <string name="llm_custom_model">Kustom…</string>
-  <string name="llm_custom_model_dialog_title">Model kustom</string>
   <string name="llm_custom_model_dialog_message">Masukkan ID model</string>
   <string name="llm_rate_limited_retrying">Dibatasi laju. Mencoba ulang dalam %1$s detik\u2026</string>
   <string name="llm_default_document_title">Respons AI</string>
@@ -1367,7 +1248,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="llm_parse_error_no_choices">Tidak ada pilihan dalam respons OpenAI</string>
   <string name="llm_parse_error_openai">Gagal mengurai respons OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Gagal mengurai respons Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt tidak ditemukan: %1$s</string>
   <string name="llm_error_unknown">Kesalahan tidak dikenal</string>
   <string name="llm_error_max_iterations">Iterasi maksimum (%1$d) tercapai tanpa penyelesaian</string>
   <string name="llm_continue_iterations_title">Lanjutkan?</string>
@@ -1402,7 +1282,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="raw_log_retention_summary_disabled">Dinonaktifkan (simpan semua)</string>
   <string name="send_ai_bug_report_title">Laporkan Bug AI</string>
   <string name="ai_bug_report_menu">Laporkan bug AI</string>
-  <string name="ai_bug_report_recommended_only">Pelaporan bug hanya tersedia untuk model penyedia yang direkomendasikan</string>
 
   <string name="select_model_before_run_title">Pilih model</string>
   <string name="set_default_model_for_prompt">Atur sebagai model default untuk prompt ini</string>
@@ -1432,7 +1311,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_models_summary_none">Tidak ada model yang dikonfigurasi</string>
   <string name="ai_add_provider">Tambah penyedia</string>
   <string name="ai_provider_edit">Edit</string>
-  <string name="ai_provider_delete">Hapus</string>
   <string name="ai_provider_delete_confirm">Hapus penyedia \"%1$s\"? Prompt yang menggunakan penyedia ini akan kembali ke default.</string>
   <string name="ai_provider_api_key_not_set">Kunci API belum diatur</string>
   <string name="ai_provider_select_type">Pilih tipe penyedia</string>
@@ -1444,27 +1322,18 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_provider_saved">Penyedia disimpan</string>
   <string name="ai_provider_deleted">Penyedia dihapus</string>
 
-  <string name="llm_fetch_models_title">Unduh daftar model</string>
-  <string name="llm_fetch_models_message">Unduh daftar model yang tersedia dari %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Jangan tanya lagi</string>
-  <string name="llm_fetch_models_success">Berhasil memuat %1$d model</string>
-  <string name="llm_fetch_models_failed">Gagal mengambil model</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Semua</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Model</string>
   <string name="add_model">Tambah model</string>
-  <string name="add_model_title">Tambah model</string>
   <string name="edit_model_title">Edit model</string>
   <string name="model_saved">Model disimpan</string>
   <string name="model_deleted">Model dihapus</string>
   <string name="model_delete_confirm">Hapus model \"%1$s\"?</string>
   <string name="model_set_default">Jadikan model default</string>
   <string name="model_select_provider">Penyedia</string>
-  <string name="no_models_configured">Tidak ada model yang dikonfigurasi</string>
-  <string name="model_cache_creation_price">Harga pembuatan cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Harga pembacaan cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Didukung</string>
   <string name="show_also_unsupported_models">Tampilkan juga model yang tidak didukung</string>
   <string name="show_also_unsupported_providers">Tampilkan juga penyedia yang tidak didukung</string>
@@ -1475,7 +1344,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="unknown_error">Kesalahan tidak diketahui</string>
   <string name="easy_setup_title">Pengaturan Cepat</string>
   <string name="easy_setup_pref_summary">Siapkan AI dengan penyedia yang direkomendasikan dalam beberapa langkah</string>
-  <string name="easy_setup_choose_provider">Pilih penyedia untuk memulai:</string>
   <string name="easy_setup_enter_api_key">Masukkan kunci API Anda</string>
   <string name="easy_setup_api_key_instructions">Dapatkan kunci API Anda dari:</string>
   <string name="easy_setup_test_connection">Uji koneksi</string>
@@ -1534,7 +1402,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="addon_prompt_notice">Prompt ini berasal dari modul add-on \"%s\" dan tidak dapat diedit. Gunakan \"Salin untuk dikustomisasi\" untuk membuat salinan yang dapat diedit.</string>
   <string name="new_category">Kategori baru</string>
   <string name="new_category_name">Nama kategori</string>
-  <string name="rename_category">Ubah nama</string>
   <string name="move_category_up">Pindah ke atas</string>
   <string name="move_category_down">Pindah ke bawah</string>
   <string name="hide_category">Sembunyikan dari tindakan AI</string>
@@ -1579,28 +1446,22 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="llm_note_updated">Catatan diperbarui</string>
   <string name="specify_before_run_title">Tentukan tugas</string>
   <string name="specify_before_run_hint">Jelaskan tugas spesifiknya…</string>
-  <string name="prompt_cache_settings">Pengaturan cache</string>
   <string name="prompt_strict_context_matching">Cache bergantung konteks</string>
   <string name="prompt_strict_context_matching_description">Jika diaktifkan, cache hanya cocok ketika semua konteks (versi Alkitab, teks yang dipilih) sama. Jika dinonaktifkan, cache cocok ketika ayat sama terlepas dari versi Alkitab.</string>
   <string name="ai_document_delete_confirmation">Hapus dokumen AI ini?</string>
-  <string name="ai_document_deleted">Dokumen AI ini telah dihapus.</string>
   <string name="ai_document_regenerating">Membuat ulang dokumen AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Pembuatan ulang akan tersedia di pembaruan mendatang</string>
   <string name="ai_regenerate_prompt_not_found">Tidak dapat membuat ulang: perintah asli tidak ditemukan. Mungkin sudah dihapus.</string>
   <string name="ai_document_regenerate">Buat ulang</string>
   <string name="ai_regenerate_title">Buat ulang</string>
   <string name="ai_regenerate_instructions_hint">Instruksi tambahan (opsional)</string>
   <string name="ai_regenerate_keep_previous">Pertahankan versi sebelumnya</string>
   <string name="ai_regenerate_fresh_run">Jalankan baru (abaikan hasil sebelumnya)</string>
-  <string name="ai_document_delete">Hapus</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Terjemahkan ke %s</string>
   <string name="default_prompt_translate_to_ui_language">Terjemahkan ke bahasa antarmuka</string>
   <string name="default_prompt_translate_to_ui_language_desc">Menerjemahkan teks dokumen ke bahasa antarmuka aplikasi</string>
-  <string name="default_prompt_translate_to_english">Terjemahkan ke bahasa Inggris</string>
-  <string name="default_prompt_translate_to_english_desc">Menerjemahkan teks yang dipilih ke bahasa Inggris</string>
   <string name="default_prompt_summary">Ringkasan</string>
   <string name="default_prompt_summary_desc">Membuat ringkasan singkat dari teks yang dipilih</string>
   <string name="default_prompt_explain_verses">Jelaskan ayat</string>
@@ -1609,8 +1470,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="default_prompt_explain_verses_studypad_desc">Buat Lembar Studi dengan penjelasan per ayat dan penanda buku</string>
   <string name="default_prompt_word_study">Studi kata</string>
   <string name="default_prompt_word_study_desc">Menganalisis kata-kata asli bahasa Ibrani/Yunani</string>
-  <string name="default_prompt_strongs_annotation">Anotasi nomor Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Menambahkan nomor konkordansi Strong\'s ke terjemahan Alkitab mana pun menggunakan KJV sebagai referensi</string>
   <string name="default_prompt_cross_references">Referensi silang</string>
   <string name="default_prompt_cross_references_desc">Menemukan dan menjelaskan bagian Alkitab yang berkaitan</string>
   <string name="default_prompt_compare_translations">Bandingkan terjemahan</string>
@@ -1753,11 +1612,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="ai_document_filter_summary">Pilih dokumen mana yang dapat dibaca oleh AI</string>
   <string name="ai_document_filter_summary_count">%d dokumen dikecualikan</string>
   <string name="ai_document_filter_activity_title">Akses dokumen AI</string>
-  <string name="ai_document_excluded_error">Dokumen dikecualikan oleh pengaturan pengguna: %s</string>
   <string name="permission_status_default">Tanya (default)</string>
-  <string name="permission_status_allowed">Selalu diizinkan</string>
-  <string name="permission_status_denied">Selalu ditolak</string>
-  <string name="permission_option_default">Tanya setiap kali (default)</string>
   <string name="permission_option_always_allow">Selalu izinkan</string>
   <string name="permission_option_always_deny">Selalu tolak</string>
   <string name="reset_all_permissions">Setel ulang semua</string>
@@ -1772,10 +1627,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Izin alat</string>
-  <string name="prompt_tool_permissions_read_only">Izin alat (hanya baca)</string>
-  <string name="prompt_tool_permissions_description">Ganti izin alat untuk prompt ini</string>
-  <string name="tool_section_read_tools">Alat baca</string>
-  <string name="tool_section_write_tools">Alat tulis</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Alkitab &amp; Pencarian</string>
@@ -1798,13 +1649,9 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Default</string>
-  <string name="prompt_model_custom">Kustom</string>
-  <string name="prompt_model_custom_hint">Masukkan nama model</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Pilih Tindakan AI</string>
-  <string name="no_llm_prompts_configured">Tidak ada prompt AI yang dikonfigurasi untuk pemilihan ayat</string>
-  <string name="llm_prompt_executing">Menjalankan prompt AI: %s</string>
   <string name="llm_actions">Tindakan AI</string>
 
     <!-- Agent Log Widget -->
@@ -1812,9 +1659,7 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="agent_log_close">Tutup log agen</string>
   <string name="agent_log_stop">Hentikan AI</string>
   <string name="agent_log_idle">Asisten AI</string>
-  <string name="agent_log_running">AI sedang bekerja…</string>
   <string name="agent_log_completed">Selesai</string>
-  <string name="agent_log_error">Terjadi kesalahan</string>
   <string name="agent_log_executing">Menjalankan: %s</string>
   <string name="agent_log_iteration">Iterasi %d</string>
   <string name="agent_log_tool">Alat: %s</string>
@@ -1824,7 +1669,6 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="agent_log_saved">Disimpan: %s</string>
   <string name="agent_log_done">Selesai: %s</string>
   <string name="agent_log_cancelled">Dibatalkan</string>
-  <string name="agent_execution_completed">Eksekusi agen selesai</string>
   <string name="agent_already_running">Agen AI sedang berjalan. Harap tunggu atau hentikan terlebih dahulu.</string>
 
     <!-- AI Agent Notifications -->
@@ -1843,22 +1687,16 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
   <string name="my_document_new_name">Dokumen %d</string>
   <string name="my_document_create_title">Buat dokumen baru</string>
   <string name="my_document_rename_title">Ganti nama dokumen</string>
-  <string name="my_document_edit_description_title">Edit deskripsi</string>
   <string name="my_document_delete_confirmation">Hapus dokumen \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumen AI tidak dapat dihapus selama masih berisi halaman. Hapus halaman terlebih dahulu.</string>
   <string name="my_document_save_changes">Simpan perubahan?</string>
   <string name="my_document_no_description">Tidak ada deskripsi</string>
-  <string name="my_document_rename">Ganti nama</string>
   <string name="my_document_edit_description">Edit deskripsi</string>
-  <string name="my_document_delete">Hapus</string>
 
   <string name="my_document_pages_title">%s - Halaman</string>
   <string name="my_document_pages_empty">Tidak ada halaman dalam dokumen ini.</string>
   <string name="my_document_page_rename_title">Ganti nama halaman</string>
   <string name="my_document_page_delete_confirmation">Hapus halaman \"%s\"?</string>
-  <string name="my_document_page_rename">Ganti nama</string>
-  <string name="my_document_page_delete">Hapus</string>
-  <string name="my_document_page_export">Ekspor</string>
   <string name="my_document_new_page_name">Halaman %1$d</string>
   <string name="my_document_create_page_title">Halaman baru</string>
   <string name="my_document_content_type_label">Jenis konten</string>
@@ -1878,12 +1716,10 @@ Menu konteks Pengaturan Penanda Buku memungkinkan penanda buku untuk dikelompokk
 
   <string name="prefs_page_scroll_amount_title">Jumlah gulir halaman</string>
   <string name="prefs_page_scroll_amount_summary">Seberapa banyak halaman yang digulir saat menekan naik/turun halaman</string>
-  <string name="page_scroll_amount_dialog_title">Jumlah gulir halaman</string>
   <string name="prefs_scroll_helper_lines_title">Garis panduan gulir</string>
   <string name="prefs_scroll_helper_lines_summary">Tampilkan garis panduan horizontal di batas gulir halaman</string>
   <string name="prefs_scroll_helper_line_style_title">Gaya garis panduan</string>
   <string name="prefs_scroll_helper_line_style_summary">Pilih gaya tampilan garis panduan gulir</string>
-  <string name="scroll_helper_line_style_dialog_title">Gaya garis panduan</string>
   <string name="scroll_helper_line_style_thin_dotted">Garis tipis putus-putus</string>
   <string name="scroll_helper_line_style_thin_solid">Garis tipis solid</string>
   <string name="scroll_helper_line_style_thick_solid">Garis tebal solid</string>

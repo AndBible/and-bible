@@ -619,7 +619,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setTitle(getString(R.string.stable_notice_title))
                 .setMessage(spanned)
                 .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
+                .setNeutralButton(getString(R.string.dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
                     Log.i(TAG, "showStableNotice: saving $ver")
                     preferences.setString("stable-notice-displayed", ver)
@@ -665,7 +665,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                 .setTitle(getString(R.string.beta_notice_title))
                 .setMessage(spanned)
                 .setIcon(R.drawable.ic_logo)
-                .setNeutralButton(getString(R.string.beta_notice_dismiss)) { _, _ -> it.resume(false)}
+                .setNeutralButton(getString(R.string.dismiss)) { _, _ -> it.resume(false)}
                 .setPositiveButton(getString(R.string.beta_notice_dismiss_until_update)) { _, _ ->
                     preferences.setInt("beta-notice-displayed2", announceVersion)
                     it.resume(true)

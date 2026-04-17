@@ -5,7 +5,6 @@
   <string name="app_name_short">聖書研究</string>
   <string name="app_name_medium">聖書研究（AndBible）</string>
   <string name="app_name_long">AndBible: 聖書研究</string>
-  <string name="project">AndBible オープンソースプロジェクト</string>
 
   <string name="version_text">バージョン %s</string>
   <string name="no_sdcard_error">SDカードを挿入してアプリを再起動してください。</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">リッチテキスト（HTML）</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">段落間隔（%s mm）</string>
-  <string name="prefs_paragraph_spacing_summary">段落間のスペースを調整します。</string>
 
-  <string name="prefs_show_verseno_title1">節番号</string>
 
-  <string name="prefs_show_chapter_no_title">章番号</string>
-  <string name="prefs_show_chapter_no_summary">章番号を表示します</string>
 
   <string name="prefs_verse_per_line_summary">各節を別々の行に表示します</string>
   <string name="prefs_show_bookmarks_summary">チェックを外すとすべてのブックマークを非表示にします</string>
 
   <string name="prefs_show_mynotes_summary">マイノートがある節にアイコンを表示します</string>
-  <string name="prefs_show_notes_summary">脚注と相互参照を表示します</string>
   <string name="prefs_show_strongs_summary">ギリシャ語・ヘブライ語の定義へのリンク</string>
   <string name="prefs_show_morphology_summary">ロビンソンのギリシャ語形態論を表示します</string>
   <string name="prefs_section_title_summary">正典外のセクションタイトルを表示します</string>
   <string name="prefs_red_letter_summary">キリストの言葉を赤字で表示します</string>
-  <string name="prefs_text_size_title">フォント設定</string>
 
   <string name="prefs_verse_per_line_title">1行1節</string>
   <string name="prefs_show_bookmarks_title">ブックマークを表示</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">脚注をクリックできるハンドルではなく、テキスト内にインラインで表示します</string>
   <string name="prefs_show_xrefs_summary">文書に相互参照がある場合に表示します</string>
 
-  <string name="prefs_show_notes_title">脚注と相互参照</string>
   <string name="prefs_show_strongs_title">ストロング番号</string>
   <string name="prefs_show_morphology_title">形態論コード</string>
   <string name="prefs_non_strongs_word_italic_title">補足語をイタリック体に</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">背景ノイズ</string>
   <string name="prefs_noise_summary">背景に少しノイズを加えると、目に優しくなる場合があります。</string>
 
-  <string name="cpv_default_title">色を選択</string>
-  <string name="cpv_presets">プリセット</string>
-  <string name="cpv_custom">カスタム</string>
-  <string name="cpv_select">選択</string>
-  <string name="cpv_transparency">透明度</string>
 
     <!-- Window -->
   <string name="new_window">新しいウィンドウ</string>
-  <string name="windowClose">閉じる</string>
   <string name="windowMaximise">最大化</string>
   <string name="windowMinimise">最小化</string>
   <string name="windowSynchronise">同期</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">ピン留め</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">この章にはノートがありません</string>
-  <string name="no_verse_notes">この節にはノートがありません</string>
   <string name="previous">前へ</string>
   <string name="next">次へ</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">ストロングスのヘブライ語・ギリシャ語辞書をダウンロードしてください</string>
   <string name="no_indexed_bible_with_strongs_ref">ストロングス番号を含む聖書をダウンロードし、「検索」でインデックスを作成してください</string>
-  <string name="morph_robinson_not_installed">「ロビンソンの形態論分析コード」辞書をダウンロードしてください</string>
-  <string name="go_to_downloads">ダウンロードへ移動</string>
 
     <!-- Module download -->
   <string name="download">文書をダウンロード</string>
   <string name="redownload">文書を再ダウンロード</string>
-  <string name="download_confirmation">インターネットから聖書をダウンロードしますか？</string>
   <string name="download_source_last_updated">ドキュメントリストの最終更新：%s</string>
   <string name="download_refreshing_book_list">ドキュメントサーバーから利用可能なドキュメントのリストを更新しています…</string>
   <string name="download_source_message1">ドキュメントは以下のソースからダウンロードされます：</string>
   <string name="download_document_confirm_prefix">ダウンロード</string>
-  <string name="download_refresh_book_list_menu_item">更新</string>
   <string name="error_downloading">ダウンロード中にエラーが発生しました。インターネット接続を確認してください。</string>
   <string name="error_downloading_status">%1$s をホストするサーバーが %2$s (%3$d) によるエラーを返しました。</string>
   <string name="storage_space_warning">ローカルストレージの空き容量が不足しています。</string>
@@ -368,15 +346,6 @@
   <string name="done">完了</string>
   <string name="reset_plan_question">このプランをリセットしてよろしいですか？</string>
   <string name="import_reading_plan">読書プランをインポート…</string>
-  <string name="import_reading_plan_error">インポートエラー</string>
-  <string name="import_reading_plan_error_duplicate">以下の日が重複していました：%s</string>
-  <string name="import_reading_plan_error_days">以下の日にエラーがありました：%s</string>
-  <string name="import_reading_plan_anyway">このままインポート</string>
-  <string name="overwrite_reading_plan">%s を上書きしますか？</string>
-  <string name="delete_reading_plan">このプランを削除</string>
-  <string name="reading_plan_deleted">読書プランが削除されました</string>
-  <string name="reading_plan_ships_with_ab">この読書プランは %s に同梱されています</string>
-  <string name="confirm_delete_reading_plan">%s とその読書履歴を削除してよろしいですか？ ヒント：プランを更新する場合は、同じファイル名で再インポートするだけで 履歴が保持されます。</string>
   <string name="plan_duplicate_user_plan">sdcard の jsword/readingplan に、内部プランと同名のユーザー読書プランがあります。ここには表示できません。 ファイルの拡張子を .properties のまま、別の名前に変更してください。</string>
   <string name="plan_name_y1ntpspr">新約聖書・詩篇・箴言を1年で</string>
   <string name="plan_description_y1ntpspr">HEARTLIGHT インターネットマガジン（http://www.heartlight.org）のご好意により、許可を得て掲載。</string>
@@ -404,7 +373,6 @@
   <string name="notes">脚注と参照</string>
   <string name="share_verse">共有…</string>
   <string name="share_verse_widget_title">選択範囲を共有</string>
-  <string name="share_verse_subject_2">%s を使って聖書の節が共有されました。</string>
   <string name="compare_translations">翻訳を比較</string>
 
     <!-- Link context menu -->
@@ -416,33 +384,26 @@
   <string name="bookmarks_and_mynotes_title">ブックマーク &amp; マイノート</string>
   <string name="migrated_my_notes">マイノートを移行しました</string>
   <string name="bookmarks">ブックマーク</string>
-  <string name="bookmark_added">ブックマークを追加しました</string>
     <!-- Bookmark / note labels -->
   <string name="labels">ラベル</string>
   <string name="manage_labels">ラベルを管理</string>
   <string name="assign_labels">ラベルを割り当て</string>
   <string name="new_item">新規</string>
-  <string name="new_label">新しいラベル</string>
   <string name="label_name_prompt">名前</string>
   <string name="label_unlabelled">ラベルなし</string>
   <string name="add_bookmark1">ブックマーク</string>
-  <string name="add_bookmark2">選択範囲をブックマーク</string>
   <string name="add_bookmark3">選択範囲</string>
   <string name="add_bookmark_whole_verse">節をブックマーク</string>
   <string name="add_bookmark_whole_verse1">節</string>
-  <string name="add_bookmark_whole_verse2">節全体</string>
   <string name="add_whole_page_bookmark">ページ全体をブックマークに追加</string>
   <string name="add_paragraph_break">段落区切りを追加</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">削除</string>
   <string name="bookmark_settings_hide_labels_title">指定したラベルを非表示</string>
   <string name="bookmark_settings_hide_labels_summary">指定したラベルが付いたブックマークを非表示にします</string>
   <string name="auto_assign_labels_title">ラベル設定</string>
   <string name="auto_assign_labels">自動割り当てとお気に入りラベル</string>
   <string name="auto_assign_labels1">新しいブックマークにラベルを自動割り当て</string>
   <string name="auto_assign_labels_primary">プライマリとして自動割り当て</string>
-  <string name="label_color">ラベルの色</string>
-  <string name="label_color_example">例</string>
   <string name="marker_style">選択範囲ブックマークにマーカーのみ表示</string>
   <string name="marker_style_whole_verse">節全体ブックマークにマーカーのみ表示</string>
   <string name="hide_style">選択範囲ブックマークを非表示</string>
@@ -470,11 +431,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d 章</string>
   <string name="some_chapters">%d 章</string>
-  <string name="rest_of_book">書の末尾まで</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d 節</string>
   <string name="some_verses">%d 節</string>
-  <string name="rest_of_chapter">章の終わりまで</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d ページ</string>
   <string name="some_pages">%d ページ</string>
@@ -484,8 +443,6 @@
   <string name="rewind">巻き戻し</string>
   <string name="forward">早送り</string>
   <string name="tts_lang_not_available">この言語は利用できません。</string>
-  <string name="speak_queue">キュー</string>
-  <string name="speak_repeat">繰り返し</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">読み上げ速度</string>
@@ -558,14 +515,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s アイコンは、設定がワークスペースの設定から引き継がれていることを示します。</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s アイコンは、この特定のウィンドウで設定が変更されていることを示します。</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">%1$s ボタンを使用して、これらの設定をすべて %2$s にリセットしてください。</string>
   <string name="reset_defaults">デフォルト値</string>
   <string name="reset_workspace_defaults">ワークスペースのデフォルト値</string>
 
-  <string name="speak_bookmark_help">読み上げブックマークのヘルプ</string>
 
   <string name="speak_help_auto_bookmark">読み上げが一時停止または停止されると、読み上げブックマークが自動的に追加されます。 自動生成されたブックマークには、特別な「読み上げ」ラベルが付きます。 読み上げブックマークから開始すると、そのブックマークは次に停止または一時停止した節に移動します。読み上げラベルのみが移動し、その他のラベルはそのまま残ります。</string>
   <string name="speak_help_playback_settings">再生設定（読み上げ画面の「再生設定」）は、この設定が選択されている場合に読み上げブックマークに保存されます。 読み上げブックマークから読み上げを再開すると、保存された再生設定がブックマークから読み込まれます。</string>
@@ -602,7 +557,6 @@
   <string name="backup_phone_storage">端末ストレージ</string>
   <string name="backup_and_restore">バックアップと復元</string>
   <string name="backup_modules2">ドキュメントをバックアップ先…</string>
-  <string name="backup_app_database2">アプリデータベースをバックアップ先…</string>
   <string name="backup_app2">アプリ（.apk ファイル）をバックアップ先…</string>
   <string name="backup_application">アプリケーション</string>
   <string name="backup_database">データベース</string>
@@ -614,17 +568,13 @@
   <string name="backup_restore_from">復元元…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">復元またはインポート元…</string>
-  <string name="backup_restore">復元</string>
   <string name="backup_restore2">復元またはインポート</string>
   <string name="overwrite_something">%s を上書きしますか？</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">何を復元しますか？</string>
 
-  <string name="restore_app_database">アプリデータベースを復元元…</string>
   <string name="restore_database">データベースファイルを復元</string>
   <string name="restore_confirmation">マイノート、ブックマーク、スタディパッド、読書プラン、ワークスペースを上書きしますか？</string>
-  <string name="restore_success2">選択したデータベースセクションの復元が完了しました</string>
   <string name="restore_success">マイノート、ブックマーク、スタディパッド、読書プラン、ワークスペースの復元が完了しました</string>
   <string name="downloading_backup">バックアップファイルをダウンロードしています…</string>
   <string name="loading_backup">バックアップからデータベースを読み込んでいます…</string>
@@ -640,14 +590,12 @@
   <string name="exported_studypads_subject">エクスポートされたスタディパッド</string>
   <string name="exported_studypads_message">選択したスタディパッドに関連するブックマークとノートを含む %s データベースが添付されています</string>
   <string name="restore_unsuccessfull">データベースの復元に失敗しました。無効なデータベースファイルが指定された可能性があります。</string>
-  <string name="restore_modules">ドキュメントを復元元…</string>
   <string name="send_backup_file">バックアップファイルを送信</string>
   <string name="backup_modules_title">バックアップするモジュールを選択</string>
   <string name="install_zip_canceled">モジュールのインストールがキャンセルされました</string>
   <string name="ask_restore_or_import">%s のデータベースは、復元（既存のデータベースを削除して選択したデータベースを読み込む）またはインポート（選択したデータベースを既存のデータベースにインポート）のどちらかを選択できます。どうしますか？</string>
   <string name="restore">復元</string>
   <string name="import2">インポート</string>
-  <string name="export_studypads_help">エクスポートされたスタディパッド（ラベルとブックマーク）を含むファイルは、メインメニュー → バックアップと復元からインポートできます。</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels &amp; bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" と他 %2$s 件のラベル／スタディパッド、および %3$s 件のブックマーク</string>
@@ -661,8 +609,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">バグ報告</string>
-  <string name="send_feedback_title">フィードバック</string>
   <string name="send_bug_report_title">フィードバック / バグ報告</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s のバグ報告</string>
 
@@ -701,10 +647,8 @@
   <string name="yes">はい</string>
   <string name="no">いいえ</string>
   <string name="error">エラー</string>
-  <string name="delete_generic">削除</string>
   <string name="please_wait">しばらくお待ちください…</string>
   <string name="all">すべて</string>
-  <string name="edit">編集</string>
   <string name="reset_generic">リセット</string>
   <string name="watch_tutorial_video">チュートリアル動画を見る（英語）</string>
   <string name="verse_not_found">節が見つかりません</string>
@@ -728,12 +672,11 @@
   <string name="notification_channel_progress_status">ドキュメントのダウンロードなどの進捗状況通知</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">新規</string>
   <string name="switch_to_workspace">ワークスペース</string>
   <string name="delete_workspace">削除</string>
   <string name="new_copied_workspace">新規としてコピー</string>
   <string name="workspace_number">ワークスペース %d</string>
-  <string name="rename_workspace">名前を変更</string>
+  <string name="rename">名前を変更</string>
   <string name="workspace_selector_title">ワークスペースを選択</string>
   <string name="workspace_settings">設定…</string>
   <string name="give_name_workspace">新しいワークスペースの名前を入力してください</string>
@@ -746,19 +689,17 @@
   <string name="copy_settings_workspaces_title">どのワークスペースに設定をコピーしますか？</string>
   <string name="reset_settings">リセット</string>
   <string name="search_settings">設定を検索</string>
-  <string name="workspace_dismiss">閉じる</string>
+  <string name="dismiss">閉じる</string>
   <string name="workspace_listing_with_current">%s（現在）</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">これはベータ版です！</string>
-  <string name="beta_flag">ベータ</string>
   <string name="beta_notice_content_1">ベータ版には、まだ十分にテストされていない新機能が含まれているため、予期しない動作（バグ）が発生することがあります。 通常の聖書読者の方には、安定版のご利用をお勧めします。</string>
 
   <string name="beta_notice_content_2">ベータユーザーの方は、Google Play または（できれば）%s を通じてバグを報告することをお勧めします。</string>
   <string name="beta_notice_content_3">プログラマーの方は、%s でバグ修正のコントリビューションをご検討ください。:-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">閉じる</string>
   <string name="beta_notice_dismiss_until_update">次のアップデートまで閉じる</string>
 
   <string name="stable_notice_title">アプリケーションがアップグレードされました！</string>
@@ -779,7 +720,6 @@
 
   <string name="help_search_title">検索</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">検索テキストには *, ?, AND, OR, NOT などの特殊文字を使用できます （詳細は「Apache Lucene - Query Parser Syntax」を参照してください）</string>
   <string name="help_search_text2">検索テキストには *, AND, OR, NOT などの特殊文字を使用できます</string>
   <string name="help_search_details">詳細については %s をご参照ください。</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -795,7 +735,6 @@
   <string name="redownload_documents">クイック再ダウンロード</string>
   <string name="welcome_message">%s をダウンロードいただきありがとうございます。現在、聖書や文書がインストールされていません。続けるには、インターネットからダウンロードするか、ZIPファイルの文書バックアップから読み込んで、少なくとも1つの文書をインストールしてください。</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">サポートされている形式</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">%s に読み込むファイルを選択してください。</string>
   <string name="supported_formats">ファイルから文書を読み込む際にサポートされている形式：%s</string>
@@ -819,7 +758,6 @@
   <string name="strongs_mode_title">ストロングモードを選択</string>
 
   <string name="download_dialog_message">次の書籍はダウンロードできませんでした：</string>
-  <string name="select_multiple">複数選択</string>
   <string name="journal_description">カスタムテキストとブックマークを含むユーザー編集可能なスタディパッド</string>
   <string name="my_notes_description">ブックマークに添付されたユーザー編集可能なノート</string>
   <string name="my_notes_abbreviation">マイノート</string>
@@ -834,7 +772,6 @@
   <string name="http_not_found">見つかりません</string>
   <string name="http_unknown">その他のエラー</string>
   <string name="give_passphrase_for_module">文書 %s は暗号化されています。解除するにはパスフレーズが必要です</string>
-  <string name="unlocking_failed">解除に失敗しました。パスフレーズが正しくありません</string>
   <string name="unlock_module">モジュールのパスフレーズを設定</string>
   <string name="unlock_info">暗号化モジュールの解除情報</string>
   <string name="try_again_passphrase">パスフレーズが正しくありませんでした。もう一度試しますか？</string>
@@ -886,8 +823,6 @@
   <string name="tell_friend_message4">詳細とその他のインストール方法: %s</string>
   <string name="share_verse_ok">共有 / コピー</string>
   <string name="web_search">ウェブ検索</string>
-  <string name="verse_action_copy">コピー</string>
-  <string name="generic_share">共有</string>
   <string name="share_verse_menu_title">共有 / コピー…</string>
   <string name="show_versenumbers">節番号を表示</string>
   <string name="show_full_verses">全文を表示</string>
@@ -904,9 +839,6 @@
   <string name="show_quotes">引用符を表示</string>
   <string name="separate_verses_with_newlines">節を改行で区切る</string>
 
-  <string name="backup_button">バックアップと復元</string>
-  <string name="back_button">戻る</string>
-  <string name="upgrading_database">データベースをアップグレード中です。しばらくお待ちください…</string>
   <string name="initializing_app">アプリを初期化中…</string>
   <string name="show_notes">ノートを表示</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -930,7 +862,6 @@
   <string name="send_email">開発者にメールを送信</string>
   <string name="proceed_google_play">Google Playへ進む</string>
   <string name="text_maintainers">テキストのメンテナーに問題を報告してください</string>
-  <string name="does_not_exist_abbreviation">存在しない</string>
   <string name="cant_change_wholeverse">このブックマークの全節マーキングはオフにできません</string>
   <string name="whole_verse_turned_on">ブックマークが全節としてマークされました</string>
   <string name="this_bookmark">このブックマーク</string>
@@ -943,7 +874,6 @@
   <string name="display_mode_hidden">非表示</string>
   <string name="workspace_override_indicator">このラベルにはワークスペース固有の表示モードがあります</string>
   <string name="primary_label">プライマリラベル</string>
-  <string name="highlight_entire_verse">節全体をハイライト</string>
   <string name="favourite_label">お気に入りラベル</string>
   <string name="edit_label">ラベルを編集</string>
   <string name="delete_label_confirmation">ブックマークラベル「%s」を削除しますか？関連するすべてのスタディパッドのノートも削除されます。</string>
@@ -961,7 +891,6 @@
   <string name="reorder">並び替え</string>
   <string name="system_items">システム操作</string>
   <string name="system_items1">もっと見る</string>
-  <string name="system_action2">Androidアクション</string>
   <string name="text_copied_to_clicpboard">テキストをクリップボードにコピーしました</string>
   <string name="prefs_disable_two_step_bookmarking_title">ワンステップブックマーク</string>
   <string name="prefs_disable_two_step_bookmarking_summary">聖書ビューの選択メニューに「選択範囲」と「節」の項目を直接表示します</string>
@@ -975,7 +904,6 @@
   <string name="label_blue">青</string>
   <string name="label_salvation">救済</string>
   <string name="label_underline">下線</string>
-  <string name="import_menu">インポート &amp; エクスポート</string>
   <string name="auto_backups_title">自動バックアップ</string>
   <string name="backup_file_info">アプリ v%1$d、%2$s</string>
   <string name="reset_databases_title">データベースをリセット</string>
@@ -993,18 +921,12 @@
   <string name="export_prompts_csv">プロンプトをCSVにエクスポート</string>
   <string name="import_prompts_csv">CSVからプロンプトをインポート</string>
   <string name="prompts_csv_export_success">%d 件のプロンプトをCSVにエクスポートしました</string>
-  <string name="prompts_csv_import_success">インポート完了: %1$d 件作成、%2$d 件更新</string>
-  <string name="prompts_csv_import_errors">エラーありでインポート完了: %1$d 件作成、%2$d 件更新、%3$d 件エラー</string>
-  <string name="prompts_csv_import_failed">CSVインポートに失敗しました: %s</string>
-  <string name="prompts_csv_export_failed">CSVエクスポートに失敗しました: %s</string>
   <string name="no_prompts_to_export">エクスポートするユーザープロンプトがありません</string>
   <string name="csv_column_selection_title">CSVの列を選択</string>
-  <string name="choose_csv_file">インポートするCSVファイルを選択</string>
   <string name="no_bookmarks_to_export">エクスポートできるブックマークがありません</string>
   <string name="export_fileformat">%s としてエクスポート</string>
   <string name="export_something">%s をエクスポート</string>
   <string name="import_items">%s をインポート</string>
-  <string name="import_from_db">アプリデータベースファイルからインポート</string>
   <string name="import_error">アプリデータベースからのインポートに失敗しました。データベースファイルの形式が正しくないか、%s の古いバージョンで作成された可能性があります。</string>
 
   <string name="export_bookmarks_csv">ブックマークを %s としてエクスポート</string>
@@ -1033,23 +955,13 @@
   <string name="last_updated_at">最終更新日時</string>
   <string name="bookmark_notes">ブックマークのノート</string>
 
-  <string name="chooser_range">範囲</string>
-  <string name="chooser_jump">ジャンプ</string>
-  <string name="chooser_OT_abbrev">旧約</string>
-  <string name="chooser_NT_abbrev">新約</string>
-  <string name="chooser_style_grid">グリッド</string>
-  <string name="chooser_style_lists">リスト</string>
-  <string name="chooser_select">%s を選択</string>
-  <string name="chooser_pref_reset">書/章を選択したときに章/節を1にリセットしない</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">申し訳ありませんが、%1$s 言語のユーザーインターフェースの翻訳は一部のみとなっています。%2$s はすべてボランティアによって開発されているためです。翻訳にご協力いただける方は %3$s をご覧ください。</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">翻訳者向けの説明</string>
   <string name="questions_title">ご質問は？</string>
-  <string name="questions_title2">お困りですか？</string>
   <string name="bookmark_style">ブックマークのスタイル</string>
   <string name="added_to_bookmark">このブックマークに割り当て済み</string>
-  <string name="strongs_off">オフ</string>
   <string name="strongs_links">リンク</string>
   <string name="strongs_text_and_links">テキストとリンク</string>
   <string name="strongs_hidden_links">非表示リンク</string>
@@ -1088,7 +1000,6 @@
   <string name="discrete_mode_link">隠蔽バージョンの最新版は %s からダウンロードできます。</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">グループを同期</string>
   <string name="sync_group_n">グループ %d</string>
   <string name="disable_sync">同期を無効化</string>
   <string name="open_in_window">結果をウィンドウで開く</string>
@@ -1099,10 +1010,8 @@
   <string name="custom_repositories_empty_list_message">カスタムリポジトリが定義されていません</string>
   <string name="custom_repositories_create_button_label">カスタムリポジトリを追加</string>
   <string name="custom_repositories_info_button_label">情報</string>
-  <string name="name_for_repository">リポジトリの名前</string>
   <string name="repository_specification">リポジトリのURL</string>
   <string name="delete_custom_repository">カスタムリポジトリ %s を削除しますか？</string>
-  <string name="invalid_repository_not_saved">リポジトリの指定が無効なため保存されませんでした。</string>
   <string name="custom_repositories_help1">新しいカスタムリポジトリを追加するには、カスタムリポジトリのURLを入力またはコピー &amp; ペーストしてください。</string>
   <string name="custom_repositories_help2">カスタムリポジトリの詳細については %s をご覧ください。</string>
   <string name="wiki_page">WIKIページ</string>
@@ -1138,7 +1047,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">読書・暗記の進捗</string>
   <string name="reading_progress_chapters_read">読んだ章</string>
-  <string name="reading_progress_verses_memorized">暗記した節</string>
   <string name="reading_progress_active_days">活動日数</string>
   <string name="reading_progress_overall">聖書の%s%%を読了</string>
   <string name="reading_progress_bible_heatmap">聖書の概要</string>
@@ -1164,13 +1072,11 @@
   <string name="sync_adapter_summary">現在: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
-  <string name="auth_title">%sへの認証</string>
   <string name="auth_server_uri">サーバーURL</string>
   <string name="auth_username">ユーザー名</string>
   <string name="auth_password">パスワード</string>
   <string name="auth_folder_path">同期フォルダーのパス</string>
   <string name="auth_folder_path_summary">同期データの親フォルダー（空白の場合はルート）</string>
-  <string name="auth_access_token">アクセストークン</string>
   <string name="synchronization_categories">同期カテゴリー</string>
   <string name="sync_general_settings">情報と一般設定</string>
   <string name="sync_introduction">はじめに</string>
@@ -1186,8 +1092,6 @@
   <string name="report">レポート</string>
   <string name="sync_error">クラウド同期でエラーが発生しました</string>
   <string name="error_notification_channel_name">エラー通知</string>
-  <string name="restore_from_cloud_description">別のデバイスでデバイス同期を有効にしている場合は、クラウドからデータベースを復元して開始できます。</string>
-  <string name="enable_sync">同期を有効化</string>
   <string name="last_updated">最終更新: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1208,11 +1112,6 @@
   <string name="processing_epub">EPUBを処理中: %s</string>
   <string name="buy_development">開発作業を購入</string>
   <string name="buy_development2">プロジェクトをサポート</string>
-  <string name="new_version_warning">新しいリリースが近日公開予定です。予定リリース日は%1$sです。新機能や改善点については %2$sをご覧ください。</string>
-  <string name="new_version_trailer">トレイラー動画</string>
-  <string name="new_version_warning2">リリース後、このバージョンはメンテナンスされません。</string>
-  <string name="new_version_warning3">バグ修正やアップデートは提供されません。</string>
-  <string name="new_version_warning4">アップグレードしたくない場合は、アプリストア（Google Play / F-Droidなど）で「自動更新」を無効にしてください。</string>
   <string name="dont_show">このメッセージを今後表示しない</string>
   <string name="pref_font_size_multiplier_title">フォントサイズの倍率</string>
   <string name="pref_font_size_multiplier_summary_1">テキストのフォントサイズをこの数値で乗算します。</string>
@@ -1231,7 +1130,6 @@
   <string name="invalid_url_message">入力したURLが無効です。有効なURLを入力してください（例: https://nextcloud.example.com）</string>
   <string name="memorize_description">聖書の節を暗記する</string>
   <string name="memorize_abbreviation">暗記</string>
-  <string name="add_memorization_target">暗記の目標として設定</string>
   <string name="memorize_memorized_passages">暗記した箇所</string>
   <string name="memorize_no_memorized_passages">暗記した箇所はまだありません</string>
   <string name="memorize_targets">暗記の目標</string>
@@ -1263,17 +1161,8 @@
   <string name="memorize_view_overview">概要</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM翻訳</string>
   <string name="sync_settings_shortcut_summary">デバイス間でデータを同期します</string>
-  <string name="llm_api_key_title">APIキー</string>
-  <string name="llm_api_key_summary">OpenAI互換APIキー</string>
   <string name="llm_provider_custom">カスタム（OpenAI互換）</string>
-  <string name="llm_provider_title">プロバイダー</string>
-  <string name="llm_provider_summary">使用するAIサービスプロバイダーを選択してください。APIエンドポイントと利用可能なモデルは自動的に設定されます。</string>
-  <string name="llm_provider_current">現在: %s</string>
-  <string name="llm_api_key_detected_provider">検出されたプロバイダー: %s</string>
-  <string name="ai_connection_category">接続</string>
-  <string name="ai_model_category">モデル</string>
   <string name="ai_behavior_category">動作</string>
   <string name="ai_language_title">AI応答言語</string>
   <string name="ai_language_summary">AIが応答に使用する言語</string>
@@ -1290,16 +1179,9 @@
   <string name="llm_reset_usage_confirm_title">使用データをリセットしますか？</string>
   <string name="llm_reset_usage_confirm_message">すべての累積使用データがクリアされます。</string>
   <string name="llm_custom_input_price_title">入力価格（$/Mトークン）</string>
-  <string name="llm_custom_input_price_summary">このモデルの100万入力トークンあたりのコスト</string>
   <string name="llm_custom_output_price_title">出力価格（$/Mトークン）</string>
-  <string name="llm_custom_output_price_summary">このモデルの100万出力トークンあたりのコスト</string>
   <string name="llm_cost_total">合計: %1$s</string>
-  <string name="llm_endpoint_title">APIエンドポイント</string>
-  <string name="llm_endpoint_summary">APIのベースURL</string>
-  <string name="llm_model_title">モデル</string>
-  <string name="llm_model_summary">モデルID</string>
   <string name="llm_custom_model">カスタム…</string>
-  <string name="llm_custom_model_dialog_title">カスタムモデル</string>
   <string name="llm_custom_model_dialog_message">モデルIDを入力してください</string>
   <string name="llm_rate_limited_retrying">レート制限中。%1$s秒後に再試行\u2026</string>
   <string name="llm_default_document_title">AI応答</string>
@@ -1309,7 +1191,6 @@
   <string name="llm_parse_error_no_choices">OpenAI応答に選択肢がありません</string>
   <string name="llm_parse_error_openai">OpenAI応答の解析に失敗しました: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic応答の解析に失敗しました: %1$s</string>
-  <string name="llm_error_prompt_not_found">プロンプトが見つかりません: %1$s</string>
   <string name="llm_error_unknown">不明なエラー</string>
   <string name="llm_error_max_iterations">完了せずに最大反復回数（%1$d回）に達しました</string>
   <string name="llm_continue_iterations_title">続行しますか？</string>
@@ -1344,7 +1225,6 @@
   <string name="raw_log_retention_summary_disabled">無効（すべて保持）</string>
   <string name="send_ai_bug_report_title">AIバグを報告</string>
   <string name="ai_bug_report_menu">AIバグを報告</string>
-  <string name="ai_bug_report_recommended_only">バグ報告は推奨プロバイダーモデルのみ利用できます</string>
 
   <string name="select_model_before_run_title">モデルを選択</string>
   <string name="set_default_model_for_prompt">このプロンプトのデフォルトモデルに設定</string>
@@ -1374,7 +1254,6 @@
   <string name="ai_models_summary_none">モデルが設定されていません</string>
   <string name="ai_add_provider">プロバイダーを追加</string>
   <string name="ai_provider_edit">編集</string>
-  <string name="ai_provider_delete">削除</string>
   <string name="ai_provider_delete_confirm">プロバイダー「%1$s」を削除しますか？このプロバイダーを使用しているプロンプトはデフォルトに戻ります。</string>
   <string name="ai_provider_api_key_not_set">APIキーが設定されていません</string>
   <string name="ai_provider_select_type">プロバイダーの種類を選択</string>
@@ -1386,27 +1265,18 @@
   <string name="ai_provider_saved">プロバイダーを保存しました</string>
   <string name="ai_provider_deleted">プロバイダーを削除しました</string>
 
-  <string name="llm_fetch_models_title">モデルリストをダウンロード</string>
-  <string name="llm_fetch_models_message">%1$sから利用可能なモデルのリストをダウンロードしますか？</string>
-  <string name="llm_fetch_models_dont_ask">今後確認しない</string>
-  <string name="llm_fetch_models_success">%1$dモデルを読み込みました</string>
-  <string name="llm_fetch_models_failed">モデルの取得に失敗しました</string>
   <string name="llm_openrouter_category">カテゴリー</string>
   <string name="llm_openrouter_category_all">すべて</string>
   <string name="llm_openrouter_model">モデル</string>
     <!-- Configured models management -->
   <string name="ai_models_category">モデル</string>
   <string name="add_model">モデルを追加</string>
-  <string name="add_model_title">モデルを追加</string>
   <string name="edit_model_title">モデルを編集</string>
   <string name="model_saved">モデルを保存しました</string>
   <string name="model_deleted">モデルを削除しました</string>
   <string name="model_delete_confirm">モデル \"%1$s\" を削除しますか？</string>
   <string name="model_set_default">デフォルトモデルに設定</string>
   <string name="model_select_provider">プロバイダー</string>
-  <string name="no_models_configured">モデルが設定されていません</string>
-  <string name="model_cache_creation_price">キャッシュ作成価格（$/Mトークン）</string>
-  <string name="model_cache_read_price">キャッシュ読み取り価格（$/Mトークン）</string>
   <string name="model_supported_badge">✓ 対応済み</string>
   <string name="show_also_unsupported_models">非対応モデルも表示</string>
   <string name="show_also_unsupported_providers">非対応プロバイダーも表示</string>
@@ -1417,7 +1287,6 @@
   <string name="unknown_error">不明なエラー</string>
   <string name="easy_setup_title">クイック設定</string>
   <string name="easy_setup_pref_summary">推奨プロバイダーを使って数ステップでAIをセットアップします</string>
-  <string name="easy_setup_choose_provider">始めるプロバイダーを選択してください：</string>
   <string name="easy_setup_enter_api_key">APIキーを入力してください</string>
   <string name="easy_setup_api_key_instructions">APIキーの取得先：</string>
   <string name="easy_setup_test_connection">接続テスト</string>
@@ -1476,7 +1345,6 @@
   <string name="addon_prompt_notice">このプロンプトはアドオンモジュール「%s」からのものであり、編集できません。編集可能なコピーを作成するには「カスタマイズのためにコピー」を使用してください。</string>
   <string name="new_category">新しいカテゴリ</string>
   <string name="new_category_name">カテゴリ名</string>
-  <string name="rename_category">名前を変更</string>
   <string name="move_category_up">上に移動</string>
   <string name="move_category_down">下に移動</string>
   <string name="hide_category">AIアクションから非表示</string>
@@ -1521,28 +1389,22 @@
   <string name="llm_note_updated">ノートを更新しました</string>
   <string name="specify_before_run_title">タスクを指定</string>
   <string name="specify_before_run_hint">具体的なタスクを説明してください…</string>
-  <string name="prompt_cache_settings">キャッシュ設定</string>
   <string name="prompt_strict_context_matching">コンテキスト依存キャッシュ</string>
   <string name="prompt_strict_context_matching_description">有効にすると、すべてのコンテキスト（聖書バージョン、選択テキスト）が同じ場合にのみキャッシュが一致します。無効にすると、聖書バージョンに関係なく節が同じ場合にキャッシュが一致します。</string>
   <string name="ai_document_delete_confirmation">このAIドキュメントを削除しますか？</string>
-  <string name="ai_document_deleted">このAIドキュメントは削除されました。</string>
   <string name="ai_document_regenerating">AIドキュメントを再生成中…</string>
-  <string name="ai_document_regenerate_not_implemented">再生成機能は今後のアップデートで利用可能になります</string>
   <string name="ai_regenerate_prompt_not_found">再生成できません：元のプロンプトが見つかりませんでした。削除された可能性があります。</string>
   <string name="ai_document_regenerate">再生成</string>
   <string name="ai_regenerate_title">再生成</string>
   <string name="ai_regenerate_instructions_hint">追加の指示（任意）</string>
   <string name="ai_regenerate_keep_previous">以前のバージョンを保持</string>
   <string name="ai_regenerate_fresh_run">新規実行（以前の結果を無視）</string>
-  <string name="ai_document_delete">削除</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">%sに翻訳</string>
   <string name="default_prompt_translate_to_ui_language">UI言語に翻訳</string>
   <string name="default_prompt_translate_to_ui_language_desc">文書のテキストをアプリのインターフェース言語に翻訳します</string>
-  <string name="default_prompt_translate_to_english">英語に翻訳</string>
-  <string name="default_prompt_translate_to_english_desc">選択したテキストを英語に翻訳します</string>
   <string name="default_prompt_summary">要約</string>
   <string name="default_prompt_summary_desc">選択したテキストの簡潔な要約を作成します</string>
   <string name="default_prompt_explain_verses">節の説明</string>
@@ -1551,8 +1413,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">節ごとの説明とブックマークを含むスタディパッドを作成します</string>
   <string name="default_prompt_word_study">ワードスタディ</string>
   <string name="default_prompt_word_study_desc">ヘブライ語・ギリシャ語の原語を分析します</string>
-  <string name="default_prompt_strongs_annotation">ストロング番号の注釈</string>
-  <string name="default_prompt_strongs_annotation_desc">KJVを参照として、任意の聖書翻訳にストロングのコンコーダンス番号を追加します</string>
   <string name="default_prompt_cross_references">相互参照</string>
   <string name="default_prompt_cross_references_desc">関連する聖書の箇所を見つけて説明します</string>
   <string name="default_prompt_compare_translations">翻訳の比較</string>
@@ -1695,11 +1555,7 @@
   <string name="ai_document_filter_summary">AIが読み取れるドキュメントを選択</string>
   <string name="ai_document_filter_summary_count">%d 件のドキュメントを除外中</string>
   <string name="ai_document_filter_activity_title">AIドキュメントアクセス</string>
-  <string name="ai_document_excluded_error">ユーザー設定により除外されたドキュメント：%s</string>
   <string name="permission_status_default">確認する（既定）</string>
-  <string name="permission_status_allowed">常に許可</string>
-  <string name="permission_status_denied">常に拒否</string>
-  <string name="permission_option_default">毎回確認する（既定）</string>
   <string name="permission_option_always_allow">常に許可する</string>
   <string name="permission_option_always_deny">常に拒否する</string>
   <string name="reset_all_permissions">すべてリセット</string>
@@ -1714,10 +1570,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">ツールの権限</string>
-  <string name="prompt_tool_permissions_read_only">ツールの権限（読み取り専用）</string>
-  <string name="prompt_tool_permissions_description">このプロンプトのツール権限を上書き</string>
-  <string name="tool_section_read_tools">読み取りツール</string>
-  <string name="tool_section_write_tools">書き込みツール</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">聖書・検索</string>
@@ -1740,13 +1592,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">モデル</string>
   <string name="prompt_model_default">デフォルト</string>
-  <string name="prompt_model_custom">カスタム</string>
-  <string name="prompt_model_custom_hint">モデル名を入力</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AIアクションを選択</string>
-  <string name="no_llm_prompts_configured">節の選択に対応するAIプロンプトが設定されていません</string>
-  <string name="llm_prompt_executing">AIプロンプトを実行中：%s</string>
   <string name="llm_actions">AIアクション</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1602,7 @@
   <string name="agent_log_close">エージェントログを閉じる</string>
   <string name="agent_log_stop">AIを停止</string>
   <string name="agent_log_idle">AIアシスタント</string>
-  <string name="agent_log_running">AI処理中…</string>
   <string name="agent_log_completed">完了</string>
-  <string name="agent_log_error">エラーが発生しました</string>
   <string name="agent_log_executing">実行中：%s</string>
   <string name="agent_log_iteration">繰り返し %d 回目</string>
   <string name="agent_log_tool">ツール：%s</string>
@@ -1766,7 +1612,6 @@
   <string name="agent_log_saved">保存済み：%s</string>
   <string name="agent_log_done">完了：%s</string>
   <string name="agent_log_cancelled">キャンセルされました</string>
-  <string name="agent_execution_completed">エージェントの実行が完了しました</string>
   <string name="agent_already_running">AIエージェントはすでに実行中です。完了するまでお待ちいただくか、停止してください。</string>
 
     <!-- AI Agent Notifications -->
@@ -1785,22 +1630,16 @@
   <string name="my_document_new_name">ドキュメント %d</string>
   <string name="my_document_create_title">新しいドキュメントを作成</string>
   <string name="my_document_rename_title">ドキュメント名を変更</string>
-  <string name="my_document_edit_description_title">説明を編集</string>
   <string name="my_document_delete_confirmation">ドキュメント\"%s\"を削除しますか？</string>
   <string name="my_document_cannot_delete_ai_documents">AIドキュメントにページが含まれている間は削除できません。先にページを削除してください。</string>
   <string name="my_document_save_changes">変更を保存しますか？</string>
   <string name="my_document_no_description">説明なし</string>
-  <string name="my_document_rename">名前を変更</string>
   <string name="my_document_edit_description">説明を編集</string>
-  <string name="my_document_delete">削除</string>
 
   <string name="my_document_pages_title">%s - ページ</string>
   <string name="my_document_pages_empty">このドキュメントにページはありません。</string>
   <string name="my_document_page_rename_title">ページ名を変更</string>
   <string name="my_document_page_delete_confirmation">ページ\"%s\"を削除しますか？</string>
-  <string name="my_document_page_rename">名前を変更</string>
-  <string name="my_document_page_delete">削除</string>
-  <string name="my_document_page_export">エクスポート</string>
   <string name="my_document_new_page_name">ページ %1$d</string>
   <string name="my_document_create_page_title">新しいページ</string>
   <string name="my_document_content_type_label">コンテンツの種類</string>
@@ -1820,12 +1659,10 @@
 
   <string name="prefs_page_scroll_amount_title">ページスクロール量</string>
   <string name="prefs_page_scroll_amount_summary">ページアップ/ダウン時のスクロール量</string>
-  <string name="page_scroll_amount_dialog_title">ページスクロール量</string>
   <string name="prefs_scroll_helper_lines_title">スクロールヘルパーライン</string>
   <string name="prefs_scroll_helper_lines_summary">ページスクロール境界に水平ガイドラインを表示します</string>
   <string name="prefs_scroll_helper_line_style_title">ヘルパーラインのスタイル</string>
   <string name="prefs_scroll_helper_line_style_summary">スクロールヘルパーラインの表示スタイルを選択します</string>
-  <string name="scroll_helper_line_style_dialog_title">ヘルパーラインのスタイル</string>
   <string name="scroll_helper_line_style_thin_dotted">細い点線</string>
   <string name="scroll_helper_line_style_thin_solid">細い実線</string>
   <string name="scroll_helper_line_style_thick_solid">太い実線</string>

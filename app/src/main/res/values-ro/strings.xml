@@ -5,7 +5,6 @@
   <string name="app_name_short">Biblia</string>
   <string name="app_name_medium">Biblia (AndBible)</string>
   <string name="app_name_long">AndBible: Biblia</string>
-  <string name="project">AndBible, Proiect cu cod sursă public</string>
 
   <string name="version_text">Versiunea %s</string>
   <string name="no_sdcard_error">Introdu o memorie SD și repornește aplicația.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Text îmbogățit (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Spațiul dintre paragrafe (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Reglează spațiul dintre paragrafe.</string>
 
-  <string name="prefs_show_verseno_title1">Numărul versetului</string>
 
-  <string name="prefs_show_chapter_no_title">Numărul capitolului</string>
-  <string name="prefs_show_chapter_no_summary">Arată numărul capitolului</string>
 
   <string name="prefs_verse_per_line_summary">Arată fiecare verset pe un rînd diferit</string>
   <string name="prefs_show_bookmarks_summary">Debifează pentru a ascunde semnele de carte</string>
 
   <string name="prefs_show_mynotes_summary">Arată simbolul în versetele cu Notițele mele</string>
-  <string name="prefs_show_notes_summary">Arată note de subsol și trimiteri</string>
   <string name="prefs_show_strongs_summary">Legături la definițiile din greacă și ebraică</string>
   <string name="prefs_show_morphology_summary">Arată morfologia greacă a lui Robinson</string>
   <string name="prefs_section_title_summary">Arată titlurile pasajelor din biblie</string>
   <string name="prefs_red_letter_summary">Arată cuvintele lui Isus în roșu</string>
-  <string name="prefs_text_size_title">Alege caracterele</string>
 
   <string name="prefs_verse_per_line_title">Un verset pe rînd</string>
   <string name="prefs_show_bookmarks_title">Arată semnele de carte</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Afișează notele de subsol direct în text în loc de indicatori clicabili</string>
   <string name="prefs_show_xrefs_summary">Arată trimiterile, dacă sînt disponibile în document</string>
 
-  <string name="prefs_show_notes_title">Note de subsol și trimiteri</string>
   <string name="prefs_show_strongs_title">Numere Strong</string>
   <string name="prefs_show_morphology_title">Coduri morfologice</string>
   <string name="prefs_non_strongs_word_italic_title">Cuvinte adăugate în cursiv</string>
@@ -284,15 +275,9 @@
   <string name="prefs_noise_title">Zgomotul fondului</string>
   <string name="prefs_noise_summary">Adăugînd zgomot fondului, ar putea fi mai confortabil pentru ochi. </string>
 
-  <string name="cpv_default_title">Alege o culoare</string>
-  <string name="cpv_presets">Reglări prestabilite</string>
-  <string name="cpv_custom">Personalizează</string>
-  <string name="cpv_select">Alege</string>
-  <string name="cpv_transparency">Transparenţă</string>
 
     <!-- Window -->
   <string name="new_window">Fereastră nouă</string>
-  <string name="windowClose">Închide</string>
   <string name="windowMaximise">Maximizează</string>
   <string name="windowMinimise">Minimizează</string>
   <string name="windowSynchronise">Sincronizează</string>
@@ -306,26 +291,19 @@
   <string name="window_pin_mode">Fixează</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Nu există notițe în acest capitol</string>
-  <string name="no_verse_notes">Nu există notițe în acest verset</string>
   <string name="previous">Înapoi</string>
   <string name="next">Înainte</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Descarcă dicționarele ebraic și grecesc Strong</string>
   <string name="no_indexed_bible_with_strongs_ref">Trebuie descărcată o Biblie care să conțină numerele Strong și să construiești indexul acesteia prin opțiunea „Caută”</string>
-  <string name="morph_robinson_not_installed">Descarcă dicționarul de coduri de analiză morfologică al lui Robinson</string>
-  <string name="go_to_downloads">Du-te la Descărcări</string>
 
     <!-- Module download -->
   <string name="download">Descarcă documente</string>
   <string name="redownload">Redescarcă documente</string>
-  <string name="download_confirmation">Descarci o biblie din internet?</string>
   <string name="download_source_last_updated">Ultima actualizare a listei: %s.</string>
   <string name="download_refreshing_book_list">Se actualizează lista de documente de la servere…</string>
   <string name="download_source_message1">Documentele sînt descărcate din următoarele surse:</string>
   <string name="download_document_confirm_prefix">Descarcă</string>
-  <string name="download_refresh_book_list_menu_item">Actualizează</string>
   <string name="error_downloading">A apărut o eroare în timpul descărcării. Verifică conexiunea la internet.</string>
   <string name="error_downloading_status">Serverul care găzduiește %1$s a generat o eroare din cauza %2$s (%3$d).</string>
   <string name="storage_space_warning">Spațiu de stocare insuficient.</string>
@@ -375,19 +353,6 @@
   <string name="done">Gata</string>
   <string name="reset_plan_question">Sigur vrei să restabilești acest plan?</string>
   <string name="import_reading_plan">Importă planul de citire…</string>
-  <string name="import_reading_plan_error">Eroare la importare</string>
-  <string name="import_reading_plan_error_duplicate">Zilele următoare apar de două ori: %s</string>
-  <string name="import_reading_plan_error_days">Zilele următoare conțin erori: %s</string>
-  <string name="import_reading_plan_anyway">Importă oricum</string>
-  <string name="overwrite_reading_plan">Vrei să scrii peste %s?</string>
-  <string name="delete_reading_plan">Șterge acest plan</string>
-  <string name="reading_plan_deleted">Planul de citire a fost șters</string>
-  <string name="reading_plan_ships_with_ab">Acest plan de citire conține %s</string>
-  <string name="confirm_delete_reading_plan">
-        Sigur vrei să ștergi %s împreună cu cronologia de citire?
-        Sugestie: dacă trebuie să actualizezi planul, poți să îl imporți din nou cu același nume de fișier,
-        iar cronologia va fi păstrată.
-    </string>
   <string name="plan_duplicate_user_plan">
         Există un plan de citire jsword/readingplan
         în cardul sd cu același nume ca un plan intern. Acesta nu poate fi inclus aici.
@@ -439,7 +404,6 @@
   <string name="notes">Note de subsol și trimiteri</string>
   <string name="share_verse">Trimite…</string>
   <string name="share_verse_widget_title">Trimite textul</string>
-  <string name="share_verse_subject_2">Un verset biblic a fost împărtășit cu tine folosind %s.</string>
   <string name="compare_translations">Compară traduceri</string>
 
     <!-- Link context menu -->
@@ -451,33 +415,26 @@
   <string name="bookmarks_and_mynotes_title">Semne de carte și notițe</string>
   <string name="migrated_my_notes">Notițe transferate</string>
   <string name="bookmarks">Semne de carte</string>
-  <string name="bookmark_added">Semn de carte adăugat</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etichete</string>
   <string name="manage_labels">Gestionează etichete</string>
   <string name="assign_labels">Pune etichete</string>
   <string name="new_item">Nou</string>
-  <string name="new_label">Etichetă nouă</string>
   <string name="label_name_prompt">Nume</string>
   <string name="label_unlabelled">Fără etichetă</string>
   <string name="add_bookmark1">Semn de carte</string>
-  <string name="add_bookmark2">Adaugă semn de carte</string>
   <string name="add_bookmark3">Text ales</string>
   <string name="add_bookmark_whole_verse">Semn de carte la verset</string>
   <string name="add_bookmark_whole_verse1">Versete</string>
-  <string name="add_bookmark_whole_verse2">Versete întregi</string>
   <string name="add_whole_page_bookmark">Adaugă semn de carte pentru toată pagina</string>
   <string name="add_paragraph_break">Întrerupere de paragraf</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Elimină</string>
   <string name="bookmark_settings_hide_labels_title">Ascunde etichetele specificate</string>
   <string name="bookmark_settings_hide_labels_summary">Ascunde semnele de carte care sînt marcate cu eticheta specificată(e)</string>
   <string name="auto_assign_labels_title">Etichete</string>
   <string name="auto_assign_labels">Pune automat și Etichete preferate</string>
   <string name="auto_assign_labels1">Pune automat etichete la noile semne de carte</string>
   <string name="auto_assign_labels_primary">Pune automat ca principală</string>
-  <string name="label_color">Culoarea etichetei</string>
-  <string name="label_color_example">Exemplu</string>
   <string name="marker_style">Evidențiază numai semnele de carte ale textului ales</string>
   <string name="marker_style_whole_verse">Evidențiază numai semnele de carte ale versetului</string>
   <string name="hide_style">Ascunde pentru semnele de carte ale textului ales</string>
@@ -508,11 +465,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d capitol</string>
   <string name="some_chapters">%d capitole</string>
-  <string name="rest_of_book">Sfîrșitul cărții</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d verset</string>
   <string name="some_verses">%d versete</string>
-  <string name="rest_of_chapter">Sfîrșitul capitolului</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d pagină</string>
   <string name="some_pages">%d pagini</string>
@@ -522,8 +477,6 @@
   <string name="rewind">Înapoi</string>
   <string name="forward">Înainte</string>
   <string name="tts_lang_not_available">Limba nu e disponibilă.</string>
-  <string name="speak_queue">Coadă</string>
-  <string name="speak_repeat">Repetă</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Viteza de vorbire</string>
@@ -596,14 +549,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Simbolul %s  arată că valoarea provine din reglările spațiului de studiu.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Simbolul%s arată că reglările au fost modificate pentru această fereastră.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Folosește butonul  %1$s pentru a readuce aceste reglări la %2$s.</string>
   <string name="reset_defaults">valori prestabilite</string>
   <string name="reset_workspace_defaults">valori prestabilite ale spațiului de studiu</string>
 
-  <string name="speak_bookmark_help">Ajutor pentru semnele de carte audio</string>
 
   <string name="speak_help_auto_bookmark">
         Un semn de carte audio va fi pus automat cînd ascultarea este întreruptă sau oprită.
@@ -660,7 +611,6 @@
   <string name="backup_phone_storage">Memoria telefonului</string>
   <string name="backup_and_restore">Copiere și Recuperare</string>
   <string name="backup_modules2">Copiază documente în…</string>
-  <string name="backup_app_database2">Copiază baza de date a aplicației în…</string>
   <string name="backup_app2">Copiază aplicația (fișier .apk) în …</string>
   <string name="backup_application">Aplicație</string>
   <string name="backup_database">Bază de date</string>
@@ -672,17 +622,13 @@
   <string name="backup_restore_from">Recuperează din…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Recuperează sau importă din…</string>
-  <string name="backup_restore">Recuperează</string>
   <string name="backup_restore2">Recuperează sau importă</string>
   <string name="overwrite_something">Înlocuiești %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Ce vrei să recuperezi?</string>
 
-  <string name="restore_app_database">Recuperează baza de date a aplicației din…</string>
   <string name="restore_database">Recuperează fișierul bazei de date</string>
   <string name="restore_confirmation">Suprascrii Notițele mele, Semne de carte, Notițe de studiu, Planuri de citire și Spații de studiu?</string>
-  <string name="restore_success2">Baza de date aleasă a fost recuperată cu succes</string>
   <string name="restore_success">Notițele mele, Semne de carte, Notițe de studiu, Planuri de citire și Spații de studiu, recuperate cu succes.</string>
   <string name="downloading_backup">Se descarcă copia de rezervă…</string>
   <string name="loading_backup">Se încarcă baza de date din copie…</string>
@@ -698,14 +644,12 @@
   <string name="exported_studypads_subject">Notițe de studiu exportate</string>
   <string name="exported_studypads_message">Baza de date a %s care conține semne de carte și notițele de studiu alese este atașată</string>
   <string name="restore_unsuccessfull">Restabilirea bazei de date nu a reușit. Poate ai furnizat un fișier greșit.</string>
-  <string name="restore_modules">Recuperează documentele din…</string>
   <string name="send_backup_file">Trimite o copie de rezervă</string>
   <string name="backup_modules_title">Alege ce vrei să copiezi</string>
   <string name="install_zip_canceled">Instalarea a fost anulată</string>
   <string name="ask_restore_or_import">Baza de date pentru %s poate să fie recuperată (adică baza de date existentă este eliminată și baza de date aleasă este încărcată) sau importată (baza de date aleasă este importată în baza de date existentă). Ce dorești să faci?</string>
   <string name="restore">Recuperează</string>
   <string name="import2">Importă</string>
-  <string name="export_studypads_help">Fișierul care conține notițele de studiu exportate (adică etichete și semne de carte) poate fi importat prin intermediul opțiunilor principale -&gt; Copie de rezervă &amp; Recuperează.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">„%1$s” și %2$s altă(e) Etichetă(e) / Notiță(e) de studiu și %3$s Semne de carte</string>
@@ -719,8 +663,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Raportare erori</string>
-  <string name="send_feedback_title">Părere</string>
   <string name="send_bug_report_title">Părere / Raportare erori</string>
   <string name="report_bug_email_subject_3">[%1$s] Raport de eroare pentru %2$s %3$s</string>
 
@@ -760,10 +702,8 @@
   <string name="yes">Da</string>
   <string name="no">Nu</string>
   <string name="error">Eroare</string>
-  <string name="delete_generic">Șterge</string>
   <string name="please_wait">Așteaptă…</string>
   <string name="all">Toate</string>
-  <string name="edit">Modifică</string>
   <string name="reset_generic">Restabilește</string>
   <string name="watch_tutorial_video">Vezi instrucțiunile video (engleză)</string>
   <string name="verse_not_found">Versetul nu a fost găsit</string>
@@ -787,12 +727,11 @@
   <string name="notification_channel_progress_status">Notificare a stării de progres pentru descărcarea documentelor etc.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Nou</string>
   <string name="switch_to_workspace">Spații de studiu</string>
   <string name="delete_workspace">Elimină</string>
   <string name="new_copied_workspace">Copiază ca nou</string>
   <string name="workspace_number">Spațiul %d</string>
-  <string name="rename_workspace">Redenumește</string>
+  <string name="rename">Redenumește</string>
   <string name="workspace_selector_title">Alege spațiul de studiu</string>
   <string name="workspace_settings">Reglări…</string>
   <string name="give_name_workspace">Dă un nume spațiului de studiu</string>
@@ -805,12 +744,11 @@
   <string name="copy_settings_workspaces_title">În ce spații de studiu vrei să copiezi reglările?</string>
   <string name="reset_settings">Restabilește</string>
   <string name="search_settings">Reglări căutare</string>
-  <string name="workspace_dismiss">Ignoră</string>
+  <string name="dismiss">Ignoră</string>
   <string name="workspace_listing_with_current">%s (actual)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Aceasta este versiunea beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         În versiunea beta, există caracteristici noi care n-au fost încă testate corespunzător,
         deci utilizarea versiunii beta ar putea introduce un comportament neașteptat, adică erori.
@@ -825,7 +763,6 @@
         de erori prin intermediul %s. :-)</string>
   <string name="beta_notice_github_issues">Mesaje de eroare pe Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Ignoră</string>
   <string name="beta_notice_dismiss_until_update">Ignoră pînă la următoarea actualizare</string>
 
   <string name="stable_notice_title">Aplicația a fost actualizată!</string>
@@ -865,9 +802,6 @@
 
   <string name="help_search_title">Caută</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Textul de căutat poate include caractere speciale, cum ar fi *, ?, AND, OR, NOT
-        (vezi „Apache Lucene - Query Parser Syntax” pentru detalii)
-    </string>
   <string name="help_search_text2">Căutarea textului poate include caractere speciale precum *, AND, OR, NOT</string>
   <string name="help_search_details">A se vedea %s pentru mai multe detalii.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaxa analizorului de căutare</string>
@@ -905,7 +839,6 @@
         Zip de rezervă.
     </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Formate acceptate</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Trebuie să alegi fișierul pe care vrei să-l încarci în %s. </string>
   <string name="supported_formats">Formate acceptate pentru încărcarea documentelor dintr-un fișier: %s</string>
@@ -931,7 +864,6 @@
   <string name="strongs_mode_title">Alege modul Strong</string>
 
   <string name="download_dialog_message">Următoarele cărți nu au putut fi descărcate:</string>
-  <string name="select_multiple">Alege mai multe</string>
   <string name="journal_description">Notițe de studiu modificabile cu text și semne de carte</string>
   <string name="my_notes_description">Notițe modificabile atașate semnelor de carte</string>
   <string name="my_notes_abbreviation">Notițele mele</string>
@@ -946,7 +878,6 @@
   <string name="http_not_found">Nu s-a găsit</string>
   <string name="http_unknown">Altă eroare</string>
   <string name="give_passphrase_for_module">Documentul %s este cifrat și are nevoie de parolă pentru a fi deblocat</string>
-  <string name="unlocking_failed">Deblocare eșuată, parolă greșită</string>
   <string name="unlock_module">Stabilește parola</string>
   <string name="unlock_info">Informații de deblocare a fișierelor cifrate</string>
   <string name="try_again_passphrase">Parola nu a funcționat, încerci din nou?</string>
@@ -998,8 +929,6 @@
   <string name="tell_friend_message4">Alte informații și opțiuni de instalare: %s</string>
   <string name="share_verse_ok">Trimite/Copiază</string>
   <string name="web_search">Caută în internet</string>
-  <string name="verse_action_copy">Copiază</string>
-  <string name="generic_share">Trimite</string>
   <string name="share_verse_menu_title">Trimite/Copiază…</string>
   <string name="show_versenumbers">Arată numerele versetelor</string>
   <string name="show_full_verses">Arată versete întregi</string>
@@ -1016,9 +945,6 @@
   <string name="show_quotes">Arată ghilimele</string>
   <string name="separate_verses_with_newlines">Separă cu rânduri noi versetele</string>
 
-  <string name="backup_button">Copie de rezervă</string>
-  <string name="back_button">Înapoi</string>
-  <string name="upgrading_database">Se actualizează baza de date. Așteaptă…</string>
   <string name="initializing_app">Se inițializează aplicația…</string>
   <string name="show_notes">Arată notițele</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1064,7 +990,6 @@
   <string name="text_maintainers">
        raportează problemele celor care gestionează textele
     </string>
-  <string name="does_not_exist_abbreviation">Nu există</string>
   <string name="cant_change_wholeverse">Nu se poate dezactiva marcarea întregului verset pentru acest semn de carte</string>
   <string name="whole_verse_turned_on">Semn de carte pus pentru tot versetul</string>
   <string name="this_bookmark">Acest semn de carte</string>
@@ -1077,7 +1002,6 @@
   <string name="display_mode_hidden">Ascuns</string>
   <string name="workspace_override_indicator">Această etichetă are un mod de afișare specific spațiului de studiu</string>
   <string name="primary_label">Etichetă principală</string>
-  <string name="highlight_entire_verse">Evidențiază tot versetul</string>
   <string name="favourite_label">Etichetă preferată</string>
   <string name="edit_label">Modifică eticheta</string>
   <string name="delete_label_confirmation">Vrei să elimini eticheta semnului de carte „%s”? Vor fi eliminate toate notițele asociate notițelor de studiu.</string>
@@ -1095,7 +1019,6 @@
   <string name="reorder">Reorganizează</string>
   <string name="system_items">Acțiuni ale sistemului</string>
   <string name="system_items1">Mai mult</string>
-  <string name="system_action2">Acțiuni Android</string>
   <string name="text_copied_to_clicpboard">Text copiat în memorie</string>
   <string name="prefs_disable_two_step_bookmarking_title">Semn de carte rapid</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Arată opțiunile „Text ales” și „Versete” cînd pui semn de carte la un text ales</string>
@@ -1109,7 +1032,6 @@
   <string name="label_blue">Albastru</string>
   <string name="label_salvation">Mîntuire</string>
   <string name="label_underline">Subliniat</string>
-  <string name="import_menu">Importă și Exportă</string>
   <string name="auto_backups_title">Copii de rezervă automate</string>
   <string name="backup_file_info">Aplicație v%1$d, %2$s</string>
   <string name="reset_databases_title">Restabilește bazele de date</string>
@@ -1127,18 +1049,12 @@
   <string name="export_prompts_csv">Exportă prompturi în CSV</string>
   <string name="import_prompts_csv">Importă prompturi din CSV</string>
   <string name="prompts_csv_export_success">%d prompturi exportate în CSV</string>
-  <string name="prompts_csv_import_success">Import finalizat: %1$d create, %2$d actualizate</string>
-  <string name="prompts_csv_import_errors">Import finalizat cu erori: %1$d create, %2$d actualizate, %3$d erori</string>
-  <string name="prompts_csv_import_failed">Import CSV eșuat: %s</string>
-  <string name="prompts_csv_export_failed">Export CSV eșuat: %s</string>
   <string name="no_prompts_to_export">Nu există prompturi de utilizator de exportat</string>
   <string name="csv_column_selection_title">Alege coloanele CSV</string>
-  <string name="choose_csv_file">Alege fișierul CSV de importat</string>
   <string name="no_bookmarks_to_export">Niciun semn de carte de exportat</string>
   <string name="export_fileformat">Exportă ca %s</string>
   <string name="export_something">Exportă %s</string>
   <string name="import_items">Importă %s</string>
-  <string name="import_from_db">Importă din baza de date a aplicației</string>
   <string name="import_error">Importarea din baza de date a aplicației a eșuat. Fișierul bazei de date ar putea avea un format greșit sau a fost creat cu o versiune prea veche de %s.</string>
 
   <string name="export_bookmarks_csv">Exportă semnele de carte ca %s</string>
@@ -1167,23 +1083,13 @@
   <string name="last_updated_at">Ultima actualizare la</string>
   <string name="bookmark_notes">Notițele semnului de carte</string>
 
-  <string name="chooser_range">Interval</string>
-  <string name="chooser_jump">Saltă</string>
-  <string name="chooser_OT_abbrev">VT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Grilă</string>
-  <string name="chooser_style_lists">Liste</string>
-  <string name="chooser_select">Alege %s</string>
-  <string name="chooser_pref_reset">Nu restabili capitolul/versul la 1 cînd alegi cartea/capitolul</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Ne pare rău, dar avem doar o traducere parțială a interfeței cu utilizatorul în limba %1$s. Acest lucru se datorează faptului că %2$s este realizată în întregime de voluntari. Dacă poți ajuta la traducere, te rugăm să vezi %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instrucțiuni pentru traducători</string>
   <string name="questions_title">Întrebări?</string>
-  <string name="questions_title2">Ai nevoie de ajutor?</string>
   <string name="bookmark_style">Tip de semn de carte</string>
   <string name="added_to_bookmark">Atribuit acestui semn de carte</string>
-  <string name="strongs_off">Oprit</string>
   <string name="strongs_links">Legături</string>
   <string name="strongs_text_and_links">Text și legături</string>
   <string name="strongs_hidden_links">Legături ascunse</string>
@@ -1237,7 +1143,6 @@
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sincronizează grupul</string>
   <string name="sync_group_n">Grupul %d</string>
   <string name="disable_sync">Dezactivează sincronizarea</string>
   <string name="open_in_window">Deschide rezultatele într-o fereastră</string>
@@ -1248,10 +1153,8 @@
   <string name="custom_repositories_empty_list_message">Niciun depozit personalizat stabilit</string>
   <string name="custom_repositories_create_button_label">Adaugă un depozit personalizat</string>
   <string name="custom_repositories_info_button_label">Informații</string>
-  <string name="name_for_repository">Numele depozitului</string>
   <string name="repository_specification">Adresa URL a depozitului</string>
   <string name="delete_custom_repository">Vrei să elimini depozitul personalizat %s?</string>
-  <string name="invalid_repository_not_saved">Detaliile depozitului nu erau valabile și nu au fost salvate.</string>
   <string name="custom_repositories_help1">Pentru a adăuga un nou depozit personalizat, introdu sau copiază &amp; lipește aici URL-ul depozitului personalizat.</string>
   <string name="custom_repositories_help2">Poți citi mai multe informații despre depozitele personalizate în %s.</string>
   <string name="wiki_page">Pagina WIKI</string>
@@ -1294,7 +1197,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Progres citire/memorare</string>
   <string name="reading_progress_chapters_read">capitole citite</string>
-  <string name="reading_progress_verses_memorized">versete memorate</string>
   <string name="reading_progress_active_days">zile active</string>
   <string name="reading_progress_overall">%s%% din Biblie citit</string>
   <string name="reading_progress_bible_heatmap">Prezentare generală a Bibliei</string>
@@ -1320,13 +1222,11 @@
   <string name="sync_adapter_summary">Actual: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Autentificare în %s</string>
   <string name="auth_server_uri">URL-ul serverului</string>
   <string name="auth_username">Nume de utilizator</string>
   <string name="auth_password">Parola</string>
   <string name="auth_folder_path">Calea folderului de sincronizare</string>
   <string name="auth_folder_path_summary">Folderul părinte pentru datele de sincronizare (gol = rădăcină)</string>
-  <string name="auth_access_token">Dispozitiv de acces</string>
   <string name="synchronization_categories">Categorii de sincronizare</string>
   <string name="sync_general_settings">Info &amp; reglări generale</string>
   <string name="sync_introduction">Introducere</string>
@@ -1342,8 +1242,6 @@
   <string name="report">Raport</string>
   <string name="sync_error">A apărut o eroare în sincronizarea Cloud</string>
   <string name="error_notification_channel_name">Notificări de eroare</string>
-  <string name="restore_from_cloud_description">Dacă ai activată funcția „Sincronizarea aparatului” în alt aparat, poți începe prin recuperarea bazei de date din Cloud.</string>
-  <string name="enable_sync">Activează sincronizarea</string>
   <string name="last_updated">Ultima actualizare: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1364,20 +1262,6 @@
   <string name="processing_epub">Procesare EPUB: %s</string>
   <string name="buy_development">Cumpără muncă de programare</string>
   <string name="buy_development2">Sprijină proiectul</string>
-  <string name="new_version_warning">
-        Se pregătește lansarea unei noi versiuni. Data anticipată a lansării este %1$s. Urmărește
-        %2$s pentru a descoperi noile caracteristici și îmbunătățiri.
-    </string>
-  <string name="new_version_trailer">video</string>
-  <string name="new_version_warning2">
-        După lansare, această versiune nu va mai fi întreținută.
-    </string>
-  <string name="new_version_warning3">
-        Aceasta nu va primi corectări de erori sau actualizări.
-    </string>
-  <string name="new_version_warning4">
-        Dacă nu vrei să actualizezi, dezactivează „Actualizări automate” în magazinul de aplicații (Google Play / F-Droid etc.).
-    </string>
   <string name="dont_show">
         Nu mai arăta acest mesaj
     </string>
@@ -1398,7 +1282,6 @@
   <string name="invalid_url_message">URL-ul introdus este greșit. Iată un exemplu de URL corect (https://nextcloud.exemplu.com)</string>
   <string name="memorize_description">Memorează versete biblice</string>
   <string name="memorize_abbreviation">Memorează</string>
-  <string name="add_memorization_target">Setează ca obiectiv de memorare</string>
   <string name="memorize_memorized_passages">Pasaje memorate</string>
   <string name="memorize_no_memorized_passages">Niciun pasaj memorat încă</string>
   <string name="memorize_targets">Obiective de memorare</string>
@@ -1430,17 +1313,8 @@
   <string name="memorize_view_overview">Prezentare generală</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Traducere AI</string>
   <string name="sync_settings_shortcut_summary">Sincronizează datele între dispozitive</string>
-  <string name="llm_api_key_title">Cheie API</string>
-  <string name="llm_api_key_summary">Cheie API compatibilă OpenAI</string>
   <string name="llm_provider_custom">Personalizat (compatibil OpenAI)</string>
-  <string name="llm_provider_title">Furnizor</string>
-  <string name="llm_provider_summary">Alege furnizorul de servicii AI de utilizat. Punctul final API și modelele disponibile vor fi configurate automat.</string>
-  <string name="llm_provider_current">Curent: %s</string>
-  <string name="llm_api_key_detected_provider">Furnizor detectat: %s</string>
-  <string name="ai_connection_category">Conexiune</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Comportament</string>
   <string name="ai_language_title">Limba răspunsurilor AI</string>
   <string name="ai_language_summary">Limba folosită de AI pentru răspunsuri</string>
@@ -1457,16 +1331,9 @@
   <string name="llm_reset_usage_confirm_title">Restabilești datele de utilizare?</string>
   <string name="llm_reset_usage_confirm_message">Aceasta va șterge toate datele cumulative de utilizare.</string>
   <string name="llm_custom_input_price_title">Prețul intrării ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Cost per milion de tokeni de intrare pentru acest model</string>
   <string name="llm_custom_output_price_title">Prețul ieșirii ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Cost per milion de tokeni de ieșire pentru acest model</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Punct final API</string>
-  <string name="llm_endpoint_summary">URL de bază pentru API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID-ul modelului</string>
   <string name="llm_custom_model">Personalizat…</string>
-  <string name="llm_custom_model_dialog_title">Model personalizat</string>
   <string name="llm_custom_model_dialog_message">Introduceți ID-ul modelului</string>
   <string name="llm_rate_limited_retrying">Limită de rată atinsă. Reîncercare în %1$ss\u2026</string>
   <string name="llm_default_document_title">Răspuns AI</string>
@@ -1476,7 +1343,6 @@
   <string name="llm_parse_error_no_choices">Nicio opțiune în răspunsul OpenAI</string>
   <string name="llm_parse_error_openai">Eroare la procesarea răspunsului OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Eroare la procesarea răspunsului Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt negăsit: %1$s</string>
   <string name="llm_error_unknown">Eroare necunoscută</string>
   <string name="llm_error_max_iterations">Numărul maxim de iterații (%1$d) atins fără finalizare</string>
   <string name="llm_continue_iterations_title">Continui?</string>
@@ -1511,7 +1377,6 @@
   <string name="raw_log_retention_summary_disabled">Dezactivat (păstrează tot)</string>
   <string name="send_ai_bug_report_title">Raportează eroare AI</string>
   <string name="ai_bug_report_menu">Raportează eroare AI</string>
-  <string name="ai_bug_report_recommended_only">Raportarea erorilor este disponibilă doar pentru modelele furnizorilor recomandați</string>
 
   <string name="select_model_before_run_title">Selectează modelul</string>
   <string name="set_default_model_for_prompt">Setează ca model implicit pentru acest prompt</string>
@@ -1541,7 +1406,6 @@
   <string name="ai_models_summary_none">Niciun model configurat</string>
   <string name="ai_add_provider">Adaugă furnizor</string>
   <string name="ai_provider_edit">Modifică</string>
-  <string name="ai_provider_delete">Șterge</string>
   <string name="ai_provider_delete_confirm">Ștergi furnizorul \"%1$s\"? Prompturile care folosesc acest furnizor vor reveni la cel implicit.</string>
   <string name="ai_provider_api_key_not_set">Cheia API nu este setată</string>
   <string name="ai_provider_select_type">Selectează tipul furnizorului</string>
@@ -1553,27 +1417,18 @@
   <string name="ai_provider_saved">Furnizor salvat</string>
   <string name="ai_provider_deleted">Furnizor șters</string>
 
-  <string name="llm_fetch_models_title">Descarcă lista de modele</string>
-  <string name="llm_fetch_models_message">Descarci lista de modele disponibile de la %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Nu mai întreba</string>
-  <string name="llm_fetch_models_success">%1$d modele încărcate</string>
-  <string name="llm_fetch_models_failed">Eroare la descărcarea modelelor</string>
   <string name="llm_openrouter_category">Categorie</string>
   <string name="llm_openrouter_category_all">Toate</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modele</string>
   <string name="add_model">Adaugă model</string>
-  <string name="add_model_title">Adaugă model</string>
   <string name="edit_model_title">Modifică modelul</string>
   <string name="model_saved">Model salvat</string>
   <string name="model_deleted">Model șters</string>
   <string name="model_delete_confirm">Ștergi modelul \"%1$s\"?</string>
   <string name="model_set_default">Setează ca model implicit</string>
   <string name="model_select_provider">Provider</string>
-  <string name="no_models_configured">Niciun model configurat</string>
-  <string name="model_cache_creation_price">Prețul creării memoriei cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Prețul citirii din memoria cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Acceptat</string>
   <string name="show_also_unsupported_models">Afișează și modelele neacceptate</string>
   <string name="show_also_unsupported_providers">Afișează și furnizorii neacceptați</string>
@@ -1584,7 +1439,6 @@
   <string name="unknown_error">Eroare necunoscută</string>
   <string name="easy_setup_title">Configurare rapidă</string>
   <string name="easy_setup_pref_summary">Configurează AI cu un provider recomandat în câțiva pași</string>
-  <string name="easy_setup_choose_provider">Alege un provider pentru a începe:</string>
   <string name="easy_setup_enter_api_key">Introdu cheia API</string>
   <string name="easy_setup_api_key_instructions">Obține cheia API de la:</string>
   <string name="easy_setup_test_connection">Testează conexiunea</string>
@@ -1643,7 +1497,6 @@
   <string name="addon_prompt_notice">Această comandă provine din modulul supliment \"%s\" și nu poate fi modificată. Folosește „Copiază pentru personalizare" pentru a crea o copie editabilă.</string>
   <string name="new_category">Categorie nouă</string>
   <string name="new_category_name">Numele categoriei</string>
-  <string name="rename_category">Redenumește</string>
   <string name="move_category_up">Mută în sus</string>
   <string name="move_category_down">Mută în jos</string>
   <string name="hide_category">Ascunde din acțiunile AI</string>
@@ -1688,28 +1541,22 @@
   <string name="llm_note_updated">Notiță actualizată</string>
   <string name="specify_before_run_title">Specifică sarcina</string>
   <string name="specify_before_run_hint">Descrie sarcina specifică…</string>
-  <string name="prompt_cache_settings">Reglări cache</string>
   <string name="prompt_strict_context_matching">Cache dependent de context</string>
   <string name="prompt_strict_context_matching_description">Când este activat, cache-ul se potrivește doar când tot contextul (versiunea biblică, textul selectat) este același. Când este dezactivat, cache-ul se potrivește când versetele sunt aceleași indiferent de versiunea biblică.</string>
   <string name="ai_document_delete_confirmation">Ștergi acest document AI?</string>
-  <string name="ai_document_deleted">Acest document AI a fost șters.</string>
   <string name="ai_document_regenerating">Se regenerează documentul AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Regenerarea va fi disponibilă într-o actualizare viitoare</string>
   <string name="ai_regenerate_prompt_not_found">Nu se poate regenera: comanda originală nu a fost găsită. Este posibil să fi fost ștearsă.</string>
   <string name="ai_document_regenerate">Regenerează</string>
   <string name="ai_regenerate_title">Regenerează</string>
   <string name="ai_regenerate_instructions_hint">Instrucțiuni suplimentare (opțional)</string>
   <string name="ai_regenerate_keep_previous">Păstrează versiunea anterioară</string>
   <string name="ai_regenerate_fresh_run">Rulare nouă (ignoră rezultatul anterior)</string>
-  <string name="ai_document_delete">Șterge</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Traduce în %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduce în limba interfeței</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduce textul documentului în limba interfeței aplicației</string>
-  <string name="default_prompt_translate_to_english">Traduce în engleză</string>
-  <string name="default_prompt_translate_to_english_desc">Traduce textul selectat în engleză</string>
   <string name="default_prompt_summary">Rezumat</string>
   <string name="default_prompt_summary_desc">Creează un rezumat concis al textului selectat</string>
   <string name="default_prompt_explain_verses">Explică versetele</string>
@@ -1718,8 +1565,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Creează o notiță de studiu cu explicații verset cu verset și semne de carte</string>
   <string name="default_prompt_word_study">Studiu de cuvânt</string>
   <string name="default_prompt_word_study_desc">Analizează cuvintele originale ebraice/grecești</string>
-  <string name="default_prompt_strongs_annotation">Adnotare cu numere Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Adaugă numere de concordanță Strong oricărei traduceri biblice folosind KJV ca referință</string>
   <string name="default_prompt_cross_references">Trimiteri</string>
   <string name="default_prompt_cross_references_desc">Găsește și explică pasaje biblice înrudite</string>
   <string name="default_prompt_compare_translations">Compară traducerile</string>
@@ -1862,11 +1707,7 @@
   <string name="ai_document_filter_summary">Alege documentele pe care AI le poate citi</string>
   <string name="ai_document_filter_summary_count">%d documente excluse</string>
   <string name="ai_document_filter_activity_title">Acces AI la documente</string>
-  <string name="ai_document_excluded_error">Document exclus de reglările utilizatorului: %s</string>
   <string name="permission_status_default">Întreabă (implicit)</string>
-  <string name="permission_status_allowed">Întotdeauna permis</string>
-  <string name="permission_status_denied">Întotdeauna refuzat</string>
-  <string name="permission_option_default">Întreabă de fiecare dată (implicit)</string>
   <string name="permission_option_always_allow">Permite întotdeauna</string>
   <string name="permission_option_always_deny">Refuză întotdeauna</string>
   <string name="reset_all_permissions">Restabilește toate</string>
@@ -1881,10 +1722,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permisiuni instrumente</string>
-  <string name="prompt_tool_permissions_read_only">Permisiuni instrumente (doar citire)</string>
-  <string name="prompt_tool_permissions_description">Suprascrie permisiunile instrumentelor pentru această comandă</string>
-  <string name="tool_section_read_tools">Instrumente de citire</string>
-  <string name="tool_section_write_tools">Instrumente de scriere</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblie și căutare</string>
@@ -1907,13 +1744,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Implicit</string>
-  <string name="prompt_model_custom">Personalizat</string>
-  <string name="prompt_model_custom_hint">Introduceți numele modelului</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Selectează acțiunea AI</string>
-  <string name="no_llm_prompts_configured">Nicio comandă AI configurată pentru selecția versetelor</string>
-  <string name="llm_prompt_executing">Se execută comanda AI: %s</string>
   <string name="llm_actions">Acțiuni AI</string>
 
     <!-- Agent Log Widget -->
@@ -1921,9 +1754,7 @@
   <string name="agent_log_close">Închide jurnalul agentului</string>
   <string name="agent_log_stop">Oprește AI</string>
   <string name="agent_log_idle">Asistent AI</string>
-  <string name="agent_log_running">AI lucrează…</string>
   <string name="agent_log_completed">Finalizat</string>
-  <string name="agent_log_error">A apărut o eroare</string>
   <string name="agent_log_executing">Se execută: %s</string>
   <string name="agent_log_iteration">Iterația %d</string>
   <string name="agent_log_tool">Instrument: %s</string>
@@ -1933,7 +1764,6 @@
   <string name="agent_log_saved">Salvat: %s</string>
   <string name="agent_log_done">Gata: %s</string>
   <string name="agent_log_cancelled">Anulat</string>
-  <string name="agent_execution_completed">Execuția agentului a fost finalizată</string>
   <string name="agent_already_running">Un agent AI rulează deja. Așteptați sau opriți-l mai întâi.</string>
 
     <!-- AI Agent Notifications -->
@@ -1952,22 +1782,16 @@
   <string name="my_document_new_name">Document %d</string>
   <string name="my_document_create_title">Creează document nou</string>
   <string name="my_document_rename_title">Redenumește documentul</string>
-  <string name="my_document_edit_description_title">Modifică descrierea</string>
   <string name="my_document_delete_confirmation">Șterge documentul \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Documentele AI nu pot fi șterse cât timp conțin pagini. Ștergeți mai întâi paginile.</string>
   <string name="my_document_save_changes">Salvați modificările?</string>
   <string name="my_document_no_description">Fără descriere</string>
-  <string name="my_document_rename">Redenumește</string>
   <string name="my_document_edit_description">Modifică descrierea</string>
-  <string name="my_document_delete">Șterge</string>
 
   <string name="my_document_pages_title">%s - Pagini</string>
   <string name="my_document_pages_empty">Nicio pagină în acest document.</string>
   <string name="my_document_page_rename_title">Redenumește pagina</string>
   <string name="my_document_page_delete_confirmation">Șterge pagina \"%s\"?</string>
-  <string name="my_document_page_rename">Redenumește</string>
-  <string name="my_document_page_delete">Șterge</string>
-  <string name="my_document_page_export">Exportă</string>
   <string name="my_document_new_page_name">Pagina %1$d</string>
   <string name="my_document_create_page_title">Pagină nouă</string>
   <string name="my_document_content_type_label">Tip de conținut</string>
@@ -1987,12 +1811,10 @@
 
   <string name="prefs_page_scroll_amount_title">Cantitate derulare pagină</string>
   <string name="prefs_page_scroll_amount_summary">Cât din pagină să fie derulată la pagina sus/jos</string>
-  <string name="page_scroll_amount_dialog_title">Cantitate derulare pagină</string>
   <string name="prefs_scroll_helper_lines_title">Linii ajutătoare de derulare</string>
   <string name="prefs_scroll_helper_lines_summary">Afișează linii de ghidaj orizontale la limitele de derulare ale paginii</string>
   <string name="prefs_scroll_helper_line_style_title">Stil linie ajutătoare</string>
   <string name="prefs_scroll_helper_line_style_summary">Alege stilul vizual al liniilor ajutătoare de derulare</string>
-  <string name="scroll_helper_line_style_dialog_title">Stil linie ajutătoare</string>
   <string name="scroll_helper_line_style_thin_dotted">Linie subțire punctată</string>
   <string name="scroll_helper_line_style_thin_solid">Linie subțire continuă</string>
   <string name="scroll_helper_line_style_thick_solid">Linie groasă continuă</string>

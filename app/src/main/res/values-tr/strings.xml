@@ -5,7 +5,6 @@
   <string name="app_name_short">Kutsal Kitap Çalışması</string>
   <string name="app_name_medium">Kutsal Kitap Çalışması (AndBible)</string>
   <string name="app_name_long">&amp;Bible: Kutsal Kitap Çalışması</string>
-  <string name="project">AndBible Açık Kaynak Projesi</string>
 
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen bir hafıza kartı takıp uygulamayı yeniden başlatın.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Zengin metin (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Paragraf boşluğu (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Paragraflar arasındaki boşluğu ayarla.</string>
 
-  <string name="prefs_show_verseno_title1">Ayet rakamları</string>
 
-  <string name="prefs_show_chapter_no_title">Bölüm rakamları</string>
-  <string name="prefs_show_chapter_no_summary">Bölüm rakamlarını göster</string>
 
   <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda göster</string>
   <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
 
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
-  <string name="prefs_show_notes_summary">Dipnotlar ve referasları gösterilir</string>
   <string name="prefs_show_strongs_summary">Grekçe ve İbranice kelimelerin tanımları</string>
   <string name="prefs_show_morphology_summary">Robinson’un Grekçe morfolojik kısaltmaları</string>
   <string name="prefs_section_title_summary">Kanonik olmayan bölüm başlıklarını göster</string>
   <string name="prefs_red_letter_summary">Mesih’in sözlerini kırmızı göster</string>
-  <string name="prefs_text_size_title">Yazı tipi tercihleri</string>
 
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Dipnotları tıklanabilir tutamaçlar yerine metin içinde göster</string>
   <string name="prefs_show_xrefs_summary">Belgede varsa göndermeleri göster</string>
 
-  <string name="prefs_show_notes_title">Dipnotlar</string>
   <string name="prefs_show_strongs_title">Strong’un numaraları</string>
   <string name="prefs_show_morphology_title">Morfolojik kodlar</string>
   <string name="prefs_non_strongs_word_italic_title">Eklenen sözcükleri italik yap</string>
@@ -284,15 +275,9 @@
   <string name="prefs_noise_title">Arka plan paraziti</string>
   <string name="prefs_noise_summary">Arka plana biraz parazit eklemek gözleri daha rahat hale getirebilir.</string>
 
-  <string name="cpv_default_title">Bir Renk Seçin</string>
-  <string name="cpv_presets">Ön ayarlar</string>
-  <string name="cpv_custom">Özel</string>
-  <string name="cpv_select">Seç</string>
-  <string name="cpv_transparency">Saydamlık</string>
 
     <!-- Window -->
   <string name="new_window">Yeni pencere</string>
-  <string name="windowClose">Kapat</string>
   <string name="windowMaximise">Büyüt</string>
   <string name="windowMinimise">Küçült</string>
   <string name="windowSynchronise">Senkronize et</string>
@@ -306,26 +291,19 @@
   <string name="window_pin_mode">İğnele</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
-  <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
   <string name="previous">Önceki</string>
   <string name="next">Sonraki</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Lütfen Strong’un Grekçe ve İbranice sözlüklerini indiriniz</string>
   <string name="no_indexed_bible_with_strongs_ref">Strong’un numaralarını içeren bir İncil indirmeli ve Arama yoluyla dizinini oluşturmalısınız</string>
-  <string name="morph_robinson_not_installed">Lütfen “Robinson’s Morphological Analysis Codes” sözlüğünü indirin.</string>
-  <string name="go_to_downloads">İndirmelere Git</string>
 
     <!-- Module download -->
   <string name="download">Belge İndir</string>
   <string name="redownload">Belgeleri yeniden indir</string>
-  <string name="download_confirmation">İnternet üzerinden Kutsal Kitap indirilsin mi?</string>
   <string name="download_source_last_updated">Belgelerin listesinin en son güncellenme tarihi: %s.</string>
   <string name="download_refreshing_book_list">Belge sunucularındaki erişilebilir belgelerin listesi yenileniyor.</string>
   <string name="download_source_message1">Belgeler aşağıdaki kaynaklardan indirilir:</string>
   <string name="download_document_confirm_prefix">İndir</string>
-  <string name="download_refresh_book_list_menu_item">Yenilen</string>
   <string name="error_downloading">İndirirken bir hata oldu.  Lütfen internet bağlantınızı kontrol edin.</string>
   <string name="error_downloading_status">%1$s’yi barındıran sunucu %2$s (%3$d) nedeniyle bir hata döndürdü.</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
@@ -375,19 +353,6 @@
   <string name="done">Bitti</string>
   <string name="reset_plan_question">Bu planı sıfırlamak istediğinizden emin misiniz?</string>
   <string name="import_reading_plan">Okuma planını içe aktar…</string>
-  <string name="import_reading_plan_error">İçe aktarma hatası</string>
-  <string name="import_reading_plan_error_duplicate">Aşağıdaki günler yinelendi: %s</string>
-  <string name="import_reading_plan_error_days">Aşağıdaki günler hatalar içeriyordu: %s</string>
-  <string name="import_reading_plan_anyway">Yine de içe aktar</string>
-  <string name="overwrite_reading_plan">%s üzerine yazmak istiyor musun?</string>
-  <string name="delete_reading_plan">Bu planı sil</string>
-  <string name="reading_plan_deleted">Okuma planı silindi.</string>
-  <string name="reading_plan_ships_with_ab">Bu okuma planı %s ile birlikte gönderilir.</string>
-  <string name="confirm_delete_reading_plan">
-    %s okuma planını okuma geçmişiyle birlikte silmek istediğinizden emin misiniz?
-    İpucu: Planı güncellemeniz gerekiyorsa, aynı dosya adıyla tekrar içe aktarabilirsiniz
-    ve geçmiş korunacaktır.
-  </string>
   <string name="plan_duplicate_user_plan">
     Hafız kartta jsword/readingplan içinde
     dahili bir planla aynı ada sahip bir kullanıcı okuma planı var. Burada listelenemez.
@@ -439,7 +404,6 @@
   <string name="notes">Dipnotlar ve iç göndermeler</string>
   <string name="share_verse">Paylaş</string>
   <string name="share_verse_widget_title">Seçimi paylaş</string>
-  <string name="share_verse_subject_2">%s kullanılarak sizinle bir İncil ayeti paylaşıldı.</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
 
     <!-- Link context menu -->
@@ -451,33 +415,26 @@
   <string name="bookmarks_and_mynotes_title">Yer imleri &amp; Notlarım</string>
   <string name="migrated_my_notes">Notlarım Taşındı</string>
   <string name="bookmarks">Yer İmleri</string>
-  <string name="bookmark_added">Yer imi eklendi</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etiketler</string>
   <string name="manage_labels">Etiketleri yönet</string>
   <string name="assign_labels">Etiketle</string>
   <string name="new_item">Yeni</string>
-  <string name="new_label">Yeni Etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
   <string name="add_bookmark1">Yer imi</string>
-  <string name="add_bookmark2">Yer İmi Seçimi</string>
   <string name="add_bookmark3">Seçim</string>
   <string name="add_bookmark_whole_verse">Ayeti İşaretle</string>
   <string name="add_bookmark_whole_verse1">Ayetler</string>
-  <string name="add_bookmark_whole_verse2">Tam ayetler</string>
   <string name="add_whole_page_bookmark">Tüm sayfa için yer imi ekle</string>
   <string name="add_paragraph_break">Odsek</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Kaldır</string>
   <string name="bookmark_settings_hide_labels_title">Belirtilen etiketleri gizle</string>
   <string name="bookmark_settings_hide_labels_summary">Belirtilen etiket(ler)le işaretlenmiş yer imlerini gizle</string>
   <string name="auto_assign_labels_title">Etiket ayarları</string>
   <string name="auto_assign_labels">Oto-atamak &amp; Favori etiketler</string>
   <string name="auto_assign_labels1">Etiketi yeni yer imlerine otomatik atayın</string>
   <string name="auto_assign_labels_primary">Birincil olarak otomatik ata</string>
-  <string name="label_color">Etiket rengi</string>
-  <string name="label_color_example">Örnek</string>
   <string name="marker_style">Seçim yer imleri için yalnızca işaretleyiciyi göster</string>
   <string name="marker_style_whole_verse">Tüm ayet yer imleri için yalnızca işaretleyiciyi göster</string>
   <string name="hide_style">Seçim yer imleri için gizle</string>
@@ -508,11 +465,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d bölüm</string>
   <string name="some_chapters">%d bölüm</string>
-  <string name="rest_of_book">Kitabın sonuna kadar</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d ayet</string>
   <string name="some_verses">%d ayet</string>
-  <string name="rest_of_chapter">Bölümün sonuna kadar</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d sayfa</string>
   <string name="some_pages">%d sayfa</string>
@@ -522,8 +477,6 @@
   <string name="rewind">Geri al</string>
   <string name="forward">İleri al</string>
   <string name="tts_lang_not_available">Dil bulunmadı.</string>
-  <string name="speak_queue">Sıra</string>
-  <string name="speak_repeat">Tekrar</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Sesli okuma hızı</string>
@@ -596,14 +549,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s simgesi, ayarın çalışma ayarlarından geldiğini gösterir.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s simgesi, bu belirli pencere için bu ayarın değiştiğini gösterir.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Tüm bu ayarları %2$s değerine sıfırlamak için %1$s düğmesini kullanın.</string>
   <string name="reset_defaults">varsayılan değerler</string>
   <string name="reset_workspace_defaults">çalışma alanı varsayılan değerleri</string>
 
-  <string name="speak_bookmark_help">Konuşma yer imi yardımı</string>
 
   <string name="speak_help_auto_bookmark">
     Konuşma duraklatıldığında veya durdurulduğunda otomatik olarak bir Konuşma yer imi eklenecektir.
@@ -660,7 +611,6 @@
   <string name="backup_phone_storage">Telefon hafıza</string>
   <string name="backup_and_restore">Yedekle &amp; Geri Al</string>
   <string name="backup_modules2">Belgeler yedekleme hedefi…</string>
-  <string name="backup_app_database2">Uygulama veritabanını şuraya yedekleyin…</string>
   <string name="backup_app2">Yedekleme uygulaması (.apk file) to …</string>
   <string name="backup_application">Uygulama</string>
   <string name="backup_database">Veritabanı</string>
@@ -672,17 +622,13 @@
   <string name="backup_restore_from">Geri yükle kaynağı…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Geri yükle veya İçe aktar…</string>
-  <string name="backup_restore">Yedekten geri yükle</string>
   <string name="backup_restore2">Geri Yükle veya İçe Aktar</string>
   <string name="overwrite_something">%s üzerine yaz?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Neyi geri yüklemek istiyorsunuz?</string>
 
-  <string name="restore_app_database">Uygulama veritabanını şuradan geri yükle…</string>
   <string name="restore_database">Veritabanı Dosyasını Geri Yükle</string>
   <string name="restore_confirmation">Notlarımın, Yer İmlerimin, Çalışma Defterlerimin, Okuma Planlarımın ve Çalışma Alanlarımın üzerine yazılsın mı?</string>
-  <string name="restore_success2">Seçilen veritabanı bölümleri başarıyla geri yüklendi</string>
   <string name="restore_success">Notlarım, Yer İmleri, Çalışma Defterleri, Okuma Planları ve Çalışma Alanları başarıyla geri yüklendi</string>
   <string name="downloading_backup">Downloading backup file…</string>
   <string name="loading_backup">Veritabanı yedeklemeden yükleniyor…</string>
@@ -698,14 +644,12 @@
   <string name="exported_studypads_subject">Dışa aktarılan ÇalışmaDefter(ler)</string>
   <string name="exported_studypads_message">Seçilen Çalışma Defterlerine ilişkin Yer İmleri ve Notları içeren %s veritabanınız ekte yer almaktadır</string>
   <string name="restore_unsuccessfull">Veritabanı geri yüklenemedi. Belki de geçersiz veritabanı dosyası verdiniz.</string>
-  <string name="restore_modules">Belgeleri Geri Yükleme kaynağı…</string>
   <string name="send_backup_file">Yedekleme dosyasını gönder</string>
   <string name="backup_modules_title">Hangi modüllerin yedekleneceğini seçin</string>
   <string name="install_zip_canceled">Modül yüklemesi iptal edildi</string>
   <string name="ask_restore_or_import">%s için veritabanı ya geri yüklenebilir (yani mevcut veritabanı kaldırılarak seçilen veritabanı yüklenir) ya da içe aktarılabilir (seçilen veritabanı mevcut veritabanına aktarılır). Ne yapmak istiyorsunuz?</string>
   <string name="restore">Yedekten geri yükle</string>
   <string name="import2">İçe aktarın</string>
-  <string name="export_studypads_help">Dışa aktarılan Çalışma Defterlerini (yani Etiketleri ve Yer İmlerini) içeren dosya Ana Menü -&gt; Yedekle ve Geri Yükle aracılığıyla içe aktarılabilir.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" ve %2$s diğer Etiket(ler) / Çalışma Defteri ve %3$s Yer İmi</string>
@@ -719,8 +663,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Hata raporu</string>
-  <string name="send_feedback_title">Geri bildirim</string>
   <string name="send_bug_report_title">Geri bildirim / hata raporu</string>
   <string name="report_bug_email_subject_3">[%1$s] %2$s %3$s için hata raporu</string>
 
@@ -760,10 +702,8 @@
   <string name="yes">Evet</string>
   <string name="no">Hayır</string>
   <string name="error">Hata</string>
-  <string name="delete_generic">Sil</string>
   <string name="please_wait">Lütfen bekleyin…</string>
   <string name="all">Hepsi</string>
-  <string name="edit">Düzelt</string>
   <string name="reset_generic">Sıfırla</string>
   <string name="watch_tutorial_video">Kullanma rehber videosu izle (İngilizce)</string>
   <string name="verse_not_found">Ayet bulunamadı</string>
@@ -787,12 +727,11 @@
   <string name="notification_channel_progress_status">Belge indirmeleri vb. için ilerleme durumu bildirimi</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Yeni</string>
   <string name="switch_to_workspace">Çalışma alanları</string>
   <string name="delete_workspace">Kaldır</string>
   <string name="new_copied_workspace">Yeni olarak kopyala</string>
   <string name="workspace_number">Çalışma Alanı %d</string>
-  <string name="rename_workspace">Yeniden Adlandır</string>
+  <string name="rename">Yeniden Adlandır</string>
   <string name="workspace_selector_title">Çalışma Alanı Seç</string>
   <string name="workspace_settings">Ayarlar…</string>
   <string name="give_name_workspace">Yeni çalışma alanı için isim ver</string>
@@ -805,12 +744,11 @@
   <string name="copy_settings_workspaces_title">Ayarlar hangi çalışma alanıya kopyalansın?</string>
   <string name="reset_settings">Sıfırla</string>
   <string name="search_settings">Arama ayarları</string>
-  <string name="workspace_dismiss">Yok say</string>
+  <string name="dismiss">Yok say</string>
   <string name="workspace_listing_with_current">%s (aktif)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Bu deneme sürümdür!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
     Beta sürümünde henüz tam anlamıyla test edilmemiş yeni özellikler var,
     bu yüzden beta sürümünü kullanmak beklenmedik davranışlara, yani hatalara neden olabilir.
@@ -825,7 +763,6 @@
 katkıda bulunmayı düşünün. :-)</string>
   <string name="beta_notice_github_issues">Github sorun listesi</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Yok say</string>
   <string name="beta_notice_dismiss_until_update">Bir sonraki güncellemeye kadar yok say</string>
 
   <string name="stable_notice_title">Uygulama güncellendi!</string>
@@ -865,10 +802,6 @@ katkıda bulunmayı düşünün. :-)</string>
 
   <string name="help_search_title">Arama</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">
-    Arama metni *, ?, AND, OR, NOT gibi özel karakterler içerebilir
-    (Daha fazla bilgi için \"Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi\" bölümüne bakın)
-  </string>
   <string name="help_search_text2">Arama metni *, AND, OR, NOT gibi özel karakterler içerebilir</string>
   <string name="help_search_details">Daha fazla ayrıntı için lütfen %s adresine bakın.</string>
   <string name="help_apache_lucene">Apache Lucene - Sorgu Ayrıştırıcı Sözdizimi</string>
@@ -906,7 +839,6 @@ katkıda bulunmayı düşünün. :-)</string>
     yedeğinden yükleyerek en az 1 belge yükleyin.
   </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Desteklenen formatlar</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">%s’ye yüklemek istediğiniz dosyayı seçmeniz gerekir. </string>
   <string name="supported_formats">Bir dosyadan belge yüklemek için desteklenen biçimler: %s</string>
@@ -932,7 +864,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="strongs_mode_title">Strong’un numaraları modunu seç</string>
 
   <string name="download_dialog_message">Aşağıdaki kitaplar indirilemedi:</string>
-  <string name="select_multiple">Çoklu seçim</string>
   <string name="journal_description">Özel metin ve yer imleriyle kullanıcı tarafından düzenlenebilir çalışma defterleri</string>
   <string name="my_notes_description">Yer imlerine eklenmiş kullanıcı tarafından düzenlenebilir notlar</string>
   <string name="my_notes_abbreviation">Notlarım</string>
@@ -947,7 +878,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="http_not_found">Bulunamadı</string>
   <string name="http_unknown">Diğer hata</string>
   <string name="give_passphrase_for_module">%s belgesi şifreli ve kilidinin açılması için parola gerekiyor</string>
-  <string name="unlocking_failed">Kilit açma başarısız, geçersiz parola</string>
   <string name="unlock_module">Modül parolasını ayarla</string>
   <string name="unlock_info">Şifrelenmiş modülün kilit açma bilgisi</string>
   <string name="try_again_passphrase">Parola çalışmadı, tekrar dener misiniz?</string>
@@ -999,8 +929,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="tell_friend_message4">Devamını oku ve daha fazla yükleme seçenekleri: %s </string>
   <string name="share_verse_ok">Paylaş / Kopyala</string>
   <string name="web_search">Web araması</string>
-  <string name="verse_action_copy">Kopyala</string>
-  <string name="generic_share">Paylaş</string>
   <string name="share_verse_menu_title">Paylaş / kopyala…</string>
   <string name="show_versenumbers">Ayet numarıları göster</string>
   <string name="show_full_verses">Ayetlerin tamamını göster</string>
@@ -1017,9 +945,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="show_quotes">Alıntıları göster</string>
   <string name="separate_verses_with_newlines">Ayetleri yeni satırlarla ayır</string>
 
-  <string name="backup_button">Yedekle</string>
-  <string name="back_button">Geri</string>
-  <string name="upgrading_database">Veritabanı güncelleniyor. Lütfen bekleyin…</string>
   <string name="initializing_app">Uygulama başlatılıyor…</string>
   <string name="show_notes">Notları göster</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1065,7 +990,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="text_maintainers">
      lütfen sorunları metin sorumlularına bildirin
   </string>
-  <string name="does_not_exist_abbreviation">Mevcut Değil</string>
   <string name="cant_change_wholeverse">Bu yer imi için tüm ayet işaretlemesi kapatılamıyor</string>
   <string name="whole_verse_turned_on">Yer imi şimdi tüm ayet için işaretlendi</string>
   <string name="this_bookmark">Bu yer imi</string>
@@ -1078,7 +1002,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="display_mode_hidden">Gizli</string>
   <string name="workspace_override_indicator">Bu etiketin çalışma alanına özel görüntüleme modu var</string>
   <string name="primary_label">Birincil etiket</string>
-  <string name="highlight_entire_verse">Tüm ayeti vurgula</string>
   <string name="favourite_label">Favori etiket</string>
   <string name="edit_label">Etiketi düzenle</string>
   <string name="delete_label_confirmation">\"%s\" yer imi etiketini kaldırmak istiyor musunuz? Ayrıca ilgili tüm Çalışma Defteri notları kaldırılacaktır. </string>
@@ -1096,7 +1019,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="reorder">Yeniden sırala</string>
   <string name="system_items">Sistem eylemleri</string>
   <string name="system_items1">Daha fazla</string>
-  <string name="system_action2">Android eylemleri</string>
   <string name="text_copied_to_clicpboard">Metin panoya kopyalandı</string>
   <string name="prefs_disable_two_step_bookmarking_title">Tek adımda yer imi</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Doğrudan Kutsal Kitap görünümü Seçim menüsünde \"Seçim\" ve \"Ayetler\" öğelerini gösterin</string>
@@ -1110,7 +1032,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="label_blue">Mavi</string>
   <string name="label_salvation">Kurtuluş</string>
   <string name="label_underline">Altı çizili</string>
-  <string name="import_menu">İçe aktar &amp; Dışa aktar</string>
   <string name="auto_backups_title">Otomatik Yedeklemeler</string>
   <string name="backup_file_info">Uygulama v%1$d, %2$s</string>
   <string name="reset_databases_title">Veritabanlarını Sıfırla</string>
@@ -1128,18 +1049,12 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="export_prompts_csv">İstemleri CSV\'ye dışa aktar</string>
   <string name="import_prompts_csv">İstemleri CSV\'den içe aktar</string>
   <string name="prompts_csv_export_success">%d istem CSV\'ye dışa aktarıldı</string>
-  <string name="prompts_csv_import_success">İçe aktarma tamamlandı: %1$d oluşturuldu, %2$d güncellendi</string>
-  <string name="prompts_csv_import_errors">İçe aktarma hatalarla tamamlandı: %1$d oluşturuldu, %2$d güncellendi, %3$d hata</string>
-  <string name="prompts_csv_import_failed">CSV içe aktarma başarısız: %s</string>
-  <string name="prompts_csv_export_failed">CSV dışa aktarma başarısız: %s</string>
   <string name="no_prompts_to_export">Dışa aktarılacak kullanıcı istemi yok</string>
   <string name="csv_column_selection_title">CSV Sütunlarını Seçin</string>
-  <string name="choose_csv_file">İçe aktarılacak CSV dosyasını seçin</string>
   <string name="no_bookmarks_to_export">Dışa aktarılacak yer imi yok</string>
   <string name="export_fileformat">%s olarak dışa aktar</string>
   <string name="export_something">%s dışa aktar</string>
   <string name="import_items">%s içe aktarın</string>
-  <string name="import_from_db">Uygulama Veritabanı dosyasından içe aktar</string>
   <string name="import_error">Uygulama Veritabanından içe aktarma başarısız oldu. Veritabanı dosyası yanlış biçimde olabilir veya %suygulamasının çok eski sürümüyle yapılmış olabilir.</string>
 
   <string name="export_bookmarks_csv">Yer İmlerini %s olarak dışa aktar</string>
@@ -1168,23 +1083,13 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="last_updated_at">Son güncelleme tarihi</string>
   <string name="bookmark_notes">Yer imi notları</string>
 
-  <string name="chooser_range">Menzil</string>
-  <string name="chooser_jump">Atla</string>
-  <string name="chooser_OT_abbrev">EA</string>
-  <string name="chooser_NT_abbrev">YA</string>
-  <string name="chooser_style_grid">Izgara</string>
-  <string name="chooser_style_lists">Listeler</string>
-  <string name="chooser_select">%s ayet(ler)i seç</string>
-  <string name="chooser_pref_reset">Kitap/bölüm seçildiğinde bölüm/ayet’i 1’e sıfırlamayın.</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Üzgünüz, ancak %1$s dilinde yalnızca kısmi arayüzü çevirimiz var. Bunun nedeni %2$s’nin tamamen gönüllüler tarafından geliştirilmiş olmasıdır. Çeviride yardımcı olabilirseniz, lütfen %3$s’e bakın.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">çevirmenler için talimatlar</string>
   <string name="questions_title">Sorularınız?</string>
-  <string name="questions_title2">Yardıma mı ihtiyacınız var?</string>
   <string name="bookmark_style">Yer imi stili</string>
   <string name="added_to_bookmark">Bu yer imine atandı</string>
-  <string name="strongs_off">Kapalı</string>
   <string name="strongs_links">Bağlantılar</string>
   <string name="strongs_text_and_links">Metin ve Bağlantılar</string>
   <string name="strongs_hidden_links">Gizli Bağlantılar</string>
@@ -1238,7 +1143,6 @@ katkıda bulunmayı düşünün. :-)</string>
   </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Synchronize group</string>
   <string name="sync_group_n">Grup %d</string>
   <string name="disable_sync">Senkronizasyonu devre dışı bırak</string>
   <string name="open_in_window">Sonuçları bir pencerede açın</string>
@@ -1249,10 +1153,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="custom_repositories_empty_list_message">Hiçbir özel depo tanımlanmamıştır</string>
   <string name="custom_repositories_create_button_label">Özel Depo Ekleme</string>
   <string name="custom_repositories_info_button_label">Bilgi</string>
-  <string name="name_for_repository">Depo için ad</string>
   <string name="repository_specification">Depo URL’si</string>
   <string name="delete_custom_repository">Özel %s deposunu kaldırmak istiyor musunuz?</string>
-  <string name="invalid_repository_not_saved">Depo belirtimi geçersizdi ve kaydedilmedi.</string>
   <string name="custom_repositories_help1">Yeni bir özel depo eklemek için şunları yazın veya kopyalayın</string>
   <string name="custom_repositories_help2">Özel depolar hakkında daha fazla bilgiyi %s bölümünde okuyabilirsiniz.</string>
   <string name="wiki_page">WIKI page</string>
@@ -1295,7 +1197,6 @@ katkıda bulunmayı düşünün. :-)</string>
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Okuma/Ezberleme İlerlemesi</string>
   <string name="reading_progress_chapters_read">okunan bölümler</string>
-  <string name="reading_progress_verses_memorized">ezberlenen ayetler</string>
   <string name="reading_progress_active_days">aktif günler</string>
   <string name="reading_progress_overall">Kutsal Kitap\'ın %%%s\'i okundu</string>
   <string name="reading_progress_bible_heatmap">Kutsal Kitap Genel Bakışı</string>
@@ -1321,13 +1222,11 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="sync_adapter_summary">Güncel: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">%s’ye kimlik doğrulama</string>
   <string name="auth_server_uri">URL servera</string>
   <string name="auth_username">Kullanıcı adı</string>
   <string name="auth_password">Şifre</string>
   <string name="auth_folder_path">Eşitleme klasörü yolu</string>
   <string name="auth_folder_path_summary">Eşitleme verisi için üst klasör (boş = kök)</string>
-  <string name="auth_access_token">Erişim belirteci</string>
   <string name="synchronization_categories">Senkronizasyon kategorileri</string>
   <string name="sync_general_settings">Bilgi ve genel ayarlar</string>
   <string name="sync_introduction">Giriş</string>
@@ -1343,8 +1242,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="report">Rapor</string>
   <string name="sync_error">Bulut senkronizasyonunda hata oluştu</string>
   <string name="error_notification_channel_name">Hata bildirimleri</string>
-  <string name="restore_from_cloud_description">Başka bir cihazda Cihaz Senkronizasyonunu etkinleştirdiyseniz, veritabanını Buluttan geri yükleyerek başlayabilirsiniz.</string>
-  <string name="enable_sync">Senkronizasyonu etkinleştir</string>
   <string name="last_updated">Son güncelleme: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1365,20 +1262,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="processing_epub">EPUB işleniyor: %s</string>
   <string name="buy_development">Geliştirme işine sponsor ol</string>
   <string name="buy_development2">Projeyi destekle</string>
-  <string name="new_version_warning">
-    Yakında yeni bir sürüm çıkacak. Beklenen yayın tarihi %1$s’dir.
-    Yeni özellikleri ve iyileştirmeleri keşfetmek için %2$s yayınımızı izleyin.
-  </string>
-  <string name="new_version_trailer">fragman videosu</string>
-  <string name="new_version_warning2">
-    Yayınlandıktan sonra bu sürümün bakımı yapılmaz.
-  </string>
-  <string name="new_version_warning3">
-    Hata düzeltmeleri veya güncellemeler almayacaktır.
-  </string>
-  <string name="new_version_warning4">
-    Yükseltme yapmak istemiyorsanız, lütfen uygulama mağazanızdaki (Google Play / F-Droid vb.) ‘Otomatik Güncellemeler’i devre dışı bırakın.
-  </string>
   <string name="dont_show">
     Bu mesajı bir daha gösterme
   </string>
@@ -1399,7 +1282,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="invalid_url_message">Girdiğiniz URL geçersiz. Lütfen geçerli bir URL girin (örn. https://nextcloud.example.com)</string>
   <string name="memorize_description">Zapamätajte si verše Biblie</string>
   <string name="memorize_abbreviation">Memorovať</string>
-  <string name="add_memorization_target">Ezberleme hedefi olarak ayarla</string>
   <string name="memorize_memorized_passages">Ezberlenen pasajlar</string>
   <string name="memorize_no_memorized_passages">Henüz ezberlenen pasaj yok</string>
   <string name="memorize_targets">Ezberleme hedefleri</string>
@@ -1431,17 +1313,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="memorize_view_overview">Genel Bakış</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Yapay Zeka Çevirisi</string>
   <string name="sync_settings_shortcut_summary">Cihazlar arasında veri eşitle</string>
-  <string name="llm_api_key_title">API Anahtarı</string>
-  <string name="llm_api_key_summary">OpenAI uyumlu API anahtarı</string>
   <string name="llm_provider_custom">Özel (OpenAI uyumlu)</string>
-  <string name="llm_provider_title">Sağlayıcı</string>
-  <string name="llm_provider_summary">Hangi yapay zeka servis sağlayıcısının kullanılacağını seçin. API uç noktası ve kullanılabilir modeller otomatik olarak yapılandırılacaktır.</string>
-  <string name="llm_provider_current">Mevcut: %s</string>
-  <string name="llm_api_key_detected_provider">Algılanan sağlayıcı: %s</string>
-  <string name="ai_connection_category">Bağlantı</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Davranış</string>
   <string name="ai_language_title">Yapay zeka yanıt dili</string>
   <string name="ai_language_summary">Yapay zekanın yanıtlar için kullandığı dil</string>
@@ -1458,16 +1331,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_reset_usage_confirm_title">Kullanım verileri sıfırlansın mı?</string>
   <string name="llm_reset_usage_confirm_message">Bu işlem tüm birikimli kullanım verilerini temizleyecektir.</string>
   <string name="llm_custom_input_price_title">Giriş fiyatı ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Bu model için milyon giriş tokeni başına maliyet</string>
   <string name="llm_custom_output_price_title">Çıkış fiyatı ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Bu model için milyon çıkış tokeni başına maliyet</string>
   <string name="llm_cost_total">Toplam: %1$s</string>
-  <string name="llm_endpoint_title">API Uç Noktası</string>
-  <string name="llm_endpoint_summary">API için temel URL</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model kimliği</string>
   <string name="llm_custom_model">Özel…</string>
-  <string name="llm_custom_model_dialog_title">Özel model</string>
   <string name="llm_custom_model_dialog_message">Model kimliğini girin</string>
   <string name="llm_rate_limited_retrying">Hız sınırına ulaşıldı. %1$s saniye içinde yeniden deneniyor\u2026</string>
   <string name="llm_default_document_title">Yapay Zeka Yanıtı</string>
@@ -1477,7 +1343,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_parse_error_no_choices">OpenAI yanıtında seçenek yok</string>
   <string name="llm_parse_error_openai">OpenAI yanıtı ayrıştırılamadı: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic yanıtı ayrıştırılamadı: %1$s</string>
-  <string name="llm_error_prompt_not_found">İstem bulunamadı: %1$s</string>
   <string name="llm_error_unknown">Bilinmeyen hata</string>
   <string name="llm_error_max_iterations">Tamamlanmadan maksimum yineleme sayısına (%1$d) ulaşıldı</string>
   <string name="llm_continue_iterations_title">Devam edilsin mi?</string>
@@ -1512,7 +1377,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="raw_log_retention_summary_disabled">Devre dışı (hepsini sakla)</string>
   <string name="send_ai_bug_report_title">Yapay Zeka Hatası Bildir</string>
   <string name="ai_bug_report_menu">Yapay zeka hatası bildir</string>
-  <string name="ai_bug_report_recommended_only">Hata bildirimi yalnızca önerilen sağlayıcı modelleri için kullanılabilir</string>
 
   <string name="select_model_before_run_title">Model seç</string>
   <string name="set_default_model_for_prompt">Bu istem için varsayılan model olarak ayarla</string>
@@ -1542,7 +1406,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_models_summary_none">Yapılandırılmış model yok</string>
   <string name="ai_add_provider">Sağlayıcı ekle</string>
   <string name="ai_provider_edit">Düzenle</string>
-  <string name="ai_provider_delete">Sil</string>
   <string name="ai_provider_delete_confirm">\"%1$s\" sağlayıcısı silinsin mi? Bu sağlayıcıyı kullanan istemler varsayılana dönecek.</string>
   <string name="ai_provider_api_key_not_set">API anahtarı ayarlanmamış</string>
   <string name="ai_provider_select_type">Sağlayıcı türünü seçin</string>
@@ -1554,27 +1417,18 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_provider_saved">Sağlayıcı kaydedildi</string>
   <string name="ai_provider_deleted">Sağlayıcı silindi</string>
 
-  <string name="llm_fetch_models_title">Model listesini indir</string>
-  <string name="llm_fetch_models_message">%1$s adresinden kullanılabilir modellerin listesi indirilsin mi?</string>
-  <string name="llm_fetch_models_dont_ask">Bir daha sorma</string>
-  <string name="llm_fetch_models_success">%1$d model yüklendi</string>
-  <string name="llm_fetch_models_failed">Modeller alınamadı</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Tümü</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Model ekle</string>
-  <string name="add_model_title">Model ekle</string>
   <string name="edit_model_title">Modeli düzenle</string>
   <string name="model_saved">Model kaydedildi</string>
   <string name="model_deleted">Model silindi</string>
   <string name="model_delete_confirm">\"%1$s\" modeli silinsin mi?</string>
   <string name="model_set_default">Varsayılan model olarak ayarla</string>
   <string name="model_select_provider">Sağlayıcı</string>
-  <string name="no_models_configured">Yapılandırılmış model yok</string>
-  <string name="model_cache_creation_price">Önbellek oluşturma fiyatı ($/Mtoken)</string>
-  <string name="model_cache_read_price">Önbellek okuma fiyatı ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Destekleniyor</string>
   <string name="show_also_unsupported_models">Desteklenmeyen modelleri de göster</string>
   <string name="show_also_unsupported_providers">Desteklenmeyen sağlayıcıları da göster</string>
@@ -1585,7 +1439,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="unknown_error">Bilinmeyen hata</string>
   <string name="easy_setup_title">Hızlı Kurulum</string>
   <string name="easy_setup_pref_summary">Yapay zekayı birkaç adımda önerilen bir sağlayıcıyla kurun</string>
-  <string name="easy_setup_choose_provider">Başlamak için bir sağlayıcı seçin:</string>
   <string name="easy_setup_enter_api_key">API anahtarınızı girin</string>
   <string name="easy_setup_api_key_instructions">API anahtarınızı şuradan alın:</string>
   <string name="easy_setup_test_connection">Bağlantıyı test et</string>
@@ -1644,7 +1497,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="addon_prompt_notice">Bu istem \"%s\" eklenti modülünden gelmektedir ve düzenlenemez. Düzenlenebilir bir kopya oluşturmak için \"Özelleştirmek için kopyala\" seçeneğini kullanın.</string>
   <string name="new_category">Yeni kategori</string>
   <string name="new_category_name">Kategori adı</string>
-  <string name="rename_category">Yeniden adlandır</string>
   <string name="move_category_up">Yukarı taşı</string>
   <string name="move_category_down">Aşağı taşı</string>
   <string name="hide_category">Yapay Zeka eylemlerinden gizle</string>
@@ -1689,28 +1541,22 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_note_updated">Not güncellendi</string>
   <string name="specify_before_run_title">Görevi belirt</string>
   <string name="specify_before_run_hint">Belirli görevi açıklayın…</string>
-  <string name="prompt_cache_settings">Önbellek ayarları</string>
   <string name="prompt_strict_context_matching">Bağlama bağlı önbellek</string>
   <string name="prompt_strict_context_matching_description">Etkinleştirildiğinde önbellek yalnızca tüm bağlam (Kutsal Kitap versiyonu, seçili metin) aynı olduğunda eşleşir. Devre dışı bırakıldığında Kutsal Kitap versiyonundan bağımsız olarak ayetler aynıysa eşleşir.</string>
   <string name="ai_document_delete_confirmation">Bu yapay zeka belgesi silinsin mi?</string>
-  <string name="ai_document_deleted">Bu yapay zeka belgesi silindi.</string>
   <string name="ai_document_regenerating">Yapay zeka belgesi yeniden oluşturuluyor…</string>
-  <string name="ai_document_regenerate_not_implemented">Yeniden oluşturma özelliği gelecekteki bir güncellemede kullanılabilir olacak</string>
   <string name="ai_regenerate_prompt_not_found">Yeniden oluşturulamıyor: özgün istem bulunamadı. Silinmiş olabilir.</string>
   <string name="ai_document_regenerate">Yeniden oluştur</string>
   <string name="ai_regenerate_title">Yeniden oluştur</string>
   <string name="ai_regenerate_instructions_hint">Ek talimatlar (isteğe bağlı)</string>
   <string name="ai_regenerate_keep_previous">Önceki sürümü koru</string>
   <string name="ai_regenerate_fresh_run">Yeni çalıştırma (önceki sonucu yoksay)</string>
-  <string name="ai_document_delete">Sil</string>
   <string name="ai_unknown_prompt">Yapay Zeka</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">%s diline çevir</string>
   <string name="default_prompt_translate_to_ui_language">Arayüz diline çevir</string>
   <string name="default_prompt_translate_to_ui_language_desc">Belge metnini uygulama arayüzü diline çevirir</string>
-  <string name="default_prompt_translate_to_english">İngilizceye çevir</string>
-  <string name="default_prompt_translate_to_english_desc">Seçili metni İngilizceye çevirir</string>
   <string name="default_prompt_summary">Özet</string>
   <string name="default_prompt_summary_desc">Seçili metnin kısa bir özetini oluşturur</string>
   <string name="default_prompt_explain_verses">Ayetleri açıkla</string>
@@ -1719,8 +1565,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="default_prompt_explain_verses_studypad_desc">Ayet ayet açıklama ve yer imleriyle bir çalışma defteri oluştur</string>
   <string name="default_prompt_word_study">Kelime çalışması</string>
   <string name="default_prompt_word_study_desc">Orijinal İbranice/Yunanca kelimeleri analiz eder</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s numarası ek açıklaması</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV\'yi referans alarak herhangi bir Kutsal Kitap çevirisine Strong\'s konkordans numaraları ekler</string>
   <string name="default_prompt_cross_references">Çapraz referanslar</string>
   <string name="default_prompt_cross_references_desc">İlgili Kutsal Kitap pasajlarını bulur ve açıklar</string>
   <string name="default_prompt_compare_translations">Çevirileri karşılaştır</string>
@@ -1863,11 +1707,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_document_filter_summary">Yapay zekanın okuyabileceği belgeleri seçin</string>
   <string name="ai_document_filter_summary_count">%d belge hariç tutuldu</string>
   <string name="ai_document_filter_activity_title">Yapay zeka belge erişimi</string>
-  <string name="ai_document_excluded_error">Belge kullanıcı ayarları tarafından hariç tutuldu: %s</string>
   <string name="permission_status_default">Sor (varsayılan)</string>
-  <string name="permission_status_allowed">Her zaman izin verildi</string>
-  <string name="permission_status_denied">Her zaman reddedildi</string>
-  <string name="permission_option_default">Her seferinde sor (varsayılan)</string>
   <string name="permission_option_always_allow">Her zaman izin ver</string>
   <string name="permission_option_always_deny">Her zaman reddet</string>
   <string name="reset_all_permissions">Tümünü sıfırla</string>
@@ -1882,10 +1722,6 @@ katkıda bulunmayı düşünün. :-)</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Araç izinleri</string>
-  <string name="prompt_tool_permissions_read_only">Araç izinleri (salt okunur)</string>
-  <string name="prompt_tool_permissions_description">Bu komut için araç izinlerini geçersiz kıl</string>
-  <string name="tool_section_read_tools">Okuma araçları</string>
-  <string name="tool_section_write_tools">Yazma araçları</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Kutsal Kitap &amp; Arama</string>
@@ -1908,13 +1744,9 @@ katkıda bulunmayı düşünün. :-)</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Varsayılan</string>
-  <string name="prompt_model_custom">Özel</string>
-  <string name="prompt_model_custom_hint">Model adı girin</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Yapay Zeka Eylemi Seçin</string>
-  <string name="no_llm_prompts_configured">Ayet seçimi için yapay zeka komutu yapılandırılmadı</string>
-  <string name="llm_prompt_executing">Yapay zeka komutu çalıştırılıyor: %s</string>
   <string name="llm_actions">Yapay Zeka Eylemleri</string>
 
     <!-- Agent Log Widget -->
@@ -1922,9 +1754,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_log_close">Etmen günlüğünü kapat</string>
   <string name="agent_log_stop">Yapay zekayı durdur</string>
   <string name="agent_log_idle">Yapay Zeka Asistanı</string>
-  <string name="agent_log_running">Yapay zeka çalışıyor…</string>
   <string name="agent_log_completed">Tamamlandı</string>
-  <string name="agent_log_error">Hata oluştu</string>
   <string name="agent_log_executing">Çalıştırılıyor: %s</string>
   <string name="agent_log_iteration">%d. yineleme</string>
   <string name="agent_log_tool">Araç: %s</string>
@@ -1934,7 +1764,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_log_saved">Kaydedildi: %s</string>
   <string name="agent_log_done">Bitti: %s</string>
   <string name="agent_log_cancelled">İptal edildi</string>
-  <string name="agent_execution_completed">Etmen çalıştırması tamamlandı</string>
   <string name="agent_already_running">Bir yapay zeka etmeni zaten çalışıyor. Lütfen bekleyin veya önce durdurun.</string>
 
     <!-- AI Agent Notifications -->
@@ -1953,22 +1782,16 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="my_document_new_name">Belge %d</string>
   <string name="my_document_create_title">Yeni belge oluştur</string>
   <string name="my_document_rename_title">Belgeyi yeniden adlandır</string>
-  <string name="my_document_edit_description_title">Açıklamayı düzenle</string>
   <string name="my_document_delete_confirmation">"%s" belgesi silinsin mi?</string>
   <string name="my_document_cannot_delete_ai_documents">AI Belgeleri, sayfa içerdiği sürece silinemez. Önce sayfaları silin.</string>
   <string name="my_document_save_changes">Değişiklikler kaydedilsin mi?</string>
   <string name="my_document_no_description">Açıklama yok</string>
-  <string name="my_document_rename">Yeniden adlandır</string>
   <string name="my_document_edit_description">Açıklamayı düzenle</string>
-  <string name="my_document_delete">Sil</string>
 
   <string name="my_document_pages_title">%s - Sayfalar</string>
   <string name="my_document_pages_empty">Bu belgede sayfa yok.</string>
   <string name="my_document_page_rename_title">Sayfayı yeniden adlandır</string>
   <string name="my_document_page_delete_confirmation">"%s" sayfası silinsin mi?</string>
-  <string name="my_document_page_rename">Yeniden adlandır</string>
-  <string name="my_document_page_delete">Sil</string>
-  <string name="my_document_page_export">Dışa aktar</string>
   <string name="my_document_new_page_name">Sayfa %1$d</string>
   <string name="my_document_create_page_title">Yeni sayfa</string>
   <string name="my_document_content_type_label">İçerik türü</string>
@@ -1988,12 +1811,10 @@ katkıda bulunmayı düşünün. :-)</string>
 
   <string name="prefs_page_scroll_amount_title">Sayfa kaydırma miktarı</string>
   <string name="prefs_page_scroll_amount_summary">Sayfa yukarı/aşağı ile sayfanın ne kadarının kaydırılacağı</string>
-  <string name="page_scroll_amount_dialog_title">Sayfa kaydırma miktarı</string>
   <string name="prefs_scroll_helper_lines_title">Kaydırma kılavuz çizgileri</string>
   <string name="prefs_scroll_helper_lines_summary">Sayfa kaydırma sınırlarında yatay kılavuz çizgilerini göster</string>
   <string name="prefs_scroll_helper_line_style_title">Kılavuz çizgi stili</string>
   <string name="prefs_scroll_helper_line_style_summary">Kaydırma kılavuz çizgilerinin görsel stilini seçin</string>
-  <string name="scroll_helper_line_style_dialog_title">Kılavuz çizgi stili</string>
   <string name="scroll_helper_line_style_thin_dotted">İnce noktalı çizgi</string>
   <string name="scroll_helper_line_style_thin_solid">İnce düz çizgi</string>
   <string name="scroll_helper_line_style_thick_solid">Kalın düz çizgi</string>

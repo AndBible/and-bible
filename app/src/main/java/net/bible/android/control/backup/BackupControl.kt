@@ -144,7 +144,7 @@ object BackupControl {
                         .setTitle(R.string.backup_backup_title)
                         .setMessage(R.string.backup_backup_message)
                         .setNegativeButton(R.string.backup_phone_storage) { _, _ -> it.resume(SaveOrShare.SAVE) }
-                        .setPositiveButton(R.string.generic_share) { _, _ -> it.resume(SaveOrShare.SHARE) }
+                        .setPositiveButton(R.string.share) { _, _ -> it.resume(SaveOrShare.SHARE) }
                         .setNeutralButton(R.string.cancel) { _, _ -> it.resume(null) }
                         .setOnCancelListener { _ -> it.resume(null) }
                         .show()

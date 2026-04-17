@@ -5,7 +5,6 @@
   <string name="app_name_short">Studera Bibeln</string>
   <string name="app_name_medium">Studera Bibeln (AndBible)</string>
   <string name="app_name_long">AndBible: Studera Bibeln</string>
-  <string name="project">AndBible-projektet med öppen källkod</string>
 
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om appen.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">RTF (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Styckesavstånd (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Justera avståndet mellan styckeindelningarna.</string>
 
-  <string name="prefs_show_verseno_title1">Versnummer</string>
 
-  <string name="prefs_show_chapter_no_title">Kapitelnummer</string>
-  <string name="prefs_show_chapter_no_summary">Visa kapitelnummer</string>
 
   <string name="prefs_verse_per_line_summary">Visa varje vers på en egen rad</string>
   <string name="prefs_show_bookmarks_summary">Avbocka för att dölja alla bokmärken</string>
 
   <string name="prefs_show_mynotes_summary">Visa en ikon i verser med anteckningar</string>
-  <string name="prefs_show_notes_summary">Visa fotnoter och parallellhänvisningar</string>
   <string name="prefs_show_strongs_summary">Länkar till grekiska &amp; hebreiska definitioner</string>
   <string name="prefs_show_morphology_summary">Visa Robinsons grekiska morfologi</string>
   <string name="prefs_section_title_summary">Visa icke-kanoniska rubriker</string>
   <string name="prefs_red_letter_summary">Visa ord av Jesus i röd text</string>
-  <string name="prefs_text_size_title">Typsnittinställningar</string>
 
   <string name="prefs_verse_per_line_title">En vers per rad</string>
   <string name="prefs_show_bookmarks_title">Visa bokmärken</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Visa fotnoter direkt i texten istället för som klickbara handtag</string>
   <string name="prefs_show_xrefs_summary">Visa parallellhänvisningar om de är tillgängliga i dokumentet</string>
 
-  <string name="prefs_show_notes_title">Fotnoter och parallellhänvisningar</string>
   <string name="prefs_show_strongs_title">Strongs nummer</string>
   <string name="prefs_show_morphology_title">Morfologiska koder</string>
   <string name="prefs_non_strongs_word_italic_title">Kursivera tillagda ord</string>
@@ -284,15 +275,9 @@
   <string name="prefs_noise_title">Bakgrundsbrus</string>
   <string name="prefs_noise_summary">Att lägga till brus i bakgrunden kan göra det mer behagligt för ögonen.</string>
 
-  <string name="cpv_default_title">Välj en färg</string>
-  <string name="cpv_presets">Förval</string>
-  <string name="cpv_custom">Anpassa</string>
-  <string name="cpv_select">Välj</string>
-  <string name="cpv_transparency">Transparans</string>
 
     <!-- Window -->
   <string name="new_window">Nytt fönster</string>
-  <string name="windowClose">Stäng</string>
   <string name="windowMaximise">Maximera</string>
   <string name="windowMinimise">Minimera</string>
   <string name="windowSynchronise">Synkronisera</string>
@@ -306,26 +291,19 @@
   <string name="window_pin_mode">Nåla fast</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Det finns inga noter i detta kapitel</string>
-  <string name="no_verse_notes">Det finns inga noter i denna vers</string>
   <string name="previous">Föregående</string>
   <string name="next">Nästa</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Ladda ned Strongs hebreiska och grekiska lexikon</string>
   <string name="no_indexed_bible_with_strongs_ref">Du måste ladda ned en bibel som innehåller Strongs nummer och bygga upp dess sökindex med sökfunktionen</string>
-  <string name="morph_robinson_not_installed">Vänligen ladda ner lexikonet \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">Gå till nerladdningar</string>
 
     <!-- Module download -->
   <string name="download">Hämta dokument</string>
   <string name="redownload">Åternerladda Dokument</string>
-  <string name="download_confirmation">Ladda ner en Bibel från Internet?</string>
   <string name="download_source_last_updated">Dokumentet uppdaterades senast: %s.</string>
   <string name="download_refreshing_book_list">Uppdaterar listan över tillgängliga dokument från dokumentservrarna...</string>
   <string name="download_source_message1">Dokumenten är nerladdade från följande källor:</string>
   <string name="download_document_confirm_prefix">Ladda ner</string>
-  <string name="download_refresh_book_list_menu_item">Uppdatera</string>
   <string name="error_downloading">Ett fel uppstod vid nerladdningen. Vänligen kontrollera internetuppkopplingen.</string>
   <string name="error_downloading_status">Servern på vilken %1$s ligger returnerade ett fel på grund av %2$s (%3$d).</string>
   <string name="storage_space_warning">Minnet på enheten är för litet.</string>
@@ -374,19 +352,6 @@ Alla nedladdningar från modulservrarna är krypterade (HTTPS).</string>
   <string name="done">Färdig</string>
   <string name="reset_plan_question">Är du säker på att du vill återställa denna plan?</string>
   <string name="import_reading_plan">Importera läsningsplan...</string>
-  <string name="import_reading_plan_error">Fel vid importering</string>
-  <string name="import_reading_plan_error_duplicate">Följande dagar är dubbletter: %s</string>
-  <string name="import_reading_plan_error_days">Följande dagar innehåller fel: %s</string>
-  <string name="import_reading_plan_anyway">Importera ändå</string>
-  <string name="overwrite_reading_plan">Vill du skriva över %s?</string>
-  <string name="delete_reading_plan">Radera denna planering</string>
-  <string name="reading_plan_deleted">Läsningsplanen har raderats</string>
-  <string name="reading_plan_ships_with_ab">Läsplanen kommer med %s</string>
-  <string name="confirm_delete_reading_plan">
-Är du säker på att du vill radera %s samt dess läshistorik?
-Tips: om du behöver uppdatera planen så kan du importera den igen med samma filnamn
-och historiken kommer vara kvar.
-</string>
   <string name="plan_duplicate_user_plan">
 Det finns en användarplanering i SD-kortet
 jsword/readningplan med samma namn som en som finns internt. Den kan inte listas här.
@@ -438,7 +403,6 @@ i GT och NT varje dag.
   <string name="notes">Fotnoter och hänvisningar</string>
   <string name="share_verse">Dela...</string>
   <string name="share_verse_widget_title">Dela markering</string>
-  <string name="share_verse_subject_2">Ett bibelord har delats med dig genom %s</string>
   <string name="compare_translations">Jämför översättningar</string>
 
     <!-- Link context menu -->
@@ -450,33 +414,26 @@ i GT och NT varje dag.
   <string name="bookmarks_and_mynotes_title">Bokmärken &amp; egna anteckningar</string>
   <string name="migrated_my_notes">Migrerade egna anteckningar</string>
   <string name="bookmarks">Bokmärken</string>
-  <string name="bookmark_added">Bokmärket sparat</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etiketter</string>
   <string name="manage_labels">Hantera etiketter</string>
   <string name="assign_labels">Tilldela etiketter</string>
   <string name="new_item">Ny</string>
-  <string name="new_label">Ny etikett</string>
   <string name="label_name_prompt">Namn</string>
   <string name="label_unlabelled">Ingen etikett</string>
   <string name="add_bookmark1">Bokmärke</string>
-  <string name="add_bookmark2">Bokmärk markering</string>
   <string name="add_bookmark3">Markering</string>
   <string name="add_bookmark_whole_verse">Bokmärk vers</string>
   <string name="add_bookmark_whole_verse1">Verser</string>
-  <string name="add_bookmark_whole_verse2">Fullständiga verser</string>
   <string name="add_whole_page_bookmark">Lägg till bokmärke för hela sidan</string>
   <string name="add_paragraph_break">Styckebrytning</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Radera</string>
   <string name="bookmark_settings_hide_labels_title">Dölj valda etiketter</string>
   <string name="bookmark_settings_hide_labels_summary">Dölj bokmärken som är märkta med de etiketter som du väljer</string>
   <string name="auto_assign_labels_title">Etikettinställningar</string>
   <string name="auto_assign_labels">Tilldela automatiskt &amp; Markera etiketter som favoriter</string>
   <string name="auto_assign_labels1">Tilldela etikett automatiskt till nya bokmärken</string>
   <string name="auto_assign_labels_primary">Tilldela automatiskt som primär</string>
-  <string name="label_color">Etikettfärg</string>
-  <string name="label_color_example">Exempel</string>
   <string name="marker_style">Visa endast ikon vid markeringsbokmärken</string>
   <string name="marker_style_whole_verse">Visa endast ikon vid versbokmärken</string>
   <string name="hide_style">Dölj för markeringsbokmärken</string>
@@ -507,11 +464,9 @@ i GT och NT varje dag.
     <!-- Speak - Bible -->
   <string name="one_chapter">%d kapitel</string>
   <string name="some_chapters">%d kapitel</string>
-  <string name="rest_of_book">Till bokens slut</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d verser</string>
-  <string name="rest_of_chapter">Till kapitlets slut</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d sida</string>
   <string name="some_pages">%d sidor</string>
@@ -521,8 +476,6 @@ i GT och NT varje dag.
   <string name="rewind">Tillbaka</string>
   <string name="forward">Framåt</string>
   <string name="tts_lang_not_available">Språket är inte tillgängligt.</string>
-  <string name="speak_queue">Kö</string>
-  <string name="speak_repeat">Upprepa</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Talhastighet</string>
@@ -595,14 +548,12 @@ i GT och NT varje dag.
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s-ikonen indikerar att inställningen kommer från inställningarna för arbetsyta</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Ikonen %s indikerar att denna inställning ändrats för detta specifika fönster.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Använd knappen %1$s för att återställa alla dessa inställningar till %2$s.</string>
   <string name="reset_defaults">standardvärden</string>
   <string name="reset_workspace_defaults">standardvärden för arbetsyta</string>
 
-  <string name="speak_bookmark_help">Hjälp för uppläsningsbokmärke</string>
 
   <string name="speak_help_auto_bookmark">
         Ett uppläsningsbokmärke kommer att läggas till automatiskt när uppläsningen pausas eller stoppas.
@@ -658,7 +609,6 @@ i GT och NT varje dag.
   <string name="backup_phone_storage">Telefonlagring</string>
   <string name="backup_and_restore">Säkerhetskopiera &amp; återställ</string>
   <string name="backup_modules2">Säkerhetskopiera dokument till...</string>
-  <string name="backup_app_database2">Säkerhetskopiera appdatabas till...</string>
   <string name="backup_app2">Säkerhetskopiera app (.apk-fil) till...</string>
   <string name="backup_application">App</string>
   <string name="backup_database">Databas</string>
@@ -670,17 +620,13 @@ i GT och NT varje dag.
   <string name="backup_restore_from">Återställ från...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Återställ eller importera från...</string>
-  <string name="backup_restore">Återställ</string>
   <string name="backup_restore2">Återställ eller importera</string>
   <string name="overwrite_something">Skriv över %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Vill du återställa?</string>
 
-  <string name="restore_app_database">Återställ appdatabasen från...</string>
   <string name="restore_database">Återställ databasfil</string>
   <string name="restore_confirmation">Skriv över egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor?</string>
-  <string name="restore_success2">Markerade sektioner av databasen återställdes</string>
   <string name="restore_success">Egna anteckningar, bokmärken, studieblock, läsningsplaner och arbetsytor återställdes</string>
   <string name="downloading_backup">Laddar ner säkerhetskopia...</string>
   <string name="loading_backup">Läser in databas från säkerhetskopia...</string>
@@ -696,14 +642,12 @@ i GT och NT varje dag.
   <string name="exported_studypads_subject">Exporterade studieblock</string>
   <string name="exported_studypads_message">Din %s-databas som innehåller bokmärken och anteckningar relaterade till markerade studieblock är bifogad</string>
   <string name="restore_unsuccessfull">Databasen kunde inte återställas. Du kanske angav en ogiltig databasfil.</string>
-  <string name="restore_modules">Återställ dokumenten från...</string>
   <string name="send_backup_file">Skicka en säkerhetskopieringsfil</string>
   <string name="backup_modules_title">Välj vilka moduler att säkerhetskopiera</string>
   <string name="install_zip_canceled">Modulinstallation avbruten</string>
   <string name="ask_restore_or_import">Databasen för %s kan antingen återställas (dvs. den existerande databasen tas bort och den markerade databasen läses in) eller importeras (den markerade databasen importeras in i den existerande databasen). Vad vill du göra?</string>
   <string name="restore">Återställ</string>
   <string name="import2">Importera</string>
-  <string name="export_studypads_help">Fil som innehåller exporterade studieblock (dvs. etiketter och bokmärken) kan importeras via huvudmeny -&gt; Säkerhetskopiera &amp; återställ.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" och %2$s andra etiketter/studieblock och %3$s bokmärken</string>
@@ -717,8 +661,6 @@ i GT och NT varje dag.
   <string name="module_about_osisId">OSIS-id: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Buggrapportering</string>
-  <string name="send_feedback_title">Feedback</string>
   <string name="send_bug_report_title">Feedback/buggrapportering</string>
   <string name="report_bug_email_subject_3">[%1$s] Buggrapport för %2$s %3$s</string>
 
@@ -758,10 +700,8 @@ i GT och NT varje dag.
   <string name="yes">Ja</string>
   <string name="no">Nej</string>
   <string name="error">Fel</string>
-  <string name="delete_generic">Radera</string>
   <string name="please_wait">Vänta...</string>
   <string name="all">Alla</string>
-  <string name="edit">Ändra</string>
   <string name="reset_generic">Återställ</string>
   <string name="watch_tutorial_video">Se instruktionsvideo (på engelska)</string>
   <string name="verse_not_found">Versen hittades inte</string>
@@ -785,12 +725,11 @@ i GT och NT varje dag.
   <string name="notification_channel_progress_status">Avisering om hur nerladdning av dokument etc. förlöper.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Ny</string>
   <string name="switch_to_workspace">Arbetsytor</string>
   <string name="delete_workspace">Radera</string>
   <string name="new_copied_workspace">Kopiera som ny</string>
   <string name="workspace_number">Arbetsyta %d</string>
-  <string name="rename_workspace">Byt namn</string>
+  <string name="rename">Byt namn</string>
   <string name="workspace_selector_title">Välj arbetsyta</string>
   <string name="workspace_settings">Inställningar...</string>
   <string name="give_name_workspace">Ge ett namn till arbetsytan</string>
@@ -803,12 +742,11 @@ i GT och NT varje dag.
   <string name="copy_settings_workspaces_title">Till vilka arbetsytor vill du kopiera inställningarna?</string>
   <string name="reset_settings">Återställ</string>
   <string name="search_settings">Sökinställningar</string>
-  <string name="workspace_dismiss">Avböj</string>
+  <string name="dismiss">Avböj</string>
   <string name="workspace_listing_with_current">%s (nuvarande)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Detta är en beta version!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         I betaversionen finns det nya funktioner som inte ännu testats tillräckligt,
         och därför kan betan ge upphov till oväntat beteende, dvs. buggar.
@@ -823,7 +761,6 @@ i GT och NT varje dag.
         själv bidra med buggfixar på %s :-)</string>
   <string name="beta_notice_github_issues">Github problem</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Avböj</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
 
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>
@@ -863,9 +800,6 @@ i GT och NT varje dag.
 
   <string name="help_search_title">Sök</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Söktexten kan innehålla specialtecken som *, ?, AND, OR, NOT
-        (se \"Apache Lucene - Query Parser Syntax\" för mer info)
-    </string>
   <string name="help_search_text2">Söktexten kan innehålla specialtecken som *, AND, OR, NOT</string>
   <string name="help_search_details">Se %s for för mer information.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -903,7 +837,6 @@ i GT och NT varje dag.
         en zip-fil.
     </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Format som stöds</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Välj vilken fil du vill läsa in i %s.</string>
   <string name="supported_formats">Format som stöds för att läsa in dokument från en fil: %s</string>
@@ -929,7 +862,6 @@ i GT och NT varje dag.
   <string name="strongs_mode_title">Välj läge för Strongs</string>
 
   <string name="download_dialog_message">Följande böcker kunde inte laddas ner:</string>
-  <string name="select_multiple">Välj flera</string>
   <string name="journal_description">Redigerbara studieblock med anpassad text och bokmärken</string>
   <string name="my_notes_description">Redigerbara anteckningar bifogade till bokmärken</string>
   <string name="my_notes_abbreviation">Egna anteckningar</string>
@@ -944,7 +876,6 @@ i GT och NT varje dag.
   <string name="http_not_found">Hittades inte</string>
   <string name="http_unknown">Annat problem</string>
   <string name="give_passphrase_for_module">Dokumentet %s är krypterat och behöver en lösenordsfras för att låsas upp</string>
-  <string name="unlocking_failed">Upplåsning misslyckades, ogiltigt lösenordsfras</string>
   <string name="unlock_module">Ställ in lösenordsfras för modul</string>
   <string name="unlock_info">Krypterad modul upplåsningsinformation</string>
   <string name="try_again_passphrase">Lösenordsfras fungerade inte, försök igen?</string>
@@ -996,8 +927,6 @@ i GT och NT varje dag.
   <string name="tell_friend_message4">Läs mer &amp; fler installationsalternativ: %s</string>
   <string name="share_verse_ok">Dela/kopiera</string>
   <string name="web_search">Webbsökning</string>
-  <string name="verse_action_copy">Kopiera</string>
-  <string name="generic_share">Dela</string>
   <string name="share_verse_menu_title">Dela/kopiera...</string>
   <string name="show_versenumbers">Visa versnummer</string>
   <string name="show_full_verses">Visa fullständiga verser</string>
@@ -1014,9 +943,6 @@ i GT och NT varje dag.
   <string name="show_quotes">Visa citattecken</string>
   <string name="separate_verses_with_newlines">Separera verser med radbrytningar</string>
 
-  <string name="backup_button">Säkerhetskopiera</string>
-  <string name="back_button">Bak</string>
-  <string name="upgrading_database">Upgraderar databas. Var god vänta...</string>
   <string name="initializing_app">Läser in app...</string>
   <string name="show_notes">Visa anteckningar</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1062,7 +988,6 @@ Fortsätt till Google Play
   <string name="text_maintainers">
 vänligen rapportera problemen till dem som underhåller texten
 </string>
-  <string name="does_not_exist_abbreviation">Existerar inte</string>
   <string name="cant_change_wholeverse">Kan inte stänga av versmarkeringen för detta bokmärke</string>
   <string name="whole_verse_turned_on">Bokmärket är nu markerat för hela versen</string>
   <string name="this_bookmark">Detta bokmärke</string>
@@ -1075,7 +1000,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="display_mode_hidden">Dold</string>
   <string name="workspace_override_indicator">Den här etiketten har ett arbetsytespecifikt visningsläge</string>
   <string name="primary_label">Primär etikett</string>
-  <string name="highlight_entire_verse">Markera hela versen</string>
   <string name="favourite_label">Favoritmarkerad etikett</string>
   <string name="edit_label">Redigera etikett</string>
   <string name="delete_label_confirmation">Vill du ta bort bokmärkesetiketten \"%s\"? Även alla tillhörande studieblock kommer att tas bort.</string>
@@ -1093,7 +1017,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="reorder">Ordna om</string>
   <string name="system_items">Systemåtgärder</string>
   <string name="system_items1">Mer</string>
-  <string name="system_action2">Androidåtgärder</string>
   <string name="text_copied_to_clicpboard">Text kopierad till urklipp</string>
   <string name="prefs_disable_two_step_bookmarking_title">Bokmärkning i ett steg</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Visa menyvalen \"Markering\" och \"Verser\" direkt i bibelvyns markeringsmeny</string>
@@ -1107,7 +1030,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="label_blue">Blå</string>
   <string name="label_salvation">Frälsning</string>
   <string name="label_underline">Understrykning</string>
-  <string name="import_menu">Importera &amp; Exportera</string>
   <string name="auto_backups_title">Automatiska säkerhetskopior</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Återställ databaser</string>
@@ -1125,18 +1047,12 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="export_prompts_csv">Exportera prompter till CSV</string>
   <string name="import_prompts_csv">Importera prompter från CSV</string>
   <string name="prompts_csv_export_success">Exporterade %d promptar till CSV</string>
-  <string name="prompts_csv_import_success">Import slutförd: %1$d skapade, %2$d uppdaterade</string>
-  <string name="prompts_csv_import_errors">Import slutförd med fel: %1$d skapade, %2$d uppdaterade, %3$d fel</string>
-  <string name="prompts_csv_import_failed">CSV-import misslyckades: %s</string>
-  <string name="prompts_csv_export_failed">CSV-export misslyckades: %s</string>
   <string name="no_prompts_to_export">Inga användarpromptar att exportera</string>
   <string name="csv_column_selection_title">Välj kolumner för CSV-filen</string>
-  <string name="choose_csv_file">Välj en CSV-fil att importera</string>
   <string name="no_bookmarks_to_export">Inga bokmärken tillgängliga för export</string>
   <string name="export_fileformat">Exportera som %s</string>
   <string name="export_something">Exportera %s</string>
   <string name="import_items">Importera %s</string>
-  <string name="import_from_db">Importera från appdatabasfilen</string>
   <string name="import_error">Import från appdatabas misslyckades. Databasfilen kan ha fel format eller vara skapad med för gammal version av %s.</string>
 
   <string name="export_bookmarks_csv">Exportera bokmärken som %s</string>
@@ -1165,23 +1081,13 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="last_updated_at">Uppdaterades senast</string>
   <string name="bookmark_notes">Bokmärkesanteckningar</string>
 
-  <string name="chooser_range">Räckvidd</string>
-  <string name="chooser_jump">Hoppa</string>
-  <string name="chooser_OT_abbrev">GT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Rutnät</string>
-  <string name="chooser_style_lists">Listor</string>
-  <string name="chooser_select">Välj %s</string>
-  <string name="chooser_pref_reset">Återställ inte kapitel/vers till 1 när boken/kapitlet markeras</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Vi är ledsna, men användargränssnittet är bara till viss del översatt till %1$s. Det beror på att %2$s utvecklas helt av volontärer. Om du kan hjälpa till med översättningen, se gärna %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">Instruktioner för översättare</string>
   <string name="questions_title">Frågor?</string>
-  <string name="questions_title2">Behöver du hjälp?</string>
   <string name="bookmark_style">Bokmärkesstil</string>
   <string name="added_to_bookmark">Tilldelad till detta bokmärke</string>
-  <string name="strongs_off">Stäng av</string>
   <string name="strongs_links">Länkar</string>
   <string name="strongs_text_and_links">Text och Länkar</string>
   <string name="strongs_hidden_links">Dolda länkar</string>
@@ -1234,7 +1140,6 @@ vänligen rapportera problemen till dem som underhåller texten
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Synkronisera grupp</string>
   <string name="sync_group_n">Grupp %d</string>
   <string name="disable_sync">Inaktivera synkronisering</string>
   <string name="open_in_window">Öppna resultat i ett fönster</string>
@@ -1245,10 +1150,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="custom_repositories_empty_list_message">Inga anpassade kataloger är definierade</string>
   <string name="custom_repositories_create_button_label">Lägg till anpassad katalog</string>
   <string name="custom_repositories_info_button_label">Information</string>
-  <string name="name_for_repository">Katalogens namn</string>
   <string name="repository_specification">Katalogens URL</string>
   <string name="delete_custom_repository">Vill du ta bort den anpassade katalogen %s?</string>
-  <string name="invalid_repository_not_saved">Katalogens specifikation var ogiltig och sparades inte.</string>
   <string name="custom_repositories_help1">För att lägga till en ny anpassad katalog; skriv eller kopiera och klistra in den anpassade katalogens URL här.</string>
   <string name="custom_repositories_help2">Du kan läsa mer om anpassade kataloger på %s.</string>
   <string name="wiki_page">Wiki-sida</string>
@@ -1291,7 +1194,6 @@ vänligen rapportera problemen till dem som underhåller texten
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Läs-/minnesframsteg</string>
   <string name="reading_progress_chapters_read">kapitel lästa</string>
-  <string name="reading_progress_verses_memorized">verser memorerade</string>
   <string name="reading_progress_active_days">aktiva dagar</string>
   <string name="reading_progress_overall">%s%% av Bibeln läst</string>
   <string name="reading_progress_bible_heatmap">Bibelöversikt</string>
@@ -1317,13 +1219,11 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="sync_adapter_summary">Nuvarande: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
-  <string name="auth_title">Autentisering till %s</string>
   <string name="auth_server_uri">Serverns URL</string>
   <string name="auth_username">Användarnamn</string>
   <string name="auth_password">Lösenord</string>
   <string name="auth_folder_path">Synkmappsökväg</string>
   <string name="auth_folder_path_summary">Överordnad mapp för synkdata (tom = rot)</string>
-  <string name="auth_access_token">Access token</string>
   <string name="synchronization_categories">Kategorier för synkronisering</string>
   <string name="sync_general_settings">Info &amp; allmänna inställningar</string>
   <string name="sync_introduction">Introduktion</string>
@@ -1339,8 +1239,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="report">Rapportera</string>
   <string name="sync_error">Ett fel uppstod i molnsynkroniseringen</string>
   <string name="error_notification_channel_name">Felmeddelanden</string>
-  <string name="restore_from_cloud_description">Om du aktiverat enhetssynkronisering på en annan enhet kan du börja med att återställa databasen från molnet.</string>
-  <string name="enable_sync">Aktivera synkronisering</string>
   <string name="last_updated">Senast uppdaterad: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1361,20 +1259,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="processing_epub">Bearbetar EPUB: %s</string>
   <string name="buy_development">Köp apputveckling</string>
   <string name="buy_development2">Understöd projektet</string>
-  <string name="new_version_warning">
-        En ny utgåva kommer snart. Lanseringsdatumet förväntas bli %1$s. Kolla in vår
-        %2$s för att upptäcka nya funktioner och förbättringar.
-    </string>
-  <string name="new_version_trailer">trailer</string>
-  <string name="new_version_warning2">
-        Efter utgåva kommer denna version inte underhållas.
-    </string>
-  <string name="new_version_warning3">
-        Den kommer inte få buggfixar eller uppdateringar.
-    </string>
-  <string name="new_version_warning4">
-        Om du inte vill uppgradera; inaktivera \"Uppdatera appar automatiskt\" (Google Play / F-Droid etc).
-    </string>
   <string name="dont_show">
         Visa inte meddelandet igen
     </string>
@@ -1395,7 +1279,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="invalid_url_message">URL:en du angav är ogiltig. Ange en giltig URL (t.ex. https://nextcloud.example.com).</string>
   <string name="memorize_description">Memorera bibelverser</string>
   <string name="memorize_abbreviation">Memorera</string>
-  <string name="add_memorization_target">Ange som memoreringsmål</string>
   <string name="memorize_memorized_passages">Memorerade passager</string>
   <string name="memorize_no_memorized_passages">Inga memorerade passager ännu</string>
   <string name="memorize_targets">Memoreringsmål</string>
@@ -1427,17 +1310,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="memorize_view_overview">Översikt</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-översättning</string>
   <string name="sync_settings_shortcut_summary">Synkronisera data mellan enheter</string>
-  <string name="llm_api_key_title">API-nyckel</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibel API-nyckel</string>
   <string name="llm_provider_custom">Anpassad (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Leverantör</string>
-  <string name="llm_provider_summary">Välj vilken AI-tjänsteleverantör som ska användas. API-slutpunkten och tillgängliga modeller konfigureras automatiskt.</string>
-  <string name="llm_provider_current">Nuvarande: %s</string>
-  <string name="llm_api_key_detected_provider">Identifierad leverantör: %s</string>
-  <string name="ai_connection_category">Anslutning</string>
-  <string name="ai_model_category">Modell</string>
   <string name="ai_behavior_category">Beteende</string>
   <string name="ai_language_title">AI-svarsspråk</string>
   <string name="ai_language_summary">Språk AI använder för svar</string>
@@ -1454,16 +1328,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_reset_usage_confirm_title">Återställa användningsdata?</string>
   <string name="llm_reset_usage_confirm_message">Detta rensar all ackumulerad användningsdata.</string>
   <string name="llm_custom_input_price_title">Inmatningspris ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kostnad per miljon inmatningstokens för denna modell</string>
   <string name="llm_custom_output_price_title">Utmatningspris ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kostnad per miljon utmatningstokens för denna modell</string>
   <string name="llm_cost_total">Totalt: %1$s</string>
-  <string name="llm_endpoint_title">API-slutpunkt</string>
-  <string name="llm_endpoint_summary">Bas-URL för API:et</string>
-  <string name="llm_model_title">Modell</string>
-  <string name="llm_model_summary">Modell-ID</string>
   <string name="llm_custom_model">Anpassad…</string>
-  <string name="llm_custom_model_dialog_title">Anpassad modell</string>
   <string name="llm_custom_model_dialog_message">Ange modell-ID</string>
   <string name="llm_rate_limited_retrying">Hastighetsbegränsad. Försöker igen om %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-svar</string>
@@ -1473,7 +1340,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_parse_error_no_choices">Inga val i OpenAI-svar</string>
   <string name="llm_parse_error_openai">Det gick inte att tolka OpenAI-svar: %1$s</string>
   <string name="llm_parse_error_anthropic">Det gick inte att tolka Anthropic-svar: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt hittades inte: %1$s</string>
   <string name="llm_error_unknown">Okänt fel</string>
   <string name="llm_error_max_iterations">Maximalt antal iterationer (%1$d) uppnått utan slutförande</string>
   <string name="llm_continue_iterations_title">Fortsätta?</string>
@@ -1508,7 +1374,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="raw_log_retention_summary_disabled">Inaktiverat (behåll alla)</string>
   <string name="send_ai_bug_report_title">Rapportera AI-fel</string>
   <string name="ai_bug_report_menu">Rapportera AI-fel</string>
-  <string name="ai_bug_report_recommended_only">Felrapportering är bara tillgänglig för rekommenderade leverantörsmodeller</string>
 
   <string name="select_model_before_run_title">Välj modell</string>
   <string name="set_default_model_for_prompt">Ange som standardmodell för denna prompt</string>
@@ -1538,7 +1403,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_models_summary_none">Inga modeller konfigurerade</string>
   <string name="ai_add_provider">Lägg till leverantör</string>
   <string name="ai_provider_edit">Redigera</string>
-  <string name="ai_provider_delete">Radera</string>
   <string name="ai_provider_delete_confirm">Radera leverantören \"%1$s\"? Promptar som använder denna leverantör återgår till standardvärdet.</string>
   <string name="ai_provider_api_key_not_set">API-nyckel ej angiven</string>
   <string name="ai_provider_select_type">Välj leverantörstyp</string>
@@ -1550,27 +1414,18 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_provider_saved">Leverantör sparad</string>
   <string name="ai_provider_deleted">Leverantör raderad</string>
 
-  <string name="llm_fetch_models_title">Ladda ner modellista</string>
-  <string name="llm_fetch_models_message">Ladda ner listan över tillgängliga modeller från %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Fråga inte igen</string>
-  <string name="llm_fetch_models_success">Laddade %1$d modeller</string>
-  <string name="llm_fetch_models_failed">Det gick inte att hämta modeller</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alla</string>
   <string name="llm_openrouter_model">Modell</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Lägg till modell</string>
-  <string name="add_model_title">Lägg till modell</string>
   <string name="edit_model_title">Redigera modell</string>
   <string name="model_saved">Modell sparad</string>
   <string name="model_deleted">Modell borttagen</string>
   <string name="model_delete_confirm">Ta bort modellen \"%1$s\"?</string>
   <string name="model_set_default">Ange som standardmodell</string>
   <string name="model_select_provider">Leverantör</string>
-  <string name="no_models_configured">Inga modeller konfigurerade</string>
-  <string name="model_cache_creation_price">Cache-skapandepris ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cache-läspris ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Stöds</string>
   <string name="show_also_unsupported_models">Visa även modeller som inte stöds</string>
   <string name="show_also_unsupported_providers">Visa även leverantörer som inte stöds</string>
@@ -1581,7 +1436,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="unknown_error">Okänt fel</string>
   <string name="easy_setup_title">Snabbinstallation</string>
   <string name="easy_setup_pref_summary">Konfigurera AI med en rekommenderad leverantör i några steg</string>
-  <string name="easy_setup_choose_provider">Välj en leverantör för att komma igång:</string>
   <string name="easy_setup_enter_api_key">Ange din API-nyckel</string>
   <string name="easy_setup_api_key_instructions">Hämta din API-nyckel från:</string>
   <string name="easy_setup_test_connection">Testa anslutning</string>
@@ -1640,7 +1494,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="addon_prompt_notice">Den här prompten kommer från tilläggsmodulen \"%s\" och kan inte redigeras. Använd \"Kopiera för att anpassa\" för att skapa en redigerbar kopia.</string>
   <string name="new_category">Ny kategori</string>
   <string name="new_category_name">Kategorinamn</string>
-  <string name="rename_category">Byt namn</string>
   <string name="move_category_up">Flytta upp</string>
   <string name="move_category_down">Flytta ned</string>
   <string name="hide_category">Dölj från AI-åtgärder</string>
@@ -1685,28 +1538,22 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_note_updated">Anteckning uppdaterad</string>
   <string name="specify_before_run_title">Specificera uppgift</string>
   <string name="specify_before_run_hint">Beskriv den specifika uppgiften…</string>
-  <string name="prompt_cache_settings">Cacheinställningar</string>
   <string name="prompt_strict_context_matching">Kontextberoende cache</string>
   <string name="prompt_strict_context_matching_description">När aktiverad matchar cachen bara när all kontext (bibelversion, markerad text) är densamma. När inaktiverad matchar cachen när verserna är desamma oavsett bibelversion.</string>
   <string name="ai_document_delete_confirmation">Radera detta AI-dokument?</string>
-  <string name="ai_document_deleted">Detta AI-dokument har raderats.</string>
   <string name="ai_document_regenerating">Genererar om AI-dokument…</string>
-  <string name="ai_document_regenerate_not_implemented">Omgenerering blir tillgänglig i en framtida uppdatering</string>
   <string name="ai_regenerate_prompt_not_found">Kan inte återskapa: den ursprungliga prompten hittades inte. Den kan ha raderats.</string>
   <string name="ai_document_regenerate">Generera om</string>
   <string name="ai_regenerate_title">Återskapa</string>
   <string name="ai_regenerate_instructions_hint">Ytterligare instruktioner (valfritt)</string>
   <string name="ai_regenerate_keep_previous">Behåll tidigare version</string>
   <string name="ai_regenerate_fresh_run">Ny körning (ignorera tidigare resultat)</string>
-  <string name="ai_document_delete">Radera</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Översätt till %s</string>
   <string name="default_prompt_translate_to_ui_language">Översätt till gränssnittsspråk</string>
   <string name="default_prompt_translate_to_ui_language_desc">Översätter dokumenttext till appens gränssnittsspråk</string>
-  <string name="default_prompt_translate_to_english">Översätt till engelska</string>
-  <string name="default_prompt_translate_to_english_desc">Översätter markerad text till engelska</string>
   <string name="default_prompt_summary">Sammanfattning</string>
   <string name="default_prompt_summary_desc">Skapar en kortfattad sammanfattning av den valda texten</string>
   <string name="default_prompt_explain_verses">Förklara verser</string>
@@ -1715,8 +1562,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="default_prompt_explain_verses_studypad_desc">Skapa ett studieblock med versvis förklaring och bokmärken</string>
   <string name="default_prompt_word_study">Ordstudie</string>
   <string name="default_prompt_word_study_desc">Analyserar ursprungliga hebreiska/grekiska ord</string>
-  <string name="default_prompt_strongs_annotation">Strongs nummerbeteckning</string>
-  <string name="default_prompt_strongs_annotation_desc">Lägger till Strongs konkordansnummer till valfri bibelöversättning med KJV som referens</string>
   <string name="default_prompt_cross_references">Parallellhänvisningar</string>
   <string name="default_prompt_cross_references_desc">Hittar och förklarar relaterade bibelställen</string>
   <string name="default_prompt_compare_translations">Jämför översättningar</string>
@@ -1859,11 +1704,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_document_filter_summary">Välj vilka dokument AI kan läsa</string>
   <string name="ai_document_filter_summary_count">%d dokument exkluderade</string>
   <string name="ai_document_filter_activity_title">AI-dokumentåtkomst</string>
-  <string name="ai_document_excluded_error">Dokument exkluderat av användarinställningar: %s</string>
   <string name="permission_status_default">Fråga (standard)</string>
-  <string name="permission_status_allowed">Alltid tillåten</string>
-  <string name="permission_status_denied">Alltid nekad</string>
-  <string name="permission_option_default">Fråga varje gång (standard)</string>
   <string name="permission_option_always_allow">Tillåt alltid</string>
   <string name="permission_option_always_deny">Neka alltid</string>
   <string name="reset_all_permissions">Återställ alla</string>
@@ -1878,10 +1719,6 @@ vänligen rapportera problemen till dem som underhåller texten
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Verktygsbehörigheter</string>
-  <string name="prompt_tool_permissions_read_only">Verktygsbehörigheter (skrivskyddad)</string>
-  <string name="prompt_tool_permissions_description">Åsidosätt verktygsbehörigheter för denna prompt</string>
-  <string name="tool_section_read_tools">Läsverktyg</string>
-  <string name="tool_section_write_tools">Skrivverktyg</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Sökning</string>
@@ -1904,13 +1741,9 @@ vänligen rapportera problemen till dem som underhåller texten
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Anpassad</string>
-  <string name="prompt_model_custom_hint">Ange modellnamn</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Välj AI-åtgärd</string>
-  <string name="no_llm_prompts_configured">Inga AI-promptar konfigurerade för versval</string>
-  <string name="llm_prompt_executing">Kör AI-prompt: %s</string>
   <string name="llm_actions">AI-åtgärder</string>
 
     <!-- Agent Log Widget -->
@@ -1918,9 +1751,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_close">Stäng AI-logg</string>
   <string name="agent_log_stop">Stoppa AI</string>
   <string name="agent_log_idle">AI-assistent</string>
-  <string name="agent_log_running">AI arbetar…</string>
   <string name="agent_log_completed">Klar</string>
-  <string name="agent_log_error">Ett fel uppstod</string>
   <string name="agent_log_executing">Kör: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Verktyg: %s</string>
@@ -1930,7 +1761,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_saved">Sparad: %s</string>
   <string name="agent_log_done">Klar: %s</string>
   <string name="agent_log_cancelled">Avbruten</string>
-  <string name="agent_execution_completed">AI-assistenten är klar</string>
   <string name="agent_already_running">En AI-assistent körs redan. Vänta eller stoppa den först.</string>
 
     <!-- AI Agent Notifications -->
@@ -1949,22 +1779,16 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Skapa nytt dokument</string>
   <string name="my_document_rename_title">Byt namn på dokument</string>
-  <string name="my_document_edit_description_title">Redigera beskrivning</string>
   <string name="my_document_delete_confirmation">Ta bort dokumentet \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokument kan inte tas bort medan det innehåller sidor. Ta bort sidorna först.</string>
   <string name="my_document_save_changes">Spara ändringar?</string>
   <string name="my_document_no_description">Ingen beskrivning</string>
-  <string name="my_document_rename">Byt namn</string>
   <string name="my_document_edit_description">Redigera beskrivning</string>
-  <string name="my_document_delete">Ta bort</string>
 
   <string name="my_document_pages_title">%s - Sidor</string>
   <string name="my_document_pages_empty">Inga sidor i detta dokument.</string>
   <string name="my_document_page_rename_title">Byt namn på sida</string>
   <string name="my_document_page_delete_confirmation">Ta bort sidan \"%s\"?</string>
-  <string name="my_document_page_rename">Byt namn</string>
-  <string name="my_document_page_delete">Ta bort</string>
-  <string name="my_document_page_export">Exportera</string>
   <string name="my_document_new_page_name">Sida %1$d</string>
   <string name="my_document_create_page_title">Ny sida</string>
   <string name="my_document_content_type_label">Innehållstyp</string>
@@ -1984,12 +1808,10 @@ vänligen rapportera problemen till dem som underhåller texten
 
   <string name="prefs_page_scroll_amount_title">Sidrullningsmängd</string>
   <string name="prefs_page_scroll_amount_summary">Hur stor del av sidan som scrollas med sidupp/ned</string>
-  <string name="page_scroll_amount_dialog_title">Sidrullningsmängd</string>
   <string name="prefs_scroll_helper_lines_title">Rullningshjälpslinjer</string>
   <string name="prefs_scroll_helper_lines_summary">Visa horisontella guidelinjer vid sidrullningsgränser</string>
   <string name="prefs_scroll_helper_line_style_title">Hjälplinjestil</string>
   <string name="prefs_scroll_helper_line_style_summary">Välj visuell stil för rullningshjälpslinjer</string>
-  <string name="scroll_helper_line_style_dialog_title">Hjälplinjestil</string>
   <string name="scroll_helper_line_style_thin_dotted">Tunn prickad linje</string>
   <string name="scroll_helper_line_style_thin_solid">Tunn heldragen linje</string>
   <string name="scroll_helper_line_style_thick_solid">Tjock heldragen linje</string>

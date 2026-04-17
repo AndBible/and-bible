@@ -44,9 +44,6 @@
         Контекст мени Управљача Обележивача дозвољава да обележивачи буду груписани употребом налепница.
     </string>
   <string name="help_search_title">Претрага</string>
-  <string name="help_search_text">Текст за претрагу може садржати посебне знаке као *, ?, AND, OR, NOT
-        (за више детаља погледајте \"Апачи Lucene - Query Parser синтакса\")
-    </string>
   <string name="help_workspaces_title">Радне површи</string>
   <string name="help_workspaces_text">
         Радна површина даје могућност постојања више контекстуалних радних окружења. Функцијама радних површина
@@ -127,19 +124,16 @@
   <string name="prefs_verse_per_line_summary">Прикажи сваки стих у посебном реду</string>
   <string name="prefs_show_bookmarks_summary">Одштриклирај да се сакрију сви обележивачи</string>
   <string name="prefs_show_mynotes_summary">Прикажи иконицу у стиховима са Мојом белешком</string>
-  <string name="prefs_show_notes_summary">Прикажи фусноте и унакрсне референце</string>
   <string name="prefs_show_strongs_summary">Везе ка дефиницијама на грчком и јеврејском</string>
   <string name="prefs_show_morphology_summary">Прикажи Робинсонову грчку морфологију</string>
   <string name="prefs_section_title_summary">Прикажи неканонске наслове делова</string>
   <string name="prefs_red_letter_summary">Прикажи Христове речи црвеном бојом</string>
-  <string name="prefs_text_size_title">Параметри слова</string>
   <string name="prefs_show_verseno_title">Бројеви стихова</string>
   <string name="prefs_verse_per_line_title">Један стих у реду</string>
   <string name="prefs_show_bookmarks_title">Прикажи обележиваче</string>
   <string name="prefs_default_bookmark_style_title">Подразумевани стил обележивача</string>
   <string name="prefs_default_bookmark_style_summary">Боја за истицање или иконица</string>
   <string name="prefs_show_mynotes_title">Прикажи иконице Моје белешке</string>
-  <string name="prefs_show_notes_title">Фусноте и унакресне референце</string>
   <string name="prefs_show_strongs_title">Стронгови бројеви</string>
   <string name="prefs_show_morphology_title">Морфолошки кодови</string>
   <string name="prefs_section_title_title">Наслови одељака</string>
@@ -215,14 +209,8 @@
   <string name="colors_night_mode_title">Ноћни режим</string>
   <string name="prefs_noise_title">Позадински шум</string>
   <string name="prefs_noise_summary">Додавање мало шума на позадину може бити угодније за очи.</string>
-  <string name="cpv_default_title">Изабери боју</string>
-  <string name="cpv_presets">Шаблони</string>
-  <string name="cpv_custom">Прилагођено</string>
-  <string name="cpv_select">Одабери</string>
-  <string name="cpv_transparency">Провидност</string>
   <!--Window-->
   <string name="new_window">Нови прозор</string>
-  <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Максимизирај</string>
   <string name="windowMinimise">Минимизирај</string>
   <string name="windowSynchronise">Усклади</string>
@@ -234,23 +222,17 @@
   <string name="change_to_normal">Промени у обичан прозор</string>
   <string name="window_pin_mode">Истакни</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Не постоје белешке у овом поглављу</string>
-  <string name="no_verse_notes">У овом стиху нема белешки</string>
   <string name="previous">Претходна</string>
   <string name="next">Следећа</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Молим преузмите Стронгове речнике јеврејског и грчког</string>
   <string name="all_greek_occurrences">Пронађи сва појављивања</string>
   <string name="all_hebrew_occurrences">Пронађи сва појављивања</string>
   <string name="no_indexed_bible_with_strongs_ref">Морате преузети Библију која садржи Стронгове бројеве и преузети индекс путем Претраге</string>
-  <string name="morph_robinson_not_installed">Молим преузмите речник \"Robinson\'s Morphological Analysis Codes\"</string>
   <!--Module download-->
   <string name="download">Преузми документе</string>
-  <string name="download_confirmation">Преузимање Библије са Интернета?</string>
   <string name="download_source_message">Документи су преузети са:\n https://www.crosswire.org,\n https://ibtrussia.org,\n https://ebible.org, and\n https://andbible.github.io</string>
   <string name="download_document_confirm_prefix">Преузми</string>
   <string name="download_refreshing_book_list">Освежавам листу доступних докумената</string>
-  <string name="download_refresh_book_list_menu_item">Освежи</string>
   <string name="error_downloading">Грешка приликом преузимања. Проверите везу са интернетом.</string>
   <string name="storage_space_warning">Недовољно простора на локалном складишту.</string>
   <string name="too_many_jobs">Превише задатака се извршава. Молим сачекајте да се неки заврше па пробајте поново.</string>
@@ -339,9 +321,7 @@
   <string name="delete_search_index_doc">Обрисати индекс од %s?</string>
   <!--Verse context menu-->
   <string name="notes">Фусноте и референце</string>
-  <string name="verse_action_copy">Копирај</string>
   <string name="share_verse">Дели...</string>
-  <string name="share_verse_subject_2">Стих Библије је подељен са вама користећи %s.</string>
   <string name="compare_translations">Упореди преводе</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Отвори везу овде</string>
@@ -351,13 +331,11 @@
   <string name="bookmarks">Обележивачи</string>
   <string name="add_bookmark">Додај обележивач</string>
   <string name="delete_bookmark">Обриши обележивач</string>
-  <string name="bookmark_added">Додат обележивач</string>
   <string name="bookmark_date_updated">Датум обележивача промењен</string>
   <string name="bookmark_deleted">Обрисан обележивач</string>
   <string name="bookmark_labels">Налепнице обележивача</string>
   <string name="manage_labels">Управљај налепницама обележивача</string>
   <string name="assign_labels">Додели налепнице</string>
-  <string name="new_label">Нова налепница</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Неозначено</string>
   <string name="style">Стил</string>
@@ -375,11 +353,9 @@
   <!--Speak - Bible-->
   <string name="one_chapter">%d поглавље</string>
   <string name="some_chapters">%d поглавља</string>
-  <string name="rest_of_book">До краја књиге</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d стих</string>
   <string name="some_verses">%d стихова</string>
-  <string name="rest_of_chapter">Крај поглавља</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d страница</string>
   <string name="some_pages">%d странице</string>
@@ -389,8 +365,6 @@
   <string name="rewind">Премотај уназад</string>
   <string name="forward">Премотај унапред</string>
   <string name="tts_lang_not_available">Језик није доступан.</string>
-  <string name="speak_queue">Ред</string>
-  <string name="speak_repeat">Понови</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Брзина изговора</string>
   <string name="speak_and_play_earcons_title">Изговори и пусти кратке звуке за</string>
@@ -426,7 +400,6 @@
   <string name="speak_status_stopped">заустављено</string>
   <string name="speak_autobookmarking_disabled">Аутоматско обележавање онемогућено!</string>
   <string name="system_speak_settings">Отвори системске ТТС поставке</string>
-  <string name="speak_bookmark_help">Помоћ а обележиваче Изговора</string>
   <string name="speak_help_auto_bookmark">
         Говорни обележивач ће бити аутоматски додат када је Изговарање паузирано или заустављено.
         Аутоматски генерисани обележивачи су означени посебном Изговор налепницом.
@@ -491,7 +464,6 @@
   <string name="backup_and_restore">Резервна копија и враћање</string>
   <string name="backup_modules">Резервна копија докумената на...</string>
   <string name="backup_app_database">Сними резервну копију базе података на...</string>
-  <string name="restore_app_database">Врати базу података апликације са...</string>
   <string name="restore_confirmation">Препиши Моје белешке, Обележиваче, Планове читања и Радне површи?</string>
   <string name="restore_success">Моје белешке, Обележивачи, Планови читања и Радне површи су успешно врећене</string>
   <string name="loading_backup">Учитавање базе података из резервне копије...</string>
@@ -509,7 +481,6 @@
   <string name="backup_backup_title">Где се чува резервна копија?</string>
   <string name="backup_backup_message">Резервна копија на телефон или другом месту путем Функције дељења (е-пошта, Гугл Драјв итд.)?</string>
   <string name="backup_share">Дели</string>
-  <string name="restore_modules">Врати документа са...</string>
   <string name="send_backup_file">Пошаљи датотеку резервне копије</string>
   <string name="backup_modules_title">Одабери модуле за резервну копију</string>
   <string name="install_zip_canceled">Уградња модула отказана</string>
@@ -557,7 +528,6 @@
   <string name="please_wait">Молим сачекајте...</string>
   <string name="all">Све</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="edit">Измени</string>
   <string name="watch_tutorial_video">Погледајте видео са упутствима (на енглеском)</string>
   <string name="verse_not_found">Стих није пронађен</string>
   <!--Errors-->
@@ -572,12 +542,11 @@
   <string name="notification_channel_tts_status">Текст у изговор</string>
   <string name="notification_channel_progress_status">Статус обавештења о напретку за преузимање докумената и сл.</string>
   <!--Workspaces-->
-  <string name="new_workspace">Нови</string>
   <string name="switch_to_workspace">Радне површи</string>
   <string name="delete_workspace">Уклони</string>
   <string name="new_copied_workspace">Прекопирај као ново</string>
   <string name="workspace_number">Радна површ %d</string>
-  <string name="rename_workspace">Преименуј</string>
+  <string name="rename">Преименуј</string>
   <string name="workspace_selector_title">Изабери радну површ</string>
   <string name="workspace_settings">Поставке...</string>
   <string name="give_name_workspace">Додели име за нову радну површ</string>
@@ -589,7 +558,7 @@
   <string name="select_all">Обележи све</string>
   <string name="copy_settings_workspaces_title">На коју радну површ желите ископирати поставке?</string>
   <string name="reset_settings">Ресет</string>
-  <string name="workspace_dismiss">Откажи</string>
+  <string name="dismiss">Откажи</string>
   <string name="workspace_listing_with_current">%s (тренутно)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ово је бета верзија!</string>
@@ -606,7 +575,6 @@
         разрешавању грешака путем %s . :-)</string>
   <string name="beta_notice_github_issues">Гитхаб проблеми</string>
   <string name="beta_notice_github">Гитхаб</string>
-  <string name="beta_notice_dismiss">Откажи</string>
   <string name="beta_notice_dismiss_until_update">Склони до следећег ажурирања</string>
   <!--History-->
   <string name="history_for">Историја (%s: Прозор %d)</string>

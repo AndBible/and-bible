@@ -5,7 +5,6 @@
   <string name="app_name_short">And Biblija</string>
   <string name="app_name_medium">Proučevanje Biblije (AndBible)</string>
   <string name="app_name_long">AndBible: Proučevanje Biblije</string>
-  <string name="project">AndBible odprtokodni projekt</string>
 
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Vstavite kartico SD in znova zaženite aplikacijo.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Obogateno besedilo (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Presledek med odstavki (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Prilagodi razmik med odstavki.</string>
 
-  <string name="prefs_show_verseno_title1">Številke vrstic</string>
 
-  <string name="prefs_show_chapter_no_title">Številke poglavij</string>
-  <string name="prefs_show_chapter_no_summary">Pokaži številke poglavij</string>
 
   <string name="prefs_verse_per_line_summary">Vsako vrstico prikaži v svoji vrsti.</string>
   <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki.</string>
 
   <string name="prefs_show_mynotes_summary">V vrsticah prikaži ikono z mojimi opombami.</string>
-  <string name="prefs_show_notes_summary">Prikaži zaznamke in sklice.</string>
   <string name="prefs_show_strongs_summary">Povezave na grške in hebrejske definicije.</string>
   <string name="prefs_show_morphology_summary">Prikaži Robinsonovo grško oblikoslovje.</string>
   <string name="prefs_section_title_summary">Prikaži nekanonične naslove poglavij.</string>
   <string name="prefs_red_letter_summary">Jezusove besede prikaži v rdeči barvi.</string>
-  <string name="prefs_text_size_title">Nastavitve pisave</string>
 
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Prikaži opombe neposredno v besedilu namesto kot klikabilne oznake</string>
   <string name="prefs_show_xrefs_summary">Pokaži navzkrižne reference, če so  v dokumentu</string>
 
-  <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_strongs_title">Strong-ova števila</string>
   <string name="prefs_show_morphology_title">Oblikoslovne kode</string>
   <string name="prefs_non_strongs_word_italic_title">Ležeče pisanje dodanih besed</string>
@@ -284,15 +275,9 @@
   <string name="prefs_noise_title">Šum ozadja</string>
   <string name="prefs_noise_summary">Če dodate nekaj šuma v ozadje, besedilo lahko naredite bolj udobno za oči.</string>
 
-  <string name="cpv_default_title">Izberite barvo</string>
-  <string name="cpv_presets">Prednastavitve</string>
-  <string name="cpv_custom">Po meri</string>
-  <string name="cpv_select">Izberi</string>
-  <string name="cpv_transparency">Prosojnost</string>
 
     <!-- Window -->
   <string name="new_window">Novo okno</string>
-  <string name="windowClose">Zapri</string>
   <string name="windowMaximise">Maksimiraj</string>
   <string name="windowMinimise">Minimiraj</string>
   <string name="windowSynchronise">Sinhroniziraj</string>
@@ -306,26 +291,19 @@
   <string name="window_pin_mode">Pripni</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">V tem poglavju ni opomb</string>
-  <string name="no_verse_notes">V tej vrstici ni opomb</string>
   <string name="previous">Prejšnji</string>
   <string name="next">Naslednji</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
   <string name="no_indexed_bible_with_strongs_ref">Prenesti morate Biblijo, ki vsebuje Strongove številke in prek Iskanja zgraditi kazalo</string>
-  <string name="morph_robinson_not_installed">Prenesite slovar \'Robinson\ove analize oblikoslovnih kod\'</string>
-  <string name="go_to_downloads">Pojdi na Prenose</string>
 
     <!-- Module download -->
   <string name="download">Prenos dokumentov</string>
   <string name="redownload">Ponoven prenos dokumentov</string>
-  <string name="download_confirmation">Prenos Biblije iz interneta?</string>
   <string name="download_source_last_updated">Nazadnje posodobljen seznam dokumentov: %s.</string>
   <string name="download_refreshing_book_list">Osvežitev seznama razpoložljivih dokumentov iz strežnikov...</string>
   <string name="download_source_message1">Dokumenti se prenesejo iz naslednjih virov:</string>
   <string name="download_document_confirm_prefix">Prenos</string>
-  <string name="download_refresh_book_list_menu_item">Osveži</string>
   <string name="error_downloading">Med prenosom se je zgodila napaka.  Prosim preverite vašo povezavo z internetom.</string>
   <string name="error_downloading_status">Strežnik, ki gosti %1$s je sporočil napako zaradi %2$s (%3$d).</string>
   <string name="storage_space_warning">Premalo lokalnega prostora za shranjevanje.</string>
@@ -375,20 +353,6 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="done">Končano</string>
   <string name="reset_plan_question">Ali ste prepričani, da želite ponastaviti ta načrt?</string>
   <string name="import_reading_plan">Uvozi načrt branja...</string>
-  <string name="import_reading_plan_error">Napaka pri uvozu</string>
-  <string name="import_reading_plan_error_duplicate">Naslednji dnevi so bili podvojeni: %s</string>
-  <string name="import_reading_plan_error_days">Naslednji dnevi vsebujejo napake: %s</string>
-  <string name="import_reading_plan_anyway">Vseeno uvozi</string>
-  <string name="overwrite_reading_plan">Ali želite prepisati %s?</string>
-  <string name="delete_reading_plan">Izbriši ta načrt</string>
-  <string name="reading_plan_deleted">Načrt branja je izbrisan</string>
-  <string name="reading_plan_ships_with_ab">Ta načrt branja je priložen %s</string>
-  <string name="confirm_delete_reading_plan">
-        Ali ste prepričani, da želite izbrisati %s skupaj z zgodovino branja?
-        Namig: če morate načrt posodobiti, ga lahko znova uvozite z istim imenom datoteke
-        in zgodovina bo ohranjena.
-
-  </string>
   <string name="plan_duplicate_user_plan">
         Na SD kartici je uporabnikov načrt branja
         z istim imenom kot notranji načrt. Tega ni mogoče izpisati.
@@ -437,8 +401,6 @@ Ni mogoče prepisati datotek: %s. Toda namestitev je bila uspešna.</string>
   <string name="notes">Opombe pod črto in sklici</string>
   <string name="share_verse">Deli...</string>
   <string name="share_verse_widget_title">Deli izbrano</string>
-  <string name="share_verse_subject_2"> 88% match 
-Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="compare_translations">Primerjaj prevode</string>
 
     <!-- Link context menu -->
@@ -450,33 +412,26 @@ Biblijska vrstica vam je bila poslana s pomočjo %s.</string>
   <string name="bookmarks_and_mynotes_title">Zaznamki in Moje opombe</string>
   <string name="migrated_my_notes">Prenesi Moje opombe</string>
   <string name="bookmarks">Zaznamki</string>
-  <string name="bookmark_added">Zaznamek dodan</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Oznake</string>
   <string name="manage_labels">Upravljaj oznake</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_item">Nov</string>
-  <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeni</string>
   <string name="add_bookmark1">Zaznamek</string>
-  <string name="add_bookmark2">Izbira zaznamka</string>
   <string name="add_bookmark3">Izbira</string>
   <string name="add_bookmark_whole_verse">Vrstica zaznamka</string>
   <string name="add_bookmark_whole_verse1">Vrstice</string>
-  <string name="add_bookmark_whole_verse2">Celotne vrstice</string>
   <string name="add_whole_page_bookmark">Dodaj zaznamek za celotno stran</string>
   <string name="add_paragraph_break">Prelom odstavka</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Odstrani</string>
   <string name="bookmark_settings_hide_labels_title">Skrij nekatere oznake</string>
   <string name="bookmark_settings_hide_labels_summary">Skrij zaznamke, ki so označeni z navedenimi oznakami</string>
   <string name="auto_assign_labels_title">Nastavitve oznak</string>
   <string name="auto_assign_labels">Določene in priljubljene oznake</string>
   <string name="auto_assign_labels1">K novim zaznamkom samodejno dodaj oznako</string>
   <string name="auto_assign_labels_primary">Določi kot osnovnega</string>
-  <string name="label_color">Barva oznake</string>
-  <string name="label_color_example">Primer</string>
   <string name="marker_style">Prikaži samo oznako za izbirne zaznamke </string>
   <string name="marker_style_whole_verse">Prikaži samo oznako za zaznamke celotnega verza</string>
   <string name="hide_style">Skrijte zaznamke za izbiro</string>
@@ -507,11 +462,9 @@ povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali p
     <!-- Speak - Bible -->
   <string name="one_chapter">%d poglavje</string>
   <string name="some_chapters">%d poglavja</string>
-  <string name="rest_of_book">Do konca knjige</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d vrstica</string>
   <string name="some_verses">%d vrstice</string>
-  <string name="rest_of_chapter">Do konca poglavja</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d stran</string>
   <string name="some_pages">%d strani</string>
@@ -521,8 +474,6 @@ povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali p
   <string name="rewind">Previj nazaj</string>
   <string name="forward">Previj naprej</string>
   <string name="tts_lang_not_available">Jezik ni na voljo.</string>
-  <string name="speak_queue">Čakalna vrsta</string>
-  <string name="speak_repeat">Ponovi</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Hitrost govora</string>
@@ -595,14 +546,12 @@ povzroči, da se lokacije teh zaznamkov/opomb premaknejo znotraj dokumenta ali p
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ikona pomeni, da nastavitev izvira iz nastavitev delovnega prostora.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s ikona pomeni, da je bila ta nastavitev spremenjena za to okno.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Z gumbom %1$s ponastavite vse te nastavitve nazaj na %2$s.</string>
   <string name="reset_defaults">privzete vrednosti</string>
   <string name="reset_workspace_defaults">privzete vrednosti delovnega prostora</string>
 
-  <string name="speak_bookmark_help">Govori zaznamki pomoč</string>
 
   <string name="speak_help_auto_bookmark">
 Govorni zaznamek bo samodejno dodan, ko bo govor zaustavljen ali ustavljen.
@@ -656,7 +605,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_phone_storage">Pomnilnik telefona</string>
   <string name="backup_and_restore">Varnostna kopija &amp; Obnova</string>
   <string name="backup_modules2">Varnostno kopiranje dokumentov v… </string>
-  <string name="backup_app_database2">Varnostno kopiranje podatkovne baze aplikacije v...</string>
   <string name="backup_app2">Varnostno kopiranje aplikacije (.apk datoteka) v ...</string>
   <string name="backup_application">Aplikacija</string>
   <string name="backup_database">Podatkovna baza</string>
@@ -668,17 +616,13 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="backup_restore_from">Obnovi iz…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Obnovi ali uvozi iz ...</string>
-  <string name="backup_restore">Povrni iz arhiva</string>
   <string name="backup_restore2">Obnovi ali uvozi iz</string>
   <string name="overwrite_something">Prepišem %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Kaj želite obnoviti?</string>
 
-  <string name="restore_app_database">Obnovitev baze aplikacije iz…</string>
   <string name="restore_database">Obnovitev baze aplikacije</string>
   <string name="restore_confirmation">Prepišem Zaznamke, Moje opombe, Beležnice, Načrte branja in Delovne prostore?</string>
-  <string name="restore_success2">Izbrani deli zbirke podatkov so bili uspešno obnovljeni</string>
   <string name="restore_success">Zaznamki, Moje opombe, Beležnice, Načrti branja in Delovni prostori so uspešno obnovljeni.</string>
   <string name="downloading_backup">Prenos arhivske datoteke...</string>
   <string name="loading_backup">Nalaganje baze podatkov iz varnostne kopije...</string>
@@ -694,14 +638,12 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="exported_studypads_subject">Izvoženi študijski zaznamki</string>
   <string name="exported_studypads_message">Vaša %s baza podatkov, ki vsebuje zaznamke in opombe, povezane z izbranimi študijskimi zaznamki, je priložena</string>
   <string name="restore_unsuccessfull">Obnovitev baze podatkov ni bila uspešna. Morda ste navedli neveljavno datoteko baze podatkov.</string>
-  <string name="restore_modules">Obnovi dokumente iz…</string>
   <string name="send_backup_file">Pošlji arhivsko datoteko</string>
   <string name="backup_modules_title">Izberite, katere module želite varnostno kopirati</string>
   <string name="install_zip_canceled">Namestitev modula je preklicana</string>
   <string name="ask_restore_or_import">Bazo podatkov za %s je mogoče obnoviti (tj. obstoječo zbirko podatkov odstranimo in naložimo izbrano zbirko podatkov) ali uvozimo (izbrano bazo podatkov uvozimo v obstoječo zbirko podatkov). Kaj želite storiti?</string>
   <string name="restore">Povrni iz arhiva</string>
   <string name="import2">Uvoz</string>
-  <string name="export_studypads_help">Datoteko, ki vsebuje izvožene študijske zaznamke (tj. oznake in zaznamke), lahko uvozite prek glavnega menija -&gt; Varnostno kopiranje &amp; Obnovi.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" in %2$s druge Oznake / Študijske opombe in %3$s Zaznamki</string>
@@ -715,8 +657,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Poročilo o napaki</string>
-  <string name="send_feedback_title">Povratne informacije </string>
   <string name="send_bug_report_title">Povratne informacije / poročilo o napaki</string>
   <string name="report_bug_email_subject_3">[%1$s] Poročilo o napaki za %2$s %3$s</string>
 
@@ -755,10 +695,8 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="yes">Da</string>
   <string name="no">Ne</string>
   <string name="error">Napaka</string>
-  <string name="delete_generic">Izbriši</string>
   <string name="please_wait">Prosimo počakajte…</string>
   <string name="all">Vsi</string>
-  <string name="edit">Uredi</string>
   <string name="reset_generic">Reset</string>
   <string name="watch_tutorial_video">Ogled video navodil (v angleščini).</string>
   <string name="verse_not_found">Vrstice ni mogoče najti</string>
@@ -782,12 +720,11 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Novo</string>
   <string name="switch_to_workspace">Delovni prostori</string>
   <string name="delete_workspace">Odstrani</string>
   <string name="new_copied_workspace">Kopiraj kot novo</string>
   <string name="workspace_number">Delovni prostor %d</string>
-  <string name="rename_workspace">Preimenuj</string>
+  <string name="rename">Preimenuj</string>
   <string name="workspace_selector_title">Izberi delovni prostor</string>
   <string name="workspace_settings">Nastavitve…</string>
   <string name="give_name_workspace">Ime novega delovnega prostora</string>
@@ -800,12 +737,11 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
   <string name="copy_settings_workspaces_title">V katere delovne prostore želite kopirati nastavitve?</string>
   <string name="reset_settings">Reset</string>
   <string name="search_settings">Nastavitve iskanja</string>
-  <string name="workspace_dismiss">Prekliči</string>
+  <string name="dismiss">Prekliči</string>
   <string name="workspace_listing_with_current">%s (trenuten)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">To je beta različica!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         V beta različici so na voljo nove funkcije, ki še niso pravilno preizkušene
         in tako lahko uporaba beta različice privede do nepričakovanega obnašanja, to je napake.
@@ -819,7 +755,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
         preko %s-a.  :-)</string>
   <string name="beta_notice_github_issues">Github izdaje</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Prekliči</string>
   <string name="beta_notice_dismiss_until_update">Prekliči do naslednjega popravka</string>
 
   <string name="stable_notice_title">Aplikacija je bila nadgrajena!</string>
@@ -854,10 +789,6 @@ poglavij, toda Rimljane počasneje, z zvoki ob spremembah poglavja, potem
 
   <string name="help_search_title">Iskanje</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">
-Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
-        (za več podrobnosti si poglejte \"Apache Lucene - Query Parser Syntax\").
-    </string>
   <string name="help_search_text2">Iskalno besedilo lahko vključuje posebne znake, kot so *, AND, OR, NOT</string>
   <string name="help_search_details">Za več podrobnosti glejte  %s.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaksa razčlenjevalnika poizvedb</string>
@@ -888,7 +819,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="welcome_message">Hvala za prenos %s.  Trenutno ni nameščene nobene Biblije ali dokumentov. Za nadaljevanje namestite
         vsaj 1 dokument s prenosom iz interneta ali z nalaganjem iz arhivske zip datoteke</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Podprti formati</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Izbrati morate datoteko, ki jo želite naložiti v %s.</string>
   <string name="supported_formats">Podprti formati za nalaganje dokumentov iz datoteke: %s</string>
@@ -914,7 +844,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="strongs_mode_title">Izberite Strongov način</string>
 
   <string name="download_dialog_message">Naslednjih knjig ni bilo mogoče prenesti:</string>
-  <string name="select_multiple">Izberite več</string>
   <string name="journal_description">Uporabniške beležnice za urejanje z besedilom in zaznamki po meri</string>
   <string name="my_notes_description">Uporabniško urejene opombe, priložene zaznamkom</string>
   <string name="my_notes_abbreviation">Moje opombe</string>
@@ -929,7 +858,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="http_not_found">Ni najti</string>
   <string name="http_unknown">Druga napaka</string>
   <string name="give_passphrase_for_module">Dokument %sje šifriran in za odklepanje potrebuje geslo </string>
-  <string name="unlocking_failed">Odklepanje ni uspelo, neveljavno geslo</string>
   <string name="unlock_module">Nastavite geslo za modul</string>
   <string name="unlock_info">Informacije o odklepanju šifriranega modula</string>
   <string name="try_again_passphrase">Geslo ni bilo pravo, boste znova poskusiii?</string>
@@ -981,8 +909,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="tell_friend_message4">Preberite več in več možnosti namestitve: %s</string>
   <string name="share_verse_ok">Skupna raba / kopiranje</string>
   <string name="web_search">Spletno iskanje</string>
-  <string name="verse_action_copy">Kopiraj</string>
-  <string name="generic_share">Deli</string>
   <string name="share_verse_menu_title">Skupna raba / kopiranje…</string>
   <string name="show_versenumbers">Pokaži številke verzov</string>
   <string name="show_full_verses">Pokaži celotne vrstice</string>
@@ -999,9 +925,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="show_quotes">Prikaži citate</string>
   <string name="separate_verses_with_newlines">Vrstice loči z novimi vrsticami</string>
 
-  <string name="backup_button">Arhiv</string>
-  <string name="back_button">Nazaj</string>
-  <string name="upgrading_database">Nadgradnja baze podatkov. Prosim počakajte…</string>
   <string name="initializing_app">Inicializacija aplikacije...</string>
   <string name="show_notes">Pokaži opombe</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1046,7 +969,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="text_maintainers">
        prosimo, prijavite težave vzdrževalcem besedila
     </string>
-  <string name="does_not_exist_abbreviation">Ne obstaja</string>
   <string name="cant_change_wholeverse">Oznake celotne vrstice za ta zaznamek ni mogoče izklopiti</string>
   <string name="whole_verse_turned_on">Zaznamek je sedaj označen za celotno vrstico</string>
   <string name="this_bookmark">Ta zaznamek</string>
@@ -1059,7 +981,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="display_mode_hidden">Skrito</string>
   <string name="workspace_override_indicator">Ta oznaka ima način prikaza, specifičen za delovni prostor</string>
   <string name="primary_label">Osnovna oznaka</string>
-  <string name="highlight_entire_verse">Označi celotno vrstico</string>
   <string name="favourite_label">Priljubljena oznaka</string>
   <string name="edit_label">Uredi oznako</string>
   <string name="delete_label_confirmation">Ali želite odstraniti oznako zaznamka \"%s\"? Odstranjene bodo tudi vse povezane opombe!</string>
@@ -1077,7 +998,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="reorder">Prerazporeditev</string>
   <string name="system_items">Sistemska opravila</string>
   <string name="system_items1">Več</string>
-  <string name="system_action2">Androidna opravila</string>
   <string name="text_copied_to_clicpboard">Besedilo je kopirano v odložišče</string>
   <string name="prefs_disable_two_step_bookmarking_title">Zaznamek v enem koraku</string>
   <string name="prefs_disable_two_step_bookmarking_summary">\"Izbor\" in \"Vrstice\" prikaži neposredno v meniju za izbiro Biblije</string>
@@ -1091,7 +1011,6 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="label_blue">Modra</string>
   <string name="label_salvation">Rešitev duše</string>
   <string name="label_underline">Podčrtaj</string>
-  <string name="import_menu">Uvoz in izvoz</string>
   <string name="auto_backups_title">Samodejne varnostne kopije</string>
   <string name="backup_file_info">Aplikacija v%1$d, %2$s</string>
   <string name="reset_databases_title">Ponastavi baze podatkov</string>
@@ -1109,18 +1028,12 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="export_prompts_csv">Izvozi pozive v CSV</string>
   <string name="import_prompts_csv">Uvozi pozive iz CSV</string>
   <string name="prompts_csv_export_success">Izvoženih %d pozivov v CSV</string>
-  <string name="prompts_csv_import_success">Uvoz končan: %1$d ustvarjenih, %2$d posodobljenih</string>
-  <string name="prompts_csv_import_errors">Uvoz končan z napakami: %1$d ustvarjenih, %2$d posodobljenih, %3$d napak</string>
-  <string name="prompts_csv_import_failed">Uvoz CSV ni uspel: %s</string>
-  <string name="prompts_csv_export_failed">Izvoz CSV ni uspel: %s</string>
   <string name="no_prompts_to_export">Ni uporabniških pozivov za izvoz</string>
   <string name="csv_column_selection_title">Izberite CSV stolpce</string>
-  <string name="choose_csv_file">Izberite CSV datoteko za uvoz</string>
   <string name="no_bookmarks_to_export">Za izvoz ni na voljo nobenih zaznamkov</string>
   <string name="export_fileformat">Izvozi kot %s</string>
   <string name="export_something">Izvoz %s</string>
   <string name="import_items">Uvozi %s</string>
-  <string name="import_from_db">Uvoz iz podatkovne datoteke</string>
   <string name="import_error">Uvoz iz podatkovne datoteke ni uspel. Datoteka je lahko napačne oblike ali pa je narejena s prestaro različico%s.</string>
 
   <string name="export_bookmarks_csv">Izvozi zaznamke kot %s</string>
@@ -1149,23 +1062,13 @@ Iskanje lahko vsebuje posebne znake kot *, ?, AND, OR, NOT
   <string name="last_updated_at">Zadnja posodobitev ob</string>
   <string name="bookmark_notes">Zapiski o zaznamkih</string>
 
-  <string name="chooser_range">Razpon</string>
-  <string name="chooser_jump">Skok</string>
-  <string name="chooser_OT_abbrev">SZ</string>
-  <string name="chooser_NT_abbrev">NZ</string>
-  <string name="chooser_style_grid">Mreža</string>
-  <string name="chooser_style_lists">Seznami</string>
-  <string name="chooser_select">Izberi %s</string>
-  <string name="chooser_pref_reset">Poglavja ali vrstice ne ponastavite na 1, medtem ko je izbrana knjiga ali poglavje</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Žal nam je, vendar imamo na voljo le delni prevod uporabniškega vmesnika v jeziku %1$s. To je zato, ker %2$s v celoti razvijajo prostovoljci. Če lahko pomagate pri prevajanju, obiščite %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">navodila za prevajalce</string>
   <string name="questions_title">Vprašanja?</string>
-  <string name="questions_title2">Potrebujete pomoč?</string>
   <string name="bookmark_style">Stil zaznamka</string>
   <string name="added_to_bookmark">Dodeljeno temu zaznamku</string>
-  <string name="strongs_off">Izklopi</string>
   <string name="strongs_links">Povezave</string>
   <string name="strongs_text_and_links">Besedilo in povezave</string>
   <string name="strongs_hidden_links">Skrite povezave</string>
@@ -1219,7 +1122,6 @@ lahko.
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sinhronizacija skupine</string>
   <string name="sync_group_n">Skupina %d</string>
   <string name="disable_sync">Onemogoči sinhronizacijo</string>
   <string name="open_in_window">Rezultate odprite v oknu</string>
@@ -1230,10 +1132,8 @@ lahko.
   <string name="custom_repositories_empty_list_message">Nobene shrambe po meri ni opredeljene.</string>
   <string name="custom_repositories_create_button_label">Dodajanje shrambe po meri</string>
   <string name="custom_repositories_info_button_label">Informacije</string>
-  <string name="name_for_repository">Ime za shrambo</string>
   <string name="repository_specification">URL shrambe</string>
   <string name="delete_custom_repository">Ali želite odstraniti shrambo po meri %s?</string>
-  <string name="invalid_repository_not_saved">Specifikacija shrambe je bila neveljavna in ni bila shranjena.</string>
   <string name="custom_repositories_help1">Če želite dodati novo shrambo po meri, vnesite ali kopirajte &amp; sem prilepite URL shrambe po meri.</string>
   <string name="custom_repositories_help2">Več informacij o shrambah po meri si lahko preberete v %s.</string>
   <string name="wiki_page">WIKI stran</string>
@@ -1273,7 +1173,6 @@ lahko.
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Napredek branja/memoriranja</string>
   <string name="reading_progress_chapters_read">prebrana poglavja</string>
-  <string name="reading_progress_verses_memorized">memorirane vrstice</string>
   <string name="reading_progress_active_days">aktivni dnevi</string>
   <string name="reading_progress_overall">%s%% biblije prebranih</string>
   <string name="reading_progress_bible_heatmap">Pregled biblije</string>
@@ -1299,13 +1198,11 @@ lahko.
   <string name="sync_adapter_summary">Trenutno:%s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Naslednji oblak</string>
-  <string name="auth_title">Preverjanje pristnosti za%s</string>
   <string name="auth_server_uri">URL strežnika</string>
   <string name="auth_username">Uporabniško ime</string>
   <string name="auth_password">Geslo</string>
   <string name="auth_folder_path">Pot do mape za sinhronizacijo</string>
   <string name="auth_folder_path_summary">Nadrejena mapa za podatke sinhronizacije (prazno = koren)</string>
-  <string name="auth_access_token">Žeton za dostop</string>
   <string name="synchronization_categories">Kategorije sinhronizacije</string>
   <string name="sync_general_settings">Informacije &amp; splošne nastavitve</string>
   <string name="sync_introduction">Uvod</string>
@@ -1321,8 +1218,6 @@ lahko.
   <string name="report">Poročilo</string>
   <string name="sync_error">Pri sinhronizaciji v oblaku je prišlo do napake</string>
   <string name="error_notification_channel_name">Obvestila o napakah</string>
-  <string name="restore_from_cloud_description">Če imate v drugi napravi omogočeno sinhronizacijo naprav, lahko začnete z obnavljanjem zbirke podatkov iz oblaka.</string>
-  <string name="enable_sync">Omogoči sinhronizacijo</string>
   <string name="last_updated">Nazadnje posodobljeno: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1344,18 +1239,6 @@ lahko.
   <string name="processing_epub">Obdelava datoteke EPUB: %s</string>
   <string name="buy_development">Kupite ure razvojnega dela</string>
   <string name="buy_development2">Podprite projekt</string>
-  <string name="new_version_warning">
-Kmalu bo izšla nova izdaja. Predvideni datum izida je %1$s. Oglejte si naš
-%2$s, da odkrijete nove funkcije in izboljšave.</string>
-  <string name="new_version_trailer">predstavitveni video</string>
-  <string name="new_version_warning2">
-Po izdaji se ta različica ne vzdržuje več.</string>
-  <string name="new_version_warning3">
-Ne bo prejemala popravkov ali posodobitev.</string>
-  <string name="new_version_warning4">
-
-Če nadgradnje ne želite, v trgovini z aplikacijami (Google Play / F-Droid itd.) onemogočite funkcijo \"Samodejne posodobitve\".
-    </string>
   <string name="dont_show">
 Tega sporočila ne prikaži več
     </string>
@@ -1376,7 +1259,6 @@ Tega sporočila ne prikaži več
   <string name="invalid_url_message">URL, ki ste ga vnesli, ni veljaven. Prosimo, vnesite veljaven URL (npr. https://nextcloud.example.com)</string>
   <string name="memorize_description">Zapomni si svetopisemske vrstice</string>
   <string name="memorize_abbreviation">Zapomni si</string>
-  <string name="add_memorization_target">Nastavi kot cilj memoriranja</string>
   <string name="memorize_memorized_passages">Memorirani odlomki</string>
   <string name="memorize_no_memorized_passages">Še ni memoriziranih odlomkov</string>
   <string name="memorize_targets">Cilji memoriranja</string>
@@ -1408,17 +1290,8 @@ Tega sporočila ne prikaži več
   <string name="memorize_view_overview">Pregled</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">AI prevajanje</string>
   <string name="sync_settings_shortcut_summary">Sinhroniziraj podatke med napravami</string>
-  <string name="llm_api_key_title">API ključ</string>
-  <string name="llm_api_key_summary">API ključ, združljiv z OpenAI</string>
   <string name="llm_provider_custom">Po meri (združljiv z OpenAI)</string>
-  <string name="llm_provider_title">Ponudnik</string>
-  <string name="llm_provider_summary">Izberite ponudnika storitve AI. Končna točka API in razpoložljivi modeli bodo samodejno nastavljeni.</string>
-  <string name="llm_provider_current">Trenutno: %s</string>
-  <string name="llm_api_key_detected_provider">Zaznani ponudnik: %s</string>
-  <string name="ai_connection_category">Povezava</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Vedenje</string>
   <string name="ai_language_title">Jezik AI odgovorov</string>
   <string name="ai_language_summary">Jezik, ki ga AI uporablja za odgovore</string>
@@ -1435,16 +1308,9 @@ Tega sporočila ne prikaži več
   <string name="llm_reset_usage_confirm_title">Ponastaviti podatke o uporabi?</string>
   <string name="llm_reset_usage_confirm_message">S tem boste počistili vse skupne podatke o uporabi.</string>
   <string name="llm_custom_input_price_title">Vhodna cena ($/Mžeton)</string>
-  <string name="llm_custom_input_price_summary">Strošek na milijon vhodnih žetonov za ta model</string>
   <string name="llm_custom_output_price_title">Izhodna cena ($/Mžeton)</string>
-  <string name="llm_custom_output_price_summary">Strošek na milijon izhodnih žetonov za ta model</string>
   <string name="llm_cost_total">Skupaj: %1$s</string>
-  <string name="llm_endpoint_title">Končna točka API</string>
-  <string name="llm_endpoint_summary">Osnovni URL za API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID modela</string>
   <string name="llm_custom_model">Po meri…</string>
-  <string name="llm_custom_model_dialog_title">Model po meri</string>
   <string name="llm_custom_model_dialog_message">Vnesite ID modela</string>
   <string name="llm_rate_limited_retrying">Omejitev hitrosti. Ponoven poskus čez %1$ss\u2026</string>
   <string name="llm_default_document_title">AI odgovor</string>
@@ -1454,7 +1320,6 @@ Tega sporočila ne prikaži več
   <string name="llm_parse_error_no_choices">Ni možnosti v odgovoru OpenAI</string>
   <string name="llm_parse_error_openai">Napaka pri razčlenjevanju odgovora OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Napaka pri razčlenjevanju odgovora Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Poziv ni najden: %1$s</string>
   <string name="llm_error_unknown">Neznana napaka</string>
   <string name="llm_error_max_iterations">Doseženo največje število ponovitev (%1$d) brez dokončanja</string>
   <string name="llm_continue_iterations_title">Nadaljevati?</string>
@@ -1489,7 +1354,6 @@ Tega sporočila ne prikaži več
   <string name="raw_log_retention_summary_disabled">Onemogočeno (ohrani vse)</string>
   <string name="send_ai_bug_report_title">Poroči o napaki AI</string>
   <string name="ai_bug_report_menu">Poroči o napaki AI</string>
-  <string name="ai_bug_report_recommended_only">Poročanje o napakah je na voljo samo za priporočene modele ponudnikov</string>
 
   <string name="select_model_before_run_title">Izberite model</string>
   <string name="set_default_model_for_prompt">Nastavi kot privzeti model za ta poziv</string>
@@ -1519,7 +1383,6 @@ Tega sporočila ne prikaži več
   <string name="ai_models_summary_none">Ni konfiguriranih modelov</string>
   <string name="ai_add_provider">Dodaj ponudnika</string>
   <string name="ai_provider_edit">Uredi</string>
-  <string name="ai_provider_delete">Izbriši</string>
   <string name="ai_provider_delete_confirm">Izbrisati ponudnika \"%1$s\"? Pozivi, ki uporabljajo tega ponudnika, se bodo vrnili na privzeto vrednost.</string>
   <string name="ai_provider_api_key_not_set">API ključ ni nastavljen</string>
   <string name="ai_provider_select_type">Izberite vrsto ponudnika</string>
@@ -1531,27 +1394,18 @@ Tega sporočila ne prikaži več
   <string name="ai_provider_saved">Ponudnik shranjen</string>
   <string name="ai_provider_deleted">Ponudnik izbrisan</string>
 
-  <string name="llm_fetch_models_title">Prenesi seznam modelov</string>
-  <string name="llm_fetch_models_message">Prenesti seznam razpoložljivih modelov iz %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ne vprašaj več</string>
-  <string name="llm_fetch_models_success">Naloženih %1$d modelov</string>
-  <string name="llm_fetch_models_failed">Prenos modelov ni uspel</string>
   <string name="llm_openrouter_category">Kategorija</string>
   <string name="llm_openrouter_category_all">Vse</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeli</string>
   <string name="add_model">Dodaj model</string>
-  <string name="add_model_title">Dodaj model</string>
   <string name="edit_model_title">Uredi model</string>
   <string name="model_saved">Model shranjen</string>
   <string name="model_deleted">Model izbrisan</string>
   <string name="model_delete_confirm">Izbrisati model \"%1$s\"?</string>
   <string name="model_set_default">Nastavi kot privzeti model</string>
   <string name="model_select_provider">Ponudnik</string>
-  <string name="no_models_configured">Noben model ni konfiguriran</string>
-  <string name="model_cache_creation_price">Cena ustvarjanja predpomnilnika ($/Mžeton)</string>
-  <string name="model_cache_read_price">Cena branja predpomnilnika ($/Mžeton)</string>
   <string name="model_supported_badge">✓ Podprto</string>
   <string name="show_also_unsupported_models">Prikaži tudi nepodprte modele</string>
   <string name="show_also_unsupported_providers">Prikaži tudi nepodprte ponudnike</string>
@@ -1562,7 +1416,6 @@ Tega sporočila ne prikaži več
   <string name="unknown_error">Neznana napaka</string>
   <string name="easy_setup_title">Hitra nastavitev</string>
   <string name="easy_setup_pref_summary">Nastavi AI s priporočenim ponudnikom v nekaj korakih</string>
-  <string name="easy_setup_choose_provider">Izberi ponudnika za začetek:</string>
   <string name="easy_setup_enter_api_key">Vnesi svoj API ključ</string>
   <string name="easy_setup_api_key_instructions">Pridobi svoj API ključ na:</string>
   <string name="easy_setup_test_connection">Preizkusi povezavo</string>
@@ -1621,7 +1474,6 @@ Tega sporočila ne prikaži več
   <string name="addon_prompt_notice">Ta poziv je iz dodatnega modula \"%s\" in ga ni mogoče urejati. Uporabi \"Kopiraj za prilagoditev\" za ustvarjanje urejevalne kopije.</string>
   <string name="new_category">Nova kategorija</string>
   <string name="new_category_name">Ime kategorije</string>
-  <string name="rename_category">Preimenuj</string>
   <string name="move_category_up">Premakni navzgor</string>
   <string name="move_category_down">Premakni navzdol</string>
   <string name="hide_category">Skrij v dejanjih AI</string>
@@ -1666,28 +1518,22 @@ Tega sporočila ne prikaži več
   <string name="llm_note_updated">Zapisek posodobljen</string>
   <string name="specify_before_run_title">Določi nalogo</string>
   <string name="specify_before_run_hint">Opiši specifično nalogo…</string>
-  <string name="prompt_cache_settings">Nastavitve predpomnilnika</string>
   <string name="prompt_strict_context_matching">Predpomnilnik odvisen od konteksta</string>
   <string name="prompt_strict_context_matching_description">Ko je omogočeno, se predpomnilnik ujema samo, ko je ves kontekst (različica Biblije, izbrano besedilo) enak. Ko je onemogočeno, se predpomnilnik ujema, ko so vrstice enake, ne glede na različico Biblije.</string>
   <string name="ai_document_delete_confirmation">Izbriši ta dokument AI?</string>
-  <string name="ai_document_deleted">Ta dokument AI je bil izbrisan.</string>
   <string name="ai_document_regenerating">Ponovna generacija dokumenta AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Ponovna generacija bo na voljo v prihodnji posodobitvi</string>
   <string name="ai_regenerate_prompt_not_found">Ponovna generacija ni mogoča: izvirni poziv ni bil najden. Morda je bil izbrisan.</string>
   <string name="ai_document_regenerate">Znova generiraj</string>
   <string name="ai_regenerate_title">Znova generiraj</string>
   <string name="ai_regenerate_instructions_hint">Dodatna navodila (neobvezno)</string>
   <string name="ai_regenerate_keep_previous">Ohrani prejšnjo različico</string>
   <string name="ai_regenerate_fresh_run">Svež zagon (prezri prejšnji rezultat)</string>
-  <string name="ai_document_delete">Izbriši</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Prevedi v %s</string>
   <string name="default_prompt_translate_to_ui_language">Prevedi v jezik vmesnika</string>
   <string name="default_prompt_translate_to_ui_language_desc">Prevede besedilo dokumenta v jezik vmesnika aplikacije</string>
-  <string name="default_prompt_translate_to_english">Prevedi v angleščino</string>
-  <string name="default_prompt_translate_to_english_desc">Prevede izbrano besedilo v angleščino</string>
   <string name="default_prompt_summary">Povzetek</string>
   <string name="default_prompt_summary_desc">Ustvari jedrnato povzetje izbranega besedila</string>
   <string name="default_prompt_explain_verses">Razloži vrstice</string>
@@ -1696,8 +1542,6 @@ Tega sporočila ne prikaži več
   <string name="default_prompt_explain_verses_studypad_desc">Ustvari študijske zaznamke z razlago vrstice za vrstico in zaznamki</string>
   <string name="default_prompt_word_study">Besedna študija</string>
   <string name="default_prompt_word_study_desc">Analizira izvirne hebrejske/grške besede</string>
-  <string name="default_prompt_strongs_annotation">Strongova številčna anotacija</string>
-  <string name="default_prompt_strongs_annotation_desc">Doda Strongove konkordančne številke kateri koli prevodu Biblije z uporabo KJV kot reference</string>
   <string name="default_prompt_cross_references">Navzkrižne reference</string>
   <string name="default_prompt_cross_references_desc">Poišče in razloži sorodne odlomke Biblije</string>
   <string name="default_prompt_compare_translations">Primerjaj prevode</string>
@@ -1840,11 +1684,7 @@ Tega sporočila ne prikaži več
   <string name="ai_document_filter_summary">Izberite, katere dokumente lahko AI prebere</string>
   <string name="ai_document_filter_summary_count">%d dokumentov izključenih</string>
   <string name="ai_document_filter_activity_title">Dostop AI do dokumentov</string>
-  <string name="ai_document_excluded_error">Dokument izključen z nastavitvami uporabnika: %s</string>
   <string name="permission_status_default">Vprašaj (privzeto)</string>
-  <string name="permission_status_allowed">Vedno dovoljeno</string>
-  <string name="permission_status_denied">Vedno zavrnjeno</string>
-  <string name="permission_option_default">Vprašaj vsakič (privzeto)</string>
   <string name="permission_option_always_allow">Vedno dovoli</string>
   <string name="permission_option_always_deny">Vedno zavrni</string>
   <string name="reset_all_permissions">Ponastavi vse</string>
@@ -1859,10 +1699,6 @@ Tega sporočila ne prikaži več
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Dovoljenja orodij</string>
-  <string name="prompt_tool_permissions_read_only">Dovoljenja orodij (samo branje)</string>
-  <string name="prompt_tool_permissions_description">Prepiši dovoljenja orodij za ta poziv</string>
-  <string name="tool_section_read_tools">Orodja za branje</string>
-  <string name="tool_section_write_tools">Orodja za pisanje</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblija in iskanje</string>
@@ -1885,13 +1721,9 @@ Tega sporočila ne prikaži več
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Privzeto</string>
-  <string name="prompt_model_custom">Po meri</string>
-  <string name="prompt_model_custom_hint">Vnesite ime modela</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Izberite AI dejanje</string>
-  <string name="no_llm_prompts_configured">Za izbiro vrstice ni konfiguriranih AI pozivov</string>
-  <string name="llm_prompt_executing">Izvajanje AI poziva: %s</string>
   <string name="llm_actions">AI dejanja</string>
 
     <!-- Agent Log Widget -->
@@ -1899,9 +1731,7 @@ Tega sporočila ne prikaži več
   <string name="agent_log_close">Zapri dnevnik agenta</string>
   <string name="agent_log_stop">Ustavi AI</string>
   <string name="agent_log_idle">AI pomočnik</string>
-  <string name="agent_log_running">AI deluje…</string>
   <string name="agent_log_completed">Dokončano</string>
-  <string name="agent_log_error">Prišlo je do napake</string>
   <string name="agent_log_executing">Izvajanje: %s</string>
   <string name="agent_log_iteration">Ponavljanje %d</string>
   <string name="agent_log_tool">Orodje: %s</string>
@@ -1911,7 +1741,6 @@ Tega sporočila ne prikaži več
   <string name="agent_log_saved">Shranjeno: %s</string>
   <string name="agent_log_done">Končano: %s</string>
   <string name="agent_log_cancelled">Preklicano</string>
-  <string name="agent_execution_completed">Izvajanje agenta je dokončano</string>
   <string name="agent_already_running">AI agent že deluje. Počakajte ali ga najprej ustavite.</string>
 
     <!-- AI Agent Notifications -->
@@ -1930,22 +1759,16 @@ Tega sporočila ne prikaži več
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Ustvari nov dokument</string>
   <string name="my_document_rename_title">Preimenuj dokument</string>
-  <string name="my_document_edit_description_title">Uredi opis</string>
   <string name="my_document_delete_confirmation">Izbrisati dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumentov AI ni mogoče izbrisati, dokler vsebuje strani. Najprej izbrišite strani.</string>
   <string name="my_document_save_changes">Shraniti spremembe?</string>
   <string name="my_document_no_description">Ni opisa</string>
-  <string name="my_document_rename">Preimenuj</string>
   <string name="my_document_edit_description">Uredi opis</string>
-  <string name="my_document_delete">Izbriši</string>
 
   <string name="my_document_pages_title">%s - Strani</string>
   <string name="my_document_pages_empty">V tem dokumentu ni strani.</string>
   <string name="my_document_page_rename_title">Preimenuj stran</string>
   <string name="my_document_page_delete_confirmation">Izbrisati stran \"%s\"?</string>
-  <string name="my_document_page_rename">Preimenuj</string>
-  <string name="my_document_page_delete">Izbriši</string>
-  <string name="my_document_page_export">Izvozi</string>
   <string name="my_document_new_page_name">Stran %1$d</string>
   <string name="my_document_create_page_title">Nova stran</string>
   <string name="my_document_content_type_label">Vrsta vsebine</string>
@@ -1965,12 +1788,10 @@ Tega sporočila ne prikaži več
 
   <string name="prefs_page_scroll_amount_title">Količina pomikanja strani</string>
   <string name="prefs_page_scroll_amount_summary">Koliko strani se premakne z pomikanjem navzgor/navzdol</string>
-  <string name="page_scroll_amount_dialog_title">Količina pomikanja strani</string>
   <string name="prefs_scroll_helper_lines_title">Pomožne črte pomikanja</string>
   <string name="prefs_scroll_helper_lines_summary">Prikaži vodoravne vodilne črte na mejah pomikanja strani</string>
   <string name="prefs_scroll_helper_line_style_title">Slog pomožne črte</string>
   <string name="prefs_scroll_helper_line_style_summary">Izberite vizualni slog pomožnih črt pomikanja</string>
-  <string name="scroll_helper_line_style_dialog_title">Slog pomožne črte</string>
   <string name="scroll_helper_line_style_thin_dotted">Tanka pikčasta črta</string>
   <string name="scroll_helper_line_style_thin_solid">Tanka polna črta</string>
   <string name="scroll_helper_line_style_thick_solid">Debela polna črta</string>

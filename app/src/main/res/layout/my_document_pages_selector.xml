@@ -55,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             style="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog"
-            android:text="@string/workspace_dismiss"
+            android:text="@string/dismiss"
             />
         <Button
             android:id="@+id/save"

@@ -53,7 +53,7 @@
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/copy"
-			android:title="@string/verse_action_copy"
+			android:title="@string/copy"
 			android:orderInCategory="2"
 			android:visible="false"
 			app:showAsAction="always"

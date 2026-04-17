@@ -5,7 +5,6 @@
   <string name="app_name_short">Bíblia</string>
   <string name="app_name_medium">Bíblia (AndBible)</string>
   <string name="app_name_long">AndBible: Estudo Biblico</string>
-  <string name="project">AndBible: Projeto de Código Aberto</string>
 
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Insira um cartão SD e reinicie a aplicação.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Texto formatado (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Espaçamento de parágrafo ( 1%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Ajustar espaço entre parágrafos</string>
 
-  <string name="prefs_show_verseno_title1">Números dos versículos</string>
 
-  <string name="prefs_show_chapter_no_title">Números de capítulos</string>
-  <string name="prefs_show_chapter_no_summary">Mostrar números dos capítulos</string>
 
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo na sua linha</string>
   <string name="prefs_show_bookmarks_summary">Apague seleção para esconder favoritos</string>
 
   <string name="prefs_show_mynotes_summary">Mostrar o icon nos versículos com As Minhas Anotações</string>
-  <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_summary">Ligação para definições em Grego e Hebreu</string>
   <string name="prefs_show_morphology_summary">Mostrar a morfologia em Grego de Robinson</string>
   <string name="prefs_section_title_summary">Mostrar títulos de secções não canónicas</string>
   <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo a vermelho</string>
-  <string name="prefs_text_size_title">Preferências para o tipo de letra</string>
 
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Mostrar notas de rodapé integradas no texto em vez de como indicadores clicáveis</string>
   <string name="prefs_show_xrefs_summary">Mostrar referências cruzadas, se estiverem disponíveis no documento</string>
 
-  <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_title">Números de acordo com Strong</string>
   <string name="prefs_show_morphology_title">Códigos morfológicos</string>
   <string name="prefs_non_strongs_word_italic_title">Italicizar palavras acrescentadas</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">Som de fundo</string>
   <string name="prefs_noise_summary">Adicionar algum ruído ao fundo pode torná-lo mais confortável aos olhos.</string>
 
-  <string name="cpv_default_title">Escolha uma cor</string>
-  <string name="cpv_presets">Valores pré definidos</string>
-  <string name="cpv_custom">Personalizar</string>
-  <string name="cpv_select">Selecionar</string>
-  <string name="cpv_transparency">Transparência</string>
 
     <!-- Window -->
   <string name="new_window">Nova janela</string>
-  <string name="windowClose">Fechar</string>
   <string name="windowMaximise">Maximizar</string>
   <string name="windowMinimise">Minimizar</string>
   <string name="windowSynchronise">Sincronizar</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">Fixar</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Não existem notas neste capítulo</string>
-  <string name="no_verse_notes">Não existem notas para este versículo</string>
   <string name="previous">Anterior</string>
   <string name="next">Próximo</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Por favor instale os dicionários Strong em Hebraico e Grego</string>
   <string name="no_indexed_bible_with_strongs_ref">Você deve fazer baixar uma bíblia contendo números do dicionário Strong e baixar o índice através da Pesquisa</string>
-  <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string>
-  <string name="go_to_downloads">Ir para Downloads</string>
 
     <!-- Module download -->
   <string name="download">Fazer download dos documentos</string>
   <string name="redownload">Voltar a fazer download dos Documentos</string>
-  <string name="download_confirmation">Quer fazer download de uma Bíblia da internet?</string>
   <string name="download_source_last_updated">Última atualização da lista de Documentos  %s.</string>
   <string name="download_refreshing_book_list">Atualizando a lista de documentos disponíveis nos servidores de documentos ...</string>
   <string name="download_source_message1">Os documentos são descarregados a partir das seguintes fontes</string>
   <string name="download_document_confirm_prefix">Download</string>
-  <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor, verifique sua ligaçao à internet. </string>
   <string name="error_downloading_status">O servidor que hospeda %1$s devolveu um erro devido a %2$s (%3$d).</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
@@ -373,18 +351,6 @@ Substituir?</string>
   <string name="done">Concluído</string>
   <string name="reset_plan_question">Tem certeza de que deseja redefinir este plano?</string>
   <string name="import_reading_plan">Importar plano de leitura ...</string>
-  <string name="import_reading_plan_error">Erro ao importar</string>
-  <string name="import_reading_plan_error_duplicate">Os seguintes dias foram duplicados: %s</string>
-  <string name="import_reading_plan_error_days">Os seguintes dias tinham erros:  %s</string>
-  <string name="import_reading_plan_anyway">Importar mesmo assim</string>
-  <string name="overwrite_reading_plan">Deseja substituir  %s ?</string>
-  <string name="delete_reading_plan">Apagar este plano</string>
-  <string name="reading_plan_deleted">O plano de leitura foi apagado</string>
-  <string name="reading_plan_ships_with_ab">Este plano de leitura é fornecido com 1 %s</string>
-  <string name="confirm_delete_reading_plan">
-Tem certeza de que deseja excluir %s junto com seu histórico de leitura?
-Dica: se você precisar atualizar o plano, basta importá-lo novamente com o mesmo nome de arquivo
- e o histórico será preservado.</string>
   <string name="plan_duplicate_user_plan">
 Existe um plano de leitura do utilizador no cartão SD
 jsword/readingplan com o mesmo nome que um plano interno. Não pode ser listado aqui.
@@ -429,7 +395,6 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="notes">Referências e notas de rodapé</string>
   <string name="share_verse">Partilhar</string>
   <string name="share_verse_widget_title">Partilhar seleção</string>
-  <string name="share_verse_subject_2">Um versículo da Bíblia foi partilhado consigo através de %s</string>
   <string name="compare_translations">Compare as traduções</string>
 
     <!-- Link context menu -->
@@ -441,33 +406,26 @@ Cortesia de Wholesome Words, http://www.wholesomewords.org/, permissão concedid
   <string name="bookmarks_and_mynotes_title">Marcadores e As Minhas Notas</string>
   <string name="migrated_my_notes">Migrar As Minhas Notas</string>
   <string name="bookmarks">Marcadores</string>
-  <string name="bookmark_added">O marcador foi adicionado</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etiquetas</string>
   <string name="manage_labels">Gerir Etiquetas</string>
   <string name="assign_labels">Atribuir etiquetas</string>
   <string name="new_item">Novo</string>
-  <string name="new_label">Nova etiqueta</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Sem etiqueta</string>
   <string name="add_bookmark1">Marcador</string>
-  <string name="add_bookmark2">Seleccionar Marcadores</string>
   <string name="add_bookmark3">Selecção</string>
   <string name="add_bookmark_whole_verse">Colocar marcador no versículo</string>
   <string name="add_bookmark_whole_verse1">Versículos</string>
-  <string name="add_bookmark_whole_verse2">Versículos completos</string>
   <string name="add_whole_page_bookmark">Adicionar marcador para a página inteira</string>
   <string name="add_paragraph_break">Quebra de parágrafo</string>
   <string name="ai_label">IA</string>
-  <string name="remove_bookmark">Remover</string>
   <string name="bookmark_settings_hide_labels_title">Esconder as etiquetas especificadas</string>
   <string name="bookmark_settings_hide_labels_summary">Ocultar marcadores que são marcados com etiqueta (s) especificada</string>
   <string name="auto_assign_labels_title">Definições de etiquetas</string>
   <string name="auto_assign_labels">Auto-atribuir e Etiquetas favoritas</string>
   <string name="auto_assign_labels1">Auto-atribuir etiqueta a novos marcadores</string>
   <string name="auto_assign_labels_primary">Auto-atribuir como principal</string>
-  <string name="label_color">Label color</string>
-  <string name="label_color_example">Exemplo</string>
   <string name="marker_style">Mostrar somente marcador para marcadores selecionados</string>
   <string name="marker_style_whole_verse">Mostrar somente o marcador para versículos inteiros destacados</string>
   <string name="hide_style">Ocultar para os marcadores selecionados</string>
@@ -497,11 +455,9 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
     <!-- Speak - Bible -->
   <string name="one_chapter">capítulo %d</string>
   <string name="some_chapters">capítulos %d</string>
-  <string name="rest_of_book">Para o fim do livro</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">versículo %d</string>
   <string name="some_verses">versículos %d</string>
-  <string name="rest_of_chapter">Para o fim do capítulo</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">página %d</string>
   <string name="some_pages">páginas %d</string>
@@ -511,8 +467,6 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
   <string name="rewind">Retroceder</string>
   <string name="forward">Avançar</string>
   <string name="tts_lang_not_available">Idioma não disponível</string>
-  <string name="speak_queue">Fila</string>
-  <string name="speak_repeat">Repetir</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Velocidade da fala</string>
@@ -585,14 +539,12 @@ os locais desses marcadores/notas se movam dentro do documento ou desapareçam c
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s ícone indica que a configuração vem das configurações do espaço de trabalho.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s ícone indica que esta configuração foi alterada para esta janela específica.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Use o botão %1$s para redefinir todas estas definições de volta para %2$s.</string>
   <string name="reset_defaults">Valores padrão</string>
   <string name="reset_workspace_defaults">Valores padrão para a área de trabalho</string>
 
-  <string name="speak_bookmark_help">Ajuda para marcadores falados</string>
 
   <string name="speak_help_auto_bookmark">
 Um marcador de fala será adicionado automaticamente quando o modo de Fala for posto em pausa ou parado.
@@ -643,7 +595,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_phone_storage">Armanezamento do telefone</string>
   <string name="backup_and_restore">Backup e Restauro</string>
   <string name="backup_modules2">Fazer Backup dos Documentos para...</string>
-  <string name="backup_app_database2">Fazer uma cópia de segurança da base de dados da aplicação para...</string>
   <string name="backup_app2">Fazer uma cópia de segurança da aplicação (ficheiro .apk) para...</string>
   <string name="backup_application">Aplicação</string>
   <string name="backup_database">Base de Dados</string>
@@ -655,17 +606,13 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="backup_restore_from">Restaurar uma cópia de segurança a partir de...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Restaurar ou importar de...</string>
-  <string name="backup_restore">Restaurar</string>
   <string name="backup_restore2">Restaurar ou Importar</string>
   <string name="overwrite_something">Substituir %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">O que deseja restaurar?</string>
 
-  <string name="restore_app_database">Restaurar base de dados da aplicação a partir de...</string>
   <string name="restore_database">Restaurar o Ficheiro da Base de Dados</string>
   <string name="restore_confirmation">Substituir As Minhas Notas, Áre de Estudo, Plano de Leitura e Área de Trabalho?</string>
-  <string name="restore_success2">Seções do banco de dados selecionadas restauradas com sucesso</string>
   <string name="restore_success">As Minhas Notas, Marcadores, Áreas de Estudo, Planos de Leitura, e Áreas de Trabalho, foram restauradas com sucesso</string>
   <string name="downloading_backup">A descarregar o ficheiro da cópia de segurança...</string>
   <string name="loading_backup">Carregando a base de dados a partir do backup...</string>
@@ -681,14 +628,12 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="exported_studypads_subject">Áreas de Estudo exportados</string>
   <string name="exported_studypads_message">A sua base de dados %s contém marcadores e anotações relacionados com as Áreas de Estudo seleccionadas em anexo.</string>
   <string name="restore_unsuccessfull">Não foi possível restaurar a base de dados. Talvez tenha fornecido um ficheiro de base de dados inválido.</string>
-  <string name="restore_modules">Restaurar documentos a partir de...</string>
   <string name="send_backup_file">Enviar ficheiro de backup</string>
   <string name="backup_modules_title">Escolher quais os módulos para incluir no backup</string>
   <string name="install_zip_canceled">Instalação de módulos cancelada</string>
   <string name="ask_restore_or_import">A base de dados para %s pode ser restaurada (ou seja, a base de dados existente é removida e a base de dados selecionada é carregada), ou importada (a base de dados selecionada é importada para a base de dados existente). O que é que pretende fazer?</string>
   <string name="restore">Restaurar</string>
   <string name="import2">Importar</string>
-  <string name="export_studypads_help">O ficheiro que contém Áreas de Estudo exportados (ou seja, etiquetas e marcadores) pode ser importado através do Menu Principal -&gt; Backup e Restauro.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" e %2$s outras Etiquetas / Áreas de Estudo e %3$s Marcadores</string>
@@ -702,8 +647,6 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="module_about_osisId">OSIS ID:%s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Relatório de erro</string>
-  <string name="send_feedback_title">Comentários</string>
   <string name="send_bug_report_title">Comentários / Relatório de erro</string>
   <string name="report_bug_email_subject_3">[%1$s] Relatório de erro para %2$s %3$s</string>
 
@@ -742,10 +685,8 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="yes">Sim</string>
   <string name="no">Não</string>
   <string name="error">Erro</string>
-  <string name="delete_generic">Apagar</string>
   <string name="please_wait">Por favor espere</string>
   <string name="all">Todos</string>
-  <string name="edit">Editar</string>
   <string name="reset_generic">Reiniciar</string>
   <string name="watch_tutorial_video">Veja o video de instruções (em Inglês)</string>
   <string name="verse_not_found">Não foi encontrado o versículo</string>
@@ -769,12 +710,11 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="notification_channel_progress_status">Notificação de status de progresso para downloads de documentos etc.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Novo</string>
   <string name="switch_to_workspace">Ambientes de trabalho</string>
   <string name="delete_workspace">Remover</string>
   <string name="new_copied_workspace">Guardar como novo</string>
   <string name="workspace_number">Ambiente de trabalho%d</string>
-  <string name="rename_workspace">Mudar o nome</string>
+  <string name="rename">Mudar o nome</string>
   <string name="workspace_selector_title">Escolher ambiente de trabalho</string>
   <string name="workspace_settings">Configurações</string>
   <string name="give_name_workspace">Dar nome a novo ambiente de trabalho</string>
@@ -787,12 +727,11 @@ a fala foi iniciada fora da gama dos versículos.</string>
   <string name="copy_settings_workspaces_title">Para que ambiente de trabalho quer copiar as configurações?</string>
   <string name="reset_settings">Reiniciar</string>
   <string name="search_settings">Definições de pesquisa</string>
-  <string name="workspace_dismiss">Descartar</string>
+  <string name="dismiss">Descartar</string>
   <string name="workspace_listing_with_current">%s(atual)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Esta é uma versão beta!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
 Na versão beta, há novos recursos que ainda não foram testados corretamente,
 e, portanto, usar uma versão beta pode introduzir um comportamento inesperado, ou seja, erros.
@@ -805,7 +744,6 @@ Os utilizadores de versões beta são incentivados a relatar bugs via Google Pla
 através de %s si mesmo. :-)</string>
   <string name="beta_notice_github_issues">Problemas relativos a Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Descartar</string>
   <string name="beta_notice_dismiss_until_update">Descartar até à próxima atualização</string>
 
   <string name="stable_notice_title">A aplicação foi atualizada!</string>
@@ -841,8 +779,6 @@ As Áreas de estudo são projetadas para tornar mais fácil escrever notas de se
 
   <string name="help_search_title">Procurar</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">O texto da pesquisa pode incluir caracteres especiais como *,?, AND, OR, NOT
-(consulte \"Apache Lucene - sintaxe do analisador de consultas\" para obter mais detalhes)</string>
   <string name="help_search_text2">O texto de pesquisa pode incluir caracteres especiais como *, AND, OR, NOT</string>
   <string name="help_search_details">Para mais pormenores, ver %s.</string>
   <string name="help_apache_lucene">Apache Lucene - Sintaxe do analisador de consulta</string>
@@ -874,7 +810,6 @@ comentários e mapas etc. como janelas não fixadas. Assim, você poderá facilm
   <string name="redownload_documents">Voltar a fazer download rápidamente</string>
   <string name="welcome_message">Obrigado por baixar %s. Atualmente não há Bíblias ou documentos instalados. Para continuar, instale pelo menos 1 documento baixando da Internet ou carregando a partir de um ficheiro em formato zip de um backup de documento </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Formatos suportados</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Selecione um ficheiro para carregar em %s.</string>
   <string name="supported_formats">Formatos suportados para carregar um documento de um arquivo: %s</string>
@@ -899,7 +834,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="strongs_mode_title">Escolha o modo Strongs</string>
 
   <string name="download_dialog_message">Os seguintes livros não poderam ser baixados:</string>
-  <string name="select_multiple">Escolha vários</string>
   <string name="journal_description">Áreas de estudo editáveis ​​pelo utilizador, com texto e marcadores personalizados</string>
   <string name="my_notes_description">Notas editáveis ​​pelo utilizador, anexadas aos marcadores</string>
   <string name="my_notes_abbreviation">Anotações</string>
@@ -914,7 +848,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="http_not_found">Não encontrado</string>
   <string name="http_unknown">Outro erro</string>
   <string name="give_passphrase_for_module">O documento %s está encriptado e precisa de palavra passe para ser desbloqueado</string>
-  <string name="unlocking_failed">O desbloqueamento falhou, palavra passe inválida</string>
   <string name="unlock_module">Escolha a palavra passe para o módulo</string>
   <string name="unlock_info">Informação sobre o desbloqueamento do módulo</string>
   <string name="try_again_passphrase">A Palavra passe não foi reconhecida, tentar de novo?</string>
@@ -966,8 +899,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="tell_friend_message4">Leia mais; e mais opções de instalação: %s</string>
   <string name="share_verse_ok">Partilhar / Copiar</string>
   <string name="web_search">Pesquisa na Web</string>
-  <string name="verse_action_copy">Copiar</string>
-  <string name="generic_share">Partilhar</string>
   <string name="share_verse_menu_title">Partilhar / copiar...</string>
   <string name="show_versenumbers">Mostrar números dos versículos</string>
   <string name="show_full_verses">Mostrar versículos completos</string>
@@ -984,9 +915,6 @@ Uma lista de livros / documentos anteriores foi encontrada. Clique abaixo para b
   <string name="show_quotes">Mostrar citações</string>
   <string name="separate_verses_with_newlines">Separe os versos com novas linhas</string>
 
-  <string name="backup_button">Backup</string>
-  <string name="back_button">Para trás</string>
-  <string name="upgrading_database">Atualizando a base de dados. Por favor espere...</string>
   <string name="initializing_app">Inicializando a aplicação...</string>
   <string name="show_notes">Mostrar notas</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1022,7 +950,6 @@ enviar um email para os programadores</string>
 Continuar para o Google Play</string>
   <string name="text_maintainers">
 por favor comunique qualquer problema à equipa que mantém os textos </string>
-  <string name="does_not_exist_abbreviation">Não existe</string>
   <string name="cant_change_wholeverse">Não é possível desligar a marcação total de versículos para este marcador </string>
   <string name="whole_verse_turned_on">O marcador agora agora marcado para o versículo inteiro</string>
   <string name="this_bookmark">Este marcador</string>
@@ -1035,7 +962,6 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="display_mode_hidden">Oculto</string>
   <string name="workspace_override_indicator">Esta etiqueta tem um modo de apresentação específico para a área de trabalho</string>
   <string name="primary_label">Etiqueta principal</string>
-  <string name="highlight_entire_verse">Destacar todo o versículo</string>
   <string name="favourite_label">Etiqueta de favorito</string>
   <string name="edit_label">Editar etiqueta</string>
   <string name="delete_label_confirmation">Deseja remover a etiqueta do marcador * %s\"? Além disso, todas as notas da Área de Estudo associadas serão removidas.</string>
@@ -1053,7 +979,6 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="reorder">Reordenar</string>
   <string name="system_items">Ações do sistema</string>
   <string name="system_items1">Mais</string>
-  <string name="system_action2">Ações Android</string>
   <string name="text_copied_to_clicpboard">Texto copiado para a área de transferência</string>
   <string name="prefs_disable_two_step_bookmarking_title">Marcação de marcadores numa etapa</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Mostrar os itens \"Seleção\" e \"Versículos\" diretamente no menu de seleção da visualização da Bíblia</string>
@@ -1067,7 +992,6 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="label_blue">Azul</string>
   <string name="label_salvation">Guardar</string>
   <string name="label_underline">Sublinhar</string>
-  <string name="import_menu">Importar e Exportar</string>
   <string name="auto_backups_title">Cópias de segurança automáticas</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Repor bases de dados</string>
@@ -1085,18 +1009,12 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="export_prompts_csv">Exportar prompts para CSV</string>
   <string name="import_prompts_csv">Importar prompts de CSV</string>
   <string name="prompts_csv_export_success">%d prompts exportados para CSV</string>
-  <string name="prompts_csv_import_success">Importação concluída: %1$d criados, %2$d atualizados</string>
-  <string name="prompts_csv_import_errors">Importação concluída com erros: %1$d criados, %2$d atualizados, %3$d erros</string>
-  <string name="prompts_csv_import_failed">Falha na importação de CSV: %s</string>
-  <string name="prompts_csv_export_failed">Falha na exportação de CSV: %s</string>
   <string name="no_prompts_to_export">Sem prompts de utilizador para exportar</string>
   <string name="csv_column_selection_title">Selecione Colunas CSV</string>
-  <string name="choose_csv_file">Escolher o ficheiro CSV a importar</string>
   <string name="no_bookmarks_to_export">Não há marcadores disponíveis para exportar</string>
   <string name="export_fileformat">Exportar como %s</string>
   <string name="export_something">Exportar %s</string>
   <string name="import_items">Importar %s</string>
-  <string name="import_from_db">Importar a partir de ficheiro da Base de Dados da Aplicação</string>
   <string name="import_error">A importação a partir da Base de Dados do aplicativo falhou. O ficheiro da Base de Dados pode estar no formato errado ou ter uma versão muito antiga de %s.</string>
 
   <string name="export_bookmarks_csv">Exportar marcadores como %s</string>
@@ -1125,23 +1043,13 @@ por favor comunique qualquer problema à equipa que mantém os textos </string>
   <string name="last_updated_at">Última atualização em</string>
   <string name="bookmark_notes">Notas dos marcadores</string>
 
-  <string name="chooser_range">Onde procurar</string>
-  <string name="chooser_jump">Salatar para</string>
-  <string name="chooser_OT_abbrev">AT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Grelha</string>
-  <string name="chooser_style_lists">Listas</string>
-  <string name="chooser_select">Seleccionar %s</string>
-  <string name="chooser_pref_reset">Não redefina o capítulo / versículo para 1 quando o livro / capítulo é selecionado</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Lamentamos, mas temos apenas tradução parcial da interface do utilizador no idioma %1$s. Isto porque %2$s é inteiramente desenvolvido por voluntários. Se puder ajudar na tradução, consulte %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instruções para tradutores</string>
   <string name="questions_title">Preguntas?</string>
-  <string name="questions_title2">Precisa de ajuda?</string>
   <string name="bookmark_style">Tipo de maracador</string>
   <string name="added_to_bookmark">Atribuído a este marcador</string>
-  <string name="strongs_off">Desligado</string>
   <string name="strongs_links">Atalhos</string>
   <string name="strongs_text_and_links">Textos e Ligações</string>
   <string name="strongs_hidden_links">Ligações ocultas</string>
@@ -1188,7 +1096,6 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
 É possível baixar a última versão da versão discreta de %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Sincronizar grupo</string>
   <string name="sync_group_n">Grupo %d</string>
   <string name="disable_sync">Desativar a sincronização</string>
   <string name="open_in_window">Abrir resultados em uma janela</string>
@@ -1199,10 +1106,8 @@ versão do aplicativo, que sempre exibe a calculadora, mesmo se os dados do apli
   <string name="custom_repositories_empty_list_message">Nenhum repositório personalizado foi definido</string>
   <string name="custom_repositories_create_button_label">Adicionar repositórios personalizados</string>
   <string name="custom_repositories_info_button_label">Informação</string>
-  <string name="name_for_repository">Nome do repositório</string>
   <string name="repository_specification">URL do Repositório</string>
   <string name="delete_custom_repository">Deseja excluir repositório personalizado %s?</string>
-  <string name="invalid_repository_not_saved">Especificação de repositório inválida e não foi salva.</string>
   <string name="custom_repositories_help1">Para adicionar um novo repositório personalizado, digite ou copie, e cole a URL do repositório aqui.</string>
   <string name="custom_repositories_help2">Você pode obter mais informações sobre repositórios personalizados em %s.</string>
   <string name="wiki_page">Página Wiki</string>
@@ -1245,7 +1150,6 @@ O banco de dados contém %s. O que você quer fazer?
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Progresso de Leitura/Memorização</string>
   <string name="reading_progress_chapters_read">capítulos lidos</string>
-  <string name="reading_progress_verses_memorized">versículos memorizados</string>
   <string name="reading_progress_active_days">dias ativos</string>
   <string name="reading_progress_overall">%s%% da Bíblia lida</string>
   <string name="reading_progress_bible_heatmap">Visão geral da Bíblia</string>
@@ -1271,13 +1175,11 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="sync_adapter_summary">Atual: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Nextcloud</string>
-  <string name="auth_title">Autenticação para %s</string>
   <string name="auth_server_uri">URL do servidor</string>
   <string name="auth_username">Nome de utilizador</string>
   <string name="auth_password">Palavra-passe</string>
   <string name="auth_folder_path">Caminho da pasta de sincronização</string>
   <string name="auth_folder_path_summary">Pasta principal para dados de sincronização (vazio = raiz)</string>
-  <string name="auth_access_token">Token de acesso</string>
   <string name="synchronization_categories">Categorias de sincronização</string>
   <string name="sync_general_settings">Configurações gerais</string>
   <string name="sync_introduction">Introdução</string>
@@ -1293,8 +1195,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="report">Relatório</string>
   <string name="sync_error">Ocorreu um erro de sincronização na Nuvem</string>
   <string name="error_notification_channel_name">Notificações de erro</string>
-  <string name="restore_from_cloud_description">Se tiver a Sincronização de dispositivos activada noutro dispositivo, pode começar por restaurar a base de dados a partir da Nuvem.</string>
-  <string name="enable_sync">Ativar a sincronização</string>
   <string name="last_updated">Última atualização %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1315,20 +1215,6 @@ O banco de dados contém %s. O que você quer fazer?
   <string name="processing_epub">Processando EPUB: %s</string>
   <string name="buy_development">Comprar desenvolvimento</string>
   <string name="buy_development2">Suportar o projeto</string>
-  <string name="new_version_warning">
-Um novo lançamento está chegando em breve. A data de lançamento prevista é %1$s. Assista ao nosso
-%2$s para descobrir novos recursos e melhorias.
-    </string>
-  <string name="new_version_trailer">Trailer</string>
-  <string name="new_version_warning2">
-        Após o lançamento, esta versão não será mantida.
-    </string>
-  <string name="new_version_warning3">
-        Ela não irá receber correção de erros ou atualizações.
-    </string>
-  <string name="new_version_warning4">
-        Se não deseja atualizar, desabilite \'Atualizações Automáticas\' em sua loja de aplicativos (Google Play / F-Droid etc).
-    </string>
   <string name="dont_show">
         Não mostrar essa mensagem novamente
     </string>
@@ -1349,7 +1235,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="invalid_url_message">O URL que introduziu é inválido. Introduza um URL válido (por exemplo, https://nextcloud.example.com)</string>
   <string name="memorize_description">Memorizar versículos da Bíblia</string>
   <string name="memorize_abbreviation">Memorizar</string>
-  <string name="add_memorization_target">Definir como objetivo de memorização</string>
   <string name="memorize_memorized_passages">Passagens memorizadas</string>
   <string name="memorize_no_memorized_passages">Ainda não há passagens memorizadas</string>
   <string name="memorize_targets">Objetivos de memorização</string>
@@ -1381,17 +1266,8 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="memorize_view_overview">Visão geral</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Tradução com IA</string>
   <string name="sync_settings_shortcut_summary">Sincronizar dados entre dispositivos</string>
-  <string name="llm_api_key_title">Chave de API</string>
-  <string name="llm_api_key_summary">Chave de API compatível com OpenAI</string>
   <string name="llm_provider_custom">Personalizado (compatível com OpenAI)</string>
-  <string name="llm_provider_title">Fornecedor</string>
-  <string name="llm_provider_summary">Escolha o fornecedor de serviço de IA a utilizar. O endpoint de API e os modelos disponíveis serão configurados automaticamente.</string>
-  <string name="llm_provider_current">Atual: %s</string>
-  <string name="llm_api_key_detected_provider">Fornecedor detetado: %s</string>
-  <string name="ai_connection_category">Ligação</string>
-  <string name="ai_model_category">Modelo</string>
   <string name="ai_behavior_category">Comportamento</string>
   <string name="ai_language_title">Idioma das respostas da IA</string>
   <string name="ai_language_summary">Idioma que a IA usa para as respostas</string>
@@ -1408,16 +1284,9 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_reset_usage_confirm_title">Repor dados de utilização?</string>
   <string name="llm_reset_usage_confirm_message">Isto irá limpar todos os dados de utilização acumulados.</string>
   <string name="llm_custom_input_price_title">Preço de entrada ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Custo por milhão de tokens de entrada para este modelo</string>
   <string name="llm_custom_output_price_title">Preço de saída ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Custo por milhão de tokens de saída para este modelo</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Endpoint de API</string>
-  <string name="llm_endpoint_summary">URL base da API</string>
-  <string name="llm_model_title">Modelo</string>
-  <string name="llm_model_summary">ID do modelo</string>
   <string name="llm_custom_model">Personalizado…</string>
-  <string name="llm_custom_model_dialog_title">Modelo personalizado</string>
   <string name="llm_custom_model_dialog_message">Introduza o ID do modelo</string>
   <string name="llm_rate_limited_retrying">Limite de pedidos atingido. A tentar novamente em %1$ss\u2026</string>
   <string name="llm_default_document_title">Resposta da IA</string>
@@ -1427,7 +1296,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_parse_error_no_choices">Sem opções na resposta OpenAI</string>
   <string name="llm_parse_error_openai">Falha ao analisar resposta OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Falha ao analisar resposta Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt não encontrado: %1$s</string>
   <string name="llm_error_unknown">Erro desconhecido</string>
   <string name="llm_error_max_iterations">Número máximo de iterações (%1$d) atingido sem conclusão</string>
   <string name="llm_continue_iterations_title">Continuar?</string>
@@ -1462,7 +1330,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="raw_log_retention_summary_disabled">Desativado (manter tudo)</string>
   <string name="send_ai_bug_report_title">Reportar erro da IA</string>
   <string name="ai_bug_report_menu">Reportar erro da IA</string>
-  <string name="ai_bug_report_recommended_only">A comunicação de erros só está disponível para modelos de fornecedores recomendados</string>
 
   <string name="select_model_before_run_title">Selecionar modelo</string>
   <string name="set_default_model_for_prompt">Definir como modelo predefinido para este prompt</string>
@@ -1492,7 +1359,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="ai_models_summary_none">Nenhum modelo configurado</string>
   <string name="ai_add_provider">Adicionar fornecedor</string>
   <string name="ai_provider_edit">Editar</string>
-  <string name="ai_provider_delete">Eliminar</string>
   <string name="ai_provider_delete_confirm">Eliminar fornecedor \"%1$s\"? Os prompts que utilizam este fornecedor reverterão para o padrão.</string>
   <string name="ai_provider_api_key_not_set">Chave de API não definida</string>
   <string name="ai_provider_select_type">Selecionar tipo de fornecedor</string>
@@ -1504,27 +1370,18 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="ai_provider_saved">Fornecedor guardado</string>
   <string name="ai_provider_deleted">Fornecedor eliminado</string>
 
-  <string name="llm_fetch_models_title">Transferir lista de modelos</string>
-  <string name="llm_fetch_models_message">Transferir a lista de modelos disponíveis de %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Não perguntar novamente</string>
-  <string name="llm_fetch_models_success">%1$d modelos carregados</string>
-  <string name="llm_fetch_models_failed">Falha ao obter modelos</string>
   <string name="llm_openrouter_category">Categoria</string>
   <string name="llm_openrouter_category_all">Todos</string>
   <string name="llm_openrouter_model">Modelo</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modelos</string>
   <string name="add_model">Adicionar modelo</string>
-  <string name="add_model_title">Adicionar modelo</string>
   <string name="edit_model_title">Editar modelo</string>
   <string name="model_saved">Modelo guardado</string>
   <string name="model_deleted">Modelo eliminado</string>
   <string name="model_delete_confirm">Eliminar modelo \"%1$s\"?</string>
   <string name="model_set_default">Definir como modelo predefinido</string>
   <string name="model_select_provider">Fornecedor</string>
-  <string name="no_models_configured">Nenhum modelo configurado</string>
-  <string name="model_cache_creation_price">Preço de criação de cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Preço de leitura de cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Com suporte</string>
   <string name="show_also_unsupported_models">Mostrar também modelos sem suporte</string>
   <string name="show_also_unsupported_providers">Mostrar também fornecedores sem suporte</string>
@@ -1535,7 +1392,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="unknown_error">Erro desconhecido</string>
   <string name="easy_setup_title">Configuração Rápida</string>
   <string name="easy_setup_pref_summary">Configurar a IA com um fornecedor recomendado em alguns passos</string>
-  <string name="easy_setup_choose_provider">Escolha um fornecedor para começar:</string>
   <string name="easy_setup_enter_api_key">Introduza a sua chave API</string>
   <string name="easy_setup_api_key_instructions">Obtenha a sua chave API em:</string>
   <string name="easy_setup_test_connection">Testar ligação</string>
@@ -1594,7 +1450,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="addon_prompt_notice">Este prompt é do módulo add-on \"%s\" e não pode ser editado. Use \"Copiar para personalizar\" para criar uma cópia editável.</string>
   <string name="new_category">Nova categoria</string>
   <string name="new_category_name">Nome da categoria</string>
-  <string name="rename_category">Renomear</string>
   <string name="move_category_up">Mover para cima</string>
   <string name="move_category_down">Mover para baixo</string>
   <string name="hide_category">Ocultar das ações de IA</string>
@@ -1639,28 +1494,22 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_note_updated">Nota atualizada</string>
   <string name="specify_before_run_title">Especificar tarefa</string>
   <string name="specify_before_run_hint">Descreva a tarefa específica…</string>
-  <string name="prompt_cache_settings">Definições de cache</string>
   <string name="prompt_strict_context_matching">Cache dependente do contexto</string>
   <string name="prompt_strict_context_matching_description">Quando ativado, a cache só corresponde quando todo o contexto (versão da Bíblia, texto selecionado) é o mesmo. Quando desativado, a cache corresponde quando os versículos são os mesmos independentemente da versão da Bíblia.</string>
   <string name="ai_document_delete_confirmation">Eliminar este documento de IA?</string>
-  <string name="ai_document_deleted">Este documento de IA foi eliminado.</string>
   <string name="ai_document_regenerating">A regenerar documento de IA…</string>
-  <string name="ai_document_regenerate_not_implemented">A regeneração estará disponível numa atualização futura</string>
   <string name="ai_regenerate_prompt_not_found">Não é possível regenerar: o prompt original não foi encontrado. Pode ter sido eliminado.</string>
   <string name="ai_document_regenerate">Regenerar</string>
   <string name="ai_regenerate_title">Regenerar</string>
   <string name="ai_regenerate_instructions_hint">Instruções adicionais (opcional)</string>
   <string name="ai_regenerate_keep_previous">Manter versão anterior</string>
   <string name="ai_regenerate_fresh_run">Execução nova (ignorar resultado anterior)</string>
-  <string name="ai_document_delete">Eliminar</string>
   <string name="ai_unknown_prompt">IA</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Traduzir para %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduzir para o idioma da interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduz o texto do documento para o idioma da interface da aplicação</string>
-  <string name="default_prompt_translate_to_english">Traduzir para inglês</string>
-  <string name="default_prompt_translate_to_english_desc">Traduz o texto selecionado para inglês</string>
   <string name="default_prompt_summary">Resumo</string>
   <string name="default_prompt_summary_desc">Cria um resumo conciso do texto selecionado</string>
   <string name="default_prompt_explain_verses">Explicar versículos</string>
@@ -1669,8 +1518,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="default_prompt_explain_verses_studypad_desc">Cria um Bloco de Estudo com explicação versículo a versículo e marcadores</string>
   <string name="default_prompt_word_study">Estudo de palavras</string>
   <string name="default_prompt_word_study_desc">Analisa palavras originais em hebraico/grego</string>
-  <string name="default_prompt_strongs_annotation">Anotação de número de Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Adiciona números de concordância de Strong a qualquer tradução da Bíblia usando a KJV como referência</string>
   <string name="default_prompt_cross_references">Referências cruzadas</string>
   <string name="default_prompt_cross_references_desc">Encontra e explica passagens bíblicas relacionadas</string>
   <string name="default_prompt_compare_translations">Comparar traduções</string>
@@ -1813,11 +1660,7 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="ai_document_filter_summary">Escolher quais os documentos que a IA pode ler</string>
   <string name="ai_document_filter_summary_count">%d documentos excluídos</string>
   <string name="ai_document_filter_activity_title">Acesso de IA a documentos</string>
-  <string name="ai_document_excluded_error">Documento excluído pelas definições do utilizador: %s</string>
   <string name="permission_status_default">Perguntar (predefinido)</string>
-  <string name="permission_status_allowed">Sempre permitido</string>
-  <string name="permission_status_denied">Sempre negado</string>
-  <string name="permission_option_default">Perguntar sempre (predefinido)</string>
   <string name="permission_option_always_allow">Permitir sempre</string>
   <string name="permission_option_always_deny">Negar sempre</string>
   <string name="reset_all_permissions">Repor tudo</string>
@@ -1832,10 +1675,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permissões de ferramentas</string>
-  <string name="prompt_tool_permissions_read_only">Permissões de ferramentas (só de leitura)</string>
-  <string name="prompt_tool_permissions_description">Substituir permissões de ferramentas para esta instrução</string>
-  <string name="tool_section_read_tools">Ferramentas de leitura</string>
-  <string name="tool_section_write_tools">Ferramentas de escrita</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bíblia &amp; Pesquisa</string>
@@ -1858,13 +1697,9 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Predefinido</string>
-  <string name="prompt_model_custom">Personalizado</string>
-  <string name="prompt_model_custom_hint">Introduzir nome do modelo</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Selecionar Ação de IA</string>
-  <string name="no_llm_prompts_configured">Nenhuma instrução de IA configurada para seleção de versículos</string>
-  <string name="llm_prompt_executing">A executar instrução de IA: %s</string>
   <string name="llm_actions">Ações de IA</string>
 
     <!-- Agent Log Widget -->
@@ -1872,9 +1707,7 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="agent_log_close">Fechar registo do agente</string>
   <string name="agent_log_stop">Parar IA</string>
   <string name="agent_log_idle">Assistente de IA</string>
-  <string name="agent_log_running">A IA está a trabalhar…</string>
   <string name="agent_log_completed">Concluído</string>
-  <string name="agent_log_error">Ocorreu um erro</string>
   <string name="agent_log_executing">A executar: %s</string>
   <string name="agent_log_iteration">Iteração %d</string>
   <string name="agent_log_tool">Ferramenta: %s</string>
@@ -1884,7 +1717,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="agent_log_saved">Guardado: %s</string>
   <string name="agent_log_done">Concluído: %s</string>
   <string name="agent_log_cancelled">Cancelado</string>
-  <string name="agent_execution_completed">Execução do agente concluída</string>
   <string name="agent_already_running">Um agente de IA já está em execução. Aguarde ou pare-o primeiro.</string>
 
     <!-- AI Agent Notifications -->
@@ -1903,22 +1735,16 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="my_document_new_name">Documento %d</string>
   <string name="my_document_create_title">Criar novo documento</string>
   <string name="my_document_rename_title">Renomear documento</string>
-  <string name="my_document_edit_description_title">Editar descrição</string>
   <string name="my_document_delete_confirmation">Eliminar documento \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Os Documentos de IA não podem ser eliminados enquanto contiverem páginas. Elimine as páginas primeiro.</string>
   <string name="my_document_save_changes">Guardar alterações?</string>
   <string name="my_document_no_description">Sem descrição</string>
-  <string name="my_document_rename">Renomear</string>
   <string name="my_document_edit_description">Editar descrição</string>
-  <string name="my_document_delete">Eliminar</string>
 
   <string name="my_document_pages_title">%s - Páginas</string>
   <string name="my_document_pages_empty">Nenhuma página neste documento.</string>
   <string name="my_document_page_rename_title">Renomear página</string>
   <string name="my_document_page_delete_confirmation">Eliminar página \"%s\"?</string>
-  <string name="my_document_page_rename">Renomear</string>
-  <string name="my_document_page_delete">Eliminar</string>
-  <string name="my_document_page_export">Exportar</string>
   <string name="my_document_new_page_name">Página %1$d</string>
   <string name="my_document_create_page_title">Nova página</string>
   <string name="my_document_content_type_label">Tipo de conteúdo</string>
@@ -1938,12 +1764,10 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
 
   <string name="prefs_page_scroll_amount_title">Quantidade de deslocamento de página</string>
   <string name="prefs_page_scroll_amount_summary">Quanto da página deslocar com página acima/abaixo</string>
-  <string name="page_scroll_amount_dialog_title">Quantidade de deslocamento de página</string>
   <string name="prefs_scroll_helper_lines_title">Linhas auxiliares de deslocamento</string>
   <string name="prefs_scroll_helper_lines_summary">Mostrar linhas guia horizontais nos limites de deslocamento de página</string>
   <string name="prefs_scroll_helper_line_style_title">Estilo da linha auxiliar</string>
   <string name="prefs_scroll_helper_line_style_summary">Escolher o estilo visual das linhas auxiliares de deslocamento</string>
-  <string name="scroll_helper_line_style_dialog_title">Estilo da linha auxiliar</string>
   <string name="scroll_helper_line_style_thin_dotted">Linha fina pontilhada</string>
   <string name="scroll_helper_line_style_thin_solid">Linha fina sólida</string>
   <string name="scroll_helper_line_style_thick_solid">Linha grossa sólida</string>

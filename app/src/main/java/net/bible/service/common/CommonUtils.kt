@@ -1048,7 +1048,7 @@ object CommonUtils : CommonUtilsBase() {
             HelpItem(R.string.help_window_pinning_title, R.string.help_window_pinning_text, windowPinningVideo),
             HelpItem(R.string.help_bookmarks_title, R.string.help_bookmarks_text, bookmarksMyNotesPlaylist), // beta video
             HelpItem(R.string.studypads, R.string.help_studypads_text, studyPadsVideo), // beta video
-            HelpItem(R.string.help_search_title, R.string.help_search_text),
+            HelpItem(R.string.help_search_title, R.string.help_search_text2),
             HelpItem(R.string.help_workspaces_title, R.string.help_workspaces_text, workspacesVideo),
             HelpItem(R.string.help_hidden_features_title, R.string.help_hidden_features_text)
         ).run {
@@ -1515,8 +1515,8 @@ object CommonUtils : CommonUtilsBase() {
 
         // Transifex as of 6.12.2024 + ai-translated languages (10.4.2026)
         val goodLanguages = (
-            "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,cz,lt,yue,zh-Hans-CN,zh-Hant-TW," +
-            "es,ta,cs,hu,nl,sr,te,pl,hr,bn,ko,ru,bg,ar,he,hi,et,nb,ja,th,vi,da,ca,in,eo,ms,sw,ur,ne").split(",")
+            "en,af,fi,fr,de,it,pt-BR,ro,sk,sl,tr,kk,uk,lt,yue,zh-Hans-CN,zh-Hant-TW," +
+            "es,ta,cs,hu,nl,sr,te,pl,hr,bn,ko,ru,bg,ar,he,hi,et,nb,ja,th,vi,da,ca,in,eo,ms,sw,ur,ne,fil").split(",")
 
         // 4.0 list:
 

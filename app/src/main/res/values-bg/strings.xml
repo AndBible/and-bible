@@ -5,7 +5,6 @@
   <string name="app_name_short">Библейско изследване</string>
   <string name="app_name_medium">Библейско изследване (AndBible)</string>
   <string name="app_name_long">AndBible: Библейско изследване</string>
-  <string name="project">AndBible проект с отворен код</string>
 
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Моля, поставете SD карта и рестартирайте приложението.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Форматиран текст (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Разстояние между абзаци (%s мм)</string>
-  <string name="prefs_paragraph_spacing_summary">Настрой разстоянието между абзаци.</string>
 
-  <string name="prefs_show_verseno_title1">Номерът на стиха</string>
 
-  <string name="prefs_show_chapter_no_title">Номера на глави</string>
-  <string name="prefs_show_chapter_no_summary">Показвай номерата на глави</string>
 
   <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
   <string name="prefs_show_bookmarks_summary">Скриване всички отметки</string>
 
   <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
-  <string name="prefs_show_notes_summary">Покажи бележки под линия и препратки</string>
   <string name="prefs_show_strongs_summary">Покажи обяснения към Гръцки и еврейски думи</string>
   <string name="prefs_show_morphology_summary">Покажи морфологията на гръцкия език според Робинсон</string>
   <string name="prefs_section_title_summary">Покажи заглавия на раздели в текста</string>
   <string name="prefs_red_letter_summary">Покажи думите на Иисус в червено</string>
-  <string name="prefs_text_size_title">Настройки на шрифта</string>
 
   <string name="prefs_verse_per_line_title">По един стих на ред</string>
   <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Показвай бележките под линия вградени в текста, вместо като кликащи маркери</string>
   <string name="prefs_show_xrefs_summary">Показвай кръстосани препратки, ако са налични в ресурса</string>
 
-  <string name="prefs_show_notes_title">Бележки и препратки</string>
   <string name="prefs_show_strongs_title">Номера на Strong\'s</string>
   <string name="prefs_show_morphology_title">Морфологичните кодове</string>
   <string name="prefs_non_strongs_word_italic_title">Курсив за добавени думи</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">Фонов шум</string>
   <string name="prefs_noise_summary">Добавянето на малко шум към фона може да го направи по-удобен за очите.</string>
 
-  <string name="cpv_default_title">Изберете цвят</string>
-  <string name="cpv_presets">Предварителни настройки</string>
-  <string name="cpv_custom">Персонализиран</string>
-  <string name="cpv_select">Избери</string>
-  <string name="cpv_transparency">Прозрачност</string>
 
     <!-- Window -->
   <string name="new_window">Нов прозорец</string>
-  <string name="windowClose">Затвори</string>
   <string name="windowMaximise">Уголеми</string>
   <string name="windowMinimise">Смали</string>
   <string name="windowSynchronise">Синхронизирай</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">Закачи</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Няма коментари за тази глава</string>
-  <string name="no_verse_notes">Няма коментари за този стих</string>
   <string name="previous">Назад</string>
   <string name="next">Напред</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Моля изтеглете от интернет речници за Гръцки и Еврейски</string>
   <string name="no_indexed_bible_with_strongs_ref">Трябва да изтеглите текст който съдържа числата на Стронг, както и сътветен индекс за текста.</string>
-  <string name="morph_robinson_not_installed">Моля изтеглете речникът \"Robinson\'s Morphological Analysis Codes\"</string>
-  <string name="go_to_downloads">Отиди към Изтегляния</string>
 
     <!-- Module download -->
   <string name="download">Изтеглете ресурси</string>
   <string name="redownload">Преизтегли документи</string>
-  <string name="download_confirmation">Изтегляне на Библия от интернет?</string>
   <string name="download_source_last_updated">Списъците с документи са обновени последно: %s.</string>
   <string name="download_refreshing_book_list">Обновяване на списъка с налични документи от сървърите за документи…</string>
   <string name="download_source_message1">Документите се изтеглят от следните източници:</string>
   <string name="download_document_confirm_prefix">Изтегляне</string>
-  <string name="download_refresh_book_list_menu_item">Обнови</string>
   <string name="error_downloading">Възникна грешка при изтеглянето. Моля, проверете интернет връзката си.</string>
   <string name="error_downloading_status">Сървърът, хостващ %1$s, върна грешка поради %2$s (%3$d).</string>
   <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
@@ -368,15 +346,6 @@
   <string name="done">Готово</string>
   <string name="reset_plan_question">Сигурни ли сте, че искате да изчистите този план?</string>
   <string name="import_reading_plan">Импортирай план за четене…</string>
-  <string name="import_reading_plan_error">Грешка при импортиране</string>
-  <string name="import_reading_plan_error_duplicate">Следните дни бяха дублирани: %s</string>
-  <string name="import_reading_plan_error_days">Следните дни съдържаха грешки: %s</string>
-  <string name="import_reading_plan_anyway">Импортирай въпреки това</string>
-  <string name="overwrite_reading_plan">Искате ли да презапишете %s?</string>
-  <string name="delete_reading_plan">Изтрий този план</string>
-  <string name="reading_plan_deleted">Планът за четене е изтрит</string>
-  <string name="reading_plan_ships_with_ab">Този план за четене се доставя с %s</string>
-  <string name="confirm_delete_reading_plan">Сигурни ли сте, че искате да изтриете %s заедно с историята му на четене? Съвет: ако трябва да актуализирате плана, можете просто да го импортирате отново със същото име на файл и историята ще бъде запазена.</string>
   <string name="plan_duplicate_user_plan">На SD картата има потребителски план за четене в jsword/readingplan със същото име като вътрешен план. Той не може да бъде показан тук. Моля, преименувайте файла на друго название, запазвайки разширението му .properties</string>
   <string name="plan_name_y1ntpspr">НЗ, Псалми и Притчи за една година</string>
   <string name="plan_description_y1ntpspr">С любезното съдействие на интернет списание HEARTLIGHT, http://www.heartlight.org, с разрешение</string>
@@ -404,7 +373,6 @@
   <string name="notes">Бележки и препратки</string>
   <string name="share_verse">Сподели…</string>
   <string name="share_verse_widget_title">Сподели избраното</string>
-  <string name="share_verse_subject_2">Библейски стих беше споделен с вас чрез %s.</string>
   <string name="compare_translations">Сравни преводи</string>
 
     <!-- Link context menu -->
@@ -416,33 +384,26 @@
   <string name="bookmarks_and_mynotes_title">Отметки и мои бележки</string>
   <string name="migrated_my_notes">Мигрирани мои бележки</string>
   <string name="bookmarks">Отметките</string>
-  <string name="bookmark_added">Отметката е добавена</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Етикети</string>
   <string name="manage_labels">Управление на етикети</string>
   <string name="assign_labels">Задай етикет</string>
   <string name="new_item">Ново</string>
-  <string name="new_label">Нов етикет</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Етикетът е махнат</string>
   <string name="add_bookmark1">Отметка</string>
-  <string name="add_bookmark2">Отметка на избраното</string>
   <string name="add_bookmark3">Избрано</string>
   <string name="add_bookmark_whole_verse">Отметка на стих</string>
   <string name="add_bookmark_whole_verse1">Стихове</string>
-  <string name="add_bookmark_whole_verse2">Пълни стихове</string>
   <string name="add_whole_page_bookmark">Добави отметка за цялата страница</string>
   <string name="add_paragraph_break">Нов абзац</string>
   <string name="ai_label">ИИ</string>
-  <string name="remove_bookmark">Премахни</string>
   <string name="bookmark_settings_hide_labels_title">Скриване на посочени етикети</string>
   <string name="bookmark_settings_hide_labels_summary">Скриване на отметки, маркирани с посочен(и) етикет(и)</string>
   <string name="auto_assign_labels_title">Настройки на етикети</string>
   <string name="auto_assign_labels">Автоматично присвояване и любими етикети</string>
   <string name="auto_assign_labels1">Автоматично присвояване на етикет към нови отметки</string>
   <string name="auto_assign_labels_primary">Автоматично присвояване като основен</string>
-  <string name="label_color">Цвят на етикета</string>
-  <string name="label_color_example">Пример</string>
   <string name="marker_style">Показвай само маркер за отметки на избор</string>
   <string name="marker_style_whole_verse">Показвай само маркер за отметки на цял стих</string>
   <string name="hide_style">Скрий за отметки на избор</string>
@@ -470,11 +431,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d глава</string>
   <string name="some_chapters">%d глави</string>
-  <string name="rest_of_book">до края на книгата</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d стиха</string>
   <string name="some_verses">%d стиха</string>
-  <string name="rest_of_chapter">до края на главата</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d страница</string>
   <string name="some_pages">%d страници</string>
@@ -484,8 +443,6 @@
   <string name="rewind">Назад</string>
   <string name="forward">Напред</string>
   <string name="tts_lang_not_available">Езикът не е инсталиран</string>
-  <string name="speak_queue">Опашка</string>
-  <string name="speak_repeat">Повтори</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Скорост на говора</string>
@@ -558,14 +515,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Иконата %s показва, че настройката идва от настройките на работното пространство.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Иконата %s показва, че тази настройка е променена за конкретния прозорец.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Използвайте бутона %1$s, за да върнете всички тези настройки към %2$s.</string>
   <string name="reset_defaults">стойности по подразбиране</string>
   <string name="reset_workspace_defaults">стойности по подразбиране на работното пространство</string>
 
-  <string name="speak_bookmark_help">Помощ за отметки на речта</string>
 
   <string name="speak_help_auto_bookmark">Отметка за четене ще бъде добавена автоматично, когато четенето бъде поставено на пауза или спряно. Автоматично генерираните отметки са означени със специален етикет за четене. Ако започнете от отметка за четене, тя ще бъде преместена към стиха, на който спрете или поставите на пауза следващия път. Само етикетите за четене ще бъдат преместени, всички останали ще останат непроменени.</string>
   <string name="speak_help_playback_settings">Специалните настройки за възпроизвеждане (в „Настройки за възпроизвеждане" на екрана за четене) се запазват в отметките за четене, когато тази настройка е избрана. Когато рестартирате четенето от отметка за четене, запазените настройки за възпроизвеждане се зареждат от отметката.</string>
@@ -602,7 +557,6 @@
   <string name="backup_phone_storage">Хранилище на телефона</string>
   <string name="backup_and_restore">Резервно копие</string>
   <string name="backup_modules2">Резервно копие на ресурсите в…</string>
-  <string name="backup_app_database2">Резервно копие на базата данни в…</string>
   <string name="backup_app2">Резервно копие на приложението (.apk файл) в…</string>
   <string name="backup_application">Приложение</string>
   <string name="backup_database">База данни</string>
@@ -614,17 +568,13 @@
   <string name="backup_restore_from">Възстанови от…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Възстанови или импортирай от…</string>
-  <string name="backup_restore">Възстанови</string>
   <string name="backup_restore2">Възстанови или импортирай</string>
   <string name="overwrite_something">Презаписване на %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Какво искате да възстановите?</string>
 
-  <string name="restore_app_database">Възстанови базата данни на приложението от…</string>
   <string name="restore_database">Възстанови файл с база данни</string>
   <string name="restore_confirmation">Презаписване на мои бележки, отметки, бележници, планове за четене и работни пространства?</string>
-  <string name="restore_success2">Избраните секции от базата данни са възстановени успешно</string>
   <string name="restore_success">Мои бележки, отметки, бележници, планове за четене и работни пространства са възстановени успешно</string>
   <string name="downloading_backup">Изтегляне на резервния файл…</string>
   <string name="loading_backup">Зареждане на базата данни от резервно копие…</string>
@@ -640,14 +590,12 @@
   <string name="exported_studypads_subject">Експортирани бележници</string>
   <string name="exported_studypads_message">Приложена е базата ви данни %s, съдържаща отметки и бележки за избраните бележници</string>
   <string name="restore_unsuccessfull">Възстановяването на базата данни беше неуспешно. Вероятно сте предоставили невалиден файл с база данни.</string>
-  <string name="restore_modules">Възстанови ресурси от…</string>
   <string name="send_backup_file">Изпрати резервен файл</string>
   <string name="backup_modules_title">Изберете кои модули да архивирате</string>
   <string name="install_zip_canceled">Инсталирането на модула е отменено</string>
   <string name="ask_restore_or_import">Базата данни за %s може да бъде възстановена (т.е. съществуващата база данни се премахва и се зарежда избраната) или импортирана (избраната база данни се импортира в съществуващата). Какво искате да направите?</string>
   <string name="restore">Възстанови</string>
   <string name="import2">Импортирай</string>
-  <string name="export_studypads_help">Файл, съдържащ експортирани бележници (т.е. етикети и отметки), може да бъде импортиран чрез Главно меню → Архивиране и възстановяване.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" и %2$s други етикет(а) / бележник(а) и %3$s отметки</string>
@@ -661,8 +609,6 @@
   <string name="module_about_osisId">OSIS ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Доклад за грешка</string>
-  <string name="send_feedback_title">Обратна връзка</string>
   <string name="send_bug_report_title">Обратна връзка / доклад за грешка</string>
   <string name="report_bug_email_subject_3">[%1$s] Доклад за грешка за %2$s %3$s</string>
 
@@ -701,10 +647,8 @@
   <string name="yes">Да</string>
   <string name="no">Не</string>
   <string name="error">Грешка</string>
-  <string name="delete_generic">Изтрий</string>
   <string name="please_wait">Моля, изчакайте…</string>
   <string name="all">Всичко</string>
-  <string name="edit">Редактирай</string>
   <string name="reset_generic">Изчистване</string>
   <string name="watch_tutorial_video">Гледай гид на потребителя (на английски)</string>
   <string name="verse_not_found">Стихът не е намерен</string>
@@ -728,12 +672,11 @@
   <string name="notification_channel_progress_status">Известие за напредъка при изтегляне на ресурси и др.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Ново</string>
   <string name="switch_to_workspace">Работни пространства</string>
   <string name="delete_workspace">Премахни</string>
   <string name="new_copied_workspace">Копирай като ново</string>
   <string name="workspace_number">Работно пространство %d</string>
-  <string name="rename_workspace">Преименуване</string>
+  <string name="rename">Преименуване</string>
   <string name="workspace_selector_title">Изберете работно пространство</string>
   <string name="workspace_settings">Настройки…</string>
   <string name="give_name_workspace">Въведете име за новото работно пространство</string>
@@ -746,19 +689,17 @@
   <string name="copy_settings_workspaces_title">В кои работни пространства искате да копирате настройките?</string>
   <string name="reset_settings">Изчистване</string>
   <string name="search_settings">Търси настройки</string>
-  <string name="workspace_dismiss">Затвори</string>
+  <string name="dismiss">Затвори</string>
   <string name="workspace_listing_with_current">%s (текущо)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Това е бета версия!</string>
-  <string name="beta_flag">БЕТА</string>
   <string name="beta_notice_content_1">В бета версията има нови функции, които не са напълно тествани, и затова използването на бета може да въведе неочаквано поведение, т.е. грешки. Препоръчва се обикновените читатели на Библията да използват стабилната версия.</string>
 
   <string name="beta_notice_content_2">Бета потребителите се насърчават да докладват грешки чрез Google Play или (за предпочитане) чрез %s.</string>
   <string name="beta_notice_content_3">Ако сте програмист, моля, обмислете да допринесете с поправки на грешки чрез %s сами. :-)</string>
   <string name="beta_notice_github_issues">Github issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Затвори</string>
   <string name="beta_notice_dismiss_until_update">Затвори до следващата актуализация</string>
 
   <string name="stable_notice_title">Приложението е актуализирано!</string>
@@ -779,9 +720,6 @@
 
   <string name="help_search_title">Търси</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Текстът за търсене може да включва специални знаци като *, ?, AND, OR, NOT
-        (виж документацията на \"Apache Lucene - Query Parser Syntax\")
-    </string>
   <string name="help_search_text2">Търсеният текст може да включва специални символи като *, AND, OR, NOT</string>
   <string name="help_search_details">Моля, вижте %s за повече подробности.</string>
   <string name="help_apache_lucene">Apache Lucene — синтаксис на заявките за търсене</string>
@@ -797,7 +735,6 @@
   <string name="redownload_documents">Бързо повторно изтегляне</string>
   <string name="welcome_message">Благодарим ви, че изтеглихте %s. В момента няма инсталирани Библии или документи. За да продължите, моля инсталирайте поне 1 документ, като го изтеглите от интернет или го заредите от zip файл с архив на документи.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Поддържани формати</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Трябва да изберете файла, който искате да заредите в %s.</string>
   <string name="supported_formats">Поддържани формати за зареждане на ресурси от файл: %s</string>
@@ -821,7 +758,6 @@
   <string name="strongs_mode_title">Изберете режим на Strong\'s</string>
 
   <string name="download_dialog_message">Следните книги не можаха да бъдат изтеглени:</string>
-  <string name="select_multiple">Избери няколко</string>
   <string name="journal_description">Редактируеми от потребителя бележници с произволен текст и отметки</string>
   <string name="my_notes_description">Редактируеми от потребителя бележки, прикачени към отметки</string>
   <string name="my_notes_abbreviation">Мои бележки</string>
@@ -836,7 +772,6 @@
   <string name="http_not_found">Не е намерено</string>
   <string name="http_unknown">Друга грешка</string>
   <string name="give_passphrase_for_module">Ресурсът %s е шифрован и изисква парола за отключване</string>
-  <string name="unlocking_failed">Отключването не бе успешно, невалидна парола</string>
   <string name="unlock_module">Задай парола за модул</string>
   <string name="unlock_info">Информация за отключване на шифрован модул</string>
   <string name="try_again_passphrase">Паролата не работи, опитайте отново?</string>
@@ -888,8 +823,6 @@
   <string name="tell_friend_message4">Прочети повече и повече опции за инсталиране: %s</string>
   <string name="share_verse_ok">Сподели / Копирай</string>
   <string name="web_search">Търсене в мрежата</string>
-  <string name="verse_action_copy">Копирай</string>
-  <string name="generic_share">Сподели</string>
   <string name="share_verse_menu_title">Сподели / копирай…</string>
   <string name="show_versenumbers">Покажи номерата на стиховете.</string>
   <string name="show_full_verses">Показвай пълни стихове</string>
@@ -906,9 +839,6 @@
   <string name="show_quotes">Показвай кавички</string>
   <string name="separate_verses_with_newlines">Разделяй стихове с нови редове</string>
 
-  <string name="backup_button">Резервно копие</string>
-  <string name="back_button">Назад</string>
-  <string name="upgrading_database">Надграждане на базата данни. Моля, изчакайте…</string>
   <string name="initializing_app">Инициализиране на приложението…</string>
   <string name="show_notes">Показвай бележки</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -932,7 +862,6 @@
   <string name="send_email">\n       изпратете имейл до разработчиците\n    </string>
   <string name="proceed_google_play">\n        Продължи към Google Play\n    </string>
   <string name="text_maintainers">\n       моля, докладвайте проблеми на поддържащите текста\n    </string>
-  <string name="does_not_exist_abbreviation">Не съществува</string>
   <string name="cant_change_wholeverse">Не може да се изключи маркирането на целия стих за тази отметка</string>
   <string name="whole_verse_turned_on">Отметката вече е маркирана за целия стих</string>
   <string name="this_bookmark">Тази отметка</string>
@@ -945,7 +874,6 @@
   <string name="display_mode_hidden">Скрито</string>
   <string name="workspace_override_indicator">Този етикет има режим на показване, специфичен за работното пространство</string>
   <string name="primary_label">Основен етикет</string>
-  <string name="highlight_entire_verse">Открояване на целия стих</string>
   <string name="favourite_label">Любим етикет</string>
   <string name="edit_label">Редактирай етикета</string>
   <string name="delete_label_confirmation">Искате ли да премахнете етикета за отметка „%s"? Всички свързани бележки от бележника също ще бъдат премахнати.</string>
@@ -963,7 +891,6 @@
   <string name="reorder">Пренаредване</string>
   <string name="system_items">Системни действия</string>
   <string name="system_items1">Още</string>
-  <string name="system_action2">Действия на Android</string>
   <string name="text_copied_to_clicpboard">Текстът е копиран в клипборда</string>
   <string name="prefs_disable_two_step_bookmarking_title">Добавяне на отметка в една стъпка</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Показвай елементите „Избор" и „Стихове" директно в менюто за избор в изгледа на Библията</string>
@@ -977,7 +904,6 @@
   <string name="label_blue">Син</string>
   <string name="label_salvation">Спасение</string>
   <string name="label_underline">Подчертаване</string>
-  <string name="import_menu">Импортиране и експортиране</string>
   <string name="auto_backups_title">Автоматични резервни копия</string>
   <string name="backup_file_info">Прил. v%1$d, %2$s</string>
   <string name="reset_databases_title">Изчистване на бази данни</string>
@@ -995,18 +921,12 @@
   <string name="export_prompts_csv">Експортирай подкани в CSV</string>
   <string name="import_prompts_csv">Импортирай подкани от CSV</string>
   <string name="prompts_csv_export_success">Експортирани %d подкани в CSV</string>
-  <string name="prompts_csv_import_success">Импортирането завърши: %1$d създадени, %2$d актуализирани</string>
-  <string name="prompts_csv_import_errors">Импортирането завърши с грешки: %1$d създадени, %2$d актуализирани, %3$d грешки</string>
-  <string name="prompts_csv_import_failed">Импортирането от CSV не бе успешно: %s</string>
-  <string name="prompts_csv_export_failed">Експортирането в CSV не бе успешно: %s</string>
   <string name="no_prompts_to_export">Няма потребителски подкани за експортиране</string>
   <string name="csv_column_selection_title">Избор на колони за CSV</string>
-  <string name="choose_csv_file">Избери CSV файл за импортиране</string>
   <string name="no_bookmarks_to_export">Няма налични отметки за експортиране</string>
   <string name="export_fileformat">Експортирай като %s</string>
   <string name="export_something">Експортирай %s</string>
   <string name="import_items">Импортирай %s</string>
-  <string name="import_from_db">Импортирай от файл с база данни на приложението</string>
   <string name="import_error">Импортирането от база данни на приложението не бе успешно. Файлът с база данни може да е в грешен формат или да е направен с твърде стара версия на %s.</string>
 
   <string name="export_bookmarks_csv">Експортирай отметки като %s</string>
@@ -1035,23 +955,13 @@
   <string name="last_updated_at">Последно обновено на</string>
   <string name="bookmark_notes">Бележки към отметката</string>
 
-  <string name="chooser_range">Диапазон</string>
-  <string name="chooser_jump">Прескочи</string>
-  <string name="chooser_OT_abbrev">СЗ</string>
-  <string name="chooser_NT_abbrev">НЗ</string>
-  <string name="chooser_style_grid">Мрежа</string>
-  <string name="chooser_style_lists">Списъци</string>
-  <string name="chooser_select">Избери %s</string>
-  <string name="chooser_pref_reset">Да не се нулира глава/стих до 1 при избор на книга/глава</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Съжаляваме, но имаме само частичен превод на потребителски интерфейс на език %1$s. Това е така, защото %2$s е изцяло разработен от доброволци. Ако можете да помогнете при превода, моля, вижте %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">инструкции за преводачи</string>
   <string name="questions_title">Въпроси?</string>
-  <string name="questions_title2">Нужна ли ви е помощ?</string>
   <string name="bookmark_style">Стил на отметката</string>
   <string name="added_to_bookmark">Присвоено към тази отметка</string>
-  <string name="strongs_off">Изключено</string>
   <string name="strongs_links">Връзки</string>
   <string name="strongs_text_and_links">Текст и връзки</string>
   <string name="strongs_hidden_links">Скрити връзки</string>
@@ -1090,7 +1000,6 @@
   <string name="discrete_mode_link">Можете да изтеглите най-новата версия на дискретната версия от %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Синхронизирай група</string>
   <string name="sync_group_n">Група %d</string>
   <string name="disable_sync">Забрани синхронизирането</string>
   <string name="open_in_window">Отвори резултатите в прозорец</string>
@@ -1101,10 +1010,8 @@
   <string name="custom_repositories_empty_list_message">Няма дефинирани персонализирани хранилища</string>
   <string name="custom_repositories_create_button_label">Добави персонализирано хранилище</string>
   <string name="custom_repositories_info_button_label">Информация</string>
-  <string name="name_for_repository">Наименование за хранилището</string>
   <string name="repository_specification">URL адрес на хранилището</string>
   <string name="delete_custom_repository">Искате ли да премахнете персонализираното хранилище %s?</string>
-  <string name="invalid_repository_not_saved">Спецификацията на хранилището беше невалидна и не беше запазена.</string>
   <string name="custom_repositories_help1">За да добавите ново персонализирано хранилище, въведете или копирайте и поставете URL адреса на персонализираното хранилище тук.</string>
   <string name="custom_repositories_help2">Можете да прочетете повече информация за персонализираните хранилища в %s.</string>
   <string name="wiki_page">WIKI страница</string>
@@ -1140,7 +1047,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Напредък в четенето/запаметяването</string>
   <string name="reading_progress_chapters_read">прочетени глави</string>
-  <string name="reading_progress_verses_memorized">запомнени стихове</string>
   <string name="reading_progress_active_days">активни дни</string>
   <string name="reading_progress_overall">%s%% от библията прочетена</string>
   <string name="reading_progress_bible_heatmap">Преглед на библията</string>
@@ -1166,13 +1072,11 @@
   <string name="sync_adapter_summary">Текущ: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Удостоверяване в %s</string>
   <string name="auth_server_uri">URL адрес на сървъра</string>
   <string name="auth_username">Потребителско име</string>
   <string name="auth_password">Парола</string>
   <string name="auth_folder_path">Път до папката за синхронизиране</string>
   <string name="auth_folder_path_summary">Родителска папка за данните за синхронизиране (празно = основна)</string>
-  <string name="auth_access_token">Токен за достъп</string>
   <string name="synchronization_categories">Категории за синхронизиране</string>
   <string name="sync_general_settings">Информация и общи настройки</string>
   <string name="sync_introduction">Въведение</string>
@@ -1188,8 +1092,6 @@
   <string name="report">Доклад</string>
   <string name="sync_error">Възникна грешка при облачното синхронизиране</string>
   <string name="error_notification_channel_name">Известия за грешки</string>
-  <string name="restore_from_cloud_description">Ако сте активирали синхронизиране на устройства на друго устройство, можете да започнете, като възстановите базата данни от облака.</string>
-  <string name="enable_sync">Активирай синхронизирането</string>
   <string name="last_updated">Последно актуализирано: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1210,11 +1112,6 @@
   <string name="processing_epub">Обработване на EPUB: %s</string>
   <string name="buy_development">Купи разработка</string>
   <string name="buy_development2">Подкрепи проекта</string>
-  <string name="new_version_warning">Скоро ще бъде пуснато ново издание. Очакваната дата на пускане е %1$s. Следете нашия %2$s, за да разберете за новите функции и подобрения.</string>
-  <string name="new_version_trailer">трейлър видео</string>
-  <string name="new_version_warning2">След пускането тази версия няма да се поддържа.</string>
-  <string name="new_version_warning3">Тя няма да получава поправки на грешки или актуализации.</string>
-  <string name="new_version_warning4">Ако не искате да надстроите, моля деактивирайте „Автоматични актуализации" в магазина си за приложения (Google Play / F-Droid и т.н.).</string>
   <string name="dont_show">Не показвай това съобщение отново</string>
   <string name="pref_font_size_multiplier_title">Множител за размер на шрифта</string>
   <string name="pref_font_size_multiplier_summary_1">Умножава размерите на шрифта на текста по това число.</string>
@@ -1233,7 +1130,6 @@
   <string name="invalid_url_message">Въведеният URL адрес е невалиден. Моля, въведете валиден URL адрес (напр. https://nextcloud.example.com)</string>
   <string name="memorize_description">Наизустяване на библейски стихове</string>
   <string name="memorize_abbreviation">Наизуст</string>
-  <string name="add_memorization_target">Задай като цел за наизустяване</string>
   <string name="memorize_memorized_passages">Наизустени пасажи</string>
   <string name="memorize_no_memorized_passages">Все още няма наизустени пасажи</string>
   <string name="memorize_targets">Цели за наизустяване</string>
@@ -1265,17 +1161,8 @@
   <string name="memorize_view_overview">Преглед</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM превод</string>
   <string name="sync_settings_shortcut_summary">Синхронизирай данни между устройства</string>
-  <string name="llm_api_key_title">API ключ</string>
-  <string name="llm_api_key_summary">API ключ, съвместим с OpenAI</string>
   <string name="llm_provider_custom">Персонализиран (съвместим с OpenAI)</string>
-  <string name="llm_provider_title">Доставчик</string>
-  <string name="llm_provider_summary">Изберете кой AI доставчик на услуги да използвате. API крайната точка и наличните модели ще бъдат конфигурирани автоматично.</string>
-  <string name="llm_provider_current">Текущ: %s</string>
-  <string name="llm_api_key_detected_provider">Открит доставчик: %s</string>
-  <string name="ai_connection_category">Връзка</string>
-  <string name="ai_model_category">Модел</string>
   <string name="ai_behavior_category">Поведение</string>
   <string name="ai_language_title">Език на AI отговорите</string>
   <string name="ai_language_summary">Езикът, който AI използва за отговори</string>
@@ -1292,16 +1179,9 @@
   <string name="llm_reset_usage_confirm_title">Нулиране на данните за използване?</string>
   <string name="llm_reset_usage_confirm_message">Това ще изчисти всички натрупани данни за използване.</string>
   <string name="llm_custom_input_price_title">Цена за вход ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Цена за милион входни токени за този модел</string>
   <string name="llm_custom_output_price_title">Цена за изход ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Цена за милион изходни токени за този модел</string>
   <string name="llm_cost_total">Общо: %1$s</string>
-  <string name="llm_endpoint_title">API крайна точка</string>
-  <string name="llm_endpoint_summary">Основен URL адрес на API</string>
-  <string name="llm_model_title">Модел</string>
-  <string name="llm_model_summary">Идентификатор на модела</string>
   <string name="llm_custom_model">Персонализиран…</string>
-  <string name="llm_custom_model_dialog_title">Персонализиран модел</string>
   <string name="llm_custom_model_dialog_message">Въведете идентификатора на модела</string>
   <string name="llm_rate_limited_retrying">Ограничена скорост. Повторен опит след %1$ss\u2026</string>
   <string name="llm_default_document_title">AI отговор</string>
@@ -1311,7 +1191,6 @@
   <string name="llm_parse_error_no_choices">Няма избори в отговора на OpenAI</string>
   <string name="llm_parse_error_openai">Неуспешно анализиране на отговора на OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Неуспешно анализиране на отговора на Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Подканата не е намерена: %1$s</string>
   <string name="llm_error_unknown">Неизвестна грешка</string>
   <string name="llm_error_max_iterations">Достигнат е максималният брой итерации (%1$d) без завършване</string>
   <string name="llm_continue_iterations_title">Продължи?</string>
@@ -1346,7 +1225,6 @@
   <string name="raw_log_retention_summary_disabled">Изключено (запази всички)</string>
   <string name="send_ai_bug_report_title">Докладвай AI грешка</string>
   <string name="ai_bug_report_menu">Докладвай AI грешка</string>
-  <string name="ai_bug_report_recommended_only">Докладването на грешки е достъпно само за препоръчани модели на доставчика</string>
 
   <string name="select_model_before_run_title">Избери модел</string>
   <string name="set_default_model_for_prompt">Задай като модел по подразбиране за тази подкана</string>
@@ -1376,7 +1254,6 @@
   <string name="ai_models_summary_none">Няма конфигурирани модели</string>
   <string name="ai_add_provider">Добави доставчик</string>
   <string name="ai_provider_edit">Редактирай</string>
-  <string name="ai_provider_delete">Изтрий</string>
   <string name="ai_provider_delete_confirm">Изтрий доставчика \"%1$s\"? Подканите, използващи този доставчик, ще се върнат към стандартния.</string>
   <string name="ai_provider_api_key_not_set">API ключът не е зададен</string>
   <string name="ai_provider_select_type">Избери тип доставчик</string>
@@ -1388,27 +1265,18 @@
   <string name="ai_provider_saved">Доставчикът е запазен</string>
   <string name="ai_provider_deleted">Доставчикът е изтрит</string>
 
-  <string name="llm_fetch_models_title">Изтегли списък с модели</string>
-  <string name="llm_fetch_models_message">Изтегли списъка с налични модели от %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Не питай отново</string>
-  <string name="llm_fetch_models_success">Заредени са %1$d модела</string>
-  <string name="llm_fetch_models_failed">Неуспешно изтегляне на модели</string>
   <string name="llm_openrouter_category">Категория</string>
   <string name="llm_openrouter_category_all">Всички</string>
   <string name="llm_openrouter_model">Модел</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Модели</string>
   <string name="add_model">Добави модел</string>
-  <string name="add_model_title">Добави модел</string>
   <string name="edit_model_title">Редактирай модел</string>
   <string name="model_saved">Моделът е запазен</string>
   <string name="model_deleted">Моделът е изтрит</string>
   <string name="model_delete_confirm">Изтрий модела \"%1$s\"?</string>
   <string name="model_set_default">Задай като модел по подразбиране</string>
   <string name="model_select_provider">Доставчик</string>
-  <string name="no_models_configured">Няма конфигурирани модели</string>
-  <string name="model_cache_creation_price">Цена за създаване на кеш ($/Мтокен)</string>
-  <string name="model_cache_read_price">Цена за четене от кеш ($/Мтокен)</string>
   <string name="model_supported_badge">✓ Поддържан</string>
   <string name="show_also_unsupported_models">Покажи и неподдържаните модели</string>
   <string name="show_also_unsupported_providers">Покажи и неподдържаните доставчици</string>
@@ -1419,7 +1287,6 @@
   <string name="unknown_error">Неизвестна грешка</string>
   <string name="easy_setup_title">Бързо настройване</string>
   <string name="easy_setup_pref_summary">Настройте AI с препоръчан доставчик в няколко стъпки</string>
-  <string name="easy_setup_choose_provider">Изберете доставчик, за да започнете:</string>
   <string name="easy_setup_enter_api_key">Въведете вашия API ключ</string>
   <string name="easy_setup_api_key_instructions">Вземете своя API ключ от:</string>
   <string name="easy_setup_test_connection">Тествай връзката</string>
@@ -1478,7 +1345,6 @@
   <string name="addon_prompt_notice">Тази подсказка е от добавъчен модул \"%s\" и не може да се редактира. Използвайте „Копирай за персонализиране", за да създадете редактируемо копие.</string>
   <string name="new_category">Нова категория</string>
   <string name="new_category_name">Наименование на категория</string>
-  <string name="rename_category">Преименувай</string>
   <string name="move_category_up">Премести нагоре</string>
   <string name="move_category_down">Премести надолу</string>
   <string name="hide_category">Скрий от AI действия</string>
@@ -1523,28 +1389,22 @@
   <string name="llm_note_updated">Бележката е обновена</string>
   <string name="specify_before_run_title">Уточнете задачата</string>
   <string name="specify_before_run_hint">Опишете конкретната задача…</string>
-  <string name="prompt_cache_settings">Настройки на кеша</string>
   <string name="prompt_strict_context_matching">Кеш, зависим от контекста</string>
   <string name="prompt_strict_context_matching_description">Когато е активирано, кешът съвпада само ако целият контекст (версия на библията, избран текст) е еднакъв. Когато е деактивирано, кешът съвпада при еднакви стихове независимо от версията на библията.</string>
   <string name="ai_document_delete_confirmation">Изтриване на този AI ресурс?</string>
-  <string name="ai_document_deleted">Този AI ресурс беше изтрит.</string>
   <string name="ai_document_regenerating">Повторно генериране на AI ресурс…</string>
-  <string name="ai_document_regenerate_not_implemented">Повторното генериране ще бъде налично в бъдеща актуализация</string>
   <string name="ai_regenerate_prompt_not_found">Не може да се генерира повторно: оригиналната подсказка не е намерена. Може би е била изтрита.</string>
   <string name="ai_document_regenerate">Генерирай повторно</string>
   <string name="ai_regenerate_title">Повторно генериране</string>
   <string name="ai_regenerate_instructions_hint">Допълнителни инструкции (незадължително)</string>
   <string name="ai_regenerate_keep_previous">Запази предишната версия</string>
   <string name="ai_regenerate_fresh_run">Ново стартиране (игнорирай предишния резултат)</string>
-  <string name="ai_document_delete">Изтрий</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Преведи на %s</string>
   <string name="default_prompt_translate_to_ui_language">Преведи на езика на интерфейса</string>
   <string name="default_prompt_translate_to_ui_language_desc">Превежда текста на ресурса на езика на интерфейса на приложението</string>
-  <string name="default_prompt_translate_to_english">Преведи на английски</string>
-  <string name="default_prompt_translate_to_english_desc">Превежда избрания текст на английски</string>
   <string name="default_prompt_summary">Резюме</string>
   <string name="default_prompt_summary_desc">Създава кратко резюме на избрания текст</string>
   <string name="default_prompt_explain_verses">Обясни стиховете</string>
@@ -1553,8 +1413,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Създава бележник с обяснение стих по стих и отметки</string>
   <string name="default_prompt_word_study">Изучаване на думи</string>
   <string name="default_prompt_word_study_desc">Анализира оригинални еврейски/гръцки думи</string>
-  <string name="default_prompt_strongs_annotation">Анотация с номера на Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Добавя номера от конкорданса на Strong\'s към всеки библейски превод, използвайки KJV като справка</string>
   <string name="default_prompt_cross_references">Препратки</string>
   <string name="default_prompt_cross_references_desc">Открива и обяснява свързани библейски пасажи</string>
   <string name="default_prompt_compare_translations">Сравни преводи</string>
@@ -1697,11 +1555,7 @@
   <string name="ai_document_filter_summary">Изберете кои ресурси може да чете ИИ</string>
   <string name="ai_document_filter_summary_count">%d изключени ресурса</string>
   <string name="ai_document_filter_activity_title">Достъп на ИИ до ресурси</string>
-  <string name="ai_document_excluded_error">Ресурсът е изключен от настройките на потребителя: %s</string>
   <string name="permission_status_default">Питай (по подразбиране)</string>
-  <string name="permission_status_allowed">Винаги разрешено</string>
-  <string name="permission_status_denied">Винаги отказано</string>
-  <string name="permission_option_default">Питай всеки път (по подразбиране)</string>
   <string name="permission_option_always_allow">Винаги разрешавай</string>
   <string name="permission_option_always_deny">Винаги отказвай</string>
   <string name="reset_all_permissions">Нулирай всички</string>
@@ -1716,10 +1570,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Разрешения за инструменти</string>
-  <string name="prompt_tool_permissions_read_only">Разрешения за инструменти (само за четене)</string>
-  <string name="prompt_tool_permissions_description">Замени разрешенията за инструменти за тази заявка</string>
-  <string name="tool_section_read_tools">Инструменти за четене</string>
-  <string name="tool_section_write_tools">Инструменти за писане</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Библия и търсене</string>
@@ -1742,13 +1592,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Модел</string>
   <string name="prompt_model_default">По подразбиране</string>
-  <string name="prompt_model_custom">Персонализиран</string>
-  <string name="prompt_model_custom_hint">Въведете име на модел</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Избери AI действие</string>
-  <string name="no_llm_prompts_configured">Няма конфигурирани AI подсказки за избор на стих</string>
-  <string name="llm_prompt_executing">Изпълнение на AI подсказка: %s</string>
   <string name="llm_actions">AI действия</string>
 
     <!-- Agent Log Widget -->
@@ -1756,9 +1602,7 @@
   <string name="agent_log_close">Затвори дневника на агента</string>
   <string name="agent_log_stop">Спри AI</string>
   <string name="agent_log_idle">AI асистент</string>
-  <string name="agent_log_running">AI работи…</string>
   <string name="agent_log_completed">Завършено</string>
-  <string name="agent_log_error">Възникна грешка</string>
   <string name="agent_log_executing">Изпълнява се: %s</string>
   <string name="agent_log_iteration">Итерация %d</string>
   <string name="agent_log_tool">Инструмент: %s</string>
@@ -1768,7 +1612,6 @@
   <string name="agent_log_saved">Запазено: %s</string>
   <string name="agent_log_done">Готово: %s</string>
   <string name="agent_log_cancelled">Отменено</string>
-  <string name="agent_execution_completed">Изпълнението на агента завърши</string>
   <string name="agent_already_running">Вече работи AI агент. Изчакайте или го спрете първо.</string>
 
     <!-- AI Agent Notifications -->
@@ -1787,22 +1630,16 @@
   <string name="my_document_new_name">Документ %d</string>
   <string name="my_document_create_title">Създай нов документ</string>
   <string name="my_document_rename_title">Преименувай документ</string>
-  <string name="my_document_edit_description_title">Редактирай описание</string>
   <string name="my_document_delete_confirmation">Изтрий документа \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI документите не могат да бъдат изтрити, докато съдържат страници. Изтрийте първо страниците.</string>
   <string name="my_document_save_changes">Запази промените?</string>
   <string name="my_document_no_description">Няма описание</string>
-  <string name="my_document_rename">Преименувай</string>
   <string name="my_document_edit_description">Редактирай описание</string>
-  <string name="my_document_delete">Изтрий</string>
 
   <string name="my_document_pages_title">%s – Страници</string>
   <string name="my_document_pages_empty">Няма страници в този документ.</string>
   <string name="my_document_page_rename_title">Преименувай страница</string>
   <string name="my_document_page_delete_confirmation">Изтрий страницата \"%s\"?</string>
-  <string name="my_document_page_rename">Преименувай</string>
-  <string name="my_document_page_delete">Изтрий</string>
-  <string name="my_document_page_export">Експортирай</string>
   <string name="my_document_new_page_name">Страница %1$d</string>
   <string name="my_document_create_page_title">Нова страница</string>
   <string name="my_document_content_type_label">Тип съдържание</string>
@@ -1822,12 +1659,10 @@
 
   <string name="prefs_page_scroll_amount_title">Количество превъртане на страница</string>
   <string name="prefs_page_scroll_amount_summary">Колко от страницата да се превърта при страница нагоре/надолу</string>
-  <string name="page_scroll_amount_dialog_title">Количество превъртане на страница</string>
   <string name="prefs_scroll_helper_lines_title">Помощни линии за превъртане</string>
   <string name="prefs_scroll_helper_lines_summary">Показвай хоризонтални ориентировъчни линии на границите при превъртане на страница</string>
   <string name="prefs_scroll_helper_line_style_title">Стил на помощната линия</string>
   <string name="prefs_scroll_helper_line_style_summary">Избери визуалния стил на помощните линии за превъртане</string>
-  <string name="scroll_helper_line_style_dialog_title">Стил на помощната линия</string>
   <string name="scroll_helper_line_style_thin_dotted">Тънка пунктирана линия</string>
   <string name="scroll_helper_line_style_thin_solid">Тънка непрекъсната линия</string>
   <string name="scroll_helper_line_style_thick_solid">Дебела непрекъсната линия</string>

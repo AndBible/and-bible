@@ -57,11 +57,9 @@
   <string name="search_current_book">Buku sekarang</string>
   <string name="error_executing_search">Permintaan pencarian salah</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title1">Nomor ayat</string>
   <string name="prefs_verse_per_line_summary">Tunjukan setiap ayat di baris yang berbeda</string>
   <string name="prefs_show_bookmarks_summary">Hapus tanda klik untuk menyembunyikan semua bookmark</string>
   <string name="prefs_show_mynotes_summary">Tampilkan ikon di ayat-ayat dengan Catatanku</string>
-  <string name="prefs_show_notes_summary">Tampilkan catatan kaki dan referensi silang</string>
   <string name="prefs_show_strongs_summary">Link ke definisi Yunani dan Ibrani</string>
   <string name="prefs_show_morphology_summary">Tampilkan morfologi Yunani Robinson</string>
   <string name="prefs_section_title_summary">Tampilkan judul perikop yg non-kanonik</string>
@@ -70,7 +68,6 @@
   <string name="prefs_show_bookmarks_title">Tampilkan penanda buku</string>
   <string name="prefs_show_mynotes_title">Tampilkan ikon Catatanku</string>
   <string name="prefs_show_footnotes_title">Catatan kaki</string>
-  <string name="prefs_show_notes_title">Catatan kaki dan referensi silang</string>
   <string name="prefs_show_strongs_title">Nomor Strong</string>
   <string name="prefs_show_morphology_title">Kode-kode morfologi</string>
   <string name="prefs_section_title_title">Judul Perikop</string>
@@ -94,23 +91,17 @@
   <string name="colors_night_mode_title">Mode malam</string>
   <!--Window-->
   <string name="new_window">Jendela baru</string>
-  <string name="windowClose">Tutup</string>
   <string name="windowMaximise">Membesarkan</string>
   <string name="windowMinimise">Mengecilkan</string>
   <string name="windowSynchronise">Sinkronkan</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Tidak ada catatan dalam pasal ini</string>
-  <string name="no_verse_notes">Tidak ada catatan dalam ayat ini</string>
   <string name="previous">Sebelumnya</string>
   <string name="next">Berikutnya</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Silahkan download kamus Strong Ibrani dan Yunani</string>
   <string name="no_indexed_bible_with_strongs_ref">Anda harus mengunduh Alkitab berisi nomor Strong dan unduh indeksnya melalui Penelusuran/Pencarian</string>
-  <string name="morph_robinson_not_installed">Silahkan mengunduh kamus \'Robinson\'s Morphological Analysis Codes\'</string>
   <!--Module download-->
   <string name="download">Unduh Dokumen</string>
   <string name="download_document_confirm_prefix">Unduh</string>
-  <string name="download_refresh_book_list_menu_item">Refresh</string>
   <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
   <string name="document_not_installed">Silahkan unduh \'%s\'</string>
   <string name="free_text_search_documents">Pencarian</string>
@@ -173,10 +164,8 @@
   <string name="open_link_in_special_window">Buka link di jendela khusus</string>
   <!--Bookmarks-->
   <string name="bookmarks">Penanda Buku</string>
-  <string name="bookmark_added">Penanda buku ditambahkan</string>
   <string name="assign_labels">Tetapkan label</string>
   <string name="new_item">Baru</string>
-  <string name="new_label">Label Baru</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
   <!--can be removed-->
@@ -194,11 +183,9 @@
   <!--Speak - Bible-->
   <string name="one_chapter">%d pasal</string>
   <string name="some_chapters">%d pasal-pasal</string>
-  <string name="rest_of_book">Ke akhir buku</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d ayat</string>
   <string name="some_verses">%d ayat-ayat</string>
-  <string name="rest_of_chapter">Ke akhir pasal</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d halaman</string>
   <string name="some_pages">%d halaman-halaman</string>
@@ -208,8 +195,6 @@
   <string name="rewind">Mundur</string>
   <string name="forward">Maju</string>
   <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
-  <string name="speak_queue">Antrian</string>
-  <string name="speak_repeat">Ulangi</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Kecepatan berbicara</string>
   <string name="speak_and_play_earcons_title">Bicara dan putar efek suara untuk</string>
@@ -253,7 +238,6 @@
   <!--Parameter is actual icon-->
   <!--Parameter is actual icon-->
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
-  <string name="speak_bookmark_help">Bantuan untuk penanda buku Bicara</string>
   <string name="speak_help_auto_bookmark">
  Penanda buku Bicara akan ditambahkan secara otomatis ketika Bicara dijeda atau dihentikan.
  Penanda buku yang dihasilkan secara otomatis ditandai dengan label Bicara khusus.
@@ -330,10 +314,8 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
   <string name="error">Salah</string>
-  <string name="delete_generic">Hapus</string>
   <string name="please_wait">Silahkan tunggu...</string>
   <string name="all">Semua</string>
-  <string name="edit">Edit</string>
   <string name="reset_generic">Atur Ulang</string>
   <string name="watch_tutorial_video">Lihat video tutorial (dalam bahasa Inggris)</string>
   <string name="verse_not_found">Ayat tidak dapat ditemukan</string>
@@ -348,13 +330,12 @@ bicara dimulai di luar bagian yang telah ditentukan.</string>
   <string name="notification_channel_tts_status">Teks ke bicara</string>
   <string name="notification_channel_progress_status">Notifikasi status perkembangan untuk pengunduhan dokumen dll.</string>
   <!--Workspaces-->
-  <string name="new_workspace">Baru</string>
   <string name="switch_to_workspace">Ruang Kerja</string>
   <string name="workspace_number">Ruang Kerja %d</string>
-  <string name="rename_workspace">Ganti nama</string>
+  <string name="rename">Ganti nama</string>
   <string name="save_and_exit">Simpan</string>
   <string name="reset_settings">Atur Ulang</string>
-  <string name="workspace_dismiss">Singkirkan</string>
+  <string name="dismiss">Singkirkan</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Ini adalah versi beta!</string>
   <string name="beta_notice_content_1">
@@ -366,24 +347,19 @@ Pengguna versi beta didorong untuk melaporkan bug melalui Google Play atau (seba
   <string name="beta_notice_content_3">Jika Anda adalah seorang programmer, mohon mempertimbangkan untuk berkontribusi dalam memperbaiki bug melalui %s. :)</string>
   <string name="beta_notice_github_issues">Masalah-masalah Github</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Singkirkan</string>
   <string name="beta_notice_dismiss_until_update">Singkirkan sampai update berikutnya</string>
   <!--History-->
   <!--Help-->
   <string name="help_nav_title">Navigasi</string>
   <string name="help_contextmenus_title">Menu konteks</string>
   <string name="help_search_title">Pencarian</string>
-  <string name="help_search_text">Pencarian teks dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT
-(lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelasan lebih lanjut)</string>
   <string name="help_workspaces_title">Ruang Kerja</string>
   <!--Welcome text-->
   <!--Uncategorized-->
   <string name="close">Tutup</string>
   <string name="my_notes_abbreviation">Catatanku</string>
   <string name="compare_description">Bandingkan terjemahan</string>
-  <string name="verse_action_copy">Salin</string>
   <string name="show_versenumbers">Tampilkan nomor ayat</string>
-  <string name="backup_button">Backup</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
   <!--parameters are actions (file a bug, send email)-->
   <!--param is "please report maintainers"-->

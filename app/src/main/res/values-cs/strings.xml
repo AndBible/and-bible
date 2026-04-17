@@ -5,7 +5,6 @@
   <string name="app_name_short">Bible</string>
   <string name="app_name_medium">Studijní Bible (AndBible)</string>
   <string name="app_name_long">AndBible: Studijní Bible</string>
-  <string name="project">Projekt AndBible s otevřeným kódem</string>
 
   <string name="version_text">Verze %s</string>
   <string name="no_sdcard_error">Prosím zasuňte SD kartu a restartujte aplikaci.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Formátovaný text (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Odsazení odstavců (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Upravit mezery mezi odstavci.</string>
 
-  <string name="prefs_show_verseno_title1">Čísla veršů</string>
 
-  <string name="prefs_show_chapter_no_title">Čísla kapitol</string>
-  <string name="prefs_show_chapter_no_summary">Zobrazit čísla kapitol</string>
 
   <string name="prefs_verse_per_line_summary">Zobrazit každý verš na samostatném řádku</string>
   <string name="prefs_show_bookmarks_summary">Zruš zaškrtnutí pro skrytí všech záložek</string>
 
   <string name="prefs_show_mynotes_summary">Zobrazit ikony u veršů s poznámkami</string>
-  <string name="prefs_show_notes_summary">Zobrazit poznámky pod čarou a křížové odkazy</string>
   <string name="prefs_show_strongs_summary">Odkazy na řecké a hebrejské definice</string>
   <string name="prefs_show_morphology_summary">Zobrazit Robinsonovu řeckou morfologii</string>
   <string name="prefs_section_title_summary">Zobrazit nadpisy nekanonických oddílů</string>
   <string name="prefs_red_letter_summary">Zobrazit Ježíšova slova červeně</string>
-  <string name="prefs_text_size_title">Nastavení písma</string>
 
   <string name="prefs_verse_per_line_title">Jeden verš na řádek</string>
   <string name="prefs_show_bookmarks_title">Zobrazit záložky</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Zobrazit poznámky pod čarou přímo v textu místo jako klikatelné ikony</string>
   <string name="prefs_show_xrefs_summary">Zobrazit křížové odkazy, pokud jsou dostupné</string>
 
-  <string name="prefs_show_notes_title">Poznámky a odkazy</string>
   <string name="prefs_show_strongs_title">Strongova čísla</string>
   <string name="prefs_show_morphology_title">Morfologické značky</string>
   <string name="prefs_non_strongs_word_italic_title">Kurzíva přidaných slov</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">Šum pozadí</string>
   <string name="prefs_noise_summary">Přidání šumu u barvy pozadí může snížit únavu očí.</string>
 
-  <string name="cpv_default_title">Vybrat barvu</string>
-  <string name="cpv_presets">Předvolby</string>
-  <string name="cpv_custom">Vlastní</string>
-  <string name="cpv_select">Vybrat</string>
-  <string name="cpv_transparency">Průhlednost</string>
 
     <!-- Window -->
   <string name="new_window">Nové okno</string>
-  <string name="windowClose">Zavřít</string>
   <string name="windowMaximise">Maximalizovat</string>
   <string name="windowMinimise">Minimalizovat</string>
   <string name="windowSynchronise">Synchronizovat</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">Připnout</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
-  <string name="no_verse_notes">Verš neobsahuje poznámky</string>
   <string name="previous">Předchozí</string>
   <string name="next">Další</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Prosím stáhněte Strongův hebrejský a řecký slovník</string>
   <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také vytvořit k této Bibli index přes Hledat</string>
-  <string name="morph_robinson_not_installed">Stáhněte prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="go_to_downloads">Přejít na stažené položky</string>
 
     <!-- Module download -->
   <string name="download">Stáhnout dokumenty</string>
   <string name="redownload">Znovu stáhnout dokumenty</string>
-  <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
   <string name="download_source_last_updated">Seznam dokumentů aktualizován: %s.</string>
   <string name="download_refreshing_book_list">Obnovuji seznam dostupných dokumentů ze serverů…</string>
   <string name="download_source_message1">Dokumenty jsou staženy z následujícího zdroje:</string>
   <string name="download_document_confirm_prefix">Stáhnout </string>
-  <string name="download_refresh_book_list_menu_item">Obnovit</string>
   <string name="error_downloading">Chyba při stahování dokumentu. Prosím zkontrolujte připojení k Internetu.</string>
   <string name="error_downloading_status">Server zpřístupňující %1$s odpověděl chybou %2$s (%3$d).</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
@@ -371,18 +349,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="done">Hotovo</string>
   <string name="reset_plan_question">Jste si jisti, že chcete tento plán resetovat?</string>
   <string name="import_reading_plan">Importovat plán čtení…</string>
-  <string name="import_reading_plan_error">Chyba importu</string>
-  <string name="import_reading_plan_error_duplicate">Následující dny jsou duplicitní: %s</string>
-  <string name="import_reading_plan_error_days">Následující dny obsahují chyby: %s</string>
-  <string name="import_reading_plan_anyway">Přesto importovat</string>
-  <string name="overwrite_reading_plan">Opravdu přepsat %s?</string>
-  <string name="delete_reading_plan">Smazat tento plán</string>
-  <string name="reading_plan_deleted">Plán čtení byl smazán</string>
-  <string name="reading_plan_ships_with_ab">Plán čtení obsahuje %s</string>
-  <string name="confirm_delete_reading_plan">
-        Opravdu smazat %s včetně historie procházení?
-        Tip: Pokud plán potřebujete pouze aktualizovat, importujte soubor se stejným názvem, tím bude historie zachována.
-</string>
   <string name="plan_duplicate_user_plan">
         Na SD kartě je uživatelský plán čtení
         jsword/readingplan se stejným jménem jako interní plán. Nelze ho zde zobrazit.
@@ -434,7 +400,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="notes">Poznámky a odkazy</string>
   <string name="share_verse">Sdílet…</string>
   <string name="share_verse_widget_title">Sdílet výběr</string>
-  <string name="share_verse_subject_2">Byl vám nasdílen biblický verš pomocí %s.</string>
   <string name="compare_translations">Porovnat překlady</string>
 
     <!-- Link context menu -->
@@ -446,33 +411,26 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="bookmarks_and_mynotes_title">Záložky a poznámky</string>
   <string name="migrated_my_notes">Poznámky přesunuty</string>
   <string name="bookmarks">Záložky</string>
-  <string name="bookmark_added">Záložka přidána</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Štítky</string>
   <string name="manage_labels">Spravovat záložky</string>
   <string name="assign_labels">Přiřadit popisky</string>
   <string name="new_item">Nový</string>
-  <string name="new_label">Nový popisek</string>
   <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
   <string name="add_bookmark1">Záložka</string>
-  <string name="add_bookmark2">Záložka výběru</string>
   <string name="add_bookmark3">Výběr</string>
   <string name="add_bookmark_whole_verse">Záložka verše</string>
   <string name="add_bookmark_whole_verse1">Verš</string>
-  <string name="add_bookmark_whole_verse2">Celý verš</string>
   <string name="add_whole_page_bookmark">Přidat záložku pro celou stránku</string>
   <string name="add_paragraph_break">Zalomení odstavce</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Odstranit</string>
   <string name="bookmark_settings_hide_labels_title">Skrýt konkrétní štítky</string>
   <string name="bookmark_settings_hide_labels_summary">Skrýt záložky s konkrétními štítky</string>
   <string name="auto_assign_labels_title">Nastavení štítků</string>
   <string name="auto_assign_labels">Automatické a oblíbené štítky</string>
   <string name="auto_assign_labels1">Automaticky přidávat k novým záložkám</string>
   <string name="auto_assign_labels_primary">Automaticky značit jako primární</string>
-  <string name="label_color">Barva štítku</string>
-  <string name="label_color_example">Příklad</string>
   <string name="marker_style">Zobrazit pouze značku záložky výběru</string>
   <string name="marker_style_whole_verse">Zobrazit pouze značku záložky pro celý verš</string>
   <string name="hide_style">Skrýt záložku výběru</string>
@@ -503,11 +461,9 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
     <!-- Speak - Bible -->
   <string name="one_chapter">Kapitola %d</string>
   <string name="some_chapters">%d kapitol</string>
-  <string name="rest_of_book">Ke konci knihy</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">Verš %d</string>
   <string name="some_verses">%d veršů</string>
-  <string name="rest_of_chapter">Ke konci kapitoly</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">Strana %d</string>
   <string name="some_pages">%d stran</string>
@@ -517,8 +473,6 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
   <string name="rewind">Přetočit</string>
   <string name="forward">Dopředu</string>
   <string name="tts_lang_not_available">Jazyk není dostupný.</string>
-  <string name="speak_queue">Fronta</string>
-  <string name="speak_repeat">Opakovat</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Rychlost předčítání</string>
@@ -591,14 +545,12 @@ Veškeré zdroje jsou dostupné přes šifrovaný kanál (HTTPS).</string>
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">Ikona %s značí, že se nastavení přebírá z pracovní plochy.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">Ikona %s značí, že nastavení pro toto okno bylo změněno.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Pomocí tlačítka %1$s vrátíte nastavení zpět na %2$s.</string>
   <string name="reset_defaults">výchozí hodnoty</string>
   <string name="reset_workspace_defaults">výchozí hodnoty pracovní plochy</string>
 
-  <string name="speak_bookmark_help">Nápověda k záložkám předčítání</string>
 
   <string name="speak_help_auto_bookmark">
 Automaticky se vytvoří záložka předčítání, když je předčítání zastaveno nebo pozastaveno.
@@ -652,7 +604,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_phone_storage">Úložiště telefonu</string>
   <string name="backup_and_restore">Záloha a obnova</string>
   <string name="backup_modules2">Zálohovat dokumenty do ...</string>
-  <string name="backup_app_database2">Zálohovat aplikační databázi do ...</string>
   <string name="backup_app2">Zálohovat aplikaci (soubor .apk) do …</string>
   <string name="backup_application">Aplikace</string>
   <string name="backup_database">Databáze</string>
@@ -664,17 +615,13 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="backup_restore_from">Obnovit z...</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Obnova nebo import z...</string>
-  <string name="backup_restore">Obnovit</string>
   <string name="backup_restore2">Obnova nebo import</string>
   <string name="overwrite_something">Přepsat %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Které položky chcete obnovit?</string>
 
-  <string name="restore_app_database">Obnovit databázi aplikace z…</string>
   <string name="restore_database">Obnovit databázový soubor</string>
   <string name="restore_confirmation">Přepsat poznámky, záložky, studijní složky, plány čtení a pracovní plochy?</string>
-  <string name="restore_success2">Vybraná databáze byla obnovena.</string>
   <string name="restore_success">Poznámky, záložky, studijní složky, plány čtení a pracovní plochy úspěšně obnoveny.</string>
   <string name="downloading_backup">Stahování souboru zálohy ...</string>
   <string name="loading_backup">Načítání databáze ze zálohy...</string>
@@ -690,14 +637,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="exported_studypads_subject">Exportované studijní složky</string>
   <string name="exported_studypads_message">Vaše databáze %s obsahující záložky a poznámky ke zvoleným studijním složkám je přiložena</string>
   <string name="restore_unsuccessfull">Obnova databáze se nezdařila. Možná jste zadali nesprávný soubor s databází.</string>
-  <string name="restore_modules">Načíst dokumenty z...</string>
   <string name="send_backup_file">Odeslat soubor zálohy</string>
   <string name="backup_modules_title">Vyberte, které moduly zálohovat</string>
   <string name="install_zip_canceled">Instalace modulu zrušena</string>
   <string name="ask_restore_or_import">Databázi pro %s lze buď obnovit (tj. stávající databáze je odstraněna a načtena vybraná databáze), nebo importovat (vybraná databáze je importována do stávající databáze). Co chcete udělat?</string>
   <string name="restore">Obnovit</string>
   <string name="import2">Import</string>
-  <string name="export_studypads_help">Soubor obsahující exportované studijní složky (tj. štítky a záložky) lze importovat přes Hlavní menu -&gt; Zálohování a obnovení.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">„%1$s" a %2$s dalších štítků / studijních složek a %3$s záložek</string>
@@ -711,8 +656,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="module_about_osisId">Zkratka OSIS: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Nahlášení chyby</string>
-  <string name="send_feedback_title">Zpětná vazba</string>
   <string name="send_bug_report_title">Zpětná vazba / hlášení chyb</string>
   <string name="report_bug_email_subject_3">[%1$s] Nahlášení chyby u %2$s %3$s</string>
 
@@ -751,10 +694,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="yes">Ano</string>
   <string name="no">Ne</string>
   <string name="error">Chyba </string>
-  <string name="delete_generic">Smazat</string>
   <string name="please_wait">Čekejte prosím...</string>
   <string name="all">Vše</string>
-  <string name="edit">Upravit</string>
   <string name="reset_generic">Resetovat</string>
   <string name="watch_tutorial_video">Instruktážní video (Angličtina)</string>
   <string name="verse_not_found">Verš nebyl nalezen</string>
@@ -778,12 +719,11 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="notification_channel_progress_status">Upozornění o průběhu stavu stahování dokumentu atd.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Nová</string>
   <string name="switch_to_workspace">Pracovní plochy</string>
   <string name="delete_workspace">Odstranit</string>
   <string name="new_copied_workspace">Naklonovat</string>
   <string name="workspace_number">Pracovní plocha %d</string>
-  <string name="rename_workspace">Přejmenovat</string>
+  <string name="rename">Přejmenovat</string>
   <string name="workspace_selector_title">Výběr pracovní plochy</string>
   <string name="workspace_settings">Nastavení…</string>
   <string name="give_name_workspace">Název nové pracovní plochy</string>
@@ -796,12 +736,11 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="copy_settings_workspaces_title">Do které pracovní plochy kopírovat nastavení?</string>
   <string name="reset_settings">Resetovat</string>
   <string name="search_settings">Nastavení hledání</string>
-  <string name="workspace_dismiss">Odejít</string>
+  <string name="dismiss">Odejít</string>
   <string name="workspace_listing_with_current">%s (aktuální)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Toto je beta verze!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">
         Beta verze obsahuje nové funkce, které ještě nejsou dobře otestovány.
         Používání beta verze může zapříčinit neočekávané chování, např. chyby.
@@ -816,7 +755,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
         přes %s. :-)</string>
   <string name="beta_notice_github_issues">Github Issues</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Odejít</string>
   <string name="beta_notice_dismiss_until_update">Odmítnout do příští aktualizace</string>
 
   <string name="stable_notice_title">Aplikace byla upgradována!</string>
@@ -855,9 +793,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
   <string name="help_search_title">Hledat</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Vyhledávaný text může obsahovat zvláštní znaky jako *, ?, AND, OR, NOT
-        (pro více informací viz \"Apache Lucene - Query Parser Syntax\")
-</string>
   <string name="help_search_text2">Vyhledávací dotaz může obsahovat speciální znaky a slova jako *, ?, ~, AND, OR, NOT</string>
   <string name="help_search_details">Pro více detailů viz. %s .</string>
   <string name="help_apache_lucene">Apache Lucene - formát vyhledávacího dotazu</string>
@@ -893,7 +828,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="welcome_message">Děkujeme, že jste si stáhli náš produkt %s. Aktuálně nemáte nainstalovanou žádnou Bibli či jiný dokument. Pokračujte instalací alespoň jednoho dokumentu z Internetu nebo instalací zálohy ZIP souboru.
     </string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Podporované formáty</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Je nutné vybrat soubor, který se má nahrát do %s. </string>
   <string name="supported_formats">Podporované formáty pro načtení dokumentu ze souboru: %s</string>
@@ -919,7 +853,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="strongs_mode_title">Vybrat typ Strongových čísel</string>
 
   <string name="download_dialog_message">Následující knihy nemohly být staženy:</string>
-  <string name="select_multiple">Vybrat několik</string>
   <string name="journal_description">Editovatelné studijní složky s vlastním textem a záložkami</string>
   <string name="my_notes_description">Editovatelné poznámky přiřazené k záložce</string>
   <string name="my_notes_abbreviation">Poznámky</string>
@@ -934,7 +867,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="http_not_found">Nenalezeno</string>
   <string name="http_unknown">Nespecifikovaná chyba</string>
   <string name="give_passphrase_for_module">Dokument %s je šifrován a k jeho otevření je třeba heslo</string>
-  <string name="unlocking_failed">Otevření se nepovedlo, neplatné heslo</string>
   <string name="unlock_module">Nastavit heslo modulu</string>
   <string name="unlock_info">Informace o zabezpečení modulu</string>
   <string name="try_again_passphrase">Heslo je nefunkční, zkustt znovu?</string>
@@ -986,8 +918,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="tell_friend_message4">Více informací a možností instalace na %s</string>
   <string name="share_verse_ok">Sdílet / kopírovat</string>
   <string name="web_search">Hledat na webu</string>
-  <string name="verse_action_copy">Kopírovat</string>
-  <string name="generic_share">Sdílet</string>
   <string name="share_verse_menu_title">Sdílet / kopírovat…</string>
   <string name="show_versenumbers">Ukázat čísla veršů</string>
   <string name="show_full_verses">Zobrazit celé verše</string>
@@ -1004,9 +934,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="show_quotes">Zobrazit uvozovky</string>
   <string name="separate_verses_with_newlines">Oddělit verše novými řádky</string>
 
-  <string name="backup_button">Záloha</string>
-  <string name="back_button">Zpět</string>
-  <string name="upgrading_database">Upgraduji databázi. Vyčkejte…</string>
   <string name="initializing_app">Příprava spuštění…</string>
   <string name="show_notes">Zobrazit poznámky</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -1052,7 +979,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="text_maintainers">
        prosím pošlete hlášení správcům textu
     </string>
-  <string name="does_not_exist_abbreviation">Neexistuje</string>
   <string name="cant_change_wholeverse">U této záložky nelze vypnout přiřazení celého verše </string>
   <string name="whole_verse_turned_on">Záložka přiřazena celému verši</string>
   <string name="this_bookmark">Tato záložka</string>
@@ -1065,7 +991,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="display_mode_hidden">Skryté</string>
   <string name="workspace_override_indicator">Tento štítek má režim zobrazení specifický pro pracovní plochu</string>
   <string name="primary_label">Primární štítek</string>
-  <string name="highlight_entire_verse">Zvýraznit celý verš</string>
   <string name="favourite_label">Oblíbený štítek</string>
   <string name="edit_label">Upravit štítek</string>
   <string name="delete_label_confirmation">Opravdu smazat štítek \"%s\"? Přidružené studijní složky budou také odstraněny.</string>
@@ -1083,7 +1008,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="reorder">Znovu setřídit</string>
   <string name="system_items">Systémové akce</string>
   <string name="system_items1">Více</string>
-  <string name="system_action2">Akce Androidu</string>
   <string name="text_copied_to_clicpboard">Text zkopírován do schránky</string>
   <string name="prefs_disable_two_step_bookmarking_title">Rychlé záložky</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Zobrazit \"výběr\" a \"verš\" položky v případě manipulace s výběrem textu</string>
@@ -1097,7 +1021,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="label_blue">Modrá</string>
   <string name="label_salvation">Pozdrav</string>
   <string name="label_underline">Podtržení</string>
-  <string name="import_menu">Import a export</string>
   <string name="auto_backups_title">Automatické zálohy</string>
   <string name="backup_file_info">Aplikace v%1$d, %2$s</string>
   <string name="reset_databases_title">Resetovat databáze</string>
@@ -1115,18 +1038,12 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="export_prompts_csv">Exportovat prompty do CSV</string>
   <string name="import_prompts_csv">Importovat prompty z CSV</string>
   <string name="prompts_csv_export_success">Exportováno %d promptů do CSV</string>
-  <string name="prompts_csv_import_success">Import dokončen: %1$d vytvořeno, %2$d aktualizováno</string>
-  <string name="prompts_csv_import_errors">Import dokončen s chybami: %1$d vytvořeno, %2$d aktualizováno, %3$d chyb</string>
-  <string name="prompts_csv_import_failed">Import CSV selhal: %s</string>
-  <string name="prompts_csv_export_failed">Export CSV selhal: %s</string>
   <string name="no_prompts_to_export">Žádné uživatelské prompty k exportu</string>
   <string name="csv_column_selection_title">Vybrav CSV sloupce</string>
-  <string name="choose_csv_file">Zvolit CSV soubor k importu</string>
   <string name="no_bookmarks_to_export">Žádné záložky k exportu</string>
   <string name="export_fileformat">Exportovat jako %s</string>
   <string name="export_something">Export %s</string>
   <string name="import_items">Importovat %s</string>
-  <string name="import_from_db">Importovat databázový soubor</string>
   <string name="import_error">Import databázového souboru se nezdařil. Soubor může mít špatný formát nebo je vytvořen velmi starou verzí %s.</string>
 
   <string name="export_bookmarks_csv">Exportovat záložky jako %s</string>
@@ -1155,23 +1072,13 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="last_updated_at">Naposledy aktualizováno</string>
   <string name="bookmark_notes">Poznámky k záložce</string>
 
-  <string name="chooser_range">Rozsah</string>
-  <string name="chooser_jump">Přejít</string>
-  <string name="chooser_OT_abbrev">SZ</string>
-  <string name="chooser_NT_abbrev">NZ</string>
-  <string name="chooser_style_grid">Tabulka</string>
-  <string name="chooser_style_lists">Seznam</string>
-  <string name="chooser_select">Vybrat %s</string>
-  <string name="chooser_pref_reset">Nepřecházet na 1. kapitolu/verš při výběru knihy/kapitoly</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Omlouváme se, uživatelské rozhraní je pouze částečně přeloženo v jazyce %1$s. Je tomu tak, protože %2$sje vytvářena dobrovolníky. S překladem aplikace můžete pomoci, vizte %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">instrukce pro překladatele</string>
   <string name="questions_title">Otázky?</string>
-  <string name="questions_title2">Potřebujete pomoci?</string>
   <string name="bookmark_style">Styl záložky</string>
   <string name="added_to_bookmark">Přiřazeno k této záložce</string>
-  <string name="strongs_off">Vypnuto</string>
   <string name="strongs_links">Odkazy</string>
   <string name="strongs_text_and_links">Text a odkazy</string>
   <string name="strongs_hidden_links">Skryté odkazy</string>
@@ -1225,7 +1132,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
     </string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Synchronizovat skupiny</string>
   <string name="sync_group_n">Skupina %d</string>
   <string name="disable_sync">Zakázat synchronizaci</string>
   <string name="open_in_window">Otevřít výsledky v okně</string>
@@ -1236,10 +1142,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="custom_repositories_empty_list_message">Žádné vlastní repozitáře nejsou definovány</string>
   <string name="custom_repositories_create_button_label">Přidat vlastní repozitář</string>
   <string name="custom_repositories_info_button_label">Informace</string>
-  <string name="name_for_repository">Jméno repozitáře</string>
   <string name="repository_specification">Adresa/URL repozitáře</string>
   <string name="delete_custom_repository">Chcete odstranit tento vlastní repozitář %s?</string>
-  <string name="invalid_repository_not_saved">Definice repozitáře je chybná a nebyla uložena.</string>
   <string name="custom_repositories_help1">Pro přidání vlastního repozitáře zde zadejte nebo zkopírujte adresu/URL repozitáře.</string>
   <string name="custom_repositories_help2">Více informací o vlastních repozitářích najdete: %s.</string>
   <string name="wiki_page">WIKI stránka</string>
@@ -1282,7 +1186,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Průběh čtení / zapamatování</string>
   <string name="reading_progress_chapters_read">přečtené kapitoly</string>
-  <string name="reading_progress_verses_memorized">zapamatované verše</string>
   <string name="reading_progress_active_days">aktivní dny</string>
   <string name="reading_progress_overall">%s%% Bible přečteno</string>
   <string name="reading_progress_bible_heatmap">Přehled Bible</string>
@@ -1308,13 +1211,11 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="sync_adapter_summary">Současná služba: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Přihlášení k %s</string>
   <string name="auth_server_uri">URL serveru</string>
   <string name="auth_username">Uživatel</string>
   <string name="auth_password">Heslo</string>
   <string name="auth_folder_path">Cesta k synchronizační složce</string>
   <string name="auth_folder_path_summary">Nadřazená složka pro synchronizovaná data (prázdné = kořen)</string>
-  <string name="auth_access_token">Přístupový token</string>
   <string name="synchronization_categories">Kategorie synchronizace</string>
   <string name="sync_general_settings">Informace a obecné nastavení</string>
   <string name="sync_introduction">Úvod</string>
@@ -1330,8 +1231,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="report">Hlášení</string>
   <string name="sync_error">Nastala chyba při synchronizaci</string>
   <string name="error_notification_channel_name">Upozornění na chybu</string>
-  <string name="restore_from_cloud_description">Jesliže máte zapnutou synchronizaci v jiném zařízení, můžete začít obnovou databáze ze sítě.</string>
-  <string name="enable_sync">Povolit synchronizaci</string>
   <string name="last_updated">Aktualizováno: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1352,20 +1251,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="processing_epub">Zpracováví EPUB: %s</string>
   <string name="buy_development">Koupit vývojové práce</string>
   <string name="buy_development2">Podpora projektu</string>
-  <string name="new_version_warning">
-        Nová verze bude již brzy uvolněna. Předpokládané datum uvolnění je %1$s. Sledujte naši
-        %2$s pro zjištění více o novinkách a vylepšeních.
-    </string>
-  <string name="new_version_trailer">úvodní video</string>
-  <string name="new_version_warning2">
-        Tato verze není po uvolnění udržována
-    </string>
-  <string name="new_version_warning3">
-        Nebude dostávat opravy ani aktualizace.
-    </string>
-  <string name="new_version_warning4">
-        Jestliže nechcete dostávat nové verze, prosíme vypněte \'Automatické aktualizace\' ve Vašem obchodu s aplikacemi (Google Play / F-Droid etc).
-    </string>
   <string name="dont_show">
         Tuto zprávu již nezobrazovat
     </string>
@@ -1386,7 +1271,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="invalid_url_message">Zadaná URL adresa je neplatná. Zadejte platnou URL adresu (např. https://nextcloud.example.com)</string>
   <string name="memorize_description">Zapamatujte si biblické verše</string>
   <string name="memorize_abbreviation">Zapamatovat</string>
-  <string name="add_memorization_target">Nastavit jako cíl memorování</string>
   <string name="memorize_memorized_passages">Zapamatované pasáže</string>
   <string name="memorize_no_memorized_passages">Zatím žádné zapamatované pasáže</string>
   <string name="memorize_targets">Cíle memorování</string>
@@ -1418,17 +1302,8 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="memorize_view_overview">Přehled</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Překlad pomocí AI</string>
   <string name="sync_settings_shortcut_summary">Synchronizovat data mezi zařízeními</string>
-  <string name="llm_api_key_title">API klíč</string>
-  <string name="llm_api_key_summary">API klíč kompatibilní s OpenAI</string>
   <string name="llm_provider_custom">Vlastní (kompatibilní s OpenAI)</string>
-  <string name="llm_provider_title">Poskytovatel</string>
-  <string name="llm_provider_summary">Vyberte, který poskytovatel služby AI se má použít. Koncový bod API a dostupné modely budou nakonfigurovány automaticky.</string>
-  <string name="llm_provider_current">Aktuální: %s</string>
-  <string name="llm_api_key_detected_provider">Zjištěný poskytovatel: %s</string>
-  <string name="ai_connection_category">Připojení</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Chování</string>
   <string name="ai_language_title">Jazyk odpovědí AI</string>
   <string name="ai_language_summary">Jazyk, který AI používá pro odpovědi</string>
@@ -1445,16 +1320,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="llm_reset_usage_confirm_title">Resetovat data o využití?</string>
   <string name="llm_reset_usage_confirm_message">Tím se vymažou všechna kumulativní data o využití.</string>
   <string name="llm_custom_input_price_title">Cena vstupu ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Náklady na milion vstupních tokenů pro tento model</string>
   <string name="llm_custom_output_price_title">Cena výstupu ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Náklady na milion výstupních tokenů pro tento model</string>
   <string name="llm_cost_total">Celkem: %1$s</string>
-  <string name="llm_endpoint_title">Koncový bod API</string>
-  <string name="llm_endpoint_summary">Základní URL pro API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID modelu</string>
   <string name="llm_custom_model">Vlastní…</string>
-  <string name="llm_custom_model_dialog_title">Vlastní model</string>
   <string name="llm_custom_model_dialog_message">Zadejte ID modelu</string>
   <string name="llm_rate_limited_retrying">Omezení rychlosti. Opakování za %1$ss\u2026</string>
   <string name="llm_default_document_title">Odpověď AI</string>
@@ -1464,7 +1332,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="llm_parse_error_no_choices">V odpovědi OpenAI nejsou žádné volby</string>
   <string name="llm_parse_error_openai">Nepodařilo se zpracovat odpověď OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Nepodařilo se zpracovat odpověď Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Výzva nenalezena: %1$s</string>
   <string name="llm_error_unknown">Neznámá chyba</string>
   <string name="llm_error_max_iterations">Bylo dosaženo maximálního počtu iterací (%1$d) bez dokončení</string>
   <string name="llm_continue_iterations_title">Pokračovat?</string>
@@ -1499,7 +1366,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="raw_log_retention_summary_disabled">Zakázáno (ponechat vše)</string>
   <string name="send_ai_bug_report_title">Nahlásit chybu AI</string>
   <string name="ai_bug_report_menu">Nahlásit chybu AI</string>
-  <string name="ai_bug_report_recommended_only">Hlášení chyb je dostupné pouze pro doporučené modely poskytovatele</string>
 
   <string name="select_model_before_run_title">Vybrat model</string>
   <string name="set_default_model_for_prompt">Nastavit jako výchozí model pro tento prompt</string>
@@ -1529,7 +1395,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_models_summary_none">Žádné modely nejsou nakonfigurovány</string>
   <string name="ai_add_provider">Přidat poskytovatele</string>
   <string name="ai_provider_edit">Upravit</string>
-  <string name="ai_provider_delete">Smazat</string>
   <string name="ai_provider_delete_confirm">Smazat poskytovatele \"%1$s\"? Výzvy používající tohoto poskytovatele se vrátí na výchozí hodnotu.</string>
   <string name="ai_provider_api_key_not_set">API klíč není nastaven</string>
   <string name="ai_provider_select_type">Vybrat typ poskytovatele</string>
@@ -1541,27 +1406,18 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_provider_saved">Poskytovatel uložen</string>
   <string name="ai_provider_deleted">Poskytovatel smazán</string>
 
-  <string name="llm_fetch_models_title">Stáhnout seznam modelů</string>
-  <string name="llm_fetch_models_message">Stáhnout seznam dostupných modelů z %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Příště se neptat</string>
-  <string name="llm_fetch_models_success">Načteno %1$d modelů</string>
-  <string name="llm_fetch_models_failed">Nepodařilo se načíst modely</string>
   <string name="llm_openrouter_category">Kategorie</string>
   <string name="llm_openrouter_category_all">Vše</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modely</string>
   <string name="add_model">Přidat model</string>
-  <string name="add_model_title">Přidat model</string>
   <string name="edit_model_title">Upravit model</string>
   <string name="model_saved">Model uložen</string>
   <string name="model_deleted">Model smazán</string>
   <string name="model_delete_confirm">Smazat model \"%1$s\"?</string>
   <string name="model_set_default">Nastavit jako výchozí model</string>
   <string name="model_select_provider">Poskytovatel</string>
-  <string name="no_models_configured">Žádné modely nejsou nastaveny</string>
-  <string name="model_cache_creation_price">Cena vytvoření cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cena čtení cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Podporováno</string>
   <string name="show_also_unsupported_models">Zobrazit také nepodporované modely</string>
   <string name="show_also_unsupported_providers">Zobrazit také nepodporované poskytovatele</string>
@@ -1572,7 +1428,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="unknown_error">Neznámá chyba</string>
   <string name="easy_setup_title">Rychlé nastavení</string>
   <string name="easy_setup_pref_summary">Nastavte AI s doporučeným poskytovatelem v několika krocích</string>
-  <string name="easy_setup_choose_provider">Vyberte poskytovatele pro začátek:</string>
   <string name="easy_setup_enter_api_key">Zadejte svůj API klíč</string>
   <string name="easy_setup_api_key_instructions">Získejte svůj API klíč zde:</string>
   <string name="easy_setup_test_connection">Otestovat připojení</string>
@@ -1631,7 +1486,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="addon_prompt_notice">Tento prompt pochází z modulu doplňku \"%s\" a nelze ho upravovat. Použijte \"Kopírovat pro přizpůsobení\" a vytvořte upravitelnou kopii.</string>
   <string name="new_category">Nová kategorie</string>
   <string name="new_category_name">Název kategorie</string>
-  <string name="rename_category">Přejmenovat</string>
   <string name="move_category_up">Přesunout nahoru</string>
   <string name="move_category_down">Přesunout dolů</string>
   <string name="hide_category">Skrýt z akcí AI</string>
@@ -1676,28 +1530,22 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="llm_note_updated">Poznámka aktualizována</string>
   <string name="specify_before_run_title">Zadejte úkol</string>
   <string name="specify_before_run_hint">Popište konkrétní úkol…</string>
-  <string name="prompt_cache_settings">Nastavení mezipaměti</string>
   <string name="prompt_strict_context_matching">Mezipaměť závislá na kontextu</string>
   <string name="prompt_strict_context_matching_description">Pokud je zapnuto, mezipaměť se uplatní pouze tehdy, když jsou shodné veškeré kontextové údaje (verze bible, vybraný text). Pokud je vypnuto, mezipaměť se uplatní při shodě veršů bez ohledu na verzi bible.</string>
   <string name="ai_document_delete_confirmation">Smazat tento dokument AI?</string>
-  <string name="ai_document_deleted">Tento dokument AI byl smazán.</string>
   <string name="ai_document_regenerating">Obnovování dokumentu AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Obnovování bude dostupné v budoucí aktualizaci</string>
   <string name="ai_regenerate_prompt_not_found">Nelze obnovit: původní výzva nebyla nalezena. Možná byla smazána.</string>
   <string name="ai_document_regenerate">Obnovit</string>
   <string name="ai_regenerate_title">Obnovit</string>
   <string name="ai_regenerate_instructions_hint">Další pokyny (volitelné)</string>
   <string name="ai_regenerate_keep_previous">Zachovat předchozí verzi</string>
   <string name="ai_regenerate_fresh_run">Nové spuštění (ignorovat předchozí výsledek)</string>
-  <string name="ai_document_delete">Smazat</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Přeložit do %s</string>
   <string name="default_prompt_translate_to_ui_language">Přeložit do jazyka rozhraní</string>
   <string name="default_prompt_translate_to_ui_language_desc">Přeloží text dokumentu do jazyka rozhraní aplikace</string>
-  <string name="default_prompt_translate_to_english">Přeložit do angličtiny</string>
-  <string name="default_prompt_translate_to_english_desc">Přeloží vybraný text do angličtiny</string>
   <string name="default_prompt_summary">Shrnutí</string>
   <string name="default_prompt_summary_desc">Vytvoří stručné shrnutí vybraného textu</string>
   <string name="default_prompt_explain_verses">Vysvětlit verše</string>
@@ -1706,8 +1554,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="default_prompt_explain_verses_studypad_desc">Vytvoří studijní složku s vysvětlením verš po verši a záložkami</string>
   <string name="default_prompt_word_study">Studium slov</string>
   <string name="default_prompt_word_study_desc">Analyzuje původní hebrejská/řecká slova</string>
-  <string name="default_prompt_strongs_annotation">Anotace Strongovými čísly</string>
-  <string name="default_prompt_strongs_annotation_desc">Přidá Strongova konkordanční čísla k libovolnému překladu bible s použitím KJV jako reference</string>
   <string name="default_prompt_cross_references">Křížové odkazy</string>
   <string name="default_prompt_cross_references_desc">Vyhledá a vysvětlí související biblické pasáže</string>
   <string name="default_prompt_compare_translations">Porovnat překlady</string>
@@ -1850,11 +1696,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="ai_document_filter_summary">Vybrat, které dokumenty může AI číst</string>
   <string name="ai_document_filter_summary_count">%d dokumentů vyloučeno</string>
   <string name="ai_document_filter_activity_title">Přístup AI k dokumentům</string>
-  <string name="ai_document_excluded_error">Dokument vyloučen uživatelskými nastaveními: %s</string>
   <string name="permission_status_default">Zeptat se (výchozí)</string>
-  <string name="permission_status_allowed">Vždy povoleno</string>
-  <string name="permission_status_denied">Vždy zamítnuto</string>
-  <string name="permission_option_default">Zeptat se pokaždé (výchozí)</string>
   <string name="permission_option_always_allow">Vždy povolit</string>
   <string name="permission_option_always_deny">Vždy zamítnout</string>
   <string name="reset_all_permissions">Resetovat vše</string>
@@ -1869,10 +1711,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Oprávnění nástrojů</string>
-  <string name="prompt_tool_permissions_read_only">Oprávnění nástrojů (pouze čtení)</string>
-  <string name="prompt_tool_permissions_description">Přepsat oprávnění nástrojů pro tento prompt</string>
-  <string name="tool_section_read_tools">Nástroje pro čtení</string>
-  <string name="tool_section_write_tools">Nástroje pro zápis</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bible a vyhledávání</string>
@@ -1895,13 +1733,9 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Výchozí</string>
-  <string name="prompt_model_custom">Vlastní</string>
-  <string name="prompt_model_custom_hint">Zadejte název modelu</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Vybrat akci AI</string>
-  <string name="no_llm_prompts_configured">Pro výběr verše nejsou nakonfigurovány žádné AI prompty</string>
-  <string name="llm_prompt_executing">Provádění AI promptu: %s</string>
   <string name="llm_actions">Akce AI</string>
 
     <!-- Agent Log Widget -->
@@ -1909,9 +1743,7 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="agent_log_close">Zavřít log agenta</string>
   <string name="agent_log_stop">Zastavit AI</string>
   <string name="agent_log_idle">Asistent AI</string>
-  <string name="agent_log_running">AI pracuje…</string>
   <string name="agent_log_completed">Dokončeno</string>
-  <string name="agent_log_error">Došlo k chybě</string>
   <string name="agent_log_executing">Provádění: %s</string>
   <string name="agent_log_iteration">Iterace %d</string>
   <string name="agent_log_tool">Nástroj: %s</string>
@@ -1921,7 +1753,6 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="agent_log_saved">Uloženo: %s</string>
   <string name="agent_log_done">Hotovo: %s</string>
   <string name="agent_log_cancelled">Zrušeno</string>
-  <string name="agent_execution_completed">Provádění agenta dokončeno</string>
   <string name="agent_already_running">Agent AI již běží. Počkejte nebo ho nejprve zastavte.</string>
 
     <!-- AI Agent Notifications -->
@@ -1940,22 +1771,16 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Vytvořit nový dokument</string>
   <string name="my_document_rename_title">Přejmenovat dokument</string>
-  <string name="my_document_edit_description_title">Upravit popis</string>
   <string name="my_document_delete_confirmation">Smazat dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">Dokumenty AI nelze smazat, pokud obsahují stránky. Nejprve smažte stránky.</string>
   <string name="my_document_save_changes">Uložit změny?</string>
   <string name="my_document_no_description">Bez popisu</string>
-  <string name="my_document_rename">Přejmenovat</string>
   <string name="my_document_edit_description">Upravit popis</string>
-  <string name="my_document_delete">Smazat</string>
 
   <string name="my_document_pages_title">%s – Stránky</string>
   <string name="my_document_pages_empty">V tomto dokumentu nejsou žádné stránky.</string>
   <string name="my_document_page_rename_title">Přejmenovat stránku</string>
   <string name="my_document_page_delete_confirmation">Smazat stránku \"%s\"?</string>
-  <string name="my_document_page_rename">Přejmenovat</string>
-  <string name="my_document_page_delete">Smazat</string>
-  <string name="my_document_page_export">Exportovat</string>
   <string name="my_document_new_page_name">Stránka %1$d</string>
   <string name="my_document_create_page_title">Nová stránka</string>
   <string name="my_document_content_type_label">Typ obsahu</string>
@@ -1975,12 +1800,10 @@ bylo spuštěno předčítání mimo stanovený rozsah veršů.
 
   <string name="prefs_page_scroll_amount_title">Množství posuvu stránky</string>
   <string name="prefs_page_scroll_amount_summary">O kolik se stránka posune při posuvu nahoru/dolů</string>
-  <string name="page_scroll_amount_dialog_title">Množství posuvu stránky</string>
   <string name="prefs_scroll_helper_lines_title">Pomocné čáry posuvu</string>
   <string name="prefs_scroll_helper_lines_summary">Zobrazit vodorovné vodítka na hranicích posuvu stránky</string>
   <string name="prefs_scroll_helper_line_style_title">Styl pomocné čáry</string>
   <string name="prefs_scroll_helper_line_style_summary">Vybrat vizuální styl pomocných čar posuvu</string>
-  <string name="scroll_helper_line_style_dialog_title">Styl pomocné čáry</string>
   <string name="scroll_helper_line_style_thin_dotted">Tenká tečkovaná čára</string>
   <string name="scroll_helper_line_style_thin_solid">Tenká plná čára</string>
   <string name="scroll_helper_line_style_thick_solid">Silná plná čára</string>

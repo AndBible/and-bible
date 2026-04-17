@@ -430,7 +430,7 @@ class PageScrollAmountPreference(settings: SettingsBundle) : Preference(settings
         val currentIndex = scrollValues.indexOf(valueInt).let { if (it < 0) scrollValues.size - 1 else it }
         var newChoice = currentIndex
         AlertDialog.Builder(activity)
-            .setTitle(R.string.page_scroll_amount_dialog_title)
+            .setTitle(R.string.prefs_page_scroll_amount_title)
             .setSingleChoiceItems(items, currentIndex) { _, v -> newChoice = v }
             .setPositiveButton(R.string.okay) { _, _ ->
                 value = scrollValues[newChoice]
@@ -461,7 +461,7 @@ class ScrollHelperLineStylePreference(settings: SettingsBundle) : Preference(set
         val items = activity.resources.getStringArray(R.array.scrollHelperLineStyleEntries)
         var newChoice = valueInt
         AlertDialog.Builder(activity)
-            .setTitle(R.string.scroll_helper_line_style_dialog_title)
+            .setTitle(R.string.prefs_scroll_helper_line_style_title)
             .setSingleChoiceItems(items, valueInt) { _, v -> newChoice = v }
             .setPositiveButton(R.string.okay) { _, _ ->
                 value = newChoice

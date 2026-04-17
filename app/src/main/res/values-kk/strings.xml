@@ -4,7 +4,6 @@
   <string name="app_name_short">Киелі Кітапті Зерттеу</string>
   <string name="app_name_medium">Киелі Кітапты Зерттеу (AndBible)</string>
   <string name="app_name_long">AndBible: Киелі Кітап+</string>
-  <string name="project">AndBible Ашық Бастапқы код Жобасы</string>
   <string name="version_text">Нұсқа %s</string>
   <string name="no_sdcard_error">SD картаны салыңыз және қолданбаны қайта іске қосыңыз.</string>
   <!--Main menu-->
@@ -70,20 +69,13 @@
   <string name="prefs_eink_mode_summary">Монохром режимінде қолданбаны пайдаланып (түстері жетімсіз), оны неғұрлым электрондық сия құрал жабдықтарына қолайлы ету.</string>
   <string name="prefs_disable_animations_title">Анимацияны өшіру</string>
   <string name="prefs_disable_animations_summary">Жайлап айналдыру сияқты түрлі анимацияларды өшіру</string>
-  <string name="prefs_paragraph_spacing_title">Абзацтар арасындағы қашықтық (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Абзацтар арасындағы қашықтықты келтіру</string>
-  <string name="prefs_show_verseno_title1">Аят нөмірлері</string>
-  <string name="prefs_show_chapter_no_title">Тарау нөмірлері</string>
-  <string name="prefs_show_chapter_no_summary">Тарау нөмірлерін көру</string>
   <string name="prefs_verse_per_line_summary">Әр аятты әр түрлі жолда көрсету</string>
   <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауды алыңыз</string>
   <string name="prefs_show_mynotes_summary">Менің нұсқауларымен бірге аяттарда белгішені көрсету</string>
-  <string name="prefs_show_notes_summary">Ескертпелер мен айқасқан сілтемелерді көрсету</string>
   <string name="prefs_show_strongs_summary">Грек мысалдарына байланыс сілтемелер ; Еврей анықтаулары</string>
   <string name="prefs_show_morphology_summary">Робинсонның Грек морфологиясын көрсету</string>
   <string name="prefs_section_title_summary">Канон ережелеріне жатпайтын бөлмінің тақырыптарын көрсету</string>
   <string name="prefs_red_letter_summary">Мәсіхтің сөздерін қызыл түсімен көрсету</string>
-  <string name="prefs_text_size_title">Шрифт қалаулары</string>
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_show_bookmarks_title">Кітап белгілерін көрсету</string>
   <string name="prefs_show_mynotes_title">Менің Ескертпелерімнің белгішесін көрсету</string>
@@ -91,7 +83,6 @@
   <string name="prefs_show_xrefs_title">Айқас сілтемелер</string>
   <string name="prefs_show_footnotes_summary">Құжатта ескертпе бар болса, көрсету</string>
   <string name="prefs_show_xrefs_summary">Құжатта айқас сілтемелер болса, көрсету</string>
-  <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
   <string name="prefs_show_strongs_title">Стронг сандары</string>
   <string name="prefs_show_morphology_title">Морфологиялық кодтар</string>
   <string name="prefs_section_title_title">Бөлімніің тақырыптары</string>
@@ -195,14 +186,8 @@
   <string name="colors_night_mode_title">Түнгі режим</string>
   <string name="prefs_noise_title">Артқы аясындағы шу</string>
   <string name="prefs_noise_summary">Артқы аясына біраз шу қосу арқылы көзге көбірек ыңғайлы етілуі мүмкін.</string>
-  <string name="cpv_default_title">Түсті таңдаңыз</string>
-  <string name="cpv_presets">Алдын ала орнатулар</string>
-  <string name="cpv_custom">Арнайлап жасалған</string>
-  <string name="cpv_select">Таңдаңыз</string>
-  <string name="cpv_transparency">Ашықтық</string>
   <!--Window-->
   <string name="new_window">Жаңа терезе</string>
-  <string name="windowClose">Жабу</string>
   <string name="windowMaximise">Шегіне дейін ұлғайту</string>
   <string name="windowMinimise">Шегіне дейін азайту</string>
   <string name="windowSynchronise">Үйлестіру</string>
@@ -214,24 +199,17 @@
   <string name="change_to_normal">Қалыпты терезеге ауысу</string>
   <string name="window_pin_mode">Бекіту</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Бұл тарауда ешқандай мәлімет жоқ</string>
-  <string name="no_verse_notes">Бұл аятта ешқандай мәлімет жоқ</string>
   <string name="previous">Алдыңғы</string>
   <string name="next">Келесі</string>
   <!--Strongs-->
-  <string name="strongs_not_installed">Стронгтің Еврей мен Грек сөздігін жүктеңіз</string>
   <string name="no_indexed_bible_with_strongs_ref">Стронг сандары бар Киелі кітапты жүктеп алып, Іздеу арқылы оның индексін құру керек</string>
-  <string name="morph_robinson_not_installed">\'Робинсонның Морфологиялық Анализ Кодтар\' сөздігін жүктеңіз</string>
-  <string name="go_to_downloads">Жүктемелерге өту</string>
   <!--Module download-->
   <string name="download">Құжаттарды Жүктеу</string>
   <string name="redownload">Құжаттарды қайта жүктеу</string>
-  <string name="download_confirmation">Интернеттен Киелі Кітапты жүктеу керек пе?</string>
   <string name="download_source_last_updated">Құжаттар тізімі соңғы рет:%s жаңартылды.</string>
   <string name="download_refreshing_book_list">Қол жетімді құжаттардың тізімін құжат серверлерінен жаңарту </string>
   <string name="download_source_message1">Құжаттар келесі көздерден жүктеледі:</string>
   <string name="download_document_confirm_prefix">Жүктеу</string>
-  <string name="download_refresh_book_list_menu_item">Жаңарту</string>
   <string name="error_downloading">Жүктеу барысында қате пайда болды. Өтінеміз, интернет байланысыңызды тексеріңіз.</string>
   <string name="error_downloading_status">Қондыратын сервер %1$s себебіне байланысты қатені қайтарды %2$s (%3$d).</string>
   <string name="storage_space_warning">Компьютердің жергілікті жадының жеткіліксіздігі. </string>
@@ -277,16 +255,6 @@
   <string name="done">Орындалды</string>
   <string name="reset_plan_question">Осы жоспарды қайта қалпына келтіргіңіз келетініне сенімдісіз бе?</string>
   <string name="import_reading_plan">Оқу жоспарын импорттау...</string>
-  <string name="import_reading_plan_error">Импорттау қатесі</string>
-  <string name="import_reading_plan_error_duplicate">Келесі күндер қайталанды:%s</string>
-  <string name="import_reading_plan_error_days">Келесі күндері қателер болды:%s</string>
-  <string name="import_reading_plan_anyway">Кез келген жағдайда импорттау</string>
-  <string name="overwrite_reading_plan">Қайта жазғыңыз келеді ма?%s</string>
-  <string name="delete_reading_plan">Жоспарды өшіру</string>
-  <string name="reading_plan_deleted">Оқу жоспары өшірілген</string>
-  <string name="reading_plan_ships_with_ab">Оқу жоспары жеткізіледі %s</string>
-  <string name="confirm_delete_reading_plan">
-Сіз оны оқу тарихымен бірге жойғыңыз келетініне сенімдісіз бе? %sКеңес: егер сізге жоспарды жаңарту қажет болса, оны сол файл атауымен қайтадан импорттауға болады және тарих сақталады</string>
   <string name="plan_duplicate_user_plan">
 SD картасында пайдаланушының оқу жоспары бар,
 jsword/ оқу жоспарының аталуы ішкі жоспарының аталуымен бірдей. Оны мұнда тізімдеуге болмайды.
@@ -328,7 +296,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="notes">Ескертпелер мен сілтемелер</string>
   <string name="share_verse">Бөлісу...</string>
   <string name="share_verse_widget_title">Таңдаумен бөлісу</string>
-  <string name="share_verse_subject_2">Киелі Кітап аяты %s пайдаланып сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Link context menu-->
   <string name="open_link_in_this_window">Сілтемені мұнда ашу</string>
@@ -338,31 +305,24 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="bookmarks_and_mynotes_title">Бетбелгілер және менің жазбаларым</string>
   <string name="migrated_my_notes">Жазбалырымды көшіру</string>
   <string name="bookmarks">Кітап белгілері</string>
-  <string name="bookmark_added">Кітап белгісі қосылды</string>
   <!--Bookmark / note labels-->
   <string name="labels">Жапсырмалар</string>
   <string name="manage_labels">Белгілерді басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
   <string name="new_item">Жаңа</string>
-  <string name="new_label">Жаңа таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
   <string name="add_bookmark1">Бетбелгі</string>
-  <string name="add_bookmark2">Бетбелгі таңдау</string>
   <string name="add_bookmark3">Таңдау</string>
   <string name="add_bookmark_whole_verse">Аят бетбелгісі</string>
   <string name="add_bookmark_whole_verse1">Аяттар</string>
-  <string name="add_bookmark_whole_verse2">Толық аяттар</string>
-  <string name="remove_bookmark">Жою</string>
   <string name="bookmark_settings_hide_labels_title">Көрсетілген белгілерді жасыру</string>
   <string name="bookmark_settings_hide_labels_summary">Көрсетілген таңбалармен белгіленген бетбелгілерді жасыру</string>
   <string name="auto_assign_labels_title">Белгі реттеулері</string>
   <string name="auto_assign_labels">Автоматты түрде тағайындау және таңдаулы белгілер</string>
   <string name="auto_assign_labels1">Жаңа бетбелгілерге автоматты түрде белгі тағайындау</string>
   <string name="auto_assign_labels_primary">Автоматты тағайындауды негізгі ету</string>
-  <string name="label_color">Белгі түсі</string>
   <!--can be removed-->
-  <string name="label_color_example">Үлгі</string>
   <string name="marker_style">Таңдау бетбелгілері үшін тек маркерді көрсету</string>
   <string name="marker_style_whole_verse">Бүкіл аят бетбелгілері үшін тек маркерді көрсетіңіз</string>
   <string name="hide_style">Таңдау бетбелгілері үшін жасыру</string>
@@ -388,11 +348,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Speak - Bible-->
   <string name="one_chapter">%d тарау</string>
   <string name="some_chapters">%d тараулар</string>
-  <string name="rest_of_book">Кітаптің соңына дейін</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d аят</string>
   <string name="some_verses">%d аяттар</string>
-  <string name="rest_of_chapter">Тараудың соңына дейін</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">%d бет</string>
   <string name="some_pages">%d беттер</string>
@@ -402,8 +360,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="rewind">Қайта қарау</string>
   <string name="forward">Әрі қарай жіберу</string>
   <string name="tts_lang_not_available">Тіл қол жеткілікті емес.</string>
-  <string name="speak_queue">Кезек</string>
-  <string name="speak_repeat">Қайталау</string>
   <!--Speak - Bible-->
   <string name="speak_speed_title">Сөйлеу жылдамдығы</string>
   <string name="speak_and_play_earcons_title">Құлақ аспап дыбыстарын сөйлетіңіз және ойнатыңыз</string>
@@ -461,12 +417,10 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <!--Parameter is actual icon-->
   <string name="window_text_options_help1">%sбелгі параметр жұмысорнының параметрлерінен алынғанын көрсетеді.</string>
   <!--Parameter is actual icon-->
-  <string name="window_text_options_help2">%s белгішесі бұл баптаудың осы арнайы нақты терезе үшін өзгертілгенің көрсетеді.</string>
   <!--First parameter is actual icon. Second parameter is either "default values" or "workspace default values"-->
   <string name="text_options_reset_help">%1$s қолданыңыз, барлық осы параметрлерді %2$s қалпына келтіру үшін.</string>
   <string name="reset_defaults">әдепкі мәндер</string>
   <string name="reset_workspace_defaults">жұмыс кеңістігінің әдепкі мәндері</string>
-  <string name="speak_bookmark_help">Сөйлеу Кітап белгісінің көмегі</string>
   <string name="speak_help_auto_bookmark">
 Сөйлеу пауза не тоқтатылған кезінде, Сөйлеу кітап белгісі автоматты түрде қосылады.
 Автоматты түрде жиналған кітап белгілері арнайы Сөйлеу таңбасымен белгіленеді.
@@ -513,7 +467,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_phone_storage">Телефон жад қоймасы</string>
   <string name="backup_and_restore">Сақтық көшіру мен Қалпына келтіру</string>
   <string name="backup_modules2">Құжаттардың Сақтық көшірмесін жасау</string>
-  <string name="backup_app_database2">Қолданба дерекқорының сақтық көшірмесін…</string>
   <string name="backup_app2">Сақтық көшірме қолданбасын (.apk файлы)…</string>
   <string name="backup_application">Қолданба</string>
   <string name="backup_database">Дерекқор</string>
@@ -524,13 +477,9 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_to">Сақтық көшірме жасау…</string>
   <string name="backup_restore_from">Қалпына келтіру…</string>
   <!--Restore = overwrite existing. Import = merge into existing-->
-  <string name="backup_restore">Қалпына келтіру</string>
   <!--What items (study pads, bookmarks etc) user wants to restore from app db backup file?-->
-  <string name="restore_what">Сіз нені қалпына келтіргіңіз келеді?</string>
-  <string name="restore_app_database">Қолданбалар дерекқорын қалпына келтіріңіз осы жерден...</string>
   <string name="restore_database">Дерекқор Файлды Қалпына келтіріңіз</string>
   <string name="restore_confirmation">Менің жазбаларым, бетбелгілерім, оқу планшеттерді, оқитын жоспарларымды және жұмыс кеңістіктерімді қайта жазу керек па?</string>
-  <string name="restore_success2">Таңдалған дерекқор бөлімдері сәтті қалпына келтірілді</string>
   <string name="restore_success">Менің Жазбаларым, Бетбелгілерім, Оқу Планшеттерім, Оқу Жоспарлары мен Жұмыс Кеңістіктері қалпына сәтті келтірілді</string>
   <string name="downloading_backup">Сақтық көшірме файлы жүктелуде…</string>
   <string name="loading_backup">Деректер базасы сақтық көшірмеден жүктелуде…</string>
@@ -541,7 +490,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="backup_email_subject_2">%s мәліметтер базасын сақтыққа көшіру</string>
   <string name="backup_email_message_2">Сіздің мәліметтер базасында қамтылған кітап белгілердің, ескертпелердің, оқу жоспарлардың және жұмыс кеңістіктердің %s жүктеліп қосылған</string>
   <string name="restore_unsuccessfull">Деректер базасын қалпына келтіру сәтсіз аяқталды. Мүмкін сіз жарамсыз дерекқор файлын берген шығарсыз.</string>
-  <string name="restore_modules">Келесіден құжаттарды қалпына келтіру...</string>
   <string name="send_backup_file">Сақтық көшірме файлын жіберу</string>
   <string name="backup_modules_title"> Модульдердің қайсысын сақтық көшіруге жіберетінін таңдау</string>
   <string name="install_zip_canceled">Модульді орнату тоқтатылды</string>
@@ -555,8 +503,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="module_about_repository">Тарату сервері:%s</string>
   <string name="module_about_osisId">OSIS Идентификациясы:%s</string>
   <!--Bug reporting-->
-  <string name="send_bug_report_title1">Қате туралы есеп ақпарат</string>
-  <string name="send_feedback_title">Кері жауап қорытындысын беру</string>
   <string name="send_bug_report_title">Кері жауап қорытындысын беру / Қате туралы есеп ақпараты</string>
   <string name="report_bug_email_subject_3">[%1$s] Қате туралы есеп %2$s %3$s</string>
   <string name="report_bug_big_heading">ӨТІНІШ, БҰЛ СЫЗЫҚ ҮСТІНЕН КЕРІ ЖАУАП ҚОРЫТЫНДЫСЫН НЕМЕСЕ ҚАТЕ ТУРАЛЫ ЕСЕП ЖАЗЫП БЕРІҢІЗ</string>
@@ -590,10 +536,8 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="yes">Иә</string>
   <string name="no">Жоқ</string>
   <string name="error">Қате</string>
-  <string name="delete_generic">Жою</string>
   <string name="please_wait">Өтінеміз күтіңіз...</string>
   <string name="all">Бәрі</string>
-  <string name="edit">Редакциялау</string>
   <string name="reset_generic">Қайта бастау</string>
   <string name="watch_tutorial_video">Үйрету видеосын көріңіз (Ағылшын тілінде)</string>
   <string name="verse_not_found">Аят табылмады</string>
@@ -613,12 +557,11 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="notification_channel_tts_status">Сөйлеуге текст</string>
   <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты хабарлама растауды дамыту</string>
   <!--Workspaces-->
-  <string name="new_workspace">Жаңа</string>
   <string name="switch_to_workspace">Жұмыс кеңістіктері</string>
   <string name="delete_workspace">Жою</string>
   <string name="new_copied_workspace">Жаңа ретінде көшіру</string>
   <string name="workspace_number">Жұмыс кеңістігі %d</string>
-  <string name="rename_workspace">Атын өзгерту</string>
+  <string name="rename">Атын өзгерту</string>
   <string name="workspace_selector_title">Жұмыс кеңістігін таңдаңыз</string>
   <string name="workspace_settings">Параметрлер...</string>
   <string name="give_name_workspace">Жаңа жұмыс кеңістігіне атауын беріңіз</string>
@@ -630,7 +573,7 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="select_all">Барлығын таңдаңыз</string>
   <string name="copy_settings_workspaces_title">Қай жұмыс кеңістігіне параметрлерді көшіргіңіз келеді?</string>
   <string name="reset_settings">Қайта бастау</string>
-  <string name="workspace_dismiss">Босату</string>
+  <string name="dismiss">Босату</string>
   <string name="workspace_listing_with_current">%s (қазіргі)</string>
   <!--Beta notice-->
   <string name="beta_notice_title">Бұл бета версиясы!</string>
@@ -642,7 +585,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="beta_notice_content_3">Егер сіз программист болсаңыз, қателерді түзетуге көмектесуді %s өзіңіз арқылы қарастырыңыз. :-)</string>
   <string name="beta_notice_github_issues">Github мәселелері</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Босату</string>
   <string name="beta_notice_dismiss_until_update">Келесі жаңартуға дейін босату</string>
   <string name="stable_notice_title">Қолданба жаңартылды!</string>
   <string name="upgrade_video_message">Өтінеміз, Осы шығарылымның жаңа мүмкіндіктері бар бейнені қараңыз(%s).</string>
@@ -672,8 +614,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
 </string>
   <string name="help_search_title">Іздеу</string>
   <!--TODO: to be removed-->
-  <string name="help_search_text">Текст іздеу - осындай сияқты *, ?, ЖӘНЕ, НЕМЕСЕ, ЕМЕС арнайы таңбаларды қамтуы мүмкін
-(толығырақ мәліметтер үшін  \"Apache Lucene - Query Parser Syntax\" көріңіз)</string>
   <string name="help_workspaces_title">Жұмыс кеңістіктері</string>
   <string name="help_workspaces_text">
 Жұмыс кеңістігі бірнеше контекстке тәуелді жұмыс ортасын құруға рұқсат береді.
@@ -696,7 +636,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="redownload_documents">Жылдам қайта жүктеуі</string>
   <string name="welcome_message">Жүктегеніңіз үшін рахмет%s. Қазіргі уақытта Киелі Кітаптар немесе құжаттар орнатылмаған. Жалғастыру үшін интернеттен жүктеу арқылы немесе zip құжат файлынан жүктеу арқылы кем дегенде бір резервтік құжат орнатыңыз.</string>
   <!--Supported file formats for documents-->
-  <string name="supported_formats_title">Қолдау көрсетілетін пішімдер</string>
   <!--argument is app_name_andbible (AndBible).-->
   <string name="choose_file">Сіз жүктегіңіз келетін файлды таңдауыңыз керек %s.</string>
   <string name="supported_formats">Құжаттарды файлдан жүктеуге арналған қолдау көрсетілетін пішімдер: %s</string>
@@ -714,7 +653,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="first_time_help_show_next_time">Келесі рет қайтадан көрсет</string>
   <string name="strongs_mode_title">Стронг режимін таңдаңыз</string>
   <string name="download_dialog_message">Келесі кітаптарды жүктеу мүмкін болмады</string>
-  <string name="select_multiple">Көптікті таңдаңыз</string>
   <string name="journal_description">Таңдалған мәтіндермен және бетбелгілермен өңделетін блокноттар</string>
   <string name="my_notes_description">Бетбелгілерге бекітілген пайдаланушы өңдейтін жазбалар</string>
   <string name="my_notes_abbreviation">Менің Ескертпелерім</string>
@@ -728,7 +666,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="http_not_found">Табылмады</string>
   <string name="http_unknown">Басқа қате</string>
   <string name="give_passphrase_for_module">Құжат %s шифрланған, бұғаттан шығару үшін кодтық сөз қажет.</string>
-  <string name="unlocking_failed">Бұғаттан шығару мүмкін емес, кодтық сөз қате </string>
   <string name="unlock_module">Модульдің құпия сөзін орнатыңыз</string>
   <string name="unlock_info">Шифрланған модуль ақпаратты бұғаттан шығару</string>
   <string name="try_again_passphrase">Құпия сөзді қабылдамады, қайталап көрдіңіз бе?</string>
@@ -747,8 +684,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="tell_friend_message3">Оны Play Store-дан орнату: %s</string>
   <string name="tell_friend_message4">Толығырақ оқу және қосымшаның тағы параметрлері: %s</string>
   <string name="share_verse_ok">Бөлісу / Көшіру</string>
-  <string name="verse_action_copy">Көшіріңіз</string>
-  <string name="generic_share">Бөлісу</string>
   <string name="share_verse_menu_title">Бөлісу / Көшіру</string>
   <string name="show_versenumbers">Аят санын көрсету</string>
   <string name="show_full_verses">Аяттарды толық көрсету</string>
@@ -763,9 +698,6 @@ Wholesome Words әдептілігі, http://www.wholesomewords.org/, рұқса
   <string name="show_version_name">Нұсқа атауын қосыңыз</string>
   <string name="show_ellipsis">Эллипсті көрсету (…)</string>
   <string name="show_quotes">Дәйексөздерді көрсету</string>
-  <string name="backup_button">Сақтық көшірме</string>
-  <string name="back_button">Артқа</string>
-  <string name="upgrading_database">Деректер базасы жаңартылуда. Өтінеміз, күте тұрыңыз…</string>
   <string name="initializing_app">Қолданбаны бастаңыз....</string>
   <string name="show_notes">Жазбаларды көрсету</string>
   <!--1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it.-->
@@ -800,13 +732,11 @@ Google Play -ге өтіңіз
   <string name="text_maintainers">
 Өтініш, мәтін жасаушыларға мәселелер туралы 
 хабарлаңыз</string>
-  <string name="does_not_exist_abbreviation">Жоқ</string>
   <string name="cant_change_wholeverse">Бұл бетбелгі үшін аяттың барлық белгіленуін өшіру мүмкін емес.</string>
   <string name="whole_verse_turned_on">Бетбелгі енді толық аят үшін арналған</string>
   <string name="this_bookmark">Бұл бетбелгі</string>
   <string name="this_workspace">Бұл жұмыс кеңістігі</string>
   <string name="primary_label">Негізгі белгі</string>
-  <string name="highlight_entire_verse">Аятты толығымен бөлектеңіз</string>
   <string name="favourite_label">Таңдаулы белгі</string>
   <string name="edit_label">Белгіні өңдеу</string>
   <string name="delete_label_confirmation">«%s» Бетбелгі белгісін алып тастағыңыз келе ме? Сонымен қатар Study Pad -пен байланысты барлық жазбалар жойылады.</string>
@@ -823,7 +753,6 @@ Google Play -ге өтіңіз
   <string name="reorder">Қайта тапсырыс беру</string>
   <string name="system_items">Жүйелік әрекеттер</string>
   <string name="system_items1">Көбірек</string>
-  <string name="system_action2">Android әрекеттері</string>
   <string name="text_copied_to_clicpboard">Мәтін алмасу буферіне көшірілді</string>
   <string name="prefs_disable_two_step_bookmarking_title">Бір қадамды бетбелгілер</string>
   <string name="prefs_disable_two_step_bookmarking_summary">«Таңдау» мен «Аяттар» тармақтарын тікелей Киелі Кітап көрінісіндегі Таңдау мәзірінде көрсетіңіз</string>
@@ -837,10 +766,8 @@ Google Play -ге өтіңіз
   <string name="label_blue">Көк</string>
   <string name="label_salvation">Құтқарылу</string>
   <string name="label_underline">Астын сызу</string>
-  <string name="import_menu">Импорттау және Экспорттау</string>
   <string name="export_fileformat">%s Ретінде экспорттау</string>
   <string name="import_items">Импорттау %s</string>
-  <string name="import_from_db">Қолданба дерекқорының файлынан импорттау</string>
   <string name="import_error">Қолданба дерекқорынан импорттау сәтсіз аяқталды. Дерекқорының файлы дұрыс емес форматта немесе тым ескі нұсқамен жасалғаны болуы мүмкін %s.</string>
   <!--OSIS reference is the Bible reference in OSIS standard format, e.g. "Gen.1.1-Gen.1.3"-->
   <!--Bible reference is the Bible reference in human readable format, e.g. "Genesis 1:1-3"-->
@@ -850,23 +777,13 @@ Google Play -ге өтіңіз
   <!--Verse is the verse number in the chapter, starting from 1-->
   <!--Ordinals are running index of Bible verses in a bible document, starting from 0.-->
   <!--Offsets are used to indicate from which character a bookmark starts.-->
-  <string name="chooser_range">Диапазон</string>
-  <string name="chooser_jump">Секіру</string>
-  <string name="chooser_OT_abbrev">ЕӨ</string>
-  <string name="chooser_NT_abbrev">ЖӨ</string>
-  <string name="chooser_style_grid">Тор</string>
-  <string name="chooser_style_lists">Тізімдер</string>
-  <string name="chooser_select">%s Таңда</string>
-  <string name="chooser_pref_reset">Кітаб/тарау таңдалған кезде тарау/аятты 1ге дейн қалпына келтірмеңіз</string>
   <!--First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ...-->
   <string name="incomplete_translation">Кешіріңіз, бірақ бізде тілдегі пайдаланушы интерфейсінің жартылай %1$s аудармасы ғана бар.  Себебі %2$s оны толығымен еріктілер әзірлейді. Аударуға көмектесетін болсаңыз, %3$s қараңыз.</string>
   <!--will be added to incomplete_translation as a link-->
   <string name="instructions_for_translators">аудармашыларға арналған нұсқаулық</string>
   <string name="questions_title">Сұрақтар?</string>
-  <string name="questions_title2">Көмек қажет пе?</string>
   <string name="bookmark_style">Бетбелгі стилі</string>
   <string name="added_to_bookmark">Бұл бетбелгіге тағайындалды</string>
-  <string name="strongs_off">Өшірулі</string>
   <string name="strongs_links">Сілтемелер</string>
   <string name="strongs_text_and_links">Мәтін мен Сілтемелер</string>
   <string name="verse_tip">Ішінара немесе көптеген аяттарды таңдау үшін Сіз Киелі кітаптың мәтінін ұзақ басуыңызға болады</string>
@@ -904,7 +821,6 @@ Google Play -ге өтіңіз
   <string name="discrete_mode_link">
 Дискретті нұсқаның соңғы нұсқасын мына жерден жүктеп алуға болады %s</string>
   <!--Window synchronize groups-->
-  <string name="sync_group_submenu">Топты синхрондау</string>
   <string name="sync_group_n">Топ %d</string>
   <string name="disable_sync">Синхрондауды өшіру</string>
   <string name="open_in_window">Терезеде нәтижелерді ашыңыз</string>
@@ -914,10 +830,8 @@ Google Play -ге өтіңіз
   <string name="custom_repositories_empty_list_message">Ешқандай теңшелетін репозиторийлер анықталмаған</string>
   <string name="custom_repositories_create_button_label">Пайдаланушы репозиторийін қосыңыз</string>
   <string name="custom_repositories_info_button_label">Ақпарат</string>
-  <string name="name_for_repository">Репозиторий атауы</string>
   <string name="repository_specification">Репозиторий URL</string>
   <string name="delete_custom_repository">Пайдаланушы репозиторийін жойғыңыз келе ме %s?</string>
-  <string name="invalid_repository_not_saved">Репозиторий сипаттамасы жарамсыз және ол сақталмады.</string>
   <string name="custom_repositories_help1">Жаңа пайдаланушы репозиторийін қосу үшін теріңіз немесе көшіріңіз &amp; реттелетін репозитарий URL мекенжайын осы жерге қойыңыз.</string>
   <string name="custom_repositories_help2">Пайдаланушы репозиторийлері туралы қосымша ақпаратты мына жерден оқи аласыз %s.</string>
   <string name="wiki_page">WIKI беті</string>
@@ -958,10 +872,8 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="sync_adapter_summary">Ағымдағы: %s</string>
   <string name="adapters_google_drive">Google Drive</string>
   <string name="adapters_next_cloud">Келесі бұлт</string>
-  <string name="auth_title">Аутентификация %s</string>
   <string name="auth_username">Пайдаланушы аты</string>
   <string name="auth_password">Құпия сөз</string>
-  <string name="auth_access_token">Қолжетімділік белгісі</string>
   <string name="synchronization_categories">Синхрондау категориялары</string>
   <string name="sync_general_settings">Ақпарат &amp; жалпы параметрлер</string>
   <string name="sync_introduction">Кіріспе</string>
@@ -977,8 +889,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="report">Есеп беру</string>
   <string name="sync_error">Бұлтты синхрондауда қателік орын алды</string>
   <string name="error_notification_channel_name">Қате туралы хабарландырулар</string>
-  <string name="restore_from_cloud_description">Басқа құрылғыда құрылғыны синхрондау қосылған болса, дерекқорды бұлттан қалпына келтіру арқылы бастауға болады.</string>
-  <string name="enable_sync">Синхрондауды қосыңыз</string>
   <string name="last_updated">Соңғы жаңартылу: %s</string>
   <!--MyBible/MySword module support-->
   <string name="sqlite_cant_read">Файлды оқу мүмкін емес</string>
@@ -997,16 +907,6 @@ Google Drive пайдаланған кезде, %s кез келген жеке 
   <string name="processing_epub">EPUB өңделуде: %s</string>
   <string name="buy_development">Әзірлеу жұмыстарын сатып алыңыз</string>
   <string name="buy_development2">Қолдау жобасы</string>
-  <string name="new_version_warning">
-Жақында жаңа шығарылым шығады. Болжалды шығарылым күні %1$s. Біздің 
-%2$s жаңа мүмкіндіктер мен жақсартуларды табу.</string>
-  <string name="new_version_trailer">Трейлер бейне</string>
-  <string name="new_version_warning2">
-Шығарғаннан кейін бұл нұсқа сақталмайды.</string>
-  <string name="new_version_warning3">
-Ол қателерді түзетуді немесе жаңартуларды алмайды.</string>
-  <string name="new_version_warning4">
-Жаңартқыңыз келмесе, қолданбалар дүкенінде (Google Play / F-Droid т.б.) \"Автоматты жаңартуларды\" өшіріңіз.</string>
   <string name="dont_show">
 Бұл хабарды қайта көрсетпеңіз</string>
   <string name="prefs_swipe_mode_chapter">Тарау</string>

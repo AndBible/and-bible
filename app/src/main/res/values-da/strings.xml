@@ -5,7 +5,6 @@
   <string name="app_name_short">Bibelstudie</string>
   <string name="app_name_medium">Bibelstudie (AndBible)</string>
   <string name="app_name_long">AndBible: Bibelstudie</string>
-  <string name="project">AndBible Open Source-projekt</string>
 
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Indsæt venligst et SD-kort og genstart programmet.</string>
@@ -100,24 +99,17 @@
   <string name="notes_content_type_html">Rig tekst (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
 
-  <string name="prefs_paragraph_spacing_title">Afsnitsafstand (%s mm)</string>
-  <string name="prefs_paragraph_spacing_summary">Juster afstanden mellem afsnit.</string>
 
-  <string name="prefs_show_verseno_title1">Versnumre</string>
 
-  <string name="prefs_show_chapter_no_title">Kapitelnumre</string>
-  <string name="prefs_show_chapter_no_summary">Vis kapitelnumre</string>
 
   <string name="prefs_verse_per_line_summary">Vis hvert vers på en separat linje</string>
   <string name="prefs_show_bookmarks_summary">Fjern markeringen for at skjule alle bogmærker</string>
 
   <string name="prefs_show_mynotes_summary">Vis ikon i vers med Mine noter</string>
-  <string name="prefs_show_notes_summary">Vis fodnoter og krydshenvisninger</string>
   <string name="prefs_show_strongs_summary">Links til græske og hebraiske definitioner</string>
   <string name="prefs_show_morphology_summary">Vis Robinsons græske morfologi</string>
   <string name="prefs_section_title_summary">Vis ikke-kanoniske afsnitstitel</string>
   <string name="prefs_red_letter_summary">Vis Kristi ord med rødt</string>
-  <string name="prefs_text_size_title">Skrifttypeindstillinger</string>
 
   <string name="prefs_verse_per_line_title">Ét vers pr. linje</string>
   <string name="prefs_show_bookmarks_title">Vis bogmærker</string>
@@ -129,7 +121,6 @@
   <string name="prefs_show_footnotes_inline_summary">Vis fodnoter inline med teksten i stedet for som klikbare håndtag</string>
   <string name="prefs_show_xrefs_summary">Vis krydshenvisninger, hvis de er tilgængelige i dokumentet</string>
 
-  <string name="prefs_show_notes_title">Fodnoter og krydshenvisninger</string>
   <string name="prefs_show_strongs_title">Strongs numre</string>
   <string name="prefs_show_morphology_title">Morfologikoder</string>
   <string name="prefs_non_strongs_word_italic_title">Kursivér tilføjede ord</string>
@@ -282,15 +273,9 @@
   <string name="prefs_noise_title">Baggrundsstøj</string>
   <string name="prefs_noise_summary">Tilføjelse af lidt støj til baggrunden kan gøre den mere behagelig for øjnene.</string>
 
-  <string name="cpv_default_title">Vælg en farve</string>
-  <string name="cpv_presets">Forudindstillinger</string>
-  <string name="cpv_custom">Tilpasset</string>
-  <string name="cpv_select">Vælg</string>
-  <string name="cpv_transparency">Gennemsigtighed</string>
 
     <!-- Window -->
   <string name="new_window">Nyt vindue</string>
-  <string name="windowClose">Luk</string>
   <string name="windowMaximise">Maksimér</string>
   <string name="windowMinimise">Minimér</string>
   <string name="windowSynchronise">Synkronisér</string>
@@ -304,26 +289,19 @@
   <string name="window_pin_mode">Fastgør</string>
 
     <!-- Notes screen -->
-  <string name="no_chapter_notes">Der findes ingen noter i dette kapitel</string>
-  <string name="no_verse_notes">Der findes ingen noter i dette vers</string>
   <string name="previous">Forrige</string>
   <string name="next">Næste</string>
 
     <!--  Strongs -->
-  <string name="strongs_not_installed">Hent venligst Strongs hebraiske og græske ordbøger</string>
   <string name="no_indexed_bible_with_strongs_ref">Du skal hente en Bibel med Strongs numre og opbygge dens indeks via Søg</string>
-  <string name="morph_robinson_not_installed">Hent venligst \'Robinsons morfologiske analysekoder\'-ordbogen</string>
-  <string name="go_to_downloads">Gå til Downloads</string>
 
     <!-- Module download -->
   <string name="download">Hent dokumenter</string>
   <string name="redownload">Hent dokumenter igen</string>
-  <string name="download_confirmation">Hent en Bibel fra internettet?</string>
   <string name="download_source_last_updated">Dokumentlister sidst opdateret: %s.</string>
   <string name="download_refreshing_book_list">Opdaterer liste over tilgængelige dokumenter fra dokumentservere…</string>
   <string name="download_source_message1">Dokumenter hentes fra følgende kilder:</string>
   <string name="download_document_confirm_prefix">Hent</string>
-  <string name="download_refresh_book_list_menu_item">Opdatér</string>
   <string name="error_downloading">Der opstod en fejl under hentning. Tjek venligst din internetforbindelse.</string>
   <string name="error_downloading_status">Serveren som er vært for %1$s returnerede en fejl på grund af %2$s (%3$d).</string>
   <string name="storage_space_warning">Utilstrækkelig lokal lagerplads.</string>
@@ -368,15 +346,6 @@
   <string name="done">Færdig</string>
   <string name="reset_plan_question">Er du sikker på, at du vil nulstille denne plan?</string>
   <string name="import_reading_plan">Importér læseplan…</string>
-  <string name="import_reading_plan_error">Fejl ved import</string>
-  <string name="import_reading_plan_error_duplicate">Følgende dage var dubletter: %s</string>
-  <string name="import_reading_plan_error_days">Følgende dage indeholdt fejl: %s</string>
-  <string name="import_reading_plan_anyway">Importér alligevel</string>
-  <string name="overwrite_reading_plan">Vil du overskrive %s?</string>
-  <string name="delete_reading_plan">Slet denne plan</string>
-  <string name="reading_plan_deleted">Læseplanen er blevet slettet</string>
-  <string name="reading_plan_ships_with_ab">Denne læseplan følger med %s</string>
-  <string name="confirm_delete_reading_plan">Er du sikker på, at du vil slette %s sammen med dens læsehistorik? Tip: Hvis du har brug for at opdatere planen, kan du blot importere den igen med det samme filnavn, og historikken vil blive bevaret.</string>
   <string name="plan_duplicate_user_plan">Der er en brugerdefineret læseplan på sdcard jsword/readingplan med samme navn som en intern plan. Den kan ikke vises her. Omdøb venligst filen til noget andet, og behold filendelsen .properties</string>
   <string name="plan_name_y1ntpspr">NT, Salmer og Ordsprog på et år</string>
   <string name="plan_description_y1ntpspr">Venligst stillet til rådighed af HEARTLIGHT Internet Magazine, http://www.heartlight.org, med tilladelse</string>
@@ -404,7 +373,6 @@
   <string name="notes">Fodnoter og referencer</string>
   <string name="share_verse">Del…</string>
   <string name="share_verse_widget_title">Del markering</string>
-  <string name="share_verse_subject_2">Et bibelvers er blevet delt med dig via %s.</string>
   <string name="compare_translations">Sammenlign oversættelser</string>
 
     <!-- Link context menu -->
@@ -416,33 +384,26 @@
   <string name="bookmarks_and_mynotes_title">Bogmærker &amp; Mine noter</string>
   <string name="migrated_my_notes">Migrerede Mine noter</string>
   <string name="bookmarks">Bogmærker</string>
-  <string name="bookmark_added">Bogmærke tilføjet</string>
     <!-- Bookmark / note labels -->
   <string name="labels">Etiketter</string>
   <string name="manage_labels">Administrer etiketter</string>
   <string name="assign_labels">Tildel etiketter</string>
   <string name="new_item">Ny</string>
-  <string name="new_label">Ny etiket</string>
   <string name="label_name_prompt">Navn</string>
   <string name="label_unlabelled">Uden etiket</string>
   <string name="add_bookmark1">Bogmærke</string>
-  <string name="add_bookmark2">Bogmærk markering</string>
   <string name="add_bookmark3">Markering</string>
   <string name="add_bookmark_whole_verse">Bogmærk vers</string>
   <string name="add_bookmark_whole_verse1">Vers</string>
-  <string name="add_bookmark_whole_verse2">Hele vers</string>
   <string name="add_whole_page_bookmark">Tilføj bogmærke for hele siden</string>
   <string name="add_paragraph_break">Afsnitsskift</string>
   <string name="ai_label">AI</string>
-  <string name="remove_bookmark">Fjern</string>
   <string name="bookmark_settings_hide_labels_title">Skjul angivne etiketter</string>
   <string name="bookmark_settings_hide_labels_summary">Skjul bogmærker markeret med de angivne etiket(ter)</string>
   <string name="auto_assign_labels_title">Etiketindstillinger</string>
   <string name="auto_assign_labels">Automatisk tildeling og favorittetiketter</string>
   <string name="auto_assign_labels1">Tildel automatisk etiket til nye bogmærker</string>
   <string name="auto_assign_labels_primary">Tildel automatisk som primær</string>
-  <string name="label_color">Etiketfarve</string>
-  <string name="label_color_example">Eksempel</string>
   <string name="marker_style">Vis kun markering for markeringsbogmærker</string>
   <string name="marker_style_whole_verse">Vis kun markering for helvers-bogmærker</string>
   <string name="hide_style">Skjul for markeringsbogmærker</string>
@@ -470,11 +431,9 @@
     <!-- Speak - Bible -->
   <string name="one_chapter">%d kapitel</string>
   <string name="some_chapters">%d kapitler</string>
-  <string name="rest_of_book">Til bogens afslutning</string>
     <!-- Speak - Commentary -->
   <string name="one_verse">%d vers</string>
   <string name="some_verses">%d vers</string>
-  <string name="rest_of_chapter">Til kapitlets afslutning</string>
     <!-- Speak - Dictionary and other -->
   <string name="one_page">%d side</string>
   <string name="some_pages">%d sider</string>
@@ -484,8 +443,6 @@
   <string name="rewind">Spol tilbage</string>
   <string name="forward">Frem</string>
   <string name="tts_lang_not_available">Sproget er ikke tilgængeligt.</string>
-  <string name="speak_queue">Kø</string>
-  <string name="speak_repeat">Gentag</string>
 
     <!-- Speak - Bible -->
   <string name="speak_speed_title">Oplæsningshastighed</string>
@@ -558,14 +515,12 @@
     <!-- Parameter is actual icon -->
   <string name="window_text_options_help1">%s-ikonet angiver, at indstillingen kommer fra arbejdsområdets indstillinger.</string>
     <!-- Parameter is actual icon -->
-  <string name="window_text_options_help2">%s-ikonet angiver, at denne indstilling er ændret for dette specifikke vindue.</string>
 
     <!-- First parameter is actual icon. Second parameter is either "default values" or "workspace default values" -->
   <string name="text_options_reset_help">Brug %1$s-knappen til at nulstille alle disse indstillinger tilbage til %2$s.</string>
   <string name="reset_defaults">standardværdier</string>
   <string name="reset_workspace_defaults">arbejdsområdets standardværdier</string>
 
-  <string name="speak_bookmark_help">Hjælp til oplæsningsbogmærker</string>
 
   <string name="speak_help_auto_bookmark">Et oplæsningsbogmærke tilføjes automatisk, når oplæsning sættes på pause eller stoppes. Automatisk genererede bogmærker mærkes med den særlige Oplæsnings-etiket. Hvis du starter ved et oplæsningsbogmærke, flyttes bogmærket til det vers, du stopper eller sætter på pause næste gang. Kun Oplæsnings-etiketter flyttes; alle andre etiketter forbliver uændrede.</string>
   <string name="speak_help_playback_settings">Særlige afspilningsindstillinger (under \"Afspilningsindstillinger\" på Oplæsnings-skærmen) gemmes i oplæsningsbogmærker, når denne indstilling er valgt. Når du genstarter oplæsning fra et oplæsningsbogmærke, indlæses de gemte afspilningsindstillinger fra bogmærket.</string>
@@ -602,7 +557,6 @@
   <string name="backup_phone_storage">Telefonlager</string>
   <string name="backup_and_restore">Sikkerhedskopi og gendannelse</string>
   <string name="backup_modules2">Sikkerhedskopier dokumenter til…</string>
-  <string name="backup_app_database2">Sikkerhedskopier appdatabase til…</string>
   <string name="backup_app2">Sikkerhedskopier app (.apk-fil) til …</string>
   <string name="backup_application">Program</string>
   <string name="backup_database">Database</string>
@@ -614,17 +568,13 @@
   <string name="backup_restore_from">Gendan fra…</string>
     <!-- Restore = overwrite existing. Import = merge into existing -->
   <string name="backup_restore_from2">Gendan eller importér fra…</string>
-  <string name="backup_restore">Gendan</string>
   <string name="backup_restore2">Gendan eller importér</string>
   <string name="overwrite_something">Overskriv %s?</string>
 
     <!-- What items (study pads, bookmarks etc) user wants to restore from app db backup file? -->
-  <string name="restore_what">Hvad vil du gendanne?</string>
 
-  <string name="restore_app_database">Gendan appdatabase fra…</string>
   <string name="restore_database">Gendan databasefil</string>
   <string name="restore_confirmation">Overskriv Mine noter, Bogmærker, Studieblokke, Læseplaner og Arbejdsområder?</string>
-  <string name="restore_success2">Udvalgte databasesektioner gendannet</string>
   <string name="restore_success">Mine noter, Bogmærker, Studieblokke, Læseplaner og Arbejdsområder gendannet</string>
   <string name="downloading_backup">Henter sikkerhedskopifil…</string>
   <string name="loading_backup">Indlæser database fra sikkerhedskopi…</string>
@@ -640,14 +590,12 @@
   <string name="exported_studypads_subject">Eksporterede studieblokke</string>
   <string name="exported_studypads_message">Din %s-database med bogmærker og noter relateret til udvalgte studieblokke er vedhæftet</string>
   <string name="restore_unsuccessfull">Gendannelse af database mislykkedes. Du angav muligvis en ugyldig databasefil.</string>
-  <string name="restore_modules">Gendan dokumenter fra…</string>
   <string name="send_backup_file">Send en sikkerhedskopifil</string>
   <string name="backup_modules_title">Vælg hvilke moduler der skal sikkerhedskopieres</string>
   <string name="install_zip_canceled">Modulinstallation annulleret</string>
   <string name="ask_restore_or_import">Database for %s kan enten gendannes (dvs. eksisterende database fjernes og den valgte database indlæses) eller importeres (den valgte database importeres til den eksisterende database). Hvad vil du gøre?</string>
   <string name="restore">Gendan</string>
   <string name="import2">Importér</string>
-  <string name="export_studypads_help">Fil med eksporterede studieblokke (dvs. etiketter og bogmærker) kan importeres via Hovedmenu -&gt; Sikkerhedskopi og gendannelse.</string>
 
     <!-- First argument is the name of first label, second and third are the counts of labels & bookmarks, respectively -->
   <string name="bookmarks_db_stats">\"%1$s\" og %2$s andre etiketter/studieblokke og %3$s bogmærker</string>
@@ -661,8 +609,6 @@
   <string name="module_about_osisId">OSIS-ID: %s</string>
 
     <!-- Bug reporting -->
-  <string name="send_bug_report_title1">Fejlrapport</string>
-  <string name="send_feedback_title">Tilbagemelding</string>
   <string name="send_bug_report_title">Tilbagemelding / fejlrapport</string>
   <string name="report_bug_email_subject_3">[%1$s] Fejlrapport for %2$s %3$s</string>
 
@@ -701,10 +647,8 @@
   <string name="yes">Ja</string>
   <string name="no">Nej</string>
   <string name="error">Fejl</string>
-  <string name="delete_generic">Slet</string>
   <string name="please_wait">Vent venligst…</string>
   <string name="all">Alle</string>
-  <string name="edit">Redigér</string>
   <string name="reset_generic">Nulstil</string>
   <string name="watch_tutorial_video">Se vejledningsvideo (engelsk)</string>
   <string name="verse_not_found">Vers ikke fundet</string>
@@ -728,12 +672,11 @@
   <string name="notification_channel_progress_status">Statusnotifikation for dokumentdownloads m.m.</string>
 
     <!-- Workspaces -->
-  <string name="new_workspace">Ny</string>
   <string name="switch_to_workspace">Arbejdsområder</string>
   <string name="delete_workspace">Fjern</string>
   <string name="new_copied_workspace">Kopiér som ny</string>
   <string name="workspace_number">Arbejdsområde %d</string>
-  <string name="rename_workspace">Omdøb</string>
+  <string name="rename">Omdøb</string>
   <string name="workspace_selector_title">Vælg arbejdsområde</string>
   <string name="workspace_settings">Indstillinger…</string>
   <string name="give_name_workspace">Giv navn til nyt arbejdsområde</string>
@@ -746,19 +689,17 @@
   <string name="copy_settings_workspaces_title">Til hvilke arbejdsområder vil du kopiere indstillinger?</string>
   <string name="reset_settings">Nulstil</string>
   <string name="search_settings">Søg i indstillinger</string>
-  <string name="workspace_dismiss">Luk</string>
+  <string name="dismiss">Luk</string>
   <string name="workspace_listing_with_current">%s (nuværende)</string>
 
     <!-- Beta notice -->
   <string name="beta_notice_title">Dette er en betaversion!</string>
-  <string name="beta_flag">BETA</string>
   <string name="beta_notice_content_1">I betaversionen er der nye funktioner, der endnu ikke er ordentligt testet, og brug af beta kan derfor medføre uventet adfærd, dvs. fejl. Det anbefales, at almindelige Bibellæsere bruger den stabile version i stedet.</string>
 
   <string name="beta_notice_content_2">Betabrugere opfordres til at rapportere fejl via Google Play eller (foretrukket) via %s.</string>
   <string name="beta_notice_content_3">Hvis du er programmør, overvej venligst at bidrage med fejlrettelser via %s selv. :-)</string>
   <string name="beta_notice_github_issues">Github-problemer</string>
   <string name="beta_notice_github">Github</string>
-  <string name="beta_notice_dismiss">Luk</string>
   <string name="beta_notice_dismiss_until_update">Luk indtil næste opdatering</string>
 
   <string name="stable_notice_title">Applikationen er blevet opgraderet!</string>
@@ -779,7 +720,6 @@
 
   <string name="help_search_title">Søg</string>
     <!-- TODO: to be removed -->
-  <string name="help_search_text">Søgeteksten kan indeholde specialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene - Query Parser Syntax\" for flere detaljer)</string>
   <string name="help_search_text2">Søgeteksten kan indeholde specialtegn som *, AND, OR, NOT</string>
   <string name="help_search_details">Se venligst %s for flere detaljer.</string>
   <string name="help_apache_lucene">Apache Lucene - Query Parser Syntax</string>
@@ -795,7 +735,6 @@
   <string name="redownload_documents">Hurtig gendownload</string>
   <string name="welcome_message">Tak for at du hentede %s. Der er i øjeblikket ingen Bibler eller dokumenter installeret. For at fortsætte skal du installere mindst ét dokument ved at hente fra internettet eller ved at indlæse fra en zip-fil-dokumentsikkerhedskopi.</string>
     <!-- Supported file formats for documents -->
-  <string name="supported_formats_title">Understøttede formater</string>
     <!-- argument is app_name_andbible (AndBible). -->
   <string name="choose_file">Du skal vælge den fil, du vil indlæse til %s.</string>
   <string name="supported_formats">Understøttede formater til indlæsning af dokumenter fra fil: %s</string>
@@ -819,7 +758,6 @@
   <string name="strongs_mode_title">Vælg Strongs-tilstand</string>
 
   <string name="download_dialog_message">Følgende bøger kunne ikke hentes:</string>
-  <string name="select_multiple">Vælg flere</string>
   <string name="journal_description">Brugerredigerbare studieblokkе med brugerdefineret tekst og bogmærker</string>
   <string name="my_notes_description">Brugerredigerbare noter knyttet til bogmærker</string>
   <string name="my_notes_abbreviation">Mine noter</string>
@@ -834,7 +772,6 @@
   <string name="http_not_found">Ikke fundet</string>
   <string name="http_unknown">Anden fejl</string>
   <string name="give_passphrase_for_module">Dokumentet %s er krypteret og kræver adgangskode for at blive låst op</string>
-  <string name="unlocking_failed">Oplåsning mislykkedes, ugyldig adgangskode</string>
   <string name="unlock_module">Angiv moduladgangskode</string>
   <string name="unlock_info">Info om oplåsning af krypteret modul</string>
   <string name="try_again_passphrase">Adgangskoden virkede ikke, prøv igen?</string>
@@ -886,8 +823,6 @@
   <string name="tell_friend_message4">Læs mere og flere installationsmuligheder: %s</string>
   <string name="share_verse_ok">Del / Kopiér</string>
   <string name="web_search">Websøgning</string>
-  <string name="verse_action_copy">Kopiér</string>
-  <string name="generic_share">Del</string>
   <string name="share_verse_menu_title">Del / kopiér…</string>
   <string name="show_versenumbers">Vis versnumre</string>
   <string name="show_full_verses">Vis hele vers</string>
@@ -904,9 +839,6 @@
   <string name="show_quotes">Vis anførselstegn</string>
   <string name="separate_verses_with_newlines">Adskil vers med linjeskift</string>
 
-  <string name="backup_button">Sikkerhedskopi og gendan</string>
-  <string name="back_button">Tilbage</string>
-  <string name="upgrading_database">Opgraderer database. Vent venligst…</string>
   <string name="initializing_app">Initialiserer applikation…</string>
   <string name="show_notes">Vis noter</string>
     <!-- 1. parameter is current Webview version. 2. minimum version 3. app name 4. Google Play link that takes user to WebView entry in Google Play to upgrade it. -->
@@ -930,7 +862,6 @@
   <string name="send_email">send e-mail til udviklerne</string>
   <string name="proceed_google_play">Gå til Google Play</string>
   <string name="text_maintainers">rapportér problemer til tekstvedligeholderne</string>
-  <string name="does_not_exist_abbreviation">Eksisterer ikke</string>
   <string name="cant_change_wholeverse">Kan ikke slå markering af hele vers fra for dette bogmærke</string>
   <string name="whole_verse_turned_on">Bogmærket er nu markeret for hele vers</string>
   <string name="this_bookmark">Dette bogmærke</string>
@@ -943,7 +874,6 @@
   <string name="display_mode_hidden">Skjult</string>
   <string name="workspace_override_indicator">Denne etiket har en arbejdsområde-specifik visningstilstand</string>
   <string name="primary_label">Primær etiket</string>
-  <string name="highlight_entire_verse">Fremhæv hele verset</string>
   <string name="favourite_label">Favoritetetiket</string>
   <string name="edit_label">Redigér etiket</string>
   <string name="delete_label_confirmation">Vil du fjerne bogmærkeetiketten \"%s\"? Alle tilknyttede Studieblok-noter vil også blive fjernet.</string>
@@ -961,7 +891,6 @@
   <string name="reorder">Sorter</string>
   <string name="system_items">Systemhandlinger</string>
   <string name="system_items1">Mere</string>
-  <string name="system_action2">Android-handlinger</string>
   <string name="text_copied_to_clicpboard">Tekst kopieret til udklipsholder</string>
   <string name="prefs_disable_two_step_bookmarking_title">Bogmærkning i ét trin</string>
   <string name="prefs_disable_two_step_bookmarking_summary">Vis \"Valg\" og \"Vers\" direkte i Bibelvisningens valgmenu</string>
@@ -975,7 +904,6 @@
   <string name="label_blue">Blå</string>
   <string name="label_salvation">Frelse</string>
   <string name="label_underline">Understregning</string>
-  <string name="import_menu">Import og eksport</string>
   <string name="auto_backups_title">Automatiske sikkerhedskopier</string>
   <string name="backup_file_info">App v%1$d, %2$s</string>
   <string name="reset_databases_title">Nulstil databaser</string>
@@ -993,18 +921,12 @@
   <string name="export_prompts_csv">Eksportér prompter til CSV</string>
   <string name="import_prompts_csv">Importér prompter fra CSV</string>
   <string name="prompts_csv_export_success">Eksporterede %d prompter til CSV</string>
-  <string name="prompts_csv_import_success">Import fuldført: %1$d oprettet, %2$d opdateret</string>
-  <string name="prompts_csv_import_errors">Import fuldført med fejl: %1$d oprettet, %2$d opdateret, %3$d fejl</string>
-  <string name="prompts_csv_import_failed">CSV-import mislykkedes: %s</string>
-  <string name="prompts_csv_export_failed">CSV-eksport mislykkedes: %s</string>
   <string name="no_prompts_to_export">Ingen brugerpromptere at eksportere</string>
   <string name="csv_column_selection_title">Vælg CSV-kolonner</string>
-  <string name="choose_csv_file">Vælg CSV-fil til import</string>
   <string name="no_bookmarks_to_export">Ingen bogmærker til eksport</string>
   <string name="export_fileformat">Eksportér som %s</string>
   <string name="export_something">Eksportér %s</string>
   <string name="import_items">Importér %s</string>
-  <string name="import_from_db">Importér fra app-databasefil</string>
   <string name="import_error">Import fra app-database mislykkedes. Databasefilen kan have forkert format eller være lavet med en for gammel version af %s.</string>
 
   <string name="export_bookmarks_csv">Eksportér bogmærker som %s</string>
@@ -1033,23 +955,13 @@
   <string name="last_updated_at">Sidst opdateret den</string>
   <string name="bookmark_notes">Bogmærkenoter</string>
 
-  <string name="chooser_range">Interval</string>
-  <string name="chooser_jump">Hop</string>
-  <string name="chooser_OT_abbrev">GT</string>
-  <string name="chooser_NT_abbrev">NT</string>
-  <string name="chooser_style_grid">Gitter</string>
-  <string name="chooser_style_lists">Lister</string>
-  <string name="chooser_select">Vælg %s</string>
-  <string name="chooser_pref_reset">Nulstil ikke kapitel/vers til 1, når bog/kapitel vælges</string>
     <!-- First param is language name, second is app name (app_name_long), third is "instruction for translators" which will be marked as a hyperlink in dialog. I hope we will never need this string, but nobody knows if some translators will drop us one day ... -->
   <string name="incomplete_translation">Vi beklager, men vi har kun en delvis brugergrænsefladeoversættelse på %1$s. Det skyldes, at %2$s udelukkende udvikles af frivillige. Hvis du kan hjælpe med oversættelse, se venligst %3$s.</string>
     <!-- will be added to incomplete_translation as a link -->
   <string name="instructions_for_translators">vejledning for oversættere</string>
   <string name="questions_title">Spørgsmål?</string>
-  <string name="questions_title2">Brug for hjælp?</string>
   <string name="bookmark_style">Bogmærkestil</string>
   <string name="added_to_bookmark">Tildelt dette bogmærke</string>
-  <string name="strongs_off">Fra</string>
   <string name="strongs_links">Links</string>
   <string name="strongs_text_and_links">Tekst og links</string>
   <string name="strongs_hidden_links">Skjulte links</string>
@@ -1088,7 +1000,6 @@
   <string name="discrete_mode_link">Du kan hente den seneste version af den diskrete version fra %s.</string>
 
     <!-- Window synchronize groups -->
-  <string name="sync_group_submenu">Synkroniser gruppe</string>
   <string name="sync_group_n">Gruppe %d</string>
   <string name="disable_sync">Deaktiver synkronisering</string>
   <string name="open_in_window">Åbn resultater i et vindue</string>
@@ -1099,10 +1010,8 @@
   <string name="custom_repositories_empty_list_message">Ingen tilpassede arkiver er defineret</string>
   <string name="custom_repositories_create_button_label">Tilføj tilpasset arkiv</string>
   <string name="custom_repositories_info_button_label">Information</string>
-  <string name="name_for_repository">Navn til arkivet</string>
   <string name="repository_specification">Arkiv-URL</string>
   <string name="delete_custom_repository">Vil du fjerne det tilpassede arkiv %s?</string>
-  <string name="invalid_repository_not_saved">Arkivspecifikationen var ugyldig og blev ikke gemt.</string>
   <string name="custom_repositories_help1">For at tilføje et nyt tilpasset arkiv skal du skrive eller kopiere og indsætte den tilpassede arkiv-URL her.</string>
   <string name="custom_repositories_help2">Du kan læse mere om tilpassede arkiver på %s.</string>
   <string name="wiki_page">WIKI-side</string>
@@ -1138,7 +1047,6 @@
     <!-- Reading Progress Activity -->
   <string name="reading_progress_title">Læse-/memoreringsfremdrift</string>
   <string name="reading_progress_chapters_read">kapitler læst</string>
-  <string name="reading_progress_verses_memorized">vers memoreret</string>
   <string name="reading_progress_active_days">aktive dage</string>
   <string name="reading_progress_overall">%s%% af Bibelen læst</string>
   <string name="reading_progress_bible_heatmap">Bibeloversigt</string>
@@ -1164,13 +1072,11 @@
   <string name="sync_adapter_summary">Nuværende: %s</string>
   <string name="adapters_google_drive">Google Drev</string>
   <string name="adapters_next_cloud">Next Cloud</string>
-  <string name="auth_title">Godkendelse til %s</string>
   <string name="auth_server_uri">Server-URL</string>
   <string name="auth_username">Brugernavn</string>
   <string name="auth_password">Adgangskode</string>
   <string name="auth_folder_path">Synkroniseringsmappesti</string>
   <string name="auth_folder_path_summary">Overordnet mappe for synkroniseringsdata (tom = rod)</string>
-  <string name="auth_access_token">Adgangstoken</string>
   <string name="synchronization_categories">Synkroniseringskategorier</string>
   <string name="sync_general_settings">Info og generelle indstillinger</string>
   <string name="sync_introduction">Introduktion</string>
@@ -1186,8 +1092,6 @@
   <string name="report">Rapport</string>
   <string name="sync_error">Der opstod en fejl i cloud-synkronisering</string>
   <string name="error_notification_channel_name">Fejlmeddelelser</string>
-  <string name="restore_from_cloud_description">Hvis du har Enhedssynkronisering aktiveret på en anden enhed, kan du starte med at gendanne databasen fra Cloud.</string>
-  <string name="enable_sync">Aktivér synkronisering</string>
   <string name="last_updated">Sidst opdateret: %s</string>
 
     <!-- MyBible/MySword module support -->
@@ -1208,11 +1112,6 @@
   <string name="processing_epub">Behandler EPUB: %s</string>
   <string name="buy_development">Køb udviklingsarbejde</string>
   <string name="buy_development2">Støt projektet</string>
-  <string name="new_version_warning">En ny udgivelse kommer snart. Den forventede udgivelsesdato er %1$s. Se vores %2$s for at opdage nye funktioner og forbedringer.</string>
-  <string name="new_version_trailer">trailer-video</string>
-  <string name="new_version_warning2">Efter udgivelsen vedligeholdes denne version ikke længere.</string>
-  <string name="new_version_warning3">Den vil ikke modtage fejlrettelser eller opdateringer.</string>
-  <string name="new_version_warning4">Hvis du ikke vil opgradere, skal du deaktivere \'Automatiske opdateringer\' i din app-butik (Google Play / F-Droid osv.).</string>
   <string name="dont_show">Vis ikke denne besked igen</string>
   <string name="pref_font_size_multiplier_title">Skriftstørrelsesmultiplikator</string>
   <string name="pref_font_size_multiplier_summary_1">Multiplicér tekstskriftstørrelser med dette tal.</string>
@@ -1231,7 +1130,6 @@
   <string name="invalid_url_message">Den URL, du har indtastet, er ugyldig. Indtast venligst en gyldig URL (f.eks. https://nextcloud.example.com)</string>
   <string name="memorize_description">Memorér bibelvers</string>
   <string name="memorize_abbreviation">Memorér</string>
-  <string name="add_memorization_target">Angiv som memoreringsmål</string>
   <string name="memorize_memorized_passages">Memorerede tekststeder</string>
   <string name="memorize_no_memorized_passages">Ingen memorerede tekststeder endnu</string>
   <string name="memorize_targets">Memoreringsmål</string>
@@ -1263,17 +1161,8 @@
   <string name="memorize_view_overview">Oversigt</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-oversættelse</string>
   <string name="sync_settings_shortcut_summary">Synkronisér data mellem enheder</string>
-  <string name="llm_api_key_title">API-nøgle</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibel API-nøgle</string>
   <string name="llm_provider_custom">Brugerdefineret (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Udbyder</string>
-  <string name="llm_provider_summary">Vælg hvilken AI-tjenesteudbyder der skal bruges. API-slutpunkt og tilgængelige modeller konfigureres automatisk.</string>
-  <string name="llm_provider_current">Aktuel: %s</string>
-  <string name="llm_api_key_detected_provider">Registreret udbyder: %s</string>
-  <string name="ai_connection_category">Forbindelse</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Adfærd</string>
   <string name="ai_language_title">AI-svarsprog</string>
   <string name="ai_language_summary">Sprog AI bruger til svar</string>
@@ -1290,16 +1179,9 @@
   <string name="llm_reset_usage_confirm_title">Nulstil forbrugsdata?</string>
   <string name="llm_reset_usage_confirm_message">Dette vil rydde alle akkumulerede forbrugsdata.</string>
   <string name="llm_custom_input_price_title">Inputpris ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Pris pr. million input-tokens for denne model</string>
   <string name="llm_custom_output_price_title">Outputpris ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Pris pr. million output-tokens for denne model</string>
   <string name="llm_cost_total">I alt: %1$s</string>
-  <string name="llm_endpoint_title">API-slutpunkt</string>
-  <string name="llm_endpoint_summary">Basis-URL for API\'et</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model-ID</string>
   <string name="llm_custom_model">Brugerdefineret…</string>
-  <string name="llm_custom_model_dialog_title">Brugerdefineret model</string>
   <string name="llm_custom_model_dialog_message">Indtast model-ID\'et</string>
   <string name="llm_rate_limited_retrying">Hastighedsbegrænsning. Prøver igen om %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-svar</string>
@@ -1309,7 +1191,6 @@
   <string name="llm_parse_error_no_choices">Ingen valgmuligheder i OpenAI-svar</string>
   <string name="llm_parse_error_openai">Kunne ikke fortolke OpenAI-svar: %1$s</string>
   <string name="llm_parse_error_anthropic">Kunne ikke fortolke Anthropic-svar: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt ikke fundet: %1$s</string>
   <string name="llm_error_unknown">Ukendt fejl</string>
   <string name="llm_error_max_iterations">Maksimalt antal iterationer (%1$d) nået uden fuldførelse</string>
   <string name="llm_continue_iterations_title">Fortsæt?</string>
@@ -1344,7 +1225,6 @@
   <string name="raw_log_retention_summary_disabled">Deaktiveret (behold alle)</string>
   <string name="send_ai_bug_report_title">Rapportér AI-fejl</string>
   <string name="ai_bug_report_menu">Rapportér AI-fejl</string>
-  <string name="ai_bug_report_recommended_only">Fejlrapportering er kun tilgængelig for anbefalede udbydermodeller</string>
 
   <string name="select_model_before_run_title">Vælg model</string>
   <string name="set_default_model_for_prompt">Angiv som standardmodel for denne prompt</string>
@@ -1374,7 +1254,6 @@
   <string name="ai_models_summary_none">Ingen modeller konfigureret</string>
   <string name="ai_add_provider">Tilføj udbyder</string>
   <string name="ai_provider_edit">Redigér</string>
-  <string name="ai_provider_delete">Slet</string>
   <string name="ai_provider_delete_confirm">Slet udbyder \"%1$s\"? Prompts der bruger denne udbyder vender tilbage til standard.</string>
   <string name="ai_provider_api_key_not_set">API-nøgle ikke angivet</string>
   <string name="ai_provider_select_type">Vælg udbydertype</string>
@@ -1386,27 +1265,18 @@
   <string name="ai_provider_saved">Udbyder gemt</string>
   <string name="ai_provider_deleted">Udbyder slettet</string>
 
-  <string name="llm_fetch_models_title">Hent modelliste</string>
-  <string name="llm_fetch_models_message">Hent listen over tilgængelige modeller fra %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Spørg ikke igen</string>
-  <string name="llm_fetch_models_success">Indlæste %1$d modeller</string>
-  <string name="llm_fetch_models_failed">Kunne ikke hente modeller</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Model</string>
     <!-- Configured models management -->
   <string name="ai_models_category">Modeller</string>
   <string name="add_model">Tilføj model</string>
-  <string name="add_model_title">Tilføj model</string>
   <string name="edit_model_title">Redigér model</string>
   <string name="model_saved">Model gemt</string>
   <string name="model_deleted">Model slettet</string>
   <string name="model_delete_confirm">Slet modellen \"%1$s\"?</string>
   <string name="model_set_default">Angiv som standardmodel</string>
   <string name="model_select_provider">Udbyder</string>
-  <string name="no_models_configured">Ingen modeller konfigureret</string>
-  <string name="model_cache_creation_price">Cacheoprettelsespris ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cachelæsningspris ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Understøttet</string>
   <string name="show_also_unsupported_models">Vis også ikke-understøttede modeller</string>
   <string name="show_also_unsupported_providers">Vis også ikke-understøttede udbydere</string>
@@ -1417,7 +1287,6 @@
   <string name="unknown_error">Ukendt fejl</string>
   <string name="easy_setup_title">Hurtig opsætning</string>
   <string name="easy_setup_pref_summary">Opsæt AI med en anbefalet udbyder i få trin</string>
-  <string name="easy_setup_choose_provider">Vælg en udbyder for at komme i gang:</string>
   <string name="easy_setup_enter_api_key">Indtast din API-nøgle</string>
   <string name="easy_setup_api_key_instructions">Hent din API-nøgle fra:</string>
   <string name="easy_setup_test_connection">Test forbindelsen</string>
@@ -1476,7 +1345,6 @@
   <string name="addon_prompt_notice">Denne prompt er fra tilføjelsesmodulet \"%s\" og kan ikke redigeres. Brug \"Kopiér til tilpasning\" for at oprette en redigerbar kopi.</string>
   <string name="new_category">Ny kategori</string>
   <string name="new_category_name">Kategorinavn</string>
-  <string name="rename_category">Omdøb</string>
   <string name="move_category_up">Flyt op</string>
   <string name="move_category_down">Flyt ned</string>
   <string name="hide_category">Skjul fra AI-handlinger</string>
@@ -1521,28 +1389,22 @@
   <string name="llm_note_updated">Note opdateret</string>
   <string name="specify_before_run_title">Angiv opgave</string>
   <string name="specify_before_run_hint">Beskriv den specifikke opgave…</string>
-  <string name="prompt_cache_settings">Cacheindstillinger</string>
   <string name="prompt_strict_context_matching">Kontekstafhængig cache</string>
   <string name="prompt_strict_context_matching_description">Når aktiveret, matches cache kun, når al kontekst (Bibelversion, valgt tekst) er den samme. Når deaktiveret, matches cache, når versene er de samme uanset Bibelversion.</string>
   <string name="ai_document_delete_confirmation">Slet dette AI-dokument?</string>
-  <string name="ai_document_deleted">Dette AI-dokument er blevet slettet.</string>
   <string name="ai_document_regenerating">Regenererer AI-dokument…</string>
-  <string name="ai_document_regenerate_not_implemented">Regenerering vil være tilgængelig i en fremtidig opdatering</string>
   <string name="ai_regenerate_prompt_not_found">Kan ikke regenerere: den originale prompt blev ikke fundet. Den kan være blevet slettet.</string>
   <string name="ai_document_regenerate">Regenerér</string>
   <string name="ai_regenerate_title">Regenerér</string>
   <string name="ai_regenerate_instructions_hint">Yderligere instruktioner (valgfrit)</string>
   <string name="ai_regenerate_keep_previous">Behold tidligere version</string>
   <string name="ai_regenerate_fresh_run">Ny kørsel (ignorer tidligere resultat)</string>
-  <string name="ai_document_delete">Slet</string>
   <string name="ai_unknown_prompt">AI</string>
 
     <!-- Default prompts -->
   <string name="default_prompt_translate_to_language">Oversæt til %s</string>
   <string name="default_prompt_translate_to_ui_language">Oversæt til brugergrænsefladens sprog</string>
   <string name="default_prompt_translate_to_ui_language_desc">Oversætter dokumenttekst til appens brugergrænsefladesprog</string>
-  <string name="default_prompt_translate_to_english">Oversæt til engelsk</string>
-  <string name="default_prompt_translate_to_english_desc">Oversætter valgt tekst til engelsk</string>
   <string name="default_prompt_summary">Resumé</string>
   <string name="default_prompt_summary_desc">Opretter et kortfattet resumé af den valgte tekst</string>
   <string name="default_prompt_explain_verses">Forklar vers</string>
@@ -1551,8 +1413,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Opret en studieblok med vers-for-vers forklaring og bogmærker</string>
   <string name="default_prompt_word_study">Ordstudie</string>
   <string name="default_prompt_word_study_desc">Analyserer originale hebraiske/græske ord</string>
-  <string name="default_prompt_strongs_annotation">Strongs numre annotation</string>
-  <string name="default_prompt_strongs_annotation_desc">Tilføjer Strongs konkordansnumre til enhver bibeloversættelse med KJV som reference</string>
   <string name="default_prompt_cross_references">Krydshenvisninger</string>
   <string name="default_prompt_cross_references_desc">Finder og forklarer relaterede bibelsteder</string>
   <string name="default_prompt_compare_translations">Sammenlign oversættelser</string>
@@ -1695,11 +1555,7 @@
   <string name="ai_document_filter_summary">Vælg hvilke dokumenter AI\'en kan læse</string>
   <string name="ai_document_filter_summary_count">%d dokumenter udelukket</string>
   <string name="ai_document_filter_activity_title">AI-dokumentadgang</string>
-  <string name="ai_document_excluded_error">Dokument udelukket af brugerindstillinger: %s</string>
   <string name="permission_status_default">Spørg (standard)</string>
-  <string name="permission_status_allowed">Altid tilladt</string>
-  <string name="permission_status_denied">Altid afvist</string>
-  <string name="permission_option_default">Spørg hver gang (standard)</string>
   <string name="permission_option_always_allow">Tillad altid</string>
   <string name="permission_option_always_deny">Afvis altid</string>
   <string name="reset_all_permissions">Nulstil alle</string>
@@ -1714,10 +1570,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Værktøjstilladelser</string>
-  <string name="prompt_tool_permissions_read_only">Værktøjstilladelser (skrivebeskyttet)</string>
-  <string name="prompt_tool_permissions_description">Tilsidesæt værktøjstilladelser for denne prompt</string>
-  <string name="tool_section_read_tools">Læseværktøjer</string>
-  <string name="tool_section_write_tools">Skriveværktøjer</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Søgning</string>
@@ -1740,13 +1592,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Brugerdefineret</string>
-  <string name="prompt_model_custom_hint">Indtast modelnavn</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Vælg AI-handling</string>
-  <string name="no_llm_prompts_configured">Ingen AI-prompts konfigureret til versvalg</string>
-  <string name="llm_prompt_executing">Udfører AI-prompt: %s</string>
   <string name="llm_actions">AI-handlinger</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1602,7 @@
   <string name="agent_log_close">Luk agentlog</string>
   <string name="agent_log_stop">Stop AI</string>
   <string name="agent_log_idle">AI-assistent</string>
-  <string name="agent_log_running">AI arbejder…</string>
   <string name="agent_log_completed">Fuldført</string>
-  <string name="agent_log_error">Der opstod en fejl</string>
   <string name="agent_log_executing">Udfører: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Værktøj: %s</string>
@@ -1766,7 +1612,6 @@
   <string name="agent_log_saved">Gemt: %s</string>
   <string name="agent_log_done">Færdig: %s</string>
   <string name="agent_log_cancelled">Annulleret</string>
-  <string name="agent_execution_completed">Agentudførelse fuldført</string>
   <string name="agent_already_running">En AI-agent kører allerede. Vent eller stop den først.</string>
 
     <!-- AI Agent Notifications -->
@@ -1785,22 +1630,16 @@
   <string name="my_document_new_name">Dokument %d</string>
   <string name="my_document_create_title">Opret nyt dokument</string>
   <string name="my_document_rename_title">Omdøb dokument</string>
-  <string name="my_document_edit_description_title">Redigér beskrivelse</string>
   <string name="my_document_delete_confirmation">Slet dokument \"%s\"?</string>
   <string name="my_document_cannot_delete_ai_documents">AI-dokumenter kan ikke slettes, så længe de indeholder sider. Slet siderne først.</string>
   <string name="my_document_save_changes">Gem ændringer?</string>
   <string name="my_document_no_description">Ingen beskrivelse</string>
-  <string name="my_document_rename">Omdøb</string>
   <string name="my_document_edit_description">Redigér beskrivelse</string>
-  <string name="my_document_delete">Slet</string>
 
   <string name="my_document_pages_title">%s - Sider</string>
   <string name="my_document_pages_empty">Ingen sider i dette dokument.</string>
   <string name="my_document_page_rename_title">Omdøb side</string>
   <string name="my_document_page_delete_confirmation">Slet side \"%s\"?</string>
-  <string name="my_document_page_rename">Omdøb</string>
-  <string name="my_document_page_delete">Slet</string>
-  <string name="my_document_page_export">Eksportér</string>
   <string name="my_document_new_page_name">Side %1$d</string>
   <string name="my_document_create_page_title">Ny side</string>
   <string name="my_document_content_type_label">Indholdstype</string>
@@ -1820,12 +1659,10 @@
 
   <string name="prefs_page_scroll_amount_title">Sidescrullmængde</string>
   <string name="prefs_page_scroll_amount_summary">Hvor meget af siden der rulles ved side op/ned</string>
-  <string name="page_scroll_amount_dialog_title">Sidescrullmængde</string>
   <string name="prefs_scroll_helper_lines_title">Rullehjælpelinjer</string>
   <string name="prefs_scroll_helper_lines_summary">Vis vandrette hjælpelinjer ved sideskiftgrænser</string>
   <string name="prefs_scroll_helper_line_style_title">Hjælpelinjestil</string>
   <string name="prefs_scroll_helper_line_style_summary">Vælg den visuelle stil for rullehjælpelinjer</string>
-  <string name="scroll_helper_line_style_dialog_title">Hjælpelinjestil</string>
   <string name="scroll_helper_line_style_thin_dotted">Tynd stiplet linje</string>
   <string name="scroll_helper_line_style_thin_solid">Tynd hel linje</string>
   <string name="scroll_helper_line_style_thick_solid">Tyk hel linje</string>
