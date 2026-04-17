@@ -1408,17 +1408,8 @@ Tega sporočila ne prikaži več
   <string name="memorize_view_overview">Pregled</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">AI prevajanje</string>
   <string name="sync_settings_shortcut_summary">Sinhroniziraj podatke med napravami</string>
-  <string name="llm_api_key_title">API ključ</string>
-  <string name="llm_api_key_summary">API ključ, združljiv z OpenAI</string>
   <string name="llm_provider_custom">Po meri (združljiv z OpenAI)</string>
-  <string name="llm_provider_title">Ponudnik</string>
-  <string name="llm_provider_summary">Izberite ponudnika storitve AI. Končna točka API in razpoložljivi modeli bodo samodejno nastavljeni.</string>
-  <string name="llm_provider_current">Trenutno: %s</string>
-  <string name="llm_api_key_detected_provider">Zaznani ponudnik: %s</string>
-  <string name="ai_connection_category">Povezava</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Vedenje</string>
   <string name="ai_language_title">Jezik AI odgovorov</string>
   <string name="ai_language_summary">Jezik, ki ga AI uporablja za odgovore</string>
@@ -1435,16 +1426,9 @@ Tega sporočila ne prikaži več
   <string name="llm_reset_usage_confirm_title">Ponastaviti podatke o uporabi?</string>
   <string name="llm_reset_usage_confirm_message">S tem boste počistili vse skupne podatke o uporabi.</string>
   <string name="llm_custom_input_price_title">Vhodna cena ($/Mžeton)</string>
-  <string name="llm_custom_input_price_summary">Strošek na milijon vhodnih žetonov za ta model</string>
   <string name="llm_custom_output_price_title">Izhodna cena ($/Mžeton)</string>
-  <string name="llm_custom_output_price_summary">Strošek na milijon izhodnih žetonov za ta model</string>
   <string name="llm_cost_total">Skupaj: %1$s</string>
-  <string name="llm_endpoint_title">Končna točka API</string>
-  <string name="llm_endpoint_summary">Osnovni URL za API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID modela</string>
   <string name="llm_custom_model">Po meri…</string>
-  <string name="llm_custom_model_dialog_title">Model po meri</string>
   <string name="llm_custom_model_dialog_message">Vnesite ID modela</string>
   <string name="llm_rate_limited_retrying">Omejitev hitrosti. Ponoven poskus čez %1$ss\u2026</string>
   <string name="llm_default_document_title">AI odgovor</string>
@@ -1454,7 +1438,6 @@ Tega sporočila ne prikaži več
   <string name="llm_parse_error_no_choices">Ni možnosti v odgovoru OpenAI</string>
   <string name="llm_parse_error_openai">Napaka pri razčlenjevanju odgovora OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Napaka pri razčlenjevanju odgovora Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Poziv ni najden: %1$s</string>
   <string name="llm_error_unknown">Neznana napaka</string>
   <string name="llm_error_max_iterations">Doseženo največje število ponovitev (%1$d) brez dokončanja</string>
   <string name="llm_continue_iterations_title">Nadaljevati?</string>
@@ -1489,7 +1472,6 @@ Tega sporočila ne prikaži več
   <string name="raw_log_retention_summary_disabled">Onemogočeno (ohrani vse)</string>
   <string name="send_ai_bug_report_title">Poroči o napaki AI</string>
   <string name="ai_bug_report_menu">Poroči o napaki AI</string>
-  <string name="ai_bug_report_recommended_only">Poročanje o napakah je na voljo samo za priporočene modele ponudnikov</string>
 
   <string name="select_model_before_run_title">Izberite model</string>
   <string name="set_default_model_for_prompt">Nastavi kot privzeti model za ta poziv</string>
@@ -1531,11 +1513,6 @@ Tega sporočila ne prikaži več
   <string name="ai_provider_saved">Ponudnik shranjen</string>
   <string name="ai_provider_deleted">Ponudnik izbrisan</string>
 
-  <string name="llm_fetch_models_title">Prenesi seznam modelov</string>
-  <string name="llm_fetch_models_message">Prenesti seznam razpoložljivih modelov iz %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ne vprašaj več</string>
-  <string name="llm_fetch_models_success">Naloženih %1$d modelov</string>
-  <string name="llm_fetch_models_failed">Prenos modelov ni uspel</string>
   <string name="llm_openrouter_category">Kategorija</string>
   <string name="llm_openrouter_category_all">Vse</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1549,9 +1526,6 @@ Tega sporočila ne prikaži več
   <string name="model_delete_confirm">Izbrisati model \"%1$s\"?</string>
   <string name="model_set_default">Nastavi kot privzeti model</string>
   <string name="model_select_provider">Ponudnik</string>
-  <string name="no_models_configured">Noben model ni konfiguriran</string>
-  <string name="model_cache_creation_price">Cena ustvarjanja predpomnilnika ($/Mžeton)</string>
-  <string name="model_cache_read_price">Cena branja predpomnilnika ($/Mžeton)</string>
   <string name="model_supported_badge">✓ Podprto</string>
   <string name="show_also_unsupported_models">Prikaži tudi nepodprte modele</string>
   <string name="show_also_unsupported_providers">Prikaži tudi nepodprte ponudnike</string>
@@ -1562,7 +1536,6 @@ Tega sporočila ne prikaži več
   <string name="unknown_error">Neznana napaka</string>
   <string name="easy_setup_title">Hitra nastavitev</string>
   <string name="easy_setup_pref_summary">Nastavi AI s priporočenim ponudnikom v nekaj korakih</string>
-  <string name="easy_setup_choose_provider">Izberi ponudnika za začetek:</string>
   <string name="easy_setup_enter_api_key">Vnesi svoj API ključ</string>
   <string name="easy_setup_api_key_instructions">Pridobi svoj API ključ na:</string>
   <string name="easy_setup_test_connection">Preizkusi povezavo</string>
@@ -1666,13 +1639,10 @@ Tega sporočila ne prikaži več
   <string name="llm_note_updated">Zapisek posodobljen</string>
   <string name="specify_before_run_title">Določi nalogo</string>
   <string name="specify_before_run_hint">Opiši specifično nalogo…</string>
-  <string name="prompt_cache_settings">Nastavitve predpomnilnika</string>
   <string name="prompt_strict_context_matching">Predpomnilnik odvisen od konteksta</string>
   <string name="prompt_strict_context_matching_description">Ko je omogočeno, se predpomnilnik ujema samo, ko je ves kontekst (različica Biblije, izbrano besedilo) enak. Ko je onemogočeno, se predpomnilnik ujema, ko so vrstice enake, ne glede na različico Biblije.</string>
   <string name="ai_document_delete_confirmation">Izbriši ta dokument AI?</string>
-  <string name="ai_document_deleted">Ta dokument AI je bil izbrisan.</string>
   <string name="ai_document_regenerating">Ponovna generacija dokumenta AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Ponovna generacija bo na voljo v prihodnji posodobitvi</string>
   <string name="ai_regenerate_prompt_not_found">Ponovna generacija ni mogoča: izvirni poziv ni bil najden. Morda je bil izbrisan.</string>
   <string name="ai_document_regenerate">Znova generiraj</string>
   <string name="ai_regenerate_title">Znova generiraj</string>
@@ -1686,8 +1656,6 @@ Tega sporočila ne prikaži več
   <string name="default_prompt_translate_to_language">Prevedi v %s</string>
   <string name="default_prompt_translate_to_ui_language">Prevedi v jezik vmesnika</string>
   <string name="default_prompt_translate_to_ui_language_desc">Prevede besedilo dokumenta v jezik vmesnika aplikacije</string>
-  <string name="default_prompt_translate_to_english">Prevedi v angleščino</string>
-  <string name="default_prompt_translate_to_english_desc">Prevede izbrano besedilo v angleščino</string>
   <string name="default_prompt_summary">Povzetek</string>
   <string name="default_prompt_summary_desc">Ustvari jedrnato povzetje izbranega besedila</string>
   <string name="default_prompt_explain_verses">Razloži vrstice</string>
@@ -1696,8 +1664,6 @@ Tega sporočila ne prikaži več
   <string name="default_prompt_explain_verses_studypad_desc">Ustvari študijske zaznamke z razlago vrstice za vrstico in zaznamki</string>
   <string name="default_prompt_word_study">Besedna študija</string>
   <string name="default_prompt_word_study_desc">Analizira izvirne hebrejske/grške besede</string>
-  <string name="default_prompt_strongs_annotation">Strongova številčna anotacija</string>
-  <string name="default_prompt_strongs_annotation_desc">Doda Strongove konkordančne številke kateri koli prevodu Biblije z uporabo KJV kot reference</string>
   <string name="default_prompt_cross_references">Navzkrižne reference</string>
   <string name="default_prompt_cross_references_desc">Poišče in razloži sorodne odlomke Biblije</string>
   <string name="default_prompt_compare_translations">Primerjaj prevode</string>
@@ -1840,11 +1806,7 @@ Tega sporočila ne prikaži več
   <string name="ai_document_filter_summary">Izberite, katere dokumente lahko AI prebere</string>
   <string name="ai_document_filter_summary_count">%d dokumentov izključenih</string>
   <string name="ai_document_filter_activity_title">Dostop AI do dokumentov</string>
-  <string name="ai_document_excluded_error">Dokument izključen z nastavitvami uporabnika: %s</string>
   <string name="permission_status_default">Vprašaj (privzeto)</string>
-  <string name="permission_status_allowed">Vedno dovoljeno</string>
-  <string name="permission_status_denied">Vedno zavrnjeno</string>
-  <string name="permission_option_default">Vprašaj vsakič (privzeto)</string>
   <string name="permission_option_always_allow">Vedno dovoli</string>
   <string name="permission_option_always_deny">Vedno zavrni</string>
   <string name="reset_all_permissions">Ponastavi vse</string>
@@ -1859,10 +1821,6 @@ Tega sporočila ne prikaži več
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Dovoljenja orodij</string>
-  <string name="prompt_tool_permissions_read_only">Dovoljenja orodij (samo branje)</string>
-  <string name="prompt_tool_permissions_description">Prepiši dovoljenja orodij za ta poziv</string>
-  <string name="tool_section_read_tools">Orodja za branje</string>
-  <string name="tool_section_write_tools">Orodja za pisanje</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblija in iskanje</string>
@@ -1885,13 +1843,9 @@ Tega sporočila ne prikaži več
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Privzeto</string>
-  <string name="prompt_model_custom">Po meri</string>
-  <string name="prompt_model_custom_hint">Vnesite ime modela</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Izberite AI dejanje</string>
-  <string name="no_llm_prompts_configured">Za izbiro vrstice ni konfiguriranih AI pozivov</string>
-  <string name="llm_prompt_executing">Izvajanje AI poziva: %s</string>
   <string name="llm_actions">AI dejanja</string>
 
     <!-- Agent Log Widget -->
@@ -1899,9 +1853,7 @@ Tega sporočila ne prikaži več
   <string name="agent_log_close">Zapri dnevnik agenta</string>
   <string name="agent_log_stop">Ustavi AI</string>
   <string name="agent_log_idle">AI pomočnik</string>
-  <string name="agent_log_running">AI deluje…</string>
   <string name="agent_log_completed">Dokončano</string>
-  <string name="agent_log_error">Prišlo je do napake</string>
   <string name="agent_log_executing">Izvajanje: %s</string>
   <string name="agent_log_iteration">Ponavljanje %d</string>
   <string name="agent_log_tool">Orodje: %s</string>
@@ -1911,7 +1863,6 @@ Tega sporočila ne prikaži več
   <string name="agent_log_saved">Shranjeno: %s</string>
   <string name="agent_log_done">Končano: %s</string>
   <string name="agent_log_cancelled">Preklicano</string>
-  <string name="agent_execution_completed">Izvajanje agenta je dokončano</string>
   <string name="agent_already_running">AI agent že deluje. Počakajte ali ga najprej ustavite.</string>
 
     <!-- AI Agent Notifications -->

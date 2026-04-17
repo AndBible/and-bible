@@ -1320,17 +1320,8 @@ Nie wyświetlaj tego ponownie</string>
   <string name="memorize_view_overview">Przegląd</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Tłumaczenie LLM</string>
   <string name="sync_settings_shortcut_summary">Synchronizuj dane między urządzeniami</string>
-  <string name="llm_api_key_title">Klucz API</string>
-  <string name="llm_api_key_summary">Klucz API zgodny z OpenAI</string>
   <string name="llm_provider_custom">Niestandardowy (zgodny z OpenAI)</string>
-  <string name="llm_provider_title">Dostawca</string>
-  <string name="llm_provider_summary">Wybierz dostawcę usługi AI. Punkt końcowy API i dostępne modele zostaną skonfigurowane automatycznie.</string>
-  <string name="llm_provider_current">Bieżący: %s</string>
-  <string name="llm_api_key_detected_provider">Wykryty dostawca: %s</string>
-  <string name="ai_connection_category">Połączenie</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Zachowanie</string>
   <string name="ai_language_title">Język odpowiedzi AI</string>
   <string name="ai_language_summary">Język używany przez AI w odpowiedziach</string>
@@ -1347,16 +1338,9 @@ Nie wyświetlaj tego ponownie</string>
   <string name="llm_reset_usage_confirm_title">Zresetować dane użycia?</string>
   <string name="llm_reset_usage_confirm_message">Spowoduje to wyczyszczenie wszystkich skumulowanych danych użycia.</string>
   <string name="llm_custom_input_price_title">Cena wejścia ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Koszt za milion tokenów wejściowych dla tego modelu</string>
   <string name="llm_custom_output_price_title">Cena wyjścia ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Koszt za milion tokenów wyjściowych dla tego modelu</string>
   <string name="llm_cost_total">Łącznie: %1$s</string>
-  <string name="llm_endpoint_title">Punkt końcowy API</string>
-  <string name="llm_endpoint_summary">Bazowy adres URL interfejsu API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Identyfikator modelu</string>
   <string name="llm_custom_model">Niestandardowy…</string>
-  <string name="llm_custom_model_dialog_title">Niestandardowy model</string>
   <string name="llm_custom_model_dialog_message">Wprowadź identyfikator modelu</string>
   <string name="llm_rate_limited_retrying">Przekroczono limit zapytań. Ponowna próba za %1$ss\u2026</string>
   <string name="llm_default_document_title">Odpowiedź AI</string>
@@ -1366,7 +1350,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="llm_parse_error_no_choices">Brak opcji w odpowiedzi OpenAI</string>
   <string name="llm_parse_error_openai">Nie udało się przetworzyć odpowiedzi OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Nie udało się przetworzyć odpowiedzi Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Nie znaleziono promptu: %1$s</string>
   <string name="llm_error_unknown">Nieznany błąd</string>
   <string name="llm_error_max_iterations">Osiągnięto maksymalną liczbę iteracji (%1$d) bez ukończenia</string>
   <string name="llm_continue_iterations_title">Kontynuować?</string>
@@ -1401,7 +1384,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="raw_log_retention_summary_disabled">Wyłączone (zachowaj wszystkie)</string>
   <string name="send_ai_bug_report_title">Zgłoś błąd AI</string>
   <string name="ai_bug_report_menu">Zgłoś błąd AI</string>
-  <string name="ai_bug_report_recommended_only">Zgłaszanie błędów jest dostępne tylko dla zalecanych modeli dostawców</string>
 
   <string name="select_model_before_run_title">Wybierz model</string>
   <string name="set_default_model_for_prompt">Ustaw jako domyślny model dla tego promptu</string>
@@ -1443,11 +1425,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="ai_provider_saved">Dostawca zapisany</string>
   <string name="ai_provider_deleted">Dostawca usunięty</string>
 
-  <string name="llm_fetch_models_title">Pobierz listę modeli</string>
-  <string name="llm_fetch_models_message">Pobrać listę dostępnych modeli z %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Nie pytaj ponownie</string>
-  <string name="llm_fetch_models_success">Załadowano %1$d modeli</string>
-  <string name="llm_fetch_models_failed">Nie udało się pobrać modeli</string>
   <string name="llm_openrouter_category">Kategoria</string>
   <string name="llm_openrouter_category_all">Wszystkie</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1461,9 +1438,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="model_delete_confirm">Usunąć model „%1$s"?</string>
   <string name="model_set_default">Ustaw jako domyślny model</string>
   <string name="model_select_provider">Dostawca</string>
-  <string name="no_models_configured">Brak skonfigurowanych modeli</string>
-  <string name="model_cache_creation_price">Cena tworzenia pamięci podręcznej ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cena odczytu pamięci podręcznej ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Obsługiwany</string>
   <string name="show_also_unsupported_models">Pokaż również nieobsługiwane modele</string>
   <string name="show_also_unsupported_providers">Pokaż również nieobsługiwanych dostawców</string>
@@ -1474,7 +1448,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="unknown_error">Nieznany błąd</string>
   <string name="easy_setup_title">Szybka konfiguracja</string>
   <string name="easy_setup_pref_summary">Skonfiguruj AI z zalecanym dostawcą w kilku krokach</string>
-  <string name="easy_setup_choose_provider">Wybierz dostawcę, aby rozpocząć:</string>
   <string name="easy_setup_enter_api_key">Wprowadź klucz API</string>
   <string name="easy_setup_api_key_instructions">Pobierz swój klucz API z:</string>
   <string name="easy_setup_test_connection">Testuj połączenie</string>
@@ -1578,13 +1551,10 @@ Nie wyświetlaj tego ponownie</string>
   <string name="llm_note_updated">Notatka zaktualizowana</string>
   <string name="specify_before_run_title">Określ zadanie</string>
   <string name="specify_before_run_hint">Opisz konkretne zadanie…</string>
-  <string name="prompt_cache_settings">Ustawienia pamięci podręcznej</string>
   <string name="prompt_strict_context_matching">Pamięć podręczna zależna od kontekstu</string>
   <string name="prompt_strict_context_matching_description">Po włączeniu pamięć podręczna dopasowuje się tylko wtedy, gdy cały kontekst (wersja Biblii, zaznaczony tekst) jest taki sam. Po wyłączeniu dopasowuje się, gdy wersety są takie same, niezależnie od wersji Biblii.</string>
   <string name="ai_document_delete_confirmation">Usunąć ten dokument AI?</string>
-  <string name="ai_document_deleted">Ten dokument AI został usunięty.</string>
   <string name="ai_document_regenerating">Ponowne generowanie dokumentu AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Ponowne generowanie będzie dostępne w przyszłej aktualizacji</string>
   <string name="ai_regenerate_prompt_not_found">Nie można wygenerować ponownie: nie znaleziono oryginalnego promptu. Mógł zostać usunięty.</string>
   <string name="ai_document_regenerate">Wygeneruj ponownie</string>
   <string name="ai_regenerate_title">Wygeneruj ponownie</string>
@@ -1598,8 +1568,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="default_prompt_translate_to_language">Przetłumacz na %s</string>
   <string name="default_prompt_translate_to_ui_language">Przetłumacz na język interfejsu</string>
   <string name="default_prompt_translate_to_ui_language_desc">Tłumaczy tekst dokumentu na język interfejsu aplikacji</string>
-  <string name="default_prompt_translate_to_english">Przetłumacz na angielski</string>
-  <string name="default_prompt_translate_to_english_desc">Tłumaczy wybrany tekst na angielski</string>
   <string name="default_prompt_summary">Podsumowanie</string>
   <string name="default_prompt_summary_desc">Tworzy zwięzłe podsumowanie wybranego tekstu</string>
   <string name="default_prompt_explain_verses">Wyjaśnij wersety</string>
@@ -1608,8 +1576,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="default_prompt_explain_verses_studypad_desc">Tworzy Bloczek notatek z objaśnieniami werset po wersecie i zakładkami</string>
   <string name="default_prompt_word_study">Studium słów</string>
   <string name="default_prompt_word_study_desc">Analizuje oryginalne słowa hebrajskie/greckie</string>
-  <string name="default_prompt_strongs_annotation">Adnotacja numerów Stronga</string>
-  <string name="default_prompt_strongs_annotation_desc">Dodaje numery konkordancji Stronga do dowolnego tłumaczenia Biblii, używając KJV jako odniesienia</string>
   <string name="default_prompt_cross_references">Odsyłacze wewnętrzne</string>
   <string name="default_prompt_cross_references_desc">Wyszukuje i wyjaśnia powiązane fragmenty Biblii</string>
   <string name="default_prompt_compare_translations">Porównaj tłumaczenia</string>
@@ -1752,11 +1718,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="ai_document_filter_summary">Wybierz, które dokumenty AI może odczytywać</string>
   <string name="ai_document_filter_summary_count">%d dokumentów wykluczonych</string>
   <string name="ai_document_filter_activity_title">Dostęp do dokumentów AI</string>
-  <string name="ai_document_excluded_error">Dokument wykluczony przez ustawienia użytkownika: %s</string>
   <string name="permission_status_default">Pytaj (domyślnie)</string>
-  <string name="permission_status_allowed">Zawsze dozwolone</string>
-  <string name="permission_status_denied">Zawsze odmawiaj</string>
-  <string name="permission_option_default">Pytaj za każdym razem (domyślnie)</string>
   <string name="permission_option_always_allow">Zawsze zezwalaj</string>
   <string name="permission_option_always_deny">Zawsze odmawiaj</string>
   <string name="reset_all_permissions">Resetuj wszystkie</string>
@@ -1771,10 +1733,6 @@ Nie wyświetlaj tego ponownie</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Uprawnienia narzędzi</string>
-  <string name="prompt_tool_permissions_read_only">Uprawnienia narzędzi (tylko do odczytu)</string>
-  <string name="prompt_tool_permissions_description">Nadpisz uprawnienia narzędzi dla tego promptu</string>
-  <string name="tool_section_read_tools">Narzędzia do czytania</string>
-  <string name="tool_section_write_tools">Narzędzia do pisania</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblia i wyszukiwanie</string>
@@ -1797,13 +1755,9 @@ Nie wyświetlaj tego ponownie</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Domyślny</string>
-  <string name="prompt_model_custom">Niestandardowy</string>
-  <string name="prompt_model_custom_hint">Wprowadź nazwę modelu</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Wybierz akcję AI</string>
-  <string name="no_llm_prompts_configured">Brak skonfigurowanych promptów AI dla zaznaczenia wersetów</string>
-  <string name="llm_prompt_executing">Wykonywanie promptu AI: %s</string>
   <string name="llm_actions">Akcje AI</string>
 
     <!-- Agent Log Widget -->
@@ -1811,9 +1765,7 @@ Nie wyświetlaj tego ponownie</string>
   <string name="agent_log_close">Zamknij log agenta</string>
   <string name="agent_log_stop">Zatrzymaj AI</string>
   <string name="agent_log_idle">Asystent AI</string>
-  <string name="agent_log_running">AI pracuje…</string>
   <string name="agent_log_completed">Ukończono</string>
-  <string name="agent_log_error">Wystąpił błąd</string>
   <string name="agent_log_executing">Wykonywanie: %s</string>
   <string name="agent_log_iteration">Iteracja %d</string>
   <string name="agent_log_tool">Narzędzie: %s</string>
@@ -1823,7 +1775,6 @@ Nie wyświetlaj tego ponownie</string>
   <string name="agent_log_saved">Zapisano: %s</string>
   <string name="agent_log_done">Gotowe: %s</string>
   <string name="agent_log_cancelled">Anulowano</string>
-  <string name="agent_execution_completed">Wykonanie agenta zakończone</string>
   <string name="agent_already_running">Agent AI jest już uruchomiony. Poczekaj lub najpierw go zatrzymaj.</string>
 
     <!-- AI Agent Notifications -->

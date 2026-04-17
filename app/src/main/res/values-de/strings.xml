@@ -1342,17 +1342,8 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="memorize_view_overview">Übersicht</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-Übersetzung</string>
   <string name="sync_settings_shortcut_summary">Daten zwischen Geräten synchronisieren</string>
-  <string name="llm_api_key_title">API-Schlüssel</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibler API-Schlüssel</string>
   <string name="llm_provider_custom">Benutzerdefiniert (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Anbieter</string>
-  <string name="llm_provider_summary">Wählen Sie den zu verwendenden KI-Dienstanbieter. Der API-Endpunkt und die verfügbaren Modelle werden automatisch konfiguriert.</string>
-  <string name="llm_provider_current">Aktuell: %s</string>
-  <string name="llm_api_key_detected_provider">Erkannter Anbieter: %s</string>
-  <string name="ai_connection_category">Verbindung</string>
-  <string name="ai_model_category">Modell</string>
   <string name="ai_behavior_category">Verhalten</string>
   <string name="ai_language_title">KI-Antwortsprache</string>
   <string name="ai_language_summary">Sprache, die die KI für Antworten verwendet</string>
@@ -1369,16 +1360,9 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="llm_reset_usage_confirm_title">Nutzungsdaten zurücksetzen?</string>
   <string name="llm_reset_usage_confirm_message">Alle kumulierten Nutzungsdaten werden gelöscht.</string>
   <string name="llm_custom_input_price_title">Eingabepreis ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kosten pro Million Eingabe-Token für dieses Modell</string>
   <string name="llm_custom_output_price_title">Ausgabepreis ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kosten pro Million Ausgabe-Token für dieses Modell</string>
   <string name="llm_cost_total">Gesamt: %1$s</string>
-  <string name="llm_endpoint_title">API-Endpunkt</string>
-  <string name="llm_endpoint_summary">Basis-URL für die API</string>
-  <string name="llm_model_title">Modell</string>
-  <string name="llm_model_summary">Modell-ID</string>
   <string name="llm_custom_model">Benutzerdefiniert…</string>
-  <string name="llm_custom_model_dialog_title">Benutzerdefiniertes Modell</string>
   <string name="llm_custom_model_dialog_message">Modell-ID eingeben</string>
   <string name="llm_rate_limited_retrying">Anfragelimit erreicht. Neuer Versuch in %1$ss\u2026</string>
   <string name="llm_default_document_title">KI-Antwort</string>
@@ -1388,7 +1372,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="llm_parse_error_no_choices">Keine Auswahlmöglichkeiten in der OpenAI-Antwort</string>
   <string name="llm_parse_error_openai">OpenAI-Antwort konnte nicht verarbeitet werden: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic-Antwort konnte nicht verarbeitet werden: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt nicht gefunden: %1$s</string>
   <string name="llm_error_unknown">Unbekannter Fehler</string>
   <string name="llm_error_max_iterations">Maximale Iterationsanzahl (%1$d) ohne Abschluss erreicht</string>
   <string name="llm_continue_iterations_title">Fortsetzen?</string>
@@ -1423,7 +1406,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="raw_log_retention_summary_disabled">Deaktiviert (alle behalten)</string>
   <string name="send_ai_bug_report_title">KI-Fehler melden</string>
   <string name="ai_bug_report_menu">KI-Fehler melden</string>
-  <string name="ai_bug_report_recommended_only">Fehlerberichte sind nur für empfohlene Anbietermodelle verfügbar</string>
 
   <string name="select_model_before_run_title">Modell auswählen</string>
   <string name="set_default_model_for_prompt">Als Standardmodell für diesen Prompt festlegen</string>
@@ -1465,11 +1447,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="ai_provider_saved">Anbieter gespeichert</string>
   <string name="ai_provider_deleted">Anbieter gelöscht</string>
 
-  <string name="llm_fetch_models_title">Modellliste herunterladen</string>
-  <string name="llm_fetch_models_message">Die Liste der verfügbaren Modelle von %1$s herunterladen?</string>
-  <string name="llm_fetch_models_dont_ask">Nicht mehr fragen</string>
-  <string name="llm_fetch_models_success">%1$d Modelle geladen</string>
-  <string name="llm_fetch_models_failed">Modelle konnten nicht abgerufen werden</string>
   <string name="llm_openrouter_category">Kategorie</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Modell</string>
@@ -1483,9 +1460,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="model_delete_confirm">Modell \"%1$s\" löschen?</string>
   <string name="model_set_default">Als Standardmodell festlegen</string>
   <string name="model_select_provider">Anbieter</string>
-  <string name="no_models_configured">Keine Modelle konfiguriert</string>
-  <string name="model_cache_creation_price">Cache-Erstellungspreis ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cache-Lesepreis ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Unterstützt</string>
   <string name="show_also_unsupported_models">Auch nicht unterstützte Modelle anzeigen</string>
   <string name="show_also_unsupported_providers">Auch nicht unterstützte Anbieter anzeigen</string>
@@ -1496,7 +1470,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="unknown_error">Unbekannter Fehler</string>
   <string name="easy_setup_title">Schnelleinrichtung</string>
   <string name="easy_setup_pref_summary">KI mit einem empfohlenen Anbieter in wenigen Schritten einrichten</string>
-  <string name="easy_setup_choose_provider">Wählen Sie einen Anbieter, um zu beginnen:</string>
   <string name="easy_setup_enter_api_key">Geben Sie Ihren API-Schlüssel ein</string>
   <string name="easy_setup_api_key_instructions">Holen Sie sich Ihren API-Schlüssel von:</string>
   <string name="easy_setup_test_connection">Verbindung testen</string>
@@ -1600,13 +1573,10 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="llm_note_updated">Notiz aktualisiert</string>
   <string name="specify_before_run_title">Aufgabe angeben</string>
   <string name="specify_before_run_hint">Beschreiben Sie die spezifische Aufgabe…</string>
-  <string name="prompt_cache_settings">Cache-Einstellungen</string>
   <string name="prompt_strict_context_matching">Kontextabhängiger Cache</string>
   <string name="prompt_strict_context_matching_description">Wenn aktiviert, stimmt der Cache nur überein, wenn der gesamte Kontext (Bibelversion, ausgewählter Text) gleich ist. Wenn deaktiviert, stimmt der Cache überein, wenn die Verse unabhängig von der Bibelversion gleich sind.</string>
   <string name="ai_document_delete_confirmation">Dieses KI-Dokument löschen?</string>
-  <string name="ai_document_deleted">Dieses KI-Dokument wurde gelöscht.</string>
   <string name="ai_document_regenerating">KI-Dokument wird neu generiert\u2026</string>
-  <string name="ai_document_regenerate_not_implemented">Neu generieren wird in einem zukünftigen Update verfügbar sein</string>
   <string name="ai_regenerate_prompt_not_found">Regenerierung nicht möglich: Der ursprüngliche Prompt wurde nicht gefunden. Er wurde möglicherweise gelöscht.</string>
   <string name="ai_document_regenerate">Neu generieren</string>
   <string name="ai_regenerate_title">Regenerieren</string>
@@ -1620,8 +1590,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="default_prompt_translate_to_language">In %s übersetzen</string>
   <string name="default_prompt_translate_to_ui_language">In die Benutzeroberflächensprache übersetzen</string>
   <string name="default_prompt_translate_to_ui_language_desc">Übersetzt den Dokumenttext in die App-Sprache der Benutzeroberfläche</string>
-  <string name="default_prompt_translate_to_english">Ins Englische übersetzen</string>
-  <string name="default_prompt_translate_to_english_desc">Übersetzt den ausgewählten Text ins Englische</string>
   <string name="default_prompt_summary">Zusammenfassung</string>
   <string name="default_prompt_summary_desc">Erstellt eine prägnante Zusammenfassung des ausgewählten Textes</string>
   <string name="default_prompt_explain_verses">Verse erklären</string>
@@ -1630,8 +1598,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="default_prompt_explain_verses_studypad_desc">Erstellt einen Studienblock mit Vers-für-Vers-Erklärung und Lesezeichen</string>
   <string name="default_prompt_word_study">Wortstudie</string>
   <string name="default_prompt_word_study_desc">Analysiert ursprüngliche hebräische/griechische Wörter</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s-Nummernannotation</string>
-  <string name="default_prompt_strongs_annotation_desc">Fügt Strong\'s-Konkordanznummern zu jeder Bibelübersetzung hinzu, wobei die KJV als Referenz verwendet wird</string>
   <string name="default_prompt_cross_references">Querverweise</string>
   <string name="default_prompt_cross_references_desc">Findet und erklärt verwandte Bibelstellen</string>
   <string name="default_prompt_compare_translations">Übersetzungen vergleichen</string>
@@ -1774,11 +1740,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="ai_document_filter_summary">Wählen Sie, welche Dokumente die KI lesen kann</string>
   <string name="ai_document_filter_summary_count">%d Dokumente ausgeschlossen</string>
   <string name="ai_document_filter_activity_title">KI-Dokumentzugriff</string>
-  <string name="ai_document_excluded_error">Dokument durch Benutzereinstellungen ausgeschlossen: %s</string>
   <string name="permission_status_default">Fragen (Standard)</string>
-  <string name="permission_status_allowed">Immer erlaubt</string>
-  <string name="permission_status_denied">Immer abgelehnt</string>
-  <string name="permission_option_default">Jedes Mal fragen (Standard)</string>
   <string name="permission_option_always_allow">Immer erlauben</string>
   <string name="permission_option_always_deny">Immer ablehnen</string>
   <string name="reset_all_permissions">Alle zurücksetzen</string>
@@ -1793,10 +1755,6 @@ Diese Nachricht nicht mehr anzeigen</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Werkzeug-Berechtigungen</string>
-  <string name="prompt_tool_permissions_read_only">Werkzeug-Berechtigungen (schreibgeschützt)</string>
-  <string name="prompt_tool_permissions_description">Werkzeug-Berechtigungen für diesen Prompt überschreiben</string>
-  <string name="tool_section_read_tools">Lesewerkzeuge</string>
-  <string name="tool_section_write_tools">Schreibwerkzeuge</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Suche</string>
@@ -1819,13 +1777,9 @@ Diese Nachricht nicht mehr anzeigen</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Benutzerdefiniert</string>
-  <string name="prompt_model_custom_hint">Modellnamen eingeben</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">KI-Aktion auswählen</string>
-  <string name="no_llm_prompts_configured">Keine KI-Prompts für die Versauswahl konfiguriert</string>
-  <string name="llm_prompt_executing">KI-Prompt wird ausgeführt: %s</string>
   <string name="llm_actions">KI-Aktionen</string>
 
     <!-- Agent Log Widget -->
@@ -1833,9 +1787,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="agent_log_close">KI-Assistent-Protokoll schließen</string>
   <string name="agent_log_stop">KI stoppen</string>
   <string name="agent_log_idle">KI-Assistent</string>
-  <string name="agent_log_running">KI arbeitet\u2026</string>
   <string name="agent_log_completed">Abgeschlossen</string>
-  <string name="agent_log_error">Fehler aufgetreten</string>
   <string name="agent_log_executing">Wird ausgeführt: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Werkzeug: %s</string>
@@ -1845,7 +1797,6 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="agent_log_saved">Gespeichert: %s</string>
   <string name="agent_log_done">Fertig: %s</string>
   <string name="agent_log_cancelled">Abgebrochen</string>
-  <string name="agent_execution_completed">Ausführung des KI-Assistenten abgeschlossen</string>
   <string name="agent_already_running">Ein KI-Assistent läuft bereits. Bitte warten Sie oder stoppen Sie ihn zuerst.</string>
 
     <!-- AI Agent Notifications -->

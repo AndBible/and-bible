@@ -1427,17 +1427,8 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="memorize_view_overview">Översikt</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-översättning</string>
   <string name="sync_settings_shortcut_summary">Synkronisera data mellan enheter</string>
-  <string name="llm_api_key_title">API-nyckel</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibel API-nyckel</string>
   <string name="llm_provider_custom">Anpassad (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Leverantör</string>
-  <string name="llm_provider_summary">Välj vilken AI-tjänsteleverantör som ska användas. API-slutpunkten och tillgängliga modeller konfigureras automatiskt.</string>
-  <string name="llm_provider_current">Nuvarande: %s</string>
-  <string name="llm_api_key_detected_provider">Identifierad leverantör: %s</string>
-  <string name="ai_connection_category">Anslutning</string>
-  <string name="ai_model_category">Modell</string>
   <string name="ai_behavior_category">Beteende</string>
   <string name="ai_language_title">AI-svarsspråk</string>
   <string name="ai_language_summary">Språk AI använder för svar</string>
@@ -1454,16 +1445,9 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_reset_usage_confirm_title">Återställa användningsdata?</string>
   <string name="llm_reset_usage_confirm_message">Detta rensar all ackumulerad användningsdata.</string>
   <string name="llm_custom_input_price_title">Inmatningspris ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kostnad per miljon inmatningstokens för denna modell</string>
   <string name="llm_custom_output_price_title">Utmatningspris ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kostnad per miljon utmatningstokens för denna modell</string>
   <string name="llm_cost_total">Totalt: %1$s</string>
-  <string name="llm_endpoint_title">API-slutpunkt</string>
-  <string name="llm_endpoint_summary">Bas-URL för API:et</string>
-  <string name="llm_model_title">Modell</string>
-  <string name="llm_model_summary">Modell-ID</string>
   <string name="llm_custom_model">Anpassad…</string>
-  <string name="llm_custom_model_dialog_title">Anpassad modell</string>
   <string name="llm_custom_model_dialog_message">Ange modell-ID</string>
   <string name="llm_rate_limited_retrying">Hastighetsbegränsad. Försöker igen om %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-svar</string>
@@ -1473,7 +1457,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_parse_error_no_choices">Inga val i OpenAI-svar</string>
   <string name="llm_parse_error_openai">Det gick inte att tolka OpenAI-svar: %1$s</string>
   <string name="llm_parse_error_anthropic">Det gick inte att tolka Anthropic-svar: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt hittades inte: %1$s</string>
   <string name="llm_error_unknown">Okänt fel</string>
   <string name="llm_error_max_iterations">Maximalt antal iterationer (%1$d) uppnått utan slutförande</string>
   <string name="llm_continue_iterations_title">Fortsätta?</string>
@@ -1508,7 +1491,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="raw_log_retention_summary_disabled">Inaktiverat (behåll alla)</string>
   <string name="send_ai_bug_report_title">Rapportera AI-fel</string>
   <string name="ai_bug_report_menu">Rapportera AI-fel</string>
-  <string name="ai_bug_report_recommended_only">Felrapportering är bara tillgänglig för rekommenderade leverantörsmodeller</string>
 
   <string name="select_model_before_run_title">Välj modell</string>
   <string name="set_default_model_for_prompt">Ange som standardmodell för denna prompt</string>
@@ -1550,11 +1532,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_provider_saved">Leverantör sparad</string>
   <string name="ai_provider_deleted">Leverantör raderad</string>
 
-  <string name="llm_fetch_models_title">Ladda ner modellista</string>
-  <string name="llm_fetch_models_message">Ladda ner listan över tillgängliga modeller från %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Fråga inte igen</string>
-  <string name="llm_fetch_models_success">Laddade %1$d modeller</string>
-  <string name="llm_fetch_models_failed">Det gick inte att hämta modeller</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alla</string>
   <string name="llm_openrouter_model">Modell</string>
@@ -1568,9 +1545,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="model_delete_confirm">Ta bort modellen \"%1$s\"?</string>
   <string name="model_set_default">Ange som standardmodell</string>
   <string name="model_select_provider">Leverantör</string>
-  <string name="no_models_configured">Inga modeller konfigurerade</string>
-  <string name="model_cache_creation_price">Cache-skapandepris ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cache-läspris ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Stöds</string>
   <string name="show_also_unsupported_models">Visa även modeller som inte stöds</string>
   <string name="show_also_unsupported_providers">Visa även leverantörer som inte stöds</string>
@@ -1581,7 +1555,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="unknown_error">Okänt fel</string>
   <string name="easy_setup_title">Snabbinstallation</string>
   <string name="easy_setup_pref_summary">Konfigurera AI med en rekommenderad leverantör i några steg</string>
-  <string name="easy_setup_choose_provider">Välj en leverantör för att komma igång:</string>
   <string name="easy_setup_enter_api_key">Ange din API-nyckel</string>
   <string name="easy_setup_api_key_instructions">Hämta din API-nyckel från:</string>
   <string name="easy_setup_test_connection">Testa anslutning</string>
@@ -1685,13 +1658,10 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="llm_note_updated">Anteckning uppdaterad</string>
   <string name="specify_before_run_title">Specificera uppgift</string>
   <string name="specify_before_run_hint">Beskriv den specifika uppgiften…</string>
-  <string name="prompt_cache_settings">Cacheinställningar</string>
   <string name="prompt_strict_context_matching">Kontextberoende cache</string>
   <string name="prompt_strict_context_matching_description">När aktiverad matchar cachen bara när all kontext (bibelversion, markerad text) är densamma. När inaktiverad matchar cachen när verserna är desamma oavsett bibelversion.</string>
   <string name="ai_document_delete_confirmation">Radera detta AI-dokument?</string>
-  <string name="ai_document_deleted">Detta AI-dokument har raderats.</string>
   <string name="ai_document_regenerating">Genererar om AI-dokument…</string>
-  <string name="ai_document_regenerate_not_implemented">Omgenerering blir tillgänglig i en framtida uppdatering</string>
   <string name="ai_regenerate_prompt_not_found">Kan inte återskapa: den ursprungliga prompten hittades inte. Den kan ha raderats.</string>
   <string name="ai_document_regenerate">Generera om</string>
   <string name="ai_regenerate_title">Återskapa</string>
@@ -1705,8 +1675,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="default_prompt_translate_to_language">Översätt till %s</string>
   <string name="default_prompt_translate_to_ui_language">Översätt till gränssnittsspråk</string>
   <string name="default_prompt_translate_to_ui_language_desc">Översätter dokumenttext till appens gränssnittsspråk</string>
-  <string name="default_prompt_translate_to_english">Översätt till engelska</string>
-  <string name="default_prompt_translate_to_english_desc">Översätter markerad text till engelska</string>
   <string name="default_prompt_summary">Sammanfattning</string>
   <string name="default_prompt_summary_desc">Skapar en kortfattad sammanfattning av den valda texten</string>
   <string name="default_prompt_explain_verses">Förklara verser</string>
@@ -1715,8 +1683,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="default_prompt_explain_verses_studypad_desc">Skapa ett studieblock med versvis förklaring och bokmärken</string>
   <string name="default_prompt_word_study">Ordstudie</string>
   <string name="default_prompt_word_study_desc">Analyserar ursprungliga hebreiska/grekiska ord</string>
-  <string name="default_prompt_strongs_annotation">Strongs nummerbeteckning</string>
-  <string name="default_prompt_strongs_annotation_desc">Lägger till Strongs konkordansnummer till valfri bibelöversättning med KJV som referens</string>
   <string name="default_prompt_cross_references">Parallellhänvisningar</string>
   <string name="default_prompt_cross_references_desc">Hittar och förklarar relaterade bibelställen</string>
   <string name="default_prompt_compare_translations">Jämför översättningar</string>
@@ -1859,11 +1825,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="ai_document_filter_summary">Välj vilka dokument AI kan läsa</string>
   <string name="ai_document_filter_summary_count">%d dokument exkluderade</string>
   <string name="ai_document_filter_activity_title">AI-dokumentåtkomst</string>
-  <string name="ai_document_excluded_error">Dokument exkluderat av användarinställningar: %s</string>
   <string name="permission_status_default">Fråga (standard)</string>
-  <string name="permission_status_allowed">Alltid tillåten</string>
-  <string name="permission_status_denied">Alltid nekad</string>
-  <string name="permission_option_default">Fråga varje gång (standard)</string>
   <string name="permission_option_always_allow">Tillåt alltid</string>
   <string name="permission_option_always_deny">Neka alltid</string>
   <string name="reset_all_permissions">Återställ alla</string>
@@ -1878,10 +1840,6 @@ vänligen rapportera problemen till dem som underhåller texten
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Verktygsbehörigheter</string>
-  <string name="prompt_tool_permissions_read_only">Verktygsbehörigheter (skrivskyddad)</string>
-  <string name="prompt_tool_permissions_description">Åsidosätt verktygsbehörigheter för denna prompt</string>
-  <string name="tool_section_read_tools">Läsverktyg</string>
-  <string name="tool_section_write_tools">Skrivverktyg</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Sökning</string>
@@ -1904,13 +1862,9 @@ vänligen rapportera problemen till dem som underhåller texten
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Anpassad</string>
-  <string name="prompt_model_custom_hint">Ange modellnamn</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Välj AI-åtgärd</string>
-  <string name="no_llm_prompts_configured">Inga AI-promptar konfigurerade för versval</string>
-  <string name="llm_prompt_executing">Kör AI-prompt: %s</string>
   <string name="llm_actions">AI-åtgärder</string>
 
     <!-- Agent Log Widget -->
@@ -1918,9 +1872,7 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_close">Stäng AI-logg</string>
   <string name="agent_log_stop">Stoppa AI</string>
   <string name="agent_log_idle">AI-assistent</string>
-  <string name="agent_log_running">AI arbetar…</string>
   <string name="agent_log_completed">Klar</string>
-  <string name="agent_log_error">Ett fel uppstod</string>
   <string name="agent_log_executing">Kör: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Verktyg: %s</string>
@@ -1930,7 +1882,6 @@ vänligen rapportera problemen till dem som underhåller texten
   <string name="agent_log_saved">Sparad: %s</string>
   <string name="agent_log_done">Klar: %s</string>
   <string name="agent_log_cancelled">Avbruten</string>
-  <string name="agent_execution_completed">AI-assistenten är klar</string>
   <string name="agent_already_running">En AI-assistent körs redan. Vänta eller stoppa den först.</string>
 
     <!-- AI Agent Notifications -->

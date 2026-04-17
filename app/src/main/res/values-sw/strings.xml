@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Muhtasari</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Tafsiri ya LLM</string>
   <string name="sync_settings_shortcut_summary">Sawazisha data kati ya vifaa</string>
-  <string name="llm_api_key_title">Ufunguo wa API</string>
-  <string name="llm_api_key_summary">Ufunguo wa API unaooana na OpenAI</string>
   <string name="llm_provider_custom">Maalum (unaooana na OpenAI)</string>
-  <string name="llm_provider_title">Mtoa huduma</string>
-  <string name="llm_provider_summary">Chagua mtoa huduma wa AI unayotaka kutumia. Mwisho wa API na mifano inayopatikana itawekwa kiotomatiki.</string>
-  <string name="llm_provider_current">Ya sasa: %s</string>
-  <string name="llm_api_key_detected_provider">Mtoa huduma aliyegunduliwa: %s</string>
-  <string name="ai_connection_category">Muunganisho</string>
-  <string name="ai_model_category">Mfano</string>
   <string name="ai_behavior_category">Tabia</string>
   <string name="ai_language_title">Lugha ya majibu ya AI</string>
   <string name="ai_language_summary">Lugha inayotumika na AI kwa majibu</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">Weka upya data ya matumizi?</string>
   <string name="llm_reset_usage_confirm_message">Hii itafuta data yote ya jumla ya matumizi.</string>
   <string name="llm_custom_input_price_title">Bei ya ingizo ($/Mtokeni)</string>
-  <string name="llm_custom_input_price_summary">Gharama kwa tokeni milioni za ingizo kwa mfano huu</string>
   <string name="llm_custom_output_price_title">Bei ya towe ($/Mtokeni)</string>
-  <string name="llm_custom_output_price_summary">Gharama kwa tokeni milioni za towe kwa mfano huu</string>
   <string name="llm_cost_total">Jumla: %1$s</string>
-  <string name="llm_endpoint_title">Mwisho wa API</string>
-  <string name="llm_endpoint_summary">URL ya msingi ya API</string>
-  <string name="llm_model_title">Mfano</string>
-  <string name="llm_model_summary">Kitambulisho cha mfano</string>
   <string name="llm_custom_model">Maalum…</string>
-  <string name="llm_custom_model_dialog_title">Mfano maalum</string>
   <string name="llm_custom_model_dialog_message">Ingiza kitambulisho cha mfano</string>
   <string name="llm_rate_limited_retrying">Kikomo cha kiwango kimefikiwa. Inajaribu tena baada ya sekunde %1$s\u2026</string>
   <string name="llm_default_document_title">Jibu la AI</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Hakuna chaguo katika jibu la OpenAI</string>
   <string name="llm_parse_error_openai">Kushindwa kusindika jibu la OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Kushindwa kusindika jibu la Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Agizo halijapatikana: %1$s</string>
   <string name="llm_error_unknown">Hitilafu isiyojulikana</string>
   <string name="llm_error_max_iterations">Marudio ya juu zaidi (%1$d) yamefikiwa bila kukamilika</string>
   <string name="llm_continue_iterations_title">Endelea?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Imezimwa (hifadhi yote)</string>
   <string name="send_ai_bug_report_title">Ripoti Hitilafu ya AI</string>
   <string name="ai_bug_report_menu">Ripoti hitilafu ya AI</string>
-  <string name="ai_bug_report_recommended_only">Kuripoti hitilafu kunapatikana tu kwa mifano ya mtoa huduma inayopendekezwa</string>
 
   <string name="select_model_before_run_title">Chagua mfano</string>
   <string name="set_default_model_for_prompt">Weka kama mfano wa chaguo-msingi kwa agizo hili</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Mtoa huduma amehifadhiwa</string>
   <string name="ai_provider_deleted">Mtoa huduma amefutwa</string>
 
-  <string name="llm_fetch_models_title">Pakua orodha ya mifano</string>
-  <string name="llm_fetch_models_message">Pakua orodha ya mifano inayopatikana kutoka kwa %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Usiulize tena</string>
-  <string name="llm_fetch_models_success">Mifano %1$d imepakiwa</string>
-  <string name="llm_fetch_models_failed">Kushindwa kupata mifano</string>
   <string name="llm_openrouter_category">Kitengo</string>
   <string name="llm_openrouter_category_all">Yote</string>
   <string name="llm_openrouter_model">Mfano</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Futa mfano \"%1$s\"?</string>
   <string name="model_set_default">Weka kama mfano wa chaguo-msingi</string>
   <string name="model_select_provider">Mtoa huduma</string>
-  <string name="no_models_configured">Hakuna mifano iliyowekwa</string>
-  <string name="model_cache_creation_price">Bei ya uundaji wa akiba ($/Mtokeni)</string>
-  <string name="model_cache_read_price">Bei ya kusoma akiba ($/Mtokeni)</string>
   <string name="model_supported_badge">✓ Inaauni</string>
   <string name="show_also_unsupported_models">Onyesha pia mifano isiyoauni</string>
   <string name="show_also_unsupported_providers">Onyesha pia watoa huduma wasiooauni</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Hitilafu isiyojulikana</string>
   <string name="easy_setup_title">Usanidi wa Haraka</string>
   <string name="easy_setup_pref_summary">Sanidi AI na mtoa huduma anayependekezwa kwa hatua chache</string>
-  <string name="easy_setup_choose_provider">Chagua mtoa huduma wa kuanza:</string>
   <string name="easy_setup_enter_api_key">Ingiza ufunguo wako wa API</string>
   <string name="easy_setup_api_key_instructions">Pata ufunguo wako wa API kutoka:</string>
   <string name="easy_setup_test_connection">Jaribu muunganisho</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Maelezo yamebsasishwa</string>
   <string name="specify_before_run_title">Bainisha kazi</string>
   <string name="specify_before_run_hint">Elezea kazi maalum…</string>
-  <string name="prompt_cache_settings">Mipangilio ya akiba</string>
   <string name="prompt_strict_context_matching">Akiba inayotegemea muktadha</string>
   <string name="prompt_strict_context_matching_description">Ikiwezeshwa, akiba inalingana tu wakati muktadha wote (toleo la Biblia, maandishi yaliyochaguliwa) ni sawa. Ikizimwa, akiba inalingana wakati mistari iko sawa bila kujali toleo la Biblia.</string>
   <string name="ai_document_delete_confirmation">Futa hati hii ya AI?</string>
-  <string name="ai_document_deleted">Hati hii ya AI imefutwa.</string>
   <string name="ai_document_regenerating">Inazalisha upya hati ya AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Uzalishaji upya utapatikana katika sasasho la baadaye</string>
   <string name="ai_regenerate_prompt_not_found">Haiwezi kuzalisha upya: agizo la asili halijapatikana. Huenda lilifutwa.</string>
   <string name="ai_document_regenerate">Zalisha upya</string>
   <string name="ai_regenerate_title">Zalisha upya</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Tafsiri kwa %s</string>
   <string name="default_prompt_translate_to_ui_language">Tafsiri kwa lugha ya kiolesura</string>
   <string name="default_prompt_translate_to_ui_language_desc">Hutafsiri maandishi ya hati hadi lugha ya kiolesura cha programu</string>
-  <string name="default_prompt_translate_to_english">Tafsiri kwa Kiingereza</string>
-  <string name="default_prompt_translate_to_english_desc">Hutafsiri maandishi yaliyochaguliwa kwa Kiingereza</string>
   <string name="default_prompt_summary">Muhtasari</string>
   <string name="default_prompt_summary_desc">Huunda muhtasari mfupi wa maandishi yaliyochaguliwa</string>
   <string name="default_prompt_explain_verses">Elezea mistari</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Unda Daftari la Masomo lenye maelezo ya mstari kwa mstari na alamisho</string>
   <string name="default_prompt_word_study">Uchunguzi wa maneno</string>
   <string name="default_prompt_word_study_desc">Inachambua maneno ya asili ya Kiebrania/Kigiriki</string>
-  <string name="default_prompt_strongs_annotation">Maelezo ya nambari ya Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Huongeza nambari za concordance za Strong\'s kwa tafsiri yoyote ya Biblia ukitumia KJV kama rejeleo</string>
   <string name="default_prompt_cross_references">Marejeleo ya msalaba</string>
   <string name="default_prompt_cross_references_desc">Hupatikana na kuelezea vifungu vya Biblia vinavyohusiana</string>
   <string name="default_prompt_compare_translations">Linganisha tafsiri</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Chagua hati zipi AI inaweza kusoma</string>
   <string name="ai_document_filter_summary_count">Hati %d zilizotengwa</string>
   <string name="ai_document_filter_activity_title">Ufikiaji wa hati za AI</string>
-  <string name="ai_document_excluded_error">Hati imetengwa na mipangilio ya mtumiaji: %s</string>
   <string name="permission_status_default">Uliza (chaguo-msingi)</string>
-  <string name="permission_status_allowed">Ineruhusiwa daima</string>
-  <string name="permission_status_denied">Imekataliwa daima</string>
-  <string name="permission_option_default">Uliza kila wakati (chaguo-msingi)</string>
   <string name="permission_option_always_allow">Ruhusu daima</string>
   <string name="permission_option_always_deny">Kataa daima</string>
   <string name="reset_all_permissions">Weka upya zote</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Ruhusa za zana</string>
-  <string name="prompt_tool_permissions_read_only">Ruhusa za zana (tu kusoma)</string>
-  <string name="prompt_tool_permissions_description">Pindua ruhusa za zana kwa agizo hili</string>
-  <string name="tool_section_read_tools">Zana za kusoma</string>
-  <string name="tool_section_write_tools">Zana za uandishi</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblia na Utafutaji</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Mfano</string>
   <string name="prompt_model_default">Chaguo-msingi</string>
-  <string name="prompt_model_custom">Maalum</string>
-  <string name="prompt_model_custom_hint">Ingiza jina la mfano</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Chagua Kitendo cha AI</string>
-  <string name="no_llm_prompts_configured">Hakuna maagizo ya AI yaliyowekwa kwa uteuzi wa mstari</string>
-  <string name="llm_prompt_executing">Inatekeleza agizo la AI: %s</string>
   <string name="llm_actions">Vitendo vya AI</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Funga kumbukumbu ya wakala</string>
   <string name="agent_log_stop">Simamisha AI</string>
   <string name="agent_log_idle">Msaidizi wa AI</string>
-  <string name="agent_log_running">AI inafanya kazi…</string>
   <string name="agent_log_completed">Imekamilika</string>
-  <string name="agent_log_error">Hitilafu imetokea</string>
   <string name="agent_log_executing">Inatekeleza: %s</string>
   <string name="agent_log_iteration">Marudio %d</string>
   <string name="agent_log_tool">Zana: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Imehifadhiwa: %s</string>
   <string name="agent_log_done">Imekamilika: %s</string>
   <string name="agent_log_cancelled">Imeghairiwa</string>
-  <string name="agent_execution_completed">Utekelezaji wa wakala umekamilika</string>
   <string name="agent_already_running">Wakala wa AI tayari anaendesha. Tafadhali subiri au umsimamishe kwanza.</string>
 
     <!-- AI Agent Notifications -->

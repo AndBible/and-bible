@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">अवलोकन</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM अनुवाद</string>
   <string name="sync_settings_shortcut_summary">उपकरणहरू बीच डेटा समन्वय गर्नुहोस्</string>
-  <string name="llm_api_key_title">API कुञ्जी</string>
-  <string name="llm_api_key_summary">OpenAI-संगत API कुञ्जी</string>
   <string name="llm_provider_custom">कस्टम (OpenAI संगत)</string>
-  <string name="llm_provider_title">प्रदायक</string>
-  <string name="llm_provider_summary">कुन AI सेवा प्रदायक प्रयोग गर्ने छान्नुहोस्। API endpoint र उपलब्ध मोडलहरू स्वचालित रूपमा कन्फिगर हुनेछन्।</string>
-  <string name="llm_provider_current">हालको: %s</string>
-  <string name="llm_api_key_detected_provider">पत्ता लागेको प्रदायक: %s</string>
-  <string name="ai_connection_category">जडान</string>
-  <string name="ai_model_category">मोडल</string>
   <string name="ai_behavior_category">व्यवहार</string>
   <string name="ai_language_title">AI प्रतिक्रिया भाषा</string>
   <string name="ai_language_summary">AI ले प्रतिक्रियाहरूको लागि प्रयोग गर्ने भाषा</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">प्रयोग डेटा रिसेट गर्ने?</string>
   <string name="llm_reset_usage_confirm_message">यसले सबै संचित प्रयोग डेटा खाली गर्नेछ।</string>
   <string name="llm_custom_input_price_title">इनपुट मूल्य ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">यो मोडलको लागि प्रति मिलियन इनपुट टोकन लागत</string>
   <string name="llm_custom_output_price_title">आउटपुट मूल्य ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">यो मोडलको लागि प्रति मिलियन आउटपुट टोकन लागत</string>
   <string name="llm_cost_total">जम्मा: %1$s</string>
-  <string name="llm_endpoint_title">API Endpoint</string>
-  <string name="llm_endpoint_summary">API को लागि आधार URL</string>
-  <string name="llm_model_title">मोडल</string>
-  <string name="llm_model_summary">मोडल ID</string>
   <string name="llm_custom_model">कस्टम…</string>
-  <string name="llm_custom_model_dialog_title">कस्टम मोडल</string>
   <string name="llm_custom_model_dialog_message">मोडल ID प्रविष्ट गर्नुहोस्</string>
   <string name="llm_rate_limited_retrying">दर सीमित। %1$s सेकेन्डमा पुनः प्रयास गर्दैछ\u2026</string>
   <string name="llm_default_document_title">AI प्रतिक्रिया</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">OpenAI प्रतिक्रियामा कुनै छनोटहरू छैनन्</string>
   <string name="llm_parse_error_openai">OpenAI प्रतिक्रिया पार्स गर्न असफल भयो: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic प्रतिक्रिया पार्स गर्न असफल भयो: %1$s</string>
-  <string name="llm_error_prompt_not_found">प्रम्प्ट फेला परेन: %1$s</string>
   <string name="llm_error_unknown">अज्ञात त्रुटि</string>
   <string name="llm_error_max_iterations">सम्पन्न नगरी अधिकतम पुनरावृत्ति (%1$d) पुगियो</string>
   <string name="llm_continue_iterations_title">जारी राख्ने?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">असक्षम (सबै राख्नुहोस्)</string>
   <string name="send_ai_bug_report_title">AI बग रिपोर्ट गर्नुहोस्</string>
   <string name="ai_bug_report_menu">AI बग रिपोर्ट गर्नुहोस्</string>
-  <string name="ai_bug_report_recommended_only">बग रिपोर्टिङ केवल सिफारिस गरिएका प्रदायक मोडलहरूको लागि उपलब्ध छ</string>
 
   <string name="select_model_before_run_title">मोडल चयन गर्नुहोस्</string>
   <string name="set_default_model_for_prompt">यो प्रम्प्टको लागि पूर्वनिर्धारित मोडलको रूपमा सेट गर्नुहोस्</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">प्रदायक सुरक्षित गरियो</string>
   <string name="ai_provider_deleted">प्रदायक मेटियो</string>
 
-  <string name="llm_fetch_models_title">मोडल सूची डाउनलोड गर्नुहोस्</string>
-  <string name="llm_fetch_models_message">%1$s बाट उपलब्ध मोडलहरूको सूची डाउनलोड गर्ने?</string>
-  <string name="llm_fetch_models_dont_ask">फेरि नसोध्नुहोस्</string>
-  <string name="llm_fetch_models_success">%1$d मोडलहरू लोड गरियो</string>
-  <string name="llm_fetch_models_failed">मोडलहरू फेच गर्न असफल भयो</string>
   <string name="llm_openrouter_category">श्रेणी</string>
   <string name="llm_openrouter_category_all">सबै</string>
   <string name="llm_openrouter_model">मोडल</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">मोडल \"%1$s\" मेट्ने?</string>
   <string name="model_set_default">पूर्वनिर्धारित मोडलको रूपमा सेट गर्नुहोस्</string>
   <string name="model_select_provider">प्रदायक</string>
-  <string name="no_models_configured">कुनै मोडलहरू कन्फिगर गरिएका छैनन्</string>
-  <string name="model_cache_creation_price">क्यासे बनाउने मूल्य ($/Mtoken)</string>
-  <string name="model_cache_read_price">क्यासे पढ्ने मूल्य ($/Mtoken)</string>
   <string name="model_supported_badge">✓ समर्थित</string>
   <string name="show_also_unsupported_models">असमर्थित मोडलहरू पनि देखाउनुहोस्</string>
   <string name="show_also_unsupported_providers">असमर्थित प्रदायकहरू पनि देखाउनुहोस्</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">अज्ञात त्रुटि</string>
   <string name="easy_setup_title">द्रुत सेटअप</string>
   <string name="easy_setup_pref_summary">केही चरणहरूमा सिफारिस गरिएको प्रदायकसँग AI सेटअप गर्नुहोस्</string>
-  <string name="easy_setup_choose_provider">सुरु गर्न प्रदायक छान्नुहोस्:</string>
   <string name="easy_setup_enter_api_key">आफ्नो API कुञ्जी प्रविष्ट गर्नुहोस्</string>
   <string name="easy_setup_api_key_instructions">आफ्नो API कुञ्जी यहाँबाट प्राप्त गर्नुहोस्:</string>
   <string name="easy_setup_test_connection">जडान परीक्षण गर्नुहोस्</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">टिप्पणी अपडेट गरियो</string>
   <string name="specify_before_run_title">कार्य निर्दिष्ट गर्नुहोस्</string>
   <string name="specify_before_run_hint">विशेष कार्य वर्णन गर्नुहोस्…</string>
-  <string name="prompt_cache_settings">क्यासे सेटिङहरू</string>
   <string name="prompt_strict_context_matching">सन्दर्भ-निर्भर क्यासे</string>
   <string name="prompt_strict_context_matching_description">सक्षम गर्दा, क्यासे केवल सबै सन्दर्भ (बाइबल संस्करण, चयनित पाठ) उस्तै हुँदा मिल्छ। असक्षम गर्दा, बाइबल संस्करण जे भए पनि श्लोकहरू उस्तै हुँदा क्यासे मिल्छ।</string>
   <string name="ai_document_delete_confirmation">यो AI कागजात मेट्ने?</string>
-  <string name="ai_document_deleted">यो AI कागजात मेटियो।</string>
   <string name="ai_document_regenerating">AI कागजात पुनर्उत्पादन गर्दैछ…</string>
-  <string name="ai_document_regenerate_not_implemented">पुनर्उत्पादन भविष्यको अपडेटमा उपलब्ध हुनेछ</string>
   <string name="ai_regenerate_prompt_not_found">पुनर्उत्पादन गर्न सकिँदैन: मूल प्रम्प्ट फेला परेन। यो मेटिएको हुन सक्छ।</string>
   <string name="ai_document_regenerate">पुनर्उत्पादन</string>
   <string name="ai_regenerate_title">पुनर्उत्पादन</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">%s मा अनुवाद गर्नुहोस्</string>
   <string name="default_prompt_translate_to_ui_language">UI भाषामा अनुवाद गर्नुहोस्</string>
   <string name="default_prompt_translate_to_ui_language_desc">कागजात पाठलाई अनुप्रयोग इन्टरफेस भाषामा अनुवाद गर्छ</string>
-  <string name="default_prompt_translate_to_english">अंग्रेजीमा अनुवाद गर्नुहोस्</string>
-  <string name="default_prompt_translate_to_english_desc">चयनित पाठलाई अंग्रेजीमा अनुवाद गर्छ</string>
   <string name="default_prompt_summary">सारांश</string>
   <string name="default_prompt_summary_desc">चयनित पाठको संक्षिप्त सारांश बनाउँछ</string>
   <string name="default_prompt_explain_verses">श्लोकहरू व्याख्या गर्नुहोस्</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">श्लोक-दर-श्लोक व्याख्या र बुकमार्कहरूसहित अध्ययन प्याड बनाउँछ</string>
   <string name="default_prompt_word_study">शब्द अध्ययन</string>
   <string name="default_prompt_word_study_desc">मूल हिब्रू/ग्रीक शब्दहरू विश्लेषण गर्छ</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s नम्बर एनोटेसन</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV लाई सन्दर्भको रूपमा प्रयोग गरेर कुनै पनि बाइबल अनुवादमा Strong\'s संगति नम्बरहरू थप्छ</string>
   <string name="default_prompt_cross_references">अन्तरसन्दर्भहरू</string>
   <string name="default_prompt_cross_references_desc">सम्बन्धित बाइबल अनुच्छेदहरू फेला पार्छ र व्याख्या गर्छ</string>
   <string name="default_prompt_compare_translations">अनुवादहरू तुलना गर्नुहोस्</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">AI ले कुन कागजातहरू पढ्न सक्छ छान्नुहोस्</string>
   <string name="ai_document_filter_summary_count">%d कागजातहरू बाहिर राखिएका छन्</string>
   <string name="ai_document_filter_activity_title">AI कागजात पहुँच</string>
-  <string name="ai_document_excluded_error">प्रयोगकर्ता सेटिङहरूद्वारा कागजात बाहिर राखिएको: %s</string>
   <string name="permission_status_default">सोध्नुहोस् (पूर्वनिर्धारित)</string>
-  <string name="permission_status_allowed">सधैं अनुमति दिइएको</string>
-  <string name="permission_status_denied">सधैं अस्वीकार गरिएको</string>
-  <string name="permission_option_default">हरेक पटक सोध्नुहोस् (पूर्वनिर्धारित)</string>
   <string name="permission_option_always_allow">सधैं अनुमति दिनुहोस्</string>
   <string name="permission_option_always_deny">सधैं अस्वीकार गर्नुहोस्</string>
   <string name="reset_all_permissions">सबै रिसेट गर्नुहोस्</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">उपकरण अनुमतिहरू</string>
-  <string name="prompt_tool_permissions_read_only">उपकरण अनुमतिहरू (पढ्न मात्र)</string>
-  <string name="prompt_tool_permissions_description">यो प्रम्प्टको लागि उपकरण अनुमतिहरू ओभरराइड गर्नुहोस्</string>
-  <string name="tool_section_read_tools">पढ्ने उपकरणहरू</string>
-  <string name="tool_section_write_tools">लेख्ने उपकरणहरू</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">बाइबल र खोज</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">मोडल</string>
   <string name="prompt_model_default">पूर्वनिर्धारित</string>
-  <string name="prompt_model_custom">कस्टम</string>
-  <string name="prompt_model_custom_hint">मोडलको नाम प्रविष्ट गर्नुहोस्</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI कार्य चयन गर्नुहोस्</string>
-  <string name="no_llm_prompts_configured">श्लोक छनोटको लागि कुनै AI प्रम्प्टहरू कन्फिगर गरिएका छैनन्</string>
-  <string name="llm_prompt_executing">AI प्रम्प्ट कार्यान्वयन गर्दैछ: %s</string>
   <string name="llm_actions">AI कार्यहरू</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">एजेन्ट लग बन्द गर्नुहोस्</string>
   <string name="agent_log_stop">AI रोक्नुहोस्</string>
   <string name="agent_log_idle">AI सहायक</string>
-  <string name="agent_log_running">AI काम गर्दैछ…</string>
   <string name="agent_log_completed">सम्पन्न</string>
-  <string name="agent_log_error">त्रुटि भयो</string>
   <string name="agent_log_executing">कार्यान्वयन गर्दैछ: %s</string>
   <string name="agent_log_iteration">पुनरावृत्ति %d</string>
   <string name="agent_log_tool">उपकरण: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">सुरक्षित: %s</string>
   <string name="agent_log_done">सम्पन्न: %s</string>
   <string name="agent_log_cancelled">रद्द गरियो</string>
-  <string name="agent_execution_completed">एजेन्ट कार्यान्वयन सम्पन्न</string>
   <string name="agent_already_running">AI एजेन्ट पहिले नै चलिरहेको छ। कृपया प्रतीक्षा गर्नुहोस् वा पहिले रोक्नुहोस्।</string>
 
     <!-- AI Agent Notifications -->

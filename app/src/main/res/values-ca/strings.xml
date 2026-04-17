@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Resum</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Traducció amb IA</string>
   <string name="sync_settings_shortcut_summary">Sincronitza dades entre dispositius</string>
-  <string name="llm_api_key_title">Clau d\'API</string>
-  <string name="llm_api_key_summary">Clau d\'API compatible amb OpenAI</string>
   <string name="llm_provider_custom">Personalitzat (compatible amb OpenAI)</string>
-  <string name="llm_provider_title">Proveïdor</string>
-  <string name="llm_provider_summary">Tria quin proveïdor de servei d\'IA vols utilitzar. L\'extrem de l\'API i els models disponibles es configuraran automàticament.</string>
-  <string name="llm_provider_current">Actual: %s</string>
-  <string name="llm_api_key_detected_provider">Proveïdor detectat: %s</string>
-  <string name="ai_connection_category">Connexió</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Comportament</string>
   <string name="ai_language_title">Idioma de resposta de la IA</string>
   <string name="ai_language_summary">Idioma que utilitza la IA per a les respostes</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">Vols restablir les dades d\'ús?</string>
   <string name="llm_reset_usage_confirm_message">Això esborrarà totes les dades d\'ús acumulades.</string>
   <string name="llm_custom_input_price_title">Preu d\'entrada ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Cost per milió de tokens d\'entrada per a aquest model</string>
   <string name="llm_custom_output_price_title">Preu de sortida ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Cost per milió de tokens de sortida per a aquest model</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Extrem de l\'API</string>
-  <string name="llm_endpoint_summary">URL base de l\'API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID del model</string>
   <string name="llm_custom_model">Personalitzat…</string>
-  <string name="llm_custom_model_dialog_title">Model personalitzat</string>
   <string name="llm_custom_model_dialog_message">Introdueix l\'ID del model</string>
   <string name="llm_rate_limited_retrying">Límit de velocitat assolit. Es tornarà a intentar en %1$ss\u2026</string>
   <string name="llm_default_document_title">Resposta de la IA</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Cap opció a la resposta d\'OpenAI</string>
   <string name="llm_parse_error_openai">Error en analitzar la resposta d\'OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Error en analitzar la resposta d\'Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Missatge no trobat: %1$s</string>
   <string name="llm_error_unknown">Error desconegut</string>
   <string name="llm_error_max_iterations">S\'ha assolit el màxim d\'iteracions (%1$d) sense completar</string>
   <string name="llm_continue_iterations_title">Vols continuar?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Desactivat (conserva tots)</string>
   <string name="send_ai_bug_report_title">Informa d\'un error de la IA</string>
   <string name="ai_bug_report_menu">Informa d\'un error de la IA</string>
-  <string name="ai_bug_report_recommended_only">La notificació d\'errors només està disponible per als models de proveïdors recomanats</string>
 
   <string name="select_model_before_run_title">Selecciona el model</string>
   <string name="set_default_model_for_prompt">Estableix com a model predeterminat per a aquest missatge</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Proveïdor desat</string>
   <string name="ai_provider_deleted">Proveïdor suprimit</string>
 
-  <string name="llm_fetch_models_title">Baixa la llista de models</string>
-  <string name="llm_fetch_models_message">Vols baixar la llista de models disponibles de %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">No tornis a preguntar</string>
-  <string name="llm_fetch_models_success">S\'han carregat %1$d models</string>
-  <string name="llm_fetch_models_failed">No s\'ha pogut obtenir la llista de models</string>
   <string name="llm_openrouter_category">Categoria</string>
   <string name="llm_openrouter_category_all">Tots</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Suprimeix el model \"%1$s\"?</string>
   <string name="model_set_default">Estableix com a model predeterminat</string>
   <string name="model_select_provider">Proveïdor</string>
-  <string name="no_models_configured">No hi ha models configurats</string>
-  <string name="model_cache_creation_price">Preu de creació de memòria cau ($/Mtoken)</string>
-  <string name="model_cache_read_price">Preu de lectura de memòria cau ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Compatible</string>
   <string name="show_also_unsupported_models">Mostra també models no compatibles</string>
   <string name="show_also_unsupported_providers">Mostra també proveïdors no compatibles</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Error desconegut</string>
   <string name="easy_setup_title">Configuració ràpida</string>
   <string name="easy_setup_pref_summary">Configura la IA amb un proveïdor recomanat en uns pocs passos</string>
-  <string name="easy_setup_choose_provider">Tria un proveïdor per començar:</string>
   <string name="easy_setup_enter_api_key">Introdueix la teva clau d\'API</string>
   <string name="easy_setup_api_key_instructions">Obtén la teva clau d\'API a:</string>
   <string name="easy_setup_test_connection">Prova la connexió</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Nota actualitzada</string>
   <string name="specify_before_run_title">Especifica la tasca</string>
   <string name="specify_before_run_hint">Descriu la tasca concreta…</string>
-  <string name="prompt_cache_settings">Configuració de la memòria cau</string>
   <string name="prompt_strict_context_matching">Memòria cau dependent del context</string>
   <string name="prompt_strict_context_matching_description">Quan està activat, la memòria cau coincideix només quan tot el context (versió de la Bíblia, text seleccionat) és el mateix. Quan està desactivat, coincideix quan els versets són els mateixos independentment de la versió de la Bíblia.</string>
   <string name="ai_document_delete_confirmation">Suprimeix aquest document d\'IA?</string>
-  <string name="ai_document_deleted">Aquest document d\'IA s\'ha suprimit.</string>
   <string name="ai_document_regenerating">Regenerant el document d\'IA…</string>
-  <string name="ai_document_regenerate_not_implemented">La regeneració estarà disponible en una actualització futura</string>
   <string name="ai_regenerate_prompt_not_found">No es pot regenerar: no s\'ha trobat la pregunta original. Pot ser que s\'hagi suprimit.</string>
   <string name="ai_document_regenerate">Regenera</string>
   <string name="ai_regenerate_title">Regenera</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Tradueix al %s</string>
   <string name="default_prompt_translate_to_ui_language">Tradueix a l\'idioma de la interfície</string>
   <string name="default_prompt_translate_to_ui_language_desc">Tradueix el text del document a l\'idioma de la interfície de l\'aplicació</string>
-  <string name="default_prompt_translate_to_english">Tradueix a l\'anglès</string>
-  <string name="default_prompt_translate_to_english_desc">Tradueix el text seleccionat a l\'anglès</string>
   <string name="default_prompt_summary">Resum</string>
   <string name="default_prompt_summary_desc">Crea un resum concís del text seleccionat</string>
   <string name="default_prompt_explain_verses">Explica els versets</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Crea un bloc d\'estudi amb explicació verset per verset i marcadors</string>
   <string name="default_prompt_word_study">Estudi de paraules</string>
   <string name="default_prompt_word_study_desc">Analitza les paraules originals en hebreu/grec</string>
-  <string name="default_prompt_strongs_annotation">Anotació de números de Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Afegeix números de concordança de Strong a qualsevol traducció de la Bíblia utilitzant la KJV com a referència</string>
   <string name="default_prompt_cross_references">Referències creuades</string>
   <string name="default_prompt_cross_references_desc">Cerca i explica passatges bíblics relacionats</string>
   <string name="default_prompt_compare_translations">Compara traduccions</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Tria quins documents pot llegir la IA</string>
   <string name="ai_document_filter_summary_count">%d documents exclosos</string>
   <string name="ai_document_filter_activity_title">Accés als documents de la IA</string>
-  <string name="ai_document_excluded_error">Document exclòs per la configuració de l\'usuari: %s</string>
   <string name="permission_status_default">Preguntar (per defecte)</string>
-  <string name="permission_status_allowed">Sempre permès</string>
-  <string name="permission_status_denied">Sempre denegat</string>
-  <string name="permission_option_default">Preguntar cada vegada (per defecte)</string>
   <string name="permission_option_always_allow">Permetre sempre</string>
   <string name="permission_option_always_deny">Denegar sempre</string>
   <string name="reset_all_permissions">Restableix tots</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permisos d\'eines</string>
-  <string name="prompt_tool_permissions_read_only">Permisos d\'eines (només lectura)</string>
-  <string name="prompt_tool_permissions_description">Substitueix els permisos d\'eines per a aquest missatge</string>
-  <string name="tool_section_read_tools">Eines de lectura</string>
-  <string name="tool_section_write_tools">Eines d\'escriptura</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bíblia i cerca</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Per defecte</string>
-  <string name="prompt_model_custom">Personalitzat</string>
-  <string name="prompt_model_custom_hint">Introdueix el nom del model</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Selecciona l\'acció de la IA</string>
-  <string name="no_llm_prompts_configured">No hi ha cap acció de IA configurada per a la selecció de versets</string>
-  <string name="llm_prompt_executing">Executant l\'acció de la IA: %s</string>
   <string name="llm_actions">Accions de la IA</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Tanca el registre de l\'agent</string>
   <string name="agent_log_stop">Atura la IA</string>
   <string name="agent_log_idle">Assistent de IA</string>
-  <string name="agent_log_running">La IA està treballant…</string>
   <string name="agent_log_completed">Completat</string>
-  <string name="agent_log_error">S\'ha produït un error</string>
   <string name="agent_log_executing">Executant: %s</string>
   <string name="agent_log_iteration">Iteració %d</string>
   <string name="agent_log_tool">Eina: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Desat: %s</string>
   <string name="agent_log_done">Fet: %s</string>
   <string name="agent_log_cancelled">Cancel·lat</string>
-  <string name="agent_execution_completed">Execució de l\'agent completada</string>
   <string name="agent_already_running">Ja hi ha un agent de IA en execució. Espera o atura\'l primer.</string>
 
     <!-- AI Agent Notifications -->

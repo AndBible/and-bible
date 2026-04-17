@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Tổng quan</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Dịch thuật AI</string>
   <string name="sync_settings_shortcut_summary">Đồng bộ hóa dữ liệu giữa các thiết bị</string>
-  <string name="llm_api_key_title">Khóa API</string>
-  <string name="llm_api_key_summary">Khóa API tương thích OpenAI</string>
   <string name="llm_provider_custom">Tùy chỉnh (tương thích OpenAI)</string>
-  <string name="llm_provider_title">Nhà cung cấp</string>
-  <string name="llm_provider_summary">Chọn nhà cung cấp dịch vụ AI. Điểm cuối API và các mô hình khả dụng sẽ được cấu hình tự động.</string>
-  <string name="llm_provider_current">Hiện tại: %s</string>
-  <string name="llm_api_key_detected_provider">Nhà cung cấp được phát hiện: %s</string>
-  <string name="ai_connection_category">Kết nối</string>
-  <string name="ai_model_category">Mô hình</string>
   <string name="ai_behavior_category">Hành vi</string>
   <string name="ai_language_title">Ngôn ngữ phản hồi AI</string>
   <string name="ai_language_summary">Ngôn ngữ AI dùng để phản hồi</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">Đặt lại dữ liệu sử dụng?</string>
   <string name="llm_reset_usage_confirm_message">Thao tác này sẽ xóa tất cả dữ liệu sử dụng tích lũy.</string>
   <string name="llm_custom_input_price_title">Giá đầu vào ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Chi phí trên một triệu token đầu vào cho mô hình này</string>
   <string name="llm_custom_output_price_title">Giá đầu ra ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Chi phí trên một triệu token đầu ra cho mô hình này</string>
   <string name="llm_cost_total">Tổng cộng: %1$s</string>
-  <string name="llm_endpoint_title">Điểm cuối API</string>
-  <string name="llm_endpoint_summary">URL cơ sở cho API</string>
-  <string name="llm_model_title">Mô hình</string>
-  <string name="llm_model_summary">ID mô hình</string>
   <string name="llm_custom_model">Tùy chỉnh…</string>
-  <string name="llm_custom_model_dialog_title">Mô hình tùy chỉnh</string>
   <string name="llm_custom_model_dialog_message">Nhập ID mô hình</string>
   <string name="llm_rate_limited_retrying">Bị giới hạn tốc độ. Thử lại sau %1$s giây\u2026</string>
   <string name="llm_default_document_title">Phản hồi AI</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Không có lựa chọn trong phản hồi OpenAI</string>
   <string name="llm_parse_error_openai">Không thể phân tích phản hồi OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Không thể phân tích phản hồi Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Không tìm thấy lệnh nhắc: %1$s</string>
   <string name="llm_error_unknown">Lỗi không xác định</string>
   <string name="llm_error_max_iterations">Đã đạt số vòng lặp tối đa (%1$d) mà chưa hoàn thành</string>
   <string name="llm_continue_iterations_title">Tiếp tục?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Tắt (giữ tất cả)</string>
   <string name="send_ai_bug_report_title">Báo cáo lỗi AI</string>
   <string name="ai_bug_report_menu">Báo cáo lỗi AI</string>
-  <string name="ai_bug_report_recommended_only">Báo cáo lỗi chỉ khả dụng cho các mô hình nhà cung cấp được khuyến nghị</string>
 
   <string name="select_model_before_run_title">Chọn mô hình</string>
   <string name="set_default_model_for_prompt">Đặt làm mô hình mặc định cho lệnh nhắc này</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Đã lưu nhà cung cấp</string>
   <string name="ai_provider_deleted">Đã xóa nhà cung cấp</string>
 
-  <string name="llm_fetch_models_title">Tải danh sách mô hình</string>
-  <string name="llm_fetch_models_message">Tải danh sách mô hình khả dụng từ %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Không hỏi lại</string>
-  <string name="llm_fetch_models_success">Đã tải %1$d mô hình</string>
-  <string name="llm_fetch_models_failed">Không thể tải danh sách mô hình</string>
   <string name="llm_openrouter_category">Danh mục</string>
   <string name="llm_openrouter_category_all">Tất cả</string>
   <string name="llm_openrouter_model">Mô hình</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Xóa mô hình \"%1$s\"?</string>
   <string name="model_set_default">Đặt làm mô hình mặc định</string>
   <string name="model_select_provider">Nhà cung cấp</string>
-  <string name="no_models_configured">Chưa cấu hình mô hình nào</string>
-  <string name="model_cache_creation_price">Giá tạo bộ nhớ đệm ($/Mtoken)</string>
-  <string name="model_cache_read_price">Giá đọc bộ nhớ đệm ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Được hỗ trợ</string>
   <string name="show_also_unsupported_models">Hiển thị cả mô hình không được hỗ trợ</string>
   <string name="show_also_unsupported_providers">Hiển thị cả nhà cung cấp không được hỗ trợ</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Lỗi không xác định</string>
   <string name="easy_setup_title">Cài đặt nhanh</string>
   <string name="easy_setup_pref_summary">Thiết lập AI với nhà cung cấp được đề xuất trong vài bước</string>
-  <string name="easy_setup_choose_provider">Chọn nhà cung cấp để bắt đầu:</string>
   <string name="easy_setup_enter_api_key">Nhập khóa API của bạn</string>
   <string name="easy_setup_api_key_instructions">Lấy khóa API của bạn tại:</string>
   <string name="easy_setup_test_connection">Kiểm tra kết nối</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Đã cập nhật ghi chú</string>
   <string name="specify_before_run_title">Chỉ định nhiệm vụ</string>
   <string name="specify_before_run_hint">Mô tả nhiệm vụ cụ thể…</string>
-  <string name="prompt_cache_settings">Cài đặt bộ nhớ đệm</string>
   <string name="prompt_strict_context_matching">Bộ nhớ đệm phụ thuộc ngữ cảnh</string>
   <string name="prompt_strict_context_matching_description">Khi bật, bộ nhớ đệm chỉ khớp khi tất cả ngữ cảnh (phiên bản Kinh Thánh, văn bản được chọn) giống nhau. Khi tắt, bộ nhớ đệm khớp khi các câu giống nhau bất kể phiên bản Kinh Thánh.</string>
   <string name="ai_document_delete_confirmation">Xóa tài liệu AI này?</string>
-  <string name="ai_document_deleted">Tài liệu AI này đã được xóa.</string>
   <string name="ai_document_regenerating">Đang tạo lại tài liệu AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Chức năng tạo lại sẽ có trong bản cập nhật tương lai</string>
   <string name="ai_regenerate_prompt_not_found">Không thể tạo lại: không tìm thấy lệnh nhắc gốc. Lệnh nhắc có thể đã bị xóa.</string>
   <string name="ai_document_regenerate">Tạo lại</string>
   <string name="ai_regenerate_title">Tạo lại</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Dịch sang %s</string>
   <string name="default_prompt_translate_to_ui_language">Dịch sang ngôn ngữ giao diện</string>
   <string name="default_prompt_translate_to_ui_language_desc">Dịch văn bản tài liệu sang ngôn ngữ giao diện ứng dụng</string>
-  <string name="default_prompt_translate_to_english">Dịch sang tiếng Anh</string>
-  <string name="default_prompt_translate_to_english_desc">Dịch văn bản được chọn sang tiếng Anh</string>
   <string name="default_prompt_summary">Tóm tắt</string>
   <string name="default_prompt_summary_desc">Tạo bản tóm tắt ngắn gọn của văn bản được chọn</string>
   <string name="default_prompt_explain_verses">Giải thích các câu</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Tạo Sổ tay nghiên cứu với giải thích từng câu và đánh dấu</string>
   <string name="default_prompt_word_study">Nghiên cứu từ ngữ</string>
   <string name="default_prompt_word_study_desc">Phân tích các từ gốc tiếng Hê-bơ-rơ/Hy Lạp</string>
-  <string name="default_prompt_strongs_annotation">Chú thích số Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Thêm số tra cứu Strong\'s cho bất kỳ bản dịch Kinh Thánh nào, sử dụng KJV làm tham chiếu</string>
   <string name="default_prompt_cross_references">Tham chiếu chéo</string>
   <string name="default_prompt_cross_references_desc">Tìm và giải thích các đoạn Kinh Thánh liên quan</string>
   <string name="default_prompt_compare_translations">So sánh các bản dịch</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Chọn tài liệu nào AI có thể đọc</string>
   <string name="ai_document_filter_summary_count">%d tài liệu bị loại trừ</string>
   <string name="ai_document_filter_activity_title">Quyền truy cập tài liệu của AI</string>
-  <string name="ai_document_excluded_error">Tài liệu bị loại trừ theo cài đặt người dùng: %s</string>
   <string name="permission_status_default">Hỏi (mặc định)</string>
-  <string name="permission_status_allowed">Luôn cho phép</string>
-  <string name="permission_status_denied">Luôn từ chối</string>
-  <string name="permission_option_default">Hỏi mỗi lần (mặc định)</string>
   <string name="permission_option_always_allow">Luôn cho phép</string>
   <string name="permission_option_always_deny">Luôn từ chối</string>
   <string name="reset_all_permissions">Đặt lại tất cả</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Quyền công cụ</string>
-  <string name="prompt_tool_permissions_read_only">Quyền công cụ (chỉ đọc)</string>
-  <string name="prompt_tool_permissions_description">Ghi đè quyền công cụ cho lệnh nhắc này</string>
-  <string name="tool_section_read_tools">Công cụ đọc</string>
-  <string name="tool_section_write_tools">Công cụ ghi</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Kinh Thánh &amp; Tìm kiếm</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Mô hình</string>
   <string name="prompt_model_default">Mặc định</string>
-  <string name="prompt_model_custom">Tùy chỉnh</string>
-  <string name="prompt_model_custom_hint">Nhập tên mô hình</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Chọn hành động AI</string>
-  <string name="no_llm_prompts_configured">Không có lệnh nhắc AI nào được cấu hình cho lựa chọn câu</string>
-  <string name="llm_prompt_executing">Đang thực thi lệnh nhắc AI: %s</string>
   <string name="llm_actions">Hành động AI</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Đóng nhật ký trợ lý</string>
   <string name="agent_log_stop">Dừng AI</string>
   <string name="agent_log_idle">Trợ lý AI</string>
-  <string name="agent_log_running">AI đang xử lý…</string>
   <string name="agent_log_completed">Đã hoàn thành</string>
-  <string name="agent_log_error">Đã xảy ra lỗi</string>
   <string name="agent_log_executing">Đang thực thi: %s</string>
   <string name="agent_log_iteration">Lần lặp %d</string>
   <string name="agent_log_tool">Công cụ: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Đã lưu: %s</string>
   <string name="agent_log_done">Xong: %s</string>
   <string name="agent_log_cancelled">Đã hủy</string>
-  <string name="agent_execution_completed">Trợ lý AI đã hoàn thành</string>
   <string name="agent_already_running">Một trợ lý AI đang chạy. Vui lòng chờ hoặc dừng nó trước.</string>
 
     <!-- AI Agent Notifications -->

@@ -1387,17 +1387,8 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="memorize_view_overview">Oorsig</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">KI-vertaling</string>
   <string name="sync_settings_shortcut_summary">Sinkroniseer data tussen toestelle</string>
-  <string name="llm_api_key_title">API-sleutel</string>
-  <string name="llm_api_key_summary">OpenAI-versoenbare API-sleutel</string>
   <string name="llm_provider_custom">Pasgemaak (OpenAI versoenbaar)</string>
-  <string name="llm_provider_title">Verskaffer</string>
-  <string name="llm_provider_summary">Kies watter KI-diensverskaffer om te gebruik. Die API-eindpunt en beskikbare modelle sal outomaties opgestel word.</string>
-  <string name="llm_provider_current">Huidig: %s</string>
-  <string name="llm_api_key_detected_provider">Verskaffer bespeur: %s</string>
-  <string name="ai_connection_category">Verbinding</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Gedrag</string>
   <string name="ai_language_title">KI-antwoordtaal</string>
   <string name="ai_language_summary">Taal wat KI gebruik vir antwoorde</string>
@@ -1414,16 +1405,9 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="llm_reset_usage_confirm_title">Herstel gebruiksdata?</string>
   <string name="llm_reset_usage_confirm_message">Dit sal alle kumulatiewe gebruiksdata uitvee.</string>
   <string name="llm_custom_input_price_title">Invoerprys ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Koste per miljoen invoer-tokens vir hierdie model</string>
   <string name="llm_custom_output_price_title">Uitvoerprys ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Koste per miljoen uitvoer-tokens vir hierdie model</string>
   <string name="llm_cost_total">Totaal: %1$s</string>
-  <string name="llm_endpoint_title">API-eindpunt</string>
-  <string name="llm_endpoint_summary">Basis-URL vir die API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model-ID</string>
   <string name="llm_custom_model">Pasgemaak\u2026</string>
-  <string name="llm_custom_model_dialog_title">Pasgemaakte model</string>
   <string name="llm_custom_model_dialog_message">Voer die model-ID in</string>
   <string name="llm_rate_limited_retrying">Tempo beperk. Probeer weer in %1$ss\u2026</string>
   <string name="llm_default_document_title">KI-antwoord</string>
@@ -1433,7 +1417,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="llm_parse_error_no_choices">Geen keuses in OpenAI-antwoord nie</string>
   <string name="llm_parse_error_openai">Kon nie OpenAI-antwoord ontleed nie: %1$s</string>
   <string name="llm_parse_error_anthropic">Kon nie Anthropic-antwoord ontleed nie: %1$s</string>
-  <string name="llm_error_prompt_not_found">Aanwysing nie gevind nie: %1$s</string>
   <string name="llm_error_unknown">Onbekende fout</string>
   <string name="llm_error_max_iterations">Maksimum herhalings (%1$d) bereik sonder voltooiing</string>
   <string name="llm_continue_iterations_title">Gaan voort?</string>
@@ -1468,7 +1451,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="raw_log_retention_summary_disabled">Gedeaktiveer (behou alles)</string>
   <string name="send_ai_bug_report_title">Rapporteer KI-fout</string>
   <string name="ai_bug_report_menu">Rapporteer KI-fout</string>
-  <string name="ai_bug_report_recommended_only">Foutrapportering is slegs beskikbaar vir aanbevole verskaffer-modelle</string>
 
   <string name="select_model_before_run_title">Kies model</string>
   <string name="set_default_model_for_prompt">Stel as verstek model vir hierdie opdrag</string>
@@ -1510,11 +1492,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_provider_saved">Verskaffer gebêre</string>
   <string name="ai_provider_deleted">Verskaffer geskrap</string>
 
-  <string name="llm_fetch_models_title">Laai modellys af</string>
-  <string name="llm_fetch_models_message">Laai die lys beskikbare modelle van %1$s af?</string>
-  <string name="llm_fetch_models_dont_ask">Moenie weer vra nie</string>
-  <string name="llm_fetch_models_success">%1$d modelle gelaai</string>
-  <string name="llm_fetch_models_failed">Kon nie modelle ophaal nie</string>
   <string name="llm_openrouter_category">Kategorie</string>
   <string name="llm_openrouter_category_all">Almal</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1528,9 +1505,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="model_delete_confirm">Skrap model \"%1$s\"?</string>
   <string name="model_set_default">Stel as verstekmodel in</string>
   <string name="model_select_provider">Verskaffer</string>
-  <string name="no_models_configured">Geen modelle opgestel nie</string>
-  <string name="model_cache_creation_price">Kasgewing-prys ($/Mtoken)</string>
-  <string name="model_cache_read_price">Kaslees-prys ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Ondersteun</string>
   <string name="show_also_unsupported_models">Wys ook nie-ondersteunde modelle</string>
   <string name="show_also_unsupported_providers">Wys ook nie-ondersteunde verskaffers</string>
@@ -1541,7 +1515,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="unknown_error">Onbekende fout</string>
   <string name="easy_setup_title">Vinnige opstelling</string>
   <string name="easy_setup_pref_summary">Stel KI op met \'n aanbevole verskaffer in \'n paar stappe</string>
-  <string name="easy_setup_choose_provider">Kies \'n verskaffer om te begin:</string>
   <string name="easy_setup_enter_api_key">Voer jou API-sleutel in</string>
   <string name="easy_setup_api_key_instructions">Kry jou API-sleutel by:</string>
   <string name="easy_setup_test_connection">Toets verbinding</string>
@@ -1645,13 +1618,10 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="llm_note_updated">Nota opgedateer</string>
   <string name="specify_before_run_title">Spesifiseer taak</string>
   <string name="specify_before_run_hint">Beskryf die spesifieke taak…</string>
-  <string name="prompt_cache_settings">Kasinstellings</string>
   <string name="prompt_strict_context_matching">Konteksafhanklike kas</string>
   <string name="prompt_strict_context_matching_description">Wanneer geaktiveer, stem kas slegs ooreen wanneer alle konteks (Bybelweergawe, geselekteerde teks) dieselfde is. Wanneer gedeaktiveer, stem kas ooreen wanneer verse dieselfde is ongeag die Bybelweergawe.</string>
   <string name="ai_document_delete_confirmation">Verwyder hierdie KI-dokument?</string>
-  <string name="ai_document_deleted">Hierdie KI-dokument is verwyder.</string>
   <string name="ai_document_regenerating">KI-dokument word hergenereer…</string>
-  <string name="ai_document_regenerate_not_implemented">Hergenerasie sal in \'n toekomstige opdatering beskikbaar wees</string>
   <string name="ai_regenerate_prompt_not_found">Kan nie hergenereer nie: die oorspronklike aanwysing is nie gevind nie. Dit mag moontlik geskrap wees.</string>
   <string name="ai_document_regenerate">Hergenereer</string>
   <string name="ai_regenerate_title">Hergenereer</string>
@@ -1665,8 +1635,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="default_prompt_translate_to_language">Vertaal na %s</string>
   <string name="default_prompt_translate_to_ui_language">Vertaal na koppelvlaktaal</string>
   <string name="default_prompt_translate_to_ui_language_desc">Vertaal dokumentteks na die app-koppelvlaktaal</string>
-  <string name="default_prompt_translate_to_english">Vertaal na Engels</string>
-  <string name="default_prompt_translate_to_english_desc">Vertaal geselekteerde teks na Engels</string>
   <string name="default_prompt_summary">Opsomming</string>
   <string name="default_prompt_summary_desc">Skep \'n bondige opsomming van die geselekteerde teks</string>
   <string name="default_prompt_explain_verses">Verduidelik verse</string>
@@ -1675,8 +1643,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="default_prompt_explain_verses_studypad_desc">Skep \'n studieblok met vers-vir-vers-verduideliking en boekmerke</string>
   <string name="default_prompt_word_study">Woordstudie</string>
   <string name="default_prompt_word_study_desc">Analiseer oorspronklike Hebreeus/Grieks woorde</string>
-  <string name="default_prompt_strongs_annotation">Strong se nommer-annotasie</string>
-  <string name="default_prompt_strongs_annotation_desc">Voeg Strong se konkordansienommers by enige Bybelvertaling deur KJV as verwysing te gebruik</string>
   <string name="default_prompt_cross_references">Kruisverwysings</string>
   <string name="default_prompt_cross_references_desc">Vind en verduidelik verwante Bybelgedeeltes</string>
   <string name="default_prompt_compare_translations">Vergelyk vertalings</string>
@@ -1819,11 +1785,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="ai_document_filter_summary">Kies watter dokumente die KI kan lees</string>
   <string name="ai_document_filter_summary_count">%d dokumente uitgesluit</string>
   <string name="ai_document_filter_activity_title">KI-dokumenttoegang</string>
-  <string name="ai_document_excluded_error">Dokument deur gebruikerinstellings uitgesluit: %s</string>
   <string name="permission_status_default">Vra (verstek)</string>
-  <string name="permission_status_allowed">Altyd toegelaat</string>
-  <string name="permission_status_denied">Altyd geweier</string>
-  <string name="permission_option_default">Vra elke keer (verstek)</string>
   <string name="permission_option_always_allow">Laat altyd toe</string>
   <string name="permission_option_always_deny">Weier altyd</string>
   <string name="reset_all_permissions">Herstel alles</string>
@@ -1838,10 +1800,6 @@ Moenie hierdie boodskap weer wys nie</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Gereedskap-toestemmings</string>
-  <string name="prompt_tool_permissions_read_only">Gereedskap-toestemmings (slegs lees)</string>
-  <string name="prompt_tool_permissions_description">Oorskryf gereedskap-toestemmings vir hierdie opdrag</string>
-  <string name="tool_section_read_tools">Lees gereedskap</string>
-  <string name="tool_section_write_tools">Skryf gereedskap</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bybel &amp; Soek</string>
@@ -1864,13 +1822,9 @@ Moenie hierdie boodskap weer wys nie</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Verstek</string>
-  <string name="prompt_model_custom">Aangepas</string>
-  <string name="prompt_model_custom_hint">Voer modelnaam in</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Kies KI-aksie</string>
-  <string name="no_llm_prompts_configured">Geen KI-opdragte opgestel vir versselekie nie</string>
-  <string name="llm_prompt_executing">Voer KI-opdrag uit: %s</string>
   <string name="llm_actions">KI-aksies</string>
 
     <!-- Agent Log Widget -->
@@ -1878,9 +1832,7 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="agent_log_close">Sluit agentlog</string>
   <string name="agent_log_stop">Stop KI</string>
   <string name="agent_log_idle">KI-assistent</string>
-  <string name="agent_log_running">KI werk…</string>
   <string name="agent_log_completed">Voltooi</string>
-  <string name="agent_log_error">Fout het voorgekom</string>
   <string name="agent_log_executing">Uitvoer: %s</string>
   <string name="agent_log_iteration">Iterasie %d</string>
   <string name="agent_log_tool">Gereedskap: %s</string>
@@ -1890,7 +1842,6 @@ Moenie hierdie boodskap weer wys nie</string>
   <string name="agent_log_saved">Gestoor: %s</string>
   <string name="agent_log_done">Klaar: %s</string>
   <string name="agent_log_cancelled">Gekanselleer</string>
-  <string name="agent_execution_completed">Agent-uitvoering voltooi</string>
   <string name="agent_already_running">\'n KI-agent loop reeds. Wag asseblief of stop dit eers.</string>
 
     <!-- AI Agent Notifications -->

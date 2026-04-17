@@ -1439,17 +1439,8 @@
   <string name="memorize_view_overview">கண்ணோட்டம்</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM மொழிபெயர்ப்பு</string>
   <string name="sync_settings_shortcut_summary">கருவிகளுக்கு இடையே தரவை ஒத்திசை</string>
-  <string name="llm_api_key_title">API திறவு</string>
-  <string name="llm_api_key_summary">OpenAI-இணக்கமான API திறவு</string>
   <string name="llm_provider_custom">தனிப்பயன் (OpenAI இணக்கமானது)</string>
-  <string name="llm_provider_title">வழங்குனர்</string>
-  <string name="llm_provider_summary">எந்த AI சேவை வழங்குனரை பயன்படுத்த வேண்டும் என தேர்வு செய்க. API முனைப்பு மற்றும் கிடைக்கும் மாடல்கள் தானாக கட்டமைக்கப்படும்.</string>
-  <string name="llm_provider_current">தற்போதையது: %s</string>
-  <string name="llm_api_key_detected_provider">கண்டறியப்பட்ட வழங்குனர்: %s</string>
-  <string name="ai_connection_category">இணைப்பு</string>
-  <string name="ai_model_category">மாடல்</string>
   <string name="ai_behavior_category">நடத்தை</string>
   <string name="ai_language_title">AI பதில் மொழி</string>
   <string name="ai_language_summary">AI பதில்களில் பயன்படுத்தும் மொழி</string>
@@ -1466,16 +1457,9 @@
   <string name="llm_reset_usage_confirm_title">பயன்பாட்டு தரவை மீட்டமைக்கவா?</string>
   <string name="llm_reset_usage_confirm_message">இது அனைத்து திரட்டப்பட்ட பயன்பாட்டு தரவையும் அழிக்கும்.</string>
   <string name="llm_custom_input_price_title">உள்ளீடு விலை ($/மில்லியன் டோக்கன்)</string>
-  <string name="llm_custom_input_price_summary">இந்த மாடலுக்கு ஒரு மில்லியன் உள்ளீடு டோக்கன்களுக்கான செலவு</string>
   <string name="llm_custom_output_price_title">வெளியீடு விலை ($/மில்லியன் டோக்கன்)</string>
-  <string name="llm_custom_output_price_summary">இந்த மாடலுக்கு ஒரு மில்லியன் வெளியீடு டோக்கன்களுக்கான செலவு</string>
   <string name="llm_cost_total">மொத்தம்: %1$s</string>
-  <string name="llm_endpoint_title">API முனைப்பு</string>
-  <string name="llm_endpoint_summary">API-க்கான அடிப்படை URL</string>
-  <string name="llm_model_title">மாடல்</string>
-  <string name="llm_model_summary">மாடல் ID</string>
   <string name="llm_custom_model">தனிப்பயன்…</string>
-  <string name="llm_custom_model_dialog_title">தனிப்பயன் மாடல்</string>
   <string name="llm_custom_model_dialog_message">மாடல் ID உள்ளிடவும்</string>
   <string name="llm_rate_limited_retrying">விகிதம் தடுக்கப்பட்டது. %1$s வினாடிகளில் மீண்டும் முயற்சி\u2026</string>
   <string name="llm_default_document_title">AI பதில்</string>
@@ -1485,7 +1469,6 @@
   <string name="llm_parse_error_no_choices">OpenAI பதிலில் தேர்வுகள் இல்லை</string>
   <string name="llm_parse_error_openai">OpenAI பதிலை பகுக்க தோல்வி: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic பதிலை பகுக்க தோல்வி: %1$s</string>
-  <string name="llm_error_prompt_not_found">வரைவு கிடைக்கவில்லை: %1$s</string>
   <string name="llm_error_unknown">அறியப்படாத பிழை</string>
   <string name="llm_error_max_iterations">முடிவடையாமல் அதிகபட்ச மறுசெய்கைகள் (%1$d) எட்டப்பட்டன</string>
   <string name="llm_continue_iterations_title">தொடரவா?</string>
@@ -1520,7 +1503,6 @@
   <string name="raw_log_retention_summary_disabled">முடக்கப்பட்டது (அனைத்தையும் வை)</string>
   <string name="send_ai_bug_report_title">AI பிழையை புகாரளி</string>
   <string name="ai_bug_report_menu">AI பிழையை புகாரளி</string>
-  <string name="ai_bug_report_recommended_only">பிழை புகாரளிப்பு பரிந்துரைக்கப்பட்ட வழங்குனர் மாடல்களுக்கு மட்டுமே கிடைக்கும்</string>
 
   <string name="select_model_before_run_title">மாடலை தேர்வு செய்க</string>
   <string name="set_default_model_for_prompt">இந்த வரைவுக்கான இயல்புநிலை மாடலாக அமை</string>
@@ -1562,11 +1544,6 @@
   <string name="ai_provider_saved">வழங்குனர் சேமிக்கப்பட்டது</string>
   <string name="ai_provider_deleted">வழங்குனர் நீக்கப்பட்டது</string>
 
-  <string name="llm_fetch_models_title">மாடல் பட்டியலை பதிவிறக்கு</string>
-  <string name="llm_fetch_models_message">%1$s-இலிருந்து கிடைக்கும் மாடல்களின் பட்டியலை பதிவிறக்கவா?</string>
-  <string name="llm_fetch_models_dont_ask">மீண்டும் கேட்காதே</string>
-  <string name="llm_fetch_models_success">%1$d மாடல்கள் ஏற்றப்பட்டன</string>
-  <string name="llm_fetch_models_failed">மாடல்களை பெற தோல்வி</string>
   <string name="llm_openrouter_category">வகை</string>
   <string name="llm_openrouter_category_all">அனைத்தும்</string>
   <string name="llm_openrouter_model">மாடல்</string>
@@ -1580,9 +1557,6 @@
   <string name="model_delete_confirm">மாடல் \"%1$s\"-ஐ நீக்கவா?</string>
   <string name="model_set_default">இயல்புநிலை மாடலாக அமை</string>
   <string name="model_select_provider">வழங்குனர்</string>
-  <string name="no_models_configured">மாடல்கள் கட்டமைக்கப்படவில்லை</string>
-  <string name="model_cache_creation_price">தற்காலிக சேமிப்பு உருவாக்க விலை ($/மில்லியன் டோக்கன்)</string>
-  <string name="model_cache_read_price">தற்காலிக சேமிப்பு வாசிப்பு விலை ($/மில்லியன் டோக்கன்)</string>
   <string name="model_supported_badge">✓ ஆதரிக்கப்படுகிறது</string>
   <string name="show_also_unsupported_models">ஆதரிக்கப்படாத மாடல்களையும் காட்டு</string>
   <string name="show_also_unsupported_providers">ஆதரிக்கப்படாத வழங்குனர்களையும் காட்டு</string>
@@ -1593,7 +1567,6 @@
   <string name="unknown_error">அறியப்படாத பிழை</string>
   <string name="easy_setup_title">விரைவு அமைப்பு</string>
   <string name="easy_setup_pref_summary">சில படிகளில் பரிந்துரைக்கப்பட்ட வழங்குனருடன் AI அமை</string>
-  <string name="easy_setup_choose_provider">தொடங்க வழங்குனரை தேர்வு செய்க:</string>
   <string name="easy_setup_enter_api_key">உங்கள் API திறவை உள்ளிடவும்</string>
   <string name="easy_setup_api_key_instructions">உங்கள் API திறவை இங்கிருந்து பெறவும்:</string>
   <string name="easy_setup_test_connection">இணைப்பை சோதி</string>
@@ -1697,13 +1670,10 @@
   <string name="llm_note_updated">குறிப்பு புதுப்பிக்கப்பட்டது</string>
   <string name="specify_before_run_title">பணியை குறிப்பிடவும்</string>
   <string name="specify_before_run_hint">குறிப்பிட்ட பணியை விவரிக்கவும்…</string>
-  <string name="prompt_cache_settings">தற்காலிக சேமிப்பு அமைப்புகள்</string>
   <string name="prompt_strict_context_matching">சூழல்-சார் தற்காலிக சேமிப்பு</string>
   <string name="prompt_strict_context_matching_description">இயக்கப்படும்போது, அனைத்து சூழலும் (விவிலிய பதிப்பு, தேர்ந்தெடுத்த உரை) ஒரே மாதிரியாக இருக்கும்போது மட்டுமே தற்காலிக சேமிப்பு பொருந்தும். முடக்கப்படும்போது, விவிலிய பதிப்பைப் பொருட்படுத்தாமல் வசனங்கள் ஒரே மாதிரியாக இருக்கும்போது பொருந்தும்.</string>
   <string name="ai_document_delete_confirmation">இந்த AI ஆவணத்தை நீக்கவா?</string>
-  <string name="ai_document_deleted">இந்த AI ஆவணம் நீக்கப்பட்டது.</string>
   <string name="ai_document_regenerating">AI ஆவணம் மீண்டும் உருவாக்கப்படுகிறது…</string>
-  <string name="ai_document_regenerate_not_implemented">மீண்டும் உருவாக்கல் எதிர்கால புதுப்பிப்பில் கிடைக்கும்</string>
   <string name="ai_regenerate_prompt_not_found">மீண்டும் உருவாக்க முடியாது: அசல் வரைவு கிடைக்கவில்லை. அது நீக்கப்பட்டிருக்கலாம்.</string>
   <string name="ai_document_regenerate">மீண்டும் உருவாக்கு</string>
   <string name="ai_regenerate_title">மீண்டும் உருவாக்கு</string>
@@ -1717,8 +1687,6 @@
   <string name="default_prompt_translate_to_language">%s-க்கு மொழிபெயர்</string>
   <string name="default_prompt_translate_to_ui_language">UI மொழிக்கு மொழிபெயர்</string>
   <string name="default_prompt_translate_to_ui_language_desc">ஆவண உரையை செயலி இடைமுக மொழிக்கு மொழிபெயர்க்கிறது</string>
-  <string name="default_prompt_translate_to_english">ஆங்கிலத்திற்கு மொழிபெயர்</string>
-  <string name="default_prompt_translate_to_english_desc">தேர்ந்தெடுத்த உரையை ஆங்கிலத்திற்கு மொழிபெயர்க்கிறது</string>
   <string name="default_prompt_summary">சுருக்கம்</string>
   <string name="default_prompt_summary_desc">தேர்ந்தெடுத்த உரையின் சுருக்கமான சுருக்கத்தை உருவாக்குகிறது</string>
   <string name="default_prompt_explain_verses">வசனங்களை விளக்கு</string>
@@ -1727,8 +1695,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">வசனம்-வசனமான விளக்கம் மற்றும் புக்மார்க்குகளுடன் ஸ்டடி பேடு உருவாக்கு</string>
   <string name="default_prompt_word_study">சொல் ஆய்வு</string>
   <string name="default_prompt_word_study_desc">அசல் எபிரேய/கிரேக்க சொற்களை பகுப்பாய்வு செய்கிறது</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s எண் குறிப்பீடு</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV-ஐ குறிப்பாக பயன்படுத்தி எந்த விவிலிய மொழிபெயர்ப்பிலும் Strong\'s குறிப்பு எண்களை சேர்க்கிறது</string>
   <string name="default_prompt_cross_references">குறுக்கு குறிப்புகள்</string>
   <string name="default_prompt_cross_references_desc">தொடர்புடைய விவிலிய பகுதிகளை கண்டுபிடித்து விளக்குகிறது</string>
   <string name="default_prompt_compare_translations">மொழிபெயர்ப்புகளை ஒப்பிடு</string>
@@ -1871,11 +1837,7 @@
   <string name="ai_document_filter_summary">AI படிக்கக்கூடிய ஆவணங்களை தேர்வு செய்க</string>
   <string name="ai_document_filter_summary_count">%d ஆவணங்கள் விலக்கப்பட்டன</string>
   <string name="ai_document_filter_activity_title">AI ஆவண அணுகல்</string>
-  <string name="ai_document_excluded_error">பயனர் அமைப்புகளால் ஆவணம் விலக்கப்பட்டது: %s</string>
   <string name="permission_status_default">கேளு (இயல்புநிலை)</string>
-  <string name="permission_status_allowed">எப்போதும் அனுமதிக்கப்பட்டது</string>
-  <string name="permission_status_denied">எப்போதும் மறுக்கப்பட்டது</string>
-  <string name="permission_option_default">ஒவ்வொரு முறையும் கேளு (இயல்புநிலை)</string>
   <string name="permission_option_always_allow">எப்போதும் அனுமதி</string>
   <string name="permission_option_always_deny">எப்போதும் மறு</string>
   <string name="reset_all_permissions">அனைத்தையும் மீட்டமை</string>
@@ -1890,10 +1852,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">கருவி அனுமதிகள்</string>
-  <string name="prompt_tool_permissions_read_only">கருவி அனுமதிகள் (படிக்க மட்டும்)</string>
-  <string name="prompt_tool_permissions_description">இந்த வரைவுக்கான கருவி அனுமதிகளை மேலீடு செய்</string>
-  <string name="tool_section_read_tools">படிக்கும் கருவிகள்</string>
-  <string name="tool_section_write_tools">எழுதும் கருவிகள்</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">விவிலியம் &amp; தேடல்</string>
@@ -1916,13 +1874,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">மாடல்</string>
   <string name="prompt_model_default">இயல்புநிலை</string>
-  <string name="prompt_model_custom">தனிப்பயன்</string>
-  <string name="prompt_model_custom_hint">மாடல் பெயரை உள்ளிடவும்</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI செயலை தேர்வு செய்க</string>
-  <string name="no_llm_prompts_configured">வசன தேர்வுக்கு AI வரைவுகள் கட்டமைக்கப்படவில்லை</string>
-  <string name="llm_prompt_executing">AI வரைவை இயக்குகிறது: %s</string>
   <string name="llm_actions">AI செயல்கள்</string>
 
     <!-- Agent Log Widget -->
@@ -1930,9 +1884,7 @@
   <string name="agent_log_close">முகவர் பதிவை மூடு</string>
   <string name="agent_log_stop">AI நிறுத்து</string>
   <string name="agent_log_idle">AI உதவியாளர்</string>
-  <string name="agent_log_running">AI வேலை செய்கிறது…</string>
   <string name="agent_log_completed">முடிந்தது</string>
-  <string name="agent_log_error">பிழை ஏற்பட்டது</string>
   <string name="agent_log_executing">இயக்குகிறது: %s</string>
   <string name="agent_log_iteration">மறுசெய்கை %d</string>
   <string name="agent_log_tool">கருவி: %s</string>
@@ -1942,7 +1894,6 @@
   <string name="agent_log_saved">சேமிக்கப்பட்டது: %s</string>
   <string name="agent_log_done">முடிந்தது: %s</string>
   <string name="agent_log_cancelled">ரத்து செய்யப்பட்டது</string>
-  <string name="agent_execution_completed">முகவர் இயக்கம் முடிந்தது</string>
   <string name="agent_already_running">AI முகவர் ஏற்கனவே இயங்குகிறது. தயவுசெய்து காத்திருக்கவும் அல்லது நிறுத்தவும்.</string>
 
     <!-- AI Agent Notifications -->

@@ -1431,17 +1431,8 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="memorize_view_overview">Genel Bakış</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Yapay Zeka Çevirisi</string>
   <string name="sync_settings_shortcut_summary">Cihazlar arasında veri eşitle</string>
-  <string name="llm_api_key_title">API Anahtarı</string>
-  <string name="llm_api_key_summary">OpenAI uyumlu API anahtarı</string>
   <string name="llm_provider_custom">Özel (OpenAI uyumlu)</string>
-  <string name="llm_provider_title">Sağlayıcı</string>
-  <string name="llm_provider_summary">Hangi yapay zeka servis sağlayıcısının kullanılacağını seçin. API uç noktası ve kullanılabilir modeller otomatik olarak yapılandırılacaktır.</string>
-  <string name="llm_provider_current">Mevcut: %s</string>
-  <string name="llm_api_key_detected_provider">Algılanan sağlayıcı: %s</string>
-  <string name="ai_connection_category">Bağlantı</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Davranış</string>
   <string name="ai_language_title">Yapay zeka yanıt dili</string>
   <string name="ai_language_summary">Yapay zekanın yanıtlar için kullandığı dil</string>
@@ -1458,16 +1449,9 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_reset_usage_confirm_title">Kullanım verileri sıfırlansın mı?</string>
   <string name="llm_reset_usage_confirm_message">Bu işlem tüm birikimli kullanım verilerini temizleyecektir.</string>
   <string name="llm_custom_input_price_title">Giriş fiyatı ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Bu model için milyon giriş tokeni başına maliyet</string>
   <string name="llm_custom_output_price_title">Çıkış fiyatı ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Bu model için milyon çıkış tokeni başına maliyet</string>
   <string name="llm_cost_total">Toplam: %1$s</string>
-  <string name="llm_endpoint_title">API Uç Noktası</string>
-  <string name="llm_endpoint_summary">API için temel URL</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model kimliği</string>
   <string name="llm_custom_model">Özel…</string>
-  <string name="llm_custom_model_dialog_title">Özel model</string>
   <string name="llm_custom_model_dialog_message">Model kimliğini girin</string>
   <string name="llm_rate_limited_retrying">Hız sınırına ulaşıldı. %1$s saniye içinde yeniden deneniyor\u2026</string>
   <string name="llm_default_document_title">Yapay Zeka Yanıtı</string>
@@ -1477,7 +1461,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_parse_error_no_choices">OpenAI yanıtında seçenek yok</string>
   <string name="llm_parse_error_openai">OpenAI yanıtı ayrıştırılamadı: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic yanıtı ayrıştırılamadı: %1$s</string>
-  <string name="llm_error_prompt_not_found">İstem bulunamadı: %1$s</string>
   <string name="llm_error_unknown">Bilinmeyen hata</string>
   <string name="llm_error_max_iterations">Tamamlanmadan maksimum yineleme sayısına (%1$d) ulaşıldı</string>
   <string name="llm_continue_iterations_title">Devam edilsin mi?</string>
@@ -1512,7 +1495,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="raw_log_retention_summary_disabled">Devre dışı (hepsini sakla)</string>
   <string name="send_ai_bug_report_title">Yapay Zeka Hatası Bildir</string>
   <string name="ai_bug_report_menu">Yapay zeka hatası bildir</string>
-  <string name="ai_bug_report_recommended_only">Hata bildirimi yalnızca önerilen sağlayıcı modelleri için kullanılabilir</string>
 
   <string name="select_model_before_run_title">Model seç</string>
   <string name="set_default_model_for_prompt">Bu istem için varsayılan model olarak ayarla</string>
@@ -1554,11 +1536,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_provider_saved">Sağlayıcı kaydedildi</string>
   <string name="ai_provider_deleted">Sağlayıcı silindi</string>
 
-  <string name="llm_fetch_models_title">Model listesini indir</string>
-  <string name="llm_fetch_models_message">%1$s adresinden kullanılabilir modellerin listesi indirilsin mi?</string>
-  <string name="llm_fetch_models_dont_ask">Bir daha sorma</string>
-  <string name="llm_fetch_models_success">%1$d model yüklendi</string>
-  <string name="llm_fetch_models_failed">Modeller alınamadı</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Tümü</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1572,9 +1549,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="model_delete_confirm">\"%1$s\" modeli silinsin mi?</string>
   <string name="model_set_default">Varsayılan model olarak ayarla</string>
   <string name="model_select_provider">Sağlayıcı</string>
-  <string name="no_models_configured">Yapılandırılmış model yok</string>
-  <string name="model_cache_creation_price">Önbellek oluşturma fiyatı ($/Mtoken)</string>
-  <string name="model_cache_read_price">Önbellek okuma fiyatı ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Destekleniyor</string>
   <string name="show_also_unsupported_models">Desteklenmeyen modelleri de göster</string>
   <string name="show_also_unsupported_providers">Desteklenmeyen sağlayıcıları da göster</string>
@@ -1585,7 +1559,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="unknown_error">Bilinmeyen hata</string>
   <string name="easy_setup_title">Hızlı Kurulum</string>
   <string name="easy_setup_pref_summary">Yapay zekayı birkaç adımda önerilen bir sağlayıcıyla kurun</string>
-  <string name="easy_setup_choose_provider">Başlamak için bir sağlayıcı seçin:</string>
   <string name="easy_setup_enter_api_key">API anahtarınızı girin</string>
   <string name="easy_setup_api_key_instructions">API anahtarınızı şuradan alın:</string>
   <string name="easy_setup_test_connection">Bağlantıyı test et</string>
@@ -1689,13 +1662,10 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="llm_note_updated">Not güncellendi</string>
   <string name="specify_before_run_title">Görevi belirt</string>
   <string name="specify_before_run_hint">Belirli görevi açıklayın…</string>
-  <string name="prompt_cache_settings">Önbellek ayarları</string>
   <string name="prompt_strict_context_matching">Bağlama bağlı önbellek</string>
   <string name="prompt_strict_context_matching_description">Etkinleştirildiğinde önbellek yalnızca tüm bağlam (Kutsal Kitap versiyonu, seçili metin) aynı olduğunda eşleşir. Devre dışı bırakıldığında Kutsal Kitap versiyonundan bağımsız olarak ayetler aynıysa eşleşir.</string>
   <string name="ai_document_delete_confirmation">Bu yapay zeka belgesi silinsin mi?</string>
-  <string name="ai_document_deleted">Bu yapay zeka belgesi silindi.</string>
   <string name="ai_document_regenerating">Yapay zeka belgesi yeniden oluşturuluyor…</string>
-  <string name="ai_document_regenerate_not_implemented">Yeniden oluşturma özelliği gelecekteki bir güncellemede kullanılabilir olacak</string>
   <string name="ai_regenerate_prompt_not_found">Yeniden oluşturulamıyor: özgün istem bulunamadı. Silinmiş olabilir.</string>
   <string name="ai_document_regenerate">Yeniden oluştur</string>
   <string name="ai_regenerate_title">Yeniden oluştur</string>
@@ -1709,8 +1679,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="default_prompt_translate_to_language">%s diline çevir</string>
   <string name="default_prompt_translate_to_ui_language">Arayüz diline çevir</string>
   <string name="default_prompt_translate_to_ui_language_desc">Belge metnini uygulama arayüzü diline çevirir</string>
-  <string name="default_prompt_translate_to_english">İngilizceye çevir</string>
-  <string name="default_prompt_translate_to_english_desc">Seçili metni İngilizceye çevirir</string>
   <string name="default_prompt_summary">Özet</string>
   <string name="default_prompt_summary_desc">Seçili metnin kısa bir özetini oluşturur</string>
   <string name="default_prompt_explain_verses">Ayetleri açıkla</string>
@@ -1719,8 +1687,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="default_prompt_explain_verses_studypad_desc">Ayet ayet açıklama ve yer imleriyle bir çalışma defteri oluştur</string>
   <string name="default_prompt_word_study">Kelime çalışması</string>
   <string name="default_prompt_word_study_desc">Orijinal İbranice/Yunanca kelimeleri analiz eder</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s numarası ek açıklaması</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV\'yi referans alarak herhangi bir Kutsal Kitap çevirisine Strong\'s konkordans numaraları ekler</string>
   <string name="default_prompt_cross_references">Çapraz referanslar</string>
   <string name="default_prompt_cross_references_desc">İlgili Kutsal Kitap pasajlarını bulur ve açıklar</string>
   <string name="default_prompt_compare_translations">Çevirileri karşılaştır</string>
@@ -1863,11 +1829,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="ai_document_filter_summary">Yapay zekanın okuyabileceği belgeleri seçin</string>
   <string name="ai_document_filter_summary_count">%d belge hariç tutuldu</string>
   <string name="ai_document_filter_activity_title">Yapay zeka belge erişimi</string>
-  <string name="ai_document_excluded_error">Belge kullanıcı ayarları tarafından hariç tutuldu: %s</string>
   <string name="permission_status_default">Sor (varsayılan)</string>
-  <string name="permission_status_allowed">Her zaman izin verildi</string>
-  <string name="permission_status_denied">Her zaman reddedildi</string>
-  <string name="permission_option_default">Her seferinde sor (varsayılan)</string>
   <string name="permission_option_always_allow">Her zaman izin ver</string>
   <string name="permission_option_always_deny">Her zaman reddet</string>
   <string name="reset_all_permissions">Tümünü sıfırla</string>
@@ -1882,10 +1844,6 @@ katkıda bulunmayı düşünün. :-)</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Araç izinleri</string>
-  <string name="prompt_tool_permissions_read_only">Araç izinleri (salt okunur)</string>
-  <string name="prompt_tool_permissions_description">Bu komut için araç izinlerini geçersiz kıl</string>
-  <string name="tool_section_read_tools">Okuma araçları</string>
-  <string name="tool_section_write_tools">Yazma araçları</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Kutsal Kitap &amp; Arama</string>
@@ -1908,13 +1866,9 @@ katkıda bulunmayı düşünün. :-)</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Varsayılan</string>
-  <string name="prompt_model_custom">Özel</string>
-  <string name="prompt_model_custom_hint">Model adı girin</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Yapay Zeka Eylemi Seçin</string>
-  <string name="no_llm_prompts_configured">Ayet seçimi için yapay zeka komutu yapılandırılmadı</string>
-  <string name="llm_prompt_executing">Yapay zeka komutu çalıştırılıyor: %s</string>
   <string name="llm_actions">Yapay Zeka Eylemleri</string>
 
     <!-- Agent Log Widget -->
@@ -1922,9 +1876,7 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_log_close">Etmen günlüğünü kapat</string>
   <string name="agent_log_stop">Yapay zekayı durdur</string>
   <string name="agent_log_idle">Yapay Zeka Asistanı</string>
-  <string name="agent_log_running">Yapay zeka çalışıyor…</string>
   <string name="agent_log_completed">Tamamlandı</string>
-  <string name="agent_log_error">Hata oluştu</string>
   <string name="agent_log_executing">Çalıştırılıyor: %s</string>
   <string name="agent_log_iteration">%d. yineleme</string>
   <string name="agent_log_tool">Araç: %s</string>
@@ -1934,7 +1886,6 @@ katkıda bulunmayı düşünün. :-)</string>
   <string name="agent_log_saved">Kaydedildi: %s</string>
   <string name="agent_log_done">Bitti: %s</string>
   <string name="agent_log_cancelled">İptal edildi</string>
-  <string name="agent_execution_completed">Etmen çalıştırması tamamlandı</string>
   <string name="agent_already_running">Bir yapay zeka etmeni zaten çalışıyor. Lütfen bekleyin veya önce durdurun.</string>
 
     <!-- AI Agent Notifications -->

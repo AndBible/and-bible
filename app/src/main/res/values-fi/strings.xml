@@ -1321,17 +1321,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="memorize_view_overview">Yleiskatsaus</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-käännös</string>
   <string name="sync_settings_shortcut_summary">Synkronoi tiedot laitteiden välillä</string>
-  <string name="llm_api_key_title">API-avain</string>
-  <string name="llm_api_key_summary">OpenAI-yhteensopiva API-avain</string>
   <string name="llm_provider_custom">Mukautettu (OpenAI-yhteensopiva)</string>
-  <string name="llm_provider_title">Palveluntarjoaja</string>
-  <string name="llm_provider_summary">Valitse käytettävä tekoälypalvelun tarjoaja. API-osoite ja saatavilla olevat mallit määritetään automaattisesti.</string>
-  <string name="llm_provider_current">Nykyinen: %s</string>
-  <string name="llm_api_key_detected_provider">Tunnistettu palveluntarjoaja: %s</string>
-  <string name="ai_connection_category">Yhteys</string>
-  <string name="ai_model_category">Malli</string>
   <string name="ai_behavior_category">Käyttäytyminen</string>
   <string name="ai_language_title">Tekoälyn vastauskieli</string>
   <string name="ai_language_summary">Kieli, jota tekoäly käyttää vastauksissa</string>
@@ -1348,16 +1339,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="llm_reset_usage_confirm_title">Nollataanko käyttötiedot?</string>
   <string name="llm_reset_usage_confirm_message">Tämä tyhjentää kaikki kertyneet käyttötiedot.</string>
   <string name="llm_custom_input_price_title">Syötehinta ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Hinta miljoonaa syötetokenia kohti tälle mallille</string>
   <string name="llm_custom_output_price_title">Tulostehinta ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Hinta miljoonaa tulostetokenia kohti tälle mallille</string>
   <string name="llm_cost_total">Yhteensä: %1$s</string>
-  <string name="llm_endpoint_title">API-osoite</string>
-  <string name="llm_endpoint_summary">API:n perus-URL</string>
-  <string name="llm_model_title">Malli</string>
-  <string name="llm_model_summary">Mallin tunniste</string>
   <string name="llm_custom_model">Mukautettu…</string>
-  <string name="llm_custom_model_dialog_title">Mukautettu malli</string>
   <string name="llm_custom_model_dialog_message">Syötä mallin tunniste</string>
   <string name="llm_rate_limited_retrying">Pyyntöraja saavutettu. Yritetään uudelleen %1$s s kuluttua\u2026</string>
   <string name="llm_default_document_title">Tekoälyvastaus</string>
@@ -1367,7 +1351,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="llm_parse_error_no_choices">OpenAI-vastauksessa ei ole vaihtoehtoja</string>
   <string name="llm_parse_error_openai">OpenAI-vastauksen jäsennys epäonnistui: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic-vastauksen jäsennys epäonnistui: %1$s</string>
-  <string name="llm_error_prompt_not_found">Kehotetta ei löytynyt: %1$s</string>
   <string name="llm_error_unknown">Tuntematon virhe</string>
   <string name="llm_error_max_iterations">Enimmäisiteraatiot (%1$d) saavutettu ilman valmistumista</string>
   <string name="llm_continue_iterations_title">Jatketaanko?</string>
@@ -1402,7 +1385,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="raw_log_retention_summary_disabled">Ei käytössä (säilytä kaikki)</string>
   <string name="send_ai_bug_report_title">Ilmoita tekoälyvirheestä</string>
   <string name="ai_bug_report_menu">Ilmoita tekoälyvirheestä</string>
-  <string name="ai_bug_report_recommended_only">Virheraportointi on käytettävissä vain suositeltujen palveluntarjoajien malleille</string>
 
   <string name="select_model_before_run_title">Valitse malli</string>
   <string name="set_default_model_for_prompt">Aseta oletusmalliksi tälle kehotteelle</string>
@@ -1444,11 +1426,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_provider_saved">Palveluntarjoaja tallennettu</string>
   <string name="ai_provider_deleted">Palveluntarjoaja poistettu</string>
 
-  <string name="llm_fetch_models_title">Lataa malliluettelo</string>
-  <string name="llm_fetch_models_message">Ladataanko saatavilla olevien mallien luettelo palvelusta %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Älä kysy uudelleen</string>
-  <string name="llm_fetch_models_success">Ladattiin %1$d mallia</string>
-  <string name="llm_fetch_models_failed">Mallien lataus epäonnistui</string>
   <string name="llm_openrouter_category">Kategoria</string>
   <string name="llm_openrouter_category_all">Kaikki</string>
   <string name="llm_openrouter_model">Malli</string>
@@ -1462,9 +1439,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="model_delete_confirm">Poistetaanko malli \"%1$s\"?</string>
   <string name="model_set_default">Aseta oletusmalliks</string>
   <string name="model_select_provider">Palveluntarjoaja</string>
-  <string name="no_models_configured">Malleja ei ole määritetty</string>
-  <string name="model_cache_creation_price">Välimuistin luontihinta ($/Mtoken)</string>
-  <string name="model_cache_read_price">Välimuistin lukuhinta ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Tuettu</string>
   <string name="show_also_unsupported_models">Näytä myös tukemattomat mallit</string>
   <string name="show_also_unsupported_providers">Näytä myös tukemattomat palveluntarjoajat</string>
@@ -1475,7 +1449,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="unknown_error">Tuntematon virhe</string>
   <string name="easy_setup_title">Pika-asennus</string>
   <string name="easy_setup_pref_summary">Määritä tekoäly suositellulla palveluntarjoajalla muutamassa vaiheessa</string>
-  <string name="easy_setup_choose_provider">Aloita valitsemalla palveluntarjoaja:</string>
   <string name="easy_setup_enter_api_key">Syötä API-avaimesi</string>
   <string name="easy_setup_api_key_instructions">Hanki API-avaimesi täältä:</string>
   <string name="easy_setup_test_connection">Testaa yhteys</string>
@@ -1579,13 +1552,10 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="llm_note_updated">Merkintä päivitetty</string>
   <string name="specify_before_run_title">Tarkenna tehtävä</string>
   <string name="specify_before_run_hint">Kuvaile tehtävä…</string>
-  <string name="prompt_cache_settings">Välimuistin asetukset</string>
   <string name="prompt_strict_context_matching">Kontekstiriippuvainen välimuisti</string>
   <string name="prompt_strict_context_matching_description">Kun käytössä, välimuisti osuu vain kun kaikki konteksti (raamatunkäännös, valittu teksti) on sama. Kun pois käytöstä, välimuisti osuu kun jakeet ovat samat riippumatta raamatunkäännöksestä.</string>
   <string name="ai_document_delete_confirmation">Poistetaanko tämä tekoälydokumentti?</string>
-  <string name="ai_document_deleted">Tämä tekoälydokumentti on poistettu.</string>
   <string name="ai_document_regenerating">Luodaan tekoälydokumenttia uudelleen…</string>
-  <string name="ai_document_regenerate_not_implemented">Uudelleenluonti on saatavilla tulevassa päivityksessä</string>
   <string name="ai_regenerate_prompt_not_found">Uudelleenluonti ei onnistu: alkuperäistä kehotetta ei löytynyt. Se on ehkä poistettu.</string>
   <string name="ai_document_regenerate">Luo uudelleen</string>
   <string name="ai_regenerate_title">Luo uudelleen</string>
@@ -1599,8 +1569,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="default_prompt_translate_to_language">Käännä kielelle %s</string>
   <string name="default_prompt_translate_to_ui_language">Käännä käyttöliittymän kielelle</string>
   <string name="default_prompt_translate_to_ui_language_desc">Kääntää teoksen tekstin sovelluksen käyttöliittymän kielelle</string>
-  <string name="default_prompt_translate_to_english">Käännä englanniksi</string>
-  <string name="default_prompt_translate_to_english_desc">Kääntää valitun tekstin englanniksi</string>
   <string name="default_prompt_summary">Tiivistelmä</string>
   <string name="default_prompt_summary_desc">Luo tiiviin yhteenvedon valitusta tekstistä</string>
   <string name="default_prompt_explain_verses">Selitä jakeet</string>
@@ -1609,8 +1577,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="default_prompt_explain_verses_studypad_desc">Luo opintoalustan jaekohtaisella selityksellä ja kirjanmerkeillä</string>
   <string name="default_prompt_word_study">Sanatutkimus</string>
   <string name="default_prompt_word_study_desc">Analysoi alkuperäisiä heprean ja kreikan sanoja</string>
-  <string name="default_prompt_strongs_annotation">Strongin numeromerkintä</string>
-  <string name="default_prompt_strongs_annotation_desc">Lisää Strongin konkordanssinumerot mihin tahansa raamatunkäännökseen käyttäen KJV:tä viitteenä</string>
   <string name="default_prompt_cross_references">Ristiviitteet</string>
   <string name="default_prompt_cross_references_desc">Etsii ja selittää aiheeseen liittyviä Raamatun kohtia</string>
   <string name="default_prompt_compare_translations">Vertaile käännöksiä</string>
@@ -1753,11 +1719,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="ai_document_filter_summary">Valitse, mitä dokumentteja tekoäly voi lukea</string>
   <string name="ai_document_filter_summary_count">%d dokumenttia estetty</string>
   <string name="ai_document_filter_activity_title">Tekoälyn dokumenttien käyttöoikeus</string>
-  <string name="ai_document_excluded_error">Käyttäjän asetukset estävät dokumentin käytön: %s</string>
   <string name="permission_status_default">Kysy (oletus)</string>
-  <string name="permission_status_allowed">Sallittu aina</string>
-  <string name="permission_status_denied">Estetty aina</string>
-  <string name="permission_option_default">Kysy joka kerta (oletus)</string>
   <string name="permission_option_always_allow">Salli aina</string>
   <string name="permission_option_always_deny">Estä aina</string>
   <string name="reset_all_permissions">Nollaa kaikki</string>
@@ -1772,10 +1734,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Työkalujen käyttöoikeudet</string>
-  <string name="prompt_tool_permissions_read_only">Työkalujen käyttöoikeudet (vain luku)</string>
-  <string name="prompt_tool_permissions_description">Ohita työkalujen käyttöoikeudet tämän kehotteen osalta</string>
-  <string name="tool_section_read_tools">Lukutyökalut</string>
-  <string name="tool_section_write_tools">Kirjoitustyökalut</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Raamattu &amp; haku</string>
@@ -1798,13 +1756,9 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Malli</string>
   <string name="prompt_model_default">Oletus</string>
-  <string name="prompt_model_custom">Mukautettu</string>
-  <string name="prompt_model_custom_hint">Anna mallin nimi</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Valitse tekoälytoiminto</string>
-  <string name="no_llm_prompts_configured">Tekoälykehotteita ei ole määritetty jaevalinnalle</string>
-  <string name="llm_prompt_executing">Suoritetaan tekoälykehotetta: %s</string>
   <string name="llm_actions">Tekoälytoiminnot</string>
 
     <!-- Agent Log Widget -->
@@ -1812,9 +1766,7 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="agent_log_close">Sulje agentin loki</string>
   <string name="agent_log_stop">Pysäytä tekoäly</string>
   <string name="agent_log_idle">Tekoälyavustaja</string>
-  <string name="agent_log_running">Tekoäly työskentelee…</string>
   <string name="agent_log_completed">Valmis</string>
-  <string name="agent_log_error">Tapahtui virhe</string>
   <string name="agent_log_executing">Suoritetaan: %s</string>
   <string name="agent_log_iteration">Iteraatio %d</string>
   <string name="agent_log_tool">Työkalu: %s</string>
@@ -1824,7 +1776,6 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="agent_log_saved">Tallennettu: %s</string>
   <string name="agent_log_done">Valmis: %s</string>
   <string name="agent_log_cancelled">Peruutettu</string>
-  <string name="agent_execution_completed">Agentin suoritus valmis</string>
   <string name="agent_already_running">Tekoälyagentti on jo käynnissä. Odota tai pysäytä se ensin.</string>
 
     <!-- AI Agent Notifications -->

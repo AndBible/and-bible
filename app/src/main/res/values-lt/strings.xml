@@ -1415,17 +1415,8 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="memorize_view_overview">Apžvalga</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">DI vertimas</string>
   <string name="sync_settings_shortcut_summary">Sinchronizuoti duomenis tarp įrenginių</string>
-  <string name="llm_api_key_title">API raktas</string>
-  <string name="llm_api_key_summary">OpenAI suderinamas API raktas</string>
   <string name="llm_provider_custom">Pasirinktinis (suderinamas su OpenAI)</string>
-  <string name="llm_provider_title">Tiekėjas</string>
-  <string name="llm_provider_summary">Pasirinkite, kurią DI paslaugų teikėją naudoti. API galinė vieta ir galimi modeliai bus sukonfigūruoti automatiškai.</string>
-  <string name="llm_provider_current">Dabartinis: %s</string>
-  <string name="llm_api_key_detected_provider">Aptiktas tiekėjas: %s</string>
-  <string name="ai_connection_category">Ryšys</string>
-  <string name="ai_model_category">Modelis</string>
   <string name="ai_behavior_category">Elgesys</string>
   <string name="ai_language_title">DI atsakymų kalba</string>
   <string name="ai_language_summary">Kalba, kuria DI teikia atsakymus</string>
@@ -1442,16 +1433,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="llm_reset_usage_confirm_title">Atstatyti naudojimo duomenis?</string>
   <string name="llm_reset_usage_confirm_message">Tai išvalys visus sukauptus naudojimo duomenis.</string>
   <string name="llm_custom_input_price_title">Įvesties kaina ($/Mžetonas)</string>
-  <string name="llm_custom_input_price_summary">Kaina už milijoną įvesties žetonų šiam modeliui</string>
   <string name="llm_custom_output_price_title">Išvesties kaina ($/Mžetonas)</string>
-  <string name="llm_custom_output_price_summary">Kaina už milijoną išvesties žetonų šiam modeliui</string>
   <string name="llm_cost_total">Iš viso: %1$s</string>
-  <string name="llm_endpoint_title">API galinė vieta</string>
-  <string name="llm_endpoint_summary">Pagrindinis API URL</string>
-  <string name="llm_model_title">Modelis</string>
-  <string name="llm_model_summary">Modelio ID</string>
   <string name="llm_custom_model">Pasirinktinis…</string>
-  <string name="llm_custom_model_dialog_title">Pasirinktinis modelis</string>
   <string name="llm_custom_model_dialog_message">Įveskite modelio ID</string>
   <string name="llm_rate_limited_retrying">Viršytas užklausų limitas. Kartojama po %1$ss\u2026</string>
   <string name="llm_default_document_title">DI atsakymas</string>
@@ -1461,7 +1445,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="llm_parse_error_no_choices">Nėra pasirinkimų OpenAI atsakyme</string>
   <string name="llm_parse_error_openai">Nepavyko analizuoti OpenAI atsakymo: %1$s</string>
   <string name="llm_parse_error_anthropic">Nepavyko analizuoti Anthropic atsakymo: %1$s</string>
-  <string name="llm_error_prompt_not_found">Užklausa nerasta: %1$s</string>
   <string name="llm_error_unknown">Nežinoma klaida</string>
   <string name="llm_error_max_iterations">Pasiektas maksimalus iteracijų skaičius (%1$d) nebaigus</string>
   <string name="llm_continue_iterations_title">Tęsti?</string>
@@ -1496,7 +1479,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="raw_log_retention_summary_disabled">Išjungta (laikyti visus)</string>
   <string name="send_ai_bug_report_title">Pranešti apie DI klaidą</string>
   <string name="ai_bug_report_menu">Pranešti apie DI klaidą</string>
-  <string name="ai_bug_report_recommended_only">Klaidų pranešimai galimi tik rekomenduojamiems tiekėjų modeliams</string>
 
   <string name="select_model_before_run_title">Pasirinkti modelį</string>
   <string name="set_default_model_for_prompt">Nustatyti kaip numatytąjį šio raginimo modelį</string>
@@ -1538,11 +1520,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="ai_provider_saved">Tiekėjas išsaugotas</string>
   <string name="ai_provider_deleted">Tiekėjas ištrintas</string>
 
-  <string name="llm_fetch_models_title">Atsisiųsti modelių sąrašą</string>
-  <string name="llm_fetch_models_message">Atsisiųsti galimų modelių sąrašą iš %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Daugiau neklausinėti</string>
-  <string name="llm_fetch_models_success">Įkelta %1$d modelių</string>
-  <string name="llm_fetch_models_failed">Nepavyko gauti modelių sąrašo</string>
   <string name="llm_openrouter_category">Kategorija</string>
   <string name="llm_openrouter_category_all">Visi</string>
   <string name="llm_openrouter_model">Modelis</string>
@@ -1556,9 +1533,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="model_delete_confirm">Ištrinti modelį \"%1$s\"?</string>
   <string name="model_set_default">Nustatyti kaip numatytąjį modelį</string>
   <string name="model_select_provider">Tiekėjas</string>
-  <string name="no_models_configured">Nėra sukonfigūruotų modelių</string>
-  <string name="model_cache_creation_price">Talpyklos kūrimo kaina ($/Mtoken)</string>
-  <string name="model_cache_read_price">Talpyklos skaitymo kaina ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Palaikoma</string>
   <string name="show_also_unsupported_models">Rodyti taip pat nepalaikomus modelius</string>
   <string name="show_also_unsupported_providers">Rodyti taip pat nepalaikomus tiekėjus</string>
@@ -1569,7 +1543,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="unknown_error">Nežinoma klaida</string>
   <string name="easy_setup_title">Greita sąranka</string>
   <string name="easy_setup_pref_summary">Nustatykite DI su rekomenduojamu tiekėju keliais žingsniais</string>
-  <string name="easy_setup_choose_provider">Pasirinkite tiekėją, kad pradėtumėte:</string>
   <string name="easy_setup_enter_api_key">Įveskite savo API raktą</string>
   <string name="easy_setup_api_key_instructions">Gaukite savo API raktą iš:</string>
   <string name="easy_setup_test_connection">Tikrinti ryšį</string>
@@ -1673,13 +1646,10 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="llm_note_updated">Pastaba atnaujinta</string>
   <string name="specify_before_run_title">Nurodyti užduotį</string>
   <string name="specify_before_run_hint">Aprašykite konkrečią užduotį…</string>
-  <string name="prompt_cache_settings">Talpyklos nustatymai</string>
   <string name="prompt_strict_context_matching">Kontekstui priklausoma talpykla</string>
   <string name="prompt_strict_context_matching_description">Kai įjungta, talpykla sutampa tik tada, kai visas kontekstas (Biblijos versija, pasirinktas tekstas) yra vienodas. Kai išjungta, talpykla sutampa, kai eilutės yra vienodos, nepriklausomai nuo Biblijos versijos.</string>
   <string name="ai_document_delete_confirmation">Ištrinti šį DI dokumentą?</string>
-  <string name="ai_document_deleted">Šis DI dokumentas buvo ištrintas.</string>
   <string name="ai_document_regenerating">Regeneruojamas DI dokumentas…</string>
-  <string name="ai_document_regenerate_not_implemented">Regeneravimas bus prieinamas būsimame atnaujinime</string>
   <string name="ai_regenerate_prompt_not_found">Nepavyksta regeneruoti: originalus raginimas nerastas. Jis gali būti ištrintas.</string>
   <string name="ai_document_regenerate">Regeneruoti</string>
   <string name="ai_regenerate_title">Regeneruoti</string>
@@ -1693,8 +1663,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="default_prompt_translate_to_language">Versti į %s</string>
   <string name="default_prompt_translate_to_ui_language">Versti į sąsajos kalbą</string>
   <string name="default_prompt_translate_to_ui_language_desc">Verčia dokumento tekstą į programos sąsajos kalbą</string>
-  <string name="default_prompt_translate_to_english">Versti į anglų kalbą</string>
-  <string name="default_prompt_translate_to_english_desc">Verčia pasirinktą tekstą į anglų kalbą</string>
   <string name="default_prompt_summary">Santrauka</string>
   <string name="default_prompt_summary_desc">Sukuria glaustą pasirinkto teksto santrauką</string>
   <string name="default_prompt_explain_verses">Paaiškinti eilutes</string>
@@ -1703,8 +1671,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="default_prompt_explain_verses_studypad_desc">Sukuria užrašų knygelę su eilutė po eilutės paaiškinimu ir žymėmis</string>
   <string name="default_prompt_word_study">Žodžio tyrimas</string>
   <string name="default_prompt_word_study_desc">Analizuoja originalius hebrajų / graikų žodžius</string>
-  <string name="default_prompt_strongs_annotation">Strongo numerių anotacija</string>
-  <string name="default_prompt_strongs_annotation_desc">Prideda Strongo konkordanso numerius prie bet kurio Biblijos vertimo naudojant KJV kaip nuorodą</string>
   <string name="default_prompt_cross_references">Kryžminės nuorodos</string>
   <string name="default_prompt_cross_references_desc">Randa ir paaiškina susijusias Biblijos ištraukas</string>
   <string name="default_prompt_compare_translations">Palyginti vertimus</string>
@@ -1847,11 +1813,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="ai_document_filter_summary">Pasirinkite, kuriuos dokumentus DI gali skaityti</string>
   <string name="ai_document_filter_summary_count">%d dokumentų neįtraukta</string>
   <string name="ai_document_filter_activity_title">DI prieiga prie dokumentų</string>
-  <string name="ai_document_excluded_error">Dokumentą atmetė vartotojo nustatymai: %s</string>
   <string name="permission_status_default">Klausti (numatyta)</string>
-  <string name="permission_status_allowed">Visada leidžiama</string>
-  <string name="permission_status_denied">Visada draudžiama</string>
-  <string name="permission_option_default">Klausti kiekvieną kartą (numatyta)</string>
   <string name="permission_option_always_allow">Visada leisti</string>
   <string name="permission_option_always_deny">Visada drausti</string>
   <string name="reset_all_permissions">Atstatyti viską</string>
@@ -1866,10 +1828,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Įrankių leidimai</string>
-  <string name="prompt_tool_permissions_read_only">Įrankių leidimai (tik skaitymas)</string>
-  <string name="prompt_tool_permissions_description">Perrašyti įrankių leidimus šiam raginimui</string>
-  <string name="tool_section_read_tools">Skaitymo įrankiai</string>
-  <string name="tool_section_write_tools">Rašymo įrankiai</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblija ir paieška</string>
@@ -1892,13 +1850,9 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelis</string>
   <string name="prompt_model_default">Numatytasis</string>
-  <string name="prompt_model_custom">Pasirinktinis</string>
-  <string name="prompt_model_custom_hint">Įveskite modelio pavadinimą</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Pasirinkti DI veiksmą</string>
-  <string name="no_llm_prompts_configured">Eilutės pasirinkimui nesukonfigūruota jokių DI raginimų</string>
-  <string name="llm_prompt_executing">Vykdomas DI raginimas: %s</string>
   <string name="llm_actions">DI veiksmai</string>
 
     <!-- Agent Log Widget -->
@@ -1906,9 +1860,7 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="agent_log_close">Uždaryti agento žurnalą</string>
   <string name="agent_log_stop">Sustabdyti DI</string>
   <string name="agent_log_idle">DI asistentas</string>
-  <string name="agent_log_running">DI dirba…</string>
   <string name="agent_log_completed">Baigta</string>
-  <string name="agent_log_error">Įvyko klaida</string>
   <string name="agent_log_executing">Vykdoma: %s</string>
   <string name="agent_log_iteration">%d iteracija</string>
   <string name="agent_log_tool">Įrankis: %s</string>
@@ -1918,7 +1870,6 @@ Paspauskite ir palaikykite mygtuką „Atgal“, kad pasiektumėte istorijos są
   <string name="agent_log_saved">Išsaugota: %s</string>
   <string name="agent_log_done">Atlikta: %s</string>
   <string name="agent_log_cancelled">Atšaukta</string>
-  <string name="agent_execution_completed">Agento vykdymas baigtas</string>
   <string name="agent_already_running">DI agentas jau veikia. Palaukite arba pirmiausia jį sustabdykite.</string>
 
     <!-- AI Agent Notifications -->

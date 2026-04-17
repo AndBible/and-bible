@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Oversigt</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-oversættelse</string>
   <string name="sync_settings_shortcut_summary">Synkronisér data mellem enheder</string>
-  <string name="llm_api_key_title">API-nøgle</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibel API-nøgle</string>
   <string name="llm_provider_custom">Brugerdefineret (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Udbyder</string>
-  <string name="llm_provider_summary">Vælg hvilken AI-tjenesteudbyder der skal bruges. API-slutpunkt og tilgængelige modeller konfigureres automatisk.</string>
-  <string name="llm_provider_current">Aktuel: %s</string>
-  <string name="llm_api_key_detected_provider">Registreret udbyder: %s</string>
-  <string name="ai_connection_category">Forbindelse</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Adfærd</string>
   <string name="ai_language_title">AI-svarsprog</string>
   <string name="ai_language_summary">Sprog AI bruger til svar</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">Nulstil forbrugsdata?</string>
   <string name="llm_reset_usage_confirm_message">Dette vil rydde alle akkumulerede forbrugsdata.</string>
   <string name="llm_custom_input_price_title">Inputpris ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Pris pr. million input-tokens for denne model</string>
   <string name="llm_custom_output_price_title">Outputpris ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Pris pr. million output-tokens for denne model</string>
   <string name="llm_cost_total">I alt: %1$s</string>
-  <string name="llm_endpoint_title">API-slutpunkt</string>
-  <string name="llm_endpoint_summary">Basis-URL for API\'et</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model-ID</string>
   <string name="llm_custom_model">Brugerdefineret…</string>
-  <string name="llm_custom_model_dialog_title">Brugerdefineret model</string>
   <string name="llm_custom_model_dialog_message">Indtast model-ID\'et</string>
   <string name="llm_rate_limited_retrying">Hastighedsbegrænsning. Prøver igen om %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-svar</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Ingen valgmuligheder i OpenAI-svar</string>
   <string name="llm_parse_error_openai">Kunne ikke fortolke OpenAI-svar: %1$s</string>
   <string name="llm_parse_error_anthropic">Kunne ikke fortolke Anthropic-svar: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt ikke fundet: %1$s</string>
   <string name="llm_error_unknown">Ukendt fejl</string>
   <string name="llm_error_max_iterations">Maksimalt antal iterationer (%1$d) nået uden fuldførelse</string>
   <string name="llm_continue_iterations_title">Fortsæt?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Deaktiveret (behold alle)</string>
   <string name="send_ai_bug_report_title">Rapportér AI-fejl</string>
   <string name="ai_bug_report_menu">Rapportér AI-fejl</string>
-  <string name="ai_bug_report_recommended_only">Fejlrapportering er kun tilgængelig for anbefalede udbydermodeller</string>
 
   <string name="select_model_before_run_title">Vælg model</string>
   <string name="set_default_model_for_prompt">Angiv som standardmodel for denne prompt</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Udbyder gemt</string>
   <string name="ai_provider_deleted">Udbyder slettet</string>
 
-  <string name="llm_fetch_models_title">Hent modelliste</string>
-  <string name="llm_fetch_models_message">Hent listen over tilgængelige modeller fra %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Spørg ikke igen</string>
-  <string name="llm_fetch_models_success">Indlæste %1$d modeller</string>
-  <string name="llm_fetch_models_failed">Kunne ikke hente modeller</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Slet modellen \"%1$s\"?</string>
   <string name="model_set_default">Angiv som standardmodel</string>
   <string name="model_select_provider">Udbyder</string>
-  <string name="no_models_configured">Ingen modeller konfigureret</string>
-  <string name="model_cache_creation_price">Cacheoprettelsespris ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cachelæsningspris ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Understøttet</string>
   <string name="show_also_unsupported_models">Vis også ikke-understøttede modeller</string>
   <string name="show_also_unsupported_providers">Vis også ikke-understøttede udbydere</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Ukendt fejl</string>
   <string name="easy_setup_title">Hurtig opsætning</string>
   <string name="easy_setup_pref_summary">Opsæt AI med en anbefalet udbyder i få trin</string>
-  <string name="easy_setup_choose_provider">Vælg en udbyder for at komme i gang:</string>
   <string name="easy_setup_enter_api_key">Indtast din API-nøgle</string>
   <string name="easy_setup_api_key_instructions">Hent din API-nøgle fra:</string>
   <string name="easy_setup_test_connection">Test forbindelsen</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Note opdateret</string>
   <string name="specify_before_run_title">Angiv opgave</string>
   <string name="specify_before_run_hint">Beskriv den specifikke opgave…</string>
-  <string name="prompt_cache_settings">Cacheindstillinger</string>
   <string name="prompt_strict_context_matching">Kontekstafhængig cache</string>
   <string name="prompt_strict_context_matching_description">Når aktiveret, matches cache kun, når al kontekst (Bibelversion, valgt tekst) er den samme. Når deaktiveret, matches cache, når versene er de samme uanset Bibelversion.</string>
   <string name="ai_document_delete_confirmation">Slet dette AI-dokument?</string>
-  <string name="ai_document_deleted">Dette AI-dokument er blevet slettet.</string>
   <string name="ai_document_regenerating">Regenererer AI-dokument…</string>
-  <string name="ai_document_regenerate_not_implemented">Regenerering vil være tilgængelig i en fremtidig opdatering</string>
   <string name="ai_regenerate_prompt_not_found">Kan ikke regenerere: den originale prompt blev ikke fundet. Den kan være blevet slettet.</string>
   <string name="ai_document_regenerate">Regenerér</string>
   <string name="ai_regenerate_title">Regenerér</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Oversæt til %s</string>
   <string name="default_prompt_translate_to_ui_language">Oversæt til brugergrænsefladens sprog</string>
   <string name="default_prompt_translate_to_ui_language_desc">Oversætter dokumenttekst til appens brugergrænsefladesprog</string>
-  <string name="default_prompt_translate_to_english">Oversæt til engelsk</string>
-  <string name="default_prompt_translate_to_english_desc">Oversætter valgt tekst til engelsk</string>
   <string name="default_prompt_summary">Resumé</string>
   <string name="default_prompt_summary_desc">Opretter et kortfattet resumé af den valgte tekst</string>
   <string name="default_prompt_explain_verses">Forklar vers</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Opret en studieblok med vers-for-vers forklaring og bogmærker</string>
   <string name="default_prompt_word_study">Ordstudie</string>
   <string name="default_prompt_word_study_desc">Analyserer originale hebraiske/græske ord</string>
-  <string name="default_prompt_strongs_annotation">Strongs numre annotation</string>
-  <string name="default_prompt_strongs_annotation_desc">Tilføjer Strongs konkordansnumre til enhver bibeloversættelse med KJV som reference</string>
   <string name="default_prompt_cross_references">Krydshenvisninger</string>
   <string name="default_prompt_cross_references_desc">Finder og forklarer relaterede bibelsteder</string>
   <string name="default_prompt_compare_translations">Sammenlign oversættelser</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Vælg hvilke dokumenter AI\'en kan læse</string>
   <string name="ai_document_filter_summary_count">%d dokumenter udelukket</string>
   <string name="ai_document_filter_activity_title">AI-dokumentadgang</string>
-  <string name="ai_document_excluded_error">Dokument udelukket af brugerindstillinger: %s</string>
   <string name="permission_status_default">Spørg (standard)</string>
-  <string name="permission_status_allowed">Altid tilladt</string>
-  <string name="permission_status_denied">Altid afvist</string>
-  <string name="permission_option_default">Spørg hver gang (standard)</string>
   <string name="permission_option_always_allow">Tillad altid</string>
   <string name="permission_option_always_deny">Afvis altid</string>
   <string name="reset_all_permissions">Nulstil alle</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Værktøjstilladelser</string>
-  <string name="prompt_tool_permissions_read_only">Værktøjstilladelser (skrivebeskyttet)</string>
-  <string name="prompt_tool_permissions_description">Tilsidesæt værktøjstilladelser for denne prompt</string>
-  <string name="tool_section_read_tools">Læseværktøjer</string>
-  <string name="tool_section_write_tools">Skriveværktøjer</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel &amp; Søgning</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Brugerdefineret</string>
-  <string name="prompt_model_custom_hint">Indtast modelnavn</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Vælg AI-handling</string>
-  <string name="no_llm_prompts_configured">Ingen AI-prompts konfigureret til versvalg</string>
-  <string name="llm_prompt_executing">Udfører AI-prompt: %s</string>
   <string name="llm_actions">AI-handlinger</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Luk agentlog</string>
   <string name="agent_log_stop">Stop AI</string>
   <string name="agent_log_idle">AI-assistent</string>
-  <string name="agent_log_running">AI arbejder…</string>
   <string name="agent_log_completed">Fuldført</string>
-  <string name="agent_log_error">Der opstod en fejl</string>
   <string name="agent_log_executing">Udfører: %s</string>
   <string name="agent_log_iteration">Iteration %d</string>
   <string name="agent_log_tool">Værktøj: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Gemt: %s</string>
   <string name="agent_log_done">Færdig: %s</string>
   <string name="agent_log_cancelled">Annulleret</string>
-  <string name="agent_execution_completed">Agentudførelse fuldført</string>
   <string name="agent_already_running">En AI-agent kører allerede. Vent eller stop den først.</string>
 
     <!-- AI Agent Notifications -->

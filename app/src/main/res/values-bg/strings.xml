@@ -1265,17 +1265,8 @@
   <string name="memorize_view_overview">Преглед</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM превод</string>
   <string name="sync_settings_shortcut_summary">Синхронизирай данни между устройства</string>
-  <string name="llm_api_key_title">API ключ</string>
-  <string name="llm_api_key_summary">API ключ, съвместим с OpenAI</string>
   <string name="llm_provider_custom">Персонализиран (съвместим с OpenAI)</string>
-  <string name="llm_provider_title">Доставчик</string>
-  <string name="llm_provider_summary">Изберете кой AI доставчик на услуги да използвате. API крайната точка и наличните модели ще бъдат конфигурирани автоматично.</string>
-  <string name="llm_provider_current">Текущ: %s</string>
-  <string name="llm_api_key_detected_provider">Открит доставчик: %s</string>
-  <string name="ai_connection_category">Връзка</string>
-  <string name="ai_model_category">Модел</string>
   <string name="ai_behavior_category">Поведение</string>
   <string name="ai_language_title">Език на AI отговорите</string>
   <string name="ai_language_summary">Езикът, който AI използва за отговори</string>
@@ -1292,16 +1283,9 @@
   <string name="llm_reset_usage_confirm_title">Нулиране на данните за използване?</string>
   <string name="llm_reset_usage_confirm_message">Това ще изчисти всички натрупани данни за използване.</string>
   <string name="llm_custom_input_price_title">Цена за вход ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Цена за милион входни токени за този модел</string>
   <string name="llm_custom_output_price_title">Цена за изход ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Цена за милион изходни токени за този модел</string>
   <string name="llm_cost_total">Общо: %1$s</string>
-  <string name="llm_endpoint_title">API крайна точка</string>
-  <string name="llm_endpoint_summary">Основен URL адрес на API</string>
-  <string name="llm_model_title">Модел</string>
-  <string name="llm_model_summary">Идентификатор на модела</string>
   <string name="llm_custom_model">Персонализиран…</string>
-  <string name="llm_custom_model_dialog_title">Персонализиран модел</string>
   <string name="llm_custom_model_dialog_message">Въведете идентификатора на модела</string>
   <string name="llm_rate_limited_retrying">Ограничена скорост. Повторен опит след %1$ss\u2026</string>
   <string name="llm_default_document_title">AI отговор</string>
@@ -1311,7 +1295,6 @@
   <string name="llm_parse_error_no_choices">Няма избори в отговора на OpenAI</string>
   <string name="llm_parse_error_openai">Неуспешно анализиране на отговора на OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Неуспешно анализиране на отговора на Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Подканата не е намерена: %1$s</string>
   <string name="llm_error_unknown">Неизвестна грешка</string>
   <string name="llm_error_max_iterations">Достигнат е максималният брой итерации (%1$d) без завършване</string>
   <string name="llm_continue_iterations_title">Продължи?</string>
@@ -1346,7 +1329,6 @@
   <string name="raw_log_retention_summary_disabled">Изключено (запази всички)</string>
   <string name="send_ai_bug_report_title">Докладвай AI грешка</string>
   <string name="ai_bug_report_menu">Докладвай AI грешка</string>
-  <string name="ai_bug_report_recommended_only">Докладването на грешки е достъпно само за препоръчани модели на доставчика</string>
 
   <string name="select_model_before_run_title">Избери модел</string>
   <string name="set_default_model_for_prompt">Задай като модел по подразбиране за тази подкана</string>
@@ -1388,11 +1370,6 @@
   <string name="ai_provider_saved">Доставчикът е запазен</string>
   <string name="ai_provider_deleted">Доставчикът е изтрит</string>
 
-  <string name="llm_fetch_models_title">Изтегли списък с модели</string>
-  <string name="llm_fetch_models_message">Изтегли списъка с налични модели от %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Не питай отново</string>
-  <string name="llm_fetch_models_success">Заредени са %1$d модела</string>
-  <string name="llm_fetch_models_failed">Неуспешно изтегляне на модели</string>
   <string name="llm_openrouter_category">Категория</string>
   <string name="llm_openrouter_category_all">Всички</string>
   <string name="llm_openrouter_model">Модел</string>
@@ -1406,9 +1383,6 @@
   <string name="model_delete_confirm">Изтрий модела \"%1$s\"?</string>
   <string name="model_set_default">Задай като модел по подразбиране</string>
   <string name="model_select_provider">Доставчик</string>
-  <string name="no_models_configured">Няма конфигурирани модели</string>
-  <string name="model_cache_creation_price">Цена за създаване на кеш ($/Мтокен)</string>
-  <string name="model_cache_read_price">Цена за четене от кеш ($/Мтокен)</string>
   <string name="model_supported_badge">✓ Поддържан</string>
   <string name="show_also_unsupported_models">Покажи и неподдържаните модели</string>
   <string name="show_also_unsupported_providers">Покажи и неподдържаните доставчици</string>
@@ -1419,7 +1393,6 @@
   <string name="unknown_error">Неизвестна грешка</string>
   <string name="easy_setup_title">Бързо настройване</string>
   <string name="easy_setup_pref_summary">Настройте AI с препоръчан доставчик в няколко стъпки</string>
-  <string name="easy_setup_choose_provider">Изберете доставчик, за да започнете:</string>
   <string name="easy_setup_enter_api_key">Въведете вашия API ключ</string>
   <string name="easy_setup_api_key_instructions">Вземете своя API ключ от:</string>
   <string name="easy_setup_test_connection">Тествай връзката</string>
@@ -1523,13 +1496,10 @@
   <string name="llm_note_updated">Бележката е обновена</string>
   <string name="specify_before_run_title">Уточнете задачата</string>
   <string name="specify_before_run_hint">Опишете конкретната задача…</string>
-  <string name="prompt_cache_settings">Настройки на кеша</string>
   <string name="prompt_strict_context_matching">Кеш, зависим от контекста</string>
   <string name="prompt_strict_context_matching_description">Когато е активирано, кешът съвпада само ако целият контекст (версия на библията, избран текст) е еднакъв. Когато е деактивирано, кешът съвпада при еднакви стихове независимо от версията на библията.</string>
   <string name="ai_document_delete_confirmation">Изтриване на този AI ресурс?</string>
-  <string name="ai_document_deleted">Този AI ресурс беше изтрит.</string>
   <string name="ai_document_regenerating">Повторно генериране на AI ресурс…</string>
-  <string name="ai_document_regenerate_not_implemented">Повторното генериране ще бъде налично в бъдеща актуализация</string>
   <string name="ai_regenerate_prompt_not_found">Не може да се генерира повторно: оригиналната подсказка не е намерена. Може би е била изтрита.</string>
   <string name="ai_document_regenerate">Генерирай повторно</string>
   <string name="ai_regenerate_title">Повторно генериране</string>
@@ -1543,8 +1513,6 @@
   <string name="default_prompt_translate_to_language">Преведи на %s</string>
   <string name="default_prompt_translate_to_ui_language">Преведи на езика на интерфейса</string>
   <string name="default_prompt_translate_to_ui_language_desc">Превежда текста на ресурса на езика на интерфейса на приложението</string>
-  <string name="default_prompt_translate_to_english">Преведи на английски</string>
-  <string name="default_prompt_translate_to_english_desc">Превежда избрания текст на английски</string>
   <string name="default_prompt_summary">Резюме</string>
   <string name="default_prompt_summary_desc">Създава кратко резюме на избрания текст</string>
   <string name="default_prompt_explain_verses">Обясни стиховете</string>
@@ -1553,8 +1521,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Създава бележник с обяснение стих по стих и отметки</string>
   <string name="default_prompt_word_study">Изучаване на думи</string>
   <string name="default_prompt_word_study_desc">Анализира оригинални еврейски/гръцки думи</string>
-  <string name="default_prompt_strongs_annotation">Анотация с номера на Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Добавя номера от конкорданса на Strong\'s към всеки библейски превод, използвайки KJV като справка</string>
   <string name="default_prompt_cross_references">Препратки</string>
   <string name="default_prompt_cross_references_desc">Открива и обяснява свързани библейски пасажи</string>
   <string name="default_prompt_compare_translations">Сравни преводи</string>
@@ -1697,11 +1663,7 @@
   <string name="ai_document_filter_summary">Изберете кои ресурси може да чете ИИ</string>
   <string name="ai_document_filter_summary_count">%d изключени ресурса</string>
   <string name="ai_document_filter_activity_title">Достъп на ИИ до ресурси</string>
-  <string name="ai_document_excluded_error">Ресурсът е изключен от настройките на потребителя: %s</string>
   <string name="permission_status_default">Питай (по подразбиране)</string>
-  <string name="permission_status_allowed">Винаги разрешено</string>
-  <string name="permission_status_denied">Винаги отказано</string>
-  <string name="permission_option_default">Питай всеки път (по подразбиране)</string>
   <string name="permission_option_always_allow">Винаги разрешавай</string>
   <string name="permission_option_always_deny">Винаги отказвай</string>
   <string name="reset_all_permissions">Нулирай всички</string>
@@ -1716,10 +1678,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Разрешения за инструменти</string>
-  <string name="prompt_tool_permissions_read_only">Разрешения за инструменти (само за четене)</string>
-  <string name="prompt_tool_permissions_description">Замени разрешенията за инструменти за тази заявка</string>
-  <string name="tool_section_read_tools">Инструменти за четене</string>
-  <string name="tool_section_write_tools">Инструменти за писане</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Библия и търсене</string>
@@ -1742,13 +1700,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Модел</string>
   <string name="prompt_model_default">По подразбиране</string>
-  <string name="prompt_model_custom">Персонализиран</string>
-  <string name="prompt_model_custom_hint">Въведете име на модел</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Избери AI действие</string>
-  <string name="no_llm_prompts_configured">Няма конфигурирани AI подсказки за избор на стих</string>
-  <string name="llm_prompt_executing">Изпълнение на AI подсказка: %s</string>
   <string name="llm_actions">AI действия</string>
 
     <!-- Agent Log Widget -->
@@ -1756,9 +1710,7 @@
   <string name="agent_log_close">Затвори дневника на агента</string>
   <string name="agent_log_stop">Спри AI</string>
   <string name="agent_log_idle">AI асистент</string>
-  <string name="agent_log_running">AI работи…</string>
   <string name="agent_log_completed">Завършено</string>
-  <string name="agent_log_error">Възникна грешка</string>
   <string name="agent_log_executing">Изпълнява се: %s</string>
   <string name="agent_log_iteration">Итерация %d</string>
   <string name="agent_log_tool">Инструмент: %s</string>
@@ -1768,7 +1720,6 @@
   <string name="agent_log_saved">Запазено: %s</string>
   <string name="agent_log_done">Готово: %s</string>
   <string name="agent_log_cancelled">Отменено</string>
-  <string name="agent_execution_completed">Изпълнението на агента завърши</string>
   <string name="agent_already_running">Вече работи AI агент. Изчакайте или го спрете първо.</string>
 
     <!-- AI Agent Notifications -->

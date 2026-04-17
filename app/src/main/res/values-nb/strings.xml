@@ -1328,17 +1328,8 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="memorize_view_overview">Oversikt</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">KI-oversettelse</string>
   <string name="sync_settings_shortcut_summary">Synkroniser data mellom enheter</string>
-  <string name="llm_api_key_title">API-nøkkel</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibel API-nøkkel</string>
   <string name="llm_provider_custom">Egendefinert (OpenAI-kompatibel)</string>
-  <string name="llm_provider_title">Leverandør</string>
-  <string name="llm_provider_summary">Velg hvilken KI-tjenesteleverandør som skal brukes. API-endepunktet og tilgjengelige modeller konfigureres automatisk.</string>
-  <string name="llm_provider_current">Gjeldende: %s</string>
-  <string name="llm_api_key_detected_provider">Oppdaget leverandør: %s</string>
-  <string name="ai_connection_category">Tilkobling</string>
-  <string name="ai_model_category">Modell</string>
   <string name="ai_behavior_category">Atferd</string>
   <string name="ai_language_title">KI-svarspråk</string>
   <string name="ai_language_summary">Språk KI bruker for svar</string>
@@ -1355,16 +1346,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="llm_reset_usage_confirm_title">Tilbakestille bruksdata?</string>
   <string name="llm_reset_usage_confirm_message">Dette vil slette alle kumulative bruksdata.</string>
   <string name="llm_custom_input_price_title">Innpris ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kostnad per million inndata-tokens for denne modellen</string>
   <string name="llm_custom_output_price_title">Utpris ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kostnad per million utdata-tokens for denne modellen</string>
   <string name="llm_cost_total">Totalt: %1$s</string>
-  <string name="llm_endpoint_title">API-endepunkt</string>
-  <string name="llm_endpoint_summary">Basis-URL for API-et</string>
-  <string name="llm_model_title">Modell</string>
-  <string name="llm_model_summary">Modell-ID</string>
   <string name="llm_custom_model">Egendefinert…</string>
-  <string name="llm_custom_model_dialog_title">Egendefinert modell</string>
   <string name="llm_custom_model_dialog_message">Skriv inn modell-ID</string>
   <string name="llm_rate_limited_retrying">Hastighetsbegrenset. Prøver igjen om %1$ss\u2026</string>
   <string name="llm_default_document_title">KI-svar</string>
@@ -1374,7 +1358,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="llm_parse_error_no_choices">Ingen valg i OpenAI-svar</string>
   <string name="llm_parse_error_openai">Kunne ikke analysere OpenAI-svar: %1$s</string>
   <string name="llm_parse_error_anthropic">Kunne ikke analysere Anthropic-svar: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt ikke funnet: %1$s</string>
   <string name="llm_error_unknown">Ukjent feil</string>
   <string name="llm_error_max_iterations">Maksimalt antall iterasjoner (%1$d) nådd uten fullføring</string>
   <string name="llm_continue_iterations_title">Fortsette?</string>
@@ -1409,7 +1392,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="raw_log_retention_summary_disabled">Deaktivert (behold alle)</string>
   <string name="send_ai_bug_report_title">Rapporter KI-feil</string>
   <string name="ai_bug_report_menu">Rapporter KI-feil</string>
-  <string name="ai_bug_report_recommended_only">Feilrapportering er bare tilgjengelig for anbefalte leverandørmodeller</string>
 
   <string name="select_model_before_run_title">Velg modell</string>
   <string name="set_default_model_for_prompt">Sett som standardmodell for denne prompten</string>
@@ -1451,11 +1433,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ai_provider_saved">Leverandør lagret</string>
   <string name="ai_provider_deleted">Leverandør slettet</string>
 
-  <string name="llm_fetch_models_title">Last ned modelliste</string>
-  <string name="llm_fetch_models_message">Laste ned listen over tilgjengelige modeller fra %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ikke spør igjen</string>
-  <string name="llm_fetch_models_success">Lastet inn %1$d modeller</string>
-  <string name="llm_fetch_models_failed">Kunne ikke hente modeller</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Modell</string>
@@ -1469,9 +1446,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="model_delete_confirm">Slett modellen \"%1$s\"?</string>
   <string name="model_set_default">Sett som standardmodell</string>
   <string name="model_select_provider">Leverandør</string>
-  <string name="no_models_configured">Ingen modeller konfigurert</string>
-  <string name="model_cache_creation_price">Cache-opprettingspris ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cache-lesepris ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Støttet</string>
   <string name="show_also_unsupported_models">Vis også ustøttede modeller</string>
   <string name="show_also_unsupported_providers">Vis også ustøttede leverandører</string>
@@ -1482,7 +1456,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="unknown_error">Ukjent feil</string>
   <string name="easy_setup_title">Hurtigoppsett</string>
   <string name="easy_setup_pref_summary">Sett opp KI med en anbefalt leverandør i noen enkle trinn</string>
-  <string name="easy_setup_choose_provider">Velg en leverandør for å komme i gang:</string>
   <string name="easy_setup_enter_api_key">Skriv inn API-nøkkelen din</string>
   <string name="easy_setup_api_key_instructions">Hent API-nøkkelen din fra:</string>
   <string name="easy_setup_test_connection">Test tilkobling</string>
@@ -1586,13 +1559,10 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="llm_note_updated">Notat oppdatert</string>
   <string name="specify_before_run_title">Spesifiser oppgave</string>
   <string name="specify_before_run_hint">Beskriv den spesifikke oppgaven…</string>
-  <string name="prompt_cache_settings">Cache-innstillinger</string>
   <string name="prompt_strict_context_matching">Kontekstavhengig cache</string>
   <string name="prompt_strict_context_matching_description">Når aktivert, matcher cache bare når all kontekst (bibelversjon, valgt tekst) er den samme. Når deaktivert, matcher cache når vers er de samme uavhengig av bibelversjon.</string>
   <string name="ai_document_delete_confirmation">Slette dette KI-dokumentet?</string>
-  <string name="ai_document_deleted">Dette KI-dokumentet er slettet.</string>
   <string name="ai_document_regenerating">Regenererer KI-dokument…</string>
-  <string name="ai_document_regenerate_not_implemented">Regenerering vil være tilgjengelig i en fremtidig oppdatering</string>
   <string name="ai_regenerate_prompt_not_found">Kan ikke regenerere: den opprinnelige prompten ble ikke funnet. Den kan ha blitt slettet.</string>
   <string name="ai_document_regenerate">Regenerer</string>
   <string name="ai_regenerate_title">Regenerer</string>
@@ -1606,8 +1576,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="default_prompt_translate_to_language">Oversett til %s</string>
   <string name="default_prompt_translate_to_ui_language">Oversett til grensesnittspråk</string>
   <string name="default_prompt_translate_to_ui_language_desc">Oversetter dokumenttekst til appens grensesnittspråk</string>
-  <string name="default_prompt_translate_to_english">Oversett til engelsk</string>
-  <string name="default_prompt_translate_to_english_desc">Oversetter valgt tekst til engelsk</string>
   <string name="default_prompt_summary">Sammendrag</string>
   <string name="default_prompt_summary_desc">Lager et kortfattet sammendrag av valgt tekst</string>
   <string name="default_prompt_explain_verses">Forklar vers</string>
@@ -1616,8 +1584,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="default_prompt_explain_verses_studypad_desc">Opprett et studiebrett med vers-for-vers-forklaring og bokmerker</string>
   <string name="default_prompt_word_study">Ordsstudie</string>
   <string name="default_prompt_word_study_desc">Analyserer originale hebraiske/greske ord</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s-nummerannotering</string>
-  <string name="default_prompt_strongs_annotation_desc">Legger til Strong\'s konkordansnumre til en hvilken som helst bibeloversettelse med KJV som referanse</string>
   <string name="default_prompt_cross_references">Kryssreferanser</string>
   <string name="default_prompt_cross_references_desc">Finner og forklarer relaterte bibelsteder</string>
   <string name="default_prompt_compare_translations">Sammenlign oversettelser</string>
@@ -1760,11 +1726,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="ai_document_filter_summary">Velg hvilke dokumenter KI kan lese</string>
   <string name="ai_document_filter_summary_count">%d dokumenter ekskludert</string>
   <string name="ai_document_filter_activity_title">KI-dokumenttilgang</string>
-  <string name="ai_document_excluded_error">Dokument ekskludert av brukerinnstillinger: %s</string>
   <string name="permission_status_default">Spør (standard)</string>
-  <string name="permission_status_allowed">Alltid tillatt</string>
-  <string name="permission_status_denied">Alltid avvist</string>
-  <string name="permission_option_default">Spør hver gang (standard)</string>
   <string name="permission_option_always_allow">Tillat alltid</string>
   <string name="permission_option_always_deny">Avvis alltid</string>
   <string name="reset_all_permissions">Tilbakestill alle</string>
@@ -1779,10 +1741,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Verktøytillatelser</string>
-  <string name="prompt_tool_permissions_read_only">Verktøytillatelser (skrivebeskyttet)</string>
-  <string name="prompt_tool_permissions_description">Overstyr verktøytillatelser for denne prompten</string>
-  <string name="tool_section_read_tools">Leseverktøy</string>
-  <string name="tool_section_write_tools">Skriveverktøy</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibel og søk</string>
@@ -1805,13 +1763,9 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Standard</string>
-  <string name="prompt_model_custom">Egendefinert</string>
-  <string name="prompt_model_custom_hint">Skriv inn modellnavn</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Velg KI-handling</string>
-  <string name="no_llm_prompts_configured">Ingen KI-prompter konfigurert for versutvalg</string>
-  <string name="llm_prompt_executing">Utfører KI-prompt: %s</string>
   <string name="llm_actions">KI-handlinger</string>
 
     <!-- Agent Log Widget -->
@@ -1819,9 +1773,7 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="agent_log_close">Lukk agentlogg</string>
   <string name="agent_log_stop">Stopp KI</string>
   <string name="agent_log_idle">KI-assistent</string>
-  <string name="agent_log_running">KI arbeider…</string>
   <string name="agent_log_completed">Fullført</string>
-  <string name="agent_log_error">Feil oppstod</string>
   <string name="agent_log_executing">Utfører: %s</string>
   <string name="agent_log_iteration">Iterasjon %d</string>
   <string name="agent_log_tool">Verktøy: %s</string>
@@ -1831,7 +1783,6 @@ Courtesy of Wholesome Words, http://www.wholesomewords.org/, permission granted
   <string name="agent_log_saved">Lagret: %s</string>
   <string name="agent_log_done">Ferdig: %s</string>
   <string name="agent_log_cancelled">Avbrutt</string>
-  <string name="agent_execution_completed">Agentkjøring fullført</string>
   <string name="agent_already_running">En KI-agent kjører allerede. Vent eller stopp den først.</string>
 
     <!-- AI Agent Notifications -->

@@ -1390,17 +1390,8 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="memorize_view_overview">Aperçu</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Traduction LLM</string>
   <string name="sync_settings_shortcut_summary">Synchroniser les données entre les appareils</string>
-  <string name="llm_api_key_title">Clé API</string>
-  <string name="llm_api_key_summary">Clé API compatible OpenAI</string>
   <string name="llm_provider_custom">Personnalisé (compatible OpenAI)</string>
-  <string name="llm_provider_title">Fournisseur</string>
-  <string name="llm_provider_summary">Choisissez le fournisseur de service AI à utiliser. Le point de terminaison API et les modèles disponibles seront configurés automatiquement.</string>
-  <string name="llm_provider_current">Actuel : %s</string>
-  <string name="llm_api_key_detected_provider">Fournisseur détecté : %s</string>
-  <string name="ai_connection_category">Connexion</string>
-  <string name="ai_model_category">Modèle</string>
   <string name="ai_behavior_category">Comportement</string>
   <string name="ai_language_title">Langue des réponses AI</string>
   <string name="ai_language_summary">Langue utilisée par l\'AI pour ses réponses</string>
@@ -1417,16 +1408,9 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="llm_reset_usage_confirm_title">Réinitialiser les données d\'utilisation ?</string>
   <string name="llm_reset_usage_confirm_message">Cela effacera toutes les données d\'utilisation cumulées.</string>
   <string name="llm_custom_input_price_title">Prix d\'entrée ($/Mjeton)</string>
-  <string name="llm_custom_input_price_summary">Coût par million de jetons d\'entrée pour ce modèle</string>
   <string name="llm_custom_output_price_title">Prix de sortie ($/Mjeton)</string>
-  <string name="llm_custom_output_price_summary">Coût par million de jetons de sortie pour ce modèle</string>
   <string name="llm_cost_total">Total : %1$s</string>
-  <string name="llm_endpoint_title">Point de terminaison API</string>
-  <string name="llm_endpoint_summary">URL de base pour l\'API</string>
-  <string name="llm_model_title">Modèle</string>
-  <string name="llm_model_summary">Identifiant du modèle</string>
   <string name="llm_custom_model">Personnalisé…</string>
-  <string name="llm_custom_model_dialog_title">Modèle personnalisé</string>
   <string name="llm_custom_model_dialog_message">Entrez l\'identifiant du modèle</string>
   <string name="llm_rate_limited_retrying">Limite de débit atteinte. Nouvelle tentative dans %1$ss\u2026</string>
   <string name="llm_default_document_title">Réponse AI</string>
@@ -1436,7 +1420,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="llm_parse_error_no_choices">Aucun choix dans la réponse OpenAI</string>
   <string name="llm_parse_error_openai">Échec de l\'analyse de la réponse OpenAI : %1$s</string>
   <string name="llm_parse_error_anthropic">Échec de l\'analyse de la réponse Anthropic : %1$s</string>
-  <string name="llm_error_prompt_not_found">Invite introuvable : %1$s</string>
   <string name="llm_error_unknown">Erreur inconnue</string>
   <string name="llm_error_max_iterations">Nombre maximum d\'itérations (%1$d) atteint sans complétion</string>
   <string name="llm_continue_iterations_title">Continuer ?</string>
@@ -1471,7 +1454,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="raw_log_retention_summary_disabled">Désactivé (tout conserver)</string>
   <string name="send_ai_bug_report_title">Signaler un bug IA</string>
   <string name="ai_bug_report_menu">Signaler un bug IA</string>
-  <string name="ai_bug_report_recommended_only">Le signalement de bugs n\'est disponible que pour les modèles de fournisseurs recommandés</string>
 
   <string name="select_model_before_run_title">Sélectionner un modèle</string>
   <string name="set_default_model_for_prompt">Définir comme modèle par défaut pour ce prompt</string>
@@ -1513,11 +1495,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="ai_provider_saved">Fournisseur enregistré</string>
   <string name="ai_provider_deleted">Fournisseur supprimé</string>
 
-  <string name="llm_fetch_models_title">Télécharger la liste des modèles</string>
-  <string name="llm_fetch_models_message">Télécharger la liste des modèles disponibles depuis %1$s ?</string>
-  <string name="llm_fetch_models_dont_ask">Ne plus demander</string>
-  <string name="llm_fetch_models_success">%1$d modèles chargés</string>
-  <string name="llm_fetch_models_failed">Échec du chargement des modèles</string>
   <string name="llm_openrouter_category">Catégorie</string>
   <string name="llm_openrouter_category_all">Tout</string>
   <string name="llm_openrouter_model">Modèle</string>
@@ -1531,9 +1508,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="model_delete_confirm">Supprimer le modèle \"%1$s\" ?</string>
   <string name="model_set_default">Définir comme modèle par défaut</string>
   <string name="model_select_provider">Fournisseur</string>
-  <string name="no_models_configured">Aucun modèle configuré</string>
-  <string name="model_cache_creation_price">Prix de création du cache ($/Mjeton)</string>
-  <string name="model_cache_read_price">Prix de lecture du cache ($/Mjeton)</string>
   <string name="model_supported_badge">✓ Pris en charge</string>
   <string name="show_also_unsupported_models">Afficher aussi les modèles non pris en charge</string>
   <string name="show_also_unsupported_providers">Afficher aussi les fournisseurs non pris en charge</string>
@@ -1544,7 +1518,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="unknown_error">Erreur inconnue</string>
   <string name="easy_setup_title">Configuration rapide</string>
   <string name="easy_setup_pref_summary">Configurez l\'IA avec un fournisseur recommandé en quelques étapes</string>
-  <string name="easy_setup_choose_provider">Choisissez un fournisseur pour commencer :</string>
   <string name="easy_setup_enter_api_key">Saisissez votre clé API</string>
   <string name="easy_setup_api_key_instructions">Obtenez votre clé API depuis :</string>
   <string name="easy_setup_test_connection">Tester la connexion</string>
@@ -1648,13 +1621,10 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="llm_note_updated">Note mise à jour</string>
   <string name="specify_before_run_title">Préciser la tâche</string>
   <string name="specify_before_run_hint">Décrivez la tâche spécifique…</string>
-  <string name="prompt_cache_settings">Paramètres de cache</string>
   <string name="prompt_strict_context_matching">Cache dépendant du contexte</string>
   <string name="prompt_strict_context_matching_description">Lorsque cette option est activée, le cache ne correspond que si tout le contexte (version biblique, texte sélectionné) est identique. Lorsqu\'elle est désactivée, le cache correspond quand les versets sont les mêmes quelle que soit la version biblique.</string>
   <string name="ai_document_delete_confirmation">Supprimer ce document IA ?</string>
-  <string name="ai_document_deleted">Ce document IA a été supprimé.</string>
   <string name="ai_document_regenerating">Régénération du document IA…</string>
-  <string name="ai_document_regenerate_not_implemented">La régénération sera disponible dans une prochaine mise à jour</string>
   <string name="ai_regenerate_prompt_not_found">Impossible de régénérer : le prompt d\'origine est introuvable. Il a peut-être été supprimé.</string>
   <string name="ai_document_regenerate">Régénérer</string>
   <string name="ai_regenerate_title">Régénérer</string>
@@ -1668,8 +1638,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="default_prompt_translate_to_language">Traduire en %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduire dans la langue de l\'interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduit le texte du document dans la langue de l\'interface de l\'application</string>
-  <string name="default_prompt_translate_to_english">Traduire en anglais</string>
-  <string name="default_prompt_translate_to_english_desc">Traduit le texte sélectionné en anglais</string>
   <string name="default_prompt_summary">Résumé</string>
   <string name="default_prompt_summary_desc">Crée un résumé concis du texte sélectionné</string>
   <string name="default_prompt_explain_verses">Expliquer les versets</string>
@@ -1678,8 +1646,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="default_prompt_explain_verses_studypad_desc">Crée un bloc-notes avec une explication verset par verset et des signets</string>
   <string name="default_prompt_word_study">Étude de mots</string>
   <string name="default_prompt_word_study_desc">Analyse les mots originaux en hébreu/grec</string>
-  <string name="default_prompt_strongs_annotation">Annotation des numéros Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Ajoute les numéros de concordance Strong\'s à n\'importe quelle traduction de la Bible en utilisant la KJV comme référence</string>
   <string name="default_prompt_cross_references">Références croisées</string>
   <string name="default_prompt_cross_references_desc">Trouve et explique les passages bibliques connexes</string>
   <string name="default_prompt_compare_translations">Comparer les traductions</string>
@@ -1822,11 +1788,7 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="ai_document_filter_summary">Choisir les documents que l\'AI peut lire</string>
   <string name="ai_document_filter_summary_count">%d documents exclus</string>
   <string name="ai_document_filter_activity_title">Accès AI aux documents</string>
-  <string name="ai_document_excluded_error">Document exclu par les paramètres utilisateur : %s</string>
   <string name="permission_status_default">Demander (par défaut)</string>
-  <string name="permission_status_allowed">Toujours autorisé</string>
-  <string name="permission_status_denied">Toujours refusé</string>
-  <string name="permission_option_default">Demander à chaque fois (par défaut)</string>
   <string name="permission_option_always_allow">Toujours autoriser</string>
   <string name="permission_option_always_deny">Toujours refuser</string>
   <string name="reset_all_permissions">Réinitialiser tout</string>
@@ -1841,10 +1803,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permissions des outils</string>
-  <string name="prompt_tool_permissions_read_only">Permissions des outils (lecture seule)</string>
-  <string name="prompt_tool_permissions_description">Remplacer les permissions des outils pour cette invite</string>
-  <string name="tool_section_read_tools">Outils de lecture</string>
-  <string name="tool_section_write_tools">Outils d\'écriture</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bible &amp; Recherche</string>
@@ -1867,13 +1825,9 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modèle</string>
   <string name="prompt_model_default">Par défaut</string>
-  <string name="prompt_model_custom">Personnalisé</string>
-  <string name="prompt_model_custom_hint">Entrer le nom du modèle</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Sélectionner une action AI</string>
-  <string name="no_llm_prompts_configured">Aucune invite AI configurée pour la sélection de verset</string>
-  <string name="llm_prompt_executing">Exécution de l\'invite AI : %s</string>
   <string name="llm_actions">Actions AI</string>
 
     <!-- Agent Log Widget -->
@@ -1881,9 +1835,7 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="agent_log_close">Fermer le journal de l\'agent</string>
   <string name="agent_log_stop">Arrêter l\'AI</string>
   <string name="agent_log_idle">Assistant AI</string>
-  <string name="agent_log_running">L\'AI travaille…</string>
   <string name="agent_log_completed">Terminé</string>
-  <string name="agent_log_error">Une erreur s\'est produite</string>
   <string name="agent_log_executing">Exécution : %s</string>
   <string name="agent_log_iteration">Itération %d</string>
   <string name="agent_log_tool">Outil : %s</string>
@@ -1893,7 +1845,6 @@ Si vous ne souhaitez pas effectuer de mise à jour, désactivez les « mises �
   <string name="agent_log_saved">Enregistré : %s</string>
   <string name="agent_log_done">Terminé : %s</string>
   <string name="agent_log_cancelled">Annulé</string>
-  <string name="agent_execution_completed">Exécution de l\'agent terminée</string>
   <string name="agent_already_running">Un agent AI est déjà en cours d\'exécution. Veuillez patienter ou l\'arrêter d\'abord.</string>
 
     <!-- AI Agent Notifications -->

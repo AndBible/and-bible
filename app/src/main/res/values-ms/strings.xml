@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Gambaran keseluruhan</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Terjemahan LLM</string>
   <string name="sync_settings_shortcut_summary">Segerakkan data antara peranti</string>
-  <string name="llm_api_key_title">Kunci API</string>
-  <string name="llm_api_key_summary">Kunci API yang serasi dengan OpenAI</string>
   <string name="llm_provider_custom">Tersuai (serasi OpenAI)</string>
-  <string name="llm_provider_title">Penyedia</string>
-  <string name="llm_provider_summary">Pilih penyedia perkhidmatan AI yang hendak digunakan. Titik akhir API dan model yang tersedia akan dikonfigurasi secara automatik.</string>
-  <string name="llm_provider_current">Semasa: %s</string>
-  <string name="llm_api_key_detected_provider">Penyedia yang dikesan: %s</string>
-  <string name="ai_connection_category">Sambungan</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Gelagat</string>
   <string name="ai_language_title">Bahasa respons AI</string>
   <string name="ai_language_summary">Bahasa yang digunakan AI untuk respons</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">Set semula data penggunaan?</string>
   <string name="llm_reset_usage_confirm_message">Ini akan mengosongkan semua data penggunaan kumulatif.</string>
   <string name="llm_custom_input_price_title">Harga input ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kos per juta token input untuk model ini</string>
   <string name="llm_custom_output_price_title">Harga output ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kos per juta token output untuk model ini</string>
   <string name="llm_cost_total">Jumlah: %1$s</string>
-  <string name="llm_endpoint_title">Titik Akhir API</string>
-  <string name="llm_endpoint_summary">URL asas untuk API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID Model</string>
   <string name="llm_custom_model">Tersuai…</string>
-  <string name="llm_custom_model_dialog_title">Model tersuai</string>
   <string name="llm_custom_model_dialog_message">Masukkan ID model</string>
   <string name="llm_rate_limited_retrying">Had kadar. Cuba semula dalam %1$ss\u2026</string>
   <string name="llm_default_document_title">Respons AI</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Tiada pilihan dalam respons OpenAI</string>
   <string name="llm_parse_error_openai">Gagal menghurai respons OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Gagal menghurai respons Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt tidak ditemui: %1$s</string>
   <string name="llm_error_unknown">Ralat tidak diketahui</string>
   <string name="llm_error_max_iterations">Lelaran maksimum (%1$d) dicapai tanpa penyiapan</string>
   <string name="llm_continue_iterations_title">Teruskan?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Dinyahdayakan (simpan semua)</string>
   <string name="send_ai_bug_report_title">Laporkan Pepijat AI</string>
   <string name="ai_bug_report_menu">Laporkan pepijat AI</string>
-  <string name="ai_bug_report_recommended_only">Pelaporan pepijat hanya tersedia untuk model penyedia yang disyorkan</string>
 
   <string name="select_model_before_run_title">Pilih model</string>
   <string name="set_default_model_for_prompt">Tetapkan sebagai model lalai untuk prompt ini</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Penyedia disimpan</string>
   <string name="ai_provider_deleted">Penyedia dipadamkan</string>
 
-  <string name="llm_fetch_models_title">Muat turun senarai model</string>
-  <string name="llm_fetch_models_message">Muat turun senarai model yang tersedia dari %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Jangan tanya lagi</string>
-  <string name="llm_fetch_models_success">Memuatkan %1$d model</string>
-  <string name="llm_fetch_models_failed">Gagal mendapatkan model</string>
   <string name="llm_openrouter_category">Kategori</string>
   <string name="llm_openrouter_category_all">Semua</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Padamkan model \"%1$s\"?</string>
   <string name="model_set_default">Tetapkan sebagai model lalai</string>
   <string name="model_select_provider">Penyedia</string>
-  <string name="no_models_configured">Tiada model dikonfigurasi</string>
-  <string name="model_cache_creation_price">Harga penciptaan cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Harga baca cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Disokong</string>
   <string name="show_also_unsupported_models">Tunjukkan juga model yang tidak disokong</string>
   <string name="show_also_unsupported_providers">Tunjukkan juga penyedia yang tidak disokong</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Ralat tidak diketahui</string>
   <string name="easy_setup_title">Persediaan Pantas</string>
   <string name="easy_setup_pref_summary">Sediakan AI dengan penyedia yang disyorkan dalam beberapa langkah</string>
-  <string name="easy_setup_choose_provider">Pilih penyedia untuk bermula:</string>
   <string name="easy_setup_enter_api_key">Masukkan kunci API anda</string>
   <string name="easy_setup_api_key_instructions">Dapatkan kunci API anda dari:</string>
   <string name="easy_setup_test_connection">Uji sambungan</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Nota dikemas kini</string>
   <string name="specify_before_run_title">Tentukan tugasan</string>
   <string name="specify_before_run_hint">Huraikan tugasan khusus…</string>
-  <string name="prompt_cache_settings">Tetapan cache</string>
   <string name="prompt_strict_context_matching">Cache bergantung konteks</string>
   <string name="prompt_strict_context_matching_description">Apabila diaktifkan, padanan cache hanya apabila semua konteks (versi Alkitab, teks yang dipilih) adalah sama. Apabila dinyahdayakan, padanan cache apabila ayat adalah sama tanpa mengira versi Alkitab.</string>
   <string name="ai_document_delete_confirmation">Padamkan dokumen AI ini?</string>
-  <string name="ai_document_deleted">Dokumen AI ini telah dipadamkan.</string>
   <string name="ai_document_regenerating">Menjana semula dokumen AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Penjanaan semula akan tersedia dalam kemas kini masa hadapan</string>
   <string name="ai_regenerate_prompt_not_found">Tidak dapat menjana semula: prompt asal tidak ditemui. Ia mungkin telah dipadamkan.</string>
   <string name="ai_document_regenerate">Jana semula</string>
   <string name="ai_regenerate_title">Jana semula</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Terjemahkan ke %s</string>
   <string name="default_prompt_translate_to_ui_language">Terjemahkan ke bahasa UI</string>
   <string name="default_prompt_translate_to_ui_language_desc">Terjemahkan teks dokumen ke bahasa antara muka aplikasi</string>
-  <string name="default_prompt_translate_to_english">Terjemahkan ke Bahasa Inggeris</string>
-  <string name="default_prompt_translate_to_english_desc">Menterjemahkan teks yang dipilih ke Bahasa Inggeris</string>
   <string name="default_prompt_summary">Ringkasan</string>
   <string name="default_prompt_summary_desc">Mencipta ringkasan padat teks yang dipilih</string>
   <string name="default_prompt_explain_verses">Terangkan ayat</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Cipta Pad Kajian dengan penerangan ayat demi ayat dan penanda buku</string>
   <string name="default_prompt_word_study">Kajian perkataan</string>
   <string name="default_prompt_word_study_desc">Menganalisis perkataan asal Ibrani/Greek</string>
-  <string name="default_prompt_strongs_annotation">Anotasi nombor Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Menambahkan nombor konkordans Strong\'s ke mana-mana terjemahan Alkitab menggunakan KJV sebagai rujukan</string>
   <string name="default_prompt_cross_references">Rujukan silang</string>
   <string name="default_prompt_cross_references_desc">Mencari dan menerangkan petikan Alkitab berkaitan</string>
   <string name="default_prompt_compare_translations">Bandingkan terjemahan</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Pilih dokumen mana yang boleh dibaca AI</string>
   <string name="ai_document_filter_summary_count">%d dokumen dikecualikan</string>
   <string name="ai_document_filter_activity_title">Akses dokumen AI</string>
-  <string name="ai_document_excluded_error">Dokumen dikecualikan oleh tetapan pengguna: %s</string>
   <string name="permission_status_default">Tanya (lalai)</string>
-  <string name="permission_status_allowed">Sentiasa dibenarkan</string>
-  <string name="permission_status_denied">Sentiasa ditolak</string>
-  <string name="permission_option_default">Tanya setiap kali (lalai)</string>
   <string name="permission_option_always_allow">Sentiasa benarkan</string>
   <string name="permission_option_always_deny">Sentiasa tolak</string>
   <string name="reset_all_permissions">Set semula semua</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Kebenaran alat</string>
-  <string name="prompt_tool_permissions_read_only">Kebenaran alat (baca sahaja)</string>
-  <string name="prompt_tool_permissions_description">Gantikan kebenaran alat untuk prompt ini</string>
-  <string name="tool_section_read_tools">Alat baca</string>
-  <string name="tool_section_write_tools">Alat tulis</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Alkitab &amp; Carian</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Lalai</string>
-  <string name="prompt_model_custom">Tersuai</string>
-  <string name="prompt_model_custom_hint">Masukkan nama model</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Pilih Tindakan AI</string>
-  <string name="no_llm_prompts_configured">Tiada prompt AI dikonfigurasi untuk pemilihan ayat</string>
-  <string name="llm_prompt_executing">Melaksanakan prompt AI: %s</string>
   <string name="llm_actions">Tindakan AI</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Tutup log ejen</string>
   <string name="agent_log_stop">Hentikan AI</string>
   <string name="agent_log_idle">Pembantu AI</string>
-  <string name="agent_log_running">AI sedang bekerja…</string>
   <string name="agent_log_completed">Selesai</string>
-  <string name="agent_log_error">Ralat berlaku</string>
   <string name="agent_log_executing">Melaksanakan: %s</string>
   <string name="agent_log_iteration">Lelaran %d</string>
   <string name="agent_log_tool">Alat: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Disimpan: %s</string>
   <string name="agent_log_done">Selesai: %s</string>
   <string name="agent_log_cancelled">Dibatalkan</string>
-  <string name="agent_execution_completed">Pelaksanaan ejen selesai</string>
   <string name="agent_already_running">Ejen AI sudah berjalan. Sila tunggu atau hentikannya dahulu.</string>
 
     <!-- AI Agent Notifications -->

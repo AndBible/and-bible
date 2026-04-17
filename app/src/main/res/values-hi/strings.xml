@@ -1384,17 +1384,8 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="memorize_view_overview">अवलोकन</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM अनुवाद</string>
   <string name="sync_settings_shortcut_summary">डिवाइसों के बीच डेटा सिंक्रनाइज़ करें</string>
-  <string name="llm_api_key_title">API Key</string>
-  <string name="llm_api_key_summary">OpenAI-compatible API key</string>
   <string name="llm_provider_custom">कस्टम (OpenAI compatible)</string>
-  <string name="llm_provider_title">प्रदाता</string>
-  <string name="llm_provider_summary">कौन सी AI सेवा प्रदाता का उपयोग करना है चुनें। API एंडपॉइंट और उपलब्ध मॉडल स्वचालित रूप से कॉन्फ़िगर किए जाएंगे।</string>
-  <string name="llm_provider_current">वर्तमान: %s</string>
-  <string name="llm_api_key_detected_provider">पता चला प्रदाता: %s</string>
-  <string name="ai_connection_category">कनेक्शन</string>
-  <string name="ai_model_category">मॉडल</string>
   <string name="ai_behavior_category">व्यवहार</string>
   <string name="ai_language_title">AI प्रतिक्रिया भाषा</string>
   <string name="ai_language_summary">AI प्रतिक्रियाओं के लिए भाषा</string>
@@ -1411,16 +1402,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="llm_reset_usage_confirm_title">उपयोग डेटा रीसेट करें?</string>
   <string name="llm_reset_usage_confirm_message">यह सभी संचयी उपयोग डेटा साफ़ कर देगा।</string>
   <string name="llm_custom_input_price_title">Input मूल्य ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">इस मॉडल के लिए प्रति मिलियन input tokens की लागत</string>
   <string name="llm_custom_output_price_title">Output मूल्य ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">इस मॉडल के लिए प्रति मिलियन output tokens की लागत</string>
   <string name="llm_cost_total">कुल: %1$s</string>
-  <string name="llm_endpoint_title">API Endpoint</string>
-  <string name="llm_endpoint_summary">API के लिए बेस URL</string>
-  <string name="llm_model_title">मॉडल</string>
-  <string name="llm_model_summary">Model ID</string>
   <string name="llm_custom_model">कस्टम…</string>
-  <string name="llm_custom_model_dialog_title">कस्टम मॉडल</string>
   <string name="llm_custom_model_dialog_message">Model ID दर्ज करें</string>
   <string name="llm_rate_limited_retrying">दर सीमित। %1$ss में पुनः प्रयास कर रहे हैं\u2026</string>
   <string name="llm_default_document_title">AI प्रतिक्रिया</string>
@@ -1430,7 +1414,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="llm_parse_error_no_choices">OpenAI प्रतिक्रिया में कोई choices नहीं</string>
   <string name="llm_parse_error_openai">OpenAI प्रतिक्रिया पार्स करने में विफल: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic प्रतिक्रिया पार्स करने में विफल: %1$s</string>
-  <string name="llm_error_prompt_not_found">प्रॉम्प्ट नहीं मिला: %1$s</string>
   <string name="llm_error_unknown">अज्ञात त्रुटि</string>
   <string name="llm_error_max_iterations">बिना पूर्ण हुए अधिकतम पुनरावृत्तियां (%1$d) पहुँच गईं</string>
   <string name="llm_continue_iterations_title">जारी रखें?</string>
@@ -1465,7 +1448,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="raw_log_retention_summary_disabled">अक्षम (सभी रखें)</string>
   <string name="send_ai_bug_report_title">AI Bug रिपोर्ट करें</string>
   <string name="ai_bug_report_menu">AI bug रिपोर्ट करें</string>
-  <string name="ai_bug_report_recommended_only">Bug रिपोर्टिंग केवल अनुशंसित प्रदाता मॉडल के लिए उपलब्ध है</string>
 
   <string name="select_model_before_run_title">मॉडल चुनें</string>
   <string name="set_default_model_for_prompt">इस प्रॉम्प्ट के लिए डिफ़ॉल्ट मॉडल के रूप में सेट करें</string>
@@ -1507,11 +1489,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_provider_saved">प्रदाता सहेजा गया</string>
   <string name="ai_provider_deleted">प्रदाता हटाया गया</string>
 
-  <string name="llm_fetch_models_title">मॉडल सूची डाउनलोड करें</string>
-  <string name="llm_fetch_models_message">%1$s से उपलब्ध मॉडलों की सूची डाउनलोड करें?</string>
-  <string name="llm_fetch_models_dont_ask">फिर न पूछें</string>
-  <string name="llm_fetch_models_success">%1$d मॉडल लोड किए गए</string>
-  <string name="llm_fetch_models_failed">मॉडल लाने में विफल</string>
   <string name="llm_openrouter_category">श्रेणी</string>
   <string name="llm_openrouter_category_all">सभी</string>
   <string name="llm_openrouter_model">मॉडल</string>
@@ -1525,9 +1502,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="model_delete_confirm">मॉडल \"%1$s\" हटाएं?</string>
   <string name="model_set_default">डिफ़ॉल्ट मॉडल के रूप में सेट करें</string>
   <string name="model_select_provider">प्रदाता</string>
-  <string name="no_models_configured">कोई मॉडल कॉन्फ़िगर नहीं है</string>
-  <string name="model_cache_creation_price">कैश निर्माण मूल्य ($/Mtoken)</string>
-  <string name="model_cache_read_price">कैश पढ़ने का मूल्य ($/Mtoken)</string>
   <string name="model_supported_badge">✓ समर्थित</string>
   <string name="show_also_unsupported_models">असमर्थित मॉडल भी दिखाएं</string>
   <string name="show_also_unsupported_providers">असमर्थित प्रदाता भी दिखाएं</string>
@@ -1538,7 +1512,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="unknown_error">अज्ञात त्रुटि</string>
   <string name="easy_setup_title">त्वरित सेटअप</string>
   <string name="easy_setup_pref_summary">कुछ चरणों में अनुशंसित प्रदाता के साथ AI सेटअप करें</string>
-  <string name="easy_setup_choose_provider">शुरू करने के लिए एक प्रदाता चुनें:</string>
   <string name="easy_setup_enter_api_key">अपनी API key दर्ज करें</string>
   <string name="easy_setup_api_key_instructions">अपनी API key यहाँ से प्राप्त करें:</string>
   <string name="easy_setup_test_connection">कनेक्शन परीक्षण करें</string>
@@ -1642,13 +1615,10 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="llm_note_updated">नोट अपडेट किया गया</string>
   <string name="specify_before_run_title">कार्य निर्दिष्ट करें</string>
   <string name="specify_before_run_hint">विशिष्ट कार्य का वर्णन करें…</string>
-  <string name="prompt_cache_settings">कैश सेटिंग्स</string>
   <string name="prompt_strict_context_matching">संदर्भ-निर्भर कैश</string>
   <string name="prompt_strict_context_matching_description">सक्षम होने पर, कैश केवल तब मेल खाता है जब सभी संदर्भ (बाइबिल संस्करण, चयनित टेक्स्ट) समान हों। अक्षम होने पर, कैश तब मेल खाता है जब बाइबिल संस्करण की परवाह किए बिना छंद समान हों।</string>
   <string name="ai_document_delete_confirmation">यह AI दस्तावेज़ हटाएं?</string>
-  <string name="ai_document_deleted">यह AI दस्तावेज़ हटा दिया गया है।</string>
   <string name="ai_document_regenerating">AI दस्तावेज़ पुनर्जनन हो रहा है…</string>
-  <string name="ai_document_regenerate_not_implemented">पुनर्जनन भविष्य के अपडेट में उपलब्ध होगा</string>
   <string name="ai_regenerate_prompt_not_found">पुनर्जनन नहीं हो सकता: मूल प्रॉम्प्ट नहीं मिला। इसे हटाया जा सकता है।</string>
   <string name="ai_document_regenerate">पुनर्जनन करें</string>
   <string name="ai_regenerate_title">पुनर्जनन करें</string>
@@ -1662,8 +1632,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="default_prompt_translate_to_language">%s में अनुवाद करें</string>
   <string name="default_prompt_translate_to_ui_language">UI भाषा में अनुवाद करें</string>
   <string name="default_prompt_translate_to_ui_language_desc">दस्तावेज़ टेक्स्ट को ऐप इंटरफ़ेस भाषा में अनुवाद करता है</string>
-  <string name="default_prompt_translate_to_english">अंग्रेज़ी में अनुवाद करें</string>
-  <string name="default_prompt_translate_to_english_desc">चयनित टेक्स्ट को अंग्रेज़ी में अनुवाद करता है</string>
   <string name="default_prompt_summary">सारांश</string>
   <string name="default_prompt_summary_desc">चयनित टेक्स्ट का संक्षिप्त सारांश बनाता है</string>
   <string name="default_prompt_explain_verses">छंद समझाएं</string>
@@ -1672,8 +1640,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="default_prompt_explain_verses_studypad_desc">छंद-दर-छंद स्पष्टीकरण और बुकमार्क के साथ स्टडी पैड बनाएं</string>
   <string name="default_prompt_word_study">शब्द अध्ययन</string>
   <string name="default_prompt_word_study_desc">मूल हिब्रू/यूनानी शब्दों का विश्लेषण करता है</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s नंबर एनोटेशन</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV को संदर्भ के रूप में उपयोग करके किसी भी बाइबिल अनुवाद में Strong\'s concordance नंबर जोड़ता है</string>
   <string name="default_prompt_cross_references">क्रॉस-रेफरेंस</string>
   <string name="default_prompt_cross_references_desc">संबंधित बाइबिल अंश ढूंढता और समझाता है</string>
   <string name="default_prompt_compare_translations">अनुवाद तुलना</string>
@@ -1816,11 +1782,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="ai_document_filter_summary">AI कौन से दस्तावेज़ पढ़ सकता है यह चुनें</string>
   <string name="ai_document_filter_summary_count">%d दस्तावेज़ बाहर रखे गए</string>
   <string name="ai_document_filter_activity_title">AI दस्तावेज़ पहुँच</string>
-  <string name="ai_document_excluded_error">उपयोगकर्ता सेटिंग्स द्वारा बाहर रखा गया दस्तावेज़: %s</string>
   <string name="permission_status_default">पूछें (डिफ़ॉल्ट)</string>
-  <string name="permission_status_allowed">हमेशा अनुमति है</string>
-  <string name="permission_status_denied">हमेशा अस्वीकार</string>
-  <string name="permission_option_default">हर बार पूछें (डिफ़ॉल्ट)</string>
   <string name="permission_option_always_allow">हमेशा अनुमति दें</string>
   <string name="permission_option_always_deny">हमेशा अस्वीकार करें</string>
   <string name="reset_all_permissions">सभी रीसेट करें</string>
@@ -1835,10 +1797,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">टूल अनुमतियां</string>
-  <string name="prompt_tool_permissions_read_only">टूल अनुमतियां (केवल पढ़ें)</string>
-  <string name="prompt_tool_permissions_description">इस प्रॉम्प्ट के लिए टूल अनुमतियां ओवरराइड करें</string>
-  <string name="tool_section_read_tools">पढ़ने के टूल</string>
-  <string name="tool_section_write_tools">लिखने के टूल</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">बाइबिल और खोज</string>
@@ -1861,13 +1819,9 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">मॉडल</string>
   <string name="prompt_model_default">डिफ़ॉल्ट</string>
-  <string name="prompt_model_custom">कस्टम</string>
-  <string name="prompt_model_custom_hint">मॉडल नाम दर्ज करें</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI क्रिया चुनें</string>
-  <string name="no_llm_prompts_configured">छंद चयन के लिए कोई AI प्रॉम्प्ट कॉन्फ़िगर नहीं है</string>
-  <string name="llm_prompt_executing">AI प्रॉम्प्ट चल रहा है: %s</string>
   <string name="llm_actions">AI क्रियाएं</string>
 
     <!-- Agent Log Widget -->
@@ -1875,9 +1829,7 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="agent_log_close">एजेंट log बंद करें</string>
   <string name="agent_log_stop">AI रोकें</string>
   <string name="agent_log_idle">AI सहायक</string>
-  <string name="agent_log_running">AI काम कर रहा है…</string>
   <string name="agent_log_completed">पूर्ण</string>
-  <string name="agent_log_error">त्रुटि हुई</string>
   <string name="agent_log_executing">चल रहा है: %s</string>
   <string name="agent_log_iteration">पुनरावृत्ति %d</string>
   <string name="agent_log_tool">टूल: %s</string>
@@ -1887,7 +1839,6 @@ Wholesome Words के सौजन्य से, http://www.wholesomewords.org/
   <string name="agent_log_saved">सहेजा गया: %s</string>
   <string name="agent_log_done">पूर्ण: %s</string>
   <string name="agent_log_cancelled">रद्द किया गया</string>
-  <string name="agent_execution_completed">एजेंट निष्पादन पूर्ण हुआ</string>
   <string name="agent_already_running">एक AI एजेंट पहले से चल रहा है। कृपया प्रतीक्षा करें या पहले इसे रोकें।</string>
 
     <!-- AI Agent Notifications -->

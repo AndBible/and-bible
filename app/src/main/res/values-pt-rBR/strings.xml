@@ -1381,17 +1381,8 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="memorize_view_overview">Visão geral</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Tradução por IA</string>
   <string name="sync_settings_shortcut_summary">Sincronizar dados entre dispositivos</string>
-  <string name="llm_api_key_title">Chave de API</string>
-  <string name="llm_api_key_summary">Chave de API compatível com OpenAI</string>
   <string name="llm_provider_custom">Personalizado (compatível com OpenAI)</string>
-  <string name="llm_provider_title">Provedor</string>
-  <string name="llm_provider_summary">Escolha qual provedor de serviço de IA usar. O endpoint da API e os modelos disponíveis serão configurados automaticamente.</string>
-  <string name="llm_provider_current">Atual: %s</string>
-  <string name="llm_api_key_detected_provider">Provedor detectado: %s</string>
-  <string name="ai_connection_category">Conexão</string>
-  <string name="ai_model_category">Modelo</string>
   <string name="ai_behavior_category">Comportamento</string>
   <string name="ai_language_title">Idioma das respostas da IA</string>
   <string name="ai_language_summary">Idioma que a IA usa para as respostas</string>
@@ -1408,16 +1399,9 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_reset_usage_confirm_title">Redefinir dados de uso?</string>
   <string name="llm_reset_usage_confirm_message">Isso limpará todos os dados de uso acumulados.</string>
   <string name="llm_custom_input_price_title">Preço de entrada ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Custo por milhão de tokens de entrada para este modelo</string>
   <string name="llm_custom_output_price_title">Preço de saída ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Custo por milhão de tokens de saída para este modelo</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Endpoint da API</string>
-  <string name="llm_endpoint_summary">URL base para a API</string>
-  <string name="llm_model_title">Modelo</string>
-  <string name="llm_model_summary">ID do modelo</string>
   <string name="llm_custom_model">Personalizado…</string>
-  <string name="llm_custom_model_dialog_title">Modelo personalizado</string>
   <string name="llm_custom_model_dialog_message">Insira o ID do modelo</string>
   <string name="llm_rate_limited_retrying">Limite de taxa atingido. Tentando novamente em %1$ss\u2026</string>
   <string name="llm_default_document_title">Resposta da IA</string>
@@ -1427,7 +1411,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_parse_error_no_choices">Nenhuma opção na resposta OpenAI</string>
   <string name="llm_parse_error_openai">Falha ao analisar resposta OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Falha ao analisar resposta Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt não encontrado: %1$s</string>
   <string name="llm_error_unknown">Erro desconhecido</string>
   <string name="llm_error_max_iterations">Número máximo de iterações (%1$d) atingido sem conclusão</string>
   <string name="llm_continue_iterations_title">Continuar?</string>
@@ -1462,7 +1445,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="raw_log_retention_summary_disabled">Desativado (manter todos)</string>
   <string name="send_ai_bug_report_title">Reportar Bug de IA</string>
   <string name="ai_bug_report_menu">Reportar bug de IA</string>
-  <string name="ai_bug_report_recommended_only">O reporte de bugs está disponível apenas para modelos de provedores recomendados</string>
 
   <string name="select_model_before_run_title">Selecionar modelo</string>
   <string name="set_default_model_for_prompt">Definir como modelo padrão para este prompt</string>
@@ -1504,11 +1486,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="ai_provider_saved">Provedor salvo</string>
   <string name="ai_provider_deleted">Provedor excluído</string>
 
-  <string name="llm_fetch_models_title">Baixar lista de modelos</string>
-  <string name="llm_fetch_models_message">Baixar a lista de modelos disponíveis de %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Não perguntar novamente</string>
-  <string name="llm_fetch_models_success">%1$d modelos carregados</string>
-  <string name="llm_fetch_models_failed">Falha ao buscar modelos</string>
   <string name="llm_openrouter_category">Categoria</string>
   <string name="llm_openrouter_category_all">Todos</string>
   <string name="llm_openrouter_model">Modelo</string>
@@ -1522,9 +1499,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="model_delete_confirm">Excluir modelo \"%1$s\"?</string>
   <string name="model_set_default">Definir como modelo padrão</string>
   <string name="model_select_provider">Provedor</string>
-  <string name="no_models_configured">Nenhum modelo configurado</string>
-  <string name="model_cache_creation_price">Preço de criação de cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Preço de leitura de cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Compatível</string>
   <string name="show_also_unsupported_models">Mostrar também modelos não compatíveis</string>
   <string name="show_also_unsupported_providers">Mostrar também provedores não compatíveis</string>
@@ -1535,7 +1509,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="unknown_error">Erro desconhecido</string>
   <string name="easy_setup_title">Configuração rápida</string>
   <string name="easy_setup_pref_summary">Configure a IA com um provedor recomendado em poucos passos</string>
-  <string name="easy_setup_choose_provider">Escolha um provedor para começar:</string>
   <string name="easy_setup_enter_api_key">Digite sua chave de API</string>
   <string name="easy_setup_api_key_instructions">Obtenha sua chave de API em:</string>
   <string name="easy_setup_test_connection">Testar conexão</string>
@@ -1639,13 +1612,10 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="llm_note_updated">Nota atualizada</string>
   <string name="specify_before_run_title">Especificar tarefa</string>
   <string name="specify_before_run_hint">Descreva a tarefa específica…</string>
-  <string name="prompt_cache_settings">Configurações de cache</string>
   <string name="prompt_strict_context_matching">Cache dependente de contexto</string>
   <string name="prompt_strict_context_matching_description">Quando ativado, o cache é correspondido apenas quando todo o contexto (versão da Bíblia, texto selecionado) é o mesmo. Quando desativado, o cache é correspondido quando os versículos são os mesmos, independentemente da versão da Bíblia.</string>
   <string name="ai_document_delete_confirmation">Excluir este documento de IA?</string>
-  <string name="ai_document_deleted">Este documento de IA foi excluído.</string>
   <string name="ai_document_regenerating">Regenerando documento de IA…</string>
-  <string name="ai_document_regenerate_not_implemented">A regeneração estará disponível em uma atualização futura</string>
   <string name="ai_regenerate_prompt_not_found">Não é possível regenerar: o prompt original não foi encontrado. Ele pode ter sido excluído.</string>
   <string name="ai_document_regenerate">Regenerar</string>
   <string name="ai_regenerate_title">Regenerar</string>
@@ -1659,8 +1629,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="default_prompt_translate_to_language">Traduzir para %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduzir para o idioma da interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduz o texto do documento para o idioma da interface do aplicativo</string>
-  <string name="default_prompt_translate_to_english">Traduzir para o inglês</string>
-  <string name="default_prompt_translate_to_english_desc">Traduz o texto selecionado para o inglês</string>
   <string name="default_prompt_summary">Resumo</string>
   <string name="default_prompt_summary_desc">Cria um resumo conciso do texto selecionado</string>
   <string name="default_prompt_explain_verses">Explicar versículos</string>
@@ -1669,8 +1637,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="default_prompt_explain_verses_studypad_desc">Criar um Bloco de Estudo com explicação versículo a versículo e marcadores</string>
   <string name="default_prompt_word_study">Estudo de palavras</string>
   <string name="default_prompt_word_study_desc">Analisa palavras originais em hebraico/grego</string>
-  <string name="default_prompt_strongs_annotation">Anotação de números de Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Adiciona números de concordância de Strong a qualquer tradução da Bíblia usando a KJV como referência</string>
   <string name="default_prompt_cross_references">Referências cruzadas</string>
   <string name="default_prompt_cross_references_desc">Encontra e explica passagens bíblicas relacionadas</string>
   <string name="default_prompt_compare_translations">Comparar traduções</string>
@@ -1813,11 +1779,7 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="ai_document_filter_summary">Escolher quais documentos a IA pode ler</string>
   <string name="ai_document_filter_summary_count">%d documentos excluídos</string>
   <string name="ai_document_filter_activity_title">Acesso a documentos da IA</string>
-  <string name="ai_document_excluded_error">Documento excluído pelas configurações do usuário: %s</string>
   <string name="permission_status_default">Perguntar (padrão)</string>
-  <string name="permission_status_allowed">Sempre permitido</string>
-  <string name="permission_status_denied">Sempre negado</string>
-  <string name="permission_option_default">Perguntar sempre (padrão)</string>
   <string name="permission_option_always_allow">Sempre permitir</string>
   <string name="permission_option_always_deny">Sempre negar</string>
   <string name="reset_all_permissions">Redefinir tudo</string>
@@ -1832,10 +1794,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permissões de ferramentas</string>
-  <string name="prompt_tool_permissions_read_only">Permissões de ferramentas (somente leitura)</string>
-  <string name="prompt_tool_permissions_description">Substituir permissões de ferramentas para este prompt</string>
-  <string name="tool_section_read_tools">Ferramentas de leitura</string>
-  <string name="tool_section_write_tools">Ferramentas de escrita</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bíblia e pesquisa</string>
@@ -1858,13 +1816,9 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Padrão</string>
-  <string name="prompt_model_custom">Personalizado</string>
-  <string name="prompt_model_custom_hint">Inserir nome do modelo</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Selecionar ação de IA</string>
-  <string name="no_llm_prompts_configured">Nenhuma ação de IA configurada para seleção de versículo</string>
-  <string name="llm_prompt_executing">Executando prompt de IA: %s</string>
   <string name="llm_actions">Ações de IA</string>
 
     <!-- Agent Log Widget -->
@@ -1872,9 +1826,7 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="agent_log_close">Fechar log do agente</string>
   <string name="agent_log_stop">Parar IA</string>
   <string name="agent_log_idle">Assistente de IA</string>
-  <string name="agent_log_running">A IA está trabalhando…</string>
   <string name="agent_log_completed">Concluído</string>
-  <string name="agent_log_error">Ocorreu um erro</string>
   <string name="agent_log_executing">Executando: %s</string>
   <string name="agent_log_iteration">Iteração %d</string>
   <string name="agent_log_tool">Ferramenta: %s</string>
@@ -1884,7 +1836,6 @@ Um novo lançamento está chegando em breve. A data de lançamento prevista é %
   <string name="agent_log_saved">Salvo: %s</string>
   <string name="agent_log_done">Concluído: %s</string>
   <string name="agent_log_cancelled">Cancelado</string>
-  <string name="agent_execution_completed">Execução do agente concluída</string>
   <string name="agent_already_running">Um agente de IA já está em execução. Aguarde ou pare-o primeiro.</string>
 
     <!-- AI Agent Notifications -->

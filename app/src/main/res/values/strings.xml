@@ -1464,17 +1464,8 @@
     <string name="memorize_view_overview">Overview</string>
 
     <!-- LLM Translation Settings -->
-    <string name="llm_settings_title">LLM Translation</string>
     <string name="sync_settings_shortcut_summary">Synchronize data between devices</string>
-    <string name="llm_api_key_title">API Key</string>
-    <string name="llm_api_key_summary">OpenAI-compatible API key</string>
     <string name="llm_provider_custom">Custom (OpenAI compatible)</string>
-    <string name="llm_provider_title">Provider</string>
-    <string name="llm_provider_summary">Choose which AI service provider to use. The API endpoint and available models will be configured automatically.</string>
-    <string name="llm_provider_current">Current: %s</string>
-    <string name="llm_api_key_detected_provider">Detected provider: %s</string>
-    <string name="ai_connection_category">Connection</string>
-    <string name="ai_model_category">Model</string>
     <string name="ai_behavior_category">Behavior</string>
     <string name="ai_language_title">AI response language</string>
     <string name="ai_language_summary">Language AI uses for responses</string>
@@ -1491,16 +1482,9 @@
     <string name="llm_reset_usage_confirm_title">Reset usage data?</string>
     <string name="llm_reset_usage_confirm_message">This will clear all cumulative usage data.</string>
     <string name="llm_custom_input_price_title">Input price ($/Mtoken)</string>
-    <string name="llm_custom_input_price_summary">Cost per million input tokens for this model</string>
     <string name="llm_custom_output_price_title">Output price ($/Mtoken)</string>
-    <string name="llm_custom_output_price_summary">Cost per million output tokens for this model</string>
     <string name="llm_cost_total">Total: %1$s</string>
-    <string name="llm_endpoint_title">API Endpoint</string>
-    <string name="llm_endpoint_summary">Base URL for the API</string>
-    <string name="llm_model_title">Model</string>
-    <string name="llm_model_summary">Model ID</string>
     <string name="llm_custom_model">Custom…</string>
-    <string name="llm_custom_model_dialog_title">Custom model</string>
     <string name="llm_custom_model_dialog_message">Enter the model ID</string>
     <string name="llm_rate_limited_retrying">Rate limited. Retrying in %1$ss\u2026</string>
     <string name="llm_default_document_title">AI Response</string>
@@ -1510,7 +1494,6 @@
     <string name="llm_parse_error_no_choices">No choices in OpenAI response</string>
     <string name="llm_parse_error_openai">Failed to parse OpenAI response: %1$s</string>
     <string name="llm_parse_error_anthropic">Failed to parse Anthropic response: %1$s</string>
-    <string name="llm_error_prompt_not_found">Prompt not found: %1$s</string>
     <string name="llm_error_unknown">Unknown error</string>
     <string name="llm_error_max_iterations">Maximum iterations (%1$d) reached without completion</string>
     <string name="llm_continue_iterations_title">Continue?</string>
@@ -1545,7 +1528,6 @@
     <string name="raw_log_retention_summary_disabled">Disabled (keep all)</string>
     <string name="send_ai_bug_report_title">Report AI Bug</string>
     <string name="ai_bug_report_menu">Report AI bug</string>
-    <string name="ai_bug_report_recommended_only">Bug reporting is only available for recommended provider models</string>
 
     <string name="select_model_before_run_title">Select model</string>
     <string name="set_default_model_for_prompt">Set as default model for this prompt</string>
@@ -1587,11 +1569,6 @@
     <string name="ai_provider_saved">Provider saved</string>
     <string name="ai_provider_deleted">Provider deleted</string>
 
-    <string name="llm_fetch_models_title">Download model list</string>
-    <string name="llm_fetch_models_message">Download the list of available models from %1$s?</string>
-    <string name="llm_fetch_models_dont_ask">Don\'t ask again</string>
-    <string name="llm_fetch_models_success">Loaded %1$d models</string>
-    <string name="llm_fetch_models_failed">Failed to fetch models</string>
     <string name="llm_openrouter_category">Category</string>
     <string name="llm_openrouter_category_all">All</string>
     <string name="llm_openrouter_model">Model</string>
@@ -1605,9 +1582,6 @@
     <string name="model_delete_confirm">Delete model \"%1$s\"?</string>
     <string name="model_set_default">Set as default model</string>
     <string name="model_select_provider">Provider</string>
-    <string name="no_models_configured">No models configured</string>
-    <string name="model_cache_creation_price">Cache creation price ($/Mtoken)</string>
-    <string name="model_cache_read_price">Cache read price ($/Mtoken)</string>
     <string name="model_supported_badge">✓ Supported</string>
     <string name="show_also_unsupported_models">Show also unsupported models</string>
     <string name="show_also_unsupported_providers">Show also unsupported providers</string>
@@ -1618,7 +1592,6 @@
     <string name="unknown_error">Unknown error</string>
     <string name="easy_setup_title">Quick Setup</string>
     <string name="easy_setup_pref_summary">Set up AI with a recommended provider in a few steps</string>
-    <string name="easy_setup_choose_provider">Choose a provider to get started:</string>
     <string name="easy_setup_enter_api_key">Enter your API key</string>
     <string name="easy_setup_api_key_instructions">Get your API key from:</string>
     <string name="easy_setup_test_connection">Test connection</string>
@@ -1722,13 +1695,10 @@
     <string name="llm_note_updated">Note updated</string>
     <string name="specify_before_run_title">Specify task</string>
     <string name="specify_before_run_hint">Describe the specific task…</string>
-    <string name="prompt_cache_settings">Cache settings</string>
     <string name="prompt_strict_context_matching">Context-dependent cache</string>
     <string name="prompt_strict_context_matching_description">When enabled, cache matches only when all context (Bible version, selected text) is the same. When disabled, cache matches when verses are the same regardless of Bible version.</string>
     <string name="ai_document_delete_confirmation">Delete this AI document?</string>
-    <string name="ai_document_deleted">This AI document has been deleted.</string>
     <string name="ai_document_regenerating">Regenerating AI document…</string>
-    <string name="ai_document_regenerate_not_implemented">Regeneration will be available in a future update</string>
     <string name="ai_regenerate_prompt_not_found">Cannot regenerate: the original prompt was not found. It may have been deleted.</string>
     <string name="ai_document_regenerate">Regenerate</string>
     <string name="ai_regenerate_title">Regenerate</string>
@@ -1742,8 +1712,6 @@
     <string name="default_prompt_translate_to_language">Translate to %s</string>
     <string name="default_prompt_translate_to_ui_language">Translate to UI language</string>
     <string name="default_prompt_translate_to_ui_language_desc">Translates document text to the app interface language</string>
-    <string name="default_prompt_translate_to_english">Translate to English</string>
-    <string name="default_prompt_translate_to_english_desc">Translates selected text to English</string>
     <string name="default_prompt_summary">Summary</string>
     <string name="default_prompt_summary_desc">Creates a concise summary of the selected text</string>
     <string name="default_prompt_explain_verses">Explain verses</string>
@@ -1752,8 +1720,6 @@
     <string name="default_prompt_explain_verses_studypad_desc">Create a Study Pad with verse-by-verse explanation and bookmarks</string>
     <string name="default_prompt_word_study">Word study</string>
     <string name="default_prompt_word_study_desc">Analyzes original Hebrew/Greek words</string>
-    <string name="default_prompt_strongs_annotation">Strong\'s number annotation</string>
-    <string name="default_prompt_strongs_annotation_desc">Adds Strong\'s concordance numbers to any Bible translation using KJV as reference</string>
     <string name="default_prompt_cross_references">Cross-references</string>
     <string name="default_prompt_cross_references_desc">Finds and explains related Bible passages</string>
     <string name="default_prompt_compare_translations">Compare translations</string>
@@ -1896,11 +1862,7 @@
     <string name="ai_document_filter_summary">Choose which documents the AI can read</string>
     <string name="ai_document_filter_summary_count">%d documents excluded</string>
     <string name="ai_document_filter_activity_title">AI document access</string>
-    <string name="ai_document_excluded_error">Document excluded by user settings: %s</string>
     <string name="permission_status_default">Ask (default)</string>
-    <string name="permission_status_allowed">Always allowed</string>
-    <string name="permission_status_denied">Always denied</string>
-    <string name="permission_option_default">Ask each time (default)</string>
     <string name="permission_option_always_allow">Always allow</string>
     <string name="permission_option_always_deny">Always deny</string>
     <string name="reset_all_permissions">Reset all</string>
@@ -1915,10 +1877,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
     <string name="prompt_tool_permissions">Tool permissions</string>
-    <string name="prompt_tool_permissions_read_only">Tool permissions (read-only)</string>
-    <string name="prompt_tool_permissions_description">Override tool permissions for this prompt</string>
-    <string name="tool_section_read_tools">Read tools</string>
-    <string name="tool_section_write_tools">Write tools</string>
 
     <!-- Tool categories -->
     <string name="tool_category_bible_search">Bible &amp; Search</string>
@@ -1941,13 +1899,9 @@
     <!-- Per-Prompt Model Override -->
     <string name="prompt_model_override">Model</string>
     <string name="prompt_model_default">Default</string>
-    <string name="prompt_model_custom">Custom</string>
-    <string name="prompt_model_custom_hint">Enter model name</string>
 
     <!-- LLM One Tap Actions -->
     <string name="select_llm_prompt">Select AI Action</string>
-    <string name="no_llm_prompts_configured">No AI prompts configured for verse selection</string>
-    <string name="llm_prompt_executing">Executing AI prompt: %s</string>
     <string name="llm_actions">AI Actions</string>
 
     <!-- Agent Log Widget -->
@@ -1955,9 +1909,7 @@
     <string name="agent_log_close">Close agent log</string>
     <string name="agent_log_stop">Stop AI</string>
     <string name="agent_log_idle">AI Assistant</string>
-    <string name="agent_log_running">AI is working…</string>
     <string name="agent_log_completed">Completed</string>
-    <string name="agent_log_error">Error occurred</string>
     <string name="agent_log_executing">Executing: %s</string>
     <string name="agent_log_iteration">Iteration %d</string>
     <string name="agent_log_tool">Tool: %s</string>
@@ -1967,7 +1919,6 @@
     <string name="agent_log_saved">Saved: %s</string>
     <string name="agent_log_done">Done: %s</string>
     <string name="agent_log_cancelled">Cancelled</string>
-    <string name="agent_execution_completed">Agent execution completed</string>
     <string name="agent_already_running">An AI agent is already running. Please wait or stop it first.</string>
 
     <!-- AI Agent Notifications -->

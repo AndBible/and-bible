@@ -1430,17 +1430,8 @@
   <string name="memorize_view_overview">Prezentare generală</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Traducere AI</string>
   <string name="sync_settings_shortcut_summary">Sincronizează datele între dispozitive</string>
-  <string name="llm_api_key_title">Cheie API</string>
-  <string name="llm_api_key_summary">Cheie API compatibilă OpenAI</string>
   <string name="llm_provider_custom">Personalizat (compatibil OpenAI)</string>
-  <string name="llm_provider_title">Furnizor</string>
-  <string name="llm_provider_summary">Alege furnizorul de servicii AI de utilizat. Punctul final API și modelele disponibile vor fi configurate automat.</string>
-  <string name="llm_provider_current">Curent: %s</string>
-  <string name="llm_api_key_detected_provider">Furnizor detectat: %s</string>
-  <string name="ai_connection_category">Conexiune</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Comportament</string>
   <string name="ai_language_title">Limba răspunsurilor AI</string>
   <string name="ai_language_summary">Limba folosită de AI pentru răspunsuri</string>
@@ -1457,16 +1448,9 @@
   <string name="llm_reset_usage_confirm_title">Restabilești datele de utilizare?</string>
   <string name="llm_reset_usage_confirm_message">Aceasta va șterge toate datele cumulative de utilizare.</string>
   <string name="llm_custom_input_price_title">Prețul intrării ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Cost per milion de tokeni de intrare pentru acest model</string>
   <string name="llm_custom_output_price_title">Prețul ieșirii ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Cost per milion de tokeni de ieșire pentru acest model</string>
   <string name="llm_cost_total">Total: %1$s</string>
-  <string name="llm_endpoint_title">Punct final API</string>
-  <string name="llm_endpoint_summary">URL de bază pentru API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID-ul modelului</string>
   <string name="llm_custom_model">Personalizat…</string>
-  <string name="llm_custom_model_dialog_title">Model personalizat</string>
   <string name="llm_custom_model_dialog_message">Introduceți ID-ul modelului</string>
   <string name="llm_rate_limited_retrying">Limită de rată atinsă. Reîncercare în %1$ss\u2026</string>
   <string name="llm_default_document_title">Răspuns AI</string>
@@ -1476,7 +1460,6 @@
   <string name="llm_parse_error_no_choices">Nicio opțiune în răspunsul OpenAI</string>
   <string name="llm_parse_error_openai">Eroare la procesarea răspunsului OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Eroare la procesarea răspunsului Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt negăsit: %1$s</string>
   <string name="llm_error_unknown">Eroare necunoscută</string>
   <string name="llm_error_max_iterations">Numărul maxim de iterații (%1$d) atins fără finalizare</string>
   <string name="llm_continue_iterations_title">Continui?</string>
@@ -1511,7 +1494,6 @@
   <string name="raw_log_retention_summary_disabled">Dezactivat (păstrează tot)</string>
   <string name="send_ai_bug_report_title">Raportează eroare AI</string>
   <string name="ai_bug_report_menu">Raportează eroare AI</string>
-  <string name="ai_bug_report_recommended_only">Raportarea erorilor este disponibilă doar pentru modelele furnizorilor recomandați</string>
 
   <string name="select_model_before_run_title">Selectează modelul</string>
   <string name="set_default_model_for_prompt">Setează ca model implicit pentru acest prompt</string>
@@ -1553,11 +1535,6 @@
   <string name="ai_provider_saved">Furnizor salvat</string>
   <string name="ai_provider_deleted">Furnizor șters</string>
 
-  <string name="llm_fetch_models_title">Descarcă lista de modele</string>
-  <string name="llm_fetch_models_message">Descarci lista de modele disponibile de la %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Nu mai întreba</string>
-  <string name="llm_fetch_models_success">%1$d modele încărcate</string>
-  <string name="llm_fetch_models_failed">Eroare la descărcarea modelelor</string>
   <string name="llm_openrouter_category">Categorie</string>
   <string name="llm_openrouter_category_all">Toate</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1571,9 +1548,6 @@
   <string name="model_delete_confirm">Ștergi modelul \"%1$s\"?</string>
   <string name="model_set_default">Setează ca model implicit</string>
   <string name="model_select_provider">Provider</string>
-  <string name="no_models_configured">Niciun model configurat</string>
-  <string name="model_cache_creation_price">Prețul creării memoriei cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Prețul citirii din memoria cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Acceptat</string>
   <string name="show_also_unsupported_models">Afișează și modelele neacceptate</string>
   <string name="show_also_unsupported_providers">Afișează și furnizorii neacceptați</string>
@@ -1584,7 +1558,6 @@
   <string name="unknown_error">Eroare necunoscută</string>
   <string name="easy_setup_title">Configurare rapidă</string>
   <string name="easy_setup_pref_summary">Configurează AI cu un provider recomandat în câțiva pași</string>
-  <string name="easy_setup_choose_provider">Alege un provider pentru a începe:</string>
   <string name="easy_setup_enter_api_key">Introdu cheia API</string>
   <string name="easy_setup_api_key_instructions">Obține cheia API de la:</string>
   <string name="easy_setup_test_connection">Testează conexiunea</string>
@@ -1688,13 +1661,10 @@
   <string name="llm_note_updated">Notiță actualizată</string>
   <string name="specify_before_run_title">Specifică sarcina</string>
   <string name="specify_before_run_hint">Descrie sarcina specifică…</string>
-  <string name="prompt_cache_settings">Reglări cache</string>
   <string name="prompt_strict_context_matching">Cache dependent de context</string>
   <string name="prompt_strict_context_matching_description">Când este activat, cache-ul se potrivește doar când tot contextul (versiunea biblică, textul selectat) este același. Când este dezactivat, cache-ul se potrivește când versetele sunt aceleași indiferent de versiunea biblică.</string>
   <string name="ai_document_delete_confirmation">Ștergi acest document AI?</string>
-  <string name="ai_document_deleted">Acest document AI a fost șters.</string>
   <string name="ai_document_regenerating">Se regenerează documentul AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Regenerarea va fi disponibilă într-o actualizare viitoare</string>
   <string name="ai_regenerate_prompt_not_found">Nu se poate regenera: comanda originală nu a fost găsită. Este posibil să fi fost ștearsă.</string>
   <string name="ai_document_regenerate">Regenerează</string>
   <string name="ai_regenerate_title">Regenerează</string>
@@ -1708,8 +1678,6 @@
   <string name="default_prompt_translate_to_language">Traduce în %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduce în limba interfeței</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduce textul documentului în limba interfeței aplicației</string>
-  <string name="default_prompt_translate_to_english">Traduce în engleză</string>
-  <string name="default_prompt_translate_to_english_desc">Traduce textul selectat în engleză</string>
   <string name="default_prompt_summary">Rezumat</string>
   <string name="default_prompt_summary_desc">Creează un rezumat concis al textului selectat</string>
   <string name="default_prompt_explain_verses">Explică versetele</string>
@@ -1718,8 +1686,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Creează o notiță de studiu cu explicații verset cu verset și semne de carte</string>
   <string name="default_prompt_word_study">Studiu de cuvânt</string>
   <string name="default_prompt_word_study_desc">Analizează cuvintele originale ebraice/grecești</string>
-  <string name="default_prompt_strongs_annotation">Adnotare cu numere Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Adaugă numere de concordanță Strong oricărei traduceri biblice folosind KJV ca referință</string>
   <string name="default_prompt_cross_references">Trimiteri</string>
   <string name="default_prompt_cross_references_desc">Găsește și explică pasaje biblice înrudite</string>
   <string name="default_prompt_compare_translations">Compară traducerile</string>
@@ -1862,11 +1828,7 @@
   <string name="ai_document_filter_summary">Alege documentele pe care AI le poate citi</string>
   <string name="ai_document_filter_summary_count">%d documente excluse</string>
   <string name="ai_document_filter_activity_title">Acces AI la documente</string>
-  <string name="ai_document_excluded_error">Document exclus de reglările utilizatorului: %s</string>
   <string name="permission_status_default">Întreabă (implicit)</string>
-  <string name="permission_status_allowed">Întotdeauna permis</string>
-  <string name="permission_status_denied">Întotdeauna refuzat</string>
-  <string name="permission_option_default">Întreabă de fiecare dată (implicit)</string>
   <string name="permission_option_always_allow">Permite întotdeauna</string>
   <string name="permission_option_always_deny">Refuză întotdeauna</string>
   <string name="reset_all_permissions">Restabilește toate</string>
@@ -1881,10 +1843,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permisiuni instrumente</string>
-  <string name="prompt_tool_permissions_read_only">Permisiuni instrumente (doar citire)</string>
-  <string name="prompt_tool_permissions_description">Suprascrie permisiunile instrumentelor pentru această comandă</string>
-  <string name="tool_section_read_tools">Instrumente de citire</string>
-  <string name="tool_section_write_tools">Instrumente de scriere</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblie și căutare</string>
@@ -1907,13 +1865,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Implicit</string>
-  <string name="prompt_model_custom">Personalizat</string>
-  <string name="prompt_model_custom_hint">Introduceți numele modelului</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Selectează acțiunea AI</string>
-  <string name="no_llm_prompts_configured">Nicio comandă AI configurată pentru selecția versetelor</string>
-  <string name="llm_prompt_executing">Se execută comanda AI: %s</string>
   <string name="llm_actions">Acțiuni AI</string>
 
     <!-- Agent Log Widget -->
@@ -1921,9 +1875,7 @@
   <string name="agent_log_close">Închide jurnalul agentului</string>
   <string name="agent_log_stop">Oprește AI</string>
   <string name="agent_log_idle">Asistent AI</string>
-  <string name="agent_log_running">AI lucrează…</string>
   <string name="agent_log_completed">Finalizat</string>
-  <string name="agent_log_error">A apărut o eroare</string>
   <string name="agent_log_executing">Se execută: %s</string>
   <string name="agent_log_iteration">Iterația %d</string>
   <string name="agent_log_tool">Instrument: %s</string>
@@ -1933,7 +1885,6 @@
   <string name="agent_log_saved">Salvat: %s</string>
   <string name="agent_log_done">Gata: %s</string>
   <string name="agent_log_cancelled">Anulat</string>
-  <string name="agent_execution_completed">Execuția agentului a fost finalizată</string>
   <string name="agent_already_running">Un agent AI rulează deja. Așteptați sau opriți-l mai întâi.</string>
 
     <!-- AI Agent Notifications -->

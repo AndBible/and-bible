@@ -1328,17 +1328,8 @@
   <string name="memorize_view_overview">סקירה כללית</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">תרגום LLM</string>
   <string name="sync_settings_shortcut_summary">סנכרן נתונים בין מכשירים</string>
-  <string name="llm_api_key_title">מפתח API</string>
-  <string name="llm_api_key_summary">מפתח API תואם OpenAI</string>
   <string name="llm_provider_custom">מותאם אישית (תואם OpenAI)</string>
-  <string name="llm_provider_title">ספק</string>
-  <string name="llm_provider_summary">בחר איזה ספק שירות בינה מלאכותית להשתמש. נקודת הקצה של ה-API והמודלים הזמינים יוגדרו אוטומטית.</string>
-  <string name="llm_provider_current">נוכחי: %s</string>
-  <string name="llm_api_key_detected_provider">ספק שזוהה: %s</string>
-  <string name="ai_connection_category">חיבור</string>
-  <string name="ai_model_category">מודל</string>
   <string name="ai_behavior_category">התנהגות</string>
   <string name="ai_language_title">שפת תגובות בינה מלאכותית</string>
   <string name="ai_language_summary">שפה בה הבינה המלאכותית משתמשת לתגובות</string>
@@ -1355,16 +1346,9 @@
   <string name="llm_reset_usage_confirm_title">לאפס נתוני שימוש?</string>
   <string name="llm_reset_usage_confirm_message">פעולה זו תמחק את כל נתוני השימוש המצטברים.</string>
   <string name="llm_custom_input_price_title">מחיר קלט ($/מיליון טוקן)</string>
-  <string name="llm_custom_input_price_summary">עלות למיליון טוקני קלט עבור מודל זה</string>
   <string name="llm_custom_output_price_title">מחיר פלט ($/מיליון טוקן)</string>
-  <string name="llm_custom_output_price_summary">עלות למיליון טוקני פלט עבור מודל זה</string>
   <string name="llm_cost_total">סה"כ: %1$s</string>
-  <string name="llm_endpoint_title">נקודת קצה API</string>
-  <string name="llm_endpoint_summary">כתובת URL בסיס עבור ה-API</string>
-  <string name="llm_model_title">מודל</string>
-  <string name="llm_model_summary">מזהה מודל</string>
   <string name="llm_custom_model">מותאם אישית…</string>
-  <string name="llm_custom_model_dialog_title">מודל מותאם אישית</string>
   <string name="llm_custom_model_dialog_message">הכנס את מזהה המודל</string>
   <string name="llm_rate_limited_retrying">הגבלת קצב. מנסה שוב בעוד %1$s שניות\u2026</string>
   <string name="llm_default_document_title">תגובת בינה מלאכותית</string>
@@ -1374,7 +1358,6 @@
   <string name="llm_parse_error_no_choices">אין בחירות בתגובת OpenAI</string>
   <string name="llm_parse_error_openai">נכשל בניתוח תגובת OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">נכשל בניתוח תגובת Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">הנחיה לא נמצאה: %1$s</string>
   <string name="llm_error_unknown">שגיאה לא ידועה</string>
   <string name="llm_error_max_iterations">הגיע למקסימום איטרציות (%1$d) ללא השלמה</string>
   <string name="llm_continue_iterations_title">להמשיך?</string>
@@ -1409,7 +1392,6 @@
   <string name="raw_log_retention_summary_disabled">מושבת (שמור הכל)</string>
   <string name="send_ai_bug_report_title">דווח על באג בבינה מלאכותית</string>
   <string name="ai_bug_report_menu">דווח על באג בבינה מלאכותית</string>
-  <string name="ai_bug_report_recommended_only">דיווח באגים זמין רק עבור מודלי ספק מומלצים</string>
 
   <string name="select_model_before_run_title">בחר מודל</string>
   <string name="set_default_model_for_prompt">הגדר כמודל ברירת מחדל להנחיה זו</string>
@@ -1451,11 +1433,6 @@
   <string name="ai_provider_saved">הספק נשמר</string>
   <string name="ai_provider_deleted">הספק נמחק</string>
 
-  <string name="llm_fetch_models_title">הורד רשימת מודלים</string>
-  <string name="llm_fetch_models_message">להוריד את רשימת המודלים הזמינים מ-%1$s?</string>
-  <string name="llm_fetch_models_dont_ask">אל תשאל שוב</string>
-  <string name="llm_fetch_models_success">נטענו %1$d מודלים</string>
-  <string name="llm_fetch_models_failed">נכשל בהבאת מודלים</string>
   <string name="llm_openrouter_category">קטגוריה</string>
   <string name="llm_openrouter_category_all">הכל</string>
   <string name="llm_openrouter_model">מודל</string>
@@ -1469,9 +1446,6 @@
   <string name="model_delete_confirm">למחוק מודל \"%1$s\"?</string>
   <string name="model_set_default">הגדר כמודל ברירת מחדל</string>
   <string name="model_select_provider">ספק</string>
-  <string name="no_models_configured">לא הוגדרו מודלים</string>
-  <string name="model_cache_creation_price">מחיר יצירת מטמון ($/מיליון טוקן)</string>
-  <string name="model_cache_read_price">מחיר קריאת מטמון ($/מיליון טוקן)</string>
   <string name="model_supported_badge">✓ נתמך</string>
   <string name="show_also_unsupported_models">הצג גם מודלים שאינם נתמכים</string>
   <string name="show_also_unsupported_providers">הצג גם ספקים שאינם נתמכים</string>
@@ -1482,7 +1456,6 @@
   <string name="unknown_error">שגיאה לא ידועה</string>
   <string name="easy_setup_title">הגדרה מהירה</string>
   <string name="easy_setup_pref_summary">הגדר בינה מלאכותית עם ספק מומלץ בכמה שלבים</string>
-  <string name="easy_setup_choose_provider">בחר ספק להתחלה:</string>
   <string name="easy_setup_enter_api_key">הכנס את מפתח ה-API שלך</string>
   <string name="easy_setup_api_key_instructions">קבל את מפתח ה-API שלך מ:</string>
   <string name="easy_setup_test_connection">בדוק חיבור</string>
@@ -1586,13 +1559,10 @@
   <string name="llm_note_updated">ההערה עודכנה</string>
   <string name="specify_before_run_title">ציין משימה</string>
   <string name="specify_before_run_hint">תאר את המשימה הספציפית…</string>
-  <string name="prompt_cache_settings">הגדרות מטמון</string>
   <string name="prompt_strict_context_matching">מטמון תלוי הקשר</string>
   <string name="prompt_strict_context_matching_description">כשמופעל, המטמון תואם רק כאשר כל ההקשר (גרסת תנ"ך, טקסט שנבחר) זהה. כשמושבת, המטמון תואם כשהפסוקים זהים ללא תלות בגרסת התנ"ך.</string>
   <string name="ai_document_delete_confirmation">למחוק מסמך בינה מלאכותית זה?</string>
-  <string name="ai_document_deleted">מסמך בינה מלאכותית זה נמחק.</string>
   <string name="ai_document_regenerating">מחדש מסמך בינה מלאכותית…</string>
-  <string name="ai_document_regenerate_not_implemented">חידוש יהיה זמין בעדכון עתידי</string>
   <string name="ai_regenerate_prompt_not_found">לא ניתן לחדש: ההנחיה המקורית לא נמצאה. ייתכן שנמחקה.</string>
   <string name="ai_document_regenerate">חדש</string>
   <string name="ai_regenerate_title">חידוש</string>
@@ -1606,8 +1576,6 @@
   <string name="default_prompt_translate_to_language">תרגם ל-%s</string>
   <string name="default_prompt_translate_to_ui_language">תרגם לשפת ממשק</string>
   <string name="default_prompt_translate_to_ui_language_desc">מתרגם טקסט מסמך לשפת ממשק האפליקציה</string>
-  <string name="default_prompt_translate_to_english">תרגם לאנגלית</string>
-  <string name="default_prompt_translate_to_english_desc">מתרגם טקסט שנבחר לאנגלית</string>
   <string name="default_prompt_summary">סיכום</string>
   <string name="default_prompt_summary_desc">יוצר סיכום תמציתי של הטקסט שנבחר</string>
   <string name="default_prompt_explain_verses">הסבר פסוקים</string>
@@ -1616,8 +1584,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">יצור פנקס לימוד עם הסבר פסוק אחר פסוק וסימניות</string>
   <string name="default_prompt_word_study">לימוד מילים</string>
   <string name="default_prompt_word_study_desc">מנתח מילים מקוריות בעברית/יוונית</string>
-  <string name="default_prompt_strongs_annotation">הוספת מספרי Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">מוסיף מספרי קונקורדנציה של Strong\'s לכל תרגום תנ"כי תוך שימוש ב-KJV כהפניה</string>
   <string name="default_prompt_cross_references">מראי מקום</string>
   <string name="default_prompt_cross_references_desc">מוצא ומסביר מקטעי תנ"ך קשורים</string>
   <string name="default_prompt_compare_translations">השווה תרגומים</string>
@@ -1760,11 +1726,7 @@
   <string name="ai_document_filter_summary">בחר אילו מסמכים הבינה המלאכותית יכולה לקרוא</string>
   <string name="ai_document_filter_summary_count">%d מסמכים מוחרגים</string>
   <string name="ai_document_filter_activity_title">גישת בינה מלאכותית למסמכים</string>
-  <string name="ai_document_excluded_error">מסמך מוחרג על ידי הגדרות המשתמש: %s</string>
   <string name="permission_status_default">שאל (ברירת מחדל)</string>
-  <string name="permission_status_allowed">תמיד מותר</string>
-  <string name="permission_status_denied">תמיד נדחה</string>
-  <string name="permission_option_default">שאל בכל פעם (ברירת מחדל)</string>
   <string name="permission_option_always_allow">תמיד אפשר</string>
   <string name="permission_option_always_deny">תמיד דחה</string>
   <string name="reset_all_permissions">אפס הכל</string>
@@ -1779,10 +1741,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">הרשאות כלים</string>
-  <string name="prompt_tool_permissions_read_only">הרשאות כלים (לקריאה בלבד)</string>
-  <string name="prompt_tool_permissions_description">עקוף הרשאות כלים להנחיה זו</string>
-  <string name="tool_section_read_tools">כלי קריאה</string>
-  <string name="tool_section_write_tools">כלי כתיבה</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">תנ"ך וחיפוש</string>
@@ -1805,13 +1763,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">מודל</string>
   <string name="prompt_model_default">ברירת מחדל</string>
-  <string name="prompt_model_custom">מותאם אישית</string>
-  <string name="prompt_model_custom_hint">הכנס שם מודל</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">בחר פעולת בינה מלאכותית</string>
-  <string name="no_llm_prompts_configured">לא הוגדרו הנחיות בינה מלאכותית לבחירת פסוק</string>
-  <string name="llm_prompt_executing">מפעיל הנחיית בינה מלאכותית: %s</string>
   <string name="llm_actions">פעולות בינה מלאכותית</string>
 
     <!-- Agent Log Widget -->
@@ -1819,9 +1773,7 @@
   <string name="agent_log_close">סגור יומן סוכן</string>
   <string name="agent_log_stop">עצור בינה מלאכותית</string>
   <string name="agent_log_idle">עוזר בינה מלאכותית</string>
-  <string name="agent_log_running">הבינה המלאכותית עובדת…</string>
   <string name="agent_log_completed">הושלם</string>
-  <string name="agent_log_error">אירעה שגיאה</string>
   <string name="agent_log_executing">מבצע: %s</string>
   <string name="agent_log_iteration">איטרציה %d</string>
   <string name="agent_log_tool">כלי: %s</string>
@@ -1831,7 +1783,6 @@
   <string name="agent_log_saved">נשמר: %s</string>
   <string name="agent_log_done">סיים: %s</string>
   <string name="agent_log_cancelled">בוטל</string>
-  <string name="agent_execution_completed">ביצוע הסוכן הושלם</string>
   <string name="agent_already_running">סוכן בינה מלאכותית כבר פועל. אנא המתן או עצור אותו תחילה.</string>
 
     <!-- AI Agent Notifications -->

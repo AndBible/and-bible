@@ -1344,17 +1344,8 @@ Ne montri tion ĉi denove</string>
   <string name="memorize_view_overview">Superrigardo</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-tradukado</string>
   <string name="sync_settings_shortcut_summary">Sinkronigi datumojn inter aparatoj</string>
-  <string name="llm_api_key_title">API-ŝlosilo</string>
-  <string name="llm_api_key_summary">OpenAI-kongrua API-ŝlosilo</string>
   <string name="llm_provider_custom">Propra (OpenAI-kongrua)</string>
-  <string name="llm_provider_title">Provizanto</string>
-  <string name="llm_provider_summary">Elekti kiun AI-servan provizanton uzi. La API-finpunkto kaj disponeblaj modeloj estos agorditaj aŭtomate.</string>
-  <string name="llm_provider_current">Aktuala: %s</string>
-  <string name="llm_api_key_detected_provider">Detektita provizanto: %s</string>
-  <string name="ai_connection_category">Konekto</string>
-  <string name="ai_model_category">Modelo</string>
   <string name="ai_behavior_category">Konduto</string>
   <string name="ai_language_title">AI-responda lingvo</string>
   <string name="ai_language_summary">Lingvo kiun AI uzas por respondoj</string>
@@ -1371,16 +1362,9 @@ Ne montri tion ĉi denove</string>
   <string name="llm_reset_usage_confirm_title">Reagordi uzadajn datumojn?</string>
   <string name="llm_reset_usage_confirm_message">Ĉi tio viŝos ĉiujn akumulajn uzadajn datumojn.</string>
   <string name="llm_custom_input_price_title">Eniga prezo ($/Mĵetono)</string>
-  <string name="llm_custom_input_price_summary">Kosto por miliono da enigaj ĵetonoj por ĉi tiu modelo</string>
   <string name="llm_custom_output_price_title">Eligo prezo ($/Mĵetono)</string>
-  <string name="llm_custom_output_price_summary">Kosto por miliono da eligaj ĵetonoj por ĉi tiu modelo</string>
   <string name="llm_cost_total">Sumo: %1$s</string>
-  <string name="llm_endpoint_title">API-finpunkto</string>
-  <string name="llm_endpoint_summary">Baza URL por la API</string>
-  <string name="llm_model_title">Modelo</string>
-  <string name="llm_model_summary">Modelo-ID</string>
   <string name="llm_custom_model">Propra…</string>
-  <string name="llm_custom_model_dialog_title">Propra modelo</string>
   <string name="llm_custom_model_dialog_message">Enigu la modelo-ID</string>
   <string name="llm_rate_limited_retrying">Rapidogranigo. Reprovante post %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-respondo</string>
@@ -1390,7 +1374,6 @@ Ne montri tion ĉi denove</string>
   <string name="llm_parse_error_no_choices">Neniu elekto en OpenAI-respondo</string>
   <string name="llm_parse_error_openai">Malsukcesis analizi OpenAI-respondon: %1$s</string>
   <string name="llm_parse_error_anthropic">Malsukcesis analizi Anthropic-respondon: %1$s</string>
-  <string name="llm_error_prompt_not_found">Antaŭformularo ne trovita: %1$s</string>
   <string name="llm_error_unknown">Nekonata eraro</string>
   <string name="llm_error_max_iterations">Maksimuma ripetkvanto (%1$d) atingita sen kompletigo</string>
   <string name="llm_continue_iterations_title">Daŭrigi?</string>
@@ -1425,7 +1408,6 @@ Ne montri tion ĉi denove</string>
   <string name="raw_log_retention_summary_disabled">Malaktivigita (konservi ĉiujn)</string>
   <string name="send_ai_bug_report_title">Raporti AI-cimon</string>
   <string name="ai_bug_report_menu">Raporti AI-cimon</string>
-  <string name="ai_bug_report_recommended_only">Cima raportado disponeblas nur por rekomenditaj provizantaj modeloj</string>
 
   <string name="select_model_before_run_title">Elekti modelon</string>
   <string name="set_default_model_for_prompt">Agordi kiel defaŭltan modelon por ĉi tiu antaŭformularo</string>
@@ -1467,11 +1449,6 @@ Ne montri tion ĉi denove</string>
   <string name="ai_provider_saved">Provizanto konservita</string>
   <string name="ai_provider_deleted">Provizanto forigita</string>
 
-  <string name="llm_fetch_models_title">Elŝuti modelliston</string>
-  <string name="llm_fetch_models_message">Elŝuti la liston de disponeblaj modeloj de %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ne demandi denove</string>
-  <string name="llm_fetch_models_success">Ŝargitaj %1$d modeloj</string>
-  <string name="llm_fetch_models_failed">Malsukcesis elŝuti modelojn</string>
   <string name="llm_openrouter_category">Kategorio</string>
   <string name="llm_openrouter_category_all">Ĉiuj</string>
   <string name="llm_openrouter_model">Modelo</string>
@@ -1485,9 +1462,6 @@ Ne montri tion ĉi denove</string>
   <string name="model_delete_confirm">Forigi modelon \"%1$s\"?</string>
   <string name="model_set_default">Agordi kiel defaŭltan modelon</string>
   <string name="model_select_provider">Provizanto</string>
-  <string name="no_models_configured">Neniu modelo agordita</string>
-  <string name="model_cache_creation_price">Kaŝmemora kreadprezo ($/Mtoken)</string>
-  <string name="model_cache_read_price">Kaŝmemora legprezo ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Subtenata</string>
   <string name="show_also_unsupported_models">Montri ankaŭ nesubtenatajn modelojn</string>
   <string name="show_also_unsupported_providers">Montri ankaŭ nesubtenatajn provizantojn</string>
@@ -1498,7 +1472,6 @@ Ne montri tion ĉi denove</string>
   <string name="unknown_error">Nekonata eraro</string>
   <string name="easy_setup_title">Rapida Agordo</string>
   <string name="easy_setup_pref_summary">Agordi AI kun rekomendata provizanto en kelkaj paŝoj</string>
-  <string name="easy_setup_choose_provider">Elektu provizanton por komenci:</string>
   <string name="easy_setup_enter_api_key">Enigu vian API-ŝlosilon</string>
   <string name="easy_setup_api_key_instructions">Akiru vian API-ŝlosilon de:</string>
   <string name="easy_setup_test_connection">Testi konekton</string>
@@ -1602,13 +1575,10 @@ Ne montri tion ĉi denove</string>
   <string name="llm_note_updated">Noto ĝisdatigita</string>
   <string name="specify_before_run_title">Precizigi taskon</string>
   <string name="specify_before_run_hint">Priskribu la specifan taskon…</string>
-  <string name="prompt_cache_settings">Kaŝmemor-agordoj</string>
   <string name="prompt_strict_context_matching">Kontekst-dependa kaŝmemoro</string>
   <string name="prompt_strict_context_matching_description">Kiam ŝaltita, kaŝmemoro kongruas nur kiam ĉiu kunteksto (Biblio-versio, elektita teksto) estas la sama. Kiam malŝaltita, kaŝmemoro kongruas kiam versoj estas la samaj sendepende de Biblio-versio.</string>
   <string name="ai_document_delete_confirmation">Forigi ĉi tiun AI-dokumenton?</string>
-  <string name="ai_document_deleted">Ĉi tiu AI-dokumento estis forigita.</string>
   <string name="ai_document_regenerating">Rekreado de AI-dokumento…</string>
-  <string name="ai_document_regenerate_not_implemented">Rekreado estos disponebla en estonta ĝisdatigo</string>
   <string name="ai_regenerate_prompt_not_found">Ne eblas rekrei: la originala invito ne troviĝis. Ĝi eble estis forigita.</string>
   <string name="ai_document_regenerate">Rekrei</string>
   <string name="ai_regenerate_title">Rekrei</string>
@@ -1622,8 +1592,6 @@ Ne montri tion ĉi denove</string>
   <string name="default_prompt_translate_to_language">Traduki al %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduki al UI-lingvo</string>
   <string name="default_prompt_translate_to_ui_language_desc">Tradukas dokumenttekston al la interfaca lingvo de la aplikaĵo</string>
-  <string name="default_prompt_translate_to_english">Traduki al la angla</string>
-  <string name="default_prompt_translate_to_english_desc">Tradukas elektitan tekston al la angla</string>
   <string name="default_prompt_summary">Resumo</string>
   <string name="default_prompt_summary_desc">Kreas koncizan resumon de la elektita teksto</string>
   <string name="default_prompt_explain_verses">Klarigi versojn</string>
@@ -1632,8 +1600,6 @@ Ne montri tion ĉi denove</string>
   <string name="default_prompt_explain_verses_studypad_desc">Krei notblokon kun verso-post-versa klarigo kaj legosignoj</string>
   <string name="default_prompt_word_study">Vortstudo</string>
   <string name="default_prompt_word_study_desc">Analizas originajn hebreajn/grekajn vortojn</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s-numera komentado</string>
-  <string name="default_prompt_strongs_annotation_desc">Aldonas Strong\'s-konkordancajn numerojn al ajna Biblio-traduko uzante KJV kiel referencon</string>
   <string name="default_prompt_cross_references">Krucreferencoj</string>
   <string name="default_prompt_cross_references_desc">Trovas kaj klarigas rilatajn Biblio-fragmentojn</string>
   <string name="default_prompt_compare_translations">Kompari tradukojn</string>
@@ -1776,11 +1742,7 @@ Ne montri tion ĉi denove</string>
   <string name="ai_document_filter_summary">Elekti kiujn dokumentojn la AI povas legi</string>
   <string name="ai_document_filter_summary_count">%d dokumentoj ekskluditaj</string>
   <string name="ai_document_filter_activity_title">AI-aliro al dokumentoj</string>
-  <string name="ai_document_excluded_error">Dokumento ekskludita de uzantaj agordoj: %s</string>
   <string name="permission_status_default">Demandi (defaŭlte)</string>
-  <string name="permission_status_allowed">Ĉiam permesita</string>
-  <string name="permission_status_denied">Ĉiam malpermesita</string>
-  <string name="permission_option_default">Demandi ĉiufoje (defaŭlte)</string>
   <string name="permission_option_always_allow">Ĉiam permesi</string>
   <string name="permission_option_always_deny">Ĉiam malpermesi</string>
   <string name="reset_all_permissions">Reagordi ĉiujn</string>
@@ -1795,10 +1757,6 @@ Ne montri tion ĉi denove</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Ilaj permesoj</string>
-  <string name="prompt_tool_permissions_read_only">Ilaj permesoj (nur-legaj)</string>
-  <string name="prompt_tool_permissions_description">Anstataŭigi ilajn permesojn por tiu ĉi instigilo</string>
-  <string name="tool_section_read_tools">Legaj iloj</string>
-  <string name="tool_section_write_tools">Skribaj iloj</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblio &amp; Serĉo</string>
@@ -1821,13 +1779,9 @@ Ne montri tion ĉi denove</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Defaŭlte</string>
-  <string name="prompt_model_custom">Propra</string>
-  <string name="prompt_model_custom_hint">Enigi nomon de modelo</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Elekti AI-agon</string>
-  <string name="no_llm_prompts_configured">Neniuj AI-instigiloj agorditaj por verso-elekto</string>
-  <string name="llm_prompt_executing">Plenumante AI-instigilon: %s</string>
   <string name="llm_actions">AI-agoj</string>
 
     <!-- Agent Log Widget -->
@@ -1835,9 +1789,7 @@ Ne montri tion ĉi denove</string>
   <string name="agent_log_close">Fermi protokolon de agento</string>
   <string name="agent_log_stop">Halti AI</string>
   <string name="agent_log_idle">AI-Asistanto</string>
-  <string name="agent_log_running">AI laboras…</string>
   <string name="agent_log_completed">Finita</string>
-  <string name="agent_log_error">Eraro okazis</string>
   <string name="agent_log_executing">Plenumate: %s</string>
   <string name="agent_log_iteration">Ripeto %d</string>
   <string name="agent_log_tool">Ilo: %s</string>
@@ -1847,7 +1799,6 @@ Ne montri tion ĉi denove</string>
   <string name="agent_log_saved">Konservita: %s</string>
   <string name="agent_log_done">Finita: %s</string>
   <string name="agent_log_cancelled">Nuligita</string>
-  <string name="agent_execution_completed">Plenumo de agento finita</string>
   <string name="agent_already_running">AI-agento jam funkcias. Bonvolu atendi aŭ halti ĝin unue.</string>
 
     <!-- AI Agent Notifications -->

@@ -1405,17 +1405,8 @@ Don\'t show this message again
   <string name="memorize_view_overview">అవలోకనం</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM అనువాదం</string>
   <string name="sync_settings_shortcut_summary">పరికరాల మధ్య డేటాను సమకాలీనం చేయండి</string>
-  <string name="llm_api_key_title">API కీ</string>
-  <string name="llm_api_key_summary">OpenAI-అనుకూల API కీ</string>
   <string name="llm_provider_custom">అనుకూల (OpenAI అనుకూల)</string>
-  <string name="llm_provider_title">ప్రొవైడర్</string>
-  <string name="llm_provider_summary">ఏ AI సేవా ప్రొవైడర్ ఉపయోగించాలో ఎంచుకోండి. API ఎండ్‌పాయింట్ మరియు అందుబాటులో ఉన్న మోడళ్లు స్వయంచాలకంగా కాన్ఫిగర్ చేయబడతాయి.</string>
-  <string name="llm_provider_current">ప్రస్తుతం: %s</string>
-  <string name="llm_api_key_detected_provider">గుర్తించిన ప్రొవైడర్: %s</string>
-  <string name="ai_connection_category">కనెక్షన్</string>
-  <string name="ai_model_category">మోడల్</string>
   <string name="ai_behavior_category">ప్రవర్తన</string>
   <string name="ai_language_title">AI రెస్పాన్స్ భాష</string>
   <string name="ai_language_summary">AI రెస్పాన్స్‌ల కోసం భాష</string>
@@ -1432,16 +1423,9 @@ Don\'t show this message again
   <string name="llm_reset_usage_confirm_title">వినియోగ డేటా రీసెట్ చేయాలా?</string>
   <string name="llm_reset_usage_confirm_message">ఇది అన్ని సంచిత వినియోగ డేటాను క్లియర్ చేస్తుంది.</string>
   <string name="llm_custom_input_price_title">ఇన్‌పుట్ ధర ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">ఈ మోడల్ కోసం మిలియన్ ఇన్‌పుట్ టోకెన్లకు ఖర్చు</string>
   <string name="llm_custom_output_price_title">అవుట్‌పుట్ ధర ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">ఈ మోడల్ కోసం మిలియన్ అవుట్‌పుట్ టోకెన్లకు ఖర్చు</string>
   <string name="llm_cost_total">మొత్తం: %1$s</string>
-  <string name="llm_endpoint_title">API ఎండ్‌పాయింట్</string>
-  <string name="llm_endpoint_summary">API కోసం బేస్ URL</string>
-  <string name="llm_model_title">మోడల్</string>
-  <string name="llm_model_summary">మోడల్ ID</string>
   <string name="llm_custom_model">అనుకూల…</string>
-  <string name="llm_custom_model_dialog_title">అనుకూల మోడల్</string>
   <string name="llm_custom_model_dialog_message">మోడల్ ID నమోదు చేయండి</string>
   <string name="llm_rate_limited_retrying">రేట్ లిమిటెడ్. %1$sసె తర్వాత మళ్లీ ప్రయత్నిస్తోంది\u2026</string>
   <string name="llm_default_document_title">AI రెస్పాన్స్</string>
@@ -1451,7 +1435,6 @@ Don\'t show this message again
   <string name="llm_parse_error_no_choices">OpenAI రెస్పాన్స్‌లో ఎంపికలు లేవు</string>
   <string name="llm_parse_error_openai">OpenAI రెస్పాన్స్ పార్స్ విఫలమైంది: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic రెస్పాన్స్ పార్స్ విఫలమైంది: %1$s</string>
-  <string name="llm_error_prompt_not_found">ప్రాంప్ట్ కనుగొనబడలేదు: %1$s</string>
   <string name="llm_error_unknown">తెలియని లోపం</string>
   <string name="llm_error_max_iterations">పూర్తి కాకుండా గరిష్ట ఇటరేషన్లు (%1$d) చేరుకున్నాయి</string>
   <string name="llm_continue_iterations_title">కొనసాగించాలా?</string>
@@ -1486,7 +1469,6 @@ Don\'t show this message again
   <string name="raw_log_retention_summary_disabled">నిలిపివేయబడింది (అన్నీ ఉంచు)</string>
   <string name="send_ai_bug_report_title">AI బగ్ నివేదించు</string>
   <string name="ai_bug_report_menu">AI బగ్ నివేదించు</string>
-  <string name="ai_bug_report_recommended_only">బగ్ నివేదన సిఫారసు చేసిన ప్రొవైడర్ మోడళ్లకు మాత్రమే అందుబాటులో ఉంది</string>
 
   <string name="select_model_before_run_title">మోడల్ ఎంచుకోండి</string>
   <string name="set_default_model_for_prompt">ఈ ప్రాంప్ట్ కోసం డిఫాల్ట్ మోడల్‌గా నిర్ణయించండి</string>
@@ -1528,11 +1510,6 @@ Don\'t show this message again
   <string name="ai_provider_saved">ప్రొవైడర్ సేవ్ చేయబడింది</string>
   <string name="ai_provider_deleted">ప్రొవైడర్ తొలగించబడింది</string>
 
-  <string name="llm_fetch_models_title">మోడల్ జాబితా డౌన్‌లోడ్ చేయండి</string>
-  <string name="llm_fetch_models_message">%1$s నుండి అందుబాటులో ఉన్న మోడళ్ల జాబితా డౌన్‌లోడ్ చేయాలా?</string>
-  <string name="llm_fetch_models_dont_ask">మళ్లీ అడగకండి</string>
-  <string name="llm_fetch_models_success">%1$d మోడళ్లు లోడ్ చేయబడ్డాయి</string>
-  <string name="llm_fetch_models_failed">మోడళ్లు తెచ్చుకోవడం విఫలమైంది</string>
   <string name="llm_openrouter_category">వర్గం</string>
   <string name="llm_openrouter_category_all">అన్నీ</string>
   <string name="llm_openrouter_model">మోడల్</string>
@@ -1546,9 +1523,6 @@ Don\'t show this message again
   <string name="model_delete_confirm">మోడల్ \"%1$s\" తొలగించాలా?</string>
   <string name="model_set_default">డిఫాల్ట్ మోడల్‌గా నిర్ణయించండి</string>
   <string name="model_select_provider">ప్రొవైడర్</string>
-  <string name="no_models_configured">మోడళ్లు కాన్ఫిగర్ చేయబడలేదు</string>
-  <string name="model_cache_creation_price">కేష్ సృష్టి ధర ($/Mtoken)</string>
-  <string name="model_cache_read_price">కేష్ చదవడం ధర ($/Mtoken)</string>
   <string name="model_supported_badge">✓ మద్దతు ఇవ్వబడింది</string>
   <string name="show_also_unsupported_models">మద్దతు లేని మోడళ్లను కూడా చూపించు</string>
   <string name="show_also_unsupported_providers">మద్దతు లేని ప్రొవైడర్లను కూడా చూపించు</string>
@@ -1559,7 +1533,6 @@ Don\'t show this message again
   <string name="unknown_error">తెలియని లోపం</string>
   <string name="easy_setup_title">శీఘ్ర సెటప్</string>
   <string name="easy_setup_pref_summary">కొన్ని దశల్లో సిఫారసు చేసిన ప్రొవైడర్‌తో AI సెటప్ చేయండి</string>
-  <string name="easy_setup_choose_provider">ప్రారంభించడానికి ప్రొవైడర్ ఎంచుకోండి:</string>
   <string name="easy_setup_enter_api_key">మీ API కీ నమోదు చేయండి</string>
   <string name="easy_setup_api_key_instructions">మీ API కీని ఇక్కడ నుండి పొందండి:</string>
   <string name="easy_setup_test_connection">కనెక్షన్ పరీక్షించు</string>
@@ -1663,13 +1636,10 @@ Don\'t show this message again
   <string name="llm_note_updated">నోట్ నవీకరించబడింది</string>
   <string name="specify_before_run_title">పని పేర్కొనండి</string>
   <string name="specify_before_run_hint">నిర్దిష్ట పనిని వివరించండి…</string>
-  <string name="prompt_cache_settings">కేష్ సెట్టింగులు</string>
   <string name="prompt_strict_context_matching">సందర్భ-ఆధారిత కేష్</string>
   <string name="prompt_strict_context_matching_description">ప్రారంభించినప్పుడు, అన్ని సందర్భం (బైబిలు వెర్షన్, ఎంచుకున్న వచనం) ఒకే విధంగా ఉన్నప్పుడే కేష్ సరిపోలుతుంది. నిలిపివేసినప్పుడు, బైబిలు వెర్షన్ తో సంబంధం లేకుండా వచనాలు ఒకే విధంగా ఉన్నప్పుడు కేష్ సరిపోలుతుంది.</string>
   <string name="ai_document_delete_confirmation">ఈ AI పత్రాన్ని తొలగించాలా?</string>
-  <string name="ai_document_deleted">ఈ AI పత్రం తొలగించబడింది.</string>
   <string name="ai_document_regenerating">AI పత్రం పునర్జనరేట్ చేస్తోంది…</string>
-  <string name="ai_document_regenerate_not_implemented">పునర్జనరేషన్ భవిష్యత్ నవీకరణలో అందుబాటులో ఉంటుంది</string>
   <string name="ai_regenerate_prompt_not_found">పునర్జనరేట్ చేయలేరు: అసలు ప్రాంప్ట్ కనుగొనబడలేదు. అది తొలగించబడి ఉండవచ్చు.</string>
   <string name="ai_document_regenerate">పునర్జనరేట్ చేయండి</string>
   <string name="ai_regenerate_title">పునర్జనరేట్ చేయండి</string>
@@ -1683,8 +1653,6 @@ Don\'t show this message again
   <string name="default_prompt_translate_to_language">%s కు అనువదించండి</string>
   <string name="default_prompt_translate_to_ui_language">UI భాషకు అనువదించండి</string>
   <string name="default_prompt_translate_to_ui_language_desc">పత్రం వచనాన్ని యాప్ ఇంటర్ఫేస్ భాషకు అనువదిస్తుంది</string>
-  <string name="default_prompt_translate_to_english">ఇంగ్లీషుకు అనువదించండి</string>
-  <string name="default_prompt_translate_to_english_desc">ఎంచుకున్న వచనాన్ని ఇంగ్లీషుకు అనువదిస్తుంది</string>
   <string name="default_prompt_summary">సారాంశం</string>
   <string name="default_prompt_summary_desc">ఎంచుకున్న వచనం యొక్క సంక్షిప్త సారాంశం సృష్టిస్తుంది</string>
   <string name="default_prompt_explain_verses">వచనాలు వివరించండి</string>
@@ -1693,8 +1661,6 @@ Don\'t show this message again
   <string name="default_prompt_explain_verses_studypad_desc">వచన-వారీ వివరణ మరియు బుక్‌మార్క్‌లతో స్టడీ ప్యాడ్ సృష్టిస్తుంది</string>
   <string name="default_prompt_word_study">పద అధ్యయనం</string>
   <string name="default_prompt_word_study_desc">అసలు హీబ్రూ/గ్రీక్ పదాలను విశ్లేషిస్తుంది</string>
-  <string name="default_prompt_strongs_annotation">స్ట్రాంగ్స్ నంబర్ అనుక్రమణ</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV ని సూచనగా ఉపయోగించి ఏ బైబిలు అనువాదానికైనా స్ట్రాంగ్స్ కాన్కార్డెన్స్ నంబర్లు జోడిస్తుంది</string>
   <string name="default_prompt_cross_references">క్రాస్-రిఫరెన్స్‌లు</string>
   <string name="default_prompt_cross_references_desc">సంబంధిత బైబిలు భాగాలను కనుగొంటుంది మరియు వివరిస్తుంది</string>
   <string name="default_prompt_compare_translations">అనువాదాలు పోల్చండి</string>
@@ -1837,11 +1803,7 @@ Don\'t show this message again
   <string name="ai_document_filter_summary">AI చదవగల పత్రాలు ఎంచుకోండి</string>
   <string name="ai_document_filter_summary_count">%d పత్రాలు మినహాయించబడ్డాయి</string>
   <string name="ai_document_filter_activity_title">AI పత్రం యాక్సెస్</string>
-  <string name="ai_document_excluded_error">వినియోగదారు సెట్టింగుల ద్వారా పత్రం మినహాయించబడింది: %s</string>
   <string name="permission_status_default">అడగండి (డిఫాల్ట్)</string>
-  <string name="permission_status_allowed">ఎల్లప్పుడూ అనుమతించబడింది</string>
-  <string name="permission_status_denied">ఎల్లప్పుడూ తిరస్కరించబడింది</string>
-  <string name="permission_option_default">ప్రతిసారి అడగండి (డిఫాల్ట్)</string>
   <string name="permission_option_always_allow">ఎల్లప్పుడూ అనుమతించు</string>
   <string name="permission_option_always_deny">ఎల్లప్పుడూ తిరస్కరించు</string>
   <string name="reset_all_permissions">అన్నీ రీసెట్ చేయండి</string>
@@ -1856,10 +1818,6 @@ Don\'t show this message again
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">సాధన అనుమతులు</string>
-  <string name="prompt_tool_permissions_read_only">సాధన అనుమతులు (రీడ్-ఓన్లీ)</string>
-  <string name="prompt_tool_permissions_description">ఈ ప్రాంప్ట్ కోసం సాధన అనుమతులు ఓవర్‌రైడ్ చేయండి</string>
-  <string name="tool_section_read_tools">చదివే సాధనాలు</string>
-  <string name="tool_section_write_tools">రాసే సాధనాలు</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">బైబిలు &amp; శోధన</string>
@@ -1882,13 +1840,9 @@ Don\'t show this message again
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">మోడల్</string>
   <string name="prompt_model_default">డిఫాల్ట్</string>
-  <string name="prompt_model_custom">అనుకూల</string>
-  <string name="prompt_model_custom_hint">మోడల్ పేరు నమోదు చేయండి</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI చర్య ఎంచుకోండి</string>
-  <string name="no_llm_prompts_configured">వచనం ఎంపిక కోసం AI ప్రాంప్ట్‌లు కాన్ఫిగర్ చేయబడలేదు</string>
-  <string name="llm_prompt_executing">AI ప్రాంప్ట్ అమలు చేస్తోంది: %s</string>
   <string name="llm_actions">AI చర్యలు</string>
 
     <!-- Agent Log Widget -->
@@ -1896,9 +1850,7 @@ Don\'t show this message again
   <string name="agent_log_close">ఏజెంట్ లాగ్ మూసివేయి</string>
   <string name="agent_log_stop">AI ఆపు</string>
   <string name="agent_log_idle">AI అసిస్టెంట్</string>
-  <string name="agent_log_running">AI పని చేస్తోంది…</string>
   <string name="agent_log_completed">పూర్తయింది</string>
-  <string name="agent_log_error">లోపం సంభవించింది</string>
   <string name="agent_log_executing">అమలు చేస్తోంది: %s</string>
   <string name="agent_log_iteration">ఇటరేషన్ %d</string>
   <string name="agent_log_tool">సాధనం: %s</string>
@@ -1908,7 +1860,6 @@ Don\'t show this message again
   <string name="agent_log_saved">సేవ్ చేయబడింది: %s</string>
   <string name="agent_log_done">పూర్తయింది: %s</string>
   <string name="agent_log_cancelled">రద్దు చేయబడింది</string>
-  <string name="agent_execution_completed">ఏజెంట్ అమలు పూర్తయింది</string>
   <string name="agent_already_running">AI ఏజెంట్ ఇప్పటికే నడుస్తోంది. దయచేసి వేచి ఉండండి లేదా ముందు ఆపండి.</string>
 
     <!-- AI Agent Notifications -->

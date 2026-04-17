@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">ภาพรวม</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">การแปล AI</string>
   <string name="sync_settings_shortcut_summary">ซิงโครไนซ์ข้อมูลระหว่างอุปกรณ์</string>
-  <string name="llm_api_key_title">คีย์ API</string>
-  <string name="llm_api_key_summary">คีย์ API ที่รองรับ OpenAI</string>
   <string name="llm_provider_custom">กำหนดเอง (รองรับ OpenAI)</string>
-  <string name="llm_provider_title">ผู้ให้บริการ</string>
-  <string name="llm_provider_summary">เลือกผู้ให้บริการ AI ที่ต้องการ จุดปลาย API และโมเดลที่พร้อมใช้งานจะถูกกำหนดค่าโดยอัตโนมัติ</string>
-  <string name="llm_provider_current">ปัจจุบัน: %s</string>
-  <string name="llm_api_key_detected_provider">ผู้ให้บริการที่ตรวจพบ: %s</string>
-  <string name="ai_connection_category">การเชื่อมต่อ</string>
-  <string name="ai_model_category">โมเดล</string>
   <string name="ai_behavior_category">พฤติกรรม</string>
   <string name="ai_language_title">ภาษาที่ AI ตอบสนอง</string>
   <string name="ai_language_summary">ภาษาที่ AI ใช้ในการตอบสนอง</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">รีเซ็ตข้อมูลการใช้งาน?</string>
   <string name="llm_reset_usage_confirm_message">การดำเนินการนี้จะล้างข้อมูลการใช้งานสะสมทั้งหมด</string>
   <string name="llm_custom_input_price_title">ราคาอินพุต ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">ค่าใช้จ่ายต่อล้านโทเคนอินพุตสำหรับโมเดลนี้</string>
   <string name="llm_custom_output_price_title">ราคาเอาต์พุต ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">ค่าใช้จ่ายต่อล้านโทเคนเอาต์พุตสำหรับโมเดลนี้</string>
   <string name="llm_cost_total">รวม: %1$s</string>
-  <string name="llm_endpoint_title">จุดปลาย API</string>
-  <string name="llm_endpoint_summary">URL พื้นฐานสำหรับ API</string>
-  <string name="llm_model_title">โมเดล</string>
-  <string name="llm_model_summary">รหัสโมเดล</string>
   <string name="llm_custom_model">กำหนดเอง…</string>
-  <string name="llm_custom_model_dialog_title">โมเดลกำหนดเอง</string>
   <string name="llm_custom_model_dialog_message">ป้อนรหัสโมเดล</string>
   <string name="llm_rate_limited_retrying">ถูกจำกัดอัตรา กำลังลองใหม่ใน %1$ss\u2026</string>
   <string name="llm_default_document_title">การตอบสนองของ AI</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">ไม่มีตัวเลือกในการตอบสนอง OpenAI</string>
   <string name="llm_parse_error_openai">ไม่สามารถแยกวิเคราะห์การตอบสนอง OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">ไม่สามารถแยกวิเคราะห์การตอบสนอง Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">ไม่พบพรอมต์: %1$s</string>
   <string name="llm_error_unknown">ข้อผิดพลาดที่ไม่ทราบสาเหตุ</string>
   <string name="llm_error_max_iterations">ถึงจำนวนการทำซ้ำสูงสุด (%1$d) โดยไม่เสร็จสมบูรณ์</string>
   <string name="llm_continue_iterations_title">ดำเนินการต่อ?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">ปิดใช้งาน (เก็บทั้งหมด)</string>
   <string name="send_ai_bug_report_title">รายงานข้อบกพร่องของ AI</string>
   <string name="ai_bug_report_menu">รายงานข้อบกพร่องของ AI</string>
-  <string name="ai_bug_report_recommended_only">การรายงานข้อบกพร่องใช้ได้เฉพาะกับโมเดลผู้ให้บริการที่แนะนำเท่านั้น</string>
 
   <string name="select_model_before_run_title">เลือกโมเดล</string>
   <string name="set_default_model_for_prompt">ตั้งเป็นโมเดลเริ่มต้นสำหรับพรอมต์นี้</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">บันทึกผู้ให้บริการแล้ว</string>
   <string name="ai_provider_deleted">ลบผู้ให้บริการแล้ว</string>
 
-  <string name="llm_fetch_models_title">ดาวน์โหลดรายการโมเดล</string>
-  <string name="llm_fetch_models_message">ดาวน์โหลดรายการโมเดลที่พร้อมใช้งานจาก %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">ไม่ต้องถามอีก</string>
-  <string name="llm_fetch_models_success">โหลด %1$d โมเดลแล้ว</string>
-  <string name="llm_fetch_models_failed">ไม่สามารถดึงโมเดลได้</string>
   <string name="llm_openrouter_category">หมวดหมู่</string>
   <string name="llm_openrouter_category_all">ทั้งหมด</string>
   <string name="llm_openrouter_model">โมเดล</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">ลบโมเดล \"%1$s\"?</string>
   <string name="model_set_default">ตั้งเป็นโมเดลเริ่มต้น</string>
   <string name="model_select_provider">ผู้ให้บริการ</string>
-  <string name="no_models_configured">ยังไม่ได้กำหนดค่าโมเดล</string>
-  <string name="model_cache_creation_price">ราคาสร้างแคช ($/Mtoken)</string>
-  <string name="model_cache_read_price">ราคาอ่านแคช ($/Mtoken)</string>
   <string name="model_supported_badge">✓ รองรับแล้ว</string>
   <string name="show_also_unsupported_models">แสดงโมเดลที่ไม่รองรับด้วย</string>
   <string name="show_also_unsupported_providers">แสดงผู้ให้บริการที่ไม่รองรับด้วย</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">ข้อผิดพลาดที่ไม่รู้จัก</string>
   <string name="easy_setup_title">ตั้งค่าด่วน</string>
   <string name="easy_setup_pref_summary">ตั้งค่า AI กับผู้ให้บริการที่แนะนำในไม่กี่ขั้นตอน</string>
-  <string name="easy_setup_choose_provider">เลือกผู้ให้บริการเพื่อเริ่มต้น:</string>
   <string name="easy_setup_enter_api_key">ป้อน API key ของคุณ</string>
   <string name="easy_setup_api_key_instructions">รับ API key จาก:</string>
   <string name="easy_setup_test_connection">ทดสอบการเชื่อมต่อ</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">อัปเดตบันทึกแล้ว</string>
   <string name="specify_before_run_title">ระบุงาน</string>
   <string name="specify_before_run_hint">อธิบายงานที่ต้องการ…</string>
-  <string name="prompt_cache_settings">การตั้งค่าแคช</string>
   <string name="prompt_strict_context_matching">แคชขึ้นอยู่กับบริบท</string>
   <string name="prompt_strict_context_matching_description">เมื่อเปิดใช้งาน แคชจะจับคู่เฉพาะเมื่อบริบททั้งหมด (เวอร์ชันพระคัมภีร์ ข้อความที่เลือก) เหมือนกัน เมื่อปิดใช้งาน แคชจะจับคู่เมื่อข้อพระคัมภีร์เหมือนกันโดยไม่คำนึงถึงเวอร์ชันพระคัมภีร์</string>
   <string name="ai_document_delete_confirmation">ลบเอกสาร AI นี้?</string>
-  <string name="ai_document_deleted">ลบเอกสาร AI นี้แล้ว</string>
   <string name="ai_document_regenerating">กำลังสร้างเอกสาร AI ใหม่…</string>
-  <string name="ai_document_regenerate_not_implemented">การสร้างใหม่จะพร้อมใช้งานในการอัปเดตครั้งถัดไป</string>
   <string name="ai_regenerate_prompt_not_found">ไม่สามารถสร้างใหม่ได้: ไม่พบพรอมต์ต้นฉบับ อาจถูกลบไปแล้ว</string>
   <string name="ai_document_regenerate">สร้างใหม่</string>
   <string name="ai_regenerate_title">สร้างใหม่</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">แปลเป็น %s</string>
   <string name="default_prompt_translate_to_ui_language">แปลเป็นภาษาของแอป</string>
   <string name="default_prompt_translate_to_ui_language_desc">แปลข้อความในเอกสารเป็นภาษาที่ใช้ในอินเทอร์เฟซของแอป</string>
-  <string name="default_prompt_translate_to_english">แปลเป็นภาษาอังกฤษ</string>
-  <string name="default_prompt_translate_to_english_desc">แปลข้อความที่เลือกเป็นภาษาอังกฤษ</string>
   <string name="default_prompt_summary">สรุปเนื้อหา</string>
   <string name="default_prompt_summary_desc">สร้างบทสรุปกระชับของข้อความที่เลือก</string>
   <string name="default_prompt_explain_verses">อธิบายข้อพระคัมภีร์</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">สร้างแผ่นบันทึกการศึกษาพร้อมคำอธิบายรายข้อและที่คั่นหน้า</string>
   <string name="default_prompt_word_study">ศึกษาคำศัพท์</string>
   <string name="default_prompt_word_study_desc">วิเคราะห์คำภาษาฮีบรู/กรีกต้นฉบับ</string>
-  <string name="default_prompt_strongs_annotation">ใส่หมายเลข Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">เพิ่มหมายเลข Strong\'s ให้กับพระคัมภีร์แปลใดก็ได้โดยใช้ KJV เป็นอ้างอิง</string>
   <string name="default_prompt_cross_references">ข้อพระคัมภีร์อ้างอิง</string>
   <string name="default_prompt_cross_references_desc">ค้นหาและอธิบายข้อพระคัมภีร์ที่เกี่ยวข้อง</string>
   <string name="default_prompt_compare_translations">เปรียบเทียบฉบับแปล</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">เลือกเอกสารที่ AI สามารถอ่านได้</string>
   <string name="ai_document_filter_summary_count">ไม่รวม %d เอกสาร</string>
   <string name="ai_document_filter_activity_title">การเข้าถึงเอกสารของ AI</string>
-  <string name="ai_document_excluded_error">เอกสารถูกยกเว้นโดยการตั้งค่าผู้ใช้: %s</string>
   <string name="permission_status_default">ถาม (ค่าเริ่มต้น)</string>
-  <string name="permission_status_allowed">อนุญาตเสมอ</string>
-  <string name="permission_status_denied">ปฏิเสธเสมอ</string>
-  <string name="permission_option_default">ถามทุกครั้ง (ค่าเริ่มต้น)</string>
   <string name="permission_option_always_allow">อนุญาตเสมอ</string>
   <string name="permission_option_always_deny">ปฏิเสธเสมอ</string>
   <string name="reset_all_permissions">รีเซ็ตทั้งหมด</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">สิทธิ์การใช้เครื่องมือ</string>
-  <string name="prompt_tool_permissions_read_only">สิทธิ์การใช้เครื่องมือ (อ่านอย่างเดียว)</string>
-  <string name="prompt_tool_permissions_description">แทนที่สิทธิ์เครื่องมือสำหรับพรอมต์นี้</string>
-  <string name="tool_section_read_tools">เครื่องมืออ่าน</string>
-  <string name="tool_section_write_tools">เครื่องมือเขียน</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">พระคัมภีร์ &amp; การค้นหา</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">โมเดล</string>
   <string name="prompt_model_default">ค่าเริ่มต้น</string>
-  <string name="prompt_model_custom">กำหนดเอง</string>
-  <string name="prompt_model_custom_hint">ป้อนชื่อโมเดล</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">เลือกการดำเนินการ AI</string>
-  <string name="no_llm_prompts_configured">ไม่มีพรอมต์ AI ที่กำหนดค่าสำหรับการเลือกข้อพระคัมภีร์</string>
-  <string name="llm_prompt_executing">กำลังเรียกใช้พรอมต์ AI: %s</string>
   <string name="llm_actions">การดำเนินการ AI</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">ปิดบันทึก agent</string>
   <string name="agent_log_stop">หยุด AI</string>
   <string name="agent_log_idle">ผู้ช่วย AI</string>
-  <string name="agent_log_running">AI กำลังทำงาน…</string>
   <string name="agent_log_completed">เสร็จสิ้น</string>
-  <string name="agent_log_error">เกิดข้อผิดพลาด</string>
   <string name="agent_log_executing">กำลังเรียกใช้: %s</string>
   <string name="agent_log_iteration">รอบที่ %d</string>
   <string name="agent_log_tool">เครื่องมือ: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">บันทึกแล้ว: %s</string>
   <string name="agent_log_done">เสร็จ: %s</string>
   <string name="agent_log_cancelled">ยกเลิกแล้ว</string>
-  <string name="agent_execution_completed">การทำงานของ agent เสร็จสิ้น</string>
   <string name="agent_already_running">AI agent กำลังทำงานอยู่แล้ว กรุณารอหรือหยุดก่อน</string>
 
     <!-- AI Agent Notifications -->

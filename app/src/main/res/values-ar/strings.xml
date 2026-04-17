@@ -1342,17 +1342,8 @@
   <string name="memorize_view_overview">نظرة عامة</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">ترجمة نموذج اللغة</string>
   <string name="sync_settings_shortcut_summary">مزامنة البيانات بين الأجهزة</string>
-  <string name="llm_api_key_title">مفتاح API</string>
-  <string name="llm_api_key_summary">مفتاح API متوافق مع OpenAI</string>
   <string name="llm_provider_custom">مخصص (متوافق مع OpenAI)</string>
-  <string name="llm_provider_title">الموفر</string>
-  <string name="llm_provider_summary">اختر موفر خدمة الذكاء الاصطناعي. سيتم تكوين نقطة نهاية API والنماذج المتاحة تلقائياً.</string>
-  <string name="llm_provider_current">الحالي: %s</string>
-  <string name="llm_api_key_detected_provider">الموفر المُكتشف: %s</string>
-  <string name="ai_connection_category">الاتصال</string>
-  <string name="ai_model_category">النموذج</string>
   <string name="ai_behavior_category">السلوك</string>
   <string name="ai_language_title">لغة ردود الذكاء الاصطناعي</string>
   <string name="ai_language_summary">اللغة التي يستخدمها الذكاء الاصطناعي في ردوده</string>
@@ -1369,16 +1360,9 @@
   <string name="llm_reset_usage_confirm_title">إعادة تعيين بيانات الاستخدام؟</string>
   <string name="llm_reset_usage_confirm_message">سيؤدي هذا إلى مسح جميع بيانات الاستخدام التراكمية.</string>
   <string name="llm_custom_input_price_title">سعر الإدخال ($/مليون رمز)</string>
-  <string name="llm_custom_input_price_summary">التكلفة لكل مليون رمز إدخال لهذا النموذج</string>
   <string name="llm_custom_output_price_title">سعر الإخراج ($/مليون رمز)</string>
-  <string name="llm_custom_output_price_summary">التكلفة لكل مليون رمز إخراج لهذا النموذج</string>
   <string name="llm_cost_total">الإجمالي: %1$s</string>
-  <string name="llm_endpoint_title">نقطة نهاية API</string>
-  <string name="llm_endpoint_summary">عنوان URL الأساسي لـ API</string>
-  <string name="llm_model_title">النموذج</string>
-  <string name="llm_model_summary">معرّف النموذج</string>
   <string name="llm_custom_model">مخصص…</string>
-  <string name="llm_custom_model_dialog_title">نموذج مخصص</string>
   <string name="llm_custom_model_dialog_message">أدخل معرّف النموذج</string>
   <string name="llm_rate_limited_retrying">تجاوز حد المعدل. إعادة المحاولة بعد %1$s ثانية\u2026</string>
   <string name="llm_default_document_title">رد الذكاء الاصطناعي</string>
@@ -1388,7 +1372,6 @@
   <string name="llm_parse_error_no_choices">لا توجد خيارات في رد OpenAI</string>
   <string name="llm_parse_error_openai">فشل تحليل رد OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">فشل تحليل رد Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">الموجّه غير موجود: %1$s</string>
   <string name="llm_error_unknown">خطأ غير معروف</string>
   <string name="llm_error_max_iterations">تم الوصول إلى الحد الأقصى من التكرارات (%1$d) دون إتمام</string>
   <string name="llm_continue_iterations_title">متابعة؟</string>
@@ -1423,7 +1406,6 @@
   <string name="raw_log_retention_summary_disabled">معطّل (الاحتفاظ بالكل)</string>
   <string name="send_ai_bug_report_title">الإبلاغ عن خطأ في الذكاء الاصطناعي</string>
   <string name="ai_bug_report_menu">الإبلاغ عن خطأ في الذكاء الاصطناعي</string>
-  <string name="ai_bug_report_recommended_only">الإبلاغ عن الأخطاء متاح فقط لنماذج الموفرين الموصى بهم</string>
 
   <string name="select_model_before_run_title">اختر نموذجاً</string>
   <string name="set_default_model_for_prompt">تعيين كنموذج افتراضي لهذا الموجّه</string>
@@ -1465,11 +1447,6 @@
   <string name="ai_provider_saved">تم حفظ الموفر</string>
   <string name="ai_provider_deleted">تم حذف الموفر</string>
 
-  <string name="llm_fetch_models_title">تنزيل قائمة النماذج</string>
-  <string name="llm_fetch_models_message">هل تريد تنزيل قائمة النماذج المتاحة من %1$s؟</string>
-  <string name="llm_fetch_models_dont_ask">لا تسأل مجدداً</string>
-  <string name="llm_fetch_models_success">تم تحميل %1$d نموذج</string>
-  <string name="llm_fetch_models_failed">فشل جلب النماذج</string>
   <string name="llm_openrouter_category">الفئة</string>
   <string name="llm_openrouter_category_all">الكل</string>
   <string name="llm_openrouter_model">النموذج</string>
@@ -1483,9 +1460,6 @@
   <string name="model_delete_confirm">حذف النموذج \"%1$s\"؟</string>
   <string name="model_set_default">تعيين كنموذج افتراضي</string>
   <string name="model_select_provider">الموفر</string>
-  <string name="no_models_configured">لم يتم تكوين نماذج</string>
-  <string name="model_cache_creation_price">سعر إنشاء الذاكرة المؤقتة ($/مليون رمز)</string>
-  <string name="model_cache_read_price">سعر قراءة الذاكرة المؤقتة ($/مليون رمز)</string>
   <string name="model_supported_badge">✓ مدعوم</string>
   <string name="show_also_unsupported_models">إظهار النماذج غير المدعومة أيضاً</string>
   <string name="show_also_unsupported_providers">إظهار الموفرين غير المدعومين أيضاً</string>
@@ -1496,7 +1470,6 @@
   <string name="unknown_error">خطأ غير معروف</string>
   <string name="easy_setup_title">الإعداد السريع</string>
   <string name="easy_setup_pref_summary">إعداد الذكاء الاصطناعي مع موفر موصى به في بضع خطوات</string>
-  <string name="easy_setup_choose_provider">اختر موفراً للبدء:</string>
   <string name="easy_setup_enter_api_key">أدخل مفتاح API الخاص بك</string>
   <string name="easy_setup_api_key_instructions">احصل على مفتاح API من:</string>
   <string name="easy_setup_test_connection">اختبار الاتصال</string>
@@ -1600,13 +1573,10 @@
   <string name="llm_note_updated">تم تحديث الملاحظة</string>
   <string name="specify_before_run_title">تحديد المهمة</string>
   <string name="specify_before_run_hint">صف المهمة المحددة…</string>
-  <string name="prompt_cache_settings">إعدادات الذاكرة المؤقتة</string>
   <string name="prompt_strict_context_matching">ذاكرة مؤقتة معتمدة على السياق</string>
   <string name="prompt_strict_context_matching_description">عند التفعيل، تتطابق الذاكرة المؤقتة فقط عند تطابق كل السياق (إصدار الكتاب المقدس، النص المحدد). عند التعطيل، تتطابق الذاكرة المؤقتة عندما تتطابق الآيات بغض النظر عن إصدار الكتاب المقدس.</string>
   <string name="ai_document_delete_confirmation">حذف مستند الذكاء الاصطناعي هذا؟</string>
-  <string name="ai_document_deleted">تم حذف مستند الذكاء الاصطناعي هذا.</string>
   <string name="ai_document_regenerating">إعادة إنشاء مستند الذكاء الاصطناعي…</string>
-  <string name="ai_document_regenerate_not_implemented">ستكون إعادة الإنشاء متاحة في تحديث مستقبلي</string>
   <string name="ai_regenerate_prompt_not_found">لا يمكن إعادة الإنشاء: الموجّه الأصلي غير موجود. قد يكون قد حُذف.</string>
   <string name="ai_document_regenerate">إعادة الإنشاء</string>
   <string name="ai_regenerate_title">إعادة الإنشاء</string>
@@ -1620,8 +1590,6 @@
   <string name="default_prompt_translate_to_language">الترجمة إلى %s</string>
   <string name="default_prompt_translate_to_ui_language">الترجمة إلى لغة الواجهة</string>
   <string name="default_prompt_translate_to_ui_language_desc">يترجم نص المستند إلى لغة واجهة التطبيق</string>
-  <string name="default_prompt_translate_to_english">الترجمة إلى الإنجليزية</string>
-  <string name="default_prompt_translate_to_english_desc">يترجم النص المحدد إلى الإنجليزية</string>
   <string name="default_prompt_summary">ملخص</string>
   <string name="default_prompt_summary_desc">ينشئ ملخصاً موجزاً للنص المحدد</string>
   <string name="default_prompt_explain_verses">شرح الآيات</string>
@@ -1630,8 +1598,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">إنشاء لوحة دراسة مع شرح آية بآية وإشارات مرجعية</string>
   <string name="default_prompt_word_study">دراسة كلمة</string>
   <string name="default_prompt_word_study_desc">تحليل الكلمات العبرية/اليونانية الأصلية</string>
-  <string name="default_prompt_strongs_annotation">تعليق أرقام Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">يضيف أرقام تطابق Strong\'s لأي ترجمة للكتاب المقدس باستخدام KJV كمرجع</string>
   <string name="default_prompt_cross_references">المراجع المتقاطعة</string>
   <string name="default_prompt_cross_references_desc">يبحث ويشرح المقاطع الكتابية المرتبطة</string>
   <string name="default_prompt_compare_translations">مقارنة الترجمات</string>
@@ -1774,11 +1740,7 @@
   <string name="ai_document_filter_summary">اختر المستندات التي يمكن للذكاء الاصطناعي قراءتها</string>
   <string name="ai_document_filter_summary_count">%d مستند مستبعد</string>
   <string name="ai_document_filter_activity_title">وصول الذكاء الاصطناعي للمستندات</string>
-  <string name="ai_document_excluded_error">المستند مستبعد بواسطة إعدادات المستخدم: %s</string>
   <string name="permission_status_default">سؤال (افتراضي)</string>
-  <string name="permission_status_allowed">مسموح دائماً</string>
-  <string name="permission_status_denied">مرفوض دائماً</string>
-  <string name="permission_option_default">السؤال في كل مرة (افتراضي)</string>
   <string name="permission_option_always_allow">السماح دائماً</string>
   <string name="permission_option_always_deny">الرفض دائماً</string>
   <string name="reset_all_permissions">إعادة تعيين الكل</string>
@@ -1793,10 +1755,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">أذونات الأدوات</string>
-  <string name="prompt_tool_permissions_read_only">أذونات الأدوات (للقراءة فقط)</string>
-  <string name="prompt_tool_permissions_description">تجاوز أذونات الأدوات لهذا الموجّه</string>
-  <string name="tool_section_read_tools">أدوات القراءة</string>
-  <string name="tool_section_write_tools">أدوات الكتابة</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">الكتاب المقدس والبحث</string>
@@ -1819,13 +1777,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">النموذج</string>
   <string name="prompt_model_default">افتراضي</string>
-  <string name="prompt_model_custom">مخصص</string>
-  <string name="prompt_model_custom_hint">أدخل اسم النموذج</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">اختر إجراء الذكاء الاصطناعي</string>
-  <string name="no_llm_prompts_configured">لم يتم تكوين موجّهات ذكاء اصطناعي لتحديد الآية</string>
-  <string name="llm_prompt_executing">تنفيذ موجّه الذكاء الاصطناعي: %s</string>
   <string name="llm_actions">إجراءات الذكاء الاصطناعي</string>
 
     <!-- Agent Log Widget -->
@@ -1833,9 +1787,7 @@
   <string name="agent_log_close">إغلاق سجل الوكيل</string>
   <string name="agent_log_stop">إيقاف الذكاء الاصطناعي</string>
   <string name="agent_log_idle">مساعد الذكاء الاصطناعي</string>
-  <string name="agent_log_running">الذكاء الاصطناعي يعمل…</string>
   <string name="agent_log_completed">اكتمل</string>
-  <string name="agent_log_error">حدث خطأ</string>
   <string name="agent_log_executing">تنفيذ: %s</string>
   <string name="agent_log_iteration">التكرار %d</string>
   <string name="agent_log_tool">الأداة: %s</string>
@@ -1845,7 +1797,6 @@
   <string name="agent_log_saved">تم الحفظ: %s</string>
   <string name="agent_log_done">تم: %s</string>
   <string name="agent_log_cancelled">تم الإلغاء</string>
-  <string name="agent_execution_completed">اكتمل تنفيذ الوكيل</string>
   <string name="agent_already_running">وكيل الذكاء الاصطناعي يعمل بالفعل. يرجى الانتظار أو إيقافه أولاً.</string>
 
     <!-- AI Agent Notifications -->

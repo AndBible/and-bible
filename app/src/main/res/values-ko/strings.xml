@@ -1426,17 +1426,8 @@
   <string name="memorize_view_overview">개요</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM 번역</string>
   <string name="sync_settings_shortcut_summary">기기 간 데이터 동기화</string>
-  <string name="llm_api_key_title">API 키</string>
-  <string name="llm_api_key_summary">OpenAI 호환 API 키</string>
   <string name="llm_provider_custom">사용자 지정 (OpenAI 호환)</string>
-  <string name="llm_provider_title">제공자</string>
-  <string name="llm_provider_summary">사용할 AI 서비스 제공자를 선택하세요. API 엔드포인트와 사용 가능한 모델이 자동으로 구성됩니다.</string>
-  <string name="llm_provider_current">현재: %s</string>
-  <string name="llm_api_key_detected_provider">감지된 제공자: %s</string>
-  <string name="ai_connection_category">연결</string>
-  <string name="ai_model_category">모델</string>
   <string name="ai_behavior_category">동작</string>
   <string name="ai_language_title">AI 응답 언어</string>
   <string name="ai_language_summary">AI가 응답에 사용하는 언어</string>
@@ -1453,16 +1444,9 @@
   <string name="llm_reset_usage_confirm_title">사용 데이터를 재설정하시겠습니까?</string>
   <string name="llm_reset_usage_confirm_message">이 작업은 모든 누적 사용 데이터를 지웁니다.</string>
   <string name="llm_custom_input_price_title">입력 가격 ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">이 모델의 입력 토큰 백만 개당 비용</string>
   <string name="llm_custom_output_price_title">출력 가격 ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">이 모델의 출력 토큰 백만 개당 비용</string>
   <string name="llm_cost_total">합계: %1$s</string>
-  <string name="llm_endpoint_title">API 엔드포인트</string>
-  <string name="llm_endpoint_summary">API의 기본 URL</string>
-  <string name="llm_model_title">모델</string>
-  <string name="llm_model_summary">모델 ID</string>
   <string name="llm_custom_model">사용자 지정…</string>
-  <string name="llm_custom_model_dialog_title">사용자 지정 모델</string>
   <string name="llm_custom_model_dialog_message">모델 ID를 입력하세요</string>
   <string name="llm_rate_limited_retrying">요청 횟수 제한. %1$s초 후 재시도 중\u2026</string>
   <string name="llm_default_document_title">AI 응답</string>
@@ -1472,7 +1456,6 @@
   <string name="llm_parse_error_no_choices">OpenAI 응답에 선택 항목이 없습니다</string>
   <string name="llm_parse_error_openai">OpenAI 응답 파싱 실패: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic 응답 파싱 실패: %1$s</string>
-  <string name="llm_error_prompt_not_found">프롬프트를 찾을 수 없습니다: %1$s</string>
   <string name="llm_error_unknown">알 수 없는 오류</string>
   <string name="llm_error_max_iterations">완료하지 못한 채 최대 반복 횟수(%1$d)에 도달했습니다</string>
   <string name="llm_continue_iterations_title">계속하시겠습니까?</string>
@@ -1507,7 +1490,6 @@
   <string name="raw_log_retention_summary_disabled">비활성화됨 (모두 보관)</string>
   <string name="send_ai_bug_report_title">AI 버그 신고</string>
   <string name="ai_bug_report_menu">AI 버그 신고</string>
-  <string name="ai_bug_report_recommended_only">버그 신고는 권장 공급자 모델에서만 사용할 수 있습니다</string>
 
   <string name="select_model_before_run_title">모델 선택</string>
   <string name="set_default_model_for_prompt">이 프롬프트의 기본 모델로 설정</string>
@@ -1549,11 +1531,6 @@
   <string name="ai_provider_saved">공급자가 저장되었습니다</string>
   <string name="ai_provider_deleted">공급자가 삭제되었습니다</string>
 
-  <string name="llm_fetch_models_title">모델 목록 다운로드</string>
-  <string name="llm_fetch_models_message">%1$s에서 사용 가능한 모델 목록을 다운로드하시겠습니까?</string>
-  <string name="llm_fetch_models_dont_ask">다시 묻지 않기</string>
-  <string name="llm_fetch_models_success">%1$d개의 모델을 불러왔습니다</string>
-  <string name="llm_fetch_models_failed">모델 가져오기에 실패했습니다</string>
   <string name="llm_openrouter_category">카테고리</string>
   <string name="llm_openrouter_category_all">전체</string>
   <string name="llm_openrouter_model">모델</string>
@@ -1567,9 +1544,6 @@
   <string name="model_delete_confirm">모델 \"%1$s\"을(를) 삭제하시겠습니까?</string>
   <string name="model_set_default">기본 모델로 설정</string>
   <string name="model_select_provider">공급자</string>
-  <string name="no_models_configured">구성된 모델 없음</string>
-  <string name="model_cache_creation_price">캐시 생성 가격 ($/Mtoken)</string>
-  <string name="model_cache_read_price">캐시 읽기 가격 ($/Mtoken)</string>
   <string name="model_supported_badge">✓ 지원됨</string>
   <string name="show_also_unsupported_models">지원되지 않는 모델도 표시</string>
   <string name="show_also_unsupported_providers">지원되지 않는 공급자도 표시</string>
@@ -1580,7 +1554,6 @@
   <string name="unknown_error">알 수 없는 오류</string>
   <string name="easy_setup_title">빠른 설정</string>
   <string name="easy_setup_pref_summary">몇 단계로 권장 공급자와 AI 설정</string>
-  <string name="easy_setup_choose_provider">시작할 공급자를 선택하세요:</string>
   <string name="easy_setup_enter_api_key">API 키를 입력하세요</string>
   <string name="easy_setup_api_key_instructions">API 키 받기:</string>
   <string name="easy_setup_test_connection">연결 테스트</string>
@@ -1684,13 +1657,10 @@
   <string name="llm_note_updated">노트가 업데이트되었습니다</string>
   <string name="specify_before_run_title">작업 지정</string>
   <string name="specify_before_run_hint">구체적인 작업을 설명하십시오…</string>
-  <string name="prompt_cache_settings">캐시 설정</string>
   <string name="prompt_strict_context_matching">컨텍스트 의존 캐시</string>
   <string name="prompt_strict_context_matching_description">활성화하면 모든 컨텍스트(성경 버전, 선택된 텍스트)가 동일한 경우에만 캐시가 매칭됩니다. 비활성화하면 성경 버전에 관계없이 구절이 동일한 경우 캐시가 매칭됩니다.</string>
   <string name="ai_document_delete_confirmation">이 AI 문서를 삭제하시겠습니까?</string>
-  <string name="ai_document_deleted">이 AI 문서가 삭제되었습니다.</string>
   <string name="ai_document_regenerating">AI 문서를 재생성하는 중…</string>
-  <string name="ai_document_regenerate_not_implemented">재생성 기능은 향후 업데이트에서 제공될 예정입니다</string>
   <string name="ai_regenerate_prompt_not_found">재생성 불가: 원본 프롬프트를 찾을 수 없습니다. 삭제되었을 수 있습니다.</string>
   <string name="ai_document_regenerate">재생성</string>
   <string name="ai_regenerate_title">재생성</string>
@@ -1704,8 +1674,6 @@
   <string name="default_prompt_translate_to_language">%s(으)로 번역</string>
   <string name="default_prompt_translate_to_ui_language">UI 언어로 번역</string>
   <string name="default_prompt_translate_to_ui_language_desc">문서 텍스트를 앱 인터페이스 언어로 번역합니다</string>
-  <string name="default_prompt_translate_to_english">영어로 번역</string>
-  <string name="default_prompt_translate_to_english_desc">선택한 텍스트를 영어로 번역합니다</string>
   <string name="default_prompt_summary">요약</string>
   <string name="default_prompt_summary_desc">선택한 텍스트의 간결한 요약을 만듭니다</string>
   <string name="default_prompt_explain_verses">구절 설명</string>
@@ -1714,8 +1682,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">구절별 설명과 북마크가 있는 스터디 패드를 만듭니다</string>
   <string name="default_prompt_word_study">단어 연구</string>
   <string name="default_prompt_word_study_desc">원어 히브리어/헬라어 단어를 분석합니다</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s 번호 주석</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV를 참조로 사용하여 모든 성경 번역에 Strong\'s 번호를 추가합니다</string>
   <string name="default_prompt_cross_references">교차 참조</string>
   <string name="default_prompt_cross_references_desc">관련 성경 구절을 찾아 설명합니다</string>
   <string name="default_prompt_compare_translations">번역 비교</string>
@@ -1858,11 +1824,7 @@
   <string name="ai_document_filter_summary">AI가 읽을 수 있는 문서 선택</string>
   <string name="ai_document_filter_summary_count">%d개 문서 제외됨</string>
   <string name="ai_document_filter_activity_title">AI 문서 접근</string>
-  <string name="ai_document_excluded_error">사용자 설정에 의해 문서가 제외됨: %s</string>
   <string name="permission_status_default">묻기 (기본값)</string>
-  <string name="permission_status_allowed">항상 허용</string>
-  <string name="permission_status_denied">항상 거부</string>
-  <string name="permission_option_default">매번 묻기 (기본값)</string>
   <string name="permission_option_always_allow">항상 허용</string>
   <string name="permission_option_always_deny">항상 거부</string>
   <string name="reset_all_permissions">모두 재설정</string>
@@ -1877,10 +1839,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">도구 권한</string>
-  <string name="prompt_tool_permissions_read_only">도구 권한 (읽기 전용)</string>
-  <string name="prompt_tool_permissions_description">이 프롬프트에 대한 도구 권한 재정의</string>
-  <string name="tool_section_read_tools">읽기 도구</string>
-  <string name="tool_section_write_tools">쓰기 도구</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">성경 및 검색</string>
@@ -1903,13 +1861,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">모델</string>
   <string name="prompt_model_default">기본값</string>
-  <string name="prompt_model_custom">사용자 지정</string>
-  <string name="prompt_model_custom_hint">모델 이름 입력</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI 작업 선택</string>
-  <string name="no_llm_prompts_configured">구절 선택에 대해 구성된 AI 프롬프트가 없습니다</string>
-  <string name="llm_prompt_executing">AI 프롬프트 실행 중: %s</string>
   <string name="llm_actions">AI 작업</string>
 
     <!-- Agent Log Widget -->
@@ -1917,9 +1871,7 @@
   <string name="agent_log_close">에이전트 로그 닫기</string>
   <string name="agent_log_stop">AI 중지</string>
   <string name="agent_log_idle">AI 어시스턴트</string>
-  <string name="agent_log_running">AI 작업 중…</string>
   <string name="agent_log_completed">완료됨</string>
-  <string name="agent_log_error">오류 발생</string>
   <string name="agent_log_executing">실행 중: %s</string>
   <string name="agent_log_iteration">반복 %d</string>
   <string name="agent_log_tool">도구: %s</string>
@@ -1929,7 +1881,6 @@
   <string name="agent_log_saved">저장됨: %s</string>
   <string name="agent_log_done">완료: %s</string>
   <string name="agent_log_cancelled">취소됨</string>
-  <string name="agent_execution_completed">에이전트 실행 완료됨</string>
   <string name="agent_already_running">AI 에이전트가 이미 실행 중입니다. 기다리거나 먼저 중지하세요.</string>
 
     <!-- AI Agent Notifications -->

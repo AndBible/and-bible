@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">概要</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM翻訳</string>
   <string name="sync_settings_shortcut_summary">デバイス間でデータを同期します</string>
-  <string name="llm_api_key_title">APIキー</string>
-  <string name="llm_api_key_summary">OpenAI互換APIキー</string>
   <string name="llm_provider_custom">カスタム（OpenAI互換）</string>
-  <string name="llm_provider_title">プロバイダー</string>
-  <string name="llm_provider_summary">使用するAIサービスプロバイダーを選択してください。APIエンドポイントと利用可能なモデルは自動的に設定されます。</string>
-  <string name="llm_provider_current">現在: %s</string>
-  <string name="llm_api_key_detected_provider">検出されたプロバイダー: %s</string>
-  <string name="ai_connection_category">接続</string>
-  <string name="ai_model_category">モデル</string>
   <string name="ai_behavior_category">動作</string>
   <string name="ai_language_title">AI応答言語</string>
   <string name="ai_language_summary">AIが応答に使用する言語</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">使用データをリセットしますか？</string>
   <string name="llm_reset_usage_confirm_message">すべての累積使用データがクリアされます。</string>
   <string name="llm_custom_input_price_title">入力価格（$/Mトークン）</string>
-  <string name="llm_custom_input_price_summary">このモデルの100万入力トークンあたりのコスト</string>
   <string name="llm_custom_output_price_title">出力価格（$/Mトークン）</string>
-  <string name="llm_custom_output_price_summary">このモデルの100万出力トークンあたりのコスト</string>
   <string name="llm_cost_total">合計: %1$s</string>
-  <string name="llm_endpoint_title">APIエンドポイント</string>
-  <string name="llm_endpoint_summary">APIのベースURL</string>
-  <string name="llm_model_title">モデル</string>
-  <string name="llm_model_summary">モデルID</string>
   <string name="llm_custom_model">カスタム…</string>
-  <string name="llm_custom_model_dialog_title">カスタムモデル</string>
   <string name="llm_custom_model_dialog_message">モデルIDを入力してください</string>
   <string name="llm_rate_limited_retrying">レート制限中。%1$s秒後に再試行\u2026</string>
   <string name="llm_default_document_title">AI応答</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">OpenAI応答に選択肢がありません</string>
   <string name="llm_parse_error_openai">OpenAI応答の解析に失敗しました: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic応答の解析に失敗しました: %1$s</string>
-  <string name="llm_error_prompt_not_found">プロンプトが見つかりません: %1$s</string>
   <string name="llm_error_unknown">不明なエラー</string>
   <string name="llm_error_max_iterations">完了せずに最大反復回数（%1$d回）に達しました</string>
   <string name="llm_continue_iterations_title">続行しますか？</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">無効（すべて保持）</string>
   <string name="send_ai_bug_report_title">AIバグを報告</string>
   <string name="ai_bug_report_menu">AIバグを報告</string>
-  <string name="ai_bug_report_recommended_only">バグ報告は推奨プロバイダーモデルのみ利用できます</string>
 
   <string name="select_model_before_run_title">モデルを選択</string>
   <string name="set_default_model_for_prompt">このプロンプトのデフォルトモデルに設定</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">プロバイダーを保存しました</string>
   <string name="ai_provider_deleted">プロバイダーを削除しました</string>
 
-  <string name="llm_fetch_models_title">モデルリストをダウンロード</string>
-  <string name="llm_fetch_models_message">%1$sから利用可能なモデルのリストをダウンロードしますか？</string>
-  <string name="llm_fetch_models_dont_ask">今後確認しない</string>
-  <string name="llm_fetch_models_success">%1$dモデルを読み込みました</string>
-  <string name="llm_fetch_models_failed">モデルの取得に失敗しました</string>
   <string name="llm_openrouter_category">カテゴリー</string>
   <string name="llm_openrouter_category_all">すべて</string>
   <string name="llm_openrouter_model">モデル</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">モデル \"%1$s\" を削除しますか？</string>
   <string name="model_set_default">デフォルトモデルに設定</string>
   <string name="model_select_provider">プロバイダー</string>
-  <string name="no_models_configured">モデルが設定されていません</string>
-  <string name="model_cache_creation_price">キャッシュ作成価格（$/Mトークン）</string>
-  <string name="model_cache_read_price">キャッシュ読み取り価格（$/Mトークン）</string>
   <string name="model_supported_badge">✓ 対応済み</string>
   <string name="show_also_unsupported_models">非対応モデルも表示</string>
   <string name="show_also_unsupported_providers">非対応プロバイダーも表示</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">不明なエラー</string>
   <string name="easy_setup_title">クイック設定</string>
   <string name="easy_setup_pref_summary">推奨プロバイダーを使って数ステップでAIをセットアップします</string>
-  <string name="easy_setup_choose_provider">始めるプロバイダーを選択してください：</string>
   <string name="easy_setup_enter_api_key">APIキーを入力してください</string>
   <string name="easy_setup_api_key_instructions">APIキーの取得先：</string>
   <string name="easy_setup_test_connection">接続テスト</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">ノートを更新しました</string>
   <string name="specify_before_run_title">タスクを指定</string>
   <string name="specify_before_run_hint">具体的なタスクを説明してください…</string>
-  <string name="prompt_cache_settings">キャッシュ設定</string>
   <string name="prompt_strict_context_matching">コンテキスト依存キャッシュ</string>
   <string name="prompt_strict_context_matching_description">有効にすると、すべてのコンテキスト（聖書バージョン、選択テキスト）が同じ場合にのみキャッシュが一致します。無効にすると、聖書バージョンに関係なく節が同じ場合にキャッシュが一致します。</string>
   <string name="ai_document_delete_confirmation">このAIドキュメントを削除しますか？</string>
-  <string name="ai_document_deleted">このAIドキュメントは削除されました。</string>
   <string name="ai_document_regenerating">AIドキュメントを再生成中…</string>
-  <string name="ai_document_regenerate_not_implemented">再生成機能は今後のアップデートで利用可能になります</string>
   <string name="ai_regenerate_prompt_not_found">再生成できません：元のプロンプトが見つかりませんでした。削除された可能性があります。</string>
   <string name="ai_document_regenerate">再生成</string>
   <string name="ai_regenerate_title">再生成</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">%sに翻訳</string>
   <string name="default_prompt_translate_to_ui_language">UI言語に翻訳</string>
   <string name="default_prompt_translate_to_ui_language_desc">文書のテキストをアプリのインターフェース言語に翻訳します</string>
-  <string name="default_prompt_translate_to_english">英語に翻訳</string>
-  <string name="default_prompt_translate_to_english_desc">選択したテキストを英語に翻訳します</string>
   <string name="default_prompt_summary">要約</string>
   <string name="default_prompt_summary_desc">選択したテキストの簡潔な要約を作成します</string>
   <string name="default_prompt_explain_verses">節の説明</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">節ごとの説明とブックマークを含むスタディパッドを作成します</string>
   <string name="default_prompt_word_study">ワードスタディ</string>
   <string name="default_prompt_word_study_desc">ヘブライ語・ギリシャ語の原語を分析します</string>
-  <string name="default_prompt_strongs_annotation">ストロング番号の注釈</string>
-  <string name="default_prompt_strongs_annotation_desc">KJVを参照として、任意の聖書翻訳にストロングのコンコーダンス番号を追加します</string>
   <string name="default_prompt_cross_references">相互参照</string>
   <string name="default_prompt_cross_references_desc">関連する聖書の箇所を見つけて説明します</string>
   <string name="default_prompt_compare_translations">翻訳の比較</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">AIが読み取れるドキュメントを選択</string>
   <string name="ai_document_filter_summary_count">%d 件のドキュメントを除外中</string>
   <string name="ai_document_filter_activity_title">AIドキュメントアクセス</string>
-  <string name="ai_document_excluded_error">ユーザー設定により除外されたドキュメント：%s</string>
   <string name="permission_status_default">確認する（既定）</string>
-  <string name="permission_status_allowed">常に許可</string>
-  <string name="permission_status_denied">常に拒否</string>
-  <string name="permission_option_default">毎回確認する（既定）</string>
   <string name="permission_option_always_allow">常に許可する</string>
   <string name="permission_option_always_deny">常に拒否する</string>
   <string name="reset_all_permissions">すべてリセット</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">ツールの権限</string>
-  <string name="prompt_tool_permissions_read_only">ツールの権限（読み取り専用）</string>
-  <string name="prompt_tool_permissions_description">このプロンプトのツール権限を上書き</string>
-  <string name="tool_section_read_tools">読み取りツール</string>
-  <string name="tool_section_write_tools">書き込みツール</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">聖書・検索</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">モデル</string>
   <string name="prompt_model_default">デフォルト</string>
-  <string name="prompt_model_custom">カスタム</string>
-  <string name="prompt_model_custom_hint">モデル名を入力</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AIアクションを選択</string>
-  <string name="no_llm_prompts_configured">節の選択に対応するAIプロンプトが設定されていません</string>
-  <string name="llm_prompt_executing">AIプロンプトを実行中：%s</string>
   <string name="llm_actions">AIアクション</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">エージェントログを閉じる</string>
   <string name="agent_log_stop">AIを停止</string>
   <string name="agent_log_idle">AIアシスタント</string>
-  <string name="agent_log_running">AI処理中…</string>
   <string name="agent_log_completed">完了</string>
-  <string name="agent_log_error">エラーが発生しました</string>
   <string name="agent_log_executing">実行中：%s</string>
   <string name="agent_log_iteration">繰り返し %d 回目</string>
   <string name="agent_log_tool">ツール：%s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">保存済み：%s</string>
   <string name="agent_log_done">完了：%s</string>
   <string name="agent_log_cancelled">キャンセルされました</string>
-  <string name="agent_execution_completed">エージェントの実行が完了しました</string>
   <string name="agent_already_running">AIエージェントはすでに実行中です。完了するまでお待ちいただくか、停止してください。</string>
 
     <!-- AI Agent Notifications -->

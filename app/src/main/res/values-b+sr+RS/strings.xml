@@ -1411,17 +1411,8 @@
   <string name="memorize_view_overview">Преглед</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM превод</string>
   <string name="sync_settings_shortcut_summary">Синхронизуј податке између уређаја</string>
-  <string name="llm_api_key_title">API кључ</string>
-  <string name="llm_api_key_summary">OpenAI-компатибилни API кључ</string>
   <string name="llm_provider_custom">Прилагођени (OpenAI компатибилни)</string>
-  <string name="llm_provider_title">Провајдер</string>
-  <string name="llm_provider_summary">Изабери коју АИ услугу да користиш. API крајња тачка и доступни модели ће бити аутоматски конфигурисани.</string>
-  <string name="llm_provider_current">Тренутни: %s</string>
-  <string name="llm_api_key_detected_provider">Откривени провајдер: %s</string>
-  <string name="ai_connection_category">Повезивање</string>
-  <string name="ai_model_category">Модел</string>
   <string name="ai_behavior_category">Понашање</string>
   <string name="ai_language_title">Језик АИ одговора</string>
   <string name="ai_language_summary">Језик на ком АИ даје одговоре</string>
@@ -1438,16 +1429,9 @@
   <string name="llm_reset_usage_confirm_title">Ресетовати податке о употреби?</string>
   <string name="llm_reset_usage_confirm_message">Ово ће обрисати све кумулативне податке о употреби.</string>
   <string name="llm_custom_input_price_title">Цена улаза ($/Мtoken)</string>
-  <string name="llm_custom_input_price_summary">Цена по милион улазних токена за овај модел</string>
   <string name="llm_custom_output_price_title">Цена излаза ($/Мtoken)</string>
-  <string name="llm_custom_output_price_summary">Цена по милион излазних токена за овај модел</string>
   <string name="llm_cost_total">Укупно: %1$s</string>
-  <string name="llm_endpoint_title">API крајња тачка</string>
-  <string name="llm_endpoint_summary">Основни URL за API</string>
-  <string name="llm_model_title">Модел</string>
-  <string name="llm_model_summary">ID модела</string>
   <string name="llm_custom_model">Прилагођени…</string>
-  <string name="llm_custom_model_dialog_title">Прилагођени модел</string>
   <string name="llm_custom_model_dialog_message">Унеси ID модела</string>
   <string name="llm_rate_limited_retrying">Ограничена брзина. Поновни покушај за %1$ss\u2026</string>
   <string name="llm_default_document_title">АИ одговор</string>
@@ -1457,7 +1441,6 @@
   <string name="llm_parse_error_no_choices">Нема избора у OpenAI одговору</string>
   <string name="llm_parse_error_openai">Грешка при обради OpenAI одговора: %1$s</string>
   <string name="llm_parse_error_anthropic">Грешка при обради Anthropic одговора: %1$s</string>
-  <string name="llm_error_prompt_not_found">Упит није пронађен: %1$s</string>
   <string name="llm_error_unknown">Непозната грешка</string>
   <string name="llm_error_max_iterations">Достигнут максималан број итерација (%1$d) без завршетка</string>
   <string name="llm_continue_iterations_title">Наставити?</string>
@@ -1492,7 +1475,6 @@
   <string name="raw_log_retention_summary_disabled">Онемогућено (чувај све)</string>
   <string name="send_ai_bug_report_title">Пријави АИ грешку</string>
   <string name="ai_bug_report_menu">Пријави АИ грешку</string>
-  <string name="ai_bug_report_recommended_only">Пријављивање грешака доступно је само за препоручене моделе провајдера</string>
 
   <string name="select_model_before_run_title">Изабери модел</string>
   <string name="set_default_model_for_prompt">Постави као подразумевани модел за овај упит</string>
@@ -1534,11 +1516,6 @@
   <string name="ai_provider_saved">Провајдер сачуван</string>
   <string name="ai_provider_deleted">Провајдер обрисан</string>
 
-  <string name="llm_fetch_models_title">Преузми листу модела</string>
-  <string name="llm_fetch_models_message">Преузети листу доступних модела са %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Не питај поново</string>
-  <string name="llm_fetch_models_success">Учитано %1$d модела</string>
-  <string name="llm_fetch_models_failed">Учитавање модела није успело</string>
   <string name="llm_openrouter_category">Категорија</string>
   <string name="llm_openrouter_category_all">Све</string>
   <string name="llm_openrouter_model">Модел</string>
@@ -1552,9 +1529,6 @@
   <string name="model_delete_confirm">Обрисати модел \"%1$s\"?</string>
   <string name="model_set_default">Постави као подразумевани модел</string>
   <string name="model_select_provider">Провајдер</string>
-  <string name="no_models_configured">Нису конфигурисани модели</string>
-  <string name="model_cache_creation_price">Цена креирања кеша ($/Мtoken)</string>
-  <string name="model_cache_read_price">Цена читања кеша ($/Мtoken)</string>
   <string name="model_supported_badge">✓ Подржано</string>
   <string name="show_also_unsupported_models">Прикажи и неподржане моделе</string>
   <string name="show_also_unsupported_providers">Прикажи и неподржане провајдере</string>
@@ -1565,7 +1539,6 @@
   <string name="unknown_error">Непозната грешка</string>
   <string name="easy_setup_title">Брзо подешавање</string>
   <string name="easy_setup_pref_summary">Постави АИ са препорученим провајдером у неколико корака</string>
-  <string name="easy_setup_choose_provider">Изабери провајдера за почетак:</string>
   <string name="easy_setup_enter_api_key">Унеси свој API кључ</string>
   <string name="easy_setup_api_key_instructions">Набави API кључ са:</string>
   <string name="easy_setup_test_connection">Тестирај повезивање</string>
@@ -1669,13 +1642,10 @@
   <string name="llm_note_updated">Белешка ажурирана</string>
   <string name="specify_before_run_title">Прецизирај задатак</string>
   <string name="specify_before_run_hint">Опиши конкретни задатак…</string>
-  <string name="prompt_cache_settings">Подешавања кеша</string>
   <string name="prompt_strict_context_matching">Кеш зависан од контекста</string>
   <string name="prompt_strict_context_matching_description">Када је омогућено, кеш се поклапа само када је сав контекст (верзија Библије, изабрани текст) исти. Када је онемогућено, кеш се поклапа када су стихови исти без обзира на верзију Библије.</string>
   <string name="ai_document_delete_confirmation">Обрисати овај АИ документ?</string>
-  <string name="ai_document_deleted">Овај АИ документ је обрисан.</string>
   <string name="ai_document_regenerating">Поновно генерисање АИ документа…</string>
-  <string name="ai_document_regenerate_not_implemented">Поновно генерисање ће бити доступно у будућој верзији</string>
   <string name="ai_regenerate_prompt_not_found">Не може се поново генерисати: оригинални упит није пронађен. Можда је обрисан.</string>
   <string name="ai_document_regenerate">Поново генериши</string>
   <string name="ai_regenerate_title">Поново генериши</string>
@@ -1689,8 +1659,6 @@
   <string name="default_prompt_translate_to_language">Преведи на %s</string>
   <string name="default_prompt_translate_to_ui_language">Преведи на језик корисничког сучеља</string>
   <string name="default_prompt_translate_to_ui_language_desc">Преводи текст документа на језик апликационог сучеља</string>
-  <string name="default_prompt_translate_to_english">Преведи на енглески</string>
-  <string name="default_prompt_translate_to_english_desc">Преводи изабрани текст на енглески</string>
   <string name="default_prompt_summary">Сажетак</string>
   <string name="default_prompt_summary_desc">Прави кратак сажетак изабраног текста</string>
   <string name="default_prompt_explain_verses">Објасни стихове</string>
@@ -1699,8 +1667,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Прави радну свеску са стих-по-стих објашњењем и обележивачима</string>
   <string name="default_prompt_word_study">Проучавање речи</string>
   <string name="default_prompt_word_study_desc">Анализира оригиналне хебрејске/грчке речи</string>
-  <string name="default_prompt_strongs_annotation">Анотација Стронговим бројевима</string>
-  <string name="default_prompt_strongs_annotation_desc">Додаје Стронгове конкорданцијске бројеве свим библијским преводима користећи KJV као референцу</string>
   <string name="default_prompt_cross_references">Унакрсне референце</string>
   <string name="default_prompt_cross_references_desc">Проналази и објашњава повезане библијске одломке</string>
   <string name="default_prompt_compare_translations">Упореди преводе</string>
@@ -1843,11 +1809,7 @@
   <string name="ai_document_filter_summary">Изабери којим документима АИ може приступити</string>
   <string name="ai_document_filter_summary_count">%d докумената искључено</string>
   <string name="ai_document_filter_activity_title">АИ приступ документима</string>
-  <string name="ai_document_excluded_error">Документ искључен корисничким подешавањима: %s</string>
   <string name="permission_status_default">Питај (подразумевано)</string>
-  <string name="permission_status_allowed">Увек дозвољено</string>
-  <string name="permission_status_denied">Увек одбијено</string>
-  <string name="permission_option_default">Питај сваки пут (подразумевано)</string>
   <string name="permission_option_always_allow">Увек дозволи</string>
   <string name="permission_option_always_deny">Увек одбиј</string>
   <string name="reset_all_permissions">Ресетуј све</string>
@@ -1862,10 +1824,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Дозволе алатки</string>
-  <string name="prompt_tool_permissions_read_only">Дозволе алатки (само за читање)</string>
-  <string name="prompt_tool_permissions_description">Замени дозволе алатки за овај упит</string>
-  <string name="tool_section_read_tools">Алатке за читање</string>
-  <string name="tool_section_write_tools">Алатке за писање</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Библија и претрага</string>
@@ -1888,13 +1846,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Модел</string>
   <string name="prompt_model_default">Подразумевано</string>
-  <string name="prompt_model_custom">Прилагођено</string>
-  <string name="prompt_model_custom_hint">Унеси назив модела</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Изабери АИ радњу</string>
-  <string name="no_llm_prompts_configured">Нису конфигурисани АИ упити за избор стиха</string>
-  <string name="llm_prompt_executing">Извршавање АИ упита: %s</string>
   <string name="llm_actions">АИ радње</string>
 
     <!-- Agent Log Widget -->
@@ -1902,9 +1856,7 @@
   <string name="agent_log_close">Затвори евиденцију агента</string>
   <string name="agent_log_stop">Заустави АИ</string>
   <string name="agent_log_idle">АИ асистент</string>
-  <string name="agent_log_running">АИ ради…</string>
   <string name="agent_log_completed">Завршено</string>
-  <string name="agent_log_error">Дошло је до грешке</string>
   <string name="agent_log_executing">Извршавање: %s</string>
   <string name="agent_log_iteration">Итерација %d</string>
   <string name="agent_log_tool">Алатка: %s</string>
@@ -1914,7 +1866,6 @@
   <string name="agent_log_saved">Сачувано: %s</string>
   <string name="agent_log_done">Готово: %s</string>
   <string name="agent_log_cancelled">Отказано</string>
-  <string name="agent_execution_completed">Извршавање агента завршено</string>
   <string name="agent_already_running">АИ агент је већ покренут. Сачекај или га заустави.</string>
 
     <!-- AI Agent Notifications -->

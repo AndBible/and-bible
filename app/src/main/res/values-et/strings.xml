@@ -1351,17 +1351,8 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="memorize_view_overview">Ülevaade</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM tõlge</string>
   <string name="sync_settings_shortcut_summary">Sünkrooni andmeid seadmete vahel</string>
-  <string name="llm_api_key_title">API võti</string>
-  <string name="llm_api_key_summary">OpenAI-ühilduv API võti</string>
   <string name="llm_provider_custom">Kohandatud (OpenAI-ühilduv)</string>
-  <string name="llm_provider_title">Teenusepakkuja</string>
-  <string name="llm_provider_summary">Vali, millist AI teenusepakkujat kasutada. API lõpp-punkt ja saadaolevad mudelid seadistatakse automaatselt.</string>
-  <string name="llm_provider_current">Praegune: %s</string>
-  <string name="llm_api_key_detected_provider">Tuvastatud teenusepakkuja: %s</string>
-  <string name="ai_connection_category">Ühendus</string>
-  <string name="ai_model_category">Mudel</string>
   <string name="ai_behavior_category">Käitumine</string>
   <string name="ai_language_title">AI vastuste keel</string>
   <string name="ai_language_summary">Keel, mida AI kasutab vastuste jaoks</string>
@@ -1378,16 +1369,9 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="llm_reset_usage_confirm_title">Lähtesta kasutuse andmed?</string>
   <string name="llm_reset_usage_confirm_message">See kustutab kõik kumulatiivsed kasutuse andmed.</string>
   <string name="llm_custom_input_price_title">Sisendi hind ($/Mmärki)</string>
-  <string name="llm_custom_input_price_summary">Kulu miljoni sisendusmärgi kohta selle mudeli jaoks</string>
   <string name="llm_custom_output_price_title">Väljundi hind ($/Mmärki)</string>
-  <string name="llm_custom_output_price_summary">Kulu miljoni väljundmärgi kohta selle mudeli jaoks</string>
   <string name="llm_cost_total">Kokku: %1$s</string>
-  <string name="llm_endpoint_title">API lõpp-punkt</string>
-  <string name="llm_endpoint_summary">API baas-URL</string>
-  <string name="llm_model_title">Mudel</string>
-  <string name="llm_model_summary">Mudeli ID</string>
   <string name="llm_custom_model">Kohandatud…</string>
-  <string name="llm_custom_model_dialog_title">Kohandatud mudel</string>
   <string name="llm_custom_model_dialog_message">Sisesta mudeli ID</string>
   <string name="llm_rate_limited_retrying">Päringute limiit täis. Proovitakse uuesti %1$ss pärast\u2026</string>
   <string name="llm_default_document_title">AI vastus</string>
@@ -1397,7 +1381,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="llm_parse_error_no_choices">OpenAI vastuses pole valikuid</string>
   <string name="llm_parse_error_openai">OpenAI vastuse töötlemine ebaõnnestus: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic vastuse töötlemine ebaõnnestus: %1$s</string>
-  <string name="llm_error_prompt_not_found">Käsku ei leitud: %1$s</string>
   <string name="llm_error_unknown">Tundmatu viga</string>
   <string name="llm_error_max_iterations">Maksimaalne iteratsioonide arv (%1$d) saavutati lõpetamiseta</string>
   <string name="llm_continue_iterations_title">Jätkata?</string>
@@ -1432,7 +1415,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="raw_log_retention_summary_disabled">Keelatud (hoia kõik)</string>
   <string name="send_ai_bug_report_title">Teata AI veast</string>
   <string name="ai_bug_report_menu">Teata AI veast</string>
-  <string name="ai_bug_report_recommended_only">Veateated on saadaval ainult soovitatud teenusepakkuja mudelite jaoks</string>
 
   <string name="select_model_before_run_title">Vali mudel</string>
   <string name="set_default_model_for_prompt">Sea selle käsu vaikemudel</string>
@@ -1474,11 +1456,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="ai_provider_saved">Teenusepakkuja salvestatud</string>
   <string name="ai_provider_deleted">Teenusepakkuja kustutatud</string>
 
-  <string name="llm_fetch_models_title">Laadi mudelite nimekiri alla</string>
-  <string name="llm_fetch_models_message">Laadida alla saadaolevate mudelite nimekiri aadressilt %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ära küsi uuesti</string>
-  <string name="llm_fetch_models_success">Laaditi %1$d mudelit</string>
-  <string name="llm_fetch_models_failed">Mudelite allalaadimine ebaõnnestus</string>
   <string name="llm_openrouter_category">Kategooria</string>
   <string name="llm_openrouter_category_all">Kõik</string>
   <string name="llm_openrouter_model">Mudel</string>
@@ -1492,9 +1469,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="model_delete_confirm">Kustutada mudel \"%1$s\"?</string>
   <string name="model_set_default">Sea vaikemudel</string>
   <string name="model_select_provider">Teenusepakkuja</string>
-  <string name="no_models_configured">Mudeleid pole seadistatud</string>
-  <string name="model_cache_creation_price">Vahemälu loomise hind ($/Mmärki)</string>
-  <string name="model_cache_read_price">Vahemälu lugemise hind ($/Mmärki)</string>
   <string name="model_supported_badge">✓ Toetatud</string>
   <string name="show_also_unsupported_models">Näita ka mittetoetatud mudeleid</string>
   <string name="show_also_unsupported_providers">Näita ka mittetoetatud teenusepakkujaid</string>
@@ -1505,7 +1479,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="unknown_error">Tundmatu viga</string>
   <string name="easy_setup_title">Kiire seadistamine</string>
   <string name="easy_setup_pref_summary">Seadista AI soovitatud teenusepakkujaga mõne sammuga</string>
-  <string name="easy_setup_choose_provider">Vali alustamiseks teenusepakkuja:</string>
   <string name="easy_setup_enter_api_key">Sisesta oma API võti</string>
   <string name="easy_setup_api_key_instructions">Hangi oma API võti aadressilt:</string>
   <string name="easy_setup_test_connection">Testi ühendust</string>
@@ -1609,13 +1582,10 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="llm_note_updated">Märge uuendatud</string>
   <string name="specify_before_run_title">Täpsusta ülesanne</string>
   <string name="specify_before_run_hint">Kirjelda konkreetset ülesannet…</string>
-  <string name="prompt_cache_settings">Vahemälu seaded</string>
   <string name="prompt_strict_context_matching">Kontekstist sõltuv vahemälu</string>
   <string name="prompt_strict_context_matching_description">Kui lubatud, vastab vahemälu ainult siis, kui kogu kontekst (piibli versioon, valitud tekst) on sama. Kui keelatud, vastab vahemälu, kui salmid on samad, olenemata piibli versioonist.</string>
   <string name="ai_document_delete_confirmation">Kustutada see AI dokument?</string>
-  <string name="ai_document_deleted">See AI dokument on kustutatud.</string>
   <string name="ai_document_regenerating">Taastatakse AI dokumenti…</string>
-  <string name="ai_document_regenerate_not_implemented">Taasgenereerimine on saadaval tulevases uuenduses</string>
   <string name="ai_regenerate_prompt_not_found">Ei saa taasluua: algset käsku ei leitud. See võib olla kustutatud.</string>
   <string name="ai_document_regenerate">Taasloo</string>
   <string name="ai_regenerate_title">Taasloo</string>
@@ -1629,8 +1599,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="default_prompt_translate_to_language">Tõlgi %s keelde</string>
   <string name="default_prompt_translate_to_ui_language">Tõlgi kasutajaliidese keelde</string>
   <string name="default_prompt_translate_to_ui_language_desc">Tõlgib dokumendi teksti rakenduse kasutajaliidese keelde</string>
-  <string name="default_prompt_translate_to_english">Tõlgi inglise keelde</string>
-  <string name="default_prompt_translate_to_english_desc">Tõlgib valitud teksti inglise keelde</string>
   <string name="default_prompt_summary">Kokkuvõte</string>
   <string name="default_prompt_summary_desc">Loob valitud teksti kokkuvõtte</string>
   <string name="default_prompt_explain_verses">Selgita salme</string>
@@ -1639,8 +1607,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="default_prompt_explain_verses_studypad_desc">Loo uurimismärkmik salmi haaval selgituse ja järjehoidjatega</string>
   <string name="default_prompt_word_study">Sõnaanalüüs</string>
   <string name="default_prompt_word_study_desc">Analüüsib algseid heebrea/kreeka sõnu</string>
-  <string name="default_prompt_strongs_annotation">Strongi numbrite lisamine</string>
-  <string name="default_prompt_strongs_annotation_desc">Lisab Strongi konkordantsi numbrid mistahes piibli tõlkele, kasutades KJV-d viitena</string>
   <string name="default_prompt_cross_references">Ristviited</string>
   <string name="default_prompt_cross_references_desc">Leiab ja selgitab seotud piiblikohti</string>
   <string name="default_prompt_compare_translations">Võrdle tõlkeid</string>
@@ -1783,11 +1749,7 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="ai_document_filter_summary">Vali, milliseid dokumente AI saab lugeda</string>
   <string name="ai_document_filter_summary_count">%d dokumenti välistatud</string>
   <string name="ai_document_filter_activity_title">AI dokumentide ligipääs</string>
-  <string name="ai_document_excluded_error">Kasutaja seadete poolt välistatud dokument: %s</string>
   <string name="permission_status_default">Küsi (vaikimisi)</string>
-  <string name="permission_status_allowed">Alati lubatud</string>
-  <string name="permission_status_denied">Alati keelatud</string>
-  <string name="permission_option_default">Küsi igal korral (vaikimisi)</string>
   <string name="permission_option_always_allow">Luba alati</string>
   <string name="permission_option_always_deny">Keela alati</string>
   <string name="reset_all_permissions">Lähtesta kõik</string>
@@ -1802,10 +1764,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Tööriista load</string>
-  <string name="prompt_tool_permissions_read_only">Tööriista load (kirjutuskaitsega)</string>
-  <string name="prompt_tool_permissions_description">Alista tööriista load selle käsu jaoks</string>
-  <string name="tool_section_read_tools">Lugemise tööriistad</string>
-  <string name="tool_section_write_tools">Kirjutamise tööriistad</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Piibel ja otsing</string>
@@ -1828,13 +1786,9 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Mudel</string>
   <string name="prompt_model_default">Vaikimisi</string>
-  <string name="prompt_model_custom">Kohandatud</string>
-  <string name="prompt_model_custom_hint">Sisesta mudeli nimi</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Vali AI toiming</string>
-  <string name="no_llm_prompts_configured">Salmi valiku jaoks pole AI käske seadistatud</string>
-  <string name="llm_prompt_executing">Täidetakse AI käsku: %s</string>
   <string name="llm_actions">AI toimingud</string>
 
     <!-- Agent Log Widget -->
@@ -1842,9 +1796,7 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="agent_log_close">Sulge agendi logi</string>
   <string name="agent_log_stop">Peata AI</string>
   <string name="agent_log_idle">AI assistent</string>
-  <string name="agent_log_running">AI töötab…</string>
   <string name="agent_log_completed">Lõpetatud</string>
-  <string name="agent_log_error">Tekkis viga</string>
   <string name="agent_log_executing">Täitmine: %s</string>
   <string name="agent_log_iteration">Iteratsioon %d</string>
   <string name="agent_log_tool">Tööriist: %s</string>
@@ -1854,7 +1806,6 @@ Uus versioon on varsti tulekul. Eeldatav kuupäev on %1$s. Jälgi meid veebilehe
   <string name="agent_log_saved">Salvestatud: %s</string>
   <string name="agent_log_done">Valmis: %s</string>
   <string name="agent_log_cancelled">Tühistatud</string>
-  <string name="agent_execution_completed">Agendi täitmine lõpetatud</string>
   <string name="agent_already_running">AI agent on juba töötamas. Palun oota või peata see esmalt.</string>
 
     <!-- AI Agent Notifications -->

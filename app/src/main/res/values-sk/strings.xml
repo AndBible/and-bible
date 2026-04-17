@@ -1424,17 +1424,8 @@ Režim opakovania bol vypnutý, pretože
   <string name="memorize_view_overview">Prehľad</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Preklad AI</string>
   <string name="sync_settings_shortcut_summary">Synchronizovať dáta medzi zariadeniami</string>
-  <string name="llm_api_key_title">API kľúč</string>
-  <string name="llm_api_key_summary">API kľúč kompatibilný s OpenAI</string>
   <string name="llm_provider_custom">Vlastný (kompatibilný s OpenAI)</string>
-  <string name="llm_provider_title">Poskytovateľ</string>
-  <string name="llm_provider_summary">Vyberte, ktorého poskytovateľa služby AI použiť. Koncový bod API a dostupné modely sa nakonfigurujú automaticky.</string>
-  <string name="llm_provider_current">Aktuálny: %s</string>
-  <string name="llm_api_key_detected_provider">Zistený poskytovateľ: %s</string>
-  <string name="ai_connection_category">Pripojenie</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Správanie</string>
   <string name="ai_language_title">Jazyk odpovedí AI</string>
   <string name="ai_language_summary">Jazyk, ktorý AI používa pre odpovede</string>
@@ -1451,16 +1442,9 @@ Režim opakovania bol vypnutý, pretože
   <string name="llm_reset_usage_confirm_title">Resetovať údaje o využití?</string>
   <string name="llm_reset_usage_confirm_message">Tým sa vymažú všetky kumulatívne údaje o využití.</string>
   <string name="llm_custom_input_price_title">Vstupná cena ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Náklady na milión vstupných tokenov pre tento model</string>
   <string name="llm_custom_output_price_title">Výstupná cena ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Náklady na milión výstupných tokenov pre tento model</string>
   <string name="llm_cost_total">Celkovo: %1$s</string>
-  <string name="llm_endpoint_title">Koncový bod API</string>
-  <string name="llm_endpoint_summary">Základná URL adresa pre API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID modelu</string>
   <string name="llm_custom_model">Vlastný…</string>
-  <string name="llm_custom_model_dialog_title">Vlastný model</string>
   <string name="llm_custom_model_dialog_message">Zadajte ID modelu</string>
   <string name="llm_rate_limited_retrying">Obmedzenie rýchlosti. Opakovanie za %1$ss\u2026</string>
   <string name="llm_default_document_title">Odpoveď AI</string>
@@ -1470,7 +1454,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="llm_parse_error_no_choices">V odpovedi OpenAI nie sú žiadne možnosti</string>
   <string name="llm_parse_error_openai">Nepodarilo sa analyzovať odpoveď OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Nepodarilo sa spracovať odpoveď Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt sa nenašiel: %1$s</string>
   <string name="llm_error_unknown">Neznáma chyba</string>
   <string name="llm_error_max_iterations">Dosiahnutý maximálny počet iterácií (%1$d) bez dokončenia</string>
   <string name="llm_continue_iterations_title">Pokračovať?</string>
@@ -1505,7 +1488,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="raw_log_retention_summary_disabled">Vypnuté (zachovať všetky)</string>
   <string name="send_ai_bug_report_title">Nahlásiť chybu AI</string>
   <string name="ai_bug_report_menu">Nahlásiť chybu AI</string>
-  <string name="ai_bug_report_recommended_only">Nahlasovanie chýb je dostupné iba pre odporúčané modely poskytovateľov</string>
 
   <string name="select_model_before_run_title">Vybrať model</string>
   <string name="set_default_model_for_prompt">Nastaviť ako predvolený model pre tento prompt</string>
@@ -1547,11 +1529,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="ai_provider_saved">Poskytovateľ uložený</string>
   <string name="ai_provider_deleted">Poskytovateľ vymazaný</string>
 
-  <string name="llm_fetch_models_title">Stiahnuť zoznam modelov</string>
-  <string name="llm_fetch_models_message">Stiahnuť zoznam dostupných modelov od %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Viac sa nepýtať</string>
-  <string name="llm_fetch_models_success">Načítaných %1$d modelov</string>
-  <string name="llm_fetch_models_failed">Nepodarilo sa načítať modely</string>
   <string name="llm_openrouter_category">Kategória</string>
   <string name="llm_openrouter_category_all">Všetky</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1565,9 +1542,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="model_delete_confirm">Vymazať model \"%1$s\"?</string>
   <string name="model_set_default">Nastaviť ako predvolený model</string>
   <string name="model_select_provider">Poskytovateľ</string>
-  <string name="no_models_configured">Žiadne modely nie sú nastavené</string>
-  <string name="model_cache_creation_price">Cena za vytvorenie vyrovnávacej pamäte ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cena za čítanie vyrovnávacej pamäte ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Podporovaný</string>
   <string name="show_also_unsupported_models">Zobraziť aj nepodporované modely</string>
   <string name="show_also_unsupported_providers">Zobraziť aj nepodporovaných poskytovateľov</string>
@@ -1578,7 +1552,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="unknown_error">Neznáma chyba</string>
   <string name="easy_setup_title">Rýchle nastavenie</string>
   <string name="easy_setup_pref_summary">Nastaviť AI s odporúčaným poskytovateľom v niekoľkých krokoch</string>
-  <string name="easy_setup_choose_provider">Vyberte poskytovateľa na začiatok:</string>
   <string name="easy_setup_enter_api_key">Zadajte svoj API kľúč</string>
   <string name="easy_setup_api_key_instructions">Získajte API kľúč od:</string>
   <string name="easy_setup_test_connection">Otestovať pripojenie</string>
@@ -1682,13 +1655,10 @@ Režim opakovania bol vypnutý, pretože
   <string name="llm_note_updated">Poznámka aktualizovaná</string>
   <string name="specify_before_run_title">Špecifikovať úlohu</string>
   <string name="specify_before_run_hint">Opíšte konkrétnu úlohu…</string>
-  <string name="prompt_cache_settings">Nastavenia vyrovnávacej pamäte</string>
   <string name="prompt_strict_context_matching">Kontextovo závislá vyrovnávacia pamäť</string>
   <string name="prompt_strict_context_matching_description">Keď je povolené, zhoda vo vyrovnávacej pamäti nastane len vtedy, keď je celý kontext (verzia Biblie, vybraný text) rovnaký. Keď je zakázané, zhoda nastane vtedy, keď sú verše rovnaké bez ohľadu na verziu Biblie.</string>
   <string name="ai_document_delete_confirmation">Vymazať tento dokument AI?</string>
-  <string name="ai_document_deleted">Tento dokument AI bol vymazaný.</string>
   <string name="ai_document_regenerating">Obnova dokumentu AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Obnova bude dostupná v budúcej aktualizácii</string>
   <string name="ai_regenerate_prompt_not_found">Nedá sa obnoviť: pôvodná výzva nebola nájdená. Mohla byť vymazaná.</string>
   <string name="ai_document_regenerate">Obnoviť</string>
   <string name="ai_regenerate_title">Obnoviť</string>
@@ -1702,8 +1672,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="default_prompt_translate_to_language">Preložiť do %s</string>
   <string name="default_prompt_translate_to_ui_language">Preložiť do jazyka rozhrania</string>
   <string name="default_prompt_translate_to_ui_language_desc">Preloží text dokumentu do jazyka rozhrania aplikácie</string>
-  <string name="default_prompt_translate_to_english">Preložiť do angličtiny</string>
-  <string name="default_prompt_translate_to_english_desc">Preloží vybraný text do angličtiny</string>
   <string name="default_prompt_summary">Zhrnutie</string>
   <string name="default_prompt_summary_desc">Vytvorí stručné zhrnutie vybraného textu</string>
   <string name="default_prompt_explain_verses">Vysvetliť verše</string>
@@ -1712,8 +1680,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="default_prompt_explain_verses_studypad_desc">Vytvoriť študijnú zložku s vysvetlením verš po verši a záložkami</string>
   <string name="default_prompt_word_study">Štúdium slov</string>
   <string name="default_prompt_word_study_desc">Analyzuje pôvodné hebrejské/grécke slová</string>
-  <string name="default_prompt_strongs_annotation">Anotácia číslami Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Pridáva konkordančné čísla Strong\'s k ľubovoľnému prekladu Biblie s použitím KJV ako referencie</string>
   <string name="default_prompt_cross_references">Krížové odkazy</string>
   <string name="default_prompt_cross_references_desc">Nájde a vysvetlí súvisiace pasáže Biblie</string>
   <string name="default_prompt_compare_translations">Porovnať preklady</string>
@@ -1856,11 +1822,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="ai_document_filter_summary">Zvoliť, ktoré dokumenty môže AI čítať</string>
   <string name="ai_document_filter_summary_count">%d dokumentov vylúčených</string>
   <string name="ai_document_filter_activity_title">Prístup AI k dokumentom</string>
-  <string name="ai_document_excluded_error">Dokument vylúčený nastaveniami používateľa: %s</string>
   <string name="permission_status_default">Pýtať sa (predvolené)</string>
-  <string name="permission_status_allowed">Vždy povolené</string>
-  <string name="permission_status_denied">Vždy odmietnuté</string>
-  <string name="permission_option_default">Pýtať sa zakaždým (predvolené)</string>
   <string name="permission_option_always_allow">Vždy povoliť</string>
   <string name="permission_option_always_deny">Vždy odmietnuť</string>
   <string name="reset_all_permissions">Resetovať všetky</string>
@@ -1875,10 +1837,6 @@ Režim opakovania bol vypnutý, pretože
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Povolenia nástrojov</string>
-  <string name="prompt_tool_permissions_read_only">Povolenia nástrojov (len na čítanie)</string>
-  <string name="prompt_tool_permissions_description">Prepísať povolenia nástrojov pre tento pokyn</string>
-  <string name="tool_section_read_tools">Nástroje na čítanie</string>
-  <string name="tool_section_write_tools">Nástroje na zápis</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblia a vyhľadávanie</string>
@@ -1901,13 +1859,9 @@ Režim opakovania bol vypnutý, pretože
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Predvolený</string>
-  <string name="prompt_model_custom">Vlastný</string>
-  <string name="prompt_model_custom_hint">Zadajte názov modelu</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Vybrať akciu AI</string>
-  <string name="no_llm_prompts_configured">Pre výber verša nie sú nakonfigurované žiadne podnety AI</string>
-  <string name="llm_prompt_executing">Vykonávanie podnetu AI: %s</string>
   <string name="llm_actions">Akcie AI</string>
 
     <!-- Agent Log Widget -->
@@ -1915,9 +1869,7 @@ Režim opakovania bol vypnutý, pretože
   <string name="agent_log_close">Zatvoriť záznam agenta</string>
   <string name="agent_log_stop">Zastaviť AI</string>
   <string name="agent_log_idle">AI asistent</string>
-  <string name="agent_log_running">AI pracuje…</string>
   <string name="agent_log_completed">Dokončené</string>
-  <string name="agent_log_error">Nastala chyba</string>
   <string name="agent_log_executing">Vykonávam: %s</string>
   <string name="agent_log_iteration">Iterácia %d</string>
   <string name="agent_log_tool">Nástroj: %s</string>
@@ -1927,7 +1879,6 @@ Režim opakovania bol vypnutý, pretože
   <string name="agent_log_saved">Uložené: %s</string>
   <string name="agent_log_done">Hotovo: %s</string>
   <string name="agent_log_cancelled">Zrušené</string>
-  <string name="agent_execution_completed">Vykonávanie agenta dokončené</string>
   <string name="agent_already_running">AI agent už beží. Počkajte prosím alebo ho najprv zastavte.</string>
 
     <!-- AI Agent Notifications -->

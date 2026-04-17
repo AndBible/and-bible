@@ -1378,17 +1378,8 @@ jelentse be az észlelt problémát</string>
   <string name="memorize_view_overview">Áttekintő</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM fordítás</string>
   <string name="sync_settings_shortcut_summary">Adatok szinkronizálása eszközök között</string>
-  <string name="llm_api_key_title">API kulcs</string>
-  <string name="llm_api_key_summary">OpenAI-kompatibilis API kulcs</string>
   <string name="llm_provider_custom">Egyéni (OpenAI kompatibilis)</string>
-  <string name="llm_provider_title">Szolgáltató</string>
-  <string name="llm_provider_summary">Válassza ki a használandó AI szolgáltatót. Az API végpont és az elérhető modellek automatikusan lesznek beállítva.</string>
-  <string name="llm_provider_current">Jelenlegi: %s</string>
-  <string name="llm_api_key_detected_provider">Felismert szolgáltató: %s</string>
-  <string name="ai_connection_category">Kapcsolat</string>
-  <string name="ai_model_category">Modell</string>
   <string name="ai_behavior_category">Viselkedés</string>
   <string name="ai_language_title">AI válasz nyelve</string>
   <string name="ai_language_summary">Az AI által használt válasznyelv</string>
@@ -1405,16 +1396,9 @@ jelentse be az észlelt problémát</string>
   <string name="llm_reset_usage_confirm_title">Visszaállítja a használati adatokat?</string>
   <string name="llm_reset_usage_confirm_message">Ez törli az összes összesített használati adatot.</string>
   <string name="llm_custom_input_price_title">Bemeneti ár ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Egymillió bemeneti tokenenkénti költség ennél a modellnél</string>
   <string name="llm_custom_output_price_title">Kimeneti ár ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Egymillió kimeneti tokenenkénti költség ennél a modellnél</string>
   <string name="llm_cost_total">Összesen: %1$s</string>
-  <string name="llm_endpoint_title">API végpont</string>
-  <string name="llm_endpoint_summary">Az API alap URL-je</string>
-  <string name="llm_model_title">Modell</string>
-  <string name="llm_model_summary">Modell azonosító</string>
   <string name="llm_custom_model">Egyéni\u2026</string>
-  <string name="llm_custom_model_dialog_title">Egyéni modell</string>
   <string name="llm_custom_model_dialog_message">Adja meg a modell azonosítóját</string>
   <string name="llm_rate_limited_retrying">Kérési korlát elérve. Újrapróbálás %1$ss múlva\u2026</string>
   <string name="llm_default_document_title">AI válasz</string>
@@ -1424,7 +1408,6 @@ jelentse be az észlelt problémát</string>
   <string name="llm_parse_error_no_choices">Nincs választható lehetőség az OpenAI válaszban</string>
   <string name="llm_parse_error_openai">Nem sikerült feldolgozni az OpenAI választ: %1$s</string>
   <string name="llm_parse_error_anthropic">Nem sikerült feldolgozni az Anthropic választ: %1$s</string>
-  <string name="llm_error_prompt_not_found">A prompt nem található: %1$s</string>
   <string name="llm_error_unknown">Ismeretlen hiba</string>
   <string name="llm_error_max_iterations">Elérte a maximális iterációszámot (%1$d) befejezés nélkül</string>
   <string name="llm_continue_iterations_title">Folytatja?</string>
@@ -1459,7 +1442,6 @@ jelentse be az észlelt problémát</string>
   <string name="raw_log_retention_summary_disabled">Letiltva (összes megőrzése)</string>
   <string name="send_ai_bug_report_title">AI hiba bejelentése</string>
   <string name="ai_bug_report_menu">AI hiba bejelentése</string>
-  <string name="ai_bug_report_recommended_only">A hibajelentés csak ajánlott szolgáltatói modellekhez érhető el</string>
 
   <string name="select_model_before_run_title">Válasszon modellt</string>
   <string name="set_default_model_for_prompt">Beállítás alapértelmezett modellként ehhez a prompthoz</string>
@@ -1501,11 +1483,6 @@ jelentse be az észlelt problémát</string>
   <string name="ai_provider_saved">Szolgáltató mentve</string>
   <string name="ai_provider_deleted">Szolgáltató törölve</string>
 
-  <string name="llm_fetch_models_title">Modelllista letöltése</string>
-  <string name="llm_fetch_models_message">Letölti az elérhető modellek listáját innen: %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ne kérdezze újra</string>
-  <string name="llm_fetch_models_success">%1$d modell betöltve</string>
-  <string name="llm_fetch_models_failed">Nem sikerült lekérni a modelleket</string>
   <string name="llm_openrouter_category">Kategória</string>
   <string name="llm_openrouter_category_all">Összes</string>
   <string name="llm_openrouter_model">Modell</string>
@@ -1519,9 +1496,6 @@ jelentse be az észlelt problémát</string>
   <string name="model_delete_confirm">Törli a(z) \"%1$s\" modellt?</string>
   <string name="model_set_default">Beállítás alapértelmezett modellként</string>
   <string name="model_select_provider">Szolgáltató</string>
-  <string name="no_models_configured">Nincs konfigurált modell</string>
-  <string name="model_cache_creation_price">Gyorsítótár-létrehozási ár ($/Mtoken)</string>
-  <string name="model_cache_read_price">Gyorsítótár-olvasási ár ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Támogatott</string>
   <string name="show_also_unsupported_models">Nem támogatott modellek megjelenítése is</string>
   <string name="show_also_unsupported_providers">Nem támogatott szolgáltatók megjelenítése is</string>
@@ -1532,7 +1506,6 @@ jelentse be az észlelt problémát</string>
   <string name="unknown_error">Ismeretlen hiba</string>
   <string name="easy_setup_title">Gyors beállítás</string>
   <string name="easy_setup_pref_summary">AI beállítása ajánlott szolgáltatóval néhány lépésben</string>
-  <string name="easy_setup_choose_provider">Válasszon szolgáltatót a kezdéshez:</string>
   <string name="easy_setup_enter_api_key">Adja meg az API-kulcsát</string>
   <string name="easy_setup_api_key_instructions">Kérje le az API-kulcsát innen:</string>
   <string name="easy_setup_test_connection">Kapcsolat tesztelése</string>
@@ -1636,13 +1609,10 @@ jelentse be az észlelt problémát</string>
   <string name="llm_note_updated">Megjegyzés frissítve</string>
   <string name="specify_before_run_title">Feladat megadása</string>
   <string name="specify_before_run_hint">Adja meg a konkrét feladatot…</string>
-  <string name="prompt_cache_settings">Gyorsítótár-beállítások</string>
   <string name="prompt_strict_context_matching">Kontextusfüggő gyorsítótár</string>
   <string name="prompt_strict_context_matching_description">Ha engedélyezve van, a gyorsítótár csak akkor egyezik, ha az összes kontextus (Biblia-verzió, kiválasztott szöveg) megegyezik. Ha letiltva van, a gyorsítótár akkor egyezik, ha a versek megegyeznek, a Biblia-verziótól függetlenül.</string>
   <string name="ai_document_delete_confirmation">Töröljük ezt az AI-dokumentumot?</string>
-  <string name="ai_document_deleted">Ez az AI-dokumentum törölve lett.</string>
   <string name="ai_document_regenerating">AI-dokumentum újragenerálása…</string>
-  <string name="ai_document_regenerate_not_implemented">Az újragenerálás egy jövőbeli frissítésben lesz elérhető</string>
   <string name="ai_regenerate_prompt_not_found">Nem lehet újragenerálni: az eredeti parancs nem található. Lehet, hogy törölték.</string>
   <string name="ai_document_regenerate">Újragenerálás</string>
   <string name="ai_regenerate_title">Újragenerálás</string>
@@ -1656,8 +1626,6 @@ jelentse be az észlelt problémát</string>
   <string name="default_prompt_translate_to_language">Fordítás %s nyelvre</string>
   <string name="default_prompt_translate_to_ui_language">Fordítás a felhasználói felület nyelvére</string>
   <string name="default_prompt_translate_to_ui_language_desc">A dokumentum szövegét az alkalmazás felületi nyelvére fordítja</string>
-  <string name="default_prompt_translate_to_english">Fordítás angolra</string>
-  <string name="default_prompt_translate_to_english_desc">A kiválasztott szöveget angolra fordítja</string>
   <string name="default_prompt_summary">Összefoglalás</string>
   <string name="default_prompt_summary_desc">Tömör összefoglalót készít a kiválasztott szövegről</string>
   <string name="default_prompt_explain_verses">Versek magyarázata</string>
@@ -1666,8 +1634,6 @@ jelentse be az észlelt problémát</string>
   <string name="default_prompt_explain_verses_studypad_desc">Versenkénti magyarázattal és könyvjelzőkkel ellátott jegyzetlapot hoz létre</string>
   <string name="default_prompt_word_study">Szótanulmány</string>
   <string name="default_prompt_word_study_desc">Az eredeti héber/görög szavakat elemzi</string>
-  <string name="default_prompt_strongs_annotation">Strong-számok annotálása</string>
-  <string name="default_prompt_strongs_annotation_desc">Strong-konkordancianumerokat ad bármely Biblia-fordításhoz, a KJV-t referenciaként használva</string>
   <string name="default_prompt_cross_references">Kereszthivatkozások</string>
   <string name="default_prompt_cross_references_desc">Kapcsolódó bibliai szakaszokat keres és magyaráz</string>
   <string name="default_prompt_compare_translations">Fordítások összehasonlítása</string>
@@ -1810,11 +1776,7 @@ jelentse be az észlelt problémát</string>
   <string name="ai_document_filter_summary">Válassza ki, mely dokumentumokat olvashatja az AI</string>
   <string name="ai_document_filter_summary_count">%d dokumentum kizárva</string>
   <string name="ai_document_filter_activity_title">AI-dokumentumhozzáférés</string>
-  <string name="ai_document_excluded_error">A dokumentumot a felhasználó beállításai kizárták: %s</string>
   <string name="permission_status_default">Kérdezzen (alapértelmezett)</string>
-  <string name="permission_status_allowed">Mindig engedélyezett</string>
-  <string name="permission_status_denied">Mindig megtagadva</string>
-  <string name="permission_option_default">Kérdezzen minden alkalommal (alapértelmezett)</string>
   <string name="permission_option_always_allow">Mindig engedélyezés</string>
   <string name="permission_option_always_deny">Mindig megtagadás</string>
   <string name="reset_all_permissions">Összes visszaállítása</string>
@@ -1829,10 +1791,6 @@ jelentse be az észlelt problémát</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Eszközengedélyek</string>
-  <string name="prompt_tool_permissions_read_only">Eszközengedélyek (csak olvasható)</string>
-  <string name="prompt_tool_permissions_description">Eszközengedélyek felülbírálása ehhez a prompthoz</string>
-  <string name="tool_section_read_tools">Olvasóeszközök</string>
-  <string name="tool_section_write_tools">Írási eszközök</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblia &amp; Keresés</string>
@@ -1855,13 +1813,9 @@ jelentse be az észlelt problémát</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modell</string>
   <string name="prompt_model_default">Alapértelmezett</string>
-  <string name="prompt_model_custom">Egyéni</string>
-  <string name="prompt_model_custom_hint">Adja meg a modell nevét</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI-művelet kiválasztása</string>
-  <string name="no_llm_prompts_configured">Nincs AI-prompt beállítva versválasztáshoz</string>
-  <string name="llm_prompt_executing">AI-prompt végrehajtása: %s</string>
   <string name="llm_actions">AI-műveletek</string>
 
     <!-- Agent Log Widget -->
@@ -1869,9 +1823,7 @@ jelentse be az észlelt problémát</string>
   <string name="agent_log_close">Ügynöknapló bezárása</string>
   <string name="agent_log_stop">AI leállítása</string>
   <string name="agent_log_idle">AI-asszisztens</string>
-  <string name="agent_log_running">AI dolgozik…</string>
   <string name="agent_log_completed">Kész</string>
-  <string name="agent_log_error">Hiba történt</string>
   <string name="agent_log_executing">Végrehajtás: %s</string>
   <string name="agent_log_iteration">%d. iteráció</string>
   <string name="agent_log_tool">Eszköz: %s</string>
@@ -1881,7 +1833,6 @@ jelentse be az észlelt problémát</string>
   <string name="agent_log_saved">Mentve: %s</string>
   <string name="agent_log_done">Kész: %s</string>
   <string name="agent_log_cancelled">Megszakítva</string>
-  <string name="agent_execution_completed">Az ügynök végrehajtása befejeződött</string>
   <string name="agent_already_running">Egy AI ügynök már fut. Kérjük, várjon, vagy állítsa le azt.</string>
 
     <!-- AI Agent Notifications -->

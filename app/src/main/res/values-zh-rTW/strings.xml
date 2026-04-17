@@ -1396,17 +1396,8 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="memorize_view_overview">總覽</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM 翻譯</string>
   <string name="sync_settings_shortcut_summary">在裝置之間同步資料</string>
-  <string name="llm_api_key_title">API 金鑰</string>
-  <string name="llm_api_key_summary">相容 OpenAI 的 API 金鑰</string>
   <string name="llm_provider_custom">自訂（相容 OpenAI）</string>
-  <string name="llm_provider_title">服務商</string>
-  <string name="llm_provider_summary">選擇使用哪個 AI 服務商。API 端點和可用模型將自動配置。</string>
-  <string name="llm_provider_current">目前：%s</string>
-  <string name="llm_api_key_detected_provider">偵測到的服務商：%s</string>
-  <string name="ai_connection_category">連線</string>
-  <string name="ai_model_category">模型</string>
   <string name="ai_behavior_category">行為</string>
   <string name="ai_language_title">AI 回應語言</string>
   <string name="ai_language_summary">AI 用於回應的語言</string>
@@ -1423,16 +1414,9 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_reset_usage_confirm_title">重置用量資料？</string>
   <string name="llm_reset_usage_confirm_message">這將清除所有累計用量資料。</string>
   <string name="llm_custom_input_price_title">輸入價格（$/百萬 token）</string>
-  <string name="llm_custom_input_price_summary">該模型每百萬輸入 token 的費用</string>
   <string name="llm_custom_output_price_title">輸出價格（$/百萬token）</string>
-  <string name="llm_custom_output_price_summary">此模型每百萬輸出token的費用</string>
   <string name="llm_cost_total">總計：%1$s</string>
-  <string name="llm_endpoint_title">API端點</string>
-  <string name="llm_endpoint_summary">API的基礎URL</string>
-  <string name="llm_model_title">模型</string>
-  <string name="llm_model_summary">模型ID</string>
   <string name="llm_custom_model">自訂…</string>
-  <string name="llm_custom_model_dialog_title">自訂模型</string>
   <string name="llm_custom_model_dialog_message">輸入模型ID</string>
   <string name="llm_rate_limited_retrying">已達速率限制。%1$s秒後重試…</string>
   <string name="llm_default_document_title">AI回應</string>
@@ -1442,7 +1426,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_parse_error_no_choices">OpenAI回應中沒有候選項</string>
   <string name="llm_parse_error_openai">解析OpenAI回應失敗：%1$s</string>
   <string name="llm_parse_error_anthropic">解析Anthropic回應失敗：%1$s</string>
-  <string name="llm_error_prompt_not_found">未找到提示詞：%1$s</string>
   <string name="llm_error_unknown">未知錯誤</string>
   <string name="llm_error_max_iterations">已達最大迭代次數（%1$d），未能完成</string>
   <string name="llm_continue_iterations_title">繼續？</string>
@@ -1477,7 +1460,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="raw_log_retention_summary_disabled">已停用（保留全部）</string>
   <string name="send_ai_bug_report_title">回報 AI 錯誤</string>
   <string name="ai_bug_report_menu">回報 AI 錯誤</string>
-  <string name="ai_bug_report_recommended_only">錯誤回報僅適用於建議的服務商模型</string>
 
   <string name="select_model_before_run_title">選擇模型</string>
   <string name="set_default_model_for_prompt">設為此提示詞的預設模型</string>
@@ -1519,11 +1501,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_provider_saved">提供商已儲存</string>
   <string name="ai_provider_deleted">提供商已刪除</string>
 
-  <string name="llm_fetch_models_title">下載模型清單</string>
-  <string name="llm_fetch_models_message">從%1$s下載可用模型清單？</string>
-  <string name="llm_fetch_models_dont_ask">不再詢問</string>
-  <string name="llm_fetch_models_success">已載入%1$d個模型</string>
-  <string name="llm_fetch_models_failed">獲取模型失敗</string>
   <string name="llm_openrouter_category">類別</string>
   <string name="llm_openrouter_category_all">全部</string>
   <string name="llm_openrouter_model">模型</string>
@@ -1537,9 +1514,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="model_delete_confirm">刪除模型「%1$s」？</string>
   <string name="model_set_default">設為預設模型</string>
   <string name="model_select_provider">提供商</string>
-  <string name="no_models_configured">未設定模型</string>
-  <string name="model_cache_creation_price">快取建立價格（美元/百萬token）</string>
-  <string name="model_cache_read_price">快取讀取價格（美元/百萬token）</string>
   <string name="model_supported_badge">✓ 支援</string>
   <string name="show_also_unsupported_models">同時顯示不支援的模型</string>
   <string name="show_also_unsupported_providers">同時顯示不支援的服務商</string>
@@ -1550,7 +1524,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="unknown_error">未知錯誤</string>
   <string name="easy_setup_title">快速設定</string>
   <string name="easy_setup_pref_summary">透過推薦提供商幾步完成AI設定</string>
-  <string name="easy_setup_choose_provider">選擇一個提供商開始：</string>
   <string name="easy_setup_enter_api_key">輸入您的API金鑰</string>
   <string name="easy_setup_api_key_instructions">從以下地址取得API金鑰：</string>
   <string name="easy_setup_test_connection">測試連線</string>
@@ -1654,13 +1627,10 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="llm_note_updated">筆記已更新</string>
   <string name="specify_before_run_title">指定任務</string>
   <string name="specify_before_run_hint">描述具體任務…</string>
-  <string name="prompt_cache_settings">快取設定</string>
   <string name="prompt_strict_context_matching">內容相關快取</string>
   <string name="prompt_strict_context_matching_description">啟用後，僅在所有內容（聖經版本、所選文字）相同時才符合快取。停用後，無論聖經版本如何，只要經文相同即符合快取。</string>
   <string name="ai_document_delete_confirmation">刪除此AI文件？</string>
-  <string name="ai_document_deleted">此AI文件已被刪除。</string>
   <string name="ai_document_regenerating">正在重新產生AI文件…</string>
-  <string name="ai_document_regenerate_not_implemented">重新產生功能將在未來版本中提供</string>
   <string name="ai_regenerate_prompt_not_found">無法重新產生：未找到原始提示詞，可能已被刪除。</string>
   <string name="ai_document_regenerate">重新產生</string>
   <string name="ai_regenerate_title">重新產生</string>
@@ -1674,8 +1644,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="default_prompt_translate_to_language">翻譯為%s</string>
   <string name="default_prompt_translate_to_ui_language">翻譯為介面語言</string>
   <string name="default_prompt_translate_to_ui_language_desc">將文件文字翻譯為應用程式介面語言</string>
-  <string name="default_prompt_translate_to_english">翻譯為英語</string>
-  <string name="default_prompt_translate_to_english_desc">將所選文字翻譯為英語</string>
   <string name="default_prompt_summary">摘要</string>
   <string name="default_prompt_summary_desc">建立所選文字的簡明摘要</string>
   <string name="default_prompt_explain_verses">解釋經文</string>
@@ -1684,8 +1652,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="default_prompt_explain_verses_studypad_desc">建立包含逐節解釋和書籤的學習筆記</string>
   <string name="default_prompt_word_study">詞語研究</string>
   <string name="default_prompt_word_study_desc">分析原文希伯來語/希臘語詞彙</string>
-  <string name="default_prompt_strongs_annotation">司壯編號標注</string>
-  <string name="default_prompt_strongs_annotation_desc">以KJV為參考，為任意聖經譯本新增司壯經文彙編編號</string>
   <string name="default_prompt_cross_references">交叉參考</string>
   <string name="default_prompt_cross_references_desc">尋找並解釋相關聖經段落</string>
   <string name="default_prompt_compare_translations">比較譯本</string>
@@ -1828,11 +1794,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="ai_document_filter_summary">選擇 AI 可以讀取的文件</string>
   <string name="ai_document_filter_summary_count">已排除 %d 份文件</string>
   <string name="ai_document_filter_activity_title">AI 文件存取</string>
-  <string name="ai_document_excluded_error">文件已被使用者設定排除：%s</string>
   <string name="permission_status_default">詢問（預設）</string>
-  <string name="permission_status_allowed">永遠允許</string>
-  <string name="permission_status_denied">永遠拒絕</string>
-  <string name="permission_option_default">每次詢問（預設）</string>
   <string name="permission_option_always_allow">永遠允許</string>
   <string name="permission_option_always_deny">永遠拒絕</string>
   <string name="reset_all_permissions">全部重設</string>
@@ -1847,10 +1809,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">工具權限</string>
-  <string name="prompt_tool_permissions_read_only">工具權限（唯讀）</string>
-  <string name="prompt_tool_permissions_description">覆寫此提示的工具權限</string>
-  <string name="tool_section_read_tools">讀取工具</string>
-  <string name="tool_section_write_tools">寫入工具</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">聖經與搜尋</string>
@@ -1873,13 +1831,9 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">模型</string>
   <string name="prompt_model_default">預設</string>
-  <string name="prompt_model_custom">自訂</string>
-  <string name="prompt_model_custom_hint">輸入模型名稱</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">選擇 AI 操作</string>
-  <string name="no_llm_prompts_configured">未為經文選取設定 AI 提示</string>
-  <string name="llm_prompt_executing">正在執行 AI 提示：%s</string>
   <string name="llm_actions">AI 操作</string>
 
     <!-- Agent Log Widget -->
@@ -1887,9 +1841,7 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="agent_log_close">關閉代理日誌</string>
   <string name="agent_log_stop">停止 AI</string>
   <string name="agent_log_idle">AI 助理</string>
-  <string name="agent_log_running">AI 正在運作中…</string>
   <string name="agent_log_completed">已完成</string>
-  <string name="agent_log_error">發生錯誤</string>
   <string name="agent_log_executing">正在執行：%s</string>
   <string name="agent_log_iteration">第 %d 次迭代</string>
   <string name="agent_log_tool">工具：%s</string>
@@ -1899,7 +1851,6 @@ Beta用家請透過 %s 、或Google Play回報錯誤。</string>
   <string name="agent_log_saved">已儲存：%s</string>
   <string name="agent_log_done">完成：%s</string>
   <string name="agent_log_cancelled">已取消</string>
-  <string name="agent_execution_completed">AI 代理執行已完成</string>
   <string name="agent_already_running">AI 代理已在執行中，請稍候或先將其停止。</string>
 
     <!-- AI Agent Notifications -->

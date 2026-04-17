@@ -1368,17 +1368,8 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="memorize_view_overview">Panoramica</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Traduzione IA</string>
   <string name="sync_settings_shortcut_summary">Sincronizza i dati tra dispositivi</string>
-  <string name="llm_api_key_title">Chiave API</string>
-  <string name="llm_api_key_summary">Chiave API compatibile con OpenAI</string>
   <string name="llm_provider_custom">Personalizzato (compatibile con OpenAI)</string>
-  <string name="llm_provider_title">Fornitore</string>
-  <string name="llm_provider_summary">Scegli quale fornitore di servizi IA utilizzare. L\'endpoint API e i modelli disponibili verranno configurati automaticamente.</string>
-  <string name="llm_provider_current">Attuale: %s</string>
-  <string name="llm_api_key_detected_provider">Fornitore rilevato: %s</string>
-  <string name="ai_connection_category">Connessione</string>
-  <string name="ai_model_category">Modello</string>
   <string name="ai_behavior_category">Comportamento</string>
   <string name="ai_language_title">Lingua delle risposte IA</string>
   <string name="ai_language_summary">Lingua usata dall\'IA per le risposte</string>
@@ -1395,16 +1386,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="llm_reset_usage_confirm_title">Azzerare i dati di utilizzo?</string>
   <string name="llm_reset_usage_confirm_message">Verranno cancellati tutti i dati di utilizzo cumulativi.</string>
   <string name="llm_custom_input_price_title">Prezzo input ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Costo per milione di token in input per questo modello</string>
   <string name="llm_custom_output_price_title">Prezzo output ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Costo per milione di token in output per questo modello</string>
   <string name="llm_cost_total">Totale: %1$s</string>
-  <string name="llm_endpoint_title">Endpoint API</string>
-  <string name="llm_endpoint_summary">URL base dell\'API</string>
-  <string name="llm_model_title">Modello</string>
-  <string name="llm_model_summary">ID modello</string>
   <string name="llm_custom_model">Personalizzato…</string>
-  <string name="llm_custom_model_dialog_title">Modello personalizzato</string>
   <string name="llm_custom_model_dialog_message">Inserisci l\'ID del modello</string>
   <string name="llm_rate_limited_retrying">Limite di richieste raggiunto. Nuovo tentativo tra %1$ss\u2026</string>
   <string name="llm_default_document_title">Risposta IA</string>
@@ -1414,7 +1398,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="llm_parse_error_no_choices">Nessuna scelta nella risposta OpenAI</string>
   <string name="llm_parse_error_openai">Impossibile analizzare la risposta OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Impossibile analizzare la risposta Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt non trovato: %1$s</string>
   <string name="llm_error_unknown">Errore sconosciuto</string>
   <string name="llm_error_max_iterations">Numero massimo di iterazioni (%1$d) raggiunto senza completamento</string>
   <string name="llm_continue_iterations_title">Continuare?</string>
@@ -1449,7 +1432,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="raw_log_retention_summary_disabled">Disabilitato (mantieni tutti)</string>
   <string name="send_ai_bug_report_title">Segnala bug IA</string>
   <string name="ai_bug_report_menu">Segnala bug IA</string>
-  <string name="ai_bug_report_recommended_only">La segnalazione bug è disponibile solo per i modelli dei fornitori consigliati</string>
 
   <string name="select_model_before_run_title">Seleziona modello</string>
   <string name="set_default_model_for_prompt">Imposta come modello predefinito per questo prompt</string>
@@ -1491,11 +1473,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="ai_provider_saved">Fornitore salvato</string>
   <string name="ai_provider_deleted">Fornitore eliminato</string>
 
-  <string name="llm_fetch_models_title">Scarica elenco modelli</string>
-  <string name="llm_fetch_models_message">Scaricare l\'elenco dei modelli disponibili da %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Non chiedere più</string>
-  <string name="llm_fetch_models_success">Caricati %1$d modelli</string>
-  <string name="llm_fetch_models_failed">Impossibile recuperare i modelli</string>
   <string name="llm_openrouter_category">Categoria</string>
   <string name="llm_openrouter_category_all">Tutti</string>
   <string name="llm_openrouter_model">Modello</string>
@@ -1509,9 +1486,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="model_delete_confirm">Eliminare il modello \"%1$s\"?</string>
   <string name="model_set_default">Imposta come modello predefinito</string>
   <string name="model_select_provider">Fornitore</string>
-  <string name="no_models_configured">Nessun modello configurato</string>
-  <string name="model_cache_creation_price">Prezzo creazione cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Prezzo lettura cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Supportato</string>
   <string name="show_also_unsupported_models">Mostra anche i modelli non supportati</string>
   <string name="show_also_unsupported_providers">Mostra anche i fornitori non supportati</string>
@@ -1522,7 +1496,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="unknown_error">Errore sconosciuto</string>
   <string name="easy_setup_title">Configurazione rapida</string>
   <string name="easy_setup_pref_summary">Configura l\'IA con un fornitore consigliato in pochi passaggi</string>
-  <string name="easy_setup_choose_provider">Scegli un fornitore per iniziare:</string>
   <string name="easy_setup_enter_api_key">Inserisci la tua chiave API</string>
   <string name="easy_setup_api_key_instructions">Ottieni la tua chiave API da:</string>
   <string name="easy_setup_test_connection">Verifica connessione</string>
@@ -1626,13 +1599,10 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="llm_note_updated">Nota aggiornata</string>
   <string name="specify_before_run_title">Specifica attività</string>
   <string name="specify_before_run_hint">Descrivi l\'attività specifica…</string>
-  <string name="prompt_cache_settings">Impostazioni cache</string>
   <string name="prompt_strict_context_matching">Cache dipendente dal contesto</string>
   <string name="prompt_strict_context_matching_description">Se abilitato, la cache corrisponde solo quando tutto il contesto (versione biblica, testo selezionato) è lo stesso. Se disabilitato, la cache corrisponde quando i versetti sono gli stessi indipendentemente dalla versione biblica.</string>
   <string name="ai_document_delete_confirmation">Eliminare questo documento IA?</string>
-  <string name="ai_document_deleted">Questo documento IA è stato eliminato.</string>
   <string name="ai_document_regenerating">Rigenerazione documento IA in corso…</string>
-  <string name="ai_document_regenerate_not_implemented">La rigenerazione sarà disponibile in un aggiornamento futuro</string>
   <string name="ai_regenerate_prompt_not_found">Impossibile rigenerare: il prompt originale non è stato trovato. Potrebbe essere stato eliminato.</string>
   <string name="ai_document_regenerate">Rigenera</string>
   <string name="ai_regenerate_title">Rigenera</string>
@@ -1646,8 +1616,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="default_prompt_translate_to_language">Traduci in %s</string>
   <string name="default_prompt_translate_to_ui_language">Traduci nella lingua dell\'interfaccia</string>
   <string name="default_prompt_translate_to_ui_language_desc">Traduce il testo del documento nella lingua dell\'interfaccia dell\'app</string>
-  <string name="default_prompt_translate_to_english">Traduci in inglese</string>
-  <string name="default_prompt_translate_to_english_desc">Traduce il testo selezionato in inglese</string>
   <string name="default_prompt_summary">Riepilogo</string>
   <string name="default_prompt_summary_desc">Crea un riepilogo conciso del testo selezionato</string>
   <string name="default_prompt_explain_verses">Spiega i versetti</string>
@@ -1656,8 +1624,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="default_prompt_explain_verses_studypad_desc">Crea appunti di studio con spiegazione versetto per versetto e segnalibri</string>
   <string name="default_prompt_word_study">Studio delle parole</string>
   <string name="default_prompt_word_study_desc">Analizza le parole originali in ebraico/greco</string>
-  <string name="default_prompt_strongs_annotation">Annotazione numeri Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Aggiunge i numeri concordanza Strong a qualsiasi traduzione biblica usando la KJV come riferimento</string>
   <string name="default_prompt_cross_references">Riferimenti incrociati</string>
   <string name="default_prompt_cross_references_desc">Trova e spiega i passi biblici correlati</string>
   <string name="default_prompt_compare_translations">Confronta traduzioni</string>
@@ -1800,11 +1766,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="ai_document_filter_summary">Scegli quali documenti l\'IA può leggere</string>
   <string name="ai_document_filter_summary_count">%d documenti esclusi</string>
   <string name="ai_document_filter_activity_title">Accesso documenti IA</string>
-  <string name="ai_document_excluded_error">Documento escluso dalle impostazioni utente: %s</string>
   <string name="permission_status_default">Chiedi (predefinito)</string>
-  <string name="permission_status_allowed">Sempre consentito</string>
-  <string name="permission_status_denied">Sempre negato</string>
-  <string name="permission_option_default">Chiedi ogni volta (predefinito)</string>
   <string name="permission_option_always_allow">Consenti sempre</string>
   <string name="permission_option_always_deny">Nega sempre</string>
   <string name="reset_all_permissions">Reimposta tutti</string>
@@ -1819,10 +1781,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Permessi strumenti</string>
-  <string name="prompt_tool_permissions_read_only">Permessi strumenti (sola lettura)</string>
-  <string name="prompt_tool_permissions_description">Sostituisci i permessi strumenti per questo prompt</string>
-  <string name="tool_section_read_tools">Strumenti di lettura</string>
-  <string name="tool_section_write_tools">Strumenti di scrittura</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibbia &amp; Ricerca</string>
@@ -1845,13 +1803,9 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modello</string>
   <string name="prompt_model_default">Predefinito</string>
-  <string name="prompt_model_custom">Personalizzato</string>
-  <string name="prompt_model_custom_hint">Inserisci il nome del modello</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Seleziona azione IA</string>
-  <string name="no_llm_prompts_configured">Nessun prompt IA configurato per la selezione del versetto</string>
-  <string name="llm_prompt_executing">Esecuzione prompt IA: %s</string>
   <string name="llm_actions">Azioni IA</string>
 
     <!-- Agent Log Widget -->
@@ -1859,9 +1813,7 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="agent_log_close">Chiudi registro agente</string>
   <string name="agent_log_stop">Ferma IA</string>
   <string name="agent_log_idle">Assistente IA</string>
-  <string name="agent_log_running">IA in elaborazione…</string>
   <string name="agent_log_completed">Completato</string>
-  <string name="agent_log_error">Si è verificato un errore</string>
   <string name="agent_log_executing">Esecuzione: %s</string>
   <string name="agent_log_iteration">Iterazione %d</string>
   <string name="agent_log_tool">Strumento: %s</string>
@@ -1871,7 +1823,6 @@ Quando questa funzione è attiva, puoi mostrare diverse finestre fisse nella vis
   <string name="agent_log_saved">Salvato: %s</string>
   <string name="agent_log_done">Fatto: %s</string>
   <string name="agent_log_cancelled">Annullato</string>
-  <string name="agent_execution_completed">Esecuzione agente completata</string>
   <string name="agent_already_running">Un agente IA è già in esecuzione. Attendi o fermalo prima.</string>
 
     <!-- AI Agent Notifications -->

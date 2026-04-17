@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">Pangkalahatang-tanaw</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM Translation</string>
   <string name="sync_settings_shortcut_summary">I-synchronize ang datos sa pagitan ng mga device</string>
-  <string name="llm_api_key_title">API Key</string>
-  <string name="llm_api_key_summary">OpenAI-compatible na API key</string>
   <string name="llm_provider_custom">Custom (OpenAI compatible)</string>
-  <string name="llm_provider_title">Provider</string>
-  <string name="llm_provider_summary">Pumili kung aling AI service provider ang gagamitin. Ang API endpoint at mga available na modelo ay awtomatikong ia-configure.</string>
-  <string name="llm_provider_current">Kasalukuyan: %s</string>
-  <string name="llm_api_key_detected_provider">Natuklasang provider: %s</string>
-  <string name="ai_connection_category">Koneksyon</string>
-  <string name="ai_model_category">Modelo</string>
   <string name="ai_behavior_category">Gawi</string>
   <string name="ai_language_title">Wika ng tugon ng AI</string>
   <string name="ai_language_summary">Wika na ginagamit ng AI para sa mga tugon</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">I-reset ang datos ng paggamit?</string>
   <string name="llm_reset_usage_confirm_message">Maaaring mawala ang lahat ng pinagsama-samang datos ng paggamit.</string>
   <string name="llm_custom_input_price_title">Presyo ng input ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Gastos bawat milyong input token para sa modelong ito</string>
   <string name="llm_custom_output_price_title">Presyo ng output ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Gastos bawat milyong output token para sa modelong ito</string>
   <string name="llm_cost_total">Kabuuan: %1$s</string>
-  <string name="llm_endpoint_title">API Endpoint</string>
-  <string name="llm_endpoint_summary">Base URL para sa API</string>
-  <string name="llm_model_title">Modelo</string>
-  <string name="llm_model_summary">Model ID</string>
   <string name="llm_custom_model">Custom…</string>
-  <string name="llm_custom_model_dialog_title">Custom na modelo</string>
   <string name="llm_custom_model_dialog_message">Ilagay ang model ID</string>
   <string name="llm_rate_limited_retrying">Na-rate limit. Muling susubukan sa %1$ss\u2026</string>
   <string name="llm_default_document_title">Tugon ng AI</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">Walang mga pagpipilian sa tugon ng OpenAI</string>
   <string name="llm_parse_error_openai">Nabigo ang pag-parse ng tugon ng OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Nabigo ang pag-parse ng tugon ng Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Hindi nahanap ang prompt: %1$s</string>
   <string name="llm_error_unknown">Hindi kilalang error</string>
   <string name="llm_error_max_iterations">Naabot na ang maximum na iterasyon (%1$d) nang hindi natatapos</string>
   <string name="llm_continue_iterations_title">Magpatuloy?</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">Hindi pinagana (itago lahat)</string>
   <string name="send_ai_bug_report_title">Mag-ulat ng AI Bug</string>
   <string name="ai_bug_report_menu">Mag-ulat ng AI bug</string>
-  <string name="ai_bug_report_recommended_only">Ang pag-uulat ng bug ay available lamang para sa mga inirerekomendang modelo ng provider</string>
 
   <string name="select_model_before_run_title">Pumili ng modelo</string>
   <string name="set_default_model_for_prompt">Itakda bilang default na modelo para sa prompt na ito</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">Nai-save ang provider</string>
   <string name="ai_provider_deleted">Natanggal ang provider</string>
 
-  <string name="llm_fetch_models_title">I-download ang listahan ng modelo</string>
-  <string name="llm_fetch_models_message">I-download ang listahan ng mga available na modelo mula sa %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Huwag nang itanong muli</string>
-  <string name="llm_fetch_models_success">Na-load ang %1$d na modelo</string>
-  <string name="llm_fetch_models_failed">Nabigo ang pag-fetch ng mga modelo</string>
   <string name="llm_openrouter_category">Kategorya</string>
   <string name="llm_openrouter_category_all">Lahat</string>
   <string name="llm_openrouter_model">Modelo</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">Tanggalin ang modelo na \"%1$s\"?</string>
   <string name="model_set_default">Itakda bilang default na modelo</string>
   <string name="model_select_provider">Provider</string>
-  <string name="no_models_configured">Walang na-configure na modelo</string>
-  <string name="model_cache_creation_price">Presyo ng paggawa ng cache ($/Mtoken)</string>
-  <string name="model_cache_read_price">Presyo ng pagbabasa ng cache ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Sinusuportahan</string>
   <string name="show_also_unsupported_models">Ipakita rin ang mga hindi sinusuportahang modelo</string>
   <string name="show_also_unsupported_providers">Ipakita rin ang mga hindi sinusuportahang provider</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">Hindi kilalang error</string>
   <string name="easy_setup_title">Mabilis na Setup</string>
   <string name="easy_setup_pref_summary">I-set up ang AI gamit ang inirerekomendang provider sa ilang hakbang</string>
-  <string name="easy_setup_choose_provider">Pumili ng provider para makapagsimula:</string>
   <string name="easy_setup_enter_api_key">Ilagay ang iyong API key</string>
   <string name="easy_setup_api_key_instructions">Kunin ang iyong API key mula sa:</string>
   <string name="easy_setup_test_connection">Subukan ang koneksyon</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">Na-update ang tala</string>
   <string name="specify_before_run_title">Tukuyin ang gawain</string>
   <string name="specify_before_run_hint">Ilarawan ang partikular na gawain…</string>
-  <string name="prompt_cache_settings">Mga setting ng cache</string>
   <string name="prompt_strict_context_matching">Cache na nakadepende sa konteksto</string>
   <string name="prompt_strict_context_matching_description">Kapag naka-enable, ang cache ay tutugma lamang kapag ang lahat ng konteksto (bersyon ng Bibliya, napiling teksto) ay pareho. Kapag naka-disable, ang cache ay tutugma kapag ang mga talata ay pareho anuman ang bersyon ng Bibliya.</string>
   <string name="ai_document_delete_confirmation">Tanggalin ang AI document na ito?</string>
-  <string name="ai_document_deleted">Natanggal ang AI document na ito.</string>
   <string name="ai_document_regenerating">Binubuo muli ang AI document…</string>
-  <string name="ai_document_regenerate_not_implemented">Ang muling pagbuo ay magiging available sa isang darating na update</string>
   <string name="ai_regenerate_prompt_not_found">Hindi mabuo muli: hindi nahanap ang orihinal na prompt. Maaaring natanggal na ito.</string>
   <string name="ai_document_regenerate">Buuin muli</string>
   <string name="ai_regenerate_title">Buuin Muli</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">Isalin sa %s</string>
   <string name="default_prompt_translate_to_ui_language">Isalin sa wika ng interface</string>
   <string name="default_prompt_translate_to_ui_language_desc">Isinasalin ang teksto ng dokumento sa wika ng interface ng app</string>
-  <string name="default_prompt_translate_to_english">Isalin sa Ingles</string>
-  <string name="default_prompt_translate_to_english_desc">Isinasalin ang napiling teksto sa Ingles</string>
   <string name="default_prompt_summary">Buod</string>
   <string name="default_prompt_summary_desc">Gumagawa ng maikling buod ng napiling teksto</string>
   <string name="default_prompt_explain_verses">Ipaliwanag ang mga talata</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">Gumawa ng Study Pad na may paliwanag bawat talata at mga bookmark</string>
   <string name="default_prompt_word_study">Pag-aaral ng salita</string>
   <string name="default_prompt_word_study_desc">Sinusuri ang mga orihinal na salitang Hebreo/Griyego</string>
-  <string name="default_prompt_strongs_annotation">Anotasyon ng numero ng Strong\'s</string>
-  <string name="default_prompt_strongs_annotation_desc">Nagdadagdag ng mga numero ng concordance ng Strong\'s sa anumang salin ng Bibliya gamit ang KJV bilang sanggunian</string>
   <string name="default_prompt_cross_references">Mga cross-reference</string>
   <string name="default_prompt_cross_references_desc">Naghahanap at nagpapaliwanag ng mga kaugnay na talata ng Bibliya</string>
   <string name="default_prompt_compare_translations">Ihambing ang mga salin</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">Piliin kung aling mga dokumento ang mababasa ng AI</string>
   <string name="ai_document_filter_summary_count">%d dokumento ang hindi kasama</string>
   <string name="ai_document_filter_activity_title">Access ng AI sa dokumento</string>
-  <string name="ai_document_excluded_error">Dokumento na hindi kasama ayon sa mga setting ng gumagamit: %s</string>
   <string name="permission_status_default">Itanong (default)</string>
-  <string name="permission_status_allowed">Laging pinapayagan</string>
-  <string name="permission_status_denied">Laging tinatanggihan</string>
-  <string name="permission_option_default">Itanong sa bawat pagkakataon (default)</string>
   <string name="permission_option_always_allow">Laging payagan</string>
   <string name="permission_option_always_deny">Laging tanggihan</string>
   <string name="reset_all_permissions">I-reset lahat</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Mga pahintulot ng tool</string>
-  <string name="prompt_tool_permissions_read_only">Mga pahintulot ng tool (read-only)</string>
-  <string name="prompt_tool_permissions_description">I-override ang mga pahintulot ng tool para sa prompt na ito</string>
-  <string name="tool_section_read_tools">Mga read tool</string>
-  <string name="tool_section_write_tools">Mga write tool</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bibliya at Paghahanap</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Modelo</string>
   <string name="prompt_model_default">Default</string>
-  <string name="prompt_model_custom">Custom</string>
-  <string name="prompt_model_custom_hint">Ilagay ang pangalan ng modelo</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Pumili ng AI Action</string>
-  <string name="no_llm_prompts_configured">Walang AI prompt na na-configure para sa pagpili ng talata</string>
-  <string name="llm_prompt_executing">Isinasagawa ang AI prompt: %s</string>
   <string name="llm_actions">Mga AI Action</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">Isara ang agent log</string>
   <string name="agent_log_stop">Itigil ang AI</string>
   <string name="agent_log_idle">AI Assistant</string>
-  <string name="agent_log_running">Nagtatrabaho ang AI…</string>
   <string name="agent_log_completed">Nakumpleto</string>
-  <string name="agent_log_error">May naganap na error</string>
   <string name="agent_log_executing">Isinasagawa: %s</string>
   <string name="agent_log_iteration">Ulit %d</string>
   <string name="agent_log_tool">Tool: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">Na-save: %s</string>
   <string name="agent_log_done">Tapos na: %s</string>
   <string name="agent_log_cancelled">Kinansela</string>
-  <string name="agent_execution_completed">Nakumpleto ang pagpapatakbo ng agent</string>
   <string name="agent_already_running">May AI agent na tumatakbo na. Mangyaring maghintay o itigil ito muna.</string>
 
     <!-- AI Agent Notifications -->

@@ -1263,17 +1263,8 @@
   <string name="memorize_view_overview">جائزہ</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM ترجمہ</string>
   <string name="sync_settings_shortcut_summary">ڈیوائسز کے درمیان ڈیٹا ہم آہنگ کریں</string>
-  <string name="llm_api_key_title">API کلید</string>
-  <string name="llm_api_key_summary">OpenAI سے مطابق API کلید</string>
   <string name="llm_provider_custom">کسٹم (OpenAI سے مطابق)</string>
-  <string name="llm_provider_title">فراہم کنندہ</string>
-  <string name="llm_provider_summary">کون سا AI سروس فراہم کنندہ استعمال کرنا ہے منتخب کریں۔ API اینڈ پوائنٹ اور دستیاب ماڈل خودبخود ترتیب دیے جائیں گے۔</string>
-  <string name="llm_provider_current">موجودہ: %s</string>
-  <string name="llm_api_key_detected_provider">پہچانا گیا فراہم کنندہ: %s</string>
-  <string name="ai_connection_category">کنکشن</string>
-  <string name="ai_model_category">ماڈل</string>
   <string name="ai_behavior_category">رویہ</string>
   <string name="ai_language_title">AI جواب کی زبان</string>
   <string name="ai_language_summary">AI جوابات کے لیے استعمال کردہ زبان</string>
@@ -1290,16 +1281,9 @@
   <string name="llm_reset_usage_confirm_title">استعمال ڈیٹا ری سیٹ کریں؟</string>
   <string name="llm_reset_usage_confirm_message">یہ تمام مجموعی استعمال ڈیٹا صاف کر دے گا۔</string>
   <string name="llm_custom_input_price_title">ان پٹ قیمت ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">اس ماڈل کے لیے فی ملین ان پٹ ٹوکنز لاگت</string>
   <string name="llm_custom_output_price_title">آؤٹ پٹ قیمت ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">اس ماڈل کے لیے فی ملین آؤٹ پٹ ٹوکنز لاگت</string>
   <string name="llm_cost_total">مجموعی: %1$s</string>
-  <string name="llm_endpoint_title">API اینڈ پوائنٹ</string>
-  <string name="llm_endpoint_summary">API کے لیے بیس URL</string>
-  <string name="llm_model_title">ماڈل</string>
-  <string name="llm_model_summary">ماڈل ID</string>
   <string name="llm_custom_model">کسٹم…</string>
-  <string name="llm_custom_model_dialog_title">کسٹم ماڈل</string>
   <string name="llm_custom_model_dialog_message">ماڈل ID داخل کریں</string>
   <string name="llm_rate_limited_retrying">شرح محدود ہے۔ %1$s سیکنڈ میں دوبارہ کوشش ہو رہی ہے\u2026</string>
   <string name="llm_default_document_title">AI جواب</string>
@@ -1309,7 +1293,6 @@
   <string name="llm_parse_error_no_choices">OpenAI جواب میں کوئی انتخاب نہیں</string>
   <string name="llm_parse_error_openai">OpenAI جواب پارس کرنے میں ناکامی: %1$s</string>
   <string name="llm_parse_error_anthropic">Anthropic جواب پارس کرنے میں ناکامی: %1$s</string>
-  <string name="llm_error_prompt_not_found">پرامپٹ نہیں ملا: %1$s</string>
   <string name="llm_error_unknown">نامعلوم خرابی</string>
   <string name="llm_error_max_iterations">زیادہ سے زیادہ تکرار (%1$d) مکمل ہونے کے بغیر پہنچ گئی</string>
   <string name="llm_continue_iterations_title">جاری رکھیں؟</string>
@@ -1344,7 +1327,6 @@
   <string name="raw_log_retention_summary_disabled">غیر فعال (سب رکھیں)</string>
   <string name="send_ai_bug_report_title">AI بگ رپورٹ کریں</string>
   <string name="ai_bug_report_menu">AI بگ رپورٹ کریں</string>
-  <string name="ai_bug_report_recommended_only">بگ رپورٹنگ صرف تجویز کردہ فراہم کنندہ ماڈلز کے لیے دستیاب ہے</string>
 
   <string name="select_model_before_run_title">ماڈل منتخب کریں</string>
   <string name="set_default_model_for_prompt">اس پرامپٹ کے لیے ڈیفالٹ ماڈل بنائیں</string>
@@ -1386,11 +1368,6 @@
   <string name="ai_provider_saved">فراہم کنندہ محفوظ ہو گیا</string>
   <string name="ai_provider_deleted">فراہم کنندہ حذف ہو گیا</string>
 
-  <string name="llm_fetch_models_title">ماڈل فہرست ڈاؤنلوڈ کریں</string>
-  <string name="llm_fetch_models_message">%1$s سے دستیاب ماڈلز کی فہرست ڈاؤنلوڈ کریں؟</string>
-  <string name="llm_fetch_models_dont_ask">دوبارہ نہ پوچھیں</string>
-  <string name="llm_fetch_models_success">%1$d ماڈل لوڈ ہوئے</string>
-  <string name="llm_fetch_models_failed">ماڈل لینے میں ناکامی</string>
   <string name="llm_openrouter_category">زمرہ</string>
   <string name="llm_openrouter_category_all">تمام</string>
   <string name="llm_openrouter_model">ماڈل</string>
@@ -1404,9 +1381,6 @@
   <string name="model_delete_confirm">ماڈل \"%1$s\" حذف کریں؟</string>
   <string name="model_set_default">ڈیفالٹ ماڈل بنائیں</string>
   <string name="model_select_provider">فراہم کنندہ</string>
-  <string name="no_models_configured">کوئی ماڈل ترتیب نہیں دیا گیا</string>
-  <string name="model_cache_creation_price">کیش بنانے کی قیمت ($/Mtoken)</string>
-  <string name="model_cache_read_price">کیش پڑھنے کی قیمت ($/Mtoken)</string>
   <string name="model_supported_badge">✓ سپورٹ شدہ</string>
   <string name="show_also_unsupported_models">غیر سپورٹ شدہ ماڈل بھی دکھائیں</string>
   <string name="show_also_unsupported_providers">غیر سپورٹ شدہ فراہم کنندگان بھی دکھائیں</string>
@@ -1417,7 +1391,6 @@
   <string name="unknown_error">نامعلوم خرابی</string>
   <string name="easy_setup_title">فوری ترتیب</string>
   <string name="easy_setup_pref_summary">چند مراحل میں تجویز کردہ فراہم کنندہ کے ساتھ AI ترتیب دیں</string>
-  <string name="easy_setup_choose_provider">شروع کرنے کے لیے فراہم کنندہ منتخب کریں:</string>
   <string name="easy_setup_enter_api_key">اپنی API کلید داخل کریں</string>
   <string name="easy_setup_api_key_instructions">اپنی API کلید یہاں سے حاصل کریں:</string>
   <string name="easy_setup_test_connection">کنکشن جانچیں</string>
@@ -1521,13 +1494,10 @@
   <string name="llm_note_updated">نوٹ اپ ڈیٹ ہو گیا</string>
   <string name="specify_before_run_title">کام بتائیں</string>
   <string name="specify_before_run_hint">مخصوص کام بیان کریں…</string>
-  <string name="prompt_cache_settings">کیش ترتیبات</string>
   <string name="prompt_strict_context_matching">سیاق و سباق پر منحصر کیش</string>
   <string name="prompt_strict_context_matching_description">فعال ہونے پر، کیش صرف اس وقت مطابق ہوتا ہے جب تمام سیاق و سباق (بائبل ورژن، منتخب متن) یکساں ہو۔ غیر فعال ہونے پر، کیش اس وقت مطابق ہوتا ہے جب آیات بائبل ورژن سے قطع نظر یکساں ہوں۔</string>
   <string name="ai_document_delete_confirmation">یہ AI دستاویز حذف کریں؟</string>
-  <string name="ai_document_deleted">یہ AI دستاویز حذف ہو گئی ہے۔</string>
   <string name="ai_document_regenerating">AI دستاویز دوبارہ بنائی جا رہی ہے…</string>
-  <string name="ai_document_regenerate_not_implemented">دوبارہ بنانا آئندہ اپ ڈیٹ میں دستیاب ہوگا</string>
   <string name="ai_regenerate_prompt_not_found">دوبارہ نہیں بنا سکتے: اصل پرامپٹ نہیں ملا۔ شاید یہ حذف ہو گیا ہو۔</string>
   <string name="ai_document_regenerate">دوبارہ بنائیں</string>
   <string name="ai_regenerate_title">دوبارہ بنائیں</string>
@@ -1541,8 +1511,6 @@
   <string name="default_prompt_translate_to_language">%s میں ترجمہ کریں</string>
   <string name="default_prompt_translate_to_ui_language">UI زبان میں ترجمہ کریں</string>
   <string name="default_prompt_translate_to_ui_language_desc">دستاویز متن کو ایپ انٹرفیس کی زبان میں ترجمہ کرتا ہے</string>
-  <string name="default_prompt_translate_to_english">انگریزی میں ترجمہ کریں</string>
-  <string name="default_prompt_translate_to_english_desc">منتخب متن کو انگریزی میں ترجمہ کرتا ہے</string>
   <string name="default_prompt_summary">خلاصہ</string>
   <string name="default_prompt_summary_desc">منتخب متن کا مختصر خلاصہ بناتا ہے</string>
   <string name="default_prompt_explain_verses">آیات سمجھائیں</string>
@@ -1551,8 +1519,6 @@
   <string name="default_prompt_explain_verses_studypad_desc">آیت بہ آیت وضاحت اور بک مارکس کے ساتھ مطالعہ پیڈ بناتا ہے</string>
   <string name="default_prompt_word_study">لفظی مطالعہ</string>
   <string name="default_prompt_word_study_desc">اصل عبرانی/یونانی الفاظ کا تجزیہ کرتا ہے</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s نمبر تشریح</string>
-  <string name="default_prompt_strongs_annotation_desc">KJV کو حوالہ کے طور پر استعمال کرتے ہوئے کسی بھی بائبل ترجمے میں Strong\'s اشاریہ نمبر شامل کرتا ہے</string>
   <string name="default_prompt_cross_references">کراس حوالہ جات</string>
   <string name="default_prompt_cross_references_desc">متعلقہ بائبل اقتباسات ڈھونڈتا اور سمجھاتا ہے</string>
   <string name="default_prompt_compare_translations">تراجم کا موازنہ کریں</string>
@@ -1695,11 +1661,7 @@
   <string name="ai_document_filter_summary">منتخب کریں کہ AI کون سی دستاویزات پڑھ سکتا ہے</string>
   <string name="ai_document_filter_summary_count">%d دستاویزات خارج</string>
   <string name="ai_document_filter_activity_title">AI دستاویز رسائی</string>
-  <string name="ai_document_excluded_error">صارف ترتیبات نے دستاویز خارج کی: %s</string>
   <string name="permission_status_default">پوچھیں (ڈیفالٹ)</string>
-  <string name="permission_status_allowed">ہمیشہ اجازت ہے</string>
-  <string name="permission_status_denied">ہمیشہ انکار ہے</string>
-  <string name="permission_option_default">ہر بار پوچھیں (ڈیفالٹ)</string>
   <string name="permission_option_always_allow">ہمیشہ اجازت دیں</string>
   <string name="permission_option_always_deny">ہمیشہ انکار کریں</string>
   <string name="reset_all_permissions">سب ری سیٹ کریں</string>
@@ -1714,10 +1676,6 @@
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">ٹول اجازتیں</string>
-  <string name="prompt_tool_permissions_read_only">ٹول اجازتیں (صرف پڑھنے کے لیے)</string>
-  <string name="prompt_tool_permissions_description">اس پرامپٹ کے لیے ٹول اجازتیں اوور رائڈ کریں</string>
-  <string name="tool_section_read_tools">پڑھنے کے ٹولز</string>
-  <string name="tool_section_write_tools">لکھنے کے ٹولز</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">بائبل اور تلاش</string>
@@ -1740,13 +1698,9 @@
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">ماڈل</string>
   <string name="prompt_model_default">ڈیفالٹ</string>
-  <string name="prompt_model_custom">کسٹم</string>
-  <string name="prompt_model_custom_hint">ماڈل کا نام داخل کریں</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI عمل منتخب کریں</string>
-  <string name="no_llm_prompts_configured">آیت انتخاب کے لیے کوئی AI پرامپٹ ترتیب نہیں دیا گیا</string>
-  <string name="llm_prompt_executing">AI پرامپٹ چلایا جا رہا ہے: %s</string>
   <string name="llm_actions">AI اعمال</string>
 
     <!-- Agent Log Widget -->
@@ -1754,9 +1708,7 @@
   <string name="agent_log_close">ایجنٹ لاگ بند کریں</string>
   <string name="agent_log_stop">AI روکیں</string>
   <string name="agent_log_idle">AI معاون</string>
-  <string name="agent_log_running">AI کام کر رہا ہے…</string>
   <string name="agent_log_completed">مکمل</string>
-  <string name="agent_log_error">خرابی ہوئی</string>
   <string name="agent_log_executing">چل رہا ہے: %s</string>
   <string name="agent_log_iteration">تکرار %d</string>
   <string name="agent_log_tool">ٹول: %s</string>
@@ -1766,7 +1718,6 @@
   <string name="agent_log_saved">محفوظ: %s</string>
   <string name="agent_log_done">مکمل: %s</string>
   <string name="agent_log_cancelled">منسوخ</string>
-  <string name="agent_execution_completed">ایجنٹ عمل مکمل</string>
   <string name="agent_already_running">ایک AI ایجنٹ پہلے سے چل رہا ہے۔ براہ کرم انتظار کریں یا پہلے روکیں۔</string>
 
     <!-- AI Agent Notifications -->

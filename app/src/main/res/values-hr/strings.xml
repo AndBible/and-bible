@@ -1382,17 +1382,8 @@ Ne prikazuj ovu poruku ponovno.
   <string name="memorize_view_overview">Pregled</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM prijevod</string>
   <string name="sync_settings_shortcut_summary">Uskladi podatke između uređaja</string>
-  <string name="llm_api_key_title">API ključ</string>
-  <string name="llm_api_key_summary">API ključ kompatibilan s OpenAI</string>
   <string name="llm_provider_custom">Prilagođeni (kompatibilan s OpenAI)</string>
-  <string name="llm_provider_title">Davatelj usluge</string>
-  <string name="llm_provider_summary">Odaberite kojeg davatelja AI usluge koristiti. Krajnja točka API-ja i dostupni modeli bit će automatski konfigurirani.</string>
-  <string name="llm_provider_current">Trenutni: %s</string>
-  <string name="llm_api_key_detected_provider">Prepoznat davatelj: %s</string>
-  <string name="ai_connection_category">Veza</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Ponašanje</string>
   <string name="ai_language_title">Jezik AI odgovora</string>
   <string name="ai_language_summary">Jezik koji AI koristi za odgovore</string>
@@ -1409,16 +1400,9 @@ Ne prikazuj ovu poruku ponovno.
   <string name="llm_reset_usage_confirm_title">Poništiti podatke o potrošnji?</string>
   <string name="llm_reset_usage_confirm_message">Ovo će obrisati sve kumulativne podatke o potrošnji.</string>
   <string name="llm_custom_input_price_title">Cijena ulaza ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Cijena po milijun ulaznih tokena za ovaj model</string>
   <string name="llm_custom_output_price_title">Cijena izlaza ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Cijena po milijun izlaznih tokena za ovaj model</string>
   <string name="llm_cost_total">Ukupno: %1$s</string>
-  <string name="llm_endpoint_title">API krajnja točka</string>
-  <string name="llm_endpoint_summary">Osnovni URL za API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">ID modela</string>
   <string name="llm_custom_model">Prilagođeni…</string>
-  <string name="llm_custom_model_dialog_title">Prilagođeni model</string>
   <string name="llm_custom_model_dialog_message">Unesite ID modela</string>
   <string name="llm_rate_limited_retrying">Ograničenje brzine. Ponovni pokušaj za %1$ss\u2026</string>
   <string name="llm_default_document_title">AI odgovor</string>
@@ -1428,7 +1412,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="llm_parse_error_no_choices">Nema izbora u OpenAI odgovoru</string>
   <string name="llm_parse_error_openai">Neuspjelo raščlanjivanje OpenAI odgovora: %1$s</string>
   <string name="llm_parse_error_anthropic">Neuspjelo raščlanjivanje Anthropic odgovora: %1$s</string>
-  <string name="llm_error_prompt_not_found">Upit nije pronađen: %1$s</string>
   <string name="llm_error_unknown">Nepoznata pogreška</string>
   <string name="llm_error_max_iterations">Dosegnut maksimalni broj ponavljanja (%1$d) bez dovršetka</string>
   <string name="llm_continue_iterations_title">Nastaviti?</string>
@@ -1463,7 +1446,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="raw_log_retention_summary_disabled">Onemogućeno (zadrži sve)</string>
   <string name="send_ai_bug_report_title">Prijavi AI grešku</string>
   <string name="ai_bug_report_menu">Prijavi AI grešku</string>
-  <string name="ai_bug_report_recommended_only">Prijava grešaka dostupna je samo za preporučene modele davatelja usluge</string>
 
   <string name="select_model_before_run_title">Odaberi model</string>
   <string name="set_default_model_for_prompt">Postavi kao zadani model za ovaj upit</string>
@@ -1505,11 +1487,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="ai_provider_saved">Pružatelj spremljen</string>
   <string name="ai_provider_deleted">Pružatelj obrisan</string>
 
-  <string name="llm_fetch_models_title">Preuzmi popis modela</string>
-  <string name="llm_fetch_models_message">Preuzeti popis dostupnih modela s %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Ne pitaj ponovno</string>
-  <string name="llm_fetch_models_success">Učitano %1$d modela</string>
-  <string name="llm_fetch_models_failed">Preuzimanje modela nije uspjelo</string>
   <string name="llm_openrouter_category">Kategorija</string>
   <string name="llm_openrouter_category_all">Sve</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1523,9 +1500,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="model_delete_confirm">Obrisati model \"%1$s\"?</string>
   <string name="model_set_default">Postavi kao zadani model</string>
   <string name="model_select_provider">Pružatelj</string>
-  <string name="no_models_configured">Nema konfiguriranih modela</string>
-  <string name="model_cache_creation_price">Cijena stvaranja predmemorije ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cijena čitanja predmemorije ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Podržano</string>
   <string name="show_also_unsupported_models">Prikaži i nepodržane modele</string>
   <string name="show_also_unsupported_providers">Prikaži i nepodržane davatelje usluge</string>
@@ -1536,7 +1510,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="unknown_error">Nepoznata pogreška</string>
   <string name="easy_setup_title">Brzo postavljanje</string>
   <string name="easy_setup_pref_summary">Postavi AI s preporučenim pružateljem u nekoliko koraka</string>
-  <string name="easy_setup_choose_provider">Odaberi pružatelja za početak:</string>
   <string name="easy_setup_enter_api_key">Unesi svoj API ključ</string>
   <string name="easy_setup_api_key_instructions">Nabavi svoj API ključ na:</string>
   <string name="easy_setup_test_connection">Testiraj povezivanje</string>
@@ -1640,13 +1613,10 @@ Ne prikazuj ovu poruku ponovno.
   <string name="llm_note_updated">Bilješka ažurirana</string>
   <string name="specify_before_run_title">Odredi zadatak</string>
   <string name="specify_before_run_hint">Opišite konkretni zadatak…</string>
-  <string name="prompt_cache_settings">Postavke predmemorije</string>
   <string name="prompt_strict_context_matching">Predmemorija ovisna o kontekstu</string>
   <string name="prompt_strict_context_matching_description">Kada je omogućeno, predmemorija se poklapa samo kada je cijeli kontekst (biblijski prijevod, odabrani tekst) isti. Kada je onemogućeno, predmemorija se poklapa kada su redci isti bez obzira na biblijski prijevod.</string>
   <string name="ai_document_delete_confirmation">Obrisati ovaj AI dokument?</string>
-  <string name="ai_document_deleted">Ovaj AI dokument je obrisan.</string>
   <string name="ai_document_regenerating">Ponovno generiranje AI dokumenta…</string>
-  <string name="ai_document_regenerate_not_implemented">Ponovno generiranje bit će dostupno u budućem ažuriranju</string>
   <string name="ai_regenerate_prompt_not_found">Nije moguće ponovno generirati: izvorna uputa nije pronađena. Možda je obrisana.</string>
   <string name="ai_document_regenerate">Ponovno generiraj</string>
   <string name="ai_regenerate_title">Ponovno generiraj</string>
@@ -1660,8 +1630,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="default_prompt_translate_to_language">Prevedi na %s</string>
   <string name="default_prompt_translate_to_ui_language">Prevedi na jezik sučelja</string>
   <string name="default_prompt_translate_to_ui_language_desc">Prevodi tekst dokumenta na jezik sučelja aplikacije</string>
-  <string name="default_prompt_translate_to_english">Prevedi na engleski</string>
-  <string name="default_prompt_translate_to_english_desc">Prevodi odabrani tekst na engleski</string>
   <string name="default_prompt_summary">Sažetak</string>
   <string name="default_prompt_summary_desc">Stvara sažeti pregled odabranog teksta</string>
   <string name="default_prompt_explain_verses">Objasni retke</string>
@@ -1670,8 +1638,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="default_prompt_explain_verses_studypad_desc">Stvori radnu bilježnicu s objašnjenjem redak po redak i straničnicima</string>
   <string name="default_prompt_word_study">Proučavanje riječi</string>
   <string name="default_prompt_word_study_desc">Analizira izvorne hebrejske/grčke riječi</string>
-  <string name="default_prompt_strongs_annotation">Označavanje Strongovim brojevima</string>
-  <string name="default_prompt_strongs_annotation_desc">Dodaje Strongove konkordancijske brojeve bilo kojem biblijskom prijevodu koristeći KJV kao referencu</string>
   <string name="default_prompt_cross_references">Unakrsne reference</string>
   <string name="default_prompt_cross_references_desc">Pronalazi i objašnjava povezane biblijske odlomke</string>
   <string name="default_prompt_compare_translations">Usporedi prijevode</string>
@@ -1814,11 +1780,7 @@ Ne prikazuj ovu poruku ponovno.
   <string name="ai_document_filter_summary">Odaberite koje dokumente AI može čitati</string>
   <string name="ai_document_filter_summary_count">%d dokumenata isključeno</string>
   <string name="ai_document_filter_activity_title">AI pristup dokumentima</string>
-  <string name="ai_document_excluded_error">Dokument isključen korisničkim postavkama: %s</string>
   <string name="permission_status_default">Pitaj (zadano)</string>
-  <string name="permission_status_allowed">Uvijek dopušteno</string>
-  <string name="permission_status_denied">Uvijek odbijeno</string>
-  <string name="permission_option_default">Pitaj svaki put (zadano)</string>
   <string name="permission_option_always_allow">Uvijek dopusti</string>
   <string name="permission_option_always_deny">Uvijek odbij</string>
   <string name="reset_all_permissions">Poništi sve</string>
@@ -1833,10 +1795,6 @@ Ne prikazuj ovu poruku ponovno.
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Dozvole alata</string>
-  <string name="prompt_tool_permissions_read_only">Dozvole alata (samo za čitanje)</string>
-  <string name="prompt_tool_permissions_description">Nadjačaj dozvole alata za ovaj upit</string>
-  <string name="tool_section_read_tools">Alati za čitanje</string>
-  <string name="tool_section_write_tools">Alati za pisanje</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Biblija i pretraživanje</string>
@@ -1859,13 +1817,9 @@ Ne prikazuj ovu poruku ponovno.
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Zadano</string>
-  <string name="prompt_model_custom">Prilagođeno</string>
-  <string name="prompt_model_custom_hint">Unesite naziv modela</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Odaberi AI radnju</string>
-  <string name="no_llm_prompts_configured">Nema konfiguriranih AI upita za odabir redaka</string>
-  <string name="llm_prompt_executing">Izvršavanje AI upita: %s</string>
   <string name="llm_actions">AI radnje</string>
 
     <!-- Agent Log Widget -->
@@ -1873,9 +1827,7 @@ Ne prikazuj ovu poruku ponovno.
   <string name="agent_log_close">Zatvori zapisnik agenta</string>
   <string name="agent_log_stop">Zaustavi AI</string>
   <string name="agent_log_idle">AI pomoćnik</string>
-  <string name="agent_log_running">AI radi…</string>
   <string name="agent_log_completed">Završeno</string>
-  <string name="agent_log_error">Došlo je do pogreške</string>
   <string name="agent_log_executing">Izvršavanje: %s</string>
   <string name="agent_log_iteration">Iteracija %d</string>
   <string name="agent_log_tool">Alat: %s</string>
@@ -1885,7 +1837,6 @@ Ne prikazuj ovu poruku ponovno.
   <string name="agent_log_saved">Spremljeno: %s</string>
   <string name="agent_log_done">Gotovo: %s</string>
   <string name="agent_log_cancelled">Otkazano</string>
-  <string name="agent_execution_completed">Izvršavanje agenta završeno</string>
   <string name="agent_already_running">AI agent već radi. Pričekajte ili ga prvo zaustavite.</string>
 
     <!-- AI Agent Notifications -->

@@ -1367,17 +1367,8 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="memorize_view_overview">Επισκόπηση</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">Μετάφραση LLM</string>
   <string name="sync_settings_shortcut_summary">Συγχρονισμός δεδομένων μεταξύ συσκευών</string>
-  <string name="llm_api_key_title">Κλειδί API</string>
-  <string name="llm_api_key_summary">Κλειδί API συμβατό με OpenAI</string>
   <string name="llm_provider_custom">Προσαρμοσμένος (συμβατός με OpenAI)</string>
-  <string name="llm_provider_title">Πάροχος</string>
-  <string name="llm_provider_summary">Επιλέξτε ποιον πάροχο υπηρεσιών AI θα χρησιμοποιήσετε. Το τελικό σημείο API και τα διαθέσιμα μοντέλα θα ρυθμιστούν αυτόματα.</string>
-  <string name="llm_provider_current">Τρέχων: %s</string>
-  <string name="llm_api_key_detected_provider">Ανιχνεύθηκε πάροχος: %s</string>
-  <string name="ai_connection_category">Σύνδεση</string>
-  <string name="ai_model_category">Μοντέλο</string>
   <string name="ai_behavior_category">Συμπεριφορά</string>
   <string name="ai_language_title">Γλώσσα απαντήσεων AI</string>
   <string name="ai_language_summary">Γλώσσα απαντήσεων AI</string>
@@ -1394,16 +1385,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_reset_usage_confirm_title">Επαναφορά δεδομένων χρήσης;</string>
   <string name="llm_reset_usage_confirm_message">Αυτό θα διαγράψει όλα τα σωρευτικά δεδομένα χρήσης.</string>
   <string name="llm_custom_input_price_title">Τιμή εισόδου ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Κόστος ανά εκατομμύριο token εισόδου για αυτό το μοντέλο</string>
   <string name="llm_custom_output_price_title">Τιμή εξόδου ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Κόστος ανά εκατομμύριο token εξόδου για αυτό το μοντέλο</string>
   <string name="llm_cost_total">Σύνολο: %1$s</string>
-  <string name="llm_endpoint_title">Τελικό σημείο API</string>
-  <string name="llm_endpoint_summary">Βασικό URL για το API</string>
-  <string name="llm_model_title">Μοντέλο</string>
-  <string name="llm_model_summary">Αναγνωριστικό μοντέλου</string>
   <string name="llm_custom_model">Προσαρμοσμένο…</string>
-  <string name="llm_custom_model_dialog_title">Προσαρμοσμένο μοντέλο</string>
   <string name="llm_custom_model_dialog_message">Εισαγάγετε το αναγνωριστικό μοντέλου</string>
   <string name="llm_rate_limited_retrying">Όριο αιτημάτων. Νέα προσπάθεια σε %1$ss\u2026</string>
   <string name="llm_default_document_title">Απάντηση AI</string>
@@ -1413,7 +1397,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_parse_error_no_choices">Δεν υπάρχουν επιλογές στην απάντηση OpenAI</string>
   <string name="llm_parse_error_openai">Αποτυχία ανάλυσης απάντησης OpenAI: %1$s</string>
   <string name="llm_parse_error_anthropic">Αποτυχία ανάλυσης απάντησης Anthropic: %1$s</string>
-  <string name="llm_error_prompt_not_found">Η εντολή δεν βρέθηκε: %1$s</string>
   <string name="llm_error_unknown">Άγνωστο σφάλμα</string>
   <string name="llm_error_max_iterations">Συμπληρώθηκε το μέγιστο πλήθος επαναλήψεων (%1$d) χωρίς ολοκλήρωση</string>
   <string name="llm_continue_iterations_title">Συνέχεια;</string>
@@ -1448,7 +1431,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="raw_log_retention_summary_disabled">Απενεργοποιημένο (διατήρηση όλων)</string>
   <string name="send_ai_bug_report_title">Αναφορά σφάλματος ΑΙ</string>
   <string name="ai_bug_report_menu">Αναφορά σφάλματος ΑΙ</string>
-  <string name="ai_bug_report_recommended_only">Η αναφορά σφαλμάτων είναι διαθέσιμη μόνο για προτεινόμενα μοντέλα παρόχων</string>
 
   <string name="select_model_before_run_title">Επιλογή μοντέλου</string>
   <string name="set_default_model_for_prompt">Ορισμός ως προεπιλεγμένο μοντέλο για αυτή την εντολή</string>
@@ -1490,11 +1472,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_provider_saved">Ο πάροχος αποθηκεύτηκε</string>
   <string name="ai_provider_deleted">Ο πάροχος διαγράφηκε</string>
 
-  <string name="llm_fetch_models_title">Λήψη λίστας μοντέλων</string>
-  <string name="llm_fetch_models_message">Λήψη της λίστας διαθέσιμων μοντέλων από %1$s;</string>
-  <string name="llm_fetch_models_dont_ask">Να μην ερωτηθώ ξανά</string>
-  <string name="llm_fetch_models_success">Φορτώθηκαν %1$d μοντέλα</string>
-  <string name="llm_fetch_models_failed">Αποτυχία λήψης μοντέλων</string>
   <string name="llm_openrouter_category">Κατηγορία</string>
   <string name="llm_openrouter_category_all">Όλα</string>
   <string name="llm_openrouter_model">Μοντέλο</string>
@@ -1508,9 +1485,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="model_delete_confirm">Διαγραφή μοντέλου \"%1$s\";</string>
   <string name="model_set_default">Ορισμός ως προεπιλεγμένο μοντέλο</string>
   <string name="model_select_provider">Πάροχος</string>
-  <string name="no_models_configured">Δεν έχουν ρυθμιστεί μοντέλα</string>
-  <string name="model_cache_creation_price">Τιμή δημιουργίας κρυφής μνήμης ($/Mtoken)</string>
-  <string name="model_cache_read_price">Τιμή ανάγνωσης κρυφής μνήμης ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Υποστηρίζεται</string>
   <string name="show_also_unsupported_models">Εμφάνιση και μη υποστηριζόμενων μοντέλων</string>
   <string name="show_also_unsupported_providers">Εμφάνιση και μη υποστηριζόμενων παρόχων</string>
@@ -1521,7 +1495,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="unknown_error">Άγνωστο σφάλμα</string>
   <string name="easy_setup_title">Γρήγορη Ρύθμιση</string>
   <string name="easy_setup_pref_summary">Ρυθμίστε το AI με έναν προτεινόμενο πάροχο σε λίγα βήματα</string>
-  <string name="easy_setup_choose_provider">Επιλέξτε πάροχο για να ξεκινήσετε:</string>
   <string name="easy_setup_enter_api_key">Εισαγάγετε το κλειδί API σας</string>
   <string name="easy_setup_api_key_instructions">Αποκτήστε το κλειδί API σας από:</string>
   <string name="easy_setup_test_connection">Δοκιμή σύνδεσης</string>
@@ -1625,13 +1598,10 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="llm_note_updated">Η σημείωση ενημερώθηκε</string>
   <string name="specify_before_run_title">Καθορισμός εργασίας</string>
   <string name="specify_before_run_hint">Περιγράψτε τη συγκεκριμένη εργασία…</string>
-  <string name="prompt_cache_settings">Ρυθμίσεις προσωρινής μνήμης</string>
   <string name="prompt_strict_context_matching">Προσωρινή μνήμη βάσει πλαισίου</string>
   <string name="prompt_strict_context_matching_description">Όταν είναι ενεργοποιημένο, η προσωρινή μνήμη ταιριάζει μόνο όταν όλο το πλαίσιο (έκδοση Αγίας Γραφής, επιλεγμένο κείμενο) είναι ίδιο. Όταν είναι απενεργοποιημένο, η προσωρινή μνήμη ταιριάζει όταν οι στίχοι είναι ίδιοι ανεξαρτήτως έκδοσης Αγίας Γραφής.</string>
   <string name="ai_document_delete_confirmation">Διαγραφή αυτού του εγγράφου AI;</string>
-  <string name="ai_document_deleted">Αυτό το έγγραφο AI διαγράφηκε.</string>
   <string name="ai_document_regenerating">Αναδημιουργία εγγράφου AI…</string>
-  <string name="ai_document_regenerate_not_implemented">Η αναδημιουργία θα είναι διαθέσιμη σε μελλοντική ενημέρωση</string>
   <string name="ai_regenerate_prompt_not_found">Αδυναμία αναδημιουργίας: η αρχική εντολή δεν βρέθηκε. Ενδέχεται να έχει διαγραφεί.</string>
   <string name="ai_document_regenerate">Αναδημιουργία</string>
   <string name="ai_regenerate_title">Αναδημιουργία</string>
@@ -1645,8 +1615,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="default_prompt_translate_to_language">Μετάφραση στα %s</string>
   <string name="default_prompt_translate_to_ui_language">Μετάφραση στη γλώσσα διεπαφής</string>
   <string name="default_prompt_translate_to_ui_language_desc">Μεταφράζει το κείμενο του εγγράφου στη γλώσσα διεπαφής της εφαρμογής</string>
-  <string name="default_prompt_translate_to_english">Μετάφραση στα Αγγλικά</string>
-  <string name="default_prompt_translate_to_english_desc">Μεταφράζει το επιλεγμένο κείμενο στα Αγγλικά</string>
   <string name="default_prompt_summary">Περίληψη</string>
   <string name="default_prompt_summary_desc">Δημιουργεί μια σύντομη περίληψη του επιλεγμένου κειμένου</string>
   <string name="default_prompt_explain_verses">Επεξήγηση στίχων</string>
@@ -1655,8 +1623,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="default_prompt_explain_verses_studypad_desc">Δημιουργεί Χώρο Μελέτης με επεξήγηση στίχο προς στίχο και σελιδοδείκτες</string>
   <string name="default_prompt_word_study">Μελέτη λέξεων</string>
   <string name="default_prompt_word_study_desc">Αναλύει τις αρχικές λέξεις στα Εβραϊκά/Ελληνικά</string>
-  <string name="default_prompt_strongs_annotation">Σχολιασμός αριθμών Strong</string>
-  <string name="default_prompt_strongs_annotation_desc">Προσθέτει αριθμούς συμφωνίας Strong σε οποιαδήποτε μετάφραση της Αγίας Γραφής χρησιμοποιώντας την KJV ως αναφορά</string>
   <string name="default_prompt_cross_references">Παραπομπές</string>
   <string name="default_prompt_cross_references_desc">Βρίσκει και επεξηγεί σχετικά χωρία της Αγίας Γραφής</string>
   <string name="default_prompt_compare_translations">Σύγκριση μεταφράσεων</string>
@@ -1799,11 +1765,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="ai_document_filter_summary">Επιλέξτε ποια έγγραφα μπορεί να διαβάσει το AI</string>
   <string name="ai_document_filter_summary_count">%d έγγραφα αποκλεισμένα</string>
   <string name="ai_document_filter_activity_title">Πρόσβαση εγγράφων AI</string>
-  <string name="ai_document_excluded_error">Το έγγραφο αποκλείστηκε από τις ρυθμίσεις χρήστη: %s</string>
   <string name="permission_status_default">Ερώτηση (προεπιλογή)</string>
-  <string name="permission_status_allowed">Πάντα επιτρεπόμενο</string>
-  <string name="permission_status_denied">Πάντα απορριπτόμενο</string>
-  <string name="permission_option_default">Ερώτηση κάθε φορά (προεπιλογή)</string>
   <string name="permission_option_always_allow">Πάντα αποδοχή</string>
   <string name="permission_option_always_deny">Πάντα απόρριψη</string>
   <string name="reset_all_permissions">Επαναφορά όλων</string>
@@ -1818,10 +1780,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Δικαιώματα εργαλείων</string>
-  <string name="prompt_tool_permissions_read_only">Δικαιώματα εργαλείων (μόνο ανάγνωση)</string>
-  <string name="prompt_tool_permissions_description">Παράκαμψη δικαιωμάτων εργαλείων για αυτήν την εντολή</string>
-  <string name="tool_section_read_tools">Εργαλεία ανάγνωσης</string>
-  <string name="tool_section_write_tools">Εργαλεία εγγραφής</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Αγία Γραφή &amp; Αναζήτηση</string>
@@ -1844,13 +1802,9 @@ http://www.heartlight.org, κατόπιν άδειας</string>
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Μοντέλο</string>
   <string name="prompt_model_default">Προεπιλογή</string>
-  <string name="prompt_model_custom">Προσαρμοσμένο</string>
-  <string name="prompt_model_custom_hint">Εισαγάγετε όνομα μοντέλου</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">Επιλογή Ενέργειας AI</string>
-  <string name="no_llm_prompts_configured">Δεν έχουν ρυθμιστεί εντολές AI για επιλογή στίχων</string>
-  <string name="llm_prompt_executing">Εκτέλεση εντολής AI: %s</string>
   <string name="llm_actions">Ενέργειες AI</string>
 
     <!-- Agent Log Widget -->
@@ -1858,9 +1812,7 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_log_close">Κλείσιμο αρχείου καταγραφής βοηθού</string>
   <string name="agent_log_stop">Διακοπή AI</string>
   <string name="agent_log_idle">Βοηθός AI</string>
-  <string name="agent_log_running">Το AI εργάζεται…</string>
   <string name="agent_log_completed">Ολοκληρώθηκε</string>
-  <string name="agent_log_error">Παρουσιάστηκε σφάλμα</string>
   <string name="agent_log_executing">Εκτέλεση: %s</string>
   <string name="agent_log_iteration">Επανάληψη %d</string>
   <string name="agent_log_tool">Εργαλείο: %s</string>
@@ -1870,7 +1822,6 @@ http://www.heartlight.org, κατόπιν άδειας</string>
   <string name="agent_log_saved">Αποθηκεύτηκε: %s</string>
   <string name="agent_log_done">Ολοκλήρωση: %s</string>
   <string name="agent_log_cancelled">Ακυρώθηκε</string>
-  <string name="agent_execution_completed">Η εκτέλεση του βοηθού AI ολοκληρώθηκε</string>
   <string name="agent_already_running">Ένας βοηθός AI εκτελείται ήδη. Παρακαλώ περιμένετε ή σταματήστε τον πρώτα.</string>
 
     <!-- AI Agent Notifications -->

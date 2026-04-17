@@ -1377,17 +1377,8 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="memorize_view_overview">Overzicht</string>
 
     <!-- LLM Translation Settings -->
-  <string name="llm_settings_title">LLM-vertaling</string>
   <string name="sync_settings_shortcut_summary">Gegevens synchroniseren tussen apparaten</string>
-  <string name="llm_api_key_title">API-sleutel</string>
-  <string name="llm_api_key_summary">OpenAI-compatibele API-sleutel</string>
   <string name="llm_provider_custom">Aangepast (OpenAI-compatibel)</string>
-  <string name="llm_provider_title">Provider</string>
-  <string name="llm_provider_summary">Kies welke AI-serviceprovider u wilt gebruiken. Het API-eindpunt en de beschikbare modellen worden automatisch geconfigureerd.</string>
-  <string name="llm_provider_current">Huidig: %s</string>
-  <string name="llm_api_key_detected_provider">Gedetecteerde provider: %s</string>
-  <string name="ai_connection_category">Verbinding</string>
-  <string name="ai_model_category">Model</string>
   <string name="ai_behavior_category">Gedrag</string>
   <string name="ai_language_title">AI-antwoordtaal</string>
   <string name="ai_language_summary">Taal die AI gebruikt voor antwoorden</string>
@@ -1404,16 +1395,9 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="llm_reset_usage_confirm_title">Gebruiksgegevens resetten?</string>
   <string name="llm_reset_usage_confirm_message">Hiermee worden alle cumulatieve gebruiksgegevens gewist.</string>
   <string name="llm_custom_input_price_title">Invoerprijs ($/Mtoken)</string>
-  <string name="llm_custom_input_price_summary">Kosten per miljoen invoertokens voor dit model</string>
   <string name="llm_custom_output_price_title">Uitvoerprijs ($/Mtoken)</string>
-  <string name="llm_custom_output_price_summary">Kosten per miljoen uitvoertokens voor dit model</string>
   <string name="llm_cost_total">Totaal: %1$s</string>
-  <string name="llm_endpoint_title">API-eindpunt</string>
-  <string name="llm_endpoint_summary">Basis-URL voor de API</string>
-  <string name="llm_model_title">Model</string>
-  <string name="llm_model_summary">Model-ID</string>
   <string name="llm_custom_model">Aangepast…</string>
-  <string name="llm_custom_model_dialog_title">Aangepast model</string>
   <string name="llm_custom_model_dialog_message">Voer het model-ID in</string>
   <string name="llm_rate_limited_retrying">Snelheidslimiet bereikt. Opnieuw proberen over %1$ss\u2026</string>
   <string name="llm_default_document_title">AI-antwoord</string>
@@ -1423,7 +1407,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="llm_parse_error_no_choices">Geen keuzes in OpenAI-antwoord</string>
   <string name="llm_parse_error_openai">Verwerken van OpenAI-antwoord mislukt: %1$s</string>
   <string name="llm_parse_error_anthropic">Verwerken van Anthropic-antwoord mislukt: %1$s</string>
-  <string name="llm_error_prompt_not_found">Prompt niet gevonden: %1$s</string>
   <string name="llm_error_unknown">Onbekende fout</string>
   <string name="llm_error_max_iterations">Maximum aantal iteraties (%1$d) bereikt zonder voltooiing</string>
   <string name="llm_continue_iterations_title">Doorgaan?</string>
@@ -1458,7 +1441,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="raw_log_retention_summary_disabled">Uitgeschakeld (alles bewaren)</string>
   <string name="send_ai_bug_report_title">AI-fout melden</string>
   <string name="ai_bug_report_menu">AI-fout melden</string>
-  <string name="ai_bug_report_recommended_only">Foutrapportage is alleen beschikbaar voor aanbevolen providermodellen</string>
 
   <string name="select_model_before_run_title">Model selecteren</string>
   <string name="set_default_model_for_prompt">Instellen als standaardmodel voor deze prompt</string>
@@ -1500,11 +1482,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_provider_saved">Provider opgeslagen</string>
   <string name="ai_provider_deleted">Provider verwijderd</string>
 
-  <string name="llm_fetch_models_title">Modellenlijst downloaden</string>
-  <string name="llm_fetch_models_message">De lijst met beschikbare modellen downloaden van %1$s?</string>
-  <string name="llm_fetch_models_dont_ask">Niet meer vragen</string>
-  <string name="llm_fetch_models_success">%1$d modellen geladen</string>
-  <string name="llm_fetch_models_failed">Ophalen van modellen mislukt</string>
   <string name="llm_openrouter_category">Categorie</string>
   <string name="llm_openrouter_category_all">Alle</string>
   <string name="llm_openrouter_model">Model</string>
@@ -1518,9 +1495,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="model_delete_confirm">Model \"%1$s\" verwijderen?</string>
   <string name="model_set_default">Als standaardmodel instellen</string>
   <string name="model_select_provider">Provider</string>
-  <string name="no_models_configured">Geen modellen geconfigureerd</string>
-  <string name="model_cache_creation_price">Cacheaanmaakprijs ($/Mtoken)</string>
-  <string name="model_cache_read_price">Cachelezenprijs ($/Mtoken)</string>
   <string name="model_supported_badge">✓ Ondersteund</string>
   <string name="show_also_unsupported_models">Toon ook niet-ondersteunde modellen</string>
   <string name="show_also_unsupported_providers">Toon ook niet-ondersteunde providers</string>
@@ -1531,7 +1505,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="unknown_error">Onbekende fout</string>
   <string name="easy_setup_title">Snelle installatie</string>
   <string name="easy_setup_pref_summary">AI instellen met een aanbevolen provider in een paar stappen</string>
-  <string name="easy_setup_choose_provider">Kies een provider om te beginnen:</string>
   <string name="easy_setup_enter_api_key">Voer uw API-sleutel in</string>
   <string name="easy_setup_api_key_instructions">Haal uw API-sleutel op via:</string>
   <string name="easy_setup_test_connection">Verbinding testen</string>
@@ -1635,13 +1608,10 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="llm_note_updated">Notitie bijgewerkt</string>
   <string name="specify_before_run_title">Taak opgeven</string>
   <string name="specify_before_run_hint">Beschrijf de specifieke taak…</string>
-  <string name="prompt_cache_settings">Cache-instellingen</string>
   <string name="prompt_strict_context_matching">Contextafhankelijke cache</string>
   <string name="prompt_strict_context_matching_description">Wanneer ingeschakeld, komt de cache alleen overeen als alle context (Bijbelvertaling, geselecteerde tekst) hetzelfde is. Wanneer uitgeschakeld, komt de cache overeen als de verzen hetzelfde zijn, ongeacht de Bijbelvertaling.</string>
   <string name="ai_document_delete_confirmation">Dit AI-document verwijderen?</string>
-  <string name="ai_document_deleted">Dit AI-document is verwijderd.</string>
   <string name="ai_document_regenerating">AI-document opnieuw genereren…</string>
-  <string name="ai_document_regenerate_not_implemented">Opnieuw genereren is beschikbaar in een toekomstige update</string>
   <string name="ai_regenerate_prompt_not_found">Kan niet opnieuw genereren: de oorspronkelijke prompt is niet gevonden. Deze is mogelijk verwijderd.</string>
   <string name="ai_document_regenerate">Opnieuw genereren</string>
   <string name="ai_regenerate_title">Opnieuw genereren</string>
@@ -1655,8 +1625,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="default_prompt_translate_to_language">Vertalen naar %s</string>
   <string name="default_prompt_translate_to_ui_language">Vertalen naar gebruikerstaal</string>
   <string name="default_prompt_translate_to_ui_language_desc">Vertaalt documenttekst naar de taal van de app-interface</string>
-  <string name="default_prompt_translate_to_english">Vertalen naar het Engels</string>
-  <string name="default_prompt_translate_to_english_desc">Vertaalt geselecteerde tekst naar het Engels</string>
   <string name="default_prompt_summary">Samenvatting</string>
   <string name="default_prompt_summary_desc">Maakt een beknopte samenvatting van de geselecteerde tekst</string>
   <string name="default_prompt_explain_verses">Verzen uitleggen</string>
@@ -1665,8 +1633,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="default_prompt_explain_verses_studypad_desc">Maak een studiepad met vers-voor-vers uitleg en bladwijzers</string>
   <string name="default_prompt_word_study">Woordstudie</string>
   <string name="default_prompt_word_study_desc">Analyseert originele Hebreeuwse/Griekse woorden</string>
-  <string name="default_prompt_strongs_annotation">Strong\'s nummers toevoegen</string>
-  <string name="default_prompt_strongs_annotation_desc">Voegt Strong\'s concordantienummers toe aan elke Bijbelvertaling met behulp van de KJV als referentie</string>
   <string name="default_prompt_cross_references">Kruisverwijzingen</string>
   <string name="default_prompt_cross_references_desc">Vindt en verklaart gerelateerde Bijbelpassages</string>
   <string name="default_prompt_compare_translations">Vertalingen vergelijken</string>
@@ -1809,11 +1775,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="ai_document_filter_summary">Kies welke documenten de AI kan lezen</string>
   <string name="ai_document_filter_summary_count">%d documenten uitgesloten</string>
   <string name="ai_document_filter_activity_title">AI-documenttoegang</string>
-  <string name="ai_document_excluded_error">Document uitgesloten door gebruikersinstellingen: %s</string>
   <string name="permission_status_default">Vragen (standaard)</string>
-  <string name="permission_status_allowed">Altijd toegestaan</string>
-  <string name="permission_status_denied">Altijd geweigerd</string>
-  <string name="permission_option_default">Elke keer vragen (standaard)</string>
   <string name="permission_option_always_allow">Altijd toestaan</string>
   <string name="permission_option_always_deny">Altijd weigeren</string>
   <string name="reset_all_permissions">Alles opnieuw instellen</string>
@@ -1828,10 +1790,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
 
     <!-- Per-Prompt Tool Permissions -->
   <string name="prompt_tool_permissions">Hulpmiddelenmachtigingen</string>
-  <string name="prompt_tool_permissions_read_only">Hulpmiddelenmachtigingen (alleen-lezen)</string>
-  <string name="prompt_tool_permissions_description">Hulpmiddelenmachtigingen overschrijven voor deze prompt</string>
-  <string name="tool_section_read_tools">Leesinstrumenten</string>
-  <string name="tool_section_write_tools">Schrijfinstrumenten</string>
 
     <!-- Tool categories -->
   <string name="tool_category_bible_search">Bijbel &amp; zoeken</string>
@@ -1854,13 +1812,9 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
     <!-- Per-Prompt Model Override -->
   <string name="prompt_model_override">Model</string>
   <string name="prompt_model_default">Standaard</string>
-  <string name="prompt_model_custom">Aangepast</string>
-  <string name="prompt_model_custom_hint">Modelnaam invoeren</string>
 
     <!-- LLM One Tap Actions -->
   <string name="select_llm_prompt">AI-actie selecteren</string>
-  <string name="no_llm_prompts_configured">Geen AI-prompts geconfigureerd voor verselectie</string>
-  <string name="llm_prompt_executing">AI-prompt uitvoeren: %s</string>
   <string name="llm_actions">AI-acties</string>
 
     <!-- Agent Log Widget -->
@@ -1868,9 +1822,7 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="agent_log_close">Agentlog sluiten</string>
   <string name="agent_log_stop">AI stoppen</string>
   <string name="agent_log_idle">AI-assistent</string>
-  <string name="agent_log_running">AI is bezig…</string>
   <string name="agent_log_completed">Voltooid</string>
-  <string name="agent_log_error">Fout opgetreden</string>
   <string name="agent_log_executing">Uitvoeren: %s</string>
   <string name="agent_log_iteration">Iteratie %d</string>
   <string name="agent_log_tool">Hulpmiddel: %s</string>
@@ -1880,7 +1832,6 @@ Een lijst met eerder gebruikte boeken/documenten is gevonden. Klik hieronder om 
   <string name="agent_log_saved">Opgeslagen: %s</string>
   <string name="agent_log_done">Klaar: %s</string>
   <string name="agent_log_cancelled">Geannuleerd</string>
-  <string name="agent_execution_completed">Agentuitvoering voltooid</string>
   <string name="agent_already_running">Er wordt al een AI-agent uitgevoerd. Wacht of stop deze eerst.</string>
 
     <!-- AI Agent Notifications -->
