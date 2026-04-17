@@ -1,0 +1,11 @@
+- Add language support for Japanese, Vietnamese, Thai, Danish, Catalan, Indonesian, Esperanto, Filipino, Malay, Nepali, Swahili, and Urdu (8994bc855)
+- Update translations for Norwegian, Estonian, Serbian, Belarusian, Tamil, and Telugu (535d7e50f)
+
+5.1
+"What's new" video: TODO
+
+Highlights:
+- TODO
+
+See new AndBible website & blog: https://andbible.org
+Support development financially: https://shop.andbible.org/
