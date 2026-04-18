@@ -58,6 +58,16 @@ Scripts accept the **canonical code** (Android directory suffix). The `lang_code
 
 Most languages use the same code for both (e.g., `de` → `values-de/` + `de.yaml`).
 
+### Android mirror targets
+
+Some languages must write to **more than one Android directory** to stay synchronized with Transifex's `lang_map` + the Makefile's `tx-pull` step. Mirror targets are defined in `lang_codes.py` (`ANDROID_MIRRORS`) and `restructure.py` automatically writes to both when translating such a language.
+
+| Lang | Primary target | Mirror | Why |
+|------|----------------|--------|-----|
+| `zh-rTW` | `values-zh-rTW/strings.xml` | `values-zh/strings.xml` | Transifex `zh_TW` → `values-zh/`; Makefile then `cp` → `values-zh-rTW/`. Both must stay in sync so `tx push`/`tx pull` don't destroy new translations. |
+
+When adding new translations to a mirror-target language, **also push to Transifex** (`tx push -t -l <transifex-code> -f -r andbible.and-bible-stringsxml`), otherwise the next `make tx-pull` will overwrite the mirror with stale Transifex content.
+
 Some languages may not yet have a Vue.js translation file. The `restructure_yaml.py` script creates new files automatically when needed.
 
 ## File Locations

@@ -37,7 +37,7 @@ import sys
 import os
 import glob
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lang_codes import resolve_paths
+from lang_codes import resolve_paths, get_android_mirror_paths
 
 CS = "<" + "!--"  # comment start - avoid literal for bash safety
 CE = "--" + ">"   # comment end
@@ -311,10 +311,12 @@ def main():
 
     output_lines.append('</resources>\n')
 
-    # --- 8. Write output ---
-    os.makedirs(os.path.dirname(target_path), exist_ok=True)
-    with open(target_path, 'w') as f:
-        f.writelines(output_lines)
+    # --- 8. Write output (primary target + any configured mirror targets) ---
+    targets = [target_path] + get_android_mirror_paths(lang)
+    for tpath in targets:
+        os.makedirs(os.path.dirname(tpath), exist_ok=True)
+        with open(tpath, 'w') as f:
+            f.writelines(output_lines)
 
     # --- 9. Self-check ---
     comment_count = sum(1 for l in output_lines if CS in l and 'Additional' not in l)
@@ -322,6 +324,8 @@ def main():
     print(f"Strings: {string_count} (emitted: {len(emitted)})")
     print(f"Comments: {comment_count}")
     print(f"Written to: {target_path}")
+    for mirror in targets[1:]:
+        print(f"Mirror written to: {mirror}")
     if comment_count == 0:
         print("WARNING: No comments found in output - restructure likely broken!")
         sys.exit(1)
