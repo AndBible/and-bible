@@ -120,27 +120,9 @@ class SyncSettingsFragment: PreferenceFragmentCompat() {
             isVisible = false
         }
         preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_workspaces")!!.run { setupDrivePref(this) }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run {
-            if (!CommonUtils.settings.myDocumentsEnabled) {
-                isVisible = false
-            } else {
-                setupDrivePref(this)
-            }
-        }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run {
-            if (!CommonUtils.settings.aiTextProcessingEnabled) {
-                isVisible = false
-            } else {
-                setupDrivePref(this)
-            }
-        }
-        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_progress")!!.run {
-            if (!CommonUtils.settings.readingAndMemorizationEnabled) {
-                isVisible = false
-            } else {
-                setupDrivePref(this)
-            }
-        }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_mydocuments")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_ai_settings")!!.run { setupDrivePref(this) }
+        preferenceScreen.findPreference<SwitchPreferenceCompat>("sync_enable_progress")!!.run { setupDrivePref(this) }
         preferenceScreen.findPreference<Preference>("cloud_sync_reset")!!.run {
             if(!CommonUtils.isCloudSyncEnabled || !CloudSync.signedIn) {
                 isVisible = false

@@ -106,7 +106,7 @@ export type BibleModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"MY_NOTES"|"SHARE"|
 export type GenericModalButtonId = "BOOKMARK"|"BOOKMARK_NOTES"|"SPEAK"|"ADD_PARAGRAPH_BREAK"|"LLM_ACTION"
 export type ModalButtonId = BibleModalButtonId | GenericModalButtonId
 
-export type Feature = "add_paragraph_break" | "bookmark_edit_actions" | "reading_and_memorization"
+export type Feature = "add_paragraph_break" | "bookmark_edit_actions"
 
 export type AppSettings = {
     isBottomWindow: boolean,

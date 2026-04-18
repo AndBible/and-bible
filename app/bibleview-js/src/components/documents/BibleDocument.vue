@@ -25,7 +25,7 @@
   >
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
-    <div v-if="config.showMarkAsReadButton && isExperimentalFeatureEnabled('reading_and_memorization')" class="mark-as-read-container">
+    <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
     </div>
   </div>
@@ -61,7 +61,7 @@ if (props.document.memorizedOrdinals) {
 }
 memorization.setupIndicatorRendering(containerRef, id);
 
-const {config, appSettings, isExperimentalFeatureEnabled, ...common} = useCommon();
+const {config, appSettings, ...common} = useCommon();
 
 useBookmarks(id, ordinalRange, globalBookmarks, bookInitials,  null, true, ref(true), common, config, appSettings);
 

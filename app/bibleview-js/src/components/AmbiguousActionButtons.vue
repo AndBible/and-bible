@@ -98,9 +98,7 @@ const modalButtons = computed<ModalButtonId[]>(() => {
     if (!isExperimentalFeatureEnabled("add_paragraph_break")) {
         allButtons = allButtons.filter(b => b !== "ADD_PARAGRAPH_BREAK");
     }
-    if (!isExperimentalFeatureEnabled("reading_and_memorization")) {
-        allButtons = allButtons.filter(b => b !== "MEMORIZE" && b !== "REMOVE_MEMORIZATION_TARGET");
-    } else if (startOrdinal.value != null) {
+    if (startOrdinal.value != null) {
         // Only show REMOVE_MEMORIZATION_TARGET when all selected ordinals are already targeted
         const effectiveEnd = endOrdinal.value ?? startOrdinal.value;
         let allTargeted = true;
