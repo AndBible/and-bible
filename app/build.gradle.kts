@@ -50,11 +50,17 @@ val keystoreProperties: Properties = Properties().apply {
         ).redirectErrorStream(false).start()
         val decrypted = process.inputStream.readBytes()
         val exitCode = process.waitFor()
-        if (exitCode != 0) {
+        if (exitCode == 0) {
+            load(ByteArrayInputStream(decrypted))
+        } else {
+            // GPG failure is expected on CI (no secret key available). Leave
+            // [keystoreProperties] empty so signingConfig stays unset and the
+            // build produces *-unsigned.apk to be signed externally (apksigner
+            // with GitHub Secrets in build-apk.yml).
             val stderr = process.errorStream.bufferedReader().readText()
-            throw GradleException("gpg --decrypt of keystore.properties.gpg failed (exit $exitCode): $stderr")
+            logger.warn("gpg --decrypt of keystore.properties.gpg failed (exit $exitCode): $stderr")
+            logger.warn("Release signing will be skipped; APKs will be produced unsigned.")
         }
-        load(ByteArrayInputStream(decrypted))
     }
 }
 
