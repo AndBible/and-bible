@@ -49,11 +49,17 @@ fdroid-release:
 	echo "Done: $$TAG"
 
 accrescent:
-	@echo "Building Accrescent APK set with GPG-encrypted credentials..."
-	./scripts/build-accrescent.sh standardAccrescentRelease
+	@echo "Building Accrescent APK set (signing via keystore.properties.gpg)..."
+	./gradlew buildApksStandardAccrescentRelease
+	@mkdir -p app/standardAccrescent/release
+	@cp app/build/outputs/apkset/standardAccrescentRelease/app-standardAccrescentRelease.apks app/standardAccrescent/release/
+	@echo "✓ APK set: app/standardAccrescent/release/app-standardAccrescentRelease.apks"
 
 accrescent-debug:
-	@echo "Building Accrescent Debug APK set with GPG-encrypted credentials..."
-	./scripts/build-accrescent.sh standardAccrescentDebug
+	@echo "Building Accrescent Debug APK set (signing via keystore.properties.gpg)..."
+	./gradlew buildApksStandardAccrescentDebug
+	@mkdir -p app/standardAccrescent/debug
+	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
+	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
 .PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests fdroid-release accrescent accrescent-debug

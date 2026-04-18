@@ -15,6 +15,7 @@
  * If not, see http://www.gnu.org/licenses/.
  */
 
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.util.Locale
@@ -28,6 +29,37 @@ plugins {
 }
 
 val jsDir = "bibleview-js"
+
+// Release signing secrets live ONLY inside keystore.properties.gpg, which is committed
+// (encrypted to the developer's GPG key). We decrypt inline into an in-memory [Properties]
+// object; the plaintext never touches disk. Decryption is skipped unless a task that
+// actually needs release signing has been requested — this avoids spurious YubiKey prompts
+// on routine debug builds. F-Droid builds are also skipped because the F-Droid server
+// signs its own releases.
+val keystoreGpgFile = rootProject.file("keystore.properties.gpg")
+
+val wantsReleaseSigning: Boolean = gradle.startParameter.taskNames.any { name ->
+    val n = name.lowercase()
+    n.contains("release") && !n.contains("unittest") && !n.contains("fdroid")
+}
+
+val keystoreProperties: Properties = Properties().apply {
+    if (wantsReleaseSigning && keystoreGpgFile.exists()) {
+        val process = ProcessBuilder(
+            "gpg", "--decrypt", "--quiet", keystoreGpgFile.absolutePath
+        ).redirectErrorStream(false).start()
+        val decrypted = process.inputStream.readBytes()
+        val exitCode = process.waitFor()
+        if (exitCode != 0) {
+            val stderr = process.errorStream.bufferedReader().readText()
+            throw GradleException("gpg --decrypt of keystore.properties.gpg failed (exit $exitCode): $stderr")
+        }
+        load(ByteArrayInputStream(decrypted))
+    }
+}
+
+fun expandUserHome(path: String): String =
+    if (path.startsWith("~/")) System.getProperty("user.home") + path.substring(1) else path
 
 // The flavor dimension for the appearance of the app
 val dimAppearanceName = "appearance"
@@ -151,10 +183,25 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release") {
+            val storeFilePath = keystoreProperties.getProperty("storeFile")
+            if (storeFilePath != null) {
+                storeFile = file(expandUserHome(storeFilePath))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            if (keystoreProperties.getProperty("storeFile") != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             val propsFile = rootProject.file("local.properties")
             if (propsFile.exists()) {
                 val props = Properties()
@@ -485,45 +532,22 @@ dependencies {
     androidTestImplementation("androidx.test.espresso:espresso-idling-resource:3.5.1")
 }
 
-// Bundletool configuration for Accrescent APK set building
-// Passwords are read from environment variables for security
+// Bundletool configuration for Accrescent APK set building.
+// Reads the same credentials as the release signingConfig (keystore.properties.gpg).
 bundletool {
-    val propsFile = rootProject.file("local.properties")
-    if (propsFile.exists()) {
-        val props = Properties()
-        FileInputStream(propsFile).use { props.load(it) }
-
-        val storeFilePath: String? = props["accrescent.storeFile"] as String?
-        val keyAliasValue: String? = props["accrescent.keyAlias"] as String?
-        val storePasswordValue = System.getenv("ACCRESCENT_STORE_PASSWORD")
-        val keyPasswordValue = System.getenv("ACCRESCENT_KEY_PASSWORD")
-
-        if (storeFilePath != null && keyAliasValue != null &&
-            storePasswordValue != null && keyPasswordValue != null) {
-            signingConfig {
-                storeFile.set(file(storeFilePath))
-                storePassword.set(storePasswordValue)
-                keyAlias.set(keyAliasValue)
-                keyPassword.set(keyPasswordValue)
-            }
-            println("✓ Accrescent signing configuration loaded successfully")
-        } else {
-            println("⚠ WARNING: Accrescent signing configuration incomplete")
-            if (storeFilePath == null || keyAliasValue == null) {
-                println("  Missing in local.properties:")
-                if (storeFilePath == null) println("    - accrescent.storeFile=/path/to/keystore.jks")
-                if (keyAliasValue == null) println("    - accrescent.keyAlias=yourKeyAlias")
-            }
-            if (storePasswordValue == null || keyPasswordValue == null) {
-                println("  Missing environment variables:")
-                if (storePasswordValue == null) println("    - ACCRESCENT_STORE_PASSWORD")
-                if (keyPasswordValue == null) println("    - ACCRESCENT_KEY_PASSWORD")
-                println("  Tip: Use 'make accrescent' to build with GPG-encrypted credentials")
-            }
+    val storeFilePath = keystoreProperties.getProperty("storeFile")
+    if (storeFilePath != null) {
+        signingConfig {
+            storeFile.set(file(expandUserHome(storeFilePath)))
+            storePassword.set(keystoreProperties.getProperty("storePassword"))
+            keyAlias.set(keystoreProperties.getProperty("keyAlias"))
+            keyPassword.set(keystoreProperties.getProperty("keyPassword"))
         }
-    } else {
-        println("⚠ WARNING: local.properties not found")
-        println("  Please create it with accrescent.storeFile and accrescent.keyAlias")
+        println("✓ Accrescent signing configuration loaded from keystore.properties.gpg")
+    } else if (wantsReleaseSigning) {
+        // No local keystore.properties.gpg — e.g. CI builds that sign externally
+        // (GitHub Actions uses apksigner with GitHub Secrets on *-unsigned.apk).
+        println("ℹ keystore.properties.gpg not found — release artifacts will be unsigned (expected on CI)")
     }
 }
 
