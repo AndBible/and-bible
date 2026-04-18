@@ -59,7 +59,10 @@ jobs:
         grep versionName ./app/src/main/AndroidManifest.xml | cut -d\" -f2 > VNAME
         echo VERSION_NAME=$(cat VNAME) >> $GITHUB_OUTPUT
         echo RELEASE_TITLE=$( if [[ $GITHUB_REF =~ test- ]]; then echo "Test release $(cat VNAME)"; else echo "Release $(cat VNAME)"; fi ) >> $GITHUB_OUTPUT
-        echo "./fastlane/metadata/android/en-US/changelogs/$(cat VNAME).txt" > CLPATH
+        # Changelog filenames use the base version without any suffix (e.g. 5.1.1089.txt,
+        # not 5.1.1089-beta.txt). Strip optional -beta / -alpha / -rc1 etc. suffix.
+        BASE_VNAME=$(cat VNAME | sed 's/-[a-zA-Z][a-zA-Z0-9]*$//')
+        echo "./fastlane/metadata/android/en-US/changelogs/${BASE_VNAME}.txt" > CLPATH
         if [[ -f $(cat CLPATH) ]]; then cp $(cat CLPATH) RELEASENOTES.txt; else cat > ./RELEASENOTES.txt; fi
 
     - name: Build with Gradle
