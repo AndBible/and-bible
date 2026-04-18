@@ -248,8 +248,9 @@ const val windowPinningVideo = windowsAndWorkspacesPlaylist
 const val studyPadsVideo = notesAndStudyPadsPlayList
 const val workspacesVideo = windowsAndWorkspacesPlaylist
 
-const val betaIntroVideo = "https://youtu.be/XdKmoe95KhI" //promoAndNewFeaturesPlaylistAutostart
-const val newFeaturesIntroVideo = "https://youtu.be/bf33j4tLbxQ" // promoAndNewFeaturesPlaylistAutostart
+const val betaIntroVideo = "https://youtu.be/EKnyBIti9Fk" //promoAndNewFeaturesPlaylistAutostart
+// TODO: replace with a dedicated new-features intro video when available
+const val newFeaturesIntroVideo = "https://youtu.be/EKnyBIti9Fk" // promoAndNewFeaturesPlaylistAutostart
 
 const val speakHelpVideo = speakPlayList
 const val automaticSpeakBookmarkingVideo = speakPlayList
