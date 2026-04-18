@@ -463,9 +463,6 @@ object CommonUtils : CommonUtilsBase() {
         fun isExperimentalFeatureEnabled(feature: String): Boolean = enabledExperimentalFeatures.contains(feature)
         val bookmarkEditActionsEnabled: Boolean get() = isExperimentalFeatureEnabled("bookmark_edit_actions")
         val addParagraphBreakEnabled: Boolean get() = isExperimentalFeatureEnabled("add_paragraph_break")
-        val aiTextProcessingEnabled: Boolean get() = isExperimentalFeatureEnabled("ai_text_processing")
-        val myDocumentsEnabled: Boolean get() = aiTextProcessingEnabled
-        val readingAndMemorizationEnabled: Boolean get() = isExperimentalFeatureEnabled("reading_and_memorization")
 
 
         /** Check if any LlmProviderConfig exists in the database. */

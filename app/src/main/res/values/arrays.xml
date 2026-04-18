@@ -274,14 +274,10 @@
 	<string-array name="experimental_features_names">
 		<item>@string/experimental_feature_bookmark_edit_actions</item>
 		<item>@string/experimental_feature_add_paragraph_break</item>
-		<item>@string/experimental_feature_ai_features</item>
-		<item>@string/experimental_feature_reading_and_memorization</item>
 	</string-array>
 	<string-array name="experimental_features_values">
 		<item>bookmark_edit_actions</item>
 		<item>add_paragraph_break</item>
-		<item>ai_text_processing</item>
-		<item>reading_and_memorization</item>
 	</string-array>
 	<string-array name="agent_permission_mode_entries">
 		<item>@string/permission_always_ask</item>

@@ -17,7 +17,7 @@
 
 import {nextTick, onMounted, reactive, Ref} from "vue";
 import {setupEventBusListener} from "@/eventbus";
-import {AppSettings, Config} from "@/composables/config";
+import {Config} from "@/composables/config";
 
 type MemorizationDelta = {
     addedMemorized: number[],
@@ -113,7 +113,7 @@ function createIndicatorElement(
     return line;
 }
 
-export function useMemorization(config: Config, appSettings: AppSettings) {
+export function useMemorization(config: Config) {
     const memorized = reactive(new Set<number>());
     const targets = reactive(new Set<number>());
 
@@ -140,8 +140,7 @@ export function useMemorization(config: Config, appSettings: AppSettings) {
     function renderIndicators(container: HTMLElement, documentId: string) {
         container.querySelectorAll(`.${INDICATOR_CLASS}`).forEach(el => el.remove());
 
-        if (!config.showMemorizationIndicators
-            || !appSettings.enabledExperimentalFeatures.includes("reading_and_memorization")) {
+        if (!config.showMemorizationIndicators) {
             return;
         }
 

@@ -451,10 +451,6 @@ class PageButtonsPreference(settings: SettingsBundle) : Preference(settings, Tex
     override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
 }
 
-class ReadingMemorizationPreference(settings: SettingsBundle, type: TextDisplaySettings.Types) : Preference(settings, type) {
-    override val visible: Boolean get() = super.visible && CommonUtils.settings.readingAndMemorizationEnabled
-}
-
 class ScrollHelperLineStylePreference(settings: SettingsBundle) : Preference(settings, TextDisplaySettings.Types.SCROLL_HELPER_LINE_STYLE) {
     override val visible: Boolean get() = super.visible && CommonUtils.settings.einkMode
     override fun openDialog(activity: ActivityBase, onChanged: ((value: Any) -> Unit)?, onReset: (() -> Unit)?): Boolean {

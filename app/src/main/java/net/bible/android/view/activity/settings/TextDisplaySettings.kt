@@ -67,7 +67,6 @@ import net.bible.android.view.activity.page.ScrollHelperLinesPreference
 import net.bible.android.view.activity.page.ScrollHelperLineStylePreference
 import net.bible.android.view.activity.page.PageButtonsPreference
 import net.bible.android.view.activity.page.PageScrollAmountPreference
-import net.bible.android.view.activity.page.ReadingMemorizationPreference
 import net.bible.android.view.activity.page.StrongsPreference
 import net.bible.android.view.activity.page.TopMarginPreference
 import net.bible.android.view.activity.page.InfiniteScrollPreference
@@ -143,10 +142,10 @@ fun getPrefItem(settings: SettingsBundle, type: Types): OptionsMenuItemInterface
         Types.PAGENUMBER -> ItemPreference(settings, Types.PAGENUMBER)
         Types.INFINITE_SCROLL -> InfiniteScrollPreference(settings)
         Types.NON_STRONGS_WORD_ITALIC -> NonStrongsWordItalicPreference(settings)
-        Types.MARK_AS_READ_BUTTON -> ReadingMemorizationPreference(settings, Types.MARK_AS_READ_BUTTON)
+        Types.MARK_AS_READ_BUTTON -> ItemPreference(settings, Types.MARK_AS_READ_BUTTON)
         Types.TITLE_SCROLL_BUTTON -> ItemPreference(settings, Types.TITLE_SCROLL_BUTTON)
-        Types.MEMORIZATION_INDICATORS -> ReadingMemorizationPreference(settings, Types.MEMORIZATION_INDICATORS)
-        Types.AUTO_TRACK_READING -> ReadingMemorizationPreference(settings, Types.AUTO_TRACK_READING)
+        Types.MEMORIZATION_INDICATORS -> ItemPreference(settings, Types.MEMORIZATION_INDICATORS)
+        Types.AUTO_TRACK_READING -> ItemPreference(settings, Types.AUTO_TRACK_READING)
         Types.AI_DOC_MARKERS -> AiDocMarkersPreference(settings)
         Types.ORDINALS -> OrdinalsPreference(settings)
         Types.PAGE_SCROLL_AMOUNT -> PageScrollAmountPreference(settings)
