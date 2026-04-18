@@ -633,7 +633,7 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
             return@suspendCoroutine
         }
 
-        val announceVersion = 2
+        val announceVersion = 3
         val displayedVer = preferences.getInt("beta-notice-displayed2", 0)
 
         if(displayedVer < announceVersion) {
@@ -650,7 +650,30 @@ class MainBibleActivity : CustomTitlebarActivityBase() {
                     + "${getString(R.string.beta_notice_github)}</a>"
 
             )
-            val htmlMessage = "$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
+            val extraMessage = """
+                |<b>DEVELOPER'S SPECIAL NOTICE FOR BETA TESTERS (April 2026)</b><br><br>
+                |Welcome to the 5.1 beta! Many new features have landed, including:<br>
+                |<br>
+                |• <b>AI assistant</b> with tool calling and support for multiple
+                | providers (Claude, Grok, OpenRouter, OpenAI-compatible and more).<br>
+                |• <b>Reading &amp; memorization progress tracking</b> with multiple
+                | modes: Word Scramble, Word Order, Word Blur and Type It.<br>
+                |• <b>My Documents</b>: your own editable, syncable pages.<br>
+                |• <b>Multi-translation search</b> across several Bibles at once.<br>
+                |• Many more improvements &mdash; see the "What's new" video above.<br>
+                |<br>
+                |Please test and report any bugs via
+                |<a href="https://github.com/AndBible/and-bible/issues/new/choose">GitHub</a>
+                | or Main Menu &rarr; Report a bug.<br>
+                |<br>
+                |Best regards, Tuomas<br><br>
+                |P.S. You can support AndBible development financially by
+                |<a href="$buyDevelopmentLink">sponsoring development hours</a>.
+                | <br><br>
+                | (Standard beta notice below)
+                | <br><br>
+            """.trimMargin()
+            val htmlMessage = "$extraMessage$videoMessageLink<br><br>$par1<br><br> $par2<br><br> $par3 <br><br> <i>${getString(R.string.version_text, CommonUtils.applicationVersionName)}</i>"
 
             val spanned = htmlToSpan(htmlMessage)
 
