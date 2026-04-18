@@ -79,17 +79,24 @@ fi
 
 echo "Current version: $CURRENT_VERSION_NAME (code: $CURRENT_VERSION_CODE)"
 
+# Split off optional suffix (e.g. -beta). The suffix identifies beta builds in
+# the app and must be preserved when incrementing. Changelog filenames do NOT
+# include the suffix (e.g. 5.1.1087.txt, not 5.1.1087-beta.txt).
+VERSION_SUFFIX=$(echo "$CURRENT_VERSION_NAME" | grep -oE -- '-[a-zA-Z][a-zA-Z0-9]*$' || true)
+BASE_VERSION_NAME="${CURRENT_VERSION_NAME%"$VERSION_SUFFIX"}"
+
 # Calculate new version
 NEW_VERSION_CODE=$((CURRENT_VERSION_CODE + 1))
-# Extract major.minor from current version name and append new version code
-VERSION_PREFIX=$(echo "$CURRENT_VERSION_NAME" | sed 's/\.[0-9]*$//')
-NEW_VERSION_NAME="${VERSION_PREFIX}.${NEW_VERSION_CODE}"
+# Extract major.minor from base version name and append new version code
+VERSION_PREFIX=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
+NEW_BASE_VERSION_NAME="${VERSION_PREFIX}.${NEW_VERSION_CODE}"
+NEW_VERSION_NAME="${NEW_BASE_VERSION_NAME}${VERSION_SUFFIX}"
 
 echo "New version: $NEW_VERSION_NAME (code: $NEW_VERSION_CODE)"
 
-# Check if changelog exists for current version
-CURRENT_CHANGELOG="$CHANGELOG_DIR/${CURRENT_VERSION_NAME}.txt"
-NEW_CHANGELOG="$CHANGELOG_DIR/${NEW_VERSION_NAME}.txt"
+# Changelog filenames use the base version (without -beta suffix)
+CURRENT_CHANGELOG="$CHANGELOG_DIR/${BASE_VERSION_NAME}.txt"
+NEW_CHANGELOG="$CHANGELOG_DIR/${NEW_BASE_VERSION_NAME}.txt"
 
 if [[ ! -f "$CURRENT_CHANGELOG" ]]; then
     echo -e "${RED}Error: Current changelog not found at $CURRENT_CHANGELOG${NC}"
@@ -134,7 +141,7 @@ else
 fi
 
 # Extract the fixed footer from the current changelog (starts at the line matching major.minor version)
-MAJOR_MINOR=$(echo "$CURRENT_VERSION_NAME" | sed 's/\.[0-9]*$//')
+MAJOR_MINOR=$(echo "$BASE_VERSION_NAME" | sed 's/\.[0-9]*$//')
 CHANGELOG_FOOTER=$(sed -n "/^${MAJOR_MINOR}$/,\$p" "$CURRENT_CHANGELOG")
 
 if [[ -z "$CHANGELOG_FOOTER" ]]; then
