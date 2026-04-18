@@ -1,8 +1,7 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Estudi Bíblic"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: >
-  Llegiu la Bíblia, estudieu comentaris i diccionaris, fora de línia. Gratuït.
+short_description: "Llegiu la Bíblia, estudieu comentaris i diccionaris, fora de línia. Gratuït.\n"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Potent eina d'estudi bíblic
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -16,25 +15,22 @@ paragraph_1_3: >
 subtitle_2: Potents funcions d'estudi bíblic
 paragraph_2_1: >
   L'aplicació té moltes funcions originals i reveladores que fan que una experiència d'estudi bíblic complex i profund sigui més fluida que mai. Les funcions més destacades són les següents:
-feature_01: >
-  Vistes de text dividides que permeten comparar traduccions i consultar comentaris
-feature_02: >
-  Els espais de treball permeten múltiples configuracions d'estudi bíblic amb els seus propis ajustos
-feature_03: >
-  La integració dels Números de Strong permet l'anàlisi de paraules gregues i hebrees
+feature_01: "Vistes de text dividides que permeten comparar traduccions i consultar comentaris\n"
+feature_02: "Els espais de treball permeten múltiples configuracions d'estudi bíblic amb els seus propis ajustos\n"
+feature_03: "La integració dels Números de Strong permet l'anàlisi de paraules gregues i hebrees\n"
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Referències creuades enllaçades, notes a peu de pàgina i documents; salteu a les referències creuades i notes a peu de pàgina simplement tocant un enllaç; feu un estudi en profunditat de les Escriptures utilitzant comentaris amb hipervincles ({{commentary_examples}}), col·leccions de referències creuades ({{cross_reference_examples}}) i altres recursos.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry, etc.
+commentary_examples: "Gill, Matthew Henry, etc."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Text a veu avançat amb marcadors de lectura, que permet una experiència d'escolta bíblica fluida
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Text a veu avançat amb marcadors de lectura, que permet una experiència d'escolta bíblica fluida\n"
 feature_06: Cerca flexible
 feature_07: Funcions avançades de marcadors i destacats amb notes d'estudi personals
-feature_09: "Plans de lectura: establiu objectius per llegir la Bíblia"
+feature_09: >-
+  Plans de lectura: establiu objectius per llegir la Bíblia
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Àmplia biblioteca de documents: traduccions de la Bíblia, comentaris teològics, diccionaris, mapes i llibres cristians, amb un total de més de {{total_documents}} documents en més de {{total_languages}} idiomes, distribuïts legalment per Crosswire i altres repositoris SWORD.
@@ -42,30 +38,36 @@ feature_10_1: >
   El suport natiu per a fitxers MyBible, MySword i EPUB us permet ampliar encara més la vostra biblioteca.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV i NKJV
+unavailable_documents: "ESV, NIV i NKJV"
 feature_12: >
   Fora de línia: l'única vegada que necessiteu internet és per descarregar documents.
 # UNUSED
-feature_13: Blocs d'estudi per afegir notes i referències bíbliques mentre escolteu sermons.
+feature_13: >-
+  Blocs d'estudi per afegir notes i referències bíbliques mentre escolteu sermons.
 subtitle_3: Fem junts la millor aplicació bíblica!
 paragraph_3_1: >
   AndBible és un projecte comunitari de codi obert. En la pràctica, això significa que qualsevol persona amb les habilitats adequades pot, i és animada a, contribuir al projecte:
-contr_1: desenvolupant noves funcions,
-contr_2: provant funcions encara no publicades,
-contr_3: mantenint les traduccions de la interfície d'usuari actualitzades, i
-contr_4: >
-  ajudant a ampliar la biblioteca de mòduls obtenint permisos dels titulars dels drets d'autor o convertint documents al format SWORD.
+contr_1: "desenvolupant noves funcions,"
+contr_2: "provant funcions encara no publicades,"
+contr_3: "mantenint les traduccions de la interfície d'usuari actualitzades, i"
+contr_4: "ajudant a ampliar la biblioteca de mòduls obtenint permisos dels titulars dels drets d'autor o convertint documents al format SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Si sou un enginyer de programari o provador professional, considereu contribuir al projecte. Per a més informació sobre com col·laborar, consulteu {{how_to_contribute_url}}.
+paragraph_4_1: "Si sou un enginyer de programari o provador professional, considereu contribuir al projecte. Per a més informació sobre com col·laborar, consulteu {{how_to_contribute_url}}.\n"
 subtitle_4: Enllaços
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Pàgina web: {{homepage_url}}"
-link_2: "Seguiu AndBible a Facebook: {{facebook_url}}"
-link_3: "El nostre canal de YouTube: {{youtube_url}}"
-link_4: "Preguntes freqüents: {{faq_url}}"
-link_5: "Pàgina del projecte a Github: {{github_url}}"
-buy_title: Doneu suport comprant temps de desenvolupament!
+link_1: >-
+  Pàgina web: {{homepage_url}}
+link_2: >-
+  Seguiu AndBible a Facebook: {{facebook_url}}
+link_3: >-
+  El nostre canal de YouTube: {{youtube_url}}
+link_4: >-
+  Preguntes freqüents: {{faq_url}}
+link_5: >-
+  Pàgina del projecte a Github: {{github_url}}
+buy_title: >-
+  Doneu suport comprant temps de desenvolupament!
 buy_1: >
   Si no teniu temps ni habilitats per contribuir al projecte, també podeu donar suport al projecte comprant temps de treball de desenvolupadors professionals.
-buy_2: Vegeu les opcions
+buy_2: >-
+  Vegeu les opcions
