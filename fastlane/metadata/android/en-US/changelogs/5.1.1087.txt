@@ -2,14 +2,14 @@
 "What's new" video: https://youtu.be/EKnyBIti9Fk
 
 Highlights:
-- AI assistant with multi-provider support (Claude, OpenRouter, Grok, OpenAI-compatible) and tool calling for Bible, bookmarks, study pads, my documents and windows
-- Reading & memorization progress tracking with Word Scramble, Word Order, Word Blur and Type It modes
-- My Documents: create, edit and sync your own pages with markdown editor
-- 3-level text display settings inheritance (global → workspace → window)
-- Multi-translation search across multiple Bibles at once (#1411)
-- Strong's/morphology tab view, compact display, hidden-links mode
-- Extensive monochrome/e-ink mode improvements
-- Many bug fixes, incl. chapter skipped during continuous scrolling (#769)
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
 
-See new AndBible website & blog: https://andbible.org
-Support development financially: https://shop.andbible.org/
+See https://andbible.org
+Support: https://shop.andbible.org/
