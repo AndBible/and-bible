@@ -5,127 +5,83 @@ This guide explains how to build APK sets for publishing to [Accrescent](https:/
 ## Prerequisites
 
 - GPG installed (`sudo apt install gnupg` on Debian/Ubuntu)
-- Android keystore file
+- Android keystore file (same one used for all non-F-Droid release variants)
 - Bundletool Gradle plugin (already configured)
 
 ## Initial Setup
 
-### 1. Configure local.properties
+Signing credentials for all release variants (including Accrescent) live in a single
+GPG-encrypted file at the repo root: `keystore.properties.gpg`.
 
-Add non-sensitive signing information to `local.properties`:
-
-```properties
-accrescent.storeFile=/path/to/your/keystore.jks
-accrescent.keyAlias=yourKeyAlias
-```
-
-⚠️ **DO NOT** put passwords in `local.properties`!
-
-### 2. Create Encrypted Credentials File
-
-Create a file with your signing passwords:
+### 1. Create the credentials file
 
 ```bash
-# Copy the example file
-cp accrescent-signing.env.example accrescent-signing.env
-
-# Edit it with your actual passwords
-nano accrescent-signing.env
+# Copy the example and fill in your values
+cp keystore.properties.example keystore.properties
+nano keystore.properties
 ```
 
 The file should contain:
 
-```bash
-export ACCRESCENT_STORE_PASSWORD="your_keystore_password"
-export ACCRESCENT_KEY_PASSWORD="your_key_password"
+```properties
+storeFile=/home/youruser/.android/release_keys.jks
+storePassword=your_keystore_password
+keyAlias=andbible
+keyPassword=your_key_password
 ```
 
-### 3. Encrypt the Credentials
-
-Encrypt the file with GPG:
+### 2. Encrypt the file
 
 ```bash
-gpg -c accrescent-signing.env
+gpg -e -r <your-gpg-id> keystore.properties
 ```
 
-You'll be prompted to create a passphrase. **Remember this passphrase!**
+This produces `keystore.properties.gpg`.
 
-### 4. Delete the Plaintext File
-
-**IMPORTANT:** Delete the unencrypted file immediately:
+### 3. Delete the plaintext
 
 ```bash
-rm accrescent-signing.env
+rm keystore.properties
 ```
 
-### 5. Commit the Encrypted File (Optional)
+The plaintext file is gitignored; only the `.gpg` file is committed.
 
-The encrypted file `accrescent-signing.env.gpg` is safe to commit:
+### 4. Verify
 
 ```bash
-git add accrescent-signing.env.gpg
-git commit -m "Add encrypted Accrescent signing credentials"
+gpg --decrypt keystore.properties.gpg
 ```
 
 ## Building APK Sets
 
-### Quick Build (Recommended)
-
-Use the Makefile shortcut:
+### Quick Build
 
 ```bash
-# Build release APK set
-make accrescent
-
-# Build debug APK set (for testing)
-make accrescent-debug
+make accrescent         # Release APK set
+make accrescent-debug   # Debug APK set (for testing)
 ```
 
-You'll be prompted for your GPG passphrase. The script will:
-1. Decrypt your credentials
-2. Build the APK set
-3. Clear credentials from memory
-4. Show the output location
+The Gradle build decrypts `keystore.properties.gpg` in-memory (GPG passphrase / YubiKey
+prompt will appear). The plaintext credentials never touch disk.
 
-### Manual Build
-
-If you prefer, you can run the script directly:
+### Direct Gradle commands
 
 ```bash
-# Release build
-./scripts/build-accrescent.sh standardAccrescentRelease
-
-# Debug build
-./scripts/build-accrescent.sh standardAccrescentDebug
-
-# Custom variant
-./scripts/build-accrescent.sh discreteAccrescentRelease
+./gradlew buildApksStandardAccrescentRelease
+./gradlew buildApksStandardAccrescentDebug
 ```
 
-### Output Location
-
-The build script automatically copies the APK set to the release directory:
+### Output location
 
 ```
-app/standardAccrescent/release/app-<variant>.apks
+app/build/outputs/apkset/standardAccrescentRelease/app-standardAccrescentRelease.apks
 ```
 
-For example:
-```
-app/standardAccrescent/release/app-standardAccrescentRelease.apks
-```
-
-The original build output remains at:
-```
-app/build/outputs/apkset/<variant>/app-<variant>.apks
-```
+`make accrescent` also copies it to `app/standardAccrescent/release/` for convenience.
 
 ## Testing the APK Set
 
-Before uploading to Accrescent, test the APK set locally:
-
 ```bash
-# Install on connected device/emulator
 bundletool install-apks --apks=app/standardAccrescent/release/app-standardAccrescentRelease.apks
 ```
 
@@ -139,57 +95,41 @@ bundletool install-apks --apks=app/standardAccrescent/release/app-standardAccres
 
 ## Security Notes
 
-- ✅ **Encrypted file (.gpg)**: Safe to commit to version control
-- ❌ **Plaintext file (.env)**: Never commit, delete immediately after encryption
-- ❌ **local.properties**: Never commit (already in .gitignore)
-- 🔒 **Passwords**: Only stored encrypted, never in plaintext on disk
+- ✓ **`keystore.properties.gpg`** — safe to commit (encrypted)
+- ✗ **`keystore.properties`** — gitignored, delete immediately after encrypting
+- ✗ **`local.properties`** — gitignored; no signing info lives here anymore
 
 ## Troubleshooting
 
-### "Cannot read passwords interactively"
+### "gpg --decrypt of keystore.properties.gpg failed"
 
-This means the build script couldn't access the console. Solution:
-- Run from terminal, not from IDE
-- Use the provided `make accrescent` command
-- Or set environment variables manually
+- Is the file present at repo root?
+- Did you enter the correct GPG passphrase / touch the YubiKey in time?
+- Was the file encrypted to a GPG key you have access to?
 
-### "Failed to decrypt"
+### "keystore.properties.gpg not found — release artifacts will be unsigned"
 
-Check:
-- Is `accrescent-signing.env.gpg` present?
-- Did you enter the correct GPG passphrase?
-- Was the file encrypted correctly?
-
-### "Signing configuration incomplete"
-
-Check:
-- `local.properties` has `accrescent.storeFile` and `accrescent.keyAlias`
-- Keystore file exists at the specified path
-- Environment variables are properly exported in the encrypted file
+This message is **expected on CI** (GitHub Actions signs APKs externally with `apksigner`).
+On a developer machine, it means the encrypted credentials file is missing — see
+[Initial Setup](#initial-setup).
 
 ## CI/CD Integration
 
-For CI/CD, you can use environment variables directly:
-
-```bash
-export ACCRESCENT_STORE_PASSWORD="password"
-export ACCRESCENT_KEY_PASSWORD="password"
-./gradlew buildApksStandardAccrescentRelease --no-daemon
-```
-
-Store these as encrypted secrets in your CI/CD system (GitHub Secrets, GitLab CI Variables, etc.).
+The GitHub Actions `build-apk.yml` workflow signs APKs externally via `apksigner` using
+GitHub Secrets. The Gradle build leaves APKs unsigned on CI because
+`keystore.properties.gpg` is not present there. No changes needed for CI.
 
 ## Requirements
 
 And-Bible meets all Accrescent requirements:
 
-- ✅ Target SDK: 35
-- ✅ No debuggable flag
-- ✅ No testOnly flag
-- ✅ Cleartext traffic disabled (HTTPS only)
-- ✅ No self-update mechanism
-- ✅ No sensitive permissions (except READ_EXTERNAL_STORAGE ≤ API 28)
-- ✅ Production signing key (not debug)
+- ✓ Target SDK: 35
+- ✓ No debuggable flag
+- ✓ No testOnly flag
+- ✓ Cleartext traffic disabled (HTTPS only)
+- ✓ No self-update mechanism
+- ✓ No sensitive permissions (except READ_EXTERNAL_STORAGE ≤ API 28)
+- ✓ Production signing key (not debug)
 
 ## Further Information
 
