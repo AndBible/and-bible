@@ -1,4 +1,4 @@
-# Long version of app name that will be displayed on Play Store. (max 50 characters)
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Estudio de la Biblia"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "Lea la Biblia, estudie comentarios o diccionarios, o lea libros sin conexión."

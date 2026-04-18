@@ -1,7 +1,7 @@
-# Long version of app name that will be displayed on Play Store. (max 50 characters)
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "לתנ\"ך, :AndBible"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: קריאה בתנ"ך, חקר פרשנויות ומילונים, וקריאת ספרים ללא חיבור לרשת.
+short_description: "קריאה בתנ\"ך, חקר פרשנויות ומילונים, וקריאת ספרים ללא חיבור לרשת."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: כלי מקצועי ללימוד הכתובים
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -23,13 +23,14 @@ feature_04: >
   קישורים אל מראי מקומות, הערות ומסמכים; מעבר אל מראי מקומות פשוט ע"י לחיצה; לימוד מעמיק של הכתובים ע"י שימוש בפרשנויות המכילות קישורים ({{commentary_examples}}), אוספים של מראי מקומות ({{cross_reference_examples}}), ומשאבים נוספים.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry ועוד.
+commentary_examples: "Gill, Matthew Henry ועוד."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: הקראה קולית מתקדמת, כולל סימניות, המאפשרות האזנה חלקה לתנ"ך
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "הקראה קולית מתקדמת, כולל סימניות, המאפשרות האזנה חלקה לתנ\"ך"
 feature_06: חיפוש גמיש
 feature_07: שימוש מתקדם בסימניות ואפשרויות הדגשה עם הערות לימוד אישיות
-feature_09: "תוכניות קריאה: הצבת יעדים לקריאה בתנ\"ך"
+feature_09: >-
+  תוכניות קריאה: הצבת יעדים לקריאה בתנ"ך
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   ספרייה עצומה של מסמכים: תרגומי תנ"ך, פרשנויות, מילונים, מפות, ספרים נוצריים - {{total_documents}} מסמכים ב- {{total_languages}} שפות, המופצים באופן חוקי ע"י Crosswire ומאגרי SWORD אחרים.
@@ -37,29 +38,36 @@ feature_10_1: >
   תמיכה מובנית בקבצי MyBible, MySword ו-EPUB מאפשרת לך להרחיב את הספרייה שלך עוד יותר.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV ו NKJV
-feature_12: "לא-מקוון: יש צורך בחיבור לאינטרנט רק לשם הורדת מסמכים."
+unavailable_documents: "ESV, NIV ו NKJV"
+feature_12: >-
+  לא-מקוון: יש צורך בחיבור לאינטרנט רק לשם הורדת מסמכים.
 # UNUSED
-feature_13: פנקסי לימוד להוספת רשימות ומראי מקום בזמן האזנה לדרשות.
+feature_13: >-
+  פנקסי לימוד להוספת רשימות ומראי מקום בזמן האזנה לדרשות.
 subtitle_3: בואו וניצור יחד את אפליקציית הכתובים הטובה ביותר!
 paragraph_3_1: >
   And Bible הוא פרוייקט קהילייתי בקוד פתוח. בפועל, זה אומר שכל אחד עם יכולות מתאימות, יכול, ומוזמן, לתרום לפרוייקט, ע"י:
-contr_1: פיתוח יכולות חדשות,
+contr_1: "פיתוח יכולות חדשות,"
 contr_2: בדיקות יכולות חדשות שטרם שוחררו לציבור
 contr_3: שמירה על עדכניות תרגום ממשק המשתמש
-contr_4: >
-  עזרה בהרחבה של ספריית המסמכים ע"י קבלת רשות מבעלי זכויות יוצרים, או ע"י המרת מסמכים לפורמט SWORD.
+contr_4: "עזרה בהרחבה של ספריית המסמכים ע\"י קבלת רשות מבעלי זכויות יוצרים, או ע\"י המרת מסמכים לפורמט SWORD.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  אם אתם מהנדסי או בודקי תוכנה מקצועיים, אנא שיקלו לתרום לפרוייקט. למידע נוסף בנושא, ראו {{how_to_contribute_url}}.
+paragraph_4_1: "אם אתם מהנדסי או בודקי תוכנה מקצועיים, אנא שיקלו לתרום לפרוייקט. למידע נוסף בנושא, ראו {{how_to_contribute_url}}.\n"
 subtitle_4: קישורים
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "אתר: {{homepage_url}}"
-link_2: "לייק And Bible on בפייסבוק: {{facebook_url}}"
-link_3: "ערוץ היוטיוב שלנו  : {{youtube_url}}"
-link_4: "שאלות נפוצות  : {{faq_url}}"
-link_5: "עמוד הפרוייקט ב   Github: {{github_url}}"
-buy_title: תמוך בפרוייקט על ידי רכישת זמן פיתוח!
+link_1: >-
+  אתר: {{homepage_url}}
+link_2: >-
+  לייק And Bible on בפייסבוק: {{facebook_url}}
+link_3: >-
+  ערוץ היוטיוב שלנו  : {{youtube_url}}
+link_4: >-
+  שאלות נפוצות  : {{faq_url}}
+link_5: >-
+  עמוד הפרוייקט ב   Github: {{github_url}}
+buy_title: >-
+  תמוך בפרוייקט על ידי רכישת זמן פיתוח!
 buy_1: >
   אם אין לך זמן או יכולות לתרום לפרוייקט, תוכל לתמוך בו גם על ידי רכישת זמן עבודה של מפתח מקצועי.
-buy_2: ראה אפשרויות
+buy_2: >-
+  ראה אפשרויות

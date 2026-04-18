@@ -78,6 +78,32 @@ SKIP_CODES = {
     'zh',    # Older/smaller fallback, duplicate of zh-rTW
 }
 
+# Android directories that must receive a mirror copy whenever the primary
+# target is updated. Key = canonical lang code, value = list of additional
+# Android directory codes to keep in sync with the primary.
+#
+# Why this exists: Transifex's lang_map can route a translation resource
+# (e.g. zh_TW) to a directory different from the Android locale folder
+# (values-zh/ instead of values-zh-rTW/). Makefile then `cp`s one to the
+# other on tx-pull. If a translator updates only values-zh-rTW/ without
+# also updating values-zh/, the next tx-pull overwrites the new work
+# because Transifex still has the stale source.
+ANDROID_MIRRORS = {
+    # Transifex zh_TW -> values-zh/; Makefile then cp -> values-zh-rTW/.
+    # Keep both in sync so tx-push picks up new translations for zh_TW.
+    'zh-rTW': ['zh'],
+}
+
+
+def get_android_mirror_paths(lang):
+    """Return list of additional Android target paths for a language.
+
+    Empty list if no mirrors are configured. Paths are repo-relative.
+    """
+    canonical = normalize_code(lang)
+    mirrors = ANDROID_MIRRORS.get(canonical, [])
+    return [f'app/src/main/res/values-{code}/strings.xml' for code in mirrors]
+
 # Reverse lookup: Vue.js code → canonical code (for languages where codes differ)
 _VUEJS_TO_CANONICAL = {}
 for _key, (_name, _tier, _android, _vuejs, _playstore) in LANGUAGES.items():

@@ -1,7 +1,7 @@
-# Long version of app name that will be displayed on Play Store. (max 50 characters)
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: बाइबिल"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: बाइबिल पढ़ें, टिप्पणियों या शब्दकोशों का अध्ययन करें या ऑफ़लाइन पुस्तकें पढ़ें।
+short_description: "बाइबिल पढ़ें, टिप्पणियों या शब्दकोशों का अध्ययन करें या ऑफ़लाइन पुस्तकें पढ़ें।"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: बाइबिल पढ़ने की शक्तिशाली उपकरण
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -15,24 +15,22 @@ paragraph_1_3: >
 subtitle_2: शक्तिशाली बाइबिल अध्ययन विशेषताएं
 paragraph_2_1: >
   एप्लिकेशन में कई व्यावहारिक, मूल विशेषताएं हैं, जो एक जटिल और गहन बाइबिल अध्ययन के अनुभव को पहले से कहीं अधिक आसान बनाती हैं। सबसे उल्लेखनीय विशेषताएं इस प्रकार हैं:
-feature_01: >
-  विभाजित पाठ द्रिश्य जो अनुवादों और परामर्श टिप्पणियों की तुलना करने में सक्षम बनाते हैं
-feature_02: >
-  कार्यक्षेत्र कई बाइबिल अध्ययन सेटअप अपने-अपने सेटिंग के साथ लाने की अनुमति देते हैं
+feature_01: "विभाजित पाठ द्रिश्य जो अनुवादों और परामर्श टिप्पणियों की तुलना करने में सक्षम बनाते हैं\n"
+feature_02: "कार्यक्षेत्र कई बाइबिल अध्ययन सेटअप अपने-अपने सेटिंग के साथ लाने की अनुमति देते हैं\n"
 feature_03: स्ट्रांग का एकीकरण ग्रीक और हिब्रू शब्द विश्लेषण की अनुमति देता है
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   लिंक किए गए क्रॉस-रेफरेंस, फ़ुटनोट और दस्तावेज़; बस एक लिंक को टैप करके क्रॉस-रेफरेंस और फ़ुटनोट पर जाएं; हाइपरलिंक्ड कमेंट्री का उपयोग करके शास्त्रों का गहन अध्ययन करें ({{commentary_examples}}), क्रॉस-रेफरेंस संग्रह ({{cross_reference_examples}}) और अन्य संसाधन।
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: गिल, मैथ्यू हेनरी आदि।
+commentary_examples: "गिल, मैथ्यू हेनरी आदि।"
 # Examples of cross-reference collections.
-cross_reference_examples: ट्रेज़र ऑफ़ स्क्रिप्चर नॉलेज, TSKe
-feature_05: >
-  उच्च टेक्स्ट टू स्पीच बोलने के बुकमार्क के साथ, एक सहज बाइबल सुनने के अनुभव को सक्षम करता है
+cross_reference_examples: "ट्रेज़र ऑफ़ स्क्रिप्चर नॉलेज, TSKe"
+feature_05: "उच्च टेक्स्ट टू स्पीच बोलने के बुकमार्क के साथ, एक सहज बाइबल सुनने के अनुभव को सक्षम करता है\n"
 feature_06: सुविधाजनक खोज
 feature_07: व्यक्तिगत अध्ययन नोट्स के साथ उच्च बुकमार्किंग और हाइलाइटिंग सुविधाएँ
-feature_09: "पढ़ने की योजनाएँ: बाइबिल पढ़ने के लिए लक्ष्य निर्धारित करें"
+feature_09: >-
+  पढ़ने की योजनाएँ: बाइबिल पढ़ने के लिए लक्ष्य निर्धारित करें
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   दस्तावेज़ों का विशाल पुस्तकालय: क्रॉसवायर और अन्य SWORD रिपॉजिटरी द्वारा कानूनी रूप से वितरित बाइबिल अनुवाद, धार्मिक टिप्पणियां, शब्दकोश, मानचित्र और ईसाई पुस्तकें {{total_languages}} से अधिक भाषाओं में कुल {{total_documents}} दस्तावेज़।
@@ -40,30 +38,36 @@ feature_10_1: >
   MyBible, MySword और EPUB फ़ाइलों के लिए मूल सहायता आपको अपनी पुस्तकालय को और भी अधिक विस्तृत करने में सक्षम बनाती है।
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV और NKJV
+unavailable_documents: "ESV, NIV और NKJV"
 feature_12: >
   ऑफ़लाइन: आपको केवल दस्तावेज़ों को डाउनलोड करने के लिए इंटरनेट की आवश्यकता होती है।
 # UNUSED
-feature_13: उपदेश सुनने के दौरान नोट्स और बाइबिल संदर्भ जोड़ने के लिए अध्ययन पैड।
+feature_13: >-
+  उपदेश सुनने के दौरान नोट्स और बाइबिल संदर्भ जोड़ने के लिए अध्ययन पैड।
 subtitle_3: आइए एक साथ सर्वश्रेष्ठ बाइबिल ऐप बनाएं!
 paragraph_3_1: >
   ऐंड बाइबिल एक खुला स्रोत सामुदायिक परियोजना है। इसका मतलब है कि उपयुक्त कौशल वाला कोई भी व्यक्ति इस परियोजना में योगदान इसके द्वारा कर सकता है:
-contr_1: नई सुविधाओं का विकास,
-contr_2: अभी तक जारी नहीं की गई सुविधाओं का परीक्षण,
-contr_3: यूजर इंटरफ़ेस अनुवादों को अप-टू-डेट रखना, और
-contr_4: >
-  कॉपीराइट धारकों से अनुमति प्राप्त करके या दस्तावेज़ों को SWORD फॉर्मेट में परिवर्तित करके मॉड्यूल लाइब्रेरी का विस्तार करने में मदद करना।
+contr_1: "नई सुविधाओं का विकास,"
+contr_2: "अभी तक जारी नहीं की गई सुविधाओं का परीक्षण,"
+contr_3: "यूजर इंटरफ़ेस अनुवादों को अप-टू-डेट रखना, और"
+contr_4: "कॉपीराइट धारकों से अनुमति प्राप्त करके या दस्तावेज़ों को SWORD फॉर्मेट में परिवर्तित करके मॉड्यूल लाइब्रेरी का विस्तार करने में मदद करना।\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  यदि आप एक पेशेवर सॉफ्टवेयर इंजीनियर या परीक्षक हैं, तो कृपया परियोजना में योगदान करने पर विचार करें। योगदान करने के तरीके के बारे में अधिक जानकारी के लिए, कृपया {{how_to_contribute_url}} देखें।
+paragraph_4_1: "यदि आप एक पेशेवर सॉफ्टवेयर इंजीनियर या परीक्षक हैं, तो कृपया परियोजना में योगदान करने पर विचार करें। योगदान करने के तरीके के बारे में अधिक जानकारी के लिए, कृपया {{how_to_contribute_url}} देखें।\n"
 subtitle_4: लिंक
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "होमपेज: {{homepage_url}}"
-link_2: "फेसबुक पर ऐंड बाइबिल को लाइक करे: {{facebook_url}}"
-link_3: "हमारी यूटूब चैनल: {{youtube_url}}"
-link_4: "सामान्यतःपूछे जाने वाले प्रश्न: {{faq_url}}"
-link_5: "गिटहब पर प्रोजेक्ट पेज: {{github_url}}"
-buy_title: विकास समय खरीदकर समर्थन करें!
+link_1: >-
+  होमपेज: {{homepage_url}}
+link_2: >-
+  फेसबुक पर ऐंड बाइबिल को लाइक करे: {{facebook_url}}
+link_3: >-
+  हमारी यूटूब चैनल: {{youtube_url}}
+link_4: >-
+  सामान्यतःपूछे जाने वाले प्रश्न: {{faq_url}}
+link_5: >-
+  गिटहब पर प्रोजेक्ट पेज: {{github_url}}
+buy_title: >-
+  विकास समय खरीदकर समर्थन करें!
 buy_1: >
   यदि आपके पास परियोजना में योगदान करने का समय या कौशल नहीं है, तो आप पेशेवर डेवलपर कार्य समय खरीदकर भी इस परियोजना का समर्थन कर सकते हैं।
-buy_2: विकल्प देखें
+buy_2: >-
+  विकल्प देखें

@@ -1,4 +1,4 @@
-# Long version of app name that will be displayed on Play Store. (max 50 characters)
+# Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "এ্যন্ড বাইবেল: বাইবেল অধ্যায়ণ"
 # Short promotional text, shown in Play Store (max 80 characters)
 short_description: "বাইবেল পড়ুন, ভাষ্য এবং অভিধান অধ্যয়ন করুন বা অফলাইনে বই পড়ুন।"

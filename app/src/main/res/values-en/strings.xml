@@ -10,6 +10,7 @@
   <string name="type_text_or_bible_reference">Type text or Bible reference</string>
   <!--Open (bible reference X)-->
   <!--Finx "(keywords x)", keywords based on text selection-->
+  <!--Multi-translation search-->
   <!--Preferences-->
   <string name="prefs_open_links_in_special_window_summary">Open links in special window, for quicker display of cross-references and Strong\'s</string>
   <string name="auto_fullscreen_summary">Switch automatically to full screen when scrolling text. Tip: you can always also switch to full screen by double tapping screen.</string>
@@ -185,9 +186,31 @@ The developers of this app are not responsible for maintaining documents (Bibles
   <!--Custom document repositories that can store any AndBible-compatible documents. User can easily install documents from such repositories by adding repository url here.-->
   <!--Open links in AndBible (Deep linking)-->
   <!--Device cloud synchronization-->
+  <!--Reading Progress Activity-->
   <string name="adapters_next_cloud">NextCloud</string>
   <!--... after restoring from backup file-->
   <!--MyBible/MySword module support-->
   <!--Other / uncategorized-->
   <string name="buy_development">Sponsor app development</string>
+  <!--LLM Translation Settings-->
+  <!--Raw log history-->
+  <!--Prompt Manager-->
+  <!--Multi-provider settings-->
+  <!--Configured models management-->
+  <!--Easy Setup-->
+  <!--AI Disclaimer-->
+  <!--Default prompts-->
+  <!--Agent Tool Display Names-->
+  <!--Agent Permission Dialog-->
+  <!--Tool action descriptions for permission dialog-->
+  <!--Agent Tool Permission Settings-->
+  <!--Tool Info-->
+  <!--Global Tool Permissions Activity-->
+  <!--Per-Prompt Tool Permissions-->
+  <!--Tool categories-->
+  <!--Per-Prompt Model Override-->
+  <!--LLM One Tap Actions-->
+  <!--Agent Log Widget-->
+  <!--AI Agent Notifications-->
+  <!--My Documents-->
 </resources>

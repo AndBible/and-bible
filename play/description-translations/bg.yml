@@ -1,7 +1,7 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Библейско проучване"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: Четете Библията, изучавайте коментари и речници или четете книги офлайн.
+short_description: "Четете Библията, изучавайте коментари и речници или четете книги офлайн."
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Мощен инструмент за изучаване на Библията
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -16,22 +16,21 @@ subtitle_2: Мощни функции за изучаване на Библия�
 paragraph_2_1: >
   Приложението разполага с много оригинални и полезни функции, които правят сложното и задълбочено изучаване на Библията по-лесно от всякога. Най-забележителните функции са следните:
 feature_01: Разделен изглед на текст за сравняване на преводи и консултиране с коментари
-feature_02: >
-  Работните пространства позволяват множество конфигурации за изучаване с техните собствени настройки
+feature_02: "Работните пространства позволяват множество конфигурации за изучаване с техните собствени настройки\n"
 feature_03: Интеграцията на Strong's позволява анализ на гръцки и еврейски думи
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Свързани кръстосани препратки, бележки под линия и документи; прескачайте към кръстосани препратки и бележки под линия с едно докосване; задълбочено изучаване на Писанието чрез хипервръзки към коментари ({{commentary_examples}}), колекции от кръстосани препратки ({{cross_reference_examples}}) и други ресурси.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry и др.
+commentary_examples: "Gill, Matthew Henry и др."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Разширено четене на глас с отметки за слушане, позволяващо приятно слушане на Библията
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Разширено четене на глас с отметки за слушане, позволяващо приятно слушане на Библията\n"
 feature_06: Гъвкаво търсене
 feature_07: Разширени функции за отметки и маркиране с лични учебни бележки
-feature_09: Планове за четене — поставяйте цели за четене на Библията
+feature_09: >-
+  Планове за четене — поставяйте цели за четене на Библията
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Обширна библиотека с ресурси: библейски преводи, богословски коментари, речници, карти и християнски книги — общо над {{total_documents}} документа на над {{total_languages}} езика, законно разпространявани от Crosswire и други SWORD хранилища.
@@ -39,29 +38,36 @@ feature_10_1: >
   Вградената поддръжка на MyBible, MySword и EPUB файлове ви позволява да разширите библиотеката си още повече.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV и NKJV
-feature_12: "Офлайн режим: интернет е необходим само при изтегляне на документи."
+unavailable_documents: "ESV, NIV и NKJV"
+feature_12: >-
+  Офлайн режим: интернет е необходим само при изтегляне на документи.
 # UNUSED
-feature_13: Бележници за добавяне на бележки и библейски препратки докато слушате проповеди.
+feature_13: >-
+  Бележници за добавяне на бележки и библейски препратки докато слушате проповеди.
 subtitle_3: Нека заедно да създадем най-доброто приложение за Библията!
 paragraph_3_1: >
   AndBible е проект с отворен код. На практика това означава, че всеки с подходящи умения може и се насърчава да допринесе за проекта чрез:
-contr_1: разработване на нови функции,
-contr_2: тестване на все още неиздадени функции,
-contr_3: поддържане на актуални преводи на потребителския интерфейс, и
-contr_4: >
-  помощ за разширяване на библиотеката с модули чрез получаване на разрешения от носители на авторски права или чрез конвертиране на документи в SWORD формат.
+contr_1: "разработване на нови функции,"
+contr_2: "тестване на все още неиздадени функции,"
+contr_3: "поддържане на актуални преводи на потребителския интерфейс, и"
+contr_4: "помощ за разширяване на библиотеката с модули чрез получаване на разрешения от носители на авторски права или чрез конвертиране на документи в SWORD формат.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Ако сте професионален софтуерен инженер или тестер, моля, обмислете принос към проекта. За повече информация относно начините за участие вижте {{how_to_contribute_url}}.
+paragraph_4_1: "Ако сте професионален софтуерен инженер или тестер, моля, обмислете принос към проекта. За повече информация относно начините за участие вижте {{how_to_contribute_url}}.\n"
 subtitle_4: Връзки
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Начална страница: {{homepage_url}}"
-link_2: "Харесайте AndBible във Facebook: {{facebook_url}}"
-link_3: "Нашият YouTube канал: {{youtube_url}}"
-link_4: "Често задавани въпроси: {{faq_url}}"
-link_5: "Страница на проекта в Github: {{github_url}}"
-buy_title: Подкрепете ни, като закупите работно време за разработка!
+link_1: >-
+  Начална страница: {{homepage_url}}
+link_2: >-
+  Харесайте AndBible във Facebook: {{facebook_url}}
+link_3: >-
+  Нашият YouTube канал: {{youtube_url}}
+link_4: >-
+  Често задавани въпроси: {{faq_url}}
+link_5: >-
+  Страница на проекта в Github: {{github_url}}
+buy_title: >-
+  Подкрепете ни, като закупите работно време за разработка!
 buy_1: >
   Ако нямате време или умения за принос към проекта, можете да го подкрепите, като закупите работно време на професионален разработчик.
-buy_2: Вижте опциите
+buy_2: >-
+  Вижте опциите

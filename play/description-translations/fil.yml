@@ -1,8 +1,7 @@
 # Long version of app name that will be displayed on Play Store. (max 30 characters)
 title: "AndBible: Pag-aaral ng Bibliya"
 # Short promotional text, shown in Play Store (max 80 characters)
-short_description: >
-  Basahin ang Bibliya, pag-aralan ang komentaryo o diksyonaryo nang offline.
+short_description: "Basahin ang Bibliya, pag-aralan ang komentaryo o diksyonaryo nang offline.\n"
 # Main (first) subtitle of the Play Store main (long) description text.
 subtitle_1: Makapangyarihang Kagamitan sa Pag-aaral ng Bibliya
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
@@ -16,26 +15,22 @@ paragraph_1_3: >
 subtitle_2: Mga Makapangyarihang Tampok sa Pag-aaral ng Bibliya
 paragraph_2_1: >
   Ang application ay may maraming natatangi at orihinal na tampok na nagpapadali ng kumplikado at malalim na karanasan sa pag-aaral ng Bibliya. Ang pinaka-kapansin-pansing mga tampok ay ang mga sumusunod:
-feature_01: >
-  Mga split text view na nagbibigay-daan sa paghahambing ng mga salin at pagtukoy sa mga komentaryo
-feature_02: >
-  Ang mga workspace ay nagpapahintulot ng maraming setup sa pag-aaral ng Bibliya na may sariling mga setting
-feature_03: >
-  Ang integrasyon ng Strong's ay nagbibigay-daan sa pagsusuri ng mga salitang Griyego at Hebreo
+feature_01: "Mga split text view na nagbibigay-daan sa paghahambing ng mga salin at pagtukoy sa mga komentaryo\n"
+feature_02: "Ang mga workspace ay nagpapahintulot ng maraming setup sa pag-aaral ng Bibliya na may sariling mga setting\n"
+feature_03: "Ang integrasyon ng Strong's ay nagbibigay-daan sa pagsusuri ng mga salitang Griyego at Hebreo\n"
 # Please add variables marked with curly braces also in your translation untranslated, in correct places!
 feature_04: >
   Mga naka-link na cross-reference, footnote, at dokumento; pumunta sa mga ito sa pamamagitan ng pag-tap ng link; gamitin ang mga komentaryo ({{commentary_examples}}), cross-reference ({{cross_reference_examples}}) at iba pang mapagkukunan.
 # Examples of commentaries. You can add here also other commentaries of your language if they
 # are found in the app.
-commentary_examples: Gill, Matthew Henry atbp.
+commentary_examples: "Gill, Matthew Henry atbp."
 # Examples of cross-reference collections.
-cross_reference_examples: Treasure of Scripture Knowledge, TSKe
-feature_05: >
-  Advanced na text to speech na may mga speak bookmark, na nagbibigay ng maayos na karanasan sa pakikinig ng Bibliya
+cross_reference_examples: "Treasure of Scripture Knowledge, TSKe"
+feature_05: "Advanced na text to speech na may mga speak bookmark, na nagbibigay ng maayos na karanasan sa pakikinig ng Bibliya\n"
 feature_06: Flexible na paghahanap
-feature_07: >
-  Advanced na mga tampok sa pagba-bookmark at pag-highlight na may personal na mga tala sa pag-aaral
-feature_09: "Mga plano sa pagbabasa: magtakda ng mga layunin para sa pagbabasa ng Bibliya"
+feature_07: "Advanced na mga tampok sa pagba-bookmark at pag-highlight na may personal na mga tala sa pag-aaral\n"
+feature_09: >-
+  Mga plano sa pagbabasa: magtakda ng mga layunin para sa pagbabasa ng Bibliya
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
 feature_10: >
   Malawak na aklatan ng mga dokumento: mga salin ng Bibliya, mga teolohikal na komentaryo, mga diksyonaryo, mga mapa, at mga Kristiyanong aklat, na kabuuang higit sa {{total_documents}} na dokumento sa mahigit {{total_languages}} na wika, na legal na ipinamamahagi ng Crosswire at iba pang mga SWORD repository.
@@ -43,7 +38,7 @@ feature_10_1: >
   Ang katutubong suporta para sa MyBible, MySword, at EPUB na mga file ay nagbibigay-daan sa iyo na palawakin pa ang iyong aklatan.
 # In addition or in addition to the mentioned documents also some of the commercial/modern bible
 # versions / documents of your language that are not (yet) available in the app.
-unavailable_documents: ESV, NIV at NKJV
+unavailable_documents: "ESV, NIV at NKJV"
 feature_12: >
   Offline: ang tanging pagkakataon na kailangan mo ng internet ay para sa pag-download ng mga dokumento.
 # UNUSED
@@ -52,22 +47,27 @@ feature_13: >
 subtitle_3: Gumawa tayo ng pinakamahusay na Bible app nang magkasama!
 paragraph_3_1: >
   Ang AndBible ay isang open-source na proyektong pangkomunidad. Ang sinuman na may angkop na kakayahan ay maaaring mag-ambag sa pamamagitan ng:
-contr_1: pagbuo ng mga bagong tampok,
-contr_2: pagsubok ng mga tampok na hindi pa inilalabas,
-contr_3: pagpapanatiling napapanahon ang mga pagsasalin ng user interface, at
-contr_4: >
-  pagtulong na palawakin ang module library sa pamamagitan ng pagkuha ng pahintulot mula sa mga may-ari ng copyright, o sa pamamagitan ng pag-convert ng mga dokumento sa SWORD format.
+contr_1: "pagbuo ng mga bagong tampok,"
+contr_2: "pagsubok ng mga tampok na hindi pa inilalabas,"
+contr_3: "pagpapanatiling napapanahon ang mga pagsasalin ng user interface, at"
+contr_4: "pagtulong na palawakin ang module library sa pamamagitan ng pagkuha ng pahintulot mula sa mga may-ari ng copyright, o sa pamamagitan ng pag-convert ng mga dokumento sa SWORD format.\n"
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-paragraph_4_1: >
-  Kung ikaw ay software engineer o tester, isaalang-alang ang pag-ambag sa proyekto. Para sa impormasyon, tingnan ang {{how_to_contribute_url}}.
+paragraph_4_1: "Kung ikaw ay software engineer o tester, isaalang-alang ang pag-ambag sa proyekto. Para sa impormasyon, tingnan ang {{how_to_contribute_url}}.\n"
 subtitle_4: Mga Link
 # Please add variables marked with curly braces also in your translated, untranslated, in correct places!
-link_1: "Homepage: {{homepage_url}}"
-link_2: "I-like ang AndBible sa Facebook: {{facebook_url}}"
-link_3: "Ang Aming Youtube Channel: {{youtube_url}}"
-link_4: "Mga Madalas Itanong: {{faq_url}}"
-link_5: "Pahina ng proyekto sa Github: {{github_url}}"
-buy_title: Suportahan sa pamamagitan ng pagbili ng oras ng pag-unlad!
+link_1: >-
+  Homepage: {{homepage_url}}
+link_2: >-
+  I-like ang AndBible sa Facebook: {{facebook_url}}
+link_3: >-
+  Ang Aming Youtube Channel: {{youtube_url}}
+link_4: >-
+  Mga Madalas Itanong: {{faq_url}}
+link_5: >-
+  Pahina ng proyekto sa Github: {{github_url}}
+buy_title: >-
+  Suportahan sa pamamagitan ng pagbili ng oras ng pag-unlad!
 buy_1: >
   Kung wala kang oras o kakayahan para sa mga kontribusyon sa proyekto, maaari ka ring suportahan ang proyekto sa pamamagitan ng pagbili ng propesyonal na oras ng trabaho ng developer.
-buy_2: Tingnan ang mga opsyon
+buy_2: >-
+  Tingnan ang mga opsyon
