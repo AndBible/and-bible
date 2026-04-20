@@ -113,6 +113,7 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
+        binding.searchText.setupSearchHistoryDropdown(this, SearchHistoryStore.bibleHistory())
 
         if (!searchControl.validateIndex(documentToSearch)) {
             Dialogs.showErrorMsg(R.string.error_occurred) { finish() }
@@ -312,8 +313,10 @@ class Search : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
 
     private fun onSearch() {
         Log.i(TAG, "CLICKED")
-        var text = binding.searchText.text.toString()
+        var text = binding.searchText.text.toString().trim()
         if (!StringUtils.isEmpty(text)) {
+            SearchHistoryStore.addBibleQuery(text)
+
             // Check if any selected translation needs indexing
             val unindexedTranslations = selectedTranslations.filter { it.indexStatus != IndexStatus.DONE }
             if (unindexedTranslations.isNotEmpty()) {

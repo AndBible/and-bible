@@ -110,6 +110,7 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
         setContentView(binding.root)
         CommonUtils.settings.setLong("search-last-used", System.currentTimeMillis())
         buildActivityComponent().inject(this)
+        binding.searchText.setupSearchHistoryDropdown(this, SearchHistoryStore.epubHistory())
         searchType = CommonUtils.settings.getString("epubSearch-SearchType")?.let { SearchType.valueOf(it)}
 
         title = getString(R.string.search_in, documentToSearch.abbreviation)
@@ -152,8 +153,9 @@ class EpubSearch : CustomTitlebarActivityBase(R.menu.search_actionbar_menu) {
     }
 
     private fun onSearch() {
-        val text = binding.searchText.text.toString()
+        val text = binding.searchText.text.toString().trim()
         if (!StringUtils.isEmpty(text)) {
+            SearchHistoryStore.addEpubQuery(text)
             val intent = Intent(this, EpubSearchResults::class.java)
             intent.putExtra("searchText", text)
             intent.putExtra("searchType", searchType?.name)

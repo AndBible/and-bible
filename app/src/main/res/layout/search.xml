@@ -26,11 +26,12 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	>
-	<EditText android:id="@+id/searchText"
+	<AutoCompleteTextView android:id="@+id/searchText"
 		android:layout_height="wrap_content"
 		android:layout_width="match_parent"
 		app:layout_constraintTop_toTopOf="parent"
 		android:layout_alignParentTop="true"
+		android:completionThreshold="0"
 		android:imeOptions="actionSearch"
 		android:inputType="textCapSentences"
 		android:hint="@string/type_text_or_bible_reference"
