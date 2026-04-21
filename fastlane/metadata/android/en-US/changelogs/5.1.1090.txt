@@ -1,0 +1,17 @@
+- Fixed tap-to-scroll regression where tapping on Bible text was incorrectly scrolling the page instead of selecting verses or opening cross-references (8f65a84de)
+
+5.1
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/
