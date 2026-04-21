@@ -17,6 +17,8 @@
 
 package net.bible.android.database
 
+import net.bible.android.database.WorkspaceEntities.Colors
+import net.bible.android.database.WorkspaceEntities.MarginSize
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings
 import net.bible.android.database.WorkspaceEntities.TextDisplaySettings.Types
 import org.junit.Assert.assertEquals
@@ -108,6 +110,192 @@ class TextDisplaySettingsTest {
         for (type in Types.values()) {
             assertNotNull("Type $type should not be null in actual result", result.getValue(type))
         }
+    }
+
+    // --- actual() sub-object field-level merge tests ---
+    //
+    // Regression tests for the bug where workspace/window stored a MarginSize with
+    // marginLeft/marginRight set but maxWidth=null (e.g. after migration 93e575de2 which
+    // nulled the legacy default 170). The whole-object resolution in actual() would return
+    // this MarginSize verbatim, and the null maxWidth reached BibleView as JSON null; in
+    // JavaScript `null * mmInPx = 0` caused the margin-tap divs to cover half the screen
+    // each, hijacking all taps. Fixed by merging sub-objects field-by-field against the
+    // fallback chain so any null field inherits from the next level (global → default).
+
+    @Test
+    fun `actual MarginSize merges maxWidth null field from default`() {
+        // Workspace has marginLeft/Right set but maxWidth null — regression scenario.
+        val workspace = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 1, marginRight = 1, maxWidth = null)
+        )
+        val result = TextDisplaySettings.actual(null, workspace, TextDisplaySettings())
+
+        val margins = result.marginSize!!
+        assertEquals(1, margins.marginLeft)
+        assertEquals(1, margins.marginRight)
+        assertEquals(
+            "maxWidth should fall back to default when null at every level",
+            TextDisplaySettings.default.marginSize!!.maxWidth, margins.maxWidth
+        )
+    }
+
+    @Test
+    fun `actual MarginSize merges null fields from global when set`() {
+        // Workspace has only marginLeft; global provides maxWidth; rest from default.
+        val workspace = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 5, marginRight = null, maxWidth = null)
+        )
+        val global = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = null, marginRight = null, maxWidth = 200)
+        )
+        val result = TextDisplaySettings.actual(null, workspace, global)
+
+        val margins = result.marginSize!!
+        assertEquals("workspace.marginLeft takes precedence", 5, margins.marginLeft)
+        assertEquals(
+            "marginRight falls back to default",
+            TextDisplaySettings.default.marginSize!!.marginRight, margins.marginRight
+        )
+        assertEquals("maxWidth from global overrides default", 200, margins.maxWidth)
+    }
+
+    @Test
+    fun `actual MarginSize page manager overrides workspace per field`() {
+        val page = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 7, marginRight = null, maxWidth = null)
+        )
+        val workspace = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 200)
+        )
+        val result = TextDisplaySettings.actual(page, workspace, TextDisplaySettings())
+
+        val margins = result.marginSize!!
+        assertEquals("page.marginLeft wins", 7, margins.marginLeft)
+        assertEquals("marginRight from workspace", 3, margins.marginRight)
+        assertEquals("maxWidth from workspace", 200, margins.maxWidth)
+    }
+
+    @Test
+    fun `actual MarginSize all-null workspace inherits everything from default`() {
+        val workspace = TextDisplaySettings(
+            marginSize = MarginSize(marginLeft = null, marginRight = null, maxWidth = null)
+        )
+        val result = TextDisplaySettings.actual(null, workspace, TextDisplaySettings())
+
+        assertEquals(TextDisplaySettings.default.marginSize, result.marginSize)
+    }
+
+    @Test
+    fun `actual MarginSize falls back entirely to default when none set`() {
+        val result = TextDisplaySettings.actual(
+            null, TextDisplaySettings(), TextDisplaySettings()
+        )
+        assertEquals(TextDisplaySettings.default.marginSize, result.marginSize)
+    }
+
+    @Test
+    fun `actual Colors merges null fields from default`() {
+        val workspace = TextDisplaySettings(
+            colors = Colors(
+                dayTextColor = 0xFF0000.toInt().or(0xFF shl 24),
+                dayBackground = null,
+                dayNoise = null,
+                nightTextColor = null,
+                nightBackground = null,
+                nightNoise = null,
+            )
+        )
+        val result = TextDisplaySettings.actual(null, workspace, TextDisplaySettings())
+
+        val colors = result.colors!!
+        val defaultColors = TextDisplaySettings.default.colors!!
+        assertEquals(
+            "dayTextColor from workspace",
+            0xFF0000.toInt().or(0xFF shl 24), colors.dayTextColor
+        )
+        assertEquals("dayBackground from default", defaultColors.dayBackground, colors.dayBackground)
+        assertEquals("dayNoise from default", defaultColors.dayNoise, colors.dayNoise)
+        assertEquals("nightTextColor from default", defaultColors.nightTextColor, colors.nightTextColor)
+        assertEquals("nightBackground from default", defaultColors.nightBackground, colors.nightBackground)
+        assertEquals("nightNoise from default", defaultColors.nightNoise, colors.nightNoise)
+    }
+
+    @Test
+    fun `actual Colors all levels non-null pick most specific per field`() {
+        val page = TextDisplaySettings(
+            colors = Colors(
+                dayTextColor = 1, dayBackground = null, dayNoise = null,
+                nightTextColor = null, nightBackground = null, nightNoise = null,
+            )
+        )
+        val workspace = TextDisplaySettings(
+            colors = Colors(
+                dayTextColor = 2, dayBackground = 3, dayNoise = null,
+                nightTextColor = null, nightBackground = null, nightNoise = null,
+            )
+        )
+        val global = TextDisplaySettings(
+            colors = Colors(
+                dayTextColor = 4, dayBackground = 5, dayNoise = 6,
+                nightTextColor = 7, nightBackground = null, nightNoise = null,
+            )
+        )
+        val result = TextDisplaySettings.actual(page, workspace, global)
+
+        val colors = result.colors!!
+        val defaultColors = TextDisplaySettings.default.colors!!
+        assertEquals("dayTextColor from page", 1, colors.dayTextColor)
+        assertEquals("dayBackground from workspace", 3, colors.dayBackground)
+        assertEquals("dayNoise from global", 6, colors.dayNoise)
+        assertEquals("nightTextColor from global", 7, colors.nightTextColor)
+        assertEquals(
+            "nightBackground from default", defaultColors.nightBackground, colors.nightBackground
+        )
+        assertEquals("nightNoise from default", defaultColors.nightNoise, colors.nightNoise)
+    }
+
+    @Test
+    fun `MarginSize merge returns this when override is null`() {
+        val base = MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170)
+        assertEquals(base, base.merge(null))
+    }
+
+    @Test
+    fun `MarginSize merge overrides only non-null fields`() {
+        val base = MarginSize(marginLeft = 3, marginRight = 3, maxWidth = 170)
+        val override = MarginSize(marginLeft = 9, marginRight = null, maxWidth = null)
+        val merged = base.merge(override)
+        assertEquals(9, merged.marginLeft)
+        assertEquals(3, merged.marginRight)
+        assertEquals(170, merged.maxWidth)
+    }
+
+    @Test
+    fun `Colors merge returns this when override is null`() {
+        val base = Colors(
+            dayTextColor = 1, dayBackground = 2, dayNoise = 3,
+            nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+        )
+        assertEquals(base, base.merge(null))
+    }
+
+    @Test
+    fun `Colors merge overrides only non-null fields`() {
+        val base = Colors(
+            dayTextColor = 1, dayBackground = 2, dayNoise = 3,
+            nightTextColor = 4, nightBackground = 5, nightNoise = 6,
+        )
+        val override = Colors(
+            dayTextColor = 100, dayBackground = null, dayNoise = null,
+            nightTextColor = null, nightBackground = 500, nightNoise = null,
+        )
+        val merged = base.merge(override)
+        assertEquals(100, merged.dayTextColor)
+        assertEquals(2, merged.dayBackground)
+        assertEquals(3, merged.dayNoise)
+        assertEquals(4, merged.nightTextColor)
+        assertEquals(500, merged.nightBackground)
+        assertEquals(6, merged.nightNoise)
     }
 
     // --- markNonSpecific() tests ---

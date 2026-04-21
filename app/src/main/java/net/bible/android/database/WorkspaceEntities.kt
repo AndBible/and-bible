@@ -119,7 +119,22 @@ class WorkspaceEntities {
         @ColumnInfo(defaultValue = "NULL") var marginLeft: Int?,
         @ColumnInfo(defaultValue = "NULL") var marginRight: Int?,
         @ColumnInfo(defaultValue = "NULL") var maxWidth: Int?
-    )
+    ) {
+        /**
+         * Returns a new MarginSize where each field from [override] takes precedence over this
+         * one's field if non-null. Used by [TextDisplaySettings.actual] to fall back per-field
+         * across the hierarchy so sub-object null values inherit from parent/default instead
+         * of the whole object being taken as-is.
+         */
+        fun merge(override: MarginSize?): MarginSize {
+            if (override == null) return this
+            return MarginSize(
+                marginLeft = override.marginLeft ?: marginLeft,
+                marginRight = override.marginRight ?: marginRight,
+                maxWidth = override.maxWidth ?: maxWidth,
+            )
+        }
+    }
 
     @Serializable
     data class Colors(
@@ -138,6 +153,28 @@ class WorkspaceEntities {
         fun toJson(): String {
             return json.encodeToString(serializer(), this)
         }
+
+        /**
+         * Returns a new Colors where each field from [override] takes precedence over this
+         * one's field if non-null. Used by [TextDisplaySettings.actual] to fall back per-field
+         * across the hierarchy so sub-object null values inherit from parent/default instead
+         * of the whole object being taken as-is.
+         *
+         * Note: the non-constructor [workspaceColor] field (@Ignore) is not copied — this
+         * matches the existing behavior of `Colors.copy()` used elsewhere in actual().
+         */
+        fun merge(override: Colors?): Colors {
+            if (override == null) return this
+            return Colors(
+                dayTextColor = override.dayTextColor ?: dayTextColor,
+                dayBackground = override.dayBackground ?: dayBackground,
+                dayNoise = override.dayNoise ?: dayNoise,
+                nightTextColor = override.nightTextColor ?: nightTextColor,
+                nightBackground = override.nightBackground ?: nightBackground,
+                nightNoise = override.nightNoise ?: nightNoise,
+            )
+        }
+
         companion object {
             fun fromJson(jsonString: String): Colors {
                 return json.decodeFromString(serializer(), jsonString)
@@ -372,12 +409,35 @@ class WorkspaceEntities {
                 val def = default
                 val result = TextDisplaySettings()
                 for(t in Types.values()) {
-                    result.setValue(t,
-                        pageManagerSettings?.getValue(t)
-                            ?: workspaceSettings.getValue(t)
-                            ?: globalSettings.getValue(t)
-                            ?: def.getValue(t)!!
-                    )
+                    when (t) {
+                        // Sub-object types resolve field-by-field: stored values may have some
+                        // fields null (meaning "inherit from parent"), so taking the whole object
+                        // from the most specific non-null level would leave those fields null in
+                        // the actualSettings sent to BibleView. Field-level merge guarantees every
+                        // field ends up non-null by falling back through the hierarchy to default.
+                        Types.MARGINSIZE -> {
+                            val merged = def.marginSize!!
+                                .merge(globalSettings.marginSize)
+                                .merge(workspaceSettings.marginSize)
+                                .merge(pageManagerSettings?.marginSize)
+                            result.setValue(t, merged)
+                        }
+                        Types.COLORS -> {
+                            val merged = def.colors!!
+                                .merge(globalSettings.colors)
+                                .merge(workspaceSettings.colors)
+                                .merge(pageManagerSettings?.colors)
+                            result.setValue(t, merged)
+                        }
+                        else -> {
+                            result.setValue(t,
+                                pageManagerSettings?.getValue(t)
+                                    ?: workspaceSettings.getValue(t)
+                                    ?: globalSettings.getValue(t)
+                                    ?: def.getValue(t)!!
+                            )
+                        }
+                    }
                 }
                 return result
             }
