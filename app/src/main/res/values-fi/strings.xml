@@ -963,6 +963,8 @@ Voit laittaa ikkunoiden kiinnityksen päälle ylävalikosta (valikko joka merkit
   <string name="custom_repositories_help2">Voit lukea lisää tietoja omista dokumenttirepositorioista: %s.</string>
   <string name="wiki_page">WIKI-sivu</string>
   <string name="custom_repositories_help0">Voit asentaa dokumentteja ulkoisesta omasta dokumenttirepositoriosta asentamalla omia dokumenttirepositorioita.</string>
+  <string name="supported_module_formats">tuetuista moduulimuodoista</string>
+  <string name="download_documents_help_message">Voit asentaa AndBibleen lisää dokumentteja usealla eri tavalla.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Kolmannen osapuolen moduulimuodot&lt;/b&gt;&lt;br/&gt;AndBible tukee käsin asennettuja MyBible- ja MySword-moduuleita. Lue lisää: %1$s.&lt;br/&gt;&lt;br/&gt;&lt;b&gt;Omat repositoriot&lt;/b&gt;&lt;br/&gt;Voit myös lisätä ulkoisia SWORD-yhteensopivia repositorioita ja asentaa dokumentteja niistä. Lue lisää: %2$s.</string>
   <string name="duplicate_custom_repository">Repositori nimeltä %s löytyy ennestään, ei voida lisätä uudestaan.</string>
   <string name="packages_dir">Pakettien hakemisto (Zip-tiedostot)</string>
   <string name="warn_bad_document">Varoitus: Tämä dokumentti voi olla (ainakin osittain) huono tekniseltä laadultaan.</string>

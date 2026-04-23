@@ -26,6 +26,10 @@
 		android:title="@string/download_errors"
 		android:icon="@drawable/ic_error_outline_black_24dp"
 		appcompat:showAsAction="always"/>
+	<item android:id="@+id/help"
+		android:title="@string/help"
+		android:icon="@drawable/ic_help_white_24dp"
+		appcompat:showAsAction="ifRoom"/>
 	<item android:id="@+id/installZip"
 		android:title="@string/install_zip"
 		android:icon="@drawable/ic_unarchive_white_24dp"

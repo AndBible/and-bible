@@ -19,6 +19,7 @@ package net.bible.android.view.activity.download
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -26,6 +27,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.view.ActionMode
 import androidx.lifecycle.lifecycleScope
@@ -68,6 +70,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.android.view.activity.base.installedDocument
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.common.CommonUtils
+import net.bible.service.common.htmlToSpan
 import net.bible.service.download.urlPrefix
 import java.net.URL
 import java.text.Collator
@@ -89,6 +92,18 @@ open class DownloadActivity : DocumentSelectionBase(
     R.menu.download_documents, R.menu.document_context_menu,
     enableLoadingIndicator = false,
 ) {
+    private fun showHelp() {
+        val moduleFormatsLink = """<a href="$SUPPORTED_MODULE_FORMATS_WIKI_URL">${getString(R.string.supported_module_formats)}</a>"""
+        val wikiPageLink = """<a href="$CUSTOM_REPOSITORIES_WIKI_URL">${getString(R.string.wiki_page)}</a>"""
+        val dialog = AlertDialog.Builder(this)
+            .setTitle(R.string.download)
+            .setMessage(htmlToSpan(getString(R.string.download_documents_help_message, moduleFormatsLink, wikiPageLink)))
+            .setPositiveButton(R.string.okay, null)
+            .create()
+        dialog.show()
+        dialog.findViewById<TextView>(android.R.id.message)!!.movementMethod = LinkMovementMethod.getInstance()
+    }
+
     override fun onPrepareActionMode(mode: ActionMode, menu: Menu, selectedItemPositions: List<Int>): Boolean {
         if(selectedItemPositions.isNotEmpty()) {
             val installedDoc = displayedDocuments[selectedItemPositions[0]].installedDocument
@@ -483,6 +498,11 @@ open class DownloadActivity : DocumentSelectionBase(
                     .setMessage(message)
                     .setPositiveButton(R.string.okay, null)
                     .create().show()
+                isHandled = true
+            }
+            R.id.help -> {
+                showHelp()
+                isHandled = true
             }
             R.id.installZip -> {
                 val intent = Intent(this, InstallZip::class.java)
@@ -509,6 +529,8 @@ open class DownloadActivity : DocumentSelectionBase(
     }
 
     companion object {
+        private const val SUPPORTED_MODULE_FORMATS_WIKI_URL = "https://github.com/AndBible/and-bible/wiki/Supported-3rd-party-module-formats"
+        private const val CUSTOM_REPOSITORIES_WIKI_URL = "https://github.com/AndBible/and-bible/wiki/Custom-repositories"
         private const val REPO_REFRESH_DATE = "repoRefreshDate"
         private const val REPO_LIST_STALE_AFTER_DAYS: Long = 1
         private const val MILLISECS_IN_DAY = 1000 * 60 * 60 * 24.toLong()
