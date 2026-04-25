@@ -218,7 +218,8 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         if (suppressOverrideSpinnerUpdate) return
         val override = data.workspaceOverride ?: return
         val selectedPosition = binding.displayModeSpinner.selectedItemPosition
-        val overrideMode = if (selectedPosition == getGlobalDisplayModeIndex()) null else selectedPosition
+        // Position 0 = "No override" (null), positions 1..4 = mode 0..3
+        val overrideMode = if (selectedPosition == 0) null else selectedPosition - 1
         data.workspaceOverride = override.copy(overrideMode = overrideMode)
     }
 
@@ -285,15 +286,20 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         thisBookmarkCategory.visibility = if(data.isAssigning) View.VISIBLE else View.GONE
     }
 
-    private fun getGlobalDisplayModeIndex(): Int {
-        val label = data.label
-        return when {
-            label.hideStyle || label.hideStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_HIDDEN
-            label.markerStyle || label.markerStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_MARKER
-            label.underlineStyle || label.underlineStyleWholeVerse -> WorkspaceEntities.WorkspaceLabelOverride.MODE_UNDERLINE
-            else -> WorkspaceEntities.WorkspaceLabelOverride.MODE_HIGHLIGHT
-        }
-    }
+    /**
+     * Builds the spinner option list. Position 0 is the explicit "No override" entry;
+     * positions 1..4 correspond to MODE_HIGHLIGHT..MODE_HIDDEN.
+     */
+    private fun buildOverrideSpinnerOptions(): Array<String> = arrayOf(
+        getString(R.string.no_override_suffix),
+        getString(R.string.display_mode_highlight),
+        getString(R.string.display_mode_underline),
+        getString(R.string.display_mode_marker),
+        getString(R.string.display_mode_hidden),
+    )
+
+    private fun overrideModeToSpinnerPosition(overrideMode: Int?): Int =
+        if (overrideMode == null) 0 else overrideMode + 1
 
     private fun setupWorkspaceOverrideUI() {
         if (!data.hasWorkspaceContext || data.label.isSpecialLabel) {
@@ -304,24 +310,11 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         binding.overrideStyleLabel.visibility = View.VISIBLE
         binding.displayModeSpinner.visibility = View.VISIBLE
 
-        val globalModeIndex = getGlobalDisplayModeIndex()
-        val noOverrideSuffix = " " + getString(R.string.no_override_suffix)
-        val modeNames = arrayOf(
-            getString(R.string.display_mode_highlight),
-            getString(R.string.display_mode_underline),
-            getString(R.string.display_mode_marker),
-            getString(R.string.display_mode_hidden),
-        )
-        val options = modeNames.mapIndexed { index, name ->
-            if (index == globalModeIndex) name + noOverrideSuffix else name
-        }.toTypedArray()
-
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, buildOverrideSpinnerOptions())
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.displayModeSpinner.adapter = adapter
 
-        val override = data.workspaceOverride
-        val selectedPosition = override?.overrideMode ?: globalModeIndex
+        val selectedPosition = overrideModeToSpinnerPosition(data.workspaceOverride?.overrideMode)
         suppressOverrideSpinnerUpdate = true
         binding.displayModeSpinner.setSelection(selectedPosition)
         binding.displayModeSpinner.post { suppressOverrideSpinnerUpdate = false }
@@ -334,31 +327,13 @@ class LabelEditActivity: ActivityBase(), ColorPickerDialogListener {
         }
     }
 
-    /** Rebuilds the override spinner adapter and selection when the global style changes. */
+    /** Re-applies the spinner selection after a global style change without inferring an override from the stale spinner state. */
     private fun refreshWorkspaceOverrideSpinner() {
         if (!data.hasWorkspaceContext || data.label.isSpecialLabel) return
 
         suppressOverrideSpinnerUpdate = true
-
-        val globalModeIndex = getGlobalDisplayModeIndex()
-        val noOverrideSuffix = " " + getString(R.string.no_override_suffix)
-        val modeNames = arrayOf(
-            getString(R.string.display_mode_highlight),
-            getString(R.string.display_mode_underline),
-            getString(R.string.display_mode_marker),
-            getString(R.string.display_mode_hidden),
-        )
-        val options = modeNames.mapIndexed { index, name ->
-            if (index == globalModeIndex) name + noOverrideSuffix else name
-        }.toTypedArray()
-
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, options)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.displayModeSpinner.adapter = adapter
-
-        val selectedPosition = data.workspaceOverride?.overrideMode ?: globalModeIndex
+        val selectedPosition = overrideModeToSpinnerPosition(data.workspaceOverride?.overrideMode)
         binding.displayModeSpinner.setSelection(selectedPosition)
-
         binding.displayModeSpinner.post { suppressOverrideSpinnerUpdate = false }
     }
 
