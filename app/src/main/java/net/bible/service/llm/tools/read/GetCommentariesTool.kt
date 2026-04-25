@@ -265,15 +265,23 @@ object GetCommentariesTool : Tool {
         val filterResult = filterByResponseSizeLimit(commentaryResults, context)
             ?: return ToolResult.error("User cancelled commentary selection", "USER_CANCELLED")
 
+        // Note: avoid listing excluded commentary names — LLMs sometimes treat such lists
+        // as a menu and re-fetch the excluded items despite negative instructions.
+        // Prefer positive, name-free guidance.
+        val note = when {
+            filterResult.excludedCommentaries.isEmpty() -> null
+            filterResult.results.isEmpty() ->
+                "The user has chosen not to include any commentaries in this response. " +
+                    "Answer based on your own knowledge of the passage."
+            else ->
+                "The user limited which commentaries are included to keep the response " +
+                    "size manageable. Use only the commentaries provided above."
+        }
         return typedSuccess(Result(
             verseRef = verseRef,
             commentaryCount = filterResult.results.size,
             commentaries = filterResult.results,
-            note = if (filterResult.excludedCommentaries.isNotEmpty()) {
-                "The user chose to exclude the following commentaries from this response " +
-                    "to save context space. Do NOT re-fetch them individually: " +
-                    filterResult.excludedCommentaries.joinToString(", ")
-            } else null
+            note = note
         ))
     }
 
