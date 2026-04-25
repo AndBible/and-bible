@@ -1028,7 +1028,7 @@
     <string name="this_bookmark">This bookmark</string>
     <string name="this_workspace">This workspace</string>
     <string name="override_style">Override style</string>
-    <string name="no_override_suffix">(no override)</string>
+    <string name="no_override_suffix">No override</string>
     <string name="display_mode_highlight">Highlight</string>
     <string name="display_mode_underline">Underline</string>
     <string name="display_mode_marker">Marker only</string>
