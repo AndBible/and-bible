@@ -1791,7 +1791,6 @@
     <string name="agent_log_executing">Executing: %s</string>
     <string name="agent_log_iteration">Iteration %d</string>
     <string name="agent_log_tool">Tool: %s</string>
-    <string name="agent_log_tool_completed">Tool %s completed</string>
     <string name="agent_log_tool_failed">Tool %s failed</string>
     <string name="agent_log_response_received">Response received</string>
     <string name="agent_log_saved">Saved: %s</string>

@@ -40,35 +40,52 @@ data class AgentLogEntry(
     val id: IdType = IdType(),
     val timestamp: Long = System.currentTimeMillis(),
     val type: LogEntryType,
-    val message: String,
-    val details: String? = null,
+    @Volatile var message: String,
+    @Volatile var details: String? = null,
     @Volatile var status: EntryStatus = EntryStatus.PENDING,
     val relatedPermission: AgentPermission? = null,
     @Volatile var costInfo: String? = null,
     @Volatile var isTotalCost: Boolean = false,
-    val showRawLogLink: Boolean = false
+    val showRawLogLink: Boolean = false,
+    /** Correlation key for tool calls; pairs ToolCalling and ToolCompleted events into one entry. */
+    val toolCallId: String? = null
 ) {
     companion object {
         fun info(message: String, details: String? = null, showRawLogLink: Boolean = false) = AgentLogEntry(
-            type = LogEntryType.INFO, message = message, details = details, status = EntryStatus.COMPLETED,
+            type = LogEntryType.INFO,
+            message = message,
+            details = details,
+            status = EntryStatus.COMPLETED,
             showRawLogLink = showRawLogLink
         )
 
-        fun action(message: String, details: String? = null) = AgentLogEntry(
-            type = LogEntryType.ACTION, message = message, details = details, status = EntryStatus.PENDING
+        fun action(message: String, details: String? = null, toolCallId: String? = null) = AgentLogEntry(
+            type = LogEntryType.ACTION,
+            message = message,
+            details = details,
+            status = EntryStatus.PENDING,
+            toolCallId = toolCallId
         )
 
         fun permissionRequest(message: String, permission: AgentPermission) = AgentLogEntry(
-            type = LogEntryType.PERMISSION_REQUEST, message = message, status = EntryStatus.PENDING, relatedPermission = permission
+            type = LogEntryType.PERMISSION_REQUEST,
+            message = message,
+            status = EntryStatus.PENDING,
+            relatedPermission = permission
         )
 
         fun error(message: String, details: String? = null, showRawLogLink: Boolean = false) = AgentLogEntry(
-            type = LogEntryType.ERROR, message = message, details = details, status = EntryStatus.FAILED,
+            type = LogEntryType.ERROR,
+            message = message,
+            details = details,
+            status = EntryStatus.FAILED,
             showRawLogLink = showRawLogLink
         )
 
         fun comment(message: String) = AgentLogEntry(
-            type = LogEntryType.LLM_COMMENT, message = message, status = EntryStatus.COMPLETED
+            type = LogEntryType.LLM_COMMENT,
+            message = message,
+            status = EntryStatus.COMPLETED
         )
     }
 }
