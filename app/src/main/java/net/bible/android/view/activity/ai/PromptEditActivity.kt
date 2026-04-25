@@ -318,6 +318,10 @@ class PromptEditActivity : ActivityBase() {
         advancedDataStore.noDocumentCreation = prompt.noDocumentCreation
         advancedDataStore.autoIncludeDocuments = prompt.autoIncludeDocuments
         advancedDataStore.autoIncludeCommentaries = prompt.autoIncludeCommentaries
+
+        // Preferences may have already been bound with default data store values before
+        // loadPrompt() finished — refresh them so the UI reflects the loaded prompt.
+        advancedFragment?.refreshFromDataStore()
     }
 
     private fun updateBibleOnlyDependentState() {
@@ -788,6 +792,26 @@ class PromptAdvancedSettingsFragment : PreferenceFragmentCompat() {
         val pref = findPreference<EditTextPreference>("max_iterations") ?: return
         val value = dataStore.maxIterations
         pref.summary = getString(R.string.prompt_max_iterations_summary_with_value, formatMaxIterationsValue(value))
+    }
+
+    /**
+     * Refresh all preference UI from the current data store values.
+     *
+     * The fragment binds preferences during [onCreatePreferences], at which point the data
+     * store may still contain default values because [PromptEditActivity.loadPrompt] is async.
+     * Once the prompt is loaded and the data store is populated, the preference views must be
+     * refreshed explicitly — the data store does not notify preferences of external changes.
+     */
+    fun refreshFromDataStore() {
+        findPreference<ListPreference>("model_override")?.value = dataStore.modelOverrideId?.toString() ?: ""
+        findPreference<SwitchPreference>("strict_context_matching")?.isChecked = dataStore.strictContextMatching
+        findPreference<EditTextPreference>("max_iterations")?.text = dataStore.maxIterations?.toString() ?: ""
+        findPreference<SwitchPreference>("specify_before_run")?.isChecked = dataStore.specifyBeforeRun
+        findPreference<SwitchPreference>("no_document_creation")?.isChecked = dataStore.noDocumentCreation
+        findPreference<SwitchPreference>("auto_include_documents")?.isChecked = dataStore.autoIncludeDocuments
+        findPreference<SwitchPreference>("auto_include_commentaries")?.isChecked = dataStore.autoIncludeCommentaries
+        updateModelSummary()
+        updateMaxIterationsSummary()
     }
 
     fun setReadOnly(keepModelEditable: Boolean = false) {
