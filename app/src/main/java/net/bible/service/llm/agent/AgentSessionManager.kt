@@ -156,6 +156,21 @@ class AgentSession(val workspaceId: IdType) {
         }
     }
 
+    /**
+     * Updates an existing ACTION entry identified by [toolCallId]. Used to collapse
+     * a ToolCalling+ToolCompleted pair into a single log row whose icon transitions
+     * from hourglass to tick (or error). Returns true if the entry was found and
+     * updated; false if no matching entry exists (caller can fall back to addLogEntry).
+     */
+    fun updateActionEntry(toolCallId: String, message: String, details: String?, status: EntryStatus): Boolean {
+        val entry = _logEntries.find { it.toolCallId == toolCallId } ?: return false
+        entry.message = message
+        entry.details = details
+        entry.status = status
+        ABEventBus.post(AgentLogUpdatedEvent(workspaceId, entry))
+        return true
+    }
+
     fun addCost(cost: Double) {
         sessionCostUsd += cost
     }
@@ -527,7 +542,11 @@ object AgentSessionManager : AgentSessionManagerBase() {
                     event.arguments
                 }
                 session.addLogEntry(
-                    AgentLogEntry.action(app.getString(R.string.agent_log_tool, displayName), details = details)
+                    AgentLogEntry.action(
+                        app.getString(R.string.agent_log_tool, displayName),
+                        details = details,
+                        toolCallId = event.toolCallId
+                    )
                 )
             }
             is AgentEvent.ToolCompleted -> {
@@ -535,20 +554,27 @@ object AgentSessionManager : AgentSessionManagerBase() {
                 val displayName = tool?.let { ToolRegistry.getDisplayName(it) } ?: event.tool.camelCaseName
                 val isSuccess = event.result is ToolResult.Success
                 val status = if (isSuccess) EntryStatus.COMPLETED else EntryStatus.FAILED
+                // On success, keep the original "Tool: X" message (per #3773 — only the icon needs to
+                // change). On failure, switch to the failure message so the row is unambiguous.
                 val message = if (isSuccess) {
-                    app.getString(R.string.agent_log_tool_completed, displayName)
+                    app.getString(R.string.agent_log_tool, displayName)
                 } else {
                     app.getString(R.string.agent_log_tool_failed, displayName)
                 }
                 val details = tool?.formatResultForLog(event.result) ?: formatJsonForLog(event.result.toJson())
-                session.addLogEntry(
-                    AgentLogEntry(
-                        type = LogEntryType.ACTION,
-                        message = message,
-                        details = details,
-                        status = status
+                val updated = session.updateActionEntry(event.toolCallId, message, details, status)
+                if (!updated) {
+                    // Defensive fallback: if no ToolCalling entry exists for this toolCallId
+                    // (shouldn't happen in normal flow), append a new entry as before.
+                    session.addLogEntry(
+                        AgentLogEntry(
+                            type = LogEntryType.ACTION,
+                            message = message,
+                            details = details,
+                            status = status
+                        )
                     )
-                )
+                }
 
                 // Track write tools usage
                 if (isSuccess) {
