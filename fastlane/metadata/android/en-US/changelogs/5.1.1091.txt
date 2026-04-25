@@ -1,0 +1,26 @@
+- Workspace label "Override style" now has an explicit "No override" option (#3756)
+- AI logs now show the actual API endpoint and document expected endpoint behavior (#3762, #3763)
+- AI logs simplified: tool calls now show in a single row with progress indicator (#3773)
+- Markdown notes in selection preview now display readable text instead of raw markup (db0444a)
+- Fixed internal reference URLs in notes not working correctly (620c68c)
+- Fixed Bible reference links starting with "osis:" being mangled (#3739)
+- Fixed LLM still referencing commentaries when user excludes them (#3774)
+- Fixed API errors when using OpenRouter with unsupported models (7c496ac)
+- Fixed Advanced tab settings not updating when view loads (#3778)
+- Fixed chapters 10, 20, etc. missing from reading progress chapter grid (#3780)
+
+5.1
+"What's new" video: https://youtu.be/EKnyBIti9Fk
+
+Highlights:
+- AI assistant (Claude, Grok, OpenRouter, ...) with tool calling
+- Reading & memorization progress tracking with multiple modes
+- My Documents: your own editable, syncable pages
+- Multi-translation search across Bibles (#1411)
+- 3-level text display settings inheritance
+- Strong's tab view & compact display
+- E-ink/monochrome improvements
+- Many bug fixes
+
+See https://andbible.org
+Support: https://shop.andbible.org/
