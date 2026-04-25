@@ -738,15 +738,25 @@ class AgentExecutor(
 
             // Auto-include commentaries if enabled and verse context is available
             if (prompt.autoIncludeCommentaries && context.selectedVerseRange != null) {
-                try {
+                val result = try {
                     val args = JSONObject().apply {
                         put("verseRef", context.selectedVerseRange.osisRef)
                     }
-                    val result = GetCommentariesTool.execute(args, context)
-                    append("\n\n--- Commentary Entries (auto-included, same format as getCommentaries tool) ---\n\n")
-                    append(result.toJson())
+                    GetCommentariesTool.execute(args, context)
+                } catch (e: CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.w(TAG, "Failed to auto-include commentaries", e)
+                    null
+                }
+                // If user cancelled the commentary selection dialog during auto-include,
+                // abort the entire AI run cleanly (no LLM call). Same path as the Stop button.
+                if (result is ToolResult.Error && result.code == "USER_CANCELLED") {
+                    throw CancellationException("User cancelled commentary selection during prompt building")
+                }
+                if (result != null) {
+                    append("\n\n--- Commentary Entries (auto-included, same format as getCommentaries tool) ---\n\n")
+                    append(result.toJson())
                 }
             }
 
