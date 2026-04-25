@@ -128,6 +128,13 @@ function textChanged(newText: string) {
     emit("save", newText);
 }
 
+// AndBible internal URLs in "scheme://..." form — routed through the WebView's
+// shouldOverrideUrlLoading (via window.location.assign) so that openLink(uri)
+// parses query-parameter URLs like "osis://?osis=Gen.1.1&v11n=KJV". The simple
+// scheme:key form (e.g. "osis:Gen.1.1" from AI content) keeps using
+// openExternalLink, which routes via linkControl.loadApplicationUrl.
+const INTERNAL_SCHEMES = /^(?:sword|osis|strongs|morphology|my-notes|journal|ab-w|ab-find-all|ab-error|epub-ref|multi|download):\/\//i;
+
 function handleClicks(event: MouseEvent) {
     const link = (event.target as HTMLElement).closest("a") as HTMLAnchorElement | null;
     if (link) {
@@ -135,7 +142,11 @@ function handleClicks(event: MouseEvent) {
         event.stopPropagation();
         const href = link.getAttribute("href");
         if (href) {
-            window.android.openExternalLink(href);
+            if (INTERNAL_SCHEMES.test(href)) {
+                window.location.assign(href);
+            } else {
+                window.android.openExternalLink(href);
+            }
         }
         return;
     }
