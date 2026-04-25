@@ -1446,6 +1446,7 @@
     <string name="ai_provider_name_hint">Display name for this provider</string>
     <string name="ai_provider_api_key">API key</string>
     <string name="ai_provider_endpoint">API endpoint</string>
+    <string name="ai_provider_endpoint_description">Base URL only. AndBible appends \"/chat/completions\" (OpenAI format) or \"/messages\" (Anthropic format) automatically. Model lists are fetched from \"/models\".</string>
     <string name="ai_provider_api_format">API format</string>
     <string name="ai_provider_saved">Provider saved</string>
     <string name="ai_provider_deleted">Provider deleted</string>

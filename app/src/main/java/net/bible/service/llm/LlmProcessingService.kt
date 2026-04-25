@@ -143,7 +143,7 @@ object LlmProcessingService {
         response.use {
             if (!it.isSuccessful) {
                 val errorBody = it.body.string().take(200)
-                throw LlmProcessingError("HTTP ${it.code}: $errorBody")
+                throw LlmProcessingError("HTTP ${it.code}: $errorBody (URL: $url)")
             }
         }
     }
@@ -305,14 +305,14 @@ object LlmProcessingService {
                             lastError = result
                             continue
                         }
-                        Log.e(TAG, "LLM API error: ${result.code} - ${result.bodyText}")
-                        throw LlmProcessingError("LLM API error: ${result.code} - ${result.bodyText}")
+                        Log.e(TAG, "LLM API error: ${result.code} - ${result.bodyText} (URL: $endpoint)")
+                        throw LlmProcessingError("LLM API error: ${result.code} - ${result.bodyText} (URL: $endpoint)")
                     }
                 }
             }
 
             // Should not reach here, but just in case
-            throw LlmProcessingError("LLM API error: ${lastError!!.code} - ${lastError.bodyText}")
+            throw LlmProcessingError("LLM API error: ${lastError!!.code} - ${lastError.bodyText} (URL: $endpoint)")
         } finally {
             activeRequests.decrementAndGet()
         }

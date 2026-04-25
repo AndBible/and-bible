@@ -307,7 +307,13 @@ class AiProvidersFragment : AiSettingsFragmentBase() {
                 hint = getString(R.string.ai_provider_endpoint_hint)
                 setText(config?.endpoint ?: "")
                 inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI
-            }.also { addLabeledField(layout, getString(R.string.ai_provider_endpoint), it) }
+            }.also {
+                addLabeledField(layout, getString(R.string.ai_provider_endpoint), it)
+                layout.addView(TextView(context).apply {
+                    text = getString(R.string.ai_provider_endpoint_description)
+                    setTextAppearance(android.R.style.TextAppearance_Small)
+                })
+            }
         } else null
 
         val apiFormatSpinner = if (isCustom) {
