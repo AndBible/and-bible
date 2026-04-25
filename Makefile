@@ -48,6 +48,11 @@ fdroid-release:
 	git push origin "$$TAG"; \
 	echo "Done: $$TAG"
 
+bundle:
+	@echo "Building Google Play AAB bundle (signing via keystore.properties.gpg)..."
+	./gradlew bundleStandardGoogleplayRelease
+	@echo "✓ AAB: app/build/outputs/bundle/standardGoogleplayRelease/app-standard-googleplay-release.aab"
+
 accrescent:
 	@echo "Building Accrescent APK set (signing via keystore.properties.gpg)..."
 	./gradlew buildApksStandardAccrescentRelease
@@ -62,4 +67,4 @@ accrescent-debug:
 	@cp app/build/outputs/apkset/standardAccrescentDebug/app-standardAccrescentDebug.apks app/standardAccrescent/debug/
 	@echo "✓ APK set: app/standardAccrescent/debug/app-standardAccrescentDebug.apks"
 
-.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests fdroid-release accrescent accrescent-debug
+.PHONY: increment-version increment-test-version tx-push tx-pull fastlane-supply test instrumented-tests fdroid-release bundle accrescent accrescent-debug
