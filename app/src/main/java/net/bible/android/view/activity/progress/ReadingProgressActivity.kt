@@ -303,6 +303,9 @@ class ReadingProgressActivity : ActivityBase() {
                 navigateToChapter(book, ch)
             })
             val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
                 setMargins(2.dp, 2.dp, 2.dp, 2.dp)
             }
             binding.chaptersGrid.addView(btn, params)
@@ -693,6 +696,9 @@ class ReadingProgressActivity : ActivityBase() {
             val hasTarget = ch in chaptersWithTargets
             val btn = createChapterButton(ch, bgColor, progress >= 1f, { navigateToChapter(book, ch) }, hasTarget)
             val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
                 setMargins(2.dp, 2.dp, 2.dp, 2.dp)
             }
             binding.memChaptersGrid.addView(btn, params)
