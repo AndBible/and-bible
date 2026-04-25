@@ -127,9 +127,14 @@ private fun <T : CacheableWireTool<T>> addToolsCacheBreakpoint(tools: List<T>): 
 /**
  * OpenAI-compatible API format (also used by Gemini, xAI, Mistral, DeepSeek, Groq, OpenRouter).
  *
- * @param supportsCacheControl When true, adds cache_control breakpoints to the request
- *   for providers that support it (e.g. OpenRouter). This adds a top-level cache_control field,
- *   a breakpoint on the last tool definition, and a breakpoint on the last message.
+ * @param supportsCacheControl When true, adds inline cache_control breakpoints to the request
+ *   for providers that support it (e.g. OpenRouter): a breakpoint on the last tool definition,
+ *   and a breakpoint on the last user/tool message's last content block. The top-level
+ *   cache_control field is intentionally NOT used because OpenRouter rejects it with 404
+ *   ("No endpoints found that support Anthropic automatic caching") for models routed to
+ *   endpoints that don't support automatic caching (e.g. older Claude models like
+ *   anthropic/claude-3-haiku). Inline breakpoints are silently ignored by endpoints that
+ *   don't support caching, so they're safe across all OpenRouter models.
  */
 class OpenAiApiAdapter(
     private val supportsCacheControl: Boolean = false
@@ -157,9 +162,7 @@ class OpenAiApiAdapter(
             ))
         }
 
-        var topLevelCache: AnthropicCacheControl? = null
         if (supportsCacheControl) {
-            topLevelCache = AnthropicCacheControl()
             wireTools = addToolsCacheBreakpoint(wireTools)
             addLastMessageCacheBreakpoint(wireMessages)
         }
@@ -168,8 +171,7 @@ class OpenAiApiAdapter(
             model = model,
             messages = wireMessages,
             tools = wireTools.ifEmpty { null },
-            temperature = temperature,
-            cacheControl = topLevelCache
+            temperature = temperature
         )
         return llmJson.encodeToString(request)
     }

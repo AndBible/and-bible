@@ -39,8 +39,7 @@ data class OpenAiRequest(
     val model: String,
     val messages: List<OpenAiWireMessage>,
     val tools: List<OpenAiWireTool>? = null,
-    val temperature: Double? = null,
-    @SerialName("cache_control") val cacheControl: AnthropicCacheControl? = null
+    val temperature: Double? = null
 )
 
 @Serializable

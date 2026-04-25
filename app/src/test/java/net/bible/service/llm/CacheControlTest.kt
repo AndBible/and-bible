@@ -167,14 +167,17 @@ class CacheControlTest {
     // ===================== OpenAI Adapter (cache control enabled / OpenRouter) =====================
 
     @Test
-    fun openAiTopLevelCacheControl() {
+    fun openAiNoTopLevelCacheControl() {
+        // Top-level cache_control must NOT be sent: OpenRouter rejects it with 404
+        // ("No endpoints found that support Anthropic automatic caching") for models
+        // whose endpoints don't support automatic caching, e.g. anthropic/claude-3-haiku.
         val adapter = OpenAiApiAdapter(supportsCacheControl = true)
         val messages = listOf(
             ChatMessage(ChatMessage.Role.SYSTEM, "sys"),
             ChatMessage(ChatMessage.Role.USER, "Hello")
         )
         val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
-        assertEquals("ephemeral", json["cache_control"]!!.jsonObject["type"]!!.jsonPrimitive.content)
+        assertNull("Top-level cache_control must not be present", json["cache_control"])
     }
 
     @Test
