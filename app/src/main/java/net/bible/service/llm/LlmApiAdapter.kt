@@ -125,16 +125,47 @@ private fun <T : CacheableWireTool<T>> addToolsCacheBreakpoint(tools: List<T>): 
 }
 
 /**
+ * Anthropic Claude models on OpenRouter that do NOT support inline cache_control
+ * breakpoints. Sending cache_control to these models triggers a 400 error
+ * ("You invoked an unsupported model or your request did not allow prompt caching").
+ *
+ * Matches both dot- and dash-separated version numbers (e.g. `claude-3.5-sonnet`
+ * and `claude-3-5-sonnet`) and any suffix variants (e.g. `:thinking`, `:beta`,
+ * version dates).
+ */
+private val NO_CACHE_CONTROL_REGEX = Regex(
+    "^anthropic/claude-(" +
+        "3-haiku" +              // claude-3-haiku
+        "|3[.-]5-haiku" +        // claude-3.5-haiku
+        "|3[.-]5-sonnet" +       // claude-3.5-sonnet
+        "|3[.-]7-sonnet" +       // claude-3.7-sonnet (incl. :thinking variant)
+    ")"
+)
+
+/**
+ * Whether the given model supports Anthropic-style cache_control breakpoints
+ * via OpenRouter.
+ *
+ * Only Anthropic Claude models accept cache_control markers. Older Claude
+ * variants without prompt-caching support (see [NO_CACHE_CONTROL_REGEX]) are
+ * excluded. Non-Anthropic models (gemini/, openai/, etc.) do not understand
+ * the cache_control field at all.
+ */
+internal fun modelSupportsCacheControl(model: String): Boolean {
+    if (!model.startsWith("anthropic/claude")) return false
+    if (NO_CACHE_CONTROL_REGEX.containsMatchIn(model)) return false
+    return true
+}
+
+/**
  * OpenAI-compatible API format (also used by Gemini, xAI, Mistral, DeepSeek, Groq, OpenRouter).
  *
- * @param supportsCacheControl When true, adds inline cache_control breakpoints to the request
- *   for providers that support it (e.g. OpenRouter): a breakpoint on the last tool definition,
- *   and a breakpoint on the last user/tool message's last content block. The top-level
- *   cache_control field is intentionally NOT used because OpenRouter rejects it with 404
- *   ("No endpoints found that support Anthropic automatic caching") for models routed to
- *   endpoints that don't support automatic caching (e.g. older Claude models like
- *   anthropic/claude-3-haiku). Inline breakpoints are silently ignored by endpoints that
- *   don't support caching, so they're safe across all OpenRouter models.
+ * @param supportsCacheControl When true, the provider (e.g. OpenRouter) is capable of
+ *   forwarding inline Anthropic-style cache_control breakpoints. The actual decision to
+ *   add them per request is gated by [modelSupportsCacheControl], so non-Anthropic
+ *   models and older Claude variants without caching support are skipped. Top-level
+ *   cache_control is never used (OpenRouter rejects it with 404 for unsupported
+ *   automatic-caching endpoints).
  */
 class OpenAiApiAdapter(
     private val supportsCacheControl: Boolean = false
@@ -162,7 +193,7 @@ class OpenAiApiAdapter(
             ))
         }
 
-        if (supportsCacheControl) {
+        if (supportsCacheControl && modelSupportsCacheControl(model)) {
             wireTools = addToolsCacheBreakpoint(wireTools)
             addLastMessageCacheBreakpoint(wireMessages)
         }

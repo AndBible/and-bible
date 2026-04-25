@@ -166,6 +166,9 @@ class CacheControlTest {
 
     // ===================== OpenAI Adapter (cache control enabled / OpenRouter) =====================
 
+    /** Default model used for tests where caching SHOULD be enabled. */
+    private val cachingModel = "anthropic/claude-sonnet-4"
+
     @Test
     fun openAiNoTopLevelCacheControl() {
         // Top-level cache_control must NOT be sent: OpenRouter rejects it with 404
@@ -176,7 +179,7 @@ class CacheControlTest {
             ChatMessage(ChatMessage.Role.SYSTEM, "sys"),
             ChatMessage(ChatMessage.Role.USER, "Hello")
         )
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, emptyList(), null))
         assertNull("Top-level cache_control must not be present", json["cache_control"])
     }
 
@@ -185,7 +188,7 @@ class CacheControlTest {
         val adapter = OpenAiApiAdapter(supportsCacheControl = true)
         val messages = listOf(ChatMessage(ChatMessage.Role.USER, "Hello"))
         val tools = listOf(toolDef(AgentTool.GET_VERSE_CONTENT), toolDef(AgentTool.SEARCH_BIBLE))
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, tools, null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, tools, null))
         val wireTools = json["tools"]!!.jsonArray
         assertNull(wireTools[0].jsonObject["function"]?.jsonObject?.get("cache_control"))
         assertNull(wireTools[0].jsonObject["cache_control"])
@@ -199,7 +202,7 @@ class CacheControlTest {
             ChatMessage(ChatMessage.Role.SYSTEM, "sys"),
             ChatMessage(ChatMessage.Role.USER, "Hello world")
         )
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, emptyList(), null))
         val msgs = json["messages"]!!.jsonArray
         val lastMsg = msgs.last().jsonObject
         val content = lastMsg["content"]!!
@@ -223,7 +226,7 @@ class CacheControlTest {
         ) + adapter.createToolResultMessages(
             listOf(ToolResultBlock("tc1", "In the beginning..."))
         )
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, emptyList(), null))
         val msgs = json["messages"]!!.jsonArray
         // Last message should be the tool result with cache_control
         val lastMsg = msgs.last().jsonObject
@@ -238,7 +241,7 @@ class CacheControlTest {
     fun openAiNoToolsNoCrash() {
         val adapter = OpenAiApiAdapter(supportsCacheControl = true)
         val messages = listOf(ChatMessage(ChatMessage.Role.USER, "Hello"))
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, emptyList(), null))
         assertNull(json["tools"])
     }
 
@@ -247,7 +250,7 @@ class CacheControlTest {
         val adapter = OpenAiApiAdapter(supportsCacheControl = true)
         // Edge case: no user or tool messages
         val messages = listOf(ChatMessage(ChatMessage.Role.SYSTEM, "sys"))
-        val body = adapter.buildRequestBody("model", messages, emptyList(), null)
+        val body = adapter.buildRequestBody(cachingModel, messages, emptyList(), null)
         assertNotNull(body)
     }
 
@@ -255,10 +258,73 @@ class CacheControlTest {
     fun openAiSystemMessageNotTargetedForConversationBreakpoint() {
         val adapter = OpenAiApiAdapter(supportsCacheControl = true)
         val messages = listOf(ChatMessage(ChatMessage.Role.SYSTEM, "sys"))
-        val json = parseRequestJson(adapter.buildRequestBody("model", messages, emptyList(), null))
+        val json = parseRequestJson(adapter.buildRequestBody(cachingModel, messages, emptyList(), null))
         val msgs = json["messages"]!!.jsonArray
         // System message content should remain a string, not converted to content blocks
         val sysContent = msgs[0].jsonObject["content"]!!
         assertTrue("System message should stay as string", sysContent is JsonPrimitive)
+    }
+
+    // ===================== Per-model cache_control gating =====================
+
+    /** Build a minimal request and return whether it contains any "cache_control" string. */
+    private fun bodyHasCacheControl(model: String): Boolean {
+        val adapter = OpenAiApiAdapter(supportsCacheControl = true)
+        val messages = listOf(
+            ChatMessage(ChatMessage.Role.SYSTEM, "sys"),
+            ChatMessage(ChatMessage.Role.USER, "Hello")
+        )
+        val tools = listOf(toolDef(AgentTool.GET_VERSE_CONTENT))
+        return adapter.buildRequestBody(model, messages, tools, null).contains("cache_control")
+    }
+
+    @Test
+    fun cacheControlEnabledForSupportedClaudeModels() {
+        // Modern Claude variants support inline cache_control on OpenRouter
+        for (model in listOf(
+            "anthropic/claude-sonnet-4",
+            "anthropic/claude-sonnet-4-5",
+            "anthropic/claude-opus-4",
+            "anthropic/claude-opus-4-1",
+            "anthropic/claude-haiku-4-5",
+        )) {
+            assertTrue("Expected cache_control for $model", bodyHasCacheControl(model))
+            assertTrue("modelSupportsCacheControl should be true for $model", modelSupportsCacheControl(model))
+        }
+    }
+
+    @Test
+    fun cacheControlDisabledForBlacklistedClaudeModels() {
+        // These older Claude variants do NOT support prompt caching on OpenRouter
+        // (server returns 400 "unsupported model or your request did not allow prompt caching")
+        for (model in listOf(
+            "anthropic/claude-3-haiku",
+            "anthropic/claude-3-haiku:beta",
+            "anthropic/claude-3.5-haiku",
+            "anthropic/claude-3-5-haiku",
+            "anthropic/claude-3.5-sonnet",
+            "anthropic/claude-3-5-sonnet",
+            "anthropic/claude-3.7-sonnet",
+            "anthropic/claude-3.7-sonnet:thinking",
+        )) {
+            assertFalse("Expected NO cache_control for $model", bodyHasCacheControl(model))
+            assertFalse("modelSupportsCacheControl should be false for $model", modelSupportsCacheControl(model))
+        }
+    }
+
+    @Test
+    fun cacheControlDisabledForNonAnthropicModels() {
+        // OpenRouter routes many providers; only Anthropic Claude understands cache_control
+        for (model in listOf(
+            "google/gemini-3-flash",
+            "google/gemini-2.5-pro",
+            "openai/gpt-5.4-mini",
+            "openai/gpt-4o",
+            "meta-llama/llama-3.3-70b",
+            "mistralai/mistral-large",
+        )) {
+            assertFalse("Expected NO cache_control for $model", bodyHasCacheControl(model))
+            assertFalse("modelSupportsCacheControl should be false for $model", modelSupportsCacheControl(model))
+        }
     }
 }
