@@ -861,7 +861,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                 "robinson" -> "$type:$target"
                 "strongMorph" -> "$type:$target"
                 else -> {
-                    if(target.startsWith("sword://"))
+                    if(target.startsWith("sword://") || target.startsWith("osis:"))
                         target
                     else {
                         var protocol = "osis:"
