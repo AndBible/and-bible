@@ -336,6 +336,11 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     private var step2 = false
 
     private fun onActionMenuItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+        val menuContext = buildSelectionMenuContext()
+        if (SelectionMenuRules.isManagedItem(item.itemId) && !SelectionMenuRules.isVisible(item.itemId, menuContext)) {
+            Log.w(TAG, "Ignoring unavailable selection menu item ${item.itemId}")
+            return true
+        }
         return when(item.itemId) {
             R.id.add_bookmark -> {
                 findViewTreeLifecycleOwner()
@@ -629,33 +634,23 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             if(isBible && CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false)) {
                 menu.findItem(R.id.add_bookmark_selection).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
                 }
                 menu.findItem(R.id.add_bookmark_whole_verse).run{
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
                 }
             } else {
                 menu.findItem(R.id.add_bookmark).run {
                     setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-                    setVisible(true)
                 }
             }
 
             menu.findItem(R.id.compare).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+            menu.findItem(R.id.memorize).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
             menu.findItem(R.id.share_verses).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            if(sel == null) {
-                menu.findItem(R.id.add_bookmark).isVisible = false
-                menu.findItem(R.id.add_bookmark_selection).isVisible = false
-                menu.findItem(R.id.add_bookmark_whole_verse).isVisible = false
-                menu.findItem(R.id.add_paragraph_break).isVisible = false
-            }
-            if(!isBible) {
-                menu.findItem(R.id.compare).isVisible = false
-                menu.findItem(R.id.share_verses).isVisible = false
-            }
-            if (!CommonUtils.settings.addParagraphBreakEnabled) {
-                menu.findItem(R.id.add_paragraph_break).isVisible = false
+
+            val menuContext = buildSelectionMenuContext()
+            SelectionMenuRules.managedItemIds.forEach { itemId ->
+                menu.findItem(itemId)?.isVisible = SelectionMenuRules.isVisible(itemId, menuContext)
             }
 
             val ref = currentSelectionRef
@@ -669,25 +664,9 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                     BookName.setFullBookName(wasFullBookName)
                 }
             }
-            if(ref == null && currentSelectionText != null) {
+            if(menu.findItem(R.id.search).isVisible) {
                 val item = menu.findItem(R.id.search)
-                item.isVisible = true
                 item.title = if(currentSelectionText!!.length < 16) context.getString(R.string.search_what, currentSelectionText) else context.getString(R.string.search)
-            }
-            if (currentSelectionText != null) {
-                menu.findItem(R.id.web_search).apply {
-                    isVisible = true
-                }
-            }
-            if (currentSelectionText != null && SwordDocumentFacade.wordLookupDictionaries.isNotEmpty()) {
-                menu.findItem(R.id.lookup_dictionary).apply {
-                    isVisible = true
-                }
-            }
-            if (currentSelectionText != null && CommonUtils.settings.llmConfigured) {
-                menu.findItem(R.id.llm_action).apply {
-                    isVisible = true
-                }
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && currentSelectionText != null) {
                 var menuItemOrder = 100
@@ -697,9 +676,6 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
                         getLabel(resolveInfo))
                         .setIntent(createProcessTextIntentForResolveInfo(resolveInfo))
                         .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM)
-                }
-                if(!isBible) {
-                    menu.findItem(R.id.copy).isVisible = true
                 }
             }
 
@@ -768,6 +744,22 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         currentSelectionRef = null
         menuPrepared = false
         if(removeRanges) executeJavascriptOnUiThread("bibleView.emit('remove_ranges')")
+    }
+
+    private fun buildSelectionMenuContext(): SelectionMenuContext {
+        val selection = currentSelection
+        return SelectionMenuContext(
+            hasSelection = selection != null,
+            hasText = !currentSelectionText.isNullOrBlank(),
+            hasVerseRange = selection?.verseRange != null,
+            hasResolvableRef = currentSelectionRef != null,
+            hasDictionaries = SwordDocumentFacade.wordLookupDictionaries.isNotEmpty(),
+            llmConfigured = CommonUtils.settings.llmConfigured,
+            paragraphBreakEnabled = CommonUtils.settings.addParagraphBreakEnabled,
+            disableTwoStepBookmarking = CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false),
+            isBibleDocument = isBible,
+            supportsProcessTextActions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M,
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.M)

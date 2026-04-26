@@ -40,16 +40,19 @@
      	<item android:id="@+id/compare"
 			android:title="@string/compare_abbreviation"
 			android:orderInCategory="2"
+			android:visible="false"
 			app:showAsAction="always"
 			/>
         <item android:id="@+id/memorize"
             android:title="@string/memorize_abbreviation"
             android:orderInCategory="2"
+            android:visible="false"
             app:showAsAction="always"
             />
 		<item android:id="@+id/share_verses"
 			android:title="@string/share_verse_ok"
 			android:orderInCategory="2"
+			android:visible="false"
 			app:showAsAction="always"
 			/>
 		<item android:id="@+id/copy"
@@ -85,7 +88,7 @@
         <item android:id="@+id/add_paragraph_break"
             android:title="@string/add_paragraph_break"
             android:orderInCategory="2"
-            android:visible="true"
+            android:visible="false"
             app:showAsAction="always"
             />
         <item android:id="@+id/llm_action"
