@@ -100,6 +100,15 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="8dp"/>
 
+            <!-- Count-mode book percentage scale (hidden in toggle mode) -->
+            <LinearLayout
+                android:id="@+id/bookPercentScale"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:layout_marginBottom="8dp"/>
+
             <TextView
                 android:id="@+id/testamentLabel"
                 android:layout_width="match_parent"
@@ -147,6 +156,14 @@
                     android:textSize="14sp"
                     android:textStyle="bold"
                     android:layout_marginBottom="4dp"/>
+
+                <LinearLayout
+                    android:id="@+id/chapterCountScale"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginBottom="6dp"/>
 
                 <GridLayout
                     android:id="@+id/chaptersGrid"

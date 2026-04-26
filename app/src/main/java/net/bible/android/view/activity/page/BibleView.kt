@@ -1508,9 +1508,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val disableAnimations = CommonUtils.settings.disableAnimations
         val disableClickToEdit = CommonUtils.settings.disableClickToEdit
         val enabledExperimentalFeatures = json.encodeToString(serializer(), CommonUtils.settings.enabledExperimentalFeatures.toList())
+        val useReadCountMode = ReadingProgressSettings.useReadCountMode
         return """
                 bibleView.emit('set_config', {
-                    config: ${displaySettings.toJson()},
+                    config: Object.assign(${displaySettings.toJson()}, {useReadCountMode: $useReadCountMode}),
                     appSettings: {
                         activeWindow: $isActive,
                         isBottomWindow: $isBottomWindow,
@@ -1829,6 +1830,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
     fun onEvent(event: ReadingProgressSettingsChangedEvent) {
         val settingsJson = ReadingProgressSettings.getBundleAsJson()
         executeJavascriptOnUiThread("""bibleView.emit("update_reading_progress_settings", $settingsJson);""")
+        updateConfig()
     }
 
     fun onEvent(event: AiDocPagesChangedEvent) {

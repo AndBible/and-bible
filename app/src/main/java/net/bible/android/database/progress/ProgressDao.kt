@@ -28,6 +28,11 @@ data class DailyReadingCount(
     val count: Int,
 )
 
+data class ChapterReadCount(
+    val chapter: Int,
+    val cnt: Int,
+)
+
 @Dao
 interface ProgressDao {
     // Memorization queries
@@ -120,6 +125,43 @@ interface ProgressDao {
         "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
         "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
     fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
+
+    // Chapter read history queries (count-mode)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertChapterReadHistory(record: ChapterReadHistory)
+
+    @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter")
+    fun getChapterReadCount(kjvBookOrdinal: Int, chapter: Int): Int
+
+    @Query("SELECT * FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter ORDER BY readAt DESC")
+    fun getChapterReadHistory(kjvBookOrdinal: Int, chapter: Int): List<ChapterReadHistory>
+
+    @Query("SELECT COALESCE(MAX(cnt), 0) FROM (SELECT COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal GROUP BY chapter)")
+    fun getMaxReadCountForBook(kjvBookOrdinal: Int): Int
+
+    @Query("SELECT COUNT(DISTINCT chapter) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal")
+    fun getDistinctReadChaptersCountForBook(kjvBookOrdinal: Int): Int
+
+    @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal")
+    fun getTotalReadCountForBook(kjvBookOrdinal: Int): Int
+
+    @Query("SELECT DISTINCT chapter FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal ORDER BY chapter")
+    fun getReadChaptersFromHistoryForBook(kjvBookOrdinal: Int): List<Int>
+
+    @Query("SELECT chapter, COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal GROUP BY chapter")
+    fun getChapterReadCountsForBook(kjvBookOrdinal: Int): List<ChapterReadCount>
+
+    @Query("SELECT COUNT(DISTINCT (kjvBookOrdinal || ',' || chapter)) FROM ChapterReadHistory")
+    fun countDistinctChaptersRead(): Int
+
+    @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadHistory")
+    fun countDistinctReadDaysFromHistory(): Int
+
+    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
+        "FROM ChapterReadHistory " +
+        "WHERE readAt >= :startMs AND readAt <= :endMs " +
+        "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
+    fun getReadingCalendarFromHistory(startMs: Long, endMs: Long): List<DailyReadingCount>
 }
 
 @Dao

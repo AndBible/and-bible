@@ -251,6 +251,110 @@ class ProgressControlTest {
         assertFalse(progress.containsKey(BibleBook.LEV))
     }
 
+    // --- Count-mode: chapter read history ---
+
+    @Test
+    fun `incrementChapterReadCount increases count for that chapter`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+
+        assertEquals(3, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+    }
+
+    @Test
+    fun `getChapterReadCount returns zero for unread chapter`() {
+        assertEquals(0, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+    }
+
+    @Test
+    fun `getChapterReadCount is independent per chapter`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        assertEquals(2, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 2))
+        assertEquals(0, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 3))
+    }
+
+    @Test
+    fun `getChapterReadCountsForBook returns map of chapter to count`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 3)
+
+        val counts = ProgressControl.getChapterReadCountsForBook(BibleBook.GEN)
+        assertEquals(2, counts[1])
+        assertEquals(1, counts[3])
+        assertFalse(counts.containsKey(2))
+    }
+
+    @Test
+    fun `getChapterReadCountsForBook returns empty map when nothing read`() {
+        assertTrue(ProgressControl.getChapterReadCountsForBook(BibleBook.GEN).isEmpty())
+    }
+
+    @Test
+    fun `getMaxReadCountForBook returns highest chapter count`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        assertEquals(2, ProgressControl.getMaxReadCountForBook(BibleBook.GEN))
+    }
+
+    @Test
+    fun `getMaxReadCountForBook returns zero when nothing read`() {
+        assertEquals(0, ProgressControl.getMaxReadCountForBook(BibleBook.GEN))
+    }
+
+    @Test
+    fun `getDistinctReadChaptersCountForBook counts unique chapters only`() {
+        // Chapter 1 read 3 times, chapter 2 once — distinct count is 2
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        assertEquals(2, ProgressControl.getDistinctReadChaptersCountForBook(BibleBook.GEN))
+    }
+
+    @Test
+    fun `getBookCountProgress readPercent equals totalReads divided by totalChapters`() {
+        val totalChapters = KJVA.getLastChapter(BibleBook.GEN)
+        // Read chapter 1 twice and chapter 2 once → 3 total reads
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        val progress = ProgressControl.getBookCountProgress()
+        val genProgress = progress[BibleBook.GEN]
+        assertFalse("GEN should be present", genProgress == null)
+        assertEquals(3f / totalChapters, genProgress!!.readPercent, 0.001f)
+    }
+
+    @Test
+    fun `getBookCountProgress readPercent exceeds 1 when chapters read multiple times`() {
+        // 3 John has 1 chapter; reading it 6 times should give readPercent = 6.0
+        val john3 = BibleBook.JOHN3
+        val totalChapters = KJVA.getLastChapter(john3)
+        assertEquals("3 John should have 1 chapter", 1, totalChapters)
+        repeat(6) { ProgressControl.incrementChapterReadCount(KJVA, john3, 1) }
+
+        val progress = ProgressControl.getBookCountProgress()
+        assertEquals(6.0f, progress[john3]!!.readPercent, 0.001f)
+    }
+
+    @Test
+    fun `getBookCountProgress excludes books with no reads`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+
+        val progress = ProgressControl.getBookCountProgress()
+        assertTrue(progress.containsKey(BibleBook.GEN))
+        assertFalse(progress.containsKey(BibleBook.EXOD))
+    }
+
     // --- Memorization targets ---
 
     @Test

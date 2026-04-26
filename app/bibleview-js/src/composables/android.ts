@@ -86,6 +86,8 @@ export type BibleJavascriptInterface = {
     openReadingProgressSettings: () => void,
     markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
     unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
+    incrementChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => void,
+    getChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => number,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
     speak: (bookInitials: string, v11n: string, startOrdinal: number, endOrdinal: number) => void,
@@ -465,6 +467,14 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.unmarkChapterRead(bookInitials, startOrdinal, chapter);
     }
 
+    function incrementChapterReadCount(bookInitials: string, startOrdinal: number, chapter: number) {
+        window.android.incrementChapterReadCount(bookInitials, startOrdinal, chapter);
+    }
+
+    function getChapterReadCount(bookInitials: string, startOrdinal: number, chapter: number): number {
+        return window.android.getChapterReadCount(bookInitials, startOrdinal, chapter);
+    }
+
     function openStudyPad(labelId: IdType, bookmark: BaseBookmark) {
         if(isBibleBookmark(bookmark) || isGenericBookmark(bookmark)) {
             // Exceptionally here bookmark type does not matter
@@ -718,6 +728,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         openReadingProgressSettings,
         markChapterRead,
         unmarkChapterRead,
+        incrementChapterReadCount,
+        getChapterReadCount,
         speak,
         speakGeneric,
         speakMemorizationLoop,

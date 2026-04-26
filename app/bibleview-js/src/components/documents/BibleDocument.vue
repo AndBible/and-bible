@@ -26,7 +26,10 @@
     <Chapter v-if="document.addChapter" :n="document.chapterNumber.toString()"/>
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
-      <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
+      <div class="mark-as-read-wrapper">
+        <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
+        <span v-if="config.useReadCountMode && chapterReadCount > 0" class="read-count">x{{ chapterReadCount }}</span>
+      </div>
     </div>
   </div>
 </template>
@@ -74,7 +77,7 @@ function getFootNoteCount() {
 provide(footnoteCountKey, {getFootNoteCount});
 const displayChapter = Math.max(1, props.document.chapterNumber);
 
-const {chapterRead, toggleChapterRead: onMarkAsRead} = useReadingTracker(
+const {chapterRead, chapterReadCount, toggleChapterRead: onMarkAsRead} = useReadingTracker(
     containerRef, bookInitials, ordinalRange, displayChapter, props.document.chapterRead ?? false
 );
 
@@ -88,6 +91,13 @@ const {chapterRead, toggleChapterRead: onMarkAsRead} = useReadingTracker(
 .mark-as-read-container {
     text-align: center;
     padding: 8px 0;
+}
+
+.mark-as-read-wrapper {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    position: relative;
 }
 
 .mark-as-read-icon {
@@ -128,6 +138,25 @@ const {chapterRead, toggleChapterRead: onMarkAsRead} = useReadingTracker(
             color: white;
             border: 2px solid white;
         }
+    }
+}
+
+.read-count {
+    font-size: 12px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.5);
+    margin-left: 2px;
+
+    .night & {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .monochrome & {
+        color: black;
+    }
+
+    .monochrome.night & {
+        color: white;
     }
 }
 </style>

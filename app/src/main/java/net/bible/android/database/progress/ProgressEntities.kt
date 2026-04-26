@@ -76,6 +76,18 @@ data class ChapterReadingRecord(
     val source: ReadingSource = ReadingSource.MANUAL,
 )
 
+@Entity(
+    indices = [
+        Index(value = ["kjvBookOrdinal", "chapter"])
+    ]
+)
+data class ChapterReadHistory(
+    @PrimaryKey var id: IdType = IdType(),
+    val kjvBookOrdinal: Int,
+    val chapter: Int,
+    val readAt: Long = System.currentTimeMillis(),
+)
+
 @Entity
 data class GlobalReadingProgressSettings(
     @PrimaryKey val id: IdType = SINGLETON_ID,
@@ -87,6 +99,7 @@ data class GlobalReadingProgressSettings(
     @ColumnInfo(defaultValue = "0") val memorizeScrambleHideUsed: Boolean = false,
     @ColumnInfo(defaultValue = "0") val memorizeIncludeReference: Boolean = false,
     @ColumnInfo(defaultValue = "0") val activeCycle: Int = 0,
+    @ColumnInfo(defaultValue = "0") val useReadCountMode: Boolean = false,
 ) {
     companion object {
         val SINGLETON_ID = IdType.fromString("b2000000-0000-0000-0000-000000000001")

@@ -36,6 +36,7 @@ class ReadingProgressSettingsDataStore : PreferenceDataStore() {
             "memorize_error_heatmap" -> ReadingProgressSettings.memorizeErrorHeatmap = value
             "memorize_scramble_hide_used" -> ReadingProgressSettings.memorizeScrambleHideUsed = value
             "memorize_include_reference" -> ReadingProgressSettings.memorizeIncludeReference = value
+            "use_read_count_mode" -> ReadingProgressSettings.useReadCountMode = value
         }
         ABEventBus.post(ReadingProgressSettingsChangedEvent())
     }
@@ -47,6 +48,7 @@ class ReadingProgressSettingsDataStore : PreferenceDataStore() {
             "memorize_error_heatmap" -> ReadingProgressSettings.memorizeErrorHeatmap
             "memorize_scramble_hide_used" -> ReadingProgressSettings.memorizeScrambleHideUsed
             "memorize_include_reference" -> ReadingProgressSettings.memorizeIncludeReference
+            "use_read_count_mode" -> ReadingProgressSettings.useReadCountMode
             else -> defValue
         }
     }
