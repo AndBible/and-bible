@@ -759,6 +759,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
             disableTwoStepBookmarking = CommonUtils.settings.getBoolean("disable_two_step_bookmarking", false),
             isBibleDocument = isBible,
             supportsProcessTextActions = Build.VERSION.SDK_INT >= Build.VERSION_CODES.M,
+            currentSelectionText = currentSelectionText,
         )
     }
 

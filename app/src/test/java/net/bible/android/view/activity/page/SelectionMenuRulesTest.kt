@@ -34,6 +34,7 @@ class SelectionMenuRulesTest {
         disableTwoStepBookmarking: Boolean = false,
         isBibleDocument: Boolean = false,
         supportsProcessTextActions: Boolean = true,
+        currentSelectionText: String? = if (hasText) "sample text" else null,
     ) = SelectionMenuContext(
         hasSelection = hasSelection,
         hasText = hasText,
@@ -45,6 +46,7 @@ class SelectionMenuRulesTest {
         disableTwoStepBookmarking = disableTwoStepBookmarking,
         isBibleDocument = isBibleDocument,
         supportsProcessTextActions = supportsProcessTextActions,
+        currentSelectionText = currentSelectionText,
     )
 
     @Test
@@ -58,17 +60,15 @@ class SelectionMenuRulesTest {
     }
 
     @Test
-    fun shareVersesRequiresBibleVerseSelection() {
-        assertFalse(SelectionMenuRules.isVisible(R.id.share_verses, context(isBibleDocument = false, hasVerseRange = true)))
-        assertFalse(SelectionMenuRules.isVisible(R.id.share_verses, context(isBibleDocument = true, hasVerseRange = false)))
-        assertTrue(SelectionMenuRules.isVisible(R.id.share_verses, context(isBibleDocument = true, hasVerseRange = true)))
+    fun shareVersesVisibleForBibleDocument() {
+        assertFalse(SelectionMenuRules.isVisible(R.id.share_verses, context(isBibleDocument = false)))
+        assertTrue(SelectionMenuRules.isVisible(R.id.share_verses, context(isBibleDocument = true)))
     }
 
     @Test
-    fun compareRequiresBibleVerseSelection() {
-        assertFalse(SelectionMenuRules.isVisible(R.id.compare, context(isBibleDocument = false, hasVerseRange = true)))
-        assertFalse(SelectionMenuRules.isVisible(R.id.compare, context(isBibleDocument = true, hasVerseRange = false)))
-        assertTrue(SelectionMenuRules.isVisible(R.id.compare, context(isBibleDocument = true, hasVerseRange = true)))
+    fun compareVisibleForBibleDocument() {
+        assertFalse(SelectionMenuRules.isVisible(R.id.compare, context(isBibleDocument = false)))
+        assertTrue(SelectionMenuRules.isVisible(R.id.compare, context(isBibleDocument = true)))
     }
 
     @Test

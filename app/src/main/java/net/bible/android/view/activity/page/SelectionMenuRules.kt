@@ -33,6 +33,7 @@ data class SelectionMenuContext(
     val disableTwoStepBookmarking: Boolean,
     val isBibleDocument: Boolean,
     val supportsProcessTextActions: Boolean,
+    val currentSelectionText: String?,
 )
 
 /**
@@ -58,20 +59,23 @@ object SelectionMenuRules {
 
     fun isManagedItem(itemId: Int): Boolean = itemId in managedItemIds
 
-    fun isVisible(itemId: Int, context: SelectionMenuContext): Boolean = when (itemId) {
-        R.id.add_bookmark -> context.hasSelection && !(context.isBibleDocument && context.disableTwoStepBookmarking)
-        R.id.add_bookmark_selection,
-        R.id.add_bookmark_whole_verse -> context.hasSelection && context.isBibleDocument && context.disableTwoStepBookmarking
-        R.id.add_paragraph_break -> context.hasSelection && context.paragraphBreakEnabled
-        R.id.compare,
-        R.id.memorize,
-        R.id.share_verses -> context.isBibleDocument && context.hasVerseRange
-        R.id.copy -> context.supportsProcessTextActions && !context.isBibleDocument && context.hasText
-        R.id.search -> context.hasText && !context.hasResolvableRef
-        R.id.open_ref -> context.hasResolvableRef
-        R.id.web_search -> context.hasText
-        R.id.lookup_dictionary -> context.hasText && context.hasDictionaries
-        R.id.llm_action -> context.hasText && context.llmConfigured
-        else -> false
+    fun isVisible(itemId: Int, context: SelectionMenuContext): Boolean {
+        val hasAnyText = context.currentSelectionText != null
+        return when (itemId) {
+            R.id.add_bookmark -> context.hasSelection && !(context.isBibleDocument && context.disableTwoStepBookmarking)
+            R.id.add_bookmark_selection,
+            R.id.add_bookmark_whole_verse -> context.hasSelection && context.isBibleDocument && context.disableTwoStepBookmarking
+            R.id.add_paragraph_break -> context.paragraphBreakEnabled
+            R.id.compare,
+            R.id.share_verses -> context.isBibleDocument
+            R.id.memorize -> context.isBibleDocument && context.hasVerseRange
+            R.id.copy -> context.supportsProcessTextActions && !context.isBibleDocument && hasAnyText
+            R.id.search -> hasAnyText && !context.hasResolvableRef
+            R.id.open_ref -> context.hasResolvableRef
+            R.id.web_search -> hasAnyText
+            R.id.lookup_dictionary -> hasAnyText && context.hasDictionaries
+            R.id.llm_action -> hasAnyText && context.llmConfigured
+            else -> false
+        }
     }
 }
