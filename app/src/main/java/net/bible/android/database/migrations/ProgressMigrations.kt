@@ -82,4 +82,29 @@ private val addChapterReadHistoryTable = makeMigration(7..8) { db ->
     db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN useReadCountMode INTEGER NOT NULL DEFAULT 0")
 }
 
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle, addScrambleHideUsed, addMemorizeIncludeReference, addChapterReadHistoryTable)
+private val addCycleToChapterReadHistory = makeMigration(8..9) { db ->
+    // Drop old index and table, recreate with cycle column, re-populate from ChapterReadingRecord
+    db.execSQL("DROP INDEX IF EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter`")
+    db.execSQL("DROP TABLE IF EXISTS ChapterReadHistory")
+    db.execSQL("""
+        CREATE TABLE IF NOT EXISTS ChapterReadHistory (
+            id BLOB NOT NULL PRIMARY KEY,
+            kjvBookOrdinal INTEGER NOT NULL,
+            chapter INTEGER NOT NULL,
+            cycle INTEGER NOT NULL DEFAULT 1,
+            readAt INTEGER NOT NULL
+        )
+    """)
+    db.execSQL("CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle` ON ChapterReadHistory (kjvBookOrdinal, chapter, cycle)")
+    // Re-populate from ChapterReadingRecord preserving cycle
+    db.execSQL("""
+        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt)
+        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt FROM ChapterReadingRecord
+    """)
+}
+
+private val addBookInitialsToChapterReadHistory = makeMigration(9..10) { db ->
+    db.execSQL("ALTER TABLE ChapterReadHistory ADD COLUMN bookInitials TEXT NOT NULL DEFAULT ''")
+}
+
+val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle, addScrambleHideUsed, addMemorizeIncludeReference, addChapterReadHistoryTable, addCycleToChapterReadHistory, addBookInitialsToChapterReadHistory)

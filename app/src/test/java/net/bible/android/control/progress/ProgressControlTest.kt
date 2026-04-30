@@ -355,6 +355,58 @@ class ProgressControlTest {
         assertFalse(progress.containsKey(BibleBook.EXOD))
     }
 
+    @Test
+    fun `deleteReadHistoryEntry removes one count-mode read instance only`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+
+        val latestEntry = ProgressControl.getReadHistoryForChapter(BibleBook.GEN, 1).first()
+        ProgressControl.deleteReadHistoryEntry(latestEntry)
+
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getReadHistoryForChapter(BibleBook.GEN, 1).size)
+    }
+
+    @Test
+    fun `deleteReadHistoryEntries removes only selected count-mode instances`() {
+        repeat(3) { ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1) }
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        val selectedEntries = ProgressControl.getReadHistoryForBook(BibleBook.GEN)
+            .filter { it.chapter == 1 }
+            .take(2)
+        ProgressControl.deleteReadHistoryEntries(selectedEntries)
+
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 1))
+        assertEquals(1, ProgressControl.getChapterReadCount(KJVA, BibleBook.GEN, 2))
+        assertEquals(2, ProgressControl.getReadHistoryForBook(BibleBook.GEN).size)
+    }
+
+    @Test
+    fun `getReadHistoryForDay returns count-mode entries for tapped calendar day`() {
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
+        ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
+
+        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
+        val entries = ProgressControl.getReadHistoryForDay(today)
+
+        assertEquals(2, entries.size)
+        assertEquals(listOf(2, 1), entries.map { it.chapter })
+    }
+
+    @Test
+    fun `getChapterReadEntriesForDay returns toggle-mode entries for tapped calendar day`() {
+        ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 3)
+        ProgressControl.markChapterRead(KJVA, BibleBook.EXOD, 1)
+
+        val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
+        val entries = ProgressControl.getChapterReadEntriesForDay(today)
+
+        assertEquals(2, entries.size)
+        assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.GEN.ordinal && it.chapter == 3 })
+        assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.EXOD.ordinal && it.chapter == 1 })
+    }
+
     // --- Memorization targets ---
 
     @Test

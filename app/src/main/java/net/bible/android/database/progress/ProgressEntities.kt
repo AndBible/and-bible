@@ -78,14 +78,17 @@ data class ChapterReadingRecord(
 
 @Entity(
     indices = [
-        Index(value = ["kjvBookOrdinal", "chapter"])
+        Index(value = ["kjvBookOrdinal", "chapter", "cycle"])
     ]
 )
 data class ChapterReadHistory(
     @PrimaryKey var id: IdType = IdType(),
     val kjvBookOrdinal: Int,
     val chapter: Int,
+    val cycle: Int = 1,
     val readAt: Long = System.currentTimeMillis(),
+    /** The SWORD book initials of the Bible version used when this chapter was tapped (empty for migrated records). */
+    val bookInitials: String = "",
 )
 
 @Entity

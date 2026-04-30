@@ -28,7 +28,11 @@
     <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <div class="mark-as-read-wrapper">
         <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
-        <span v-if="config.useReadCountMode && chapterReadCount > 0" class="read-count">x{{ chapterReadCount }}</span>
+        <span
+            v-if="config.useReadCountMode && chapterReadCount > 0"
+            class="read-count"
+            @click="onOpenReadHistory"
+        >×{{ chapterReadCount }}</span>
       </div>
     </div>
   </div>
@@ -77,7 +81,12 @@ function getFootNoteCount() {
 provide(footnoteCountKey, {getFootNoteCount});
 const displayChapter = Math.max(1, props.document.chapterNumber);
 
-const {chapterRead, chapterReadCount, toggleChapterRead: onMarkAsRead} = useReadingTracker(
+const {
+    chapterRead,
+    chapterReadCount,
+    toggleChapterRead: onMarkAsRead,
+    openChapterReadHistory: onOpenReadHistory,
+} = useReadingTracker(
     containerRef, bookInitials, ordinalRange, displayChapter, props.document.chapterRead ?? false
 );
 
@@ -142,21 +151,26 @@ const {chapterRead, chapterReadCount, toggleChapterRead: onMarkAsRead} = useRead
 }
 
 .read-count {
+    cursor: pointer;
     font-size: 12px;
     font-weight: bold;
-    color: rgba(0, 0, 0, 0.5);
     margin-left: 2px;
 
+    color: #4CAF50;
+    cursor: default;
+
     .night & {
-        color: rgba(255, 255, 255, 0.5);
+        color: #66BB6A;
     }
 
     .monochrome & {
         color: black;
+        border: 2px solid black;
     }
 
     .monochrome.night & {
         color: white;
+        border: 2px solid white;
     }
 }
 </style>

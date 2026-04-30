@@ -23,6 +23,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import java.util.Calendar
 import java.util.Locale
@@ -40,6 +41,7 @@ class CalendarHeatmapView @JvmOverloads constructor(
 
     private var dailyCounts: Map<Long, Int> = emptyMap()
     private var maxCount = 1
+    var onDayClick: ((dayTimestamp: Long, count: Int) -> Unit)? = null
 
     private val emptyPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         color = Color.parseColor("#EBEDF0")
@@ -142,5 +144,64 @@ class CalendarHeatmapView @JvmOverloads constructor(
                 cal.add(Calendar.DAY_OF_YEAR, 1)
             }
         }
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (event.action == MotionEvent.ACTION_DOWN) {
+            return findDayAt(event.x, event.y)?.second?.let { it > 0 } == true
+        }
+
+        if (event.action != MotionEvent.ACTION_UP) {
+            return super.onTouchEvent(event)
+        }
+
+        val hit = findDayAt(event.x, event.y) ?: return super.onTouchEvent(event)
+        val (dayTimestamp, count) = hit
+        if (count <= 0) return super.onTouchEvent(event)
+
+        performClick()
+        onDayClick?.invoke(dayTimestamp, count)
+        return true
+    }
+
+    override fun performClick(): Boolean {
+        super.performClick()
+        return true
+    }
+
+    private fun findDayAt(x: Float, y: Float): Pair<Long, Int>? {
+        if (x < labelWidth || y < headerHeight) return null
+
+        val cal = Calendar.getInstance().apply {
+            add(Calendar.WEEK_OF_YEAR, -52)
+            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val today = Calendar.getInstance()
+
+        for (week in 0 until 53) {
+            val left = labelWidth + week * (cellSize + cellPadding)
+            val right = left + cellSize
+
+            for (day in 0 until 7) {
+                if (cal.after(today)) return null
+
+                val top = headerHeight + day * (cellSize + cellPadding)
+                val bottom = top + cellSize
+                val dayTimestamp = (cal.timeInMillis / 86400000L) * 86400000L
+                val count = dailyCounts[dayTimestamp] ?: 0
+
+                if (x in left..right && y in top..bottom) {
+                    return dayTimestamp to count
+                }
+
+                cal.add(Calendar.DAY_OF_YEAR, 1)
+            }
+        }
+
+        return null
     }
 }

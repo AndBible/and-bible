@@ -93,6 +93,7 @@
 
             <!-- Section: Bible Heatmap -->
             <TextView
+                android:id="@+id/bibleHeatmapTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/reading_progress_bible_heatmap"

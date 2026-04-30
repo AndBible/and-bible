@@ -105,9 +105,16 @@ export function useReadingTracker(
         }
     }
 
+    function openChapterReadHistory() {
+        android.openChapterReadHistory(bookInitials, ordinalRange[0], chapterNumber);
+    }
+
     setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean}) => {
         if (data.chapter === chapterNumber) {
             chapterRead.value = data.isRead;
+            if (config.useReadCountMode) {
+                chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
+            }
         }
     });
 
@@ -129,5 +136,5 @@ export function useReadingTracker(
         cleanup();
     });
 
-    return {chapterRead, chapterReadCount, toggleChapterRead};
+    return {chapterRead, chapterReadCount, toggleChapterRead, openChapterReadHistory};
 }
