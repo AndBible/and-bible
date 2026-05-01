@@ -40,6 +40,9 @@ import net.bible.android.activity.databinding.ReadingProgressBinding
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
+import net.bible.android.database.progress.CHAPTER_READING_RECORDS_FOR_CYCLE_SQL
+import net.bible.android.database.progress.DailyReadingCount
+import net.bible.android.database.progress.READING_CALENDAR_SQL
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
 import net.bible.service.common.CommonUtils
@@ -48,6 +51,10 @@ import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.text.SimpleDateFormat
+import java.util.TimeZone
 
 class ReadingProgressActivity : ActivityBase() {
 
@@ -66,6 +73,7 @@ class ReadingProgressActivity : ActivityBase() {
         setContentView(binding.root)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = getString(R.string.reading_progress_title)
+        binding.readingCalendarDebugSection.visibility = if (CommonUtils.isDebugMode) View.VISIBLE else View.GONE
 
         currentCycle = ProgressControl.getCurrentCycle()
         memOverviewActive = CommonUtils.settings.getBoolean(PREF_MEM_OVERVIEW, true)
@@ -377,7 +385,14 @@ class ReadingProgressActivity : ActivityBase() {
 
     private fun refreshCalendarHeatmap() {
         val cal = Calendar.getInstance()
+
+        cal.add(Calendar.DAY_OF_YEAR, 1)
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
         val endMs = cal.timeInMillis
+
         cal.add(Calendar.WEEK_OF_YEAR, -52)
         val startMs = cal.timeInMillis
 
@@ -388,8 +403,61 @@ class ReadingProgressActivity : ActivityBase() {
         }
 
         binding.calendarHeatmap.setData(dailyCounts)
+        refreshReadingCalendarDebugInfo(startMs, endMs, records)
         binding.calendarHeatmapScroll.post {
             binding.calendarHeatmapScroll.fullScroll(HorizontalScrollView.FOCUS_RIGHT)
+        }
+    }
+
+    private fun refreshReadingCalendarDebugInfo(startMs: Long, endMs: Long, records: List<DailyReadingCount>) {
+        if (!CommonUtils.isDebugMode) return
+
+        val timestampFormatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS Z", Locale.US).apply {
+            timeZone = TimeZone.getDefault()
+        }
+        val dayFormatter = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
+            timeZone = TimeZone.getDefault()
+        }
+        val chapterRecords = ProgressControl.getReadingRecords(currentCycle)
+
+        binding.readingCalendarDebugText.text = buildString {
+            appendLine("timezone=${TimeZone.getDefault().id}")
+            appendLine("cycle=$currentCycle")
+            appendLine("window:")
+            appendLine("  startMs=$startMs (${timestampFormatter.format(Date(startMs))})")
+            appendLine("  endMs=$endMs (${timestampFormatter.format(Date(endMs))})")
+            appendLine()
+            appendLine("getReadingCalendar SQL:")
+            appendLine(READING_CALENDAR_SQL.trimIndent())
+            appendLine()
+            appendLine("getReadingCalendar rows (${records.size}):")
+            if (records.isEmpty()) {
+                appendLine("  <none>")
+            } else {
+                records.forEach { record ->
+                    appendLine(
+                        "  dayTimestamp=${record.dayTimestamp} " +
+                            "(${timestampFormatter.format(Date(record.dayTimestamp))}, day=${dayFormatter.format(Date(record.dayTimestamp))}) " +
+                            "count=${record.count}"
+                    )
+                }
+            }
+            appendLine()
+            appendLine("ChapterReadingRecord SQL:")
+            appendLine(CHAPTER_READING_RECORDS_FOR_CYCLE_SQL)
+            appendLine()
+            appendLine("ChapterReadingRecord rows (${chapterRecords.size}):")
+            if (chapterRecords.isEmpty()) {
+                appendLine("  <none>")
+            } else {
+                chapterRecords.forEach { record ->
+                    appendLine(
+                        "  id=${record.id} kjvBookOrdinal=${record.kjvBookOrdinal} chapter=${record.chapter} cycle=${record.cycle} " +
+                            "readAt=${record.readAt} (${timestampFormatter.format(Date(record.readAt))}, day=${dayFormatter.format(Date(record.readAt))}) " +
+                            "source=${record.source} inWindow=${record.readAt in startMs until endMs}"
+                    )
+                }
+            }
         }
     }
 

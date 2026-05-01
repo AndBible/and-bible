@@ -20,6 +20,8 @@ package net.bible.android.control.progress
 import net.bible.android.TEST_SDK
 import net.bible.android.TestBibleApplication
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.progress.ChapterReadingRecord
+import net.bible.android.database.progress.MemorizedVerse
 import net.bible.service.db.DatabaseContainer
 import net.bible.test.DatabaseResetter.resetDatabase
 import org.crosswire.jsword.passage.Verse
@@ -34,20 +36,24 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.util.Calendar
+import java.util.TimeZone
 
 @RunWith(RobolectricTestRunner::class)
 @Config(application = TestBibleApplication::class, sdk = [TEST_SDK])
 class ProgressControlTest {
 
     private val dao get() = DatabaseContainer.instance.progressDb.progressDao()
+    private var originalTimeZone: TimeZone? = null
 
     @Before
     fun setUp() {
-        // Ensure clean state
+        originalTimeZone = TimeZone.getDefault()
     }
 
     @After
     fun tearDown() {
+        TimeZone.setDefault(originalTimeZone)
         resetDatabase()
     }
 
@@ -249,6 +255,71 @@ class ProgressControlTest {
         assertTrue(progress.containsKey(BibleBook.GEN))
         assertTrue(progress.containsKey(BibleBook.EXOD))
         assertFalse(progress.containsKey(BibleBook.LEV))
+    }
+
+    @Test
+    fun `getReadingCalendar returns local midnight day timestamp`() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Rangoon"))
+        val readAt = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 18, minute = 4)
+        dao.insertChapterReadingRecord(
+            ChapterReadingRecord(
+                kjvBookOrdinal = BibleBook.LUKE.ordinal,
+                chapter = 3,
+                cycle = 1,
+                readAt = readAt,
+            )
+        )
+
+        val startMs = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 0)
+        val endMs = localTimestamp(year = 2026, month = Calendar.MAY, day = 1, hour = 0)
+        val records = ProgressControl.getReadingCalendar(startMs, endMs, 1)
+
+        assertEquals(1, records.size)
+        assertEquals(normalizeToLocalDayStart(readAt), records.single().dayTimestamp)
+        assertEquals(1, records.single().count)
+    }
+
+    @Test
+    fun `getMemorizationCalendar returns local midnight day timestamp`() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Rangoon"))
+        val memorizedAt = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 18, minute = 4)
+        dao.insertMemorizedVerse(
+            MemorizedVerse(
+                kjvOrdinal = Verse(KJVA, BibleBook.GEN, 1, 1).ordinal,
+                memorizedAt = memorizedAt,
+            )
+        )
+
+        val startMs = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 0)
+        val endMs = localTimestamp(year = 2026, month = Calendar.MAY, day = 1, hour = 0)
+        val records = ProgressControl.getMemorizationCalendar(startMs, endMs)
+
+        assertEquals(1, records.size)
+        assertEquals(normalizeToLocalDayStart(memorizedAt), records.single().dayTimestamp)
+        assertEquals(1, records.single().count)
+    }
+
+    @Test
+    fun `getDistinctReadDays groups records by local day`() {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Rangoon"))
+        dao.insertChapterReadingRecord(
+            ChapterReadingRecord(
+                kjvBookOrdinal = BibleBook.MARK.ordinal,
+                chapter = 1,
+                cycle = 1,
+                readAt = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 1),
+            )
+        )
+        dao.insertChapterReadingRecord(
+            ChapterReadingRecord(
+                kjvBookOrdinal = BibleBook.MARK.ordinal,
+                chapter = 2,
+                cycle = 1,
+                readAt = localTimestamp(year = 2026, month = Calendar.APRIL, day = 30, hour = 23),
+            )
+        )
+
+        assertEquals(1, ProgressControl.getDistinctReadDays(1))
     }
 
     // --- Memorization targets ---
@@ -474,4 +545,15 @@ class ProgressControlTest {
 
         assertEquals((v3..v6).toList(), result)
     }
+
+    private fun localTimestamp(year: Int, month: Int, day: Int, hour: Int, minute: Int = 0): Long =
+        Calendar.getInstance().apply {
+            set(Calendar.YEAR, year)
+            set(Calendar.MONTH, month)
+            set(Calendar.DAY_OF_MONTH, day)
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
 }

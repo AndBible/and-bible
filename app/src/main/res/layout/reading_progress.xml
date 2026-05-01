@@ -177,6 +177,38 @@
                     android:minHeight="100dp"/>
             </HorizontalScrollView>
 
+            <LinearLayout
+                android:id="@+id/readingCalendarDebugSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/readingCalendarDebugTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reading_progress_debug_title"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp"/>
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fillViewport="true">
+
+                    <TextView
+                        android:id="@+id/readingCalendarDebugText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="monospace"
+                        android:textIsSelectable="true"
+                        android:textSize="12sp"/>
+                </HorizontalScrollView>
+            </LinearLayout>
+
             <!-- Cycle selector -->
             <LinearLayout
                 android:layout_width="match_parent"

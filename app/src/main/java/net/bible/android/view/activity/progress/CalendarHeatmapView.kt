@@ -24,6 +24,7 @@ import android.graphics.Paint
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
+import net.bible.android.control.progress.normalizeToLocalDayStart
 import java.util.Calendar
 import java.util.Locale
 
@@ -125,8 +126,7 @@ class CalendarHeatmapView @JvmOverloads constructor(
 
                 val y = headerHeight + day * (cellSize + cellPadding)
                 val dayStart = cal.timeInMillis
-                val normalizedDay = (dayStart / 86400000L) * 86400000L
-                val count = dailyCounts[normalizedDay] ?: 0
+                val count = dailyCounts[normalizeToLocalDayStart(dayStart)] ?: 0
 
                 fillPaint.color = getColorForCount(count)
                 rect.set(x, y, x + cellSize, y + cellSize)

@@ -28,6 +28,18 @@ data class DailyReadingCount(
     val count: Int,
 )
 
+const val CHAPTER_READING_RECORDS_FOR_CYCLE_SQL = "SELECT * FROM ChapterReadingRecord WHERE cycle = :cycle ORDER BY readAt DESC"
+
+const val READING_CALENDAR_SQL = """
+        SELECT 
+            (strftime('%s', readAt / 1000, 'unixepoch', 'localtime', 'start of day', 'utc') * 1000) AS dayTimestamp,
+            COUNT(*) AS count
+        FROM ChapterReadingRecord
+        WHERE readAt >= :startMs AND readAt < :endMs AND cycle = :cycle
+        GROUP BY strftime('%Y-%m-%d', readAt / 1000, 'unixepoch', 'localtime')
+        ORDER BY dayTimestamp
+    """
+
 @Dao
 interface ProgressDao {
     // Memorization queries
@@ -55,10 +67,10 @@ interface ProgressDao {
     @Query("DELETE FROM MemorizedVerse WHERE kjvOrdinal >= :startOrdinal AND kjvOrdinal <= :endOrdinal")
     fun deleteMemorizedVersesInRange(startOrdinal: Int, endOrdinal: Int)
 
-    @Query("SELECT (memorizedAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
+    @Query("SELECT (strftime('%s', memorizedAt / 1000, 'unixepoch', 'localtime', 'start of day', 'utc') * 1000) AS dayTimestamp, COUNT(*) AS count " +
         "FROM MemorizedVerse " +
-        "WHERE memorizedAt >= :startMs AND memorizedAt <= :endMs " +
-        "GROUP BY memorizedAt / 86400000 " +
+        "WHERE memorizedAt >= :startMs AND memorizedAt < :endMs " +
+        "GROUP BY strftime('%Y-%m-%d', memorizedAt / 1000, 'unixepoch', 'localtime') " +
         "ORDER BY dayTimestamp")
     fun getMemorizationCalendar(startMs: Long, endMs: Long): List<DailyReadingCount>
 
@@ -97,7 +109,7 @@ interface ProgressDao {
     @Query("SELECT COALESCE(MAX(cycle), 1) FROM ChapterReadingRecord")
     fun getLatestCycle(): Int
 
-    @Query("SELECT * FROM ChapterReadingRecord WHERE cycle = :cycle ORDER BY readAt DESC")
+    @Query(CHAPTER_READING_RECORDS_FOR_CYCLE_SQL)
     fun getRecordsForCycle(cycle: Int): List<ChapterReadingRecord>
 
     @Query("SELECT * FROM ChapterReadingRecord ORDER BY readAt DESC")
@@ -106,7 +118,7 @@ interface ProgressDao {
     @Query("SELECT COUNT(*) FROM ChapterReadingRecord WHERE cycle = :cycle")
     fun countTotalReadChapters(cycle: Int): Int
 
-    @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadingRecord WHERE cycle = :cycle")
+    @Query("SELECT COUNT(DISTINCT strftime('%Y-%m-%d', readAt / 1000, 'unixepoch', 'localtime')) FROM ChapterReadingRecord WHERE cycle = :cycle")
     fun countDistinctReadDays(cycle: Int): Int
 
     @Query("SELECT DISTINCT kjvBookOrdinal FROM ChapterReadingRecord WHERE cycle = :cycle")
@@ -115,10 +127,7 @@ interface ProgressDao {
     @Query("SELECT chapter FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY chapter")
     fun getReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
 
-    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
-        "FROM ChapterReadingRecord " +
-        "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
-        "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
+    @Query(READING_CALENDAR_SQL)
     fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
 }
 

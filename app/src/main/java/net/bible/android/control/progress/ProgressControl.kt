@@ -229,6 +229,10 @@ object ProgressControl {
         return dao.getReadingCalendar(startMs, endMs, cycle)
     }
 
+    fun getReadingRecords(cycle: Int = getCurrentCycle()): List<ChapterReadingRecord> {
+        return dao.getRecordsForCycle(cycle)
+    }
+
     fun getBookReadingProgress(cycle: Int = getCurrentCycle()): Map<BibleBook, Float> {
         val result = mutableMapOf<BibleBook, Float>()
         for (book in KJVA.bookIterator) {
