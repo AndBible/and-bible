@@ -50,16 +50,23 @@ import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.navigation.GridChoosePassageBook
+import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_EMPTY
+import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_HEAT_MAX
+import net.bible.android.view.activity.progress.ReadingProgressColors.COLOR_TARGET_DOT
+import net.bible.android.view.activity.progress.ReadingProgressColors.HEAT_MID_COUNT
+import net.bible.android.view.activity.progress.ReadingProgressColors.buildBookPercentScaleSteps
+import net.bible.android.view.activity.progress.ReadingProgressColors.countBookProgressToColor
+import net.bible.android.view.activity.progress.ReadingProgressColors.countToHeatColor
+import net.bible.android.view.activity.progress.ReadingProgressColors.memorizationProgressToColor
+import net.bible.android.view.activity.progress.ReadingProgressColors.resolveBookPercentScaleMax
+import net.bible.android.view.activity.progress.ReadingProgressColors.textColorForBackground
 import net.bible.service.common.CommonUtils
-import net.bible.service.common.ReadingProgressSettings
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleBook
 import org.crosswire.jsword.versification.system.Versifications
 import java.util.Calendar
 import java.util.Date
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 
 class ReadingProgressActivity : ActivityBase() {
 
@@ -923,7 +930,7 @@ class ReadingProgressActivity : ActivityBase() {
 
             val progress = bookProgress[book] ?: 0f
             val hasTarget = book in booksWithTargets
-            val btn = createBookButton(book, progress, ::memorizationProgressToColor, { showMemChapterDetail(book) }, hasTarget = hasTarget)
+            val btn = createBookButton(book, progress, ReadingProgressColors::memorizationProgressToColor, { showMemChapterDetail(book) }, hasTarget = hasTarget)
             val params = GridLayout.LayoutParams().apply {
                 width = 0
                 height = GridLayout.LayoutParams.WRAP_CONTENT
@@ -1120,142 +1127,11 @@ class ReadingProgressActivity : ActivityBase() {
         container.addView(outerRow)
     }
 
-    private fun progressToColor(progress: Float): Int {
-        return when {
-            progress <= 0f -> COLOR_EMPTY
-            progress < 0.25f -> COLOR_LOW
-            progress < 0.50f -> COLOR_MEDIUM
-            progress < 0.75f -> COLOR_HIGH
-            progress < 1.0f -> COLOR_ALMOST
-            else -> COLOR_READ
-        }
-    }
-
-    private fun memorizationProgressToColor(progress: Float): Int {
-        return when {
-            progress <= 0f -> COLOR_EMPTY
-            progress < 0.25f -> COLOR_MEM_LOW
-            progress < 0.50f -> COLOR_MEM_MEDIUM
-            progress < 0.75f -> COLOR_MEM_HIGH
-            progress < 1.0f -> COLOR_MEM_ALMOST
-            else -> COLOR_MEM_FULL
-        }
-    }
-
-    /** Interpolates smoothly between two ARGB colors by ratio (0..1). */
-    private fun interpolateColor(from: Int, to: Int, ratio: Float): Int {
-        val r = (Color.red(from) + (Color.red(to) - Color.red(from)) * ratio).toInt()
-        val g = (Color.green(from) + (Color.green(to) - Color.green(from)) * ratio).toInt()
-        val b = (Color.blue(from) + (Color.blue(to) - Color.blue(from)) * ratio).toInt()
-        return Color.rgb(r, g, b)
-    }
-
-    /**
-     * Returns [Color.WHITE] for dark backgrounds and [Color.DKGRAY] for light ones,
-     * using WCAG relative luminance so text stays readable over any heat-map color.
-     */
-    private fun textColorForBackground(bgColor: Int): Int {
-        val r = Color.red(bgColor) / 255.0
-        val g = Color.green(bgColor) / 255.0
-        val b = Color.blue(bgColor) / 255.0
-        val luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-        return if (luminance < 0.45) Color.WHITE else Color.DKGRAY
-    }
-
-    /**
-     * Heat color for a chapter button in count-mode.
-     * 3 fixed anchors: pale yellow at 1, orange at 5, deep red at max(maxCount,10).
-     * Colours at 1 and 5 are always identical regardless of max.
-     */
-    private fun countToHeatColor(count: Int, maxCount: Int): Int {
-        if (count == 0) return COLOR_EMPTY
-        val effectiveMax = maxCount.coerceAtLeast(10)
-        return when {
-            count <= HEAT_MID_COUNT -> {
-                val ratio = (count - 1).toFloat() / (HEAT_MID_COUNT - 1).coerceAtLeast(1)
-                interpolateColor(COLOR_HEAT_MIN, COLOR_HEAT_MID, ratio.coerceIn(0f, 1f))
-            }
-            else -> {
-                val ratio = (count - HEAT_MID_COUNT).toFloat() / (effectiveMax - HEAT_MID_COUNT).coerceAtLeast(1)
-                interpolateColor(COLOR_HEAT_MID, COLOR_HEAT_MAX, ratio.coerceIn(0f, 1f))
-            }
-        }
-    }
-
-    /**
-     * Color for a book button in count-mode.
-     * [readPercent] = totalReads / totalChapters (1.0 = 100%).
-     * Light blue → dark blue at 100% → red at [effectiveMaxPercent]*100%.
-     */
-    private fun countBookProgressToColor(readPercent: Float, effectiveMaxPercent: Float): Int {
-        if (readPercent <= 0f) return COLOR_EMPTY
-        return when {
-            readPercent <= 1.0f -> interpolateColor(COLOR_COUNT_BOOK_BLUE_LOW, COLOR_COUNT_BOOK_BLUE_HIGH, readPercent)
-            else -> {
-                val ratio = ((readPercent - 1.0f) / (effectiveMaxPercent - 1.0f)).coerceIn(0f, 1f)
-                interpolateColor(COLOR_COUNT_BOOK_BLUE_HIGH, COLOR_COUNT_BOOK_RED, ratio)
-            }
-        }
-    }
-
     private val Int.dp: Int
         get() = (this * resources.displayMetrics.density).toInt()
 
     companion object {
         private const val PAGE_SIZE = 10
-
-        private val COLOR_EMPTY = Color.parseColor("#E8E8E8")
-        private val COLOR_LOW = Color.parseColor("#C6E48B")
-        private val COLOR_MEDIUM = Color.parseColor("#7BC96F")
-        private val COLOR_HIGH = Color.parseColor("#239A3B")
-        private val COLOR_ALMOST = Color.parseColor("#196127")
-        private val COLOR_READ = Color.parseColor("#196127")
-
-        private val COLOR_MEM_LOW = Color.parseColor("#C6E48B")
-        private val COLOR_MEM_MEDIUM = Color.parseColor("#7BC96F")
-        private val COLOR_MEM_HIGH = Color.parseColor("#239A3B")
-        private val COLOR_MEM_ALMOST = Color.parseColor("#196127")
-        private val COLOR_MEM_FULL = Color.parseColor("#196127")
-
-        private val COLOR_TARGET_DOT = Color.parseColor("#9C27B0")
-
-        private const val HEAT_MID_COUNT = 5  // fixed colour anchor in the chapter heat map
-
-        // Count-mode chapter heat map: amber → fixed orange at 5 → deep red at max(max,10)
-        private val COLOR_HEAT_MIN = Color.parseColor("#FFF9C4")  // 1 read – pale yellow (text contrast handled by textColorForBackground)
-        private val COLOR_HEAT_MID = Color.parseColor("#FF6D00")  // 5 reads (fixed anchor)
-        private val COLOR_HEAT_MAX = Color.parseColor("#B71C1C")  // max reads (≥10)
-
-        // Count-mode book heat map: light blue → dark blue at 100% → red at the current scale max.
-        private val COLOR_COUNT_BOOK_BLUE_LOW  = Color.parseColor("#E3F2FD")  // ~1%
-        private val COLOR_COUNT_BOOK_BLUE_HIGH = Color.parseColor("#1565C0")  // 100%
-        private val COLOR_COUNT_BOOK_RED       = Color.parseColor("#B71C1C")
-
-        internal fun resolveBookPercentScaleMax(maxReadPercent: Float?): Float {
-            val actualMax = maxReadPercent ?: 0f
-            // If less than 100%, we default to 1.0 (100%)
-            if (actualMax <= 1.0f) return 1.0f
-
-            // This logic ensures the max fits into our clean steps of 25% (0.25f)
-            // It rounds 1.33 up to 1.50
-            return ceil(actualMax * 4f) / 4f
-        }
-
-        internal fun buildBookPercentScaleSteps(maxReadPercent: Float): List<Int> {
-            val maxPercent = (maxReadPercent * 100).roundToInt().coerceAtLeast(100)
-
-            // 1. Define allowed "clean" increments
-            val allowedSteps = listOf(10, 20, 25, 50, 100, 200, 500)
-
-            // 2. Find the first step that results in <= 10 cells
-            // Formula: maxPercent / step <= 10
-            val bestStep = allowedSteps.firstOrNull { step ->
-                (maxPercent / step) <= 10
-            } ?: 100 // Fallback to 100 if it's a massive number
-
-            // 3. Generate the list
-            return (bestStep..maxPercent step bestStep).toList()
-        }
 
         private const val PREF_LAST_TAB = "reading_progress_last_tab"
         private const val PREF_MEM_OVERVIEW = "reading_progress_mem_overview"

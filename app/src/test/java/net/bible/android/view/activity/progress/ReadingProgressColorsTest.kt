@@ -20,28 +20,26 @@ package net.bible.android.view.activity.progress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class ReadingProgressActivityScaleTest {
+class ReadingProgressColorsTest {
 
     @Test
     fun `book percent scale max stays at 100 percent when nothing exceeds it`() {
-        assertEquals(1.0f, ReadingProgressActivity.resolveBookPercentScaleMax(null), 0.001f)
-        assertEquals(1.0f, ReadingProgressActivity.resolveBookPercentScaleMax(0.95f), 0.001f)
-        assertEquals(1.0f, ReadingProgressActivity.resolveBookPercentScaleMax(1.0f), 0.001f)
+        assertEquals(1.0f, ReadingProgressColors.resolveBookPercentScaleMax(null), 0.001f)
+        assertEquals(1.0f, ReadingProgressColors.resolveBookPercentScaleMax(0.95f), 0.001f)
+        assertEquals(1.0f, ReadingProgressColors.resolveBookPercentScaleMax(1.0f), 0.001f)
     }
 
     @Test
     fun `book percent scale max expands to next 25 percent boundary above 100`() {
-        assertEquals(1.25f, ReadingProgressActivity.resolveBookPercentScaleMax(1.01f), 0.001f)
-        assertEquals(1.25f, ReadingProgressActivity.resolveBookPercentScaleMax(1.24f), 0.001f)
-        assertEquals(2.75f, ReadingProgressActivity.resolveBookPercentScaleMax(2.61f), 0.001f)
+        assertEquals(1.25f, ReadingProgressColors.resolveBookPercentScaleMax(1.01f), 0.001f)
+        assertEquals(1.25f, ReadingProgressColors.resolveBookPercentScaleMax(1.24f), 0.001f)
+        assertEquals(2.75f, ReadingProgressColors.resolveBookPercentScaleMax(2.61f), 0.001f)
     }
 
     @Test
     fun `book percent scale steps use 25 percent increments up to max`() {
-        assertEquals(listOf(25, 50, 75, 100), ReadingProgressActivity.buildBookPercentScaleSteps(1.0f))
-        assertEquals(listOf(25, 50, 75, 100, 125), ReadingProgressActivity.buildBookPercentScaleSteps(1.25f))
-        assertEquals(listOf(25, 50, 75, 100, 125, 150, 175), ReadingProgressActivity.buildBookPercentScaleSteps(1.75f))
+        assertEquals(listOf(25, 50, 75, 100), ReadingProgressColors.buildBookPercentScaleSteps(1.0f))
+        assertEquals(listOf(25, 50, 75, 100, 125), ReadingProgressColors.buildBookPercentScaleSteps(1.25f))
+        assertEquals(listOf(25, 50, 75, 100, 125, 150, 175), ReadingProgressColors.buildBookPercentScaleSteps(1.75f))
     }
 }
-
-
