@@ -288,20 +288,6 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getMaxReadCountForBook returns highest chapter count`() {
-        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)
-        ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 2)
-
-        assertEquals(2, ProgressControl.getMaxReadCountForBook(BibleBook.GEN))
-    }
-
-    @Test
-    fun `getMaxReadCountForBook returns zero when nothing read`() {
-        assertEquals(0, ProgressControl.getMaxReadCountForBook(BibleBook.GEN))
-    }
-
-    @Test
     fun `getDistinctReadChaptersCountForBook counts unique chapters only`() {
         // Chapter 1 read 3 times, chapter 2 once — distinct count is 2
         ProgressControl.recordChapterRead(KJVA, BibleBook.GEN, 1)

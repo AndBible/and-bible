@@ -352,7 +352,10 @@ class Converters {
     fun permissionModeToStr(obj: PermissionMode?): String? = obj?.name
 
     @TypeConverter
-    fun toReadingSource(value: String?) = if (value == null) null else ReadingSource.valueOf(value)
+    fun toReadingSource(value: String?): ReadingSource? {
+        if (value == null) return null
+        return try { ReadingSource.valueOf(value) } catch (_: IllegalArgumentException) { null }
+    }
 
     @TypeConverter
     fun fromReadingSource(value: ReadingSource?) = value?.name

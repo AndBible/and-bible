@@ -374,7 +374,7 @@ class ReadingProgressActivity : ActivityBase() {
         binding.chaptersGrid.columnCount = totalChapters.coerceIn(5, 10)
 
         val counts = ProgressControl.getChapterReadCountsForBook(book, currentCycle)
-        val maxCount = ProgressControl.getMaxReadCountForBook(book, currentCycle).coerceAtLeast(1)
+        val maxCount = (counts.values.maxOrNull() ?: 0).coerceAtLeast(1)
         showCountScale(maxCount)
         for (ch in 1..totalChapters) {
             val count = counts[ch] ?: 0

@@ -18,6 +18,7 @@
 package net.bible.android.view.activity.progress
 
 import android.graphics.Color
+import androidx.core.graphics.ColorUtils
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 
@@ -30,19 +31,12 @@ import kotlin.math.roundToInt
  */
 object ReadingProgressColors {
 
-    // Generic green-scale (used by both reading and memorization heatmaps)
     val COLOR_EMPTY = Color.parseColor("#E8E8E8")
-    val COLOR_LOW = Color.parseColor("#C6E48B")
-    val COLOR_MEDIUM = Color.parseColor("#7BC96F")
-    val COLOR_HIGH = Color.parseColor("#239A3B")
-    val COLOR_ALMOST = Color.parseColor("#196127")
-    val COLOR_READ = Color.parseColor("#196127")
 
-    // Memorization heatmap
+    // Memorization heatmap (green scale)
     val COLOR_MEM_LOW = Color.parseColor("#C6E48B")
     val COLOR_MEM_MEDIUM = Color.parseColor("#7BC96F")
     val COLOR_MEM_HIGH = Color.parseColor("#239A3B")
-    val COLOR_MEM_ALMOST = Color.parseColor("#196127")
     val COLOR_MEM_FULL = Color.parseColor("#196127")
 
     val COLOR_TARGET_DOT = Color.parseColor("#9C27B0")
@@ -58,43 +52,20 @@ object ReadingProgressColors {
     val COLOR_COUNT_BOOK_BLUE_HIGH = Color.parseColor("#1565C0")
     val COLOR_COUNT_BOOK_RED = Color.parseColor("#B71C1C")
 
-    fun progressToColor(progress: Float): Int = when {
-        progress <= 0f -> COLOR_EMPTY
-        progress < 0.25f -> COLOR_LOW
-        progress < 0.50f -> COLOR_MEDIUM
-        progress < 0.75f -> COLOR_HIGH
-        progress < 1.0f -> COLOR_ALMOST
-        else -> COLOR_READ
-    }
-
     fun memorizationProgressToColor(progress: Float): Int = when {
         progress <= 0f -> COLOR_EMPTY
         progress < 0.25f -> COLOR_MEM_LOW
         progress < 0.50f -> COLOR_MEM_MEDIUM
         progress < 0.75f -> COLOR_MEM_HIGH
-        progress < 1.0f -> COLOR_MEM_ALMOST
         else -> COLOR_MEM_FULL
-    }
-
-    /** Interpolates smoothly between two ARGB colors by ratio (0..1). */
-    fun interpolateColor(from: Int, to: Int, ratio: Float): Int {
-        val r = (Color.red(from) + (Color.red(to) - Color.red(from)) * ratio).toInt()
-        val g = (Color.green(from) + (Color.green(to) - Color.green(from)) * ratio).toInt()
-        val b = (Color.blue(from) + (Color.blue(to) - Color.blue(from)) * ratio).toInt()
-        return Color.rgb(r, g, b)
     }
 
     /**
      * Returns [Color.WHITE] for dark backgrounds and [Color.DKGRAY] for light ones,
      * using WCAG relative luminance so text stays readable over any heat-map color.
      */
-    fun textColorForBackground(bgColor: Int): Int {
-        val r = Color.red(bgColor) / 255.0
-        val g = Color.green(bgColor) / 255.0
-        val b = Color.blue(bgColor) / 255.0
-        val luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
-        return if (luminance < 0.45) Color.WHITE else Color.DKGRAY
-    }
+    fun textColorForBackground(bgColor: Int): Int =
+        if (ColorUtils.calculateLuminance(bgColor) < 0.45) Color.WHITE else Color.DKGRAY
 
     /**
      * Heat color for a chapter button.
@@ -107,11 +78,11 @@ object ReadingProgressColors {
         return when {
             count <= HEAT_MID_COUNT -> {
                 val ratio = (count - 1).toFloat() / (HEAT_MID_COUNT - 1).coerceAtLeast(1)
-                interpolateColor(COLOR_HEAT_MIN, COLOR_HEAT_MID, ratio.coerceIn(0f, 1f))
+                ColorUtils.blendARGB(COLOR_HEAT_MIN, COLOR_HEAT_MID, ratio.coerceIn(0f, 1f))
             }
             else -> {
                 val ratio = (count - HEAT_MID_COUNT).toFloat() / (effectiveMax - HEAT_MID_COUNT).coerceAtLeast(1)
-                interpolateColor(COLOR_HEAT_MID, COLOR_HEAT_MAX, ratio.coerceIn(0f, 1f))
+                ColorUtils.blendARGB(COLOR_HEAT_MID, COLOR_HEAT_MAX, ratio.coerceIn(0f, 1f))
             }
         }
     }
@@ -124,10 +95,10 @@ object ReadingProgressColors {
     fun countBookProgressToColor(readPercent: Float, effectiveMaxPercent: Float): Int {
         if (readPercent <= 0f) return COLOR_EMPTY
         return when {
-            readPercent <= 1.0f -> interpolateColor(COLOR_COUNT_BOOK_BLUE_LOW, COLOR_COUNT_BOOK_BLUE_HIGH, readPercent)
+            readPercent <= 1.0f -> ColorUtils.blendARGB(COLOR_COUNT_BOOK_BLUE_LOW, COLOR_COUNT_BOOK_BLUE_HIGH, readPercent)
             else -> {
                 val ratio = ((readPercent - 1.0f) / (effectiveMaxPercent - 1.0f)).coerceIn(0f, 1f)
-                interpolateColor(COLOR_COUNT_BOOK_BLUE_HIGH, COLOR_COUNT_BOOK_RED, ratio)
+                ColorUtils.blendARGB(COLOR_COUNT_BOOK_BLUE_HIGH, COLOR_COUNT_BOOK_RED, ratio)
             }
         }
     }

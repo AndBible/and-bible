@@ -155,9 +155,7 @@ const {
     font-size: 12px;
     font-weight: bold;
     margin-left: 2px;
-
     color: #4CAF50;
-    cursor: default;
 
     .night & {
         color: #66BB6A;

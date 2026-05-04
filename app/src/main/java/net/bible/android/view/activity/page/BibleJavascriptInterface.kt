@@ -580,15 +580,6 @@ class BibleJavascriptInterface(
         ProgressControl.recordChapterRead(v11n, verse.book, chapter, bookInitials, readingSource)
     }
 
-    /** Removes every history row for this chapter in the current cycle (the "untick" action). */
-    @JavascriptInterface
-    fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val verse = Verse(v11n, startOrdinal)
-        ProgressControl.deleteAllReadsForChapter(v11n, verse.book, chapter)
-    }
-
     @JavascriptInterface
     fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return

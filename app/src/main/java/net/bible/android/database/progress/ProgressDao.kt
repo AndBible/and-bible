@@ -30,7 +30,7 @@ data class DailyReadingCount(
 
 data class ChapterReadCount(
     val chapter: Int,
-    val cnt: Int,
+    val count: Int,
 )
 
 @Dao
@@ -93,9 +93,6 @@ interface ProgressDao {
     @Query("DELETE FROM ChapterReadHistory WHERE id = :id")
     fun deleteChapterReadHistoryById(id: IdType)
 
-    @Query("DELETE FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
-    fun deleteAllReadsForChapter(kjvBookOrdinal: Int, chapter: Int, cycle: Int)
-
     @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
     fun getChapterReadCount(kjvBookOrdinal: Int, chapter: Int, cycle: Int): Int
 
@@ -108,9 +105,6 @@ interface ProgressDao {
     @Query("SELECT * FROM ChapterReadHistory WHERE readAt >= :startMs AND readAt < :endMs AND cycle = :cycle ORDER BY readAt DESC")
     fun getHistoryForDay(startMs: Long, endMs: Long, cycle: Int): List<ChapterReadHistory>
 
-    @Query("SELECT COALESCE(MAX(cnt), 0) FROM (SELECT COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle GROUP BY chapter)")
-    fun getMaxReadCountForBook(kjvBookOrdinal: Int, cycle: Int): Int
-
     @Query("SELECT COUNT(DISTINCT chapter) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle")
     fun getDistinctReadChaptersCountForBook(kjvBookOrdinal: Int, cycle: Int): Int
 
@@ -120,7 +114,7 @@ interface ProgressDao {
     @Query("SELECT DISTINCT chapter FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY chapter")
     fun getReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
 
-    @Query("SELECT chapter, COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle GROUP BY chapter")
+    @Query("SELECT chapter, COUNT(*) as count FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle GROUP BY chapter")
     fun getChapterReadCountsForBook(kjvBookOrdinal: Int, cycle: Int): List<ChapterReadCount>
 
     @Query("SELECT COUNT(DISTINCT (kjvBookOrdinal || ',' || chapter)) FROM ChapterReadHistory WHERE cycle = :cycle")
@@ -128,9 +122,6 @@ interface ProgressDao {
 
     @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadHistory WHERE cycle = :cycle")
     fun countDistinctReadDays(cycle: Int): Int
-
-    @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE cycle = :cycle")
-    fun countTotalReads(cycle: Int): Int
 
     @Query("SELECT COALESCE(MAX(cycle), 1) FROM ChapterReadHistory")
     fun getLatestCycle(): Int
