@@ -42,7 +42,7 @@ noMyNotesTitle: Za to poglavje ni Mojih opomb.
 noMyNotesDescription: >-
   Začnite z ustvarjanjem zaznamkov v biblijskem dokumentu. Nato se bodo tukaj prikazali zaznamki, vanje pa lahko dodate svoje osebne zapiske.
 emptyStudyPad: >-
-  Prazna beležnica. Začnite dodajati na to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
+  Prazna beležnica. Začnite dodajati v to beležnico z ustvarjanjem besedilnih vnosov ali z ustvarjanjem zaznamkov z oznako zaznamka, ki ustreza tej beležnici.
 doYouWantToDeleteEntry: "Želite izbrisati ta vnos v beležnici?"
 removeStudyPadConfirmationTitle: "Želite odstraniti vnos beležnice?"
 dragHelp: Povlecite za prerazporeditev
@@ -67,14 +67,14 @@ verseShareLong: Deli to vrstico
 verseCompareLong: Primerjaj vrstico
 verseMemorizeLong: Zapomni si svetopisemske vrstice
 addMemorizationTarget: Cilj +
-addMemorizationTargetLong: Nastavi kot cilj memoriranja
+addMemorizationTargetLong: Nastavi kot cilj pomnjenja
 removeMemorizationTarget: Cilj -
-removeMemorizationTargetLong: Odstrani cilj memoriranja
+removeMemorizationTargetLong: Odstrani cilj pomnjenja
 markAsMemorized: Označi kot zapomnjenega
 markedAsMemorized: Zapomnjen
 removeFromTargets: Cilj -
-viewReadingProgress: Napredek branja/memoriranja
-viewReadingProgressSettings: Nastavitve branja/memoriranja
+viewReadingProgress: Napredek branja/pomnjenja
+viewReadingProgressSettings: Nastavitve branja/pomnjenja
 listenInLoop: Poslušaj v zanki
 verseNoteLong: Zapiši beležko
 verseParagraphBreakLong: Prelom odstavka

@@ -137,6 +137,13 @@
   <string name="prefs_show_memorization_indicators_summary">Tunjukkan penunjuk jidar berwarna untuk ayat yang dihafal dan ayat sasaran</string>
   <string name="prefs_auto_track_reading_title">Jejak bacaan automatik</string>
   <string name="prefs_auto_track_reading_summary">Tandakan bab sebagai dibaca secara automatik apabila anda menatal melaluinya</string>
+  <string name="reading_progress_read_count_scale">Bilangan\nBacaan</string>
+  <string name="reading_progress_percent_read_scale">Peratus\nDibaca</string>
+  <string name="reading_progress_percent_label">%d%%</string>
+  <string name="reading_progress_history_title">Sejarah Bacaan</string>
+  <string name="reading_progress_history_for">Kemajuan bacaan untuk %1$s</string>
+  <string name="reading_progress_history_no_entries">Tiada rekod bacaan untuk pilihan ini.</string>
+  <string name="reading_progress_history_version_unknown">Versi tidak diketahui</string>
   <string name="prefs_tilt_to_scroll_title">Tilt untuk menatal</string>
 
   <string name="prefs_toolbar_button_action_title">Tindakan untuk butang bar alat ditekan</string>
@@ -404,6 +411,7 @@
   <string name="auto_assign_labels">Label auto-tugasan &amp; Kegemaran</string>
   <string name="auto_assign_labels1">Auto-tugaskan label kepada penanda buku baharu</string>
   <string name="auto_assign_labels_primary">Auto-tugaskan sebagai utama</string>
+  <!-- can be removed -->
   <string name="marker_style">Tunjukkan hanya penanda untuk penanda buku pilihan</string>
   <string name="marker_style_whole_verse">Tunjukkan hanya penanda untuk penanda buku keseluruhan ayat</string>
   <string name="hide_style">Sembunyikan untuk penanda buku pilihan</string>
@@ -706,6 +714,10 @@
   <string name="upgrade_video_message">Sila lihat video yang menampilkan ciri baharu keluaran ini (%s).</string>
   <string name="stable_notice_par1">Versi baharu %1$s dari %2$s telah berjaya dipasang!</string>
 
+  <string name="new_sync_targets_notice_title">Tetapan segerak baharu tersedia</string>
+  <string name="new_sync_targets_notice_message">Versi AndBible ini memperkenalkan sasaran segerak tambahan: Dokumen Saya, tetapan AI dan kemajuan bacaan. Jika anda ingin mengaktifkannya, anda boleh berbuat demikian dalam tetapan Penyegerakan Peranti.</string>
+  <string name="open_settings">Buka tetapan</string>
+
     <!-- History -->
   <string name="history_for">Sejarah (%1$s: Tetingkap %2$d)</string>
 
@@ -781,8 +793,6 @@
   <string name="prefs_experimental_features_summary">Pilih ciri eksperimental mana yang hendak diaktifkan. Ciri-ciri ini masih dalam pembangunan dan mungkin berubah atau dibuang</string>
   <string name="experimental_feature_bookmark_edit_actions">Tindakan edit penanda buku</string>
   <string name="experimental_feature_add_paragraph_break">Tambah penanda buku pemisah perenggan</string>
-  <string name="experimental_feature_ai_features">Ciri AI &amp; Dokumen Saya</string>
-  <string name="experimental_feature_reading_and_memorization">Penjejakan bacaan &amp; Hafalan</string>
   <string name="raw_llm_log_title">Log LLM Mentah</string>
   <string name="raw_llm_log_empty">Tiada data log mentah tersedia</string>
   <string name="raw_llm_log_copied">Log disalin ke papan klip</string>
@@ -1147,6 +1157,8 @@
   <string name="memorize_error_heatmap_summary">Serlahkan perkataan dengan lebih banyak ralat dalam merah yang lebih pekat secara progresif</string>
   <string name="memorize_scramble_hide_used">Sembunyikan butang perkataan yang digunakan</string>
   <string name="memorize_scramble_hide_used_summary">Sembunyikan butang perkataan sepenuhnya selepas ia diletakkan dengan betul dalam mod acak perkataan</string>
+  <string name="memorize_include_reference">Sertakan rujukan ayat</string>
+  <string name="memorize_include_reference_summary">Tambah rujukan ayat (cth. Yohanes 3:16) sebagai item terakhir untuk dihafal</string>
   <string name="reading_progress_settings">Kemajuan &amp; hafalan</string>
   <string name="reading_progress_settings_summary">Tetapan penjejakan automatik, hafalan, dan latihan menaip</string>
   <string name="memorize_confirm_unmark">Buang status dihafal untuk %s?</string>
@@ -1261,6 +1273,7 @@
   <string name="ai_provider_name_hint">Nama paparan untuk penyedia ini</string>
   <string name="ai_provider_api_key">Kunci API</string>
   <string name="ai_provider_endpoint">Titik akhir API</string>
+  <string name="ai_provider_endpoint_description">URL asas sahaja. AndBible menambah \"/chat/completions\" (format OpenAI) atau \"/messages\" (format Anthropic) secara automatik. Senarai model diambil dari \"/models\".</string>
   <string name="ai_provider_api_format">Format API</string>
   <string name="ai_provider_saved">Penyedia disimpan</string>
   <string name="ai_provider_deleted">Penyedia dipadamkan</string>
@@ -1606,7 +1619,6 @@
   <string name="agent_log_executing">Melaksanakan: %s</string>
   <string name="agent_log_iteration">Lelaran %d</string>
   <string name="agent_log_tool">Alat: %s</string>
-  <string name="agent_log_tool_completed">Alat %s selesai</string>
   <string name="agent_log_tool_failed">Alat %s gagal</string>
   <string name="agent_log_response_received">Respons diterima</string>
   <string name="agent_log_saved">Disimpan: %s</string>
