@@ -197,8 +197,11 @@ object ReadHistoryDialog {
 
                 val deleteButton = TextView(activity).apply {
                     text = "\u00D7"
-                    textSize = 20f
-                    setPadding(dp8, 0, dp4, 0)
+                    textSize = 28f
+                    minWidth = dp8 * 6
+                    minHeight = dp8 * 6
+                    gravity = Gravity.CENTER
+                    setPadding(dp8, dp4, dp8, dp4)
                     setTextColor(Color.DKGRAY)
                     setOnClickListener {
                         val pendingDelete = if (entry.id in pendingDeleteIds) {
