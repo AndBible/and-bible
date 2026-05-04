@@ -212,8 +212,8 @@ class ProgressControlTest {
         // Since we haven't written cycle 2 records yet, getCurrentCycle still returns 1.
         // We need to manually write a cycle 2 record to advance.
         val cycle2 = ProgressControl.startNewCycle()
-        dao.insertChapterReadingRecord(
-            net.bible.android.database.progress.ChapterReadingRecord(
+        dao.insertChapterReadHistory(
+            net.bible.android.database.progress.ChapterReadHistory(
                 kjvBookOrdinal = BibleBook.GEN.ordinal,
                 chapter = 5,
                 cycle = cycle2,
@@ -251,7 +251,7 @@ class ProgressControlTest {
         assertFalse(progress.containsKey(BibleBook.LEV))
     }
 
-    // --- Count-mode: chapter read history ---
+    // --- Chapter read history ---
 
     @Test
     fun `incrementChapterReadCount increases count for that chapter`() {
@@ -356,7 +356,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `deleteReadHistoryEntry removes one count-mode read instance only`() {
+    fun `deleteReadHistoryEntry removes one read instance only`() {
         ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
         ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
 
@@ -368,7 +368,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `deleteReadHistoryEntries removes only selected count-mode instances`() {
+    fun `deleteReadHistoryEntries removes only selected instances`() {
         repeat(3) { ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1) }
         ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
 
@@ -383,7 +383,7 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getReadHistoryForDay returns count-mode entries for tapped calendar day`() {
+    fun `getReadHistoryForDay returns entries for tapped calendar day`() {
         ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 1)
         ProgressControl.incrementChapterReadCount(KJVA, BibleBook.GEN, 2)
 
@@ -395,12 +395,12 @@ class ProgressControlTest {
     }
 
     @Test
-    fun `getChapterReadEntriesForDay returns toggle-mode entries for tapped calendar day`() {
+    fun `getReadHistoryForDay also returns idempotent markChapterRead entries`() {
         ProgressControl.markChapterRead(KJVA, BibleBook.GEN, 3)
         ProgressControl.markChapterRead(KJVA, BibleBook.EXOD, 1)
 
         val today = (System.currentTimeMillis() / 86_400_000L) * 86_400_000L
-        val entries = ProgressControl.getChapterReadEntriesForDay(today)
+        val entries = ProgressControl.getReadHistoryForDay(today)
 
         assertEquals(2, entries.size)
         assertTrue(entries.any { it.kjvBookOrdinal == BibleBook.GEN.ordinal && it.chapter == 3 })

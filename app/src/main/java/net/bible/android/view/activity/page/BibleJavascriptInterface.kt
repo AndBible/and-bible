@@ -37,7 +37,6 @@ import net.bible.android.common.toV11n
 import net.bible.android.control.backup.BackupControl
 import net.bible.android.control.progress.ProgressControl
 import net.bible.android.control.progress.ReadingProgressSettingsChangedEvent
-import net.bible.android.database.progress.ReadingSource
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.ToastEvent
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent
@@ -566,21 +565,22 @@ class BibleJavascriptInterface(
         }
     }
 
+    /** Idempotent mark — used by auto-track-while-scrolling. Records at most one history row per chapter per cycle. */
     @JavascriptInterface
-    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
+    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
-        val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
-        ProgressControl.markChapterRead(v11n, verse.book, chapter, readingSource)
+        ProgressControl.markChapterRead(v11n, verse.book, chapter, bookInitials)
     }
 
+    /** Removes every history row for this chapter in the current cycle. */
     @JavascriptInterface
     fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
-        ProgressControl.unmarkChapterRead(v11n, verse.book, chapter)
+        ProgressControl.deleteAllReadsForChapter(v11n, verse.book, chapter)
     }
 
     @JavascriptInterface

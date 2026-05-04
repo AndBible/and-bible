@@ -245,15 +245,8 @@ class ReadingProgressActivity : ActivityBase() {
     private fun refreshSummary() {
         val totalChapters = ProgressControl.totalBibleChapters
 
-        val totalRead: Int
-        val activeDays: Int
-        if (ReadingProgressSettings.useReadCountMode) {
-            totalRead = ProgressControl.getTotalDistinctChaptersRead(currentCycle)
-            activeDays = ProgressControl.getDistinctReadDaysFromHistory(currentCycle)
-        } else {
-            totalRead = ProgressControl.getTotalReadChapters(currentCycle)
-            activeDays = ProgressControl.getDistinctReadDays(currentCycle)
-        }
+        val totalRead = ProgressControl.getTotalReadChapters(currentCycle)
+        val activeDays = ProgressControl.getDistinctReadDays(currentCycle)
 
         binding.apply {
             chaptersReadCount.text = "$totalRead"
@@ -271,55 +264,31 @@ class ReadingProgressActivity : ActivityBase() {
         binding.otBooksGrid.removeAllViews()
         binding.ntBooksGrid.removeAllViews()
 
-        if (ReadingProgressSettings.useReadCountMode) {
-            val bookCountProgress = ProgressControl.getBookCountProgress(currentCycle)
-            val effectiveMaxPercent = resolveBookPercentScaleMax(bookCountProgress.values.maxOfOrNull { it.readPercent })
-            showBookPercentScale(effectiveMaxPercent)
-            for (book in kjva.bookIterator) {
-                if (!Scripture.isScripture(book)) continue
-                val isNT = book.ordinal >= BibleBook.MATT.ordinal
-                val grid = if (isNT) binding.ntBooksGrid else binding.otBooksGrid
-                val cp = bookCountProgress[book]
-                val color = if (cp == null) COLOR_EMPTY
-                            else countBookProgressToColor(cp.readPercent, effectiveMaxPercent)
-                val totalChapters = kjva.getLastChapter(book)
-                val isComplete = ProgressControl.getDistinctReadChaptersCountForBook(book, currentCycle) >= totalChapters
-                val btn = createBookButton(
-                    book, cp?.readPercent ?: 0f, { _ -> color },
-                    onClick = { showChapterDetail(book) },
-                    onLongClick = { showReadHistoryDialog(kjva.getLongName(book), book, chapter = null) },
-                    isComplete = isComplete,
-                )
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-                    setMargins(2.dp, 2.dp, 2.dp, 2.dp)
-                }
-                grid.addView(btn, params)
+        val bookCountProgress = ProgressControl.getBookCountProgress(currentCycle)
+        val effectiveMaxPercent = resolveBookPercentScaleMax(bookCountProgress.values.maxOfOrNull { it.readPercent })
+        showBookPercentScale(effectiveMaxPercent)
+        for (book in kjva.bookIterator) {
+            if (!Scripture.isScripture(book)) continue
+            val isNT = book.ordinal >= BibleBook.MATT.ordinal
+            val grid = if (isNT) binding.ntBooksGrid else binding.otBooksGrid
+            val cp = bookCountProgress[book]
+            val color = if (cp == null) COLOR_EMPTY
+                        else countBookProgressToColor(cp.readPercent, effectiveMaxPercent)
+            val totalChapters = kjva.getLastChapter(book)
+            val isComplete = ProgressControl.getDistinctReadChaptersCountForBook(book, currentCycle) >= totalChapters
+            val btn = createBookButton(
+                book, cp?.readPercent ?: 0f, { _ -> color },
+                onClick = { showChapterDetail(book) },
+                onLongClick = { showReadHistoryDialog(kjva.getLongName(book), book, chapter = null) },
+                isComplete = isComplete,
+            )
+            val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                setMargins(2.dp, 2.dp, 2.dp, 2.dp)
             }
-        } else {
-            binding.bookPercentScale.visibility = View.GONE
-            val bookProgress = ProgressControl.getBookReadingProgress(currentCycle)
-            for (book in kjva.bookIterator) {
-                if (!Scripture.isScripture(book)) continue
-                val isNT = book.ordinal >= BibleBook.MATT.ordinal
-                val grid = if (isNT) binding.ntBooksGrid else binding.otBooksGrid
-                val progress = bookProgress[book] ?: 0f
-                val btn = createBookButton(
-                    book, progress, ::progressToColor,
-                    onClick = { showChapterDetail(book) },
-                    onLongClick = { showReadHistoryDialog(kjva.getLongName(book), book, chapter = null) },
-                    isComplete = progress >= 1f,
-                )
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-                    setMargins(2.dp, 2.dp, 2.dp, 2.dp)
-                }
-                grid.addView(btn, params)
-            }
+            grid.addView(btn, params)
         }
     }
 
@@ -397,46 +366,26 @@ class ReadingProgressActivity : ActivityBase() {
         // Use at least 5 columns so a single-chapter book doesn't stretch to full width
         binding.chaptersGrid.columnCount = totalChapters.coerceIn(5, 10)
 
-        if (ReadingProgressSettings.useReadCountMode) {
-            val counts = ProgressControl.getChapterReadCountsForBook(book, currentCycle)
-            val maxCount = ProgressControl.getMaxReadCountForBook(book, currentCycle).coerceAtLeast(1)
-            showCountScale(maxCount)
-            for (ch in 1..totalChapters) {
-                val count = counts[ch] ?: 0
-                val color = countToHeatColor(count, maxCount)
-                val textColor = textColorForBackground(color)
-                val btn = createChapterButton(
-                    ch, color, count > 0,
-                    onClick = { navigateToChapter(book, ch) },
-                    onLongClick = { showReadHistoryDialog("${kjva.getLongName(book)} $ch", book, chapter = ch) },
-                    textColor = textColor,
-                )
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-                    setMargins(2.dp, 2.dp, 2.dp, 2.dp)
-                }
-                binding.chaptersGrid.addView(btn, params)
+        val counts = ProgressControl.getChapterReadCountsForBook(book, currentCycle)
+        val maxCount = ProgressControl.getMaxReadCountForBook(book, currentCycle).coerceAtLeast(1)
+        showCountScale(maxCount)
+        for (ch in 1..totalChapters) {
+            val count = counts[ch] ?: 0
+            val color = countToHeatColor(count, maxCount)
+            val textColor = textColorForBackground(color)
+            val btn = createChapterButton(
+                ch, color, count > 0,
+                onClick = { navigateToChapter(book, ch) },
+                onLongClick = { showReadHistoryDialog("${kjva.getLongName(book)} $ch", book, chapter = ch) },
+                textColor = textColor,
+            )
+            val params = GridLayout.LayoutParams().apply {
+                width = 0
+                height = GridLayout.LayoutParams.WRAP_CONTENT
+                columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
+                setMargins(2.dp, 2.dp, 2.dp, 2.dp)
             }
-        } else {
-            binding.chapterCountScale.visibility = View.GONE
-            val readChapters = ProgressControl.getReadChaptersForBook(book, currentCycle).toSet()
-            for (ch in 1..totalChapters) {
-                val isRead = ch in readChapters
-                val btn = createChapterButton(
-                    ch, if (isRead) COLOR_READ else COLOR_EMPTY, isRead,
-                    onClick = { navigateToChapter(book, ch) },
-                    onLongClick = { showReadHistoryDialog("${kjva.getLongName(book)} $ch", book, chapter = ch) },
-                )
-                val params = GridLayout.LayoutParams().apply {
-                    width = 0
-                    height = GridLayout.LayoutParams.WRAP_CONTENT
-                    columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1, 1f)
-                    setMargins(2.dp, 2.dp, 2.dp, 2.dp)
-                }
-                binding.chaptersGrid.addView(btn, params)
-            }
+            binding.chaptersGrid.addView(btn, params)
         }
     }
 
@@ -496,22 +445,13 @@ class ReadingProgressActivity : ActivityBase() {
      * and a delete button. Works for both count-mode and non-count mode.
      */
     private fun showReadHistoryDialog(title: String, book: BibleBook, chapter: Int?, onClosed: (() -> Unit)? = null) {
-        val entries: List<ChapterReadEntry> = if (ReadingProgressSettings.useReadCountMode) {
-            if (chapter == null) ProgressControl.getReadHistoryForBook(book, currentCycle)
-            else ProgressControl.getReadHistoryForChapter(book, chapter, currentCycle)
-        } else {
-            if (chapter == null) ProgressControl.getChapterReadEntriesForBook(book, currentCycle)
-            else ProgressControl.getChapterReadEntriesForChapter(book, chapter, currentCycle)
-        }
+        val entries = if (chapter == null) ProgressControl.getReadHistoryForBook(book, currentCycle)
+                      else ProgressControl.getReadHistoryForChapter(book, chapter, currentCycle)
         showReadHistoryDialog(title, entries, onClosed)
     }
 
     private fun showDayReadHistoryDialog(dayTimestamp: Long) {
-        val entries = if (ReadingProgressSettings.useReadCountMode) {
-            ProgressControl.getReadHistoryForDay(dayTimestamp, currentCycle)
-        } else {
-            ProgressControl.getChapterReadEntriesForDay(dayTimestamp, currentCycle)
-        }
+        val entries = ProgressControl.getReadHistoryForDay(dayTimestamp, currentCycle)
         showReadHistoryDialog(historyDialogTitle(dayTimestamp), entries)
     }
 
@@ -538,16 +478,7 @@ class ReadingProgressActivity : ActivityBase() {
             val pendingEntries = entries.filter { it.id in pendingDeleteIds }
             if (pendingEntries.isEmpty()) return
 
-            if (ReadingProgressSettings.useReadCountMode) {
-                ProgressControl.deleteReadHistoryEntries(pendingEntries, currentCycle)
-            } else {
-                pendingEntries.forEach { entry ->
-                    val kjvBookForDelete = BibleBook.entries.getOrNull(entry.kjvBookOrdinal)
-                    if (kjvBookForDelete != null) {
-                        ProgressControl.unmarkChapterRead(kjva, kjvBookForDelete, entry.chapter)
-                    }
-                }
-            }
+            ProgressControl.deleteReadHistoryEntries(pendingEntries, currentCycle)
             refreshAll()
         }
 
@@ -703,10 +634,7 @@ class ReadingProgressActivity : ActivityBase() {
         cal.add(Calendar.WEEK_OF_YEAR, -52)
         val startMs = cal.timeInMillis
 
-        val records = if (ReadingProgressSettings.useReadCountMode)
-            ProgressControl.getReadingCalendarFromHistory(startMs, endMs, currentCycle)
-        else
-            ProgressControl.getReadingCalendar(startMs, endMs, currentCycle)
+        val records = ProgressControl.getReadingCalendar(startMs, endMs, currentCycle)
 
         val dailyCounts = mutableMapOf<Long, Int>()
         for (record in records) {

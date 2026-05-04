@@ -1,12 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <SwitchPreferenceCompat
-        android:key="use_read_count_mode"
-        android:title="@string/prefs_use_read_count_mode_title"
-        android:summary="@string/prefs_use_read_count_mode_summary"
-        android:defaultValue="false"
-        android:icon="@drawable/ic_baseline_check_circle_24" />
-    <SwitchPreferenceCompat
         android:key="auto_mark_memorized"
         android:title="@string/memorize_auto_mark"
         android:summary="@string/memorize_auto_mark_summary"

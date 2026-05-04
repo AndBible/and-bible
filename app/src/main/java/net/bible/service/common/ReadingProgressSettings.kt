@@ -76,10 +76,6 @@ object ReadingProgressSettings {
         get() = getOrDefault().activeCycle
         set(value) = update { copy(activeCycle = value) }
 
-    var useReadCountMode: Boolean
-        get() = getOrDefault().useReadCountMode
-        set(value) = update { copy(useReadCountMode = value) }
-
     fun getBundle(): ReadingProgressSettingsBundle {
         val s = getOrDefault()
         return ReadingProgressSettingsBundle(

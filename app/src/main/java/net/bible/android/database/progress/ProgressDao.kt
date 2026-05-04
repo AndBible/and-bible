@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -86,49 +86,15 @@ interface ProgressDao {
     @Query("SELECT * FROM MemorizationTarget WHERE kjvOrdinalStart <= :endOrdinal AND kjvOrdinalEnd >= :startOrdinal")
     fun memorizationTargetsOverlapping(startOrdinal: Int, endOrdinal: Int): List<MemorizationTarget>
 
-    // Reading queries
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertChapterReadingRecord(record: ChapterReadingRecord)
-
-    @Query("SELECT EXISTS(SELECT 1 FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle)")
-    fun isChapterRead(kjvBookOrdinal: Int, chapter: Int, cycle: Int): Boolean
-
-    @Query("DELETE FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
-    fun deleteChapterReadingRecord(kjvBookOrdinal: Int, chapter: Int, cycle: Int)
-
-    @Query("SELECT COUNT(*) FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle")
-    fun countReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): Int
-
-    @Query("SELECT COALESCE(MAX(cycle), 1) FROM ChapterReadingRecord")
-    fun getLatestCycle(): Int
-
-    @Query("SELECT * FROM ChapterReadingRecord WHERE cycle = :cycle ORDER BY readAt DESC")
-    fun getRecordsForCycle(cycle: Int): List<ChapterReadingRecord>
-
-    @Query("SELECT * FROM ChapterReadingRecord ORDER BY readAt DESC")
-    fun allReadingRecords(): List<ChapterReadingRecord>
-
-    @Query("SELECT COUNT(*) FROM ChapterReadingRecord WHERE cycle = :cycle")
-    fun countTotalReadChapters(cycle: Int): Int
-
-    @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadingRecord WHERE cycle = :cycle")
-    fun countDistinctReadDays(cycle: Int): Int
-
-    @Query("SELECT DISTINCT kjvBookOrdinal FROM ChapterReadingRecord WHERE cycle = :cycle")
-    fun getDistinctReadBookOrdinals(cycle: Int): List<Int>
-
-    @Query("SELECT chapter FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY chapter")
-    fun getReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
-
-    @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
-        "FROM ChapterReadingRecord " +
-        "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
-        "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
-    fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
-
-    // Chapter read history queries (count-mode)
+    // Chapter read history queries — append-only history is the only data model.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertChapterReadHistory(record: ChapterReadHistory)
+
+    @Query("DELETE FROM ChapterReadHistory WHERE id = :id")
+    fun deleteChapterReadHistoryById(id: IdType)
+
+    @Query("DELETE FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
+    fun deleteAllReadsForChapter(kjvBookOrdinal: Int, chapter: Int, cycle: Int)
 
     @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
     fun getChapterReadCount(kjvBookOrdinal: Int, chapter: Int, cycle: Int): Int
@@ -142,18 +108,6 @@ interface ProgressDao {
     @Query("SELECT * FROM ChapterReadHistory WHERE readAt >= :startMs AND readAt < :endMs AND cycle = :cycle ORDER BY readAt DESC")
     fun getHistoryForDay(startMs: Long, endMs: Long, cycle: Int): List<ChapterReadHistory>
 
-    @Query("DELETE FROM ChapterReadHistory WHERE id = :id")
-    fun deleteChapterReadHistoryById(id: IdType)
-
-    @Query("SELECT * FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY readAt DESC")
-    fun getReadingRecordsForBook(kjvBookOrdinal: Int, cycle: Int): List<ChapterReadingRecord>
-
-    @Query("SELECT * FROM ChapterReadingRecord WHERE readAt >= :startMs AND readAt < :endMs AND cycle = :cycle ORDER BY readAt DESC")
-    fun getReadingRecordsForDay(startMs: Long, endMs: Long, cycle: Int): List<ChapterReadingRecord>
-
-    @Query("SELECT * FROM ChapterReadingRecord WHERE kjvBookOrdinal = :kjvBookOrdinal AND chapter = :chapter AND cycle = :cycle")
-    fun getReadingRecordForChapter(kjvBookOrdinal: Int, chapter: Int, cycle: Int): ChapterReadingRecord?
-
     @Query("SELECT COALESCE(MAX(cnt), 0) FROM (SELECT COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle GROUP BY chapter)")
     fun getMaxReadCountForBook(kjvBookOrdinal: Int, cycle: Int): Int
 
@@ -164,7 +118,7 @@ interface ProgressDao {
     fun getTotalReadCountForBook(kjvBookOrdinal: Int, cycle: Int): Int
 
     @Query("SELECT DISTINCT chapter FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle ORDER BY chapter")
-    fun getReadChaptersFromHistoryForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
+    fun getReadChaptersForBook(kjvBookOrdinal: Int, cycle: Int): List<Int>
 
     @Query("SELECT chapter, COUNT(*) as cnt FROM ChapterReadHistory WHERE kjvBookOrdinal = :kjvBookOrdinal AND cycle = :cycle GROUP BY chapter")
     fun getChapterReadCountsForBook(kjvBookOrdinal: Int, cycle: Int): List<ChapterReadCount>
@@ -173,13 +127,19 @@ interface ProgressDao {
     fun countDistinctChaptersRead(cycle: Int): Int
 
     @Query("SELECT COUNT(DISTINCT (readAt / 86400000)) FROM ChapterReadHistory WHERE cycle = :cycle")
-    fun countDistinctReadDaysFromHistory(cycle: Int): Int
+    fun countDistinctReadDays(cycle: Int): Int
+
+    @Query("SELECT COUNT(*) FROM ChapterReadHistory WHERE cycle = :cycle")
+    fun countTotalReads(cycle: Int): Int
+
+    @Query("SELECT COALESCE(MAX(cycle), 1) FROM ChapterReadHistory")
+    fun getLatestCycle(): Int
 
     @Query("SELECT (readAt / 86400000) * 86400000 AS dayTimestamp, COUNT(*) AS count " +
         "FROM ChapterReadHistory " +
         "WHERE readAt >= :startMs AND readAt <= :endMs AND cycle = :cycle " +
         "GROUP BY readAt / 86400000 ORDER BY dayTimestamp")
-    fun getReadingCalendarFromHistory(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
+    fun getReadingCalendar(startMs: Long, endMs: Long, cycle: Int): List<DailyReadingCount>
 }
 
 @Dao

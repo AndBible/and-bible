@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -23,12 +23,10 @@ import net.bible.android.control.versification.Scripture
 import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import net.bible.service.common.ReadingProgressSettings
-import net.bible.android.database.progress.ChapterReadingRecord
 import net.bible.android.database.progress.ChapterReadHistory
 import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizationTarget
 import net.bible.android.database.progress.MemorizedVerse
-import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -151,45 +149,52 @@ object ProgressControl {
         return memorized.toFloat() / totalVerses
     }
 
-    fun markChapterRead(v11n: Versification, book: BibleBook, chapter: Int, source: ReadingSource = ReadingSource.MANUAL) {
+    /**
+     * Idempotent "mark this chapter read once if not already read this cycle".
+     * Used by the auto-track-while-scrolling feature so that scrolling past a chapter does not
+     * keep adding new history rows. For an explicit user tap that should always count, use
+     * [incrementChapterReadCount].
+     */
+    fun markChapterRead(v11n: Versification, book: BibleBook, chapter: Int, bookInitials: String = "") {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         val cycle = getCurrentCycle()
-        if (!dao.isChapterRead(kjvBook.ordinal, chapter, cycle)) {
-            dao.insertChapterReadingRecord(
-                ChapterReadingRecord(
+        if (dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) == 0) {
+            dao.insertChapterReadHistory(
+                ChapterReadHistory(
                     kjvBookOrdinal = kjvBook.ordinal,
                     chapter = chapter,
                     cycle = cycle,
-                    source = source,
+                    readAt = System.currentTimeMillis(),
+                    bookInitials = bookInitials,
                 )
             )
             ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
         }
     }
 
-    fun unmarkChapterRead(v11n: Versification, book: BibleBook, chapter: Int) {
+    /** Removes every history row for the given chapter in the current (or specified) cycle. */
+    fun deleteAllReadsForChapter(v11n: Versification, book: BibleBook, chapter: Int, cycle: Int = getCurrentCycle()) {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        val cycle = getCurrentCycle()
-        if (dao.isChapterRead(kjvBook.ordinal, chapter, cycle)) {
-            dao.deleteChapterReadingRecord(kjvBook.ordinal, chapter, cycle)
+        if (dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) > 0) {
+            dao.deleteAllReadsForChapter(kjvBook.ordinal, chapter, cycle)
             ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, false))
         }
     }
 
     fun isChapterRead(v11n: Versification, book: BibleBook, chapter: Int): Boolean {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        return dao.isChapterRead(kjvBook.ordinal, chapter, getCurrentCycle())
+        return dao.getChapterReadCount(kjvBook.ordinal, chapter, getCurrentCycle()) > 0
     }
 
     fun getReadingProgress(v11n: Versification, book: BibleBook): Float {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         val totalChapters = KJVA.getLastChapter(kjvBook)
         if (totalChapters <= 0) return 0f
-        val readChapters = dao.countReadChaptersForBook(kjvBook.ordinal, getCurrentCycle())
+        val readChapters = dao.getDistinctReadChaptersCountForBook(kjvBook.ordinal, getCurrentCycle())
         return readChapters.toFloat() / totalChapters
     }
 
-    /** Increment chapter read count (for count-mode feature). Records each tap separately. */
+    /** Records a new read history row. Each call adds one row even if the chapter was already read. */
     fun incrementChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int, bookInitials: String = "") {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         dao.insertChapterReadHistory(
@@ -204,10 +209,7 @@ object ProgressControl {
         ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
     }
 
-    /**
-     * Unified display model for a single read-history entry shown in the history dialog.
-     * Works for both count-mode ([ChapterReadHistory]) and non-count mode ([ChapterReadingRecord]).
-     */
+    /** Display model for a single read-history entry shown in the history dialog. */
     data class ChapterReadEntry(
         val id: IdType,
         val kjvBookOrdinal: Int,
@@ -217,30 +219,30 @@ object ProgressControl {
         val bookInitials: String,
     )
 
-    /** Returns all count-mode history entries for a book, newest first. */
+    /** Returns all history entries for a book, newest first. */
     fun getReadHistoryForBook(book: BibleBook, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
         dao.getHistoryForBook(book.ordinal, cycle).map {
             ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, it.bookInitials)
         }
 
-    /** Returns all count-mode history entries for a calendar day, newest first. */
+    /** Returns all history entries for a calendar day, newest first. */
     fun getReadHistoryForDay(dayTimestamp: Long, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
         dao.getHistoryForDay(dayTimestamp, dayTimestamp + DAY_MILLIS, cycle).map {
             ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, it.bookInitials)
         }
 
-    /** Returns all count-mode history entries for a single chapter, newest first. */
+    /** Returns all history entries for a single chapter, newest first. */
     fun getReadHistoryForChapter(book: BibleBook, chapter: Int, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
         dao.getChapterReadHistory(book.ordinal, chapter, cycle).map {
             ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, it.bookInitials)
         }
 
-    /** Deletes a single count-mode history entry by ID and refreshes the final read state for that chapter. */
+    /** Deletes a single history entry by ID and refreshes the final read state for that chapter. */
     fun deleteReadHistoryEntry(entry: ChapterReadEntry, cycle: Int = getCurrentCycle()) {
         deleteReadHistoryEntries(listOf(entry), cycle)
     }
 
-    /** Deletes multiple count-mode history entries and refreshes the final read state for each affected chapter. */
+    /** Deletes multiple history entries and refreshes the final read state for each affected chapter. */
     fun deleteReadHistoryEntries(entries: List<ChapterReadEntry>, cycle: Int = getCurrentCycle()) {
         if (entries.isEmpty()) return
         entries.forEach { dao.deleteChapterReadHistoryById(it.id) }
@@ -253,31 +255,13 @@ object ProgressControl {
             }
     }
 
-    /** Returns ChapterReadingRecord entries for a book as ChapterReadEntry (non-count mode), newest first. */
-    fun getChapterReadEntriesForBook(book: BibleBook, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
-        dao.getReadingRecordsForBook(book.ordinal, cycle).map {
-            ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, "")
-        }
-
-    /** Returns ChapterReadingRecord entries for a calendar day as ChapterReadEntry (non-count mode), newest first. */
-    fun getChapterReadEntriesForDay(dayTimestamp: Long, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
-        dao.getReadingRecordsForDay(dayTimestamp, dayTimestamp + DAY_MILLIS, cycle).map {
-            ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, "")
-        }
-
-    /** Returns the ChapterReadingRecord for a single chapter as ChapterReadEntry (non-count mode), or empty list. */
-    fun getChapterReadEntriesForChapter(book: BibleBook, chapter: Int, cycle: Int = getCurrentCycle()): List<ChapterReadEntry> =
-        listOfNotNull(dao.getReadingRecordForChapter(book.ordinal, chapter, cycle)).map {
-            ChapterReadEntry(it.id, it.kjvBookOrdinal, it.chapter, it.readAt, "")
-        }
-
-    /** Get total read count for a chapter (count-mode). */
+    /** Get total read count for a chapter. */
     fun getChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int): Int {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         return dao.getChapterReadCount(kjvBook.ordinal, chapter, getCurrentCycle())
     }
 
-    /** Get read chapter count for all books (for book progress in count-mode). */
+    /** Get read chapter count for all books (distinct chapters read at least once). */
     fun getBookReadCountProgress(): Map<BibleBook, Int> {
         val cycle = getCurrentCycle()
         val result = mutableMapOf<BibleBook, Int>()
@@ -291,7 +275,7 @@ object ProgressControl {
         return result
     }
 
-    /** Get total number of distinct chapters read (count-mode). */
+    /** Get total number of distinct chapters read in the current cycle. */
     fun getTotalChaptersReadCount(): Int {
         return dao.countDistinctChaptersRead(getCurrentCycle())
     }
@@ -316,19 +300,11 @@ object ProgressControl {
 
     // Statistics methods for ReadingProgressActivity
 
-    fun getTotalReadChapters(cycle: Int = getCurrentCycle()): Int = dao.countTotalReadChapters(cycle)
+    /** Distinct chapters read at least once in the cycle. */
+    fun getTotalReadChapters(cycle: Int = getCurrentCycle()): Int = dao.countDistinctChaptersRead(cycle)
 
+    /** Distinct calendar days on which any chapter was tapped (or auto-marked) in the cycle. */
     fun getDistinctReadDays(cycle: Int = getCurrentCycle()): Int = dao.countDistinctReadDays(cycle)
-
-    /** Count-mode: distinct chapters read at least once across all history. */
-    fun getTotalDistinctChaptersRead(cycle: Int = getCurrentCycle()): Int = dao.countDistinctChaptersRead(cycle)
-
-    /** Count-mode: distinct calendar days on which any chapter was tapped. */
-    fun getDistinctReadDaysFromHistory(cycle: Int = getCurrentCycle()): Int = dao.countDistinctReadDaysFromHistory(cycle)
-
-    /** Count-mode: daily read-tap counts for the calendar heatmap. */
-    fun getReadingCalendarFromHistory(startMs: Long, endMs: Long, cycle: Int = getCurrentCycle()): List<DailyReadingCount> =
-        dao.getReadingCalendarFromHistory(startMs, endMs, cycle)
 
     fun getTotalMemorizedVerses(): Int = dao.countTotalMemorizedVerses()
 
@@ -355,7 +331,7 @@ object ProgressControl {
             if (!Scripture.isScripture(book)) continue
             val totalChapters = KJVA.getLastChapter(book)
             if (totalChapters <= 0) continue
-            val readChapters = dao.countReadChaptersForBook(book.ordinal, cycle)
+            val readChapters = dao.getDistinctReadChaptersCountForBook(book.ordinal, cycle)
             if (readChapters > 0) {
                 result[book] = readChapters.toFloat() / totalChapters
             }
@@ -363,15 +339,15 @@ object ProgressControl {
         return result
     }
 
-    /** Returns map of chapter number → read count for a book (count-mode only). */
+    /** Returns map of chapter number → read count for a book. */
     fun getChapterReadCountsForBook(book: BibleBook, cycle: Int = getCurrentCycle()): Map<Int, Int> =
         dao.getChapterReadCountsForBook(book.ordinal, cycle).associate { it.chapter to it.cnt }
 
-    /** Returns the maximum read count for any chapter in a book (count-mode only). */
+    /** Returns the maximum read count for any chapter in a book. */
     fun getMaxReadCountForBook(book: BibleBook, cycle: Int = getCurrentCycle()): Int =
         dao.getMaxReadCountForBook(book.ordinal, cycle)
 
-    /** Returns the number of distinct chapters read at least once in history for a book (count-mode only). */
+    /** Returns the number of distinct chapters read at least once in history for a book. */
     fun getDistinctReadChaptersCountForBook(book: BibleBook, cycle: Int = getCurrentCycle()): Int =
         dao.getDistinctReadChaptersCountForBook(book.ordinal, cycle)
 

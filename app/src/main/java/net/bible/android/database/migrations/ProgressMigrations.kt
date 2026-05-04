@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -59,52 +59,36 @@ private val addMemorizeIncludeReference = makeMigration(6..7) { db ->
 }
 
 private val addChapterReadHistoryTable = makeMigration(7..8) { db ->
-    // Create ChapterReadHistory table
-    db.execSQL("""
-        CREATE TABLE IF NOT EXISTS ChapterReadHistory (
-            id BLOB NOT NULL PRIMARY KEY,
-            kjvBookOrdinal INTEGER NOT NULL,
-            chapter INTEGER NOT NULL,
-            readAt INTEGER NOT NULL
-        )
-    """)
-
-    // Create index on (kjvBookOrdinal, chapter)
-    db.execSQL("CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter` ON ChapterReadHistory (kjvBookOrdinal, chapter)")
-
-    // Migrate existing ChapterReadingRecord rows to ChapterReadHistory (one entry per record)
-    db.execSQL("""
-        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, readAt)
-        SELECT randomblob(16), kjvBookOrdinal, chapter, readAt FROM ChapterReadingRecord
-    """)
-
-    // Add useReadCountMode setting to GlobalReadingProgressSettings
-    db.execSQL("ALTER TABLE GlobalReadingProgressSettings ADD COLUMN useReadCountMode INTEGER NOT NULL DEFAULT 0")
-}
-
-private val addCycleToChapterReadHistory = makeMigration(8..9) { db ->
-    // Drop old index and table, recreate with cycle column, re-populate from ChapterReadingRecord
-    db.execSQL("DROP INDEX IF EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter`")
-    db.execSQL("DROP TABLE IF EXISTS ChapterReadHistory")
+    // Create final ChapterReadHistory schema in one shot
     db.execSQL("""
         CREATE TABLE IF NOT EXISTS ChapterReadHistory (
             id BLOB NOT NULL PRIMARY KEY,
             kjvBookOrdinal INTEGER NOT NULL,
             chapter INTEGER NOT NULL,
             cycle INTEGER NOT NULL DEFAULT 1,
-            readAt INTEGER NOT NULL
+            readAt INTEGER NOT NULL,
+            bookInitials TEXT NOT NULL DEFAULT ''
         )
     """)
     db.execSQL("CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle` ON ChapterReadHistory (kjvBookOrdinal, chapter, cycle)")
-    // Re-populate from ChapterReadingRecord preserving cycle
+
+    // Migrate existing ChapterReadingRecord rows 1:1 to ChapterReadHistory.
+    // bookInitials is unknown for old records (the legacy table never tracked it).
     db.execSQL("""
-        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt)
-        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt FROM ChapterReadingRecord
+        INSERT INTO ChapterReadHistory (id, kjvBookOrdinal, chapter, cycle, readAt, bookInitials)
+        SELECT randomblob(16), kjvBookOrdinal, chapter, cycle, readAt, '' FROM ChapterReadingRecord
     """)
+
+    // Drop the legacy table — ChapterReadHistory is now the single source of truth.
+    db.execSQL("DROP TABLE IF EXISTS ChapterReadingRecord")
 }
 
-private val addBookInitialsToChapterReadHistory = makeMigration(9..10) { db ->
-    db.execSQL("ALTER TABLE ChapterReadHistory ADD COLUMN bookInitials TEXT NOT NULL DEFAULT ''")
-}
-
-val progressMigrations: Array<Migration> = arrayOf(addMemorizationTarget, addGlobalReadingProgressSettings, addMemorizeTypeSettings, addActiveCycle, addScrambleHideUsed, addMemorizeIncludeReference, addChapterReadHistoryTable, addCycleToChapterReadHistory, addBookInitialsToChapterReadHistory)
+val progressMigrations: Array<Migration> = arrayOf(
+    addMemorizationTarget,
+    addGlobalReadingProgressSettings,
+    addMemorizeTypeSettings,
+    addActiveCycle,
+    addScrambleHideUsed,
+    addMemorizeIncludeReference,
+    addChapterReadHistoryTable,
+)

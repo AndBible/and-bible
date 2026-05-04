@@ -157,8 +157,6 @@
     <string name="prefs_show_memorization_indicators_summary">Show colored margin indicators for memorized and target verses</string>
     <string name="prefs_auto_track_reading_title">Auto-track reading</string>
     <string name="prefs_auto_track_reading_summary">Automatically mark chapters as read when you scroll through them</string>
-    <string name="prefs_use_read_count_mode_title">Use read-count mode</string>
-    <string name="prefs_use_read_count_mode_summary">Track how many times each chapter has been read instead of a simple read/unread state</string>
     <string name="reading_progress_read_count_scale">Read\nCount</string>
     <string name="reading_progress_percent_read_scale">Percent\nRead</string>
     <string name="reading_progress_percent_label">%d%%</string>

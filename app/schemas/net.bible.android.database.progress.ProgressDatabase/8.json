@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "6a9d3ea3288313a7160475b0e0e496b2",
+    "identityHash": "010ad70b92d4bd126c5d1aa534e6e051",
     "entities": [
       {
         "tableName": "MemorizedVerse",
@@ -46,8 +46,8 @@
         ]
       },
       {
-        "tableName": "ChapterReadingRecord",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `kjvBookOrdinal` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `cycle` INTEGER NOT NULL, `readAt` INTEGER NOT NULL, `source` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "tableName": "ChapterReadHistory",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `kjvBookOrdinal` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `cycle` INTEGER NOT NULL, `readAt` INTEGER NOT NULL, `bookInitials` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -80,8 +80,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "source",
-            "columnName": "source",
+            "fieldPath": "bookInitials",
+            "columnName": "bookInitials",
             "affinity": "TEXT",
             "notNull": true
           }
@@ -94,63 +94,15 @@
         },
         "indices": [
           {
-            "name": "index_ChapterReadingRecord_kjvBookOrdinal_chapter_cycle",
-            "unique": true,
+            "name": "index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle",
+            "unique": false,
             "columnNames": [
               "kjvBookOrdinal",
               "chapter",
               "cycle"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_ChapterReadingRecord_kjvBookOrdinal_chapter_cycle` ON `${TABLE_NAME}` (`kjvBookOrdinal`, `chapter`, `cycle`)"
-          }
-        ]
-      },
-      {
-        "tableName": "ChapterReadHistory",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `kjvBookOrdinal` INTEGER NOT NULL, `chapter` INTEGER NOT NULL, `readAt` INTEGER NOT NULL, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "BLOB",
-            "notNull": true
-          },
-          {
-            "fieldPath": "kjvBookOrdinal",
-            "columnName": "kjvBookOrdinal",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "chapter",
-            "columnName": "chapter",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "readAt",
-            "columnName": "readAt",
-            "affinity": "INTEGER",
-            "notNull": true
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [
-          {
-            "name": "index_ChapterReadHistory_kjvBookOrdinal_chapter",
-            "unique": false,
-            "columnNames": [
-              "kjvBookOrdinal",
-              "chapter"
-            ],
-            "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter` ON `${TABLE_NAME}` (`kjvBookOrdinal`, `chapter`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_ChapterReadHistory_kjvBookOrdinal_chapter_cycle` ON `${TABLE_NAME}` (`kjvBookOrdinal`, `chapter`, `cycle`)"
           }
         ]
       },
@@ -192,7 +144,7 @@
       },
       {
         "tableName": "GlobalReadingProgressSettings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `autoTrackReading` INTEGER NOT NULL DEFAULT 0, `autoMarkMemorized` INTEGER NOT NULL DEFAULT 1, `memorizeTypeFullWords` INTEGER NOT NULL DEFAULT 0, `memorizeWordVisibility` TEXT NOT NULL DEFAULT 'light', `memorizeErrorHeatmap` INTEGER NOT NULL DEFAULT 1, `memorizeScrambleHideUsed` INTEGER NOT NULL DEFAULT 0, `memorizeIncludeReference` INTEGER NOT NULL DEFAULT 0, `activeCycle` INTEGER NOT NULL DEFAULT 0, `useReadCountMode` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` BLOB NOT NULL, `autoTrackReading` INTEGER NOT NULL DEFAULT 0, `autoMarkMemorized` INTEGER NOT NULL DEFAULT 1, `memorizeTypeFullWords` INTEGER NOT NULL DEFAULT 0, `memorizeWordVisibility` TEXT NOT NULL DEFAULT 'light', `memorizeErrorHeatmap` INTEGER NOT NULL DEFAULT 1, `memorizeScrambleHideUsed` INTEGER NOT NULL DEFAULT 0, `memorizeIncludeReference` INTEGER NOT NULL DEFAULT 0, `activeCycle` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -252,13 +204,6 @@
           {
             "fieldPath": "activeCycle",
             "columnName": "activeCycle",
-            "affinity": "INTEGER",
-            "notNull": true,
-            "defaultValue": "0"
-          },
-          {
-            "fieldPath": "useReadCountMode",
-            "columnName": "useReadCountMode",
             "affinity": "INTEGER",
             "notNull": true,
             "defaultValue": "0"
@@ -415,7 +360,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6a9d3ea3288313a7160475b0e0e496b2')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '010ad70b92d4bd126c5d1aa534e6e051')"
     ]
   }
 }

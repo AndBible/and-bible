@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Martin Denham, Tuomas Airaksinen and the AndBible contributors.
+ * Copyright (c) 2024-2026 Martin Denham, Sykerö Software / Tuomas Airaksinen and the AndBible contributors.
  *
  * This file is part of AndBible: Bible Study (http://github.com/AndBible/and-bible).
  *
@@ -26,10 +26,6 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.KJVA
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
-
-enum class ReadingSource {
-    MANUAL, AUTO_SCROLL, AUTO_TTS
-}
 
 @Entity(
     indices = [
@@ -64,20 +60,6 @@ data class MemorizationTarget(
 
 @Entity(
     indices = [
-        Index(value = ["kjvBookOrdinal", "chapter", "cycle"], unique = true)
-    ]
-)
-data class ChapterReadingRecord(
-    @PrimaryKey var id: IdType = IdType(),
-    val kjvBookOrdinal: Int,
-    val chapter: Int,
-    val cycle: Int = 1,
-    val readAt: Long = System.currentTimeMillis(),
-    val source: ReadingSource = ReadingSource.MANUAL,
-)
-
-@Entity(
-    indices = [
         Index(value = ["kjvBookOrdinal", "chapter", "cycle"])
     ]
 )
@@ -102,7 +84,6 @@ data class GlobalReadingProgressSettings(
     @ColumnInfo(defaultValue = "0") val memorizeScrambleHideUsed: Boolean = false,
     @ColumnInfo(defaultValue = "0") val memorizeIncludeReference: Boolean = false,
     @ColumnInfo(defaultValue = "0") val activeCycle: Int = 0,
-    @ColumnInfo(defaultValue = "0") val useReadCountMode: Boolean = false,
 ) {
     companion object {
         val SINGLETON_ID = IdType.fromString("b2000000-0000-0000-0000-000000000001")
