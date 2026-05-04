@@ -21,7 +21,6 @@ import android.app.Activity
 import android.graphics.Color
 import android.text.format.DateFormat
 import android.view.Gravity
-import android.view.KeyEvent
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.ScrollView
@@ -112,8 +111,6 @@ object ReadHistoryDialog {
         val dp8 = (8 * density).toInt()
         val pendingDeleteIds = mutableSetOf<IdType>()
 
-        var outerDialog: AlertDialog? = null
-
         fun updateDeleteRowState(row: LinearLayout, deleteButton: TextView, pendingDelete: Boolean) {
             row.alpha = if (pendingDelete) 0.45f else 1f
             deleteButton.text = if (pendingDelete) "\u21B6" else "\u00D7"
@@ -129,26 +126,6 @@ object ReadHistoryDialog {
                 }
                 onChanged?.invoke()
             }
-        }
-
-        fun closeDialogWithPendingConfirmation() {
-            if (pendingDeleteIds.isEmpty()) {
-                outerDialog?.dismiss()
-                return
-            }
-
-            AlertDialog.Builder(activity)
-                .setMessage(activity.resources.getQuantityString(
-                    R.plurals.reading_progress_history_delete_confirm_multiple,
-                    pendingDeleteIds.size,
-                    pendingDeleteIds.size,
-                ))
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    applyPendingDeletes()
-                    outerDialog?.dismiss()
-                }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
         }
 
         val listContainer = LinearLayout(activity).apply {
@@ -236,26 +213,11 @@ object ReadHistoryDialog {
             addView(listContainer)
         }
 
-        outerDialog = AlertDialog.Builder(activity)
+        AlertDialog.Builder(activity)
             .setTitle(title)
             .setView(scrollView)
             .setPositiveButton(android.R.string.ok, null)
-            .create().apply {
-                setCanceledOnTouchOutside(false)
-                setOnKeyListener { _, keyCode, event ->
-                    if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_UP) {
-                        closeDialogWithPendingConfirmation()
-                        true
-                    } else {
-                        false
-                    }
-                }
-                setOnShowListener {
-                    getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                        closeDialogWithPendingConfirmation()
-                    }
-                }
-                show()
-            }
+            .setOnDismissListener { applyPendingDeletes() }
+            .show()
     }
 }

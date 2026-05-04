@@ -164,11 +164,6 @@
     <string name="reading_progress_history_day_title">Read History — %1$s</string>
     <string name="reading_progress_history_no_entries">No read entries for this selection.</string>
     <string name="reading_progress_history_version_unknown">Unknown version</string>
-    <string name="reading_progress_history_delete_confirm">Remove this read entry?</string>
-    <plurals name="reading_progress_history_delete_confirm_multiple">
-        <item quantity="one">Remove %1$d selected read entry?</item>
-        <item quantity="other">Remove %1$d selected read entries?</item>
-    </plurals>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
 
     <string name="prefs_toolbar_button_action_title">Action for toolbar button press</string>
