@@ -1808,7 +1808,7 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val doc = firstDocument
         if (doc !is BibleDocument) return
         executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-            kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}
+            kjvBookOrdinal: ${event.kjvBookOrdinal}, chapter: ${event.chapter}, isRead: ${event.isRead}, count: ${event.count}
         });""")
     }
 
@@ -1819,9 +1819,10 @@ class BibleView(val mainBibleActivity: MainBibleActivity,
         val v11n = doc.swordBook.versification
         val book = doc.verseRange.start.book
         for (chapter in minChapter..maxChapter) {
-            val isRead = ProgressControl.isChapterRead(v11n, book, chapter)
+            val count = ProgressControl.getChapterReadCount(v11n, book, chapter)
+            val isRead = count > 0
             executeJavascriptOnUiThread("""bibleView.emit("update_chapter_read_status", {
-                chapter: $chapter, isRead: $isRead
+                chapter: $chapter, isRead: $isRead, count: $count
             });""")
         }
     }

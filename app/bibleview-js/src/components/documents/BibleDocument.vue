@@ -87,7 +87,9 @@ const {
     toggleChapterRead: onMarkAsRead,
     openChapterReadHistory: onOpenReadHistory,
 } = useReadingTracker(
-    containerRef, bookInitials, ordinalRange, displayChapter, props.document.chapterRead ?? false
+    containerRef, bookInitials, ordinalRange, displayChapter,
+    props.document.chapterRead ?? false,
+    props.document.chapterReadCount ?? 0,
 );
 
 </script>

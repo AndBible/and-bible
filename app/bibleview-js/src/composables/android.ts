@@ -86,7 +86,6 @@ export type BibleJavascriptInterface = {
     openReadingProgressSettings: () => void,
     recordChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
     unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
-    getChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => number,
     openChapterReadHistory: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
     openMyNotes: (v11n: string, ordinal: number) => void,
@@ -467,10 +466,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.unmarkChapterRead(bookInitials, startOrdinal, chapter);
     }
 
-    function getChapterReadCount(bookInitials: string, startOrdinal: number, chapter: number): number {
-        return window.android.getChapterReadCount(bookInitials, startOrdinal, chapter);
-    }
-
     function openChapterReadHistory(bookInitials: string, startOrdinal: number, chapter: number) {
         window.android.openChapterReadHistory(bookInitials, startOrdinal, chapter);
     }
@@ -728,7 +723,6 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         openReadingProgressSettings,
         recordChapterRead,
         unmarkChapterRead,
-        getChapterReadCount,
         openChapterReadHistory,
         speak,
         speakGeneric,

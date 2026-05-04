@@ -28,20 +28,18 @@ export function useReadingTracker(
     ordinalRange: OrdinalRange,
     chapterNumber: number,
     initiallyRead: boolean,
+    initialReadCount: number,
 ) {
     const config = inject(configKey)!;
     const android = inject(androidKey)!;
 
     const chapterRead = ref(initiallyRead);
-    const chapterReadCount = ref(0);
+    const chapterReadCount = ref(initialReadCount);
     const seenOrdinals = new Set<number>();
     let observer: IntersectionObserver | null = null;
     let autoTrackDone = initiallyRead;
 
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
-
-    // Load initial chapter read count from history
-    chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
 
     function checkCoverage() {
         if (autoTrackDone || totalVerses <= 0) return;
@@ -97,10 +95,10 @@ export function useReadingTracker(
         android.openChapterReadHistory(bookInitials, ordinalRange[0], chapterNumber);
     }
 
-    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean}) => {
+    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean, count: number}) => {
         if (data.chapter === chapterNumber) {
             chapterRead.value = data.isRead;
-            chapterReadCount.value = android.getChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
+            chapterReadCount.value = data.count;
         }
     });
 

@@ -191,6 +191,8 @@ class BibleDocument(
             put("targetOrdinals", json.encodeToString(serializer(), targetOrdinals))
             put("chapterRead", json.encodeToString(serializer(),
                 ProgressControl.isChapterRead(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
+            put("chapterReadCount", json.encodeToString(serializer(),
+                ProgressControl.getChapterReadCount(swordBook.versification, verseRange.start.book, verseRange.start.chapter)))
         }
     }
 }

@@ -73,6 +73,7 @@ class ChapterReadStatusChangedEvent(
     val kjvBookOrdinal: Int,
     val chapter: Int,
     val isRead: Boolean,
+    val count: Int,
 )
 
 /** Posted when global reading progress settings change. All BibleViews should update their settings. */
@@ -166,17 +167,19 @@ object ProgressControl {
         source: ReadingSource = ReadingSource.MANUAL,
     ) {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
+        val cycle = getCurrentCycle()
         dao.insertChapterReadHistory(
             ChapterReadHistory(
                 kjvBookOrdinal = kjvBook.ordinal,
                 chapter = chapter,
-                cycle = getCurrentCycle(),
+                cycle = cycle,
                 readAt = System.currentTimeMillis(),
                 bookInitials = bookInitials,
                 source = source,
             )
         )
-        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
+        val newCount = dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle)
+        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true, newCount))
     }
 
     /** Removes every history row for the given chapter in the current (or specified) cycle. */
@@ -184,7 +187,7 @@ object ProgressControl {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         if (dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) > 0) {
             dao.deleteAllReadsForChapter(kjvBook.ordinal, chapter, cycle)
-            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, false))
+            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, false, 0))
         }
     }
 
@@ -242,8 +245,8 @@ object ProgressControl {
             .groupBy { it.kjvBookOrdinal to it.chapter }
             .forEach { (chapterKey, _) ->
                 val (kjvBookOrdinal, chapter) = chapterKey
-                val isRead = dao.getChapterReadCount(kjvBookOrdinal, chapter, cycle) > 0
-                ABEventBus.post(ChapterReadStatusChangedEvent(kjvBookOrdinal, chapter, isRead))
+                val newCount = dao.getChapterReadCount(kjvBookOrdinal, chapter, cycle)
+                ABEventBus.post(ChapterReadStatusChangedEvent(kjvBookOrdinal, chapter, newCount > 0, newCount))
             }
     }
 

@@ -590,14 +590,6 @@ class BibleJavascriptInterface(
     }
 
     @JavascriptInterface
-    fun getChapterReadCount(bookInitials: String, startOrdinal: Int, chapter: Int): Int {
-        val book = Books.installed().getBook(bookInitials) ?: return 0
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return 0
-        val verse = Verse(v11n, startOrdinal)
-        return ProgressControl.getChapterReadCount(v11n, verse.book, chapter)
-    }
-
-    @JavascriptInterface
     fun openChapterReadHistory(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
