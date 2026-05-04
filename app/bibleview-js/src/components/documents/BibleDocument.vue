@@ -27,7 +27,17 @@
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <div class="mark-as-read-wrapper">
-        <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterReadCount > 0}" :icon="faCheck" @click="onMarkAsRead"/>
+        <FontAwesomeIcon
+            class="mark-as-read-icon"
+            :class="{read: chapterReadCount > 0}"
+            :icon="faCheck"
+            @click="onCheckClick"
+            @touchstart.passive="onCheckPressStart"
+            @touchend="onCheckPressEnd"
+            @touchmove="onCheckPressEnd"
+            @touchcancel="onCheckPressEnd"
+            @contextmenu.prevent="onOpenReadHistory"
+        />
         <span
             v-if="chapterReadCount > 0"
             class="read-count"
@@ -90,6 +100,38 @@ const {
     props.document.chapterReadCount ?? 0,
 );
 
+// Long-press the check icon to open the read-history dialog. We track the
+// press manually because the WebView's text-selection callout otherwise
+// hijacks the gesture and shows the selection menu instead.
+const LONG_PRESS_MS = 500;
+let longPressTimer: number | null = null;
+let longPressed = false;
+
+function onCheckPressStart() {
+    longPressed = false;
+    longPressTimer = window.setTimeout(() => {
+        longPressTimer = null;
+        longPressed = true;
+        onOpenReadHistory();
+    }, LONG_PRESS_MS);
+}
+
+function onCheckPressEnd() {
+    if (longPressTimer != null) {
+        window.clearTimeout(longPressTimer);
+        longPressTimer = null;
+    }
+}
+
+function onCheckClick(event: Event) {
+    if (longPressed) {
+        longPressed = false;
+        event.preventDefault();
+        return;
+    }
+    onMarkAsRead();
+}
+
 </script>
 
 <style scoped>
@@ -107,6 +149,9 @@ const {
     align-items: center;
     gap: 4px;
     position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 .mark-as-read-icon {
