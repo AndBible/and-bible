@@ -118,7 +118,7 @@
 	</item>
 	<item
 		android:id="@+id/llmActionsSubMenu"
-		android:icon="@drawable/ic_baseline_smart_toy_24"
+		android:icon="@drawable/icon_robot"
 		android:title="@string/llm_actions" />
 	<item android:id="@+id/copyReference"
 		android:title="@string/copyReference"

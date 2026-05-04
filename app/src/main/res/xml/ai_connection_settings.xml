@@ -46,7 +46,7 @@
 
         <Preference android:key="ai_models_shortcut"
             android:title="@string/ai_models_category"
-            android:icon="@drawable/ic_baseline_smart_toy_24"
+            android:icon="@drawable/icon_robot"
             />
     </PreferenceCategory>
 
