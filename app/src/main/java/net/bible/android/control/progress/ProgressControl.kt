@@ -72,7 +72,6 @@ fun computeRangeDifference(
 class ChapterReadStatusChangedEvent(
     val kjvBookOrdinal: Int,
     val chapter: Int,
-    val isRead: Boolean,
     val count: Int,
 )
 
@@ -179,7 +178,7 @@ object ProgressControl {
             )
         )
         val newCount = dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle)
-        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true, newCount))
+        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, newCount))
     }
 
     /** Removes every history row for the given chapter in the current (or specified) cycle. */
@@ -187,7 +186,7 @@ object ProgressControl {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
         if (dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) > 0) {
             dao.deleteAllReadsForChapter(kjvBook.ordinal, chapter, cycle)
-            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, false, 0))
+            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, 0))
         }
     }
 
@@ -246,7 +245,7 @@ object ProgressControl {
             .forEach { (chapterKey, _) ->
                 val (kjvBookOrdinal, chapter) = chapterKey
                 val newCount = dao.getChapterReadCount(kjvBookOrdinal, chapter, cycle)
-                ABEventBus.post(ChapterReadStatusChangedEvent(kjvBookOrdinal, chapter, newCount > 0, newCount))
+                ABEventBus.post(ChapterReadStatusChangedEvent(kjvBookOrdinal, chapter, newCount))
             }
     }
 

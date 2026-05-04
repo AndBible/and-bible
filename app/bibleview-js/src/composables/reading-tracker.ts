@@ -27,17 +27,15 @@ export function useReadingTracker(
     bookInitials: string,
     ordinalRange: OrdinalRange,
     chapterNumber: number,
-    initiallyRead: boolean,
     initialReadCount: number,
 ) {
     const config = inject(configKey)!;
     const android = inject(androidKey)!;
 
-    const chapterRead = ref(initiallyRead);
     const chapterReadCount = ref(initialReadCount);
     const seenOrdinals = new Set<number>();
     let observer: IntersectionObserver | null = null;
-    let autoTrackDone = initiallyRead;
+    let autoTrackDone = chapterReadCount.value > 0;
 
     const totalVerses = ordinalRange[1] - ordinalRange[0] + 1;
 
@@ -46,7 +44,6 @@ export function useReadingTracker(
         const coverage = seenOrdinals.size / totalVerses;
         if (coverage >= COVERAGE_THRESHOLD) {
             autoTrackDone = true;
-            chapterRead.value = true;
             android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
             cleanup();
         }
@@ -88,16 +85,14 @@ export function useReadingTracker(
         // history dialog via long-press (handled in BibleDocument.vue).
         android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "MANUAL");
         chapterReadCount.value++;
-        chapterRead.value = true;
     }
 
     function openChapterReadHistory() {
         android.openChapterReadHistory(bookInitials, ordinalRange[0], chapterNumber);
     }
 
-    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, isRead: boolean, count: number}) => {
+    setupEventBusListener("update_chapter_read_status", (data: {chapter: number, count: number}) => {
         if (data.chapter === chapterNumber) {
-            chapterRead.value = data.isRead;
             chapterReadCount.value = data.count;
         }
     });
@@ -120,5 +115,5 @@ export function useReadingTracker(
         cleanup();
     });
 
-    return {chapterRead, chapterReadCount, toggleChapterRead, openChapterReadHistory};
+    return {chapterReadCount, toggleChapterRead, openChapterReadHistory};
 }

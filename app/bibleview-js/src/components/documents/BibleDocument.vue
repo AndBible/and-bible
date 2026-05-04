@@ -27,7 +27,7 @@
     <OsisFragment :fragment="document.osisFragment"/>
     <div v-if="config.showMarkAsReadButton" class="mark-as-read-container">
       <div class="mark-as-read-wrapper">
-        <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterRead}" :icon="faCheck" @click="onMarkAsRead"/>
+        <FontAwesomeIcon class="mark-as-read-icon" :class="{read: chapterReadCount > 0}" :icon="faCheck" @click="onMarkAsRead"/>
         <span
             v-if="chapterReadCount > 0"
             class="read-count"
@@ -82,13 +82,11 @@ provide(footnoteCountKey, {getFootNoteCount});
 const displayChapter = Math.max(1, props.document.chapterNumber);
 
 const {
-    chapterRead,
     chapterReadCount,
     toggleChapterRead: onMarkAsRead,
     openChapterReadHistory: onOpenReadHistory,
 } = useReadingTracker(
     containerRef, bookInitials, ordinalRange, displayChapter,
-    props.document.chapterRead ?? false,
     props.document.chapterReadCount ?? 0,
 );
 

@@ -93,7 +93,6 @@ export interface BibleDocumentType extends BaseOsisDocument {
     originalOrdinalRange: OrdinalRange
     memorizedOrdinals?: number[]
     targetOrdinals?: number[]
-    chapterRead?: boolean
     chapterReadCount?: number
 }
 
