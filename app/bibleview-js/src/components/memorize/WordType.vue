@@ -56,13 +56,12 @@
       <div v-if="!isFocused && !isCompleted && currentWordIndex === 0" class="tap-hint">
         {{ strings.tapToStartTyping }}
       </div>
-      <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block" :class="{ hidden: !isFocused && !isCompleted && currentWordIndex === 0 }">
+      <div v-for="(item, itemIndex) in textItems" :key="item.key" class="text-block">
         <template v-for="(token, tokenIndex) in getWordsFromText(item.text)" :key="`${item.key}-${tokenIndex}`">
           <span
               :ref="el => setWordRef(getGlobalWordIndex(itemIndex, tokenIndex), el)"
               class="memorize-word type-word"
-              :class="getWordClass(getGlobalWordIndex(itemIndex, tokenIndex), token)"
-              :style="getHeatmapStyle(getGlobalWordIndex(itemIndex, tokenIndex))"
+              :class="[getWordClass(getGlobalWordIndex(itemIndex, tokenIndex), token), getHeatmapClass(getGlobalWordIndex(itemIndex, tokenIndex))]"
           >{{ token }}</span>
           <span v-if="typeEverything && isCurrent(getGlobalWordIndex(itemIndex, tokenIndex)) && !isPunctuation(token)"
                 class="type-buffer">{{ typedBuffer }}</span>
@@ -225,12 +224,11 @@ function isCurrent(globalIndex: number): boolean {
     return globalIndex === currentWordIndex.value;
 }
 
-function getHeatmapStyle(globalIndex: number): Record<string, string> | undefined {
+function getHeatmapClass(globalIndex: number): string | undefined {
     if (!errorHeatmap.value) return undefined;
     const count = errorCounts.value[globalIndex];
     if (!count) return undefined;
-    const alpha = Math.min(count * 0.12, 0.6);
-    return {backgroundColor: `rgba(231, 76, 60, ${alpha})`};
+    return `heatmap-${Math.min(count, 3)}`;
 }
 
 function getWordClass(globalIndex: number, token: string) {
@@ -269,6 +267,11 @@ function scrollToCurrentWord() {
 }
 
 function advanceWord() {
+    const idx = currentWordIndex.value;
+    if (errorCounts.value[idx]) {
+        errorCounts.value[idx]--;
+        if (errorCounts.value[idx] === 0) delete errorCounts.value[idx];
+    }
     currentWordIndex.value++;
     skipPunctuationTokens();
     typedBuffer.value = '';
@@ -279,7 +282,7 @@ function advanceWord() {
 function showIncorrect() {
     const idx = currentWordIndex.value;
     incorrectIndex.value = idx;
-    errorCounts.value[idx] = (errorCounts.value[idx] ?? 0) + 1;
+    errorCounts.value[idx] = Math.min((errorCounts.value[idx] ?? 0) + 1, 3);
     typedBuffer.value = '';
     saveState();
     setTimeout(() => {
@@ -346,7 +349,6 @@ function resetWords() {
     currentWordIndex.value = 0;
     typedBuffer.value = '';
     incorrectIndex.value = null;
-    errorCounts.value = {};
     skipPunctuationTokens();
     saveState();
 }
@@ -493,6 +495,21 @@ onBeforeUnmount(() => {
   &.punctuation {
     margin-right: 0;
   }
+
+  &.heatmap-1 { background-color: rgba(231, 76, 60, 0.2); }
+  &.heatmap-2 { background-color: rgba(231, 76, 60, 0.4); }
+  &.heatmap-3 { background-color: rgba(231, 76, 60, 0.6); }
+
+  .monochrome & {
+    &.heatmap-1 { background-color: rgba(0, 0, 0, 0.15); }
+    &.heatmap-2 { background-color: rgba(0, 0, 0, 0.3); }
+    &.heatmap-3 { background-color: rgba(0, 0, 0, 0.45); }
+  }
+  .monochrome.night & {
+    &.heatmap-1 { background-color: rgba(255, 255, 255, 0.15); }
+    &.heatmap-2 { background-color: rgba(255, 255, 255, 0.3); }
+    &.heatmap-3 { background-color: rgba(255, 255, 255, 0.45); }
+  }
 }
 
 .type-buffer {
@@ -605,10 +622,6 @@ onBeforeUnmount(() => {
 
 .text-block {
   margin-bottom: 1rem;
-
-  &.hidden {
-    visibility: hidden;
-  }
 }
 
 .memorize-controls {

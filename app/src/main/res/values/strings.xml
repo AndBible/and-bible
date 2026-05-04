@@ -818,6 +818,10 @@
     <string name="upgrade_video_message">Please see video featuring new features of this release (%s).</string>
     <string name="stable_notice_par1">New version %1$s of %2$s has been installed successfully!</string>
 
+    <string name="new_sync_targets_notice_title">New sync settings available</string>
+    <string name="new_sync_targets_notice_message">This version of AndBible introduces additional sync targets: My Documents, AI settings and reading progress. If you want to enable them, you can do so in the Device Synchronization settings.</string>
+    <string name="open_settings">Open settings</string>
+
     <!-- History -->
     <string name="history_for">History (%1$s: Window %2$d)</string>
 
@@ -1346,6 +1350,8 @@
     <string name="memorize_error_heatmap_summary">Highlight words with more errors in progressively deeper red</string>
     <string name="memorize_scramble_hide_used">Hide used word buttons</string>
     <string name="memorize_scramble_hide_used_summary">Hide word buttons completely after they are correctly placed in word scramble mode</string>
+    <string name="memorize_include_reference">Include verse reference</string>
+    <string name="memorize_include_reference_summary">Add the verse reference (e.g. John 3:16) as the last item to memorize</string>
     <string name="reading_progress_settings">Progress &amp; memorization</string>
     <string name="reading_progress_settings_summary">Auto-tracking, memorization, and typing practice settings</string>
     <string name="memorize_confirm_unmark">Remove memorized status for %s?</string>

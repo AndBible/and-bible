@@ -950,7 +950,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         }
                     }
                 },
-                visible = clipboardKey != null
+                visible = clipboardKey != null && clipboardKey?.document?.isSpecial != true
             )
             R.id.copyReference -> CommandPreference(
                 launch = { _, _, _ ->
@@ -970,6 +970,7 @@ class SplitBibleArea(private val mainBibleActivity: MainBibleActivity): FrameLay
                         R.string.reference_copied_to_clipboard
                     )
                 },
+                visible = window.pageManager.currentPage.currentDocument?.isSpecial != true
             )
             R.id.windowMinimise -> CommandPreference(
                 launch = {_, _, _ -> windowControl.minimiseWindow(window)},

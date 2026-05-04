@@ -74,7 +74,7 @@ removeMemorizationTarget: Goal -
 removeMemorizationTargetLong: Remove memorization goal
 markAsMemorized: Mark as memorized
 markedAsMemorized: Memorized
-removeFromTargets: Goal -
+removeFromTargets: Remove from Goals
 viewReadingProgress: Read/Memory Progress
 viewReadingProgressSettings: Read/Memory Settings
 listenInLoop: Listen in Loop

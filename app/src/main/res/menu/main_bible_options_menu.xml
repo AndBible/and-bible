@@ -48,7 +48,7 @@
 		android:title="@string/auto_assign_labels_title"
 		android:icon="@drawable/ic_label_settings_24"/>
 	<item android:id="@+id/llmActionsSubMenu"
-		android:icon="@drawable/ic_baseline_smart_toy_24"
+		android:icon="@drawable/icon_robot"
 		android:title="@string/llm_actions" />
 	<group
 		android:id="@+id/textOptionsGroup"

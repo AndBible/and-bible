@@ -165,6 +165,8 @@ open class CurrentCommentaryPage internal constructor(
     }
     override val isSpeakable: Boolean get() = !isSpecialDoc
 
+    override val isSyncable: Boolean get() = currentDocument != FakeBookFactory.memorizeDocument
+
     // If a passage (that is not just a single verse) is displayed, it is stored here.
     var originalVerseRange: VerseRange? = null
 

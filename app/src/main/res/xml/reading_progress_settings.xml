@@ -38,4 +38,10 @@
         android:summary="@string/memorize_scramble_hide_used_summary"
         android:defaultValue="false"
         android:icon="@drawable/ic_baseline_visibility_off_24" />
+    <SwitchPreferenceCompat
+        android:key="memorize_include_reference"
+        android:title="@string/memorize_include_reference"
+        android:summary="@string/memorize_include_reference_summary"
+        android:defaultValue="false"
+        android:icon="@drawable/ic_baseline_menu_book_gray_24" />
 </PreferenceScreen>
