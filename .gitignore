@@ -27,6 +27,7 @@
 /wiki/
 /readthedocs/
 /.playwright-mcp/
+/.worktrees/
 
 # Sandbox mode dotfiles & git internals
 .bash_profile
