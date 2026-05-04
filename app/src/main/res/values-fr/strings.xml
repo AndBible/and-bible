@@ -77,7 +77,7 @@
   <string name="prefs_eink_mode_summary">Utilisez l’application en mode monochrome (sans couleurs), ce qui la rend plus adaptée aux appareils à encre électronique.</string>
   <string name="prefs_eink_settings_cat">Paramètres e-ink</string>
   <string name="prefs_eink_display_title">Fonctionnalités e-ink</string>
-  <string name="prefs_eink_display_summary">Activer les fonctionnalités spécifiques e-ink (boutons de défilement de page, lignes d\'aide au défilement)</string>
+  <string name="prefs_eink_display_summary">Activer les fonctionnalités spécifiques e-ink (boutons de défilement de page, lignes d’aide au défilement)</string>
   <string name="prefs_disable_animations_title">Désactiver les animations</string>
   <string name="prefs_disable_animations_summary">Désactiver diverses animations telles que le défilement fluide.</string>
   <string name="prefs_disable_click_to_edit_title">Désactiver la modification par clic dans le bloc-notes</string>
@@ -99,7 +99,7 @@
   <string name="prefs_show_footnotes_title">Notes de bas de page</string>
   <string name="prefs_show_xrefs_title">Références croisées</string>
   <string name="prefs_show_footnotes_summary">Afficher les notes de bas de page, si elles sont disponibles dans le document</string>
-  <string name="prefs_show_footnotes_inline_title">Notes de bas de page en ligne</string>
+  <string name="prefs_show_footnotes_inline_title">Notes de bas de page intégrées dans le texte</string>
   <string name="prefs_show_footnotes_inline_summary">Afficher les notes de bas de page dans le texte plutôt que sous forme de liens cliquables</string>
   <string name="prefs_show_xrefs_summary">Afficher les références croisées, si elles sont disponibles dans le document</string>
   <string name="prefs_show_strongs_title">Nombres de Strong</string>
@@ -142,7 +142,7 @@
   <string name="reset_fontsize">Réinitialiser</string>
   <string name="prefs_request_sdcard_permission_title">Installation manuelle de documents</string>
   <string name="prefs_request_sdcard_permission_summary">Permet d’installer manuellement des documents à partir du dossier jsword/sword dans l’espace de stockage interne</string>
-  <string name="prefs_expand_footnotes_title">Références croisées entre les ligne</string>
+  <string name="prefs_expand_footnotes_title">Références croisées intégrées dans le texte</string>
   <string name="prefs_expand_footnotes_summary">Afficher le contenu des références croisées entre les lignes dans le texte, au lieu d’un lien qui ouvre une boîte de dialogue contextuelle</string>
   <string name="all_text_options_window_menutitle">Toutes les options du texte</string>
   <string name="text_options_window_menutitle">Options du texte</string>

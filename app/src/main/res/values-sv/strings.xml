@@ -684,7 +684,7 @@ i GT och NT varje dag.
     </string>
   <string name="beta_notice_content_3">Om du är en programmerare, överväg gärna att
         själv bidra med buggfixar på %s :-)</string>
-  <string name="beta_notice_github_issues">Github problem</string>
+  <string name="beta_notice_github_issues">Github-ärenden</string>
   <string name="beta_notice_github">Github</string>
   <string name="beta_notice_dismiss_until_update">Avböj till nästa uppdatering</string>
   <string name="stable_notice_title">Appen har blivit uppgraderad!</string>

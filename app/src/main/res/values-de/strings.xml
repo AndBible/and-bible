@@ -80,7 +80,7 @@
   <string name="prefs_eink_display_summary">E-Ink-spezifische Funktionen aktivieren (Seitenscrolling-Schaltflächen, Scroll-Hilfslinien)</string>
   <string name="prefs_disable_animations_title">Animationen deaktivieren</string>
   <string name="prefs_disable_animations_summary">Verschiedene Animationen, wie etwa flüssigen Bildvorlauf, deaktivieren.</string>
-  <string name="prefs_disable_click_to_edit_title">Studienblock-Klick-zum-Bearbeiten deaktivieren</string>
+  <string name="prefs_disable_click_to_edit_title">Klick-zum-Bearbeiten im Studienblock deaktivieren</string>
   <string name="prefs_disable_click_to_edit_summary">Erfordert die Verwendung der Bearbeitungsschaltfläche zum Bearbeiten von Notizen im Studienblock.</string>
   <string name="prefs_notes_content_type_title">Format für neue Lesezeichen-Notizen</string>
   <string name="prefs_notes_content_type_summary">Textformat für neue Lesezeichen-Notizen und Studienblock-Einträge</string>
@@ -1564,7 +1564,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="agent_already_running">Ein KI-Assistent läuft bereits. Bitte warten Sie oder stoppen Sie ihn zuerst.</string>
   <!--AI Agent Notifications-->
   <string name="ai_agent_notification_channel_name">KI-Assistent</string>
-  <string name="ai_agent_notification_running">KI-Assistent arbeitet\u2026</string>
+  <string name="ai_agent_notification_running">KI-Assistent arbeitet...</string>
   <string name="ai_agent_notification_permission_needed">KI-Assistent benötigt Ihre Genehmigung</string>
   <string name="ai_agent_notification_permission_tap">Tippen, um zu AndBible zurückzukehren</string>
   <string name="ai_agent_notification_completed">KI-Aufgabe abgeschlossen</string>
@@ -1602,7 +1602,7 @@ Diese Nachricht nicht mehr anzeigen</string>
   <string name="prefs_show_ai_doc_markers_summary">Markierungssymbole für KI-generierte Dokumentseiten anzeigen, die mit Versen verknüpft sind</string>
   <string name="prefs_show_ordinals_title">Ordnungszahlen anzeigen</string>
   <string name="prefs_show_ordinals_summary">Ordnungszahlmarkierungen im Text anzeigen</string>
-  <string name="prefs_page_scroll_amount_title">Seitenscrolling-Betrag</string>
+  <string name="prefs_page_scroll_amount_title">Seitenscrolling-Ausmaß</string>
   <string name="prefs_page_scroll_amount_summary">Wie viel der Seite beim Seite-hoch/runter-Scrollen gescrollt wird</string>
   <string name="prefs_scroll_helper_lines_title">Scroll-Hilfslinien</string>
   <string name="prefs_scroll_helper_lines_summary">Horizontale Führungslinien an den Seitenscrolling-Grenzen anzeigen</string>

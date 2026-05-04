@@ -68,22 +68,22 @@
   <!--Multi-translation search-->
   <string name="search_translations">Tradukoj</string>
   <string name="choose_translations">Elekti tradukojn…</string>
-  <string name="multi_search_results">%1$d versoj en %2$d tradukoj</string>
+  <string name="multi_search_results">%1$d versoj en %2$d traduko(j)</string>
   <string name="search_index_not_created">neniu indekso</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numeroj de versoj k ĉapitroj</string>
   <string name="prefs_show_verseno_summary">Montri numerojn de versoj kaj ĉapitroj</string>
   <string name="prefs_e_ink_mode_title">Blank-nigra reĝimo</string>
-  <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj (E Ink).</string>
-  <string name="prefs_eink_settings_cat">E-ink agordoj</string>
-  <string name="prefs_eink_display_title">E-ink funkcioj</string>
-  <string name="prefs_eink_display_summary">Aktivigi e-ink specifajn funkciojn (paĝrulumaj butonoj, helplinioj)</string>
+  <string name="prefs_eink_mode_summary">Vidigi la aplikaĵon sen koloroj por igi ĝin pli taŭga por elektronikaj librolegiloj.</string>
+  <string name="prefs_eink_settings_cat">Elektronika papero</string>
+  <string name="prefs_eink_display_title">Elektronik-paperaj ebloj</string>
+  <string name="prefs_eink_display_summary">Aktivigi eblojn utilajn por elektronika papero (butonoj por rulumi paĝojn, rulum-help-linioj)</string>
   <string name="prefs_disable_animations_title">Malaktivigi movbildojn</string>
   <string name="prefs_disable_animations_summary">Malaktivigi diversajn animaciojn, kiel glatan rulumadon.</string>
-  <string name="prefs_disable_click_to_edit_title">Malaktivigi klak-por-redakti en Notbloko</string>
-  <string name="prefs_disable_click_to_edit_summary">Postulas uzon de la redakta butono por redakti notojn en la Notbloko.</string>
-  <string name="prefs_notes_content_type_title">Formato por novaj legosigno-notoj</string>
-  <string name="prefs_notes_content_type_summary">Tekstoformato uzata dum kreado de novaj legosigno-notoj kaj notbloko-enskriboj</string>
+  <string name="prefs_disable_click_to_edit_title">Malaktivigi alklak-por-redakti en notblokoj</string>
+  <string name="prefs_disable_click_to_edit_summary">Postulas uzi la butonon “redakti” por redakti notojn en la notbloko.</string>
+  <string name="prefs_notes_content_type_title">Formo por nova noto pri legosigno</string>
+  <string name="prefs_notes_content_type_summary">Tekstformo uzata dum krei novajn notojn pri legosignoj kaj enskribojn en la notbloko</string>
   <string name="notes_content_type_html">Riĉteksto (HTML)</string>
   <string name="notes_content_type_markdown">Markdown</string>
   <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
