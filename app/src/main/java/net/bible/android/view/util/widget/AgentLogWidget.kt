@@ -97,7 +97,13 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
-            headerLayout.setOnClickListener { toggleExpanded() }
+            // Toggle is bound to the middle area only — NOT to headerLayout — so
+            // taps that miss the expand/close buttons by a few dp don't get
+            // hijacked into toggling the log expand/collapse state.
+            val toggleListener = View.OnClickListener { toggleExpanded() }
+            statusIcon.setOnClickListener(toggleListener)
+            statusText.setOnClickListener(toggleListener)
+            headerCostText.setOnClickListener(toggleListener)
         }
 
         adapter.onRawLogClick = { openRawLog() }
