@@ -107,7 +107,7 @@ class AgentLogAdapter : RecyclerView.Adapter<AgentLogAdapter.ViewHolder>() {
 
     private fun bindModelSelector(binding: AgentLogItemBinding) = binding.run {
         val monochrome = CommonUtils.settings.monochromeMode
-        typeIcon.setImageResource(R.drawable.ic_baseline_smart_toy_24)
+        typeIcon.setImageResource(R.drawable.icon_robot)
         typeIcon.setColorFilter(if (monochrome) Color.BLACK else root.context.getColor(R.color.log_info))
         messageText.visibility = View.GONE
         detailsText.visibility = View.GONE

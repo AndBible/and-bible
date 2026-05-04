@@ -119,7 +119,7 @@ class AiModelsFragment : AiSettingsFragmentBase() {
                     append(model.modelId)
                     if (isSupported) append(" ✓")
                 }
-                icon = AppCompatResources.getDrawable(requireContext(), R.drawable.ic_baseline_smart_toy_24)
+                icon = AppCompatResources.getDrawable(requireContext(), R.drawable.icon_robot)
                 summary = buildString {
                     append(provider?.displayName ?: "?")
                     append(" — ")

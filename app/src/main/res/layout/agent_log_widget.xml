@@ -55,7 +55,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginStart="8dp"
-            app:srcCompat="@drawable/ic_baseline_smart_toy_24" />
+            app:srcCompat="@drawable/icon_robot" />
 
         <!-- Status text -->
         <TextView

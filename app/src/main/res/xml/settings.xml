@@ -246,7 +246,7 @@
 		<Preference android:key="ai_settings_shortcut"
 			android:title="@string/ai_settings"
 			android:summary="@string/ai_settings_shortcut_summary"
-			android:icon="@drawable/ic_baseline_smart_toy_24"
+			android:icon="@drawable/icon_robot"
 			/>
 		<Preference android:key="reading_progress_settings_shortcut"
 			android:title="@string/reading_progress_settings"

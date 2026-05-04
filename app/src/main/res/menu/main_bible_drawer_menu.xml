@@ -65,7 +65,7 @@
 
             <item android:id="@+id/managePrompts"
                 android:title="@string/ai_settings"
-                android:icon="@drawable/ic_baseline_smart_toy_24"/>
+                android:icon="@drawable/icon_robot"/>
 
             <item android:id="@+id/settingsButton"
                 android:title="@string/settings"

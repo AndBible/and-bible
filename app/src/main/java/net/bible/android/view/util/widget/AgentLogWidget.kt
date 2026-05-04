@@ -18,13 +18,14 @@
 package net.bible.android.view.util.widget
 
 import android.animation.ObjectAnimator
+import android.animation.PropertyValuesHolder
 import android.graphics.Color
 import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.LinearInterpolator
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.LinearLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import net.bible.android.activity.R
@@ -75,7 +76,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
     private val adapter = AgentLogAdapter()
     private var isExpanded = false
-    private var spinAnimator: ObjectAnimator? = null
+    private var iconAnimator: ObjectAnimator? = null
 
     private var isUserVisible: Boolean
         get() = CommonUtils.settings.getBoolean(PREF_AGENT_LOG_VISIBLE, false)
@@ -96,7 +97,13 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
             expandButton.setOnClickListener { toggleExpanded() }
             closeButton.setOnClickListener { hide() }
-            headerLayout.setOnClickListener { toggleExpanded() }
+            // Toggle is bound to the middle area only — NOT to headerLayout — so
+            // taps that miss the expand/close buttons by a few dp don't get
+            // hijacked into toggling the log expand/collapse state.
+            val toggleListener = View.OnClickListener { toggleExpanded() }
+            statusIcon.setOnClickListener(toggleListener)
+            statusText.setOnClickListener(toggleListener)
+            headerCostText.setOnClickListener(toggleListener)
         }
 
         adapter.onRawLogClick = { openRawLog() }
@@ -108,7 +115,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
     override fun onDetachedFromWindow() {
         ABEventBus.unregister(this)
-        stopSpinAnimation()
+        stopStatusAnimation()
         super.onDetachedFromWindow()
     }
 
@@ -121,7 +128,7 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
 
         val isRunning = AgentSessionManager.isRunning(workspaceId)
         if (isRunning) {
-            startSpinAnimation()
+            startStatusAnimation()
             if (visibility != View.VISIBLE) {
                 show()
             }
@@ -280,28 +287,32 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
     }
 
     /**
-     * Start spinning animation on the status icon.
+     * Start a pulsating "thinking" animation on the status icon while the agent is running.
      * Respects the disable_animations setting (e.g., for e-ink devices).
      */
-    private fun startSpinAnimation() {
+    private fun startStatusAnimation() {
         if (CommonUtils.settings.disableAnimations) return
-        if (spinAnimator?.isRunning == true) return
+        if (iconAnimator?.isRunning == true) return
 
-        spinAnimator = ObjectAnimator.ofFloat(binding.statusIcon, "rotation", 0f, 360f).apply {
-            duration = 2000
+        val scaleX = PropertyValuesHolder.ofFloat("scaleX", 1.0f, 1.15f)
+        val scaleY = PropertyValuesHolder.ofFloat("scaleY", 1.0f, 1.15f)
+        iconAnimator = ObjectAnimator.ofPropertyValuesHolder(binding.statusIcon, scaleX, scaleY).apply {
+            duration = 600
             repeatCount = ValueAnimator.INFINITE
-            interpolator = LinearInterpolator()
+            repeatMode = ValueAnimator.REVERSE
+            interpolator = AccelerateDecelerateInterpolator()
             start()
         }
     }
 
     /**
-     * Stop spinning animation on the status icon.
+     * Stop the status icon animation and reset its scale.
      */
-    private fun stopSpinAnimation() {
-        spinAnimator?.cancel()
-        spinAnimator = null
-        binding.statusIcon.rotation = 0f
+    private fun stopStatusAnimation() {
+        iconAnimator?.cancel()
+        iconAnimator = null
+        binding.statusIcon.scaleX = 1.0f
+        binding.statusIcon.scaleY = 1.0f
     }
 
     /**
@@ -322,11 +333,11 @@ class AgentLogWidget(context: Context, attributeSet: AttributeSet) : LinearLayou
             val latestMessage = getLatestMeaningfulMessage(entries)
             updateStatusText(latestMessage)
 
-            // Start/stop spin animation based on running state
+            // Start/stop status icon animation based on running state
             if (event.isRunning) {
-                startSpinAnimation()
+                startStatusAnimation()
             } else {
-                stopSpinAnimation()
+                stopStatusAnimation()
             }
 
             // Update close/stop button based on running state
