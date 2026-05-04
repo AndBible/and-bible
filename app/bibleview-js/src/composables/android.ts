@@ -84,9 +84,8 @@ export type BibleJavascriptInterface = {
     removeMemorizationTarget: (bookInitials: string, startOrdinal: number, endOrdinal: number) => void,
     openReadingProgress: (tab: number) => void,
     openReadingProgressSettings: () => void,
-    markChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
+    recordChapterRead: (bookInitials: string, startOrdinal: number, chapter: number, source: string) => void,
     unmarkChapterRead: (bookInitials: string, startOrdinal: number, chapter: number) => void,
-    incrementChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     getChapterReadCount: (bookInitials: string, startOrdinal: number, chapter: number) => number,
     openChapterReadHistory: (bookInitials: string, startOrdinal: number, chapter: number) => void,
     openStudyPad: (labelId: IdType, bookmarkId: IdType) => void,
@@ -460,16 +459,12 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         window.android.openReadingProgressSettings();
     }
 
-    function markChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
-        window.android.markChapterRead(bookInitials, startOrdinal, chapter);
+    function recordChapterRead(bookInitials: string, startOrdinal: number, chapter: number, source: string) {
+        window.android.recordChapterRead(bookInitials, startOrdinal, chapter, source);
     }
 
     function unmarkChapterRead(bookInitials: string, startOrdinal: number, chapter: number) {
         window.android.unmarkChapterRead(bookInitials, startOrdinal, chapter);
-    }
-
-    function incrementChapterReadCount(bookInitials: string, startOrdinal: number, chapter: number) {
-        window.android.incrementChapterReadCount(bookInitials, startOrdinal, chapter);
     }
 
     function getChapterReadCount(bookInitials: string, startOrdinal: number, chapter: number): number {
@@ -731,9 +726,8 @@ export function useAndroid({bookmarks}: { bookmarks: Ref<BaseBookmark[]> }, conf
         removeMemorizationTarget,
         openReadingProgress,
         openReadingProgressSettings,
-        markChapterRead,
+        recordChapterRead,
         unmarkChapterRead,
-        incrementChapterReadCount,
         getChapterReadCount,
         openChapterReadHistory,
         speak,

@@ -49,7 +49,7 @@ export function useReadingTracker(
         if (coverage >= COVERAGE_THRESHOLD) {
             autoTrackDone = true;
             chapterRead.value = true;
-            android.markChapterRead(bookInitials, ordinalRange[0], chapterNumber);
+            android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "AUTO_SCROLL");
             cleanup();
         }
     }
@@ -88,7 +88,7 @@ export function useReadingTracker(
     function toggleChapterRead() {
         // Each tap records a new history entry. To remove reads the user opens the
         // history dialog via long-press (handled in BibleDocument.vue).
-        android.incrementChapterReadCount(bookInitials, ordinalRange[0], chapterNumber);
+        android.recordChapterRead(bookInitials, ordinalRange[0], chapterNumber, "MANUAL");
         chapterReadCount.value++;
         chapterRead.value = true;
     }

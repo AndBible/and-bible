@@ -53,6 +53,7 @@ import net.bible.android.database.IdType
 import net.bible.android.database.bookmarks.BookmarkEntities
 import net.bible.android.database.bookmarks.BookmarkEntities.EditAction
 import net.bible.android.database.bookmarks.KJVA
+import net.bible.android.database.progress.ReadingSource
 import net.bible.android.view.activity.base.ActivityBase
 import net.bible.android.view.activity.base.IntentHelper
 import net.bible.android.view.activity.download.DownloadActivity
@@ -565,30 +566,27 @@ class BibleJavascriptInterface(
         }
     }
 
-    /** Idempotent mark — used by auto-track-while-scrolling. Records at most one history row per chapter per cycle. */
+    /**
+     * Records a new read-history row for this chapter. Always inserts — JS-side state
+     * (autoTrackDone) prevents duplicate auto-track inserts. The `source` parameter is
+     * the string name of a [ReadingSource] value; unknown strings fall back to MANUAL.
+     */
     @JavascriptInterface
-    fun markChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
+    fun recordChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int, source: String) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
-        ProgressControl.markChapterRead(v11n, verse.book, chapter, bookInitials)
+        val readingSource = try { ReadingSource.valueOf(source) } catch (_: Exception) { ReadingSource.MANUAL }
+        ProgressControl.recordChapterRead(v11n, verse.book, chapter, bookInitials, readingSource)
     }
 
-    /** Removes every history row for this chapter in the current cycle. */
+    /** Removes every history row for this chapter in the current cycle (the "untick" action). */
     @JavascriptInterface
     fun unmarkChapterRead(bookInitials: String, startOrdinal: Int, chapter: Int) {
         val book = Books.installed().getBook(bookInitials) ?: return
         val v11n = (book as? AbstractPassageBook)?.versification ?: return
         val verse = Verse(v11n, startOrdinal)
         ProgressControl.deleteAllReadsForChapter(v11n, verse.book, chapter)
-    }
-
-    @JavascriptInterface
-    fun incrementChapterReadCount(bookInitials: String, startOrdinal: Int, chapter: Int) {
-        val book = Books.installed().getBook(bookInitials) ?: return
-        val v11n = (book as? AbstractPassageBook)?.versification ?: return
-        val verse = Verse(v11n, startOrdinal)
-        ProgressControl.incrementChapterReadCount(v11n, verse.book, chapter, bookInitials)
     }
 
     @JavascriptInterface

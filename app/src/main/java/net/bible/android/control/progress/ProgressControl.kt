@@ -27,6 +27,7 @@ import net.bible.android.database.progress.ChapterReadHistory
 import net.bible.android.database.progress.DailyReadingCount
 import net.bible.android.database.progress.MemorizationTarget
 import net.bible.android.database.progress.MemorizedVerse
+import net.bible.android.database.progress.ReadingSource
 import net.bible.service.db.DatabaseContainer
 import org.crosswire.jsword.passage.Verse
 import org.crosswire.jsword.passage.VerseRange
@@ -150,26 +151,32 @@ object ProgressControl {
     }
 
     /**
-     * Idempotent "mark this chapter read once if not already read this cycle".
-     * Used by the auto-track-while-scrolling feature so that scrolling past a chapter does not
-     * keep adding new history rows. For an explicit user tap that should always count, use
-     * [incrementChapterReadCount].
+     * Records a new read-history row. Each call adds one row regardless of existing reads.
+     *
+     * Idempotency for the auto-track-while-scrolling source is enforced JS-side via the
+     * `autoTrackDone` flag in `reading-tracker.ts`: an `IntersectionObserver` cleans up after
+     * firing, so this method can be called at most once per mount cycle for an auto-track event.
+     * Manual taps always increment.
      */
-    fun markChapterRead(v11n: Versification, book: BibleBook, chapter: Int, bookInitials: String = "") {
+    fun recordChapterRead(
+        v11n: Versification,
+        book: BibleBook,
+        chapter: Int,
+        bookInitials: String = "",
+        source: ReadingSource = ReadingSource.MANUAL,
+    ) {
         val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        val cycle = getCurrentCycle()
-        if (dao.getChapterReadCount(kjvBook.ordinal, chapter, cycle) == 0) {
-            dao.insertChapterReadHistory(
-                ChapterReadHistory(
-                    kjvBookOrdinal = kjvBook.ordinal,
-                    chapter = chapter,
-                    cycle = cycle,
-                    readAt = System.currentTimeMillis(),
-                    bookInitials = bookInitials,
-                )
+        dao.insertChapterReadHistory(
+            ChapterReadHistory(
+                kjvBookOrdinal = kjvBook.ordinal,
+                chapter = chapter,
+                cycle = getCurrentCycle(),
+                readAt = System.currentTimeMillis(),
+                bookInitials = bookInitials,
+                source = source,
             )
-            ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
-        }
+        )
+        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
     }
 
     /** Removes every history row for the given chapter in the current (or specified) cycle. */
@@ -192,21 +199,6 @@ object ProgressControl {
         if (totalChapters <= 0) return 0f
         val readChapters = dao.getDistinctReadChaptersCountForBook(kjvBook.ordinal, getCurrentCycle())
         return readChapters.toFloat() / totalChapters
-    }
-
-    /** Records a new read history row. Each call adds one row even if the chapter was already read. */
-    fun incrementChapterReadCount(v11n: Versification, book: BibleBook, chapter: Int, bookInitials: String = "") {
-        val kjvBook = Verse(v11n, book, 1, 1).toV11n(KJVA).book
-        dao.insertChapterReadHistory(
-            ChapterReadHistory(
-                kjvBookOrdinal = kjvBook.ordinal,
-                chapter = chapter,
-                cycle = getCurrentCycle(),
-                readAt = System.currentTimeMillis(),
-                bookInitials = bookInitials,
-            )
-        )
-        ABEventBus.post(ChapterReadStatusChangedEvent(kjvBook.ordinal, chapter, true))
     }
 
     /** Display model for a single read-history entry shown in the history dialog. */
